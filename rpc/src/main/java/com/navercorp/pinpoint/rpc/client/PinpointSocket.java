@@ -48,13 +48,13 @@ public class PinpointSocket {
     private List<PinpointSocketReconnectEventListener> reconnectEventListeners = new CopyOnWriteArrayList<PinpointSocketReconnectEventListener>();
     
     public PinpointSocket() {
-    	this(new ReconnectStateSocketHandler());
+        this(new ReconnectStateSocketHandler());
     }
 
     public PinpointSocket(SocketHandler socketHandler) {
         AssertUtils.assertNotNull(socketHandler, "socketHandler");
-       	socketHandler.doHandshake();
-       	
+           socketHandler.doHandshake();
+
         this.socketHandler = socketHandler;
         socketHandler.setPinpointSocket(this);
     }
@@ -83,26 +83,26 @@ public class PinpointSocket {
         guarantee it is not null.
     */
     public boolean addPinpointSocketReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
-    	if (eventListener == null) {
-    		return false;
-    	}
-    	
-   		return this.reconnectEventListeners.add(eventListener);
+        if (eventListener == null) {
+            return false;
+        }
+
+           return this.reconnectEventListeners.add(eventListener);
     }
 
     public boolean removePinpointSocketReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
-    	if (eventListener == null) {
-    		return false;
-    	}
+        if (eventListener == null) {
+            return false;
+        }
 
-    	return this.reconnectEventListeners.remove(eventListener);
+        return this.reconnectEventListeners.remove(eventListener);
     }
 
     private void notifyReconnectEvent() {
-    	for (PinpointSocketReconnectEventListener eachListener : this.reconnectEventListeners) {
-    		eachListener.reconnectPerformed(this);
-    	}
-	}
+        for (PinpointSocketReconnectEventListener eachListener : this.reconnectEventListeners) {
+            eachListener.reconnectPerformed(this);
+        }
+    }
 
     public void sendSync(byte[] bytes) {
         ensureOpen();
@@ -136,8 +136,8 @@ public class PinpointSocket {
     
     public StreamChannelContext findStreamChannel(int streamChannelId) {
 
-    	ensureOpen();
-    	return socketHandler.findStreamChannel(streamChannelId);
+        ensureOpen();
+        return socketHandler.findStreamChannel(streamChannelId);
     }
 
     private Future<ResponseMessage> returnFailureFuture() {
@@ -183,7 +183,7 @@ public class PinpointSocket {
         return closed;
     }
 
-	public boolean isConnected() {
-		return this.socketHandler.isConnected();
-	}
+    public boolean isConnected() {
+        return this.socketHandler.isConnected();
+    }
 }

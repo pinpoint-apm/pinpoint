@@ -40,32 +40,32 @@ import org.slf4j.LoggerFactory;
  */
 public class MemcachedClientModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(MemcachedClientModifier.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(MemcachedClientModifier.class.getName());
 
-	public MemcachedClientModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-		super(byteCodeInstrumentor, agent);
-	}
+    public MemcachedClientModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+        super(byteCodeInstrumentor, agent);
+    }
 
-	public String getTargetClass() {
-		return "net/spy/memcached/MemcachedClient";
-	}
+    public String getTargetClass() {
+        return "net/spy/memcached/MemcachedClient";
+    }
 
-	public byte[] modify(ClassLoader classLoader, String javassistClassName,
-			ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-		if (logger.isInfoEnabled()) {
-			logger.info("Modifing. {}", javassistClassName);
-		}
+    public byte[] modify(ClassLoader classLoader, String javassistClassName,
+            ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Modifing. {}", javassistClassName);
+        }
 
-		try {
-			InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+        try {
+            InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             String[] args = {"java.lang.String", "net.spy.memcached.ops.Operation"};
             if (!checkCompatibility(aClass, args)) {
                 return null;
             }
-			aClass.addTraceVariable("__serviceCode", "__setServiceCode", "__getServiceCode", "java.lang.String");
+            aClass.addTraceVariable("__serviceCode", "__setServiceCode", "__getServiceCode", "java.lang.String");
 
-			Interceptor addOpInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
+            Interceptor addOpInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
                     "com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.AddOpInterceptor");
             aClass.addInterceptor("addOp", args, addOpInterceptor, Type.before);
 
@@ -80,19 +80,19 @@ public class MemcachedClientModifier extends AbstractModifier {
                         ((ParameterExtractorSupport)apiInterceptor).setParameterExtractor(new IndexParameterExtractor(index));
                     }
                 }
-				aClass.addScopeInterceptor(method.getName(), method.getParameterTypes(), apiInterceptor, ArcusScope.SCOPE);
-			}
-			return aClass.toBytecode();
-		} catch (Exception e) {
-			if (logger.isWarnEnabled()) {
-				logger.warn(e.getMessage(), e);
-			}
-			return null;
-		}
-	}
+                aClass.addScopeInterceptor(method.getName(), method.getParameterTypes(), apiInterceptor, ArcusScope.SCOPE);
+            }
+            return aClass.toBytecode();
+        } catch (Exception e) {
+            if (logger.isWarnEnabled()) {
+                logger.warn(e.getMessage(), e);
+            }
+            return null;
+        }
+    }
 
     private boolean checkCompatibility(InstrumentClass aClass, String[] args) {
-		// if addOp exists, compatibility is okay for now.
+        // if addOp exists, compatibility is okay for now.
         final boolean addOp = aClass.hasDeclaredMethod("addOp", args);
         if (!addOp) {
             logger.warn("addOp() not found. skip MemcachedClientModifier");

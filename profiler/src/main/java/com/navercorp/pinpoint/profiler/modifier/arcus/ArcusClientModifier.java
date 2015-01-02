@@ -40,31 +40,31 @@ import com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.IndexParameter
  */
 public class ArcusClientModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	public ArcusClientModifier(ByteCodeInstrumentor byteCodeInstrumentor,
-			Agent agent) {
-		super(byteCodeInstrumentor, agent);
-	}
+    public ArcusClientModifier(ByteCodeInstrumentor byteCodeInstrumentor,
+            Agent agent) {
+        super(byteCodeInstrumentor, agent);
+    }
 
-	public String getTargetClass() {
-		return "net/spy/memcached/ArcusClient";
-	}
+    public String getTargetClass() {
+        return "net/spy/memcached/ArcusClient";
+    }
 
-	public byte[] modify(ClassLoader classLoader, String javassistClassName,
-			ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-		if (logger.isInfoEnabled()) {
+    public byte[] modify(ClassLoader classLoader, String javassistClassName,
+            ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+        if (logger.isInfoEnabled()) {
             logger.info("Modifing. {}", javassistClassName);
-		}
+        }
 
-		try {
-			InstrumentClass arcusClient = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+        try {
+            InstrumentClass arcusClient = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             if (!checkCompatibility(arcusClient)) {
                 return null;
             }
 
-			final Interceptor setCacheManagerInterceptor = byteCodeInstrumentor.newInterceptor(classLoader,protectedDomain,"com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.SetCacheManagerInterceptor");
+            final Interceptor setCacheManagerInterceptor = byteCodeInstrumentor.newInterceptor(classLoader,protectedDomain,"com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.SetCacheManagerInterceptor");
             final String[] args = {"net.spy.memcached.CacheManager"};
             arcusClient.addInterceptor("setCacheManager", args, setCacheManagerInterceptor, Type.before);
 
@@ -72,7 +72,7 @@ public class ArcusClientModifier extends AbstractModifier {
             for (MethodInfo method : declaredMethods) {
 
                 SimpleAroundInterceptor apiInterceptor = (SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
-								"com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.ApiInterceptor");
+                                "com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.ApiInterceptor");
                 if (agent.getProfilerConfig().isArucsKeyTrace()) {
                     final int index = ParameterUtils.findFirstString(method, 3);
                     if (index != -1) {
@@ -80,16 +80,16 @@ public class ArcusClientModifier extends AbstractModifier {
                     }
                 }
                 arcusClient.addScopeInterceptor(method.getName(), method.getParameterTypes(), apiInterceptor, ArcusScope.SCOPE);
-			}
+            }
 
-			return arcusClient.toBytecode();
-		} catch (Exception e) {
-			if (logger.isWarnEnabled()) {
+            return arcusClient.toBytecode();
+        } catch (Exception e) {
+            if (logger.isWarnEnabled()) {
                 logger.warn(e.getMessage(), e);
-			}
-			return null;
-		}
-	}
+            }
+            return null;
+        }
+    }
 
     private boolean checkCompatibility(InstrumentClass arcusClient) {
         // Check if the class has addOp method

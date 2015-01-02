@@ -23,10 +23,10 @@ import java.util.List;
  */
 public interface ClusterManager {
 
-	boolean registerWebCluster(String zNodeName, byte[] contents);
+    boolean registerWebCluster(String zNodeName, byte[] contents);
 
-	void close();
+    void close();
 
-	List<String> getRegisteredAgentList(String applicationName, String agentId, long startTimeStamp);
+    List<String> getRegisteredAgentList(String applicationName, String agentId, long startTimeStamp);
 
 }

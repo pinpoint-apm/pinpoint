@@ -21,19 +21,19 @@ package com.navercorp.pinpoint.web.cluster.zookeeper.exception;
  */
 public class ConnectionException extends PinpointZookeeperException {
 
-	public ConnectionException() {
-	}
+    public ConnectionException() {
+    }
 
-	public ConnectionException(String message) {
-		super(message);
-	}
+    public ConnectionException(String message) {
+        super(message);
+    }
 
-	public ConnectionException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public ConnectionException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public ConnectionException(Throwable cause) {
-		super(cause);
-	}
+    public ConnectionException(Throwable cause) {
+        super(cause);
+    }
 
 }

@@ -20,7 +20,7 @@ package com.navercorp.pinpoint.bootstrap.config;
  * @author emeroad
  */
 public interface Filter<T> {
-	public static final boolean FILTERED = true;
+    public static final boolean FILTERED = true;
 
-	boolean filter(T value);
+    boolean filter(T value);
 }

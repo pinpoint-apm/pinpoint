@@ -268,7 +268,7 @@ public class DefaultAgent implements Agent {
     }
 
     protected PinpointSocketFactory createPinpointSocketFactory(CommandDispatcher commandDispatcher) {
-    	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+        PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setTimeoutMillis(1000 * 5);
 
         Map<String, Object> properties = this.agentInformation.toMap();
@@ -276,12 +276,12 @@ public class DefaultAgent implements Agent {
         boolean isSupportServerMode = this.profilerConfig.isTcpDataSenderCommandAcceptEnable();
         
         if (isSupportServerMode) {
-        	pinpointSocketFactory.setMessageListener(commandDispatcher);
-        	pinpointSocketFactory.setServerStreamChannelMessageListener(commandDispatcher);
+            pinpointSocketFactory.setMessageListener(commandDispatcher);
+            pinpointSocketFactory.setServerStreamChannelMessageListener(commandDispatcher);
 
-        	properties.put(AgentHandshakePropertyType.SUPPORT_SERVER.getName(), true);
+            properties.put(AgentHandshakePropertyType.SUPPORT_SERVER.getName(), true);
         } else {
-        	properties.put(AgentHandshakePropertyType.SUPPORT_SERVER.getName(), false);
+            properties.put(AgentHandshakePropertyType.SUPPORT_SERVER.getName(), false);
         }
 
         pinpointSocketFactory.setProperties(properties);

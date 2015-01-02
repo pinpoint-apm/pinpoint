@@ -20,19 +20,19 @@ package com.navercorp.pinpoint.rpc.packet;
  * @author koo.taejin
  */
 public abstract class ControlPacket extends BasicPacket {
-	
-	private int requestId;
 
-	public ControlPacket(byte[] payload) {
-		super(payload);
-	}
+    private int requestId;
 
-	public int getRequestId() {
-		return requestId;
-	}
+    public ControlPacket(byte[] payload) {
+        super(payload);
+    }
 
-	public void setRequestId(int requestId) {
-		this.requestId = requestId;
-	}
+    public int getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(int requestId) {
+        this.requestId = requestId;
+    }
 
 }

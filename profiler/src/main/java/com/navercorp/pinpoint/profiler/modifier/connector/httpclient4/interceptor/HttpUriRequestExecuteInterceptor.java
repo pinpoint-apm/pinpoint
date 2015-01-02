@@ -73,57 +73,57 @@ public class HttpUriRequestExecuteInterceptor extends AbstractHttpRequestExecute
      * @return
      */
     private NameIntValuePair<String> extractHost(final URI uri) {
-		if (uri == null) {
-			return null;
-		}
+        if (uri == null) {
+            return null;
+        }
         NameIntValuePair<String> target = null;
-		if (uri.isAbsolute()) {
-			int port = uri.getPort(); // may be overridden later
-			String host = uri.getHost();
-			if (host == null) { // normal parse failed; let's do it ourselves
-				// authority does not seem to care about the valid character-set
-				// for host names
-				host = uri.getAuthority();
-				if (host != null) {
-					// Strip off any leading user credentials
-					int at = host.indexOf('@');
-					if (at >= 0) {
-						if (host.length() > at + 1) {
-							host = host.substring(at + 1);
-						} else {
-							host = null; // @ on its own
-						}
-					}
-					// Extract the port suffix, if present
-					if (host != null) {
-						int colon = host.indexOf(':');
-						if (colon >= 0) {
-							int pos = colon + 1;
-							int len = 0;
-							for (int i = pos; i < host.length(); i++) {
-								if (Character.isDigit(host.charAt(i))) {
-									len++;
-								} else {
-									break;
-								}
-							}
-							if (len > 0) {
-								try {
-									port = Integer.parseInt(host.substring(pos, pos + len));
-								} catch (NumberFormatException ignore) {
+        if (uri.isAbsolute()) {
+            int port = uri.getPort(); // may be overridden later
+            String host = uri.getHost();
+            if (host == null) { // normal parse failed; let's do it ourselves
+                // authority does not seem to care about the valid character-set
+                // for host names
+                host = uri.getAuthority();
+                if (host != null) {
+                    // Strip off any leading user credentials
+                    int at = host.indexOf('@');
+                    if (at >= 0) {
+                        if (host.length() > at + 1) {
+                            host = host.substring(at + 1);
+                        } else {
+                            host = null; // @ on its own
+                        }
+                    }
+                    // Extract the port suffix, if present
+                    if (host != null) {
+                        int colon = host.indexOf(':');
+                        if (colon >= 0) {
+                            int pos = colon + 1;
+                            int len = 0;
+                            for (int i = pos; i < host.length(); i++) {
+                                if (Character.isDigit(host.charAt(i))) {
+                                    len++;
+                                } else {
+                                    break;
+                                }
+                            }
+                            if (len > 0) {
+                                try {
+                                    port = Integer.parseInt(host.substring(pos, pos + len));
+                                } catch (NumberFormatException ignore) {
                                     // skip
-								}
-							}
-							host = host.substring(0, colon);
-						}
-					}
-				}
-			}
-			if (host != null) {
-				target = new NameIntValuePair<String>(host, port);
-			}
-		}
-		return target;
-	}
+                                }
+                            }
+                            host = host.substring(0, colon);
+                        }
+                    }
+                }
+            }
+            if (host != null) {
+                target = new NameIntValuePair<String>(host, port);
+            }
+        }
+        return target;
+    }
 
 }

@@ -18,18 +18,18 @@ package com.navercorp.pinpoint.profiler.monitor;
 
 public class MonitorName {
 
-	private final String name;
+    private final String name;
 
-	public MonitorName(String name) {
-		this.name = name;
-	}
+    public MonitorName(String name) {
+        this.name = name;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String toString() {
-		return "MonitorName(" + this.name + ")";
-	}
-	
+    public String toString() {
+        return "MonitorName(" + this.name + ")";
+    }
+
 }

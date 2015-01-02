@@ -70,9 +70,9 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
     private AsyncQueueingExecutor<Object> executor;
 
     public TcpDataSender(PinpointSocket socket) {
-    	this.socket = socket;
-    	this.timer = createTimer();
-    	writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", "host", -1);
+        this.socket = socket;
+        this.timer = createTimer();
+        writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", "host", -1);
         this.executor = createAsyncQueueingExecutor(1024 * 5, "Pinpoint-TcpDataExecutor");
     }
     
@@ -94,25 +94,25 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
 
     @Override
     public boolean request(TBase<?, ?> data, int retryCount) {
-    	RequestMarker message = new RequestMarker(data, retryCount);
+        RequestMarker message = new RequestMarker(data, retryCount);
         return executor.execute(message);
     }
 
-	@Override
-	public boolean request(TBase<?, ?> data, FutureListener<ResponseMessage> listener) {
-    	RequestMarker message = new RequestMarker(data, listener);
+    @Override
+    public boolean request(TBase<?, ?> data, FutureListener<ResponseMessage> listener) {
+        RequestMarker message = new RequestMarker(data, listener);
         return executor.execute(message);
-	}
+    }
 
-	@Override
-	public boolean addReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
-		return this.socket.addPinpointSocketReconnectEventListener(eventListener);
-	}
+    @Override
+    public boolean addReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
+        return this.socket.addPinpointSocketReconnectEventListener(eventListener);
+    }
 
-	@Override
-	public boolean removeReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
-		return this.socket.removePinpointSocketReconnectEventListener(eventListener);
-	}
+    @Override
+    public boolean removeReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
+        return this.socket.removePinpointSocketReconnectEventListener(eventListener);
+    }
 
     @Override
     public void stop() {
@@ -127,32 +127,32 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
     @Override
     protected void sendPacket(Object message) {
         try {
-        	if (message instanceof TBase) {
-        		byte[] copy = serialize(serializer, (TBase) message);
+            if (message instanceof TBase) {
+                byte[] copy = serialize(serializer, (TBase) message);
                 if (copy == null) {
                     return;
                 }
                 doSend(copy);
-        	} else if (message instanceof RequestMarker) {
-        		RequestMarker requestMarker = (RequestMarker) message;
+            } else if (message instanceof RequestMarker) {
+                RequestMarker requestMarker = (RequestMarker) message;
 
-        		TBase tBase = requestMarker.getTBase();
-        		int retryCount = requestMarker.getRetryCount();
-        		FutureListener futureListener = requestMarker.getFutureListener();
-        		byte[] copy = serialize(serializer, tBase);
+                TBase tBase = requestMarker.getTBase();
+                int retryCount = requestMarker.getRetryCount();
+                FutureListener futureListener = requestMarker.getFutureListener();
+                byte[] copy = serialize(serializer, tBase);
                 if (copy == null) {
                     return;
                 }
                 
                 if (futureListener != null) {
-                	doRequest(copy, futureListener);
+                    doRequest(copy, futureListener);
                 } else {
-                	doRequest(copy, retryCount, tBase);
+                    doRequest(copy, retryCount, tBase);
                 }
-        	} else {
+            } else {
                 logger.error("sendPacket fail. invalid dto type:{}", message.getClass());
                 return;
-        	}
+            }
         } catch (Exception e) {
             logger.warn("tcp send fail. Caused:{}", e.getMessage(), e);
         }
@@ -164,12 +164,12 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
     }
 
     private void doRequest(final byte[] requestPacket, final int retryCount, final Object targetClass) {
-    	FutureListener futureListner = (new FutureListener<ResponseMessage>() {
+        FutureListener futureListner = (new FutureListener<ResponseMessage>() {
             @Override
             public void onComplete(Future<ResponseMessage> future) {
                 if (future.isSuccess()) {
-            		// Should cache?
-                	HeaderTBaseDeserializer deserializer = HeaderTBaseDeserializerFactory.DEFAULT_FACTORY.createDeserializer();
+                    // Should cache?
+                    HeaderTBaseDeserializer deserializer = HeaderTBaseDeserializerFactory.DEFAULT_FACTORY.createDeserializer();
                     TBase<?, ?> response = deserialize(deserializer, future.getResult());
                     if (response instanceof TResult) {
                         TResult result = (TResult) response;
@@ -191,15 +191,15 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
                 }
             }
         });
-    	
-    	doRequest(requestPacket, futureListner);
+
+        doRequest(requestPacket, futureListner);
     }
 
     private void retryRequest(byte[] requestPacket, int retryCount, final String className) {
         RetryMessage retryMessage = new RetryMessage(retryCount, requestPacket);
         retryQueue.add(retryMessage);
         if (fireTimeout()) {
-        	timer.newTimeout(new TimerTask() {
+            timer.newTimeout(new TimerTask() {
                 @Override
                 public void run(Timeout timeout) throws Exception {
                     while(true) {
@@ -235,11 +235,11 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         fireState.compareAndSet(true, false);
     }
 
-	@Override
-	public boolean isNetworkAvailable() {
-		if (this.socket == null) {
-			return false;
-		}
-		return this.socket.isConnected();
-	}
+    @Override
+    public boolean isNetworkAvailable() {
+        if (this.socket == null) {
+            return false;
+        }
+        return this.socket.isConnected();
+    }
 }

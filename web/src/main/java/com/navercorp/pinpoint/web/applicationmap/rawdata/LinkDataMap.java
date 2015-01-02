@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.web.vo.LinkKey;
 public class LinkDataMap {
     private final Map<LinkKey, LinkData> linkDataMap = new HashMap<LinkKey, LinkData>();
 
-	public LinkDataMap() {
-	}
+    public LinkDataMap() {
+    }
 
     public LinkDataMap(LinkDataMap copyLinkDataMap) {
         if (copyLinkDataMap == null) {
@@ -44,10 +44,10 @@ public class LinkDataMap {
     }
 
 
-	@Override
-	public String toString() {
-		return "LinkDataMap [" + linkDataMap + "]";
-	}
+    @Override
+    public String toString() {
+        return "LinkDataMap [" + linkDataMap + "]";
+    }
 
     public void addLinkDataMap(LinkDataMap linkDataMap) {
         if (linkDataMap == null) {

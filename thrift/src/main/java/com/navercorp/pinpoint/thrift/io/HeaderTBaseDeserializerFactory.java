@@ -58,8 +58,8 @@ public final class HeaderTBaseDeserializerFactory implements DeserializerFactory
 
 
     @Override
-	public HeaderTBaseDeserializer createDeserializer() {
+    public HeaderTBaseDeserializer createDeserializer() {
         return new HeaderTBaseDeserializer(protocolFactory, locator);
-	}
+    }
 
 }

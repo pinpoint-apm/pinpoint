@@ -28,36 +28,36 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
  */
 public class SqlSessionMethodFilter implements MethodFilter {
 
-	private static final boolean TRACK = false;
-	private static final boolean DO_NOT_TRACK = true;
-	
-	private static final Set<String> WHITE_LIST_API = createWhiteListApi();
-	
-	private static Set<String> createWhiteListApi() {
-		return new HashSet<String>(Arrays.asList(
-				"selectOne",
-				"selectList",
-				"selectMap",
-				"select",
-				"insert",
-				"update",
-				"delete"
-//				"commit",
-//				"rollback",
-//				"flushStatements",
-//				"close",
-//				"getConfiguration",
-//				"getMapper",
-//				"getConnection"
-		));
-	}
+    private static final boolean TRACK = false;
+    private static final boolean DO_NOT_TRACK = true;
 
-	@Override
-	public boolean filter(MethodInfo ctMethod) {
-		if (WHITE_LIST_API.contains(ctMethod.getName())) {
-			return TRACK;
-		}
-		return DO_NOT_TRACK;
-	}
-	
+    private static final Set<String> WHITE_LIST_API = createWhiteListApi();
+
+    private static Set<String> createWhiteListApi() {
+        return new HashSet<String>(Arrays.asList(
+                "selectOne",
+                "selectList",
+                "selectMap",
+                "select",
+                "insert",
+                "update",
+                "delete"
+//                "commit",
+//                "rollback",
+//                "flushStatements",
+//                "close",
+//                "getConfiguration",
+//                "getMapper",
+//                "getConnection"
+        ));
+    }
+
+    @Override
+    public boolean filter(MethodInfo ctMethod) {
+        if (WHITE_LIST_API.contains(ctMethod.getName())) {
+            return TRACK;
+        }
+        return DO_NOT_TRACK;
+    }
+
 }

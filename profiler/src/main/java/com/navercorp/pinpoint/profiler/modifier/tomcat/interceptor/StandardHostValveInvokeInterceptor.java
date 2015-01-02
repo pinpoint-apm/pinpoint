@@ -37,8 +37,8 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundInterceptor implements TargetClassLoader {
 
-	private final boolean isTrace = logger.isTraceEnabled();
-	private Filter<String> excludeUrlFilter;
+    private final boolean isTrace = logger.isTraceEnabled();
+    private Filter<String> excludeUrlFilter;
 
     public StandardHostValveInvokeInterceptor() {
         super(StandardHostValveInvokeInterceptor.class);
@@ -127,7 +127,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
 
 
 
-	private void recordParentInfo(RecordableTrace trace, HttpServletRequest request) {
+    private void recordParentInfo(RecordableTrace trace, HttpServletRequest request) {
         String parentApplicationName = request.getHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString());
         if (parentApplicationName != null) {
             trace.recordAcceptorHost(NetworkUtils.getHostFromURL(request.getRequestURL().toString()));
@@ -211,12 +211,12 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         return params.toString();
     }
 
-	@Override
-	public void setTraceContext(TraceContext traceContext) {
-		super.setTraceContext(traceContext);
+    @Override
+    public void setTraceContext(TraceContext traceContext) {
+        super.setTraceContext(traceContext);
 
-		ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
+        ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
 
-		this.excludeUrlFilter = profilerConfig.getTomcatExcludeUrlFilter();
-	}
+        this.excludeUrlFilter = profilerConfig.getTomcatExcludeUrlFilter();
+    }
 }

@@ -22,7 +22,7 @@ package com.navercorp.pinpoint.web.service;
  * 
  */
 public interface AdminService {
-	void removeApplicationName(String applicationName);
-	
-	void removeAgentId(String applicationName, String agentId);
+    void removeApplicationName(String applicationName);
+
+    void removeAgentId(String applicationName, String agentId);
 }

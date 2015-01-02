@@ -72,7 +72,7 @@ public class JDBCUrlParser {
             return parseJtds(url);
         }
         if (driverTypeCheck(lowCaseURL, "cubrid")) {
-        	return parseCubrid(url);
+            return parseCubrid(url);
         }
         return createUnknownDataBase(url);
     }
@@ -113,9 +113,9 @@ public class JDBCUrlParser {
     }
     
 
-	
-	private DatabaseInfo parseCubrid(String url) {
+
+    private DatabaseInfo parseCubrid(String url) {
         final ConnectionStringParser parser = new CubridConnectionStringParser();
         return parser.parse(url);
-	}
+    }
 }

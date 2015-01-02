@@ -32,19 +32,19 @@ import java.util.List;
 @Component
 public class AgentIdMapper implements RowMapper<List<String>> {
 
-	@Override
-	public List<String> mapRow(Result result, int rowNum) throws Exception {
+    @Override
+    public List<String> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
-		final KeyValue[] raw = result.raw();
-		final List<String> agentIdList = new ArrayList<String>(raw.length);
+        final KeyValue[] raw = result.raw();
+        final List<String> agentIdList = new ArrayList<String>(raw.length);
 
-		for (KeyValue kv : raw) {
+        for (KeyValue kv : raw) {
             final String agentId = Bytes.toString(kv.getQualifier());
             agentIdList.add(agentId);
-		}
+        }
 
-		return agentIdList;
-	}
+        return agentIdList;
+    }
 }

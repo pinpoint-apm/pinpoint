@@ -21,19 +21,19 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper.exception;
  */
 public class AuthException extends PinpointZookeeperException {
 
-	public AuthException() {
-	}
+    public AuthException() {
+    }
 
-	public AuthException(String message) {
-		super(message);
-	}
+    public AuthException(String message) {
+        super(message);
+    }
 
-	public AuthException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public AuthException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public AuthException(Throwable cause) {
-		super(cause);
-	}
+    public AuthException(Throwable cause) {
+        super(cause);
+    }
 
 }

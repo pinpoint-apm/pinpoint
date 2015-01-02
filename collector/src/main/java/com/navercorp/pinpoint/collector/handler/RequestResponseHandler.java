@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public interface RequestResponseHandler {
-	
+
     TBase<?, ?> handleRequest(TBase<?, ?> tbase);
     
 }

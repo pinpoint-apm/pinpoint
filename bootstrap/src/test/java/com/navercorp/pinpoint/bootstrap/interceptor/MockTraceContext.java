@@ -145,15 +145,15 @@ public class MockTraceContext implements TraceContext {
 
     }
 
-	@Override
-	public void recordAcceptResponseTime(String parentApplicationName, short parentApplicationType, int elapsedTime) {
-		
-	}
+    @Override
+    public void recordAcceptResponseTime(String parentApplicationName, short parentApplicationType, int elapsedTime) {
 
-	@Override
-	public void recordUserAcceptResponseTime(int elapsedTime) {
-		
-	}
+    }
+
+    @Override
+    public void recordUserAcceptResponseTime(int elapsedTime) {
+
+    }
 
     @Override
     public ServerMetaDataHolder getServerMetaDataHolder() {

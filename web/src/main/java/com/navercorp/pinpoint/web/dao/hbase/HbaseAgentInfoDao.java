@@ -55,7 +55,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
      * @return
      */
     @Override
-	public List<AgentInfoBo> getAgentInfo(final String agentId, final Range range) {
+    public List<AgentInfoBo> getAgentInfo(final String agentId, final Range range) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -69,8 +69,8 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         Scan scan = new Scan();
         scan.setCaching(20);
 
-		long fromTime = TimeUtils.reverseTimeMillis(range.getTo());
-		long toTime = TimeUtils.reverseTimeMillis(1);
+        long fromTime = TimeUtils.reverseTimeMillis(range.getTo());
+        long toTime = TimeUtils.reverseTimeMillis(1);
 
         byte[] agentIdBytes = Bytes.toBytes(agentId);
         byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, fromTime);
@@ -81,41 +81,41 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         scan.addFamily(HBaseTables.AGENTINFO_CF_INFO);
 
         List<AgentInfoBo> found = hbaseOperations2.find(HBaseTables.AGENTINFO, scan, new ResultsExtractor<List<AgentInfoBo>>() {
-			@Override
-			public List<AgentInfoBo> extractData(ResultScanner results) throws Exception {
-				final List<AgentInfoBo> result = new ArrayList<AgentInfoBo>();
-				int found = 0;
+            @Override
+            public List<AgentInfoBo> extractData(ResultScanner results) throws Exception {
+                final List<AgentInfoBo> result = new ArrayList<AgentInfoBo>();
+                int found = 0;
                 for (Result next : results) {
-					found++;
-					byte[] row = next.getRow();
-					long reverseStartTime = BytesUtils.bytesToLong(row, HBaseTables.AGENT_NAME_MAX_LEN);
-					long startTime = TimeUtils.recoveryTimeMillis(reverseStartTime);
-					byte[] serializedAgentInfo = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER);
-					byte[] serializedServerMetaData = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_SERVER_META_DATA);
+                    found++;
+                    byte[] row = next.getRow();
+                    long reverseStartTime = BytesUtils.bytesToLong(row, HBaseTables.AGENT_NAME_MAX_LEN);
+                    long startTime = TimeUtils.recoveryTimeMillis(reverseStartTime);
+                    byte[] serializedAgentInfo = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER);
+                    byte[] serializedServerMetaData = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_SERVER_META_DATA);
 
-					logger.debug("found={}, {}, start={}", found, range, startTime);
+                    logger.debug("found={}, {}, start={}", found, range, startTime);
 
-					if (found > 1 && startTime <= range.getFrom()) {
-						logger.debug("stop finding agentInfo.");
-						break;
-					}
+                    if (found > 1 && startTime <= range.getFrom()) {
+                        logger.debug("stop finding agentInfo.");
+                        break;
+                    }
 
                     final AgentInfoBo.Builder agentInfoBoBuilder = new AgentInfoBo.Builder(serializedAgentInfo);
                     agentInfoBoBuilder.agentId(agentId);
                     agentInfoBoBuilder.startTime(startTime);
 
-					if (serializedServerMetaData != null) {
-					    agentInfoBoBuilder.serverMetaData(new ServerMetaDataBo.Builder(serializedServerMetaData).build());
-					}
-					final AgentInfoBo agentInfoBo = agentInfoBoBuilder.build();
+                    if (serializedServerMetaData != null) {
+                        agentInfoBoBuilder.serverMetaData(new ServerMetaDataBo.Builder(serializedServerMetaData).build());
+                    }
+                    final AgentInfoBo agentInfoBo = agentInfoBoBuilder.build();
 
-					logger.debug("found agentInfoBo {}", agentInfoBo);
-					result.add(agentInfoBo);
-				}
-				logger.debug("extracted agentInfoBo {}", result);
-				return result;
-			}
-		});
+                    logger.debug("found agentInfoBo {}", agentInfoBo);
+                    result.add(agentInfoBo);
+                }
+                logger.debug("extracted agentInfoBo {}", result);
+                return result;
+            }
+        });
 
         logger.debug("get agentInfo result, {}", found);
 

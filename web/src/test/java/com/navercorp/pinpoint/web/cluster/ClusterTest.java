@@ -44,175 +44,175 @@ import com.navercorp.pinpoint.web.server.PinpointSocketManager;
 
 public class ClusterTest {
 
-	// some tests may fail when executed in local environment
-	// when failures happen, you have to copy pinpoint-web.properties of resource-test to resource-local. Tests will succeed.
-	
-	private static final int DEFAULT_ACCEPTOR_PORT = 9996;
-	private static final int DEFAULT_ZOOKEEPER_PORT = 22213;
+    // some tests may fail when executed in local environment
+    // when failures happen, you have to copy pinpoint-web.properties of resource-test to resource-local. Tests will succeed.
 
-	private static final String DEFAULT_IP = NetUtils.getLocalV4Ip();
+    private static final int DEFAULT_ACCEPTOR_PORT = 9996;
+    private static final int DEFAULT_ZOOKEEPER_PORT = 22213;
 
-	private static final String CLUSTER_NODE_PATH = "/pinpoint-cluster/web/" + DEFAULT_IP + ":" + DEFAULT_ACCEPTOR_PORT;
+    private static final String DEFAULT_IP = NetUtils.getLocalV4Ip();
 
-	private static TestingServer ts = null;
+    private static final String CLUSTER_NODE_PATH = "/pinpoint-cluster/web/" + DEFAULT_IP + ":" + DEFAULT_ACCEPTOR_PORT;
 
-	static PinpointSocketManager socketManager;
-	
-	@BeforeClass
-	public static void setUp() throws Exception {
-		WebConfig config = mock(WebConfig.class);
-		
-		when(config.isClusterEnable()).thenReturn(true);		
-		when(config.getClusterTcpPort()).thenReturn(DEFAULT_ACCEPTOR_PORT);
-		when(config.getClusterZookeeperAddress()).thenReturn("127.0.0.1:22213");
-		when(config.getClusterZookeeperRetryInterval()).thenReturn(60000);
-		when(config.getClusterZookeeperSessionTimeout()).thenReturn(3000);
+    private static TestingServer ts = null;
 
-		socketManager = new PinpointSocketManager(config);
-		socketManager.start();
-		
-		ts = createZookeeperServer(DEFAULT_ZOOKEEPER_PORT);
-	}
+    static PinpointSocketManager socketManager;
 
-	@AfterClass
-	public static void tearDown() throws Exception {
-		closeZookeeperServer(ts);
-		socketManager.stop();
-	}
+    @BeforeClass
+    public static void setUp() throws Exception {
+        WebConfig config = mock(WebConfig.class);
 
-	@Before
-	public void before() throws IOException {
-		ts.stop();
-	}
+        when(config.isClusterEnable()).thenReturn(true);
+        when(config.getClusterTcpPort()).thenReturn(DEFAULT_ACCEPTOR_PORT);
+        when(config.getClusterZookeeperAddress()).thenReturn("127.0.0.1:22213");
+        when(config.getClusterZookeeperRetryInterval()).thenReturn(60000);
+        when(config.getClusterZookeeperSessionTimeout()).thenReturn(3000);
 
-	@Test
-	public void clusterTest1() throws Exception {
-		ts.restart();
-		Thread.sleep(5000);
+        socketManager = new PinpointSocketManager(config);
+        socketManager.start();
 
-		ZooKeeper zookeeper = new ZooKeeper("127.0.0.1:22213", 5000, null);
-		getNodeAndCompareContents(zookeeper);
-		
-		if (zookeeper != null) {
-		    zookeeper.close();
-		}
-	}
+        ts = createZookeeperServer(DEFAULT_ZOOKEEPER_PORT);
+    }
 
-	@Test
-	public void clusterTest2() throws Exception {
-		ts.restart();
-		Thread.sleep(5000);
+    @AfterClass
+    public static void tearDown() throws Exception {
+        closeZookeeperServer(ts);
+        socketManager.stop();
+    }
 
-		ZooKeeper zookeeper = new ZooKeeper("127.0.0.1:22213", 5000, null);
-		getNodeAndCompareContents(zookeeper);
+    @Before
+    public void before() throws IOException {
+        ts.stop();
+    }
 
-		ts.stop();
+    @Test
+    public void clusterTest1() throws Exception {
+        ts.restart();
+        Thread.sleep(5000);
 
-		Thread.sleep(5000);
-		try {
-			zookeeper.getData(CLUSTER_NODE_PATH, null, null);
-			Assert.fail();
-		} catch (KeeperException e) {
-			Assert.assertEquals(KeeperException.Code.CONNECTIONLOSS, e.code());
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
+        ZooKeeper zookeeper = new ZooKeeper("127.0.0.1:22213", 5000, null);
+        getNodeAndCompareContents(zookeeper);
 
-		ts.restart();
+        if (zookeeper != null) {
+            zookeeper.close();
+        }
+    }
 
-		getNodeAndCompareContents(zookeeper);
+    @Test
+    public void clusterTest2() throws Exception {
+        ts.restart();
+        Thread.sleep(5000);
 
-		if (zookeeper != null) {
-		    zookeeper.close();
-		}
-	}
+        ZooKeeper zookeeper = new ZooKeeper("127.0.0.1:22213", 5000, null);
+        getNodeAndCompareContents(zookeeper);
 
-	@Test
-	public void clusterTest3() throws Exception {
-		ts.restart();
+        ts.stop();
 
-		PinpointSocketFactory factory = null;
-		PinpointSocket socket = null;
-		
-		ZooKeeper zookeeper = null;
-		try {
-			Thread.sleep(5000);
+        Thread.sleep(5000);
+        try {
+            zookeeper.getData(CLUSTER_NODE_PATH, null, null);
+            Assert.fail();
+        } catch (KeeperException e) {
+            Assert.assertEquals(KeeperException.Code.CONNECTIONLOSS, e.code());
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-			zookeeper = new ZooKeeper("127.0.0.1:22213", 5000, null);
-			getNodeAndCompareContents(zookeeper);
+        ts.restart();
 
-			Assert.assertEquals(0, socketManager.getCollectorChannelContext().size());
+        getNodeAndCompareContents(zookeeper);
 
-			factory = new PinpointSocketFactory();
-			factory.setMessageListener(new SimpleListener());
-			
-			socket = factory.connect(DEFAULT_IP, DEFAULT_ACCEPTOR_PORT);
+        if (zookeeper != null) {
+            zookeeper.close();
+        }
+    }
 
-			Thread.sleep(1000);
+    @Test
+    public void clusterTest3() throws Exception {
+        ts.restart();
 
-			Assert.assertEquals(1, socketManager.getCollectorChannelContext().size());
+        PinpointSocketFactory factory = null;
+        PinpointSocket socket = null;
 
-		} finally {
-			closePinpointSocket(factory, socket);
+        ZooKeeper zookeeper = null;
+        try {
+            Thread.sleep(5000);
 
-			if (zookeeper != null) {
-			    zookeeper.close();
-			}
-		}
-	}
+            zookeeper = new ZooKeeper("127.0.0.1:22213", 5000, null);
+            getNodeAndCompareContents(zookeeper);
 
-	private static TestingServer createZookeeperServer(int port) throws Exception {
-		TestingServer mockZookeeperServer = new TestingServer(port);
-		mockZookeeperServer.start();
+            Assert.assertEquals(0, socketManager.getCollectorChannelContext().size());
 
-		return mockZookeeperServer;
-	}
+            factory = new PinpointSocketFactory();
+            factory.setMessageListener(new SimpleListener());
 
-	private static void closeZookeeperServer(TestingServer mockZookeeperServer) throws Exception {
-		try {
-			if (mockZookeeperServer != null) {
-				mockZookeeperServer.close();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+            socket = factory.connect(DEFAULT_IP, DEFAULT_ACCEPTOR_PORT);
 
-	private void getNodeAndCompareContents(ZooKeeper zookeeper) throws KeeperException, InterruptedException {
-		byte[] conetents = zookeeper.getData(CLUSTER_NODE_PATH, null, null);
+            Thread.sleep(1000);
 
-		String[] registeredIplist = new String(conetents).split("\r\n");
+            Assert.assertEquals(1, socketManager.getCollectorChannelContext().size());
 
-		List<String> ipList = NetUtils.getLocalV4IpList();
+        } finally {
+            closePinpointSocket(factory, socket);
 
-		Assert.assertEquals(registeredIplist.length, ipList.size());
+            if (zookeeper != null) {
+                zookeeper.close();
+            }
+        }
+    }
 
-		for (String ip : registeredIplist) {
-			Assert.assertTrue(ipList.contains(ip));
-		}
-	}
+    private static TestingServer createZookeeperServer(int port) throws Exception {
+        TestingServer mockZookeeperServer = new TestingServer(port);
+        mockZookeeperServer.start();
 
-	private void closePinpointSocket(PinpointSocketFactory factory, PinpointSocket socket) {
-		if (socket != null) {
-			socket.close();
-		}
+        return mockZookeeperServer;
+    }
 
-		if (factory != null) {
-			factory.release();
-		}
-	}
+    private static void closeZookeeperServer(TestingServer mockZookeeperServer) throws Exception {
+        try {
+            if (mockZookeeperServer != null) {
+                mockZookeeperServer.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	class SimpleListener implements MessageListener {
-		@Override
-		public void handleSend(SendPacket sendPacket, Channel channel) {
+    private void getNodeAndCompareContents(ZooKeeper zookeeper) throws KeeperException, InterruptedException {
+        byte[] conetents = zookeeper.getData(CLUSTER_NODE_PATH, null, null);
 
-		}
+        String[] registeredIplist = new String(conetents).split("\r\n");
 
-		@Override
-		public void handleRequest(RequestPacket requestPacket, Channel channel) {
-			// TODO Auto-generated method stub
+        List<String> ipList = NetUtils.getLocalV4IpList();
 
-		}
-	}
+        Assert.assertEquals(registeredIplist.length, ipList.size());
+
+        for (String ip : registeredIplist) {
+            Assert.assertTrue(ipList.contains(ip));
+        }
+    }
+
+    private void closePinpointSocket(PinpointSocketFactory factory, PinpointSocket socket) {
+        if (socket != null) {
+            socket.close();
+        }
+
+        if (factory != null) {
+            factory.release();
+        }
+    }
+
+    class SimpleListener implements MessageListener {
+        @Override
+        public void handleSend(SendPacket sendPacket, Channel channel) {
+
+        }
+
+        @Override
+        public void handleRequest(RequestPacket requestPacket, Channel channel) {
+            // TODO Auto-generated method stub
+
+        }
+    }
 
 }

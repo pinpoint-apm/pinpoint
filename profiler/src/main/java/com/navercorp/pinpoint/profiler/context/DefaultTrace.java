@@ -110,7 +110,7 @@ public final class DefaultTrace implements Trace {
     }
     
     public Storage getStorage() {
-		return this.storage;
+        return this.storage;
     }
 
     public short nextSequence() {

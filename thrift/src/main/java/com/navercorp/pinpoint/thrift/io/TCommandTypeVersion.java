@@ -26,76 +26,76 @@ import org.apache.thrift.TBase;
  */
 public enum TCommandTypeVersion {
 
-	// Match with agent version
-	V_1_0_2_SNAPSHOT("1.0.2-SNAPSHOT", TCommandType.RESULT, TCommandType.THREAD_DUMP),
-	V_1_0_2("1.0.2", V_1_0_2_SNAPSHOT),
-	V_1_0_3_SNAPSHOT("1.0.3-SNAPSHOT", V_1_0_2, TCommandType.ECHO, TCommandType.TRANSFER, TCommandType.THREAD_DUMP_RESPONSE),
-	V_1_0_3("1.0.3", V_1_0_3_SNAPSHOT),
-	V_1_0_4_SNAPSHOT("1.0.4-SNAPSHOT", V_1_0_3),
-	
-	UNKNOWN("UNKNOWN");
+    // Match with agent version
+    V_1_0_2_SNAPSHOT("1.0.2-SNAPSHOT", TCommandType.RESULT, TCommandType.THREAD_DUMP),
+    V_1_0_2("1.0.2", V_1_0_2_SNAPSHOT),
+    V_1_0_3_SNAPSHOT("1.0.3-SNAPSHOT", V_1_0_2, TCommandType.ECHO, TCommandType.TRANSFER, TCommandType.THREAD_DUMP_RESPONSE),
+    V_1_0_3("1.0.3", V_1_0_3_SNAPSHOT),
+    V_1_0_4_SNAPSHOT("1.0.4-SNAPSHOT", V_1_0_3),
 
-	private final String versionName;
-	private final List<TCommandType> supportCommandList = new ArrayList<TCommandType>();
+    UNKNOWN("UNKNOWN");
 
-	private TCommandTypeVersion(String versionName, TCommandTypeVersion version, TCommandType... supportCommandArray) {
-		this.versionName = versionName;
-		
-		for (TCommandType supportCommand : version.getSupportCommandList()) {
-			supportCommandList.add(supportCommand);
-		}
+    private final String versionName;
+    private final List<TCommandType> supportCommandList = new ArrayList<TCommandType>();
 
-		for (TCommandType supportCommand : supportCommandArray) {
-			getSupportCommandList().add(supportCommand);
-		}
-	}
+    private TCommandTypeVersion(String versionName, TCommandTypeVersion version, TCommandType... supportCommandArray) {
+        this.versionName = versionName;
 
-	private TCommandTypeVersion(String versionName, TCommandType... supportCommandArray) {
-		this.versionName = versionName;
+        for (TCommandType supportCommand : version.getSupportCommandList()) {
+            supportCommandList.add(supportCommand);
+        }
 
-		for (TCommandType supportCommand : supportCommandArray) {
-			getSupportCommandList().add(supportCommand);
-		}
-	}
+        for (TCommandType supportCommand : supportCommandArray) {
+            getSupportCommandList().add(supportCommand);
+        }
+    }
 
-	public List<TCommandType> getSupportCommandList() {
-		return supportCommandList;
-	}
-	
-	public boolean isSupportCommand(TBase command) {
-		if (command == null) {
-			return false;
-		}
-		
-		for (TCommandType eachCommand : supportCommandList) {
-			if (eachCommand == null) {
-				continue;
-			}
+    private TCommandTypeVersion(String versionName, TCommandType... supportCommandArray) {
+        this.versionName = versionName;
 
-			if (eachCommand.getClazz() == command.getClass()) {
-				return true;
-			}
-		}
+        for (TCommandType supportCommand : supportCommandArray) {
+            getSupportCommandList().add(supportCommand);
+        }
+    }
 
-		return false;
-	}
+    public List<TCommandType> getSupportCommandList() {
+        return supportCommandList;
+    }
 
-	public String getVersionName() {
-		return versionName;
-	}
-	
-	public static TCommandTypeVersion getVersion(String version) {
-		if (version == null) {
-			throw new NullPointerException("version may not be null.");
-		}
-		
-		for (TCommandTypeVersion versionType : TCommandTypeVersion.values()) {
-			if (versionType.getVersionName().equals(version)) {
-				return versionType;
-			}
-		}
-		
-		return UNKNOWN;
-	}
+    public boolean isSupportCommand(TBase command) {
+        if (command == null) {
+            return false;
+        }
+
+        for (TCommandType eachCommand : supportCommandList) {
+            if (eachCommand == null) {
+                continue;
+            }
+
+            if (eachCommand.getClazz() == command.getClass()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public String getVersionName() {
+        return versionName;
+    }
+
+    public static TCommandTypeVersion getVersion(String version) {
+        if (version == null) {
+            throw new NullPointerException("version may not be null.");
+        }
+
+        for (TCommandTypeVersion versionType : TCommandTypeVersion.values()) {
+            if (versionType.getVersionName().equals(version)) {
+                return versionType;
+            }
+        }
+
+        return UNKNOWN;
+    }
 
 }

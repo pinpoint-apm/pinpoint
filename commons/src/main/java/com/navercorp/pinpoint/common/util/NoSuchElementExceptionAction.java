@@ -23,8 +23,8 @@ import java.util.NoSuchElementException;
  */
 public class NoSuchElementExceptionAction<E> implements NextElementAction<E> {
 
-	@Override
-	public E nextElement() {
-		throw new NoSuchElementException();
-	}
+    @Override
+    public E nextElement() {
+        throw new NoSuchElementException();
+    }
 }

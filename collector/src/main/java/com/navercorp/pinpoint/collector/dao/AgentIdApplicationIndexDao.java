@@ -21,7 +21,7 @@ package com.navercorp.pinpoint.collector.dao;
  */
 @Deprecated
 public interface AgentIdApplicationIndexDao {
-	void insert(String agentId, String applicationName);
+    void insert(String agentId, String applicationName);
 
-	String selectApplicationName(String agentId);
+    String selectApplicationName(String agentId);
 }

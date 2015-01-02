@@ -79,17 +79,17 @@ public class SocketChannel {
     }
 
     public Future sendRequestMessage(byte[] payload) {
-    	if (payload == null) {
+        if (payload == null) {
             throw new NullPointerException("requestMessage must not be null");
-    	}
-    	RequestPacket requestPacket = new RequestPacket(payload);
-    	
-    	ChannelWriteFailListenableFuture<ResponseMessage> messageFuture = this.requestManager.register(requestPacket, this.timeoutMillis);
-    	
-    	ChannelFuture write = this.channel.write(requestPacket);
-    	write.addListener(messageFuture);
-    	
-    	return messageFuture;
+        }
+        RequestPacket requestPacket = new RequestPacket(payload);
+
+        ChannelWriteFailListenableFuture<ResponseMessage> messageFuture = this.requestManager.register(requestPacket, this.timeoutMillis);
+
+        ChannelFuture write = this.channel.write(requestPacket);
+        write.addListener(messageFuture);
+
+        return messageFuture;
     }
     
     public void sendMessage(byte[] payload) {
@@ -98,7 +98,7 @@ public class SocketChannel {
     }
     
     public void receiveResponsePacket(ResponsePacket packet) {
-    	this.requestManager.messageReceived(packet, channel);
+        this.requestManager.messageReceived(packet, channel);
     }
 
     @Override

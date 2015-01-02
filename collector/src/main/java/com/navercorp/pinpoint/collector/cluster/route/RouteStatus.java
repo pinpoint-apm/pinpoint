@@ -21,41 +21,41 @@ package com.navercorp.pinpoint.collector.cluster.route;
  */
 public enum RouteStatus {
 
-	OK(0, "OK"),
+    OK(0, "OK"),
 
-	BAD_REQUEST(400, "Bad Request"),
+    BAD_REQUEST(400, "Bad Request"),
 
-	NOT_FOUND(404, " Target Route Agent Not Found."),
+    NOT_FOUND(404, " Target Route Agent Not Found."),
 
-	NOT_ACCEPTABLE(406, "Target Route Agent Not Acceptable."),
-	
-	NOT_ACCEPTABLE_UNKNOWN(450, "Target Route Agent Not Acceptable."),
+    NOT_ACCEPTABLE(406, "Target Route Agent Not Acceptable."),
+
+    NOT_ACCEPTABLE_UNKNOWN(450, "Target Route Agent Not Acceptable."),
     NOT_ACCEPTABLE_COMMAND(451, "Target Route Agent Not Acceptable command."),
     NOT_ACCEPTABLE_AGENT_TYPE(452, "Target Route Agent Not Acceptable agent type.."),
-	
-	AGENT_TIMEOUT(504, "Target Route Agent Timeout"),
-	
-	CLOSED(606, "Target Route Agent Closed.");
 
-	private final int value;
+    AGENT_TIMEOUT(504, "Target Route Agent Timeout"),
 
-	private final String reasonPhrase;
+    CLOSED(606, "Target Route Agent Closed.");
 
-	private RouteStatus(int value, String reasonPhrase) {
-		this.value = value;
-		this.reasonPhrase = reasonPhrase;
-	}
+    private final int value;
 
-	public int getValue() {
-		return value;
-	}
+    private final String reasonPhrase;
 
-	public String getReasonPhrase() {
-		return reasonPhrase;
-	}
-	
-	@Override
-	public String toString() {
+    private RouteStatus(int value, String reasonPhrase) {
+        this.value = value;
+        this.reasonPhrase = reasonPhrase;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public String getReasonPhrase() {
+        return reasonPhrase;
+    }
+
+    @Override
+    public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append(this.getClass().getSimpleName());
         sb.append("{");
@@ -63,6 +63,6 @@ public enum RouteStatus {
         sb.append("message=").append(getReasonPhrase());
         sb.append('}');
         return sb.toString();
-	}
+    }
 
 }

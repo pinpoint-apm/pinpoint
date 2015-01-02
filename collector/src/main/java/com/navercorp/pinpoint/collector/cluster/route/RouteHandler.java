@@ -22,10 +22,10 @@ package com.navercorp.pinpoint.collector.cluster.route;
  */
 public interface RouteHandler<T extends RouteEvent> {
 
-	void addRequestFilter(RouteFilter<T> filter);
-	
-	void addResponseFilter(RouteFilter<ResponseEvent> filter);
-	
-	RouteResult onRoute(T event);
+    void addRequestFilter(RouteFilter<T> filter);
+
+    void addResponseFilter(RouteFilter<ResponseEvent> filter);
+
+    RouteResult onRoute(T event);
 
 }

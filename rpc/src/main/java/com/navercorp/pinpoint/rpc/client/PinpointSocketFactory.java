@@ -61,9 +61,9 @@ public class PinpointSocketFactory {
 
     public static final String CONNECT_TIMEOUT_MILLIS = "connectTimeoutMillis";
     private static final int DEFAULT_CONNECT_TIMEOUT = 5000;
-	private static final long DEFAULT_TIMEOUTMILLIS = 3 * 1000;
+    private static final long DEFAULT_TIMEOUTMILLIS = 3 * 1000;
     private static final long DEFAULT_PING_DELAY = 60 * 1000 * 5;
-	private static final long DEFAULT_ENABLE_WORKER_PACKET_DELAY = 60 * 1000 * 1;
+    private static final long DEFAULT_ENABLE_WORKER_PACKET_DELAY = 60 * 1000 * 1;
 
 
     private volatile boolean released;
@@ -164,16 +164,16 @@ public class PinpointSocketFactory {
         this.pingDelay = pingDelay;
     }
     
-	public long getEnableWorkerPacketDelay() {
-		return enableWorkerPacketDelay;
-	}
+    public long getEnableWorkerPacketDelay() {
+        return enableWorkerPacketDelay;
+    }
 
-	public void setEnableWorkerPacketDelay(long enableWorkerPacketDelay) {
+    public void setEnableWorkerPacketDelay(long enableWorkerPacketDelay) {
         if (enableWorkerPacketDelay < 0) {
             throw new IllegalArgumentException("EnableWorkerPacketDelay cannot be a negative number");
         }
- 		this.enableWorkerPacketDelay = enableWorkerPacketDelay;
-	}
+         this.enableWorkerPacketDelay = enableWorkerPacketDelay;
+    }
 
     public long getTimeoutMillis() {
         return timeoutMillis;
@@ -213,7 +213,7 @@ public class PinpointSocketFactory {
     }
 
     public PinpointSocket reconnect(String host, int port) throws PinpointSocketException {
-    	SocketAddress address = new InetSocketAddress(host, port);
+        SocketAddress address = new InetSocketAddress(host, port);
         ChannelFuture connectFuture = bootstrap.connect(address);
         SocketHandler socketHandler = getSocketHandler(connectFuture, address);
 
@@ -385,34 +385,34 @@ public class PinpointSocketFactory {
         // stop, cancel something?
     }
 
-	Map<String, Object> getProperties() {
-		return properties;
-	}
+    Map<String, Object> getProperties() {
+        return properties;
+    }
 
-	public void setProperties(Map<String, Object> agentProperties) {
-		AssertUtils.assertNotNull(properties, "agentProperties must not be null");
+    public void setProperties(Map<String, Object> agentProperties) {
+        AssertUtils.assertNotNull(properties, "agentProperties must not be null");
 
-		this.properties = Collections.unmodifiableMap(agentProperties);
-	}
+        this.properties = Collections.unmodifiableMap(agentProperties);
+    }
 
-	public MessageListener getMessageListener() {
-		return messageListener;
-	}
+    public MessageListener getMessageListener() {
+        return messageListener;
+    }
 
-	public void setMessageListener(MessageListener messageListener) {
-		AssertUtils.assertNotNull(messageListener, "messageListener must not be null");
-		
-		this.messageListener = messageListener;
-	}
+    public void setMessageListener(MessageListener messageListener) {
+        AssertUtils.assertNotNull(messageListener, "messageListener must not be null");
 
-	public ServerStreamChannelMessageListener getServerStreamChannelMessageListener() {
-		return serverStreamChannelMessageListener;
-	}
+        this.messageListener = messageListener;
+    }
 
-	public void setServerStreamChannelMessageListener(ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
-		AssertUtils.assertNotNull(messageListener, "messageListener must not be null");
+    public ServerStreamChannelMessageListener getServerStreamChannelMessageListener() {
+        return serverStreamChannelMessageListener;
+    }
 
-		this.serverStreamChannelMessageListener = serverStreamChannelMessageListener;
-	}
+    public void setServerStreamChannelMessageListener(ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
+        AssertUtils.assertNotNull(messageListener, "messageListener must not be null");
+
+        this.serverStreamChannelMessageListener = serverStreamChannelMessageListener;
+    }
 
 }

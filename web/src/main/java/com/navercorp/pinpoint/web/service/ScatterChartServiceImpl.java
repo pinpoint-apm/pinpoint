@@ -45,13 +45,13 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-	private ApplicationTraceIndexDao applicationTraceIndexDao;
+    private ApplicationTraceIndexDao applicationTraceIndexDao;
 
-	@Autowired
-	private TraceDao traceDao;
+    @Autowired
+    private TraceDao traceDao;
 
-	@Override
-	public List<Dot> selectScatterData(String applicationName, Range range, int limit) {
+    @Override
+    public List<Dot> selectScatterData(String applicationName, Range range, int limit) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
@@ -59,21 +59,21 @@ public class ScatterChartServiceImpl implements ScatterChartService {
             throw new NullPointerException("range must not be null");
         }
         return applicationTraceIndexDao.scanTraceScatter(applicationName, range, limit);
-	}
-	
-	@Override
-	public List<Dot> selectScatterData(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransactionElapsed, int limit) {
-		if (applicationName == null) {
-			throw new NullPointerException("applicationName must not be null");
-		}
-		if (area == null) {
-			throw new NullPointerException("area must not be null");
-		}
-		return applicationTraceIndexDao.scanTraceScatter(applicationName, area, offsetTransactionId, offsetTransactionElapsed, limit);
-	}
+    }
 
-	@Override
-	public List<Dot> selectScatterData(Collection<TransactionId> transactionIdList, String applicationName, Filter filter) {
+    @Override
+    public List<Dot> selectScatterData(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransactionElapsed, int limit) {
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
+        }
+        if (area == null) {
+            throw new NullPointerException("area must not be null");
+        }
+        return applicationTraceIndexDao.scanTraceScatter(applicationName, area, offsetTransactionId, offsetTransactionElapsed, limit);
+    }
+
+    @Override
+    public List<Dot> selectScatterData(Collection<TransactionId> transactionIdList, String applicationName, Filter filter) {
         if (transactionIdList == null) {
             throw new NullPointerException("transactionIdList must not be null");
         }
@@ -86,30 +86,30 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 
         final List<List<SpanBo>> traceList = traceDao.selectAllSpans(transactionIdList);
 
-		final List<Dot> result = new ArrayList<Dot>();
+        final List<Dot> result = new ArrayList<Dot>();
 
-		for (List<SpanBo> trace : traceList) {
-			if (!filter.include(trace)) {
-				continue;
-			}
+        for (List<SpanBo> trace : traceList) {
+            if (!filter.include(trace)) {
+                continue;
+            }
 
-			for (SpanBo span : trace) {
-				if (applicationName.equals(span.getApplicationId())) {
+            for (SpanBo span : trace) {
+                if (applicationName.equals(span.getApplicationId())) {
                     final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
                     final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
                     result.add(dot);
-				}
-			}
-		}
+                }
+            }
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	/**
-	 * Queries for details on dots selected from the scatter chart. 
-	 */
-	@Override
-	public List<SpanBo> selectTransactionMetadata(final TransactionMetadataQuery query) {
+    /**
+     * Queries for details on dots selected from the scatter chart.
+     */
+    @Override
+    public List<SpanBo> selectTransactionMetadata(final TransactionMetadataQuery query) {
         if (query == null) {
             throw new NullPointerException("query must not be null");
         }
@@ -117,7 +117,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
         final List<List<SpanBo>> selectedSpans = traceDao.selectSpans(transactionIdList);
 
 
-		final List<SpanBo> result = new ArrayList<SpanBo>(query.size());
+        final List<SpanBo> result = new ArrayList<SpanBo>(query.size());
         int index = 0;
         for (List<SpanBo> spans : selectedSpans) {
             if (spans.size() == 0) {
@@ -141,8 +141,8 @@ public class ScatterChartServiceImpl implements ScatterChartService {
                 }
             }
             index++;
-		}
+        }
 
-		return result;
-	}
+        return result;
+    }
 }

@@ -22,5 +22,5 @@ import java.security.ProtectionDomain;
  * @author emeroad
  */
 public interface Modifier {
-	byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer);
+    byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer);
 }

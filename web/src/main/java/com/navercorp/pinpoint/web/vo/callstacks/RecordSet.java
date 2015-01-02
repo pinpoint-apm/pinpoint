@@ -25,17 +25,17 @@ import java.util.List;
 public class RecordSet {
 
     private long startTime = -1;
-	private long endTime = -1;
+    private long endTime = -1;
 
-	private List<Record> recordList;
-	private String applicationName;
-	private long beginTimestamp;
+    private List<Record> recordList;
+    private String applicationName;
+    private long beginTimestamp;
 
     private String agentId;
     private String applicationId;
 
-	public RecordSet() {
-	}
+    public RecordSet() {
+    }
 
     public void setRecordList(List<Record> recordList) {
         this.recordList = recordList;
@@ -46,28 +46,28 @@ public class RecordSet {
     }
 
     public long getStartTime() {
-		return startTime;
-	}
+        return startTime;
+    }
 
-	public void setStartTime(long startTime) {
-		this.startTime = startTime;
-	}
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
 
-	public long getEndTime() {
-		return endTime;
-	}
+    public long getEndTime() {
+        return endTime;
+    }
 
-	public void setEndTime(long endTime) {
-		this.endTime = endTime;
-	}
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
+    }
 
-	public boolean isStartTimeSet() {
-		return startTime != -1;
-	}
+    public boolean isStartTimeSet() {
+        return startTime != -1;
+    }
 
-	public boolean isEndTimeSet() {
-		return endTime != -1;
-	}
+    public boolean isEndTimeSet() {
+        return endTime != -1;
+    }
 
     public void setApplicationName(String applicationName) {
         this.applicationName = applicationName;
@@ -78,12 +78,12 @@ public class RecordSet {
     }
 
     public String getApplicationName() {
-		return applicationName;
-	}
+        return applicationName;
+    }
 
-	public long getBeginTimestamp() {
-		return beginTimestamp;
-	}
+    public long getBeginTimestamp() {
+        return beginTimestamp;
+    }
 
 
     public String getAgentId() {

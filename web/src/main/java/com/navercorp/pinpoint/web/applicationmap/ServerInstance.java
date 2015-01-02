@@ -33,11 +33,11 @@ public class ServerInstance {
     private final String hostName;
 
     private final String name;
-	private final ServiceType serviceType;
+    private final ServiceType serviceType;
 
     private final ServerType serverType;
 
-	private final AgentInfoBo agentInfo;
+    private final AgentInfoBo agentInfo;
 
 
     // it is better for something else to inject this.
@@ -46,19 +46,19 @@ public class ServerInstance {
 
     private ServerMatcher match;
 
-	public ServerInstance(AgentInfoBo agentInfo) {
+    public ServerInstance(AgentInfoBo agentInfo) {
         if (agentInfo == null) {
             throw new NullPointerException("agentInfo must not be null");
         }
         this.hostName = agentInfo.getHostName();
         this.name = agentInfo.getAgentId();
-		this.serviceType = agentInfo.getServiceType();
-		this.agentInfo = agentInfo;
+        this.serviceType = agentInfo.getServiceType();
+        this.agentInfo = agentInfo;
         this.serverType = ServerType.Physical;
         this.match = MATCHER_GROUP.match(hostName);
-	}
+    }
 
-	public ServerInstance(String hostName, String physicalName, ServiceType serviceType) {
+    public ServerInstance(String hostName, String physicalName, ServiceType serviceType) {
         if (hostName == null) {
             throw new NullPointerException("hostName must not be null");
         }
@@ -70,11 +70,11 @@ public class ServerInstance {
         }
         this.hostName = hostName;
         this.name = physicalName;
-		this.serviceType = serviceType;
-		this.agentInfo = null;
+        this.serviceType = serviceType;
+        this.agentInfo = null;
         this.serverType = ServerType.Logical;
         this.match = MATCHER_GROUP.match(hostName);
-	}
+    }
 
     @JsonIgnore
     public String getHostName() {
@@ -97,9 +97,9 @@ public class ServerInstance {
     }
 
     @JsonProperty("agentInfo")
-	public AgentInfoBo getAgentInfo() {
-		return agentInfo;
-	}
+    public AgentInfoBo getAgentInfo() {
+        return agentInfo;
+    }
 
     @JsonProperty("linkName")
     public String getLinkName() {

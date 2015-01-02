@@ -44,76 +44,76 @@ import org.springframework.stereotype.Service;
 @Service
 public class SpanServiceImpl implements SpanService {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	private TraceDao traceDao;
+    @Autowired
+    private TraceDao traceDao;
 
-	@Autowired
-	private SqlMetaDataDao sqlMetaDataDao;
+    @Autowired
+    private SqlMetaDataDao sqlMetaDataDao;
 
-	@Autowired
-	private ApiMetaDataDao apiMetaDataDao;
+    @Autowired
+    private ApiMetaDataDao apiMetaDataDao;
 
     @Autowired
     private StringMetaDataDao stringMetaDataDao;
 
-	private final SqlParser sqlParser = new SqlParser();
-	private final OutputParameterParser outputParameterParser = new OutputParameterParser();
+    private final SqlParser sqlParser = new SqlParser();
+    private final OutputParameterParser outputParameterParser = new OutputParameterParser();
 
-	@Override
-	public SpanResult selectSpan(TransactionId transactionId, long selectedSpanHint) {
+    @Override
+    public SpanResult selectSpan(TransactionId transactionId, long selectedSpanHint) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
 
         List<SpanBo> spans = traceDao.selectSpanAndAnnotation(transactionId);
-		if (spans == null || spans.isEmpty()) {
-			return new SpanResult(SpanAligner2.FAIL_MATCH, Collections.<SpanAlign>emptyList());
-		}
+        if (spans == null || spans.isEmpty()) {
+            return new SpanResult(SpanAligner2.FAIL_MATCH, Collections.<SpanAlign>emptyList());
+        }
 
         SpanResult result = order(spans, selectedSpanHint);
         List<SpanAlign> order = result.getSpanAlignList();
-//		transitionApiId(order);
-		transitionDynamicApiId(order);
-		transitionSqlId(order);
+//        transitionApiId(order);
+        transitionDynamicApiId(order);
+        transitionSqlId(order);
         transitionCachedString(order);
         transitionException(order);
         // TODO need to at least show the row data when root span is not found. 
-		return result;
-	}
+        return result;
+    }
 
 
 
     private void transitionAnnotation(List<SpanAlign> spans, AnnotationReplacementCallback annotationReplacementCallback) {
         for (SpanAlign spanAlign : spans) {
-			List<AnnotationBo> annotationBoList;
-			if (spanAlign.isSpan()) {
-				annotationBoList = spanAlign.getSpanBo().getAnnotationBoList();
+            List<AnnotationBo> annotationBoList;
+            if (spanAlign.isSpan()) {
+                annotationBoList = spanAlign.getSpanBo().getAnnotationBoList();
                 if (annotationBoList == null) {
                     annotationBoList = new ArrayList<AnnotationBo>();
                     spanAlign.getSpanBo().setAnnotationBoList(annotationBoList);
                 }
-				annotationReplacementCallback.replacement(spanAlign, annotationBoList);
-			} else {
-				annotationBoList = spanAlign.getSpanEventBo().getAnnotationBoList();
+                annotationReplacementCallback.replacement(spanAlign, annotationBoList);
+            } else {
+                annotationBoList = spanAlign.getSpanEventBo().getAnnotationBoList();
                 if (annotationBoList == null) {
                     annotationBoList = new ArrayList<AnnotationBo>();
                     spanAlign.getSpanBo().setAnnotationBoList(annotationBoList);
                 }
-				annotationReplacementCallback.replacement(spanAlign, annotationBoList);
-			}
-		}
-	}
+                annotationReplacementCallback.replacement(spanAlign, annotationBoList);
+            }
+        }
+    }
 
-	private void transitionSqlId(final List<SpanAlign> spans) {
-		this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
-			@Override
-			public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
-				AnnotationBo sqlIdAnnotation = findAnnotation(annotationBoList, AnnotationKey.SQL_ID.getCode());
-				if (sqlIdAnnotation == null) {
-					return;
-				}
+    private void transitionSqlId(final List<SpanAlign> spans) {
+        this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
+            @Override
+            public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
+                AnnotationBo sqlIdAnnotation = findAnnotation(annotationBoList, AnnotationKey.SQL_ID.getCode());
+                if (sqlIdAnnotation == null) {
+                    return;
+                }
 
                 final AgentKey agentKey = getAgentKey(spanAlign);
 
@@ -121,60 +121,60 @@ public class SpanServiceImpl implements SpanService {
                 final IntStringStringValue sqlValue = (IntStringStringValue) sqlIdAnnotation.getValue();
                 final int hashCode = sqlValue.getIntValue();
                 final String sqlParam = sqlValue.getStringValue1();
-				final List<SqlMetaDataBo> sqlMetaDataList = sqlMetaDataDao.getSqlMetaData(agentKey.getAgentId(), agentKey.getAgentStartTime(), hashCode);
-				final int size = sqlMetaDataList.size();
-				if (size == 0) {
-					AnnotationBo api = new AnnotationBo();
-					api.setKey(AnnotationKey.SQL.getCode());
-					api.setValue("SQL-ID not found hashCode:" + hashCode);
-					annotationBoList.add(api);
-				} else if (size == 1) {
-					final SqlMetaDataBo sqlMetaDataBo = sqlMetaDataList.get(0);
-					if (StringUtils.isEmpty(sqlParam)) {
-						AnnotationBo sqlMeta = new AnnotationBo();
-						sqlMeta.setKey(AnnotationKey.SQL_METADATA.getCode());
-						sqlMeta.setValue(sqlMetaDataBo.getSql());
-						annotationBoList.add(sqlMeta);
+                final List<SqlMetaDataBo> sqlMetaDataList = sqlMetaDataDao.getSqlMetaData(agentKey.getAgentId(), agentKey.getAgentStartTime(), hashCode);
+                final int size = sqlMetaDataList.size();
+                if (size == 0) {
+                    AnnotationBo api = new AnnotationBo();
+                    api.setKey(AnnotationKey.SQL.getCode());
+                    api.setValue("SQL-ID not found hashCode:" + hashCode);
+                    annotationBoList.add(api);
+                } else if (size == 1) {
+                    final SqlMetaDataBo sqlMetaDataBo = sqlMetaDataList.get(0);
+                    if (StringUtils.isEmpty(sqlParam)) {
+                        AnnotationBo sqlMeta = new AnnotationBo();
+                        sqlMeta.setKey(AnnotationKey.SQL_METADATA.getCode());
+                        sqlMeta.setValue(sqlMetaDataBo.getSql());
+                        annotationBoList.add(sqlMeta);
 
-//						AnnotationBo checkFail = checkIdentifier(spanAlign, sqlMetaDataBo);
-//						if (checkFail != null) {
-//							// fail
-//							annotationBoList.add(checkFail);
-//							return;
-//						}
+//                        AnnotationBo checkFail = checkIdentifier(spanAlign, sqlMetaDataBo);
+//                        if (checkFail != null) {
+//                            // fail
+//                            annotationBoList.add(checkFail);
+//                            return;
+//                        }
 
-						AnnotationBo sql = new AnnotationBo();
-						sql.setKey(AnnotationKey.SQL.getCode());
-						sql.setValue(sqlMetaDataBo.getSql());
-						annotationBoList.add(sql);
-					} else {
-						logger.debug("sqlMetaDataBo:{}", sqlMetaDataBo);
-						final String outputParams = sqlParam;
-						List<String> parsedOutputParams = outputParameterParser.parseOutputParameter(outputParams);
-						logger.debug("outputPrams:{}, parsedOutputPrams:{}", outputParams, parsedOutputParams);
-						String originalSql = sqlParser.combineOutputParams(sqlMetaDataBo.getSql(), parsedOutputParams);
-						logger.debug("outputPrams{}, originalSql:{}", outputParams, originalSql);
+                        AnnotationBo sql = new AnnotationBo();
+                        sql.setKey(AnnotationKey.SQL.getCode());
+                        sql.setValue(sqlMetaDataBo.getSql());
+                        annotationBoList.add(sql);
+                    } else {
+                        logger.debug("sqlMetaDataBo:{}", sqlMetaDataBo);
+                        final String outputParams = sqlParam;
+                        List<String> parsedOutputParams = outputParameterParser.parseOutputParameter(outputParams);
+                        logger.debug("outputPrams:{}, parsedOutputPrams:{}", outputParams, parsedOutputParams);
+                        String originalSql = sqlParser.combineOutputParams(sqlMetaDataBo.getSql(), parsedOutputParams);
+                        logger.debug("outputPrams{}, originalSql:{}", outputParams, originalSql);
 
-						AnnotationBo sqlMeta = new AnnotationBo();
-						sqlMeta.setKey(AnnotationKey.SQL_METADATA.getCode());
-						sqlMeta.setValue(sqlMetaDataBo.getSql());
-						annotationBoList.add(sqlMeta);
+                        AnnotationBo sqlMeta = new AnnotationBo();
+                        sqlMeta.setKey(AnnotationKey.SQL_METADATA.getCode());
+                        sqlMeta.setValue(sqlMetaDataBo.getSql());
+                        annotationBoList.add(sqlMeta);
 
 
-						AnnotationBo sql = new AnnotationBo();
-						sql.setKey(AnnotationKey.SQL.getCode());
-						sql.setValue(originalSql);
-						annotationBoList.add(sql);
+                        AnnotationBo sql = new AnnotationBo();
+                        sql.setKey(AnnotationKey.SQL.getCode());
+                        sql.setValue(originalSql);
+                        annotationBoList.add(sql);
 
-					}
-				} else {
-					// TODO need improvement
-					AnnotationBo api = new AnnotationBo();
-					api.setKey(AnnotationKey.SQL.getCode());
-					api.setValue(collisionSqlHashCodeMessage(hashCode, sqlMetaDataList));
-					annotationBoList.add(api);
-				}
-				// add if bindValue exists
+                    }
+                } else {
+                    // TODO need improvement
+                    AnnotationBo api = new AnnotationBo();
+                    api.setKey(AnnotationKey.SQL.getCode());
+                    api.setValue(collisionSqlHashCodeMessage(hashCode, sqlMetaDataList));
+                    annotationBoList.add(api);
+                }
+                // add if bindValue exists
                 final String bindValue = sqlValue.getStringValue2();
                 if (StringUtils.isNotEmpty(bindValue)) {
                     AnnotationBo bindValueAnnotation = new AnnotationBo();
@@ -183,75 +183,75 @@ public class SpanServiceImpl implements SpanService {
                     annotationBoList.add(bindValueAnnotation);
                 }
 
-			}
+            }
 
-		});
-	}
+        });
+    }
 
-	private AnnotationBo findAnnotation(List<AnnotationBo> annotationBoList, int key) {
-		for (AnnotationBo annotationBo : annotationBoList) {
-			if (key == annotationBo.getKey()) {
-				return annotationBo;
-			}
-		}
-		return null;
-	}
+    private AnnotationBo findAnnotation(List<AnnotationBo> annotationBoList, int key) {
+        for (AnnotationBo annotationBo : annotationBoList) {
+            if (key == annotationBo.getKey()) {
+                return annotationBo;
+            }
+        }
+        return null;
+    }
 
-	private String collisionSqlHashCodeMessage(int hashCode, List<SqlMetaDataBo> sqlMetaDataList) {
-	    // TODO need a separate test case to test for hashCode collision (probability way too low for easy replication)
-		StringBuilder sb = new StringBuilder(64);
-		sb.append("Collision Sql hashCode:");
-		sb.append(hashCode);
-		sb.append('\n');
-		for (int i = 0; i < sqlMetaDataList.size(); i++) {
-			if (i != 0) {
-				sb.append("or\n");
-			}
-			SqlMetaDataBo sqlMetaDataBo = sqlMetaDataList.get(i);
-			sb.append(sqlMetaDataBo.getSql());
-		}
-		return sb.toString();
-	}
+    private String collisionSqlHashCodeMessage(int hashCode, List<SqlMetaDataBo> sqlMetaDataList) {
+        // TODO need a separate test case to test for hashCode collision (probability way too low for easy replication)
+        StringBuilder sb = new StringBuilder(64);
+        sb.append("Collision Sql hashCode:");
+        sb.append(hashCode);
+        sb.append('\n');
+        for (int i = 0; i < sqlMetaDataList.size(); i++) {
+            if (i != 0) {
+                sb.append("or\n");
+            }
+            SqlMetaDataBo sqlMetaDataBo = sqlMetaDataList.get(i);
+            sb.append(sqlMetaDataBo.getSql());
+        }
+        return sb.toString();
+    }
 
 
-	private void transitionDynamicApiId(List<SpanAlign> spans) {
-		this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
-			@Override
-			public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
+    private void transitionDynamicApiId(List<SpanAlign> spans) {
+        this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
+            @Override
+            public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
                 final AgentKey key = getAgentKey(spanAlign);
                 final int apiId = getApiId(spanAlign);
                 // may be able to get a more accurate data using agentIdentifier.
-				List<ApiMetaDataBo> apiMetaDataList = apiMetaDataDao.getApiMetaData(key.getAgentId(), key.getAgentStartTime(), apiId);
-				int size = apiMetaDataList.size();
-				if (size == 0) {
-					AnnotationBo api = new AnnotationBo();
-					api.setKey(AnnotationKey.ERROR_API_METADATA_NOT_FOUND.getCode());
-					api.setValue("API-DynamicID not found. api:" + apiId);
-					annotationBoList.add(api);
-				} else if (size == 1) {
-					ApiMetaDataBo apiMetaDataBo = apiMetaDataList.get(0);
-					AnnotationBo apiMetaData = new AnnotationBo();
-					apiMetaData.setKey(AnnotationKey.API_METADATA.getCode());
-					apiMetaData.setValue(apiMetaDataBo);
-					annotationBoList.add(apiMetaData);
+                List<ApiMetaDataBo> apiMetaDataList = apiMetaDataDao.getApiMetaData(key.getAgentId(), key.getAgentStartTime(), apiId);
+                int size = apiMetaDataList.size();
+                if (size == 0) {
+                    AnnotationBo api = new AnnotationBo();
+                    api.setKey(AnnotationKey.ERROR_API_METADATA_NOT_FOUND.getCode());
+                    api.setValue("API-DynamicID not found. api:" + apiId);
+                    annotationBoList.add(api);
+                } else if (size == 1) {
+                    ApiMetaDataBo apiMetaDataBo = apiMetaDataList.get(0);
+                    AnnotationBo apiMetaData = new AnnotationBo();
+                    apiMetaData.setKey(AnnotationKey.API_METADATA.getCode());
+                    apiMetaData.setValue(apiMetaDataBo);
+                    annotationBoList.add(apiMetaData);
 
-					AnnotationBo apiAnnotation = new AnnotationBo();
-					apiAnnotation.setKey(AnnotationKey.API.getCode());
-					String apiInfo = getApiInfo(apiMetaDataBo);
-					apiAnnotation.setValue(apiInfo);
-					annotationBoList.add(apiAnnotation);
-				} else {
-					AnnotationBo apiAnnotation = new AnnotationBo();
-					apiAnnotation.setKey(AnnotationKey.ERROR_API_METADATA_DID_COLLSION.getCode());
-					String collisonMessage = collisionApiDidMessage(apiId, apiMetaDataList);
-					apiAnnotation.setValue(collisonMessage);
-					annotationBoList.add(apiAnnotation);
-				}
+                    AnnotationBo apiAnnotation = new AnnotationBo();
+                    apiAnnotation.setKey(AnnotationKey.API.getCode());
+                    String apiInfo = getApiInfo(apiMetaDataBo);
+                    apiAnnotation.setValue(apiInfo);
+                    annotationBoList.add(apiAnnotation);
+                } else {
+                    AnnotationBo apiAnnotation = new AnnotationBo();
+                    apiAnnotation.setKey(AnnotationKey.ERROR_API_METADATA_DID_COLLSION.getCode());
+                    String collisonMessage = collisionApiDidMessage(apiId, apiMetaDataList);
+                    apiAnnotation.setValue(collisonMessage);
+                    annotationBoList.add(apiAnnotation);
+                }
 
-			}
+            }
 
-		});
-	}
+        });
+    }
 
     private void transitionCachedString(List<SpanAlign> spans) {
         this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
@@ -356,42 +356,42 @@ public class SpanServiceImpl implements SpanService {
         }
     }
 
-	private String collisionApiDidMessage(int apidId, List<ApiMetaDataBo> apiMetaDataList) {
+    private String collisionApiDidMessage(int apidId, List<ApiMetaDataBo> apiMetaDataList) {
         // TODO need a separate test case to test for hashCode collision (probability way too low for easy replication)
-		StringBuilder sb = new StringBuilder(64);
-		sb.append("Collision Api DynamicId:");
-		sb.append(apidId);
-		sb.append('\n');
-		for (int i = 0; i < apiMetaDataList.size(); i++) {
-			if (i != 0) {
-				sb.append("or\n");
-			}
-			ApiMetaDataBo apiMetaDataBo = apiMetaDataList.get(i);
-			sb.append(getApiInfo(apiMetaDataBo));
-		}
-		return sb.toString();
-	}
+        StringBuilder sb = new StringBuilder(64);
+        sb.append("Collision Api DynamicId:");
+        sb.append(apidId);
+        sb.append('\n');
+        for (int i = 0; i < apiMetaDataList.size(); i++) {
+            if (i != 0) {
+                sb.append("or\n");
+            }
+            ApiMetaDataBo apiMetaDataBo = apiMetaDataList.get(i);
+            sb.append(getApiInfo(apiMetaDataBo));
+        }
+        return sb.toString();
+    }
 
-	private String getApiInfo(ApiMetaDataBo apiMetaDataBo) {
-		if (apiMetaDataBo.getLineNumber() != -1) {
-			return apiMetaDataBo.getApiInfo() + ":" + apiMetaDataBo.getLineNumber();
-		} else {
-			return apiMetaDataBo.getApiInfo();
-		}
-	}
+    private String getApiInfo(ApiMetaDataBo apiMetaDataBo) {
+        if (apiMetaDataBo.getLineNumber() != -1) {
+            return apiMetaDataBo.getApiInfo() + ":" + apiMetaDataBo.getLineNumber();
+        } else {
+            return apiMetaDataBo.getApiInfo();
+        }
+    }
 
-	public static interface AnnotationReplacementCallback {
-		void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList);
-	}
+    public static interface AnnotationReplacementCallback {
+        void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList);
+    }
 
-	private SpanResult order(List<SpanBo> spans, long selectedSpanHint) {
-		SpanAligner2 spanAligner = new SpanAligner2(spans, selectedSpanHint);
+    private SpanResult order(List<SpanBo> spans, long selectedSpanHint) {
+        SpanAligner2 spanAligner = new SpanAligner2(spans, selectedSpanHint);
         List<SpanAlign> sort = spanAligner.sort();
 
         logger.trace("SpanAlignList:{}", sort);
         return new SpanResult(spanAligner.getMatchType(), sort);
 
-	}
+    }
 
 
     private static final class AgentKey {

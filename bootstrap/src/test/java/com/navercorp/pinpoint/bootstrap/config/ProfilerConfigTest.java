@@ -35,12 +35,12 @@ public class ProfilerConfigTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
-	@Test
-	public void defaultProfilableClassFilter() throws IOException {
-		ProfilerConfig profilerConfig = new ProfilerConfig();
-		Filter<String> profilableClassFilter = profilerConfig.getProfilableClassFilter();
-		Assert.assertFalse(profilableClassFilter.filter("net/spider/king/wang/Jjang"));
-	}
+    @Test
+    public void defaultProfilableClassFilter() throws IOException {
+        ProfilerConfig profilerConfig = new ProfilerConfig();
+        Filter<String> profilableClassFilter = profilerConfig.getProfilableClassFilter();
+        Assert.assertFalse(profilableClassFilter.filter("net/spider/king/wang/Jjang"));
+    }
 
     @Test
     public void readProperty() throws IOException {

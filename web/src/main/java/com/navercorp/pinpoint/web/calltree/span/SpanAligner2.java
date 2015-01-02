@@ -41,11 +41,11 @@ public class SpanAligner2 {
 
 
     private static final Long ROOT = -1L;
-	private final Map<Long, List<SpanBo>> spanIdMap;
-	private Long rootSpanId = null;
+    private final Map<Long, List<SpanBo>> spanIdMap;
+    private Long rootSpanId = null;
     private int matchType = FAIL_MATCH;
 
-	public SpanAligner2(List<SpanBo> spans, long collectorAcceptTime) {
+    public SpanAligner2(List<SpanBo> spans, long collectorAcceptTime) {
         this.spanIdMap = buildSpanMap(spans);
         this.rootSpanId = findRootSpanId(spans, collectorAcceptTime);
     }
@@ -127,10 +127,10 @@ public class SpanAligner2 {
     }
 
     public List<SpanAlign> sort() {
-		final List<SpanBo> rootList = spanIdMap.remove(rootSpanId);
-		if (rootList == null || rootList.size() == 0) {
-			throw new IllegalStateException("rootList span not found. rootSpanId=" + rootSpanId + ", map=" + spanIdMap.keySet());
-		}
+        final List<SpanBo> rootList = spanIdMap.remove(rootSpanId);
+        if (rootList == null || rootList.size() == 0) {
+            throw new IllegalStateException("rootList span not found. rootSpanId=" + rootSpanId + ", map=" + spanIdMap.keySet());
+        }
         if (rootList.size() > 1) {
             throw new IllegalStateException("duplicate rootList span found. rootSpanId=" + rootSpanId + ", map=" + spanIdMap.keySet());
         }
@@ -138,8 +138,8 @@ public class SpanAligner2 {
         final List<SpanAlign> list = new ArrayList<SpanAlign>();
         populate(rootSpanBo, 0, list);
 
-		return list;
-	}
+        return list;
+    }
 
     public int getMatchType() {
         return matchType;
@@ -147,33 +147,33 @@ public class SpanAligner2 {
 
     private void populate(SpanBo span, int spanDepth, List<SpanAlign> container) {
         logger.debug("populate start");
-		int currentDepth = spanDepth;
+        int currentDepth = spanDepth;
         if (logger.isDebugEnabled()) {
             logger.debug("span type:{} depth:{} spanDepth:{} ", currentDepth, span.getServiceType(), spanDepth);
         }
 
-		SpanAlign spanAlign = new SpanAlign(currentDepth, span);
-		container.add(spanAlign);
+        SpanAlign spanAlign = new SpanAlign(currentDepth, span);
+        container.add(spanAlign);
 
-		List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
+        List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
         if (spanEventBoList == null) {
             return;
         }
 
         spanAlign.setHasChild(true);
 
-		for (SpanEventBo spanEventBo : spanEventBoList) {
-			if (spanEventBo. getDepth() != -1) {
-				currentDepth = spanDepth + spanEventBo.getDepth();
-			}
+        for (SpanEventBo spanEventBo : spanEventBoList) {
+            if (spanEventBo. getDepth() != -1) {
+                currentDepth = spanDepth + spanEventBo.getDepth();
+            }
             if (logger.isDebugEnabled()) {
                 logger.debug("spanEvent type:{} depth:{} spanEventDepth:{} ", spanEventBo.getServiceType(), currentDepth, spanEventBo.getDepth());
             }
 
-			SpanAlign spanEventAlign = new SpanAlign(currentDepth, span, spanEventBo);
-			container.add(spanEventAlign);
+            SpanAlign spanEventAlign = new SpanAlign(currentDepth, span, spanEventBo);
+            container.add(spanEventAlign);
 
-			final long nextSpanId = spanEventBo.getNextSpanId();
+            final long nextSpanId = spanEventBo.getNextSpanId();
             final List<SpanBo> nextSpanBoList = spanIdMap.remove(nextSpanId);
             if (nextSpanId != ROOT && nextSpanBoList != null) {
                 int childDepth = currentDepth + 1;
@@ -184,10 +184,10 @@ public class SpanAligner2 {
                 } else {
                     logger.debug("nextSpanId not found. {}", nextSpanId);
                 }
-			}
-		}
+            }
+        }
         logger.debug("populate end");
-	}
+    }
 
     // fix nextSpan collision problem
     private SpanBo getNextSpan(SpanBo span, SpanEventBo beforeSpanEventBo, List<SpanBo> nextSpanBoList) {

@@ -37,14 +37,14 @@ import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
  */
 public class WebCluster implements Cluster {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	private final PinpointSocketFactory factory;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final PinpointSocketFactory factory;
 
-	private final Map<InetSocketAddress, PinpointSocket> clusterRepository = new HashMap<InetSocketAddress, PinpointSocket>();
+    private final Map<InetSocketAddress, PinpointSocket> clusterRepository = new HashMap<InetSocketAddress, PinpointSocket>();
 
-	public WebCluster(String id, MessageListener messageListener) {
-	    this(id, messageListener, DisabledServerStreamChannelMessageListener.INSTANCE);
-	}
+    public WebCluster(String id, MessageListener messageListener) {
+        this(id, messageListener, DisabledServerStreamChannelMessageListener.INSTANCE);
+    }
 
     public WebCluster(String id, MessageListener messageListener, ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
         this.factory = new PinpointSocketFactory();
@@ -58,68 +58,68 @@ public class WebCluster implements Cluster {
         factory.setProperties(properties);
     }
 
-	// Not safe for use by multiple threads.
-	public void connectPointIfAbsent(InetSocketAddress address) {
-		logger.info("localhost -> {} connect started.", address);
-		
-		if (clusterRepository.containsKey(address)) {
-			logger.info("localhost -> {} already connected.", address);
-			return;
-		}
-		
-		PinpointSocket socket = createPinpointSocket(address);
-		clusterRepository.put(address, socket);
-		
-		logger.info("localhost -> {} connect completed.", address);
-	}
+    // Not safe for use by multiple threads.
+    public void connectPointIfAbsent(InetSocketAddress address) {
+        logger.info("localhost -> {} connect started.", address);
 
-	// Not safe for use by multiple threads.
-	public void disconnectPoint(InetSocketAddress address) {
-		logger.info("localhost -> {} disconnect started.", address);
+        if (clusterRepository.containsKey(address)) {
+            logger.info("localhost -> {} already connected.", address);
+            return;
+        }
 
-		PinpointSocket socket = clusterRepository.remove(address);
-		if (socket != null) {
-			socket.close();
-			logger.info("localhost -> {} disconnect completed.", address);
-		} else {
-			logger.info("localhost -> {} already disconnected.", address);
-		}
-	}
+        PinpointSocket socket = createPinpointSocket(address);
+        clusterRepository.put(address, socket);
 
-	private PinpointSocket createPinpointSocket(InetSocketAddress address) {
-		String host = address.getHostName();
-		int port = address.getPort();
+        logger.info("localhost -> {} connect completed.", address);
+    }
 
-		PinpointSocket socket = null;
-		for (int i = 0; i < 3; i++) {
-			try {
-				socket = factory.connect(host, port);
-				logger.info("tcp connect success:{}/{}", host, port);
-				return socket;
-			} catch (PinpointSocketException e) {
-				logger.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
-			}
-		}
-		logger.warn("change background tcp connect mode  {}/{} ", host, port);
-		socket = factory.scheduledConnect(host, port);
+    // Not safe for use by multiple threads.
+    public void disconnectPoint(InetSocketAddress address) {
+        logger.info("localhost -> {} disconnect started.", address);
 
-		return socket;
-	}
+        PinpointSocket socket = clusterRepository.remove(address);
+        if (socket != null) {
+            socket.close();
+            logger.info("localhost -> {} disconnect completed.", address);
+        } else {
+            logger.info("localhost -> {} already disconnected.", address);
+        }
+    }
 
-	public List<InetSocketAddress> getWebClusterList() {
-		return new ArrayList<InetSocketAddress>(clusterRepository.keySet());
-	}
-	
-	public void close() {
-		for (PinpointSocket socket : clusterRepository.values()) {
-			if (socket != null) {
-				socket.close();
-			}
-		}
-		
-		if (factory != null) {
-			factory.release();
-		}
-	}
+    private PinpointSocket createPinpointSocket(InetSocketAddress address) {
+        String host = address.getHostName();
+        int port = address.getPort();
+
+        PinpointSocket socket = null;
+        for (int i = 0; i < 3; i++) {
+            try {
+                socket = factory.connect(host, port);
+                logger.info("tcp connect success:{}/{}", host, port);
+                return socket;
+            } catch (PinpointSocketException e) {
+                logger.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
+            }
+        }
+        logger.warn("change background tcp connect mode  {}/{} ", host, port);
+        socket = factory.scheduledConnect(host, port);
+
+        return socket;
+    }
+
+    public List<InetSocketAddress> getWebClusterList() {
+        return new ArrayList<InetSocketAddress>(clusterRepository.keySet());
+    }
+
+    public void close() {
+        for (PinpointSocket socket : clusterRepository.values()) {
+            if (socket != null) {
+                socket.close();
+            }
+        }
+
+        if (factory != null) {
+            factory.release();
+        }
+    }
 
 }

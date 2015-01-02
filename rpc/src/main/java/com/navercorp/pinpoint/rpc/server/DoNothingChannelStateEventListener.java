@@ -21,13 +21,13 @@ import org.slf4j.LoggerFactory;
 
 public class DoNothingChannelStateEventListener implements SocketChannelStateChangeEventListener {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
-	public static final SocketChannelStateChangeEventListener INSTANCE = new DoNothingChannelStateEventListener();
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Override
-	public void eventPerformed(ChannelContext channelContext, PinpointServerSocketStateCode stateCode) {
-		logger.info("eventPerformed {}:", channelContext);
-	}
+    public static final SocketChannelStateChangeEventListener INSTANCE = new DoNothingChannelStateEventListener();
+
+    @Override
+    public void eventPerformed(ChannelContext channelContext, PinpointServerSocketStateCode stateCode) {
+        logger.info("eventPerformed {}:", channelContext);
+    }
 
 }

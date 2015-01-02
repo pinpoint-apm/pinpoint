@@ -27,18 +27,18 @@ import com.navercorp.pinpoint.rpc.control.ProtocolException;
  */
 public final class ControlMessageEncodingUtils {
 
-	private static final ControlMessageEncoder encoder = new ControlMessageEncoder();
-	private static final ControlMessageDecoder decoder = new ControlMessageDecoder();
+    private static final ControlMessageEncoder encoder = new ControlMessageEncoder();
+    private static final ControlMessageDecoder decoder = new ControlMessageDecoder();
 
-	private ControlMessageEncodingUtils() {
-	}
+    private ControlMessageEncodingUtils() {
+    }
 
-	public static byte[] encode(Map<String, Object> value) throws ProtocolException {
-		return encoder.encode(value);
-	}
+    public static byte[] encode(Map<String, Object> value) throws ProtocolException {
+        return encoder.encode(value);
+    }
 
-	public static Object decode(byte[] in) throws ProtocolException {
-		return decoder.decode(in);
-	}
+    public static Object decode(byte[] in) throws ProtocolException {
+        return decoder.decode(in);
+    }
 
 }

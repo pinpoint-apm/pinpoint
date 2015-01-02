@@ -41,8 +41,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
-	@Autowired
-	private HbaseOperations2 hbaseTemplate;
+    @Autowired
+    private HbaseOperations2 hbaseTemplate;
 
     @Autowired
     private AcceptedTimeService acceptedTimeService;
@@ -51,8 +51,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     @Qualifier("applicationTraceIndexDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
 
-	@Override
-	public void insert(final TSpan span) {
+    @Override
+    public void insert(final TSpan span) {
         if (span == null) {
             throw new NullPointerException("span must not be null");
         }
@@ -69,27 +69,27 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
         put.add(APPLICATION_TRACE_INDEX_CF_TRACE, makeQualifier(span) , acceptedTime, value);
 
-		hbaseTemplate.put(APPLICATION_TRACE_INDEX, put);
-	}
+        hbaseTemplate.put(APPLICATION_TRACE_INDEX, put);
+    }
 
-	private byte[] makeQualifier(final TSpan span) {
-		boolean useIndexedQualifier = false;
-		byte[] qualifier;
+    private byte[] makeQualifier(final TSpan span) {
+        boolean useIndexedQualifier = false;
+        byte[] qualifier;
 
-		if (useIndexedQualifier) {
-			final Buffer columnName = new AutomaticBuffer(16);
-			// FIXME putVar not used in order to utilize hbase column prefix filter
-			columnName.put(span.getElapsed());
-			columnName.put(SpanUtils.getVarTransactionId(span));
-			qualifier = columnName.getBuffer();
-		} else {
-			// OLD
-			// byte[] transactionId = SpanUtils.getTransactionId(span);
-			qualifier = SpanUtils.getVarTransactionId(span);
-		}
-		return qualifier;
-	}
-	
+        if (useIndexedQualifier) {
+            final Buffer columnName = new AutomaticBuffer(16);
+            // FIXME putVar not used in order to utilize hbase column prefix filter
+            columnName.put(span.getElapsed());
+            columnName.put(SpanUtils.getVarTransactionId(span));
+            qualifier = columnName.getBuffer();
+        } else {
+            // OLD
+            // byte[] transactionId = SpanUtils.getTransactionId(span);
+            qualifier = SpanUtils.getVarTransactionId(span);
+        }
+        return qualifier;
+    }
+
     private byte[] crateRowKey(TSpan span, long acceptedTime) {
         // distribute key evenly
         byte[] applicationTraceIndexRowKey = SpanUtils.getApplicationTraceIndexRowKey(span.getApplicationName(), acceptedTime);

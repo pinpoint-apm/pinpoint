@@ -32,24 +32,24 @@ import org.springframework.stereotype.Service;
 @Service
 public class ApiMetaDataHandler implements RequestResponseHandler {
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Autowired
-	private ApiMetaDataDao sqlMetaDataDao;
+    @Autowired
+    private ApiMetaDataDao sqlMetaDataDao;
 
-	@Override
-	public TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
-		if (!(tbase instanceof TApiMetaData)) {
-			logger.error("invalid tbase:{}", tbase);
-			return null;
-		}
-		
-		TApiMetaData apiMetaData = (TApiMetaData) tbase;
+    @Override
+    public TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
+        if (!(tbase instanceof TApiMetaData)) {
+            logger.error("invalid tbase:{}", tbase);
+            return null;
+        }
 
-		// Because api meta data is important , logging it at info level.
-		if (logger.isInfoEnabled()) {
-			logger.info("Received ApiMetaData={}", apiMetaData);
-		}
+        TApiMetaData apiMetaData = (TApiMetaData) tbase;
+
+        // Because api meta data is important , logging it at info level.
+        if (logger.isInfoEnabled()) {
+            logger.info("Received ApiMetaData={}", apiMetaData);
+        }
 
         try {
             sqlMetaDataDao.insert(apiMetaData);
@@ -60,5 +60,5 @@ public class ApiMetaDataHandler implements RequestResponseHandler {
             return result;
         }
         return new TResult(true);
-	}
+    }
 }

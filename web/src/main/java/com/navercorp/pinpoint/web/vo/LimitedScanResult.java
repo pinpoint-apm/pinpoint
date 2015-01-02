@@ -27,21 +27,21 @@ public class LimitedScanResult<V> {
     private long limitedTime;
     private V data;
 
-	public V getScanData() {
-		return data;
-	}
+    public V getScanData() {
+        return data;
+    }
 
-	public void setScanData(V scanData) {
-		this.data = scanData;
-	}
+    public void setScanData(V scanData) {
+        this.data = scanData;
+    }
 
-	public long getLimitedTime() {
-		return limitedTime;
-	}
+    public long getLimitedTime() {
+        return limitedTime;
+    }
 
-	public void setLimitedTime(long limitedTime) {
-		this.limitedTime = limitedTime;
-	}
+    public void setLimitedTime(long limitedTime) {
+        this.limitedTime = limitedTime;
+    }
 
     @Override
     public String toString() {

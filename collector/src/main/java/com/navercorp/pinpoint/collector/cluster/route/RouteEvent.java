@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
  */
 public interface RouteEvent {
 
-	TCommandTransfer getDeliveryCommand();
-	
-	Channel getSourceChannel();
-	
+    TCommandTransfer getDeliveryCommand();
+
+    Channel getSourceChannel();
+
 }

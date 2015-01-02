@@ -101,17 +101,17 @@ public class Link {
     }
 
 
-	public LinkKey getLinkKey() {
-		return new LinkKey(fromNode.getApplication(), toNode.getApplication());
-	}
+    public LinkKey getLinkKey() {
+        return new LinkKey(fromNode.getApplication(), toNode.getApplication());
+    }
 
-	public Node getFrom() {
-		return fromNode;
-	}
+    public Node getFrom() {
+        return fromNode;
+    }
 
-	public Node getTo() {
-		return toNode;
-	}
+    public Node getTo() {
+        return toNode;
+    }
 
     public String getLinkName() {
         return fromNode.getNodeName() + LINK_DELIMITER + toNode.getNodeName();
@@ -134,17 +134,17 @@ public class Link {
         }
     }
 
-	public AgentHistogramList getTargetList() {
-		return sourceLinkCallDataMap.getTargetList();
-	}
+    public AgentHistogramList getTargetList() {
+        return sourceLinkCallDataMap.getTargetList();
+    }
 
 
-	public Histogram getHistogram() {
+    public Histogram getHistogram() {
         if (linkHistogram == null) {
             linkHistogram = createHistogram0();
         }
         return linkHistogram;
-	}
+    }
 
     private Histogram createHistogram0() {
         // need serviceType of target (callee)

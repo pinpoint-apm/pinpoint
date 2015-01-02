@@ -37,36 +37,36 @@ import com.navercorp.pinpoint.common.ServiceType;
  * 
  * <code>
  * <pre>
- * 	public synchronized T get() throws InterruptedException, ExecutionException {
- * 		while (!this.completed) {
- * 			wait();
- * 		}
- * 		return getResult();
- * 	}
+ *     public synchronized T get() throws InterruptedException, ExecutionException {
+ *         while (!this.completed) {
+ *             wait();
+ *         }
+ *         return getResult();
+ *     }
  * 
- * 	public synchronized T get(final long timeout, final TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
- * 		Args.notNull(unit, "Time unit");
- * 		final long msecs = unit.toMillis(timeout);
- * 		final long startTime = (msecs <= 0) ? 0 : System.currentTimeMillis();
- * 		long waitTime = msecs;
- * 		if (this.completed) {
- * 			return getResult();
- * 		} else if (waitTime <= 0) {
- * 			throw new TimeoutException();
- * 		} else {
- * 			for (;;) {
- * 				wait(waitTime);
- * 				if (this.completed) {
- * 					return getResult();
- * 				} else {
- * 					waitTime = msecs - (System.currentTimeMillis() - startTime);
- * 					if (waitTime <= 0) {
- * 						throw new TimeoutException();
- * 					}
- * 				}
- * 			}
- * 		}
- * 	}
+ *     public synchronized T get(final long timeout, final TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+ *         Args.notNull(unit, "Time unit");
+ *         final long msecs = unit.toMillis(timeout);
+ *         final long startTime = (msecs <= 0) ? 0 : System.currentTimeMillis();
+ *         long waitTime = msecs;
+ *         if (this.completed) {
+ *             return getResult();
+ *         } else if (waitTime <= 0) {
+ *             throw new TimeoutException();
+ *         } else {
+ *             for (;;) {
+ *                 wait(waitTime);
+ *                 if (this.completed) {
+ *                     return getResult();
+ *                 } else {
+ *                     waitTime = msecs - (System.currentTimeMillis() - startTime);
+ *                     if (waitTime <= 0) {
+ *                         throw new TimeoutException();
+ *                     }
+ *                 }
+ *             }
+ *         }
+ *     }
  * </pre>
  * </code>
  * 
@@ -78,53 +78,53 @@ public class BasicFutureGetInterceptor implements SimpleAroundInterceptor, ByteC
     protected final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
 
-	protected TraceContext traceContext;
-	protected MethodDescriptor descriptor;
+    protected TraceContext traceContext;
+    protected MethodDescriptor descriptor;
 
-	@Override
-	public void before(Object target, Object[] args) {
-		if (isDebug) {
-			logger.beforeInterceptor(target, args);
-		}
+    @Override
+    public void before(Object target, Object[] args) {
+        if (isDebug) {
+            logger.beforeInterceptor(target, args);
+        }
 
-		Trace trace = traceContext.currentTraceObject();
-		if (trace == null) {
-			return;
-		}
+        Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
+            return;
+        }
 
-		trace.traceBlockBegin();
-		trace.markBeforeTime();
-		trace.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
-	}
+        trace.traceBlockBegin();
+        trace.markBeforeTime();
+        trace.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
+    }
 
-	@Override
-	public void after(Object target, Object[] args, Object result, Throwable throwable) {
-		if (isDebug) {
-			logger.afterInterceptor(target, args);
-		}
+    @Override
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        if (isDebug) {
+            logger.afterInterceptor(target, args);
+        }
 
-		Trace trace = traceContext.currentTraceObject();
-		if (trace == null) {
-			return;
-		}
+        Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
+            return;
+        }
 
-		try {
-			trace.recordApi(descriptor);
-			trace.recordException(throwable);
-			trace.markAfterTime();
-		} finally {
-			trace.traceBlockEnd();
-		}
-	}
+        try {
+            trace.recordApi(descriptor);
+            trace.recordException(throwable);
+            trace.markAfterTime();
+        } finally {
+            trace.traceBlockEnd();
+        }
+    }
 
-	@Override
-	public void setTraceContext(TraceContext traceContext) {
-		this.traceContext = traceContext;
-	}
+    @Override
+    public void setTraceContext(TraceContext traceContext) {
+        this.traceContext = traceContext;
+    }
 
-	@Override
-	public void setMethodDescriptor(MethodDescriptor descriptor) {
-		this.descriptor = descriptor;
-		traceContext.cacheApi(descriptor);
-	}
+    @Override
+    public void setMethodDescriptor(MethodDescriptor descriptor) {
+        this.descriptor = descriptor;
+        traceContext.cacheApi(descriptor);
+    }
 }

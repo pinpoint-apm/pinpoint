@@ -31,11 +31,11 @@ public class ServiceTypeTest {
 
 
     @Test
-	public void testIndexable() {
-		logger.debug("{}", ServiceType.TOMCAT.isIndexable());
+    public void testIndexable() {
+        logger.debug("{}", ServiceType.TOMCAT.isIndexable());
         logger.debug("{}", ServiceType.BLOC.isIndexable());
         logger.debug("{}", ServiceType.ARCUS.isIndexable());
-	}
+    }
 
     @Test
     public void findDesc() {

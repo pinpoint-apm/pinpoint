@@ -32,23 +32,23 @@ import org.springframework.stereotype.Service;
 @Service
 public class StringMetaDataHandler implements RequestResponseHandler {
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Autowired
-	private StringMetaDataDao stringMetaDataDao;
+    @Autowired
+    private StringMetaDataDao stringMetaDataDao;
 
-	@Override
-	public TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
-		if (!(tbase instanceof TStringMetaData)) {
-			logger.error("invalid tbase:{}", tbase);
-			return null;
-		}
-		
-		TStringMetaData stringMetaData = (TStringMetaData) tbase;
-		// because api data is important, logging it at info level
-		if (logger.isInfoEnabled()) {
-			logger.info("Received StringMetaData={}", stringMetaData);
-		}
+    @Override
+    public TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
+        if (!(tbase instanceof TStringMetaData)) {
+            logger.error("invalid tbase:{}", tbase);
+            return null;
+        }
+
+        TStringMetaData stringMetaData = (TStringMetaData) tbase;
+        // because api data is important, logging it at info level
+        if (logger.isInfoEnabled()) {
+            logger.info("Received StringMetaData={}", stringMetaData);
+        }
 
         try {
             stringMetaDataDao.insert(stringMetaData);
@@ -59,5 +59,5 @@ public class StringMetaDataHandler implements RequestResponseHandler {
             return result;
         }
         return new TResult(true);
-	}
+    }
 }

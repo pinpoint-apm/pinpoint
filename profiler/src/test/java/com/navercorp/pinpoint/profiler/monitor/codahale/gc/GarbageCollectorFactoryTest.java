@@ -28,8 +28,8 @@ public class GarbageCollectorFactoryTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Test
-	public void test() {
+    @Test
+    public void test() {
         GarbageCollector collector = new AgentStatCollectorFactory().getGarbageCollector();
 
         logger.debug("collector.getType():{}", collector);

@@ -35,7 +35,7 @@ public class CollectorConfiguration implements InitializingBean {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 //    cluster.zookeeper.address=dev.zk.pinpoint.navercorp.com
-//    		cluster.zookeeper.sessiontimeout=3000
+//            cluster.zookeeper.sessiontimeout=3000
     
     private static final String CONFIG_FILE_NAME = "pinpoint-collector.properties";
     private static final String DEFAULT_LISTEN_IP = "0.0.0.0";
@@ -103,11 +103,11 @@ public class CollectorConfiguration implements InitializingBean {
     }
 
     public int getUdpSpanListenPort() {
-		return udpSpanListenPort;
-	}
+        return udpSpanListenPort;
+    }
 
 
-	public int getUdpSpanWorkerThread() {
+    public int getUdpSpanWorkerThread() {
         return udpSpanWorkerThread;
     }
 
@@ -131,29 +131,29 @@ public class CollectorConfiguration implements InitializingBean {
         this.udpSpanSocketReceiveBufferSize = udpSpanSocketReceiveBufferSize;
     }
 
-	public boolean isClusterEnable() {
-		return clusterEnable;
-	}
+    public boolean isClusterEnable() {
+        return clusterEnable;
+    }
 
-	public void setClusterEnable(boolean clusterEnable) {
-		this.clusterEnable = clusterEnable;
-	}
+    public void setClusterEnable(boolean clusterEnable) {
+        this.clusterEnable = clusterEnable;
+    }
 
-	public String getClusterAddress() {
-		return clusterAddress;
-	}
+    public String getClusterAddress() {
+        return clusterAddress;
+    }
 
-	public void setClusterAddress(String clusterAddress) {
-		this.clusterAddress = clusterAddress;
-	}
-	
-	public int getClusterSessionTimeout() {
-		return clusterSessionTimeout;
-	}
+    public void setClusterAddress(String clusterAddress) {
+        this.clusterAddress = clusterAddress;
+    }
 
-	public void setClusterSessionTimeout(int clusterSessionTimeout) {
-		this.clusterSessionTimeout = clusterSessionTimeout;
-	}
+    public int getClusterSessionTimeout() {
+        return clusterSessionTimeout;
+    }
+
+    public void setClusterSessionTimeout(int clusterSessionTimeout) {
+        this.clusterSessionTimeout = clusterSessionTimeout;
+    }
 
     public void readConfigFile() {
 
@@ -226,7 +226,7 @@ public class CollectorConfiguration implements InitializingBean {
     }
     
     private boolean readBoolen(Properties properties, String propertyName) {
-    	final String value = properties.getProperty(propertyName);
+        final String value = properties.getProperty(propertyName);
         
         // if a default value will be needed afterwards, may match string value instead of Utils.
         // for now stay unmodified because of no need.

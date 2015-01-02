@@ -31,36 +31,36 @@ import com.navercorp.pinpoint.thrift.dto.*;
  * @author emeroad
  */
 public class SpanEventBo implements Span {
-	private static final int VERSION_SIZE = 1;
+    private static final int VERSION_SIZE = 1;
    // version 0 means that the type of prefix's size is int
 
-	private byte version = 0;
+    private byte version = 0;
 
-	private String agentId;
+    private String agentId;
     private String applicationId;
     private long agentStartTime;
 
     private String traceAgentId;
-	private long traceAgentStartTime;
-	private long traceTransactionSequence;
+    private long traceAgentStartTime;
+    private long traceTransactionSequence;
 
-	private long spanId;
-	private short sequence;
+    private long spanId;
+    private short sequence;
 
-	private int startElapsed;
-	private int endElapsed;
+    private int startElapsed;
+    private int endElapsed;
 
-	private String rpc;
-	private ServiceType serviceType;
+    private String rpc;
+    private ServiceType serviceType;
 
     private String destinationId;
-	private String endPoint;
+    private String endPoint;
     private int apiId;
 
-	private List<AnnotationBo> annotationBoList;
+    private List<AnnotationBo> annotationBoList;
 
-	private int depth = -1;
-	private long nextSpanId = -1;
+    private int depth = -1;
+    private long nextSpanId = -1;
 
     private boolean hasException;
     private int exceptionId;
@@ -70,10 +70,10 @@ public class SpanEventBo implements Span {
     private String exceptionClass;
 
 
-	public SpanEventBo() {
-	}
+    public SpanEventBo() {
+    }
 
-	public SpanEventBo(TSpan tSpan, TSpanEvent tSpanEvent) {
+    public SpanEventBo(TSpan tSpan, TSpanEvent tSpanEvent) {
         if (tSpan == null) {
             throw new NullPointerException("tSpan must not be null");
         }
@@ -93,30 +93,30 @@ public class SpanEventBo implements Span {
         this.traceAgentStartTime = transactionId.getAgentStartTime();
         this.traceTransactionSequence = transactionId.getTransactionSequence();
 
-		this.spanId = tSpan.getSpanId();
-		this.sequence = tSpanEvent.getSequence();
+        this.spanId = tSpan.getSpanId();
+        this.sequence = tSpanEvent.getSequence();
 
-		this.startElapsed = tSpanEvent.getStartElapsed();
-		this.endElapsed = tSpanEvent.getEndElapsed();
+        this.startElapsed = tSpanEvent.getStartElapsed();
+        this.endElapsed = tSpanEvent.getEndElapsed();
 
-		this.rpc = tSpanEvent.getRpc();
-		this.serviceType = ServiceType.findServiceType(tSpanEvent.getServiceType());
+        this.rpc = tSpanEvent.getRpc();
+        this.serviceType = ServiceType.findServiceType(tSpanEvent.getServiceType());
 
 
         this.destinationId = tSpanEvent.getDestinationId();
 
         this.endPoint = tSpanEvent.getEndPoint();
         this.apiId = tSpanEvent.getApiId();
-		
-		if (tSpanEvent.isSetDepth()) {
-			this.depth = tSpanEvent.getDepth();
-		}
+
+        if (tSpanEvent.isSetDepth()) {
+            this.depth = tSpanEvent.getDepth();
+        }
         
-		if (tSpanEvent.isSetNextSpanId()) {
-			this.nextSpanId = tSpanEvent.getNextSpanId();
-		}
+        if (tSpanEvent.isSetNextSpanId()) {
+            this.nextSpanId = tSpanEvent.getNextSpanId();
+        }
         
-		setAnnotationBoList(tSpanEvent.getAnnotations());
+        setAnnotationBoList(tSpanEvent.getAnnotations());
 
         final TIntStringValue exceptionInfo = tSpanEvent.getExceptionInfo();
         if (exceptionInfo != null) {
@@ -124,9 +124,9 @@ public class SpanEventBo implements Span {
             this.exceptionId = exceptionInfo.getIntValue();
             this.exceptionMessage = exceptionInfo.getStringValue();
         }
-	}
+    }
 
-	public SpanEventBo(TSpanChunk spanChunk, TSpanEvent spanEvent) {
+    public SpanEventBo(TSpanChunk spanChunk, TSpanEvent spanEvent) {
         if (spanChunk == null) {
             throw new NullPointerException("spanChunk must not be null");
         }
@@ -146,29 +146,29 @@ public class SpanEventBo implements Span {
         this.traceAgentStartTime = transactionId.getAgentStartTime();
         this.traceTransactionSequence = transactionId.getTransactionSequence();
 
-		this.spanId = spanChunk.getSpanId();
-		this.sequence = spanEvent.getSequence();
+        this.spanId = spanChunk.getSpanId();
+        this.sequence = spanEvent.getSequence();
 
-		this.startElapsed = spanEvent.getStartElapsed();
-		this.endElapsed = spanEvent.getEndElapsed();
+        this.startElapsed = spanEvent.getStartElapsed();
+        this.endElapsed = spanEvent.getEndElapsed();
 
-		this.rpc = spanEvent.getRpc();
-		this.serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
+        this.rpc = spanEvent.getRpc();
+        this.serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
 
         this.destinationId = spanEvent.getDestinationId();
 
-		this.endPoint = spanEvent.getEndPoint();
+        this.endPoint = spanEvent.getEndPoint();
         this.apiId = spanEvent.getApiId();
-		
-		if (spanEvent.isSetDepth()) {
-			this.depth = spanEvent.getDepth();
-		}
 
-		if (spanEvent.isSetNextSpanId()) {
-			this.nextSpanId = spanEvent.getNextSpanId();
-		}
-		
-		setAnnotationBoList(spanEvent.getAnnotations());
+        if (spanEvent.isSetDepth()) {
+            this.depth = spanEvent.getDepth();
+        }
+
+        if (spanEvent.isSetNextSpanId()) {
+            this.nextSpanId = spanEvent.getNextSpanId();
+        }
+
+        setAnnotationBoList(spanEvent.getAnnotations());
 
         final TIntStringValue exceptionInfo = spanEvent.getExceptionInfo();
         if (exceptionInfo != null) {
@@ -176,25 +176,25 @@ public class SpanEventBo implements Span {
             this.exceptionId = exceptionInfo.getIntValue();
             this.exceptionMessage = exceptionInfo.getStringValue();
         }
-	}
+    }
 
 
 
-	public byte getVersion() {
-		return version;
-	}
+    public byte getVersion() {
+        return version;
+    }
 
-	public void setVersion(byte version) {
-		this.version = version;
-	}
+    public void setVersion(byte version) {
+        this.version = version;
+    }
 
-	public String getAgentId() {
-		return agentId;
-	}
+    public String getAgentId() {
+        return agentId;
+    }
 
-	public void setAgentId(String agentId) {
-		this.agentId = agentId;
-	}
+    public void setAgentId(String agentId) {
+        this.agentId = agentId;
+    }
 
     public long getAgentStartTime() {
         return this.agentStartTime;
@@ -213,76 +213,76 @@ public class SpanEventBo implements Span {
     }
 
     public long getTraceAgentStartTime() {
-		return traceAgentStartTime;
-	}
+        return traceAgentStartTime;
+    }
 
-	public void setTraceAgentStartTime(long traceAgentStartTime) {
-		this.traceAgentStartTime = traceAgentStartTime;
-	}
+    public void setTraceAgentStartTime(long traceAgentStartTime) {
+        this.traceAgentStartTime = traceAgentStartTime;
+    }
 
-	public long getTraceTransactionSequence() {
-		return traceTransactionSequence;
-	}
+    public long getTraceTransactionSequence() {
+        return traceTransactionSequence;
+    }
 
-	public void setTraceTransactionSequence(long traceTransactionSequence) {
-		this.traceTransactionSequence = traceTransactionSequence;
-	}
+    public void setTraceTransactionSequence(long traceTransactionSequence) {
+        this.traceTransactionSequence = traceTransactionSequence;
+    }
 
-	public void setSpanId(long spanId) {
-		this.spanId = spanId;
-	}
+    public void setSpanId(long spanId) {
+        this.spanId = spanId;
+    }
 
-	public long getSpanId() {
-		return this.spanId;
-	}
+    public long getSpanId() {
+        return this.spanId;
+    }
 
-	public short getSequence() {
-		return sequence;
-	}
+    public short getSequence() {
+        return sequence;
+    }
 
-	public void setSequence(short sequence) {
-		this.sequence = sequence;
-	}
+    public void setSequence(short sequence) {
+        this.sequence = sequence;
+    }
 
-	public int getStartElapsed() {
-		return startElapsed;
-	}
+    public int getStartElapsed() {
+        return startElapsed;
+    }
 
-	public void setStartElapsed(int startElapsed) {
-		this.startElapsed = startElapsed;
-	}
+    public void setStartElapsed(int startElapsed) {
+        this.startElapsed = startElapsed;
+    }
 
-	public int getEndElapsed() {
-		return endElapsed;
-	}
+    public int getEndElapsed() {
+        return endElapsed;
+    }
 
-	public void setEndElapsed(int endElapsed) {
-		this.endElapsed = endElapsed;
-	}
+    public void setEndElapsed(int endElapsed) {
+        this.endElapsed = endElapsed;
+    }
 
-	public String getRpc() {
-		return rpc;
-	}
+    public String getRpc() {
+        return rpc;
+    }
 
-	public void setRpc(String rpc) {
-		this.rpc = rpc;
-	}
+    public void setRpc(String rpc) {
+        this.rpc = rpc;
+    }
 
-	public ServiceType getServiceType() {
-		return serviceType;
-	}
+    public ServiceType getServiceType() {
+        return serviceType;
+    }
 
-	public void setServiceType(ServiceType serviceType) {
-		this.serviceType = serviceType;
-	}
+    public void setServiceType(ServiceType serviceType) {
+        this.serviceType = serviceType;
+    }
 
-	public String getEndPoint() {
-		return endPoint;
-	}
+    public String getEndPoint() {
+        return endPoint;
+    }
 
-	public void setEndPoint(String endPoint) {
-		this.endPoint = endPoint;
-	}
+    public void setEndPoint(String endPoint) {
+        this.endPoint = endPoint;
+    }
 
     public int getApiId() {
         return apiId;
@@ -302,35 +302,35 @@ public class SpanEventBo implements Span {
 
 
     public List<AnnotationBo> getAnnotationBoList() {
-		return annotationBoList;
-	}
+        return annotationBoList;
+    }
 
-	public int getDepth() {
-		return depth;
-	}
+    public int getDepth() {
+        return depth;
+    }
 
-	public void setDepth(int depth) {
-		this.depth = depth;
-	}
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
 
-	public long getNextSpanId() {
-		return nextSpanId;
-	}
+    public long getNextSpanId() {
+        return nextSpanId;
+    }
 
-	public void setNextSpanId(long nextSpanId) {
-		this.nextSpanId = nextSpanId;
-	}
+    public void setNextSpanId(long nextSpanId) {
+        this.nextSpanId = nextSpanId;
+    }
 
-	private void setAnnotationBoList(List<TAnnotation> annotations) {
+    private void setAnnotationBoList(List<TAnnotation> annotations) {
         if (annotations == null) {
             return;
         }
-		List<AnnotationBo> boList = new ArrayList<AnnotationBo>(annotations.size());
-		for (TAnnotation ano : annotations) {
-			boList.add(new AnnotationBo(ano));
-		}
-		this.annotationBoList = boList;
-	}
+        List<AnnotationBo> boList = new ArrayList<AnnotationBo>(annotations.size());
+        for (TAnnotation ano : annotations) {
+            boList.add(new AnnotationBo(ano));
+        }
+        this.annotationBoList = boList;
+    }
 
     public boolean hasException() {
         return hasException;
@@ -400,52 +400,52 @@ public class SpanEventBo implements Span {
     private void writeAnnotation(Buffer buffer) {
         AnnotationBoList annotationBo = new AnnotationBoList(this.annotationBoList);
         annotationBo.writeValue(buffer);
-	}
+    }
 
 
-	public int readValue(byte[] bytes, int offset) {
+    public int readValue(byte[] bytes, int offset) {
         final Buffer buffer = new OffsetFixedBuffer(bytes, offset);
 
-		this.version = buffer.readByte();
+        this.version = buffer.readByte();
 
-		// this.mostTraceID = buffer.readLong();
-		// this.leastTraceID = buffer.readLong();
+        // this.mostTraceID = buffer.readLong();
+        // this.leastTraceID = buffer.readLong();
 
-		this.agentId = buffer.readPrefixedString();
+        this.agentId = buffer.readPrefixedString();
         this.applicationId = buffer.readPrefixedString();
         this.agentStartTime = buffer.readVarLong();
 
-		this.startElapsed = buffer.readVarInt();
-		this.endElapsed = buffer.readVarInt();
+        this.startElapsed = buffer.readVarInt();
+        this.endElapsed = buffer.readVarInt();
 
         // don't need to get sequence because it can be got at Qualifier
-		// this.sequence = buffer.readShort();
+        // this.sequence = buffer.readShort();
 
 
-		this.rpc = buffer.readPrefixedString();
-		this.serviceType = ServiceType.findServiceType(buffer.readShort());
-		this.endPoint = buffer.readPrefixedString();
+        this.rpc = buffer.readPrefixedString();
+        this.serviceType = ServiceType.findServiceType(buffer.readShort());
+        this.endPoint = buffer.readPrefixedString();
         this.destinationId = buffer.readPrefixedString();
         this.apiId = buffer.readSVarInt();
 
-		this.depth = buffer.readSVarInt();
-		this.nextSpanId = buffer.readLong();
+        this.depth = buffer.readSVarInt();
+        this.nextSpanId = buffer.readLong();
 
         this.hasException = buffer.readBoolean();
         if (hasException) {
             this.exceptionId = buffer.readSVarInt();
             this.exceptionMessage = buffer.readPrefixedString();
         }
-		
-		this.annotationBoList = readAnnotation(buffer);
-		return buffer.getOffset();
-	}
 
-	private List<AnnotationBo> readAnnotation(Buffer buffer) {
+        this.annotationBoList = readAnnotation(buffer);
+        return buffer.getOffset();
+    }
+
+    private List<AnnotationBo> readAnnotation(Buffer buffer) {
         AnnotationBoList annotationBoList = new AnnotationBoList();
         annotationBoList.readValue(buffer);
-		return annotationBoList.getAnnotationBoList();
-	}
+        return annotationBoList.getAnnotationBoList();
+    }
 
     @Override
     public String toString() {

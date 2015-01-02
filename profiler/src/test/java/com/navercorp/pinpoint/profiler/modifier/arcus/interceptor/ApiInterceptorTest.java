@@ -38,43 +38,43 @@ import org.slf4j.LoggerFactory;
 
 public class ApiInterceptorTest extends BaseInterceptorTest {
 
-	static final Logger logger = LoggerFactory.getLogger(ApiInterceptorTest.class);
+    static final Logger logger = LoggerFactory.getLogger(ApiInterceptorTest.class);
 
-	ApiInterceptor interceptor = new ApiInterceptor();
-	MemcachedClient client = mock(MockMemcachedClient.class);
+    ApiInterceptor interceptor = new ApiInterceptor();
+    MemcachedClient client = mock(MockMemcachedClient.class);
 
-	@Before
-	public void beforeEach() {
-		setInterceptor(interceptor);
-		MethodDescriptor methodDescriptor = new DefaultMethodDescriptor(
-				MockMemcachedClient.class.getName(), "set", new String[] {
-						"java.lang.String", "int", "java.lang.Object" },
-				new String[] { "key", "exptime", "value" });
-		/* FIXME NPE. Skip for now.
-		setMethodDescriptor(methodDescriptor);
-		*/
-		super.beforeEach();
-	}
+    @Before
+    public void beforeEach() {
+        setInterceptor(interceptor);
+        MethodDescriptor methodDescriptor = new DefaultMethodDescriptor(
+                MockMemcachedClient.class.getName(), "set", new String[] {
+                        "java.lang.String", "int", "java.lang.Object" },
+                new String[] { "key", "exptime", "value" });
+        /* FIXME NPE. Skip for now.
+        setMethodDescriptor(methodDescriptor);
+        */
+        super.beforeEach();
+    }
 
-	@Test
-	public void testAround() {
-		Object[] args = new Object[] {"key", 10, "my_value"};
-		interceptor.before(client, args);
-		interceptor.after(client, args, null, null);
-	}
+    @Test
+    public void testAround() {
+        Object[] args = new Object[] {"key", 10, "my_value"};
+        interceptor.before(client, args);
+        interceptor.after(client, args, null, null);
+    }
 
-	/**
-	 * Fake MemcachedClient
-	 */
-	class MockMemcachedClient extends MemcachedClient {
-		public MockMemcachedClient(ConnectionFactory cf,
-				List<InetSocketAddress> addrs) throws IOException {
-			super(cf, addrs);
-		}
+    /**
+     * Fake MemcachedClient
+     */
+    class MockMemcachedClient extends MemcachedClient {
+        public MockMemcachedClient(ConnectionFactory cf,
+                List<InetSocketAddress> addrs) throws IOException {
+            super(cf, addrs);
+        }
 
-		public String __getServiceCode() {
-			return "MEMCACHED";
-		}
-	}
+        public String __getServiceCode() {
+            return "MEMCACHED";
+        }
+    }
 
 }

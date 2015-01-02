@@ -68,10 +68,10 @@ import com.navercorp.pinpoint.thrift.util.SerializationUtils;
  */
 public class TCPReceiver {
 
-	private final Logger logger = LoggerFactory.getLogger(TCPReceiver.class);
+    private final Logger logger = LoggerFactory.getLogger(TCPReceiver.class);
 
     private final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("Pinpoint-TCP-Worker");
-	private final PinpointServerSocket pinpointServerSocket;
+    private final PinpointServerSocket pinpointServerSocket;
     private final DispatchHandler dispatchHandler;
     private final String bindAddress;
     private final int port;
@@ -90,7 +90,7 @@ public class TCPReceiver {
 
 
     public TCPReceiver(DispatchHandler dispatchHandler, String bindAddress, int port) {
-    	this(dispatchHandler, bindAddress, port, null);
+        this(dispatchHandler, bindAddress, port, null);
     }
 
     public TCPReceiver(DispatchHandler dispatchHandler, String bindAddress, int port, ZookeeperClusterService service) {
@@ -102,43 +102,43 @@ public class TCPReceiver {
         }
         
         if (service == null || !service.isEnable()) {
-        	this.pinpointServerSocket = new PinpointServerSocket();
+            this.pinpointServerSocket = new PinpointServerSocket();
         } else {
-        	this.pinpointServerSocket = new PinpointServerSocket(service.getChannelStateChangeEventListener());
+            this.pinpointServerSocket = new PinpointServerSocket(service.getChannelStateChangeEventListener());
         }
         
         this.dispatchHandler = dispatchHandler;
         this.bindAddress = bindAddress;
         this.port = port;
-	}
+    }
 
     private void setL4TcpChannel(PinpointServerSocket pinpointServerSocket) {
         if (l4ipList == null) {
             return;
         }
         try {
-        	List<InetAddress> inetAddressList = new ArrayList<InetAddress>();
-        	for (int i = 0; i < l4ipList.size(); i++) {
-        		String l4Ip = l4ipList.get(i);
-        		if (StringUtils.isBlank(l4Ip)) {
-        			continue;
-        		}
-        		
-        		InetAddress address = InetAddress.getByName(l4Ip);
-        		if (address != null) {
-        			inetAddressList.add(address);
-        		}
+            List<InetAddress> inetAddressList = new ArrayList<InetAddress>();
+            for (int i = 0; i < l4ipList.size(); i++) {
+                String l4Ip = l4ipList.get(i);
+                if (StringUtils.isBlank(l4Ip)) {
+                    continue;
+                }
+
+                InetAddress address = InetAddress.getByName(l4Ip);
+                if (address != null) {
+                    inetAddressList.add(address);
+                }
             }
             
-        	InetAddress[] inetAddressArray = new InetAddress[inetAddressList.size()];
-        	pinpointServerSocket.setIgnoreAddressList(inetAddressList.toArray(inetAddressArray));
+            InetAddress[] inetAddressArray = new InetAddress[inetAddressList.size()];
+            pinpointServerSocket.setIgnoreAddressList(inetAddressList.toArray(inetAddressArray));
         } catch (UnknownHostException e) {
             logger.warn("l4ipList error {}", l4ipList, e);
         }
     }
 
     @PostConstruct
-	public void start() {
+    public void start() {
         setL4TcpChannel(pinpointServerSocket);
         // take care when attaching message handlers as events are generated from the IO thread.
         // pass them to a separate queue and handle them in a different thread.
@@ -155,27 +155,27 @@ public class TCPReceiver {
 
             @Override
             public HandshakeResponseCode handleHandshake(Map properties) {
-    			if (properties == null) {
-    				return HandshakeResponseType.ProtocolError.PROTOCOL_ERROR;
-    			}
-    			
-    			boolean hasAllType = AgentHandshakePropertyType.hasAllType(properties);
-    			if (!hasAllType) {
-    				return HandshakeResponseType.PropertyError.PROPERTY_ERROR;
-    			}
-    			
-				boolean supportServer = MapUtils.getBoolean(properties, AgentHandshakePropertyType.SUPPORT_SERVER.getName(), true);
-				if (supportServer) {
-				    return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
-				} else {
+                if (properties == null) {
+                    return HandshakeResponseType.ProtocolError.PROTOCOL_ERROR;
+                }
+
+                boolean hasAllType = AgentHandshakePropertyType.hasAllType(properties);
+                if (!hasAllType) {
+                    return HandshakeResponseType.PropertyError.PROPERTY_ERROR;
+                }
+
+                boolean supportServer = MapUtils.getBoolean(properties, AgentHandshakePropertyType.SUPPORT_SERVER.getName(), true);
+                if (supportServer) {
+                    return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
+                } else {
                     return HandshakeResponseType.Success.SIMPLEX_COMMUNICATION;
-				}
+                }
             }
         });
         this.pinpointServerSocket.bind(bindAddress, port);
 
 
-	}
+    }
 
     private void receive(SendPacket sendPacket, SocketChannel channel) {
         try {
@@ -211,7 +211,7 @@ public class TCPReceiver {
         @Override
         public void run() {
             try {
-            	TBase<?, ?> tBase = SerializationUtils.deserialize(bytes, deserializerFactory);
+                TBase<?, ?> tBase = SerializationUtils.deserialize(bytes, deserializerFactory);
                 dispatchHandler.dispatchSendMessage(tBase, bytes, Header.HEADER_SIZE, bytes.length);
             } catch (TException e) {
                 if (logger.isWarnEnabled()) {
@@ -251,7 +251,7 @@ public class TCPReceiver {
             byte[] bytes = requestPacket.getPayload();
             SocketAddress remoteAddress = socketChannel.getRemoteAddress();
             try {
-            	TBase<?, ?> tBase = SerializationUtils.deserialize(bytes, deserializerFactory);
+                TBase<?, ?> tBase = SerializationUtils.deserialize(bytes, deserializerFactory);
                 if (tBase instanceof L4Packet) {
                     if (logger.isDebugEnabled()) {
                         L4Packet packet = (L4Packet) tBase;
@@ -261,7 +261,7 @@ public class TCPReceiver {
                 }
                 TBase result = dispatchHandler.dispatchRequestMessage(tBase, bytes, Header.HEADER_SIZE, bytes.length);
                 if (result != null) {
-                	byte[] resultBytes = SerializationUtils.serialize(result, serializerFactory);
+                    byte[] resultBytes = SerializationUtils.serialize(result, serializerFactory);
                     socketChannel.sendResponseMessage(requestPacket, resultBytes);
                 }
             } catch (TException e) {

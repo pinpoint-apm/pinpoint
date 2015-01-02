@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.common.ServiceType;
  * 
  */
 public final class Application {
-	private final String name;
+    private final String name;
     private final ServiceType serviceType;
     // store separately to track undefined cases more easily
     private final short code;
@@ -42,22 +42,22 @@ public final class Application {
         this.code = serviceType.getCode();
     }
 
-	public Application(String name, short serviceType) {
+    public Application(String name, short serviceType) {
         if (name == null) {
             throw new NullPointerException("name must not be null");
         }
         this.name = name;
-		this.serviceType = ServiceType.findServiceType(serviceType);
+        this.serviceType = ServiceType.findServiceType(serviceType);
         this.code = serviceType;
-	}
+    }
 
     public String getName() {
-		return name;
-	}
+        return name;
+    }
 
-	public ServiceType getServiceType() {
-		return serviceType;
-	}
+    public ServiceType getServiceType() {
+        return serviceType;
+    }
 
     public short getServiceTypeCode() {
         return serviceType.getCode();
@@ -101,7 +101,7 @@ public final class Application {
     }
 
     @Override
-	public String toString() {
-		return name + "(" + serviceType + ":" + code + ")";
-	}
+    public String toString() {
+        return name + "(" + serviceType + ":" + code + ")";
+    }
 }

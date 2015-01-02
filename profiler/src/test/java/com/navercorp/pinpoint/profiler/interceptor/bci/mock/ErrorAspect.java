@@ -26,13 +26,13 @@ import com.navercorp.pinpoint.profiler.interceptor.aspect.PointCut;
 @Aspect
 public abstract class ErrorAspect {
 
-	@PointCut
-	public void testSignatureMiss() {
-		__testVoid();
-	}
+    @PointCut
+    public void testSignatureMiss() {
+        __testVoid();
+    }
 
-	@JointPoint
-	abstract void __testVoid();
+    @JointPoint
+    abstract void __testVoid();
 
 
 

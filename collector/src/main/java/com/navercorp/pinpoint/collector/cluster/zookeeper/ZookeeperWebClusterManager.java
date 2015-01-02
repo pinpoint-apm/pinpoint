@@ -40,76 +40,76 @@ import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 public class ZookeeperWebClusterManager implements Runnable {
 
     // it is okay for the collector to retry indefinitely, as long as RETRY_INTERVAL is set reasonably
-	private static final int DEFAULT_RETRY_INTERVAL = 60000;
+    private static final int DEFAULT_RETRY_INTERVAL = 60000;
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final GetAndRegisterTask getAndRegisterTask = new GetAndRegisterTask();
-	private final StopTask stopTask = new StopTask();
+    private final GetAndRegisterTask getAndRegisterTask = new GetAndRegisterTask();
+    private final StopTask stopTask = new StopTask();
 
-	private final ZookeeperClient client;
-	private final WebCluster webCluster;
-	private final String zNodePath;
+    private final ZookeeperClient client;
+    private final WebCluster webCluster;
+    private final String zNodePath;
 
-	private final AtomicBoolean retryMode = new AtomicBoolean(false);
+    private final AtomicBoolean retryMode = new AtomicBoolean(false);
 
-	private final BlockingQueue<Task> queue = new LinkedBlockingQueue<Task>(1);
+    private final BlockingQueue<Task> queue = new LinkedBlockingQueue<Task>(1);
 
-	private final WorkerStateContext workerState;
-	private final Thread workerThread;
+    private final WorkerStateContext workerState;
+    private final Thread workerThread;
 
-	// private final Timer timer;
+    // private final Timer timer;
 
-	// Register Worker + Job
-	// synchronize current status with Zookeeper when an event(job) is triggered.
-	// (the number of events does not matter as long as a single event is triggered - subsequent events may be ignored)
-	public ZookeeperWebClusterManager(ZookeeperClient client, String zookeeperClusterPath, String serverIdentifier, WebCluster webCluster) {
-		this.client = client;
+    // Register Worker + Job
+    // synchronize current status with Zookeeper when an event(job) is triggered.
+    // (the number of events does not matter as long as a single event is triggered - subsequent events may be ignored)
+    public ZookeeperWebClusterManager(ZookeeperClient client, String zookeeperClusterPath, String serverIdentifier, WebCluster webCluster) {
+        this.client = client;
 
-		this.webCluster = webCluster;
-		this.zNodePath = zookeeperClusterPath;
+        this.webCluster = webCluster;
+        this.zNodePath = zookeeperClusterPath;
 
-		this.workerState = new WorkerStateContext();
+        this.workerState = new WorkerStateContext();
 
-		final ThreadFactory threadFactory = new PinpointThreadFactory(this.getClass().getSimpleName(), true);
-		this.workerThread = threadFactory.newThread(this);
-	}
+        final ThreadFactory threadFactory = new PinpointThreadFactory(this.getClass().getSimpleName(), true);
+        this.workerThread = threadFactory.newThread(this);
+    }
 
-	public void start() {
-		switch (this.workerState.getCurrentState()) {
-			case NEW:
-				if (this.workerState.changeStateInitializing()) {
-					logger.info("{} initialization started.", this.getClass().getSimpleName());
-					this.workerThread.start();
-					
-					workerState.changeStateStarted();
-					logger.info("{} initialization completed.", this.getClass().getSimpleName());
-					break;
-				}
-			case INITIALIZING:
-				logger.info("{} already initializing.", this.getClass().getSimpleName());
-				break;
-			case STARTED:
-				logger.info("{} already started.", this.getClass().getSimpleName());
-				break;
-			case DESTROYING:
-				throw new IllegalStateException("Already destroying.");
-			case STOPPED:
-				throw new IllegalStateException("Already stopped.");
-			case ILLEGAL_STATE:
-				throw new IllegalStateException("Invalid State.");
-		}
-	}
+    public void start() {
+        switch (this.workerState.getCurrentState()) {
+            case NEW:
+                if (this.workerState.changeStateInitializing()) {
+                    logger.info("{} initialization started.", this.getClass().getSimpleName());
+                    this.workerThread.start();
 
-	public void stop() {
-		if (!(this.workerState.changeStateDestroying())) {
-			WorkerState state = this.workerState.getCurrentState();
-			
-			logger.info("{} already {}.", this.getClass().getSimpleName(), state.toString());
-			return;
-		}
+                    workerState.changeStateStarted();
+                    logger.info("{} initialization completed.", this.getClass().getSimpleName());
+                    break;
+                }
+            case INITIALIZING:
+                logger.info("{} already initializing.", this.getClass().getSimpleName());
+                break;
+            case STARTED:
+                logger.info("{} already started.", this.getClass().getSimpleName());
+                break;
+            case DESTROYING:
+                throw new IllegalStateException("Already destroying.");
+            case STOPPED:
+                throw new IllegalStateException("Already stopped.");
+            case ILLEGAL_STATE:
+                throw new IllegalStateException("Invalid State.");
+        }
+    }
 
-		logger.info("{} destorying started.", this.getClass().getSimpleName());
+    public void stop() {
+        if (!(this.workerState.changeStateDestroying())) {
+            WorkerState state = this.workerState.getCurrentState();
+
+            logger.info("{} already {}.", this.getClass().getSimpleName(), state.toString());
+            return;
+        }
+
+        logger.info("{} destorying started.", this.getClass().getSimpleName());
 
         final boolean stopOffer = queue.offer(stopTask);
         if (!stopOffer) {
@@ -117,119 +117,119 @@ public class ZookeeperWebClusterManager implements Runnable {
         }
 
         boolean interrupted = false;
-		while (this.workerThread.isAlive()) {
-			this.workerThread.interrupt();
-			try {
-				this.workerThread.join(100L);
-			} catch (InterruptedException e) {
-				interrupted = true;
-			}
-		}
+        while (this.workerThread.isAlive()) {
+            this.workerThread.interrupt();
+            try {
+                this.workerThread.join(100L);
+            } catch (InterruptedException e) {
+                interrupted = true;
+            }
+        }
 
-		this.workerState.changeStateStopped();
-		logger.info("{} destorying completed.", this.getClass().getSimpleName());
-	}
+        this.workerState.changeStateStopped();
+        logger.info("{} destorying completed.", this.getClass().getSimpleName());
+    }
 
-	public void handleAndRegisterWatcher(String path) {
-		if (workerState.isStarted()) {
-			if (zNodePath.equals(path)) {
-				final boolean offerSuccess = queue.offer(getAndRegisterTask);
-				if (!offerSuccess) {
-					logger.info("Message Queue is Full.");
-				}
-			} else {
-				logger.info("Invald Path {}.", path);
-			}
-		} else {
-			WorkerState state = this.workerState.getCurrentState();
-			logger.info("{} invalid state {}.", this.getClass().getSimpleName(), state.toString());
-		}
-	}
+    public void handleAndRegisterWatcher(String path) {
+        if (workerState.isStarted()) {
+            if (zNodePath.equals(path)) {
+                final boolean offerSuccess = queue.offer(getAndRegisterTask);
+                if (!offerSuccess) {
+                    logger.info("Message Queue is Full.");
+                }
+            } else {
+                logger.info("Invald Path {}.", path);
+            }
+        } else {
+            WorkerState state = this.workerState.getCurrentState();
+            logger.info("{} invalid state {}.", this.getClass().getSimpleName(), state.toString());
+        }
+    }
 
-	@Override
-	public void run() {
-	    // if the node does not exist, create a node and retry.
-	    // retry on timeout as well.
-		while (workerState.isStarted()) {
-			Task task = null;
+    @Override
+    public void run() {
+        // if the node does not exist, create a node and retry.
+        // retry on timeout as well.
+        while (workerState.isStarted()) {
+            Task task = null;
 
-			try {
-				task = queue.poll(DEFAULT_RETRY_INTERVAL, TimeUnit.MILLISECONDS);
-			} catch (InterruptedException e) {
-				logger.debug(e.getMessage(), e);
-			}
+            try {
+                task = queue.poll(DEFAULT_RETRY_INTERVAL, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                logger.debug(e.getMessage(), e);
+            }
 
-			if (!workerState.isStarted()) {
-				break;
-			}
+            if (!workerState.isStarted()) {
+                break;
+            }
 
-			if (task == null) {
-				if (retryMode.get()) {
-					boolean success = getAndRegisterTask.handleAndRegisterWatcher0();
-					if (success) {
-						retryMode.compareAndSet(true, false);
-					}
-				}
-			} else if (task instanceof GetAndRegisterTask) {
-				boolean success = ((GetAndRegisterTask) task).handleAndRegisterWatcher0();
-				if (!success) {
-					retryMode.compareAndSet(false, true);
-				}
-			} else if (task instanceof StopTask) {
-				break;
-			}
-		}
+            if (task == null) {
+                if (retryMode.get()) {
+                    boolean success = getAndRegisterTask.handleAndRegisterWatcher0();
+                    if (success) {
+                        retryMode.compareAndSet(true, false);
+                    }
+                }
+            } else if (task instanceof GetAndRegisterTask) {
+                boolean success = ((GetAndRegisterTask) task).handleAndRegisterWatcher0();
+                if (!success) {
+                    retryMode.compareAndSet(false, true);
+                }
+            } else if (task instanceof StopTask) {
+                break;
+            }
+        }
 
-		logger.info("{} stopped", this.getClass().getSimpleName());
-	}
+        logger.info("{} stopped", this.getClass().getSimpleName());
+    }
 
-	interface Task {
+    interface Task {
 
-	}
+    }
 
-	class GetAndRegisterTask implements Task {
+    class GetAndRegisterTask implements Task {
 
-		private boolean handleAndRegisterWatcher0() {
-			boolean needNotRetry = false;
-			try {
+        private boolean handleAndRegisterWatcher0() {
+            boolean needNotRetry = false;
+            try {
 
-				if (!client.exists(zNodePath)) {
-					client.createPath(zNodePath, true);
-				}
+                if (!client.exists(zNodePath)) {
+                    client.createPath(zNodePath, true);
+                }
 
-				List<String> childNodeList = client.getChildrenNode(zNodePath, true);
-				List<InetSocketAddress> clusterAddressList = NetUtils.toInetSocketAddressLIst(childNodeList);
+                List<String> childNodeList = client.getChildrenNode(zNodePath, true);
+                List<InetSocketAddress> clusterAddressList = NetUtils.toInetSocketAddressLIst(childNodeList);
 
-				List<InetSocketAddress> addressList = webCluster.getWebClusterList();
+                List<InetSocketAddress> addressList = webCluster.getWebClusterList();
 
-				logger.info("Handle register and remove Task. Current Address List = {}, Cluster Address List = {}", addressList, clusterAddressList);
-				
-				for (InetSocketAddress clusterAddress : clusterAddressList) {
-					if (!addressList.contains(clusterAddress)) {
-						webCluster.connectPointIfAbsent(clusterAddress);
-					}
-				}
+                logger.info("Handle register and remove Task. Current Address List = {}, Cluster Address List = {}", addressList, clusterAddressList);
 
-				for (InetSocketAddress address : addressList) {
-					if (!clusterAddressList.contains(address)) {
-						webCluster.disconnectPoint(address);
-					}
-				}
+                for (InetSocketAddress clusterAddress : clusterAddressList) {
+                    if (!addressList.contains(clusterAddress)) {
+                        webCluster.connectPointIfAbsent(clusterAddress);
+                    }
+                }
 
-				needNotRetry = true;
-				return needNotRetry;
-			} catch (Exception e) {
-				if (!(e instanceof ConnectionException)) {
-					needNotRetry = true;
-				}
-			}
+                for (InetSocketAddress address : addressList) {
+                    if (!clusterAddressList.contains(address)) {
+                        webCluster.disconnectPoint(address);
+                    }
+                }
 
-			return needNotRetry;
-		}
-	}
+                needNotRetry = true;
+                return needNotRetry;
+            } catch (Exception e) {
+                if (!(e instanceof ConnectionException)) {
+                    needNotRetry = true;
+                }
+            }
 
-	static class StopTask implements Task {
+            return needNotRetry;
+        }
+    }
 
-	}
+    static class StopTask implements Task {
+
+    }
 
 }

@@ -32,21 +32,21 @@ import javax.servlet.http.HttpServletResponse;
  * 
  */
 public class NoCacheFilter implements Filter {
-	private FilterConfig filterConfig = null;
+    private FilterConfig filterConfig = null;
 
-	public void init(FilterConfig filterConfig) {
-		this.filterConfig = filterConfig;
-	}
+    public void init(FilterConfig filterConfig) {
+        this.filterConfig = filterConfig;
+    }
 
-	public void destroy() {
-		this.filterConfig = null;
-	}
+    public void destroy() {
+        this.filterConfig = null;
+    }
 
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-		HttpServletResponse httpResponse = (HttpServletResponse) response;
-		httpResponse.setHeader("Cache-Control", "no-cache");
-		httpResponse.setDateHeader("Expires", 0);
-		httpResponse.setHeader("Pragma", "No-cache");
-		chain.doFilter(request, response);
-	}
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        httpResponse.setHeader("Cache-Control", "no-cache");
+        httpResponse.setDateHeader("Expires", 0);
+        httpResponse.setHeader("Pragma", "No-cache");
+        chain.doFilter(request, response);
+    }
 }

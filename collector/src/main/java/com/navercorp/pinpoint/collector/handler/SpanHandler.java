@@ -41,43 +41,43 @@ import org.springframework.stereotype.Service;
 @Service
 public class SpanHandler implements SimpleHandler {
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Autowired
-	private TracesDao traceDao;
+    @Autowired
+    private TracesDao traceDao;
 
-	@Autowired
-	private ApplicationTraceIndexDao applicationTraceIndexDao;
+    @Autowired
+    private ApplicationTraceIndexDao applicationTraceIndexDao;
 
-	@Autowired
-	private StatisticsHandler statisticsHandler;
+    @Autowired
+    private StatisticsHandler statisticsHandler;
 
-	@Autowired
-	private HostApplicationMapDao hostApplicationMapDao;
+    @Autowired
+    private HostApplicationMapDao hostApplicationMapDao;
 
-	public void handleSimple(TBase<?, ?> tbase) {
+    public void handleSimple(TBase<?, ?> tbase) {
 
-		if (!(tbase instanceof TSpan)) {
-			throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());
-		}
+        if (!(tbase instanceof TSpan)) {
+            throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());
+        }
 
-		try {
-			final TSpan span = (TSpan) tbase;
-			if (logger.isDebugEnabled()) {
-				logger.debug("Received SPAN={}", span);
-			}
+        try {
+            final TSpan span = (TSpan) tbase;
+            if (logger.isDebugEnabled()) {
+                logger.debug("Received SPAN={}", span);
+            }
 
             traceDao.insert(span);
-			applicationTraceIndexDao.insert(span);
+            applicationTraceIndexDao.insert(span);
 
             // insert statistics info for server map
             insertAcceptorHost(span);
             insertSpanStat(span);
             insertSpanEventStat(span);
-		} catch (Exception e) {
-			logger.warn("Span handle error. Caused:{}. Span:{}",e.getMessage(), tbase, e);
-		}
-	}
+        } catch (Exception e) {
+            logger.warn("Span handle error. Caused:{}. Span:{}",e.getMessage(), tbase, e);
+        }
+    }
 
     private void insertSpanStat(TSpan span) {
         // TODO consider to change span.isSetErr();

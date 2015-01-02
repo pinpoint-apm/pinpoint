@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.web.vo.Range;
  * 
  */
 public interface MapStatisticsCallerDao {
-	LinkDataMap selectCaller(Application callerApplication, Range range);
+    LinkDataMap selectCaller(Application callerApplication, Range range);
 
-	List<LinkDataMap> selectCallerStatistics(Application callerApplication, Application calleeApplication, Range range);
+    List<LinkDataMap> selectCallerStatistics(Application callerApplication, Application calleeApplication, Range range);
 }

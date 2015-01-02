@@ -31,24 +31,24 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class SqlMetaDataHandler implements RequestResponseHandler {
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Autowired
-	private SqlMetaDataDao sqlMetaDataDao;
+    @Autowired
+    private SqlMetaDataDao sqlMetaDataDao;
 
-	@Override
-	public TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
-		if (!(tbase instanceof TSqlMetaData)) {
-			logger.error("invalid tbase:{}", tbase);
-			return null;
-		}
-		
-		TSqlMetaData sqlMetaData = (TSqlMetaData) tbase;
-		
-		if (logger.isInfoEnabled()) {
-			logger.info("Received SqlMetaData:{}", sqlMetaData);
-		}
-		
+    @Override
+    public TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
+        if (!(tbase instanceof TSqlMetaData)) {
+            logger.error("invalid tbase:{}", tbase);
+            return null;
+        }
+
+        TSqlMetaData sqlMetaData = (TSqlMetaData) tbase;
+
+        if (logger.isInfoEnabled()) {
+            logger.info("Received SqlMetaData:{}", sqlMetaData);
+        }
+
 
         try {
             sqlMetaDataDao.insert(sqlMetaData);
@@ -59,5 +59,5 @@ public class SqlMetaDataHandler implements RequestResponseHandler {
             return result;
         }
         return new TResult(true);
-	}
+    }
 }

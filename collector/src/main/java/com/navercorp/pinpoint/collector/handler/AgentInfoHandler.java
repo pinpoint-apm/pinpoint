@@ -34,48 +34,48 @@ import com.navercorp.pinpoint.thrift.dto.TResult;
 @Service("agentInfoHandler")
 public class AgentInfoHandler implements SimpleHandler, RequestResponseHandler {
 
-	private final Logger logger = LoggerFactory.getLogger(AgentInfoHandler.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(AgentInfoHandler.class.getName());
 
-	@Autowired
-	private AgentInfoDao agentInfoDao;
+    @Autowired
+    private AgentInfoDao agentInfoDao;
 
-	@Autowired
-	private ApplicationIndexDao applicationIndexDao;
+    @Autowired
+    private ApplicationIndexDao applicationIndexDao;
 
-	public void handleSimple(TBase<?, ?> tbase) {
-		handleRequest(tbase);
-	}
-	
-	@Override
-	public TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
-		if (!(tbase instanceof TAgentInfo)) {
-			logger.warn("invalid tbase:{}", tbase);
-			// it happens to return null  not only at this BO(Business Object) but also at other BOs.
+    public void handleSimple(TBase<?, ?> tbase) {
+        handleRequest(tbase);
+    }
 
-			return null;
-		}
+    @Override
+    public TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
+        if (!(tbase instanceof TAgentInfo)) {
+            logger.warn("invalid tbase:{}", tbase);
+            // it happens to return null  not only at this BO(Business Object) but also at other BOs.
 
-		try {
-			TAgentInfo agentInfo = (TAgentInfo) tbase;
+            return null;
+        }
 
-			logger.debug("Received AgentInfo={}", agentInfo);
+        try {
+            TAgentInfo agentInfo = (TAgentInfo) tbase;
 
-			// agent info
-			agentInfoDao.insert(agentInfo);
+            logger.debug("Received AgentInfo={}", agentInfo);
 
-			// for querying agentid using applicationname
-			applicationIndexDao.insert(agentInfo);
-			
-			return new TResult(true);
+            // agent info
+            agentInfoDao.insert(agentInfo);
 
-			// for querying applicationname using agentid
-//			agentIdApplicationIndexDao.insert(agentInfo.getAgentId(), agentInfo.getApplicationName());
-		} catch (Exception e) {
-			logger.warn("AgentInfo handle error. Caused:{}", e.getMessage(), e);
-			TResult result = new TResult(false);
-			result.setMessage(e.getMessage());
-			return result;
-		}
-	}
-	
+            // for querying agentid using applicationname
+            applicationIndexDao.insert(agentInfo);
+
+            return new TResult(true);
+
+            // for querying applicationname using agentid
+//            agentIdApplicationIndexDao.insert(agentInfo.getAgentId(), agentInfo.getApplicationName());
+        } catch (Exception e) {
+            logger.warn("AgentInfo handle error. Caused:{}", e.getMessage(), e);
+            TResult result = new TResult(false);
+            result.setMessage(e.getMessage());
+            return result;
+        }
+    }
+
 }
