@@ -98,11 +98,15 @@
                         </goals>
                         <configuration>
                             <dependencyReducedPomLocation>${basedir}/target/dependency-reduced-pom.xml</dependencyReducedPomLocation>
-                            <artifactSet>
-                                <includes>
-                                    <include>com.navercorp.pinpoint:pinpoint-commons</include>
-                                </includes>
-                            </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>com.navercorp.pinpoint:pinpoint-commons</artifact>
+                                    <excludes>
+                                        <exclude>com/navercorp/pinpoint/common/hbase/**</exclude>
+                                        <exclude>com/navercorp/pinpoint/common/bo/**</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
