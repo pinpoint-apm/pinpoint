@@ -448,7 +448,7 @@
             <artifactId>ehcache-core</artifactId>
         </dependency>
 
-        <!--jackson jsonMapper. hbase에서 일단 필요함. 1.9.x 버전을 사용함 -->
+        <!--jackson jsonMapper. hbase need it for now. used 1.9.x version  -->
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-core-asl</artifactId>

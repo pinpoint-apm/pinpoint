@@ -18,7 +18,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- commons 의 경우 agent에서 사용할 경우도 있어 lib가 딸려 들어가면 문제가 될수 있어 optional로 함. -->
+        <!-- commons module may be used at agent so there will be problems. you should set optional -->
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
@@ -403,7 +403,7 @@
             </exclusions>
         </dependency>
 
-        <!--jackson jsonMapper. hbase에서 일단 필요함. -->
+        <!--jackson jsonMapper. hbase need that for now -->
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-core-asl</artifactId>

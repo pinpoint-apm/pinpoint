@@ -78,7 +78,7 @@
     </bean>
 
     <bean id="acceptApplicationHasher" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
-        <!-- parentApplicationName 을 해쉬한다. -->
+        <!-- Hashing parentApplicationName -->
         <constructor-arg type="int" value="0"/>
         <constructor-arg type="int" value="24"/>
         <constructor-arg type="int" value="4"/>

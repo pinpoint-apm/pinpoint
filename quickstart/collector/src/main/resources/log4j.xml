@@ -5,9 +5,7 @@
     <appender name="console" class="org.apache.log4j.ConsoleAppender">
         <layout class="org.apache.log4j.EnhancedPatternLayout">
             <param name="ConversionPattern" value="%d{MM-dd HH:mm:ss} [%-5p](%-35c{1.}:%L) %m%n"/>
-            <!-- %L ¿É¼ÇÀº ¶óÀÎ³Ñ¹ö°¡ Ãâ·ÂµÇ³ª ¼ÓµµÀúÇÏ°¡ ½ÉÇÏ´Ù. -->
-
-            <!-- ¾Æ·¡°¡ ¿î¿µ¿ë¿¡ Á¢ÇÕÇÑ ¿É¼ÇÀÌ´Ù.-->
+            <!-- %L make a huge performance degradation in order to print out line numbers -->
             <!--<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35c{1.}) %m%n" />-->
         </layout>
     </appender>
@@ -67,7 +65,7 @@
     </logger>
 
     <!--
-        state ¸ð´ÏÅÍ¸µ¿ë ·Î°Å. ¸¸¾à °³¹ß½Ã ·Î±× Ãâ·ÂÀ¸·Î ºÒÆíÇÏ´Ù¸é log levelÀ» WARNÀÌ»óÀ¸·Î ÇÒ°Í
+        state ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ï¿½ï¿½ ï¿½Î°ï¿½. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ß½ï¿½ ï¿½Î±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´Ù¸ï¿½ log levelï¿½ï¿½ WARNï¿½Ì»ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ò°ï¿½
     -->
     <logger name="com.navercorp.pinpoint.collector.StateReport" additivity="false">
         <level value="WARN"/>

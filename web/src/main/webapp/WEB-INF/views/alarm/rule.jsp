@@ -72,12 +72,12 @@
 
 </head>
 <body>
-<!-- 화면 이름 -->
+<!-- Screen name  -->
 <center>
-	<h1>알람 룰 설정</h1>
+	<h1>Setting Alarm rule</h1>
 </center>
 
-<!-- application 검색 -->
+<!-- Search application -->
 <center>
 	<form action="./getRule.pinpoint">
 		<select name="applicationName">
@@ -85,35 +85,35 @@
 				<option value="${applicationName}">${applicationName}</option>
 			</c:forEach>
 		</select>
-		<button value="검색">검색</button>
+		<button value="Search">Search</button>
 	</form>
 	</br>
 </center>
 
-<!-- 사원 리스트 출력 -->
+<!-- employee list -->
 <center>
 	<form name="ruleGroupForm" method="post" onsubmit="return onSubmitForm();">
 		<table id="ruleGroup" frame="void" border="1">
-			<!-- 사원 추가 -->
+			<!-- add employee -->
 			<tr bordercolor="white">
 					<td align="left" colspan="8">
-						<button type="button" onclick='append_rule_input()'>행추가</button>
-						<button type="button" onclick='remove_rule_input()'>행삭제</button>
+						<button type="button" onclick='append_rule_input()'>new</button>
+						<button type="button" onclick='remove_rule_input()'>delete</button>
 					</td>
 			</tr>
 			<tr bordercolor="white">
 			</tr>
 						
-			<!-- 사원 정보 리스트 출력 -->
+			<!-- employee information list -->
 			<tr>
-				<th>삭제</th>
-				<th>어플리케이션이름</th>
-				<th>룰</th>
-				<th>임계치</th>
-				<th>사원그룹</th>
-				<th>SMS전송</th>
-				<th>Email전송</th>
-				<th>비고</th>
+				<th>Delete</th>
+				<th>Application name</th>
+				<th>Rule</th>
+				<th>Limits</th>
+				<th>Employee groupName</th>
+				<th>Sending sms</th>
+				<th>Sending email</th>
+				<th>ETC</th>
 			</tr>
 			<c:forEach var="rule" items="${ruleList}" varStatus="ruleIndex">
 					<tr>
@@ -182,14 +182,14 @@
 					</tr>
 			</c:forEach>
 			
-			<!-- 룰 등록 & 수정 -->
+			<!-- register/modify rules -->
 			<tr bordercolor="white">
 			</tr>
 			<tr bordercolor="white">
 				<td align="right" colspan="8">
-					<button onclick="document.pressed=this.value" value="insert">신규등록</button>
-					<button onclick="document.pressed=this.value" value="update">저장</button>
-					<button onclick="document.pressed=this.value" value="delete">전체삭제</button>
+					<button onclick="document.pressed=this.value" value="insert">new</button>
+					<button onclick="document.pressed=this.value" value="update">save</button>
+					<button onclick="document.pressed=this.value" value="delete">delete all</button>
 				</td>
 			</tr>
 		</table>

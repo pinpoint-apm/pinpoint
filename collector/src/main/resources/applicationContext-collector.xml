@@ -64,7 +64,7 @@
     <bean id="collectorMetric" class="com.navercorp.pinpoint.collector.monitor.CollectorMetric">
     </bean>
 
-	<!-- Cluster 관련된 Bean들 -->
+    <!-- Cluster-related Beans -->
     <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory">
     	<constructor-arg value="#{T(com.navercorp.pinpoint.common.Version).VERSION}" />
     </bean>

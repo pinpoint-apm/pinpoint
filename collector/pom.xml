@@ -308,7 +308,7 @@
             </exclusions>
         </dependency>
 
-        <!--jackson jsonMapper. hbase에서 일단 필요함. -->
+        <!--jackson jsonMapper. needed for hbase for now -->
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-core-asl</artifactId>
@@ -329,7 +329,7 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!--2.3.x jackson 추후 필요할 경우 scope runtime을 변경할 것 -->
+        <!-- if  2.3.x jackson needed, should modify scope runtime -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
@@ -441,7 +441,7 @@
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
-            <!-- servlet artifactid 가 이상함. -->
+            <!-- servlet artifactid is odd -->
             <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
