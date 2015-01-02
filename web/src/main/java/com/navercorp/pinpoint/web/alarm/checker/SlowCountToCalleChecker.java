@@ -38,6 +38,6 @@ public class SlowCountToCalleChecker extends AlarmChecker {
     @Override
     public String getEmailMessage() {
         return String.format("%s value is %s%s during the past 5 mins.(Threshold : %s%s) %s For From '%s' To '%s'.<br>", rule.getCheckerName(), getDetectedValue(), unit, rule.getThreshold(), unit, rule.getCheckerName(), rule.getApplicationId(), rule.getNotes());
-    };
+    }
 
 }

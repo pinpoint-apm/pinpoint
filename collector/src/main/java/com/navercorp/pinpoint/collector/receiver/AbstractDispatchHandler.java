@@ -81,7 +81,7 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
         }
 
         throw new UnsupportedOperationException("Handler not found. Unknown type of data received. tBase=" + tBase);
-    };
+    }
 
     Handler getHandler(TBase<?, ?> tBase) {
         return null;

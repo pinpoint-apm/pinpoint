@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor;
 
-import com.navercorp.pinpoint.profiler.util.DepthScope;
-
 /**
  * @author emeroad
  */

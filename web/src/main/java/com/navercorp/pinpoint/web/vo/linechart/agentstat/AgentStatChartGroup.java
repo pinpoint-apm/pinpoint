@@ -44,7 +44,7 @@ public class AgentStatChartGroup {
         JVM_GC_OLD_COUNT, 
         JVM_GC_OLD_TIME, 
         CPU_LOAD_JVM, 
-        CPU_LOAD_SYSTEM;
+        CPU_LOAD_SYSTEM
     }
     
     private static final int uncollectedData = -1;

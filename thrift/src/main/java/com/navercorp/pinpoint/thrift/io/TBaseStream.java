@@ -122,6 +122,6 @@ public class TBaseStream {
         sb.append("transport=").append(transport);
         sb.append("}");
 
-        return nodes.toString();
+        return sb.toString();
     }
 }

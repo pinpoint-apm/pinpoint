@@ -54,7 +54,7 @@ import com.ning.http.client.cookie.Cookie;
  */
 public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
 
-	protected final PLogger logger = PLoggerFactory.getLogger(ExecuteRequestInterceptor.class);;
+	protected final PLogger logger = PLoggerFactory.getLogger(ExecuteRequestInterceptor.class);
 	protected final boolean isDebug = logger.isDebugEnabled();
 
 	protected TraceContext traceContext;

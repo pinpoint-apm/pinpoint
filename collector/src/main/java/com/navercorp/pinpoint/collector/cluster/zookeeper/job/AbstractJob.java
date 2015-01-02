@@ -60,12 +60,12 @@ public class AbstractJob implements Job {
 	
 	@Override
 	public String toString() {
-		StringBuilder toString = new StringBuilder();
-		toString.append(this.getClass().getSimpleName());
-		toString.append(", ChannelContext=" + channelContext);
-		toString.append(", Retry=" + currentCount.get() + "/" + maxCount);
+		StringBuilder buffer = new StringBuilder();
+		buffer.append(this.getClass().getSimpleName());
+		buffer.append(", ChannelContext=").append(channelContext);
+		buffer.append(", Retry=").append(currentCount.get()).append("/").append(maxCount);
 		
-		return toString.toString();
+		return buffer.toString();
 	}
 
 }

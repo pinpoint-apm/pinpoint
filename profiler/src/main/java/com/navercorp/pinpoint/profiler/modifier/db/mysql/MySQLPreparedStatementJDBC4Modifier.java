@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.instrument.Type;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.profiler.interceptor.ScopeDelegateStaticInterceptor;
-import com.navercorp.pinpoint.profiler.interceptor.bci.*;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.interceptor.PreparedStatementBindVariableInterceptor;
 import com.navercorp.pinpoint.profiler.util.*;

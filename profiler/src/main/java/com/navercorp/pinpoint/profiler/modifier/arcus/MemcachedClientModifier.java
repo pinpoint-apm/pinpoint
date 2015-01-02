@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.Type;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.ParameterExtractorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.profiler.interceptor.bci.*;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.ArcusScope;
 import com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.IndexParameterExtractor;
