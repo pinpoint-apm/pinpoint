@@ -53,15 +53,15 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
-	private int scanCacheSize = 10;
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private int scanCacheSize = 10;
 
-	@Autowired
-	private HbaseOperations2 hbaseOperations2;
+    @Autowired
+    private HbaseOperations2 hbaseOperations2;
 
-	@Autowired
-	@Qualifier("hostApplicationMapper")
-	private RowMapper<Application> hostApplicationMapper;
+    @Autowired
+    @Qualifier("hostApplicationMapper")
+    private RowMapper<Application> hostApplicationMapper;
 
     @Autowired
     @Qualifier("hostApplicationMapperVer2")
@@ -121,24 +121,24 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         return scan;
     }
 
-	@Override
-	public Set<AcceptApplication> findAcceptApplicationName(Application fromApplication, Range range) {
+    @Override
+    public Set<AcceptApplication> findAcceptApplicationName(Application fromApplication, Range range) {
         if (fromApplication == null) {
             throw new NullPointerException("fromApplication must not be null");
         }
         final Scan scan = createScan(fromApplication, range);
-		final List<List<AcceptApplication>> result = hbaseOperations2.find(HBaseTables.HOST_APPLICATION_MAP_VER2, scan, acceptApplicationRowKeyDistributor, hostApplicationMapperVer2);
-		if (CollectionUtils.isNotEmpty(result)) {
+        final List<List<AcceptApplication>> result = hbaseOperations2.find(HBaseTables.HOST_APPLICATION_MAP_VER2, scan, acceptApplicationRowKeyDistributor, hostApplicationMapperVer2);
+        if (CollectionUtils.isNotEmpty(result)) {
             final Set<AcceptApplication> resultSet = new HashSet<AcceptApplication>();
             for (List<AcceptApplication> resultList : result) {
                 resultSet.addAll(resultList);
             }
             logger.debug("findAcceptApplicationName result:{}", resultSet);
             return resultSet;
-		} else {
-			return Collections.emptySet();
-		}
-	}
+        } else {
+            return Collections.emptySet();
+        }
+    }
 
 
 

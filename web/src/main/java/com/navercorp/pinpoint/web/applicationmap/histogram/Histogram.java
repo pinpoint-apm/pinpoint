@@ -32,22 +32,22 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonSerialize(using=HistogramSerializer.class)
 public class Histogram {
 
-	private final HistogramSchema schema;
+    private final HistogramSchema schema;
 
     private long fastCount;
     private long normalCount;
     private long slowCount;
     private long verySlowCount;
 
-	private long errorCount;
+    private long errorCount;
 
 
     public Histogram(ServiceType serviceType) {
         if (serviceType == null) {
             throw new NullPointerException("serviceType must not be null");
         }
-		this.schema = serviceType.getHistogramSchema();
-	}
+        this.schema = serviceType.getHistogramSchema();
+    }
 
     public Histogram(HistogramSchema schema) {
         if (schema == null) {
@@ -67,18 +67,18 @@ public class Histogram {
         this(ServiceType.findServiceType(serviceType));
     }
 
-	// TODO one may extract slot number from this class
-	public void addCallCount(final short slotTime, final long count) {
+    // TODO one may extract slot number from this class
+    public void addCallCount(final short slotTime, final long count) {
         final HistogramSchema schema = this.schema;
-		if (slotTime == schema.getVerySlowSlot().getSlotTime()) { // 0 is slow slotTime
-			this.verySlowCount += count;
+        if (slotTime == schema.getVerySlowSlot().getSlotTime()) { // 0 is slow slotTime
+            this.verySlowCount += count;
             return;
-		}
+        }
         if (slotTime == schema.getErrorSlot().getSlotTime()) { // -1 is error
-			this.errorCount += count;
-			return;
-		}
-				// TODO if clause condition should be "==", not "<="
+            this.errorCount += count;
+            return;
+        }
+                // TODO if clause condition should be "==", not "<="
         if (slotTime <= schema.getFastSlot().getSlotTime()) {
             this.fastCount += count;
             return;
@@ -92,16 +92,16 @@ public class Histogram {
             return;
         }
         throw new IllegalArgumentException("slot not found slotTime:" + slotTime + " count:" + count);
-	}
+    }
 
-	public HistogramSchema getHistogramSchema() {
-		return this.schema;
-	}
+    public HistogramSchema getHistogramSchema() {
+        return this.schema;
+    }
 
 
-	public long getErrorCount() {
-		return errorCount;
-	}
+    public long getErrorCount() {
+        return errorCount;
+    }
 
     public long getFastCount() {
         return fastCount;
@@ -116,12 +116,12 @@ public class Histogram {
     }
 
     public long getVerySlowCount() {
-		return verySlowCount;
-	}
+        return verySlowCount;
+    }
 
-	public long getTotalCount() {
-		return errorCount + fastCount + normalCount + slowCount + verySlowCount;
-	}
+    public long getTotalCount() {
+        return errorCount + fastCount + normalCount + slowCount + verySlowCount;
+    }
 
     public long getSuccessCount() {
         return fastCount + normalCount + slowCount + verySlowCount;
@@ -147,7 +147,7 @@ public class Histogram {
         throw new IllegalArgumentException("slotType:" + slotType);
     }
 
-	public void add(final Histogram histogram) {
+    public void add(final Histogram histogram) {
         if (histogram == null) {
             throw new NullPointerException("histogram must not be null");
         }
@@ -161,7 +161,7 @@ public class Histogram {
         this.verySlowCount += histogram.verySlowCount;
 
         this.errorCount += histogram.errorCount;
-	}
+    }
 
 
     @Override

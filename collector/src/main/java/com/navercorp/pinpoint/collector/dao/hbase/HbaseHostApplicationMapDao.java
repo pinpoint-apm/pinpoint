@@ -41,13 +41,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	private HbaseOperations2 hbaseTemplate;
+    @Autowired
+    private HbaseOperations2 hbaseTemplate;
 
-	@Autowired
-	private AcceptedTimeService acceptedTimeService;
+    @Autowired
+    private AcceptedTimeService acceptedTimeService;
 
     @Autowired
     private TimeSlot timeSlot;
@@ -60,8 +60,8 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     private final AtomicLongUpdateMap<CacheKey> updater = new AtomicLongUpdateMap<CacheKey>();
 
 
-	@Override
-	public void insert(String host, String bindApplicationName, short bindServiceType, String parentApplicationName, short parentServiceType) {
+    @Override
+    public void insert(String host, String bindApplicationName, short bindServiceType, String parentApplicationName, short parentServiceType) {
         if (host == null) {
             throw new NullPointerException("host must not be null");
         }
@@ -76,7 +76,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         if (needUpdate) {
             insertHostVer2(host, bindApplicationName, bindServiceType, statisticsRowSlot, parentApplicationName, parentServiceType);
         }
-	}
+    }
 
 
     private long getSlotTime() {
@@ -95,7 +95,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         // TODO should consider to add bellow codes again later.
         //String parentAgentId = null;
         //final byte[] rowKey = createRowKey(parentApplicationName, parentServiceType, statisticsRowSlot, parentAgentId);
-		final byte[] rowKey = createRowKey(parentApplicationName, parentServiceType, statisticsRowSlot, null);
+        final byte[] rowKey = createRowKey(parentApplicationName, parentServiceType, statisticsRowSlot, null);
 
         byte[] columnName = createColumnName(host, bindApplicationName, bindServiceType);
 

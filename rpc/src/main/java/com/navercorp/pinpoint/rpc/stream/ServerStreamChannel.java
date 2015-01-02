@@ -27,29 +27,29 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
  */
 public class ServerStreamChannel extends StreamChannel {
 
-	public ServerStreamChannel(Channel channel, int streamId, StreamChannelManager streamChannelManager) {
-		super(channel, streamId, streamChannelManager);
-	}
+    public ServerStreamChannel(Channel channel, int streamId, StreamChannelManager streamChannelManager) {
+        super(channel, streamId, streamChannelManager);
+    }
 
-	public ChannelFuture sendData(byte[] payload) {
-		assertState(StreamChannelStateCode.RUN);
+    public ChannelFuture sendData(byte[] payload) {
+        assertState(StreamChannelStateCode.RUN);
 
-		StreamResponsePacket dataPacket = new StreamResponsePacket(getStreamId(), payload);
-		return this.getChannel().write(dataPacket);
-	}
+        StreamResponsePacket dataPacket = new StreamResponsePacket(getStreamId(), payload);
+        return this.getChannel().write(dataPacket);
+    }
 
-	public ChannelFuture sendCreateSuccess() {
-		assertState(StreamChannelStateCode.RUN);
+    public ChannelFuture sendCreateSuccess() {
+        assertState(StreamChannelStateCode.RUN);
 
-		StreamCreateSuccessPacket packet = new StreamCreateSuccessPacket(getStreamId());
-		return this.getChannel().write(packet);
-	}
+        StreamCreateSuccessPacket packet = new StreamCreateSuccessPacket(getStreamId());
+        return this.getChannel().write(packet);
+    }
 
-	boolean changeStateOpenArrived() {
-		boolean result = getState().changeStateOpenArrived();
+    boolean changeStateOpenArrived() {
+        boolean result = getState().changeStateOpenArrived();
 
-		logger.info(makeStateChangeMessage(StreamChannelStateCode.OPEN_ARRIVED, result));
-		return result;
-	}
+        logger.info(makeStateChangeMessage(StreamChannelStateCode.OPEN_ARRIVED, result));
+        return result;
+    }
 
 }

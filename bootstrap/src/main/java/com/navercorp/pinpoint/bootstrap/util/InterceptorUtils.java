@@ -34,17 +34,17 @@ public final class InterceptorUtils {
 
 
     public static String exceptionToString(Throwable ex) {
-		if (ex != null) {
-			StringBuilder sb = new StringBuilder(128);
-			sb.append(ex.toString()).append("\n");
+        if (ex != null) {
+            StringBuilder sb = new StringBuilder(128);
+            sb.append(ex.toString()).append("\n");
 
-			Writer writer = new StringWriter();
-			PrintWriter printWriter = new PrintWriter(writer);
+            Writer writer = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(writer);
             ex.printStackTrace(printWriter);
-			sb.append(writer.toString());
+            sb.append(writer.toString());
 
-			return sb.toString();
-		}
-		return null;
-	}
+            return sb.toString();
+        }
+        return null;
+    }
 }

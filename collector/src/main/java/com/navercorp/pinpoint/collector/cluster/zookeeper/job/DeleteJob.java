@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.rpc.server.ChannelContext;
  */
 public class DeleteJob extends AbstractJob {
 
-	public DeleteJob(ChannelContext channelContext) {
-		super(channelContext);
-	}
-	
+    public DeleteJob(ChannelContext channelContext) {
+        super(channelContext);
+    }
+
 }

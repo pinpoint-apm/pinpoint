@@ -45,7 +45,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final LinkFilter filter;
 
@@ -61,7 +61,7 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
     }
 
     @Override
-	public LinkDataMap mapRow(Result result, int rowNum) throws Exception {
+    public LinkDataMap mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return new LinkDataMap();
         }
@@ -71,7 +71,7 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
         final Application caller = readCallerApplication(row);
         final long timestamp = TimeUtils.recoveryTimeMillis(row.readLong());
 
-		// key is destApplicationName.
+        // key is destApplicationName.
         final LinkDataMap linkDataMap = new LinkDataMap();
         for (KeyValue kv :  result.raw()) {
             final byte[] family = kv.getFamily();
@@ -129,10 +129,10 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
                 throw new IllegalArgumentException("unknown ColumnFamily :" + Arrays.toString(family));
             }
 
-		}
+        }
 
         return linkDataMap;
-	}
+    }
 
     private long getValueToLong(KeyValue kv) {
         return Bytes.toLong(kv.getBuffer(), kv.getValueOffset());

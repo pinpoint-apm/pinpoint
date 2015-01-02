@@ -37,57 +37,57 @@ import org.springframework.stereotype.Service;
 @Service
 public class SpanChunkHandler implements SimpleHandler {
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Autowired
-	private TracesDao traceDao;
+    @Autowired
+    private TracesDao traceDao;
 
-	@Autowired
-	private StatisticsHandler statisticsHandler;
+    @Autowired
+    private StatisticsHandler statisticsHandler;
 
-	@Override
-	public void handleSimple(TBase<?, ?> tbase) {
+    @Override
+    public void handleSimple(TBase<?, ?> tbase) {
 
-		if (!(tbase instanceof TSpanChunk)) {
-			throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());
-		}
+        if (!(tbase instanceof TSpanChunk)) {
+            throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());
+        }
 
-		try {
-			TSpanChunk spanChunk = (TSpanChunk) tbase;
+        try {
+            TSpanChunk spanChunk = (TSpanChunk) tbase;
 
-			if (logger.isDebugEnabled()) {
-				logger.debug("Received SpanChunk={}", spanChunk);
-			}
+            if (logger.isDebugEnabled()) {
+                logger.debug("Received SpanChunk={}", spanChunk);
+            }
 
-			traceDao.insertSpanChunk(spanChunk);
+            traceDao.insertSpanChunk(spanChunk);
 
-			List<TSpanEvent> spanEventList = spanChunk.getSpanEventList();
-			if (spanEventList != null) {
-				logger.debug("SpanChunk Size:{}", spanEventList.size());
-				// TODO need to batch update later.
-				for (TSpanEvent spanEvent : spanEventList) {
-					final ServiceType serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
+            List<TSpanEvent> spanEventList = spanChunk.getSpanEventList();
+            if (spanEventList != null) {
+                logger.debug("SpanChunk Size:{}", spanEventList.size());
+                // TODO need to batch update later.
+                for (TSpanEvent spanEvent : spanEventList) {
+                    final ServiceType serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
 
-					if (!serviceType.isRecordStatistics()) {
-						continue;
-					}
+                    if (!serviceType.isRecordStatistics()) {
+                        continue;
+                    }
 
-					// if terminal update statistics
-					final int elapsed = spanEvent.getEndElapsed();
-					final boolean hasException = SpanEventUtils.hasException(spanEvent);
+                    // if terminal update statistics
+                    final int elapsed = spanEvent.getEndElapsed();
+                    final boolean hasException = SpanEventUtils.hasException(spanEvent);
 
-					/**
-					 * save information to draw a server map based on statistics
-					 */
-					// save the information of caller (the spanevent that span called)
-					statisticsHandler.updateCaller(spanChunk.getApplicationName(), spanChunk.getServiceType(), spanChunk.getAgentId(), spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
+                    /**
+                     * save information to draw a server map based on statistics
+                     */
+                    // save the information of caller (the spanevent that span called)
+                    statisticsHandler.updateCaller(spanChunk.getApplicationName(), spanChunk.getServiceType(), spanChunk.getAgentId(), spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
 
-					// save the information of callee (the span that called spanevent)
-					statisticsHandler.updateCallee(spanEvent.getDestinationId(), spanEvent.getServiceType(), spanChunk.getApplicationName(), spanChunk.getServiceType(), spanChunk.getEndPoint(), elapsed, hasException);
-				}
-			}
-		} catch (Exception e) {
-			logger.warn("SpanChunk handle error Caused:{}", e.getMessage(), e);
-		}
-	}
+                    // save the information of callee (the span that called spanevent)
+                    statisticsHandler.updateCallee(spanEvent.getDestinationId(), spanEvent.getServiceType(), spanChunk.getApplicationName(), spanChunk.getServiceType(), spanChunk.getEndPoint(), elapsed, hasException);
+                }
+            }
+        } catch (Exception e) {
+            logger.warn("SpanChunk handle error Caused:{}", e.getMessage(), e);
+        }
+    }
 }

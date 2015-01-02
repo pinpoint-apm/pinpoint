@@ -102,11 +102,11 @@ public final class AnnotationUtils {
         }
         
         if (serviceType == ServiceType.IBATIS || serviceType == ServiceType.MYBATIS) {
-        	return findAnnotationBo(list, AnnotationKey.ARGS0);
+            return findAnnotationBo(list, AnnotationKey.ARGS0);
         }
         
         if (serviceType == ServiceType.SPRING_ORM_IBATIS) {
-        	return findAnnotationBo(list, AnnotationKey.ARGS0);
+            return findAnnotationBo(list, AnnotationKey.ARGS0);
         }
         
         return null;

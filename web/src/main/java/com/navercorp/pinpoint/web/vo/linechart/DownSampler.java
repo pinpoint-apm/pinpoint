@@ -25,8 +25,8 @@ import java.util.Collection;
  */
 public interface DownSampler {
 
-	long sampleLong(Collection<Long> values);
-	
-	double sampleDouble(Collection<Double> values);
-	
+    long sampleLong(Collection<Long> values);
+
+    double sampleDouble(Collection<Double> values);
+
 }

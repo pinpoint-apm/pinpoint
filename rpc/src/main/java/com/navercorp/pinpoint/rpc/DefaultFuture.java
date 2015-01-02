@@ -202,28 +202,28 @@ public class DefaultFuture<T> implements TimerTask, Future<T> {
         }
 
         boolean interrupted = false;
-		try {
-			synchronized (this) {
-				if (ready) {
-					return true;
-				}
+        try {
+            synchronized (this) {
+                if (ready) {
+                    return true;
+                }
 
-				try {
-					this.waiters++;
-					wait(timeoutMillis);
-				} catch (InterruptedException e) {
-					interrupted = true;
-				} finally {
-					this.waiters--;
-				}
+                try {
+                    this.waiters++;
+                    wait(timeoutMillis);
+                } catch (InterruptedException e) {
+                    interrupted = true;
+                } finally {
+                    this.waiters--;
+                }
 
-				return ready;
-			}
-		} finally {
-			if (interrupted) {
-				Thread.currentThread().interrupt();
-			}
-		}
+                return ready;
+            }
+        } finally {
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
 

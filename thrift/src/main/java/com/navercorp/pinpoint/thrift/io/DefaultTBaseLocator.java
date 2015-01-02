@@ -39,9 +39,9 @@ import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
  */
 class DefaultTBaseLocator implements TBaseLocator {
 
-	private static final short NETWORK_CHECK = 10;
-	private static final Header NETWORK_CHECK_HEADER = createHeader(NETWORK_CHECK);
-	
+    private static final short NETWORK_CHECK = 10;
+    private static final Header NETWORK_CHECK_HEADER = createHeader(NETWORK_CHECK);
+
     private static final short SPAN = 40;
     private static final Header SPAN_HEADER = createHeader(SPAN);
 
@@ -81,7 +81,7 @@ class DefaultTBaseLocator implements TBaseLocator {
             case AGENT_STAT:
                 return new TAgentStat();
             case AGENT_STAT_BATCH:
-            	return new TAgentStatBatch();
+                return new TAgentStatBatch();
             case SPANCHUNK:
                 return new TSpanChunk();
             case SQLMETADATA:
@@ -115,7 +115,7 @@ class DefaultTBaseLocator implements TBaseLocator {
             return AGENT_STAT_HEADER;
         }
         if (tbase instanceof TAgentStatBatch) {
-        	return AGENT_STAT_BATCH_HEADER;
+            return AGENT_STAT_BATCH_HEADER;
         }
         if (tbase instanceof TSqlMetaData) {
             return SQLMETADATA_HEADER;
@@ -138,47 +138,47 @@ class DefaultTBaseLocator implements TBaseLocator {
 
     @Override
     public boolean isSupport(short type) {
-    	try {
-			tBaseLookup(type);
-			return true;
-		} catch (TException ignore) {
+        try {
+            tBaseLookup(type);
+            return true;
+        } catch (TException ignore) {
             // skip
-		}
-    	
-    	return false;
+        }
+
+        return false;
     }
 
     @Override
     public boolean isSupport(Class<? extends TBase> clazz) {
         if (clazz.equals(TSpan.class)) {
-        	return true;
+            return true;
         }
         if (clazz.equals(TSpanChunk.class)) {
-        	return true;
+            return true;
         }
         if (clazz.equals(TAgentInfo.class)) {
-        	return true;
+            return true;
         }
         if (clazz.equals(TAgentStat.class)) {
-        	return true;
+            return true;
         }
         if (clazz.equals(TAgentStatBatch.class)) {
-        	return true;
+            return true;
         }
         if (clazz.equals(TSqlMetaData.class)) {
-        	return true;
+            return true;
         }
         if (clazz.equals(TApiMetaData.class)) {
-        	return true;
+            return true;
         }
         if (clazz.equals(TResult.class)) {
-        	return true;
+            return true;
         }
         if (clazz.equals(TStringMetaData.class)) {
-        	return true;
+            return true;
         }
         if (clazz.equals(NetworkAvailabilityCheckPacket.class)) {
-        	return true;
+            return true;
         }
 
         return false;

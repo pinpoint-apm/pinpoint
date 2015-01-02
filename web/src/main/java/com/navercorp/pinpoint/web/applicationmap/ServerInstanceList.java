@@ -38,14 +38,14 @@ import com.navercorp.pinpoint.web.view.ServerInstanceListSerializer;
 @JsonSerialize(using = ServerInstanceListSerializer.class)
 public class ServerInstanceList {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final Map<String, List<ServerInstance>> serverInstanceList = new TreeMap<String, List<ServerInstance>>();
+    private final Map<String, List<ServerInstance>> serverInstanceList = new TreeMap<String, List<ServerInstance>>();
 
     private MatcherGroup matcherGroup = new MatcherGroup();
 
-	public ServerInstanceList() {
-	}
+    public ServerInstanceList() {
+    }
 
     public ServerInstanceList(MatcherGroup matcherGroup) {
         if (matcherGroup != null) {
@@ -53,42 +53,42 @@ public class ServerInstanceList {
         }
     }
 
-	public Map<String, List<ServerInstance>> getServerInstanceList() {
-		// XXX list sorting problem exist
-		return serverInstanceList;
-	}
+    public Map<String, List<ServerInstance>> getServerInstanceList() {
+        // XXX list sorting problem exist
+        return serverInstanceList;
+    }
 
-	public int getInstanceCount() {
-		int count = 0;
-		for (List<ServerInstance> entry : serverInstanceList.values()) {
-			count += entry.size();
-		}
-		return count;
-	}
+    public int getInstanceCount() {
+        int count = 0;
+        for (List<ServerInstance> entry : serverInstanceList.values()) {
+            count += entry.size();
+        }
+        return count;
+    }
 
-	private void addServerInstance(List<ServerInstance> nodeList, ServerInstance serverInstance) {
-		for (ServerInstance node : nodeList) {
-			boolean equalsNode = node.equals(serverInstance);
-			if (equalsNode) {
-				return;
-			}
-		}
-		nodeList.add(serverInstance);
-	}
+    private void addServerInstance(List<ServerInstance> nodeList, ServerInstance serverInstance) {
+        for (ServerInstance node : nodeList) {
+            boolean equalsNode = node.equals(serverInstance);
+            if (equalsNode) {
+                return;
+            }
+        }
+        nodeList.add(serverInstance);
+    }
 
-	private List<ServerInstance> getServerInstanceList(String hostName) {
-		List<ServerInstance> find = serverInstanceList.get(hostName);
-		if (find == null) {
-			find = new ArrayList<ServerInstance>();
-			serverInstanceList.put(hostName, find);
-		}
-		return find;
-	}
+    private List<ServerInstance> getServerInstanceList(String hostName) {
+        List<ServerInstance> find = serverInstanceList.get(hostName);
+        if (find == null) {
+            find = new ArrayList<ServerInstance>();
+            serverInstanceList.put(hostName, find);
+        }
+        return find;
+    }
 
-	void addServerInstance(ServerInstance serverInstance) {
-		List<ServerInstance> find = getServerInstanceList(serverInstance.getHostName());
-		addServerInstance(find, serverInstance);
-	}
+    void addServerInstance(ServerInstance serverInstance) {
+        List<ServerInstance> find = getServerInstanceList(serverInstance.getHostName());
+        addServerInstance(find, serverInstance);
+    }
 
     public Map<String, String> getLink(String serverName) {
         ServerMatcher serverMatcher = matcherGroup.match(serverName);

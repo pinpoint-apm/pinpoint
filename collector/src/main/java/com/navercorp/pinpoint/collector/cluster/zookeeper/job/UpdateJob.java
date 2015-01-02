@@ -23,20 +23,20 @@ import com.navercorp.pinpoint.rpc.server.ChannelContext;
  */
 public class UpdateJob extends AbstractJob {
 
-	private final byte[] contents;
-	
-	public UpdateJob(ChannelContext channelContext, byte[] contents) {
-		super(channelContext);
-		this.contents = contents;
-	}
-	
-	public UpdateJob(ChannelContext channelContext, int maxRetryCount, byte[] contents) {
-		super(channelContext, maxRetryCount);
-		this.contents = contents;
-	}
+    private final byte[] contents;
 
-	public byte[] getContents() {
-		return contents;
-	}
+    public UpdateJob(ChannelContext channelContext, byte[] contents) {
+        super(channelContext);
+        this.contents = contents;
+    }
+
+    public UpdateJob(ChannelContext channelContext, int maxRetryCount, byte[] contents) {
+        super(channelContext, maxRetryCount);
+        this.contents = contents;
+    }
+
+    public byte[] getContents() {
+        return contents;
+    }
 
 }

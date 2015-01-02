@@ -53,27 +53,27 @@ public class MapController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-	private MapService mapService;
+    private MapService mapService;
 
     @Autowired
     private Limiter dateLimit;
 
-	/**
+    /**
    * Server map data query within from ~ to timeframe
-	 *
-	 * @param applicationName
-	 * @param serviceTypeCode
-	 * @param from
-	 * @param to
-	 * @return
-	 */
-	@RequestMapping(value = "/getServerMapData", method = RequestMethod.GET)
+     *
+     * @param applicationName
+     * @param serviceTypeCode
+     * @param from
+     * @param to
+     * @return
+     */
+    @RequestMapping(value = "/getServerMapData", method = RequestMethod.GET)
     @ResponseBody
-	public MapWrap getServerMapData(
-									@RequestParam("applicationName") String applicationName,
-									@RequestParam("serviceTypeCode") short serviceTypeCode,
-									@RequestParam("from") long from,
-									@RequestParam("to") long to) {
+    public MapWrap getServerMapData(
+                                    @RequestParam("applicationName") String applicationName,
+                                    @RequestParam("serviceTypeCode") short serviceTypeCode,
+                                    @RequestParam("from") long from,
+                                    @RequestParam("to") long to) {
         final Range range = new Range(from, to);
         this.dateLimit.limit(from, to);
         logger.debug("range:{}", TimeUnit.MILLISECONDS.toMinutes(range.getRange()));
@@ -81,51 +81,51 @@ public class MapController {
 
         ApplicationMap map = mapService.selectApplicationMap(application, range);
 
-		return new MapWrap(map);
-	}
+        return new MapWrap(map);
+    }
 
-	/**
+    /**
    * Server map data query for the last "Period" timeframe
-	 *
-	 * @param applicationName
-	 * @param serviceTypeCode
-	 * @param period
-	 * @return
-	 */
-	@RequestMapping(value = "/getLastServerMapData", method = RequestMethod.GET)
+     *
+     * @param applicationName
+     * @param serviceTypeCode
+     * @param period
+     * @return
+     */
+    @RequestMapping(value = "/getLastServerMapData", method = RequestMethod.GET)
     @ResponseBody
-	public MapWrap getLastServerMapData(
-										@RequestParam("applicationName") String applicationName,
-										@RequestParam("serviceTypeCode") short serviceTypeCode,
-										@RequestParam("period") long period) {
+    public MapWrap getLastServerMapData(
+                                        @RequestParam("applicationName") String applicationName,
+                                        @RequestParam("serviceTypeCode") short serviceTypeCode,
+                                        @RequestParam("period") long period) {
 
-		long to = TimeUtils.getDelayLastTime();
-		long from = to - period;
-		return getServerMapData(applicationName, serviceTypeCode, from, to);
-	}
+        long to = TimeUtils.getDelayLastTime();
+        long from = to - period;
+        return getServerMapData(applicationName, serviceTypeCode, from, to);
+    }
 
-	/**
+    /**
    * Possible deprecation expected when UI change push forward to pick a map first from UI
    * Unfiltered server map request data query
-	 *
-	 * @param model
-	 * @param from
-	 * @param to
-	 * @param sourceApplicationName
-	 * @param sourceServiceType
-	 * @param targetApplicationName
-	 * @param targetServiceType
-	 * @return
-	 */
+     *
+     * @param model
+     * @param from
+     * @param to
+     * @param sourceApplicationName
+     * @param sourceServiceType
+     * @param targetApplicationName
+     * @param targetServiceType
+     * @return
+     */
     @Deprecated
-	@RequestMapping(value = "/linkStatistics", method = RequestMethod.GET)
-	public String getLinkStatistics(Model model,
-									@RequestParam("from") long from,
-									@RequestParam("to") long to,
-									@RequestParam("sourceApplicationName") String sourceApplicationName,
-									@RequestParam("sourceServiceType") short sourceServiceType,
-									@RequestParam("targetApplicationName") String targetApplicationName,
-									@RequestParam("targetServiceType") short targetServiceType) {
+    @RequestMapping(value = "/linkStatistics", method = RequestMethod.GET)
+    public String getLinkStatistics(Model model,
+                                    @RequestParam("from") long from,
+                                    @RequestParam("to") long to,
+                                    @RequestParam("sourceApplicationName") String sourceApplicationName,
+                                    @RequestParam("sourceServiceType") short sourceServiceType,
+                                    @RequestParam("targetApplicationName") String targetApplicationName,
+                                    @RequestParam("targetServiceType") short targetServiceType) {
 
     final Application sourceApplication = new Application(sourceApplicationName, sourceServiceType);
     final Application destinationApplication = new Application(targetApplicationName, targetServiceType);
@@ -133,14 +133,14 @@ public class MapController {
 
     NodeHistogram nodeHistogram = mapService.linkStatistics(sourceApplication, destinationApplication, range);
 
-		model.addAttribute("range", range);
+        model.addAttribute("range", range);
 
     model.addAttribute("sourceApplication", sourceApplication);
 
     model.addAttribute("targetApplication", destinationApplication);
 
     Histogram applicationHistogram = nodeHistogram.getApplicationHistogram();
-		model.addAttribute("linkStatistics", applicationHistogram);
+        model.addAttribute("linkStatistics", applicationHistogram);
 
 
     List<ResponseTimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram();
@@ -153,12 +153,12 @@ public class MapController {
     model.addAttribute("timeSeriesHistogram", applicationTimeSeriesHistogramJson);
 
     // looks like we need to specify "from, to" to the result. but data got passed thru as it is.
-		model.addAttribute("resultFrom", from);
-		model.addAttribute("resultTo", to);
+        model.addAttribute("resultFrom", from);
+        model.addAttribute("resultTo", to);
 
 
-		return "linkStatistics";
-	}
+        return "linkStatistics";
+    }
 
     private final static ObjectMapper MAPPER = new ObjectMapper();
 }

@@ -45,200 +45,200 @@ import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterManager;
 
 public class ZookeeperClusterTest {
 
-	private static final int DEFAULT_ACCEPTOR_PORT = 9995;
-	private static final int DEFAULT_ZOOKEEPER_PORT = 22213;
+    private static final int DEFAULT_ACCEPTOR_PORT = 9995;
+    private static final int DEFAULT_ZOOKEEPER_PORT = 22213;
 
-	private static final String DEFAULT_IP = NetUtils.getLocalV4Ip();
+    private static final String DEFAULT_IP = NetUtils.getLocalV4Ip();
 
-	private static final String COLLECTOR_NODE_PATH = "/pinpoint-cluster/collector";
-	private static final String COLLECTOR_TEST_NODE_PATH = "/pinpoint-cluster/collector/test";
-	
-	private static final String CLUSTER_NODE_PATH = "/pinpoint-cluster/web/" + DEFAULT_IP + ":" + DEFAULT_ACCEPTOR_PORT;
+    private static final String COLLECTOR_NODE_PATH = "/pinpoint-cluster/collector";
+    private static final String COLLECTOR_TEST_NODE_PATH = "/pinpoint-cluster/collector/test";
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
-	private static TestingServer ts = null;
+    private static final String CLUSTER_NODE_PATH = "/pinpoint-cluster/web/" + DEFAULT_IP + ":" + DEFAULT_ACCEPTOR_PORT;
 
-	@BeforeClass
-	public static void setUp() throws Exception {
-		ts = createZookeeperServer(DEFAULT_ZOOKEEPER_PORT);
-	}
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@AfterClass
-	public static void tearDown() throws Exception {
-		closeZookeeperServer(ts);
-	}
+    private static TestingServer ts = null;
 
-	@Before
-	public void before() throws IOException {
-		ts.stop();
-	}
+    @BeforeClass
+    public static void setUp() throws Exception {
+        ts = createZookeeperServer(DEFAULT_ZOOKEEPER_PORT);
+    }
 
-	// test for zookeeper agents to be registered correctly at the cluster as expected
-	@Test
-	public void clusterTest1() throws Exception {
-		ts.restart();
+    @AfterClass
+    public static void tearDown() throws Exception {
+        closeZookeeperServer(ts);
+    }
 
-		ZooKeeper zookeeper = null;
-		ZookeeperClusterManager manager = null;
-		try {
-			zookeeper = new ZooKeeper(DEFAULT_IP + ":" + DEFAULT_ZOOKEEPER_PORT, 5000, null);
-			createPath(zookeeper, COLLECTOR_TEST_NODE_PATH, true);
-			zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1".getBytes(), -1);
-			
-			manager = new ZookeeperClusterManager(DEFAULT_IP + ":" + DEFAULT_ZOOKEEPER_PORT, 5000, 60000);
-			Thread.sleep(3000);
+    @Before
+    public void before() throws IOException {
+        ts.stop();
+    }
 
-			List<String> agentList = manager.getRegisteredAgentList("a", "b", 1L);
-			Assert.assertEquals(1, agentList.size());
-			Assert.assertEquals("test", agentList.get(0));
+    // test for zookeeper agents to be registered correctly at the cluster as expected
+    @Test
+    public void clusterTest1() throws Exception {
+        ts.restart();
 
-			agentList = manager.getRegisteredAgentList("b", "c", 1L);
-			Assert.assertEquals(0, agentList.size());
-			
-			zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "".getBytes(), -1);
-			Thread.sleep(3000);
+        ZooKeeper zookeeper = null;
+        ZookeeperClusterManager manager = null;
+        try {
+            zookeeper = new ZooKeeper(DEFAULT_IP + ":" + DEFAULT_ZOOKEEPER_PORT, 5000, null);
+            createPath(zookeeper, COLLECTOR_TEST_NODE_PATH, true);
+            zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1".getBytes(), -1);
 
-			agentList = manager.getRegisteredAgentList("a", "b", 1L);
-			Assert.assertEquals(0, agentList.size());
-		} finally {
-			if (zookeeper != null) {
-				zookeeper.close();
-			}
-			
-			if (manager != null) {
-				manager.close();
-			}
-		}
-	}
-	
-	@Test
-	public void clusterTest2() throws Exception {
-		ts.restart();
+            manager = new ZookeeperClusterManager(DEFAULT_IP + ":" + DEFAULT_ZOOKEEPER_PORT, 5000, 60000);
+            Thread.sleep(3000);
 
-		ZooKeeper zookeeper = null;
-		ZookeeperClusterManager manager = null;
-		try {
-			zookeeper = new ZooKeeper(DEFAULT_IP + ":" + DEFAULT_ZOOKEEPER_PORT, 5000, null);
-			createPath(zookeeper, COLLECTOR_TEST_NODE_PATH, true);
-			zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1".getBytes(), -1);
-			
-			manager = new ZookeeperClusterManager(DEFAULT_IP + ":" + DEFAULT_ZOOKEEPER_PORT, 5000, 60000);
-			Thread.sleep(3000);
+            List<String> agentList = manager.getRegisteredAgentList("a", "b", 1L);
+            Assert.assertEquals(1, agentList.size());
+            Assert.assertEquals("test", agentList.get(0));
 
-			List<String> agentList = manager.getRegisteredAgentList("a", "b", 1L);
-			Assert.assertEquals(1, agentList.size());
-			Assert.assertEquals("test", agentList.get(0));
+            agentList = manager.getRegisteredAgentList("b", "c", 1L);
+            Assert.assertEquals(0, agentList.size());
 
-			zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1\r\nc:d:2".getBytes(), -1);
-			Thread.sleep(3000);
+            zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "".getBytes(), -1);
+            Thread.sleep(3000);
+
+            agentList = manager.getRegisteredAgentList("a", "b", 1L);
+            Assert.assertEquals(0, agentList.size());
+        } finally {
+            if (zookeeper != null) {
+                zookeeper.close();
+            }
+
+            if (manager != null) {
+                manager.close();
+            }
+        }
+    }
+
+    @Test
+    public void clusterTest2() throws Exception {
+        ts.restart();
+
+        ZooKeeper zookeeper = null;
+        ZookeeperClusterManager manager = null;
+        try {
+            zookeeper = new ZooKeeper(DEFAULT_IP + ":" + DEFAULT_ZOOKEEPER_PORT, 5000, null);
+            createPath(zookeeper, COLLECTOR_TEST_NODE_PATH, true);
+            zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1".getBytes(), -1);
+
+            manager = new ZookeeperClusterManager(DEFAULT_IP + ":" + DEFAULT_ZOOKEEPER_PORT, 5000, 60000);
+            Thread.sleep(3000);
+
+            List<String> agentList = manager.getRegisteredAgentList("a", "b", 1L);
+            Assert.assertEquals(1, agentList.size());
+            Assert.assertEquals("test", agentList.get(0));
+
+            zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1\r\nc:d:2".getBytes(), -1);
+            Thread.sleep(3000);
 
 
-			agentList = manager.getRegisteredAgentList("a", "b", 1L);
-			Assert.assertEquals(1, agentList.size());
-			Assert.assertEquals("test", agentList.get(0));
+            agentList = manager.getRegisteredAgentList("a", "b", 1L);
+            Assert.assertEquals(1, agentList.size());
+            Assert.assertEquals("test", agentList.get(0));
 
-			agentList = manager.getRegisteredAgentList("c", "d", 2L);
-			Assert.assertEquals(1, agentList.size());
-			Assert.assertEquals("test", agentList.get(0));
+            agentList = manager.getRegisteredAgentList("c", "d", 2L);
+            Assert.assertEquals(1, agentList.size());
+            Assert.assertEquals("test", agentList.get(0));
 
-			zookeeper.delete(COLLECTOR_TEST_NODE_PATH, -1);
-			Thread.sleep(3000);
-			
-			agentList = manager.getRegisteredAgentList("a", "b", 1L);
-			Assert.assertEquals(0, agentList.size());
-			
-			agentList = manager.getRegisteredAgentList("c", "d", 2L);
-			Assert.assertEquals(0, agentList.size());
-		} finally {
-			if (zookeeper != null) {
-				zookeeper.close();
-			}
-			
-			if (manager != null) {
-				manager.close();
-			}
-		}
-	}
+            zookeeper.delete(COLLECTOR_TEST_NODE_PATH, -1);
+            Thread.sleep(3000);
 
-	private static TestingServer createZookeeperServer(int port) throws Exception {
-		TestingServer mockZookeeperServer = new TestingServer(port);
-		mockZookeeperServer.start();
+            agentList = manager.getRegisteredAgentList("a", "b", 1L);
+            Assert.assertEquals(0, agentList.size());
 
-		return mockZookeeperServer;
-	}
+            agentList = manager.getRegisteredAgentList("c", "d", 2L);
+            Assert.assertEquals(0, agentList.size());
+        } finally {
+            if (zookeeper != null) {
+                zookeeper.close();
+            }
 
-	private static void closeZookeeperServer(TestingServer mockZookeeperServer) throws Exception {
-		try {
-			if (mockZookeeperServer != null) {
-				mockZookeeperServer.close();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+            if (manager != null) {
+                manager.close();
+            }
+        }
+    }
 
-	private void getNodeAndCompareContents(ZooKeeper zookeeper) throws KeeperException, InterruptedException {
-		byte[] conetents = zookeeper.getData(CLUSTER_NODE_PATH, null, null);
+    private static TestingServer createZookeeperServer(int port) throws Exception {
+        TestingServer mockZookeeperServer = new TestingServer(port);
+        mockZookeeperServer.start();
 
-		String[] registeredIplist = new String(conetents).split("\r\n");
+        return mockZookeeperServer;
+    }
 
-		List<String> ipList = NetUtils.getLocalV4IpList();
+    private static void closeZookeeperServer(TestingServer mockZookeeperServer) throws Exception {
+        try {
+            if (mockZookeeperServer != null) {
+                mockZookeeperServer.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-		Assert.assertEquals(registeredIplist.length, ipList.size());
+    private void getNodeAndCompareContents(ZooKeeper zookeeper) throws KeeperException, InterruptedException {
+        byte[] conetents = zookeeper.getData(CLUSTER_NODE_PATH, null, null);
 
-		for (String ip : registeredIplist) {
-			Assert.assertTrue(ipList.contains(ip));
-		}
-	}
+        String[] registeredIplist = new String(conetents).split("\r\n");
 
-	private void closePinpointSocket(PinpointSocketFactory factory, PinpointSocket socket) {
-		if (socket != null) {
-			socket.close();
-		}
+        List<String> ipList = NetUtils.getLocalV4IpList();
 
-		if (factory != null) {
-			factory.release();
-		}
-	}
+        Assert.assertEquals(registeredIplist.length, ipList.size());
 
-	class SimpleListener implements MessageListener {
-		@Override
-		public void handleSend(SendPacket sendPacket, Channel channel) {
+        for (String ip : registeredIplist) {
+            Assert.assertTrue(ipList.contains(ip));
+        }
+    }
 
-		}
+    private void closePinpointSocket(PinpointSocketFactory factory, PinpointSocket socket) {
+        if (socket != null) {
+            socket.close();
+        }
 
-		@Override
-		public void handleRequest(RequestPacket requestPacket, Channel channel) {
-			// TODO Auto-generated method stub
+        if (factory != null) {
+            factory.release();
+        }
+    }
 
-		}
-	}
+    class SimpleListener implements MessageListener {
+        @Override
+        public void handleSend(SendPacket sendPacket, Channel channel) {
 
-	public void createPath(ZooKeeper zookeeper, String path, boolean createEndNode) throws PinpointZookeeperException, InterruptedException, KeeperException {
+        }
 
-		int pos = 1;
-		do {
-			pos = path.indexOf('/', pos + 1);
+        @Override
+        public void handleRequest(RequestPacket requestPacket, Channel channel) {
+            // TODO Auto-generated method stub
 
-			if (pos == -1) {
-				pos = path.length();
-			}
+        }
+    }
 
-			if (pos == path.length()) {
-				if (!createEndNode) {
-					return;
-				}
-			}
+    public void createPath(ZooKeeper zookeeper, String path, boolean createEndNode) throws PinpointZookeeperException, InterruptedException, KeeperException {
 
-			String subPath = path.substring(0, pos);
-			if (zookeeper.exists(subPath, false) != null) {
-				continue;
-			}
+        int pos = 1;
+        do {
+            pos = path.indexOf('/', pos + 1);
 
-			String result = zookeeper.create(subPath, new byte[0], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-			logger.info("Create path {} success.", result);
-		} while (pos < path.length());
-	}
+            if (pos == -1) {
+                pos = path.length();
+            }
+
+            if (pos == path.length()) {
+                if (!createEndNode) {
+                    return;
+                }
+            }
+
+            String subPath = path.substring(0, pos);
+            if (zookeeper.exists(subPath, false) != null) {
+                continue;
+            }
+
+            String result = zookeeper.create(subPath, new byte[0], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            logger.info("Create path {} success.", result);
+        } while (pos < path.length());
+    }
 
 }

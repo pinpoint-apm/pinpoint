@@ -35,30 +35,30 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpURLConnectionModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	public HttpURLConnectionModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-		super(byteCodeInstrumentor, agent);
-	}
+    public HttpURLConnectionModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+        super(byteCodeInstrumentor, agent);
+    }
 
-	public String getTargetClass() {
-		return "sun/net/www/protocol/http/HttpURLConnection";
-	}
+    public String getTargetClass() {
+        return "sun/net/www/protocol/http/HttpURLConnection";
+    }
 
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-		if (logger.isInfoEnabled()) {
-			logger.info("Modifing. {}", javassistClassName);
-		}
+    public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Modifing. {}", javassistClassName);
+        }
 
-		try {
-			InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+        try {
+            InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
             ConnectMethodInterceptor connectMethodInterceptor = new ConnectMethodInterceptor();
             aClass.addInterceptor("connect", null, connectMethodInterceptor);
 
-			return aClass.toBytecode();
-		} catch (InstrumentException e) {
-			logger.warn("HttpURLConnectionModifier fail. Caused:", e.getMessage(), e);
-			return null;
-		}
-	}
+            return aClass.toBytecode();
+        } catch (InstrumentException e) {
+            logger.warn("HttpURLConnectionModifier fail. Caused:", e.getMessage(), e);
+            return null;
+        }
+    }
 }

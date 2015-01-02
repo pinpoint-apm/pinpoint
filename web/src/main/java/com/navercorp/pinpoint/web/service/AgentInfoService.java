@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.web.vo.Range;
  * @author netspider
  */
 public interface AgentInfoService {
-	SortedMap<String, List<AgentInfoBo>> getApplicationAgentList(String applicationName, Range range);
+    SortedMap<String, List<AgentInfoBo>> getApplicationAgentList(String applicationName, Range range);
 
 
     Set<AgentInfoBo> selectAgent(String applicationId, Range range);

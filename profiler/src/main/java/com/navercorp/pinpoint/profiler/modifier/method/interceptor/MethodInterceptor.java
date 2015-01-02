@@ -30,21 +30,21 @@ import com.navercorp.pinpoint.common.ServiceType;
  */
 public class MethodInterceptor implements SimpleAroundInterceptor, ServiceTypeSupport, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-	private final PLogger logger = PLoggerFactory.getLogger(MethodInterceptor.class);
+    private final PLogger logger = PLoggerFactory.getLogger(MethodInterceptor.class);
     private final boolean isDebug = logger.isDebugEnabled();
 
-	private MethodDescriptor descriptor;
-	private TraceContext traceContext;
+    private MethodDescriptor descriptor;
+    private TraceContext traceContext;
     private ServiceType serviceType = ServiceType.INTERNAL_METHOD;
 
 
-	@Override
-	public void before(Object target, Object[] args) {
-		if (isDebug) {
-			logger.beforeInterceptor(target, args);
-		}
+    @Override
+    public void before(Object target, Object[] args) {
+        if (isDebug) {
+            logger.beforeInterceptor(target, args);
+        }
 
-		Trace trace = traceContext.currentTraceObject();
+        Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
@@ -53,18 +53,18 @@ public class MethodInterceptor implements SimpleAroundInterceptor, ServiceTypeSu
         trace.markBeforeTime();
 
         trace.recordServiceType(serviceType);
-	}
+    }
 
-	@Override
-	public void after(Object target, Object[] args, Object result, Throwable throwable) {
-		if (isDebug) {
+    @Override
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        if (isDebug) {
             logger.afterInterceptor(target, args);
-		}
+        }
 
-		Trace trace = traceContext.currentTraceObject();
-		if (trace == null) {
-			return;
-		}
+        Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
+            return;
+        }
 
         try {
             trace.recordApi(descriptor);
@@ -74,20 +74,20 @@ public class MethodInterceptor implements SimpleAroundInterceptor, ServiceTypeSu
         } finally {
             trace.traceBlockEnd();
         }
-	}
+    }
 
     public void setServiceType(ServiceType serviceType) {
         this.serviceType = serviceType;
     }
 
     @Override
-	public void setMethodDescriptor(MethodDescriptor descriptor) {
-		this.descriptor = descriptor;
+    public void setMethodDescriptor(MethodDescriptor descriptor) {
+        this.descriptor = descriptor;
         this.traceContext.cacheApi(descriptor);
     }
 
-	@Override
-	public void setTraceContext(TraceContext traceContext) {
-		this.traceContext = traceContext;
+    @Override
+    public void setTraceContext(TraceContext traceContext) {
+        this.traceContext = traceContext;
     }
 }

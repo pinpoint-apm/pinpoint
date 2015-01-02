@@ -47,13 +47,13 @@ import java.util.Map;
 @Repository
 public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	private HbaseOperations2 hbaseTemplate;
+    @Autowired
+    private HbaseOperations2 hbaseTemplate;
 
-	@Autowired
-	private AcceptedTimeService acceptedTimeService;
+    @Autowired
+    private AcceptedTimeService acceptedTimeService;
 
     @Autowired
     private TimeSlot timeSlot;
@@ -62,21 +62,21 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
     @Qualifier("calleeMerge")
     private RowKeyMerge rowKeyMerge;
 
-	private final boolean useBulk;
+    private final boolean useBulk;
 
     private final ConcurrentCounterMap<RowInfo> counter = new ConcurrentCounterMap<RowInfo>();
 
-	public HbaseMapStatisticsCalleeDao() {
+    public HbaseMapStatisticsCalleeDao() {
         this(true);
-	}
+    }
 
-	public HbaseMapStatisticsCalleeDao(boolean useBulk) {
-		this.useBulk = useBulk;
-	}
+    public HbaseMapStatisticsCalleeDao(boolean useBulk) {
+        this.useBulk = useBulk;
+    }
 
 
     @Override
-	public void update(String calleeApplicationName, short calleeServiceType, String callerApplicationName, short callerServiceType, String callerHost, int elapsed, boolean isError) {
+    public void update(String calleeApplicationName, short calleeServiceType, String callerApplicationName, short callerServiceType, String callerHost, int elapsed, boolean isError) {
         if (callerApplicationName == null) {
             throw new NullPointerException("callerApplicationName must not be null");
         }
@@ -88,31 +88,31 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
             logger.debug("[Callee] {} ({}) <- {} ({})[{}]",
                     calleeApplicationName, ServiceType.findServiceType(calleeServiceType),
                     callerApplicationName, ServiceType.findServiceType(callerServiceType), callerHost);
-		}
+        }
 
         // there may be no endpoint in case of httpclient
-		callerHost = StringUtils.defaultString(callerHost);
+        callerHost = StringUtils.defaultString(callerHost);
 
 
-		// make row key. rowkey is me
-		final long acceptedTime = acceptedTimeService.getAcceptedTime();
-		final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
+        // make row key. rowkey is me
+        final long acceptedTime = acceptedTimeService.getAcceptedTime();
+        final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
         final RowKey calleeRowKey = new CallRowKey(calleeApplicationName, calleeServiceType, rowTimeSlot);
 
         final short callerSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(callerServiceType, elapsed, isError);
         final ColumnName callerColumnName = new CallerColumnName(callerServiceType, callerApplicationName, callerHost, callerSlotNumber);
 
-		if (useBulk) {
+        if (useBulk) {
             RowInfo rowInfo = new DefaultRowInfo(calleeRowKey, callerColumnName);
             counter.increment(rowInfo, 1L);
-		} else {
+        } else {
             final byte[] rowKey = calleeRowKey.getRowKey();
 
             // column name is the name of caller app.
             byte[] columnName = callerColumnName.getColumnName();
             increment(rowKey, columnName, 1L);
         }
-	}
+    }
 
 
 
@@ -127,10 +127,10 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
     }
 
     @Override
-	public void flushAll() {
-		if (!useBulk) {
-			throw new IllegalStateException();
-		}
+    public void flushAll() {
+        if (!useBulk) {
+            throw new IllegalStateException();
+        }
 
         Map<RowInfo, ConcurrentCounterMap.LongAdder> remove = this.counter.remove();
         List<Increment> merge = rowKeyMerge.createBulkIncrement(remove);

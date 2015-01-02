@@ -63,10 +63,10 @@ public class TcpDataSenderReconnectTest {
                 logger.info("handleRequest:{}", requestPacket);
             }
 
-			@Override
-			public HandshakeResponseCode handleHandshake(Map properties) {
-				return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
-			}
+            @Override
+            public HandshakeResponseCode handleHandshake(Map properties) {
+                return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
+            }
         });
         server.bind(HOST, PORT);
         return server;
@@ -102,28 +102,28 @@ public class TcpDataSenderReconnectTest {
     }
     
     private PinpointSocketFactory createPinpointSocketFactory() {
-    	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+        PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setTimeoutMillis(1000 * 5);
         pinpointSocketFactory.setProperties(Collections.EMPTY_MAP);
 
         return pinpointSocketFactory;
-	}
+    }
 
     
     private PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
-    	PinpointSocket socket = null;
-    	for (int i = 0; i < 3; i++) {
+        PinpointSocket socket = null;
+        for (int i = 0; i < 3; i++) {
             try {
                 socket = factory.connect(host, port);
                 logger.info("tcp connect success:{}/{}", host, port);
                 return socket;
             } catch (PinpointSocketException e) {
-            	logger.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
+                logger.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
             }
         }
-    	logger.warn("change background tcp connect mode  {}/{} ", host, port);
+        logger.warn("change background tcp connect mode  {}/{} ", host, port);
         socket = factory.scheduledConnect(host, port);
-    	
+
         return socket;
     }
 }

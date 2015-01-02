@@ -31,64 +31,64 @@ import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
  */
 public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final RouteFilterChain<RequestEvent> requestFilterChain;
-	private final RouteFilterChain<ResponseEvent> responseFilterChain;
+    private final RouteFilterChain<RequestEvent> requestFilterChain;
+    private final RouteFilterChain<ResponseEvent> responseFilterChain;
 
-	public DefaultRouteHandler(ClusterPointLocator<TargetClusterPoint> targetClusterPointLocator) {
-	    super(targetClusterPointLocator);
+    public DefaultRouteHandler(ClusterPointLocator<TargetClusterPoint> targetClusterPointLocator) {
+        super(targetClusterPointLocator);
 
-		this.requestFilterChain = new DefaultRouteFilterChain<RequestEvent>();
-		this.responseFilterChain = new DefaultRouteFilterChain<ResponseEvent>();
-	}
+        this.requestFilterChain = new DefaultRouteFilterChain<RequestEvent>();
+        this.responseFilterChain = new DefaultRouteFilterChain<ResponseEvent>();
+    }
 
-	@Override
-	public void addRequestFilter(RouteFilter<RequestEvent> filter) {
-		this.requestFilterChain.addLast(filter);
-	}
+    @Override
+    public void addRequestFilter(RouteFilter<RequestEvent> filter) {
+        this.requestFilterChain.addLast(filter);
+    }
 
-	@Override
-	public void addResponseFilter(RouteFilter<ResponseEvent> filter) {
-		this.responseFilterChain.addLast(filter);
-	}
+    @Override
+    public void addResponseFilter(RouteFilter<ResponseEvent> filter) {
+        this.responseFilterChain.addLast(filter);
+    }
 
-	@Override
-	public RouteResult onRoute(RequestEvent event) {
-		requestFilterChain.doEvent(event);
+    @Override
+    public RouteResult onRoute(RequestEvent event) {
+        requestFilterChain.doEvent(event);
 
-		RouteResult routeResult = onRoute0(event);
+        RouteResult routeResult = onRoute0(event);
 
-		responseFilterChain.doEvent(new ResponseEvent(event, event.getRequestId(), routeResult));
+        responseFilterChain.doEvent(new ResponseEvent(event, event.getRequestId(), routeResult));
 
-		return routeResult;
-	}
+        return routeResult;
+    }
 
-	private RouteResult onRoute0(RequestEvent event) {
-		TBase requestObject = event.getRequestObject();
-		if (requestObject == null) {
-			return new RouteResult(RouteStatus.BAD_REQUEST);
-		}
+    private RouteResult onRoute0(RequestEvent event) {
+        TBase requestObject = event.getRequestObject();
+        if (requestObject == null) {
+            return new RouteResult(RouteStatus.BAD_REQUEST);
+        }
 
-		TargetClusterPoint clusterPoint = findClusterPoint(event.getDeliveryCommand());
-		if (clusterPoint == null) {
-			return new RouteResult(RouteStatus.NOT_FOUND);
-		}
+        TargetClusterPoint clusterPoint = findClusterPoint(event.getDeliveryCommand());
+        if (clusterPoint == null) {
+            return new RouteResult(RouteStatus.NOT_FOUND);
+        }
 
-		TCommandTypeVersion commandVersion = TCommandTypeVersion.getVersion(clusterPoint.gerVersion());
-		if (!commandVersion.isSupportCommand(requestObject)) {
-			return new RouteResult(RouteStatus.NOT_ACCEPTABLE);
-		}
+        TCommandTypeVersion commandVersion = TCommandTypeVersion.getVersion(clusterPoint.gerVersion());
+        if (!commandVersion.isSupportCommand(requestObject)) {
+            return new RouteResult(RouteStatus.NOT_ACCEPTABLE);
+        }
 
-		Future<ResponseMessage> future = clusterPoint.request(event.getDeliveryCommand().getPayload());
-		future.await();
-		ResponseMessage responseMessage = future.getResult();
+        Future<ResponseMessage> future = clusterPoint.request(event.getDeliveryCommand().getPayload());
+        future.await();
+        ResponseMessage responseMessage = future.getResult();
 
-		if (responseMessage == null) {
-			return new RouteResult(RouteStatus.AGENT_TIMEOUT);
-		}
+        if (responseMessage == null) {
+            return new RouteResult(RouteStatus.AGENT_TIMEOUT);
+        }
 
-		return new RouteResult(RouteStatus.OK, responseMessage);
-	}
+        return new RouteResult(RouteStatus.OK, responseMessage);
+    }
 
 }

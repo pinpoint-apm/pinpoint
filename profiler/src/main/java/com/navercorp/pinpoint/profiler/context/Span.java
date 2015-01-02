@@ -96,12 +96,12 @@ public class Span extends TSpan {
     }
 
     public int getErrCode() {
-		return getErr();
-	}
+        return getErr();
+    }
 
-	public void setErrCode(int exception) {
+    public void setErrCode(int exception) {
         super.setErr(exception);
-	}
+    }
 
 
 }

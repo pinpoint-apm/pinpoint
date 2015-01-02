@@ -34,43 +34,43 @@ import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
  * 
  */
 public class BasicFutureModifier extends AbstractModifier {
-	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
-	public BasicFutureModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-		super(byteCodeInstrumentor, agent);
-	}
 
-	@Override
-	public String getTargetClass() {
-		return "org/apache/http/concurrent/BasicFuture";
-	}
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Override
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-		if (logger.isInfoEnabled()) {
-			logger.info("Modifing. {} @ {}", javassistClassName, classLoader);
-		}
+    public BasicFutureModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+        super(byteCodeInstrumentor, agent);
+    }
 
-		try {
-			InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+    @Override
+    public String getTargetClass() {
+        return "org/apache/http/concurrent/BasicFuture";
+    }
 
-			Interceptor futureGetInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor.BasicFutureGetInterceptor");
-			aClass.addInterceptor("get", null, futureGetInterceptor);
-			
-			Interceptor futureGetInterceptor2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor.BasicFutureGetInterceptor");
-			aClass.addInterceptor("get", new String[] { "long", "java.util.concurrent.TimeUnit" }, futureGetInterceptor2);
+    @Override
+    public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Modifing. {} @ {}", javassistClassName, classLoader);
+        }
 
-			Interceptor futureCompletedInterceptor  = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor.BasicFutureCompletedInterceptor");
-			aClass.addInterceptor("completed", new String[] { "java.lang.Object" }, futureCompletedInterceptor);
+        try {
+            InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
-			Interceptor futureFailedInterceptor  = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor.BasicFutureFailedInterceptor");
-			aClass.addInterceptor("failed", new String[] { "java.lang.Exception" }, futureFailedInterceptor);
-			
-			return aClass.toBytecode();
-		} catch (InstrumentException e) {
-			logger.info("modify fail. Cause:{}", e.getMessage(), e);
-			return null;
-		}
-	}
+            Interceptor futureGetInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor.BasicFutureGetInterceptor");
+            aClass.addInterceptor("get", null, futureGetInterceptor);
+
+            Interceptor futureGetInterceptor2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor.BasicFutureGetInterceptor");
+            aClass.addInterceptor("get", new String[] { "long", "java.util.concurrent.TimeUnit" }, futureGetInterceptor2);
+
+            Interceptor futureCompletedInterceptor  = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor.BasicFutureCompletedInterceptor");
+            aClass.addInterceptor("completed", new String[] { "java.lang.Object" }, futureCompletedInterceptor);
+
+            Interceptor futureFailedInterceptor  = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor.BasicFutureFailedInterceptor");
+            aClass.addInterceptor("failed", new String[] { "java.lang.Exception" }, futureFailedInterceptor);
+
+            return aClass.toBytecode();
+        } catch (InstrumentException e) {
+            logger.info("modify fail. Cause:{}", e.getMessage(), e);
+            return null;
+        }
+    }
 }

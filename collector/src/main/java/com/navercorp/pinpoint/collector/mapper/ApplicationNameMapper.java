@@ -26,24 +26,24 @@ import org.springframework.stereotype.Component;
 @Component
 @Deprecated
 public class ApplicationNameMapper implements RowMapper<String> {
-	@Override
-	public String mapRow(Result result, int rowNum) throws Exception {
+    @Override
+    public String mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return null;
         }
-		KeyValue[] raw = result.raw();
+        KeyValue[] raw = result.raw();
 
-		if (raw.length == 0) {
-			return null;
-		}
+        if (raw.length == 0) {
+            return null;
+        }
 
-		String[] ret = new String[raw.length];
-		int index = 0;
+        String[] ret = new String[raw.length];
+        int index = 0;
 
-		for (KeyValue kv : raw) {
-			ret[index++] = BytesUtils.toString(kv.getQualifier());
-		}
+        for (KeyValue kv : raw) {
+            ret[index++] = BytesUtils.toString(kv.getQualifier());
+        }
 
-		return ret[0];
-	}
+        return ret[0];
+    }
 }

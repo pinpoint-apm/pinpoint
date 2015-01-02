@@ -26,13 +26,13 @@ import com.navercorp.pinpoint.profiler.interceptor.aspect.PointCut;
 @Aspect
 public abstract class ErrorAspect_InvalidExtents extends Thread {
 
-	@PointCut
-	public void testVoid() {
-		__testVoid();
-	}
+    @PointCut
+    public void testVoid() {
+        __testVoid();
+    }
 
-	@JointPoint
-	abstract void __testVoid();
+    @JointPoint
+    abstract void __testVoid();
 
 
 

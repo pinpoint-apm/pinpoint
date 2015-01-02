@@ -44,172 +44,172 @@ import com.navercorp.pinpoint.web.cluster.zookeeper.exception.UnknownException;
  */
 public class ZookeeperClient {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	// ZK client is thread-safe
-	private final ZookeeperClusterManager manager;
+    // ZK client is thread-safe
+    private final ZookeeperClusterManager manager;
 
-	private final ZooKeeper zookeeper;
-	private final AtomicBoolean clientState = new AtomicBoolean(true);
+    private final ZooKeeper zookeeper;
+    private final AtomicBoolean clientState = new AtomicBoolean(true);
 
-	// hmm this structure should contain all necessary information
-	public ZookeeperClient(String hostPort, int sessionTimeout, ZookeeperClusterManager manager) throws KeeperException, IOException, InterruptedException {
-		this.manager = manager;
-		zookeeper = new ZooKeeper(hostPort, sessionTimeout, this.manager); // server
-	}
+    // hmm this structure should contain all necessary information
+    public ZookeeperClient(String hostPort, int sessionTimeout, ZookeeperClusterManager manager) throws KeeperException, IOException, InterruptedException {
+        this.manager = manager;
+        zookeeper = new ZooKeeper(hostPort, sessionTimeout, this.manager); // server
+    }
 
-	/**
-	 * do not create node in path suffix
-	 *
-	 * @throws PinpointZookeeperException
-	 * @throws InterruptedException
-	 */
-	public void createPath(String path) throws PinpointZookeeperException, InterruptedException {
-		checkState();
+    /**
+     * do not create node in path suffix
+     *
+     * @throws PinpointZookeeperException
+     * @throws InterruptedException
+     */
+    public void createPath(String path) throws PinpointZookeeperException, InterruptedException {
+        checkState();
 
-		int pos = 1;
-		do {
-			pos = path.indexOf('/', pos + 1);
+        int pos = 1;
+        do {
+            pos = path.indexOf('/', pos + 1);
 
-			if (pos == -1) {
-				pos = path.length();
-				return;
-			}
+            if (pos == -1) {
+                pos = path.length();
+                return;
+            }
 
-			try {
-				String subPath = path.substring(0, pos);
-				if (zookeeper.exists(subPath, false) != null) {
-					continue;
-				}
+            try {
+                String subPath = path.substring(0, pos);
+                if (zookeeper.exists(subPath, false) != null) {
+                    continue;
+                }
 
-				zookeeper.create(subPath, new byte[0], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-			} catch (KeeperException exception) {
-				if (exception.code() != Code.NODEEXISTS) {
-					handleException(exception);
-				}
-			}
+                zookeeper.create(subPath, new byte[0], Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            } catch (KeeperException exception) {
+                if (exception.code() != Code.NODEEXISTS) {
+                    handleException(exception);
+                }
+            }
 
-		} while (pos < path.length());
-	}
+        } while (pos < path.length());
+    }
 
-	// we need deep node inspection for verification purpose (node content)
-	public String createNode(String znodePath, byte[] data, CreateMode createMode) throws PinpointZookeeperException, InterruptedException {
-		checkState();
+    // we need deep node inspection for verification purpose (node content)
+    public String createNode(String znodePath, byte[] data, CreateMode createMode) throws PinpointZookeeperException, InterruptedException {
+        checkState();
 
-		try {
-			if (zookeeper.exists(znodePath, false) != null) {
-				return znodePath;
-			}
+        try {
+            if (zookeeper.exists(znodePath, false) != null) {
+                return znodePath;
+            }
 
-			String pathName = zookeeper.create(znodePath, data, Ids.OPEN_ACL_UNSAFE, createMode);
-			return pathName;
-		} catch (KeeperException exception) {
-			if (exception.code() != Code.NODEEXISTS) {
-				handleException(exception);
-			}
-		}
-		return znodePath;
-	}
+            String pathName = zookeeper.create(znodePath, data, Ids.OPEN_ACL_UNSAFE, createMode);
+            return pathName;
+        } catch (KeeperException exception) {
+            if (exception.code() != Code.NODEEXISTS) {
+                handleException(exception);
+            }
+        }
+        return znodePath;
+    }
 
-	public List<String> getChildren(String path, boolean watch) throws PinpointZookeeperException, InterruptedException {
-		checkState();
+    public List<String> getChildren(String path, boolean watch) throws PinpointZookeeperException, InterruptedException {
+        checkState();
 
-		try {
-			return zookeeper.getChildren(path, watch);
-		} catch (KeeperException exception) {
-			if (exception.code() != Code.NONODE) {
-				handleException(exception);
-			}
-		}
+        try {
+            return zookeeper.getChildren(path, watch);
+        } catch (KeeperException exception) {
+            if (exception.code() != Code.NONODE) {
+                handleException(exception);
+            }
+        }
 
-		return Collections.emptyList();
-	}
+        return Collections.emptyList();
+    }
 
-	public byte[] getData(String path) throws PinpointZookeeperException, InterruptedException {
-		return getData(path, false);
-	}
+    public byte[] getData(String path) throws PinpointZookeeperException, InterruptedException {
+        return getData(path, false);
+    }
 
-	public byte[] getData(String path, boolean watch) throws PinpointZookeeperException, InterruptedException {
-		checkState();
+    public byte[] getData(String path, boolean watch) throws PinpointZookeeperException, InterruptedException {
+        checkState();
 
-		try {
-			return zookeeper.getData(path, watch, null);
-		} catch (KeeperException exception) {
-			handleException(exception);
-		}
+        try {
+            return zookeeper.getData(path, watch, null);
+        } catch (KeeperException exception) {
+            handleException(exception);
+        }
 
-		throw new UnknownException("UnknownException.");
-	}
+        throw new UnknownException("UnknownException.");
+    }
 
 
-	public void delete(String path) throws PinpointZookeeperException, InterruptedException {
-		checkState();
+    public void delete(String path) throws PinpointZookeeperException, InterruptedException {
+        checkState();
 
-		try {
-			zookeeper.delete(path, -1);
-		} catch (KeeperException exception) {
-			if (exception.code() != Code.NONODE) {
-				handleException(exception);
-			}
-		}
-	}
+        try {
+            zookeeper.delete(path, -1);
+        } catch (KeeperException exception) {
+            if (exception.code() != Code.NONODE) {
+                handleException(exception);
+            }
+        }
+    }
 
-	public boolean exists(String path) throws PinpointZookeeperException, InterruptedException {
-		checkState();
+    public boolean exists(String path) throws PinpointZookeeperException, InterruptedException {
+        checkState();
 
-		try {
-			Stat stat = zookeeper.exists(path, false);
-			if (stat == null) {
-				return false;
-			}
-		} catch (KeeperException exception) {
-			if (exception.code() != Code.NODEEXISTS) {
-				handleException(exception);
-			}
-		}
-		return true;
-	}
+        try {
+            Stat stat = zookeeper.exists(path, false);
+            if (stat == null) {
+                return false;
+            }
+        } catch (KeeperException exception) {
+            if (exception.code() != Code.NODEEXISTS) {
+                handleException(exception);
+            }
+        }
+        return true;
+    }
 
-	private void checkState() throws PinpointZookeeperException {
-		if (!this.manager.isConnected() || !clientState.get()) {
-			throw new ConnectionException("instance must be connected.");
-		}
-	}
+    private void checkState() throws PinpointZookeeperException {
+        if (!this.manager.isConnected() || !clientState.get()) {
+            throw new ConnectionException("instance must be connected.");
+        }
+    }
 
-	private void handleException(KeeperException keeperException) throws PinpointZookeeperException {
-		switch (keeperException.code()) {
-			case CONNECTIONLOSS:
-			case SESSIONEXPIRED:
-				throw new ConnectionException(keeperException.getMessage(), keeperException);
-			case AUTHFAILED:
-			case INVALIDACL:
-			case NOAUTH:
-				throw new AuthException(keeperException.getMessage(), keeperException);
-			case BADARGUMENTS:
-			case BADVERSION:
-			case NOCHILDRENFOREPHEMERALS:
-			case NOTEMPTY:
-			case NODEEXISTS:
-			    throw new BadOperationException(keeperException.getMessage(), keeperException);
-			case NONODE:
-			    throw new NoNodeException(keeperException.getMessage(), keeperException);
-			case OPERATIONTIMEOUT:
-				throw new TimeoutException(keeperException.getMessage(), keeperException);
-			default:
-				throw new UnknownException(keeperException.getMessage(), keeperException);
-			}
-	}
+    private void handleException(KeeperException keeperException) throws PinpointZookeeperException {
+        switch (keeperException.code()) {
+            case CONNECTIONLOSS:
+            case SESSIONEXPIRED:
+                throw new ConnectionException(keeperException.getMessage(), keeperException);
+            case AUTHFAILED:
+            case INVALIDACL:
+            case NOAUTH:
+                throw new AuthException(keeperException.getMessage(), keeperException);
+            case BADARGUMENTS:
+            case BADVERSION:
+            case NOCHILDRENFOREPHEMERALS:
+            case NOTEMPTY:
+            case NODEEXISTS:
+                throw new BadOperationException(keeperException.getMessage(), keeperException);
+            case NONODE:
+                throw new NoNodeException(keeperException.getMessage(), keeperException);
+            case OPERATIONTIMEOUT:
+                throw new TimeoutException(keeperException.getMessage(), keeperException);
+            default:
+                throw new UnknownException(keeperException.getMessage(), keeperException);
+            }
+    }
 
-	public void close() {
-		if (clientState.compareAndSet(true, false)) {
-			if (zookeeper != null) {
-				try {
-					zookeeper.close();
-				} catch (InterruptedException ignore) {
-					logger.debug(ignore.getMessage(), ignore);
-				}
-			}
-		}
-	}
+    public void close() {
+        if (clientState.compareAndSet(true, false)) {
+            if (zookeeper != null) {
+                try {
+                    zookeeper.close();
+                } catch (InterruptedException ignore) {
+                    logger.debug(ignore.getMessage(), ignore);
+                }
+            }
+        }
+    }
 
 }

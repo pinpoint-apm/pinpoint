@@ -26,12 +26,12 @@ import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 public class DefaultTraceId implements TraceId {
 
     private final String agentId;
-	private final long agentStartTime;
+    private final long agentStartTime;
     private final long transactionSequence;
 
-	private final long parentSpanId;
-	private final long spanId;
-	private final short flags;
+    private final long parentSpanId;
+    private final long spanId;
+    private final short flags;
 
     public DefaultTraceId(String agentId, long agentStartTime, long transactionId) {
         this(agentId, agentStartTime, transactionId, SpanId.NULL, SpanId.newSpanId(), (short) 0);
@@ -46,11 +46,11 @@ public class DefaultTraceId implements TraceId {
 
     }
 
-	public TraceId getNextTraceId() {
-		return new DefaultTraceId(this.agentId, this.agentStartTime, transactionSequence, spanId, SpanId.nextSpanID(spanId, parentSpanId), flags);
-	}
+    public TraceId getNextTraceId() {
+        return new DefaultTraceId(this.agentId, this.agentStartTime, transactionSequence, spanId, SpanId.nextSpanID(spanId, parentSpanId), flags);
+    }
 
-	public DefaultTraceId(String agentId, long agentStartTime, long transactionId, long parentSpanId, long spanId, short flags) {
+    public DefaultTraceId(String agentId, long agentStartTime, long transactionId, long parentSpanId, long spanId, short flags) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -58,14 +58,14 @@ public class DefaultTraceId implements TraceId {
         this.agentStartTime = agentStartTime;
         this.transactionSequence = transactionId;
 
-		this.parentSpanId = parentSpanId;
-		this.spanId = spanId;
-		this.flags = flags;
-	}
+        this.parentSpanId = parentSpanId;
+        this.spanId = spanId;
+        this.flags = flags;
+    }
 
-	public String getTransactionId() {
+    public String getTransactionId() {
         return TransactionIdUtils.formatString(agentId, agentStartTime, transactionSequence);
-	}
+    }
 
     public String getAgentId() {
         return agentId;
@@ -80,22 +80,22 @@ public class DefaultTraceId implements TraceId {
     }
 
 
-	public long getParentSpanId() {
-		return parentSpanId;
-	}
+    public long getParentSpanId() {
+        return parentSpanId;
+    }
 
-	public long getSpanId() {
-		return spanId;
-	}
+    public long getSpanId() {
+        return spanId;
+    }
 
 
-	public short getFlags() {
-		return flags;
-	}
+    public short getFlags() {
+        return flags;
+    }
 
-	public boolean isRoot() {
-		return this.parentSpanId == SpanId.NULL;
-	}
+    public boolean isRoot() {
+        return this.parentSpanId == SpanId.NULL;
+    }
 
 
     @Override

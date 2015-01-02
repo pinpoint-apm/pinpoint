@@ -37,20 +37,20 @@ import com.navercorp.pinpoint.common.ServiceType;
  * original code of method
  * <code>
  * <pre>
- * 	public boolean completed(final T result) {
- * 		synchronized (this) {
- * 			if (this.completed) {
- * 				return false;
- * 			}
- * 			this.completed = true;
- * 			this.result = result;
- * 			notifyAll();
- * 		}
- * 		if (this.callback != null) {
- * 			this.callback.completed(result);
- * 		}
- * 		return true;
- * 	}
+ *     public boolean completed(final T result) {
+ *         synchronized (this) {
+ *             if (this.completed) {
+ *                 return false;
+ *             }
+ *             this.completed = true;
+ *             this.result = result;
+ *             notifyAll();
+ *         }
+ *         if (this.callback != null) {
+ *             this.callback.completed(result);
+ *         }
+ *         return true;
+ *     }
  * </pre>
  * </code>
  * 
@@ -65,50 +65,50 @@ public class BasicFutureCompletedInterceptor implements SimpleAroundInterceptor,
     private TraceContext traceContext;
     private MethodDescriptor descriptor;
 
-	@Override
-	public void before(Object target, Object[] args) {
-		if (isDebug) {
-			logger.beforeInterceptor(target, args);
-		}
+    @Override
+    public void before(Object target, Object[] args) {
+        if (isDebug) {
+            logger.beforeInterceptor(target, args);
+        }
 
-		Trace trace = traceContext.currentTraceObject();
-		if (trace == null) {
-			return;
-		}
+        Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
+            return;
+        }
 
-		trace.traceBlockBegin();
-		trace.markBeforeTime();
-		trace.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
-	}
+        trace.traceBlockBegin();
+        trace.markBeforeTime();
+        trace.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
+    }
 
-	@Override
-	public void after(Object target, Object[] args, Object result, Throwable throwable) {
-		if (isDebug) {
-			logger.afterInterceptor(target, args);
-		}
+    @Override
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        if (isDebug) {
+            logger.afterInterceptor(target, args);
+        }
 
-		Trace trace = traceContext.currentTraceObject();
-		if (trace == null) {
-			return;
-		}
+        Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
+            return;
+        }
 
-		try {
-			trace.recordApi(descriptor);
-			trace.recordException(throwable);
-			trace.markAfterTime();
-		} finally {
-			trace.traceBlockEnd();
-		}
-	}
+        try {
+            trace.recordApi(descriptor);
+            trace.recordException(throwable);
+            trace.markAfterTime();
+        } finally {
+            trace.traceBlockEnd();
+        }
+    }
 
-	@Override
-	public void setTraceContext(TraceContext traceContext) {
-		this.traceContext = traceContext;
-	}
+    @Override
+    public void setTraceContext(TraceContext traceContext) {
+        this.traceContext = traceContext;
+    }
 
-	@Override
-	public void setMethodDescriptor(MethodDescriptor descriptor) {
-		this.descriptor = descriptor;
-		traceContext.cacheApi(descriptor);
-	}
+    @Override
+    public void setMethodDescriptor(MethodDescriptor descriptor) {
+        this.descriptor = descriptor;
+        traceContext.cacheApi(descriptor);
+    }
 }

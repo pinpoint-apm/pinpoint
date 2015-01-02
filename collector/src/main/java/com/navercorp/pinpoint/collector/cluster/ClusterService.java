@@ -22,9 +22,9 @@ package com.navercorp.pinpoint.collector.cluster;
  */
 public interface ClusterService {
 
-	void setUp() throws Exception;
-	
-	void tearDown() throws Exception;
-	
-	boolean isEnable();
+    void setUp() throws Exception;
+
+    void tearDown() throws Exception;
+
+    boolean isEnable();
 }

@@ -46,13 +46,13 @@ import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 @Repository
 public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	private HbaseOperations2 hbaseTemplate;
+    @Autowired
+    private HbaseOperations2 hbaseTemplate;
 
-	@Autowired
-	private AcceptedTimeService acceptedTimeService;
+    @Autowired
+    private AcceptedTimeService acceptedTimeService;
 
     @Autowired
     private TimeSlot timeSlot;
@@ -61,17 +61,17 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
     @Qualifier("selfMerge")
     private RowKeyMerge rowKeyMerge;
 
-	private final boolean useBulk;
+    private final boolean useBulk;
 
     private final ConcurrentCounterMap<RowInfo> counter = new ConcurrentCounterMap<RowInfo>();
 
-	public HbaseMapResponseTimeDao() {
+    public HbaseMapResponseTimeDao() {
         this(true);
-	}
+    }
 
-	public HbaseMapResponseTimeDao(boolean useBulk) {
-		this.useBulk = useBulk;
-	}
+    public HbaseMapResponseTimeDao(boolean useBulk) {
+        this.useBulk = useBulk;
+    }
 
     @Override
     public void received(String applicationName, short applicationServiceType, String agentId, int elapsed, boolean isError) {
@@ -82,29 +82,29 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
             throw new NullPointerException("agentId must not be null");
         }
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("[Received] {} ({})[{}]",
+        if (logger.isDebugEnabled()) {
+            logger.debug("[Received] {} ({})[{}]",
                     applicationName, ServiceType.findServiceType(applicationServiceType), agentId);
-		}
+        }
 
 
         // make row key. rowkey is me
-		final long acceptedTime = acceptedTimeService.getAcceptedTime();
-		final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
+        final long acceptedTime = acceptedTimeService.getAcceptedTime();
+        final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
         final RowKey selfRowKey = new CallRowKey(applicationName, applicationServiceType, rowTimeSlot);
 
         final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(applicationServiceType, elapsed, isError);
         final ColumnName selfColumnName = new ResponseColumnName(agentId, slotNumber);
-		if (useBulk) {
+        if (useBulk) {
             RowInfo rowInfo = new DefaultRowInfo(selfRowKey, selfColumnName);
             this.counter.increment(rowInfo, 1L);
-		} else {
+        } else {
             final byte[] rowKey = selfRowKey.getRowKey();
             // column name is the name of caller app.
             byte[] columnName = selfColumnName.getColumnName();
             increment(rowKey, columnName, 1L);
         }
-	}
+    }
 
     private void increment(byte[] rowKey, byte[] columnName, long increment) {
         if (rowKey == null) {
@@ -117,11 +117,11 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
     }
 
 
-	@Override
-	public void flushAll() {
-		if (!useBulk) {
-			throw new IllegalStateException("useBulk is " + useBulk);
-		}
+    @Override
+    public void flushAll() {
+        if (!useBulk) {
+            throw new IllegalStateException("useBulk is " + useBulk);
+        }
 
         // update statistics by rowkey and column for now. need to update it by rowkey later.
         Map<RowInfo,ConcurrentCounterMap.LongAdder> remove = this.counter.remove();
@@ -133,5 +133,5 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
             hbaseTemplate.increment(MAP_STATISTICS_SELF, merge);
         }
 
-	}
+    }
 }

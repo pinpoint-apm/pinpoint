@@ -102,14 +102,14 @@ public final class TransactionIdUtils {
         return new TransactionId(agentId, agentStartTime, transactionSequence);
     }
 
-	private static int nextIndex(String transactionId, int fromIndex) {
-		return transactionId.indexOf(TRANSACTION_ID_DELIMITER, fromIndex);
-	}
+    private static int nextIndex(String transactionId, int fromIndex) {
+        return transactionId.indexOf(TRANSACTION_ID_DELIMITER, fromIndex);
+    }
 
-	private static long parseLong(String transactionId, int beginIndex, int endIndex) {
-		final String longString = transactionId.substring(beginIndex, endIndex);
+    private static long parseLong(String transactionId, int beginIndex, int endIndex) {
+        final String longString = transactionId.substring(beginIndex, endIndex);
         try {
-			return Long.parseLong(longString);
+            return Long.parseLong(longString);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("parseLong Error. " + longString + " transactionId:" + transactionId);
         }

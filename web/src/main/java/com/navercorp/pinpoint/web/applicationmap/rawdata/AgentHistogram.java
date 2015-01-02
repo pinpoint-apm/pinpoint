@@ -34,21 +34,21 @@ import java.util.Map;
  */
 
 public class AgentHistogram {
-	/**
-	 * to uniquely identify a host from UI, we can use things like hostname, agentId, endpoint, etc
-	 */
-	private final Application agentId;
+    /**
+     * to uniquely identify a host from UI, we can use things like hostname, agentId, endpoint, etc
+     */
+    private final Application agentId;
 
     private final Map<Long, TimeHistogram> timeHistogramMap;
 
-	public AgentHistogram(Application agentId) {
+    public AgentHistogram(Application agentId) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
 
         this.agentId = agentId;
         this.timeHistogramMap = new HashMap<Long, TimeHistogram>();
-	}
+    }
 
     public AgentHistogram(AgentHistogram copyAgentHistogram) {
         if (copyAgentHistogram == null) {
@@ -63,8 +63,8 @@ public class AgentHistogram {
 
     @JsonProperty("name")
     public String getId() {
-		return agentId.getName();
-	}
+        return agentId.getName();
+    }
 
     @JsonIgnore
     public Application getAgentId() {
@@ -72,18 +72,18 @@ public class AgentHistogram {
     }
 
     @JsonIgnore
-	public ServiceType getServiceType() {
-		return agentId.getServiceType();
-	}
+    public ServiceType getServiceType() {
+        return agentId.getServiceType();
+    }
 
     @JsonProperty("histogram")
-	public Histogram getHistogram() {
+    public Histogram getHistogram() {
         Histogram histogram = new Histogram(agentId.getServiceType());
         for (TimeHistogram timeHistogram : timeHistogramMap.values()) {
             histogram.add(timeHistogram);
         }
         return histogram;
-	}
+    }
 
     @JsonIgnore
     public Collection<TimeHistogram> getTimeHistogram() {

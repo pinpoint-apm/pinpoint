@@ -21,8 +21,8 @@ package com.navercorp.pinpoint.common.util;
  */
 public class NullNextElementAction<E> implements NextElementAction<E> {
 
-	@Override
-	public E nextElement() {
-		return null;
-	}
+    @Override
+    public E nextElement() {
+        return null;
+    }
 }

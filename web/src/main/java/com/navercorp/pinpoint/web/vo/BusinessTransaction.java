@@ -26,87 +26,87 @@ import com.navercorp.pinpoint.common.util.TransactionIdUtils;
  * @author emeroad
  */
 public class BusinessTransaction {
-	private final List<Trace> traces = new ArrayList<Trace>();
-	private final String rpc;
+    private final List<Trace> traces = new ArrayList<Trace>();
+    private final String rpc;
 
-	private int calls = 0;
-	private int error = 0;
-	private long totalTime = 0;
-	private long maxTime = 0;
-	private long minTime = 0;
+    private int calls = 0;
+    private int error = 0;
+    private long totalTime = 0;
+    private long maxTime = 0;
+    private long minTime = 0;
 
-	public BusinessTransaction(SpanBo span) {
+    public BusinessTransaction(SpanBo span) {
         if (span == null) {
             throw new NullPointerException("span must not be null");
         }
 
         this.rpc = span.getRpc();
 
-		long elapsed = span.getElapsed();
-		totalTime = maxTime = minTime = elapsed;
+        long elapsed = span.getElapsed();
+        totalTime = maxTime = minTime = elapsed;
 
         String traceIdString = TransactionIdUtils.formatString(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
         Trace trace = new Trace(traceIdString, elapsed, span.getCollectorAcceptTime(), span.getErrCode());
         this.traces.add(trace);
-		calls++;
-		if(span.getErrCode() > 0) {
-			error++;
-		}
-	}
+        calls++;
+        if(span.getErrCode() > 0) {
+            error++;
+        }
+    }
 
-	public void add(SpanBo span) {
+    public void add(SpanBo span) {
         if (span == null) {
             throw new NullPointerException("span must not be null");
         }
 
         long elapsed = span.getElapsed();
 
-		totalTime += elapsed;
-		if (maxTime < elapsed) {
-			maxTime = elapsed;
+        totalTime += elapsed;
+        if (maxTime < elapsed) {
+            maxTime = elapsed;
         }
-		if (minTime > elapsed) {
-			minTime = elapsed;
+        if (minTime > elapsed) {
+            minTime = elapsed;
         }
 
         String traceIdString = TransactionIdUtils.formatString(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
         Trace trace = new Trace(traceIdString, elapsed, span.getCollectorAcceptTime(), span.getErrCode());
-		this.traces.add(trace);
+        this.traces.add(trace);
 
-		if(span.getErrCode() > 0) {
-			error++;
-		}
-		
-		//if (span.getParentSpanId() == -1) {
-			calls++;
-		//}
-	}
+        if(span.getErrCode() > 0) {
+            error++;
+        }
 
-	public String getRpc() {
-		return rpc;
-	}
+        //if (span.getParentSpanId() == -1) {
+            calls++;
+        //}
+    }
 
-	public List<Trace> getTraces() {
-		return traces;
-	}
+    public String getRpc() {
+        return rpc;
+    }
 
-	public int getCalls() {
-		return calls;
-	}
+    public List<Trace> getTraces() {
+        return traces;
+    }
 
-	public long getTotalTime() {
-		return totalTime;
-	}
+    public int getCalls() {
+        return calls;
+    }
 
-	public long getMaxTime() {
-		return maxTime;
-	}
+    public long getTotalTime() {
+        return totalTime;
+    }
 
-	public long getMinTime() {
-		return minTime;
-	}
-	
-	public int getError() {
-		return error;
-	}
+    public long getMaxTime() {
+        return maxTime;
+    }
+
+    public long getMinTime() {
+        return minTime;
+    }
+
+    public int getError() {
+        return error;
+    }
 }

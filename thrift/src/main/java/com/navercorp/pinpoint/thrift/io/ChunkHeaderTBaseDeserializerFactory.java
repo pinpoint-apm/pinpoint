@@ -58,8 +58,8 @@ public final class ChunkHeaderTBaseDeserializerFactory implements DeserializerFa
 
 
     @Override
-	public ChunkHeaderTBaseDeserializer createDeserializer() {
+    public ChunkHeaderTBaseDeserializer createDeserializer() {
         return new ChunkHeaderTBaseDeserializer(protocolFactory, locator);
-	}
+    }
 
 }

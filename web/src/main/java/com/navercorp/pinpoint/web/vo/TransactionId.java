@@ -127,25 +127,25 @@ public class TransactionId implements Comparable<TransactionId> {
     }
 
     // FIXME remove
-	@Override
-	public int compareTo(TransactionId transactionId) {
-		int r1 = this.agentId.compareTo(transactionId.agentId);
-		if (r1 == 0) {
-			if (this.agentStartTime > transactionId.agentStartTime) {
-				return 1;
-			} else if (this.agentStartTime < transactionId.agentStartTime) {
-				return -1;
-			} else {
-				if (this.transactionSequence > transactionId.transactionSequence) {
-					return 1;
-				} else if (this.transactionSequence < transactionId.transactionSequence) {
-					return -1;
-				} else {
-					return 0;
-				}
-			}
-		} else {
-			return r1;
-		}
-	}
+    @Override
+    public int compareTo(TransactionId transactionId) {
+        int r1 = this.agentId.compareTo(transactionId.agentId);
+        if (r1 == 0) {
+            if (this.agentStartTime > transactionId.agentStartTime) {
+                return 1;
+            } else if (this.agentStartTime < transactionId.agentStartTime) {
+                return -1;
+            } else {
+                if (this.transactionSequence > transactionId.transactionSequence) {
+                    return 1;
+                } else if (this.transactionSequence < transactionId.transactionSequence) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
+        } else {
+            return r1;
+        }
+    }
 }

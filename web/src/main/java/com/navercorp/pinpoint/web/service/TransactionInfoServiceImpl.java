@@ -51,11 +51,11 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	private TraceDao traceDao;
+    @Autowired
+    private TraceDao traceDao;
     
-	@Override
-	public BusinessTransactions selectBusinessTransactions(List<TransactionId> transactionIdList, String applicationName, Range range, Filter filter) {
+    @Override
+    public BusinessTransactions selectBusinessTransactions(List<TransactionId> transactionIdList, String applicationName, Range range, Filter filter) {
         if (transactionIdList == null) {
             throw new NullPointerException("transactionIdList must not be null");
         }
@@ -73,28 +73,28 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
         List<List<SpanBo>> traceList;
 
-		if (filter == Filter.NONE) {
-			traceList = this.traceDao.selectSpans(transactionIdList);
-		} else {
-			traceList = this.traceDao.selectAllSpans(transactionIdList);
-		}
+        if (filter == Filter.NONE) {
+            traceList = this.traceDao.selectSpans(transactionIdList);
+        } else {
+            traceList = this.traceDao.selectAllSpans(transactionIdList);
+        }
 
-		BusinessTransactions businessTransactions = new BusinessTransactions();
-		for (List<SpanBo> trace : traceList) {
-			if (!filter.include(trace)) {
-				continue;
-			}
+        BusinessTransactions businessTransactions = new BusinessTransactions();
+        for (List<SpanBo> trace : traceList) {
+            if (!filter.include(trace)) {
+                continue;
+            }
 
-			for (SpanBo spanBo : trace) {
-			    // show application's incoming requests
-				if (applicationName.equals(spanBo.getApplicationId())) {
-					businessTransactions.add(spanBo);
-				}
-			}
-		}
+            for (SpanBo spanBo : trace) {
+                // show application's incoming requests
+                if (applicationName.equals(spanBo.getApplicationId())) {
+                    businessTransactions.add(spanBo);
+                }
+            }
+        }
 
-		return businessTransactions;
-	}
+        return businessTransactions;
+    }
 
     @Override
     public RecordSet createRecordSet(List<SpanAlign> spanAlignList, long focusTimestamp) {
@@ -287,40 +287,40 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                     if (method !=  null) {
                         ApiDescription apiDescription = apiDescriptionParser.parse(method);
                         Record record = new Record(spanAlign.getDepth(), 
-													spanBoSequence, 
-													parentSequence, 
-													true, 
-													apiDescription.getSimpleMethodDescription(),
-													argument, 
-													begin,
-													elapsed, 
-													getGap(stack),
-													spanBo.getAgentId(), 
-													spanBo.getApplicationId(), 
-													spanBo.getServiceType(), 
-													null, 
-													spanAlign.isHasChild(),
-													false);
+                                                    spanBoSequence,
+                                                    parentSequence,
+                                                    true,
+                                                    apiDescription.getSimpleMethodDescription(),
+                                                    argument,
+                                                    begin,
+                                                    elapsed,
+                                                    getGap(stack),
+                                                    spanBo.getAgentId(),
+                                                    spanBo.getApplicationId(),
+                                                    spanBo.getServiceType(),
+                                                    null,
+                                                    spanAlign.isHasChild(),
+                                                    false);
                         record.setSimpleClassName(apiDescription.getSimpleClassName());
                         record.setFullApiDescription(method);
                         recordList.add(record);
                     } else {
                         AnnotationKey apiMetaDataError = AnnotationUtils.getApiMetaDataError(spanBo.getAnnotationBoList());
                         Record record = new Record(spanAlign.getDepth(),
-													spanBoSequence, 
-													parentSequence, 
-													true, 
-													apiMetaDataError.getValue(), 
-													argument,
-													begin,
-													elapsed, 
-													getGap(stack),
-													spanBo.getAgentId(), 
-													spanBo.getApplicationId(),
-													spanBo.getServiceType(),
-													null, 
-													spanAlign.isHasChild(),
-													false);
+                                                    spanBoSequence,
+                                                    parentSequence,
+                                                    true,
+                                                    apiMetaDataError.getValue(),
+                                                    argument,
+                                                    begin,
+                                                    elapsed,
+                                                    getGap(stack),
+                                                    spanBo.getAgentId(),
+                                                    spanBo.getApplicationId(),
+                                                    spanBo.getServiceType(),
+                                                    null,
+                                                    spanAlign.isHasChild(),
+                                                    false);
                         record.setSimpleClassName("");
                         record.setFullApiDescription("");
                         recordList.add(record);
@@ -360,21 +360,21 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
                         // use spanBo's applicationId instead of spanEventBo's destinationId to display the name of the calling application on the call stack.
                         Record record = new Record(spanAlign.getDepth(), 
-													spanBoEventSequence,
-													parentSequence, 
-													true, 
-													apiDescription.getSimpleMethodDescription(), 
-													argument, 
-													begin, 
-													elapsed,
-													getGap(stack),
-													spanEventBo.getAgentId(), 
-													spanBo.getApplicationId(),
+                                                    spanBoEventSequence,
+                                                    parentSequence,
+                                                    true,
+                                                    apiDescription.getSimpleMethodDescription(),
+                                                    argument,
+                                                    begin,
+                                                    elapsed,
+                                                    getGap(stack),
+                                                    spanEventBo.getAgentId(),
+                                                    spanBo.getApplicationId(),
                                                     spanEventBo.getServiceType(),
-													/* spanEventBo.getDestinationId(), spanEventBo.getServiceType(),*/ 
-													destinationId,
-													spanAlign.isHasChild(),
-													false);
+                                                    /* spanEventBo.getDestinationId(), spanEventBo.getServiceType(),*/
+                                                    destinationId,
+                                                    spanAlign.isHasChild(),
+                                                    false);
                         record.setSimpleClassName(apiDescription.getSimpleClassName());
                         record.setFullApiDescription(method);
 
@@ -388,21 +388,21 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
                      // use spanBo's applicationId instead of spanEventBo's destinationId to display the name of the calling application on the call stack.
                         Record record = new Record(spanAlign.getDepth(),
-													spanBoEventSequence, 
-													parentSequence, 
-													true, 
-													apiMetaDataError.getValue(), 
-													argument, 
-													begin,
-													elapsed, 
-													getGap(stack),
-													spanEventBo.getAgentId(),
-													spanBo.getApplicationId(),
+                                                    spanBoEventSequence,
+                                                    parentSequence,
+                                                    true,
+                                                    apiMetaDataError.getValue(),
+                                                    argument,
+                                                    begin,
+                                                    elapsed,
+                                                    getGap(stack),
+                                                    spanEventBo.getAgentId(),
+                                                    spanBo.getApplicationId(),
                                                     spanEventBo.getServiceType(),
-													/*spanEventBo.getDestinationId(), spanEventBo.getServiceType(),*/ 
-													destinationId, 
-													spanAlign.isHasChild(),
-													false);
+                                                    /*spanEventBo.getDestinationId(), spanEventBo.getServiceType(),*/
+                                                    destinationId,
+                                                    spanAlign.isHasChild(),
+                                                    false);
                         record.setSimpleClassName("");
                         record.setFullApiDescription(method);
 
@@ -427,40 +427,40 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                 if (spanBo.hasException()) {
                     String simpleExceptionClass = getSimpleExceptionName(spanBo.getExceptionClass());
                     return new Record(spanAlign.getDepth() + 1, 
-										getNextId(), 
-										parentSequence,
-										false, 
-										simpleExceptionClass, 
-										spanBo.getExceptionMessage(), 
-										0L, 
-										0L, 
-										0, 
-										null, 
-										null, 
-										null, 
-										null,
-										false,
-										false);
+                                        getNextId(),
+                                        parentSequence,
+                                        false,
+                                        simpleExceptionClass,
+                                        spanBo.getExceptionMessage(),
+                                        0L,
+                                        0L,
+                                        0,
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        false,
+                                        false);
                 }
             } else {
                 final SpanEventBo spanEventBo = spanAlign.getSpanEventBo();
                 if (spanEventBo.hasException()) {
                     String simpleExceptionClass = getSimpleExceptionName(spanEventBo.getExceptionClass());
                     return new Record(spanAlign.getDepth() + 1, 
-										getNextId(), 
-										parentSequence, 
-										false, 
-										simpleExceptionClass, 
-										spanEventBo.getExceptionMessage(),
-										0L, 
-										0L, 
-										0, 
-										null, 
-										null, 
-										null, 
-										null, 
-										false,
-										true);
+                                        getNextId(),
+                                        parentSequence,
+                                        false,
+                                        simpleExceptionClass,
+                                        spanEventBo.getExceptionMessage(),
+                                        0L,
+                                        0L,
+                                        0,
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        false,
+                                        true);
                 }
             }
             return null;

@@ -24,80 +24,80 @@ import org.slf4j.LoggerFactory;
  */
 public class PinpointServerSocketState {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private PinpointServerSocketStateCode beforeState = PinpointServerSocketStateCode.NONE;
-	private PinpointServerSocketStateCode currentState = PinpointServerSocketStateCode.NONE;
+    private PinpointServerSocketStateCode beforeState = PinpointServerSocketStateCode.NONE;
+    private PinpointServerSocketStateCode currentState = PinpointServerSocketStateCode.NONE;
 
-	private synchronized boolean setSessionState(PinpointServerSocketStateCode state) {
-		boolean enable = this.currentState.canChangeState(state);
+    private synchronized boolean setSessionState(PinpointServerSocketStateCode state) {
+        boolean enable = this.currentState.canChangeState(state);
 
-		if (enable) {
-			this.beforeState = this.currentState;
-			this.currentState = state;
-			return true;
-		} else if (PinpointServerSocketStateCode.isFinished(this.currentState)) {
-			// if state can't be changed, just log.
-			// no problem because the state of socket has been already closed.
-			PinpointServerSocketStateCode checkBefore = this.beforeState;
-			PinpointServerSocketStateCode checkCurrent = this.currentState;
+        if (enable) {
+            this.beforeState = this.currentState;
+            this.currentState = state;
+            return true;
+        } else if (PinpointServerSocketStateCode.isFinished(this.currentState)) {
+            // if state can't be changed, just log.
+            // no problem because the state of socket has been already closed.
+            PinpointServerSocketStateCode checkBefore = this.beforeState;
+            PinpointServerSocketStateCode checkCurrent = this.currentState;
 
-			String errorMessage = cannotChangeMessage(checkBefore, checkCurrent, state);
+            String errorMessage = cannotChangeMessage(checkBefore, checkCurrent, state);
 
-			this.beforeState = this.currentState;
-			this.currentState = PinpointServerSocketStateCode.ERROR_ILLEGAL_STATE_CHANGE;
-				
-			logger.warn(errorMessage);
-			return false;
-		} else {
-			PinpointServerSocketStateCode checkBefore = this.beforeState;
-			PinpointServerSocketStateCode checkCurrent = this.currentState;
+            this.beforeState = this.currentState;
+            this.currentState = PinpointServerSocketStateCode.ERROR_ILLEGAL_STATE_CHANGE;
 
-			String errorMessage = errorMessage(checkBefore, checkCurrent, state);
-			
-			this.beforeState = this.currentState;
-			this.currentState = PinpointServerSocketStateCode.ERROR_ILLEGAL_STATE_CHANGE;
-				
-			logger.warn(errorMessage);
-			
-			throw new IllegalStateException(errorMessage);
-		}
-	}
-	
-	public boolean changeStateRun() {
-		return setSessionState(PinpointServerSocketStateCode.RUN);
-	}
-	
-	public boolean changeStateRunDuplexCommunication() {
-		return setSessionState(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION);
-	}
+            logger.warn(errorMessage);
+            return false;
+        } else {
+            PinpointServerSocketStateCode checkBefore = this.beforeState;
+            PinpointServerSocketStateCode checkCurrent = this.currentState;
 
-	public boolean changeStateBeingShutdown() {
-		return setSessionState(PinpointServerSocketStateCode.BEING_SHUTDOWN);
-	}
+            String errorMessage = errorMessage(checkBefore, checkCurrent, state);
 
-	public boolean changeStateShutdown() {
-		return setSessionState(PinpointServerSocketStateCode.SHUTDOWN);
-	}
+            this.beforeState = this.currentState;
+            this.currentState = PinpointServerSocketStateCode.ERROR_ILLEGAL_STATE_CHANGE;
 
-	public boolean changeStateUnexpectedShutdown() {
-		return setSessionState(PinpointServerSocketStateCode.UNEXPECTED_SHUTDOWN);
-	}
+            logger.warn(errorMessage);
 
-	public boolean changeStateUnkownError() {
-		return setSessionState(PinpointServerSocketStateCode.ERROR_UNKOWN);
-	}
-	
-	private String errorMessage(PinpointServerSocketStateCode checkBefore, PinpointServerSocketStateCode checkCurrent, PinpointServerSocketStateCode nextState) {
-		return "Invalid State(current:" + checkCurrent + " before:" + checkBefore + " next:" + nextState + ")";
-	}
+            throw new IllegalStateException(errorMessage);
+        }
+    }
 
-	private String cannotChangeMessage(PinpointServerSocketStateCode checkBefore, PinpointServerSocketStateCode checkCurrent, PinpointServerSocketStateCode nextState) {
-		return "Can not change State(current:" + checkCurrent + " before:" + checkBefore + " next:" + nextState + ")";
-	}
+    public boolean changeStateRun() {
+        return setSessionState(PinpointServerSocketStateCode.RUN);
+    }
 
-	public synchronized PinpointServerSocketStateCode getCurrentState() {
-		return currentState;
-	}
+    public boolean changeStateRunDuplexCommunication() {
+        return setSessionState(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION);
+    }
+
+    public boolean changeStateBeingShutdown() {
+        return setSessionState(PinpointServerSocketStateCode.BEING_SHUTDOWN);
+    }
+
+    public boolean changeStateShutdown() {
+        return setSessionState(PinpointServerSocketStateCode.SHUTDOWN);
+    }
+
+    public boolean changeStateUnexpectedShutdown() {
+        return setSessionState(PinpointServerSocketStateCode.UNEXPECTED_SHUTDOWN);
+    }
+
+    public boolean changeStateUnkownError() {
+        return setSessionState(PinpointServerSocketStateCode.ERROR_UNKOWN);
+    }
+
+    private String errorMessage(PinpointServerSocketStateCode checkBefore, PinpointServerSocketStateCode checkCurrent, PinpointServerSocketStateCode nextState) {
+        return "Invalid State(current:" + checkCurrent + " before:" + checkBefore + " next:" + nextState + ")";
+    }
+
+    private String cannotChangeMessage(PinpointServerSocketStateCode checkBefore, PinpointServerSocketStateCode checkCurrent, PinpointServerSocketStateCode nextState) {
+        return "Can not change State(current:" + checkCurrent + " before:" + checkBefore + " next:" + nextState + ")";
+    }
+
+    public synchronized PinpointServerSocketStateCode getCurrentState() {
+        return currentState;
+    }
 
 }

@@ -30,34 +30,34 @@ import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
  */
 public class TCommandTypeVersionTest {
 
-	@Test
-	public void versionTest1() {
-		TCommandTypeVersion version = TCommandTypeVersion.V_1_0_2_SNAPSHOT;
-		
-		List<TCommandType> supportTypeList = version.getSupportCommandList();
+    @Test
+    public void versionTest1() {
+        TCommandTypeVersion version = TCommandTypeVersion.V_1_0_2_SNAPSHOT;
 
-		Assert.assertEquals(2, supportTypeList.size());
-		Assert.assertTrue(supportTypeList.contains(TCommandType.THREAD_DUMP));
-		Assert.assertTrue(supportTypeList.contains(TCommandType.RESULT));
-	}
+        List<TCommandType> supportTypeList = version.getSupportCommandList();
 
-	@Test
-	public void versionTest2() {
-		TCommandTypeVersion version = TCommandTypeVersion.UNKNOWN;
-		
-		List<TCommandType> supportTypeList = version.getSupportCommandList();
+        Assert.assertEquals(2, supportTypeList.size());
+        Assert.assertTrue(supportTypeList.contains(TCommandType.THREAD_DUMP));
+        Assert.assertTrue(supportTypeList.contains(TCommandType.RESULT));
+    }
 
-		Assert.assertEquals(0, supportTypeList.size());
-	}
-	
-	@Test
-	public void versionTest3() {
-		TCommandTypeVersion version = TCommandTypeVersion.getVersion("1.0.0");
-		Assert.assertEquals(TCommandTypeVersion.UNKNOWN, version);
-		
-		version = TCommandTypeVersion.getVersion(TCommandTypeVersion.V_1_0_2_SNAPSHOT.getVersionName());
-		Assert.assertEquals(TCommandTypeVersion.V_1_0_2_SNAPSHOT, version);
-	}
-	
-	
+    @Test
+    public void versionTest2() {
+        TCommandTypeVersion version = TCommandTypeVersion.UNKNOWN;
+
+        List<TCommandType> supportTypeList = version.getSupportCommandList();
+
+        Assert.assertEquals(0, supportTypeList.size());
+    }
+
+    @Test
+    public void versionTest3() {
+        TCommandTypeVersion version = TCommandTypeVersion.getVersion("1.0.0");
+        Assert.assertEquals(TCommandTypeVersion.UNKNOWN, version);
+
+        version = TCommandTypeVersion.getVersion(TCommandTypeVersion.V_1_0_2_SNAPSHOT.getVersionName());
+        Assert.assertEquals(TCommandTypeVersion.V_1_0_2_SNAPSHOT, version);
+    }
+
+
 }
