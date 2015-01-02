@@ -155,7 +155,7 @@ public class ZookeeperClusterService extends AbstractClusterService {
 			webCluster.close();
 		}
 		
-		this.serviceState.changeStateStoped();
+		this.serviceState.changeStateStopped();
 		logger.info("{} destroying completed.", this.getClass().getSimpleName());
 	}
 	

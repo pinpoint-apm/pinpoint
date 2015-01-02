@@ -88,7 +88,7 @@ public class ApiMetaDataBo {
     }
 
     public void readRowKey(byte[] bytes) {
-        this.agentId = BytesUtils.toString(bytes, 0, PinpointConstants.AGENT_NAME_MAX_LEN).trim();
+        this.agentId = BytesUtils.safeTrim(BytesUtils.toString(bytes, 0, PinpointConstants.AGENT_NAME_MAX_LEN));
         this.startTime = TimeUtils.recoveryTimeMillis(readTime(bytes));
         this.apiId = readKeyCode(bytes);
     }

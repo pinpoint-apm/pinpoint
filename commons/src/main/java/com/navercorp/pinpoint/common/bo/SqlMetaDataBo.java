@@ -79,7 +79,7 @@ public class SqlMetaDataBo {
     }
 
     public void readRowKey(byte[] rowKey) {
-        this.agentId = BytesUtils.toString(rowKey, 0, PinpointConstants.AGENT_NAME_MAX_LEN).trim();
+        this.agentId = BytesUtils.safeTrim(BytesUtils.toString(rowKey, 0, PinpointConstants.AGENT_NAME_MAX_LEN));
         this.startTime = TimeUtils.recoveryTimeMillis(readTime(rowKey));
         this.hashCode = readKeyCode(rowKey);
     }

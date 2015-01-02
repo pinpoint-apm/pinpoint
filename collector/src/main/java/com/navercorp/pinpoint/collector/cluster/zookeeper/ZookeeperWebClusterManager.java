@@ -126,7 +126,7 @@ public class ZookeeperWebClusterManager implements Runnable {
 			}
 		}
 
-		this.workerState.changeStateStoped();
+		this.workerState.changeStateStopped();
 		logger.info("{} destorying completed.", this.getClass().getSimpleName());
 	}
 

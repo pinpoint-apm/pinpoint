@@ -108,7 +108,7 @@ public class ZookeeperProfilerClusterManager implements SocketChannelStateChange
 			worker.stop();
 		}
 
-		this.workerState.changeStateStoped();
+		this.workerState.changeStateStopped();
 		logger.info("{} destorying completed.", this.getClass().getSimpleName());
 	}
 	

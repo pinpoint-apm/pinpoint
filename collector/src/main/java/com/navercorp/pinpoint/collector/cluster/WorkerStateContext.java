@@ -42,7 +42,7 @@ public class WorkerStateContext {
 		return currentState.compareAndSet(WorkerState.STARTED, WorkerState.DESTROYING);
 	}
 
-	public boolean changeStateStoped() {
+	public boolean changeStateStopped() {
 		return currentState.compareAndSet(WorkerState.DESTROYING, WorkerState.STOPPED);
 	}
 	
