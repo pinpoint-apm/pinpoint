@@ -72,7 +72,7 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', '$timeout', function (
              * @returns {Array}
              */
             getScale = function () {
-                // gap이 최대 3일이라 가정하고, 전부 시:분 으로 표시한다.
+                // assumes maximum gap is 3 days - show in hours:minutes
                 var from =  scope.oTimeSliderVo.getFrom(),
                     to = scope.oTimeSliderVo.getTo(),
                     gap = to - from,

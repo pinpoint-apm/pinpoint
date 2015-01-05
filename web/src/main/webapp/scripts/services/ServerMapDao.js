@@ -190,7 +190,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                 toServiceType: filter.tst,
                 toApplication: filter.ta,
                 toKey: this.findNodeKeyByApplicationName(filter.ta, applicationMapData),
-                nodeKey: '' // 추후 노드 필터시,,,,
+                nodeKey: '' // for node filtering in the future,,,,
             })
         }, this);
         return aFilter;

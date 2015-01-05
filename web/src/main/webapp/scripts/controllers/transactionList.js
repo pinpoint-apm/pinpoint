@@ -126,7 +126,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
          */
         getQuery = function () {
             if (!htTransactionData) {
-                $window.alert("Query parameter 캐시가 삭제되었기 때문에 데이터를 조회할 수 없습니다.\n\n이러한 현상은 scatter chart를 새로 조회했을 때 발생할 수 있습니다.");
+                $window.alert("Query failed - Query parameter cache deleted.\n\nPossibly due to scatter chart being refreshed.")
                 return false;
             }
             var query = [];

@@ -57,7 +57,7 @@ pinpointApp.constant('scatterConfig', {
     }
 });
 
-// FIXME child window에서 접근할 수 있도록 global변수로 일단 빼둠. 나중에 리팩토링할 것.
+// FIXME made global to allow access from the child window. Refactor later. 
 //var selectdTracesBox = {};
 
 pinpointApp.directive('scatter',
@@ -108,7 +108,8 @@ pinpointApp.directive('scatter',
                                 } else {
                                     htData = {
                                         'application': applicationName,
-                                        // array[0] 이 최근 값, array[len]이 오래된 이다.
+                                        // array[0] : most recent
+                                        // array[len] : oldest
                                         'from': from,
                                         'to': htLastFetchedData.resultFrom - 1,
                                         'limit': cfg.nFetchLimit,
@@ -248,8 +249,8 @@ pinpointApp.directive('scatter',
                      * @param filter
                      * @param w
                      * @param h
-                     * @todo 현재는 캐싱 처리만 해놓았다. 추후 scatter의 data를 pause/resume 기능을 넣어서 서버의 부하를 줄울 수 있다.
-                     * 코드 수정은 BigScatterChart.js 에서 pause/resume 메소드를 지원하고, 아래 메소드에서 가져다 쓰면 될 것 같다.
+                     * @todo data is simply cached - might be a good idea to add pause/resume when loading scatter data to reduce server load.
+                     *       adding pause/resume methods to BigScatterChart.js, and invoking them below would work.
                      */
                     showScatter = function (title, start, end, period, filter, w, h) {
                         element.children().hide();

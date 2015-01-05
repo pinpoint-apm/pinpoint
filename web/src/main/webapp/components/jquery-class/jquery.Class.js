@@ -1,11 +1,10 @@
 ;(function($, window, document, undefined){
-	// Class 생성 plugin Name
+    // plugin Name for Class creation
 	var sPluginName = 'Class',
 		// extend handle
 		oExtendHandle = {
-			// 상속
-			// prototype 만 상속
-			// property 는 불 필요한 것 같아 구현 안했다
+			// inherit prototype
+	        // property not implemented - unnecessary
 			extend : function(SuperClass){
 				this.prototype = this.copySuperPrototype(SuperClass);
 				this.prototype.$super = SuperClass;
@@ -19,13 +18,13 @@
 				$.extend(true,
 					oExtendedPrototype,
 					SuperClass.prototype,
-					// super 로 부터 상속 하지 않을 속성
+					// properties not inherited from super
 					{
 						"$init" : null,
 						"$super" : null,
 						"constructor" : null
 					},
-					// this prototype 으로 overwrite
+					// replace with this.prototype
 					this.prototype
 				);
 
@@ -42,13 +41,13 @@
 					ClassHasSuper.$super = this.getNewSuperMember(
 						ClassHasSuper.$super);
 					
-					// 모든 상속 chain 의 method 실행 결과는 this 에 반영된다.
-					// this = 현재 instance
+					// all method executions in the inheritance chain are reflected in 'this'
+					// 'this' = current instance
 					ClassHasSuper.$super.$this = oInstance;
 
 					aClassHasSuper.push(ClassHasSuper);
 
-					// 상위 Class 를 계속 loop
+					// repeatedly loop super Class
 					ClassHasSuper = ClassHasSuper.$super;
 				}
 			},
@@ -112,7 +111,7 @@
 						"fSuperMethod" : fSuperMethod
 					});
 
-					// child context 로 super method 실행
+					// invoke super method with child's context 
 					result = fSuperMethod.apply(oChild, arguments);
 
 					oSuperClassHandle.restoreChildMethod({
@@ -131,13 +130,12 @@
 					sSuperMethod = htParam.sSuperMethod,
 					fSuperMethod = htParam.fSuperMethod;
 
-				// child 의 method 를 실행 될 super method 로 교체
-				// 재귀 함수 호출을 위한 처리
+				// replace child method with parent's method
+				// takes care of recursive method calls
 				oChild[sSuperMethod] = fSuperMethod;
 				
-				// child 의 $super 를 교체
-				// 실행된 method 에서 호출한 super 는 super Class 가 상속한
-				// 직속 상위 Class 가 된다.
+				// replace child's $super
+				// super invoked by the executed method is the direct parent of the class inherited by the super class.
 				oChild.$super = oSuper.$super;
 			},
 			// restore child method
@@ -167,10 +165,10 @@
 		},
 		oAttachToPrototype = {
 			/**
-			 * context 를 instance 로 사용자 함수 실행
+			 * invoke user function on the context
 			 *
-			 * @param {Function}	fnMethod	실행 할 함수
-			 * @param {HashTable}	htParam		함수에 전달 될 parameter
+			 * @param {Function}	fnMethod	function to be invoked
+			 * @param {HashTable}	htParam		parameter to pass to the function
 			 */
 			_trigger : function(fnMethod, htParam){
 				if(!fnMethod){
@@ -205,10 +203,10 @@
 
 			this.htOption = {};
 
-			// super class 의 member 재정의
+			// redefine super class members
 			oSuperClassHandle.redefineSuperMember(this, aClassHasSuper);
 
-			// super class 의 모든 init 을 실행 한다.
+			// run all super class inits 
 			oSuperClassHandle.runSuperInit(aClassHasSuper, arguments);
 
 			if(typeof this.$init === "function"){
