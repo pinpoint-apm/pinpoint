@@ -21,8 +21,6 @@ import static org.mockito.Mockito.*;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.common.util.DelegateEnumeration;
-
 import java.util.*;
 
 public class DelegateEnumerationTest {
@@ -51,7 +49,40 @@ public class DelegateEnumerationTest {
         Assert.assertTrue(valueList.isEmpty());
 
         Assert.assertFalse(delegateEnumeration.hasMoreElements());
+        Assert.assertNull(delegateEnumeration._getNextException());
         assertNextElements_Expected_ExceptionEmulation(enumeration, delegateEnumeration);
+    }
+
+    @Test
+    public void bug69_Inefficient_exception_is_created() throws Exception {
+        Hashtable<String, String> hashTable = new Hashtable<String, String>();
+
+        Enumeration<String> enumeration = hashTable.elements();
+        DelegateEnumeration<String> delegateEnumeration = new DelegateEnumeration<String>(enumeration);
+
+        Assert.assertFalse(delegateEnumeration.hasMoreElements());
+        Assert.assertNull(delegateEnumeration._getNextException());
+
+        assertNextElements_Expected_ExceptionEmulation(enumeration, delegateEnumeration);
+    }
+
+    @Test
+    public void bug69_Inefficient_exception_is_created_nextElement() throws Exception {
+
+        Enumeration<String> enumeration = mock(Enumeration.class);
+        when(enumeration.hasMoreElements()).thenReturn(true);
+        when(enumeration.nextElement()).thenReturn(null);
+
+        DelegateEnumeration<String> delegateEnumeration = new DelegateEnumeration<String>(enumeration);
+
+        Assert.assertNull(delegateEnumeration.nextElement());
+        verify(enumeration, times(1)).nextElement();
+
+        Assert.assertNull(delegateEnumeration.nextElement());
+        verify(enumeration, times(2)).nextElement();
+
+        Assert.assertNull(delegateEnumeration.nextElement());
+        verify(enumeration, times(3)).nextElement();
     }
 
 
@@ -185,7 +216,6 @@ public class DelegateEnumerationTest {
     }
 
 
-
     private void assertNextElements_Expected_ExceptionEmulation(Enumeration<String> elements, DelegateEnumeration<String> delegateEnumeration) {
         Exception original = getException(elements);
         Assert.assertNotSame(original, null);
@@ -199,8 +229,6 @@ public class DelegateEnumerationTest {
     }
 
 
-
-
     private Exception getException(Enumeration elements) {
         try {
             elements.nextElement();
@@ -210,6 +238,5 @@ public class DelegateEnumerationTest {
         Assert.fail("NoSuchElementException");
         return null;
     }
-
 
 }

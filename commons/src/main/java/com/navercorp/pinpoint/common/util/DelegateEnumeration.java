@@ -51,21 +51,28 @@ public class DelegateEnumeration<E> implements Enumeration<E> {
 
     @Override
     public boolean hasMoreElements() {
-        next();
+        next(true);
         return hasMoreElements;
     }
 
     @Override
     public E nextElement() {
-        next();
+        next(false);
+        // nextExcetpion
         if (nextException != null) {
-            Exception exception = this.nextException;
-            this.nextException = null;
+            final Exception exception = this.nextException;
+            clearNext();
             this.<RuntimeException>throwException(exception);
         }
+        // nextResult
         final E result = getNextElement();
-        this.nextElement = null;
+        clearNext();
         return result;
+    }
+
+    private void clearNext() {
+        this.nextException = null;
+        this.nextElement = null;
     }
 
     private E getNextElement() {
@@ -76,23 +83,28 @@ public class DelegateEnumeration<E> implements Enumeration<E> {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Exception> void throwException(Exception exception) throws T {
+    private <T extends Exception> void throwException(final Exception exception) throws T {
         throw (T) exception;
     }
 
 
-    private void next() {
+    private void next(final boolean hasMoreElementMethod) {
         if (nextElement != null || nextException != null) {
             return;
         }
 
         while (true) {
-            final boolean hasMoreElements = delegate.hasMoreElements();
+            final boolean nextExist = delegate.hasMoreElements();
+            if (!nextExist && hasMoreElementMethod) {
+                this.hasMoreElements = false;
+                return;
+            }
+            // error emulation
             E nextElement;
             try {
                 nextElement = delegate.nextElement();
             } catch (Exception e) {
-                this.hasMoreElements = hasMoreElements;
+                this.hasMoreElements = nextExist;
                 this.nextException = e;
                 break;
             }
@@ -101,7 +113,7 @@ public class DelegateEnumeration<E> implements Enumeration<E> {
                 continue;
             }
 
-            this.hasMoreElements = hasMoreElements;
+            this.hasMoreElements = nextExist;
             if (nextElement == null) {
                 this.nextElement = (E) NULL_OBJECT;
             } else {
@@ -113,6 +125,10 @@ public class DelegateEnumeration<E> implements Enumeration<E> {
 
     }
 
+    // for Test
+    Exception _getNextException() {
+        return nextException;
+    }
 
     public static interface Filter<E> {
         boolean filter(E e);
