@@ -449,18 +449,7 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>**/applicationContext*.xml</exclude>
-                        <exclude>**/pinpoint-collector.properties</exclude>
-                        <exclude>**/hbase.properties</exclude>
-                        <exclude>**/log4j.xml</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
+
         </plugins>
     </build>
 </project>
