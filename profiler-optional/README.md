@@ -1,7 +1,15 @@
-Pinpoint-profiler-optional
-=========
+# pinpoint-profiler-optional
 
-아래와 같이 maven compile을 하기 위해서는 JDK 1.7+이 필요합니다.
+**pinpoint-profiler-optional** is an optional package for pinpoint-profiler, adding features that are implemented using APIs available in JDK 7 or later.
+
+## Requirements
+In order to build pinpoint-profiler-optional, the following requirements must be met:
+
+* JDK 7+ installed
+* ```JAVA_7_HOME``` environment variable set to JDK 7 home directory
+
+Once the ```JAVA_7_HOME``` environment is set, the *maven-compiler-plugin* invokes the JDK 7 compiler to compile the optional package:
+
 ```xml
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
@@ -20,23 +28,4 @@ Pinpoint-profiler-optional
         <encoding>UTF-8</encoding>
     </configuration>
 </plugin>
-```
-
-환경변수에 JAVA_7_HOME을 잡아주시고, maven의 settings.xml에 JAVA_7_HOME property를 아래와 같이 설정해주세요.
-
-(m2e 플러그인을 사용한 maven 빌드를 하시려면 settings.xml을 수정하셔야 합니다.)
-```xml
-<settings>
-    <profiles>
-      <profile>
-          <id>JAVA_7_HOME</id>
-            <properties>
-              <JAVA_7_HOME>JDK 1.7+ 패스</JAVA_7_HOME>
-            </properties>
-      </profile>
-    </profiles>
-    <activeProfiles>     
-        <activeProfile>JAVA_7_HOME</activeProfile>   
-    </activeProfiles>
-</settings> 
 ```
