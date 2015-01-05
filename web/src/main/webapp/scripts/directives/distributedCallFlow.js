@@ -19,7 +19,7 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                     getColorByString, progressBarFormatter, argumentFormatter, hasChildNode;
 
                 // bootstrap
-                window.callStacks = []; // Slick.Data.DataView 때문에, window 프로퍼티로 사용해야 scope 문제가 해결됨.
+                window.callStacks = []; // Due to Slick.Data.DataView, must use window property to resolve scope-related problems.
 
                 /**
                  * get color by string

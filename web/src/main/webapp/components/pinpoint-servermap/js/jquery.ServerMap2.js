@@ -124,7 +124,7 @@
         },
 
         /**
-         * 변수 초기화
+         * initialize variables
          *
          * @method _initVariables
          */
@@ -143,7 +143,7 @@
         },
 
         /**
-         * 노드 템플릿 초기화
+         * initialize node templates
          *
          * @method _initNodeTemplates
          */
@@ -487,7 +487,7 @@
         },
 
         /**
-         * 링크 템플릿 초기화
+         * initialize link templates
          *
          * @method _initLinkTemplates
          */
@@ -500,7 +500,7 @@
 //                    click: this._onLinkClicked.bind(this),
                     contextClick: this._onLinkContextClicked.bind(this),
                     layerName: "Foreground",
-                    reshapable: false, // 연결선 reshape핸들 없애려고.
+                    reshapable: false, // to disable reshape on links
 
                     // fromSpot: go.Spot.RightSide,
                     // toSpot: go.Spot.LeftSide,
@@ -618,7 +618,7 @@
         },
 
         /**
-         * 다이어그램 환경설정
+         * initialize diagrams
          *
          * @method _initDiagramEnvironment
          */
@@ -647,8 +647,7 @@
                     layerSpacing: 100,
                     columnSpacing: 30,
                     setsPortSpots: false
-                    // packOption : 7 // 1(PackExpand), 2(PackStraighten),
-                    // 4(PackMedian)의 합
+                    // packOption : 7 // sum of 1(PackExpand), 2(PackStraighten), 4(PackMedian)
 
 // direction : 0,
 // cycleRemoveOption : go.LayeredDigraphLayout.CycleDepthFirst,
@@ -697,7 +696,7 @@
         },
 
         /**
-         * 불러오기
+         * load
          *
          * @method load
          * @param {Hash Table} str
@@ -710,7 +709,7 @@
         },
 
         /**
-         * 다이어그램 초기화
+         * clear diagram
          *
          * @method clear
          */
@@ -719,7 +718,7 @@
         },
 
         /**
-         * 하이라이팅 초기화
+         * reset highlights
          *
          * @method _resetHighlights
          */
@@ -735,7 +734,7 @@
         },
 
         /**
-         * 하이라이팅 변경
+         * update highlights
          *
          * @method _updateHighlights
          * @param {go.Node} selection
@@ -773,10 +772,10 @@
         },
 
         /**
-         * 노드의 키로 노드 하이라이팅
+         * highlight node by node key
          *
          * @method highlightNodeByKey
-         * @param {String} sKey 노드키
+         * @param {String} sKey node key
          */
         highlightNodeByKey: function (sKey) {
             var node = this._oDiagram.findNodeForKey(sKey);
@@ -788,7 +787,7 @@
         },
 
         /**
-         * 링크의 시작,끝점으로 링크 하이라이팅
+         * highlight link by from, to objects
          *
          * @method highlightLinkByFromTo
          * @param {String,Number} from
@@ -803,7 +802,7 @@
         },
 
         /**
-         * 시작, 끝점을 이용하여 링크객체 가져오기
+         * get link by from, to objects
          *
          * @method _getLinkObjectByFromTo
          * @param {String,Number} from

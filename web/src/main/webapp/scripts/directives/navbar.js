@@ -340,8 +340,8 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                         scope.application = e.val;
                         scope.$digest();
                         broadcast();
-                        // 참고1 : http://jimhoskins.com/2012/12/17/angularjs-and-apply.html
-                        // 참고2 : http://jsfiddle.net/CDvGy/2/
+                        // ref1 : http://jimhoskins.com/2012/12/17/angularjs-and-apply.html
+                        // ref2 : http://jsfiddle.net/CDvGy/2/
                     });
                 };
 

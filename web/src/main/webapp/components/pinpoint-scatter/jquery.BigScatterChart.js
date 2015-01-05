@@ -881,7 +881,7 @@ var BigScatterChart = $.Class({
             this._lineTo(this._oAxisCtx, mov, nHeight - nPaddingBottom + 10);
             this._oAxisCtx.stroke();
 
-            // x 축 가이드라인
+            // x-axis guideline
             this._oGuideCtx.beginPath();
             this._moveTo(this._oGuideCtx, mov, nPaddingTop);
             this._lineTo(this._oGuideCtx, mov, nHeight - nPaddingBottom);
@@ -895,7 +895,7 @@ var BigScatterChart = $.Class({
             this._lineTo(this._oAxisCtx, nPaddingLeft - 10, mov);
             this._oAxisCtx.stroke();
 
-            // y 축 가이드라인
+            // y-axis guideline
             this._oGuideCtx.beginPath();
             this._moveTo(this._oGuideCtx, nPaddingLeft, mov);
             this._lineTo(this._oGuideCtx, nWidth - nPaddingRight, mov);
@@ -1209,8 +1209,8 @@ var BigScatterChart = $.Class({
         }
         this.addBubbles(aBubbles);
         this._showTypeCount();
-        this._drawBubbules(aBubbles); // 평균 33 ~ 45 ms 걸림
-        //this.redrawBubbles(); // 평균 2629 ~ 3526 ms 걸림, 90~100배 차이
+        this._drawBubbules(aBubbles); // takes on average 33 ~ 45 ms
+        //this.redrawBubbles(); // takes on average 2629 ~ 3526 ms, around 90 ~ 100 times longer compared to _drawBubbules
         this.updateXYAxis();
 
         // _drawBubbules: 35.000ms
@@ -1235,9 +1235,8 @@ var BigScatterChart = $.Class({
     },
 
     _removeOldDataLessThan: function (nX) {
-        // 여기서 조금 느려질 수 있다.
-        // 하지만 그리는데 지장이 없기에 괜찮을 것 같다.
-        // 워커를 사용하였지만, 전체 배열을 주고 받는 시간도 오래걸린다
+        // may cause some slowdowns, but it won't affect rendering much
+        // takes a long time sending/receiving arrays, even when using walker
         var aBubbles = this._aBubbles || [],
             aIndexToBeRemoved = [],
             htType = this.option('htTypeAndColor'),
@@ -1313,14 +1312,14 @@ var BigScatterChart = $.Class({
         }, this);
 
         // console.time('getDataByXY');
-        // 열심히 성능 개선하려 시도하였지만, 그닥 빨라지지 않는다, 오히려 약간 오래 걸림 -_-;;
+        // tried to improve performance to no avail..it even takes a bit longer -_-;;
         for (var i = 0, nLen = aBubbleStep.length; i < nLen; i++) {
             // if(nXFrom <= aBubbleStep[i].nXMin && nXTo >= aBubbleStep[i].nXMax
             // 	&& nYFrom <= aBubbleStep[i].nYMin && nYTo >= aBubbleStep[i].nYMax){ // xFrom -- min ======= max ---- nTo
             // 	aData = aData.concat(aBubbles[i]);
             // }else if(nXFrom >= aBubbleStep[i].nXMin && nXFrom <= aBubbleStep[i].nXMax){ // min ----- xFrom ====== max
             // 	for(var j=0, nLen2=aBubbleStep[i].nLength; j<nLen2; j++){
-            // 		if(aBubbles[i][j].x >= nXFrom && aBubbles[i][j].x <= nXTo){ // 같은 시간대가 여러개 나올 수 있지만 처음꺼 기준.
+            // 		if(aBubbles[i][j].x >= nXFrom && aBubbles[i][j].x <= nXTo){ // use the first one as reference
             // 			//aData = aData.concat(aBubbles[i].slice(j));
             // 			//break;
             // 			if(nYFrom <= aBubbles[i][j].y && nYTo >= aBubbles[i][j].y){
@@ -1332,7 +1331,7 @@ var BigScatterChart = $.Class({
             // }else if(nXTo >= aBubbleStep[i].nXMin && nXTo <= aBubbleStep[i].nXMax){ // min ====== xTo ---- max
             // 	for(var j=0, nLen2=aBubbleStep[i].nLength; j<nLen2; j++){
             // 		if(aBubbles[i][j].x >= nXFrom && aBubbles[i][j].x <= nXTo){
-            // 			//aData = aData.concat(aBubbles[i].slice(0, j-1)); // 같은 시간대가 여러개 있을 수 있으므로 마지막 기준.
+            // 			//aData = aData.concat(aBubbles[i].slice(0, j-1)); // use the first one as reference
             // 			//break;
             // 			if(nYFrom <= aBubbles[i][j].y && nYTo >= aBubbles[i][j].y){
             // 				console.log('b', i, j);
