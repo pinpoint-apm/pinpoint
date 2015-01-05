@@ -22,6 +22,3 @@ Click [here](dev-collector.md) for more information.
 The Web provides users with various information collected by the Agents. These include an automatically generated server map, call stacks on distributed transactions, and various information on the host applications.
 
 Click [here](dev-web.md) for more information.
-
-## Modules
-The Pinpoint project has the following dependency layout.
