@@ -63,7 +63,7 @@ struct TSpan {
   2: string applicationName
   3: i64 agentStartTime
 
-  // null일 경우 agentId와 동일한 값이다.
+  // identical to agentId if null
   //4: optional string traceAgentId
   //5: i64 traceAgentStartTime;
   //6: i64 traceTransactionSequence;
@@ -72,7 +72,7 @@ struct TSpan {
   7: i64 spanId
   8: optional i64 parentSpanId = -1
 
-  // span 이벤트의 시작시간.
+  // span event's startTimestamp
   9: i64 startTime
   10: optional i32 elapsed = 0
 
@@ -104,7 +104,7 @@ struct TSpanChunk {
 
   4: i16 serviceType
 
-  // null일 경우 agentId와 동일한 값이다.
+  // identical to agentId if null
 //  5: optional string traceAgentId
 //  6: i64 traceAgentStartTime;
 //  7: i64 traceTransactionSequence;
