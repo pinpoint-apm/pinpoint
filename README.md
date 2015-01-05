@@ -24,6 +24,8 @@ Services nowadays often consist of many different components, communicating amon
 ## Architecture
 ![Pinpoint Architecture](doc/img/pinpoint-architecture.png)
 
+
+
 ## Supported Modules
 * Tomcat 6/7
 * Spring
@@ -38,6 +40,9 @@ You may run a sample Pinpoint instance in your own machine by running four simpl
 Once the components are running, you should be able to visit http://localhost:28080 to view the Pinpoint Web UI, and http://localhost:28081 to generate transactions on the Sample TestApp.
 
 For details, please refer to the [quick-start guide](quickstart/README.md "Pinpoint quick-start guide").
+
+## Installation
+To set up your very own Pinpoint instance, take a look at our [installation guide](doc/installation.md).
 
 ## Issues
 For feature requests and bug reports, feel free to post them [here](https://github.com/naver/pinpoint/issues).

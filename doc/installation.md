@@ -1,0 +1,143 @@
+# Installation
+In order to set up your very own Pinpoint instance, you need to run these components:
+
+* **HBase** (for storage)
+* **Pinpoint Collector** (deployed on a web container)
+* **Pinpoint Web** (deployed on a web container)
+* **Pinpoint Agent** (attached to a java application for profiling)
+
+To try out a simple quickstart project, please refer to the [quick-start guide](../quickstart/README.md).
+
+## Quick Overview
+1. HBase ([details](#hbase))
+	1. Set up HBase cluster - [Apache HBase](http://hbase.apache.org)
+	2. Create HBase Schemas - feed `/scripts/hbase-create.hbase` to hbase shell.
+2. Pinpoint Collector ([details](#pinpoint-collector))
+	1. Deploy *pinpoint-collector-$VERSION.war* to a web container.
+	2. Configure *pinpoint-collector.properties*, *hbase.properties*.
+	3. Start container.
+3. Pinpoint Web ([details](#pinpoint-web))
+	1. Deploy *pinpoint-web-$VERSION.war* to a web container.
+	2. Configure *pinpoint-web.properties*, *hbase.properties*.
+	3. Start container.
+4. Pinpoint Agent ([details](#pinpoint-agent))
+	1. Extract/move *pinpoint-agent/* to a convenient location (`$AGENT_PATH`).
+	2. Set `-javaagent:$AGENT_PATH/pinpoint-bootstrap-$VERSION.jar` JVM argument to attach the agent to a java application.
+	3. Set `-Dpinpoint.agentId` and `-Dpinpoint.applicationName` command-line arguments.
+	4. Launch java application with the options above.
+
+## HBase
+Pinpoint uses HBase as its storage backend for the Collector and the Web.
+
+To set up your own cluster, take a look at the [HBase website](http://hbase.apache.org) for instructions. Note that Pinpoint is currently using 0.94.x version of HBase, and have not yet tested against newer releases.
+
+Once you have HBase up and running, make sure the Collector and the Web are configured properly and are able to connect to HBase.
+
+### Creating Schemas
+There are 2 scripts available to create tables for Pinpoint: *hbase-create.hbase*, and *hbase-create-snappy.hbase*. Use *hbase-create-snappy.hbase* for snappy compression (requires [snappy](http://code.google.com/p/snappy)), otherwise use *hbase-create.hbase* instead.
+
+To run these scripts, feed them into the HBase shell like below:
+
+`$HBASE_HOME/bin/hbase shell hbase-create.hbase`
+
+See [here](../scripts/) for a complete list of scripts.
+
+## Pinpoint Collector
+Download the **latest release** of Pinpoint Collector from GitHub (WIP) or **build pinpoint-collector** manually from the Git clone using `mvn package`. Either way, you should end up with the following **war** file that can be deployed to a web container.
+
+*pinpoint-collector-$VERSION.war*
+
+### Installation
+Since Pinpoint Collector is packaged as a deployable war file, you may deploy them to a web container as you would any other web applications.
+
+### Configuration
+There are 2 configuration files available for Pinpoint Collector: *pinpoint-collector.properties*, and *hbase.properties*.
+
+* pinpoint-collector.properties - contains configurations for the collector. Check the following values with the agent's configuration options :
+	* `collector.tcpListenPort` (agent's *profiler.collector.tcp.port* - default: 9994)
+	* `collector.udpStatListenPort` (agent's *profiler.collector.stat.port* - default: 9995)
+	* `collector.udpSpanListenPort` (agent's *profiler.collector.span.port* - default: 9996)
+* hbase.properties - contains configurations to connect to HBase.
+	* `hbase.client.host`
+	* `hbase.client.port`
+
+You may take a look at the default configuration files here: [pinpoint-collector.properties](../collector/src/main/resources/pinpoint-collector.properties), [hbase.properties](../collector/src/main/resources/hbase.properties)
+
+## Pinpoint Web
+Download the **latest release** of Pinpoint Web from GitHub (WIP) or **build pinpoint-web** manually from the Git clone using `mvn package`. Either way, you should end up with the following **war** file that can be deployed to a web container.
+
+*pinpoint-web-$VERSION.war*
+
+### Installation
+Since Pinpoint Web is packaged as a deployable war file, you may deploy them to a web container as you would any other web applications.
+
+### Configuration
+Similar to the collector, Pinpoint Web has configuration files related to installation: *pinpoint-web.properties*, and *hbase.properties*. 
+
+Make sure you check the following configuration options :
+
+* hbase.properties - contains configurations to connect to HBase.
+	* `hbase.client.host`
+	* `hbase.client.port`
+
+You may take a look at the default configuration files here: [pinpoint-web.properties](../web/src/main/resources/pinpoint-web.properties), [hbase.properties](../web/src/main/resources/hbase.properties)
+
+## Pinpoint Agent
+Download and unzip the **latest release** of Pinpoint Agent from GitHub (WIP) or **build pinpoint-agent** manually from the GitHub clone using `mvn package`. Either way, you should end up with **pinpoint-agent** directory with the layout below :
+
+```
+pinpoint-agent
+|-- boot
+|   |-- pinpoint-bootstrap-core-$VERSION.jar
+|-- lib
+|   |-- pinpoint-profiler-$VERSION.jar
+|   |-- pinpoint-profiler-optional-$VERSION.jar
+|   |-- pinpoint-rpc-$VERSION.jar
+|   |-- pinpoint-thrift-$VERSION.jar
+|   |-- ...
+|-- pinpoint-bootstrap-$VERSION.jar
+|-- pinpoint.config
+```
+
+You may move/extract the contents of **pinpoint-agent** directory to any location of your choice. The guide will refer to the full path of this directory as `$AGENT_PATH`.
+
+### Installation
+Pinpoint Agent runs as a java agent attached to an application to be profiled (such as Tomcat). 
+
+To wire up the agent, pass *$AGENT_PATH/pinpoint-bootstrap-$VERSION.jar* to the *-javaagent* JVM argument when running the application:
+
+* `-javaagent:$AGENT_PATH/pinpoint-bootstrap-$VERSION.jar`
+
+Additionally, Pinpoint Agent requires 2 command-line arguments in order to identify itself in the distributed system:
+
+* `-Dpinpoint.agentId` - uniquely identifies the application instance in which the agent is running on
+* `-Dpinpoint.applicationName` - groups a number of identical application instances as a single service
+
+Note that *pinpoint.agentId* must be globally unique to identify an application instance, and all applications that share the same *pinpoint.applicationName* are treated as multiple instances of a single service.
+
+**Tomcat Example**
+
+Add *-javaagent*, *-Dpinpoint.agentId*, *-Dpinpoint.applicationName* to *CATALINA_OPTS* in the Tomcat startup script (*catalina.sh*).
+
+<pre>
+CATALINA_OPTS="$CATALINA_OPTS <b>-javaagent</b>:$AGENT_PATH/pinpoint-bootstrap-$VERSION.jar"
+CATALINA_OPTS="$CATALINA_OPTS <b>-Dpinpoint.agentId</b>=$AGENT_ID"
+CATALINA_OPTS="$CATALINA_OPTS <b>-Dpinpoint.applicationName</b>=$APPLICATION_NAME"
+</pre>
+
+Start up Tomcat to start profiling your web application.
+
+### Configuration
+
+There are various configuration options for Pinpoint Agent available in *$AGENT_PATH/pinpoint.config*.
+
+Most of these options are self explanatory, but the most important configuration options you must check are **collector ip address**, and the **TCP/UDP ports**. These values are required for the agent to establish connection to the *Collector* and function correctly. 
+
+Set these values appropriately in *pinpoint.config*:
+
+* `profiler.collector.ip` (default: 127.0.0.1)
+* `profiler.collector.tcp.port` (collector's *collector.tcpListenPort* - default: 9994)
+* `profiler.collector.stat.port` (collector's *collector.udpStatListenPort* - default: 9995)
+* `profiler.collector.span.port` (collector's *collector.udpSpanListenPort* - default: 9996)
+
+You may take a look at the default *pinpoint.config* file [here](../agent/src/main/resources/pinpoint.config) along with all the available configuration options.
