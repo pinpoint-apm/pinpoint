@@ -600,37 +600,6 @@
                     </webResources>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat6-maven-plugin</artifactId>
-                <version>2.2</version>
-                <configuration>
-                    <path>/</path>
-                    <!--<additionalClassesDirs>-->
-                        <!--<additionalClasspathDir>${basedir}/target/classes</additionalClasspathDir>-->
-                    <!--</additionalClassesDirs>-->
-                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
-                    <port>20330</port>
-                    <fork>true</fork>
-                    <uriEncoding>utf-8</uriEncoding>
-                </configuration>
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>start-tomcat</id>-->
-                        <!--<phase>pre-integration-test</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>run</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                    <!--<execution>-->
-                        <!--<id>stop-tomcat</id>-->
-                        <!--<phase>post-integration-test</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>shutdown</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            </plugin>
         </plugins>
     </build>
 </project>
