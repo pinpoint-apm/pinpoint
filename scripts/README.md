@@ -5,7 +5,7 @@ Helper scripts are available to help set up or maintain Pinpoint.
 To run the HBase scripts, feed in the `.hbase` file into the HBase shell.
 
 * *hbase-create.hbase* - create tables necessary for Pinpoint
-* *hbase-create-snappy.hbase* - create tables necessary for Pinpoint using snappy compression (*requires snappy*)
+* *hbase-create-snappy.hbase* - create tables necessary for Pinpoint using snappy compression (*requires [snappy](http://code.google.com/p/snappy)*)
 * *hbase-drop.hbase* - disables and drops all tables created for Pinpoint
 * *hbase-flush-table.hbase* - flushes all tables
 * *hbase-major-compact-htable.hbase* - major compacts all tables
