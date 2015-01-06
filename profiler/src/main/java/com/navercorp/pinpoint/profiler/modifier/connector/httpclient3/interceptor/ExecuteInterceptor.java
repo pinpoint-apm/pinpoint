@@ -91,7 +91,7 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
             return;
         }
         
-        HttpMethod httpMethod = getHttpMethod(args);
+        final HttpMethod httpMethod = getHttpMethod(args);
         final boolean sampling = trace.canSampled();
 
         if (!sampling) {
@@ -141,12 +141,7 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
                     final URI uri = httpMethod.getURI();
                     String uriString = uri.getURI();
                     trace.recordAttribute(AnnotationKey.HTTP_URL, uriString);
-                    
-                    final NameIntValuePair<String> host = new NameIntValuePair<String>(uri.getHost(), uri.getPort());
-                    
-                    if (host != null) {
-                        trace.recordDestinationId(getEndpoint(host.getName(), host.getValue()));
-                    }
+                    trace.recordDestinationId(getEndpoint(uri.getHost(), uri.getPort()));
                 } catch (URIException e) {
                     logger.error("Fail get URI", e);
                 }
@@ -196,7 +191,7 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
                         String entityValue;
                         String charSet = entityEnclosingMethod.getRequestCharSet();
                         
-                        if(charSet == null || charSet.isEmpty()) {
+                        if (charSet == null || charSet.isEmpty()) {
                             charSet = HttpConstants.DEFAULT_CONTENT_CHARSET;
                         }
                         if (entity instanceof ByteArrayRequestEntity) {
@@ -226,7 +221,7 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
             return "";
         }
         
-        int length = entity.getContent().length > MAX_READ_SIZE ? MAX_READ_SIZE : entity.getContent().length;
+        final int length = entity.getContent().length > MAX_READ_SIZE ? MAX_READ_SIZE : entity.getContent().length;
         
         if (length <= 0) {
             return "";
@@ -269,7 +264,7 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
     private HttpMethod getHttpMethod(Object[] args) {
         Integer httpMethodIndex = httpMethod_Index.get(args.length);
         
-        if(httpMethodIndex == null) {
+        if (httpMethodIndex == null) {
             return null;
         }
         
