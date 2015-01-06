@@ -67,12 +67,11 @@ public class HttpClientModifier extends AbstractModifier {
     }
 
     private Interceptor newExecuteInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
-        return byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.connector.httpclient3.interceptor.ExecuteInterceptor");
+        return byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.connector.httpclient3.interceptor.ExecuteInterceptor");
     }
 
     @Override
     public String getTargetClass() {
         return "org/apache/commons/httpclient/HttpClient";
     }
-
 }

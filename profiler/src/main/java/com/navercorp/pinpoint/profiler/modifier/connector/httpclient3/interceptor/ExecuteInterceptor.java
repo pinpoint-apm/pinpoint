@@ -57,7 +57,8 @@ import com.navercorp.pinpoint.common.ServiceType;
 public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDescriptorSupport, SimpleAroundInterceptor, TargetClassLoader {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled(); 
+    private final boolean isDebug = logger.isDebugEnabled();
+    private final int MAX_READ_SIZE = 1024;
     private static final Map<Integer, Integer> httpMethod_Index;
     static {
         httpMethod_Index = new HashMap<Integer, Integer>();
@@ -153,7 +154,10 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
                 recordRequest(trace, httpMethod, throwable);
             }
             
-            trace.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, result);
+            if (result != null) {
+                trace.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, result);
+            }
+            
             trace.recordApi(descriptor);
             trace.recordException(throwable);
             trace.markAfterTime();
@@ -214,13 +218,17 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
     }
 
     private String readString(StringRequestEntity entity) {
-       return StringUtils.drop(entity.getContent(), 1024);
+        return StringUtils.drop(entity.getContent(), MAX_READ_SIZE);
     }
 
     private String readByteArray(ByteArrayRequestEntity entity, String charSet) throws UnsupportedEncodingException {
-        int length = entity.getContent().length > 1024 ? 1024 : entity.getContent().length;
+        if (entity.getContent() == null) {
+            return "";
+        }
         
-        if(length <= 0) {
+        int length = entity.getContent().length > MAX_READ_SIZE ? MAX_READ_SIZE : entity.getContent().length;
+        
+        if (length <= 0) {
             return "";
         }
         
@@ -239,7 +247,7 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
         
         if (value != null && !value.isEmpty()) {
             if (cookieSampler.isSampling()) {
-                trace.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, 1024));
+                trace.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, MAX_READ_SIZE));
             }
         }
     }

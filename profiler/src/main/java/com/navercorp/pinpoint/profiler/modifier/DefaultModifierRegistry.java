@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.profiler.modifier.arcus.ImmediateFutureModifier;
 import com.navercorp.pinpoint.profiler.modifier.arcus.MemcachedClientModifier;
 import com.navercorp.pinpoint.profiler.modifier.arcus.OperationFutureModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.asynchttpclient.AsyncHttpClientModifier;
+import com.navercorp.pinpoint.profiler.modifier.connector.httpclient3.DefaultHttpMethodRetryHandlerModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.httpclient3.HttpClientModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.BasicFutureModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.ClosableHttpAsyncClientModifier;
@@ -127,8 +128,22 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     }
 
     public void addConnectorModifier() {
-        HttpClient4Modifier httpClient4Modifier = new HttpClient4Modifier(byteCodeInstrumentor, agent);
-        addModifier(httpClient4Modifier);
+        if (profilerConfig.isApacheHttpClient4Profile()) {
+            //apache http client 4
+            HttpClient4Modifier httpClient4Modifier = new HttpClient4Modifier(byteCodeInstrumentor, agent);
+            addModifier(httpClient4Modifier);
+            
+            //apache http client 4 retry
+            addModifier(new DefaultHttpRequestRetryHandlerModifier(byteCodeInstrumentor, agent));
+        }
+        if (profilerConfig.isApacheHttpClient3Profile()) {
+            //apache http client 3
+            HttpClientModifier httpClientModifier = new HttpClientModifier(byteCodeInstrumentor, agent);
+            addModifier(httpClientModifier);
+    
+            //apache http client 3 retry
+            addModifier(new DefaultHttpMethodRetryHandlerModifier(byteCodeInstrumentor, agent));
+        }
 
         // JDK HTTPUrlConnector
         HttpURLConnectionModifier httpURLConnectionModifier = new HttpURLConnectionModifier(byteCodeInstrumentor, agent);
@@ -142,12 +157,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         addModifier(new ClosableHttpAsyncClientModifier(byteCodeInstrumentor, agent));
         addModifier(new ClosableHttpClientModifier(byteCodeInstrumentor, agent));
         addModifier(new BasicFutureModifier(byteCodeInstrumentor, agent));
-        
-        HttpClientModifier httpClientModifier = new HttpClientModifier(byteCodeInstrumentor, agent);
-        addModifier(httpClientModifier);
-        
-        //apache http client retry
-        addModifier(new DefaultHttpRequestRetryHandlerModifier(byteCodeInstrumentor, agent));
     }
 
     public void addArcusModifier() {
