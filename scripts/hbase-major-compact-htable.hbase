@@ -1,6 +1,3 @@
-#!/bin/sh
-exec hbase shell <<EOF
-
 major_compact 'AgentInfo'
 major_compact 'AgentStat'
 major_compact 'ApplicationIndex'
@@ -37,4 +34,4 @@ major_compact 'ApplicationStatistics'
 major_compact 'HostApplicationMap'
 major_compact 'HostApplicationMap_Ver2'
 
-EOF
+exit
