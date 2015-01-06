@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor;
+package com.navercorp.pinpoint.profiler.modifier.connector.httpclient3.interceptor;
+
+import java.io.IOException;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -31,7 +33,7 @@ import com.navercorp.pinpoint.common.ServiceType;
 /**
  * @author Minwoo Jung
  */
-public class RetryRequestInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
+public class RetryMethodInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -66,6 +68,7 @@ public class RetryRequestInterceptor implements SimpleAroundInterceptor, ByteCod
         }
 
         Trace trace = traceContext.currentTraceObject();
+        
         if (trace == null) {
             return;
         }
@@ -74,8 +77,8 @@ public class RetryRequestInterceptor implements SimpleAroundInterceptor, ByteCod
             trace.recordApi(descriptor);
             trace.recordException(throwable);
             
-            if (args.length >=1 && (args[0] instanceof Exception)) {
-                trace.recordAttribute(AnnotationKey.HTTP_CALL_RETRY_COUNT, args[0].getClass().getName());
+            if (args.length >= 2 && (args[1] instanceof IOException)) {
+                trace.recordAttribute(AnnotationKey.HTTP_CALL_RETRY_COUNT, args[1].getClass().getName());
             }
             if (result != null) {
                 trace.recordAttribute(AnnotationKey.RETURN_DATA, result);
