@@ -22,5 +22,5 @@ import com.navercorp.pinpoint.profiler.util.DepthScope;
  * @author Minwoo Jung
  */
 public class HttpClient3Scope {
-    public static final DepthScope SCOPE = new DepthScope("HTTPClient3Scope");
+    public static final String SCOPE = "HTTPClient3Scope";
 }

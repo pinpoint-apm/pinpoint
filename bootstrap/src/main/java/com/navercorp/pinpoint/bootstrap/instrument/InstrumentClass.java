@@ -60,15 +60,7 @@ public interface InstrumentClass {
 
     int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException, NotFoundInstrumentException;
 
-    int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, Scope scope) throws InstrumentException, NotFoundInstrumentException;
-
     int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException;
-
-    /**
-     * Adds a scope interceptor to a method with matching methodName, and arguments.
-     * Note that the scope interceptor is added only if the method is actually implemented in the instrumented class.
-     */
-    int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, Scope scope) throws InstrumentException;
 
     int addInterceptor(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
 
