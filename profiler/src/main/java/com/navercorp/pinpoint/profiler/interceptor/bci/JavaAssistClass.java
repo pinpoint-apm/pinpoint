@@ -353,41 +353,34 @@ public class JavaAssistClass implements InstrumentClass {
 
     @Override
     public int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException, NotFoundInstrumentException {
-        final Scope scope = this.instrumentor.getScope(scopeName);
-        return addScopeInterceptor(methodName, args, interceptor, scope);
-    }
-
-
-    @Override
-    public int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, Scope scope) throws InstrumentException, NotFoundInstrumentException {
         if (methodName == null) {
             throw new NullPointerException("methodName must not be null");
         }
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        if (scope == null) {
-            throw new NullPointerException("scope must not be null");
+        if (scopeName == null) {
+            throw new NullPointerException("scopeName must not be null");
         }
+        final Scope scope = this.instrumentor.getScope(scopeName);
         interceptor = wrapScopeInterceptor(interceptor, scope);
         return addInterceptor(methodName, args, interceptor);
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see com.navercorp.pinpoint.profiler.interceptor.bci.InstrumentClass#addScopeInterceptorIfDeclared(java.lang.String, java.lang.String[], com.navercorp.pinpoint.bootstrap.interceptor.Interceptor, com.navercorp.pinpoint.profiler.util.DepthScope)
-     */
+
+
     @Override
-    public int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, Scope scope) throws InstrumentException {
+    public int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException {
         if (methodName == null) {
             throw new NullPointerException("methodName must not be null");
         }
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        if (scope == null) {
-            throw new NullPointerException("scope must not be null");
+        if (scopeName == null) {
+            throw new NullPointerException("scopeName must not be null");
         }
+        final Scope scope = this.instrumentor.getScope(scopeName);
+
         if (hasDeclaredMethod(methodName, args)) {
             interceptor = wrapScopeInterceptor(interceptor, scope);
             return addInterceptor(methodName, args, interceptor);
@@ -397,12 +390,6 @@ public class JavaAssistClass implements InstrumentClass {
             }
             return -1;
         }
-    }
-
-    @Override
-    public int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException {
-        final Scope scope = this.instrumentor.getScope(scopeName);
-        return addScopeInterceptorIfDeclared(methodName, args, interceptor, scope);
     }
 
     private Interceptor wrapScopeInterceptor(Interceptor interceptor, Scope scope) {

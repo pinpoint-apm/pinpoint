@@ -35,12 +35,12 @@ public class AgentClassLoader {
 
     private static final SecurityManager SECURITY_MANAGER = System.getSecurityManager();
 
-    private URLClassLoader classLoader;
+    private final URLClassLoader classLoader;
 
     private String bootClass;
 
     private Agent agentBootStrap;
-    private ContextClassLoaderExecuteTemplate<Object> executeTemplate;
+    private final ContextClassLoaderExecuteTemplate<Object> executeTemplate;
 
     public AgentClassLoader(URL[] urls) {
         if (urls == null) {
