@@ -70,6 +70,7 @@ public enum AnnotationKey {
     HTTP_PARAM(41, "http.param", true),
     HTTP_PARAM_ENTITY(42, "http.entity", true),
     HTTP_COOKIE(45, "http.cookie", true),
+    HTTP_STATUS_CODE(46, "http.status.code", true),
     HTTP_CALL_RETRY_COUNT(48, "retryCount"),
     // post method parameter of httpclient
 

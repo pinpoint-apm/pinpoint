@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.profiler.modifier.arcus.ImmediateFutureModifier;
 import com.navercorp.pinpoint.profiler.modifier.arcus.MemcachedClientModifier;
 import com.navercorp.pinpoint.profiler.modifier.arcus.OperationFutureModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.asynchttpclient.AsyncHttpClientModifier;
+import com.navercorp.pinpoint.profiler.modifier.connector.httpclient3.HttpClientModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.BasicFutureModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.ClosableHttpAsyncClientModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.ClosableHttpClientModifier;
@@ -86,6 +87,7 @@ import com.navercorp.pinpoint.profiler.modifier.tomcat.WebappLoaderModifier;
  * @author emeroad
  * @author netspider
  * @author hyungil.jeong
+ * @author Minwoo Jung
  * @authoer jaehong.kim
  *  - add redis
  */
@@ -140,6 +142,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         addModifier(new ClosableHttpAsyncClientModifier(byteCodeInstrumentor, agent));
         addModifier(new ClosableHttpClientModifier(byteCodeInstrumentor, agent));
         addModifier(new BasicFutureModifier(byteCodeInstrumentor, agent));
+        
+        HttpClientModifier httpClientModifier = new HttpClientModifier(byteCodeInstrumentor, agent);
+        addModifier(httpClientModifier);
         
         //apache http client retry
         addModifier(new DefaultHttpRequestRetryHandlerModifier(byteCodeInstrumentor, agent));

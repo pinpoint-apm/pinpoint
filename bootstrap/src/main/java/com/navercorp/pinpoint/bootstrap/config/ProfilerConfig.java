@@ -144,7 +144,18 @@ public class ProfilerConfig {
     private boolean redisPipeline = true;
 
     /**
-     * apache http client
+     * apache http client 3
+     */
+    private boolean apacheHttpClient3Profile = true;
+    private boolean apacheHttpClient3ProfileCookie = false;
+    private DumpType apacheHttpClient3ProfileCookieDumpType = DumpType.EXCEPTION;
+    private int apacheHttpClient3ProfileCookieSamplingRate = 1;
+    private boolean apacheHttpClient3ProfileEntity = false;
+    private DumpType apacheHttpClient3ProfileEntityDumpType = DumpType.EXCEPTION;
+    private int apacheHttpClient3ProfileEntitySamplingRate = 1;
+    
+    /**
+     * apache http client 4
      */
     private boolean apacheHttpClient4Profile = true;
     private boolean apacheHttpClient4ProfileCookie = false;
@@ -415,7 +426,38 @@ public class ProfilerConfig {
     }
     
     //-----------------------------------------
-    // http apache client
+    // http apache client 3
+
+    public boolean isApacheHttpClient3Profile() {
+        return apacheHttpClient3Profile;
+    }
+    
+    public boolean isApacheHttpClient3ProfileCookie() {
+        return apacheHttpClient3ProfileCookie;
+    }
+
+    public DumpType getApacheHttpClient3ProfileCookieDumpType() {
+        return apacheHttpClient3ProfileCookieDumpType;
+    }
+
+    public int getApacheHttpClient3ProfileCookieSamplingRate() {
+        return apacheHttpClient3ProfileCookieSamplingRate;
+    }
+
+    public boolean isApacheHttpClient3ProfileEntity() {
+        return apacheHttpClient3ProfileEntity;
+    }
+
+    public DumpType getApacheHttpClient3ProfileEntityDumpType() {
+        return apacheHttpClient3ProfileEntityDumpType;
+    }
+
+    public int getApacheHttpClient3ProfileEntitySamplingRate() {
+        return apacheHttpClient3ProfileEntitySamplingRate;
+    }
+    
+    //-----------------------------------------
+    // http apache client 4
 
     public boolean isApacheHttpClient4Profile() {
         return apacheHttpClient4Profile;
@@ -622,7 +664,19 @@ public class ProfilerConfig {
         this.arucsKeyTrace = readBoolean("profiler.arcus.keytrace", false);
         this.memcached = readBoolean("profiler.memcached", true);
         this.memcachedKeyTrace = readBoolean("profiler.memcached.keytrace", false);
+        
+        /**
+         * apache http client 3
+         */
+        this.apacheHttpClient3Profile = readBoolean("profiler.apache.httpclient3", true);
+        this.apacheHttpClient3ProfileCookie = readBoolean("profiler.apache.httpclient3.cookie", false);
+        this.apacheHttpClient3ProfileCookieDumpType = readDumpType("profiler.apache.httpclient3.cookie.dumptype", DumpType.EXCEPTION);
+        this.apacheHttpClient3ProfileCookieSamplingRate = readInt("profiler.apache.httpclient3.cookie.sampling.rate", 1);
 
+        this.apacheHttpClient3ProfileEntity = readBoolean("profiler.apache.httpclient3.entity", false);
+        this.apacheHttpClient3ProfileEntityDumpType = readDumpType("profiler.apache.httpclient3.entity.dumptype", DumpType.EXCEPTION);
+        this.apacheHttpClient3ProfileEntitySamplingRate = readInt("profiler.apache.httpclient3.entity.sampling.rate", 1);
+        
         /**
          * apache http client 4
          */

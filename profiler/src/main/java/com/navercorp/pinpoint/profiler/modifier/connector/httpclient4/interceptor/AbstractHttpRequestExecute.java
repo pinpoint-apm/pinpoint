@@ -242,10 +242,6 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
             if (entity.getContentLength() > Integer.MAX_VALUE) {
                 return "HTTP entity too large to be buffered in memory length:" + entity.getContentLength();
             }
-            int i = (int)entity.getContentLength();
-            if (i < 0) {
-                i = 4096;
-            }
             String charset = getContentCharSet(entity);
             if (charset == null) {
                 charset = defaultCharset;
