@@ -58,7 +58,7 @@ public class DelegateEnumeration<E> implements Enumeration<E> {
     @Override
     public E nextElement() {
         next(false);
-        // nextExcetpion
+        // nextException
         if (nextException != null) {
             final Exception exception = this.nextException;
             clearNext();

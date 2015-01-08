@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 /**
  * @author emeroad
  */
-public class LoggingInterceptor implements StaticAroundInterceptor, SimpleAroundInterceptor {
+public class LoggingInterceptor implements StaticAroundInterceptor, SimpleAroundInterceptor, Interceptor {
 
     private final Logger logger;
 
@@ -60,10 +60,7 @@ public class LoggingInterceptor implements StaticAroundInterceptor, SimpleAround
     }
 
     public static String defaultString(final Object object) {
-        if (object == null) {
-            return "null";
-        }
-        return object.toString();
+        return String.valueOf(object);
     }
 
 }
