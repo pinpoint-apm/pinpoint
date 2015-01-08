@@ -14,10 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.rpc.server;
+package com.navercorp.pinpoint.rpc.server.handler;
 
-public interface SocketChannelStateChangeEventListener {
+import com.navercorp.pinpoint.rpc.server.ChannelContext;
+import com.navercorp.pinpoint.rpc.server.PinpointServerSocketStateCode;
 
-    void eventPerformed(ChannelContext channelContext, PinpointServerSocketStateCode stateCode);
+/**
+ * @author koo.taejin
+ */
+public interface ChannelStateChangeEventHandler {
+
+    void eventPerformed(ChannelContext channelContext, PinpointServerSocketStateCode stateCode) throws Exception;
+    
+    void exceptionCaught(ChannelContext channelContext, PinpointServerSocketStateCode stateCode, Throwable e);
 
 }

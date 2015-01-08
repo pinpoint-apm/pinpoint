@@ -66,6 +66,8 @@ import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.packet.ServerClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
+import com.navercorp.pinpoint.rpc.server.handler.DoNothingChannelStateEventHandler;
+import com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
@@ -102,17 +104,17 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     private WriteFailFutureListener traceSendAckWriteFailFutureListener = new  WriteFailFutureListener(logger, "TraceSendAckPacket send fail.", "TraceSendAckPacket send() success.");
     private InetAddress[] ignoreAddressList;
 
-    private final SocketChannelStateChangeEventListener channelStateChangeEventListener;
+    private final ChannelStateChangeEventHandler channelStateChangeEventHandler;
     
     static {
         LoggerFactorySetup.setupSlf4jLoggerFactory();
     }
 
     public PinpointServerSocket() {
-        this(DoNothingChannelStateEventListener.INSTANCE);
+        this(DoNothingChannelStateEventHandler.INSTANCE);
     }
 
-    public PinpointServerSocket(SocketChannelStateChangeEventListener channelStateChangeEventListener) {
+    public PinpointServerSocket(ChannelStateChangeEventHandler channelStateChangeEventHandler) {
         ServerBootstrap bootstrap = createBootStrap(1, WORKER_COUNT);
         setOptions(bootstrap);
         addPipeline(bootstrap);
@@ -120,7 +122,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         this.pingTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-PingTimer", 50, TimeUnit.MILLISECONDS, 512);
         this.requestManagerTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-RequestManager", 50, TimeUnit.MILLISECONDS, 512);
 
-        this.channelStateChangeEventListener = channelStateChangeEventListener;
+        this.channelStateChangeEventHandler = channelStateChangeEventHandler;
     }
     
     
@@ -459,7 +461,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         SocketChannel socketChannel = new SocketChannel(channel, DEFAULT_TIMEOUTMILLIS, requestManagerTimer);
            StreamChannelManager streamChannelManager = new StreamChannelManager(channel, IDGenerator.createEvenIdGenerator(), serverStreamChannelMessageListener);
 
-        ChannelContext channelContext = new ChannelContext(socketChannel, streamChannelManager, channelStateChangeEventListener);
+        ChannelContext channelContext = new ChannelContext(socketChannel, streamChannelManager, channelStateChangeEventHandler);
 
         channel.setAttachment(channelContext);
 
