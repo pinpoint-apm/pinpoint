@@ -23,18 +23,19 @@ import java.util.logging.Logger;
 /**
  * @author emeroad
  */
-public class InterceptorRegistry {
+public final class InterceptorRegistry {
 
-    private static final LoggingInterceptor DUMMY = new LoggingInterceptor("com.navercorp.pinpoint.profiler.interceptor.DUMMY");
+    private static final LoggingInterceptor LOGGING_INTERCEPTOR = new LoggingInterceptor("com.navercorp.pinpoint.profiler.interceptor.LOGGING_INTERCEPTOR");
 
     public static final InterceptorRegistry REGISTRY = new InterceptorRegistry();
 
     private final static int DEFAULT_MAX = 4096;
-    private final int max;
+    private final int registrySize;
 
     private final AtomicInteger id = new AtomicInteger(0);
-    private final StaticAroundInterceptor[] index;
-    private final SimpleAroundInterceptor[] simpleIndex;
+
+    private final WeakAtomicReferenceArray<StaticAroundInterceptor> staticIndex;
+    private final WeakAtomicReferenceArray<SimpleAroundInterceptor> simpleIndex;
 
 //    private final ConcurrentMap<String, Integer> nameIndex = new ConcurrentHashMap<String, Integer>();
 
@@ -42,24 +43,29 @@ public class InterceptorRegistry {
         this(DEFAULT_MAX);
     }
 
-    InterceptorRegistry(int max) {
-        this.max = max;
-        this.index = new StaticAroundInterceptor[max];
-        this.simpleIndex = new SimpleAroundInterceptor[max];
+    InterceptorRegistry(int maxRegistrySize) {
+        if (maxRegistrySize < 0) {
+            throw new IllegalArgumentException("negative maxRegistrySize:" + maxRegistrySize);
+        }
+        this.registrySize = maxRegistrySize;
+        this.staticIndex = new WeakAtomicReferenceArray<StaticAroundInterceptor>(maxRegistrySize, StaticAroundInterceptor.class);
+        this.simpleIndex = new WeakAtomicReferenceArray<SimpleAroundInterceptor>(maxRegistrySize, SimpleAroundInterceptor.class);
     }
 
 
-    public int addInterceptor0(StaticAroundInterceptor interceptor) {
+    public int addStaticInterceptor(StaticAroundInterceptor interceptor) {
         if (interceptor == null) {
             return -1;
         }
-        final int newId = nextId();
-        if (newId >= max) {
-            throw new IndexOutOfBoundsException("size=" + index.length + " id=" + id);
-        }
+        return addInterceptor(interceptor, staticIndex);
+    }
 
-        this.index[newId] = interceptor;
-//        this.nameIndex.put(interceptor.getClass().getName(), newId);
+    private <T extends Interceptor> int addInterceptor(T interceptor, WeakAtomicReferenceArray<T> index) {
+        final int newId = nextId();
+        if (newId >= registrySize) {
+            throw new IndexOutOfBoundsException("size=" + index.length() + " id=" + id);
+        }
+        index.set(newId, interceptor);
         return newId;
     }
 
@@ -72,64 +78,29 @@ public class InterceptorRegistry {
             return -1;
         }
         final int newId = nextId();
-        if (newId >= max) {
-            throw new IndexOutOfBoundsException("size=" + index.length + " id=" + id);
+        if (newId >= registrySize) {
+            throw new IndexOutOfBoundsException("size=" + staticIndex.length() + " id=" + id);
         }
 
-        this.simpleIndex[newId] = interceptor;
-//        this.nameIndex.put(interceptor.getClass().getName(), newId);
+        this.simpleIndex.set(newId, interceptor);
         return newId;
     }
 
     public StaticAroundInterceptor getInterceptor0(int key) {
-        StaticAroundInterceptor interceptor = index[key];
+        final StaticAroundInterceptor interceptor = staticIndex.get(key);
         if (interceptor == null) {
-            // return DUMMY upon wrong logic
-            return DUMMY;
+            // return LOGGING_INTERCEPTOR upon wrong logic
+            return LOGGING_INTERCEPTOR;
         }
         return interceptor;
     }
 
-    SimpleAroundInterceptor getSimpleInterceptor0(int key) {
-        SimpleAroundInterceptor interceptor = simpleIndex[key];
-        if (interceptor == null) {
-            // return DUMMY upon wrong logic
-            return DUMMY;
-        }
-        return interceptor;
-    }
-
-//    SimpleAroundInterceptor getInterceptor0(int key) {
-//        StaticAfterInterceptor interceptor = index[key];
-//        if (interceptor == null) {
-//            // return DUMMY upon wrong logic
-//            return DUMMY;
-//        }
-//        return interceptor;
-//    }
-//    public Interceptor findInterceptor0(String interceptorName) {
-//        Integer indexNumber = this.nameIndex.get(interceptorName);
-//        if (indexNumber != null) {
-//            return index[indexNumber];
-//        }
-//        return null;
-//    }
-
-    public static int addInterceptor(StaticAroundInterceptor interceptor) {
-        return REGISTRY.addInterceptor0(interceptor);
-    }
-
-    public static StaticAroundInterceptor getInterceptor(int key) {
-        return REGISTRY.getInterceptor0(key);
-    }
-
-
-    public static Interceptor findInterceptor(int key) {
-        SimpleAroundInterceptor simpleInterceptor = REGISTRY.getSimpleInterceptor0(key);
+    public Interceptor findInterceptor0(int key) {
+        final SimpleAroundInterceptor simpleInterceptor = this.simpleIndex.get(key);
         if (simpleInterceptor != null) {
             return simpleInterceptor;
         }
-        StaticAroundInterceptor staticAroundInterceptor = REGISTRY.getInterceptor0(key);
+        final StaticAroundInterceptor staticAroundInterceptor = this.staticIndex.get(key);
         if (staticAroundInterceptor != null) {
             return staticAroundInterceptor;
         }
@@ -137,7 +108,29 @@ public class InterceptorRegistry {
         if (logger.isLoggable(Level.WARNING)) {
             logger.warning("interceptor not found. id:" + key);
         }
-        return DUMMY;
+        return LOGGING_INTERCEPTOR;
+    }
+
+    SimpleAroundInterceptor getSimpleInterceptor0(int key) {
+        final SimpleAroundInterceptor interceptor = simpleIndex.get(key);
+        if (interceptor == null) {
+            // return LOGGING_INTERCEPTOR upon wrong logic
+            return LOGGING_INTERCEPTOR;
+        }
+        return interceptor;
+    }
+
+
+    public static int addInterceptor(StaticAroundInterceptor interceptor) {
+        return REGISTRY.addStaticInterceptor(interceptor);
+    }
+
+    public static StaticAroundInterceptor getInterceptor(int key) {
+        return REGISTRY.getInterceptor0(key);
+    }
+
+    public static Interceptor findInterceptor(int key) {
+        return REGISTRY.findInterceptor0(key);
     }
 
     public static int addSimpleInterceptor(SimpleAroundInterceptor interceptor) {

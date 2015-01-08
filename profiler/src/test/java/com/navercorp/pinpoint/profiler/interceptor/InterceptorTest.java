@@ -34,21 +34,10 @@ import java.util.Map;
 /**
  * @author emeroad
  */
-public class InterceptorRegistryTest {
+public class InterceptorTest {
 
-    private final Logger logger = LoggerFactory.getLogger(InterceptorRegistryTest.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(InterceptorTest.class.getName());
 
-    private InterceptorRegistry registry = new InterceptorRegistry();
-
-    @Test
-    public void addInterceptor() throws Exception {
-        TestBeforeInterceptor interceptor = new TestBeforeInterceptor();
-
-        int key = registry.addInterceptor0(interceptor);
-        Interceptor find = registry.getInterceptor0(key);
-
-        Assert.assertEquals(interceptor, find);
-    }
 
     //    @Test
     public void methodName() throws NoSuchMethodException {
