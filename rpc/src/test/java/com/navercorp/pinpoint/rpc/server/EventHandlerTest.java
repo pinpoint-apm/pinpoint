@@ -44,23 +44,23 @@ import com.navercorp.pinpoint.rpc.server.PinpointServerSocket;
 import com.navercorp.pinpoint.rpc.server.PinpointServerSocketStateCode;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 import com.navercorp.pinpoint.rpc.server.SocketChannel;
-import com.navercorp.pinpoint.rpc.server.SocketChannelStateChangeEventListener;
+import com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 
 /**
  * @author koo.taejin
  */
-public class EventListenerTest {
+public class EventHandlerTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // Test for being possible to send messages in case of failure of registering packet ( return code : 2, lack of parameter)
     @Test
-    public void registerAgentTest1() throws Exception {
-        EventListener eventListner = new EventListener();
+    public void registerAgentSuccessTest() throws Exception {
+        EventHandler eventHandler = new EventHandler();
 
-        PinpointServerSocket pinpointServerSocket = new PinpointServerSocket(eventListner);
+        PinpointServerSocket pinpointServerSocket = new PinpointServerSocket(eventHandler);
         pinpointServerSocket.setMessageListener(new SimpleListener());
         pinpointServerSocket.bind("127.0.0.1", 22234);
 
@@ -68,12 +68,37 @@ public class EventListenerTest {
         try {
             socket = new Socket("127.0.0.1", 22234);
             sendAndReceiveSimplePacket(socket);
-            Assert.assertEquals(eventListner.getCode(), PinpointServerSocketStateCode.RUN);
+            Assert.assertEquals(eventHandler.getCode(), PinpointServerSocketStateCode.RUN);
 
             int code = sendAndReceiveRegisterPacket(socket, getParams());
-            Assert.assertEquals(eventListner.getCode(), PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION);
+            Assert.assertEquals(eventHandler.getCode(), PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION);
 
             sendAndReceiveSimplePacket(socket);
+        } finally {
+            if (socket != null) {
+                socket.close();
+            }
+
+            if (pinpointServerSocket != null) {
+                pinpointServerSocket.close();
+            }
+        }
+    }
+    
+    @Test
+    public void registerAgentFailTest() throws Exception {
+        ThrowExceptionEventHandler eventHandler = new ThrowExceptionEventHandler();
+
+        PinpointServerSocket pinpointServerSocket = new PinpointServerSocket(eventHandler);
+        pinpointServerSocket.setMessageListener(new SimpleListener());
+        pinpointServerSocket.bind("127.0.0.1", 22234);
+
+        Socket socket = null;
+        try {
+            socket = new Socket("127.0.0.1", 22234);
+            sendAndReceiveSimplePacket(socket);
+            
+            Assert.assertTrue(eventHandler.getErrorCount() > 0);
         } finally {
             if (socket != null) {
                 socket.close();
@@ -200,7 +225,7 @@ public class EventListenerTest {
     }
 
 
-    class EventListener implements SocketChannelStateChangeEventListener {
+    class EventHandler implements ChannelStateChangeEventHandler {
 
         private PinpointServerSocketStateCode code;
 
@@ -208,9 +233,32 @@ public class EventListenerTest {
         public void eventPerformed(ChannelContext channelContext, PinpointServerSocketStateCode stateCode) {
             this.code = stateCode;
         }
+        
+        @Override
+        public void exceptionCaught(ChannelContext channelContext, PinpointServerSocketStateCode stateCode, Throwable e) {
+        }
 
         public PinpointServerSocketStateCode getCode() {
             return code;
+        }
+    }
+    
+    class ThrowExceptionEventHandler implements ChannelStateChangeEventHandler {
+
+        private int errorCount = 0;
+        
+        @Override
+        public void eventPerformed(ChannelContext channelContext, PinpointServerSocketStateCode stateCode) throws Exception {
+            throw new Exception("always error.");
+        }
+
+        @Override
+        public void exceptionCaught(ChannelContext channelContext, PinpointServerSocketStateCode stateCode, Throwable e) {
+            errorCount++;
+        }
+
+        public int getErrorCount() {
+            return errorCount;
         }
 
     }

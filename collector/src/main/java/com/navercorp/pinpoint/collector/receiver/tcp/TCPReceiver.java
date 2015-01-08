@@ -104,7 +104,7 @@ public class TCPReceiver {
         if (service == null || !service.isEnable()) {
             this.pinpointServerSocket = new PinpointServerSocket();
         } else {
-            this.pinpointServerSocket = new PinpointServerSocket(service.getChannelStateChangeEventListener());
+            this.pinpointServerSocket = new PinpointServerSocket(service.getChannelStateChangeEventHandler());
         }
         
         this.dispatchHandler = dispatchHandler;

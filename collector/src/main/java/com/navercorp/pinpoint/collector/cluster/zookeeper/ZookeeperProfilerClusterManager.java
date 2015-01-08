@@ -35,13 +35,13 @@ import com.navercorp.pinpoint.collector.cluster.zookeeper.job.UpdateJob;
 import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.ChannelContext;
 import com.navercorp.pinpoint.rpc.server.PinpointServerSocketStateCode;
-import com.navercorp.pinpoint.rpc.server.SocketChannelStateChangeEventListener;
+import com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 
 /**
  * @author koo.taejin
  */
-public class ZookeeperProfilerClusterManager implements SocketChannelStateChangeEventListener  {
+public class ZookeeperProfilerClusterManager implements ChannelStateChangeEventHandler  {
 
     private static final Charset charset = Charset.forName("UTF-8");
 
@@ -141,7 +141,14 @@ public class ZookeeperProfilerClusterManager implements SocketChannelStateChange
             return;
         }
     }
-
+    
+    @Override
+    public void exceptionCaught(ChannelContext channelContext, PinpointServerSocketStateCode stateCode, Throwable e) {
+        if (logger.isWarnEnabled()) {
+            logger.warn(this.getClass().getSimpleName() + " exception occured. Error: " + e.getMessage() + "."  , e);
+        }
+    }
+    
     public List<String> getClusterData() {
         byte[] contents = worker.getClusterData();
         if (contents == null) {
