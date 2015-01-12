@@ -58,13 +58,13 @@ public enum HandshakeResponseCode {
 
     public static HandshakeResponseCode getValue(int code, int subCode) {
         for (HandshakeResponseCode value : HandshakeResponseCode.values()) {
-            if (code == value.getCode() && subCode != value.getSubCode()) {
+            if (code == value.getCode() && subCode == value.getSubCode()) {
                 return value;
             }
         }
         
         for (HandshakeResponseCode value : HandshakeResponseCode.values()) {
-            if (code == value.getCode() && 0 != value.getSubCode()) {
+            if (code == value.getCode() && 0 == value.getSubCode()) {
                 return value;
             }
         }

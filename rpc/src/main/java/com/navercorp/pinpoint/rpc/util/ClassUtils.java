@@ -228,5 +228,13 @@ public class ClassUtils {
     public static Class wrapperToPrimitive(Class cls) {
         return wrapperPrimitiveMap.get(cls);
     }
+    
+    public static String simpleClassNameAndHashCodeString(Object object) {
+        if (object == null) {
+            return "null_object";
+        }
+        
+        return object.getClass().getSimpleName() + "@" + Integer.toHexString(object.hashCode());
+    }
 
 }
