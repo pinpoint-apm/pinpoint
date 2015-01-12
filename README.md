@@ -27,6 +27,7 @@ Services nowadays often consist of many different components, communicating amon
 
 
 ## Supported Modules
+* JDK 6+
 * Tomcat 6/7
 * Spring
 * Apache HTTP Client 3.x/4.x, JDK HttpConnector
