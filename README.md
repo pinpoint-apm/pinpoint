@@ -1,6 +1,6 @@
 ![Pinpoint](web/src/main/webapp/images/logo.png)
 
-**Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java. Pinpoint provides a solution to help analyze the overall structure of the system and how components within them are interconnected by tracing transactions across distributed applications.
+**Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java. Modelled after [Google's Dapper paper](http://research.google.com/pubs/pub36356.html), Pinpoint provides a solution to help analyze the overall structure of the system and how components within them are interconnected by tracing transactions across distributed applications.
 
 * Install agents without changing a single line of code
 * Minimal impact on performance (approximately 3% increase in resource usage)

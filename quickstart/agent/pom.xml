@@ -44,7 +44,7 @@
                         <configuration>
                             <includeScope>runtime</includeScope>
                             <!-- pinpoint-bootstrap will be placed in the root of distribution directory. pinpoint-commons is included in pinpoint-bootstrap. -->
-                            <excludeArtifactIds>pinpoint-bootstrap,pinpoint-commons</excludeArtifactIds>
+                            <excludeArtifactIds>pinpoint-bootstrap-core,pinpoint-bootstrap,pinpoint-commons</excludeArtifactIds>
                             <outputDirectory>${distribution.directory}/lib</outputDirectory>
                             <overWriteReleases>true</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
@@ -59,6 +59,19 @@
                         <configuration>
                             <includeArtifactIds>pinpoint-bootstrap</includeArtifactIds>
                             <outputDirectory>${distribution.directory}</outputDirectory>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-bootstrap-core-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeArtifactIds>pinpoint-bootstrap-core</includeArtifactIds>
+                            <outputDirectory>${distribution.directory}/boot</outputDirectory>
                             <overWriteReleases>true</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
                         </configuration>

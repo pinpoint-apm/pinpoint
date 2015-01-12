@@ -39,7 +39,7 @@ import com.navercorp.pinpoint.collector.cluster.WorkerStateContext;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.rpc.server.ChannelContext;
-import com.navercorp.pinpoint.rpc.server.SocketChannelStateChangeEventListener;
+import com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler;
 
 /**
  * @author koo.taejin
@@ -164,7 +164,7 @@ public class ZookeeperClusterService extends AbstractClusterService {
         return config.isClusterEnable();
     }
 
-    public SocketChannelStateChangeEventListener getChannelStateChangeEventListener() {
+    public ChannelStateChangeEventHandler getChannelStateChangeEventHandler() {
         return profilerClusterManager;
     }
 

@@ -16,17 +16,23 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.navercorp.pinpoint.rpc.server.handler.DoNothingChannelStateEventHandler;
+import com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
+import com.navercorp.pinpoint.rpc.util.ListUtils;
 
 public class ChannelContext {
 
@@ -38,19 +44,21 @@ public class ChannelContext {
 
     private final PinpointServerSocketState state;
 
-    private final SocketChannelStateChangeEventListener stateChangeEventListener;
+    private final List<ChannelStateChangeEventHandler> stateChangeEventListeners;
 
-    private final AtomicReference<Map<Object, Object>> properties = new AtomicReference<Map<Object,Object>>();
+    private final AtomicReference<Map<Object, Object>> properties = new AtomicReference<Map<Object, Object>>();
 
     public ChannelContext(SocketChannel socketChannel, StreamChannelManager streamChannelManager) {
-        this(socketChannel, streamChannelManager, DoNothingChannelStateEventListener.INSTANCE);
+        this(socketChannel, streamChannelManager, DoNothingChannelStateEventHandler.INSTANCE);
     }
 
-    public ChannelContext(SocketChannel socketChannel, StreamChannelManager streamChannelManager, SocketChannelStateChangeEventListener stateChangeEventListener) {
+    public ChannelContext(SocketChannel socketChannel, StreamChannelManager streamChannelManager, ChannelStateChangeEventHandler stateChangeEventListener, ChannelStateChangeEventHandler... stateChangeEventListeners) {
         this.socketChannel = socketChannel;
         this.streamChannelManager = streamChannelManager;
 
-        this.stateChangeEventListener = stateChangeEventListener;
+        this.stateChangeEventListeners = new ArrayList<ChannelStateChangeEventHandler>(Array.getLength(stateChangeEventListeners) + 1);
+        ListUtils.addIfValueNotNull(this.stateChangeEventListeners, stateChangeEventListener);
+        ListUtils.addAllExceptNullValue(this.stateChangeEventListeners, stateChangeEventListeners);
 
         this.state = new PinpointServerSocketState();
     }
@@ -78,42 +86,52 @@ public class ChannelContext {
     public void changeStateRun() {
         logger.debug("Channel({}) state will be changed {}.", socketChannel, PinpointServerSocketStateCode.RUN);
         if (state.changeStateRun()) {
-            stateChangeEventListener.eventPerformed(this, PinpointServerSocketStateCode.RUN);
+            executeChangeEventHandler(this, PinpointServerSocketStateCode.RUN);
         }
     }
 
     public void changeStateRunDuplexCommunication() {
         logger.debug("Channel({}) state will be changed {}.", socketChannel, PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION);
         if (state.changeStateRunDuplexCommunication()) {
-            stateChangeEventListener.eventPerformed(this, PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION);
+            executeChangeEventHandler(this, PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION);
         }
     }
 
     public void changeStateBeingShutdown() {
         logger.debug("Channel({}) state will be changed {}.", socketChannel, PinpointServerSocketStateCode.BEING_SHUTDOWN);
         if (state.changeStateBeingShutdown()) {
-            stateChangeEventListener.eventPerformed(this, PinpointServerSocketStateCode.BEING_SHUTDOWN);
+            executeChangeEventHandler(this, PinpointServerSocketStateCode.BEING_SHUTDOWN);
         }
     }
 
     public void changeStateShutdown() {
         logger.debug("Channel({}) state will be changed {}.", socketChannel, PinpointServerSocketStateCode.SHUTDOWN);
         if (state.changeStateShutdown()) {
-            stateChangeEventListener.eventPerformed(this, PinpointServerSocketStateCode.SHUTDOWN);
+            executeChangeEventHandler(this, PinpointServerSocketStateCode.SHUTDOWN);
         }
     }
 
     public void changeStateUnexpectedShutdown() {
         logger.debug("Channel({}) state will be changed {}.", socketChannel, PinpointServerSocketStateCode.UNEXPECTED_SHUTDOWN);
         if (state.changeStateUnexpectedShutdown()) {
-            stateChangeEventListener.eventPerformed(this, PinpointServerSocketStateCode.UNEXPECTED_SHUTDOWN);
+            executeChangeEventHandler(this, PinpointServerSocketStateCode.UNEXPECTED_SHUTDOWN);
         }
     }
 
     public void changeStateUnkownError() {
         logger.debug("Channel({}) state will be changed {}.", socketChannel, PinpointServerSocketStateCode.ERROR_UNKOWN);
         if (state.changeStateUnkownError()) {
-            stateChangeEventListener.eventPerformed(this, PinpointServerSocketStateCode.ERROR_UNKOWN);
+            executeChangeEventHandler(this, PinpointServerSocketStateCode.ERROR_UNKOWN);
+        }
+    }
+
+    private void executeChangeEventHandler(ChannelContext channelContext, PinpointServerSocketStateCode stateCode) {
+        for (ChannelStateChangeEventHandler eachListener : this.stateChangeEventListeners) {
+            try {
+                eachListener.eventPerformed(channelContext, stateCode);
+            } catch (Exception e) {
+                eachListener.exceptionCaught(channelContext, stateCode, e);
+            }
         }
     }
 
