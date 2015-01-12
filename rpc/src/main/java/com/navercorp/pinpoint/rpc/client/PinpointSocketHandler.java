@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.rpc.client;
 import java.net.SocketAddress;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -42,9 +41,7 @@ import com.navercorp.pinpoint.rpc.DefaultFuture;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.rpc.control.ProtocolException;
 import com.navercorp.pinpoint.rpc.packet.ClientClosePacket;
-import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
 import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.Packet;
@@ -60,9 +57,7 @@ import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListe
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
-import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
 import com.navercorp.pinpoint.rpc.util.IDGenerator;
-import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 
 /**
@@ -87,8 +82,8 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     private long timeoutMillis = DEFAULT_TIMEOUTMILLIS;
     private long pingDelay = DEFAULT_PING_DELAY;
     
-    private long enableWorkerPacketDelay = DEFAULT_ENABLE_WORKER_PACKET_DELAY;
-    private int enableWorkerPacketRetryCount = DEFAULT_ENABLE_WORKER_PACKET_RETRY_COUNT;
+    private long handshakeRetryInterval = DEFAULT_ENABLE_WORKER_PACKET_DELAY;
+    private int maxHandshakeCount = DEFAULT_ENABLE_WORKER_PACKET_RETRY_COUNT;
     
     private final Timer channelTimer;
 
@@ -103,13 +98,14 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
     private final ChannelFutureListener pingWriteFailFutureListener = new WriteFailFutureListener(this.logger, "ping write fail.", "ping write success.");
     private final ChannelFutureListener sendWriteFailFutureListener = new WriteFailFutureListener(this.logger, "send() write fail.", "send() write fail.");
-    private final ChannelFutureListener handShakeFailFutureListener = new WriteFailFutureListener(this.logger, "HandShakePacket write fail.", "HandShakePacket write success.");
 
+    private final PinpointClientSocketHandshaker handshaker;
+    
     public PinpointSocketHandler(PinpointSocketFactory pinpointSocketFactory) {
         this(pinpointSocketFactory, DEFAULT_PING_DELAY, DEFAULT_ENABLE_WORKER_PACKET_DELAY, DEFAULT_TIMEOUTMILLIS);
     }
 
-    public PinpointSocketHandler(PinpointSocketFactory pinpointSocketFactory, long pingDelay, long enableWorkerPacketDelay, long timeoutMillis) {
+    public PinpointSocketHandler(PinpointSocketFactory pinpointSocketFactory, long pingDelay, long handshakeRetryInterval, long timeoutMillis) {
         if (pinpointSocketFactory == null) {
             throw new NullPointerException("pinpointSocketFactory must not be null");
         }
@@ -120,7 +116,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         this.pinpointSocketFactory = pinpointSocketFactory;
         this.requestManager = new RequestManager(timer);
         this.pingDelay = pingDelay;
-        this.enableWorkerPacketDelay = enableWorkerPacketDelay;
+        this.handshakeRetryInterval = handshakeRetryInterval;
         this.timeoutMillis = timeoutMillis;
         
         MessageListener messageLisener = pinpointSocketFactory.getMessageListener();
@@ -138,6 +134,8 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         }
         
         pinpointSocketFactory.getServerStreamChannelMessageListener();
+        
+        this.handshaker = new PinpointClientSocketHandshaker(channelTimer, (int) handshakeRetryInterval, maxHandshakeCount);
     }
 
     public Timer getChannelTimer() {
@@ -241,80 +239,6 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         write.addListener(pingWriteFailFutureListener);
     }
 
-    private class HandshakeJob implements TimerTask {
-
-        private final Map<String, Object> properties;
-        private final int maxRetryCount;
-        private final AtomicInteger currentCount;
-
-        public HandshakeJob(Map<String, Object> properties, int maxRetryCount) {
-            this.properties = properties;
-            this.maxRetryCount = maxRetryCount;
-            this.currentCount = new AtomicInteger(0);
-        }
-
-        @Override
-        public void run(Timeout timeout) throws Exception {
-            logger.info("Handshake retried({}/{}). channel:{}.", currentCount.get(), maxRetryCount, channel);
-            if (timeout.isCancelled()) {
-                reservationHandshakeJob(this);
-                return;
-            }
-            
-            int currentState = state.getState();
-
-            if (currentState == State.RUN) {
-                incrementCurrentRetryCount();
-
-                try {
-                    sendHandshakePacket(properties);
-                    reservationHandshakeJob(this);
-                } catch (ProtocolException e) {
-                    if (logger.isWarnEnabled()) {
-                        logger.warn("Handshake retry failed. channel:" + channel + ", Error:" + e.getMessage() + ".", e);
-                    }
-                }
-            } else {
-                logger.warn("Handshake retry completed. Socket state {}.", state.getString(currentState));
-            }
-        }
-
-        public int getMaxRetryCount() {
-            return maxRetryCount;
-        }
-
-        public int getCurrentRetryCount() {
-            return currentCount.get();
-        }
-
-        public void incrementCurrentRetryCount() {
-            currentCount.incrementAndGet();
-        }
-
-    }
-
-    private void reservationHandshakeJob(HandshakeJob task) {
-        if (task.getCurrentRetryCount() >= task.getMaxRetryCount()) {
-            return;
-        }
-
-        this.channelTimer.newTimeout(task, enableWorkerPacketDelay, TimeUnit.MILLISECONDS);
-    }
-
-    private void sendHandshakePacket(Map<String, Object> properties) throws ProtocolException {
-        if (!isRun()) {
-            return;
-        }
-
-        byte[] payload = ControlMessageEncodingUtils.encode(properties);
-        ControlHandshakePacket packet = new ControlHandshakePacket(payload);
-
-        final ChannelFuture write = this.channel.write(packet);
-        logger.debug("HandshakePacket sended. channel:{}, packet:{}.", channel, packet);
-
-        write.addListener(handShakeFailFutureListener);
-    }
-
     public void sendPing() {
         if (!isRun()) {
             return;
@@ -328,8 +252,6 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         }
         logger.debug("sendPing success {}", channel);
     }
-    
-
 
     public void send(byte[] bytes) {
         if (bytes == null) {
@@ -486,37 +408,29 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     }
 
     private void messageReceivedHandshakeResponse(ControlHandshakeResponsePacket message, Channel channel) {
-        HandshakeResponseCode code = getHandshakeResponseCode(message.getPayload());
+        boolean isCompleted = handshaker.handshakeComplete(message);
 
-        logger.debug("Handshake Response Packet({}) code={} received. {}", message, code, channel);
+        if (isCompleted) {
+            HandshakeResponseCode code = handshaker.getHandshakeResult();
+            logger.debug("HandshakeResponse packet({} code={}) received. {}", message, code, channel);
 
-        if (code == HandshakeResponseCode.SUCCESS || code == HandshakeResponseCode.ALREADY_KNOWN) {
-            state.changeRunSimplexCommunication();
-        } else if (code == HandshakeResponseCode.DUPLEX_COMMUNICATION || code == HandshakeResponseCode.ALREADY_DUPLEX_COMMUNICATION) {
-            state.changeRunDuplexCommunication();
-        } else if (code == HandshakeResponseCode.SIMPLEX_COMMUNICATION || code == HandshakeResponseCode.ALREADY_SIMPLEX_COMMUNICATION) {
-            state.changeRunSimplexCommunication();
+            if (code == HandshakeResponseCode.SUCCESS || code == HandshakeResponseCode.ALREADY_KNOWN) {
+                state.changeRunSimplexCommunication();
+            } else if (code == HandshakeResponseCode.DUPLEX_COMMUNICATION || code == HandshakeResponseCode.ALREADY_DUPLEX_COMMUNICATION) {
+                state.changeRunDuplexCommunication();
+            } else if (code == HandshakeResponseCode.SIMPLEX_COMMUNICATION || code == HandshakeResponseCode.ALREADY_SIMPLEX_COMMUNICATION) {
+                state.changeRunSimplexCommunication();
+            } else {
+                logger.warn("Invalid Handshake Packet ({}) code={} received. {}", message, code, channel);
+                return;
+            }
+
+            logger.info("Handshake completed. channel:{}, state:{}.", channel, state.getString());
+        } else if (handshaker.isFinished()){
+            logger.warn("Handshake already completed.");
         } else {
-            logger.warn("Invalid Handshake Packet ({}) code={} received. {}", message, code, channel);
-            return;
+            logger.warn("Maybe handshake not stated.");
         }
-
-        logger.info("Handshake completed. channel:{}, state:{}.", channel, state.getString());
-    }
-    
-    private HandshakeResponseCode getHandshakeResponseCode(byte[] payload) {
-        try {
-            Map result = (Map) ControlMessageEncodingUtils.decode(payload);
-
-            int code = MapUtils.getInteger(result, ControlHandshakeResponsePacket.CODE, -1);
-            int subCode = MapUtils.getInteger(result, ControlHandshakeResponsePacket.SUB_CODE, -1);
-            
-            return HandshakeResponseCode.getValue(code, subCode);
-        } catch (ProtocolException e) {
-            logger.warn(e.getMessage(), e);
-        }
-        
-        return HandshakeResponseCode.UNKOWN_CODE;
     }
 
     @Override
@@ -588,6 +502,9 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
     public void close() {
         logger.debug("close() call");
+        
+        this.handshaker.handshakeAbort();
+        
         int currentState = this.state.getState();
         if (currentState == State.CLOSED) {
             logger.debug("already close()");
@@ -671,19 +588,8 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
     @Override
     public void doHandshake() {
-        Map<String, Object> properties = this.pinpointSocketFactory.getProperties();
-
-        logger.info("Handshake started. channel:{}, data:{}.", channel, properties);
-        try {
-            sendHandshakePacket(properties);
-
-            HandshakeJob job = new HandshakeJob(properties, enableWorkerPacketRetryCount);
-            reservationHandshakeJob(job);
-        } catch (ProtocolException e) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Handshake failed(channel:" + channel + "). Error:" + e.getMessage() + ".", e);
-            }
-        }
+        Map<String, Object> handshakeData = this.pinpointSocketFactory.getProperties();
+        handshaker.handshakeStart(channel, handshakeData);
     }
 
     static class SocketHandlerContext {

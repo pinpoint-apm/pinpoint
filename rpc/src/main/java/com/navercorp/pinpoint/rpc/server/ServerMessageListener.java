@@ -16,22 +16,18 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
-import java.util.Map;
-
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.rpc.server.handler.HandshakerHandler;
 
 /**
  * @author emeroad
  */
-public interface ServerMessageListener {
+public interface ServerMessageListener extends HandshakerHandler {
 
     void handleSend(SendPacket sendPacket, SocketChannel channel);
 
     // TODO make another tcp channel in case of exposed channel.
     void handleRequest(RequestPacket requestPacket, SocketChannel channel);
-
-    HandshakeResponseCode handleHandshake(Map properties);
 
 }

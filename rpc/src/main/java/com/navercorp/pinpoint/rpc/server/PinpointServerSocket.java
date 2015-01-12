@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.rpc.server;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -53,11 +52,8 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.client.WriteFailFutureListener;
-import com.navercorp.pinpoint.rpc.control.ProtocolException;
 import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
-import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
 import com.navercorp.pinpoint.rpc.packet.Packet;
 import com.navercorp.pinpoint.rpc.packet.PacketType;
 import com.navercorp.pinpoint.rpc.packet.PingPacket;
@@ -66,13 +62,12 @@ import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.packet.ServerClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
-import com.navercorp.pinpoint.rpc.server.handler.DoNothingChannelStateEventHandler;
 import com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler;
+import com.navercorp.pinpoint.rpc.server.handler.DoNothingChannelStateEventHandler;
 import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
 import com.navercorp.pinpoint.rpc.util.AssertUtils;
-import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
 import com.navercorp.pinpoint.rpc.util.CpuUtils;
 import com.navercorp.pinpoint.rpc.util.IDGenerator;
 import com.navercorp.pinpoint.rpc.util.LoggerFactorySetup;
@@ -105,6 +100,8 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     private InetAddress[] ignoreAddressList;
 
     private final ChannelStateChangeEventHandler channelStateChangeEventHandler;
+
+    private final PinpointServerSocketHandshaker handshaker;
     
     static {
         LoggerFactorySetup.setupSlf4jLoggerFactory();
@@ -123,6 +120,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         this.requestManagerTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-RequestManager", 50, TimeUnit.MILLISECONDS, 512);
 
         this.channelStateChangeEventHandler = channelStateChangeEventHandler;
+        this.handshaker = new PinpointServerSocketHandshaker();
     }
     
     
@@ -251,34 +249,14 @@ public class PinpointServerSocket extends SimpleChannelHandler {
                 return;
             case PacketType.CONTROL_HANDSHAKE:
                 int requestId = ((ControlHandshakePacket)message).getRequestId();
+                Map<Object, Object> handshakeData = this.handshaker.decodeHandshakePacket((ControlHandshakePacket) message);
 
-                Map<Object, Object> properties = decodeSocketProperties((ControlHandshakePacket) message);
-                if (properties == null) {
-                    sendHandshakeResponseMessage(requestId, HandshakeResponseType.ProtocolError.PROTOCOL_ERROR, channel);
-                    return;
+                HandshakeResponseCode responseCode = this.handshaker.handleHandshake(handshakeData, messageListener);
+                boolean isFirst = channelContext.setChannelProperties(handshakeData);
+                if (isFirst && responseCode == HandshakeResponseCode.DUPLEX_COMMUNICATION) {
+                    changeStateToRunDuplexCommunication(channel);
                 }
-
-                HandshakeResponseCode code = messageListener.handleHandshake(properties);
-
-                if (code.getCode() != HandshakeResponseType.Success.CODE) {
-                    sendHandshakeResponseMessage(requestId, code, channel);
-                } else {
-                    boolean isSet = channelContext.setChannelProperties(properties);
-
-                    if (isSet) {
-                        if (code == HandshakeResponseCode.DUPLEX_COMMUNICATION) {
-                            changeStateToRunDuplexCommunication(code, channel);
-                        }
-                        sendHandshakeResponseMessage(requestId, code, channel);
-                    } else {
-                        if (code == HandshakeResponseCode.DUPLEX_COMMUNICATION) {
-                            sendHandshakeResponseMessage(requestId, HandshakeResponseCode.ALREADY_DUPLEX_COMMUNICATION, channel);
-                        } else {
-                            sendHandshakeResponseMessage(requestId, HandshakeResponseCode.ALREADY_SIMPLEX_COMMUNICATION, channel);
-                        }
-                    }
-
-                }
+                this.handshaker.sendHandshakeResponse(channel, requestId, responseCode, isFirst);
                 return;
             case PacketType.CONTROL_CLIENT_CLOSE: {
                 closeChannel(channel);
@@ -302,47 +280,15 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         ChannelContext context = getChannelContext(channel);
         context.getStreamChannelManager().messageReceived(packet);
     }
-    
-    private Map<Object, Object> decodeSocketProperties(ControlHandshakePacket message) {
-        try {
-            byte[] payload = message.getPayload();
-            Map<Object, Object> properties = (Map) ControlMessageEncodingUtils.decode(payload);
-            return properties;
-        } catch (ProtocolException e) {
-            logger.warn(e.getMessage(), e);
-        }
 
-        return null;
-    }
-    
-    private boolean changeStateToRunDuplexCommunication(HandshakeResponseCode returnCode, Channel channel) {
+    private boolean changeStateToRunDuplexCommunication(Channel channel) {
         ChannelContext context = getChannelContext(channel);
-
-        if (returnCode == HandshakeResponseType.Success.DUPLEX_COMMUNICATION) {
-            if (context.getCurrentStateCode() != PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION) {
-                context.changeStateRunDuplexCommunication();
-                return true;
-            }
+        if (PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION != context.getCurrentStateCode()) {
+            context.changeStateRunDuplexCommunication();
+            return true;
         }
 
         return false;
-    }
-
-    private void sendHandshakeResponseMessage(int requestId, HandshakeResponseCode handShakeResponseCode, Channel channel) {
-        try {
-            logger.info("write HandshakeResponsePakcet. channel:{}, HandshakeResponseCode:{}.", channel, handShakeResponseCode);
-
-            Map<String, Object> result = new HashMap<String, Object>();
-            result.put(ControlHandshakeResponsePacket.CODE, handShakeResponseCode.getCode());
-            result.put(ControlHandshakeResponsePacket.SUB_CODE, handShakeResponseCode.getSubCode());
-
-            byte[] resultPayload = ControlMessageEncodingUtils.encode(result);
-            ControlHandshakeResponsePacket packet = new ControlHandshakeResponsePacket(requestId, resultPayload);
-
-            channel.write(packet);
-        } catch (ProtocolException e) {
-            logger.warn(e.getMessage(), e);
-        }
     }
 
     @Override
