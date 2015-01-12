@@ -6,7 +6,6 @@ AmCharts.AmExport = AmCharts.Class({
 		_this.canvas				= null;
 		_this.svgs					= [];
 		_this.userCFG				= cfg;
-
 		_this.buttonIcon			= 'export.png';
 		_this.exportPNG				= true;
 		_this.exportPDF				= false;
@@ -73,7 +72,6 @@ AmCharts.AmExport = AmCharts.Class({
 			menuItems.push({onclick: function() {}, icon:_this.chart.pathToImages + _this.buttonIcon, items:subItems})
 		}
 
-
 		var color = _this.color;
 		if(color === undefined){
 			color = _this.chart.color;
@@ -83,7 +81,6 @@ AmCharts.AmExport = AmCharts.Class({
 		if(buttonColor === undefined){
 			buttonColor = "transparent";
 		}
-
 
 		_this.cfg = {
 			menuTop		: _this.toCoordinate(_this.top),
@@ -119,9 +116,6 @@ AmCharts.AmExport = AmCharts.Class({
 				dpi				: 90,
 				onclick			: function(instance, config, event) {
 					event.preventDefault();
-					if(_this.chart.prepareForExport){
-						_this.chart.prepareForExport();
-					}
 					instance.output(config);
 				}
 			},
@@ -167,7 +161,6 @@ AmCharts.AmExport = AmCharts.Class({
 		}
 	},
 
-
 	/*
 	Simple log function for internal purpose
 	@param **args
@@ -183,21 +176,8 @@ AmCharts.AmExport = AmCharts.Class({
 	setup: function() {
 		var _this = this;
 
-		if (_this.DEBUG == 10) {
-			_this.log('SETUP START');
-		} // DEBUG
-
-
 		if (!AmCharts.isIE || (AmCharts.isIE && AmCharts.IEversion > 9)) {
-			// Build Buttons
 			_this.generateButtons();
-			if (_this.DEBUG == 10) {
-				_this.log('SETUP END');
-			} // DEBUG
-		} else {
-			if (_this.DEBUG == 10) {
-				_this.log('< IE10 NOT SUPPORTED');
-			} // DEBUG
 		}
 	},
 
@@ -313,6 +293,11 @@ AmCharts.AmExport = AmCharts.Class({
 		var _this = this;
 		cfg = AmCharts.extend(AmCharts.extend({}, _this.cfg.menuItemOutput), cfg || {});
 
+		// Prepare chart
+		if(_this.chart.prepareForExport){
+			_this.chart.prepareForExport();
+		}
+
 		/* PRIVATE
 		Callback function which gets called after the drawing process is done
 		@param none
@@ -320,9 +305,6 @@ AmCharts.AmExport = AmCharts.Class({
 		function internalCallback() {
 			var data = null;
 			var blob;
-			if (_this.DEBUG == 10) {
-				_this.log('OUTPUT', cfg.format);
-			} // DEBUG
 
 			// SVG
 			if (cfg.format == 'image/svg+xml' || cfg.format == 'svg') {
@@ -341,8 +323,9 @@ AmCharts.AmExport = AmCharts.Class({
 					location.href = 'data:image/octet-stream;base64,' + data;
 				}
 
-				if (externalCallback)
+				if (externalCallback) {
 					externalCallback.apply(_this, [blob]);
+				}
 
 				// PDF
 			} else if (cfg.format == 'application/pdf' || cfg.format == 'pdf') {
@@ -361,8 +344,9 @@ AmCharts.AmExport = AmCharts.Class({
 					location.href = data.replace('application/pdf', 'application/octet-stream');
 				}
 
-				if (externalCallback)
+				if (externalCallback) {
 					externalCallback.apply(_this, [blob]);
+				}
 
 				// PNG
 			} else if (cfg.format == 'image/png' || cfg.format == 'png') {
@@ -381,8 +365,9 @@ AmCharts.AmExport = AmCharts.Class({
 					location.href = data.replace('image/png', 'image/octet-stream');
 				}
 
-				if (externalCallback)
+				if (externalCallback) {
 					externalCallback.apply(_this, [blob]);
+				}
 
 				// JPG
 			} else if (cfg.format == 'image/jpeg' || cfg.format == 'jpeg' || cfg.format == 'jpg') {
@@ -401,8 +386,9 @@ AmCharts.AmExport = AmCharts.Class({
 					location.href = data.replace('image/jpeg', 'image/octet-stream');
 				}
 
-				if (externalCallback)
+				if (externalCallback) {
 					externalCallback.apply(_this, [blob]);
+				}
 			}
 
 		}
@@ -450,9 +436,6 @@ AmCharts.AmExport = AmCharts.Class({
 					items[i].setAttribute('xlink:href', datastring);
 				}
 
-				if (_this.DEBUG == 10) {
-					_this.log('POLIFIED', items[i]);
-				} // DEBUG
 			}
 		}
 
@@ -464,20 +447,13 @@ AmCharts.AmExport = AmCharts.Class({
 			}
 		}
 
-		// DEBUG
-		if (_this.DEBUG == 10) {
-			_this.log('POLIFIED', svg);
-		}
-
 		// Force link adaption
 		recursiveChange(svg, 'pattern');
 		recursiveChange(svg, 'image');
-
 		_this.svgs.push(svg);
 
 		return svg;
 	},
-
 
 	/* PUBLIC
 	Stacks multiple SVGs into one
@@ -510,74 +486,115 @@ AmCharts.AmExport = AmCharts.Class({
 	*/
 	generateOutput: function(cfg, callback) {
 		var _this	= this,
-		svgs		= _this.chart.div.getElementsByTagName('svg'),
+		coll		= [],
+		svgs		= [],
 		canvas		= document.createElement('canvas'),
 		context		= canvas.getContext('2d'),
 		offset		= {
 			y: 0,
 			x: 0
 		},
-		tmp = {};
+
+		// Push svgs into array
+		coll = _this.chart.div.getElementsByTagName('svg');
+		for ( var i = 0; i < coll.length; i++ ) svgs.push(coll[i]);
+
+		// Add external legend
+		if ( _this.chart.legend && _this.chart.legend.position == 'outside' ) {
+			_this.chart.legend.container.container.externalLegend = true
+			svgs.push(_this.chart.legend.container.container);
+
+			// Add offset
+			if ( _this.cfg.legendPosition == 'left' ) {
+				offset.x = _this.chart.legend.div.offsetWidth;
+			} else if ( _this.cfg.legendPosition == 'top' ) {
+				offset.y = _this.chart.legend.div.offsetHeight;
+			} else if ( typeof _this.cfg.legendPosition == 'object' ) {
+				offset.y = _this.cfg.legendPosition.chartTop;
+				offset.x = _this.cfg.legendPosition.chartLeft;
+			}
+		}
 
 		// Reset
 		_this.processing.buffer	= [];
 		_this.processing.drawn	= 0;
 		_this.canvas			= canvas;
 		_this.svgs				= [];
+		var remember = {
+			x: 0,
+			y: 0
+		}
 
-		// Walkthroug SVGs
-		if (_this.DEBUG == 10) {
-			_this.log('START EXPORT');
-		} // DEBUG
-		if (_this.DEBUG == 10) {
-			_this.log('START BUFFERING');
-		} // DEBUG
 		for (var i = 0; i < svgs.length; i++) {
-			var parent	= svgs[i].parentNode,
-			svgX		= Number(parent.style.left.slice(0, -2)),
-			svgY		= Number(parent.style.top.slice(0, -2)),
-			svgClone	= _this.polifySVG(svgs[i].cloneNode(true)),
-			tmp			= AmCharts.extend({}, offset);
+			var parent    = svgs[i].parentNode,
+			svgX          = Number(parent.style.left.slice(0, -2)),
+			svgY          = Number(parent.style.top.slice(0, -2)),
+			svgClone      = _this.polifySVG(svgs[i].cloneNode(true)),
+			tmp           = AmCharts.extend({}, offset);
+
+			// Add external legend
+			if ( svgs[i].externalLegend ) {
+				if ( _this.cfg.legendPosition == 'right' ) {
+					offset.y = 0;
+					offset.x = _this.chart.divRealWidth;
+
+				} else if ( _this.cfg.legendPosition == 'bottom' ) {
+					offset.y = svgY ? svgY : offset.y;
+
+				} else if ( typeof _this.cfg.legendPosition == 'object' ) {
+					offset.x = _this.cfg.legendPosition.left;
+					offset.y = _this.cfg.legendPosition.top;
+
+				} else {
+					offset.x = 0;
+					offset.y = 0;
+				}
 
 			// Overtake parent position if given; fixed 20/03/14 distinguish between relativ and others
-			if (parent.style.position == 'relative') {
-				offset.x = svgX ? svgX : offset.x;
-				offset.y = svgY ? svgY : offset.y;
 			} else {
-				offset.x = svgX;
-				offset.y = svgY;
+				if ( parent.style.position == 'relative' ) {
+					offset.x = svgX ? svgX : offset.x;
+					offset.y = svgY ? svgY : offset.y;
+				} else {
+					offset.x = svgX + remember.x;
+					offset.y = svgY + remember.y;
+				}
 			}
 
 			_this.processing.buffer.push([svgClone, AmCharts.extend({}, offset)]);
 
 			// Put back from "cache"
-			if (svgY && svgX) {
+			if ( svgY && svgX ) {
 				offset = tmp;
 
-				// New offset for next one
+			// New offset for next one
 			} else {
 				offset.y += svgY ? 0 : parent.offsetHeight;
 			}
 
-			if (_this.DEBUG == 10) {
-				_this.log('BUFFERED', svgs[i], offset);
-			} // DEBUG
+			// HOTFIX 25/10/14
+			if ( parent.style.position == "absolute" && parent.getAttribute("class") == "amChartsLegend" ) {
+				remember.y += parent.parentNode.offsetHeight;
+			}
 		}
-		if (_this.DEBUG == 10) {
-			_this.log('END BUFFERING');
-		} // DEBUG
 
-		// Apply background
-		if (_this.DEBUG == 10) {
-			_this.log('START DRAWING', cfg.render);
-		} // DEBUG
-		if (_this.DEBUG == 10) {
-			_this.log('FILL BACKGROUND');
-		} // DEBUG
 		canvas.id		= AmCharts.getUniqueId();
 		canvas.width	= _this.chart.divRealWidth;
 		canvas.height	= _this.chart.divRealHeight;
 
+		// External legend exception
+		if ( _this.chart.legend && _this.chart.legend.position == "outside" ) {
+			if ( ['left','right'].indexOf(_this.cfg.legendPosition) != -1 ) {
+				canvas.width	+= _this.chart.legend.div.offsetWidth;
+
+			} else if ( typeof _this.cfg.legendPosition == 'object' ) {
+				canvas.width	+= _this.cfg.legendPosition.width;
+				canvas.height	+= _this.cfg.legendPosition.height;
+
+			} else {
+				canvas.height	+= _this.chart.legend.div.offsetHeight;
+			}
+		}
 
 		// Stockchart exception
 		var adapted = {
@@ -619,24 +636,13 @@ AmCharts.AmExport = AmCharts.Class({
 
 			// DRAWING PROCESS DONE
 			if (_this.processing.buffer.length == _this.processing.drawn || cfg.format == 'svg' ) {
-				if (_this.DEBUG == 10) {
-					_this.log('END DRAWING');
-				} // DEBUG
 				return callback();
 
-				// LOOPING LUI
+			// LOOPING LUI
 			} else {
-				if (_this.DEBUG == 10) {
-					_this.log('DRAW', _this.processing.drawn + 1, 'OF', _this.processing.buffer.length);
-				} // DEBUG
-
 				buffer = _this.processing.buffer[_this.processing.drawn];
 				source = new XMLSerializer().serializeToString(buffer[0]); //source = 'data:image/svg+xml;base64,' + btoa();
 				offset = buffer[1];
-
-				if (_this.DEBUG == 10) {
-					_this.log('SOURCE', source);
-				} // DEBUG
 
 				// NATIVE
 				if (cfg.render == 'browser') {
@@ -649,33 +655,21 @@ AmCharts.AmExport = AmCharts.Class({
 						context.drawImage(this, buffer[1].x, buffer[1].y);
 						_this.processing.drawn++;
 
-						if (_this.DEBUG == 10) {
-							_this.log('ONLOAD', this);
-						} // DEBUG
 						drawItWhenItsLoaded();
 					};
 					img.onerror = function() {
-						if (_this.DEBUG == 10) {
-							_this.log('ONERROR', this);
-						} // DEBUG
 						context.drawImage(this, buffer[1].x, buffer[1].y);
 						_this.processing.drawn++;
 						drawItWhenItsLoaded();
 					};
 					img.src = source;
 
-					if (_this.DEBUG == 10) {
-						_this.log('ADD', img);
-					} // DEBUG
 					if (img.complete || typeof(img.complete) == 'undefined' || img.complete === undefined) {
-						if (_this.DEBUG == 10) {
-							_this.log('FORCE ONLOAD', img);
-						} // DEBUG
 						img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
 						img.src = source;
 					}
 
-					// CANVG
+				// CANVG
 				} else if (cfg.render == 'canvg') {
 					canvg(canvas, source, {
 						offsetX: offset.x,
@@ -700,9 +694,16 @@ AmCharts.AmExport = AmCharts.Class({
 	@param none;
 	*/
 	generateButtons: function() {
-		var _this = this,
+		var _this = this,lvl = 0;
+		var div;
+		if(_this.div){
+			div = _this.div;
+			div.innerHTML = "";
+		}
+		else{
 			div = document.createElement('div'),
-			lvl = 0;
+			_this.div = div;
+		}
 
 		// Push sublings
 		function createList(items) {
@@ -736,7 +737,7 @@ AmCharts.AmExport = AmCharts.Class({
 				// TITLE; STYLING
 				a.href = '#';
 				if (item['title']) {
-					img.setAttribute('style', 'margin-right: 5px;');
+					img.setAttribute('style', 'margin: 0px 5px;');
 					a.innerHTML += item.title;
 				}
 				a.setAttribute('style', 'display: block;');
@@ -777,15 +778,11 @@ AmCharts.AmExport = AmCharts.Class({
 			}
 			lvl++;
 
-			if (_this.DEBUG == 10) {
-				_this.log('MENU', ul);
-			} // DEBUG
-
 			return ul;
 		}
 
 		// Style wrapper; Push into chart div
-		div.setAttribute('style', 'width:39px; height:28px; position: absolute;top:' + _this.cfg.menuTop + ';right:' + _this.cfg.menuRight + ';bottom:' + _this.cfg.menuBottom + ';left:' + _this.cfg.menuLeft + ';box-shadow:0px 0px 1px 0px rgba(0,0,0,0);');
+		div.setAttribute('style', 'position: absolute;top:' + _this.cfg.menuTop + ';right:' + _this.cfg.menuRight + ';bottom:' + _this.cfg.menuBottom + ';left:' + _this.cfg.menuLeft + ';');
 		div.setAttribute('class', 'amExportButton');
 		div.appendChild(createList(_this.cfg.menuItems));
 		_this.chart.containerDiv.appendChild(div);
