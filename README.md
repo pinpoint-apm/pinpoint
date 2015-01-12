@@ -30,7 +30,7 @@ Services nowadays often consist of many different components, communicating amon
 * JDK 6+
 * Tomcat 6/7
 * Spring
-* Apache HTTP Client 3.x/4.x, JDK HttpConnector
+* Apache HTTP Client 3.x/4.x, JDK HttpConnector,
 * MySQL, Oracle, MSSQL, CUBRID, DBCP
 * iBATIS, MyBatis
 * Arcus, Memcached, Redis
