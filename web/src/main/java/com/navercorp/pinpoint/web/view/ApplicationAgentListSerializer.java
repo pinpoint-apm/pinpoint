@@ -66,9 +66,9 @@ public class ApplicationAgentListSerializer extends JsonSerializer<ApplicationAg
             jgen.writeNumberField("endStatus", agentInfoBo.getEndStatus());
             jgen.writeObjectField("serverMetaData", agentInfoBo.getServerMetaData());
             
-            ServerMatcher serverMatcher = matcherGroup.match(agentInfoBo.getIp());
+            ServerMatcher serverMatcher = matcherGroup.match(agentInfoBo.getHostName());
             jgen.writeStringField("linkName", serverMatcher.getLinkName());
-            jgen.writeStringField("linkURL", serverMatcher.getLink(agentInfoBo.getIp()));
+            jgen.writeStringField("linkURL", serverMatcher.getLink(agentInfoBo.getHostName()));
             
             jgen.writeEndObject();
         }
