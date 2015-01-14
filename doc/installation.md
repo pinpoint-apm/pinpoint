@@ -42,6 +42,34 @@ To run these scripts, feed them into the HBase shell like below:
 
 See [here](../scripts/) for a complete list of scripts.
 
+## Building Pinpoint
+In order to build Pinpoint, the following requirements must be met:
+
+* JDK 7+ installed
+* Maven installed
+* JAVA_7_HOME environment variable set to JDK 7 installation directory.
+
+JDK 7+ and JAVA_7_HOME environment variable are required to build **profiler-optional**. For more information about the optional package, please take a look [here](../profiler-optional/README.md).
+
+Once the above requirements are met, simply run the command below :
+
+`mvn install -Dmaven.test.skip=true`
+
+**Building Separately** - If you choose to build each module separately (without the optional package), you may do so with JDK 6. The reactor build order is given below:
+
+```
+pinpoint-thrift
+pinpoint-commons
+pinpoint-bootstrap-core
+pinpoint-bootstrap
+pinpoint-rpc
+pinpoint-profiler
+(pinpoint-profiler-optional)
+pinpoint-agent-distribution
+pinpoint-collector
+pinpoint-web
+```
+
 ## Pinpoint Collector
 Download the **latest release** of Pinpoint Collector from GitHub (WIP) or **build pinpoint-collector** manually from the Git clone using `mvn package`. Either way, you should end up with the following **war** file that can be deployed to a web container.
 
