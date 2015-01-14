@@ -12,15 +12,19 @@ To try out a simple quickstart project, please refer to the [quick-start guide](
 1. HBase ([details](#hbase))
 	1. Set up HBase cluster - [Apache HBase](http://hbase.apache.org)
 	2. Create HBase Schemas - feed `/scripts/hbase-create.hbase` to hbase shell.
-2. Pinpoint Collector ([details](#pinpoint-collector))
+2. Build Pinpoint
+	1. Clone Pinpoint - `git clone $PINPOINT_GIT_REPOSITORY`
+	2. Set JAVA_7_HOME environment variable to JDK 7+ home.
+	3. Run `mvn install -Dmaven.test.skip=true` in Pinpoint home directory.
+3. Pinpoint Collector ([details](#pinpoint-collector))
 	1. Deploy *pinpoint-collector-$VERSION.war* to a web container.
 	2. Configure *pinpoint-collector.properties*, *hbase.properties*.
 	3. Start container.
-3. Pinpoint Web ([details](#pinpoint-web))
+4. Pinpoint Web ([details](#pinpoint-web))
 	1. Deploy *pinpoint-web-$VERSION.war* to a web container.
 	2. Configure *pinpoint-web.properties*, *hbase.properties*.
 	3. Start container.
-4. Pinpoint Agent ([details](#pinpoint-agent))
+5. Pinpoint Agent ([details](#pinpoint-agent))
 	1. Extract/move *pinpoint-agent/* to a convenient location (`$AGENT_PATH`).
 	2. Set `-javaagent:$AGENT_PATH/pinpoint-bootstrap-$VERSION.jar` JVM argument to attach the agent to a java application.
 	3. Set `-Dpinpoint.agentId` and `-Dpinpoint.applicationName` command-line arguments.
