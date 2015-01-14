@@ -104,6 +104,21 @@
                             </resources>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>copy-pinpoint-script</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${distribution.directory}/script</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/main/script</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
