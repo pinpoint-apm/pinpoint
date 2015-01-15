@@ -4,13 +4,15 @@ Pinpoint is comprised of 3 main components (Collector, Web, Agent), and uses HBa
 Pinpoint QuickStart provides a sample TestApp for the Agent to attach itself to, and launches all three components using [Tomcat Maven Plugin](http://tomcat.apache.org/maven-plugin.html).
 
 ## Requirements
-In order to build Pinpoint and run QuickStart, the following requirements must be met:
+In order to build Pinpoint, the following requirements must be met:
 
+* JDK 6 installed
 * JDK 7+ installed
-* Maven installed
-* JAVA_7_HOME environment variable set to JDK 7 installation directory.
+* Maven 3.2.x+ installed
+* JAVA_6_HOME environment variable set to JDK 6 home directory.
+* JAVA_7_HOME environment variable set to JDK 7+ home directory.
 
-JDK 7+ and JAVA_7_HOME environment variable are required to build profiler-optional. If you choose to build each module separately, you may do so with JDK 6.
+JDK 7+ and JAVA_7_HOME environment variable are required to build **profiler-optional**. For more information about the optional package, please take a look [here](../profiler-optional/README.md).
 
 QuickStart supports Linux, and OSX.
 

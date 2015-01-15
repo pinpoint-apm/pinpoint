@@ -43,6 +43,16 @@ Once the components are running, you should be able to visit http://localhost:28
 For details, please refer to the [quick-start guide](quickstart/README.md "Pinpoint quick-start guide").
 
 ## Installation
+**Requirements**
+
+* JDK 6 installed
+* JDK 7+ installed
+* Maven 3.2.x+ installed
+* JAVA_6_HOME environment variable set to JDK 6 home directory.
+* JAVA_7_HOME environment variable set to JDK 7+ home directory.
+
+**Installation**
+
 To set up your very own Pinpoint instance, take a look at our [installation guide](doc/installation.md).
 
 ## Issues
