@@ -46,6 +46,7 @@
     <properties>
         <encoding>UTF-8</encoding>
         <jdk.version>1.6</jdk.version>
+        <jdk.home>${env.JAVA_6_HOME}</jdk.home>
         <slf4j.version>1.7.5</slf4j.version>
         <metrics.version>3.0.1</metrics.version>
         <spring.version>3.2.3.RELEASE</spring.version>
@@ -666,10 +667,13 @@
                 <configuration>
                     <source>${jdk.version}</source>
                     <target>${jdk.version}</target>
+                    <fork>true</fork>
                     <debug>true</debug>
                     <optimize>true</optimize>
                     <encoding>${encoding}</encoding>
                     <showDeprecation>true</showDeprecation>
+                    <compilerVersion>${jdk.version}</compilerVersion>
+                    <executable>${jdk.home}/bin/javac</executable>
                 </configuration>
             </plugin>
             <plugin>
@@ -684,6 +688,8 @@
                         <exclude>**/*$*</exclude>
                     </excludes>
                     <argLine>-Dfile.encoding=${encoding}</argLine>
+                    <jvm>${jdk.home}/bin/java</jvm>
+                    <forkMode>once</forkMode>
                 </configuration>
             </plugin>
             <plugin>

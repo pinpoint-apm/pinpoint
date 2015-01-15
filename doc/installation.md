@@ -12,9 +12,10 @@ To try out a simple quickstart project, please refer to the [quick-start guide](
 1. HBase ([details](#hbase))
 	1. Set up HBase cluster - [Apache HBase](http://hbase.apache.org)
 	2. Create HBase Schemas - feed `/scripts/hbase-create.hbase` to hbase shell.
-2. Build Pinpoint
+2. Build Pinpoint (Only required if you're building from source)
 	1. Clone Pinpoint - `git clone $PINPOINT_GIT_REPOSITORY`
-	2. Set JAVA_7_HOME environment variable to JDK 7+ home.
+	2. Set JAVA_6_HOME environment variable to JDK 6 home directory.
+	2. Set JAVA_7_HOME environment variable to JDK 7+ home directory.
 	3. Run `mvn install -Dmaven.test.skip=true` in Pinpoint home directory.
 3. Pinpoint Collector ([details](#pinpoint-collector))
 	1. Deploy *pinpoint-collector-$VERSION.war* to a web container.
@@ -47,32 +48,19 @@ To run these scripts, feed them into the HBase shell like below:
 See [here](../scripts/) for a complete list of scripts.
 
 ## Building Pinpoint
-In order to build Pinpoint, the following requirements must be met:
+In order to build Pinpoint, the following **requirements** must be met:
 
+* JDK 6 installed
 * JDK 7+ installed
-* Maven installed
-* JAVA_7_HOME environment variable set to JDK 7 installation directory.
+* Maven 3.2.x+ installed
+* JAVA_6_HOME environment variable set to JDK 6 home directory.
+* JAVA_7_HOME environment variable set to JDK 7+ home directory.
 
 JDK 7+ and JAVA_7_HOME environment variable are required to build **profiler-optional**. For more information about the optional package, please take a look [here](../profiler-optional/README.md).
 
 Once the above requirements are met, simply run the command below :
 
 `mvn install -Dmaven.test.skip=true`
-
-**Building Separately** - If you choose to build each module separately (without the optional package), you may do so with JDK 6. The reactor build order is given below:
-
-```
-pinpoint-thrift
-pinpoint-commons
-pinpoint-bootstrap-core
-pinpoint-bootstrap
-pinpoint-rpc
-pinpoint-profiler
-(pinpoint-profiler-optional)
-pinpoint-agent-distribution
-pinpoint-collector
-pinpoint-web
-```
 
 ## Pinpoint Collector
 Download the **latest release** of Pinpoint Collector from GitHub (WIP) or **build pinpoint-collector** manually from the Git clone using `mvn package`. Either way, you should end up with the following **war** file that can be deployed to a web container.
