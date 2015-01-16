@@ -168,7 +168,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
     public void open() {
         logger.info("open() change state=RUN");
-        if (!state.changeRun()) {
+        if (!state.changeToRun()) {
             throw new IllegalStateException("invalid open state:" + state.getString());
         }
         
@@ -415,11 +415,11 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
             logger.debug("HandshakeResponse packet({} code={}) received. {}", message, code, channel);
 
             if (code == HandshakeResponseCode.SUCCESS || code == HandshakeResponseCode.ALREADY_KNOWN) {
-                state.changeRunSimplexCommunication();
+                state.changeToRunSimplexCommunication();
             } else if (code == HandshakeResponseCode.DUPLEX_COMMUNICATION || code == HandshakeResponseCode.ALREADY_DUPLEX_COMMUNICATION) {
-                state.changeRunDuplexCommunication();
+                state.changeToRunDuplexCommunication();
             } else if (code == HandshakeResponseCode.SIMPLEX_COMMUNICATION || code == HandshakeResponseCode.ALREADY_SIMPLEX_COMMUNICATION) {
-                state.changeRunSimplexCommunication();
+                state.changeToRunSimplexCommunication();
             } else {
                 logger.warn("Invalid Handshake Packet ({}) code={} received. {}", message, code, channel);
                 return;
@@ -511,7 +511,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
             return;
         }
         logger.debug("close() start");
-        if (!this.state.changeClosed(currentState)) {
+        if (!this.state.changeToClosed(currentState)) {
             logger.info("close() invalid state");
             return;
         }
