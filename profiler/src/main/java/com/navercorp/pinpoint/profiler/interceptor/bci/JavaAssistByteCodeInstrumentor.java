@@ -24,10 +24,7 @@ import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
-import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
+import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.profiler.util.ScopePool;
@@ -81,12 +78,17 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     @Override
     public Scope getScope(String scopeName) {
-        return getScope(scopeName, false);
+        final ScopeDefinition scopeDefinition = new DefaultScopeDefinition(scopeName, ScopeDefinition.Type.SIMPLE);
+        return getScope(scopeDefinition);
     }
 
 
-    public Scope getScope(String scopeName, boolean attachment) {
-        return this.scopePool.getScope(scopeName, attachment);
+
+    public Scope getScope(ScopeDefinition scopeDefinition) {
+        if (scopeDefinition == null) {
+            throw new NullPointerException("scopeDefinition must not be null");
+        }
+        return this.scopePool.getScope(scopeDefinition);
     }
 
     private NamedClassPool createClassPool(String[] pathNames, String classPoolName) {

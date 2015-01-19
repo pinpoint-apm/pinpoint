@@ -20,42 +20,39 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.navercorp.pinpoint.bootstrap.instrument.Scope;
+import com.navercorp.pinpoint.bootstrap.instrument.ScopeDefinition;
 
 /**
  * @author emeroad
  */
 public class ScopePool {
 
-    private final ConcurrentMap<String, Scope> pool = new ConcurrentHashMap<String, Scope>();
+    private final ConcurrentMap<ScopeDefinition, Scope> pool = new ConcurrentHashMap<ScopeDefinition, Scope>();
 
-    public Scope getScope(String scopeName) {
-        return getScope(scopeName, false);
-    }
-
-    public Scope getScope(String scopeName, boolean attachment) {
-        if (scopeName == null) {
+    public Scope getScope(ScopeDefinition scopeDefinition) {
+        if (scopeDefinition == null) {
             throw new NullPointerException("scopeName must not be null");
         }
-        final Scope scope = this.pool.get(scopeName);
+        final Scope scope = this.pool.get(scopeDefinition);
         if (scope != null) {
             return scope;
         }
 
-        final ScopeFactory factory = createScopeFactory(scopeName, attachment);
+        final ScopeFactory factory = createScopeFactory(scopeDefinition);
 
         final Scope newScope = new ThreadLocalScope(factory);
-        final Scope exist = this.pool.putIfAbsent(scopeName, newScope);
+        final Scope exist = this.pool.putIfAbsent(scopeDefinition, newScope);
         if (exist != null) {
             return exist;
         }
         return newScope;
     }
 
-    private ScopeFactory createScopeFactory(String scopeName, boolean attachment) {
-        if (attachment) {
-            return new AttachmentSimpleScopeFactory<Object>(scopeName);
+    private ScopeFactory createScopeFactory(ScopeDefinition scopeDefinition) {
+        if (scopeDefinition.getType() == ScopeDefinition.Type.ATTACHMENT) {
+            return new AttachmentSimpleScopeFactory<Object>(scopeDefinition.getName());
         }
-        return new SimpleScopeFactory(scopeName);
+        return new SimpleScopeFactory(scopeDefinition.getName());
     }
 
     @Override
