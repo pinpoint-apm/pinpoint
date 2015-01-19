@@ -36,7 +36,8 @@ public class ScopePool {
         if (scope != null) {
             return scope;
         }
-        final Scope newScope = new DepthScope(scopeName);
+        final ScopeFactory factory = new SimpleScopeFactory(scopeName);
+        final Scope newScope = new ThreadLocalScope(factory);
         final Scope exist = this.pool.putIfAbsent(scopeName, newScope);
         if (exist != null) {
             return exist;

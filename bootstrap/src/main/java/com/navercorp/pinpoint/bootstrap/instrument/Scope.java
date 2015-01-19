@@ -20,6 +20,9 @@ package com.navercorp.pinpoint.bootstrap.instrument;
  * @author emeroad
  */
 public interface Scope  {
+
+    int ZERO = 0;
+
     int push();
 
     int depth();

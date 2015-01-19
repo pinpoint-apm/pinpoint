@@ -21,7 +21,9 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.util.Clock;
 import com.navercorp.pinpoint.common.util.ParsingResult;
+import com.navercorp.pinpoint.common.util.SystemClock;
 
 /**
  * @author emeroad
@@ -33,9 +35,15 @@ public class MockTrace implements Trace {
 
     private boolean sampled = true;
 
+    private Clock clock = SystemClock.INSTANCE;
+
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     @Override
     public void markBeforeTime() {
-        beforeTime = System.currentTimeMillis();
+        beforeTime = clock.getTime();
     }
 
     @Override
@@ -45,7 +53,7 @@ public class MockTrace implements Trace {
 
     @Override
     public void markAfterTime() {
-        afterTime = System.currentTimeMillis();
+        afterTime = clock.getTime();
     }
 
     @Override
