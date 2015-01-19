@@ -63,7 +63,7 @@ public final class ThreadLocalScope implements Scope {
 
     @Override
     public String getName() {
-        return toString();
+        return scope.getName();
     }
 
     @Override

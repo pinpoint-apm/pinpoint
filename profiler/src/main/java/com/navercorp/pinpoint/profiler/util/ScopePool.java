@@ -31,7 +31,7 @@ public class ScopePool {
 
     public Scope getScope(ScopeDefinition scopeDefinition) {
         if (scopeDefinition == null) {
-            throw new NullPointerException("scopeName must not be null");
+            throw new NullPointerException("scopeDefinition must not be null");
         }
         final Scope scope = this.pool.get(scopeDefinition);
         if (scope != null) {
