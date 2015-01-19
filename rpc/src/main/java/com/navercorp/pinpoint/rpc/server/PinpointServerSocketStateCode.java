@@ -25,24 +25,26 @@ import java.util.Set;
 public enum PinpointServerSocketStateCode {
 
     // NONE : No event
-    // RUN  : can send message only to server
+    // RUN_WITHOUT_HANDSHAKE  : can send message only to server without handshake each other.
+    // RUN_SIMPLEX  : can send message only to server
     // RUN_DUPLEX_COMMUNICATION : can communicate each other by full-duplex
     // BEING_SHUTDOWN :  received a close packet from a peer first and releasing resources
     // SHUTDOWN : has been closed
     // UNEXPECTED_SHUTDOWN : has not received a close packet from a peer but a peer has been shutdown
 
     NONE(),
-    RUN(NONE), //Simplex Communication
-    RUN_DUPLEX_COMMUNICATION(NONE, RUN),
-    BEING_SHUTDOWN(RUN_DUPLEX_COMMUNICATION, RUN),
-    SHUTDOWN(RUN_DUPLEX_COMMUNICATION, RUN, BEING_SHUTDOWN),
-    UNEXPECTED_SHUTDOWN(RUN_DUPLEX_COMMUNICATION, RUN),
+    RUN_WITHOUT_HANDSHAKE(NONE), //Simplex Communication
+    RUN_SIMPLEX(NONE, RUN_WITHOUT_HANDSHAKE),
+    RUN_DUPLEX(NONE, RUN_WITHOUT_HANDSHAKE),
+    BEING_SHUTDOWN(RUN_SIMPLEX, RUN_DUPLEX, RUN_WITHOUT_HANDSHAKE),
+    SHUTDOWN(RUN_SIMPLEX, RUN_DUPLEX, RUN_WITHOUT_HANDSHAKE, BEING_SHUTDOWN),
+    UNEXPECTED_SHUTDOWN(RUN_SIMPLEX, RUN_DUPLEX, RUN_WITHOUT_HANDSHAKE),
 
 
     // need  messages to close a connection from server to agent
     // for example, checked all of needed things followed by HELLO, if a same agent name exists, have to notify that to agent or not?
-    ERROR_UNKOWN(RUN_DUPLEX_COMMUNICATION, RUN),
-    ERROR_ILLEGAL_STATE_CHANGE(NONE, RUN_DUPLEX_COMMUNICATION, RUN, BEING_SHUTDOWN);
+    ERROR_UNKOWN(RUN_SIMPLEX, RUN_DUPLEX, RUN_WITHOUT_HANDSHAKE),
+    ERROR_ILLEGAL_STATE_CHANGE(NONE, RUN_SIMPLEX, RUN_DUPLEX, RUN_WITHOUT_HANDSHAKE, BEING_SHUTDOWN, SHUTDOWN);
 
     private final Set<PinpointServerSocketStateCode> validBeforeStateSet;
 
@@ -71,7 +73,7 @@ public enum PinpointServerSocketStateCode {
     }
 
     public static boolean isRun(PinpointServerSocketStateCode code) {
-        if (code == RUN_DUPLEX_COMMUNICATION || code == RUN) {
+        if (code == RUN_SIMPLEX || code == RUN_DUPLEX || code == RUN_WITHOUT_HANDSHAKE) {
             return true;
         }
 
@@ -79,7 +81,7 @@ public enum PinpointServerSocketStateCode {
     }
 
     public static boolean isRunDuplexCommunication(PinpointServerSocketStateCode code) {
-        if (code == RUN_DUPLEX_COMMUNICATION) {
+        if (code == RUN_DUPLEX) {
             return true;
         }
 

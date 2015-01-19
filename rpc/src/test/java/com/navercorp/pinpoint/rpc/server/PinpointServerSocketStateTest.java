@@ -33,16 +33,16 @@ public class PinpointServerSocketStateTest {
     public void changeStateTest1() {
         PinpointServerSocketState state = new PinpointServerSocketState();
 
-        state.changeStateRun();
-        Assert.assertEquals(PinpointServerSocketStateCode.RUN, state.getCurrentState());
+        state.changeState(PinpointServerSocketStateCode.RUN_WITHOUT_HANDSHAKE);
+        Assert.assertEquals(PinpointServerSocketStateCode.RUN_WITHOUT_HANDSHAKE, state.getCurrentState());
 
-        state.changeStateRunDuplexCommunication();
-        Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, state.getCurrentState());
+        state.changeState(PinpointServerSocketStateCode.RUN_DUPLEX);
+        Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX, state.getCurrentState());
 
-        state.changeStateBeingShutdown();
+        state.changeState(PinpointServerSocketStateCode.BEING_SHUTDOWN);
         Assert.assertEquals(PinpointServerSocketStateCode.BEING_SHUTDOWN, state.getCurrentState());
 
-        state.changeStateShutdown();
+        state.changeState(PinpointServerSocketStateCode.SHUTDOWN);
         Assert.assertEquals(PinpointServerSocketStateCode.SHUTDOWN, state.getCurrentState());
     }
 
@@ -52,13 +52,18 @@ public class PinpointServerSocketStateTest {
     public void changeStateTest2() {
         PinpointServerSocketState state = new PinpointServerSocketState();
 
-        state.changeStateRunDuplexCommunication();
-        Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, state.getCurrentState());
+        state.changeState(PinpointServerSocketStateCode.RUN_DUPLEX);
+        Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX, state.getCurrentState());
 
-        state.changeStateBeingShutdown();
+        PinpointServerSocketStateCode currentState = state.changeState(PinpointServerSocketStateCode.BEING_SHUTDOWN);
+        Assert.assertNull(currentState);
         Assert.assertEquals(PinpointServerSocketStateCode.BEING_SHUTDOWN, state.getCurrentState());
 
-        state.changeStateShutdown();
+        currentState = state.changeState(PinpointServerSocketStateCode.BEING_SHUTDOWN, PinpointServerSocketStateCode.BEING_SHUTDOWN);
+        Assert.assertEquals(PinpointServerSocketStateCode.BEING_SHUTDOWN, currentState);
+        Assert.assertEquals(PinpointServerSocketStateCode.BEING_SHUTDOWN, state.getCurrentState());
+
+        state.changeState(PinpointServerSocketStateCode.SHUTDOWN);
         Assert.assertEquals(PinpointServerSocketStateCode.SHUTDOWN, state.getCurrentState());
     }
 
@@ -66,10 +71,10 @@ public class PinpointServerSocketStateTest {
     public void changeStateTest3() {
         PinpointServerSocketState state = new PinpointServerSocketState();
 
-        state.changeStateRun();
-        Assert.assertEquals(PinpointServerSocketStateCode.RUN, state.getCurrentState());
+        state.changeState(PinpointServerSocketStateCode.RUN_WITHOUT_HANDSHAKE);
+        Assert.assertEquals(PinpointServerSocketStateCode.RUN_WITHOUT_HANDSHAKE, state.getCurrentState());
 
-        state.changeStateUnexpectedShutdown();
+        state.changeState(PinpointServerSocketStateCode.UNEXPECTED_SHUTDOWN);
         Assert.assertEquals(PinpointServerSocketStateCode.UNEXPECTED_SHUTDOWN, state.getCurrentState());
     }
 
@@ -77,10 +82,10 @@ public class PinpointServerSocketStateTest {
     public void changeStateTest4() {
         PinpointServerSocketState state = new PinpointServerSocketState();
 
-        state.changeStateRun();
-        Assert.assertEquals(PinpointServerSocketStateCode.RUN, state.getCurrentState());
+        state.changeState(PinpointServerSocketStateCode.RUN_WITHOUT_HANDSHAKE);
+        Assert.assertEquals(PinpointServerSocketStateCode.RUN_WITHOUT_HANDSHAKE, state.getCurrentState());
 
-        state.changeStateShutdown();
+        state.changeState(PinpointServerSocketStateCode.SHUTDOWN);
         Assert.assertEquals(PinpointServerSocketStateCode.SHUTDOWN, state.getCurrentState());
     }
 
@@ -88,31 +93,52 @@ public class PinpointServerSocketStateTest {
     public void changeStateTest5() {
         PinpointServerSocketState state = new PinpointServerSocketState();
 
-        state.changeStateRunDuplexCommunication();
-        Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, state.getCurrentState());
+        state.changeState(PinpointServerSocketStateCode.RUN_DUPLEX);
+        Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX, state.getCurrentState());
 
-        state.changeStateShutdown();
+        state.changeState(PinpointServerSocketStateCode.SHUTDOWN);
         Assert.assertEquals(PinpointServerSocketStateCode.SHUTDOWN, state.getCurrentState());
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void invalidChangeStateTest1() {
         PinpointServerSocketState state = new PinpointServerSocketState();
-
-        state.changeStateBeingShutdown();
+        PinpointServerSocketStateCode beforeCode = state.changeState(PinpointServerSocketStateCode.BEING_SHUTDOWN);
+        Assert.assertEquals(PinpointServerSocketStateCode.NONE, beforeCode);
     }
 
     @Test(expected = IllegalStateException.class)
     public void invalidChangeStateTest2() {
         PinpointServerSocketState state = new PinpointServerSocketState();
+        state.changeStateThrowWhenFailed(PinpointServerSocketStateCode.BEING_SHUTDOWN);
+    }
+    
 
-        state.changeStateRunDuplexCommunication();
-        Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, state.getCurrentState());
+    @Test
+    public void invalidChangeStateTest3() {
+        PinpointServerSocketState state = new PinpointServerSocketState();
 
-        state.changeStateBeingShutdown();
+        state.changeState(PinpointServerSocketStateCode.RUN_DUPLEX);
+        Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX, state.getCurrentState());
+
+        state.changeStateThrowWhenFailed(PinpointServerSocketStateCode.BEING_SHUTDOWN);
         Assert.assertEquals(PinpointServerSocketStateCode.BEING_SHUTDOWN, state.getCurrentState());
 
-        state.changeStateUnexpectedShutdown();
+        PinpointServerSocketStateCode beforeCode = state.changeState(PinpointServerSocketStateCode.UNEXPECTED_SHUTDOWN);
+        Assert.assertEquals(PinpointServerSocketStateCode.BEING_SHUTDOWN, beforeCode);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void invalidChangeStateTest4() {
+        PinpointServerSocketState state = new PinpointServerSocketState();
+
+        state.changeState(PinpointServerSocketStateCode.RUN_DUPLEX);
+        Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX, state.getCurrentState());
+
+        state.changeStateThrowWhenFailed(PinpointServerSocketStateCode.BEING_SHUTDOWN);
+        Assert.assertEquals(PinpointServerSocketStateCode.BEING_SHUTDOWN, state.getCurrentState());
+
+        PinpointServerSocketStateCode beforeCode = state.changeStateThrowWhenFailed(PinpointServerSocketStateCode.UNEXPECTED_SHUTDOWN);
     }
 
 }
