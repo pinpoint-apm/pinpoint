@@ -30,4 +30,24 @@ public class DefaultScopeDefinition implements ScopeDefinition {
     public Type getType() {
         return type;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DefaultScopeDefinition that = (DefaultScopeDefinition) o;
+
+        if (!name.equals(that.name)) return false;
+        if (type != that.type) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + type.hashCode();
+        return result;
+    }
 }
