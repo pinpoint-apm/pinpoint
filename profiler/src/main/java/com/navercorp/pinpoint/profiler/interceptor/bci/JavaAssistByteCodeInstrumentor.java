@@ -81,7 +81,12 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     @Override
     public Scope getScope(String scopeName) {
-        return this.scopePool.getScope(scopeName);
+        return getScope(scopeName, false);
+    }
+
+
+    public Scope getScope(String scopeName, boolean attachment) {
+        return this.scopePool.getScope(scopeName, attachment);
     }
 
     private NamedClassPool createClassPool(String[] pathNames, String classPoolName) {

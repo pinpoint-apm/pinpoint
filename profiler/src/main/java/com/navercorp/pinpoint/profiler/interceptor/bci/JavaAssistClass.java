@@ -22,13 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
-import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
-import com.navercorp.pinpoint.bootstrap.instrument.Type;
+import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
 import com.navercorp.pinpoint.profiler.interceptor.DebugScopeDelegateSimpleInterceptor;
@@ -353,33 +347,52 @@ public class JavaAssistClass implements InstrumentClass {
 
     @Override
     public int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException, NotFoundInstrumentException {
+        final ScopeDefinition scopeDefinition = new DefaultScopeDefinition(scopeName, ScopeDefinition.ScopeType.SIMPLE);
+        return addScopeInterceptor(methodName, args, interceptor, scopeDefinition);
+    }
+
+    @Override
+    public int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, ScopeDefinition scopeDefinition) throws InstrumentException, NotFoundInstrumentException {
         if (methodName == null) {
             throw new NullPointerException("methodName must not be null");
         }
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        if (scopeName == null) {
-            throw new NullPointerException("scopeName must not be null");
+        if (scopeDefinition == null) {
+            throw new NullPointerException("scopeDefinition must not be null");
         }
-        final Scope scope = this.instrumentor.getScope(scopeName);
+        final boolean isAttachment = isAttachment(scopeDefinition);
+        final Scope scope = this.instrumentor.getScope(scopeDefinition.getName(), isAttachment);
         interceptor = wrapScopeInterceptor(interceptor, scope);
         return addInterceptor(methodName, args, interceptor);
+    }
+
+    private boolean isAttachment(ScopeDefinition scopeDefinition) {
+        return scopeDefinition.getType() == ScopeDefinition.ScopeType.ATTACHMENT;
     }
 
 
     @Override
     public int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException {
+        final ScopeDefinition scopeDefinition = new DefaultScopeDefinition(scopeName, ScopeDefinition.ScopeType.SIMPLE);
+        return addScopeInterceptorIfDeclared(methodName, args, interceptor, scopeDefinition);
+    }
+
+    @Override
+    public int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, ScopeDefinition scopeDefinition) throws InstrumentException {
         if (methodName == null) {
             throw new NullPointerException("methodName must not be null");
         }
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        if (scopeName == null) {
-            throw new NullPointerException("scopeName must not be null");
+        if (scopeDefinition == null) {
+            throw new NullPointerException("scopeDefinition must not be null");
         }
-        final Scope scope = this.instrumentor.getScope(scopeName);
+
+        final boolean isAttachment = isAttachment(scopeDefinition);
+        final Scope scope = this.instrumentor.getScope(scopeDefinition.getName(), isAttachment);
 
         if (hasDeclaredMethod(methodName, args)) {
             interceptor = wrapScopeInterceptor(interceptor, scope);

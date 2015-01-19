@@ -29,6 +29,10 @@ public class ScopePool {
     private final ConcurrentMap<String, Scope> pool = new ConcurrentHashMap<String, Scope>();
 
     public Scope getScope(String scopeName) {
+        return getScope(scopeName, false);
+    }
+
+    public Scope getScope(String scopeName, boolean attachment) {
         if (scopeName == null) {
             throw new NullPointerException("scopeName must not be null");
         }
@@ -36,13 +40,22 @@ public class ScopePool {
         if (scope != null) {
             return scope;
         }
-        final ScopeFactory factory = new SimpleScopeFactory(scopeName);
+
+        final ScopeFactory factory = createScopeFactory(scopeName, attachment);
+
         final Scope newScope = new ThreadLocalScope(factory);
         final Scope exist = this.pool.putIfAbsent(scopeName, newScope);
         if (exist != null) {
             return exist;
         }
         return newScope;
+    }
+
+    private ScopeFactory createScopeFactory(String scopeName, boolean attachment) {
+        if (attachment) {
+            return new AttachmentSimpleScopeFactory<Object>(scopeName);
+        }
+        return new SimpleScopeFactory(scopeName);
     }
 
     @Override
