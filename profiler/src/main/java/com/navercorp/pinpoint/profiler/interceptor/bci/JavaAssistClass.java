@@ -22,13 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
-import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
-import com.navercorp.pinpoint.bootstrap.instrument.Type;
+import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
 import com.navercorp.pinpoint.profiler.interceptor.DebugScopeDelegateSimpleInterceptor;
@@ -299,7 +293,7 @@ public class JavaAssistClass implements InstrumentClass {
             throw new IllegalArgumentException("interceptor is null");
         }
         final CtConstructor behavior = getCtConstructor(args);
-        return addInterceptor0(behavior, null, interceptor, NOT_DEFINE_INTERCEPTOR_ID, Type.around);
+        return addInterceptor0(behavior, null, interceptor, NOT_DEFINE_INTERCEPTOR_ID, com.navercorp.pinpoint.bootstrap.instrument.Type.around);
     }
 
     @Override
@@ -313,7 +307,7 @@ public class JavaAssistClass implements InstrumentClass {
 
     @Override
     public int addAllConstructorInterceptor(Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException{
-        return addAllConstructorInterceptor(interceptor, Type.around);
+        return addAllConstructorInterceptor(interceptor, com.navercorp.pinpoint.bootstrap.instrument.Type.around);
     }
 
     @Override
@@ -332,7 +326,7 @@ public class JavaAssistClass implements InstrumentClass {
         }
         if (length > 1) {
             for (int i = 1; i< length; i++) {
-                addInterceptor0(constructorList[i], null, null, interceptorId, Type.around);
+                addInterceptor0(constructorList[i], null, null, interceptorId, com.navercorp.pinpoint.bootstrap.instrument.Type.around);
             }
         }
         return interceptorId;
@@ -348,38 +342,57 @@ public class JavaAssistClass implements InstrumentClass {
             throw new IllegalArgumentException("interceptor is null");
         }
         final CtBehavior behavior = getMethod(methodName, args);
-        return addInterceptor0(behavior, methodName, interceptor, NOT_DEFINE_INTERCEPTOR_ID, Type.around);
+        return addInterceptor0(behavior, methodName, interceptor, NOT_DEFINE_INTERCEPTOR_ID, com.navercorp.pinpoint.bootstrap.instrument.Type.around);
     }
 
     @Override
     public int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException, NotFoundInstrumentException {
+        final ScopeDefinition scopeDefinition = new DefaultScopeDefinition(scopeName, ScopeDefinition.Type.SIMPLE);
+        return addScopeInterceptor(methodName, args, interceptor, scopeDefinition);
+    }
+
+    @Override
+    public int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, ScopeDefinition scopeDefinition) throws InstrumentException, NotFoundInstrumentException {
         if (methodName == null) {
             throw new NullPointerException("methodName must not be null");
         }
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        if (scopeName == null) {
-            throw new NullPointerException("scopeName must not be null");
+        if (scopeDefinition == null) {
+            throw new NullPointerException("scopeDefinition must not be null");
         }
-        final Scope scope = this.instrumentor.getScope(scopeName);
+        final boolean isAttachment = isAttachment(scopeDefinition);
+        final Scope scope = this.instrumentor.getScope(scopeDefinition.getName(), isAttachment);
         interceptor = wrapScopeInterceptor(interceptor, scope);
         return addInterceptor(methodName, args, interceptor);
+    }
+
+    private boolean isAttachment(ScopeDefinition scopeDefinition) {
+        return scopeDefinition.getType() == ScopeDefinition.Type.ATTACHMENT;
     }
 
 
     @Override
     public int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException {
+        final ScopeDefinition scopeDefinition = new DefaultScopeDefinition(scopeName, ScopeDefinition.Type.SIMPLE);
+        return addScopeInterceptorIfDeclared(methodName, args, interceptor, scopeDefinition);
+    }
+
+    @Override
+    public int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, ScopeDefinition scopeDefinition) throws InstrumentException {
         if (methodName == null) {
             throw new NullPointerException("methodName must not be null");
         }
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        if (scopeName == null) {
-            throw new NullPointerException("scopeName must not be null");
+        if (scopeDefinition == null) {
+            throw new NullPointerException("scopeDefinition must not be null");
         }
-        final Scope scope = this.instrumentor.getScope(scopeName);
+
+        final boolean isAttachment = isAttachment(scopeDefinition);
+        final Scope scope = this.instrumentor.getScope(scopeDefinition.getName(), isAttachment);
 
         if (hasDeclaredMethod(methodName, args)) {
             interceptor = wrapScopeInterceptor(interceptor, scope);
@@ -416,7 +429,7 @@ public class JavaAssistClass implements InstrumentClass {
     @Override
     public int reuseInterceptor(String methodName, String[] args, int interceptorId) throws InstrumentException, NotFoundInstrumentException {
         final CtBehavior behavior = getMethod(methodName, args);
-        return addInterceptor0(behavior, methodName, null, interceptorId, Type.around);
+        return addInterceptor0(behavior, methodName, null, interceptorId, com.navercorp.pinpoint.bootstrap.instrument.Type.around);
     }
 
     @Override

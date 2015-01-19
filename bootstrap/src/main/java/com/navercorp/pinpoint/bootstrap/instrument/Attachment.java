@@ -3,9 +3,11 @@ package com.navercorp.pinpoint.bootstrap.instrument;
 /**
  * @author emeroad
  */
-public interface Attachment {
+public interface Attachment<T> {
 
-    Object getAttachment();
+    T getAttachment();
 
-    void setAttachment(Object object);
+    void setAttachment(T object);
+
+    T getOrCreate(AttachmentFactory<T> attachmentFactory);
 }

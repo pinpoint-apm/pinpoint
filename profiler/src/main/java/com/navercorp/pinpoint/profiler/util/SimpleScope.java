@@ -29,7 +29,7 @@ public class SimpleScope implements Scope {
 
     @Override
     public String getName() {
-        return "Depth";
+        return name;
     }
 
     @Override
