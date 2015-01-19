@@ -4,11 +4,11 @@ package com.navercorp.pinpoint.bootstrap.instrument;
  * @author emeroad
  */
 public interface ScopeDefinition {
-    enum ScopeType {
+    enum Type {
         SIMPLE, ATTACHMENT
     }
 
     String getName();
 
-    ScopeType getType();
+    Type getType();
 }

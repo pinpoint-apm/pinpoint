@@ -293,7 +293,7 @@ public class JavaAssistClass implements InstrumentClass {
             throw new IllegalArgumentException("interceptor is null");
         }
         final CtConstructor behavior = getCtConstructor(args);
-        return addInterceptor0(behavior, null, interceptor, NOT_DEFINE_INTERCEPTOR_ID, Type.around);
+        return addInterceptor0(behavior, null, interceptor, NOT_DEFINE_INTERCEPTOR_ID, com.navercorp.pinpoint.bootstrap.instrument.Type.around);
     }
 
     @Override
@@ -307,7 +307,7 @@ public class JavaAssistClass implements InstrumentClass {
 
     @Override
     public int addAllConstructorInterceptor(Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException{
-        return addAllConstructorInterceptor(interceptor, Type.around);
+        return addAllConstructorInterceptor(interceptor, com.navercorp.pinpoint.bootstrap.instrument.Type.around);
     }
 
     @Override
@@ -326,7 +326,7 @@ public class JavaAssistClass implements InstrumentClass {
         }
         if (length > 1) {
             for (int i = 1; i< length; i++) {
-                addInterceptor0(constructorList[i], null, null, interceptorId, Type.around);
+                addInterceptor0(constructorList[i], null, null, interceptorId, com.navercorp.pinpoint.bootstrap.instrument.Type.around);
             }
         }
         return interceptorId;
@@ -342,12 +342,12 @@ public class JavaAssistClass implements InstrumentClass {
             throw new IllegalArgumentException("interceptor is null");
         }
         final CtBehavior behavior = getMethod(methodName, args);
-        return addInterceptor0(behavior, methodName, interceptor, NOT_DEFINE_INTERCEPTOR_ID, Type.around);
+        return addInterceptor0(behavior, methodName, interceptor, NOT_DEFINE_INTERCEPTOR_ID, com.navercorp.pinpoint.bootstrap.instrument.Type.around);
     }
 
     @Override
     public int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException, NotFoundInstrumentException {
-        final ScopeDefinition scopeDefinition = new DefaultScopeDefinition(scopeName, ScopeDefinition.ScopeType.SIMPLE);
+        final ScopeDefinition scopeDefinition = new DefaultScopeDefinition(scopeName, ScopeDefinition.Type.SIMPLE);
         return addScopeInterceptor(methodName, args, interceptor, scopeDefinition);
     }
 
@@ -369,13 +369,13 @@ public class JavaAssistClass implements InstrumentClass {
     }
 
     private boolean isAttachment(ScopeDefinition scopeDefinition) {
-        return scopeDefinition.getType() == ScopeDefinition.ScopeType.ATTACHMENT;
+        return scopeDefinition.getType() == ScopeDefinition.Type.ATTACHMENT;
     }
 
 
     @Override
     public int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException {
-        final ScopeDefinition scopeDefinition = new DefaultScopeDefinition(scopeName, ScopeDefinition.ScopeType.SIMPLE);
+        final ScopeDefinition scopeDefinition = new DefaultScopeDefinition(scopeName, ScopeDefinition.Type.SIMPLE);
         return addScopeInterceptorIfDeclared(methodName, args, interceptor, scopeDefinition);
     }
 
@@ -429,7 +429,7 @@ public class JavaAssistClass implements InstrumentClass {
     @Override
     public int reuseInterceptor(String methodName, String[] args, int interceptorId) throws InstrumentException, NotFoundInstrumentException {
         final CtBehavior behavior = getMethod(methodName, args);
-        return addInterceptor0(behavior, methodName, null, interceptorId, Type.around);
+        return addInterceptor0(behavior, methodName, null, interceptorId, com.navercorp.pinpoint.bootstrap.instrument.Type.around);
     }
 
     @Override

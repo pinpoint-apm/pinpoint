@@ -8,17 +8,17 @@ import com.navercorp.pinpoint.bootstrap.instrument.ScopeDefinition;
 public class DefaultScopeDefinition implements ScopeDefinition {
 
     private final String name;
-    private final ScopeType scopeType;
+    private final Type type;
 
-    public DefaultScopeDefinition(String name, ScopeType scopeType) {
+    public DefaultScopeDefinition(String name, Type type) {
         if (name == null) {
             throw new NullPointerException("name must not be null");
         }
-        if (scopeType == null) {
+        if (type == null) {
             throw new NullPointerException("scopeType must not be null");
         }
         this.name = name;
-        this.scopeType = scopeType;
+        this.type = type;
     }
 
     @Override
@@ -27,7 +27,7 @@ public class DefaultScopeDefinition implements ScopeDefinition {
     }
 
     @Override
-    public ScopeType getType() {
-        return scopeType;
+    public Type getType() {
+        return type;
     }
 }
