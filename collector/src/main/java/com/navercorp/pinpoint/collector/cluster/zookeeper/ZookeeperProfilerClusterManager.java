@@ -124,7 +124,7 @@ public class ZookeeperProfilerClusterManager implements ChannelStateChangeEventH
                 return;
             }
 
-            if (PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION == stateCode) {
+            if (PinpointServerSocketStateCode.RUN_DUPLEX == stateCode) {
                 UpdateJob job = new UpdateJob(channelContext, new byte[0]);
                 worker.putJob(job);
 

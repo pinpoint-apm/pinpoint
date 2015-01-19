@@ -80,7 +80,7 @@ import com.navercorp.pinpoint.rpc.util.TimerFactory;
 public class PinpointServerSocket extends SimpleChannelHandler {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-//    private final boolean isDebug = logger.isDebugEnabled();
+    // private final boolean isDebug = logger.isDebugEnabled();
 
     private static final long DEFAULT_TIMEOUTMILLIS = 3 * 1000;
     private static final int WORKER_COUNT = CpuUtils.workerCount();
@@ -89,20 +89,20 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     private ServerBootstrap bootstrap;
 
     private Channel serverChannel;
-    private final ChannelGroup channelGroup = new DefaultChannelGroup(); 
+    private final ChannelGroup channelGroup = new DefaultChannelGroup();
     private final Timer pingTimer;
     private final Timer requestManagerTimer;
 
     private ServerMessageListener messageListener = SimpleLoggingServerMessageListener.LISTENER;
     private ServerStreamChannelMessageListener serverStreamChannelMessageListener = DisabledServerStreamChannelMessageListener.INSTANCE;
-    
-    private WriteFailFutureListener traceSendAckWriteFailFutureListener = new  WriteFailFutureListener(logger, "TraceSendAckPacket send fail.", "TraceSendAckPacket send() success.");
+
+    private WriteFailFutureListener traceSendAckWriteFailFutureListener = new WriteFailFutureListener(logger, "TraceSendAckPacket send fail.", "TraceSendAckPacket send() success.");
     private InetAddress[] ignoreAddressList;
 
     private final ChannelStateChangeEventHandler channelStateChangeEventHandler;
 
     private final PinpointServerSocketHandshaker handshaker;
-    
+
     static {
         LoggerFactorySetup.setupSlf4jLoggerFactory();
     }
@@ -122,8 +122,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         this.channelStateChangeEventHandler = channelStateChangeEventHandler;
         this.handshaker = new PinpointServerSocketHandshaker();
     }
-    
-    
+
     public void setIgnoreAddressList(InetAddress[] ignoreAddressList) {
         if (ignoreAddressList == null) {
             throw new NullPointerException("ignoreAddressList must not be null");
@@ -149,7 +148,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         }
         this.messageListener = messageListener;
     }
-    
+
     public void setServerStreamChannelMessageListener(ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
         AssertUtils.assertNotNull(serverStreamChannelMessageListener, "serverStreamChannelMessageListener must not be null");
 
@@ -167,8 +166,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         bootstrap.setOption("child.sendBufferSize", 1024 * 64);
         bootstrap.setOption("child.receiveBufferSize", 1024 * 64);
 
-//        bootstrap.setOption("child.soLinger", 0);
-
+        // bootstrap.setOption("child.soLinger", 0);
 
     }
 
@@ -205,6 +203,9 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 
         ChannelContext channelContext = getChannelContext(channel);
         if (!PinpointServerSocketStateCode.isRun(channelContext.getCurrentStateCode())) {
+            // FIXME need change rules. 
+            // as-is : do nothing when state is not run. 
+            // candidate : close channel when state is not run. 
             logger.warn("MessageReceived:{} from IllegalState Channel:{} this message will be ignore.", message, channel);
             return;
         }
@@ -212,29 +213,29 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         final short packetType = getPacketType(message);
         switch (packetType) {
             case PacketType.APPLICATION_SEND: {
-                SocketChannel socketChannel = getChannelContext(channel).getSocketChannel();
+                SocketChannel socketChannel = channelContext.getSocketChannel();
                 messageListener.handleSend((SendPacket) message, socketChannel);
                 return;
             }
-//                case PacketType.APPLICATION_TRACE_SEND: {
-//                    SocketChannel socketChannel = getChannelContext(channel).getSocketChannel();
-//                    TraceSendPacket traceSendPacket = (TraceSendPacket) message;
-//                    try {
-//                        messageListener.handleSend(traceSendPacket, socketChannel);
-//                    } finally {
-//                        TraceSendAckPacket traceSendAckPacket = new TraceSendAckPacket(traceSendPacket.getTransactionId());
-//                        ChannelFuture write = channel.write(traceSendAckPacket);
-//                        write.addListener(traceSendAckWriteFailFutureListener);
-//                    }
-//                    return;
-//                }
+//          case PacketType.APPLICATION_TRACE_SEND: {
+//          SocketChannel socketChannel = getChannelContext(channel).getSocketChannel();
+//          TraceSendPacket traceSendPacket = (TraceSendPacket) message;
+//          try {
+//              messageListener.handleSend(traceSendPacket, socketChannel);
+//          } finally {
+//              TraceSendAckPacket traceSendAckPacket = new TraceSendAckPacket(traceSendPacket.getTransactionId());
+//              ChannelFuture write = channel.write(traceSendAckPacket);
+//              write.addListener(traceSendAckWriteFailFutureListener);
+//          }
+//          return;
+//      }
             case PacketType.APPLICATION_REQUEST: {
-                SocketChannel socketChannel = getChannelContext(channel).getSocketChannel();
+                SocketChannel socketChannel = channelContext.getSocketChannel();
                 messageListener.handleRequest((RequestPacket) message, socketChannel);
                 return;
             }
             case PacketType.APPLICATION_RESPONSE: {
-                SocketChannel socketChannel = getChannelContext(channel).getSocketChannel();
+                SocketChannel socketChannel = channelContext.getSocketChannel();
                 socketChannel.receiveResponsePacket((ResponsePacket) message);
                 return;
             }
@@ -248,29 +249,34 @@ public class PinpointServerSocket extends SimpleChannelHandler {
                 handleStreamPacket((StreamPacket) message, channel);
                 return;
             case PacketType.CONTROL_HANDSHAKE:
-                int requestId = ((ControlHandshakePacket)message).getRequestId();
+                int requestId = ((ControlHandshakePacket) message).getRequestId();
                 Map<Object, Object> handshakeData = this.handshaker.decodeHandshakePacket((ControlHandshakePacket) message);
-
+    
                 HandshakeResponseCode responseCode = this.handshaker.handleHandshake(handshakeData, messageListener);
                 boolean isFirst = channelContext.setChannelProperties(handshakeData);
-                if (isFirst && responseCode == HandshakeResponseCode.DUPLEX_COMMUNICATION) {
-                    changeStateToRunDuplexCommunication(channel);
+                if (isFirst) {
+                    if (HandshakeResponseCode.DUPLEX_COMMUNICATION == responseCode) {
+                        channelContext.changeStateToRunDuplex(PinpointServerSocketStateCode.RUN_DUPLEX);
+                    } else if (HandshakeResponseCode.SIMPLEX_COMMUNICATION == responseCode) {
+                        channelContext.changeStateToRunSimplex(PinpointServerSocketStateCode.RUN_SIMPLEX);
+                    }
                 }
+                
                 this.handshaker.sendHandshakeResponse(channel, requestId, responseCode, isFirst);
                 return;
             case PacketType.CONTROL_CLIENT_CLOSE: {
-                closeChannel(channel);
+                handleClosePacket(channel);
                 return;
             }
             default:
                 logger.warn("invalid messageReceived msg:{}, connection:{}", message, e.getChannel());
-            }
+        }
     }
 
-    private void closeChannel(Channel channel) {
-        logger.debug("received ClientClosePacket {}", channel);
+    private void handleClosePacket(Channel channel) {
+        logger.debug("handleClosePacket channel:{}", channel);
         ChannelContext channelContext = getChannelContext(channel);
-        channelContext.changeStateBeingShutdown();
+        channelContext.changeStateBeingShutdown(PinpointServerSocketStateCode.BEING_SHUTDOWN);
 
         // close socket when the node on channel close socket
         // channel.close();
@@ -281,31 +287,19 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         context.getStreamChannelManager().messageReceived(packet);
     }
 
-    private boolean changeStateToRunDuplexCommunication(Channel channel) {
-        ChannelContext context = getChannelContext(channel);
-        if (PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION != context.getCurrentStateCode()) {
-            context.changeStateRunDuplexCommunication();
-            return true;
-        }
-
-        return false;
-    }
-
     @Override
     public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         final Channel channel = e.getChannel();
-        if (logger.isDebugEnabled()) {
-            logger.debug("server channelOpen {}", channel);
-        }
+        logger.debug("channelOpen channel:{}", channel);
+
         super.channelOpen(ctx, e);
     }
 
     @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         final Channel channel = e.getChannel();
-        if (logger.isDebugEnabled()) {
-            logger.debug("server channelConnected {}", channel);
-        }
+        logger.info("channelConnected channel:{}", channel);
+
         if (released) {
             logger.warn("already released. channel:{}", channel);
             channel.write(new ServerClosePacket()).addListener(new ChannelFutureListener() {
@@ -317,86 +311,70 @@ public class PinpointServerSocket extends SimpleChannelHandler {
             return;
         }
         prepareChannel(channel);
-        
+
         ChannelContext channelContext = getChannelContext(channel);
-        
-        boolean check = checkIgnoreAddress(channel);
-        if (check) {
-            channelContext.changeStateRun();
+        boolean isIgnore = isIgnoreAddress(channel);
+        if (!isIgnore) {
+            channelContext.changeStateToRunWithoutHandshake();
         }
-        
+
         super.channelConnected(ctx, e);
     }
 
     @Override
     public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         final Channel channel = e.getChannel();
+        logger.info("channelDisconnected channel:{}", channel);
+
         final ChannelContext channelContext = getChannelContext(channel);
-        PinpointServerSocketStateCode currentStateCode = channelContext.getCurrentStateCode();
-        
-        if (currentStateCode == PinpointServerSocketStateCode.BEING_SHUTDOWN) {
-            channelContext.changeStateShutdown();
-        } else if(released) {
-            channelContext.changeStateShutdown();
+        if (isExpectedShutdown(channelContext)) {
+            channelContext.changeStateToShutdown();
         } else {
-            boolean check = checkIgnoreAddress(channel);
-            if (check) {
-                channelContext.changeStateUnexpectedShutdown();
+            boolean isIgnore = isIgnoreAddress(channel);
+            if (!isIgnore) {
+                channelContext.changeStateToUnexpectedShutdown();
             }
         }
-        
-        if (logger.isDebugEnabled()) {
-            logger.debug("server channelDisconnected {}", channel);
-        }
+
+        channelContext.closeAllStreamChannel();
         this.channelGroup.remove(channel);
         super.channelDisconnected(ctx, e);
     }
 
-    // ChannelClose event may also happen when the other party close socket first and Disconnected occurs
+    // ChannelClose event may also happen when the other party close socket
+    // first and Disconnected occurs
     // Should consider that.
     @Override
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         final Channel channel = e.getChannel();
-        final ChannelContext channelContext = getChannelContext(channel);
-        PinpointServerSocketStateCode currentStateCode = channelContext.getCurrentStateCode();
-        
-        if (currentStateCode == PinpointServerSocketStateCode.BEING_SHUTDOWN) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("client channelClosed. normal closed. {}", channel);
-            }
-            channelContext.changeStateShutdown();
-        } else if(released) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("client channelClosed. server shutdown. {}", channel);
-            }
-            channelContext.changeStateShutdown();
-        } else {
-            boolean check = checkIgnoreAddress(channel);
-            if (check) {
-                logger.warn("Unexpected Client channelClosed {}", channel);
-                channelContext.changeStateUnexpectedShutdown();
-            } else {
-                logger.debug("checkAddress, Client channelClosed channelClosed {}", channel);
-            }
-        }
-        channelContext.closeAllStreamChannel();
+        logger.debug("channelClosed channel:{}", channel);
+
+        super.channelClosed(ctx, e);
     }
 
-    private boolean checkIgnoreAddress(Channel channel) {
-        if (ignoreAddressList == null) {
+    private boolean isExpectedShutdown(ChannelContext channelContext) {
+        PinpointServerSocketStateCode currentState = channelContext.getCurrentStateCode();
+        if (PinpointServerSocketStateCode.BEING_SHUTDOWN == currentState || released) {
             return true;
+        }
+        return false;
+    }
+
+    private boolean isIgnoreAddress(Channel channel) {
+        if (ignoreAddressList == null) {
+            return false;
         }
         final InetSocketAddress remoteAddress = (InetSocketAddress) channel.getRemoteAddress();
         if (remoteAddress == null) {
-            return true;
+            return false;
         }
         InetAddress address = remoteAddress.getAddress();
         for (InetAddress ignore : ignoreAddressList) {
             if (ignore.equals(address)) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     private ChannelContext getChannelContext(Channel channel) {
@@ -405,7 +383,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 
     private void prepareChannel(Channel channel) {
         SocketChannel socketChannel = new SocketChannel(channel, DEFAULT_TIMEOUTMILLIS, requestManagerTimer);
-           StreamChannelManager streamChannelManager = new StreamChannelManager(channel, IDGenerator.createEvenIdGenerator(), serverStreamChannelMessageListener);
+        StreamChannelManager streamChannelManager = new StreamChannelManager(channel, IDGenerator.createEvenIdGenerator(), serverStreamChannelMessageListener);
 
         ChannelContext channelContext = new ChannelContext(socketChannel, streamChannelManager, channelStateChangeEventHandler);
 
@@ -413,14 +391,13 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 
         channelGroup.add(channel);
     }
-    
+
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         logger.error("Unexpected Exception happened. event:{}", e, e.getCause());
         Channel channel = e.getChannel();
         channel.close();
     }
-
 
     public void bind(String host, int port) throws PinpointSocketException {
         if (released) {
@@ -446,6 +423,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
                 if (logger.isWarnEnabled()) {
                     write.addListener(new ChannelGroupFutureListener() {
                         private final ChannelFutureListener listener = new WriteFailFutureListener(logger, "ping write fail", "ping write success");
+
                         @Override
                         public void operationComplete(ChannelGroupFuture future) throws Exception {
 
@@ -473,7 +451,6 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         }
     }
 
-
     public void close() {
         synchronized (this) {
             if (released) {
@@ -484,7 +461,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         sendServerClosedPacket();
 
         pingTimer.stop();
-        
+
         if (serverChannel != null) {
             ChannelFuture close = serverChannel.close();
             close.awaitUninterruptibly(3000, TimeUnit.MILLISECONDS);
@@ -494,7 +471,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
             bootstrap.releaseExternalResources();
             bootstrap = null;
         }
-        
+
         // clear the request first and remove timer
         requestManagerTimer.stop();
     }
@@ -517,20 +494,19 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         }
         logger.info("sendServerClosedPacket end");
     }
-    
+
     public List<ChannelContext> getDuplexCommunicationChannelContext() {
         List<ChannelContext> channelContextList = new ArrayList<ChannelContext>();
 
         for (Channel channel : channelGroup) {
             ChannelContext context = getChannelContext(channel);
 
-            if (context.getCurrentStateCode() == PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION) {
+            if (context.getCurrentStateCode() == PinpointServerSocketStateCode.RUN_DUPLEX) {
                 channelContextList.add(context);
             }
         }
 
         return channelContextList;
     }
-    
-}
 
+}

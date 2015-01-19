@@ -68,10 +68,10 @@ public class EventHandlerTest {
         try {
             socket = new Socket("127.0.0.1", 22234);
             sendAndReceiveSimplePacket(socket);
-            Assert.assertEquals(eventHandler.getCode(), PinpointServerSocketStateCode.RUN);
+            Assert.assertEquals(eventHandler.getCode(), PinpointServerSocketStateCode.RUN_WITHOUT_HANDSHAKE);
 
             int code = sendAndReceiveRegisterPacket(socket, getParams());
-            Assert.assertEquals(eventHandler.getCode(), PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION);
+            Assert.assertEquals(eventHandler.getCode(), PinpointServerSocketStateCode.RUN_DUPLEX);
 
             sendAndReceiveSimplePacket(socket);
         } finally {

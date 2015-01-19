@@ -61,7 +61,7 @@ public class State {
         return state.get() == CLOSED;
     }
 
-    public boolean changeRun() {
+    public boolean changeToRun() {
         logger.debug("State Will Be Changed {}.", getString(RUN));
         final int current = state.get();
         if (current == INIT) {
@@ -72,7 +72,7 @@ public class State {
         throw new IllegalStateException("InvalidState current:"  + getString(current) + " change:" + getString(RUN));
     }
 
-    public boolean changeRunDuplexCommunication() {
+    public boolean changeToRunDuplexCommunication() {
         logger.debug("State Will Be Changed {}.", getString(RUN_DUPLEX_COMMUNICATION));
         final int current = state.get();
         if (current == INIT) {
@@ -87,7 +87,7 @@ public class State {
         throw new IllegalStateException("InvalidState current:"  + getString(current) + " change:" + getString(RUN_DUPLEX_COMMUNICATION));
     }
     
-    public boolean changeRunSimplexCommunication() {
+    public boolean changeToRunSimplexCommunication() {
         logger.debug("State Will Be Changed {}.", getString(RUN_SIMPLEX_COMMUNICATION));
         final int current = state.get();
         if (current == INIT) {
@@ -103,12 +103,12 @@ public class State {
         
     }
 
-    public boolean changeClosed(int before) {
+    public boolean changeToClosed(int before) {
         logger.debug("State Will Be Changed {} -> {}.", getString(before), getString(CLOSED));
         return this.state.compareAndSet(before, CLOSED);
     }
 
-    public boolean changeClosed() {
+    public boolean changeToClosed() {
         logger.debug("State Will Be Changed {}.", getString(CLOSED));
         return this.state.compareAndSet(RUN, CLOSED);
     }

@@ -83,46 +83,63 @@ public class ChannelContext {
         return state.getCurrentState();
     }
 
-    public void changeStateRun() {
-        logger.debug("Channel({}) state will be changed {}.", socketChannel, PinpointServerSocketStateCode.RUN);
-        if (state.changeStateRun()) {
-            executeChangeEventHandler(this, PinpointServerSocketStateCode.RUN);
-        }
+    public PinpointServerSocketStateCode changeStateToRunWithoutHandshake(PinpointServerSocketStateCode... skipLogicStateList) {
+        PinpointServerSocketStateCode nextState = PinpointServerSocketStateCode.RUN_WITHOUT_HANDSHAKE;
+        return change0(nextState, skipLogicStateList);
+    }
+    
+    public PinpointServerSocketStateCode changeStateToRunSimplex(PinpointServerSocketStateCode... skipLogicStateList) {
+        PinpointServerSocketStateCode nextState = PinpointServerSocketStateCode.RUN_SIMPLEX;
+        return change0(nextState, skipLogicStateList);
     }
 
-    public void changeStateRunDuplexCommunication() {
-        logger.debug("Channel({}) state will be changed {}.", socketChannel, PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION);
-        if (state.changeStateRunDuplexCommunication()) {
-            executeChangeEventHandler(this, PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION);
-        }
+    public PinpointServerSocketStateCode changeStateToRunDuplex(PinpointServerSocketStateCode... skipLogicStateList) {
+        PinpointServerSocketStateCode nextState = PinpointServerSocketStateCode.RUN_DUPLEX;
+        return change0(nextState, skipLogicStateList);
     }
 
-    public void changeStateBeingShutdown() {
-        logger.debug("Channel({}) state will be changed {}.", socketChannel, PinpointServerSocketStateCode.BEING_SHUTDOWN);
-        if (state.changeStateBeingShutdown()) {
-            executeChangeEventHandler(this, PinpointServerSocketStateCode.BEING_SHUTDOWN);
-        }
+    public PinpointServerSocketStateCode changeStateBeingShutdown(PinpointServerSocketStateCode... skipLogicStateList) {
+        PinpointServerSocketStateCode nextState = PinpointServerSocketStateCode.BEING_SHUTDOWN;
+        return change0(nextState, skipLogicStateList);
     }
 
-    public void changeStateShutdown() {
-        logger.debug("Channel({}) state will be changed {}.", socketChannel, PinpointServerSocketStateCode.SHUTDOWN);
-        if (state.changeStateShutdown()) {
-            executeChangeEventHandler(this, PinpointServerSocketStateCode.SHUTDOWN);
-        }
+    public PinpointServerSocketStateCode changeStateToShutdown(PinpointServerSocketStateCode... skipLogicStateList) {
+        PinpointServerSocketStateCode nextState = PinpointServerSocketStateCode.SHUTDOWN;
+        return change0(nextState, skipLogicStateList);
     }
 
-    public void changeStateUnexpectedShutdown() {
-        logger.debug("Channel({}) state will be changed {}.", socketChannel, PinpointServerSocketStateCode.UNEXPECTED_SHUTDOWN);
-        if (state.changeStateUnexpectedShutdown()) {
-            executeChangeEventHandler(this, PinpointServerSocketStateCode.UNEXPECTED_SHUTDOWN);
-        }
+    public PinpointServerSocketStateCode changeStateToUnexpectedShutdown(PinpointServerSocketStateCode... skipLogicStateList) {
+        PinpointServerSocketStateCode nextState = PinpointServerSocketStateCode.UNEXPECTED_SHUTDOWN;
+        return change0(nextState, skipLogicStateList);
     }
 
-    public void changeStateUnkownError() {
-        logger.debug("Channel({}) state will be changed {}.", socketChannel, PinpointServerSocketStateCode.ERROR_UNKOWN);
-        if (state.changeStateUnkownError()) {
-            executeChangeEventHandler(this, PinpointServerSocketStateCode.ERROR_UNKOWN);
+    public PinpointServerSocketStateCode changeStateToUnkownError(PinpointServerSocketStateCode... skipLogicStateList) {
+        PinpointServerSocketStateCode nextState = PinpointServerSocketStateCode.ERROR_UNKOWN;
+        return change0(nextState, skipLogicStateList);
+    }
+    
+    private PinpointServerSocketStateCode change0(PinpointServerSocketStateCode nextState, PinpointServerSocketStateCode... skipLogicStateList) {
+        logger.debug("Channel({}) state will be changed {}.", socketChannel, nextState);
+        PinpointServerSocketStateCode beforeState = state.changeState(nextState, skipLogicStateList);
+        if (beforeState == null) {
+            executeChangeEventHandler(this, nextState);
+        } else if (!isSkipedChange0(beforeState, skipLogicStateList)){
+            executeChangeEventHandler(this, state.getCurrentState());
+        } 
+        
+        return beforeState;
+    }
+    
+    private boolean isSkipedChange0(PinpointServerSocketStateCode beforeState, PinpointServerSocketStateCode... skipLogicStateList) {
+        if (skipLogicStateList != null) {
+            for (PinpointServerSocketStateCode skipLogicState : skipLogicStateList) {
+                if (beforeState == skipLogicState) {
+                    return true;
+                }
+            }
         }
+        
+        return false;
     }
 
     private void executeChangeEventHandler(ChannelContext channelContext, PinpointServerSocketStateCode stateCode) {

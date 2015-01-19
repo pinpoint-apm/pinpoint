@@ -217,7 +217,7 @@ public class HandshakeTest {
         List<ChannelContext> channelContextList = new ArrayList<ChannelContext>();
 
         for (ChannelContext eachContext : duplexChannelContextList) {
-            if (eachContext.getCurrentStateCode() == PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION) {
+            if (eachContext.getCurrentStateCode() == PinpointServerSocketStateCode.RUN_DUPLEX) {
                 Map agentProperties = eachContext.getChannelProperties();
 
                 if (!applicationName.equals(agentProperties.get(AgentHandshakePropertyType.APPLICATION_NAME.getName()))) {
