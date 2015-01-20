@@ -362,14 +362,9 @@ public class JavaAssistClass implements InstrumentClass {
         if (scopeDefinition == null) {
             throw new NullPointerException("scopeDefinition must not be null");
         }
-        final boolean isAttachment = isAttachment(scopeDefinition);
-        final Scope scope = this.instrumentor.getScope(scopeDefinition.getName(), isAttachment);
+        final Scope scope = this.instrumentor.getScope(scopeDefinition);
         interceptor = wrapScopeInterceptor(interceptor, scope);
         return addInterceptor(methodName, args, interceptor);
-    }
-
-    private boolean isAttachment(ScopeDefinition scopeDefinition) {
-        return scopeDefinition.getType() == ScopeDefinition.Type.ATTACHMENT;
     }
 
 
@@ -391,8 +386,7 @@ public class JavaAssistClass implements InstrumentClass {
             throw new NullPointerException("scopeDefinition must not be null");
         }
 
-        final boolean isAttachment = isAttachment(scopeDefinition);
-        final Scope scope = this.instrumentor.getScope(scopeDefinition.getName(), isAttachment);
+        final Scope scope = this.instrumentor.getScope(scopeDefinition);
 
         if (hasDeclaredMethod(methodName, args)) {
             interceptor = wrapScopeInterceptor(interceptor, scope);
