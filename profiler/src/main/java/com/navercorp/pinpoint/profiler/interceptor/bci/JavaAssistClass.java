@@ -935,13 +935,13 @@ public class JavaAssistClass implements InstrumentClass {
             throw new InstrumentException(interfaceType + " must be loaded by the class loader which loaded pinpint-bootstrap" );
         }
 
-        Method[] methods = interfaceType.getMethods();
+        java.lang.reflect.Method[] methods = interfaceType.getMethods();
         
         if (methods.length != 1) {
             throw new InstrumentException("Getter interface must have only one method: " + interfaceType.getName());
         }
         
-        Method getter = methods[0];
+        java.lang.reflect.Method getter = methods[0];
         
         if (getter.getParameterTypes().length != 0) {
             throw new InstrumentException("Getter interface method must be no-args and non-void: " + interfaceType.getName());

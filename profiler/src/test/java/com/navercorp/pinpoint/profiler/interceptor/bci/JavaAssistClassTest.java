@@ -42,7 +42,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTrace
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.IntTraceValue;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.ObjectGetter;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectSnooper;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
@@ -460,7 +460,7 @@ public class JavaAssistClassTest {
                 try {
                     logger.info("modify cl:{}", classLoader);
                     InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, testClassObject, classFileBuffer);
-                    aClass.addGetter(ObjectGetter.class, "value");
+                    aClass.addGetter(ObjectSnooper.class, "value");
 
                     return aClass.toBytecode();
                 } catch (InstrumentException e) {
@@ -474,14 +474,14 @@ public class JavaAssistClassTest {
         loader.initialize();
         
         Object testObject = loader.loadClass(testClassObject).newInstance();
-        Assert.assertTrue(testObject instanceof ObjectGetter);
+        Assert.assertTrue(testObject instanceof ObjectSnooper);
         
         String value = "hehe";
 
         Method method = testObject.getClass().getMethod("setValue", String.class);
         method.invoke(testObject, value);
 
-        Assert.assertEquals(value, ((ObjectGetter)testObject).__getObjectValue());
+        Assert.assertEquals(value, ((ObjectSnooper)testObject).__get__());
         
         
     }
