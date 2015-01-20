@@ -29,7 +29,7 @@ import org.junit.Assert;
 public class ThreadLocalScopeTest {
     @Test
     public void pushPop() {
-       Scope scope = new ThreadLocalScope(new SimpleScopeFactory("test"));
+        Scope scope = new ThreadLocalScope(new SimpleScopeFactory("test"));
         Assert.assertEquals(scope.push(), 0);
         Assert.assertEquals(scope.push(), 1);
         Assert.assertEquals(scope.push(), 2);
@@ -52,6 +52,13 @@ public class ThreadLocalScopeTest {
 
         Assert.assertEquals(scope.depth(), 0);
 
+
+    }
+
+    @Test
+    public void getName() {
+        Scope scope = new ThreadLocalScope(new SimpleScopeFactory("test"));
+        Assert.assertEquals(scope.getName(), "test");
 
     }
 }
