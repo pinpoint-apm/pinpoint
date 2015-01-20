@@ -52,7 +52,7 @@ public class ClassEditorAdaptor extends AbstractModifier {
         
         try {
             InstrumentClass target = byteCodeInstrumentor.getClass(classLoader, className, classFileBuffer);
-            return editor.edit(classLoader, target);
+            return editor.edit(forPlugin, target);
         } catch (PinpointException e) {
             throw e;
         } catch (Exception e) {

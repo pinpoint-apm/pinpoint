@@ -25,6 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.navercorp.pinpoint.common.plugin.PluginClassLoader;
+
 public class PluginClassLoaderFactory {
 
     private final Logger logger = Logger.getLogger(PluginClassLoaderFactory.class.getName());

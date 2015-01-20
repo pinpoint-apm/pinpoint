@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 
-public class FilteringInterceptorInjector implements InterceptorInjector {
+public class FilteringInterceptorInjector implements Injector {
     private final MethodFilter filter;
     private final InterceptorFactory factory;
     private final boolean singletonInterceptor;

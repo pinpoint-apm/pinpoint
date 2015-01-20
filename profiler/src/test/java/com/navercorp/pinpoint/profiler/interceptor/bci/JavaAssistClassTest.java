@@ -16,6 +16,20 @@
 
 package com.navercorp.pinpoint.profiler.interceptor.bci;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.security.ProtectionDomain;
+import java.util.Collections;
+import java.util.Map;
+
+import javassist.bytecode.Descriptor;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
@@ -28,30 +42,14 @@ import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTrace
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.IntTraceValue;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectGetter;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
-import com.navercorp.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.profiler.modifier.db.interceptor.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.test.MockAgent;
 import com.navercorp.pinpoint.test.TestClassLoader;
 import com.navercorp.pinpoint.test.TestModifier;
-
-import javassist.bytecode.Descriptor;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.security.ProtectionDomain;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author emeroad
@@ -449,5 +447,42 @@ public class JavaAssistClassTest {
         Constructor<?> constructor = testObject.getClass().getConstructor();
         Object o = constructor.newInstance();
 
+    }
+    
+    @Test
+    public void testAddGetter() throws Exception {
+        final TestClassLoader loader = getTestClassLoader();
+        final String testClassObject = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject3";
+        final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getAgent()) {
+
+            @Override
+            public byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+                try {
+                    logger.info("modify cl:{}", classLoader);
+                    InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, testClassObject, classFileBuffer);
+                    aClass.addGetter(ObjectGetter.class, "value");
+
+                    return aClass.toBytecode();
+                } catch (InstrumentException e) {
+                    throw new RuntimeException(e.getMessage(), e);
+                }
+            }
+
+        };
+        testModifier.setTargetClass(testClassObject);
+        loader.addModifier(testModifier);
+        loader.initialize();
+        
+        Object testObject = loader.loadClass(testClassObject).newInstance();
+        Assert.assertTrue(testObject instanceof ObjectGetter);
+        
+        String value = "hehe";
+
+        Method method = testObject.getClass().getMethod("setValue", String.class);
+        method.invoke(testObject, value);
+
+        Assert.assertEquals(value, ((ObjectGetter)testObject).__getObjectValue());
+        
+        
     }
 }

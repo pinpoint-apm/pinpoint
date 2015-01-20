@@ -16,14 +16,62 @@
 
 package com.navercorp.pinpoint.common;
 
+import static com.navercorp.pinpoint.common.AnnotationKeyProperty.*;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.NoSuchElementException;
+
 import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 
 /**
  * @author netspider
  * @author emeroad
+ * @author Jongho Moon
  */
-public enum AnnotationKey {
+public class AnnotationKey {
+    
+    public AnnotationKey(int code, String name, AnnotationKeyProperty... properties) {
+        this.code = code;
+        this.value = name;
+        
+        boolean viewInRecordSet = false;
+        boolean errorApiMetadata = false;
+        
+        for (AnnotationKeyProperty property : properties) {
+            switch (property) {
+            case VIEW_IN_RECORD_SET:
+                viewInRecordSet = true;
+                break;
+            case ERROR_API_METADATA:
+                errorApiMetadata = true;
+                break;
+            }
+        }
+        
+        this.viewInRecordSet = viewInRecordSet;
+        this.errorApiMetadata = errorApiMetadata;
+    }
+    
 
+    public String getValue() {
+        return value;
+    }
+
+    public int getCode() {
+        return code;
+    }
+    
+    public boolean isErrorApiMetadata() {
+        return errorApiMetadata;
+    }
+
+    public boolean isViewInRecordSet() {
+        return viewInRecordSet;
+    }
+
+    
     // because of using variable-length encoding,
     // a small number should be used mainly for data contained in network packets and a big number for internal used code.
 
@@ -35,126 +83,200 @@ public enum AnnotationKey {
 //    @Deprecated  // you should remove static API code. Use only API-DID. dump by int
 //    API_ID(11, "API-ID"),
     // used for developing the annotation that dumps api by string. you also consider to remove it later.
-    API(12, "API"),
-    API_METADATA(13, "API-METADATA"),
-    RETURN_DATA(14, "RETRUN_DATA", true),
+    public static final AnnotationKey API = new AnnotationKey(12, "API");
+    public static final AnnotationKey API_METADATA = new AnnotationKey(13, "API-METADATA");
+    public static final AnnotationKey RETURN_DATA = new AnnotationKey(14, "RETRUN_DATA", VIEW_IN_RECORD_SET);
     
-    CAll_URL(15, "CALL_URL"),
-    CAll_PARAM(16, "CALL_PARAM", true),
-    PROTOCAL(17, "PROTOCAL", true),
-
     // when you don't know the correct cause of errors.
-    ERROR_API_METADATA_ERROR(10000010, "API-METADATA-ERROR"),
+    public static final AnnotationKey ERROR_API_METADATA_ERROR = new AnnotationKey(10000010, "API-METADATA-ERROR", ERROR_API_METADATA);
     // when agentInfo not found
-    ERROR_API_METADATA_AGENT_INFO_NOT_FOUND(10000011, "API-METADATA-AGENT-INFO-NOT-FOUND"),
+    public static final AnnotationKey ERROR_API_METADATA_AGENT_INFO_NOT_FOUND = new AnnotationKey(10000011, "API-METADATA-AGENT-INFO-NOT-FOUND", ERROR_API_METADATA);
     // when checksum is not correct even if agentInfo exists
-    ERROR_API_METADATA_IDENTIFIER_CHECK_ERROR(10000012, "API-METADATA-IDENTIFIER-CHECK_ERROR"),
+    public static final AnnotationKey ERROR_API_METADATA_IDENTIFIER_CHECK_ERROR = new AnnotationKey(10000012, "API-METADATA-IDENTIFIER-CHECK_ERROR", ERROR_API_METADATA);
     // when  meta data itself not found
-    ERROR_API_METADATA_NOT_FOUND(10000013, "API-METADATA-NOT-FOUND"),
+    public static final AnnotationKey ERROR_API_METADATA_NOT_FOUND = new AnnotationKey(10000013, "API-METADATA-NOT-FOUND", ERROR_API_METADATA);
     // when the same hashId of meta data exists
-    ERROR_API_METADATA_DID_COLLSION(10000014, "API-METADATA-DID-COLLSION"),
+    public static final AnnotationKey ERROR_API_METADATA_DID_COLLSION = new AnnotationKey(10000014, "API-METADATA-DID-COLLSION", ERROR_API_METADATA);
 
     // it's not clear to handle a error code.  so ApiMetaDataError with searching ERROR_API_META_DATA has been used.
     // automatically generated id
 
-    SQL_ID(20, "SQL-ID"),
-    SQL(21, "SQL", true),
-    SQL_METADATA(22, "SQL-METADATA"),
-    SQL_PARAM(23, "SQL-PARAM"),
-    SQL_BINDVALUE(24, "SQL-BindValue", true),
+    public static final AnnotationKey SQL_ID = new AnnotationKey(20, "SQL-ID");
+    public static final AnnotationKey SQL = new AnnotationKey(21, "SQL", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey SQL_METADATA = new AnnotationKey(22, "SQL-METADATA");
+    public static final AnnotationKey SQL_PARAM = new AnnotationKey(23, "SQL-PARAM");
+    public static final AnnotationKey SQL_BINDVALUE = new AnnotationKey(24, "SQL-BindValue", VIEW_IN_RECORD_SET);
 
-    STRING_ID(30, "STRING_ID"),
+    public static final AnnotationKey STRING_ID = new AnnotationKey(30, "STRING_ID");
 
     // HTTP_URL is replaced by argument. So viewInRecordSet parameter value is not true.
-    HTTP_URL(40, "http.url"),
-    HTTP_PARAM(41, "http.param", true),
-    HTTP_PARAM_ENTITY(42, "http.entity", true),
-    HTTP_COOKIE(45, "http.cookie", true),
-    HTTP_STATUS_CODE(46, "http.status.code", true),
-    HTTP_CALL_RETRY_COUNT(48, "retryCount"),
+    public static final AnnotationKey HTTP_URL = new AnnotationKey(40, "http.url");
+    public static final AnnotationKey HTTP_PARAM = new AnnotationKey(41, "http.param", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey HTTP_PARAM_ENTITY = new AnnotationKey(42, "http.entity", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey HTTP_COOKIE = new AnnotationKey(45, "http.cookie", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey HTTP_STATUS_CODE = new AnnotationKey(46, "http.status.code", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey HTTP_CALL_RETRY_COUNT = new AnnotationKey(48, "retryCount");
     // post method parameter of httpclient
 
-    // ARCUS_COMMAND(50, "arcus.command"),
-    
-    NPC_URL(60, "npc.url"),
-    NPC_PARAM(61, "npc.param"),
-    NPC_CONNECT_OPTION(62, "npc.connect.options"),
 
-    NIMM_OBJECT_NAME(70, "nimm.objectName"),
-    NIMM_METHOD_NAME(71, "nimm.methodName"),
-    NIMM_PARAM(72, "nimm.param"),
-    NIMM_CONNECT_OPTION(73, "nimm.connect.options"),
+    // ARCUS_COMMAND(50, "arcus.command");
     
-    ARGS0(-1, "args[0]"),
-    ARGS1(-2, "args[1]"),
-    ARGS2(-3, "args[2]"),
-    ARGS3(-4, "args[3]"),
-    ARGS4(-5, "args[4]"),
-    ARGS5(-6, "args[5]"),
-    ARGS6(-7, "args[6]"),
-    ARGS7(-8, "args[7]"),
-    ARGS8(-9, "args[8]"),
-    ARGS9(-10, "args[9]"),
-    ARGSN(-11, "args[N]"),
+    public static final AnnotationKey NPC_URL = new AnnotationKey(60, "npc.url");
+    public static final AnnotationKey NPC_PARAM = new AnnotationKey(61, "npc.param");
+    public static final AnnotationKey NPC_CONNECT_OPTION = new AnnotationKey(62, "npc.connect.options");
 
-    CACHE_ARGS0(-30, "cached_args[0]"),
-    CACHE_ARGS1(-31, "cached_args[1]"),
-    CACHE_ARGS2(-32, "cached_args[2]"),
-    CACHE_ARGS3(-33, "cached_args[3]"),
-    CACHE_ARGS4(-34, "cached_args[4]"),
-    CACHE_ARGS5(-35, "cached_args[5]"),
-    CACHE_ARGS6(-36, "cached_args[6]"),
-    CACHE_ARGS7(-37, "cached_args[7]"),
-    CACHE_ARGS8(-38, "cached_args[8]"),
-    CACHE_ARGS9(-39, "cached_args[9]"),
-    CACHE_ARGSN(-40, "cached_args[N]"),
+    public static final AnnotationKey NIMM_OBJECT_NAME = new AnnotationKey(70, "nimm.objectName");
+    public static final AnnotationKey NIMM_METHOD_NAME = new AnnotationKey(71, "nimm.methodName");
+    public static final AnnotationKey NIMM_PARAM = new AnnotationKey(72, "nimm.param");
+    public static final AnnotationKey NIMM_CONNECT_OPTION = new AnnotationKey(73, "nimm.connect.options");
+    
+    public static final AnnotationKey ARGS0 = new AnnotationKey(-1, "args[0]");
+    public static final AnnotationKey ARGS1 = new AnnotationKey(-2, "args[1]");
+    public static final AnnotationKey ARGS2 = new AnnotationKey(-3, "args[2]");
+    public static final AnnotationKey ARGS3 = new AnnotationKey(-4, "args[3]");
+    public static final AnnotationKey ARGS4 = new AnnotationKey(-5, "args[4]");
+    public static final AnnotationKey ARGS5 = new AnnotationKey(-6, "args[5]");
+    public static final AnnotationKey ARGS6 = new AnnotationKey(-7, "args[6]");
+    public static final AnnotationKey ARGS7 = new AnnotationKey(-8, "args[7]");
+    public static final AnnotationKey ARGS8 = new AnnotationKey(-9, "args[8]");
+    public static final AnnotationKey ARGS9 = new AnnotationKey(-10, "args[9]");
+    public static final AnnotationKey ARGSN = new AnnotationKey(-11, "args[N]");
+
+    public static final AnnotationKey CACHE_ARGS0 = new AnnotationKey(-30, "cached_args[0]");
+    public static final AnnotationKey CACHE_ARGS1 = new AnnotationKey(-31, "cached_args[1]");
+    public static final AnnotationKey CACHE_ARGS2 = new AnnotationKey(-32, "cached_args[2]");
+    public static final AnnotationKey CACHE_ARGS3 = new AnnotationKey(-33, "cached_args[3]");
+    public static final AnnotationKey CACHE_ARGS4 = new AnnotationKey(-34, "cached_args[4]");
+    public static final AnnotationKey CACHE_ARGS5 = new AnnotationKey(-35, "cached_args[5]");
+    public static final AnnotationKey CACHE_ARGS6 = new AnnotationKey(-36, "cached_args[6]");
+    public static final AnnotationKey CACHE_ARGS7 = new AnnotationKey(-37, "cached_args[7]");
+    public static final AnnotationKey CACHE_ARGS8 = new AnnotationKey(-38, "cached_args[8]");
+    public static final AnnotationKey CACHE_ARGS9 = new AnnotationKey(-39, "cached_args[9]");
+    public static final AnnotationKey CACHE_ARGSN = new AnnotationKey(-40, "cached_args[N]");
     @Deprecated
-    EXCEPTION(-50, "Exception", true),
+    public static final AnnotationKey EXCEPTION = new AnnotationKey(-50, "Exception", VIEW_IN_RECORD_SET);
     @Deprecated
-    EXCEPTION_CLASS(-51, "ExceptionClass"),
-    UNKNOWN(-9999, "UNKNOWN");
+    public static final AnnotationKey EXCEPTION_CLASS = new AnnotationKey(-51, "ExceptionClass");
+    public static final AnnotationKey UNKNOWN = new AnnotationKey(-9999, "UNKNOWN");
 
     private final int code;
     private final String value;
     private final boolean viewInRecordSet;
+    private final boolean errorApiMetadata;
 
     public final static int MAX_ARGS_SIZE = 10;
+    
+    static final AnnotationKey[] DEFAULT_VALUES = {
+            API,
+            API_METADATA,
+            RETURN_DATA,
+            
+            ERROR_API_METADATA_ERROR,
+            ERROR_API_METADATA_AGENT_INFO_NOT_FOUND,
+            ERROR_API_METADATA_IDENTIFIER_CHECK_ERROR,
+            ERROR_API_METADATA_NOT_FOUND,
+            ERROR_API_METADATA_DID_COLLSION,
 
-    private AnnotationKey(int code, String value) {
-        this(code, value, false);
-    }
+            SQL_ID,
+            SQL,
+            SQL_METADATA,
+            SQL_PARAM,
+            SQL_BINDVALUE,
 
-    private AnnotationKey(int code, String value, boolean viewInRecordSet) {
-        this.code = code;
-        this.value = value;
-        this.viewInRecordSet = viewInRecordSet;
-    }
+            STRING_ID,
 
-    public String getValue() {
-        return value;
-    }
+            HTTP_URL,
+            HTTP_PARAM,
+            HTTP_PARAM_ENTITY,
+            HTTP_COOKIE,
+            HTTP_STATUS_CODE,
+            HTTP_CALL_RETRY_COUNT,
+            
+            NPC_URL,
+            NPC_PARAM,
+            NPC_CONNECT_OPTION,
 
-    public int getCode() {
-        return code;
-    }
+            NIMM_OBJECT_NAME,
+            NIMM_METHOD_NAME,
+            NIMM_PARAM,
+            NIMM_CONNECT_OPTION,
+            
+            ARGS0,
+            ARGS1,
+            ARGS2,
+            ARGS3,
+            ARGS4,
+            ARGS5,
+            ARGS6,
+            ARGS7,
+            ARGS8,
+            ARGS9,
+            ARGSN,
 
-    public boolean isViewInRecordSet() {
-        return viewInRecordSet;
-    }
+            CACHE_ARGS0,
+            CACHE_ARGS1,
+            CACHE_ARGS2,
+            CACHE_ARGS3,
+            CACHE_ARGS4,
+            CACHE_ARGS5,
+            CACHE_ARGS6,
+            CACHE_ARGS7,
+            CACHE_ARGS8,
+            CACHE_ARGS9,
+            CACHE_ARGSN,
 
-    private static final IntHashMap<AnnotationKey> CODE_LOOKUP_TABLE = new IntHashMap<AnnotationKey>();
+            EXCEPTION,
+            EXCEPTION_CLASS,
+            UNKNOWN
+    };
+
+    
+    private static boolean initialized = false;
+    private static List<AnnotationKey> VALUES;
+    private static IntHashMap<AnnotationKey> CODE_LOOKUP_TABLE;
+
+    
     static {
-        initializeLookupTable();
+        ServiceTypeInitializer.checkAnnotationKeys(DEFAULT_VALUES);
+        setValues(Arrays.asList(DEFAULT_VALUES));
     }
 
-    public static void initializeLookupTable() {
-        AnnotationKey[] values = AnnotationKey.values();
-        for (AnnotationKey name : values) {
-            AnnotationKey check = CODE_LOOKUP_TABLE.put(name.getCode(), name);
-            if (check != null) {
-                throw new IllegalStateException("duplicated code found. code:" + name.getCode());
+    private static void setValues(List<AnnotationKey> annotationKeys) {
+        VALUES = Collections.unmodifiableList(annotationKeys);
+        CODE_LOOKUP_TABLE = initializeAnnotationKeyCodeLookupTable(annotationKeys);
+    }
+    
+    private static IntHashMap<AnnotationKey> initializeAnnotationKeyCodeLookupTable(List<AnnotationKey> annotationKeys) {
+        IntHashMap<AnnotationKey> table = new IntHashMap<AnnotationKey>();
+        
+        for (AnnotationKey serviceType : annotationKeys) {
+            table.put(serviceType.getCode(), serviceType);
+        }
+        
+        return table;
+    }
+
+    static synchronized void initialize(List<AnnotationKey> annotationKeys) {
+        if (initialized) {
+            throw new IllegalStateException("AnnotationKey is already initialized");
+        }
+        
+        initialized = true;
+        setValues(annotationKeys);
+    }
+
+    public static List<AnnotationKey> values() {
+        return VALUES;
+    }
+    
+    public static AnnotationKey valueOf(String name) {
+        for (AnnotationKey key : VALUES) {
+            if (key.getValue().equals(name)) {
+                return key;
             }
         }
+        
+        throw new NoSuchElementException(name);
     }
 
     public static AnnotationKey findAnnotationKey(int code) {
@@ -165,6 +287,12 @@ public enum AnnotationKey {
         return annotationKey;
     }
 
+    
+    
+    ////////////////////////////////
+    // Arguments
+    ////////////////////////////////
+    
     public static AnnotationKey getArgs(int index) {
         if (index < 0) {
             throw new IllegalArgumentException("negative index:" + index);

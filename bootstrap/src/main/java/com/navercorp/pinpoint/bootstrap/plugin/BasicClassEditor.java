@@ -23,24 +23,18 @@ import com.navercorp.pinpoint.exception.PinpointException;
 
 public class BasicClassEditor implements DedicatedClassEditor {
     private final String targetClassName;
-    private final List<MetadataInjector> metadataInjectors;
-    private final List<InterceptorInjector> interceptorInjectors;
+    private final List<Injector> injectors;
     
 
-    public BasicClassEditor(String targetClassName, List<MetadataInjector> metadataInjectors, List<InterceptorInjector> interceptorInjectors) {
+    public BasicClassEditor(String targetClassName, List<Injector> injectors) {
         this.targetClassName = targetClassName;
-        this.metadataInjectors = metadataInjectors;
-        this.interceptorInjectors = interceptorInjectors;
+        this.injectors = injectors;
     }
 
     @Override
     public byte[] edit(ClassLoader classLoader, InstrumentClass target) {
         try {
-            for (MetadataInjector injector : metadataInjectors) {
-                injector.inject(classLoader, target); 
-            }
-            
-            for (InterceptorInjector injector : interceptorInjectors) {
+            for (Injector injector : injectors) {
                 injector.inject(classLoader, target);
             }
             
@@ -54,6 +48,4 @@ public class BasicClassEditor implements DedicatedClassEditor {
     public String getTargetClassName() {
         return targetClassName;
     }
-    
-    
 }

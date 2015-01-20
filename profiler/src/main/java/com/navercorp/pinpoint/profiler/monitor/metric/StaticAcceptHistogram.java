@@ -35,8 +35,7 @@ public class StaticAcceptHistogram implements AcceptHistogram {
     }
 
     private void bindMap(IntHashMap<ConcurrentMap<String, Histogram>> map) {
-        ServiceType[] serviceTypeList = ServiceType.values();
-        for (ServiceType serviceType : serviceTypeList) {
+        for (ServiceType serviceType : ServiceType.values()) {
             if (serviceType.isWas()) {
                 ConcurrentMap<String, Histogram> caller = new ConcurrentHashMap<String, Histogram>();
                 map.put(serviceType.getCode(), caller);

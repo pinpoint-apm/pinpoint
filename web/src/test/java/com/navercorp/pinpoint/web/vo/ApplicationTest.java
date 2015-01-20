@@ -37,8 +37,8 @@ public class ApplicationTest {
         Assert.assertTrue(one.equals(two.getName(), two.getServiceType()));
 
         Assert.assertFalse(one.equals("test2", two.getServiceType()));
-        Assert.assertFalse(one.equals("test", ServiceType.BLOC));
-        Assert.assertFalse(one.equals("test2", ServiceType.BLOC));
+        Assert.assertFalse(one.equals("test", ServiceType.STAND_ALONE));
+        Assert.assertFalse(one.equals("test2", ServiceType.STAND_ALONE));
 
     }
 }

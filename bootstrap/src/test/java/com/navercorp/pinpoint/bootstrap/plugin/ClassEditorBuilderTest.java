@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.bootstrap.plugin;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
-import java.util.Map;
-
 import org.junit.Test;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -29,11 +27,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
-import com.navercorp.pinpoint.bootstrap.plugin.ClassEditor;
-import com.navercorp.pinpoint.bootstrap.plugin.ClassEditorBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
-import com.navercorp.pinpoint.bootstrap.plugin.TypeUtils;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue;
+import com.navercorp.pinpoint.bootstrap.plugin.ClassEditorBuilder.FieldSnooperBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.ClassEditorBuilder.InterceptorBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.ClassEditorBuilder.MetadataBuilder;
 
@@ -59,12 +54,15 @@ public class ClassEditorBuilderTest {
         when(aMethod.getParameterTypes()).thenReturn(parameterTypeNames);
         when(aClass.addInterceptor(eq(methodName), eq(parameterTypeNames), isA(Interceptor.class))).thenReturn(0);
         
-        
         ProfilerPluginContext helper = new ProfilerPluginContext(instrumentor, traceContext);
         ClassEditorBuilder builder = helper.newClassEditorBuilder();
         MetadataBuilder mb = builder.newMetadataBuilder();
-        mb.inject("com.navercorp.pinpoint.bootstrap.plugin.ClassEditorBuilderTest$TestMetadata");
+        mb.inject(ObjectTraceValue.class);
         mb.initializeWithDefaultConstructorOf("java.util.HashMap");
+        
+        FieldSnooperBuilder fb = builder.newFieldAccessorBuilder();
+        fb.inject(ObjectSnooper.class);
+        fb.toAccess("someField");
         
         InterceptorBuilder ib = builder.newInterceptorBuilder();
         ib.intercept(methodName, parameterTypeNames);
@@ -77,11 +75,7 @@ public class ClassEditorBuilderTest {
         editor.edit(classLoader, aClass);
         
         verify(aClass).addInterceptor(eq(methodName), isA(String[].class), isA(Interceptor.class));
-        verify(aClass).addTraceValue(TestMetadata.class, "new java.util.HashMap();");
-    }
-    
-    public static interface TestMetadata extends TraceValue {
-        public Map<String, Object> getMap();
-        public void setMap(Map<String, Object> map);
+        verify(aClass).addTraceValue(ObjectTraceValue.class, "new java.util.HashMap();");
+        verify(aClass).addGetter(ObjectSnooper.class, "someField");
     }
 }

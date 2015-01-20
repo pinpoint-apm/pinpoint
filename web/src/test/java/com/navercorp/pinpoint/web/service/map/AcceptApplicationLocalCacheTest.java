@@ -16,18 +16,15 @@
 
 package com.navercorp.pinpoint.web.service.map;
 
-import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.web.service.map.AcceptApplication;
-import com.navercorp.pinpoint.web.service.map.AcceptApplicationLocalCache;
-import com.navercorp.pinpoint.web.service.map.RpcApplication;
-import com.navercorp.pinpoint.web.vo.Application;
+import java.util.HashSet;
+import java.util.Set;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 
-import java.util.HashSet;
-import java.util.Set;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.web.vo.Application;
 
 
 public class AcceptApplicationLocalCacheTest {
@@ -57,12 +54,12 @@ public class AcceptApplicationLocalCacheTest {
 
     }
 
-    AcceptApplication localhost = new AcceptApplication("localhost:8080", new Application("LOCALHOST", ServiceType.BLOC));
+    AcceptApplication localhost = new AcceptApplication("localhost:8080", new Application("LOCALHOST", ServiceType.STAND_ALONE));
 
     private Set<AcceptApplication> createAcceptApplication() {
-        AcceptApplication naver = new AcceptApplication("www.naver.com", new Application("Naver", ServiceType.BLOC));
-        AcceptApplication daum = new AcceptApplication("www.daum.com", new Application("Daum", ServiceType.BLOC));
-        AcceptApplication nate = new AcceptApplication("www.nate.com", new Application("Nate", ServiceType.BLOC));
+        AcceptApplication naver = new AcceptApplication("www.naver.com", new Application("Naver", ServiceType.STAND_ALONE));
+        AcceptApplication daum = new AcceptApplication("www.daum.com", new Application("Daum", ServiceType.STAND_ALONE));
+        AcceptApplication nate = new AcceptApplication("www.nate.com", new Application("Nate", ServiceType.STAND_ALONE));
 
         Set<AcceptApplication> result = new HashSet<AcceptApplication>();
         result.add(naver);

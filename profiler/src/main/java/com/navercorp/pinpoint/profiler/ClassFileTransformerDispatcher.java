@@ -16,13 +16,10 @@
 
 package com.navercorp.pinpoint.profiler;
 
-import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
-import java.util.List;
 
-import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,13 +30,15 @@ import com.navercorp.pinpoint.bootstrap.plugin.DedicatedClassEditor;
 import com.navercorp.pinpoint.bootstrap.plugin.PluginClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.common.plugin.PluginLoader;
+import com.navercorp.pinpoint.common.plugin.Plugins;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.DefaultModifierRegistry;
 import com.navercorp.pinpoint.profiler.modifier.Modifier;
 import com.navercorp.pinpoint.profiler.modifier.ModifierProvider;
 import com.navercorp.pinpoint.profiler.modifier.ModifierRegistry;
 import com.navercorp.pinpoint.profiler.plugin.ClassEditorAdaptor;
-import com.navercorp.pinpoint.profiler.plugin.PluginLoader;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 /**
  * @author emeroad
@@ -61,8 +60,8 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
     private final ProfilerConfig profilerConfig;
 
     private final ClassFileFilter skipFilter;
-
-    public ClassFileTransformerDispatcher(DefaultAgent agent, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileRetransformer retransformer) {
+    
+    public ClassFileTransformerDispatcher(DefaultAgent agent, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileRetransformer retransformer, Plugins<ProfilerPlugin> plugins) {
         if (agent == null) {
             throw new NullPointerException("agent must not be null");
         }
@@ -77,7 +76,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         this.byteCodeInstrumentor = byteCodeInstrumentor;
         this.retransformer = retransformer;
         this.profilerConfig = agent.getProfilerConfig();
-        this.modifierRegistry = createModifierRegistry();
+        this.modifierRegistry = createModifierRegistry(plugins);
         this.skipFilter = new DefaultClassFileFilter(agentClassLoader);
     }
 
@@ -135,7 +134,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         }
     }
 
-    private ModifierRegistry createModifierRegistry() {
+    private ModifierRegistry createModifierRegistry(Plugins<ProfilerPlugin> plugins) {
         DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(agent, byteCodeInstrumentor, retransformer);
 
         modifierRepository.addMethodModifier();
@@ -161,14 +160,13 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         modifierRepository.addRedisModifier();
         
         loadModifiers(modifierRepository);
+        loadPlugins(modifierRepository, plugins);
         
         return modifierRepository;
     }
-    
+
     private void loadModifiers(DefaultModifierRegistry modifierRepository) {
-        PluginLoader<ModifierProvider> loader = new PluginLoader<ModifierProvider>(ModifierProvider.class, getClass().getClassLoader());
-        
-        for (ModifierProvider provider : loader.loadPlugins()) {
+        for (ModifierProvider provider : PluginLoader.load(ModifierProvider.class, getClass().getClassLoader())) {
             for (Modifier modifier : provider.getModifiers(byteCodeInstrumentor, agent)) {
                 if (modifier instanceof AbstractModifier) {
                     AbstractModifier abstractModifier = (AbstractModifier)modifier;
@@ -181,17 +179,11 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         }
     }
 
-    /*
-     * for plugins. This method is not used yet because plugin feature is not completed.
-     */
-    private void loadPlugins(DefaultModifierRegistry modifierRepository) {
-        String pluginPath = agent.getAgentPath() + File.separatorChar + "plugin";
-        PluginLoader<ProfilerPlugin> loader = PluginLoader.get(ProfilerPlugin.class, pluginPath);
-        PluginClassLoaderFactory classLoaderFactory = new PluginClassLoaderFactory(loader.getPluginJars());
-        List<ProfilerPlugin> plugins = loader.loadPlugins();
+    private void loadPlugins(DefaultModifierRegistry modifierRepository, Plugins<ProfilerPlugin> plugins) {
+        PluginClassLoaderFactory classLoaderFactory = new PluginClassLoaderFactory(plugins.getPluginJars());
         ProfilerPluginContext pluginContext = new ProfilerPluginContext(byteCodeInstrumentor, agent.getTraceContext());
         
-        for (ProfilerPlugin plugin : plugins) {
+        for (ProfilerPlugin plugin : plugins.getPlugins()) {
             logger.info("Loading plugin: {}", plugin.getClass().getName());
             
             for (ClassEditor editor : plugin.getClassEditors(pluginContext)) {

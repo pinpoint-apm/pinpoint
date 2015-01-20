@@ -40,6 +40,7 @@
         <module>profiler-optional</module>
         <module>rpc</module>
         <module>thrift</module>
+        <module>test</module>
         <module>web</module>
     </modules>
 
@@ -137,6 +138,12 @@
                 <classifier>classes</classifier>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-test</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            
 
             <dependency>
                 <groupId>org.springframework</groupId>

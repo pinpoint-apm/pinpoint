@@ -16,20 +16,28 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import com.navercorp.pinpoint.ProductInfo;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.util.IdValidateUtils;
-import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.util.BytesUtils;
-
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.navercorp.pinpoint.ProductInfo;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.bootstrap.util.IdValidateUtils;
+import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.ServiceTypeInitializer;
+import com.navercorp.pinpoint.common.plugin.PluginLoader;
+import com.navercorp.pinpoint.common.plugin.Plugins;
+import com.navercorp.pinpoint.common.plugin.ServiceTypeProvider;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 
 /**
  * @author emeroad
@@ -49,6 +57,9 @@ public class PinpointBootStrap {
         if (agentArgs != null) {
             logger.info(ProductInfo.CAMEL_NAME + " agentArgs:" + agentArgs);
         }
+        
+        Map<String, String> argMap = parseAgentArgs(agentArgs);
+        
         final boolean duplicated = checkDuplicateLoadState();
         if (duplicated) {
             logPinpointAgentLoadFail();
@@ -86,6 +97,9 @@ public class PinpointBootStrap {
             logPinpointAgentLoadFail();
             return;
         }
+        
+        loadServiceTypeProviders(classPathResolver.getAgentPluginPath());
+        Plugins<ProfilerPlugin> plugins = PluginLoader.load(ProfilerPlugin.class, classPathResolver.getAgentPluginPath());
 
         String configPath = getConfigPath(classPathResolver);
         if (configPath == null) {
@@ -103,9 +117,10 @@ public class PinpointBootStrap {
             // this is the library list that must be loaded
             List<URL> libUrlList = resolveLib(classPathResolver);
             AgentClassLoader agentClassLoader = new AgentClassLoader(libUrlList.toArray(new URL[libUrlList.size()]));
-            agentClassLoader.setBootClass(BOOT_CLASS);
-            logger.info("pinpoint agent starting...");
-            agentClassLoader.boot(classPathResolver.getAgentDirPath(), agentArgs, instrumentation, profilerConfig);
+            String bootClass = argMap.containsKey("bootClass") ? argMap.get("bootClass") : BOOT_CLASS;
+            agentClassLoader.setBootClass(bootClass);
+            logger.info("pinpoint agent [" + bootClass + "] starting...");
+            agentClassLoader.boot(agentArgs, instrumentation, profilerConfig, plugins);
             logger.info("pinpoint agent started normally.");
         } catch (Exception e) {
             // unexpected exception that did not be checked above
@@ -113,6 +128,31 @@ public class PinpointBootStrap {
             logPinpointAgentLoadFail();
         }
 
+    }
+    
+    private static Map<String, String> parseAgentArgs(String str) {
+        Map<String, String> map = new HashMap<String, String>();
+        
+        Scanner scanner = new Scanner(str);
+        scanner.useDelimiter("\\s*,\\s*");
+        
+        while (scanner.hasNext()) {
+            String token = scanner.next();
+            int assign = token.indexOf('=');
+            
+            if (assign == -1) {
+                map.put(token, "");
+            } else {
+                map.put(token.substring(0, assign), token.substring(assign + 1));
+            }
+        }
+        
+        return map;
+    }
+    
+    private static void loadServiceTypeProviders(String pluginPath) {
+        List<ServiceTypeProvider> providers = PluginLoader.load(ServiceTypeProvider.class, pluginPath).getPlugins();
+        ServiceTypeInitializer.load(providers);
     }
 
     private static JarFile getBootStrapJarFile(String bootStrapCoreJar) {

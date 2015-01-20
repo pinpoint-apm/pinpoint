@@ -19,11 +19,11 @@ package com.navercorp.pinpoint.bootstrap.plugin;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 
-public class ConditionalInterceptorInjector implements InterceptorInjector {
+public class ConditionalInterceptorInjector implements Injector {
     private final Condition condition;
-    private final InterceptorInjector delegate;
+    private final Injector delegate;
     
-    public ConditionalInterceptorInjector(Condition condition, InterceptorInjector delegate) {
+    public ConditionalInterceptorInjector(Condition condition, Injector delegate) {
         this.condition = condition;
         this.delegate = delegate;
     }

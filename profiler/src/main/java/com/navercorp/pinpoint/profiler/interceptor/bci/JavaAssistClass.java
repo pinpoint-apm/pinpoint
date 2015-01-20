@@ -198,9 +198,13 @@ public class JavaAssistClass implements InstrumentClass {
         if (!marker) {
             throw new InstrumentException(traceValue + " marker interface  not implements" );
         }
+        
+        if (traceValue.getClassLoader() != InstrumentClass.class.getClassLoader()) {
+            throw new InstrumentException(traceValue + " must be loaded by the class loader which loaded pinpoint-bootstrap" );
+        }
 
         try {
-            final CtClass ctValueHandler = instrumentor.getClassPool().get(traceValue.getName());
+            final CtClass ctValueHandler = instrumentor.getClass(traceValue.getClassLoader(), traceValue.getName());
 
             final java.lang.reflect.Method[] declaredMethods = traceValue.getDeclaredMethods();
             final String variableName = FIELD_PREFIX + ctValueHandler.getSimpleName();
@@ -235,8 +239,6 @@ public class JavaAssistClass implements InstrumentClass {
             throw new InstrumentException(traceValue + " implements fail. Cause:" + e.getMessage(), e);
         }
     }
-
-
 
     private boolean checkTraceValueMarker(Class<?> traceValue) {
         for (Class<?> anInterface : traceValue.getInterfaces()) {
@@ -914,16 +916,46 @@ public class JavaAssistClass implements InstrumentClass {
    }
 
     @Override
-   public void addGetter(String getterName, String variableName, String variableType) throws InstrumentException {
-       try {
-           // FIXME Which is better? getField() or getDeclaredField()? getFiled() seems like better chioce if we want to add getter to child classes.
-           CtField traceVariable = ctClass.getField(variableName);
-           CtMethod getterMethod = CtNewMethod.getter(getterName, traceVariable);
-           ctClass.addMethod(getterMethod);
-       } catch (NotFoundException ex) {
-           throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);
-       } catch (CannotCompileException ex) {
-           throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);
-       }
-   }
+    public void addGetter(String getterName, String variableName, String variableType) throws InstrumentException {
+        try {
+            // FIXME Which is better? getField() or getDeclaredField()? getFiled() seems like better chioce if we want to add getter to child classes.
+            CtField traceVariable = ctClass.getField(variableName);
+            CtMethod getterMethod = CtNewMethod.getter(getterName, traceVariable);
+            ctClass.addMethod(getterMethod);
+        } catch (NotFoundException ex) {
+            throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);
+        } catch (CannotCompileException ex) {
+            throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);
+        }
+    }
+    
+    @Override
+    public void addGetter(Class<?> interfaceType, String fieldName) throws InstrumentException {
+        if (interfaceType.getClassLoader() != InstrumentClass.class.getClassLoader()) {
+            throw new InstrumentException(interfaceType + " must be loaded by the class loader which loaded pinpint-bootstrap" );
+        }
+
+        Method[] methods = interfaceType.getMethods();
+        
+        if (methods.length != 1) {
+            throw new InstrumentException("Getter interface must have only one method: " + interfaceType.getName());
+        }
+        
+        Method getter = methods[0];
+        
+        if (getter.getParameterTypes().length != 0) {
+            throw new InstrumentException("Getter interface method must be no-args and non-void: " + interfaceType.getName());
+        }
+        
+        try {
+            CtMethod getterMethod = CtNewMethod.make("public " + getter.getReturnType().getName() + " " + getter.getName() + "() { return " + fieldName + "; }", ctClass);
+            ctClass.addMethod(getterMethod);
+        
+            CtClass ctInterface = instrumentor.getClass(interfaceType.getClassLoader(), interfaceType.getName());
+            ctClass.addInterface(ctInterface);
+        } catch (Exception e) {
+            // Cannot happen. Reaching here means a bug.   
+            throw new InstrumentException("Fail to add getter: " + interfaceType.getName(), e);
+        }
+    }
 }

@@ -16,24 +16,27 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
-import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.CreateType;
-import com.navercorp.pinpoint.web.applicationmap.Link;
-import com.navercorp.pinpoint.web.applicationmap.LinkList;
-import com.navercorp.pinpoint.web.applicationmap.Node;
-import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
+import static com.navercorp.pinpoint.common.HistogramSchema.*;
+import static com.navercorp.pinpoint.common.ServiceTypeProperty.*;
+
+import java.util.List;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 
-import java.util.List;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Range;
 
 /**
  * @author emeroad
  */
 public class LinkListTest {
+    private static final ServiceType TOMCAT = ServiceType.of(1010, "TOMCAT", NORMAL_SCHEMA, RECORD_STATISTICS);
+    private static final ServiceType BLOC = ServiceType.of(1011, "BLOC", NORMAL_SCHEMA, RECORD_STATISTICS);
+      
+    
     @Test
     public void testGetLinkList() throws Exception {
         LinkList linkList = new LinkList();
@@ -58,16 +61,16 @@ public class LinkListTest {
 
     private Link createTomcatToTomcatLink() {
         LinkList linkList = new LinkList();
-        Node from = new Node(new Application("from", ServiceType.TOMCAT));
-        Node to = new Node(new Application("to", ServiceType.TOMCAT));
+        Node from = new Node(new Application("from", TOMCAT));
+        Node to = new Node(new Application("to", TOMCAT));
         Link link = new Link(CreateType.Source, from, to, new Range(0, 0));
         return link;
     }
 
     private Link createTomcatToBlocLink() {
         LinkList linkList = new LinkList();
-        Node from = new Node(new Application("from", ServiceType.TOMCAT));
-        Node to = new Node(new Application("to", ServiceType.BLOC));
+        Node from = new Node(new Application("from", TOMCAT));
+        Node to = new Node(new Application("to", BLOC));
         Link link = new Link(CreateType.Source, from, to, new Range(0, 0));
         return link;
     }
@@ -81,7 +84,7 @@ public class LinkListTest {
         list.addLink(tomcatToTomcatLink);
 
         // find all links requesting "to"
-        Application toBloc = new Application("to", ServiceType.BLOC);
+        Application toBloc = new Application("to", BLOC);
         List<Link> findToLink = list.findToLink(toBloc);
         Assert.assertEquals(findToLink.size(), 1);
 
@@ -90,7 +93,7 @@ public class LinkListTest {
             Assert.assertTrue(toBloc + " " + to, toBloc.equals(to));
         }
 
-        List<Link> unknown = list.findToLink(new Application("unknown", ServiceType.BLOC));
+        List<Link> unknown = list.findToLink(new Application("unknown", BLOC));
         Assert.assertEquals(unknown.size(), 0);
     }
 
@@ -103,7 +106,7 @@ public class LinkListTest {
         list.addLink(tomcatToTomcatLink);
 
         // find all links for "from" to request
-        Application tomcat = new Application("from", ServiceType.TOMCAT);
+        Application tomcat = new Application("from", TOMCAT);
         List<Link> findFromLink = list.findFromLink(tomcat);
         Assert.assertEquals(findFromLink.size(), 2);
         for (Link link : findFromLink) {
@@ -111,7 +114,7 @@ public class LinkListTest {
             Assert.assertTrue(linkFrom.equals(tomcat));
         }
 
-        List<Link> unknown = list.findFromLink(new Application("unknown", ServiceType.TOMCAT));
+        List<Link> unknown = list.findFromLink(new Application("unknown", TOMCAT));
         Assert.assertEquals(unknown.size(), 0);
     }
 

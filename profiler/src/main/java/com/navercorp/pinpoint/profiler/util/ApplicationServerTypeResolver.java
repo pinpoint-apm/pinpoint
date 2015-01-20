@@ -16,12 +16,17 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import com.navercorp.pinpoint.common.ServiceType;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import com.navercorp.pinpoint.bootstrap.plugin.ApplicationServerProfilerPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * @author emeroad
@@ -33,7 +38,8 @@ public class ApplicationServerTypeResolver {
     private ServiceType serverType;
     private String[] serverLibPath;
 
-    private ServiceType defaultType;
+    private final ServiceType defaultType;
+    private final List<ApplicationServerProfilerPlugin> plugins;
 
     /**
      * If we have to invoke startup() during agent initialization.
@@ -41,11 +47,20 @@ public class ApplicationServerTypeResolver {
      */
     private boolean manuallyStartupRequired = true;
     
-    public ApplicationServerTypeResolver(ServiceType defaultType) {
+    public ApplicationServerTypeResolver(List<ProfilerPlugin> plugins, ServiceType defaultType) {
         this.defaultType = defaultType;
+        this.plugins = new ArrayList<ApplicationServerProfilerPlugin>();
+        
+        for (ProfilerPlugin plugin : plugins) {
+            if (plugin instanceof ApplicationServerProfilerPlugin) {
+                this.plugins.add((ApplicationServerProfilerPlugin)plugin);
+            }
+        }
     }
 
     public ApplicationServerTypeResolver() {
+        this.defaultType = null;
+        this.plugins = Collections.emptyList();
     }
 
     public String[] getServerLibPath() {
@@ -61,14 +76,24 @@ public class ApplicationServerTypeResolver {
     }
 
     public boolean resolve() {
-        String applicationHome = null;
         
-        applicationHome = applicationHomePath();
+        for (ApplicationServerProfilerPlugin plugin : plugins) {
+            logger.debug("try resolve using {}", plugin.getClass());
+            
+            if (plugin.isInstance()) {
+                this.serverType = plugin.getServerType();
+                this.serverLibPath = plugin.getClassPath();
+
+                if (logger.isInfoEnabled()) {
+                    logger.info("Configured applicationServerType [{}] by {}", serverType, plugin.getClass().getName());
+                }
                 
-        if (blocResolve(applicationHome)) {
-            return initializeApplicationInfo(applicationHome, ServiceType.BLOC);
+                return true;
+            }
         }
         
+        String applicationHome = applicationHomePath();
+                
         if (tomcatResolve(applicationHome)) {
             return initializeApplicationInfo(applicationHome, ServiceType.TOMCAT);
         }
@@ -89,8 +114,6 @@ public class ApplicationServerTypeResolver {
         
         if (System.getProperty("catalina.home") != null) {
             path = System.getProperty("catalina.home");
-        } else if (System.getProperty("bloc.home") != null) {
-            path = System.getProperty("bloc.home");
         } else {
             path = System.getProperty("user.dir");
         }
@@ -113,23 +136,6 @@ public class ApplicationServerTypeResolver {
         return isTomcat;
     }
 
-    private boolean blocResolve(final String applicationHome) {
-        final File bloc3CatalinaJar = new File(applicationHome + "/server/lib/catalina.jar");
-        final File bloc3ServletApiJar = new File(applicationHome + "/common/lib/servlet-api.jar");
-        final File bloc4LibDir = new File(applicationHome + "/libs");
-        boolean isBloc = false;
-        
-        if (isFileExist(bloc3CatalinaJar) && isFileExist(bloc3ServletApiJar)) {
-            manuallyStartupRequired = false;
-            isBloc = true;
-        } else if (isFileExist(bloc4LibDir)) {
-            manuallyStartupRequired = true;
-            isBloc = true;
-        } 
-        
-        return isBloc;
-    }
-
     private boolean initializeApplicationInfo(String applicationHome, ServiceType serviceType) {
         if (applicationHome == null) {
             logger.warn("applicationHome is null");
@@ -138,15 +144,6 @@ public class ApplicationServerTypeResolver {
 
         if (ServiceType.TOMCAT.equals(serviceType)) {
             this.serverLibPath = new String[] { applicationHome + "/lib/servlet-api.jar", applicationHome + "/lib/catalina.jar" };
-        } else if (ServiceType.BLOC.equals(serviceType)) {
-            // FIXME enhance how to specify serverLibPath
-            if (manuallyStartupRequired) {
-                // BLOC 4.x
-                this.serverLibPath = new String[] {"/libs"};
-            } else {
-                // BLOC 3.x
-                this.serverLibPath = new String[] { applicationHome + "/server/lib/catalina.jar", applicationHome + "/common/lib/servlet-api.jar" };
-            }
         } else if (ServiceType.STAND_ALONE.equals(serviceType)) {
             this.serverLibPath = new String[] {};
         } else if (ServiceType.TEST_STAND_ALONE.equals(serviceType)) {

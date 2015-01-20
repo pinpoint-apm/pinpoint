@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 
-public class DedicatedInterceptorInjector implements InterceptorInjector {
+public class DedicatedInterceptorInjector implements Injector {
     private final String targetMethodName;
     private final String[] targetMethodParameterTypes;
     private final InterceptorFactory factory;

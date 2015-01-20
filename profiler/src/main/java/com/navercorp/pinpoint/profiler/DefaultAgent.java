@@ -35,7 +35,9 @@ import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
+import com.navercorp.pinpoint.common.plugin.Plugins;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
@@ -75,7 +77,6 @@ public class DefaultAgent implements Agent {
     private final ByteCodeInstrumentor byteCodeInstrumentor;
     private final ClassFileTransformer classFileTransformer;
     
-    private final String agentPath;
     private final ProfilerConfig profilerConfig;
 
     private final AgentInfoSender agentInfoSender;
@@ -100,10 +101,7 @@ public class DefaultAgent implements Agent {
         ClassPreLoader.preload();
     }
 
-    public DefaultAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
-        if (agentPath == null) {
-            throw new NullPointerException("agentPath must not be null");
-        }
+    public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, Plugins<ProfilerPlugin> plugins) {
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
         }
@@ -119,10 +117,9 @@ public class DefaultAgent implements Agent {
 
         changeStatus(AgentStatus.INITIALIZING);
 
-        this.agentPath = agentPath;
         this.profilerConfig = profilerConfig;
-
-        final ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(profilerConfig.getApplicationServerType());
+        
+        final ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(plugins.getPlugins(), profilerConfig.getApplicationServerType());
         if (!typeResolver.resolve()) {
             throw new PinpointException("ApplicationServerType not found.");
         }
@@ -162,7 +159,7 @@ public class DefaultAgent implements Agent {
         
         ClassFileRetransformer retransformer = new ClassFileRetransformer(instrumentation);
         instrumentation.addTransformer(retransformer, true);
-        this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, retransformer);
+        this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, retransformer, plugins);
         instrumentation.addTransformer(this.classFileTransformer);
 
 
@@ -335,10 +332,6 @@ public class DefaultAgent implements Agent {
 
     public AgentInformation getAgentInformation() {
         return agentInformation;
-    }
-    
-    public String getAgentPath() {
-        return agentPath;
     }
     
     @Override

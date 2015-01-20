@@ -168,6 +168,10 @@ public class ClassPathResolver {
     public String getAgentLogFilePath() {
         return this.agentDirPath + File.separator + "log";
     }
+    
+    public String getAgentPluginPath() {
+        return this.agentDirPath + File.separator + "plugin";
+    }
 
     public List<URL> resolveLib() {
         String agentLibPath = getAgentLibPath();

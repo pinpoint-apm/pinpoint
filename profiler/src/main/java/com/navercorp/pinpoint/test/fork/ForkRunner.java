@@ -42,9 +42,12 @@ import com.navercorp.pinpoint.exception.PinpointException;
 
 public class ForkRunner extends BlockJUnit4ClassRunner {
     private static final String[] REQUIRED_CLASS_PATHS = new String[] {
-        "junit",
-        "pinpoint-profiler",
-        "pinpoint/profiler"
+        "junit",                    // JUNIT
+
+        // Below two items are for com.navercorp.pinpoint.fork package. 
+        // If the package is extracted to a separate module (maybe pinpoint-test) below items have to be changed to the extracted module name.  
+        "pinpoint-profiler",        // pinpoint-profiler-{VERSION}.jar
+        "/profiler/target/classes"  // pinpoint profiler build output directory
     };
 
     private static final String DEFAULT_ENCODING = "UTF-8";
@@ -54,13 +57,14 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
     private final boolean testOnChildClassLoader;
     private final String[] excludedLibraries;
     private final String[] includedLibraries;
+    private final String[] jvmArguments;
+    private final String javaHomeEnvName;
 
     public ForkRunner(Class<?> testClass) throws InitializationError {
         super(testClass);
         
         PinpointAgent agent = testClass.getAnnotation(PinpointAgent.class);
         this.agentJar = resolveAgentPath(agent); 
-
         
         PinpointConfig config = testClass.getAnnotation(PinpointConfig.class);
         this.configFile = config == null ? null : config.value();
@@ -72,10 +76,17 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
         
         WithLibraries include = testClass.getAnnotation(WithLibraries.class);
         includedLibraries = include == null ? new String[0] : include.value();
+
+        JvmArgument jvmArgument = testClass.getAnnotation(JvmArgument.class);
+        jvmArguments = jvmArgument == null ? new String[0] : jvmArgument.value();
+        
+        JavaVersion javaVersion = testClass.getAnnotation(JavaVersion.class);
+        javaHomeEnvName =  javaVersion == null ? null : "JAVA_" + javaVersion.value() + "_HOME";
+        
     }
     
     private String resolveAgentPath(PinpointAgent agent) {
-        String path = agent == null ? "target/pinpoint-agent" : agent.value();
+        String path = agent == null ? "target/pinpoint-agent-" + Version.VERSION : agent.value();
         String version = agent == null ? Version.VERSION : agent.version(); 
         String relativePath = path + (!path.endsWith("/") ? "/" : "") + "pinpoint-bootstrap-" + version + ".jar";
 
@@ -188,8 +199,11 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
             
             list.add("-Dpinpoint.agentId=build.test.0");
             list.add("-Dpinpoint.applicationName=test");
-
             list.add("-Dfile.encoding=" + DEFAULT_ENCODING);
+            
+            for (String arg : jvmArguments) {
+                list.add(arg);
+            }
             
             if (isDebugMode()) {
                 list.addAll(getDebugOptions());
@@ -238,13 +252,20 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
         }
         
         private String getAgent() {
-            return "-javaagent:" + agentJar;
+            return "-javaagent:" + agentJar + "=bootClass=com.navercorp.pinpoint.test.MockAgent";
         }
 
         private String getJavaExecutable() {
             StringBuilder builder = new StringBuilder();
-
-            builder.append(System.getProperty("java.home"));
+            
+            String javaHome;
+            if (javaHomeEnvName == null) {
+                javaHome = System.getProperty("java.home");
+            } else {
+                javaHome = System.getenv(javaHomeEnvName);
+            }
+            
+            builder.append(javaHome);
             builder.append(File.separatorChar);
             builder.append("bin");
             builder.append(File.separatorChar);

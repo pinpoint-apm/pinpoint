@@ -115,4 +115,6 @@ public interface InstrumentClass {
     InstrumentClass getNestedClass(String className);
 
     void addGetter(String getterName, String fieldName, String fieldType) throws InstrumentException;
+    
+    void addGetter(Class<?> interfaceType, String fieldName) throws InstrumentException;
 }

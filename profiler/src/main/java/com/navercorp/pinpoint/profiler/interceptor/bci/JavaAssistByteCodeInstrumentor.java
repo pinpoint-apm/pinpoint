@@ -144,14 +144,17 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     @Override
     public InstrumentClass getClass(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) throws InstrumentException {
-        // for asm : classFileBuffer
+        CtClass cc = getClass(classLoader, javassistClassName);
+        return new JavaAssistClass(this, cc);
+    }
+    
+    public CtClass getClass(ClassLoader classLoader, String className) throws InstrumentException {
         final NamedClassPool classPool = findClassPool(classLoader);
-        checkLibrary(classLoader, classPool, javassistClassName);
+        checkLibrary(classLoader, classPool, className);
         try {
-            CtClass cc = classPool.get(javassistClassName);
-            return new JavaAssistClass(this, cc);
+            return classPool.get(className);
         } catch (NotFoundException e) {
-            throw new InstrumentException(javassistClassName + " class not found. Cause:" + e.getMessage(), e);
+            throw new InstrumentException(className + " class not found. Cause:" + e.getMessage(), e);
         }
     }
 

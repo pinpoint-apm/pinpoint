@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin;
+package com.navercorp.pinpoint.common.plugin;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -27,22 +27,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 
-import com.navercorp.pinpoint.bootstrap.plugin.PluginClassLoader;
-import com.navercorp.pinpoint.exception.PinpointException;
-
+/**
+ * TODO Loading all plugins with a single class loader could cause class collisions.
+ *      Also, with current implementation, plugins can use dependencies by putting them in the plugin directory too.
+ *      But it can lead to dependency collision between plugins because they are loaded by a single class loader.
+ *      
+ *      How can we prevent this?
+ *      A ClassLoader per plugin could do it but then we have to create "N of target class loader" x "N of plugin" class loaders.
+ *      It seems too much. For now, Just leave it as it is. 
+ * 
+ * 
+ * @author Jongho Moon <jongho.moon@navercorp.com>
+ * @author emeroad
+ *
+ * @param <T>
+ */
 public class PluginLoader<T> {
 
-    public static final URL[] EMPTY_URL = new URL[0];
+    private static final URL[] EMPTY_URL = new URL[0];
     private static final SecurityManager SECURITY_MANAGER = System.getSecurityManager();
 
-    private final Class<T> serviceType;
-    private final ClassLoader classLoader;
-    
-    public static <T> PluginLoader<T> get(Class<T> serviceType, String pluginPath) {
+    public static <T> Plugins<T> load(Class<T> serviceType, String pluginPath) {
         URL[] jars = findJars(pluginPath);
         URLClassLoader classLoader = createPluginClassLoader(jars, ClassLoader.getSystemClassLoader());
+        List<T> plugins = load(serviceType, classLoader);
         
-        return new PluginLoader<T>(serviceType, classLoader);
+        return new Plugins<T>(plugins, jars);
     }
 
     private static PluginClassLoader createPluginClassLoader(final URL[] urls, final ClassLoader parent) {
@@ -57,29 +67,17 @@ public class PluginLoader<T> {
         }
     }
     
-    public PluginLoader(Class<T> serviceType, ClassLoader classLoader) {
-        this.serviceType = serviceType;
-        this.classLoader = classLoader;
-    }
-
-    public List<T> loadPlugins() {
+    public static <T> List<T> load(Class<T> serviceType, ClassLoader classLoader) {
         ServiceLoader<T> serviceLoader = ServiceLoader.load(serviceType, classLoader);
         
         List<T> plugins = new ArrayList<T>();
         for (T plugin : serviceLoader) {
             plugins.add(plugin);
         }
+
         return plugins;
     }
     
-    public URL[] getPluginJars() {
-        if (classLoader instanceof URLClassLoader) {
-            return ((URLClassLoader)classLoader).getURLs();
-        } else {
-            return EMPTY_URL;
-        }
-    }
-
     private static URL[] findJars(String pluginPath) {
         final File file = new File(pluginPath);
         
@@ -105,7 +103,8 @@ public class PluginLoader<T> {
             try {
                 urls[i] = jars[i].toURI().toURL();
             } catch (MalformedURLException e) {
-                throw new PinpointException("Fail to load plugin jars", e);
+                // TODO have to change to PinpointException after moving the exception to pinpint-common
+                throw new RuntimeException("Fail to load plugin jars", e);
             }
         }
         

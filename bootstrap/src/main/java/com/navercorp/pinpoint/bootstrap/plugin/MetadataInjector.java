@@ -18,7 +18,31 @@ package com.navercorp.pinpoint.bootstrap.plugin;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
+import com.navercorp.pinpoint.bootstrap.plugin.MetadataInitializationStrategy.ByConstructor;
+import com.navercorp.pinpoint.exception.PinpointException;
 
-public interface MetadataInjector {
-    void inject(ClassLoader classLoader, InstrumentClass target) throws InstrumentException;
+public class MetadataInjector implements Injector {
+    
+    private final Class<? extends TraceValue> metadataAccessorType;
+    private final MetadataInitializationStrategy strategy;
+    
+    public MetadataInjector(Class<? extends TraceValue> metadataAccessorType, MetadataInitializationStrategy strategy) {
+        this.metadataAccessorType = metadataAccessorType;
+        this.strategy = strategy;
+    }
+
+    @Override
+    public void inject(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
+        if (strategy == null) {
+            target.addTraceValue(metadataAccessorType);
+        } else {
+            if (strategy instanceof ByConstructor) {
+                String javaExpression = "new " + ((ByConstructor)strategy).getClassName() + "();";
+                target.addTraceValue(metadataAccessorType, javaExpression);
+            } else {
+                throw new PinpointException("Unsupported strategy: " + strategy);
+            }
+        }
+    }
 }

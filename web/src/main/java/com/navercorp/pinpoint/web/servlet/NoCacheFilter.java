@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.servletfilter;
+package com.navercorp.pinpoint.web.servlet;
 
 import java.io.IOException;
 

@@ -19,6 +19,23 @@ package com.navercorp.pinpoint.bootstrap.plugin;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 
-public interface InterceptorInjector {
-    void inject(ClassLoader classLoader, InstrumentClass target) throws InstrumentException;
+/**
+ * 
+ * @author Jongho Moon <jongho.moon@navercorp.com>
+ *
+ */
+public class FieldSnooperInjector implements Injector {
+    
+    private final Class<? extends Snooper> snooperType;
+    private final String fieldName;
+    
+    public FieldSnooperInjector(Class<? extends Snooper> snooperType, String fieldName) {
+        this.snooperType = snooperType;
+        this.fieldName = fieldName;
+    }
+
+    @Override
+    public void inject(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
+        target.addGetter(snooperType, fieldName);
+    }
 }

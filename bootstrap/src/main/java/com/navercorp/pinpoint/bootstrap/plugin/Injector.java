@@ -14,18 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.test.fork;
+package com.navercorp.pinpoint.bootstrap.plugin;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 
-import com.navercorp.pinpoint.common.Version;
-
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface PinpointAgent {
-    String value() default "target/pinpoint-agent-" + Version.VERSION;
-    String version() default Version.VERSION; 
+public interface Injector {
+    void inject(ClassLoader classLoader, InstrumentClass target) throws InstrumentException;
 }
