@@ -71,4 +71,9 @@ public class AsyncClientExecuteInterceptor extends AbstractHttpRequestExecute im
             return null;
         }
     }
+
+    @Override
+    Integer getStatusCode(Object result) {
+        return null;
+    }
 }
