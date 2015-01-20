@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 
 /**
  * MethodInfo interceptor
@@ -61,6 +62,19 @@ public class HttpRequestExecuteInterceptor extends AbstractHttpRequestExecute im
         if (arg instanceof HttpRequest) {
             return (HttpRequest) arg;
         }
+        return null;
+    }
+    
+    @Override
+    Integer getStatusCode(Object result) {
+        if (result instanceof HttpResponse) {
+            HttpResponse response = (HttpResponse)result;
+            
+            if (response.getStatusLine() != null) {
+                return response.getStatusLine().getStatusCode(); 
+            }
+        }
+        
         return null;
     }
 

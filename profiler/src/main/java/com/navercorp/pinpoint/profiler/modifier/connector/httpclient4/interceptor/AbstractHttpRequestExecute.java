@@ -72,6 +72,8 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
     abstract NameIntValuePair<String> getHost(Object[] args);
 
     abstract HttpRequest getHttpRequest(Object[] args);
+    
+    abstract Integer getStatusCode(Object result);
 
     @Override
     public void before(Object target, Object[] args) {
@@ -156,6 +158,13 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
 
                 recordHttpRequest(trace, httpRequest, throwable);
             }
+
+            Integer statusCode = getStatusCode(result);
+            
+            if (statusCode != null) {
+                trace.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, statusCode);
+            }
+            
             trace.recordApi(descriptor);
             trace.recordException(throwable);
 

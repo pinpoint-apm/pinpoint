@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
 
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 
 /**
@@ -124,6 +125,19 @@ public class HttpUriRequestExecuteInterceptor extends AbstractHttpRequestExecute
             }
         }
         return target;
+    }
+    
+    @Override
+    Integer getStatusCode(Object result) {
+        if (result instanceof HttpResponse) {
+            HttpResponse response = (HttpResponse)result;
+            
+            if (response.getStatusLine() != null) {
+                return response.getStatusLine().getStatusCode(); 
+            }
+        }
+        
+        return null;
     }
 
 }

@@ -116,4 +116,9 @@ public class AsyncInternalClientExecuteInterceptor extends AbstractHttpRequestEx
             return null;
         }
     }
+
+    @Override
+    Integer getStatusCode(Object result) {
+        return null;
+    }
 }
