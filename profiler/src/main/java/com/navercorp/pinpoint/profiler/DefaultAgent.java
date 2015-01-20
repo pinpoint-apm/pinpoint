@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -37,7 +38,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
-import com.navercorp.pinpoint.common.plugin.Plugins;
+import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
@@ -101,7 +102,7 @@ public class DefaultAgent implements Agent {
         ClassPreLoader.preload();
     }
 
-    public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, Plugins<ProfilerPlugin> plugins) {
+    public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars) {
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
         }
@@ -116,10 +117,12 @@ public class DefaultAgent implements Agent {
         dumpConfig(profilerConfig);
 
         changeStatus(AgentStatus.INITIALIZING);
+        
+        List<ProfilerPlugin> plugins = PluginLoader.load(ProfilerPlugin.class, pluginJars);
 
         this.profilerConfig = profilerConfig;
         
-        final ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(plugins.getPlugins(), profilerConfig.getApplicationServerType());
+        final ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(plugins, profilerConfig.getApplicationServerType());
         if (!typeResolver.resolve()) {
             throw new PinpointException("ApplicationServerType not found.");
         }
@@ -159,7 +162,7 @@ public class DefaultAgent implements Agent {
         
         ClassFileRetransformer retransformer = new ClassFileRetransformer(instrumentation);
         instrumentation.addTransformer(retransformer, true);
-        this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, retransformer, plugins);
+        this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, retransformer, plugins, pluginJars);
         instrumentation.addTransformer(this.classFileTransformer);
 
 

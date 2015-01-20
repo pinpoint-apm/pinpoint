@@ -34,8 +34,7 @@ public class ServiceTypeLoader implements ServletContextListener {
      */
     @Override
     public void contextDestroyed(ServletContextEvent arg0) {
-        List<ServiceTypeProvider> providers = PluginLoader.load(ServiceTypeProvider.class, getClass().getClassLoader());
-        ServiceTypeInitializer.load(providers);
+        // do nothing
     }
 
     /* (non-Javadoc)
@@ -43,7 +42,8 @@ public class ServiceTypeLoader implements ServletContextListener {
      */
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
-        // do nothing
+        List<ServiceTypeProvider> providers = PluginLoader.load(ServiceTypeProvider.class, getClass().getClassLoader());
+        ServiceTypeInitializer.load(providers);
     }
 
 }

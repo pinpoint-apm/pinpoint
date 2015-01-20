@@ -30,12 +30,10 @@ import java.util.logging.Logger;
 
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.ServiceTypeInitializer;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
-import com.navercorp.pinpoint.common.plugin.Plugins;
 import com.navercorp.pinpoint.common.plugin.ServiceTypeProvider;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
@@ -98,8 +96,8 @@ public class PinpointBootStrap {
             return;
         }
         
-        loadServiceTypeProviders(classPathResolver.getAgentPluginPath());
-        Plugins<ProfilerPlugin> plugins = PluginLoader.load(ProfilerPlugin.class, classPathResolver.getAgentPluginPath());
+        URL[] pluginJars = classPathResolver.resolvePlugins();
+        loadServiceTypeProviders(pluginJars);
 
         String configPath = getConfigPath(classPathResolver);
         if (configPath == null) {
@@ -120,7 +118,7 @@ public class PinpointBootStrap {
             String bootClass = argMap.containsKey("bootClass") ? argMap.get("bootClass") : BOOT_CLASS;
             agentClassLoader.setBootClass(bootClass);
             logger.info("pinpoint agent [" + bootClass + "] starting...");
-            agentClassLoader.boot(agentArgs, instrumentation, profilerConfig, plugins);
+            agentClassLoader.boot(agentArgs, instrumentation, profilerConfig, pluginJars);
             logger.info("pinpoint agent started normally.");
         } catch (Exception e) {
             // unexpected exception that did not be checked above
@@ -150,8 +148,8 @@ public class PinpointBootStrap {
         return map;
     }
     
-    private static void loadServiceTypeProviders(String pluginPath) {
-        List<ServiceTypeProvider> providers = PluginLoader.load(ServiceTypeProvider.class, pluginPath).getPlugins();
+    private static void loadServiceTypeProviders(URL[] pluginJars) {
+        List<ServiceTypeProvider> providers = PluginLoader.load(ServiceTypeProvider.class, pluginJars);
         ServiceTypeInitializer.load(providers);
     }
 

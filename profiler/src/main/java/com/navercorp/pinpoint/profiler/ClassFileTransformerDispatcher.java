@@ -18,7 +18,9 @@ package com.navercorp.pinpoint.profiler;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
+import java.net.URL;
 import java.security.ProtectionDomain;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +33,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.PluginClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
-import com.navercorp.pinpoint.common.plugin.Plugins;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.DefaultModifierRegistry;
 import com.navercorp.pinpoint.profiler.modifier.Modifier;
@@ -61,7 +62,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
     private final ClassFileFilter skipFilter;
     
-    public ClassFileTransformerDispatcher(DefaultAgent agent, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileRetransformer retransformer, Plugins<ProfilerPlugin> plugins) {
+    public ClassFileTransformerDispatcher(DefaultAgent agent, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileRetransformer retransformer, List<ProfilerPlugin> plugins, URL[] pluginJars) {
         if (agent == null) {
             throw new NullPointerException("agent must not be null");
         }
@@ -76,7 +77,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         this.byteCodeInstrumentor = byteCodeInstrumentor;
         this.retransformer = retransformer;
         this.profilerConfig = agent.getProfilerConfig();
-        this.modifierRegistry = createModifierRegistry(plugins);
+        this.modifierRegistry = createModifierRegistry(plugins, pluginJars);
         this.skipFilter = new DefaultClassFileFilter(agentClassLoader);
     }
 
@@ -134,7 +135,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         }
     }
 
-    private ModifierRegistry createModifierRegistry(Plugins<ProfilerPlugin> plugins) {
+    private ModifierRegistry createModifierRegistry(List<ProfilerPlugin> plugins, URL[] pluginJars) {
         DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(agent, byteCodeInstrumentor, retransformer);
 
         modifierRepository.addMethodModifier();
@@ -160,7 +161,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         modifierRepository.addRedisModifier();
         
         loadModifiers(modifierRepository);
-        loadPlugins(modifierRepository, plugins);
+        loadPlugins(modifierRepository, plugins, pluginJars);
         
         return modifierRepository;
     }
@@ -179,11 +180,11 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         }
     }
 
-    private void loadPlugins(DefaultModifierRegistry modifierRepository, Plugins<ProfilerPlugin> plugins) {
-        PluginClassLoaderFactory classLoaderFactory = new PluginClassLoaderFactory(plugins.getPluginJars());
+    private void loadPlugins(DefaultModifierRegistry modifierRepository, List<ProfilerPlugin> plugins, URL[] pluginJars) {
+        PluginClassLoaderFactory classLoaderFactory = new PluginClassLoaderFactory(pluginJars);
         ProfilerPluginContext pluginContext = new ProfilerPluginContext(byteCodeInstrumentor, agent.getTraceContext());
         
-        for (ProfilerPlugin plugin : plugins.getPlugins()) {
+        for (ProfilerPlugin plugin : plugins) {
             logger.info("Loading plugin: {}", plugin.getClass().getName());
             
             for (ClassEditor editor : plugin.getClassEditors(pluginContext)) {

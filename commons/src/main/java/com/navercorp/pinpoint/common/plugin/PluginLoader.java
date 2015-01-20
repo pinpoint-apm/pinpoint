@@ -16,9 +16,6 @@
 
 package com.navercorp.pinpoint.common.plugin;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
@@ -47,12 +44,9 @@ public class PluginLoader<T> {
     private static final URL[] EMPTY_URL = new URL[0];
     private static final SecurityManager SECURITY_MANAGER = System.getSecurityManager();
 
-    public static <T> Plugins<T> load(Class<T> serviceType, String pluginPath) {
-        URL[] jars = findJars(pluginPath);
-        URLClassLoader classLoader = createPluginClassLoader(jars, ClassLoader.getSystemClassLoader());
-        List<T> plugins = load(serviceType, classLoader);
-        
-        return new Plugins<T>(plugins, jars);
+    public static <T> List<T> load(Class<T> serviceType, URL[] urls) {
+        URLClassLoader classLoader = createPluginClassLoader(urls, ClassLoader.getSystemClassLoader());
+        return load(serviceType, classLoader);
     }
 
     private static PluginClassLoader createPluginClassLoader(final URL[] urls, final ClassLoader parent) {
@@ -76,38 +70,5 @@ public class PluginLoader<T> {
         }
 
         return plugins;
-    }
-    
-    private static URL[] findJars(String pluginPath) {
-        final File file = new File(pluginPath);
-        
-        if (!file.exists() || !file.isDirectory()) {
-            return EMPTY_URL;
-        }
-        
-        final File[] jars = file.listFiles(new FilenameFilter() {
-            
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".jar");
-            }
-        });
-
-        if (jars == null || jars.length == 0) {
-            return EMPTY_URL;
-        }
-        
-        final URL[] urls = new URL[jars.length];
-        
-        for (int i = 0; i < jars.length; i++) {
-            try {
-                urls[i] = jars[i].toURI().toURL();
-            } catch (MalformedURLException e) {
-                // TODO have to change to PinpointException after moving the exception to pinpint-common
-                throw new RuntimeException("Fail to load plugin jars", e);
-            }
-        }
-        
-        return urls;
     }
 }

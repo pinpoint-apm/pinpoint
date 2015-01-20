@@ -18,6 +18,6 @@ package com.navercorp.pinpoint.bootstrap.plugin;
  * @author Jongho Moon
  *
  */
-public interface ObjectSnooper extends Snooper {
-    public Object __get_object__();
+public interface ObjectSnooper2 extends Snooper {
+    public Object __get_object_2__();
 }

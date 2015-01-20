@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.thrift.TBase;
@@ -30,9 +29,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.plugin.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.PluginTestVerifierHolder;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.common.plugin.Plugins;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
@@ -69,11 +66,11 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
     }
 
     public MockAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
-        this(agentArgs, instrumentation, profilerConfig, new Plugins<ProfilerPlugin>(Collections.<ProfilerPlugin>emptyList(), new URL[0]));
+        this(agentArgs, instrumentation, profilerConfig, new URL[0]);
     }
     
-    public MockAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, Plugins<ProfilerPlugin> plugins) {
-        super(agentArgs, instrumentation, profilerConfig, plugins);
+    public MockAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars) {
+        super(agentArgs, instrumentation, profilerConfig, pluginJars);
         
         PluginTestVerifierHolder.setInstance(this);
     }

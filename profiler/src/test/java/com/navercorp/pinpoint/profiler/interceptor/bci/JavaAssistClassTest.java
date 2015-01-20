@@ -481,7 +481,7 @@ public class JavaAssistClassTest {
         Method method = testObject.getClass().getMethod("setValue", String.class);
         method.invoke(testObject, value);
 
-        Assert.assertEquals(value, ((ObjectSnooper)testObject).__get__());
+        Assert.assertEquals(value, ((ObjectSnooper)testObject).__get_object__());
         
         
     }

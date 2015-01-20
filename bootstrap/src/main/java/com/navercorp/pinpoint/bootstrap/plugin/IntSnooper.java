@@ -12,29 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.common.plugin;
-
-import java.net.URL;
-import java.util.List;
+package com.navercorp.pinpoint.bootstrap.plugin;
 
 /**
  * @author Jongho Moon
  *
  */
-public class Plugins<T> {
-    private final List<T> plugins;
-    private final URL[] pluginJars;
-    
-    public Plugins(List<T> plugins, URL[] pluginJars) {
-        this.plugins = plugins;
-        this.pluginJars = pluginJars;
-    }
-
-    public List<T> getPlugins() {
-        return plugins;
-    }
-
-    public URL[] getPluginJars() {
-        return pluginJars;
-    }
+public interface IntSnooper extends Snooper {
+    public int __get_int__();
 }
