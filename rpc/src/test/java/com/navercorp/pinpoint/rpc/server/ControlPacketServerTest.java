@@ -22,12 +22,12 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,11 +40,9 @@ import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.rpc.server.PinpointServerSocket;
-import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
-import com.navercorp.pinpoint.rpc.server.SocketChannel;
 import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
+import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 
 /**
  * @author koo.taejin
@@ -53,16 +51,21 @@ public class ControlPacketServerTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private static int bindPort;
+    
+    @BeforeClass
+    public static void setUp() throws IOException {
+        bindPort = PinpointRPCTestUtils.findAvailablePort();
+    }
+
     // Test for being possible to send messages in case of failure of registering packet ( return code : 2, lack of parameter)
     @Test
     public void registerAgentTest1() throws Exception {
-        PinpointServerSocket pinpointServerSocket = new PinpointServerSocket();
-        pinpointServerSocket.setMessageListener(new SimpleListener());
-        pinpointServerSocket.bind("127.0.0.1", 22234);
+        PinpointServerSocket serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort, new SimpleListener());
 
         Socket socket = null;
         try {
-            socket = new Socket("127.0.0.1", 22234);
+            socket = new Socket("127.0.0.1", bindPort);
 
             sendAndReceiveSimplePacket(socket);
 
@@ -71,54 +74,40 @@ public class ControlPacketServerTest {
 
             sendAndReceiveSimplePacket(socket);
         } finally {
-            if (socket != null) {
-                socket.close();
-            }
-
-            if (pinpointServerSocket != null) {
-                pinpointServerSocket.close();
-            }
+            PinpointRPCTestUtils.close(socket);
+            PinpointRPCTestUtils.close(serverSocket);
         }
     }
 
     // Test for being possible to send messages in case of success of registering packet ( return code : 0)
     @Test
     public void registerAgentTest2() throws Exception {
-        PinpointServerSocket pinpointServerSocket = new PinpointServerSocket();
-        pinpointServerSocket.setMessageListener(new SimpleListener());
-        pinpointServerSocket.bind("127.0.0.1", 22234);
+        PinpointServerSocket serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort, new SimpleListener());
 
         Socket socket = null;
         try {
-            socket = new Socket("127.0.0.1", 22234);
+            socket = new Socket("127.0.0.1", bindPort);
 
             sendAndReceiveSimplePacket(socket);
 
-            int code= sendAndReceiveRegisterPacket(socket, getParams());
+            int code= sendAndReceiveRegisterPacket(socket, PinpointRPCTestUtils.getParams());
             Assert.assertEquals(0, code);
 
             sendAndReceiveSimplePacket(socket);
         } finally {
-            if (socket != null) {
-                socket.close();
-            }
-
-            if (pinpointServerSocket != null) {
-                pinpointServerSocket.close();
-            }
+            PinpointRPCTestUtils.close(socket);
+            PinpointRPCTestUtils.close(serverSocket);
         }
     }
 
     // when failure of registering and retrying to register, confirm to return same code ( return code : 2
     @Test
     public void registerAgentTest3() throws Exception {
-        PinpointServerSocket pinpointServerSocket = new PinpointServerSocket();
-        pinpointServerSocket.setMessageListener(new SimpleListener());
-        pinpointServerSocket.bind("127.0.0.1", 22234);
+        PinpointServerSocket serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort, new SimpleListener());
 
         Socket socket = null;
         try {
-            socket = new Socket("127.0.0.1", 22234);
+            socket = new Socket("127.0.0.1", bindPort);
             int code = sendAndReceiveRegisterPacket(socket);
             Assert.assertEquals(2, code);
 
@@ -127,13 +116,8 @@ public class ControlPacketServerTest {
 
             sendAndReceiveSimplePacket(socket);
         } finally {
-            if (socket != null) {
-                socket.close();
-            }
-
-            if (pinpointServerSocket != null) {
-                pinpointServerSocket.close();
-            }
+            PinpointRPCTestUtils.close(socket);
+            PinpointRPCTestUtils.close(serverSocket);
         }
     }
 
@@ -141,32 +125,25 @@ public class ControlPacketServerTest {
     // test 1) confirm to return success code, 2) confirm to return already success code.
     @Test
     public void registerAgentTest4() throws Exception {
-        PinpointServerSocket pinpointServerSocket = new PinpointServerSocket();
-        pinpointServerSocket.setMessageListener(new SimpleListener());
-        pinpointServerSocket.bind("127.0.0.1", 22234);
+        PinpointServerSocket serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort, new SimpleListener());
 
         Socket socket = null;
         try {
-            socket = new Socket("127.0.0.1", 22234);
+            socket = new Socket("127.0.0.1", bindPort);
             sendAndReceiveSimplePacket(socket);
 
-            int code = sendAndReceiveRegisterPacket(socket, getParams());
+            int code = sendAndReceiveRegisterPacket(socket, PinpointRPCTestUtils.getParams());
             Assert.assertEquals(0, code);
 
             sendAndReceiveSimplePacket(socket);
 
-            code = sendAndReceiveRegisterPacket(socket, getParams());
+            code = sendAndReceiveRegisterPacket(socket, PinpointRPCTestUtils.getParams());
             Assert.assertEquals(1, code);
 
             sendAndReceiveSimplePacket(socket);
         } finally {
-            if (socket != null) {
-                socket.close();
-            }
-
-            if (pinpointServerSocket != null) {
-                pinpointServerSocket.close();
-            }
+            PinpointRPCTestUtils.close(socket);
+            PinpointRPCTestUtils.close(serverSocket);
         }
     }
 
@@ -280,21 +257,6 @@ public class ControlPacketServerTest {
 
             return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
         }
-    }
-
-    private Map getParams() {
-        Map properties = new HashMap();
-
-        properties.put(AgentHandshakePropertyType.AGENT_ID.getName(), "agent");
-        properties.put(AgentHandshakePropertyType.APPLICATION_NAME.getName(), "application");
-        properties.put(AgentHandshakePropertyType.HOSTNAME.getName(), "hostname");
-        properties.put(AgentHandshakePropertyType.IP.getName(), "ip");
-        properties.put(AgentHandshakePropertyType.PID.getName(), 1111);
-        properties.put(AgentHandshakePropertyType.SERVICE_TYPE.getName(), 10);
-        properties.put(AgentHandshakePropertyType.START_TIMESTAMP.getName(), System.currentTimeMillis());
-        properties.put(AgentHandshakePropertyType.VERSION.getName(), "1.0");
-
-        return properties;
     }
 
 }
