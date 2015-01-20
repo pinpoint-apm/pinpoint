@@ -1,6 +1,4 @@
-package com.navercorp.pinpoint.profiler.interceptor.bci;
-
-import com.navercorp.pinpoint.bootstrap.instrument.ScopeDefinition;
+package com.navercorp.pinpoint.bootstrap.instrument;
 
 /**
  * @author emeroad

@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.profiler.util.ScopePool;
 
+import com.navercorp.pinpoint.profiler.util.ThreadLocalScopePool;
 import javassist.*;
 
 import org.slf4j.Logger;
@@ -50,7 +51,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     private Agent agent;
 
-    private final ScopePool scopePool = new ScopePool();
+    private final ScopePool scopePool = new ThreadLocalScopePool();
 
     private final ClassLoadChecker classLoadChecker = new ClassLoadChecker();
 

@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 /**
  * @author emeroad
  */
-public final class ThreadLocalScope implements Scope {
+public class ThreadLocalScope implements Scope {
 
     private final NamedThreadLocal<Scope> scope;
 
@@ -40,23 +40,23 @@ public final class ThreadLocalScope implements Scope {
 
     @Override
     public int push() {
-        final Scope depth = getScope();
-        return depth.push();
+        final Scope localScope = getLocalScope();
+        return localScope.push();
     }
 
     @Override
     public int depth() {
-        final Scope depth = getScope();
-        return depth.depth();
+        final Scope localScope = getLocalScope();
+        return localScope.depth();
     }
 
     @Override
     public int pop() {
-        final Scope depth = getScope();
-        return depth.pop();
+        final Scope localScope = getLocalScope();
+        return localScope.pop();
     }
 
-    private Scope getScope() {
+    protected Scope getLocalScope() {
         return scope.get();
     }
 
