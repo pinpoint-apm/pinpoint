@@ -60,7 +60,7 @@ public class ThreadLocalScopePool implements ScopePool {
             return new ThreadLocalScope(simpleScopeFactory);
 
         } else {
-            throw new UnsupportedOperationException(scopeDefinition.getType() + "type support");
+            throw new UnsupportedOperationException(scopeDefinition.getType() + " type unsupported.");
         }
 
     }

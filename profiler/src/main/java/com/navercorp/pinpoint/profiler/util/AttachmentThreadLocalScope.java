@@ -38,7 +38,7 @@ public class AttachmentThreadLocalScope<T> implements AttachmentScope<T> {
             @SuppressWarnings("unchecked")
             protected AttachmentScope<T> initialValue() {
                 final Scope newScope = attachmentSimpleScopeFactory.createScope();
-                if (scope instanceof AttachmentScope) {
+                if (newScope instanceof AttachmentScope) {
                     return (AttachmentScope<T>) newScope;
                 }
                 throw new IllegalArgumentException("invalid scope type");
