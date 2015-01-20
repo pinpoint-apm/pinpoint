@@ -16,9 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.modifier.db;
 
-import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.profiler.modifier.db.JDBCUrlParser;
+import java.net.URI;
 
 import junit.framework.Assert;
 
@@ -26,7 +24,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * @author emeroad
@@ -100,7 +99,6 @@ public class JDBCUrlParserTest {
         logger.info(dbInfo.toString());
     }
 
-
     @Test
     public void mysqlParseCookierunSlave() {
         DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:mysql:loadbalance://10.118.222.35:5605/db_cookierun?useUnicode=true&characterEncoding=UTF-8&noAccessToProcedureBodies=true&autoDeserialize=true&elideSetAutoCommits=true&sessionVariables=time_zone='%2B09:00',tx_isolation='READ-UNCOMMITTED'");
@@ -113,7 +111,8 @@ public class JDBCUrlParserTest {
 
     @Test
     public void mysqlParseCookierunSlave2() {
-        DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:mysql:loadbalance://10.118.222.35:5605,10.118.222.36:5605/db_cookierun?useUnicode=true&characterEncoding=UTF-8&noAccessToProcedureBodies=true&autoDeserialize=true&elideSetAutoCommits=true&sessionVariables=time_zone='%2B09:00',tx_isolation='READ-UNCOMMITTED'");
+        DatabaseInfo dbInfo = jdbcUrlParser
+                .parse("jdbc:mysql:loadbalance://10.118.222.35:5605,10.118.222.36:5605/db_cookierun?useUnicode=true&characterEncoding=UTF-8&noAccessToProcedureBodies=true&autoDeserialize=true&elideSetAutoCommits=true&sessionVariables=time_zone='%2B09:00',tx_isolation='READ-UNCOMMITTED'");
         Assert.assertEquals(dbInfo.getType(), ServiceType.MYSQL);
         Assert.assertEquals(dbInfo.getHost().get(0), "10.118.222.35:5605");
         Assert.assertEquals(dbInfo.getHost().get(1), "10.118.222.36:5605");
@@ -121,8 +120,6 @@ public class JDBCUrlParserTest {
         Assert.assertEquals(dbInfo.getUrl(), "jdbc:mysql:loadbalance://10.118.222.35:5605,10.118.222.36:5605/db_cookierun");
         logger.info(dbInfo.toString());
     }
-
-
 
     @Test
     public void oracleParser1() {
@@ -180,6 +177,17 @@ public class JDBCUrlParserTest {
         logger.info(dbInfo.toString());
     }
 
+    @Test
+    public void sqlServerParse() throws Exception {
+        String url = "jdbc:sqlserver://192.168.0.2:1433;databasename=testdb;selectMethod=cursor";
 
+        DatabaseInfo info = jdbcUrlParser.parse(url);
+
+        Assert.assertEquals(info.getType(), ServiceType.MSSQL);
+        Assert.assertEquals(info.getExecuteQueryType(), ServiceType.MSSQL_EXECUTE_QUERY);
+        Assert.assertEquals(info.getMultipleHost(), "192.168.0.2:1433");
+        Assert.assertEquals(info.getDatabaseId(), "testdb");
+        Assert.assertEquals(info.getUrl(), "jdbc:sqlserver://192.168.0.2:1433");
+    }
 
 }

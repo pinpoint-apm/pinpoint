@@ -16,20 +16,21 @@
 
 package com.navercorp.pinpoint.profiler.modifier.db;
 
-import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridConnectionStringParser;
-import com.navercorp.pinpoint.profiler.modifier.db.jtds.JtdsConnectionStringParser;
-import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySqlConnectionStringParser;
-import com.navercorp.pinpoint.profiler.modifier.db.oracle.OracleConnectionStringParser;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridConnectionStringParser;
+import com.navercorp.pinpoint.profiler.modifier.db.mssql.jtds.JtdsConnectionStringParser;
+import com.navercorp.pinpoint.profiler.modifier.db.mssql.sqlserver.SqlServerConnectionStringParser;
+import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySqlConnectionStringParser;
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.OracleConnectionStringParser;
 
 /**
  * @author emeroad
@@ -71,6 +72,11 @@ public class JDBCUrlParser {
         if (driverTypeCheck(lowCaseURL, "jtds:sqlserver")) {
             return parseJtds(url);
         }
+
+        if (driverTypeCheck(lowCaseURL, "sqlserver")) {
+            return parseSqlServer(url);
+        }
+
         if (driverTypeCheck(lowCaseURL, "cubrid")) {
             return parseCubrid(url);
         }
@@ -81,8 +87,6 @@ public class JDBCUrlParser {
         final int jdbcNextIndex = 5;
         return lowCaseURL.startsWith(type, jdbcNextIndex);
     }
-
-
 
     private DatabaseInfo parseOracle(String url) {
         OracleConnectionStringParser parser = new OracleConnectionStringParser();
@@ -100,7 +104,6 @@ public class JDBCUrlParser {
         return new DefaultDatabaseInfo(type, executeQueryType, url, url, list, "error");
     }
 
-
     private DatabaseInfo parseMysql(String url) {
         final ConnectionStringParser parser = new MySqlConnectionStringParser();
         return parser.parse(url);
@@ -111,8 +114,11 @@ public class JDBCUrlParser {
         return parser.parse(url);
 
     }
-    
 
+    private DatabaseInfo parseSqlServer(String url) {
+        final ConnectionStringParser parser = new SqlServerConnectionStringParser();
+        return parser.parse(url);
+    }
 
     private DatabaseInfo parseCubrid(String url) {
         final ConnectionStringParser parser = new CubridConnectionStringParser();

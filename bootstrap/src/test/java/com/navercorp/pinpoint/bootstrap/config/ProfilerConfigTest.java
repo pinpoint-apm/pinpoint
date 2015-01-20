@@ -25,15 +25,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.config.Filter;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-
 /**
  * @author emeroad
  */
 public class ProfilerConfigTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
 
     @Test
     public void defaultProfilableClassFilter() throws IOException {
@@ -60,14 +56,12 @@ public class ProfilerConfigTest {
         properties.setProperty("test1", "placeHolder1");
         properties.setProperty("test2", "placeHolder2");
 
-
         ProfilerConfig profilerConfig = new ProfilerConfig(properties);
 
         Assert.assertEquals(profilerConfig.getCollectorSpanServerIp(), "placeHolder1");
         Assert.assertEquals(profilerConfig.getCollectorStatServerIp(), "placeHolder1");
         Assert.assertEquals(profilerConfig.getCollectorTcpServerIp(), "placeHolder2");
     }
-
 
     @Test
     public void ioBuffering_test() throws IOException {
@@ -90,26 +84,37 @@ public class ProfilerConfigTest {
         Assert.assertEquals(profilerConfig.isIoBufferingEnable(), true);
         Assert.assertEquals(profilerConfig.getIoBufferingBufferSize(), 10);
     }
-    
+
     @Test
     public void tcpCommandAcceptrConfigTest1() throws IOException {
         String path = ProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test.property").getPath();
         logger.debug("path:{}", path);
 
         ProfilerConfig profilerConfig = ProfilerConfig.load(path);
-        
+
         Assert.assertFalse(profilerConfig.isTcpDataSenderCommandAcceptEnable());
     }
-    
+
     @Test
     public void tcpCommandAcceptrConfigTest2() throws IOException {
         String path = ProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test2.property").getPath();
         logger.debug("path:{}", path);
 
         ProfilerConfig profilerConfig = ProfilerConfig.load(path);
-        
+
         Assert.assertTrue(profilerConfig.isTcpDataSenderCommandAcceptEnable());
     }
-    
 
+    @Test
+    public void sqlServer() throws IOException {
+        String path = ProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test.property").getPath();
+
+        ProfilerConfig profilerConfig = ProfilerConfig.load(path);
+
+        Assert.assertEquals(profilerConfig.isJdbcProfileSqlServer(), true);
+        Assert.assertEquals(profilerConfig.isJdbcProfileSqlServerSetAutoCommit(), true);
+        Assert.assertEquals(profilerConfig.isJdbcProfileSqlServerCommit(), false);
+        Assert.assertEquals(profilerConfig.isJdbcProfileSqlServerRollback(), true);
+
+    }
 }
