@@ -1,28 +1,31 @@
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 /**
  * @author emeroad
  */
 public class AtomicMaxUpdater {
 
-    private final AtomicInteger maxIndex = new AtomicInteger(-1);
+    private static final AtomicIntegerFieldUpdater<AtomicMaxUpdater> UPDATER = AtomicIntegerFieldUpdater.newUpdater(AtomicMaxUpdater.class, "maxIndex");
 
-    public boolean updateMax(int max) {
+    private volatile int maxIndex = 0;
+
+    public boolean update(int max) {
         while (true) {
-            final int currentMax = maxIndex.get();
+            final int currentMax = getIndex();
             if (currentMax >= max) {
                 return false;
             }
-            final boolean update = maxIndex.compareAndSet(currentMax, max);
+            final boolean update = UPDATER.compareAndSet(this, currentMax, max);
             if (update) {
                 return true;
             }
         }
     }
 
+
     public int getIndex() {
-        return maxIndex.get();
+        return UPDATER.get(this);
     }
 }
