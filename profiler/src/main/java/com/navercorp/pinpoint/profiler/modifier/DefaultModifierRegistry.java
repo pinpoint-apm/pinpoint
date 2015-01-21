@@ -47,17 +47,12 @@ import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridResultSetModifie
 import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridStatementModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.dbcp.DBCPBasicDataSourceModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.dbcp.DBCPPoolGuardConnectionWrapperModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.mssql.jtds.Jdbc2ConnectionModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.mssql.jtds.Jdbc4_1ConnectionModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.mssql.jtds.JtdsDriverModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.mssql.jtds.JtdsPreparedStatementModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.mssql.jtds.JtdsResultSetModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.mssql.jtds.JtdsStatementModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.mssql.sqlserver.SqlServerConnectionModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.mssql.sqlserver.SqlServerDriverModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.mssql.sqlserver.SqlServerPreparedStatementModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.mssql.sqlserver.SqlServerResultSetModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.mssql.sqlserver.SqlServerStatementModifier;
+import com.navercorp.pinpoint.profiler.modifier.db.jtds.Jdbc2ConnectionModifier;
+import com.navercorp.pinpoint.profiler.modifier.db.jtds.Jdbc4_1ConnectionModifier;
+import com.navercorp.pinpoint.profiler.modifier.db.jtds.JtdsDriverModifier;
+import com.navercorp.pinpoint.profiler.modifier.db.jtds.JtdsPreparedStatementModifier;
+import com.navercorp.pinpoint.profiler.modifier.db.jtds.JtdsResultSetModifier;
+import com.navercorp.pinpoint.profiler.modifier.db.jtds.JtdsStatementModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLConnectionImplModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLConnectionModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLNonRegisteringDriverModifier;
@@ -95,7 +90,7 @@ import com.navercorp.pinpoint.profiler.modifier.tomcat.WebappLoaderModifier;
  * @author hyungil.jeong
  * @author Minwoo Jung
  * @authoer jaehong.kim
- *          - add redis
+ *  - add redis
  */
 public class DefaultModifierRegistry implements ModifierRegistry {
 
@@ -126,7 +121,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + old.getTargetClass());
         }
     }
-
+    
     public void addMethodModifier() {
         MethodModifier methodModifier = new MethodModifier(byteCodeInstrumentor, agent);
         addModifier(methodModifier);
@@ -137,7 +132,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             //apache http client 4
             HttpClient4Modifier httpClient4Modifier = new HttpClient4Modifier(byteCodeInstrumentor, agent);
             addModifier(httpClient4Modifier);
-
+            
             //apache http client 4 retry
             addModifier(new DefaultHttpRequestRetryHandlerModifier(byteCodeInstrumentor, agent));
         }
@@ -145,7 +140,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             //apache http client 3
             HttpClientModifier httpClientModifier = new HttpClientModifier(byteCodeInstrumentor, agent);
             addModifier(httpClientModifier);
-
+    
             //apache http client 3 retry
             addModifier(new DefaultHttpMethodRetryHandlerModifier(byteCodeInstrumentor, agent));
         }
@@ -230,7 +225,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
         AbstractModifier tomcatConnectorModifier = new TomcatConnectorModifier(byteCodeInstrumentor, agent);
         addModifier(tomcatConnectorModifier);
-
+        
         AbstractModifier tomcatWebappLoaderModifier = new WebappLoaderModifier(byteCodeInstrumentor, agent);
         addModifier(tomcatWebappLoaderModifier);
 
@@ -253,10 +248,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
         if (profilerConfig.isJdbcProfileJtds()) {
             addJtdsDriver();
-        }
-
-        if (profilerConfig.isJdbcProfileSqlServer()) {
-            addSqlServerDriver();
         }
 
         if (profilerConfig.isJdbcProfileOracle()) {
@@ -300,7 +291,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     }
 
     private void addJtdsDriver() {
-        AbstractModifier jtdsDriverModifier = new JtdsDriverModifier(byteCodeInstrumentor, agent);
+        JtdsDriverModifier jtdsDriverModifier = new JtdsDriverModifier(byteCodeInstrumentor, agent);
         addModifier(jtdsDriverModifier);
 
         AbstractModifier jdbc2ConnectionModifier = new Jdbc2ConnectionModifier(byteCodeInstrumentor, agent);
@@ -318,23 +309,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         AbstractModifier mssqlResultSetModifier = new JtdsResultSetModifier(byteCodeInstrumentor, agent);
         addModifier(mssqlResultSetModifier);
 
-    }
-
-    private void addSqlServerDriver() {
-        AbstractModifier sqlServerDriverModifier = new SqlServerDriverModifier(byteCodeInstrumentor, agent);
-        addModifier(sqlServerDriverModifier);
-
-        AbstractModifier sqlServerConnectionModifier = new SqlServerConnectionModifier(byteCodeInstrumentor, agent);
-        addModifier(sqlServerConnectionModifier);
-
-        AbstractModifier sqlServerStatementModifier = new SqlServerStatementModifier(byteCodeInstrumentor, agent);
-        addModifier(sqlServerStatementModifier);
-
-        AbstractModifier sqlServerPreparedStatementModifier = new SqlServerPreparedStatementModifier(byteCodeInstrumentor, agent);
-        addModifier(sqlServerPreparedStatementModifier);
-
-        AbstractModifier sqlServerResultSetModifier = new SqlServerResultSetModifier(byteCodeInstrumentor, agent);
-        addModifier(sqlServerResultSetModifier);
     }
 
     private void addOracleDriver() {
@@ -406,14 +380,14 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             addModifier(AbstractAutowireCapableBeanFactoryModifier.of(byteCodeInstrumentor, agent, retransformer));
         }
     }
-
+    
     public void addRedisModifier() {
-        if (profilerConfig.isRedisEnabled()) {
+        if(profilerConfig.isRedisEnabled()) {
             addModifier(new BinaryJedisModifier(byteCodeInstrumentor, agent));
             addModifier(new JedisModifier(byteCodeInstrumentor, agent));
         }
 
-        if (profilerConfig.isRedisPipelineEnabled()) {
+        if(profilerConfig.isRedisPipelineEnabled()) {
             addModifier(new JedisClientModifier(byteCodeInstrumentor, agent));
             addModifier(new JedisPipelineBaseModifier(byteCodeInstrumentor, agent));
             addModifier(new JedisMultiKeyPipelineBaseModifier(byteCodeInstrumentor, agent));

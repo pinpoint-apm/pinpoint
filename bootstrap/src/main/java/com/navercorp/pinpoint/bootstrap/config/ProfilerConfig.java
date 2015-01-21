@@ -16,16 +16,16 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
+import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
+import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.util.PropertyUtils;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
-import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
-import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.common.util.PropertyUtils;
 
 /**
  * @author emeroad
@@ -115,11 +115,6 @@ public class ProfilerConfig {
     private boolean jdbcProfileJtdsCommit = false;
     private boolean jdbcProfileJtdsRollback = false;
 
-    private boolean jdbcProfileSqlServer = true;
-    private boolean jdbcProfileSqlServerSetAutoCommit = false;
-    private boolean jdbcProfileSqlServerCommit = false;
-    private boolean jdbcProfileSqlServerRollback = false;
-
     private boolean jdbcProfileOracle = true;
     private boolean jdbcProfileOracleSetAutoCommit = false;
     private boolean jdbcProfileOracleCommit = false;
@@ -140,7 +135,7 @@ public class ProfilerConfig {
     private boolean arucsKeyTrace = false;
     private boolean memcached = true;
     private boolean memcachedKeyTrace = false;
-
+    
     private boolean ibatis = true;
 
     private boolean mybatis = true;
@@ -158,7 +153,7 @@ public class ProfilerConfig {
     private boolean apacheHttpClient3ProfileEntity = false;
     private DumpType apacheHttpClient3ProfileEntityDumpType = DumpType.EXCEPTION;
     private int apacheHttpClient3ProfileEntitySamplingRate = 1;
-
+    
     /**
      * apache http client 4
      */
@@ -319,7 +314,6 @@ public class ProfilerConfig {
     public boolean isJdbcProfileMySqlRollback() {
         return jdbcProfileMySqlRollback;
     }
-
     // mysql end-----------------------------------------------------
 
     public boolean isJdbcProfileJtds() {
@@ -338,22 +332,6 @@ public class ProfilerConfig {
         return jdbcProfileJtdsRollback;
     }
 
-    public boolean isJdbcProfileSqlServer() {
-        return jdbcProfileSqlServer;
-    }
-
-    public boolean isJdbcProfileSqlServerSetAutoCommit() {
-        return jdbcProfileSqlServerSetAutoCommit;
-    }
-
-    public boolean isJdbcProfileSqlServerCommit() {
-        return jdbcProfileSqlServerCommit;
-    }
-
-    public boolean isJdbcProfileSqlServerRollback() {
-        return jdbcProfileSqlServerRollback;
-    }
-
     // oracle start -----------------------------------------------------
     public boolean isJdbcProfileOracle() {
         return jdbcProfileOracle;
@@ -370,7 +348,6 @@ public class ProfilerConfig {
     public boolean isJdbcProfileOracleRollback() {
         return jdbcProfileOracleRollback;
     }
-
     // oracle end -----------------------------------------------------
 
     // cubrid start -----------------------------------------------------
@@ -389,12 +366,12 @@ public class ProfilerConfig {
     public boolean isJdbcProfileCubridRollback() {
         return jdbcProfileCubridRollback;
     }
-
     // cubrid end -----------------------------------------------------
 
     public boolean isSamplingEnable() {
         return samplingEnable;
     }
+
 
     public int getSamplingRate() {
         return samplingRate;
@@ -447,14 +424,14 @@ public class ProfilerConfig {
     public boolean isMemcachedKeyTrace() {
         return memcachedKeyTrace;
     }
-
+    
     //-----------------------------------------
     // http apache client 3
 
     public boolean isApacheHttpClient3Profile() {
         return apacheHttpClient3Profile;
     }
-
+    
     public boolean isApacheHttpClient3ProfileCookie() {
         return apacheHttpClient3ProfileCookie;
     }
@@ -478,7 +455,7 @@ public class ProfilerConfig {
     public int getApacheHttpClient3ProfileEntitySamplingRate() {
         return apacheHttpClient3ProfileEntitySamplingRate;
     }
-
+    
     //-----------------------------------------
     // http apache client 4
 
@@ -621,6 +598,7 @@ public class ProfilerConfig {
 
         this.profileEnable = readBoolean("profiler.enable", true);
 
+
         this.collectorSpanServerIp = readString("profiler.collector.span.ip", DEFAULT_IP, placeHolderResolver);
         this.collectorSpanServerPort = readInt("profiler.collector.span.port", 9996);
 
@@ -653,28 +631,28 @@ public class ProfilerConfig {
         this.jdbcProfileMySqlCommit = readBoolean("profiler.jdbc.mysql.commit", false);
         this.jdbcProfileMySqlRollback = readBoolean("profiler.jdbc.mysql.rollback", false);
 
+
         this.jdbcProfileJtds = readBoolean("profiler.jdbc.jtds", true);
         this.jdbcProfileJtdsSetAutoCommit = readBoolean("profiler.jdbc.jtds.setautocommit", false);
         this.jdbcProfileJtdsCommit = readBoolean("profiler.jdbc.jtds.commit", false);
         this.jdbcProfileJtdsRollback = readBoolean("profiler.jdbc.jtds.rollback", false);
 
-        this.jdbcProfileSqlServer = readBoolean("profiler.jdbc.sqlserver", true);
-        this.jdbcProfileSqlServerSetAutoCommit = readBoolean("profiler.jdbc.sqlserver.setautocommit", false);
-        this.jdbcProfileSqlServerCommit = readBoolean("profiler.jdbc.sqlserver.commit", false);
-        this.jdbcProfileSqlServerRollback = readBoolean("profiler.jdbc.sqlserver.rollback", false);
 
         this.jdbcProfileOracle = readBoolean("profiler.jdbc.oracle", true);
         this.jdbcProfileOracleSetAutoCommit = readBoolean("profiler.jdbc.oracle.setautocommit", false);
         this.jdbcProfileOracleCommit = readBoolean("profiler.jdbc.oracle.commit", false);
         this.jdbcProfileOracleRollback = readBoolean("profiler.jdbc.oracle.rollback", false);
 
+
         this.jdbcProfileCubrid = readBoolean("profiler.jdbc.cubrid", true);
         this.jdbcProfileCubridSetAutoCommit = readBoolean("profiler.jdbc.cubrid.setautocommit", false);
         this.jdbcProfileCubridCommit = readBoolean("profiler.jdbc.cubrid.commit", false);
         this.jdbcProfileCubridRollback = readBoolean("profiler.jdbc.cubrid.rollback", false);
 
+
         this.jdbcProfileDbcp = readBoolean("profiler.jdbc.dbcp", true);
         this.jdbcProfileDbcpConnectionClose = readBoolean("profiler.jdbc.dbcp.connectionclose", false);
+
 
         this.tomcatHidePinpointHeader = readBoolean("profiler.tomcat.hidepinpointheader", true);
         final String tomcatExcludeURL = readString("profiler.tomcat.excludeurl", "");
@@ -686,7 +664,7 @@ public class ProfilerConfig {
         this.arucsKeyTrace = readBoolean("profiler.arcus.keytrace", false);
         this.memcached = readBoolean("profiler.memcached", true);
         this.memcachedKeyTrace = readBoolean("profiler.memcached.keytrace", false);
-
+        
         /**
          * apache http client 3
          */
@@ -698,7 +676,7 @@ public class ProfilerConfig {
         this.apacheHttpClient3ProfileEntity = readBoolean("profiler.apache.httpclient3.entity", false);
         this.apacheHttpClient3ProfileEntityDumpType = readDumpType("profiler.apache.httpclient3.entity.dumptype", DumpType.EXCEPTION);
         this.apacheHttpClient3ProfileEntitySamplingRate = readInt("profiler.apache.httpclient3.entity.sampling.rate", 1);
-
+        
         /**
          * apache http client 4
          */
@@ -751,7 +729,7 @@ public class ProfilerConfig {
         this.samplingEnable = readBoolean("profiler.sampling.enable", true);
         this.samplingRate = readInt("profiler.sampling.rate", 1);
 
-        // configuration for sampling and IO buffer
+        // configuration for sampling and IO buffer 
         this.ioBufferingEnable = readBoolean("profiler.io.buffering.enable", true);
 
         // it may be a problem to be here.  need to modify(delete or move or .. )  this configuration.
@@ -765,7 +743,8 @@ public class ProfilerConfig {
         // service type
         this.applicationServerType = readServiceType("profiler.applicationservertype");
 
-        // TODO have to remove
+        
+        // TODO have to remove        
         // profile package included in order to test "call stack view".
         // this config must not be used in service environment because the size of  profiling information will get heavy.
         // We may need to change this configuration to regular expression.
@@ -776,6 +755,7 @@ public class ProfilerConfig {
 
         logger.info("configuration loaded successfully.");
     }
+
 
     public String readString(String propertyName, String defaultValue) {
         return readString(propertyName, defaultValue, BypassResolver.RESOLVER);
@@ -859,6 +839,7 @@ public class ProfilerConfig {
         return result;
     }
 
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ProfilerConfig{");
@@ -889,10 +870,6 @@ public class ProfilerConfig {
         sb.append(", jdbcProfileJtdsSetAutoCommit=").append(jdbcProfileJtdsSetAutoCommit);
         sb.append(", jdbcProfileJtdsCommit=").append(jdbcProfileJtdsCommit);
         sb.append(", jdbcProfileJtdsRollback=").append(jdbcProfileJtdsRollback);
-        sb.append(", jdbcProfileSqlServer=").append(jdbcProfileSqlServer);
-        sb.append(", jdbcProfileSqlServerSetAutoCommit=").append(jdbcProfileSqlServerSetAutoCommit);
-        sb.append(", jdbcProfileSqlServerCommit=").append(jdbcProfileSqlServerCommit);
-        sb.append(", jdbcProfileSqlServerRollback=").append(jdbcProfileSqlServerRollback);
         sb.append(", jdbcProfileOracle=").append(jdbcProfileOracle);
         sb.append(", jdbcProfileOracleSetAutoCommit=").append(jdbcProfileOracleSetAutoCommit);
         sb.append(", jdbcProfileOracleCommit=").append(jdbcProfileOracleCommit);
@@ -951,3 +928,4 @@ public class ProfilerConfig {
         return sb.toString();
     }
 }
+
