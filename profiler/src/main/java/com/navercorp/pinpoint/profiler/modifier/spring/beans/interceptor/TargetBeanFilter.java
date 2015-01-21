@@ -150,12 +150,14 @@ public class TargetBeanFilter {
         transformed.put(clazz, EXIST);
     }
 
-    private List<Class<? extends Annotation>> getTargetAnnotations(ClassLoader loader) {
-        List<Class<? extends Annotation>> targetAnnotations = targetAnnotationMap.get(loader);
+    private List<Class<? extends Annotation>> getTargetAnnotations(ClassLoader classLoader) {
+        ClassLoader nonNull = classLoader == null ? ClassLoader.getSystemClassLoader() : classLoader;
+        
+        List<Class<? extends Annotation>> targetAnnotations = targetAnnotationMap.get(nonNull);
 
         if (targetAnnotations == null) {
-            targetAnnotations = loadTargetAnnotations(loader);
-            targetAnnotationMap.put(loader, targetAnnotations);
+            targetAnnotations = loadTargetAnnotations(nonNull);
+            targetAnnotationMap.put(nonNull, targetAnnotations);
         }
 
         return targetAnnotations;
