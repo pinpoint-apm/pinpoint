@@ -65,9 +65,11 @@ public class PinpointPluginTestSuite extends Suite {
     
     private final String agentJar;
     private final String configFile;
+    private final boolean testOnSystemClassLoader;
     private final boolean testOnChildClassLoader;
     private final String[] repositories;
     private final String[] dependencies;
+    private final String libraryPath;
     private final String[] jvmArguments;
     private final String javaHomeEnvName;
 
@@ -87,10 +89,19 @@ public class PinpointPluginTestSuite extends Suite {
         PinpointConfig config = testClass.getAnnotation(PinpointConfig.class);
         this.configFile = config == null ? null : config.value();
 
-        this.testOnChildClassLoader = testClass.isAnnotationPresent(OnChildClassLoader.class);
+        OnClassLoader onClassLoader = testClass.getAnnotation(OnClassLoader.class);
+        this.testOnChildClassLoader = onClassLoader == null ? true : onClassLoader.child();
+        this.testOnSystemClassLoader = onClassLoader == null ? true : onClassLoader.system();
 
         Dependency deps = testClass.getAnnotation(Dependency.class);
-        this.dependencies = deps == null ? new String[0] : deps.value();
+        this.dependencies = deps == null ? null : deps.value();
+        
+        Library lib = testClass.getAnnotation(Library.class);
+        this.libraryPath = lib == null ? null : lib.value();
+        
+        if (deps != null && lib != null) {
+            throw new IllegalArgumentException("@Dependency and @Library can not annotate a class at the same time");
+        }
 
         Repository repos = testClass.getAnnotation(Repository.class);
         this.repositories = deps == null ? new String[0] : repos.value();
@@ -103,14 +114,56 @@ public class PinpointPluginTestSuite extends Suite {
 
         this.systemLibs = resolveSystemLibraries();
         
-        createRunners(testClass);
+        String testClassLocation = resolveTestClassLocation(testClass);
+        
+        if (dependencies != null) {
+            addRunnersWithDependencies(testClass, testClassLocation);
+        } else if (libraryPath != null) {
+            addRunnersWithLibraryPath(testClass, testClassLocation);
+        } else {
+            addRunner(testClass, "", Arrays.asList(testClassLocation));
+        }
     }
     
-    private void createRunners(Class<?> testClass) throws InitializationError, ArtifactResolutionException, DependencyResolutionException {
+    private void addRunner(Class<?> testClass, String testName, List<String> libraries) throws InitializationError {
+        if (testOnChildClassLoader) {
+            PinpointPluginTestRunner runner = new PinpointPluginTestRunner(testClass, testName + ":child", libraries, true);
+            runners.add(runner);
+        }
+        
+        if (testOnSystemClassLoader) {
+            PinpointPluginTestRunner runner = new PinpointPluginTestRunner(testClass, testName + ":system", libraries, false);
+            runners.add(runner);
+        }
+    }
+
+    private void addRunnersWithLibraryPath(Class<?> testClass, String testClassLocation) throws InitializationError {
+        File file = new File(libraryPath);
+        
+        for (File child : file.listFiles()) {
+            if (!child.isDirectory()) {
+                continue;
+            }
+            
+            List<String> libraries = new ArrayList<String>();
+            
+            for (File f : file.listFiles()) {
+                if (f.getName().endsWith(".jar")) {
+                    libraries.add(f.getAbsolutePath());
+                }
+            }
+            
+            libraries.add(child.getAbsolutePath());
+            libraries.add(testClassLocation);
+            
+            addRunner(testClass, child.getName(), libraries);
+        }
+    }
+    
+    private void addRunnersWithDependencies(Class<?> testClass, String testClassLocation) throws InitializationError, ArtifactResolutionException, DependencyResolutionException {
         DependencyResolver resolver = DependencyResolver.get(repositories);
         Map<String, List<Artifact>> dependencyCases = resolver.resolveDependencySets(dependencies);
-        String testClassLocation = resolveTestClassLocation();
-
+        
         for (Map.Entry<String, List<Artifact>> dependencyCase : dependencyCases.entrySet()) {
             List<String> libs = new ArrayList<String>();
             libs.add(testClassLocation);
@@ -119,13 +172,12 @@ public class PinpointPluginTestSuite extends Suite {
                 libs.add(lib.getAbsolutePath());
             }
 
-            PinpointPluginTestRunner runner = new PinpointPluginTestRunner(testClass, dependencyCase.getKey(), libs);
-            runners.add(runner);
+            addRunner(testClass, dependencyCase.getKey(), libs);
         }
     }
 
-    private String resolveTestClassLocation() {
-        CodeSource codeSource = getTestClass().getJavaClass().getProtectionDomain().getCodeSource();
+    private String resolveTestClassLocation(Class<?> testClass) {
+        CodeSource codeSource = testClass.getProtectionDomain().getCodeSource();
         URL testClassLocation = codeSource.getLocation();
 
         return toPathString(testClassLocation);
@@ -193,12 +245,14 @@ public class PinpointPluginTestSuite extends Suite {
     private class PinpointPluginTestRunner extends BlockJUnit4ClassRunner {
         private final String testId;
         private final List<String> dependencyLibs;
+        private final boolean testOnChildClassLoader;
 
-        PinpointPluginTestRunner(Class<?> testClass, String id, List<String> dependencyLibs) throws InitializationError {
+        PinpointPluginTestRunner(Class<?> testClass, String id, List<String> dependencyLibs, boolean testOnChildClassLoader) throws InitializationError {
             super(testClass);
             
             this.testId = id;
             this.dependencyLibs = dependencyLibs;
+            this.testOnChildClassLoader = testOnChildClassLoader;
         }
 
         @Override

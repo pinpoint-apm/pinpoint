@@ -23,6 +23,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface Dependency {
-    String[] value();
+public @interface OnClassLoader {
+    boolean system() default true;
+    boolean child() default true;
 }
