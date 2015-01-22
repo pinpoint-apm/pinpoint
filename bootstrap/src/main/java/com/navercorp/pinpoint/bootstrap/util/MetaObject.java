@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap.util;
 
+import java.lang.reflect.Method;
+
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 /**
  * @deprecated Use {@link com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue TraceValue} instead.
@@ -72,10 +71,7 @@ public final class MetaObject<R> {
         }
         try {
             return (R) method.invoke(target, args);
-        } catch (IllegalAccessException e) {
-            logger.warn("{} invoke fail", this.methodName, e);
-            return defaultReturnValue;
-        } catch (InvocationTargetException e) {
+        } catch (Throwable e) {
             logger.warn("{} invoke fail", this.methodName, e);
             return defaultReturnValue;
         }
