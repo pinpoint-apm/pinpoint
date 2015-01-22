@@ -19,5 +19,5 @@ package com.navercorp.pinpoint.bootstrap.plugin;
  *
  */
 public interface ObjectSnooper2 extends Snooper {
-    public Object __get_object_2__();
+    public Object _$PINPOINT$_getObject2();
 }

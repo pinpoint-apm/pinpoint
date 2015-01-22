@@ -19,5 +19,5 @@ package com.navercorp.pinpoint.bootstrap.plugin;
  *
  */
 public interface LongSnooper extends Snooper {
-    public long __get_long__();
+    public long _$PINPOINT$_getLong();
 }

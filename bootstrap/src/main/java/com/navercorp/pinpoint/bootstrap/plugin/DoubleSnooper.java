@@ -19,5 +19,5 @@ package com.navercorp.pinpoint.bootstrap.plugin;
  *
  */
 public interface DoubleSnooper extends Snooper {
-    public long __get_double__();
+    public double _$PINPOINT$_getDouble();
 }

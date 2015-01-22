@@ -14,10 +14,13 @@
  */
 package com.navercorp.pinpoint.bootstrap.plugin;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
+
 /**
  * @author Jongho Moon
  *
  */
-public interface ObjectSnooper extends Snooper {
-    public Object _$PINPOINT$_getObject();
+public interface DoubleAccessor extends TraceValue {
+    public double _$PINPOINT$_getDouble();
+    public void _$PINPOINT$_setDouble(double value);
 }

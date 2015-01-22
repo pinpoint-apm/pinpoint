@@ -19,5 +19,5 @@ package com.navercorp.pinpoint.bootstrap.plugin;
  *
  */
 public interface BooleanSnooper extends Snooper {
-    public long __get_boolean__();
+    public boolean _$PINPOINT$_getBoolean();
 }

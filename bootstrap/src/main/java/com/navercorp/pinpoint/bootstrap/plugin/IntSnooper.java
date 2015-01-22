@@ -19,5 +19,5 @@ package com.navercorp.pinpoint.bootstrap.plugin;
  *
  */
 public interface IntSnooper extends Snooper {
-    public int __get_int__();
+    public int _$PINPOINT$_getInt();
 }

@@ -14,10 +14,13 @@
  */
 package com.navercorp.pinpoint.bootstrap.plugin;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
+
 /**
  * @author Jongho Moon
  *
  */
-public interface ObjectSnooper extends Snooper {
-    public Object _$PINPOINT$_getObject();
+public interface ObjectAccessor3 extends TraceValue {
+    public Object _$PINPOINT$_getObject3();
+    public void _$PINPOINT$_setObject3(Object value);
 }
