@@ -16,12 +16,17 @@
 
 package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
-
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.instrument.AttachmentScope;
+import com.navercorp.pinpoint.bootstrap.instrument.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
+import com.navercorp.pinpoint.bootstrap.interceptor.http.HttpCallContext;
+import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
+import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * MethodInfo interceptor
@@ -42,10 +47,92 @@ public class HttpRequestExecuteInterceptor extends AbstractHttpRequestExecute im
     private static final int HTTP_HOST_INDEX = 0;
     private static final int HTTP_REQUEST_INDEX = 1;
 
-    public HttpRequestExecuteInterceptor() {
+    private boolean isHasCallbackParam;
+    private AttachmentScope<HttpCallContext> scope;
+    
+    public HttpRequestExecuteInterceptor(boolean isHasCallbackParam, Scope scope) {
         super(HttpRequestExecuteInterceptor.class);
+        this.isHasCallbackParam = isHasCallbackParam;
+        this.scope = (AttachmentScope<HttpCallContext>)scope;
     }
+    
+//    public HttpRequestExecuteInterceptor() {
+//        super(HttpRequestExecuteInterceptor.class);
+//    }
 
+    @Override
+    public void before(Object target, Object[] args) {
+        if (!isPassibleBeforeProcess()) {
+            return;
+        }
+        
+        super.before(target, args);
+    }
+    
+    @Override
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        if (!isPassibleAfterProcess()) {
+            addStatusCode(result);
+            scope.pop();
+            return;
+        }
+        
+        super.after(target, args, result, throwable);
+        scope.pop();
+    };
+    
+    private boolean isPassibleBeforeProcess() {
+        if (scope.push() == Scope.ZERO) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    private boolean isPassibleAfterProcess() {
+        final int depth = scope.depth();
+        
+        if (depth - 1 == Scope.ZERO) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    private void addStatusCode(Object result) {
+        if(!needGetStatusCode()) {
+            return;
+        }
+        
+        if (result instanceof HttpResponse) {
+            HttpResponse response = (HttpResponse)result;
+            
+            if (response.getStatusLine() != null) {
+                HttpCallContext context = new HttpCallContext();
+                context.setStatusCode(response.getStatusLine().getStatusCode());
+                scope.setAttachment(context);
+            }
+        }
+    }
+    
+    private boolean needGetStatusCode() {
+        if (isHasCallbackParam) {
+            return false;
+        }
+        
+        final Trace trace = traceContext.currentRawTraceObject();
+        
+        if (trace == null || trace.getServiceType() != ServiceType.HTTP_CLIENT) {
+            return false;
+        }
+
+        if(scope.getAttachment() != null) {
+            return false;
+        }
+
+        return true;
+    }
+    
     @Override
     protected NameIntValuePair<String> getHost(Object[] args) {
         final Object arg = args[HTTP_HOST_INDEX];
@@ -75,8 +162,10 @@ public class HttpRequestExecuteInterceptor extends AbstractHttpRequestExecute im
             }
         }
         
+        if (scope.getAttachment() != null && scope.getAttachment() instanceof HttpCallContext) {
+            return ((HttpCallContext)scope.getAttachment()).getStatusCode();
+        }
+        
         return null;
     }
-
-
 }

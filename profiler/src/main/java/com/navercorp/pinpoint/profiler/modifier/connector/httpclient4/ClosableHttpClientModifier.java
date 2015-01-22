@@ -19,9 +19,13 @@ package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4;
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
+import com.navercorp.pinpoint.bootstrap.instrument.AttachmentScope;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.DefaultScopeDefinition;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.Scope;
+import com.navercorp.pinpoint.bootstrap.instrument.ScopeDefinition;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor.HttpClient4Scope;
@@ -59,10 +63,12 @@ public class ClosableHttpClientModifier extends AbstractModifier {
 
         try {
             InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+            ScopeDefinition scopeDefinition = new DefaultScopeDefinition(HttpClient4Scope.SCOPE, ScopeDefinition.Type.ATTACHMENT);
+            Scope scope = byteCodeInstrumentor.getScope(scopeDefinition);
 
-            addHttpRequestApi(classLoader, protectedDomain, aClass);
+            addHttpRequestApi(classLoader, protectedDomain, aClass, scope);
 
-            addHttpUriRequestApi(classLoader, protectedDomain, aClass);
+            addHttpUriRequestApi(classLoader, protectedDomain, aClass, scope);
 
             return aClass.toBytecode();
         } catch (Throwable e) {
@@ -70,40 +76,41 @@ public class ClosableHttpClientModifier extends AbstractModifier {
             return null;
         }
     }
+    
+    private void addHttpRequestApi(ClassLoader classLoader, ProtectionDomain protectedDomain, InstrumentClass aClass, Scope scope) throws InstrumentException {
+        Interceptor httpRequestApi1= newHttpRequestInterceptor(classLoader, protectedDomain ,false, scope);
+        aClass.addInterceptor("execute", new String[]{"org.apache.http.HttpHost", "org.apache.http.HttpRequest"}, httpRequestApi1);
 
-    private void addHttpRequestApi(ClassLoader classLoader, ProtectionDomain protectedDomain, InstrumentClass aClass) throws InstrumentException {
-        Interceptor httpRequestApi1= newHttpRequestInterceptor(classLoader, protectedDomain);
-        aClass.addScopeInterceptorIfDeclared("execute", new String[]{"org.apache.http.HttpHost", "org.apache.http.HttpRequest"}, httpRequestApi1, HttpClient4Scope.SCOPE);
+        Interceptor httpRequestApi2 = newHttpRequestInterceptor(classLoader, protectedDomain, false, scope);
+        aClass.addInterceptor("execute", new String[]{"org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.protocol.HttpContext"}, httpRequestApi2);
 
-        Interceptor httpRequestApi2 = newHttpRequestInterceptor(classLoader, protectedDomain);
-        aClass.addScopeInterceptorIfDeclared("execute", new String[]{"org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.protocol.HttpContext"}, httpRequestApi2, HttpClient4Scope.SCOPE);
+        Interceptor httpRequestApi3 = newHttpRequestInterceptor(classLoader, protectedDomain, true, scope);
+        aClass.addInterceptor("execute", new String[]{"org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler"}, httpRequestApi3);
 
-        Interceptor httpRequestApi3 = newHttpRequestInterceptor(classLoader, protectedDomain);
-        aClass.addScopeInterceptorIfDeclared("execute", new String[]{"org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler"}, httpRequestApi3, HttpClient4Scope.SCOPE);
-
-        Interceptor httpRequestApi4 = newHttpRequestInterceptor(classLoader, protectedDomain);
-        aClass.addScopeInterceptorIfDeclared("execute", new String[]{"org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext"}, httpRequestApi4, HttpClient4Scope.SCOPE);
+        Interceptor httpRequestApi4 = newHttpRequestInterceptor(classLoader, protectedDomain, true, scope);
+        aClass.addInterceptor("execute", new String[]{"org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext"}, httpRequestApi4);
+  
     }
 
-    private Interceptor newHttpRequestInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
-        return byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor.HttpRequestExecuteInterceptor");
+    private Interceptor newHttpRequestInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, boolean isHasCallbackParam, Scope scope) throws InstrumentException {
+        return byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor.HttpRequestExecuteInterceptor", new Object[] {isHasCallbackParam, scope}, new Class[] {boolean.class, Scope.class});
+    }
+    
+    private void addHttpUriRequestApi(ClassLoader classLoader, ProtectionDomain protectedDomain, InstrumentClass aClass, Scope scope) throws InstrumentException {
+        Interceptor httpUriRequestInterceptor1 = newHttpUriRequestInterceptor(classLoader, protectedDomain, false, scope);
+        aClass.addInterceptor("execute", new String[]{"org.apache.http.client.methods.HttpUriRequest"}, httpUriRequestInterceptor1);
+
+        Interceptor httpUriRequestInterceptor2 = newHttpUriRequestInterceptor(classLoader, protectedDomain, false, scope);
+        aClass.addInterceptor("execute", new String[]{"org.apache.http.client.methods.HttpUriRequest", "org.apache.http.protocol.HttpContext"}, httpUriRequestInterceptor2);
+
+        Interceptor httpUriRequestInterceptor3 = newHttpUriRequestInterceptor(classLoader, protectedDomain, true, scope);
+        aClass.addInterceptor("execute", new String[]{"org.apache.http.client.methods.HttpUriRequest", "org.apache.http.client.ResponseHandler"}, httpUriRequestInterceptor3);
+
+        Interceptor httpUriRequestInterceptor4 = newHttpUriRequestInterceptor(classLoader, protectedDomain, true, scope);
+        aClass.addInterceptor("execute", new String[]{"org.apache.http.client.methods.HttpUriRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext"}, httpUriRequestInterceptor4);
     }
 
-    private void addHttpUriRequestApi(ClassLoader classLoader, ProtectionDomain protectedDomain, InstrumentClass aClass) throws InstrumentException {
-        Interceptor httpUriRequestInterceptor1 = newHttpUriRequestInterceptor(classLoader, protectedDomain);
-        aClass.addScopeInterceptorIfDeclared("execute", new String[]{"org.apache.http.client.methods.HttpUriRequest"}, httpUriRequestInterceptor1, HttpClient4Scope.SCOPE);
-
-        Interceptor httpUriRequestInterceptor2 = newHttpUriRequestInterceptor(classLoader, protectedDomain);
-        aClass.addScopeInterceptorIfDeclared("execute", new String[]{"org.apache.http.client.methods.HttpUriRequest", "org.apache.http.protocol.HttpContext"}, httpUriRequestInterceptor2, HttpClient4Scope.SCOPE);
-
-        Interceptor httpUriRequestInterceptor3 = newHttpUriRequestInterceptor(classLoader, protectedDomain);
-        aClass.addScopeInterceptorIfDeclared("execute", new String[]{"org.apache.http.client.methods.HttpUriRequest", "org.apache.http.client.ResponseHandler"}, httpUriRequestInterceptor3, HttpClient4Scope.SCOPE);
-
-        Interceptor httpUriRequestInterceptor4 = newHttpUriRequestInterceptor(classLoader, protectedDomain);
-        aClass.addScopeInterceptorIfDeclared("execute", new String[]{"org.apache.http.client.methods.HttpUriRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext"}, httpUriRequestInterceptor4, HttpClient4Scope.SCOPE);
-    }
-
-    private Interceptor newHttpUriRequestInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
-        return byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor.HttpUriRequestExecuteInterceptor");
+    private Interceptor newHttpUriRequestInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, boolean isHasCallbackParam, Scope scope) throws InstrumentException {
+        return byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor.HttpUriRequestExecuteInterceptor", new Object[] {isHasCallbackParam, scope}, new Class[] {boolean.class, Scope.class});
     }
 }
