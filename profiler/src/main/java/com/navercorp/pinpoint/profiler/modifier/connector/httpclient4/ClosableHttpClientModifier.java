@@ -78,7 +78,7 @@ public class ClosableHttpClientModifier extends AbstractModifier {
     }
     
     private void addHttpRequestApi(ClassLoader classLoader, ProtectionDomain protectedDomain, InstrumentClass aClass, Scope scope) throws InstrumentException {
-        Interceptor httpRequestApi1= newHttpRequestInterceptor(classLoader, protectedDomain ,false, scope);
+        Interceptor httpRequestApi1 = newHttpRequestInterceptor(classLoader, protectedDomain ,false, scope);
         aClass.addInterceptor("execute", new String[]{"org.apache.http.HttpHost", "org.apache.http.HttpRequest"}, httpRequestApi1);
 
         Interceptor httpRequestApi2 = newHttpRequestInterceptor(classLoader, protectedDomain, false, scope);

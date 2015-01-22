@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.intercept
 
 import java.net.URI;
 
+import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
 
@@ -36,12 +37,12 @@ import org.apache.http.client.methods.HttpUriRequest;
  * </pre>
  * @author emeroad
  */
-public class HttpUriRequestExecuteInterceptor extends AbstractHttpRequestExecute implements TargetClassLoader {
+public class HttpUriRequestExecuteInterceptor extends DivergeForAddingStatusCode implements TargetClassLoader {
 
     private static final int HTTP_URI_REQUEST_INDEX = 0;
 
-    public HttpUriRequestExecuteInterceptor() {
-        super(HttpUriRequestExecuteInterceptor.class);
+    public HttpUriRequestExecuteInterceptor(boolean isHasCallbackParam, Scope scope) {
+        super(HttpUriRequestExecuteInterceptor.class, isHasCallbackParam, scope);
     }
 
     @Override
@@ -126,18 +127,4 @@ public class HttpUriRequestExecuteInterceptor extends AbstractHttpRequestExecute
         }
         return target;
     }
-    
-    @Override
-    Integer getStatusCode(Object result) {
-        if (result instanceof HttpResponse) {
-            HttpResponse response = (HttpResponse)result;
-            
-            if (response.getStatusLine() != null) {
-                return response.getStatusLine().getStatusCode(); 
-            }
-        }
-        
-        return null;
-    }
-
 }
