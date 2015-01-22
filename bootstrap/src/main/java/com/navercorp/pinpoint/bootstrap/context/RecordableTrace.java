@@ -39,6 +39,8 @@ public interface RecordableTrace {
     boolean canSampled();
 
     boolean isRoot();
+    
+    ServiceType getServiceType();
 
 
     void recordException(Throwable throwable);
