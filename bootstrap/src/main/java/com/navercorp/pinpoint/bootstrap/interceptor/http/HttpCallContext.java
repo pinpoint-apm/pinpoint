@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor.http;
 
+/**
+ * @author minwoo.jung
+ */
 public class HttpCallContext {
     private int statusCode;
 

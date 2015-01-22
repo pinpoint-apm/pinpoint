@@ -18,8 +18,10 @@ package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4;
 
 import java.security.ProtectionDomain;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.bootstrap.Agent;
-import com.navercorp.pinpoint.bootstrap.instrument.AttachmentScope;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.DefaultScopeDefinition;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
@@ -29,9 +31,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.ScopeDefinition;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor.HttpClient4Scope;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Apache httpclient 4.3 CloseableHttpClient modifier
@@ -43,6 +42,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  *
  * @author netspider
+ * @author minwoo.jung
  */
 public class ClosableHttpClientModifier extends AbstractModifier {
 
@@ -89,7 +89,6 @@ public class ClosableHttpClientModifier extends AbstractModifier {
 
         Interceptor httpRequestApi4 = newHttpRequestInterceptor(classLoader, protectedDomain, true, scope);
         aClass.addInterceptor("execute", new String[]{"org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext"}, httpRequestApi4);
-  
     }
 
     private Interceptor newHttpRequestInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, boolean isHasCallbackParam, Scope scope) throws InstrumentException {

@@ -18,13 +18,12 @@ package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.intercept
 
 import java.net.URI;
 
+import org.apache.http.HttpRequest;
+import org.apache.http.client.methods.HttpUriRequest;
+
 import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
-
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
 
 /**
  * MethodInfo interceptor
@@ -36,6 +35,7 @@ import org.apache.http.client.methods.HttpUriRequest;
  * public final HttpResponse execute(HttpUriRequest request) throws IOException, ClientProtocolException
  * </pre>
  * @author emeroad
+ * @author minwoo.jung
  */
 public class HttpUriRequestExecuteInterceptor extends DivergeForAddingStatusCode implements TargetClassLoader {
 

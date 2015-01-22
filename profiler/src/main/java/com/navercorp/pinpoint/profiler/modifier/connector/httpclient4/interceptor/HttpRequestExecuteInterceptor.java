@@ -18,15 +18,10 @@ package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.intercept
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
 
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.instrument.AttachmentScope;
 import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.navercorp.pinpoint.bootstrap.interceptor.http.HttpCallContext;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
-import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * MethodInfo interceptor
@@ -41,6 +36,7 @@ import com.navercorp.pinpoint.common.ServiceType;
  *            throws IOException, ClientProtocolException {
  * </pre>
  * @author emeroad
+ * @author minwoo.jung
  */
 public class HttpRequestExecuteInterceptor extends DivergeForAddingStatusCode implements TargetClassLoader {
 
