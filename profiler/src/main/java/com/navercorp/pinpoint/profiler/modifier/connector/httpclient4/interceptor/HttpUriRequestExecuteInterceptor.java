@@ -37,7 +37,7 @@ import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
  * @author emeroad
  * @author minwoo.jung
  */
-public class HttpUriRequestExecuteInterceptor extends DivergeForAddingStatusCode implements TargetClassLoader {
+public class HttpUriRequestExecuteInterceptor extends AbstractHttpRequestExecuteWithDivergence implements TargetClassLoader {
 
     private static final int HTTP_URI_REQUEST_INDEX = 0;
 

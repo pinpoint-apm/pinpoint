@@ -16,16 +16,34 @@
 
 package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+
+import org.apache.http.HeaderElement;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpMessage;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
+import org.apache.http.protocol.HTTP;
+
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.instrument.AttachmentScope;
+import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
+import com.navercorp.pinpoint.bootstrap.interceptor.http.HttpCallContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
@@ -37,19 +55,14 @@ import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
 
-import org.apache.http.*;
-import org.apache.http.protocol.HTTP;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-
 /**
- * @author emeroad
+ * @author minwoo.jung
  */
-public abstract class AbstractHttpRequestExecute implements TraceContextSupport, ByteCodeMethodDescriptorSupport, SimpleAroundInterceptor {
-
+public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceContextSupport, ByteCodeMethodDescriptorSupport, SimpleAroundInterceptor {
+    
+    private boolean isHasCallbackParam;
+    private AttachmentScope<HttpCallContext> scope;
+    
     protected final PLogger logger;
     protected final boolean isDebug;
 
@@ -65,20 +78,109 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
     protected SimpleSampler entitySampler;
     
     protected boolean statusCode;
-
-    public AbstractHttpRequestExecute(Class<? extends AbstractHttpRequestExecute> childClazz) {
+    
+    public AbstractHttpRequestExecuteWithDivergence(Class<? extends AbstractHttpRequestExecuteWithDivergence> childClazz, boolean isHasCallbackParam, Scope scope) {
         this.logger = PLoggerFactory.getLogger(childClazz);
         this.isDebug = logger.isDebugEnabled();
+        
+        this.isHasCallbackParam = isHasCallbackParam;
+        this.scope = (AttachmentScope<HttpCallContext>)scope;
     }
-
+    
     abstract NameIntValuePair<String> getHost(Object[] args);
 
     abstract HttpRequest getHttpRequest(Object[] args);
     
-    abstract Integer getStatusCode(Object result);
-
     @Override
     public void before(Object target, Object[] args) {
+        if (!isPassibleBeforeProcess()) {
+            return;
+        }
+        
+        before2(target, args);
+    }
+    
+    @Override
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        if (!isPassibleAfterProcess()) {
+            addStatusCode(result);
+            scope.pop();
+            return;
+        }
+
+        after2(target, args, result, throwable);
+        scope.pop();
+    };
+    
+    private boolean isPassibleBeforeProcess() {
+        if (scope.push() == Scope.ZERO) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    private boolean isPassibleAfterProcess() {
+        final int depth = scope.depth();
+        
+        if (depth - 1 == Scope.ZERO) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    private void addStatusCode(Object result) {
+        if(!needGetStatusCode()) {
+            return;
+        }
+        
+        if (result instanceof HttpResponse) {
+            HttpResponse response = (HttpResponse)result;
+            
+            if (response.getStatusLine() != null) {
+                HttpCallContext context = new HttpCallContext();
+                context.setStatusCode(response.getStatusLine().getStatusCode());
+                scope.setAttachment(context);
+            }
+        }
+    }
+    
+    private boolean needGetStatusCode() {
+        if (isHasCallbackParam) {
+            return false;
+        }
+        
+        final Trace trace = traceContext.currentRawTraceObject();
+        
+        if (trace == null || trace.getServiceType() != ServiceType.HTTP_CLIENT) {
+            return false;
+        }
+
+        if(scope.getAttachment() != null) {
+            return false;
+        }
+
+        return true;
+    }
+    
+    Integer getStatusCode(Object result) {
+        if (result instanceof HttpResponse) {
+            HttpResponse response = (HttpResponse)result;
+            
+            if (response.getStatusLine() != null) {
+                return response.getStatusLine().getStatusCode(); 
+            }
+        }
+        
+        if (scope.getAttachment() != null && scope.getAttachment() instanceof HttpCallContext) {
+            return ((HttpCallContext)scope.getAttachment()).getStatusCode();
+        }
+        
+        return null;
+    }
+    
+    public void before2(Object target, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
@@ -135,8 +237,7 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
         return sb.toString();
     }
 
-    @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after2(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             // Do not log result
             logger.afterInterceptor(target, args);
@@ -328,4 +429,5 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
         this.descriptor = descriptor;
         traceContext.cacheApi(descriptor);
     }
+    
 }

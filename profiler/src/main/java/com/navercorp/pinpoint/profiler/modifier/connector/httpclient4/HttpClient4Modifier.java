@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author netspider
  * @author emeroad
+ * @author minwoo.jung
  */
 public class HttpClient4Modifier extends AbstractModifier {
 
