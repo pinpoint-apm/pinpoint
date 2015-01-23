@@ -40,6 +40,8 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     private final boolean isTrace = logger.isTraceEnabled();
     private Filter<String> excludeUrlFilter;
 
+    private RemoteAddressResolver<HttpServletRequest> remoteAddressResolver;
+
     public StandardHostValveInvokeInterceptor() {
         super(StandardHostValveInvokeInterceptor.class);
     }
@@ -58,7 +60,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
             final String endPoint = request.getServerName() + ":" + port;
             trace.recordEndPoint(endPoint);
 
-            final String remoteAddr = request.getRemoteAddr();
+            final String remoteAddr = remoteAddressResolver.resolve(request);
             trace.recordRemoteAddress(remoteAddr);
         }
 
@@ -66,6 +68,62 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
             recordParentInfo(trace, request);
         }
     }
+
+    // TODO this code have a classLoader problem. CL problem can be solved by #117(Implement profiler plugin system)
+    public static class Bypass<T extends HttpServletRequest> implements RemoteAddressResolver<T> {
+
+        @Override
+        public String resolve(T servletRequest) {
+            return servletRequest.getRemoteAddr();
+        }
+    }
+
+    public static class Proxy<T extends HttpServletRequest> implements RemoteAddressResolver<T> {
+
+        public static final String X_FORWARDED_FOR = "x-forwarded-for";
+        public static final String UNKNOWN = "unknown";
+
+        private final String proxyHeaderName;
+        private final String emptyHeaderValue;
+
+        public Proxy() {
+            this(X_FORWARDED_FOR, UNKNOWN);
+        }
+
+        public Proxy(String proxyHeaderName, String emptyHeaderValue) {
+            if (proxyHeaderName == null) {
+                throw new NullPointerException("proxyHeaderName must not be null");
+            }
+            if (emptyHeaderValue == null) {
+                throw new NullPointerException("emptyHeaderValue must not be null");
+            }
+            this.proxyHeaderName = proxyHeaderName;
+            this.emptyHeaderValue = emptyHeaderValue;
+        }
+
+        @Override
+        public String resolve(T httpServletRequest) {
+            final String proxyHeader = httpServletRequest.getHeader(this.proxyHeaderName);
+
+            if (proxyHeader == null || proxyHeader.isEmpty()) {
+                return httpServletRequest.getRemoteAddr();
+            }
+
+            if (emptyHeaderValue.equalsIgnoreCase(proxyHeader)) {
+                return httpServletRequest.getRemoteAddr();
+            }
+
+            final int firstIndex = proxyHeader.indexOf(',');
+            if (firstIndex == -1) {
+                return proxyHeader;
+            } else {
+                return proxyHeader.substring(0, firstIndex);
+            }
+        }
+    }
+
+
+
 
     @Override
     protected Trace createTrace(Object target, Object[] args) {
@@ -218,5 +276,13 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
 
         this.excludeUrlFilter = profilerConfig.getTomcatExcludeUrlFilter();
+
+        // TODO read configuration = profilerConfig.getTomcatProxyHeader();
+        boolean proxyHeaderExist = true;
+        if (proxyHeaderExist) {
+            remoteAddressResolver = new Proxy<HttpServletRequest>();
+        } else {
+            remoteAddressResolver = new Bypass<HttpServletRequest>();
+        }
     }
 }
