@@ -26,16 +26,16 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
  */
 public class FieldSnooperInjector implements Injector {
     
-    private final Class<? extends Snooper> snooperType;
+    private final FieldSnooper snooper;
     private final String fieldName;
     
-    public FieldSnooperInjector(Class<? extends Snooper> snooperType, String fieldName) {
-        this.snooperType = snooperType;
+    public FieldSnooperInjector(FieldSnooper snooper, String fieldName) {
+        this.snooper = snooper;
         this.fieldName = fieldName;
     }
 
     @Override
     public void inject(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
-        target.addGetter(snooperType, fieldName);
+        target.addGetter(snooper.getType(), fieldName);
     }
 }

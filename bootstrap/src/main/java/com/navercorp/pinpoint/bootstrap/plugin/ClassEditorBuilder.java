@@ -22,13 +22,13 @@ import java.util.List;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
-import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
 import com.navercorp.pinpoint.bootstrap.plugin.MetadataInitializationStrategy.ByConstructor;
 
 public class ClassEditorBuilder {
     private final ByteCodeInstrumentor instrumentor;
     private final TraceContext traceContext;
     
+    private final List<Injector> injectors = new ArrayList<Injector>();
     private final List<InjectorBuilder> injectorBuilders = new ArrayList<InjectorBuilder>();
     
     private String targetClassName;
@@ -47,26 +47,26 @@ public class ClassEditorBuilder {
         this.condition = condition;
     }
     
+    public void inject(FieldSnooper snooper, String fieldName) {
+        injectors.add(new FieldSnooperInjector(snooper, fieldName));
+    }
+    
+    public void inject(MetadataHolder holder) {
+        injectors.add(new MetadataInjector(holder));
+    }
+    
+    public void inject(MetadataHolder holder, String initialValueType) {
+        injectors.add(new MetadataInjector(holder, new ByConstructor(initialValueType)));
+    }
+    
     public InterceptorBuilder newInterceptorBuilder() {
         InterceptorBuilder interceptorBuilder = new InterceptorBuilder();
         injectorBuilders.add(interceptorBuilder);
         return interceptorBuilder;
     }
-
-    public MetadataBuilder newMetadataBuilder() {
-        MetadataBuilder metadataBuilder = new MetadataBuilder();
-        injectorBuilders.add(metadataBuilder);
-        return metadataBuilder;
-    }
-    
-    public FieldSnooperBuilder newFieldAccessorBuilder() {
-        FieldSnooperBuilder fieldAccessorBuilder = new FieldSnooperBuilder();
-        injectorBuilders.add(fieldAccessorBuilder);
-        return fieldAccessorBuilder;
-    }
     
     public DedicatedClassEditor build() {
-        List<Injector> injectors = new ArrayList<Injector>(injectorBuilders.size());
+        List<Injector> injectors = new ArrayList<Injector>(this.injectors);
         
         for (InjectorBuilder builder : injectorBuilders) {
             injectors.add(builder.build());
@@ -148,43 +148,6 @@ public class ClassEditorBuilder {
             }
             
             return injector;
-        }
-    }
-    
-    public static class MetadataBuilder extends InjectorBuilder {
-        private Class<? extends TraceValue> metadataAccessorType;
-        private MetadataInitializationStrategy initializationStrategy;
-        
-        public void inject(Class<? extends TraceValue> metadataAccessorType) {
-            this.metadataAccessorType = metadataAccessorType;
-        }
-        
-        public void initializeWithDefaultConstructorOf(String className) {
-            this.initializationStrategy = new ByConstructor(className);
-        }
-        
-        @Override
-        Injector build() {
-            return new MetadataInjector(metadataAccessorType, initializationStrategy);
-        }
-    }
-    
-    
-    public static class FieldSnooperBuilder extends InjectorBuilder {
-        private Class<? extends Snooper> snooperType;
-        private String fieldName;
-        
-        public void inject(Class<? extends Snooper> snooperType) {
-            this.snooperType = snooperType;
-        }
-        
-        public void toAccess(String fieldName) {
-            this.fieldName = fieldName;
-        }
-        
-        @Override
-        Injector build() {
-            return new FieldSnooperInjector(snooperType, fieldName);
         }
     }
 }

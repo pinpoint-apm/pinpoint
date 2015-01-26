@@ -17,7 +17,9 @@
 package com.navercorp.pinpoint.test;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.instrument.Instrumentation;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -27,8 +29,12 @@ import org.apache.thrift.TBase;
 import com.google.common.base.Objects;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.Span;
@@ -36,7 +42,6 @@ import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.rpc.client.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
@@ -106,7 +111,7 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
 
     @Override
     protected EnhancedDataSender createTcpDataSender(PinpointSocket socket) {
-        return new LoggingDataSender();
+        return new TestTcpDataSender();
     }
 
     @Override
@@ -199,6 +204,10 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
         Object obj = getPeekableSpanDataSender().poll();
         short code = serviceType.getCode();
         
+        if (obj == null) {
+            throw new AssertionError("No Span. expected: " + toString(code, annotations));
+        }
+        
         if (!(obj instanceof Span)) {
             throw new AssertionError("Expected an instance of Span but was " + obj.getClass().getName() +". expected: " + toString(code, annotations) + ", was: " + obj);
         }
@@ -211,7 +220,7 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
         
         List<TAnnotation> actualAnnotations = span.getAnnotations();
         int len = annotations.length;
-        int actualLen = actualAnnotations.size();
+        int actualLen = actualAnnotations == null ? 0 : actualAnnotations.size();
         
         if (actualLen != len) {
             throw new AssertionError("Expected a Span with [" + len + "] annotations but was [" + actualLen + "]. expected: " + toString(code, annotations) + ", was: " + toString(span));
@@ -226,11 +235,19 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
             }
         }
     }
-
     @Override
     public void verifySpanEvent(ServiceType serviceType, ExpectedAnnotation... annotations) {
+        verifySpanEvent(serviceType, null, annotations);
+    }
+    
+    public void verifySpanEvent(ServiceType serviceType, Integer apiId, ExpectedAnnotation... annotations) {
         Object obj = getPeekableSpanDataSender().poll();
         short code = serviceType.getCode();
+        
+        if (obj == null) {
+            throw new AssertionError("No SpanEvent. expected: " + toString(code, annotations));
+        }
+        
         
         if (!(obj instanceof SpanEvent)) {
             throw new AssertionError("Expected an instance of SpanEvent but was " + obj.getClass().getName() +". expected: " + toString(code, annotations) + ", was: " + obj);
@@ -242,8 +259,12 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
             throw new AssertionError("Expected a SpanEvent with serviceType[" + code + "] but was [" + span.getServiceType() + "]. expected: " + toString(code, annotations) + ", was: " + toString(span));
         }
         
+        if (apiId != null && span.getApiId() != apiId) {
+            throw new AssertionError("Expected a SpanEvent with ApiId[" + apiId + "] but was [" + span.getApiId() + "]. expected: " + toString(code, annotations) + ", was: " + toString(span));
+        }
+        
         List<TAnnotation> actualAnnotations = span.getAnnotations();
-        int actualLen = actualAnnotations.size();
+        int actualLen = actualAnnotations == null ? 0 : actualAnnotations.size();
         int len = annotations.length;
         
         if (actualLen != len) {
@@ -259,9 +280,69 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
             }
         }
     }
+    
+    @Override
+    public void verifyApi(ServiceType serviceType, Method method, Object... params) {
+        Class<?> clazz = method.getDeclaringClass();
+        InstrumentClass ic;
+        try {
+            ic = getByteCodeInstrumentor().getClass(clazz.getClassLoader(), clazz.getName(), null);
+        } catch (InstrumentException e) {
+            throw new RuntimeException("Cannot get instruemntClass " + clazz.getName(), e);
+        }
+        
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        String[] parameterTypeNames = new String[parameterTypes.length];
+        
+        for (int i = 0; i < parameterTypes.length; i++) {
+            parameterTypeNames[i] = parameterTypes[i].getName();
+        }
+        
+        MethodInfo methodInfo = ic.getDeclaredMethod(method.getName(), parameterTypeNames);
+        String desc = methodInfo.getDescriptor().getApiDescriptor();
+        
+        int apiId = ((TestTcpDataSender)getTcpDataSender()).getApiId(desc);
+
+        ExpectedAnnotation[] annotations = new ExpectedAnnotation[params.length];
+
+        for (int i = 0; i < params.length; i++) {
+            annotations[i] = ExpectedAnnotation.annotation(AnnotationKey.getArgs(i), params[i]);
+        }
+        
+        verifySpanEvent(serviceType, apiId, annotations);
+    }
+    
+    @Override
+    public void printSpans(PrintStream out) {
+        for (Object obj : getPeekableSpanDataSender()) {
+            out.println(obj);
+        }
+    }
+    
+    @Override
+    public void printApis(PrintStream out) {
+        ((TestTcpDataSender)getTcpDataSender()).printApis(out);
+    }
 
     @Override
-    public void clearSpans() {
+    public void initialize(boolean createTraceObject) {
+        if (createTraceObject) {
+            getTraceContext().newTraceObject();
+        }
+        
         getPeekableSpanDataSender().clear();
+        ((TestTcpDataSender)getTcpDataSender()).clear();
     }
+
+    @Override
+    public void cleanUp(boolean detachTraceObject) {
+        if (detachTraceObject) {
+            getTraceContext().detachTraceObject();
+        }
+        
+        getPeekableSpanDataSender().clear();
+        ((TestTcpDataSender)getTcpDataSender()).clear();
+    }
+    
+    
 }

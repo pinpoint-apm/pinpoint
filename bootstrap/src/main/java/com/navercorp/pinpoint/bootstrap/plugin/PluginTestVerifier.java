@@ -14,6 +14,9 @@
  */
 package com.navercorp.pinpoint.bootstrap.plugin;
 
+import java.io.PrintStream;
+import java.lang.reflect.Method;
+
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
 
@@ -28,7 +31,11 @@ public interface PluginTestVerifier {
     public void verifySpanCount(int count);
     public void verifySpan(ServiceType serviceType, ExpectedAnnotation...annotations);
     public void verifySpanEvent(ServiceType serviceType, ExpectedAnnotation...annotations);
-    public void clearSpans();
+    public void verifyApi(ServiceType serviceType, Method method, Object... args);
+    public void printSpans(PrintStream out);
+    public void printApis(PrintStream out);
+    public void initialize(boolean initializeTraceObject);
+    public void cleanUp(boolean detachTraceObject);
     
     public static class ExpectedAnnotation {
         public static ExpectedAnnotation annotation(AnnotationKey key, Object value) {

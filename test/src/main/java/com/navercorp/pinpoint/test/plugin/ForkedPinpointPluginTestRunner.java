@@ -17,6 +17,10 @@ package com.navercorp.pinpoint.test.plugin;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
+import org.junit.runners.model.Statement;
+
+import com.navercorp.pinpoint.bootstrap.plugin.PluginTestVerifier;
+import com.navercorp.pinpoint.bootstrap.plugin.PluginTestVerifierHolder;
 
 /**
  * @author Jongho Moon
@@ -24,11 +28,13 @@ import org.junit.runners.model.InitializationError;
  */
 public class ForkedPinpointPluginTestRunner extends BlockJUnit4ClassRunner {
     private final String testId;
+    private final boolean manageTraceObject;
     
     public ForkedPinpointPluginTestRunner(Class<?> testClass, String testId) throws InitializationError {
         super(testClass);
         
         this.testId = testId;
+        this.manageTraceObject = !testClass.isAnnotationPresent(TraceObjectManagable.class);
     }
 
     @Override
@@ -40,4 +46,24 @@ public class ForkedPinpointPluginTestRunner extends BlockJUnit4ClassRunner {
     protected String testName(final FrameworkMethod method) {
         return String.format("%s[%s]", method.getName(), testId);
     }
+
+    @Override
+    protected Statement methodBlock(FrameworkMethod method) {
+        final Statement fromSuper = super.methodBlock(method);
+        final boolean manageTraceObject = this.manageTraceObject && (method.getAnnotation(TraceObjectManagable.class) == null);
+        
+        return new Statement() {
+            
+            @Override
+            public void evaluate() throws Throwable {
+                PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+                
+                verifier.initialize(manageTraceObject);
+                fromSuper.evaluate();
+                verifier.cleanUp(manageTraceObject);
+            }
+        };
+    }
+    
+    
 }
