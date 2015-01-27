@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.common;
 
 import static com.navercorp.pinpoint.common.AnnotationKeyProperty.*;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -231,38 +229,16 @@ public class AnnotationKey {
     };
 
     
-    private static boolean initialized = false;
-    private static List<AnnotationKey> VALUES;
-    private static IntHashMap<AnnotationKey> CODE_LOOKUP_TABLE;
+    private static List<AnnotationKey> VALUES = null;
+    private static IntHashMap<AnnotationKey> CODE_LOOKUP_TABLE = null;
 
-    
-    static {
-        ServiceTypeInitializer.checkAnnotationKeys(DEFAULT_VALUES);
-        setValues(Arrays.asList(DEFAULT_VALUES));
-    }
-
-    private static void setValues(List<AnnotationKey> annotationKeys) {
-        VALUES = Collections.unmodifiableList(annotationKeys);
-        CODE_LOOKUP_TABLE = initializeAnnotationKeyCodeLookupTable(annotationKeys);
-    }
-    
-    private static IntHashMap<AnnotationKey> initializeAnnotationKeyCodeLookupTable(List<AnnotationKey> annotationKeys) {
-        IntHashMap<AnnotationKey> table = new IntHashMap<AnnotationKey>();
-        
-        for (AnnotationKey serviceType : annotationKeys) {
-            table.put(serviceType.getCode(), serviceType);
-        }
-        
-        return table;
-    }
-
-    static synchronized void initialize(List<AnnotationKey> annotationKeys) {
-        if (initialized) {
+    static synchronized void initialize(List<AnnotationKey> annotationKeys, IntHashMap<AnnotationKey> codeTable) {
+        if (VALUES != null) {
             throw new IllegalStateException("AnnotationKey is already initialized");
         }
         
-        initialized = true;
-        setValues(annotationKeys);
+        VALUES = annotationKeys;
+        CODE_LOOKUP_TABLE = codeTable;
     }
 
     public static List<AnnotationKey> values() {

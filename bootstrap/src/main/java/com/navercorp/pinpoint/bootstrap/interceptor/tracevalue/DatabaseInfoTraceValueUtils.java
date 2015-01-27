@@ -31,7 +31,7 @@ public final class DatabaseInfoTraceValueUtils {
             return defaultValue;
         }
         if (target instanceof DatabaseInfoTraceValue) {
-            final DatabaseInfo databaseInfo = ((DatabaseInfoTraceValue) target).__getTraceDatabaseInfo();
+            final DatabaseInfo databaseInfo = ((DatabaseInfoTraceValue) target)._$PINPOINT$_getTraceDatabaseInfo();
             if (databaseInfo == null) {
                 return defaultValue;
             }
@@ -45,7 +45,7 @@ public final class DatabaseInfoTraceValueUtils {
             return;
         }
         if (target instanceof DatabaseInfoTraceValue) {
-            ((DatabaseInfoTraceValue) target).__setTraceDatabaseInfo(databaseInfo);
+            ((DatabaseInfoTraceValue) target)._$PINPOINT$_setTraceDatabaseInfo(databaseInfo);
         }
     }
 }

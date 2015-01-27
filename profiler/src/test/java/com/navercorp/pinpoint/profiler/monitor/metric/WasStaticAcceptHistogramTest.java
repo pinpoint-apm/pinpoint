@@ -44,7 +44,7 @@ public class WasStaticAcceptHistogramTest {
     
     @BeforeClass
     public static void init() {
-        ServiceTypeInitializer.load(Arrays.<ServiceTypeProvider>asList(new ServiceTypeProvider() {
+        ServiceTypeInitializer.initialize(Arrays.<ServiceTypeProvider>asList(new ServiceTypeProvider() {
             
             @Override
             public ServiceType[] getServiceTypes() {

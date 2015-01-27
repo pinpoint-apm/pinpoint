@@ -150,7 +150,7 @@ public class PinpointBootStrap {
     
     private static void loadServiceTypeProviders(URL[] pluginJars) {
         List<ServiceTypeProvider> providers = PluginLoader.load(ServiceTypeProvider.class, pluginJars);
-        ServiceTypeInitializer.load(providers);
+        ServiceTypeInitializer.initialize(providers);
     }
 
     private static JarFile getBootStrapJarFile(String bootStrapCoreJar) {

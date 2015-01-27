@@ -49,14 +49,14 @@ public class JedisPipelineConstructorInterceptor implements SimpleAroundIntercep
         }
 
         // first arg is redis.clients.jedis.Client
-        final Map<String, Object> clientTraceValue = ((MapTraceValue) args[0]).__getTraceBindValue();
+        final Map<String, Object> clientTraceValue = ((MapTraceValue) args[0])._$PINPOINT$_getTraceBindValue();
         if (clientTraceValue == null) {
             return;
         }
 
         final Map<String, Object> traceValue = new HashMap<String, Object>();
         traceValue.put("endPoint", clientTraceValue.get("endPoint"));
-        ((MapTraceValue) target).__setTraceBindValue(traceValue);
+        ((MapTraceValue) target)._$PINPOINT$_setTraceBindValue(traceValue);
     }
 
     @Override

@@ -43,7 +43,7 @@ public class ServiceTypeLoader implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
         List<ServiceTypeProvider> providers = PluginLoader.load(ServiceTypeProvider.class, getClass().getClassLoader());
-        ServiceTypeInitializer.load(providers);
+        ServiceTypeInitializer.initialize(providers);
     }
 
 }

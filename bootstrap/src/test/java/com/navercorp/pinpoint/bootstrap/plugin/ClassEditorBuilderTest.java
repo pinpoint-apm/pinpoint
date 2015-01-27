@@ -53,7 +53,7 @@ public class ClassEditorBuilderTest {
         
         ProfilerPluginContext helper = new ProfilerPluginContext(instrumentor, traceContext);
         ClassEditorBuilder builder = helper.newClassEditorBuilder();
-        builder.inject(MetadataHolder.OBJECT, "java.util.HashMap");
+        builder.inject(MetadataHolder.A, "java.util.HashMap");
         builder.inject(FieldSnooper.OBJECT, "someField");
         
         InterceptorBuilder ib = builder.newInterceptorBuilder();
@@ -67,7 +67,7 @@ public class ClassEditorBuilderTest {
         editor.edit(classLoader, aClass);
         
         verify(aClass).addInterceptor(eq(methodName), isA(String[].class), isA(Interceptor.class));
-        verify(aClass).addTraceValue(MetadataHolder.OBJECT.getType(), "new java.util.HashMap();");
+        verify(aClass).addTraceValue(MetadataHolder.A.getType(), "new java.util.HashMap();");
         verify(aClass).addGetter(FieldSnooper.OBJECT.getType(), "someField");
     }
 }

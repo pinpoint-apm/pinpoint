@@ -17,8 +17,11 @@ package com.navercorp.pinpoint.common;
 import static com.navercorp.pinpoint.common.ServiceTypeProperty.*;
 import static org.junit.Assert.*;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.navercorp.pinpoint.common.plugin.ServiceTypeProvider;
@@ -47,10 +50,28 @@ public class ServiceTypeInitializerTest {
     private static final AnnotationKey[] DUPLICATED_CODE_WITH_DEFAULT_KEY = {
         new AnnotationKey(AnnotationKey.ARGS0.getCode(), "API")
     };
+    
+    private static Field serviceTypeValues;
+    private static Field annotationKeyValues;
+    
+    @BeforeClass
+    public static void init() throws Exception {
+        serviceTypeValues = ServiceType.class.getDeclaredField("VALUES");
+        serviceTypeValues.setAccessible(true);
+        
+        annotationKeyValues = AnnotationKey.class.getDeclaredField("VALUES");
+        annotationKeyValues.setAccessible(true);
+    }
 
+    @Before
+    public void reset() throws Exception {
+        serviceTypeValues.set(null, null);
+        annotationKeyValues.set(null, null);
+    }
     
     @Test
     public void testDefaults() {
+        ServiceTypeInitializer.initialize();
         verifyServiceTypes(ServiceType.DEFAULT_VALUES);
         verifyAnnotationKeys(AnnotationKey.DEFAULT_VALUES);
     }
@@ -73,7 +94,7 @@ public class ServiceTypeInitializerTest {
 
     @Test
     public void testWithPlugins() {
-        ServiceTypeInitializer.load(Arrays.<ServiceTypeProvider>asList(new TestProvider(TEST_TYPES, TEST_KEYS)));
+        ServiceTypeInitializer.initialize(Arrays.<ServiceTypeProvider>asList(new TestProvider(TEST_TYPES, TEST_KEYS)));
         
         verifyServiceTypes(ServiceType.DEFAULT_VALUES);
         verifyAnnotationKeys(AnnotationKey.DEFAULT_VALUES);
@@ -84,7 +105,7 @@ public class ServiceTypeInitializerTest {
     
     @Test(expected=RuntimeException.class)
     public void testDuplicated() {
-        ServiceTypeInitializer.load(Arrays.<ServiceTypeProvider>asList(
+        ServiceTypeInitializer.initialize(Arrays.<ServiceTypeProvider>asList(
                 new TestProvider(TEST_TYPES, TEST_KEYS),
                 new TestProvider(new ServiceType[0], TEST_KEYS)
         ));
@@ -92,7 +113,7 @@ public class ServiceTypeInitializerTest {
     
     @Test(expected=RuntimeException.class)
     public void testDuplicated2() {
-        ServiceTypeInitializer.load(Arrays.<ServiceTypeProvider>asList(
+        ServiceTypeInitializer.initialize(Arrays.<ServiceTypeProvider>asList(
                 new TestProvider(TEST_TYPES, TEST_KEYS),
                 new TestProvider(TEST_TYPES, new AnnotationKey[0])
         ));
@@ -100,7 +121,7 @@ public class ServiceTypeInitializerTest {
     
     @Test(expected=RuntimeException.class)
     public void testDuplicated3() {
-        ServiceTypeInitializer.load(Arrays.<ServiceTypeProvider>asList(
+        ServiceTypeInitializer.initialize(Arrays.<ServiceTypeProvider>asList(
                 new TestProvider(TEST_TYPES, TEST_KEYS),
                 new TestProvider(TEST_TYPES, new AnnotationKey[0])
         ));
@@ -108,21 +129,21 @@ public class ServiceTypeInitializerTest {
 
     @Test(expected=RuntimeException.class)
     public void testDuplicatedWithDefault() {
-        ServiceTypeInitializer.load(Arrays.<ServiceTypeProvider>asList(
+        ServiceTypeInitializer.initialize(Arrays.<ServiceTypeProvider>asList(
                 new TestProvider(DUPLICATED_CODE_WITH_DEFAULT_TYPE, TEST_KEYS)
         ));
     }
 
     @Test(expected=RuntimeException.class)
     public void testDuplicatedWithDefault2() {
-        ServiceTypeInitializer.load(Arrays.<ServiceTypeProvider>asList(
+        ServiceTypeInitializer.initialize(Arrays.<ServiceTypeProvider>asList(
                 new TestProvider(DUPLICATED_NAME_WITH_DEFAULT_TYPE, TEST_KEYS)
         ));
     }
 
     @Test(expected=RuntimeException.class)
     public void testDuplicatedWithDefault3() {
-        ServiceTypeInitializer.load(Arrays.<ServiceTypeProvider>asList(
+        ServiceTypeInitializer.initialize(Arrays.<ServiceTypeProvider>asList(
                 new TestProvider(TEST_TYPES, DUPLICATED_CODE_WITH_DEFAULT_KEY)
         ));
     }

@@ -148,8 +148,8 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         // rpc
         modifierRepository.addConnectorModifier();
 
-        // arcus, memcached
-        modifierRepository.addArcusModifier();
+//        // arcus, memcached
+//        modifierRepository.addArcusModifier();
         
         // orm
         modifierRepository.addOrmModifier();

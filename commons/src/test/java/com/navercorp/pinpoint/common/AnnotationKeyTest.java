@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common;
 
+import java.util.Collections;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -23,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.common.AnnotationKey;
+import com.navercorp.pinpoint.common.plugin.ServiceTypeProvider;
 
 /**
  * @author emeroad
@@ -33,7 +36,7 @@ public class AnnotationKeyTest {
 
     @Test
     public void getCode() {
-
+        ServiceTypeInitializer.initialize();
         AnnotationKey annotationKey = AnnotationKey.findAnnotationKey(AnnotationKey.API.getCode());
         Assert.assertEquals(annotationKey, AnnotationKey.API);
     }

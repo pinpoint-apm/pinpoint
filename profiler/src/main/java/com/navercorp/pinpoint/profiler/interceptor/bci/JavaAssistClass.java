@@ -54,9 +54,9 @@ public class JavaAssistClass implements InstrumentClass {
 
     private static final int NOT_DEFINE_INTERCEPTOR_ID = -1;
 
-    private static final String FIELD_PREFIX = "__p";
-    private static final String SETTER_PREFIX = "__set";
-    private static final String GETTER_PREFIX = "__get";
+    private static final String FIELD_PREFIX = "_$PINPOINT$_";
+    private static final String SETTER_PREFIX = "_$PINPOINT$_set";
+    private static final String GETTER_PREFIX = "_$PINPOINT$_get";
     private static final String MARKER_CLASS_NAME = "com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue";
 
 

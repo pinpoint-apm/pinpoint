@@ -172,8 +172,8 @@ public class JavaAssistClassTest {
 
         if (testObject instanceof ObjectTraceValue) {
             ObjectTraceValue objectTraceValue = (ObjectTraceValue) testObject;
-            objectTraceValue.__setTraceObject("a");
-            Object get = objectTraceValue.__getTraceObject();
+            objectTraceValue._$PINPOINT$_setTraceObject("a");
+            Object get = objectTraceValue._$PINPOINT$_getTraceObject();
             Assert.assertEquals("a", get);
         } else {
             Assert.fail("ObjectTraceValue implements fail");
@@ -181,8 +181,8 @@ public class JavaAssistClassTest {
 
         if (testObject instanceof IntTraceValue) {
             IntTraceValue intTraceValue = (IntTraceValue) testObject;
-            intTraceValue.__setTraceInt(1);
-            int a = intTraceValue.__getTraceInt();
+            intTraceValue._$PINPOINT$_setTraceInt(1);
+            int a = intTraceValue._$PINPOINT$_getTraceInt();
             Assert.assertEquals(1, a);
         } else {
             Assert.fail("IntTraceValue implements fail");
@@ -190,8 +190,8 @@ public class JavaAssistClassTest {
 
         if (testObject instanceof DatabaseInfoTraceValue) {
             DatabaseInfoTraceValue databaseInfoTraceValue = (DatabaseInfoTraceValue) testObject;
-            databaseInfoTraceValue.__setTraceDatabaseInfo(UnKnownDatabaseInfo.INSTANCE);
-            DatabaseInfo databaseInfo = databaseInfoTraceValue.__getTraceDatabaseInfo();
+            databaseInfoTraceValue._$PINPOINT$_setTraceDatabaseInfo(UnKnownDatabaseInfo.INSTANCE);
+            DatabaseInfo databaseInfo = databaseInfoTraceValue._$PINPOINT$_getTraceDatabaseInfo();
             Assert.assertSame(UnKnownDatabaseInfo.INSTANCE, databaseInfo);
         } else {
             Assert.fail("DatabaseInfoTraceValue implements fail");
@@ -200,8 +200,8 @@ public class JavaAssistClassTest {
         if (testObject instanceof BindValueTraceValue) {
             BindValueTraceValue bindValueTraceValue = (BindValueTraceValue) testObject;
             Map<Integer, String> integerStringMap = Collections.emptyMap();
-            bindValueTraceValue.__setTraceBindValue(integerStringMap);
-            Map<Integer, String> bindValueMap = bindValueTraceValue.__getTraceBindValue();
+            bindValueTraceValue._$PINPOINT$_setTraceBindValue(integerStringMap);
+            Map<Integer, String> bindValueMap = bindValueTraceValue._$PINPOINT$_getTraceBindValue();
             Assert.assertSame(integerStringMap, bindValueMap);
         } else {
             Assert.fail("BindValueTraceValue implements fail");

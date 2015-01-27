@@ -21,13 +21,136 @@ import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
  *
  */
 public enum MetadataHolder {
-    OBJECT(ObjectAccessor.class),
-    OBJECT2(ObjectAccessor2.class),
-    OBJECT3(ObjectAccessor3.class),
-    BOOLEAN(BooleanAccessor.class),
-    INT(IntAccessor.class),
-    LONG(LongAccessor.class),
-    DOUBLE(DoubleAccessor.class);
+    A(ObjectAccessor0.class) {
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T get(Object object) {
+            return (T)((ObjectAccessor0)object)._$PINPOINT$_getObject0();
+        }
+
+        @Override
+        public <T> void set(Object object, T value) {
+            ((ObjectAccessor0)object)._$PINPOINT$_setObject0(value);
+        }
+    },
+    
+    B(ObjectAccessor1.class) {
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T get(Object object) {
+            return (T)((ObjectAccessor1)object)._$PINPOINT$_getObject1();
+        }
+
+        @Override
+        public <T> void set(Object object, T value) {
+            ((ObjectAccessor1)object)._$PINPOINT$_setObject1(value);
+        }
+    },
+    
+    C(ObjectAccessor2.class) {
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T get(Object object) {
+            return (T)((ObjectAccessor2)object)._$PINPOINT$_getObject2();
+        }
+
+        @Override
+        public <T> void set(Object object, T value) {
+            ((ObjectAccessor2)object)._$PINPOINT$_setObject2(value);
+        }
+    },
+    
+    D(ObjectAccessor3.class) {
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T get(Object object) {
+            return (T)((ObjectAccessor3)object)._$PINPOINT$_getObject3();
+        }
+
+        @Override
+        public <T> void set(Object object, T value) {
+            ((ObjectAccessor3)object)._$PINPOINT$_setObject3(value);
+        }
+    },
+    
+    E(ObjectAccessor4.class) {
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T get(Object object) {
+            return (T)((ObjectAccessor4)object)._$PINPOINT$_getObject4();
+        }
+
+        @Override
+        public <T> void set(Object object, T value) {
+            ((ObjectAccessor4)object)._$PINPOINT$_setObject4(value);
+        }
+    },
+    
+    F(ObjectAccessor5.class) {
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T get(Object object) {
+            return (T)((ObjectAccessor5)object)._$PINPOINT$_getObject5();
+        }
+
+        @Override
+        public <T> void set(Object object, T value) {
+            ((ObjectAccessor5)object)._$PINPOINT$_setObject5(value);
+        }
+    },
+    
+    G(ObjectAccessor6.class) {
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T get(Object object) {
+            return (T)((ObjectAccessor6)object)._$PINPOINT$_getObject6();
+        }
+
+        @Override
+        public <T> void set(Object object, T value) {
+            ((ObjectAccessor6)object)._$PINPOINT$_setObject6(value);
+        }
+    },
+    
+    H(ObjectAccessor7.class) {
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T get(Object object) {
+            return (T)((ObjectAccessor7)object)._$PINPOINT$_getObject7();
+        }
+
+        @Override
+        public <T> void set(Object object, T value) {
+            ((ObjectAccessor7)object)._$PINPOINT$_setObject7(value);
+        }
+    },
+    
+    I(ObjectAccessor8.class) {
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T get(Object object) {
+            return (T)((ObjectAccessor8)object)._$PINPOINT$_getObject8();
+        }
+
+        @Override
+        public <T> void set(Object object, T value) {
+            ((ObjectAccessor8)object)._$PINPOINT$_setObject8(value);
+        }
+    },
+    
+    J(ObjectAccessor9.class) {
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T get(Object object) {
+            return (T)((ObjectAccessor9)object)._$PINPOINT$_getObject9();
+        }
+
+        @Override
+        public <T> void set(Object object, T value) {
+            ((ObjectAccessor9)object)._$PINPOINT$_setObject9(value);
+        }
+    };
+    
     
     private final Class<? extends TraceValue> type;
     
@@ -38,105 +161,66 @@ public enum MetadataHolder {
     public Class<? extends TraceValue> getType() {
         return type;
     }
-
     
-    public static boolean isInjected(MetadataHolder accessor, Object object) {
-        return accessor.type.isAssignableFrom(object.getClass());
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> T get(Object object) {
-        return (T)((ObjectAccessor)object)._$PINPOINT$_getObject();
+    public boolean isInstance(Object object) {
+        return type.isAssignableFrom(object.getClass());
     }
     
-    @SuppressWarnings("unchecked")
-    public static <T> T get2(Object object) {
-        return (T)((ObjectAccessor2)object)._$PINPOINT$_getObject2();
-    }
-    
-    @SuppressWarnings("unchecked")
-    public static <T> T get3(Object object) {
-        return (T)((ObjectAccessor3)object)._$PINPOINT$_getObject3();
-    }
-    
-    public static boolean getBoolean(Object object) {
-        return ((BooleanAccessor)object)._$PINPOINT$_getBoolean();
-    }
-
-    public static int getInt(Object object) {
-        return ((IntAccessor)object)._$PINPOINT$_getInt();
-    }
-
-    public static long getLong(Object object) {
-        return ((LongAccessor)object)._$PINPOINT$_getLong();
-    }
-
-    public static double getDouble(Object object) {
-        return ((DoubleAccessor)object)._$PINPOINT$_getDouble();
-    }
-
-    public static void set(Object object, Object value) {
-        ((ObjectAccessor)object)._$PINPOINT$_setObject(value);
-    }
-
-    public static void set2(Object object, Object value) {
-        ((ObjectAccessor2)object)._$PINPOINT$_setObject2(value);
-    }
-
-    public static void set3(Object object, Object value) {
-        ((ObjectAccessor3)object)._$PINPOINT$_setObject3(value);
-    }
-    
-    public static void setBoolean(Object object, boolean value) {
-        ((BooleanAccessor)object)._$PINPOINT$_setBoolean(value);
-    }
-    
-    public static void setInt(Object object, int value) {
-        ((IntAccessor)object)._$PINPOINT$_setInt(value);
-    }
-    
-    public static void setLong(Object object, long value) {
-        ((LongAccessor)object)._$PINPOINT$_setLong(value);
-    }
-    
-    public static void setDouble(Object object, double value) {
-        ((DoubleAccessor)object)._$PINPOINT$_setDouble(value);
-    }
-    
-    
-    
-    private interface BooleanAccessor extends TraceValue {
-        public boolean _$PINPOINT$_getBoolean();
-        public void _$PINPOINT$_setBoolean(boolean value);
-    }
-
-    private interface DoubleAccessor extends TraceValue {
-        public double _$PINPOINT$_getDouble();
-        public void _$PINPOINT$_setDouble(double value);
-    }
-    
-    private interface IntAccessor extends TraceValue {
-        public int _$PINPOINT$_getInt();
-        public void _$PINPOINT$_setInt(int value);
-    }
-    
-    private interface LongAccessor extends TraceValue {
-        public long _$PINPOINT$_getLong();
-        public void _$PINPOINT$_setLong(long value);
-    }
-
-    private interface ObjectAccessor extends TraceValue {
+    public abstract <T> T get(Object object);
+    public abstract <T> void set(Object object, T value);
+   
+    public interface ObjectAccessor extends TraceValue {
         public Object _$PINPOINT$_getObject();
         public void _$PINPOINT$_setObject(Object value);
     }
     
-    private interface ObjectAccessor2 extends TraceValue {
+    public interface ObjectAccessor0 extends TraceValue {
+        public Object _$PINPOINT$_getObject0();
+        public void _$PINPOINT$_setObject0(Object value);
+    }
+    
+    public interface ObjectAccessor1 extends TraceValue {
+        public Object _$PINPOINT$_getObject1();
+        public void _$PINPOINT$_setObject1(Object value);
+    }
+    
+    public interface ObjectAccessor2 extends TraceValue {
         public Object _$PINPOINT$_getObject2();
         public void _$PINPOINT$_setObject2(Object value);
     }
 
-    private interface ObjectAccessor3 extends TraceValue {
+    public interface ObjectAccessor3 extends TraceValue {
         public Object _$PINPOINT$_getObject3();
         public void _$PINPOINT$_setObject3(Object value);
+    }
+    
+    public interface ObjectAccessor4 extends TraceValue {
+        public Object _$PINPOINT$_getObject4();
+        public void _$PINPOINT$_setObject4(Object value);
+    }
+
+    public interface ObjectAccessor5 extends TraceValue {
+        public Object _$PINPOINT$_getObject5();
+        public void _$PINPOINT$_setObject5(Object value);
+    }
+
+    public interface ObjectAccessor6 extends TraceValue {
+        public Object _$PINPOINT$_getObject6();
+        public void _$PINPOINT$_setObject6(Object value);
+    }
+
+    public interface ObjectAccessor7 extends TraceValue {
+        public Object _$PINPOINT$_getObject7();
+        public void _$PINPOINT$_setObject7(Object value);
+    }
+
+    public interface ObjectAccessor8 extends TraceValue {
+        public Object _$PINPOINT$_getObject8();
+        public void _$PINPOINT$_setObject8(Object value);
+    }
+
+    public interface ObjectAccessor9 extends TraceValue {
+        public Object _$PINPOINT$_getObject9();
+        public void _$PINPOINT$_setObject9(Object value);
     }
 }

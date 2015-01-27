@@ -143,19 +143,7 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
         builder.append('(');
         builder.append(span.getServiceType());
         builder.append(", [");
-        
-        boolean first = true;
-        
-        for (TAnnotation a : span.getAnnotations()) {
-            if (first) {
-                first = false;
-            } else {
-                builder.append(", ");
-            }
-            
-            builder.append(toString(a));
-        }
-        
+        appendAnnotations(builder, span.getAnnotations());
         builder.append("])");
         
         return builder.toString();
@@ -166,22 +154,26 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
         builder.append('(');
         builder.append(span.getServiceType());
         builder.append(", [");
-        
-        boolean first = true;
-        
-        for (TAnnotation a : span.getAnnotations()) {
-            if (first) {
-                first = false;
-            } else {
-                builder.append(", ");
-            }
-            
-            builder.append(toString(a));
-        }
-        
+        appendAnnotations(builder, span.getAnnotations());
         builder.append("])");
         
         return builder.toString();
+    }
+
+    private static void appendAnnotations(StringBuilder builder, List<TAnnotation> annotations) {
+        boolean first = true;
+        
+        if (annotations != null) {
+            for (TAnnotation a : annotations) {
+                if (first) {
+                    first = false;
+                } else {
+                    builder.append(", ");
+                }
+                
+                builder.append(toString(a));
+            }
+        }
     }
 
     private static String toString(TAnnotation a) {
@@ -219,11 +211,20 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
         }
         
         List<TAnnotation> actualAnnotations = span.getAnnotations();
+        
+        try {
+            verifyAnnotations(actualAnnotations, annotations);
+        } catch (AssertionError e) {
+            throw new AssertionError("expected: " + toString(code, annotations) + ", was: " + toString(span));
+        }
+    }
+
+    private void verifyAnnotations(List<TAnnotation> actualAnnotations, ExpectedAnnotation... annotations) throws AssertionError {
         int len = annotations.length;
         int actualLen = actualAnnotations == null ? 0 : actualAnnotations.size();
         
         if (actualLen != len) {
-            throw new AssertionError("Expected a Span with [" + len + "] annotations but was [" + actualLen + "]. expected: " + toString(code, annotations) + ", was: " + toString(span));
+            throw new AssertionError("Expected [" + len + "] annotations but was [" + actualLen + "]");
         }
         
         for (int i = 0; i < len; i++) {
@@ -231,10 +232,11 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
             TAnnotation actual = actualAnnotations.get(i);
             
             if (expect.getKey() != actual.getKey() || !Objects.equal(expect.getValue(), actual.getValue().getFieldValue())) {
-                throw new AssertionError("Expected a Span with " + i + "th annotation [" + expect + "] but was [" + toString(actual) + "]. expected: " + toString(code, annotations) + ", was: " + toString(span));
+                throw new AssertionError("Expected " + i + "th annotation [" + expect + "] but was [" + toString(actual) + "]");
             }
         }
     }
+    
     @Override
     public void verifySpanEvent(ServiceType serviceType, ExpectedAnnotation... annotations) {
         verifySpanEvent(serviceType, null, annotations);
@@ -264,20 +266,11 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
         }
         
         List<TAnnotation> actualAnnotations = span.getAnnotations();
-        int actualLen = actualAnnotations == null ? 0 : actualAnnotations.size();
-        int len = annotations.length;
         
-        if (actualLen != len) {
-            throw new AssertionError("Expected a SpanEvent with [" + len + "] annotations but was [" + actualLen + "]. expected: " + toString(code, annotations) + ", was: " + toString(span));
-        }
-        
-        for (int i = 0; i < len; i++) {
-            ExpectedAnnotation expect = annotations[i];
-            TAnnotation actual = actualAnnotations.get(i);
-            
-            if (expect.getKey() != actual.getKey() || !Objects.equal(expect.getValue(), actual.getValue().getFieldValue())) {
-                throw new AssertionError("Expected a SpanEvent with " + i + "th annotation [" + expect + "] but was [" + toString(actual) + "]. expected: " + toString(code, annotations) + ", was: " + toString(span));
-            }
+        try {
+            verifyAnnotations(actualAnnotations, annotations);
+        } catch (AssertionError e) {
+            throw new AssertionError("expected: " + toString(code, annotations) + ", was: " + toString(span));
         }
     }
     

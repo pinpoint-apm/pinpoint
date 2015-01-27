@@ -227,8 +227,12 @@ public class ServiceType {
     // Memory cache
     public static final ServiceType MEMCACHED = of(8050, "MEMCACHED", FAST_SCHEMA, ARGS_MATCHER, TERMINAL, RECORD_STATISTICS);
     public static final ServiceType MEMCACHED_FUTURE_GET = of(8051, "MEMCACHED_FUTURE_GET", "MEMCACHED", FAST_SCHEMA, TERMINAL);
+
+    @Deprecated
     public static final ServiceType ARCUS = of(8100, "ARCUS", FAST_SCHEMA, ARGS_MATCHER, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
+    @Deprecated
     public static final ServiceType ARCUS_FUTURE_GET = of(8101, "ARCUS_FUTURE_GET", "ARCUS", FAST_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
+    @Deprecated
     public static final ServiceType ARCUS_EHCACHE_FUTURE_GET = of(8102, "ARCUS_EHCACHE_FUTURE_GET", "ARCUS-EHCACHE", FAST_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
 
     // Redis & nBase-ARC
@@ -271,9 +275,6 @@ public class ServiceType {
         DBCP,
         MEMCACHED,
         MEMCACHED_FUTURE_GET,
-        ARCUS,
-        ARCUS_FUTURE_GET,
-        ARCUS_EHCACHE_FUTURE_GET,
         REDIS,
         NBASE_ARC,
         HTTP_CLIENT,
@@ -283,72 +284,21 @@ public class ServiceType {
         NIMM_CLIENT
     };
 
-    private static boolean initialized = false;
-
-    private static List<ServiceType> VALUES;
+    private static List<ServiceType> VALUES = null;
     private static IntHashMap<ServiceType> CODE_LOOKUP_TABLE = null;
     private static Map<String, List<ServiceType>> STATISTICS_LOOKUP_TABLE = null;
 
-    
-    // Initialization
-    static {
-        ServiceTypeInitializer.checkServiceTypes(DEFAULT_VALUES);
-        setValues(Arrays.asList(DEFAULT_VALUES));
-    }
-
-    private static void setValues(List<ServiceType> serviceTypes) {
-        VALUES = Collections.unmodifiableList(serviceTypes);
-        CODE_LOOKUP_TABLE = initializeServiceTypeCodeLookupTable(serviceTypes);
-        STATISTICS_LOOKUP_TABLE = initializeServiceTypeStatisticsLookupTable(serviceTypes);
-    }
-
-    static synchronized void initialize(List<ServiceType> serviceTypes) {
-        if (initialized) {
+    static synchronized void initialize(List<ServiceType> serviceTypes, IntHashMap<ServiceType> codeTable, Map<String, List<ServiceType>> statisticsTable) {
+        if (VALUES != null) {
             throw new IllegalStateException("ServiceType is already initialized");
         }
 
-        setValues(serviceTypes);
-        initialized = true;
+        VALUES = serviceTypes;
+        CODE_LOOKUP_TABLE = codeTable;
+        STATISTICS_LOOKUP_TABLE = statisticsTable;
     }
 
-    private static Map<String, List<ServiceType>> initializeServiceTypeStatisticsLookupTable(List<ServiceType> serviceTypes) {
-        final Map<String, List<ServiceType>> table = new HashMap<String, List<ServiceType>>();
 
-        for (ServiceType serviceType : serviceTypes) {
-            if (serviceType.isRecordStatistics()) {
-                List<ServiceType> serviceTypeList = table.get(serviceType.getDesc());
-                if (serviceTypeList == null) {
-                    serviceTypeList = new ArrayList<ServiceType>();
-                    table.put(serviceType.getDesc(), serviceTypeList);
-                }
-                serviceTypeList.add(serviceType);
-            }
-        }
-
-        // value of this table will be exposed. so make them unmodifiable.
-        final Map<String, List<ServiceType>> unmodifiable = new HashMap<String, List<ServiceType>>(table.size());
-
-        for (Map.Entry<String, List<ServiceType>> entry : table.entrySet()) {
-            List<ServiceType> newValue = Collections.unmodifiableList(entry.getValue());
-            unmodifiable.put(entry.getKey(), newValue);
-        }
-
-        return unmodifiable;
-    }
-
-    private static IntHashMap<ServiceType> initializeServiceTypeCodeLookupTable(List<ServiceType> serviceTypes) {
-        IntHashMap<ServiceType> table = new IntHashMap<ServiceType>(256);
-
-        for (ServiceType serviceType : serviceTypes) {
-            table.put(serviceType.getCode(), serviceType);
-        }
-
-        return table;
-    }
-
-    
-    
-    
     // FIXME it may be not good to find serviceType by using this api
     public static List<ServiceType> findDesc(String desc) {
         if (desc == null) {

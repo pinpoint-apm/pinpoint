@@ -16,18 +16,22 @@
 
 package com.navercorp.pinpoint.common;
 
+import java.util.List;
+
 import junit.framework.Assert;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.common.ServiceType;
-
-import java.util.List;
-
 public class ServiceTypeTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    
+    @BeforeClass
+    public static void init() {
+        ServiceTypeInitializer.initialize();
+    }
 
     @Test
     public void findDesc() {

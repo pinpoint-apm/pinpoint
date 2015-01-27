@@ -45,7 +45,7 @@ public class JedisPipelineMethodInterceptor extends SpanEventSimpleAroundInterce
     public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
         String endPoint = null;
         if (target instanceof MapTraceValue) {
-            final Map<String, Object> traceValue = ((MapTraceValue) target).__getTraceBindValue();
+            final Map<String, Object> traceValue = ((MapTraceValue) target)._$PINPOINT$_getTraceBindValue();
             if (traceValue != null) {
                 endPoint = (String) traceValue.get("endPoint");
             }

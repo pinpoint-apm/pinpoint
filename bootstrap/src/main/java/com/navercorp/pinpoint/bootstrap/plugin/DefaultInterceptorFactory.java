@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -136,12 +137,13 @@ public class DefaultInterceptorFactory implements InterceptorFactory {
 
         public Object[] resolve() {
             Class<?>[] types = constructor.getParameterTypes();
+            Annotation[][] annotations = constructor.getParameterAnnotations();
+
             int length = types.length;
             Object[] arguments = new Object[length];
             
             for (int i = 0; i < length; i++) {
-                Class<?> type = types[i];
-                Option<Object> resolved = resolveArgument(type);
+                Option<Object> resolved = resolveArgument(types[i], annotations[i]);
                 
                 if (!resolved.hasValue()) {
                     return null;
@@ -157,8 +159,8 @@ public class DefaultInterceptorFactory implements InterceptorFactory {
             return arguments;
         }
         
-        private Option<Object> resolveArgument(Class<?> type) {
-            Object result = resolvePinpointObject(type);
+        private Option<Object> resolveArgument(Class<?> type, Annotation[] annotations) {
+            Object result = resolvePinpointObject(type, annotations);
             
             if (result != null) {
                 return Option.withValue(result);
@@ -186,11 +188,19 @@ public class DefaultInterceptorFactory implements InterceptorFactory {
             return Option.<Object>empty();
         }
         
-        private Object resolvePinpointObject(Class<?> type) {
+        private Object resolvePinpointObject(Class<?> type, Annotation[] annotations) {
             if (type == TraceContext.class) {
                 return traceContext;
             } else if (type == MethodDescriptor.class) {
-                return targetMethod.getDescriptor();
+                MethodDescriptor descriptor = targetMethod.getDescriptor();
+                
+                for (Annotation a : annotations) {
+                    if (a.annotationType().equals(CacheApi.class)) {
+                        traceContext.cacheApi(descriptor);
+                    }
+                }
+                
+                return descriptor;
             } else if (type == ByteCodeInstrumentor.class) {
                 return instrumentor;
             } else if (type == MethodInfo.class) {

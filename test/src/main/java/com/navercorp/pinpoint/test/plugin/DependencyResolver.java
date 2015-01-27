@@ -17,6 +17,8 @@ package com.navercorp.pinpoint.test.plugin;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -180,7 +182,10 @@ public class DependencyResolver {
 
         VersionRangeResult rangeResult = system.resolveVersionRange( session, rangeRequest );
 
-        return rangeResult.getVersions();
+        List<Version> versions = new ArrayList<Version>(rangeResult.getVersions());
+        Collections.sort(versions);
+        
+        return versions;
     }
     
     public List<File> resolveArtifactsAndDependencies(List<Artifact> artifacts) throws ArtifactResolutionException, DependencyResolutionException {
