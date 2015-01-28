@@ -58,6 +58,11 @@ To set up your very own Pinpoint instance, take a look at our [installation guid
 ## Issues
 For feature requests and bug reports, feel free to post them [here](https://github.com/naver/pinpoint/issues).
 
+
+## User Group
+For Q/A and discussion [here](https://groups.google.com/forum/#!forum/pinpoint_user).
+
+
 ## Wiki
 For roadmap, user guide, documentation.
 We welcome any documentation contribution.
