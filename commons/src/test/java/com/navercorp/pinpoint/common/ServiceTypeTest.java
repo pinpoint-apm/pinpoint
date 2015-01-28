@@ -20,7 +20,6 @@ import java.util.List;
 
 import junit.framework.Assert;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +27,6 @@ import org.slf4j.LoggerFactory;
 public class ServiceTypeTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
-    @BeforeClass
-    public static void init() {
-        ServiceTypeInitializer.initialize();
-    }
-
     @Test
     public void findDesc() {
         String desc = "MYSQL";

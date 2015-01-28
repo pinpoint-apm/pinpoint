@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import com.navercorp.pinpoint.common.plugin.ServiceTypeProvider;
-import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 
 /**
  * @author Jongho Moon <jongho.moon@navercorp.com>
@@ -31,11 +30,28 @@ import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 public class ServiceTypeInitializer {
     private static final Logger logger = Logger.getLogger(ServiceTypeInitializer.class.getName());
     
-    public static void initialize() {
-        initialize(Collections.<ServiceTypeProvider>emptyList());
+    static void checkServiceTypes(List<ServiceType> serviceTypes) {
+        ServiceTypeChecker serviceTypeChecker = new ServiceTypeChecker();
+        
+        for (ServiceType type : serviceTypes) {
+            serviceTypeChecker.check(type, ServiceType.class);
+        }
+    }
+    
+    static void checkAnnotationKeys(List<AnnotationKey> annotationKeys) {
+        AnnotationKeyChecker annotationKeyChecker = new AnnotationKeyChecker();
+        
+        for (AnnotationKey key : annotationKeys) {
+            annotationKeyChecker.check(key, AnnotationKey.class);
+        }
     }
     
     public static void initialize(List<ServiceTypeProvider> providers) {
+        if (ServiceType.isInitialized()) {
+            logger.warning("ServiceType is already initialized. Do nothing. providers: " + providers);
+            return;
+        }
+        
         List<ServiceType> serviceTypes = new ArrayList<ServiceType>();
         List<AnnotationKey> annotationKeys = new ArrayList<AnnotationKey>();
         
@@ -77,72 +93,9 @@ public class ServiceTypeInitializer {
             }
         }
 
-        initializeServiceType(serviceTypes);
-        initializeAnnotationKey(annotationKeys);
+        ServiceType.initialize(Collections.unmodifiableList(serviceTypes));
+        AnnotationKey.initialize(Collections.unmodifiableList(annotationKeys));
     }
-    
-    private static IntHashMap<AnnotationKey> initializeAnnotationKeyCodeLookupTable(List<AnnotationKey> annotationKeys) {
-        IntHashMap<AnnotationKey> table = new IntHashMap<AnnotationKey>();
-        
-        for (AnnotationKey serviceType : annotationKeys) {
-            table.put(serviceType.getCode(), serviceType);
-        }
-        
-        return table;
-    }
-
-    static void initializeAnnotationKey(List<AnnotationKey> annotationKeys) {
-        List<AnnotationKey> unmodifiableAnnotaionKeys = Collections.unmodifiableList(annotationKeys);
-        IntHashMap<AnnotationKey> codeTable = initializeAnnotationKeyCodeLookupTable(annotationKeys);
-        
-        AnnotationKey.initialize(unmodifiableAnnotaionKeys, codeTable);
-    }
-
-    
-    private static Map<String, List<ServiceType>> initializeServiceTypeStatisticsLookupTable(List<ServiceType> serviceTypes) {
-        final Map<String, List<ServiceType>> table = new HashMap<String, List<ServiceType>>();
-
-        for (ServiceType serviceType : serviceTypes) {
-            if (serviceType.isRecordStatistics()) {
-                List<ServiceType> serviceTypeList = table.get(serviceType.getDesc());
-                if (serviceTypeList == null) {
-                    serviceTypeList = new ArrayList<ServiceType>();
-                    table.put(serviceType.getDesc(), serviceTypeList);
-                }
-                serviceTypeList.add(serviceType);
-            }
-        }
-
-        // value of this table will be exposed. so make them unmodifiable.
-        final Map<String, List<ServiceType>> unmodifiable = new HashMap<String, List<ServiceType>>(table.size());
-
-        for (Map.Entry<String, List<ServiceType>> entry : table.entrySet()) {
-            List<ServiceType> newValue = Collections.unmodifiableList(entry.getValue());
-            unmodifiable.put(entry.getKey(), newValue);
-        }
-
-        return unmodifiable;
-    }
-    
-    private static void initializeServiceType(List<ServiceType> serviceTypes) {
-        List<ServiceType> unmodifiableServiceTypes = Collections.unmodifiableList(serviceTypes);
-        IntHashMap<ServiceType> codeTable = initializeServiceTypeCodeLookupTable(serviceTypes);
-        Map<String, List<ServiceType>> statisticsTable = initializeServiceTypeStatisticsLookupTable(serviceTypes);
-        
-        ServiceType.initialize(unmodifiableServiceTypes, codeTable, statisticsTable);
-
-    }
-
-    private static IntHashMap<ServiceType> initializeServiceTypeCodeLookupTable(List<ServiceType> serviceTypes) {
-        IntHashMap<ServiceType> table = new IntHashMap<ServiceType>(256);
-
-        for (ServiceType serviceType : serviceTypes) {
-            table.put(serviceType.getCode(), serviceType);
-        }
-
-        return table;
-    }
-
 
     private static class ServiceTypeChecker { 
         private final Map<String, Class<?>> serviceTypeNameMap = new HashMap<String, Class<?>>();

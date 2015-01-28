@@ -36,6 +36,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.ServiceTypeInitializer;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
@@ -59,7 +60,7 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
         ProfilerConfig profilerConfig = ProfilerConfig.load(path);
         profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE);
         
-        return new MockAgent("", profilerConfig);
+        return of(profilerConfig);
     }
     
     public static MockAgent of(ProfilerConfig config) {

@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -65,24 +66,23 @@ public class ServiceTypeInitializerTest {
 
     @Before
     public void reset() throws Exception {
-        serviceTypeValues.set(null, null);
-        annotationKeyValues.set(null, null);
+        serviceTypeValues.set(null, ServiceType.DEFAULT_VALUES);
+        annotationKeyValues.set(null, AnnotationKey.DEFAULT_VALUES);
     }
     
     @Test
     public void testDefaults() {
-        ServiceTypeInitializer.initialize();
         verifyServiceTypes(ServiceType.DEFAULT_VALUES);
         verifyAnnotationKeys(AnnotationKey.DEFAULT_VALUES);
     }
 
-    private void verifyAnnotationKeys(AnnotationKey... annotationKeys) {
+    private void verifyAnnotationKeys(List<AnnotationKey> annotationKeys) {
         for (AnnotationKey key : annotationKeys) {
             assertSame(key, AnnotationKey.findAnnotationKey(key.getCode()));
         }
     }
 
-    private void verifyServiceTypes(ServiceType... serviceTypes) {
+    private void verifyServiceTypes(List<ServiceType> serviceTypes) {
         for (ServiceType type : serviceTypes) {
             assertSame(type, ServiceType.findServiceType(type.getCode()));
             
@@ -99,8 +99,8 @@ public class ServiceTypeInitializerTest {
         verifyServiceTypes(ServiceType.DEFAULT_VALUES);
         verifyAnnotationKeys(AnnotationKey.DEFAULT_VALUES);
         
-        verifyServiceTypes(TEST_TYPES);
-        verifyAnnotationKeys(TEST_KEYS);
+        verifyServiceTypes(Arrays.asList(TEST_TYPES));
+        verifyAnnotationKeys(Arrays.asList(TEST_KEYS));
     }
     
     @Test(expected=RuntimeException.class)

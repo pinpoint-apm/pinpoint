@@ -16,18 +16,19 @@
 
 package com.navercorp.pinpoint.web.view;
 
+import java.util.HashSet;
+
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.support.GenericXmlApplicationContext;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.web.applicationmap.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
-
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectWriter;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.HashSet;
 
 /**
  * @author emeroad
@@ -35,10 +36,11 @@ import java.util.HashSet;
 public class ServerInstanceListSerializerTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ObjectMapper mapper = new ObjectMapper();
-
     @Test
     public void testSerialize() throws Exception {
+        GenericXmlApplicationContext applicationContext = new GenericXmlApplicationContext("/applicationContext-web.xml");
+        ObjectMapper mapper = applicationContext.getBean(ObjectMapper.class);
+        
         AgentInfoBo.Builder agentInfoBuilder = new AgentInfoBo.Builder();
         agentInfoBuilder.agentId("agentId");
         agentInfoBuilder.serviceType(ServiceType.TOMCAT);
