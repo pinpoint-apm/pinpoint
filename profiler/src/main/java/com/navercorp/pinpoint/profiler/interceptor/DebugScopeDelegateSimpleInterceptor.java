@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.profiler.util.DepthScope;
 
 /**
  * @author emeroad
@@ -51,7 +50,7 @@ public class DebugScopeDelegateSimpleInterceptor implements SimpleAroundIntercep
     @Override
     public void before(Object target, Object[] args) {
         final int push = scope.push();
-        if (push != DepthScope.ZERO) {
+        if (push != Scope.ZERO) {
             if (isDebug) {
                 logger.debug("push {}. skip trace. level:{} {}", new Object[]{scope.getName(), push, delegate.getClass()});
             }
@@ -63,7 +62,7 @@ public class DebugScopeDelegateSimpleInterceptor implements SimpleAroundIntercep
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         final int pop = scope.pop();
-        if (pop != DepthScope.ZERO) {
+        if (pop != Scope.ZERO) {
             if (isDebug) {
                 logger.debug("pop {}. skip trace. level:{} {}", new Object[]{scope.getName(), pop, delegate.getClass()});
             }

@@ -164,6 +164,7 @@ public class ProfilerConfig {
     private boolean apacheHttpClient4ProfileEntity = false;
     private DumpType apacheHttpClient4ProfileEntityDumpType = DumpType.EXCEPTION;
     private int apacheHttpClient4ProfileEntitySamplingRate = 1;
+    private boolean apacheHttpClient4ProfileStatusCode = true;
 
     /**
      * apache nio http client
@@ -486,6 +487,10 @@ public class ProfilerConfig {
     public int getApacheHttpClient4ProfileEntitySamplingRate() {
         return apacheHttpClient4ProfileEntitySamplingRate;
     }
+    
+    public boolean isApacheHttpClient4ProfileStatusCode() {
+        return apacheHttpClient4ProfileStatusCode;
+    }
 
     //-----------------------------------------
     // org/apache/http/impl/nio/*
@@ -689,6 +694,7 @@ public class ProfilerConfig {
         this.apacheHttpClient4ProfileEntityDumpType = readDumpType("profiler.apache.httpclient4.entity.dumptype", DumpType.EXCEPTION);
         this.apacheHttpClient4ProfileEntitySamplingRate = readInt("profiler.apache.httpclient4.entity.sampling.rate", 1);
 
+        this.apacheHttpClient4ProfileStatusCode = readBoolean("profiler.apache.httpclient4.entity.statuscode", true);
         /**
          * apache nio http client
          */

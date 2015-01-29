@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.jboss.netty.channel.Channel;
 import org.jboss.netty.util.Timer;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -31,15 +30,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.rpc.client.MessageListener;
-import com.navercorp.pinpoint.rpc.client.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointClientSocketHandshaker;
+import com.navercorp.pinpoint.rpc.client.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
-import com.navercorp.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 
 public class HandshakeTest {
@@ -47,12 +43,15 @@ public class HandshakeTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static Timer timer = null;
+
+    private static int bindPort;
     
     @BeforeClass
-    public static void setup() {
+    public static void setUp() throws IOException {
         timer = TimerFactory.createHashedWheelTimer(HandshakeTest.class.getSimpleName(), 100, TimeUnit.MILLISECONDS, 512);
+        bindPort = PinpointRPCTestUtils.findAvailablePort();
     }
-    
+
     @AfterClass
     public static void tearDown() {
         if (timer != null) {
@@ -60,145 +59,81 @@ public class HandshakeTest {
         }
     }
 
-    // simple test 
+    // simple test
     @Test
     public void handshakeTest1() throws InterruptedException {
-        PinpointServerSocket ss = new PinpointServerSocket();
-        ss.bind("127.0.0.1", 10234);
-        ss.setMessageListener(new AlwaysHandshakeSuccessListener());
+        PinpointServerSocket serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort, new AlwaysHandshakeSuccessListener());
 
-        PinpointSocketFactory socketFactory1 = createPinpointSocketFactory();
-        socketFactory1.setMessageListener(new EchoMessageListener());
-
-        PinpointSocketFactory socketFactory2 = createPinpointSocketFactory();
-
+        PinpointSocketFactory clientSocketFactory1 = PinpointRPCTestUtils.createSocketFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
+        PinpointSocketFactory clientSocketFactory2 = PinpointRPCTestUtils.createSocketFactory(PinpointRPCTestUtils.getParams(), null);
         try {
-            PinpointSocket socket = socketFactory1.connect("127.0.0.1", 10234);
-            PinpointSocket socket2 = socketFactory2.connect("127.0.0.1", 10234);
+            PinpointSocket socket = clientSocketFactory1.connect("127.0.0.1", bindPort);
+            PinpointSocket socket2 = clientSocketFactory2.connect("127.0.0.1", bindPort);
 
             Thread.sleep(500);
 
-            List<ChannelContext> channelContextList = ss.getDuplexCommunicationChannelContext();
+            List<ChannelContext> channelContextList = serverSocket.getDuplexCommunicationChannelContext();
             if (channelContextList.size() != 2) {
                 Assert.fail();
             }
 
-            socket.close();
-            socket2.close();
+            PinpointRPCTestUtils.close(socket, socket2);
         } finally {
-            socketFactory1.release();
-            socketFactory2.release();
+            clientSocketFactory1.release();
+            clientSocketFactory2.release();
 
-            ss.close();
+            PinpointRPCTestUtils.close(serverSocket);
         }
     }
 
     @Test
     public void handshakeTest2() throws InterruptedException {
-        PinpointServerSocket ss = new PinpointServerSocket();
-        ss.bind("127.0.0.1", 10234);
-        ss.setMessageListener(new AlwaysHandshakeSuccessListener());
+        PinpointServerSocket serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort, new AlwaysHandshakeSuccessListener());
 
-        Map params = getParams();
-        PinpointSocketFactory socketFactory = createPinpointSocketFactory(params);
-        socketFactory.setMessageListener(new EchoMessageListener());
+        Map params = PinpointRPCTestUtils.getParams();
+        
+        PinpointSocketFactory clientSocketFactory1 = PinpointRPCTestUtils.createSocketFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
 
         try {
-            PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234);
+            PinpointSocket socket = clientSocketFactory1.connect("127.0.0.1", bindPort);
             Thread.sleep(500);
 
-            ChannelContext channelContext = getChannelContext("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()), ss.getDuplexCommunicationChannelContext());
+            ChannelContext channelContext = getChannelContext("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()), serverSocket.getDuplexCommunicationChannelContext());
             Assert.assertNotNull(channelContext);
 
-            channelContext = getChannelContext("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()) + 1, ss.getDuplexCommunicationChannelContext());
+            channelContext = getChannelContext("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()) + 1,
+                    serverSocket.getDuplexCommunicationChannelContext());
             Assert.assertNull(channelContext);
 
-            socket.close();
+            PinpointRPCTestUtils.close(socket);
         } finally {
-            socketFactory.release();
-            ss.close();
+            clientSocketFactory1.release();
+            PinpointRPCTestUtils.close(serverSocket);
         }
     }
-    
+
     @Test
     public void testExecuteCompleteWithoutStart() {
         int retryInterval = 100;
         int maxHandshakeCount = 10;
-        
+
         PinpointClientSocketHandshaker handshaker = new PinpointClientSocketHandshaker(timer, retryInterval, maxHandshakeCount);
         handshaker.handshakeComplete(null);
 
         Assert.assertEquals(null, handshaker.getHandshakeResult());
-        
+
         Assert.assertTrue(handshaker.isFinished());
     }
-    
+
     @Test
     public void testExecuteAbortWithoutStart() {
         int retryInterval = 100;
         int maxHandshakeCount = 10;
-        
+
         PinpointClientSocketHandshaker handshaker = new PinpointClientSocketHandshaker(timer, retryInterval, maxHandshakeCount);
         handshaker.handshakeAbort();
-        
+
         Assert.assertTrue(handshaker.isFinished());
-    }
-
-    private PinpointSocketFactory createPinpointSocketFactory() {
-        return createPinpointSocketFactory(getParams());
-    }
-
-    private PinpointSocketFactory createPinpointSocketFactory(Map param) {
-        PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
-        pinpointSocketFactory.setProperties(param);
-
-        return pinpointSocketFactory;
-    }
-
-    private Map getParams() {
-        Map properties = new HashMap();
-
-        properties.put(AgentHandshakePropertyType.AGENT_ID.getName(), "agent");
-        properties.put(AgentHandshakePropertyType.APPLICATION_NAME.getName(), "application");
-        properties.put(AgentHandshakePropertyType.HOSTNAME.getName(), "hostname");
-        properties.put(AgentHandshakePropertyType.IP.getName(), "ip");
-        properties.put(AgentHandshakePropertyType.PID.getName(), 1111);
-        properties.put(AgentHandshakePropertyType.SERVICE_TYPE.getName(), 10);
-        properties.put(AgentHandshakePropertyType.START_TIMESTAMP.getName(), System.currentTimeMillis());
-        properties.put(AgentHandshakePropertyType.VERSION.getName(), "1.0");
-        
-        return properties;
-    }
-
-    class EchoMessageListener implements MessageListener {
-        private final List<SendPacket> sendPacketRepository = new ArrayList<SendPacket>();
-        private final List<RequestPacket> requestPacketRepository = new ArrayList<RequestPacket>();
-
-        @Override
-        public void handleSend(SendPacket sendPacket, Channel channel) {
-            sendPacketRepository.add(sendPacket);
-
-            byte[] payload = sendPacket.getPayload();
-            logger.debug(new String(payload));
-        }
-
-        @Override
-        public void handleRequest(RequestPacket requestPacket, Channel channel) {
-            requestPacketRepository.add(requestPacket);
-
-            byte[] payload = requestPacket.getPayload();
-            logger.debug(new String(payload));
-
-            channel.write(new ResponsePacket(requestPacket.getRequestId(), requestPacket.getPayload()));
-        }
-
-        public List<SendPacket> getSendPacketRepository() {
-            return sendPacketRepository;
-        }
-
-        public List<RequestPacket> getRequestPacketRepository() {
-            return requestPacketRepository;
-        }
     }
 
     private ChannelContext getChannelContext(String applicationName, String agentId, long startTimeMillis, List<ChannelContext> duplexChannelContextList) {
@@ -217,7 +152,7 @@ public class HandshakeTest {
         List<ChannelContext> channelContextList = new ArrayList<ChannelContext>();
 
         for (ChannelContext eachContext : duplexChannelContextList) {
-            if (eachContext.getCurrentStateCode() == PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION) {
+            if (eachContext.getCurrentStateCode() == PinpointServerSocketStateCode.RUN_DUPLEX) {
                 Map agentProperties = eachContext.getChannelProperties();
 
                 if (!applicationName.equals(agentProperties.get(AgentHandshakePropertyType.APPLICATION_NAME.getName()))) {
@@ -235,7 +170,6 @@ public class HandshakeTest {
                 channelContextList.add(eachContext);
             }
         }
-
 
         if (channelContextList.size() == 0) {
             return null;

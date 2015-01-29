@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.rpc.client;
+package com.navercorp.pinpoint.common.util;
 
-public class PinpointSocketHandlerTest {
-
-
+/**
+ * @author emeroad
+ */
+public interface Clock {
+    long getTime();
 }

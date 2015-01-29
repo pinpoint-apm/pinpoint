@@ -21,12 +21,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,14 +39,10 @@ import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.rpc.server.ChannelContext;
-import com.navercorp.pinpoint.rpc.server.PinpointServerSocket;
-import com.navercorp.pinpoint.rpc.server.PinpointServerSocketStateCode;
-import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
-import com.navercorp.pinpoint.rpc.server.SocketChannel;
 import com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
+import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 
 /**
  * @author koo.taejin
@@ -55,33 +51,38 @@ public class EventHandlerTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private static int bindPort;
+    
+    @BeforeClass
+    public static void setUp() throws IOException {
+        bindPort = PinpointRPCTestUtils.findAvailablePort();
+    }
+
     // Test for being possible to send messages in case of failure of registering packet ( return code : 2, lack of parameter)
     @Test
     public void registerAgentSuccessTest() throws Exception {
         EventHandler eventHandler = new EventHandler();
 
-        PinpointServerSocket pinpointServerSocket = new PinpointServerSocket(eventHandler);
-        pinpointServerSocket.setMessageListener(new SimpleListener());
-        pinpointServerSocket.bind("127.0.0.1", 22234);
+        PinpointServerSocket serverSocket = new PinpointServerSocket(eventHandler);
+        serverSocket.setMessageListener(new SimpleListener());
+        serverSocket.bind("127.0.0.1", bindPort);
 
         Socket socket = null;
         try {
-            socket = new Socket("127.0.0.1", 22234);
+            socket = new Socket("127.0.0.1", bindPort);
             sendAndReceiveSimplePacket(socket);
-            Assert.assertEquals(eventHandler.getCode(), PinpointServerSocketStateCode.RUN);
+            Assert.assertEquals(eventHandler.getCode(), PinpointServerSocketStateCode.RUN_WITHOUT_HANDSHAKE);
 
-            int code = sendAndReceiveRegisterPacket(socket, getParams());
-            Assert.assertEquals(eventHandler.getCode(), PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION);
+            int code = sendAndReceiveRegisterPacket(socket, PinpointRPCTestUtils.getParams());
+            Assert.assertEquals(eventHandler.getCode(), PinpointServerSocketStateCode.RUN_DUPLEX);
 
             sendAndReceiveSimplePacket(socket);
         } finally {
             if (socket != null) {
                 socket.close();
             }
-
-            if (pinpointServerSocket != null) {
-                pinpointServerSocket.close();
-            }
+            
+            PinpointRPCTestUtils.close(serverSocket);
         }
     }
     
@@ -89,13 +90,13 @@ public class EventHandlerTest {
     public void registerAgentFailTest() throws Exception {
         ThrowExceptionEventHandler eventHandler = new ThrowExceptionEventHandler();
 
-        PinpointServerSocket pinpointServerSocket = new PinpointServerSocket(eventHandler);
-        pinpointServerSocket.setMessageListener(new SimpleListener());
-        pinpointServerSocket.bind("127.0.0.1", 22234);
+        PinpointServerSocket serverSocket = new PinpointServerSocket(eventHandler);
+        serverSocket.setMessageListener(new SimpleListener());
+        serverSocket.bind("127.0.0.1", bindPort);
 
         Socket socket = null;
         try {
-            socket = new Socket("127.0.0.1", 22234);
+            socket = new Socket("127.0.0.1", bindPort);
             sendAndReceiveSimplePacket(socket);
             
             Assert.assertTrue(eventHandler.getErrorCount() > 0);
@@ -103,10 +104,8 @@ public class EventHandlerTest {
             if (socket != null) {
                 socket.close();
             }
-
-            if (pinpointServerSocket != null) {
-                pinpointServerSocket.close();
-            }
+            
+            PinpointRPCTestUtils.close(serverSocket);
         }
     }
 
@@ -188,21 +187,6 @@ public class EventHandlerTest {
         inputStream.read(payload);
 
         return payload;
-    }
-
-    private Map<String, Object> getParams() {
-        Map<String, Object> properties = new HashMap<String, Object>();
-
-        properties.put(AgentHandshakePropertyType.AGENT_ID.getName(), "agent");
-        properties.put(AgentHandshakePropertyType.APPLICATION_NAME.getName(), "application");
-        properties.put(AgentHandshakePropertyType.HOSTNAME.getName(), "hostname");
-        properties.put(AgentHandshakePropertyType.IP.getName(), "ip");
-        properties.put(AgentHandshakePropertyType.PID.getName(), 1111);
-        properties.put(AgentHandshakePropertyType.SERVICE_TYPE.getName(), 10);
-        properties.put(AgentHandshakePropertyType.START_TIMESTAMP.getName(), System.currentTimeMillis());
-        properties.put(AgentHandshakePropertyType.VERSION.getName(), "1.0");
-
-        return properties;
     }
 
     class SimpleListener implements ServerMessageListener {

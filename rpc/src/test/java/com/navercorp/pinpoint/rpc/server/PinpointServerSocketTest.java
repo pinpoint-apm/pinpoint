@@ -18,29 +18,39 @@ package com.navercorp.pinpoint.rpc.server;
 
 import com.navercorp.pinpoint.rpc.DiscardPipelineFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServerSocket;
+import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.net.Socket;
 
 /**
  * @author emeroad
  */
 public class PinpointServerSocketTest {
+    
+    private static int bindPort;
+    
+    @BeforeClass
+    public static void setUp() throws IOException {
+        bindPort = PinpointRPCTestUtils.findAvailablePort();
+    }
+    
     @Test
     public void testBind() throws Exception {
-        PinpointServerSocket pinpointServerSocket = new PinpointServerSocket();
-        pinpointServerSocket.setPipelineFactory(new DiscardPipelineFactory());
+        PinpointServerSocket serverSocket = new PinpointServerSocket();
+        serverSocket.setPipelineFactory(new DiscardPipelineFactory());
+        serverSocket.bind("127.0.0.1", bindPort);
 
-        pinpointServerSocket.bind("127.0.0.1", 22234);
-
-        Socket socket = new Socket("127.0.0.1", 22234);
+        Socket socket = new Socket("127.0.0.1", bindPort);
         socket.getOutputStream().write(new byte[10]);
         socket.getOutputStream().flush();
         socket.close();
 
         Thread.sleep(1000);
-        pinpointServerSocket.close();
+        PinpointRPCTestUtils.close(serverSocket);
     }
 
 

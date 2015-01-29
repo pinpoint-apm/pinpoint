@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.modifier.connector.httpclient3;
 
-import com.navercorp.pinpoint.profiler.util.DepthScope;
-
 /**
  * @author Minwoo Jung
  */

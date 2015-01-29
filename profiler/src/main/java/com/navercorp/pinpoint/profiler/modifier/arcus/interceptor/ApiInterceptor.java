@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.common.ServiceType;
 
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.ops.Operation;
+import net.spy.memcached.plugin.FrontCacheGetFuture;
 
 /**
  * @author emeroad
@@ -60,7 +61,7 @@ public class ApiInterceptor extends SpanEventSimpleAroundInterceptor implements 
         }
 
         // find the target node
-        if (result instanceof Future) {
+        if (result instanceof Future && !(result instanceof FrontCacheGetFuture)) {
             Operation op = (Operation) getOperation.invoke(((Future<?>)result));
             if (op != null) {
                 MemcachedNode handlingNode = op.getHandlingNode();

@@ -19,18 +19,17 @@ package com.navercorp.pinpoint.profiler.util;
 /**
  * @author emeroad
  */
+import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import org.junit.Test;
 import org.junit.Assert;
-
-import com.navercorp.pinpoint.profiler.util.DepthScope;
 
 /**
  * @author emeroad
  */
-public class DepthScopeTest {
+public class ThreadLocalScopeTest {
     @Test
     public void pushPop() {
-        DepthScope scope = new DepthScope("test");
+        Scope scope = new ThreadLocalScope(new SimpleScopeFactory("test"));
         Assert.assertEquals(scope.push(), 0);
         Assert.assertEquals(scope.push(), 1);
         Assert.assertEquals(scope.push(), 2);
@@ -44,7 +43,7 @@ public class DepthScopeTest {
 
     @Test
     public void pushPopError() {
-        DepthScope scope = new DepthScope("test");
+        Scope scope = new ThreadLocalScope(new SimpleScopeFactory("test"));
         Assert.assertEquals(scope.pop(), -1);
         Assert.assertEquals(scope.pop(), -2);
 
@@ -53,6 +52,13 @@ public class DepthScopeTest {
 
         Assert.assertEquals(scope.depth(), 0);
 
+
+    }
+
+    @Test
+    public void getName() {
+        Scope scope = new ThreadLocalScope(new SimpleScopeFactory("test"));
+        Assert.assertEquals(scope.getName(), "test");
 
     }
 }

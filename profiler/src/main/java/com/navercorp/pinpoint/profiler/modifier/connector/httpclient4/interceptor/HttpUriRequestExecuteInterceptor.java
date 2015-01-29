@@ -18,11 +18,12 @@ package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.intercept
 
 import java.net.URI;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
-
 import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.HttpUriRequest;
+
+import com.navercorp.pinpoint.bootstrap.instrument.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
+import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
 
 /**
  * MethodInfo interceptor
@@ -34,13 +35,14 @@ import org.apache.http.client.methods.HttpUriRequest;
  * public final HttpResponse execute(HttpUriRequest request) throws IOException, ClientProtocolException
  * </pre>
  * @author emeroad
+ * @author minwoo.jung
  */
-public class HttpUriRequestExecuteInterceptor extends AbstractHttpRequestExecute implements TargetClassLoader {
+public class HttpUriRequestExecuteInterceptor extends AbstractHttpRequestExecuteWithDivergence implements TargetClassLoader {
 
     private static final int HTTP_URI_REQUEST_INDEX = 0;
 
-    public HttpUriRequestExecuteInterceptor() {
-        super(HttpUriRequestExecuteInterceptor.class);
+    public HttpUriRequestExecuteInterceptor(boolean isHasCallbackParam, Scope scope) {
+        super(HttpUriRequestExecuteInterceptor.class, isHasCallbackParam, scope);
     }
 
     @Override
@@ -125,5 +127,4 @@ public class HttpUriRequestExecuteInterceptor extends AbstractHttpRequestExecute
         }
         return target;
     }
-
 }

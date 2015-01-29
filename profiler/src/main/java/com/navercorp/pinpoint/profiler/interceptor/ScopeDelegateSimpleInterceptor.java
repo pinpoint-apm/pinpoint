@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupp
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
-import com.navercorp.pinpoint.profiler.util.DepthScope;
 
 /**
  * @author emeroad
@@ -47,7 +46,7 @@ public class ScopeDelegateSimpleInterceptor implements SimpleAroundInterceptor, 
     @Override
     public void before(Object target, Object[] args) {
         final int push = scope.push();
-        if (push != DepthScope.ZERO) {
+        if (push != Scope.ZERO) {
             return;
         }
         this.delegate.before(target, args);
@@ -56,7 +55,7 @@ public class ScopeDelegateSimpleInterceptor implements SimpleAroundInterceptor, 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         final int pop = scope.pop();
-        if (pop != DepthScope.ZERO) {
+        if (pop != Scope.ZERO) {
             return;
         }
         this.delegate.after(target, args, result, throwable);

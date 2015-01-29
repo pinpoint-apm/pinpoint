@@ -199,4 +199,9 @@ public class DisableTrace  implements Trace {
     public int getStackFrameId() {
         throw new UnsupportedOperationException();
     }
+    
+    @Override
+    public ServiceType getServiceType() {
+        throw new UnsupportedOperationException();
+    }
 }

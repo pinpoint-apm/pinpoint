@@ -29,6 +29,8 @@ public interface ByteCodeInstrumentor {
 
     Scope getScope(String scopeName);
 
+    Scope getScope(ScopeDefinition scopeDefinition);
+
     Class<?> defineClass(ClassLoader classLoader, String defineClass, ProtectionDomain protectedDomain) throws InstrumentException;
 
     Interceptor newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN) throws InstrumentException;
