@@ -42,7 +42,7 @@ import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
  */
 public class DefaultServerMetaDataHolderTest {
 
-    private static final int THREAD_COUNT = 1000;
+    private static final int THREAD_COUNT = 500;
 
     private static final String SERVER_INFO = "testContainerInfo";
     private static final List<String> VM_ARGS = Arrays.asList("testVmArgs");

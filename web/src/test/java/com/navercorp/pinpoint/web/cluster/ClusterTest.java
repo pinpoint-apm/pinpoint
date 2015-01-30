@@ -32,6 +32,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.client.MessageListener;
@@ -41,37 +43,53 @@ import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.web.config.WebConfig;
 import com.navercorp.pinpoint.web.server.PinpointSocketManager;
+import com.navercorp.pinpoint.web.util.PinpointWebTestUtils;
 
+/**
+ * @author Taejin Koo
+ */
 public class ClusterTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClusterTest.class);
 
     // some tests may fail when executed in local environment
     // when failures happen, you have to copy pinpoint-web.properties of resource-test to resource-local. Tests will succeed.
 
-    private static final int DEFAULT_ACCEPTOR_PORT = 9996;
-    private static final int DEFAULT_ZOOKEEPER_PORT = 22213;
+    private static final String DEFAULT_IP = PinpointWebTestUtils.getRepresentationLocalV4Ip();
 
-    private static final String DEFAULT_IP = NetUtils.getLocalV4Ip();
+    private static String CLUSTER_NODE_PATH;
 
-    private static final String CLUSTER_NODE_PATH = "/pinpoint-cluster/web/" + DEFAULT_IP + ":" + DEFAULT_ACCEPTOR_PORT;
-
+    private static int acceptorPort;
+    private static int zookeeperPort;
+    
+    private static String zookeeperAddress;
+    
     private static TestingServer ts = null;
 
     static PinpointSocketManager socketManager;
 
     @BeforeClass
     public static void setUp() throws Exception {
+        acceptorPort = PinpointWebTestUtils.findAvailablePort();
+        zookeeperPort = PinpointWebTestUtils.findAvailablePort(acceptorPort + 1);
+
+        zookeeperAddress = DEFAULT_IP + ":" + zookeeperPort;
+        
+        CLUSTER_NODE_PATH = "/pinpoint-cluster/web/" + DEFAULT_IP + ":" + acceptorPort;
+        LOGGER.info("CLUSTER_NODE_PATH:{}", CLUSTER_NODE_PATH);
+        
         WebConfig config = mock(WebConfig.class);
 
         when(config.isClusterEnable()).thenReturn(true);
-        when(config.getClusterTcpPort()).thenReturn(DEFAULT_ACCEPTOR_PORT);
-        when(config.getClusterZookeeperAddress()).thenReturn("127.0.0.1:22213");
+        when(config.getClusterTcpPort()).thenReturn(acceptorPort);
+        when(config.getClusterZookeeperAddress()).thenReturn(zookeeperAddress);
         when(config.getClusterZookeeperRetryInterval()).thenReturn(60000);
         when(config.getClusterZookeeperSessionTimeout()).thenReturn(3000);
 
         socketManager = new PinpointSocketManager(config);
         socketManager.start();
 
-        ts = createZookeeperServer(DEFAULT_ZOOKEEPER_PORT);
+        ts = createZookeeperServer(zookeeperPort);
     }
 
     @AfterClass
@@ -90,7 +108,7 @@ public class ClusterTest {
         ts.restart();
         Thread.sleep(5000);
 
-        ZooKeeper zookeeper = new ZooKeeper("127.0.0.1:22213", 5000, null);
+        ZooKeeper zookeeper = new ZooKeeper(zookeeperAddress, 5000, null);
         getNodeAndCompareContents(zookeeper);
 
         if (zookeeper != null) {
@@ -103,7 +121,7 @@ public class ClusterTest {
         ts.restart();
         Thread.sleep(5000);
 
-        ZooKeeper zookeeper = new ZooKeeper("127.0.0.1:22213", 5000, null);
+        ZooKeeper zookeeper = new ZooKeeper(zookeeperAddress, 5000, null);
         getNodeAndCompareContents(zookeeper);
 
         ts.stop();
@@ -138,7 +156,7 @@ public class ClusterTest {
         try {
             Thread.sleep(5000);
 
-            zookeeper = new ZooKeeper("127.0.0.1:22213", 5000, null);
+            zookeeper = new ZooKeeper(zookeeperAddress, 5000, null);
             getNodeAndCompareContents(zookeeper);
 
             Assert.assertEquals(0, socketManager.getCollectorChannelContext().size());
@@ -146,7 +164,7 @@ public class ClusterTest {
             factory = new PinpointSocketFactory();
             factory.setMessageListener(new SimpleListener());
 
-            socket = factory.connect(DEFAULT_IP, DEFAULT_ACCEPTOR_PORT);
+            socket = factory.connect(DEFAULT_IP, acceptorPort);
 
             Thread.sleep(1000);
 
@@ -179,6 +197,8 @@ public class ClusterTest {
     }
 
     private void getNodeAndCompareContents(ZooKeeper zookeeper) throws KeeperException, InterruptedException {
+        LOGGER.info("getNodeAndCompareContents() {}", CLUSTER_NODE_PATH);
+
         byte[] conetents = zookeeper.getData(CLUSTER_NODE_PATH, null, null);
 
         String[] registeredIplist = new String(conetents).split("\r\n");
