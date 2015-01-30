@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.profiler.modifier.log.log4j.interceptor;
 
 
-import org.slf4j.MDC;
+import org.apache.log4j.MDC;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -11,7 +11,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
-public class LoggingEventInterceptor implements SimpleAroundInterceptor, TraceContextSupport, TargetClassLoader {
+public class LoggingEventOfLog4jInterceptor implements SimpleAroundInterceptor, TraceContextSupport, TargetClassLoader {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();

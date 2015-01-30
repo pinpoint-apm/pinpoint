@@ -26,16 +26,15 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
-import com.navercorp.pinpoint.profiler.modifier.log.log4j.interceptor.LoggingEventInterceptor;
 
 /**
  * @author minwoo.jung
  */
-public class LoggingEventModifier extends AbstractModifier {
+public class LoggingEventOfLog4jModifier extends AbstractModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public LoggingEventModifier(ByteCodeInstrumentor byteCodeInstrumentor,Agent agent) {
+    public LoggingEventOfLog4jModifier(ByteCodeInstrumentor byteCodeInstrumentor,Agent agent) {
         super(byteCodeInstrumentor, agent);
     }
 
@@ -48,21 +47,16 @@ public class LoggingEventModifier extends AbstractModifier {
 
 
         try {
-            //method weaving
-//            InstrumentClass loggingEvent = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
-//            loggingEvent.weaving("com.navercorp.pinpoint.profiler.modifier.log.log4j.aspect.LoggingEventAspect");
-            
-            
-            //add interceptor for constructor
-//            Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.log.log4j.interceptor.LoggingEventInterceptor");
-//            
-//            InstrumentClass loggingEvent = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
-//            loggingEvent.addInterceptor("getMDCCopy", new String[]{}, interceptor);
-//            return loggingEvent.toBytecode();
-            
             InstrumentClass loggingEvent = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
-            Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.log.log4j.interceptor.LoggingEventInterceptor");
-            loggingEvent.addConstructorInterceptor(new String[]{"java.lang.String", "org.apache.log4j.Category", "org.apache.log4j.Priority", "java.lang.Object", "java.lang.Throwable"}, interceptor);
+            
+            Interceptor interceptor1 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.log.log4j.interceptor.LoggingEventInterceptor");
+            loggingEvent.addConstructorInterceptor(new String[]{"java.lang.String", "org.apache.log4j.Category", "org.apache.log4j.Priority", "java.lang.Object", "java.lang.Throwable"}, interceptor1);
+            
+            Interceptor interceptor2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.log.log4j.interceptor.LoggingEventInterceptor");
+            loggingEvent.addConstructorInterceptor(new String[]{"java.lang.String", "org.apache.log4j.Category", "long", "org.apache.log4j.Priority", "java.lang.Object", "java.lang.Throwable"}, interceptor2);
+            
+            Interceptor interceptor3 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.log.log4j.interceptor.LoggingEventInterceptor");
+            loggingEvent.addConstructorInterceptor(new String[]{"java.lang.String", "org.apache.log4j.Category", "long", "org.apache.log4j.Level", "java.lang.Object", "java.lang.String", "org.apache.log4j.spi.ThrowableInformation", "java.lang.String", "org.apache.log4j.spi.LocationInfo", "java.util.Map"}, interceptor3);
             
             return loggingEvent.toBytecode();
         } catch (InstrumentException e) {
