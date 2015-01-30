@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin.editor;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -25,45 +25,33 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.Option;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.TypeUtils;
 import com.navercorp.pinpoint.exception.PinpointException;
 
 public class DefaultInterceptorFactory implements InterceptorFactory {
     private static final Object[] NO_ARGS = new Object[0];
-    
+
+    private final ProfilerPluginContext pluginContext;
     private final ByteCodeInstrumentor instrumentor;
     private final TraceContext traceContext;
     
     private final String interceptorClassName;
     private final Object[] providedArguments;
     
-    private final String scopeName;
-    
-    
-    public DefaultInterceptorFactory(ByteCodeInstrumentor instrumentor, TraceContext traceContext, String interceptorClassName, Object[] providedArguments, String scopeName) {
+    public DefaultInterceptorFactory(ProfilerPluginContext pluginContext, ByteCodeInstrumentor instrumentor, TraceContext traceContext, String interceptorClassName, Object[] providedArguments) {
+        this.pluginContext = pluginContext;
         this.instrumentor = instrumentor;
         this.traceContext = traceContext;
         this.interceptorClassName = interceptorClassName;
         this.providedArguments = providedArguments == null ? NO_ARGS : providedArguments;
-        this.scopeName = scopeName;
     }
 
     @Override
     public Interceptor getInterceptor(ClassLoader classLoader, InstrumentClass target, MethodInfo targetMethod) {
-        Interceptor interceptor = createInstance(classLoader, traceContext, target, targetMethod);
-        
-        if (scopeName != null) {
-            interceptor = wrapWithScope(interceptor);
-        }
-        
-        return interceptor;
-    }
-    
-    private Interceptor createInstance(ClassLoader classLoader, TraceContext traceContext, InstrumentClass target, MethodInfo targetMethod) {
         Class<?> interceptorClass;
         
         try {
@@ -94,19 +82,6 @@ public class DefaultInterceptorFactory implements InterceptorFactory {
             throw new PinpointException("Fail to invoke constructor: " + constructor + ", arguments: " + Arrays.toString(arguments), e);
         }
     }
-    
-    private Interceptor wrapWithScope(Interceptor interceptor) {
-        Scope scope = instrumentor.getScope(scopeName);
-        
-        if (interceptor instanceof SimpleAroundInterceptor) {
-            return new ScopedSimpleAroundInterceptor((SimpleAroundInterceptor)interceptor, scope);
-        } else if (interceptor instanceof StaticAroundInterceptor) {
-            return new ScopedStaticInterceptor((StaticAroundInterceptor)interceptor, scope);
-        }
-        
-        throw new IllegalArgumentException("Unexpected interceptor type: " + interceptor.getClass());
-    }
-
     
     private static final Comparator<Constructor<?>> CONSTRUCTOR_COMPARATOR = new Comparator<Constructor<?>>() {
 
@@ -192,15 +167,7 @@ public class DefaultInterceptorFactory implements InterceptorFactory {
             if (type == TraceContext.class) {
                 return traceContext;
             } else if (type == MethodDescriptor.class) {
-                MethodDescriptor descriptor = targetMethod.getDescriptor();
-                
-                for (Annotation a : annotations) {
-                    if (a.annotationType().equals(CacheApi.class)) {
-                        traceContext.cacheApi(descriptor);
-                    }
-                }
-                
-                return descriptor;
+                return targetMethod.getDescriptor();
             } else if (type == ByteCodeInstrumentor.class) {
                 return instrumentor;
             } else if (type == MethodInfo.class) {

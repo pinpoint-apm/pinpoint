@@ -14,38 +14,30 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin;
-
-import java.util.List;
+package com.navercorp.pinpoint.bootstrap.plugin.editor;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.exception.PinpointException;
 
-public class BasicClassEditor implements DedicatedClassEditor {
-    private final String targetClassName;
-    private final List<Injector> injectors;
+public class ConditionalClassEditor implements DedicatedClassEditor {
+    private final ClassCondition condition;
+    private final DedicatedClassEditor delegate;
     
-
-    public BasicClassEditor(String targetClassName, List<Injector> injectors) {
-        this.targetClassName = targetClassName;
-        this.injectors = injectors;
+    public ConditionalClassEditor(ClassCondition condition, DedicatedClassEditor delegate) {
+        this.condition = condition;
+        this.delegate = delegate;
     }
 
     @Override
     public byte[] edit(ClassLoader classLoader, InstrumentClass target) {
-        try {
-            for (Injector injector : injectors) {
-                injector.inject(classLoader, target);
-            }
-            
-            return target.toBytecode();
-        } catch (Throwable t) {
-            throw new PinpointException("Fail to edit class: " + targetClassName, t);
+        if (condition.check(classLoader, target)) {
+            return delegate.edit(classLoader, target);
         }
+        
+        return null;
     }
 
     @Override
     public String getTargetClassName() {
-        return targetClassName;
+        return delegate.getTargetClassName();
     }
 }

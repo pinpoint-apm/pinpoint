@@ -77,7 +77,7 @@ public class AnnotationBo {
     }
 
     public String getKeyName() {
-        return AnnotationKey.findAnnotationKey(this.key).getValue();
+        return AnnotationKey.findAnnotationKey(this.key).getName();
     }
 
     public void setKey(int key) {

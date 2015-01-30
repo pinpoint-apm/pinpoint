@@ -310,7 +310,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                                     spanBoSequence,
                                                     parentSequence,
                                                     true,
-                                                    apiMetaDataError.getValue(),
+                                                    apiMetaDataError.getName(),
                                                     argument,
                                                     begin,
                                                     elapsed,
@@ -391,7 +391,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                                     spanBoEventSequence,
                                                     parentSequence,
                                                     true,
-                                                    apiMetaDataError.getValue(),
+                                                    apiMetaDataError.getName(),
                                                     argument,
                                                     begin,
                                                     elapsed,
@@ -515,7 +515,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             for (AnnotationBo ann : annotationBoList) {
                 AnnotationKey annotation = AnnotationKey.findAnnotationKey(ann.getKey());
                 if (annotation.isViewInRecordSet()) {
-                    Record record = new Record(depth, getNextId(), parentId, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, 0, null, null, null, null, false, false);
+                    Record record = new Record(depth, getNextId(), parentId, false, annotation.getName(), ann.getValue().toString(), 0L, 0L, 0, null, null, null, null, false, false);
                     recordList.add(record);
                 }
             }

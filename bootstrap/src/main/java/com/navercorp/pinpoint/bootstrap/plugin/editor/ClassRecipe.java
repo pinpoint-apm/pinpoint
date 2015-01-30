@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin.editor;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 
-public interface Condition {
-    boolean check(InstrumentClass target);
+public interface ClassRecipe {
+    void edit(ClassLoader classLoader, InstrumentClass target) throws InstrumentException;
 }

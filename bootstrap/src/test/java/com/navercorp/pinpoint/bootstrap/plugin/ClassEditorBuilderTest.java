@@ -27,7 +27,11 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.ClassEditorBuilder.InterceptorBuilder;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder.InterceptorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder.MethodEditorBuilder;
 
 public class ClassEditorBuilderTest {
 
@@ -37,6 +41,7 @@ public class ClassEditorBuilderTest {
         TraceContext traceContext = mock(TraceContext.class);
         InstrumentClass aClass = mock(InstrumentClass.class);
         MethodInfo aMethod = mock(MethodInfo.class);
+        MethodDescriptor aDescriptor = mock(MethodDescriptor.class);
         Scope aScope = mock(Scope.class);
         
         ClassLoader classLoader = getClass().getClassLoader();
@@ -49,6 +54,7 @@ public class ClassEditorBuilderTest {
         when(aClass.getDeclaredMethod(methodName, parameterTypeNames)).thenReturn(aMethod);
         when(aMethod.getName()).thenReturn(methodName);
         when(aMethod.getParameterTypes()).thenReturn(parameterTypeNames);
+        when(aMethod.getDescriptor()).thenReturn(aDescriptor);
         when(aClass.addInterceptor(eq(methodName), eq(parameterTypeNames), isA(Interceptor.class))).thenReturn(0);
         
         ProfilerPluginContext helper = new ProfilerPluginContext(instrumentor, traceContext);
@@ -56,11 +62,12 @@ public class ClassEditorBuilderTest {
         builder.inject(MetadataHolder.A, "java.util.HashMap");
         builder.inject(FieldSnooper.OBJECT, "someField");
         
-        InterceptorBuilder ib = builder.newInterceptorBuilder();
-        ib.intercept(methodName, parameterTypeNames);
-        ib.with("com.navercorp.pinpoint.bootstrap.plugin.TestInterceptor");
-        ib.constructedWith("provided");
-        ib.in(scopeName);
+        MethodEditorBuilder ib = builder.editMethod();
+        ib.targetMethod(methodName, parameterTypeNames);
+        InterceptorBuilder iib = ib.injectInterceptor();
+        iib.interceptorClass("com.navercorp.pinpoint.bootstrap.plugin.TestInterceptor");
+        iib.constructorArgs("provided");
+        iib.scope(scopeName);
         
         ClassEditor editor = builder.build();
         

@@ -34,7 +34,7 @@ public class AnnotationKey {
     
     public AnnotationKey(int code, String name, AnnotationKeyProperty... properties) {
         this.code = code;
-        this.value = name;
+        this.name = name;
         
         boolean viewInRecordSet = false;
         boolean errorApiMetadata = false;
@@ -55,8 +55,8 @@ public class AnnotationKey {
     }
     
 
-    public String getValue() {
-        return value;
+    public String getName() {
+        return name;
     }
 
     public int getCode() {
@@ -109,7 +109,7 @@ public class AnnotationKey {
 
     public static final AnnotationKey STRING_ID = new AnnotationKey(30, "STRING_ID");
 
-    // HTTP_URL is replaced by argument. So viewInRecordSet parameter value is not true.
+    // HTTP_URL is replaced by argument. So viewInRecordSet parameter name is not true.
     public static final AnnotationKey HTTP_URL = new AnnotationKey(40, "http.url");
     public static final AnnotationKey HTTP_PARAM = new AnnotationKey(41, "http.param", VIEW_IN_RECORD_SET);
     public static final AnnotationKey HTTP_PARAM_ENTITY = new AnnotationKey(42, "http.entity", VIEW_IN_RECORD_SET);
@@ -160,7 +160,7 @@ public class AnnotationKey {
     public static final AnnotationKey UNKNOWN = new AnnotationKey(-9999, "UNKNOWN");
 
     private final int code;
-    private final String value;
+    private final String name;
     private final boolean viewInRecordSet;
     private final boolean errorApiMetadata;
 
@@ -273,7 +273,7 @@ public class AnnotationKey {
     
     public static AnnotationKey valueOf(String name) {
         for (AnnotationKey key : VALUES) {
-            if (key.getValue().equals(name)) {
+            if (key.getName().equals(name)) {
                 return key;
             }
         }
@@ -375,7 +375,7 @@ public class AnnotationKey {
         }
 
         final int cachedIndex = CACHE_ARGS0.getCode() - ARGS0.getCode();
-        // you have to - (minus) operation because of negative value
+        // you have to - (minus) operation because of negative name
         return index - cachedIndex;
     }
 }

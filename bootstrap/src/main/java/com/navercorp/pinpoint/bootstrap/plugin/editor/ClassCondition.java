@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin.editor;
 
-public interface ClassEditorFactory {
-    ClassEditor get(ProfilerPluginContext context);
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+
+public interface ClassCondition {
+    boolean check(ClassLoader classLoader, InstrumentClass target);
 }

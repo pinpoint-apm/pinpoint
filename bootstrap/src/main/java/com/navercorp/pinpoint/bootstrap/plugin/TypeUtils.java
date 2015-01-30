@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin;
 
+// TODO move package
 public final class TypeUtils {
 
     private TypeUtils() {

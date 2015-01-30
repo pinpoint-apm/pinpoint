@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin;
 
+// TODO move package
 public abstract class Option<T> {
     public abstract T getValue();
     public abstract boolean hasValue();

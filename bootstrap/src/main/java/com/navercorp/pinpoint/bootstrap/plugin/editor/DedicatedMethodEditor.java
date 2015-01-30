@@ -14,30 +14,27 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin.editor;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 
-public class DedicatedInterceptorInjector implements Injector {
+public class DedicatedMethodEditor implements MethodEditor {
     private final String targetMethodName;
     private final String[] targetMethodParameterTypes;
-    private final InterceptorFactory factory;
+    private final MethodRecipe recipe;
 
-    public DedicatedInterceptorInjector(String targetMethodName, String[] targetMethodParameterTypes, InterceptorFactory factory) {
+    public DedicatedMethodEditor(String targetMethodName, String[] targetMethodParameterTypes, MethodRecipe recipe) {
         this.targetMethodName = targetMethodName;
         this.targetMethodParameterTypes = targetMethodParameterTypes;
-        this.factory = factory;
+        this.recipe = recipe;
     }
 
 
     @Override
-    public void inject(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
+    public void edit(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
         MethodInfo targetMethod = target.getDeclaredMethod(targetMethodName, targetMethodParameterTypes);
-        Interceptor interceptor = factory.getInterceptor(classLoader, target, targetMethod); 
-        target.addInterceptor(targetMethodName, targetMethodParameterTypes, interceptor);
+        recipe.edit(classLoader, target, targetMethod);
     }
-
 }

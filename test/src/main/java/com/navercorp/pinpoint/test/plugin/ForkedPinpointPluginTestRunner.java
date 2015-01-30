@@ -19,8 +19,8 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 
-import com.navercorp.pinpoint.bootstrap.plugin.PluginTestVerifier;
-import com.navercorp.pinpoint.bootstrap.plugin.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 
 /**
  * @author Jongho Moon

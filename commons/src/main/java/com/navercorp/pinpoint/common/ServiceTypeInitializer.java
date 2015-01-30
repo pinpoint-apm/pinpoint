@@ -70,7 +70,7 @@ public class ServiceTypeInitializer {
             annotationKeyChecker.check(key, AnnotationKey.class);
             annotationKeys.add(key);
             
-            logger.info("Adding default annotaion key: " + key.getValue() + "[" + key.getCode() + "]");
+            logger.info("Adding default annotaion key: " + key.getName() + "[" + key.getCode() + "]");
         }
 
 
@@ -89,7 +89,7 @@ public class ServiceTypeInitializer {
                 annotationKeyChecker.check(key, providerClass);
                 annotationKeys.add(key);
                 
-                logger.info("Adding annotation key from " + providerClass.getName() + ": " + key.getValue() + "[" + key.getCode() + "]");
+                logger.info("Adding annotation key from " + providerClass.getName() + ": " + key.getName() + "[" + key.getCode() + "]");
             }
         }
 

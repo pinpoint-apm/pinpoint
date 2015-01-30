@@ -27,11 +27,11 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.plugin.ClassEditor;
-import com.navercorp.pinpoint.bootstrap.plugin.DedicatedClassEditor;
 import com.navercorp.pinpoint.bootstrap.plugin.PluginClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.DedicatedClassEditor;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.DefaultModifierRegistry;

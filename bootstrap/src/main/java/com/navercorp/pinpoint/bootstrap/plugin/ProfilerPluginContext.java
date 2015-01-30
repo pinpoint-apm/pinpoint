@@ -16,13 +16,21 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
 
 public class ProfilerPluginContext {
     private final ByteCodeInstrumentor instrumentor;
     private final TraceContext traceContext;
+    
+    private final Map<String, Integer> cachedApiTable = new HashMap<String, Integer>();
     
     public ProfilerPluginContext(ByteCodeInstrumentor instrumentor, TraceContext traceContext) {
         this.instrumentor = instrumentor;
@@ -30,11 +38,26 @@ public class ProfilerPluginContext {
     }
 
     public ClassEditorBuilder newClassEditorBuilder() {
-        return new ClassEditorBuilder(instrumentor, traceContext); 
+        return new ClassEditorBuilder(this, instrumentor, traceContext); 
     }
     
     public ProfilerConfig getConfig() {
         return traceContext.getProfilerConfig();
     }
     
+    public int cacheApi(MethodInfo methodInfo) {
+        MethodDescriptor descriptor = methodInfo.getDescriptor();
+        String apiDescriptor = descriptor.getApiDescriptor();
+        
+        Integer inTable = cachedApiTable.get(apiDescriptor);
+        
+        if (inTable != null) {
+            return inTable;
+        }
+        
+        int id = traceContext.cacheApi(descriptor);
+        cachedApiTable.put(apiDescriptor, id);
+        
+        return id;
+    }
 }

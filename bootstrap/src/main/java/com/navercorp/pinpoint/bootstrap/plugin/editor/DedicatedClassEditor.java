@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin.editor;
 
-import java.util.List;
-
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
-
-public interface ProfilerPlugin {
-    List<ClassEditor> getClassEditors(ProfilerPluginContext context);
+public interface DedicatedClassEditor extends ClassEditor {
+    String getTargetClassName();
 }

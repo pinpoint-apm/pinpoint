@@ -14,12 +14,24 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin.editor;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 
-public interface InterceptorFactory {
-    Interceptor getInterceptor(ClassLoader classLoader, InstrumentClass target, MethodInfo targetMethod);
+public class ConstructorEditor implements MethodEditor {
+    private final String[] targetParameterTypes;
+    private final MethodRecipe recipe;
+    
+    public ConstructorEditor(String[] targetParameterTypes, MethodRecipe recipe) {
+        this.targetParameterTypes = targetParameterTypes;
+        this.recipe = recipe;
+    }
+
+    @Override
+    public void edit(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
+        MethodInfo targetMethod = target.getConstructor(targetParameterTypes);
+        recipe.edit(classLoader, target, targetMethod);
+    }
 }

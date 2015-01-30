@@ -26,9 +26,13 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 public class JavassistMethodInfo implements MethodInfo {
     private final CtBehavior behavior;
+    private final MethodDescriptor descriptor;
     
     public JavassistMethodInfo(CtBehavior behavior) {
         this.behavior = behavior;
+        
+        String[] parameterVariableNames = JavaAssistUtils.getParameterVariableName(behavior);
+        this.descriptor = new DefaultMethodDescriptor(behavior.getDeclaringClass().getName(), behavior.getName(), getParameterTypes(), parameterVariableNames);
     }
 
     @Override
@@ -53,8 +57,7 @@ public class JavassistMethodInfo implements MethodInfo {
 
     @Override
     public MethodDescriptor getDescriptor() {
-        String[] parameterVariableNames = JavaAssistUtils.getParameterVariableName(behavior);
-        return new DefaultMethodDescriptor(behavior.getDeclaringClass().getName(), behavior.getName(), getParameterTypes(), parameterVariableNames);
+        return descriptor;
     }
 
 }

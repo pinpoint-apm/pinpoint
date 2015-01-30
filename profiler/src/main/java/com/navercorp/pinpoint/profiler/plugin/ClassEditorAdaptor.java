@@ -24,8 +24,8 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.plugin.DedicatedClassEditor;
 import com.navercorp.pinpoint.bootstrap.plugin.PluginClassLoaderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.DedicatedClassEditor;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 

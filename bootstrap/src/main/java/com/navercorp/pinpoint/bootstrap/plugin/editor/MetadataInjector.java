@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin.editor;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.plugin.MetadataHolder;
+import com.navercorp.pinpoint.bootstrap.plugin.MetadataInitializationStrategy;
 import com.navercorp.pinpoint.bootstrap.plugin.MetadataInitializationStrategy.ByConstructor;
 import com.navercorp.pinpoint.exception.PinpointException;
 
-public class MetadataInjector implements Injector {
+public class MetadataInjector implements ClassRecipe {
     
     private final MetadataHolder metadataHolder;
     private final MetadataInitializationStrategy strategy;
@@ -36,7 +38,7 @@ public class MetadataInjector implements Injector {
     }
 
     @Override
-    public void inject(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
+    public void edit(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
         if (strategy == null) {
             target.addTraceValue(metadataHolder.getType());
         } else {

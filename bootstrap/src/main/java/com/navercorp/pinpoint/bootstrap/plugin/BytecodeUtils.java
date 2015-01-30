@@ -24,6 +24,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
+// TODO move package
 public final class BytecodeUtils {
 
     private static final Method DEFINE_CLASS = getDefineClassMethod();
