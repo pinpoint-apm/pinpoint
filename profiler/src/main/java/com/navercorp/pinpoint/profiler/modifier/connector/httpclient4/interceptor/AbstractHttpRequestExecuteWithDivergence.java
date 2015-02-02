@@ -102,14 +102,15 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
     
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (!isPassibleAfterProcess()) {
-            addStatusCode(result);
+        try {
+            if (isPassibleAfterProcess()) {
+                after2(target, args, result, throwable);
+            } else {
+                addStatusCode(result);
+            }
+        } finally {
             scope.pop();
-            return;
         }
-
-        after2(target, args, result, throwable);
-        scope.pop();
     };
     
     private boolean isPassibleBeforeProcess() {
