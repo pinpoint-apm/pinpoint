@@ -66,6 +66,8 @@ import com.navercorp.pinpoint.profiler.modifier.db.oracle.OraclePreparedStatemen
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.OracleStatementModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.OracleStatementWrapperModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.PhysicalConnectionModifier;
+import com.navercorp.pinpoint.profiler.modifier.log.log4j.LoggingEventOfLog4jModifier;
+import com.navercorp.pinpoint.profiler.modifier.log.logback.LoggingEventOfLogbackModifier;
 import com.navercorp.pinpoint.profiler.modifier.method.MethodModifier;
 import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.SqlMapClientImplModifier;
 import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.SqlMapSessionImplModifier;
@@ -394,5 +396,19 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             addModifier(new JedisMultiKeyPipelineBaseModifier(byteCodeInstrumentor, agent));
             addModifier(new JedisPipelineModifier(byteCodeInstrumentor, agent));
         }
+    }
+
+    public void addLog4jModifier() {
+        if (profilerConfig.isLog4jLoggingTransactionInfo()) {
+            addModifier(new LoggingEventOfLog4jModifier(byteCodeInstrumentor, agent));
+        }
+        
+    }
+
+    public void addLogbackModifier() {
+        if (profilerConfig.isLogbackLoggingTransactionInfo()) {
+            addModifier(new LoggingEventOfLogbackModifier(byteCodeInstrumentor, agent));
+        }
+        
     }
 }

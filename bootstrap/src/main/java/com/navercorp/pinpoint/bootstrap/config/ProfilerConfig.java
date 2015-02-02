@@ -210,6 +210,8 @@ public class ProfilerConfig {
     private long agentInfoSendRetryInterval = DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL;
 
     private ServiceType applicationServerType;
+    private boolean log4jLoggingTransactionInfo;
+    private boolean logbackLoggingTransactionInfo;
 
     public ProfilerConfig() {
         this.properties = new Properties();
@@ -595,6 +597,15 @@ public class ProfilerConfig {
     public void setApplicationServerType(ServiceType applicationServerType) {
         this.applicationServerType = applicationServerType;
     }
+    
+    public boolean isLog4jLoggingTransactionInfo() {
+        return this.log4jLoggingTransactionInfo;
+    }
+    
+
+    public boolean isLogbackLoggingTransactionInfo() {
+        return this.logbackLoggingTransactionInfo;
+    }
 
     // for test
     void readPropertyValues() {
@@ -718,7 +729,17 @@ public class ProfilerConfig {
         this.ningAsyncHttpClientProfileParamDumpType = readDumpType("profiler.ning.asynchttpclient.param.dumptype", DumpType.EXCEPTION);
         this.ningAsyncHttpClientProfileParamDumpSize = readInt("profiler.ning.asynchttpclient.param.dumpsize", 1024);
         this.ningAsyncHttpClientProfileParamSamplingRate = readInt("profiler.asynchttpclient.param.sampling.rate", 1);
-
+        
+        /**
+         * log4j
+         */
+        this.log4jLoggingTransactionInfo = readBoolean("profiler.log4j.logging.transactioninfo", false);
+        
+        /**
+         * logback
+         */
+        this.logbackLoggingTransactionInfo = readBoolean("profiler.logback.logging.transactioninfo", false);
+        
         // redis & nBase-ARC
         this.redis = readBoolean("profiler.redis", true);
         this.redisPipeline = readBoolean("profiler.redis.pipeline", true);
@@ -933,5 +954,6 @@ public class ProfilerConfig {
         sb.append('}');
         return sb.toString();
     }
+
 }
 
