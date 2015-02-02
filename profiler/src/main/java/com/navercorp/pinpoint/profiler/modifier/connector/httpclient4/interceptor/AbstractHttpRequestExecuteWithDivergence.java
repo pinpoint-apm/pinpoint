@@ -16,21 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-
-import org.apache.http.HeaderElement;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpMessage;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.ParseException;
-import org.apache.http.protocol.HTTP;
-
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Header;
@@ -54,15 +39,22 @@ import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
+import org.apache.http.*;
+import org.apache.http.protocol.HTTP;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 
 /**
  * @author minwoo.jung
  */
 public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceContextSupport, ByteCodeMethodDescriptorSupport, SimpleAroundInterceptor {
-    
+
     private boolean isHasCallbackParam;
-    private AttachmentScope<HttpCallContext> scope;
-    
+    private AttachmentScope<Object> scope;
+
     protected final PLogger logger;
     protected final boolean isDebug;
 
@@ -76,34 +68,34 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
     protected boolean entity;
     protected DumpType entityDumpType;
     protected SimpleSampler entitySampler;
-    
+
     protected boolean statusCode;
-    
+
     public AbstractHttpRequestExecuteWithDivergence(Class<? extends AbstractHttpRequestExecuteWithDivergence> childClazz, boolean isHasCallbackParam, Scope scope) {
         this.logger = PLoggerFactory.getLogger(childClazz);
         this.isDebug = logger.isDebugEnabled();
-        
+
         this.isHasCallbackParam = isHasCallbackParam;
-        this.scope = (AttachmentScope<HttpCallContext>)scope;
+        this.scope = (AttachmentScope<Object>) scope;
     }
-    
+
     abstract NameIntValuePair<String> getHost(Object[] args);
 
     abstract HttpRequest getHttpRequest(Object[] args);
-    
+
     @Override
     public void before(Object target, Object[] args) {
-        if (!isPassibleBeforeProcess()) {
+        if (!isPossibleBeforeProcess()) {
             return;
         }
-        
+
         before2(target, args);
     }
-    
+
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         try {
-            if (isPassibleAfterProcess()) {
+            if (isPossibleAfterProcess()) {
                 after2(target, args, result, throwable);
             } else {
                 addStatusCode(result);
@@ -111,76 +103,94 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
         } finally {
             scope.pop();
         }
-    };
-    
-    private boolean isPassibleBeforeProcess() {
+    }
+
+    ;
+
+    private boolean isPossibleBeforeProcess() {
         if (scope.push() == Scope.ZERO) {
             return true;
         }
-        
+
         return false;
     }
-    
-    private boolean isPassibleAfterProcess() {
+
+    private boolean isPossibleAfterProcess() {
         final int depth = scope.depth();
-        
+
         if (depth - 1 == Scope.ZERO) {
             return true;
         }
-        
+
         return false;
     }
-    
+
     private void addStatusCode(Object result) {
         if (!needGetStatusCode()) {
             return;
         }
-        
+
         if (result instanceof HttpResponse) {
-            HttpResponse response = (HttpResponse)result;
-            
+            HttpResponse response = (HttpResponse) result;
+
             if (response.getStatusLine() != null) {
                 HttpCallContext context = new HttpCallContext();
-                context.setStatusCode(response.getStatusLine().getStatusCode());
-                scope.setAttachment(context);
+                final StatusLine statusLine = response.getStatusLine();
+                if (statusLine != null) {
+                    context.setStatusCode(statusLine.getStatusCode());
+                    scope.setAttachment(context);
+                }
             }
         }
     }
-    
+
     private boolean needGetStatusCode() {
         if (isHasCallbackParam) {
             return false;
         }
-        
+
         final Trace trace = traceContext.currentTraceObject();
-        
-        if (trace == null || trace.getServiceType() != ServiceType.HTTP_CLIENT) {
+        if (trace == null) {
+            return false;
+        }
+        if (trace.getServiceType() != ServiceType.HTTP_CLIENT) {
             return false;
         }
 
-        if(scope.getAttachment() != null) {
+        if (scope.getAttachment() != null) {
             return false;
         }
 
         return true;
     }
-    
-    Integer getStatusCode(Object result) {
+
+    Integer getStatusCodeFromResponse(Object result) {
         if (result instanceof HttpResponse) {
-            HttpResponse response = (HttpResponse)result;
-            
-            if (response.getStatusLine() != null) {
-                return response.getStatusLine().getStatusCode(); 
+            HttpResponse response = (HttpResponse) result;
+
+            final StatusLine statusLine = response.getStatusLine();
+            if (statusLine != null) {
+                return statusLine.getStatusCode();
+            } else {
+                return null;
             }
         }
-        
-        if (scope.getAttachment() != null && scope.getAttachment() instanceof HttpCallContext) {
-            return ((HttpCallContext)scope.getAttachment()).getStatusCode();
-        }
-        
         return null;
     }
-    
+
+    private Integer getStatusCodeFromAttachment() {
+        final Object attachment = scope.getAttachment();
+        if (attachment == null) {
+            return null;
+        }
+
+        if (attachment instanceof HttpCallContext) {
+            return ((HttpCallContext) attachment).getStatusCode();
+        }
+
+        return null;
+    }
+
     public void before2(Object target, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
@@ -194,7 +204,7 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
 
         final boolean sampling = trace.canSampled();
         if (!sampling) {
-            if(isDebug) {
+            if (isDebug) {
                 logger.debug("set Sampling flag=false");
             }
             if (httpRequest != null) {
@@ -251,7 +261,7 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
         try {
             final HttpRequest httpRequest = getHttpRequest(args);
             if (httpRequest != null) {
-             // Accessing httpRequest here not before() becuase it can cause side effect.
+                // Accessing httpRequest here not before() becuase it can cause side effect.
                 trace.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getRequestLine().getUri());
                 final NameIntValuePair<String> host = getHost(args);
                 if (host != null) {
@@ -264,13 +274,12 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
             }
 
             if (statusCode) {
-                Integer statusCodeValue = getStatusCode(result);
-                
+                final Integer statusCodeValue = getStatusCode(result);
                 if (statusCodeValue != null) {
                     trace.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, statusCodeValue);
                 }
             }
-            
+
             trace.recordApi(descriptor);
             trace.recordException(throwable);
 
@@ -280,19 +289,27 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
         }
     }
 
+    private Integer getStatusCode(Object result) {
+        if (isHasCallbackParam) {
+            return getStatusCodeFromAttachment();
+        } else {
+            return getStatusCodeFromResponse(result);
+        }
+    }
+
     private void recordHttpRequest(Trace trace, HttpRequest httpRequest, Throwable throwable) {
         final boolean isException = InterceptorUtils.isThrowable(throwable);
         if (cookie) {
             if (DumpType.ALWAYS == cookieDumpType) {
                 recordCookie(httpRequest, trace);
-            } else if(DumpType.EXCEPTION == cookieDumpType && isException){
+            } else if (DumpType.EXCEPTION == cookieDumpType && isException) {
                 recordCookie(httpRequest, trace);
             }
         }
         if (entity) {
             if (DumpType.ALWAYS == entityDumpType) {
                 recordEntity(httpRequest, trace);
-            } else if(DumpType.EXCEPTION == entityDumpType && isException) {
+            } else if (DumpType.EXCEPTION == entityDumpType && isException) {
                 recordEntity(httpRequest, trace);
             }
         }
@@ -300,13 +317,13 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
 
     protected void recordCookie(HttpMessage httpMessage, Trace trace) {
         org.apache.http.Header[] cookies = httpMessage.getHeaders("Cookie");
-        for (org.apache.http.Header header: cookies) {
+        for (org.apache.http.Header header : cookies) {
             final String value = header.getValue();
             if (value != null && !value.isEmpty()) {
                 if (cookieSampler.isSampling()) {
                     trace.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, 1024));
                 }
-                
+
                 // Can a cookie have 2 or more values?
                 // PMD complains if we use break here
                 return;
@@ -368,7 +385,7 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
             final StringBuilder buffer = new StringBuilder(maxLength * 2);
             char[] tmp = new char[1024];
             int l;
-            while((l = reader.read(tmp)) != -1) {
+            while ((l = reader.read(tmp)) != -1) {
                 buffer.append(tmp, 0, l);
                 if (buffer.length() >= maxLength) {
                     break;
@@ -413,7 +430,7 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
         final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
         this.cookie = profilerConfig.isApacheHttpClient4ProfileCookie();
         this.cookieDumpType = profilerConfig.getApacheHttpClient4ProfileCookieDumpType();
-        if (cookie){
+        if (cookie) {
             this.cookieSampler = SimpleSamplerFactory.createSampler(cookie, profilerConfig.getApacheHttpClient4ProfileCookieSamplingRate());
         }
 
@@ -430,5 +447,5 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
         this.descriptor = descriptor;
         traceContext.cacheApi(descriptor);
     }
-    
+
 }
