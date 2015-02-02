@@ -132,7 +132,7 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
     }
     
     private void addStatusCode(Object result) {
-        if(!needGetStatusCode()) {
+        if (!needGetStatusCode()) {
             return;
         }
         
@@ -152,7 +152,7 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
             return false;
         }
         
-        final Trace trace = traceContext.currentRawTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         
         if (trace == null || trace.getServiceType() != ServiceType.HTTP_CLIENT) {
             return false;
