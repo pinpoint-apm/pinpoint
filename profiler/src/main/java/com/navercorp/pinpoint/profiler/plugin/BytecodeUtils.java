@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.profiler.plugin;
 
 import java.io.Closeable;
 import java.io.IOException;

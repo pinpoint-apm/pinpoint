@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.editor;
+package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassRecipe;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.DedicatedClassEditor;
 import com.navercorp.pinpoint.exception.PinpointException;
 
-public class BasicClassEditor implements DedicatedClassEditor {
+public class DefaultDedicatedClassEditor implements DedicatedClassEditor {
     private final String targetClassName;
     private final ClassRecipe recipe;
     
 
-    public BasicClassEditor(String targetClassName, ClassRecipe recipe) {
+    public DefaultDedicatedClassEditor(String targetClassName, ClassRecipe recipe) {
         this.targetClassName = targetClassName;
         this.recipe = recipe;
     }

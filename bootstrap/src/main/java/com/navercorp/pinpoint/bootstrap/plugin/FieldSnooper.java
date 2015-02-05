@@ -18,14 +18,70 @@ package com.navercorp.pinpoint.bootstrap.plugin;
  * @author Jongho Moon
  *
  */
-public enum FieldSnooper {
-    OBJECT(ObjectSnooper.class),
-    OBJECT2(ObjectSnooper2.class),
-    OBJECT3(ObjectSnooper3.class),
-    INT(IntSnooper.class),
-    LONG(LongSnooper.class),
-    Double(DoubleSnooper.class),
-    BOOLEAN(BooleanSnooper.class);
+@SuppressWarnings("unchecked")
+public abstract class FieldSnooper {
+    private static final FieldSnooper[] VALUES = {
+        new FieldSnooper(ObjectSnooper0.class) {
+            @Override
+            public <T> T get(Object object) {
+                return (T)((ObjectSnooper0)object)._$PINPOINT$_getObjectField0();
+            }
+        },
+        new FieldSnooper(ObjectSnooper1.class) {
+            @Override
+            public <T> T get(Object object) {
+                return (T)((ObjectSnooper1)object)._$PINPOINT$_getObjectField1();
+            }
+        },
+        new FieldSnooper(ObjectSnooper2.class) {
+            @Override
+            public <T> T get(Object object) {
+                return (T)((ObjectSnooper2)object)._$PINPOINT$_getObjectField2();
+            }
+        },
+        new FieldSnooper(ObjectSnooper3.class) {
+            @Override
+            public <T> T get(Object object) {
+                return (T)((ObjectSnooper3)object)._$PINPOINT$_getObjectField3();
+            }
+        },
+        new FieldSnooper(ObjectSnooper4.class) {
+            @Override
+            public <T> T get(Object object) {
+                return (T)((ObjectSnooper4)object)._$PINPOINT$_getObjectField4();
+            }
+        },
+        new FieldSnooper(ObjectSnooper5.class) {
+            @Override
+            public <T> T get(Object object) {
+                return (T)((ObjectSnooper5)object)._$PINPOINT$_getObjectField5();
+            }
+        },
+        new FieldSnooper(ObjectSnooper6.class) {
+            @Override
+            public <T> T get(Object object) {
+                return (T)((ObjectSnooper6)object)._$PINPOINT$_getObjectField6();
+            }
+        },
+        new FieldSnooper(ObjectSnooper7.class) {
+            @Override
+            public <T> T get(Object object) {
+                return (T)((ObjectSnooper7)object)._$PINPOINT$_getObjectField7();
+            }
+        },
+        new FieldSnooper(ObjectSnooper8.class) {
+            @Override
+            public <T> T get(Object object) {
+                return (T)((ObjectSnooper8)object)._$PINPOINT$_getObjectField8();
+            }
+        },
+        new FieldSnooper(ObjectSnooper9.class) {
+            @Override
+            public <T> T get(Object object) {
+                return (T)((ObjectSnooper9)object)._$PINPOINT$_getObjectField9();
+            }
+        }        
+    };
     
     private final Class<? extends Snooper> type;
     
@@ -37,25 +93,21 @@ public enum FieldSnooper {
         return type;
     }
 
-    
-    public static boolean isInjected(FieldSnooper snooper, Object object) {
-        return snooper.type.isAssignableFrom(object.getClass()); 
+    public boolean isApplicable(Object object) {
+        return type.isAssignableFrom(object.getClass());
     }
     
-    @SuppressWarnings("unchecked")
-    public static <T> T get(Object object) {
-        return (T)((ObjectSnooper)object)._$PINPOINT$_getObjectField();
+    public abstract <T> T get(Object object);
+
+    
+    
+    
+    
+    public static FieldSnooper get(int index) {
+        return VALUES[index];
     }
     
-    @SuppressWarnings("unchecked")
-    public static <T> T get2(Object object) {
-        return (T)((ObjectSnooper2)object)._$PINPOINT$_getObjectField2();
-    }
     
-    @SuppressWarnings("unchecked")
-    public static <T> T get3(Object object) {
-        return (T)((ObjectSnooper3)object)._$PINPOINT$_getObjectField3();
-    }
     
     public static boolean getBoolean(Object object) {
         return ((BooleanSnooper)object)._$PINPOINT$_getBooleanField();
@@ -93,10 +145,15 @@ public enum FieldSnooper {
         public int _$PINPOINT$_getIntField();
     }
     
-    public interface ObjectSnooper extends Snooper {
-        public Object _$PINPOINT$_getObjectField();
+    
+    public interface ObjectSnooper0 extends Snooper {
+        public Object _$PINPOINT$_getObjectField0();
     }
     
+    public interface ObjectSnooper1 extends Snooper {
+        public Object _$PINPOINT$_getObjectField1();
+    }
+
     public interface ObjectSnooper2 extends Snooper {
         public Object _$PINPOINT$_getObjectField2();
     }
@@ -104,4 +161,29 @@ public enum FieldSnooper {
     public interface ObjectSnooper3 extends Snooper {
         public Object _$PINPOINT$_getObjectField3();
     }
+    
+    public interface ObjectSnooper4 extends Snooper {
+        public Object _$PINPOINT$_getObjectField4();
+    }
+
+    public interface ObjectSnooper5 extends Snooper {
+        public Object _$PINPOINT$_getObjectField5();
+    }
+
+    public interface ObjectSnooper6 extends Snooper {
+        public Object _$PINPOINT$_getObjectField6();
+    }
+
+    public interface ObjectSnooper7 extends Snooper {
+        public Object _$PINPOINT$_getObjectField7();
+    }
+
+    public interface ObjectSnooper8 extends Snooper {
+        public Object _$PINPOINT$_getObjectField8();
+    }
+
+    public interface ObjectSnooper9 extends Snooper {
+        public Object _$PINPOINT$_getObjectField9();
+    }
+
 }

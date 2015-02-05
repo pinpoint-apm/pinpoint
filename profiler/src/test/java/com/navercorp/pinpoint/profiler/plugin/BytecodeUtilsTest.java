@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.profiler.plugin;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.navercorp.pinpoint.bootstrap.plugin.BytecodeUtils;
+import com.navercorp.pinpoint.profiler.plugin.BytecodeUtils;
 
 import static org.junit.Assert.*;
 

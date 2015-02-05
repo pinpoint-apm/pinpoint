@@ -27,9 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.plugin.PluginClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.DedicatedClassEditor;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
@@ -39,6 +37,8 @@ import com.navercorp.pinpoint.profiler.modifier.Modifier;
 import com.navercorp.pinpoint.profiler.modifier.ModifierProvider;
 import com.navercorp.pinpoint.profiler.modifier.ModifierRegistry;
 import com.navercorp.pinpoint.profiler.plugin.ClassEditorAdaptor;
+import com.navercorp.pinpoint.profiler.plugin.PluginClassLoaderFactory;
+import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 /**
@@ -62,7 +62,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
     private final ClassFileFilter skipFilter;
     
-    public ClassFileTransformerDispatcher(DefaultAgent agent, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileRetransformer retransformer, List<ProfilerPlugin> plugins, URL[] pluginJars) {
+    public ClassFileTransformerDispatcher(DefaultAgent agent, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileRetransformer retransformer, List<ProfilerPluginContext> pluginContexts, URL[] pluginJars) {
         if (agent == null) {
             throw new NullPointerException("agent must not be null");
         }
@@ -77,7 +77,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         this.byteCodeInstrumentor = byteCodeInstrumentor;
         this.retransformer = retransformer;
         this.profilerConfig = agent.getProfilerConfig();
-        this.modifierRegistry = createModifierRegistry(plugins, pluginJars);
+        this.modifierRegistry = createModifierRegistry(pluginContexts, pluginJars);
         this.skipFilter = new DefaultClassFileFilter(agentClassLoader);
     }
 
@@ -135,7 +135,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         }
     }
 
-    private ModifierRegistry createModifierRegistry(List<ProfilerPlugin> plugins, URL[] pluginJars) {
+    private ModifierRegistry createModifierRegistry(List<ProfilerPluginContext> pluginContexts, URL[] pluginJars) {
         DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(agent, byteCodeInstrumentor, retransformer);
 
         modifierRepository.addMethodModifier();
@@ -161,7 +161,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         modifierRepository.addRedisModifier();
         
         loadModifiers(modifierRepository);
-        loadPlugins(modifierRepository, plugins, pluginJars);
+        loadEditorsFromPlugins(modifierRepository, pluginContexts, pluginJars);
         
         return modifierRepository;
     }
@@ -180,20 +180,17 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         }
     }
 
-    private void loadPlugins(DefaultModifierRegistry modifierRepository, List<ProfilerPlugin> plugins, URL[] pluginJars) {
+    private void loadEditorsFromPlugins(DefaultModifierRegistry modifierRepository, List<ProfilerPluginContext> pluginContexts, URL[] pluginJars) {
         PluginClassLoaderFactory classLoaderFactory = new PluginClassLoaderFactory(pluginJars);
-        ProfilerPluginContext pluginContext = new ProfilerPluginContext(byteCodeInstrumentor, agent.getTraceContext());
         
-        for (ProfilerPlugin plugin : plugins) {
-            logger.info("Loading plugin: {}", plugin.getClass().getName());
-            
-            for (ClassEditor editor : plugin.getClassEditors(pluginContext)) {
+        for (ProfilerPluginContext pluginContext : pluginContexts) {
+            for (ClassEditor editor : pluginContext.getClassEditors(agent.getTraceContext(), byteCodeInstrumentor)) {
                 if (editor instanceof DedicatedClassEditor) {
                     DedicatedClassEditor dedicated = (DedicatedClassEditor)editor;
-                    logger.info("Registering class editor {} for {} ", dedicated.getClass().getName(), dedicated.getTargetClassName());
+                    logger.info("Registering class editor {} for {} ", dedicated, dedicated.getTargetClassName());
                     modifierRepository.addModifier(new ClassEditorAdaptor(byteCodeInstrumentor, agent, dedicated, classLoaderFactory));
                 } else {
-                    logger.warn("Ignore class editor {}", editor.getClass().getName());
+                    logger.warn("Ignore class editor {}", editor);
                 }
             }
         }

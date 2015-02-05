@@ -26,6 +26,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.navercorp.pinpoint.common.plugin.ServiceTypeProvider;
+import com.navercorp.pinpoint.common.plugin.ServiceTypeSetupContext;
 
 /**
  * @author Jongho Moon <jongho.moon@navercorp.com>
@@ -94,7 +95,7 @@ public class ServiceTypeInitializerTest {
 
     @Test
     public void testWithPlugins() {
-        ServiceTypeInitializer.initialize(Arrays.<ServiceTypeProvider>asList(new TestProvider(TEST_TYPES, TEST_KEYS)));
+        ServiceTypeProviderLoader.initializeServiceType(Arrays.<ServiceTypeProvider>asList(new TestProvider(TEST_TYPES, TEST_KEYS)));
         
         verifyServiceTypes(ServiceType.DEFAULT_VALUES);
         verifyAnnotationKeys(AnnotationKey.DEFAULT_VALUES);
@@ -105,7 +106,7 @@ public class ServiceTypeInitializerTest {
     
     @Test(expected=RuntimeException.class)
     public void testDuplicated() {
-        ServiceTypeInitializer.initialize(Arrays.<ServiceTypeProvider>asList(
+        new ServiceTypeProviderLoader().load(Arrays.<ServiceTypeProvider>asList(
                 new TestProvider(TEST_TYPES, TEST_KEYS),
                 new TestProvider(new ServiceType[0], TEST_KEYS)
         ));
@@ -113,7 +114,7 @@ public class ServiceTypeInitializerTest {
     
     @Test(expected=RuntimeException.class)
     public void testDuplicated2() {
-        ServiceTypeInitializer.initialize(Arrays.<ServiceTypeProvider>asList(
+        new ServiceTypeProviderLoader().load(Arrays.<ServiceTypeProvider>asList(
                 new TestProvider(TEST_TYPES, TEST_KEYS),
                 new TestProvider(TEST_TYPES, new AnnotationKey[0])
         ));
@@ -121,7 +122,7 @@ public class ServiceTypeInitializerTest {
     
     @Test(expected=RuntimeException.class)
     public void testDuplicated3() {
-        ServiceTypeInitializer.initialize(Arrays.<ServiceTypeProvider>asList(
+        new ServiceTypeProviderLoader().load(Arrays.<ServiceTypeProvider>asList(
                 new TestProvider(TEST_TYPES, TEST_KEYS),
                 new TestProvider(TEST_TYPES, new AnnotationKey[0])
         ));
@@ -129,21 +130,21 @@ public class ServiceTypeInitializerTest {
 
     @Test(expected=RuntimeException.class)
     public void testDuplicatedWithDefault() {
-        ServiceTypeInitializer.initialize(Arrays.<ServiceTypeProvider>asList(
+        new ServiceTypeProviderLoader().load(Arrays.<ServiceTypeProvider>asList(
                 new TestProvider(DUPLICATED_CODE_WITH_DEFAULT_TYPE, TEST_KEYS)
         ));
     }
 
     @Test(expected=RuntimeException.class)
     public void testDuplicatedWithDefault2() {
-        ServiceTypeInitializer.initialize(Arrays.<ServiceTypeProvider>asList(
+        new ServiceTypeProviderLoader().load(Arrays.<ServiceTypeProvider>asList(
                 new TestProvider(DUPLICATED_NAME_WITH_DEFAULT_TYPE, TEST_KEYS)
         ));
     }
 
     @Test(expected=RuntimeException.class)
     public void testDuplicatedWithDefault3() {
-        ServiceTypeInitializer.initialize(Arrays.<ServiceTypeProvider>asList(
+        new ServiceTypeProviderLoader().load(Arrays.<ServiceTypeProvider>asList(
                 new TestProvider(TEST_TYPES, DUPLICATED_CODE_WITH_DEFAULT_KEY)
         ));
     }
@@ -157,15 +158,16 @@ public class ServiceTypeInitializerTest {
             this.serviceTypes = serviceTypes;
             this.annotationKeys = annotationKeys;
         }
-
+        
         @Override
-        public ServiceType[] getServiceTypes() {
-            return serviceTypes;
-        }
+        public void setUp(ServiceTypeSetupContext context) {
+            for (ServiceType type : serviceTypes) {
+                context.addServiceType(type);
+            }
 
-        @Override
-        public AnnotationKey[] getAnnotationKeys() {
-            return annotationKeys;
+            for (AnnotationKey key : annotationKeys) {
+                context.addAnnotationKey(key);
+            }
         }
     }
 }

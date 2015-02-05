@@ -290,7 +290,7 @@ public class ServiceType {
     
     // Initialization
     static {
-        ServiceTypeInitializer.checkServiceTypes(DEFAULT_VALUES);
+        ServiceTypeProviderLoader.checkServiceTypes(DEFAULT_VALUES);
         setValues(DEFAULT_VALUES);
     }
 

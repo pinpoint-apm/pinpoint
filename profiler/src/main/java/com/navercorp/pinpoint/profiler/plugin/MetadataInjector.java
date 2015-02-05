@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.editor;
+package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.plugin.MetadataHolder;
-import com.navercorp.pinpoint.bootstrap.plugin.MetadataInitializationStrategy;
-import com.navercorp.pinpoint.bootstrap.plugin.MetadataInitializationStrategy.ByConstructor;
+import com.navercorp.pinpoint.bootstrap.plugin.MetadataAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassRecipe;
 import com.navercorp.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.profiler.plugin.MetadataInitializationStrategy.ByConstructor;
 
 public class MetadataInjector implements ClassRecipe {
     
-    private final MetadataHolder metadataHolder;
+    private final MetadataAccessor metadataHolder;
     private final MetadataInitializationStrategy strategy;
     
-    public MetadataInjector(MetadataHolder metadataHolder) {
+    public MetadataInjector(MetadataAccessor metadataHolder) {
         this(metadataHolder, null);
     }
     
-    public MetadataInjector(MetadataHolder metadataHolder, MetadataInitializationStrategy strategy) {
+    public MetadataInjector(MetadataAccessor metadataHolder, MetadataInitializationStrategy strategy) {
         this.metadataHolder = metadataHolder;
         this.strategy = strategy;
     }

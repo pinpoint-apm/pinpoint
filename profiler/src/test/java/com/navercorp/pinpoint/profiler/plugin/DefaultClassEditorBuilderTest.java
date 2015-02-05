@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.profiler.plugin;
 
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
@@ -28,12 +28,13 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.plugin.FieldSnooper;
+import com.navercorp.pinpoint.bootstrap.plugin.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder.InterceptorBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder.MethodEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorBuilder;
 
-public class ClassEditorBuilderTest {
+public class DefaultClassEditorBuilderTest {
+    public static final String SCOPE_NAME = "test";
 
     @Test
     public void test() throws Exception {
@@ -48,33 +49,28 @@ public class ClassEditorBuilderTest {
         String methodName = "someMethod";
         Class<?>[] parameterTypes = new Class<?>[] { String.class };
         String[] parameterTypeNames = TypeUtils.toClassNames(parameterTypes);
-        String scopeName = "test";
         
-        when(instrumentor.getScope(scopeName)).thenReturn(aScope);
+        when(instrumentor.getScope(SCOPE_NAME)).thenReturn(aScope);
         when(aClass.getDeclaredMethod(methodName, parameterTypeNames)).thenReturn(aMethod);
         when(aMethod.getName()).thenReturn(methodName);
         when(aMethod.getParameterTypes()).thenReturn(parameterTypeNames);
         when(aMethod.getDescriptor()).thenReturn(aDescriptor);
         when(aClass.addInterceptor(eq(methodName), eq(parameterTypeNames), isA(Interceptor.class))).thenReturn(0);
         
-        ProfilerPluginContext helper = new ProfilerPluginContext(instrumentor, traceContext);
-        ClassEditorBuilder builder = helper.newClassEditorBuilder();
-        builder.inject(MetadataHolder.A, "java.util.HashMap");
-        builder.inject(FieldSnooper.OBJECT, "someField");
+        ProfilerPluginContext context = new ProfilerPluginContext(null);
+        DefaultClassEditorBuilder builder = new DefaultClassEditorBuilder(context);
+        builder.injectMetadata("a", "java.util.HashMap");
+        builder.injectFieldSnooper("someField");
         
-        MethodEditorBuilder ib = builder.editMethod();
-        ib.targetMethod(methodName, parameterTypeNames);
-        InterceptorBuilder iib = ib.injectInterceptor();
-        iib.interceptorClass("com.navercorp.pinpoint.bootstrap.plugin.TestInterceptor");
-        iib.constructorArgs("provided");
-        iib.scope(scopeName);
+        MethodEditorBuilder ib = builder.editMethod(methodName, parameterTypeNames);
+        ib.injectInterceptor("com.navercorp.pinpoint.profiler.plugin.TestInterceptor", "provided");
         
-        ClassEditor editor = builder.build();
+        ClassEditor editor = builder.build(traceContext, instrumentor);
         
         editor.edit(classLoader, aClass);
         
         verify(aClass).addInterceptor(eq(methodName), isA(String[].class), isA(Interceptor.class));
-        verify(aClass).addTraceValue(MetadataHolder.A.getType(), "new java.util.HashMap();");
-        verify(aClass).addGetter(FieldSnooper.OBJECT.getType(), "someField");
+        verify(aClass).addTraceValue(MetadataAccessor.get(0).getType(), "new java.util.HashMap();");
+        verify(aClass).addGetter(FieldSnooper.get(0).getType(), "someField");
     }
 }

@@ -21,6 +21,7 @@ import java.util.List;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.common.plugin.PinpointPlugin;
 
 /**
  * ModifierProvider is a temporary interface to provide additional modifiers to Pinpoint profiler.
@@ -30,6 +31,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
  * @author lioolli
  */
 @Deprecated
-public interface ModifierProvider {
+public interface ModifierProvider extends PinpointPlugin {
     List<Modifier> getModifiers(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent);
 }

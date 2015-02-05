@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.editor;
+package com.navercorp.pinpoint.profiler.plugin;
+
+import java.util.Arrays;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
@@ -25,6 +27,18 @@ public class DedicatedMethodEditor implements MethodEditor {
     private final String[] targetMethodParameterTypes;
     private final MethodRecipe recipe;
 
+    
+    public static DedicatedMethodEditor of(String targetMethodName, Class<?>[] targetMethodParameterTypes, MethodRecipe recipe) {
+        int length = targetMethodParameterTypes.length;
+        String[] typeNames = new String[length];
+        
+        for (int i = 0; i < length; i++) {
+            typeNames[i] = targetMethodParameterTypes[i].getName();
+        }
+        
+        return new DedicatedMethodEditor(targetMethodName, typeNames, recipe);
+    }
+    
     public DedicatedMethodEditor(String targetMethodName, String[] targetMethodParameterTypes, MethodRecipe recipe) {
         this.targetMethodName = targetMethodName;
         this.targetMethodParameterTypes = targetMethodParameterTypes;
@@ -35,6 +49,11 @@ public class DedicatedMethodEditor implements MethodEditor {
     @Override
     public void edit(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
         MethodInfo targetMethod = target.getDeclaredMethod(targetMethodName, targetMethodParameterTypes);
+        
+        if (targetMethod == null) {
+            throw new InstrumentException("No such method: " + targetMethodName + "(" + Arrays.deepToString(targetMethodParameterTypes) + ")");
+        }
+        
         recipe.edit(classLoader, target, targetMethod);
     }
 }

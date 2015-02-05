@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.profiler.plugin;
 
 public interface MetadataInitializationStrategy {
     public static final class ByConstructor implements MetadataInitializationStrategy {

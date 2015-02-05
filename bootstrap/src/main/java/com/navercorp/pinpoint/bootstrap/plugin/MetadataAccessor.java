@@ -20,141 +20,134 @@ import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
  * @author Jongho Moon
  *
  */
-public enum MetadataHolder {
-    A(ObjectAccessor0.class) {
-        @Override
-        @SuppressWarnings("unchecked")
-        public <T> T get(Object object) {
-            return (T)((ObjectAccessor0)object)._$PINPOINT$_getObject0();
-        }
-
-        @Override
-        public <T> void set(Object object, T value) {
-            ((ObjectAccessor0)object)._$PINPOINT$_setObject0(value);
-        }
-    },
+@SuppressWarnings("unchecked")
+public abstract class MetadataAccessor {
+    private static final MetadataAccessor[] VALUES = {
+        new MetadataAccessor(ObjectAccessor0.class) {
+            @Override
+            public <T> T get(Object object) {
+                return (T)((ObjectAccessor0)object)._$PINPOINT$_getObject0();
+            }
     
-    B(ObjectAccessor1.class) {
-        @Override
-        @SuppressWarnings("unchecked")
-        public <T> T get(Object object) {
-            return (T)((ObjectAccessor1)object)._$PINPOINT$_getObject1();
-        }
-
-        @Override
-        public <T> void set(Object object, T value) {
-            ((ObjectAccessor1)object)._$PINPOINT$_setObject1(value);
-        }
-    },
+            @Override
+            public <T> void set(Object object, T value) {
+                ((ObjectAccessor0)object)._$PINPOINT$_setObject0(value);
+            }
+        },
+        
+        new MetadataAccessor(ObjectAccessor1.class) {
+            @Override
+            public <T> T get(Object object) {
+                return (T)((ObjectAccessor1)object)._$PINPOINT$_getObject1();
+            }
     
-    C(ObjectAccessor2.class) {
-        @Override
-        @SuppressWarnings("unchecked")
-        public <T> T get(Object object) {
-            return (T)((ObjectAccessor2)object)._$PINPOINT$_getObject2();
-        }
-
-        @Override
-        public <T> void set(Object object, T value) {
-            ((ObjectAccessor2)object)._$PINPOINT$_setObject2(value);
-        }
-    },
+            @Override
+            public <T> void set(Object object, T value) {
+                ((ObjectAccessor1)object)._$PINPOINT$_setObject1(value);
+            }
+        },
+        
+        new MetadataAccessor(ObjectAccessor2.class) {
+            @Override
+            public <T> T get(Object object) {
+                return (T)((ObjectAccessor2)object)._$PINPOINT$_getObject2();
+            }
     
-    D(ObjectAccessor3.class) {
-        @Override
-        @SuppressWarnings("unchecked")
-        public <T> T get(Object object) {
-            return (T)((ObjectAccessor3)object)._$PINPOINT$_getObject3();
-        }
-
-        @Override
-        public <T> void set(Object object, T value) {
-            ((ObjectAccessor3)object)._$PINPOINT$_setObject3(value);
-        }
-    },
+            @Override
+            public <T> void set(Object object, T value) {
+                ((ObjectAccessor2)object)._$PINPOINT$_setObject2(value);
+            }
+        },
+        
+        new MetadataAccessor(ObjectAccessor3.class) {
+            @Override
+            public <T> T get(Object object) {
+                return (T)((ObjectAccessor3)object)._$PINPOINT$_getObject3();
+            }
     
-    E(ObjectAccessor4.class) {
-        @Override
-        @SuppressWarnings("unchecked")
-        public <T> T get(Object object) {
-            return (T)((ObjectAccessor4)object)._$PINPOINT$_getObject4();
-        }
-
-        @Override
-        public <T> void set(Object object, T value) {
-            ((ObjectAccessor4)object)._$PINPOINT$_setObject4(value);
-        }
-    },
+            @Override
+            public <T> void set(Object object, T value) {
+                ((ObjectAccessor3)object)._$PINPOINT$_setObject3(value);
+            }
+        },
+        
+        new MetadataAccessor(ObjectAccessor4.class) {
+            @Override
+            public <T> T get(Object object) {
+                return (T)((ObjectAccessor4)object)._$PINPOINT$_getObject4();
+            }
     
-    F(ObjectAccessor5.class) {
-        @Override
-        @SuppressWarnings("unchecked")
-        public <T> T get(Object object) {
-            return (T)((ObjectAccessor5)object)._$PINPOINT$_getObject5();
-        }
-
-        @Override
-        public <T> void set(Object object, T value) {
-            ((ObjectAccessor5)object)._$PINPOINT$_setObject5(value);
-        }
-    },
+            @Override
+            public <T> void set(Object object, T value) {
+                ((ObjectAccessor4)object)._$PINPOINT$_setObject4(value);
+            }
+        },
+        
+        new MetadataAccessor(ObjectAccessor5.class) {
+            @Override
+            public <T> T get(Object object) {
+                return (T)((ObjectAccessor5)object)._$PINPOINT$_getObject5();
+            }
     
-    G(ObjectAccessor6.class) {
-        @Override
-        @SuppressWarnings("unchecked")
-        public <T> T get(Object object) {
-            return (T)((ObjectAccessor6)object)._$PINPOINT$_getObject6();
-        }
-
-        @Override
-        public <T> void set(Object object, T value) {
-            ((ObjectAccessor6)object)._$PINPOINT$_setObject6(value);
-        }
-    },
+            @Override
+            public <T> void set(Object object, T value) {
+                ((ObjectAccessor5)object)._$PINPOINT$_setObject5(value);
+            }
+        },
+        
+        new MetadataAccessor(ObjectAccessor6.class) {
+            @Override
+            public <T> T get(Object object) {
+                return (T)((ObjectAccessor6)object)._$PINPOINT$_getObject6();
+            }
     
-    H(ObjectAccessor7.class) {
-        @Override
-        @SuppressWarnings("unchecked")
-        public <T> T get(Object object) {
-            return (T)((ObjectAccessor7)object)._$PINPOINT$_getObject7();
-        }
-
-        @Override
-        public <T> void set(Object object, T value) {
-            ((ObjectAccessor7)object)._$PINPOINT$_setObject7(value);
-        }
-    },
+            @Override
+            public <T> void set(Object object, T value) {
+                ((ObjectAccessor6)object)._$PINPOINT$_setObject6(value);
+            }
+        },
+        
+        new MetadataAccessor(ObjectAccessor7.class) {
+            @Override
+            public <T> T get(Object object) {
+                return (T)((ObjectAccessor7)object)._$PINPOINT$_getObject7();
+            }
     
-    I(ObjectAccessor8.class) {
-        @Override
-        @SuppressWarnings("unchecked")
-        public <T> T get(Object object) {
-            return (T)((ObjectAccessor8)object)._$PINPOINT$_getObject8();
-        }
-
-        @Override
-        public <T> void set(Object object, T value) {
-            ((ObjectAccessor8)object)._$PINPOINT$_setObject8(value);
-        }
-    },
+            @Override
+            public <T> void set(Object object, T value) {
+                ((ObjectAccessor7)object)._$PINPOINT$_setObject7(value);
+            }
+        },
+        
+        new MetadataAccessor(ObjectAccessor8.class) {
+            @Override
+            public <T> T get(Object object) {
+                return (T)((ObjectAccessor8)object)._$PINPOINT$_getObject8();
+            }
     
-    J(ObjectAccessor9.class) {
-        @Override
-        @SuppressWarnings("unchecked")
-        public <T> T get(Object object) {
-            return (T)((ObjectAccessor9)object)._$PINPOINT$_getObject9();
-        }
-
-        @Override
-        public <T> void set(Object object, T value) {
-            ((ObjectAccessor9)object)._$PINPOINT$_setObject9(value);
+            @Override
+            public <T> void set(Object object, T value) {
+                ((ObjectAccessor8)object)._$PINPOINT$_setObject8(value);
+            }
+        },
+        
+        new MetadataAccessor(ObjectAccessor9.class) {
+            @Override
+            public <T> T get(Object object) {
+                return (T)((ObjectAccessor9)object)._$PINPOINT$_getObject9();
+            }
+    
+            @Override
+            public <T> void set(Object object, T value) {
+                ((ObjectAccessor9)object)._$PINPOINT$_setObject9(value);
+            }
         }
     };
     
     
     private final Class<? extends TraceValue> type;
     
-    private MetadataHolder(Class<? extends TraceValue> type) {
+    private MetadataAccessor(Class<? extends TraceValue> type) {
         this.type = type;
     }
     
@@ -162,8 +155,12 @@ public enum MetadataHolder {
         return type;
     }
     
-    public boolean isInstance(Object object) {
+    public boolean isApplicable(Object object) {
         return type.isAssignableFrom(object.getClass());
+    }
+    
+    public static MetadataAccessor get(int index) {
+        return VALUES[index];
     }
     
     public abstract <T> T get(Object object);

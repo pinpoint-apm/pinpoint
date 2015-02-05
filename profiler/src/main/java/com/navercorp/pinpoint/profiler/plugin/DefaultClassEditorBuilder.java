@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.editor;
+package com.navercorp.pinpoint.profiler.plugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,62 +23,106 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.plugin.FieldSnooper;
-import com.navercorp.pinpoint.bootstrap.plugin.MetadataHolder;
-import com.navercorp.pinpoint.bootstrap.plugin.MetadataInitializationStrategy.ByConstructor;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.MetadataAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassCondition;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassRecipe;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ConstructorEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.DedicatedClassEditor;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorBuilder;
+import com.navercorp.pinpoint.profiler.plugin.MetadataInitializationStrategy.ByConstructor;
 
-public class ClassEditorBuilder {
+public class DefaultClassEditorBuilder implements ClassEditorBuilder {
     private final ProfilerPluginContext pluginContext;
-    private final ByteCodeInstrumentor instrumentor;
-    private final TraceContext traceContext;
     
     private final List<ClassRecipe> recipes = new ArrayList<ClassRecipe>();
-    private final List<MethodEditorBuilder> methodEditorBuilders = new ArrayList<MethodEditorBuilder>();
+    private final List<RecipeBuilder<ClassRecipe>> recipeBuilders = new ArrayList<RecipeBuilder<ClassRecipe>>();
     
     private String targetClassName;
     private ClassCondition condition;
 
-    public ClassEditorBuilder(ProfilerPluginContext pluginContext, ByteCodeInstrumentor instrumentor, TraceContext traceContext) {
+    public DefaultClassEditorBuilder(ProfilerPluginContext pluginContext) {
         this.pluginContext = pluginContext;
-        this.instrumentor = instrumentor;
-        this.traceContext = traceContext;
     }
 
+    /* (non-Javadoc)
+     * @see com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder#target(java.lang.String)
+     */
+    @Override
     public void target(String targetClassName) {
         this.targetClassName = targetClassName;
     }
     
+    /* (non-Javadoc)
+     * @see com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder#condition(com.navercorp.pinpoint.bootstrap.plugin.editor.ClassCondition)
+     */
+    @Override
     public void condition(ClassCondition condition) {
         this.condition = condition;
     }
     
-    public void inject(FieldSnooper snooper, String fieldName) {
+    /* (non-Javadoc)
+     * @see com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder#injectFieldSnooper(java.lang.String)
+     */
+    @Override
+    public void injectFieldSnooper(String fieldName) {
+        FieldSnooper snooper = pluginContext.allocateFieldSnooper(fieldName);
         recipes.add(new FieldSnooperInjector(snooper, fieldName));
     }
     
-    public void inject(MetadataHolder holder) {
-        recipes.add(new MetadataInjector(holder));
+    /* (non-Javadoc)
+     * @see com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder#injectMetadata(java.lang.String)
+     */
+    @Override
+    public void injectMetadata(String name) {
+        MetadataAccessor accessor = pluginContext.allocateMetadataAccessor(name);
+        recipes.add(new MetadataInjector(accessor));
     }
     
-    public void inject(MetadataHolder holder, String initialValueType) {
-        recipes.add(new MetadataInjector(holder, new ByConstructor(initialValueType)));
+    /* (non-Javadoc)
+     * @see com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder#injectMetadata(java.lang.String, java.lang.String)
+     */
+    @Override
+    public void injectMetadata(String name, String initialValueType) {
+        MetadataAccessor accessor = pluginContext.allocateMetadataAccessor(name);
+        recipes.add(new MetadataInjector(accessor, new ByConstructor(initialValueType)));
+    }
+    
+    @Override
+    public void injectInterceptor(String className, Object... constructorArgs) {
+        recipeBuilders.add(new TargetAnnotatedInterceptorInjectorBuilder(className, constructorArgs));
     }
 
-    public MethodEditorBuilder editMethod() {
-        MethodEditorBuilder methodEditorBuilder = new MethodEditorBuilder();
-        methodEditorBuilders.add(methodEditorBuilder);
-        return methodEditorBuilder;
+    @Override
+    public MethodEditorBuilder editMethods(MethodFilter filter) {
+        DefaultMethodEditorBuilder builder = new DefaultMethodEditorBuilder(filter);
+        recipeBuilders.add(builder);
+        return builder;
     }
-    
-    public DedicatedClassEditor build() {
-        ClassRecipe recipe = buildClassRecipe(); 
+
+    @Override
+    public MethodEditorBuilder editMethod(String name, String... parameterTypeNames) {
+        DefaultMethodEditorBuilder builder = new DefaultMethodEditorBuilder(name, parameterTypeNames);
+        recipeBuilders.add(builder);
+        return builder;
+    }
+
+    @Override
+    public ConstructorEditorBuilder editConstructor(String... parameterTypeNames) {
+        DefaultMethodEditorBuilder builder = new DefaultMethodEditorBuilder(parameterTypeNames);
+        recipeBuilders.add(builder);
+        return builder;
+    }
+
+    public DedicatedClassEditor build(TraceContext context, ByteCodeInstrumentor instrumentor) {
+        ClassRecipe recipe = buildClassRecipe(context, instrumentor); 
         DedicatedClassEditor editor = buildClassEditor(recipe);
         
         return editor;
     }
 
     private DedicatedClassEditor buildClassEditor(ClassRecipe recipe) {
-        DedicatedClassEditor editor = new BasicClassEditor(targetClassName, recipe);
+        DedicatedClassEditor editor = new DefaultDedicatedClassEditor(targetClassName, recipe);
         
         if (condition != null) {
             editor = new ConditionalClassEditor(condition, editor);
@@ -86,63 +130,92 @@ public class ClassEditorBuilder {
         return editor;
     }
 
-    private ClassRecipe buildClassRecipe() {
+    private ClassRecipe buildClassRecipe(TraceContext context, ByteCodeInstrumentor instrumentor) {
         List<ClassRecipe> recipes = new ArrayList<ClassRecipe>(this.recipes);
         
-        for (MethodEditorBuilder builder : methodEditorBuilders) {
-            recipes.add(builder.build());
+        for (RecipeBuilder<ClassRecipe> builder : recipeBuilders) {
+            recipes.add(builder.build(context, instrumentor));
         }
         
         if (recipes.isEmpty()) {
-            throw new IllegalStateException("No class edit registered"); 
+            throw new IllegalStateException("No class editor registered"); 
         }
         
         ClassRecipe recipe = recipes.size() == 1 ? recipes.get(0) : new ClassCookBook(recipes);
         return recipe;
     }
     
-    public class MethodEditorBuilder {
-        private ClassCondition condition;
-        private boolean cacheApi;
+    private interface RecipeBuilder<T> {
+        public T build(TraceContext context, ByteCodeInstrumentor instrumentor);
+    }
+
+    private class TargetAnnotatedInterceptorInjectorBuilder implements RecipeBuilder<ClassRecipe> {
+        private final String interceptorClassName;
+        private final Object[] constructorArguments;
         
-        private String methodName;
-        private String[] parameterNames;
-        private MethodFilter filter;
-        
-        private final List<InterceptorBuilder> interceptorBuilders = new ArrayList<InterceptorBuilder>();
-        
-        public void targetConstrucotor(String... parameterNames) {
-            this.methodName = null;
-            this.parameterNames = parameterNames;
+        public TargetAnnotatedInterceptorInjectorBuilder(String interceptorClassName, Object[] constructorArguments) {
+            this.interceptorClassName = interceptorClassName;
+            this.constructorArguments = constructorArguments;
         }
 
+        @Override
+        public ClassRecipe build(TraceContext context, ByteCodeInstrumentor instrumentor) {
+            return new TargetAnnotatedInterceptorInjector(context, pluginContext, instrumentor, interceptorClassName, constructorArguments);
+        }
+    }
+
+    private class AnnotatedInterceptorInjectorBuilder implements RecipeBuilder<MethodRecipe> {
+        private final String interceptorClassName;
+        private final Object[] constructorArguments;
         
-        public void targetMethod(String methodName, String... parameterNames) {
-            this.methodName = methodName;
-            this.parameterNames = parameterNames;
+        public AnnotatedInterceptorInjectorBuilder(String interceptorClassName, Object[] constructorArguments) {
+            this.interceptorClassName = interceptorClassName;
+            this.constructorArguments = constructorArguments;
+        }
+
+        @Override
+        public MethodRecipe build(TraceContext context, ByteCodeInstrumentor instrumentor) {
+            return new AnnotatedInterceptorInjector(context, pluginContext, instrumentor, interceptorClassName, constructorArguments);
+        }
+    }
+    
+    public class DefaultMethodEditorBuilder implements MethodEditorBuilder, ConstructorEditorBuilder, RecipeBuilder<ClassRecipe> {
+        private final String methodName;
+        private final String[] parameterTypeNames;
+        private final MethodFilter filter;
+        private ClassCondition condition;
+        private List<RecipeBuilder<MethodRecipe>> recipeBuilders = new ArrayList<RecipeBuilder<MethodRecipe>>();
+
+        private DefaultMethodEditorBuilder(String... parameterTypeNames) {
+            this.methodName = null;
+            this.parameterTypeNames = parameterTypeNames;
+            this.filter = null;
         }
         
-        public void targetFilter(MethodFilter filter) {
+        private DefaultMethodEditorBuilder(String methodName, String... parameterTypeNames) {
+            this.methodName = methodName;
+            this.parameterTypeNames = parameterTypeNames;
+            this.filter = null;
+        }
+
+        private DefaultMethodEditorBuilder(MethodFilter filter) {
+            this.methodName = null;
+            this.parameterTypeNames = null;
             this.filter = filter;
         }
-        
-        public InterceptorBuilder injectInterceptor() {
-            InterceptorBuilder builder = new InterceptorBuilder();
-            interceptorBuilders.add(builder);
-            return builder;
-        }
-        
-        public void cacheApi() {
-            cacheApi = true;
-        }
 
-        MethodEditor build() {
-            if (interceptorBuilders.isEmpty()) {
-                // For now, a method editor without any interceptor is meaningless. 
-                throw new IllegalStateException("No interceptors are defiend");
-            }
-            
-            MethodRecipe recipe = buildMethodRecipe();
+        @Override
+        public void condition(ClassCondition condition) {
+            this.condition = condition;
+        }
+        
+        @Override
+        public void injectInterceptor(String interceptorClassName, Object... constructorArguments) {
+            recipeBuilders.add(new AnnotatedInterceptorInjectorBuilder(interceptorClassName, constructorArguments));
+        }
+        
+        public MethodEditor build(TraceContext context, ByteCodeInstrumentor instrumentor) {
+            MethodRecipe recipe = buildMethodRecipe(context, instrumentor);
             MethodEditor editor = buildMethodEditor(recipe);
             
             return editor;
@@ -153,9 +226,9 @@ public class ClassEditorBuilder {
             if (filter != null) {
                 editor = new FilteringMethodEditor(filter, recipe);
             } else if (methodName != null) {
-                editor = new DedicatedMethodEditor(methodName, parameterNames, recipe);
+                editor = new DedicatedMethodEditor(methodName, parameterTypeNames, recipe);
             } else {
-                editor = new ConstructorEditor(parameterNames, recipe);
+                editor = new ConstructorEditor(parameterTypeNames, recipe);
             }
             
             if (condition != null) {
@@ -164,81 +237,23 @@ public class ClassEditorBuilder {
             return editor;
         }
 
-        private MethodRecipe buildMethodRecipe() {
-            List<MethodRecipe> recipes = new ArrayList<MethodRecipe>();
-            
-            // CacheApiMethodRecipe must preeceed InterceptorInjectors because InterceptorInjectors can use cached api id.
-            if (cacheApi) {
-                recipes.add(new CacheApiMethodRecipe(pluginContext));
+        private MethodRecipe buildMethodRecipe(TraceContext context, ByteCodeInstrumentor instrumentor) {
+            if (recipeBuilders.isEmpty()) {
+                // For now, a method editor without any interceptor is meaningless. 
+                throw new IllegalStateException("No interceptors are defiend");
             }
 
-            for (InterceptorBuilder ib : interceptorBuilders) {
-                recipes.add(ib.build());
+            if (recipeBuilders.size() == 1) {
+                return recipeBuilders.get(0).build(context, instrumentor);
             }
-            
-            MethodRecipe recipe = recipes.size() == 1 ? recipes.get(0) : new MethodCookBook(recipes);
-            return recipe;
-        }
-    }
-    
-    public class InterceptorBuilder {
-        private String interceptorClassName;
-        private MethodCondition condition;
-        private String scopeName;
-        private Object[] constructorArguments;
-        private boolean singleton;
-        
-        public void interceptorClass(String interceptorClassName) {
-            this.interceptorClassName = interceptorClassName;
-        }
-        
-        public void constructorArgs(Object... args) {
-            this.constructorArguments = args;
-        }
-        
-        public void scope(String scopeName) {
-            this.scopeName = scopeName;
-        }
 
-        public void singleton(boolean singleton) {
-            this.singleton = singleton;
-        }
-        
-        public void condition(MethodCondition condition) {
-            this.condition = condition;
-        }
-        
-        InterceptorInjector build() {
-            InterceptorFactory factory = buildInterceptorFactory();
-            InterceptorInjector injector = buildInterceptorInjector(factory);
+            List<MethodRecipe> recipes = new ArrayList<MethodRecipe>(recipeBuilders.size());
             
-            return injector;
-        }
-
-        private InterceptorInjector buildInterceptorInjector(InterceptorFactory factory) {
-            InterceptorInjector injector;
-            
-            if (singleton) {
-                injector = new SingletonInterceptorInjector(factory);
-            } else {
-                injector = new DefaultInterceptorInjector(factory);
+            for (RecipeBuilder<MethodRecipe> builder : recipeBuilders) {
+                recipes.add(builder.build(context, instrumentor));
             }
             
-            if (condition != null) {
-                injector = new ConditionalInterceptorInjector(injector, condition);
-            }
-            
-            return injector;
-        }
-
-        private InterceptorFactory buildInterceptorFactory() {
-            InterceptorFactory factory = new DefaultInterceptorFactory(pluginContext, instrumentor, traceContext, interceptorClassName, constructorArguments);
-            
-            if (scopeName != null) {
-                factory = new ScopedInterceptorFactory(factory, instrumentor, scopeName);
-            }
-            
-            return factory;
+            return new MethodCookBook(recipes);
         }
     }
 }

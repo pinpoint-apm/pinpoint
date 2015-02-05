@@ -14,14 +14,10 @@
  */
 package com.navercorp.pinpoint.collector.servlet;
 
-import java.util.List;
-
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import com.navercorp.pinpoint.common.ServiceTypeInitializer;
-import com.navercorp.pinpoint.common.plugin.PluginLoader;
-import com.navercorp.pinpoint.common.plugin.ServiceTypeProvider;
+import com.navercorp.pinpoint.common.ServiceTypeProviderLoader;
 
 /**
  * @author Jongho Moon <jongho.moon@navercorp.com>
@@ -42,8 +38,7 @@ public class ServiceTypeLoader implements ServletContextListener {
      */
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
-        List<ServiceTypeProvider> providers = PluginLoader.load(ServiceTypeProvider.class, getClass().getClassLoader());
-        ServiceTypeInitializer.initialize(providers);
+        ServiceTypeProviderLoader.initializeServiceType(getClass().getClassLoader());
     }
 
 }

@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.profiler.plugin;
+
+import java.lang.annotation.Annotation;
+
+import com.navercorp.pinpoint.exception.PinpointException;
 
 // TODO move package
 public final class TypeUtils {
@@ -55,5 +59,31 @@ public final class TypeUtils {
         }
         
         return result;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public static <T> Class<T> loadClass(ClassLoader loader, String className) {
+        Thread currentThread = Thread.currentThread();
+        ClassLoader backup = currentThread.getContextClassLoader();
+        currentThread.setContextClassLoader(loader);
+
+        try {
+            return (Class<T>)loader.loadClass(className);
+        } catch (ClassNotFoundException e) {
+            throw new PinpointException("Cannot load class: " + className, e);
+        } finally {
+            currentThread.setContextClassLoader(backup);
+        }
+    }
+    
+    
+    public static <T extends Annotation> T findAnnotation(Annotation[] annotations, Class<T> type) {
+        for (Annotation a : annotations) {
+            if (a.annotationType() == type) {
+                return type.cast(a);
+            }
+        }
+        
+        return null;
     }
 }

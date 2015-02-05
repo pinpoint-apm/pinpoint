@@ -12,21 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.plugin.editor;
+package com.navercorp.pinpoint.profiler.plugin;
 
 import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassRecipe;
 
 /**
  * @author Jongho Moon
  *
  */
 public class ClassCookBook implements ClassRecipe {
-    private final List<ClassRecipe> recipes;
+    private final List<? extends ClassRecipe> recipes;
     
-    public ClassCookBook(List<ClassRecipe> recipes) {
+    public ClassCookBook(List<? extends ClassRecipe> recipes) {
         this.recipes = recipes;
     }
 

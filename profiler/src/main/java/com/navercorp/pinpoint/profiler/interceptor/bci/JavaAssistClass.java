@@ -418,7 +418,7 @@ public class JavaAssistClass implements InstrumentClass {
                 return new ScopeDelegateStaticInterceptor((StaticAroundInterceptor)interceptor, scope);
             }
         }
-        throw new IllegalArgumentException("unknown Interceptor Type:" + interceptor.getClass());
+        throw new IllegalArgumentException("unknown TargetMethod Type:" + interceptor.getClass());
 
     }
 
@@ -454,7 +454,7 @@ public class JavaAssistClass implements InstrumentClass {
                     SimpleAroundInterceptor simpleAroundInterceptor = (SimpleAroundInterceptor) interceptor;
                     interceptorId = InterceptorRegistry.addSimpleInterceptor(simpleAroundInterceptor);
                 } else {
-                    throw new InstrumentException("unsupported Interceptor Type:" + interceptor);
+                    throw new InstrumentException("unsupported TargetMethod Type:" + interceptor);
                 }
                 injectInterceptor(behavior, interceptor);
 

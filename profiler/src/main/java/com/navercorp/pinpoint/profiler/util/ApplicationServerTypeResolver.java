@@ -18,15 +18,15 @@ package com.navercorp.pinpoint.profiler.util;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ApplicationServerProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.ApplicationServerProperty;
+import com.navercorp.pinpoint.bootstrap.plugin.ServerTypeDetector;
 import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginContext;
 
 /**
  * @author emeroad
@@ -39,7 +39,7 @@ public class ApplicationServerTypeResolver {
     private String[] serverLibPath;
 
     private final ServiceType defaultType;
-    private final List<ApplicationServerProfilerPlugin> plugins;
+    private final List<ServerTypeDetector> detectors = new ArrayList<ServerTypeDetector>();
 
     /**
      * If we have to invoke startup() during agent initialization.
@@ -47,20 +47,16 @@ public class ApplicationServerTypeResolver {
      */
     private boolean manuallyStartupRequired = true;
     
-    public ApplicationServerTypeResolver(List<ProfilerPlugin> plugins, ServiceType defaultType) {
+    public ApplicationServerTypeResolver(List<ProfilerPluginContext> plugins, ServiceType defaultType) {
         this.defaultType = defaultType;
-        this.plugins = new ArrayList<ApplicationServerProfilerPlugin>();
         
-        for (ProfilerPlugin plugin : plugins) {
-            if (plugin instanceof ApplicationServerProfilerPlugin) {
-                this.plugins.add((ApplicationServerProfilerPlugin)plugin);
-            }
+        for (ProfilerPluginContext context : plugins) {
+            detectors.addAll(context.getServerTypeDetectors());
         }
     }
 
     public ApplicationServerTypeResolver() {
         this.defaultType = null;
-        this.plugins = Collections.emptyList();
     }
 
     public String[] getServerLibPath() {
@@ -77,15 +73,16 @@ public class ApplicationServerTypeResolver {
 
     public boolean resolve() {
         
-        for (ApplicationServerProfilerPlugin plugin : plugins) {
-            logger.debug("try resolve using {}", plugin.getClass());
+        for (ServerTypeDetector detector : detectors) {
+            logger.debug("try resolve using {}", detector.getClass());
             
-            if (plugin.isInstance()) {
-                this.serverType = plugin.getServerType();
-                this.serverLibPath = plugin.getClassPath();
+            if (detector.detect()) {
+                this.serverType = detector.getServerType();
+                this.serverLibPath = detector.getServerClassPath();
+                this.manuallyStartupRequired = !detector.hasServerProperty(ApplicationServerProperty.MANAGE_PINPOINT_AGENT_LIFECYCLE);
 
                 if (logger.isInfoEnabled()) {
-                    logger.info("Configured applicationServerType [{}] by {}", serverType, plugin.getClass().getName());
+                    logger.info("Configured applicationServerType [{}] by {}", serverType, detector.getClass().getName());
                 }
                 
                 return true;

@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin;
 
-import java.util.List;
+import com.navercorp.pinpoint.common.plugin.ServiceTypeProvider;
 
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
 
-public interface ProfilerPlugin {
-    List<ClassEditor> getClassEditors(ProfilerPluginContext context);
+public interface ProfilerPlugin extends ServiceTypeProvider {
+    void setUp(PluginSetupContext context);
 }

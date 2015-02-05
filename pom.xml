@@ -332,11 +332,6 @@
                 <version>1.2.16</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.nhncorp.lucy</groupId>
-                <artifactId>lucy-bloc-http11</artifactId>
-                <version>5.5.23</version>
-            </dependency>
 
             <dependency>
                 <groupId>commons-dbcp</groupId>

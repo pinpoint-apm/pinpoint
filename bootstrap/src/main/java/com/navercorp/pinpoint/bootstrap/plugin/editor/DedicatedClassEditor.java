@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.editor;
 
+
 public interface DedicatedClassEditor extends ClassEditor {
     String getTargetClassName();
 }

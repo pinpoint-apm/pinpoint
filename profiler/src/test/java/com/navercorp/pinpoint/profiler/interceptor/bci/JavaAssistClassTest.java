@@ -453,6 +453,7 @@ public class JavaAssistClassTest {
     public void testAddGetter() throws Exception {
         final TestClassLoader loader = getTestClassLoader();
         final String testClassObject = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject3";
+        final FieldSnooper snooper = FieldSnooper.get(0);
         final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getAgent()) {
 
             @Override
@@ -460,7 +461,7 @@ public class JavaAssistClassTest {
                 try {
                     logger.info("modify cl:{}", classLoader);
                     InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, testClassObject, classFileBuffer);
-                    aClass.addGetter(FieldSnooper.OBJECT.getType(), "value");
+                    aClass.addGetter(snooper.getType(), "value");
 
                     return aClass.toBytecode();
                 } catch (InstrumentException e) {
@@ -474,14 +475,14 @@ public class JavaAssistClassTest {
         loader.initialize();
         
         Object testObject = loader.loadClass(testClassObject).newInstance();
-        Assert.assertTrue(FieldSnooper.isInjected(FieldSnooper.OBJECT, testObject));
+        Assert.assertTrue(snooper.isApplicable(testObject));
         
         String value = "hehe";
 
         Method method = testObject.getClass().getMethod("setValue", String.class);
         method.invoke(testObject, value);
 
-        Assert.assertEquals(value, FieldSnooper.get(testObject));
+        Assert.assertEquals(value, snooper.get(testObject));
         
         
     }

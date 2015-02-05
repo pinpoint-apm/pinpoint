@@ -14,14 +14,11 @@
  */
 package com.navercorp.pinpoint.common.plugin;
 
-import com.navercorp.pinpoint.common.AnnotationKey;
-import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * @author Jongho Moon <jongho.moon@navercorp.com>
  *
  */
-public interface ServiceTypeProvider {
-    public ServiceType[] getServiceTypes();
-    public AnnotationKey[] getAnnotationKeys();
+public interface ServiceTypeProvider extends PinpointPlugin {
+    public void setUp(ServiceTypeSetupContext context);
 }

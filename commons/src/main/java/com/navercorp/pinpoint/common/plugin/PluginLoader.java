@@ -39,12 +39,10 @@ import java.util.ServiceLoader;
  *
  * @param <T>
  */
-public class PluginLoader<T> {
-
-    private static final URL[] EMPTY_URL = new URL[0];
+public class PluginLoader {
     private static final SecurityManager SECURITY_MANAGER = System.getSecurityManager();
 
-    public static <T> List<T> load(Class<T> serviceType, URL[] urls) {
+    public static <T extends PinpointPlugin> List<T> load(Class<T> serviceType, URL[] urls) {
         URLClassLoader classLoader = createPluginClassLoader(urls, ClassLoader.getSystemClassLoader());
         return load(serviceType, classLoader);
     }
@@ -61,12 +59,14 @@ public class PluginLoader<T> {
         }
     }
     
-    public static <T> List<T> load(Class<T> serviceType, ClassLoader classLoader) {
-        ServiceLoader<T> serviceLoader = ServiceLoader.load(serviceType, classLoader);
+    public static <T extends PinpointPlugin> List<T> load(Class<T> serviceType, ClassLoader classLoader) {
+        ServiceLoader<PinpointPlugin> serviceLoader = ServiceLoader.load(PinpointPlugin.class, classLoader);
         
         List<T> plugins = new ArrayList<T>();
-        for (T plugin : serviceLoader) {
-            plugins.add(plugin);
+        for (PinpointPlugin plugin : serviceLoader) {
+            if (serviceType.isInstance(plugin)) {
+                plugins.add(serviceType.cast(plugin));
+            }
         }
 
         return plugins;

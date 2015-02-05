@@ -31,10 +31,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.common.ServiceTypeInitializer;
+import com.navercorp.pinpoint.common.ServiceTypeProviderLoader;
 import com.navercorp.pinpoint.common.plugin.ServiceTypeProvider;
+import com.navercorp.pinpoint.common.plugin.ServiceTypeSetupContext;
 
 public class WasStaticAcceptHistogramTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -44,16 +44,12 @@ public class WasStaticAcceptHistogramTest {
     
     @BeforeClass
     public static void init() {
-        ServiceTypeInitializer.initialize(Arrays.<ServiceTypeProvider>asList(new ServiceTypeProvider() {
+        ServiceTypeProviderLoader.initializeServiceType(Arrays.<ServiceTypeProvider>asList(new ServiceTypeProvider() {
             
             @Override
-            public ServiceType[] getServiceTypes() {
-                return new ServiceType[] { APPLICATION_SERVER, NON_APPLICATION_SERVER };
-            }
-            
-            @Override
-            public AnnotationKey[] getAnnotationKeys() {
-                return new AnnotationKey[0];
+            public void setUp(ServiceTypeSetupContext context) {
+                context.addServiceType(APPLICATION_SERVER);
+                context.addServiceType(NON_APPLICATION_SERVER);
             }
         }));
     }
