@@ -28,6 +28,9 @@ import javassist.NotFoundException;
 
 import org.junit.runners.model.InitializationError;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author emeroad
  * @author hyungil.jeong
@@ -36,6 +39,7 @@ public class TestClassLoader extends Loader {
     private Agent agent;
     private ByteCodeInstrumentor instrumentor;
     private InstrumentTranslator instrumentTranslator;
+    private final List<String> delegateClass;
 
     public TestClassLoader(DefaultAgent agent) {
         if (agent == null) {
@@ -44,6 +48,15 @@ public class TestClassLoader extends Loader {
         this.agent = agent;
         this.instrumentor = agent.getByteCodeInstrumentor();
         this.instrumentTranslator = new InstrumentTranslator(this, agent);
+        this.delegateClass = new ArrayList<String>();
+    }
+
+
+    public void addDelegateClass(String className) {
+        if (className == null) {
+            throw new NullPointerException("className must not be null");
+        }
+        this.delegateClass.add(className);
     }
 
     @Override
@@ -53,7 +66,14 @@ public class TestClassLoader extends Loader {
 
     public void initialize() throws InitializationError {
         addDefaultDelegateLoadingOf();
+        addCustomDelegateLoadingOf();
         addTranslator();
+    }
+
+    private void addCustomDelegateLoadingOf() {
+        for (String className : delegateClass) {
+            this.delegateLoadingOf(className);
+        }
     }
 
     public Agent getAgent() {

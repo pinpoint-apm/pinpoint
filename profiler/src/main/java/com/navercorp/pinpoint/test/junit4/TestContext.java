@@ -25,16 +25,20 @@ import com.navercorp.pinpoint.test.TestClassLoader;
  */
 public class TestContext {
 
-    private final TestClass testClass;
     private final Object baseTestClass;
+    private final TestClassLoader classLoader;
 
-    <T extends TestClassLoader> TestContext(final T testClassLoader, Class<?> clazz) throws ClassNotFoundException {
-        this.testClass = new TestClass(testClassLoader.loadClass(clazz.getName()));
+    <T extends TestClassLoader> TestContext(final T testClassLoader) throws ClassNotFoundException {
+        this.classLoader = testClassLoader;
         this.baseTestClass = testClassLoader.loadClass(BasePinpointTest.class.getName());
     }
 
-    public TestClass getTestClass() {
-        return this.testClass;
+    public TestClass createTestClass(Class<?> testClass) {
+        try {
+            return new TestClass(classLoader.loadClass(testClass.getName()));
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException(e.getMessage(), e);
+        }
     }
 
     public Object getBaseTestClass() {

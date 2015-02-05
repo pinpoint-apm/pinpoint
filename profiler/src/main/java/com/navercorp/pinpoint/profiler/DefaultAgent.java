@@ -23,6 +23,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.DefaultInterceptorRegistryAdaptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry;
+import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistryAdaptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,12 +98,20 @@ public class DefaultAgent implements Agent {
 
     private volatile AgentStatus agentStatus;
 
+//    private final InterceptorRegistryAdaptor interceptorRegistryAdaptor = new DefaultInterceptorRegistryAdaptor();
+    private final InterceptorRegistryAdaptor interceptorRegistryAdaptor = InterceptorRegistry.REGISTRY;
+    private final Object lock = new Object();
+
     static {
         // Preload classes related to pinpoint-rpc module.
         ClassPreLoader.preload();
     }
 
     public DefaultAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
+        this(agentPath, agentArgs, instrumentation, profilerConfig, false);
+    }
+
+    public DefaultAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, boolean debugMode) {
         if (agentPath == null) {
             throw new NullPointerException("agentPath must not be null");
         }
@@ -114,6 +125,8 @@ public class DefaultAgent implements Agent {
         this.binder = new Slf4jLoggerBinder();
         bindPLoggerFactory(this.binder);
 
+//        bindInterceptorRegistry(debugMode);
+
         dumpSystemProperties();
         dumpConfig(profilerConfig);
 
@@ -126,7 +139,7 @@ public class DefaultAgent implements Agent {
         if (!typeResolver.resolve()) {
             throw new PinpointException("ApplicationServerType not found.");
         }
-        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(typeResolver.getServerLibPath(), this);
+        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(typeResolver.getServerLibPath(), this, interceptorRegistryAdaptor);
         if (logger.isInfoEnabled()) {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
@@ -176,6 +189,14 @@ public class DefaultAgent implements Agent {
         if (typeResolver.isManuallyStartupRequired()) {
             start();
         }
+    }
+
+    private void bindInterceptorRegistry(boolean debugMode) {
+//        if (debugMode) {
+//            InterceptorRegistry.bind(interceptorRegistryAdaptor, null);
+//        } else {
+//            InterceptorRegistry.bind(interceptorRegistryAdaptor, lock);
+//        }
     }
 
     private void preLoadClass() {
@@ -383,6 +404,7 @@ public class DefaultAgent implements Agent {
             this.factory.release();
         }
         PLoggerFactory.unregister(this.binder);
+        InterceptorRegistry.unbind(this.lock);
     }
 
 }

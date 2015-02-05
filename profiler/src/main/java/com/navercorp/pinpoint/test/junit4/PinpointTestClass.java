@@ -14,20 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.interceptor;
+package com.navercorp.pinpoint.test.junit4;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
-public class InterceptorRegistryTest {
-
-    @Test
-    public void testBind() throws Exception {
-        InterceptorRegistryAdaptor registryAdaptor = new DefaultInterceptorRegistryAdaptor();
-
-        InterceptorRegistry.bind(registryAdaptor, null);
-
-        InterceptorRegistry.unbind(null);
-    }
+/**
+ * @author emeroad
+ */
+public class PinpointTestClass {
 }

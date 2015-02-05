@@ -54,11 +54,15 @@ public class MockAgent extends DefaultAgent {
     }
 
     public MockAgent(String agentPath, String agentArgs, ProfilerConfig profilerConfig) {
-        this(agentPath, agentArgs, new DummyInstrumentation(), profilerConfig);
+        this(agentPath, agentArgs, new DummyInstrumentation(), profilerConfig, true);
     }
 
     public MockAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
-        super(agentPath, agentArgs, instrumentation, profilerConfig);
+        this(agentPath, agentArgs, instrumentation, profilerConfig, true);
+    }
+
+    public MockAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, boolean debugMode) {
+        super(agentPath, agentArgs, instrumentation, profilerConfig, debugMode);
     }
 
     @Override

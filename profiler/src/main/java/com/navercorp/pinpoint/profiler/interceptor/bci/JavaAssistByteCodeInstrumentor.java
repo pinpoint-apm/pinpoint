@@ -25,8 +25,11 @@ import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.*;
+import com.navercorp.pinpoint.bootstrap.interceptor.DefaultInterceptorRegistryAdaptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistryAdaptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
+import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.util.ScopePool;
 
 import com.navercorp.pinpoint.profiler.util.ThreadLocalScopePool;
@@ -54,18 +57,26 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     private final ScopePool scopePool = new ThreadLocalScopePool();
 
     private final ClassLoadChecker classLoadChecker = new ClassLoadChecker();
+    private final InterceptorRegistryAdaptor interceptorRegistryAdaptor;
 
+    // for test
     public JavaAssistByteCodeInstrumentor() {
         this.rootClassPool = createClassPool(null, "rootClassPool");
         this.childClassPool = new NamedClassPool(rootClassPool, "childClassPool");
+        this.interceptorRegistryAdaptor = new DefaultInterceptorRegistryAdaptor();
     }
 
-    public JavaAssistByteCodeInstrumentor(String[] pathNames, Agent agent) {
+    public JavaAssistByteCodeInstrumentor(String[] pathNames, Agent agent, InterceptorRegistryAdaptor interceptorRegistryAdaptor) {
+        if (interceptorRegistryAdaptor == null) {
+            throw new NullPointerException("interceptorRegistryAdaptor must not be null");
+        }
+
         this.rootClassPool = createClassPool(pathNames, "rootClassPool");
         this.childClassPool = createChildClassPool(rootClassPool, "childClassPool");
         this.agent = agent;
         // Add Pinpoint classes to rootClassPool
         checkLibrary(this.getClass().getClassLoader(), this.rootClassPool, this.getClass().getName());
+        this.interceptorRegistryAdaptor = interceptorRegistryAdaptor;
     }
 
     public Agent getAgent() {
@@ -149,7 +160,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         checkLibrary(classLoader, classPool, javassistClassName);
         try {
             CtClass cc = classPool.get(javassistClassName);
-            return new JavaAssistClass(this, cc);
+            return new JavaAssistClass(this, cc, interceptorRegistryAdaptor);
         } catch (NotFoundException e) {
             throw new InstrumentException(javassistClassName + " class not found. Cause:" + e.getMessage(), e);
         }

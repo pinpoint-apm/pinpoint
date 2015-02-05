@@ -26,8 +26,7 @@ public final class InterceptorRegistry {
     private static final Locker LOCK = new DefaultLocker();
 
 //    private static InterceptorRegistryAdaptor REGISTRY;
-    // for test
-    private static InterceptorRegistryAdaptor REGISTRY = new DefaultInterceptorRegistryAdaptor();
+    public static InterceptorRegistryAdaptor REGISTRY= new DefaultInterceptorRegistryAdaptor();
 
     public static void bind(final InterceptorRegistryAdaptor interceptorRegistryAdaptor, final Object lock) {
         if (interceptorRegistryAdaptor == null) {
@@ -49,9 +48,9 @@ public final class InterceptorRegistry {
     }
 
 
-    public static int addInterceptor(StaticAroundInterceptor interceptor) {
-        return REGISTRY.addStaticInterceptor(interceptor);
-    }
+//    public static int addInterceptor(StaticAroundInterceptor interceptor) {
+//        return REGISTRY.addStaticInterceptor(interceptor);
+//    }
 
     public static StaticAroundInterceptor getInterceptor(int key) {
         return REGISTRY.getInterceptor(key);
@@ -61,9 +60,9 @@ public final class InterceptorRegistry {
         return REGISTRY.findInterceptor(key);
     }
 
-    public static int addSimpleInterceptor(SimpleAroundInterceptor interceptor) {
-        return REGISTRY.addSimpleInterceptor(interceptor);
-    }
+//    public static int addSimpleInterceptor(SimpleAroundInterceptor interceptor) {
+//        return REGISTRY.addSimpleInterceptor(interceptor);
+//    }
 
 
     public static SimpleAroundInterceptor getSimpleInterceptor(int key) {

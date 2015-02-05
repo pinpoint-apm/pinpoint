@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.profiler.DefaultAgent;
 /**
  * @author hyungil.jeong
  */
+@Deprecated
 public class TestClassLoaderForClover extends TestClassLoader {
     
     private final String cloverRuntimePackage;

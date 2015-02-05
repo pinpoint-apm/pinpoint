@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.test.junit4;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import org.apache.thrift.TBase;
 import org.junit.internal.runners.model.EachTestNotifier;
 import org.junit.runner.notification.RunNotifier;
@@ -28,6 +28,7 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
+import org.junit.runners.model.TestClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,6 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.test.MockAgent;
 import com.navercorp.pinpoint.test.PeekableDataSender;
@@ -46,46 +46,43 @@ import com.navercorp.pinpoint.test.TestClassLoaderFactory;
 /**
  * @author hyungil.jeong
  */
-public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
+public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner implements StatementCallback {
 
     private static final Logger logger = LoggerFactory.getLogger(PinpointJUnit4ClassRunner.class);
 
-    private final TestClassLoader testClassLoader;
-    private final TestContext testContext;
-    private final DefaultAgent testAgent;
-    private final PeekableDataSender<? extends TBase<?, ?>> testDataSender;
+    private TestClassLoader testClassLoader;
+    private TestContext testContext;
+    private MockAgent testAgent;
+    private final PLoggerBinder loggerBinder = new Slf4jLoggerBinder();
 
     public PinpointJUnit4ClassRunner(Class<?> clazz) throws InitializationError {
         super(clazz);
         if (logger.isDebugEnabled()) {
-            logger.debug("PinpointJUnit4ClassRunner constructor called with [" + clazz + "].");
-        }
-        MockAgent testAgent = createTestAgent();
-        this.testAgent = testAgent;
-        this.testDataSender = testAgent.getPeekableSpanDataSender();
-        this.testClassLoader = getTestClassLoader();
-        this.testClassLoader.initialize();
-        try {
-            this.testContext = new TestContext(this.testClassLoader, clazz);
-        } catch (ClassNotFoundException e) {
-            throw new InitializationError(e);
-        }
-        
-        // Replace test target with a class loaded by TestClassLoader
-        // Cannot override getTestClass() which is used to get test class by JUnit because it's final.
-        try {
-            // PinpointJunit4ClassRunner -> BlockJUnit4ClassRunner -> ParentRunner.fTestClass
-            Field testClassField = this.getClass().getSuperclass().getSuperclass().getDeclaredField("fTestClass");
-            testClassField.setAccessible(true);
-            testClassField.set(this, this.testContext.getTestClass());
-        } catch (Exception e) {
-            throw new InitializationError(e);
+            logger.debug("PinpointJUnit4ClassRunner constructor called with [{}].", clazz);
         }
     }
 
-    private MockAgent createTestAgent() throws InitializationError {
-        PLoggerFactory.initialize(new Slf4jLoggerBinder());
+    private void beforeTestClass() {
+        try {
+            this.testAgent = createMockAgent();
+            this.testClassLoader = getTestClassLoader();
+            this.testClassLoader.initialize();
+            this.testContext = new TestContext(this.testClassLoader);
+        } catch (Throwable ex) {
+            throw new RuntimeException(ex.getMessage(), ex);
+        }
+    }
 
+    protected TestClass createTestClass(Class<?> testClass) {
+        logger.debug("createTestClass {}", testClass);
+        beforeTestClass();
+        return testContext.createTestClass(testClass);
+    }
+
+
+    private MockAgent createMockAgent() throws InitializationError {
+        PLoggerFactory.initialize(loggerBinder);
+        logger.trace("agent create");
         try {
             return MockAgent.of("pinpoint.config");
         } catch (IOException e) {
@@ -99,14 +96,17 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
     @Override
     protected void runChild(FrameworkMethod method, RunNotifier notifier) {
+        System.out.println("runChild start---------------------");
         beginTracing(method);
-        ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
+        final Thread thread = Thread.currentThread();
+        ClassLoader originalClassLoader = thread.getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(this.testClassLoader);
+            thread.setContextClassLoader(this.testClassLoader);
             super.runChild(method, notifier);
         } finally {
-            Thread.currentThread().setContextClassLoader(originalClassLoader);
+            thread.setContextClassLoader(originalClassLoader);
             endTracing(method, notifier);
+            System.out.println("runChild end===================");
         }
     }
 
@@ -153,6 +153,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
     @Override
     protected Statement methodInvoker(FrameworkMethod method, Object test) {
+
         // It's safe to cast
         @SuppressWarnings("unchecked")
         Class<BasePinpointTest> baseTestClass = (Class<BasePinpointTest>)this.testContext.getBaseTestClass();
@@ -163,9 +164,9 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
                 if (m.getName().equals("setCurrentHolder")) {
                     try {
                         // reset PeekableDataSender for each test method
-                        this.testDataSender.clear();
+                        this.testAgent.getPeekableSpanDataSender().clear();
                         m.setAccessible(true);
-                        m.invoke(test, this.testDataSender);
+                        m.invoke(test, this.testAgent.getPeekableSpanDataSender());
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException(e);
                     } catch (InvocationTargetException e) {
@@ -188,6 +189,29 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
             }
         }
         return super.methodInvoker(method, test);
+    }
+
+    @Override
+    protected Statement withBeforeClasses(Statement statement) {
+        final Statement beforeClasses = super.withBeforeClasses(statement);
+        return new BeforeCallbackStatement(beforeClasses, this);
+    }
+
+
+    @Override
+    public void before() throws Throwable {
+        logger.debug("beforeClass");
+    }
+
+    @Override
+    public void after() throws Throwable {
+        logger.debug("afterClass");
+    }
+
+    @Override
+    protected Statement withAfterClasses(Statement statement) {
+        final Statement afterClasses = super.withAfterClasses(statement);
+        return new AfterCallbackStatement(afterClasses, this);
     }
 
 }

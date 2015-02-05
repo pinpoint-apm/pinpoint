@@ -35,12 +35,13 @@ import com.navercorp.pinpoint.test.PeekableDataSender;
  */
 @RunWith(value = PinpointJUnit4ClassRunner.class)
 public abstract class BasePinpointTest {
-    private ThreadLocal<PeekableDataSender<? extends TBase<?, ?>>> traceHolder = new ThreadLocal<PeekableDataSender<? extends TBase<?, ?>>>();
+//    private ThreadLocal<PeekableDataSender<? extends TBase<?, ?>>> traceHolder = new ThreadLocal<PeekableDataSender<? extends TBase<?, ?>>>();
+    private PeekableDataSender<? extends TBase<?, ?>> traceHolder;
     private ThreadLocal<ServerMetaDataHolder> serverMetaDataHolder = new ThreadLocal<ServerMetaDataHolder>();
 
     protected final List<SpanEventBo> getCurrentSpanEvents() {
         List<SpanEventBo> spanEvents = new ArrayList<SpanEventBo>();
-        for (TBase<?, ?> span : this.traceHolder.get()) {
+        for (TBase<?, ?> span : this.traceHolder) {
             if (span instanceof SpanEvent) {
                 SpanEvent spanEvent = (SpanEvent)span;
                 spanEvents.add(new SpanEventBo(spanEvent.getSpan(), spanEvent));
@@ -51,7 +52,7 @@ public abstract class BasePinpointTest {
 
     protected final List<SpanBo> getCurrentRootSpans() {
         List<SpanBo> rootSpans = new ArrayList<SpanBo>();
-        for (TBase<?, ?> span : this.traceHolder.get()) {
+        for (TBase<?, ?> span : this.traceHolder) {
             if (span instanceof Span) {
                 rootSpans.add(new SpanBo((Span)span));
             }
@@ -64,7 +65,7 @@ public abstract class BasePinpointTest {
     }
 
     final void setCurrentHolder(PeekableDataSender<? extends TBase<?, ?>> dataSender) {
-        traceHolder.set(dataSender);
+        traceHolder = dataSender;
     }
     
     final void setServerMetaDataHolder(ServerMetaDataHolder metaDataHolder) {
