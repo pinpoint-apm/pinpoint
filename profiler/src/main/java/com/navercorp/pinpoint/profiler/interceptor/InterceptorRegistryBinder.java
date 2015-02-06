@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.util;
+package com.navercorp.pinpoint.profiler.interceptor;
 
-import org.junit.Assert;
-import org.junit.Test;
+import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistryAdaptor;
 
-public class ClassUtilsTest {
+/**
+ * @author emeroad
+ */
+public interface InterceptorRegistryBinder {
 
-    @Test
-    public void testGetPackageName() throws Exception {
-        String packageName = ClassUtils.getPackageName("com_atlassian_clover.Clover");
-        Assert.assertEquals(packageName, "com_atlassian_clover");
-    }
+    void bind();
+
+    void unbind();
+
+    InterceptorRegistryAdaptor getInterceptorRegistryAdaptor();
+
+    String getInterceptorRegistryClassName();
 }

@@ -74,7 +74,7 @@ public class MemcachedClientModifier extends AbstractModifier {
 
             for (MethodInfo method : declaredMethods) {
                 SimpleAroundInterceptor apiInterceptor = (SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.ApiInterceptor");
-                if (agent.getProfilerConfig().isMemcachedKeyTrace()) {
+                if (this.getProfilerConfig().isMemcachedKeyTrace()) {
                     final int index = ParameterUtils.findFirstString(method, 3);
                     if (index != -1) {
                         ((ParameterExtractorSupport)apiInterceptor).setParameterExtractor(new IndexParameterExtractor(index));

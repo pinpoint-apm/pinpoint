@@ -62,7 +62,7 @@ public class JavaAssistClassTest {
     @Test
     public void testClassHierarchy() throws InstrumentException {
 
-        ByteCodeInstrumentor byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor();
+        ByteCodeInstrumentor byteCodeInstrumentor = JavaAssistByteCodeInstrumentor.createTestInstrumentor();
 
         String testObjectName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject";
 
@@ -92,7 +92,7 @@ public class JavaAssistClassTest {
     @Test
     public void testDeclaredMethod() throws InstrumentException {
 
-        ByteCodeInstrumentor byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor();
+        ByteCodeInstrumentor byteCodeInstrumentor = JavaAssistByteCodeInstrumentor.createTestInstrumentor();
 
         String testObjectName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject";
 
@@ -108,7 +108,7 @@ public class JavaAssistClassTest {
     @Test
     public void testDeclaredMethods() throws InstrumentException {
 
-        ByteCodeInstrumentor byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor();
+        ByteCodeInstrumentor byteCodeInstrumentor = JavaAssistByteCodeInstrumentor.createTestInstrumentor();
 
         String testObjectName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject";
 
@@ -134,7 +134,7 @@ public class JavaAssistClassTest {
     public void addTraceValue() throws Exception {
         final TestClassLoader loader = getTestClassLoader();
         final String javassistClassName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject";
-        final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getAgent()) {
+        final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getProfilerConfig()) {
 
             @Override
             public byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
@@ -216,7 +216,7 @@ public class JavaAssistClassTest {
         final TestClassLoader loader = getTestClassLoader();
         final String javassistClassName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject";
 
-        final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getAgent()) {
+        final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getProfilerConfig()) {
 
             @Override
             public byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
@@ -269,7 +269,7 @@ public class JavaAssistClassTest {
         profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE);
         DefaultAgent agent = MockAgent.of(profilerConfig);
 
-        return new TestClassLoader(agent);
+        return new TestClassLoader(agent.getProfilerConfig(), agent.getByteCodeInstrumentor(), agent.getClassFileTransformer());
     }
 
     public void assertEqualsIntField(Object target, String fieldName, int value) throws NoSuchFieldException, IllegalAccessException {
@@ -289,7 +289,7 @@ public class JavaAssistClassTest {
     public void testBeforeAddInterceptorFormContextClassLoader() throws Exception {
         final TestClassLoader loader = getTestClassLoader();
         final String testClassObject = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObjectContextClassLoader";
-        final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getAgent()) {
+        final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getProfilerConfig()) {
 
             @Override
             public byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
@@ -338,7 +338,7 @@ public class JavaAssistClassTest {
 
         final TestClassLoader loader = getTestClassLoader();
         final String testClassObject = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject2";
-        final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getAgent()) {
+        final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getProfilerConfig()) {
 
             @Override
             public byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
@@ -414,7 +414,7 @@ public class JavaAssistClassTest {
 
         final TestClassLoader loader = getTestClassLoader();
         final String testClassObject = "com.navercorp.pinpoint.profiler.interceptor.bci.TestLog";
-        final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getAgent()) {
+        final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getProfilerConfig()) {
 
             @Override
             public byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer) {

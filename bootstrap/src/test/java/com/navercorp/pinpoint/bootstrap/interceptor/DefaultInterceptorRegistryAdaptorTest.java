@@ -46,7 +46,7 @@ public class DefaultInterceptorRegistryAdaptorTest {
 
         InterceptorRegistryAdaptor registry = new DefaultInterceptorRegistryAdaptor();
         int key = registry.addStaticInterceptor(mock);
-        StaticAroundInterceptor find = registry.getInterceptor(key);
+        StaticAroundInterceptor find = registry.getStaticInterceptor(key);
 
         Assert.assertSame(mock, find);
     }

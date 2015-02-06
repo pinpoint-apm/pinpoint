@@ -23,9 +23,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.DefaultInterceptorRegistryAdaptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry;
-import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistryAdaptor;
+import com.navercorp.pinpoint.profiler.interceptor.DefaultInterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,20 +97,19 @@ public class DefaultAgent implements Agent {
 
     private volatile AgentStatus agentStatus;
 
-//    private final InterceptorRegistryAdaptor interceptorRegistryAdaptor = new DefaultInterceptorRegistryAdaptor();
-    private final InterceptorRegistryAdaptor interceptorRegistryAdaptor = InterceptorRegistry.REGISTRY;
-    private final Object lock = new Object();
+    private final InterceptorRegistryBinder interceptorRegistryBinder;
 
     static {
         // Preload classes related to pinpoint-rpc module.
         ClassPreLoader.preload();
     }
 
+
     public DefaultAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
-        this(agentPath, agentArgs, instrumentation, profilerConfig, false);
+        this(agentPath, agentArgs, instrumentation, profilerConfig, new DefaultInterceptorRegistryBinder());
     }
 
-    public DefaultAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, boolean debugMode) {
+    public DefaultAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, InterceptorRegistryBinder interceptorRegistryBinder) {
         if (agentPath == null) {
             throw new NullPointerException("agentPath must not be null");
         }
@@ -121,11 +119,16 @@ public class DefaultAgent implements Agent {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
-        
+        if (interceptorRegistryBinder == null) {
+            throw new NullPointerException("interceptorRegistryBinder must not be null");
+        }
+
+
         this.binder = new Slf4jLoggerBinder();
         bindPLoggerFactory(this.binder);
 
-//        bindInterceptorRegistry(debugMode);
+        this.interceptorRegistryBinder = interceptorRegistryBinder;
+        interceptorRegistryBinder.bind();
 
         dumpSystemProperties();
         dumpConfig(profilerConfig);
@@ -139,7 +142,7 @@ public class DefaultAgent implements Agent {
         if (!typeResolver.resolve()) {
             throw new PinpointException("ApplicationServerType not found.");
         }
-        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(typeResolver.getServerLibPath(), this, interceptorRegistryAdaptor);
+        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(this, interceptorRegistryBinder);
         if (logger.isInfoEnabled()) {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
@@ -148,10 +151,8 @@ public class DefaultAgent implements Agent {
         this.agentInformation = agentInformationFactory.createAgentInformation(typeResolver.getServerType());
         logger.info("agentInformation:{}", agentInformation);
 
-        CommandDispatcher commandDispatcher = new CommandDispatcher();
-        commandDispatcher.registerCommandService(new ThreadDumpService());
-        commandDispatcher.registerCommandService(new EchoService());
-        
+
+        CommandDispatcher commandDispatcher = createCommandDispatcher();
         this.factory = createPinpointSocketFactory(commandDispatcher);
         this.socket = createPinpointSocket(this.profilerConfig.getCollectorTcpServerIp(), this.profilerConfig.getCollectorTcpServerPort(), factory);
 
@@ -191,13 +192,13 @@ public class DefaultAgent implements Agent {
         }
     }
 
-    private void bindInterceptorRegistry(boolean debugMode) {
-//        if (debugMode) {
-//            InterceptorRegistry.bind(interceptorRegistryAdaptor, null);
-//        } else {
-//            InterceptorRegistry.bind(interceptorRegistryAdaptor, lock);
-//        }
+    private CommandDispatcher createCommandDispatcher() {
+        CommandDispatcher commandDispatcher = new CommandDispatcher();
+        commandDispatcher.registerCommandService(new ThreadDumpService());
+        commandDispatcher.registerCommandService(new EchoService());
+        return commandDispatcher;
     }
+
 
     private void preLoadClass() {
         logger.debug("preLoadClass:{}", PreparedStatementUtils.class.getName(), PreparedStatementUtils.findBindVariableSetMethod());
@@ -404,7 +405,7 @@ public class DefaultAgent implements Agent {
             this.factory.release();
         }
         PLoggerFactory.unregister(this.binder);
-        InterceptorRegistry.unbind(this.lock);
+        this.interceptorRegistryBinder.unbind();
     }
 
 }

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.test;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import javassist.*;
 
 import org.slf4j.Logger;
@@ -36,15 +37,19 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class InstrumentTranslator implements Translator {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final DefaultAgent agent;
+
 
     private ConcurrentMap<String, AbstractModifier> modifierMap = new ConcurrentHashMap<String, AbstractModifier>();
 
     private ClassLoader loader;
+    private final ClassFileTransformer classFileTransformer;
 
-    public InstrumentTranslator(ClassLoader loader, DefaultAgent agent) {
+    public InstrumentTranslator(ClassLoader loader, ClassFileTransformer classFileTransformer) {
+        if (classFileTransformer == null) {
+            throw new NullPointerException("classFileTransformer must not be null");
+        }
         this.loader = loader;
-        this.agent = agent;
+        this.classFileTransformer = classFileTransformer;
     }
 
     public AbstractModifier addModifier(AbstractModifier modifier) {
@@ -62,9 +67,8 @@ public class InstrumentTranslator implements Translator {
 
         try {
             // Find Modifier from agent and try transforming
-            String replace = classname.replace('.', '/');
-            ClassFileTransformer classFileTransformer = agent.getClassFileTransformer();
-            byte[] transform = classFileTransformer.transform(this.loader, replace, null, null, null);
+            final String jvmName = JavaAssistUtils.javaNameToJvmName(classname);
+            byte[] transform = classFileTransformer.transform(this.loader, jvmName, null, null, null);
             if (transform != null) {
                 pool.makeClass(new ByteArrayInputStream(transform));
                 return;

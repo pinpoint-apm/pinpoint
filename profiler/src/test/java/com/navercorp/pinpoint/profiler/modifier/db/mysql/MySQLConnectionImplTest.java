@@ -16,14 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.modifier.db.mysql;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.test.MockAgent;
 import com.navercorp.pinpoint.test.TestClassLoader;
 
+import org.junit.After;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,16 +34,26 @@ public class MySQLConnectionImplTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private TestClassLoader loader;
+    private PLoggerBinder binder = new Slf4jLoggerBinder();
+    private MockAgent agent;
 
 //    @Before
     public void setUp() throws Exception {
         PLoggerFactory.initialize(new Slf4jLoggerBinder());
-        DefaultAgent agent = MockAgent.of("pinpoint.config");
-        loader = new TestClassLoader(agent);
+        agent = MockAgent.of("pinpoint.config");
+        loader = new TestClassLoader(agent.getProfilerConfig(), agent.getByteCodeInstrumentor(), agent.getClassFileTransformer());
         loader.initialize();
     }
 
-//    @Test
+    @After
+    public void tearDown() throws Exception {
+        if (agent != null) {
+            agent.stop();
+        }
+        PLoggerFactory.unregister(binder);
+    }
+
+    //    @Test
     public void test() throws Throwable {
         // This is an example of test which loads test class indirectly.  
 //        loader.runTest("com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLConnectionImplModifierTest", "testModify");

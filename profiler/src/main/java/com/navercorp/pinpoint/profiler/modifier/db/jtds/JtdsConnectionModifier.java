@@ -85,7 +85,7 @@ public abstract class JtdsConnectionModifier extends AbstractModifier {
             Interceptor preparedStatementCreateInterceptor6 = new PreparedStatementCreateInterceptor();
             jtdsConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int", "int"}, preparedStatementCreateInterceptor6, SCOPE_NAME);
 
-            final ProfilerConfig profilerConfig = agent.getProfilerConfig();
+            final ProfilerConfig profilerConfig = this.getProfilerConfig();
             if (profilerConfig.isJdbcProfileJtdsSetAutoCommit()) {
                 Interceptor setAutocommit = new TransactionSetAutoCommitInterceptor();
                 jtdsConnection.addScopeInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit, SCOPE_NAME);

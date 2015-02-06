@@ -9,7 +9,7 @@ public interface InterceptorRegistryAdaptor {
 
     int addSimpleInterceptor(SimpleAroundInterceptor interceptor);
 
-    StaticAroundInterceptor getInterceptor(int key);
+    StaticAroundInterceptor getStaticInterceptor(int key);
 
     Interceptor findInterceptor(int key);
 

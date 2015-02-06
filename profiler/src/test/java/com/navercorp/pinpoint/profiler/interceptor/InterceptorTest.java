@@ -113,7 +113,7 @@ public class InterceptorTest {
         "}");
 //        hello.addCatch("{" +
 ////            " interceptor.after(ctx);"+
-////           " AroundInterceptor a = (AroundInterceptor) " + InterceptorRegistry.class.getName() + ".getInterceptor(\"a\");"+
+////           " AroundInterceptor a = (AroundInterceptor) " + InterceptorRegistry.class.getName() + ".getStaticInterceptor(\"a\");"+
 //                " throw $e;" +
 //                "}", throwable);
 //        hello.insertAfter("{" +
@@ -190,7 +190,7 @@ public class InterceptorTest {
 
         sb.append("}");
         sb.append("{");
-        sb.append("  interceptor = (AroundInterceptor) " + InterceptorRegistry.class.getName() + ".getInterceptor(\"a\");");
+        sb.append("  interceptor = (AroundInterceptor) " + InterceptorRegistry.class.getName() + ".getStaticInterceptor(\"a\");");
         sb.append("  interceptor.before(ctx);");
         sb.append("  result = null;");
 //        println(sb, "before systemout \"ttt\"");

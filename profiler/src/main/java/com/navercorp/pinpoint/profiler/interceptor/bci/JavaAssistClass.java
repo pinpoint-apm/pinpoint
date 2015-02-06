@@ -25,11 +25,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
-import com.navercorp.pinpoint.profiler.interceptor.DebugScopeDelegateSimpleInterceptor;
-import com.navercorp.pinpoint.profiler.interceptor.DebugScopeDelegateStaticInterceptor;
-import com.navercorp.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
-import com.navercorp.pinpoint.profiler.interceptor.ScopeDelegateSimpleInterceptor;
-import com.navercorp.pinpoint.profiler.interceptor.ScopeDelegateStaticInterceptor;
+import com.navercorp.pinpoint.profiler.interceptor.*;
 import com.navercorp.pinpoint.profiler.util.ApiUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
@@ -49,7 +45,7 @@ public class JavaAssistClass implements InstrumentClass {
 
     private final JavaAssistByteCodeInstrumentor instrumentor;
     private final CtClass ctClass;
-    private final InterceptorRegistryAdaptor interceptorRegistryAdaptor;
+    private final InterceptorRegistryBinder interceptorRegistryBinder;
 
     private static final int STATIC_INTERCEPTOR = 0;
     private static final int SIMPLE_INTERCEPTOR = 1;
@@ -63,10 +59,10 @@ public class JavaAssistClass implements InstrumentClass {
 
 
 
-    public JavaAssistClass(JavaAssistByteCodeInstrumentor instrumentor, CtClass ctClass, InterceptorRegistryAdaptor interceptorRegistryAdaptor) {
+    public JavaAssistClass(JavaAssistByteCodeInstrumentor instrumentor, CtClass ctClass, InterceptorRegistryBinder interceptorRegistryBinder) {
         this.instrumentor = instrumentor;
         this.ctClass = ctClass;
-        this.interceptorRegistryAdaptor = interceptorRegistryAdaptor;
+        this.interceptorRegistryBinder = interceptorRegistryBinder;
     }
 
     @Override
@@ -449,12 +445,12 @@ public class JavaAssistClass implements InstrumentClass {
     private int addInterceptor0(CtBehavior behavior, String methodName, Interceptor interceptor, int interceptorId, Type type) throws InstrumentException, NotFoundInstrumentException {
         try {
             if (interceptor != null) {
-                if(interceptor instanceof StaticAroundInterceptor) {
+                if (interceptor instanceof StaticAroundInterceptor) {
                     StaticAroundInterceptor staticAroundInterceptor = (StaticAroundInterceptor) interceptor;
-                    interceptorId = interceptorRegistryAdaptor.addStaticInterceptor(staticAroundInterceptor);
-                } else if(interceptor instanceof SimpleAroundInterceptor) {
+                    interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addStaticInterceptor(staticAroundInterceptor);
+                } else if (interceptor instanceof SimpleAroundInterceptor) {
                     SimpleAroundInterceptor simpleAroundInterceptor = (SimpleAroundInterceptor) interceptor;
-                    interceptorId = interceptorRegistryAdaptor.addSimpleInterceptor(simpleAroundInterceptor);
+                    interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addSimpleInterceptor(simpleAroundInterceptor);
                 } else {
                     throw new InstrumentException("unsupported Interceptor Type:" + interceptor);
                 }
@@ -610,10 +606,10 @@ public class JavaAssistClass implements InstrumentClass {
         after.begin();
 
         if (interceptorType == STATIC_INTERCEPTOR) {
-            after.format("  %1$s interceptor = com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAroundInterceptor.class.getName(), id);
+            after.format("  %1$s interceptor = %2$s.getStaticInterceptor(%3$d);", StaticAroundInterceptor.class.getName(), interceptorRegistryBinder.getInterceptorRegistryClassName(), id);
             after.format("  interceptor.after(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, %6$s, null);", target, ctClass.getName(), methodName, parameterTypeString, parameterIdentifier, returnType);
         } else {
-            after.format("  %1$s interceptor = com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry.getSimpleInterceptor(%2$d);", SimpleAroundInterceptor.class.getName(), id);
+            after.format("  %1$s interceptor = %2$s.getSimpleInterceptor(%3$d);", SimpleAroundInterceptor.class.getName(), interceptorRegistryBinder.getInterceptorRegistryClassName(), id);
             after.format("  interceptor.after(%1$s, %2$s, %3$s, null);", target, parameterIdentifier, returnType);
         }
         after.end();
@@ -628,10 +624,10 @@ public class JavaAssistClass implements InstrumentClass {
         CodeBuilder catchCode = new CodeBuilder();
         catchCode.begin();
         if (interceptorType == STATIC_INTERCEPTOR) {
-            catchCode.format("  %1$s interceptor = com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAroundInterceptor.class.getName(), id);
+            catchCode.format("  %1$s interceptor = %2$s.getStaticInterceptor(%3$d);", StaticAroundInterceptor.class.getName(), interceptorRegistryBinder.getInterceptorRegistryClassName(), id);
             catchCode.format("  interceptor.after(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, null, $e);", target, ctClass.getName(), methodName, parameterTypeString, parameterIdentifier);
         } else {
-            catchCode.format("  %1$s interceptor = com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry.getSimpleInterceptor(%2$d);", SimpleAroundInterceptor.class.getName(), id);
+            catchCode.format("  %1$s interceptor = %2$s.getSimpleInterceptor(%3$d);", SimpleAroundInterceptor.class.getName(), interceptorRegistryBinder.getInterceptorRegistryClassName(), id);
             catchCode.format("  interceptor.after(%1$s, %2$s, null, $e);", target, parameterIdentifier);
         }
         catchCode.append("  throw $e;");
@@ -684,11 +680,11 @@ public class JavaAssistClass implements InstrumentClass {
         CodeBuilder code = new CodeBuilder();
         code.begin();
         if (interceptorType == STATIC_INTERCEPTOR) {
-            code.format("  %1$s interceptor = com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAroundInterceptor.class.getName(), id);
+            code.format("  %1$s interceptor = %2$s.getStaticInterceptor(%3$d);", StaticAroundInterceptor.class.getName(), interceptorRegistryBinder.getInterceptorRegistryClassName(), id);
             code.format("  interceptor.before(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s);", target, ctClass.getName(), methodName, parameterDescription, parameterIdentifier);
         } else {
-            // Separated getInterceptor() with getSimpleInterceptor() to remove type casting cost.
-            code.format("  %1$s interceptor = com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry.getSimpleInterceptor(%2$d);", SimpleAroundInterceptor.class.getName(), id);
+            // Separated getStaticInterceptor() with getSimpleInterceptor() to remove type casting cost.
+            code.format("  %1$s interceptor = %2$s.getSimpleInterceptor(%3$d);", SimpleAroundInterceptor.class.getName(), interceptorRegistryBinder.getInterceptorRegistryClassName(), id);
             code.format("  interceptor.before(%1$s, %2$s);", target, parameterIdentifier);
         }
         code.end();
@@ -715,7 +711,7 @@ public class JavaAssistClass implements InstrumentClass {
     public boolean addDebugLogBeforeAfterMethod() {
         final String className = this.ctClass.getName();
         final LoggingInterceptor loggingInterceptor = new LoggingInterceptor(className);
-        final int id = interceptorRegistryAdaptor.addSimpleInterceptor(loggingInterceptor);
+        final int id = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addSimpleInterceptor(loggingInterceptor);
         try {
             for (CtMethod method : ctClass.getDeclaredMethods()) {
                 if (method.isEmpty()) {
@@ -745,7 +741,7 @@ public class JavaAssistClass implements InstrumentClass {
     public boolean addDebugLogBeforeAfterConstructor() {
         final String className = this.ctClass.getName();
         final LoggingInterceptor loggingInterceptor = new LoggingInterceptor(className);
-        final int id = interceptorRegistryAdaptor.addSimpleInterceptor(loggingInterceptor);
+        final int id = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addSimpleInterceptor(loggingInterceptor);
         try {
             for (CtConstructor constructor : ctClass.getConstructors()) {
                 if (constructor.isEmpty()) {
@@ -911,7 +907,7 @@ public class JavaAssistClass implements InstrumentClass {
 
        for (CtClass nested : nestedClasses) {
            if (nested.getName().equals(className)) {
-               return new JavaAssistClass(this.instrumentor, nested, interceptorRegistryAdaptor);
+               return new JavaAssistClass(this.instrumentor, nested, interceptorRegistryBinder);
            }
        }
        return null;

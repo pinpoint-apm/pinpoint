@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.modifier.spring.beans;
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
@@ -71,19 +72,19 @@ public class AbstractAutowireCapableBeanFactoryModifier extends AbstractModifier
     private final TargetBeanFilter filter;
     private final Modifier modifier;
     
-    public static AbstractAutowireCapableBeanFactoryModifier of(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent, ClassFileRetransformer retransformer) {
+    public static AbstractAutowireCapableBeanFactoryModifier of(ByteCodeInstrumentor byteCodeInstrumentor, ProfilerConfig profilerConfig, ClassFileRetransformer retransformer) {
         Modifier modifier = new BeanMethodModifier(byteCodeInstrumentor);
-        return of(byteCodeInstrumentor, agent, retransformer, modifier);
+        return of(byteCodeInstrumentor, profilerConfig, retransformer, modifier);
     }
     
-    public static AbstractAutowireCapableBeanFactoryModifier of(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent, ClassFileRetransformer retransformer, Modifier modifier) {
-        TargetBeanFilter filter = TargetBeanFilter.of(agent.getProfilerConfig());
+    public static AbstractAutowireCapableBeanFactoryModifier of(ByteCodeInstrumentor byteCodeInstrumentor, ProfilerConfig profilerConfig, ClassFileRetransformer retransformer, Modifier modifier) {
+        TargetBeanFilter filter = TargetBeanFilter.of(profilerConfig);
         
-        return new AbstractAutowireCapableBeanFactoryModifier(byteCodeInstrumentor, agent, retransformer, filter, modifier);
+        return new AbstractAutowireCapableBeanFactoryModifier(byteCodeInstrumentor, profilerConfig, retransformer, filter, modifier);
     }
 
-    public AbstractAutowireCapableBeanFactoryModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent, ClassFileRetransformer retransformer, TargetBeanFilter filter, Modifier modifier) {
-        super(byteCodeInstrumentor, agent);
+    public AbstractAutowireCapableBeanFactoryModifier(ByteCodeInstrumentor byteCodeInstrumentor, ProfilerConfig profilerConfig, ClassFileRetransformer retransformer, TargetBeanFilter filter, Modifier modifier) {
+        super(byteCodeInstrumentor, profilerConfig);
 
         this.retransformer = retransformer;
         this.filter = filter;

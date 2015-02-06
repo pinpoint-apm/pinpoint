@@ -16,18 +16,52 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class InterceptorRegistryTest {
 
-    @Test
-    public void testBind() throws Exception {
-        InterceptorRegistryAdaptor registryAdaptor = new DefaultInterceptorRegistryAdaptor();
+    private InterceptorRegistryAdaptor registryAdaptor;
+
+    @Before
+    public void setUp() throws Exception {
+        registryAdaptor = mock(InterceptorRegistryAdaptor.class);
 
         InterceptorRegistry.bind(registryAdaptor, null);
+    }
 
+    @After
+    public void tearDown() throws Exception {
         InterceptorRegistry.unbind(null);
+    }
+
+    @Test
+    public void testSimpleInterceptor() throws Exception {
+
+        SimpleAroundInterceptor simpleAroundInterceptor = mock(SimpleAroundInterceptor.class);
+        when(registryAdaptor.getSimpleInterceptor(0)).thenReturn(simpleAroundInterceptor);
+
+
+        int findId = registryAdaptor.addSimpleInterceptor(simpleAroundInterceptor);
+        SimpleAroundInterceptor find = InterceptorRegistry.getSimpleInterceptor(findId);
+        Assert.assertSame(find, simpleAroundInterceptor);
+
+    }
+
+    @Test
+    public void testStaticInterceptor() throws Exception {
+
+        StaticAroundInterceptor staticAroundInterceptor = mock(StaticAroundInterceptor.class);
+        when(registryAdaptor.getStaticInterceptor(0)).thenReturn(staticAroundInterceptor);
+
+        int findId = registryAdaptor.addStaticInterceptor(staticAroundInterceptor);
+        StaticAroundInterceptor find = InterceptorRegistry.getStaticInterceptor(findId);
+        Assert.assertSame(find, staticAroundInterceptor);
+
     }
 }

@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.javaassist;
 
+import com.navercorp.pinpoint.bootstrap.plugin.BytecodeUtils;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.LoaderClassPath;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +30,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 
 /**
@@ -35,51 +38,36 @@ import java.security.ProtectionDomain;
  */
 public class TestBootstrapClass {
 
+    private static final String TEST_CLASS_NAME = "com.navercorp.pinpoint.profiler.javaassist.DynamicTest";
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
     public void test() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, CannotCompileException {
 
-        Class cl = Class.forName("java.lang.ClassLoader");
-
-        Method defineClass1 = cl.getDeclaredMethod("defineClass", new Class[]{String.class, byte[].class, int.class, int.class});
-
-        Method defineClass2 = cl.getDeclaredMethod("defineClass", new Class[]{String.class, byte[].class, int.class, int.class, ProtectionDomain.class});
+        URLClassLoader classLoader = new URLClassLoader(new URL[]{});
+        LoaderClassPath loaderClassPath = new LoaderClassPath(classLoader);
 
         ClassPool cp = new ClassPool();
-        cp.appendSystemPath();
-        CtClass ctClass = cp.makeClass("com.test.Test");
+        cp.appendClassPath(loaderClassPath);
+
+        CtClass ctClass = cp.makeClass(TEST_CLASS_NAME);
         byte[] bytes = ctClass.toBytecode();
 
+        logger.info(classLoader.getClass().getName());
+        Class<?> aClass = BytecodeUtils.defineClass(classLoader, TEST_CLASS_NAME, bytes);
 
-        ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-        logger.info(systemClassLoader.getClass().getName());
+        logger.info("{}", aClass.getName());
 
-        defineClass(defineClass1, systemClassLoader, new Object[]{"com.test.Test", bytes, 0, bytes.length});
-        Class<?> aClass = systemClassLoader.loadClass("com.test.Test");
-
-        logger.info("{}", aClass.getClass().getClassLoader());
-
-
-    }
-
-    private Object defineClass(Method method, ClassLoader loader, Object[] objects) throws InvocationTargetException, IllegalAccessException {
-        method.setAccessible(true);
-        try {
-            return method.invoke(loader, objects);
-        } finally {
-            method.setAccessible(false);
-        }
     }
 
 
     @Test
     public void testJdkClassClassLoader() throws IOException {
-        URL url = new URL("http://www.nave.com");
+        URL url = new URL("http://test");
 
 
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-
         logger.info(urlConnection.toString());
         logger.info("{}", urlConnection.getClass().getClassLoader());
         ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
@@ -99,8 +87,8 @@ public class TestBootstrapClass {
     @Test
     public void testReflection() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         java.lang.ClassLoader contextClassLoader = java.lang.Thread.currentThread().getContextClassLoader();
-        java.lang.Class<?> interceptorRegistry = contextClassLoader.loadClass("com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry");
-        java.lang.reflect.Method getInterceptorMethod = interceptorRegistry.getMethod("getInterceptor", new java.lang.Class[]{int.class});
+        java.lang.Class<?> interceptorRegistry = contextClassLoader.loadClass("com.navercorp.pinpoint.bootstrap.interceptor.GlobalInterceptorRegistry");
+        java.lang.reflect.Method getInterceptorMethod = interceptorRegistry.getMethod("getStaticInterceptor", new java.lang.Class[]{int.class});
         java.lang.Object interceptor = getInterceptorMethod.invoke(interceptorRegistry, Integer.valueOf(1));
 
 

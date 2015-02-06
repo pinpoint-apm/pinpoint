@@ -98,7 +98,7 @@ public class PhysicalConnectionModifier extends AbstractModifier {
             Interceptor preparedStatementCreateInterceptor6 = new PreparedStatementCreateInterceptor();
             oracleConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int", "int"}, preparedStatementCreateInterceptor6, OracleScope.SCOPE_NAME);
 
-            final ProfilerConfig profilerConfig = agent.getProfilerConfig();
+            final ProfilerConfig profilerConfig = this.getProfilerConfig();
             if (profilerConfig.isJdbcProfileOracleSetAutoCommit()) {
                 Interceptor setAutocommit = new TransactionSetAutoCommitInterceptor();
                 oracleConnection.addScopeInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit, OracleScope.SCOPE_NAME);

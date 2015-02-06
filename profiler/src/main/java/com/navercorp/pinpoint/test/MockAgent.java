@@ -16,10 +16,16 @@
 
 package com.navercorp.pinpoint.test;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
+import java.net.URL;
 import java.util.List;
 
+import com.navercorp.pinpoint.profiler.interceptor.DefaultInterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.interceptor.GlobalInterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import org.apache.thrift.TBase;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
@@ -41,11 +47,19 @@ import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
  */
 public class MockAgent extends DefaultAgent {
     
-    public static MockAgent of(String configPath) throws IOException {
-        String path = MockAgent.class.getClassLoader().getResource(configPath).getPath();
-        ProfilerConfig profilerConfig = ProfilerConfig.load(path);
-        profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE);
-        
+    public static MockAgent of(String configPath) {
+        ProfilerConfig profilerConfig = null;
+        try {
+            URL resource = MockAgent.class.getClassLoader().getResource(configPath);
+            if (resource == null) {
+                throw new FileNotFoundException("pinpoint.config not found. configPath:" + configPath);
+            }
+            profilerConfig = ProfilerConfig.load(resource.getPath());
+            profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex.getMessage(), ex);
+        }
+
         return new MockAgent("", "", profilerConfig);
     }
     
@@ -54,15 +68,20 @@ public class MockAgent extends DefaultAgent {
     }
 
     public MockAgent(String agentPath, String agentArgs, ProfilerConfig profilerConfig) {
-        this(agentPath, agentArgs, new DummyInstrumentation(), profilerConfig, true);
+        this(agentPath, agentArgs, new DummyInstrumentation(), profilerConfig, new GlobalInterceptorRegistryBinder());
     }
 
     public MockAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
-        this(agentPath, agentArgs, instrumentation, profilerConfig, true);
+        this(agentPath, agentArgs, instrumentation, profilerConfig, new GlobalInterceptorRegistryBinder());
     }
 
-    public MockAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, boolean debugMode) {
-        super(agentPath, agentArgs, instrumentation, profilerConfig, debugMode);
+    public MockAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, InterceptorRegistryBinder interceptorRegistryBinder) {
+        super(agentPath, agentArgs, instrumentation, profilerConfig, interceptorRegistryBinder);
+    }
+
+    @Override
+    protected PinpointSocketFactory createPinpointSocketFactory(CommandDispatcher commandDispatcher) {
+        return super.createPinpointSocketFactory(commandDispatcher);
     }
 
     @Override

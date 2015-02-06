@@ -17,7 +17,9 @@
 package com.navercorp.pinpoint.test;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.profiler.ClassFileRetransformer;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
@@ -28,6 +30,7 @@ import javassist.NotFoundException;
 
 import org.junit.runners.model.InitializationError;
 
+import java.lang.instrument.ClassFileTransformer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,18 +39,18 @@ import java.util.List;
  * @author hyungil.jeong
  */
 public class TestClassLoader extends Loader {
-    private Agent agent;
+    private ProfilerConfig profilerConfig;
     private ByteCodeInstrumentor instrumentor;
     private InstrumentTranslator instrumentTranslator;
     private final List<String> delegateClass;
 
-    public TestClassLoader(DefaultAgent agent) {
-        if (agent == null) {
+    public TestClassLoader(ProfilerConfig profilerConfig, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileTransformer classFileTransformer) {
+        if (profilerConfig == null) {
             throw new NullPointerException("agent must not be null");
         }
-        this.agent = agent;
-        this.instrumentor = agent.getByteCodeInstrumentor();
-        this.instrumentTranslator = new InstrumentTranslator(this, agent);
+        this.profilerConfig = profilerConfig;
+        this.instrumentor = byteCodeInstrumentor;
+        this.instrumentTranslator = new InstrumentTranslator(this, classFileTransformer);
         this.delegateClass = new ArrayList<String>();
     }
 
@@ -64,7 +67,7 @@ public class TestClassLoader extends Loader {
         return super.findClass(name);
     }
 
-    public void initialize() throws InitializationError {
+    public void initialize() {
         addDefaultDelegateLoadingOf();
         addCustomDelegateLoadingOf();
         addTranslator();
@@ -76,11 +79,8 @@ public class TestClassLoader extends Loader {
         }
     }
 
-    public Agent getAgent() {
-        if (this.agent == null) {
-            throw new IllegalStateException("TestClassLoader is not initialized.");
-        }
-        return agent;
+    public ProfilerConfig getProfilerConfig() {
+        return profilerConfig;
     }
 
     public ByteCodeInstrumentor getInstrumentor() {

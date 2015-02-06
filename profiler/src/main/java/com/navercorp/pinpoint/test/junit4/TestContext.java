@@ -16,26 +16,64 @@
 
 package com.navercorp.pinpoint.test.junit4;
 
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
+import com.navercorp.pinpoint.test.MockAgent;
+import com.navercorp.pinpoint.test.TestClassLoaderFactory;
 import org.junit.runners.model.TestClass;
 
 import com.navercorp.pinpoint.test.TestClassLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.Closeable;
+import java.io.IOException;
 
 /**
  * @author hyungil.jeong
+ * @author emeroad
  */
-public class TestContext {
+public class TestContext implements Closeable {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private final PLoggerBinder loggerBinder = new Slf4jLoggerBinder();
+    private final TestClassLoader testClassLoader;
+    private final MockAgent mockAgent;
 
     private final Object baseTestClass;
-    private final TestClassLoader classLoader;
 
-    <T extends TestClassLoader> TestContext(final T testClassLoader) throws ClassNotFoundException {
-        this.classLoader = testClassLoader;
-        this.baseTestClass = testClassLoader.loadClass(BasePinpointTest.class.getName());
+    public TestContext() {
+        this.mockAgent = createMockAgent();
+        this.testClassLoader = TestClassLoaderFactory.createTestClassLoader(this.mockAgent.getProfilerConfig(), this.mockAgent.getByteCodeInstrumentor(), this.mockAgent.getClassFileTransformer());
+        this.testClassLoader.initialize();
+        try {
+            this.baseTestClass = testClassLoader.loadClass(BasePinpointTest.class.getName());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+
+    private MockAgent createMockAgent() {
+        PLoggerFactory.initialize(loggerBinder);
+        logger.trace("agent create");
+        return MockAgent.of("pinpoint.config");
+    }
+
+    public TestClassLoader getTestClassLoader() {
+        return testClassLoader;
+    }
+
+    public MockAgent getMockAgent() {
+        return mockAgent;
     }
 
     public TestClass createTestClass(Class<?> testClass) {
         try {
-            return new TestClass(classLoader.loadClass(testClass.getName()));
+            final Class<?> testClazz = testClassLoader.loadClass(testClass.getName());
+            return new TestClass(testClazz);
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException(e.getMessage(), e);
         }
@@ -43,5 +81,13 @@ public class TestContext {
 
     public Object getBaseTestClass() {
         return this.baseTestClass;
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (mockAgent != null) {
+            mockAgent.stop();
+        }
+        PLoggerFactory.unregister(loggerBinder);
     }
 }

@@ -45,15 +45,13 @@ import com.navercorp.pinpoint.test.TestClassLoaderFactory;
 
 /**
  * @author hyungil.jeong
+ * @author emeroad
  */
 public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner implements StatementCallback {
 
     private static final Logger logger = LoggerFactory.getLogger(PinpointJUnit4ClassRunner.class);
 
-    private TestClassLoader testClassLoader;
-    private TestContext testContext;
-    private MockAgent testAgent;
-    private final PLoggerBinder loggerBinder = new Slf4jLoggerBinder();
+    private static TestContext testContext;
 
     public PinpointJUnit4ClassRunner(Class<?> clazz) throws InitializationError {
         super(clazz);
@@ -64,10 +62,9 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner impl
 
     private void beforeTestClass() {
         try {
-            this.testAgent = createMockAgent();
-            this.testClassLoader = getTestClassLoader();
-            this.testClassLoader.initialize();
-            this.testContext = new TestContext(this.testClassLoader);
+            if (testContext == null) {
+                this.testContext = new TestContext();
+            }
         } catch (Throwable ex) {
             throw new RuntimeException(ex.getMessage(), ex);
         }
@@ -80,19 +77,6 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner impl
     }
 
 
-    private MockAgent createMockAgent() throws InitializationError {
-        PLoggerFactory.initialize(loggerBinder);
-        logger.trace("agent create");
-        try {
-            return MockAgent.of("pinpoint.config");
-        } catch (IOException e) {
-            throw new InitializationError("Unable to read pinpoint.config");
-        }
-    }
-    
-    private TestClassLoader getTestClassLoader() {
-        return TestClassLoaderFactory.createTestClassLoader(this.testAgent);
-    }
 
     @Override
     protected void runChild(FrameworkMethod method, RunNotifier notifier) {
@@ -101,7 +85,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner impl
         final Thread thread = Thread.currentThread();
         ClassLoader originalClassLoader = thread.getContextClassLoader();
         try {
-            thread.setContextClassLoader(this.testClassLoader);
+            thread.setContextClassLoader(this.testContext.getTestClassLoader());
             super.runChild(method, notifier);
         } finally {
             thread.setContextClassLoader(originalClassLoader);
@@ -112,7 +96,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner impl
 
     private void beginTracing(FrameworkMethod method) {
         if (shouldCreateNewTraceObject(method)) {
-            TraceContext traceContext = this.testAgent.getTraceContext();
+            TraceContext traceContext = this.testContext.getMockAgent().getTraceContext();
             Trace trace = traceContext.newTraceObject();
             trace.markBeforeTime();
             trace.recordServiceType(ServiceType.TEST);
@@ -121,7 +105,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner impl
 
     private void endTracing(FrameworkMethod method, RunNotifier notifier) {
         if (shouldCreateNewTraceObject(method)) {
-            TraceContext traceContext = this.testAgent.getTraceContext();
+            TraceContext traceContext = this.testContext.getMockAgent().getTraceContext();
             try {
                 Trace trace = traceContext.currentRawTraceObject();
                 if (trace == null) {
@@ -153,20 +137,24 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner impl
 
     @Override
     protected Statement methodInvoker(FrameworkMethod method, Object test) {
+        setupTest(test);
+        return super.methodInvoker(method, test);
+    }
 
+    private void setupTest(Object test) {
         // It's safe to cast
         @SuppressWarnings("unchecked")
         Class<BasePinpointTest> baseTestClass = (Class<BasePinpointTest>)this.testContext.getBaseTestClass();
         if (baseTestClass.isInstance(test)) {
             Method[] methods = baseTestClass.getDeclaredMethods();
             for (Method m : methods) {
-                // Inject testDataSender into the current Test instance. 
+                // Inject testDataSender into the current Test instance.
                 if (m.getName().equals("setCurrentHolder")) {
                     try {
                         // reset PeekableDataSender for each test method
-                        this.testAgent.getPeekableSpanDataSender().clear();
+                        this.testContext.getMockAgent().getPeekableSpanDataSender().clear();
                         m.setAccessible(true);
-                        m.invoke(test, this.testAgent.getPeekableSpanDataSender());
+                        m.invoke(test, this.testContext.getMockAgent().getPeekableSpanDataSender());
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException(e);
                     } catch (InvocationTargetException e) {
@@ -176,7 +164,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner impl
                 // Inject serverMetaDataHolder into the current Test instance.
                 if (m.getName().equals("setServerMetaDataHolder")) {
                     try {
-                        ResettableServerMetaDataHolder serverMetaDataHolder = (ResettableServerMetaDataHolder)this.testAgent.getTraceContext().getServerMetaDataHolder();
+                        ResettableServerMetaDataHolder serverMetaDataHolder = (ResettableServerMetaDataHolder)this.testContext.getMockAgent().getTraceContext().getServerMetaDataHolder();
 //                        serverMetaDataHolder.reset();
                         m.setAccessible(true);
                         m.invoke(test, serverMetaDataHolder);
@@ -188,7 +176,6 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner impl
                 }
             }
         }
-        return super.methodInvoker(method, test);
     }
 
     @Override

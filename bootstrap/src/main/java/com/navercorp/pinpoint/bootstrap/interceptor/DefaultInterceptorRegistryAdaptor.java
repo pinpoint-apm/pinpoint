@@ -69,7 +69,7 @@ public final class DefaultInterceptorRegistryAdaptor implements InterceptorRegis
         return newId;
     }
 
-    public StaticAroundInterceptor getInterceptor(int key) {
+    public StaticAroundInterceptor getStaticInterceptor(int key) {
         final StaticAroundInterceptor interceptor = staticIndex.get(key);
         if (interceptor == null) {
             // return LOGGING_INTERCEPTOR upon wrong logic

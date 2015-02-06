@@ -17,7 +17,9 @@
 package com.navercorp.pinpoint.profiler.modifier;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+
 
 /**
  * @author emeroad
@@ -25,22 +27,44 @@ import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 public abstract class AbstractModifier implements Modifier {
 
     protected final ByteCodeInstrumentor byteCodeInstrumentor;
-    protected final Agent agent;
+    private final ProfilerConfig profilerConfig;
 
+    @Deprecated
     public AbstractModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-        if (byteCodeInstrumentor == null) {
-            throw new NullPointerException("byteCodeInstrumentor must not be null");
-        }
+        this(byteCodeInstrumentor, assertAgent(agent));
+    }
+
+    private static ProfilerConfig assertAgent(Agent agent) {
         if (agent == null) {
             throw new NullPointerException("agent must not be null");
         }
-        this.byteCodeInstrumentor = byteCodeInstrumentor;
-        this.agent = agent;
+        return agent.getProfilerConfig();
     }
 
-    public Agent getAgent() {
-        return agent;
+
+    public AbstractModifier(ByteCodeInstrumentor byteCodeInstrumentor, ProfilerConfig profilerConfig) {
+        if (byteCodeInstrumentor == null) {
+            throw new NullPointerException("byteCodeInstrumentor must not be null");
+        }
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig must not be null");
+        }
+        this.byteCodeInstrumentor = byteCodeInstrumentor;
+        this.profilerConfig = profilerConfig;
     }
-    
+
+    public AbstractModifier(ByteCodeInstrumentor byteCodeInstrumentor) {
+        if (byteCodeInstrumentor == null) {
+            throw new NullPointerException("byteCodeInstrumentor must not be null");
+        }
+        this.byteCodeInstrumentor = byteCodeInstrumentor;
+        this.profilerConfig = null;
+    }
+
+
     public abstract String getTargetClass();
+
+    public ProfilerConfig getProfilerConfig() {
+        return profilerConfig;
+    }
 }

@@ -16,10 +16,13 @@
 
 package com.navercorp.pinpoint.test;
 
+import java.lang.instrument.ClassFileTransformer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,20 +38,24 @@ public class TestClassLoaderFactory {
 
     // Classes to check for to determine which Clover runtime has been loaded after source code instrumentation.
     private static final String CENQUA_CLOVER = "com_cenqua_clover.Clover";
+
     private static final String ATLASSIAN_CLOVER = "com_atlassian_clover.Clover";
 
-    public static TestClassLoader createTestClassLoader(final DefaultAgent testAgent) {
-        final TestClassLoader testClassLoader = new TestClassLoader(testAgent);
-        if (isCloverRuntimePresent(CENQUA_CLOVER)) {
-            testClassLoader.addDelegateClass(getPackageName());
-        } else if (isCloverRuntimePresent(ATLASSIAN_CLOVER)) {
-            testClassLoader.addDelegateClass(ClassUtils.getPackageName(ATLASSIAN_CLOVER)+ ".");
-        }
+    public static TestClassLoader createTestClassLoader(ProfilerConfig profilerConfig, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileTransformer classFileTransformer) {
+        final TestClassLoader testClassLoader = new TestClassLoader(profilerConfig, byteCodeInstrumentor, classFileTransformer);
+        checkClover(testClassLoader, CENQUA_CLOVER);
+        checkClover(testClassLoader, ATLASSIAN_CLOVER);
         return testClassLoader;
     }
 
-    private static String getPackageName() {
-        return ClassUtils.getPackageName(CENQUA_CLOVER) + ".";
+    private static void checkClover(TestClassLoader testClassLoader, String className) {
+        if (isCloverRuntimePresent(className)) {
+            testClassLoader.addDelegateClass(getPackageName(className));
+        }
+    }
+
+    private static String getPackageName(String className) {
+        return ClassUtils.getPackageName(className) + ".";
     }
 
     private static boolean isCloverRuntimePresent(String cloverFqcnToCheckFor) {
