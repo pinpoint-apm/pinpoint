@@ -29,6 +29,12 @@ import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.log.log4j.interceptor.LoggingEventOfLog4jInterceptor;
 
 /**
+ * This modifier support slf4j 1.4.1 version and logback 0.9.8 version, or greater.
+ * Because package name of MDC class is different on under those version 
+ * and under those version is too old.
+ * By the way slf4j 1.4.0 version release on May 2007.
+ * Refer to url http://mvnrepository.com/artifact/org.slf4j/slf4j-api for detail.
+ * 
  * @author minwoo.jung
  */
 public class LoggingEventOfLogbackModifier extends AbstractModifier {
@@ -46,13 +52,27 @@ public class LoggingEventOfLogbackModifier extends AbstractModifier {
             logger.info("Modifing. {}", javassistClassName);
         }
 
-
+        try {
+            Class<?> mdcClass = classLoader.loadClass("org.slf4j.MDC");
+            mdcClass.getMethod("put", String.class, String.class);
+            mdcClass.getMethod("remove", String.class);
+        } catch (SecurityException e) {
+            logger.warn("modify fail. There is the problem while checking org.slf4j.MDC class. Cause:" + e.getMessage(), e);
+            return null;
+        } catch (NoSuchMethodException e) {
+            logger.warn("modify fail. Because put, remove method does not existed org.slf4j.MDC class. Cause:" + e.getMessage(), e);
+            return null;
+        } catch (ClassNotFoundException e) {
+            logger.warn("modify fail. Because org.slf4j.MDC does not existed. Cause:" + e.getMessage(), e);
+            return null;
+        }
+        
         try {
             InstrumentClass loggingEvent = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
             
             Interceptor interceptor1 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.log.logback.interceptor.LoggingEventOfLogbackInterceptor");
             loggingEvent.addConstructorInterceptor(new String[]{"java.lang.String", "ch.qos.logback.classic.Logger", "ch.qos.logback.classic.Level", "java.lang.String", "java.lang.Throwable", "java.lang.Object[]"}, interceptor1);
-            
+
             Interceptor interceptor2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.log.logback.interceptor.LoggingEventOfLogbackInterceptor");
             loggingEvent.addConstructorInterceptor(new String[]{}, interceptor2);
             

@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.profiler.modifier.log.MdcKey;
 
 /**
  * @author minwoo.jung
@@ -44,10 +45,11 @@ public class LoggingEventOfLogbackInterceptor implements SimpleAroundInterceptor
         Trace trace = traceContext.currentTraceObject();
         
         if (trace == null) {
+            MDC.remove(MdcKey.TRANSACTION_ID);
             return;
+        } else {
+            MDC.put(MdcKey.TRANSACTION_ID, trace.getTraceId().getTransactionId());
         }
-        
-        MDC.put("TransactionID", trace.getTraceId().getTransactionId());
     }
 
     @Override
