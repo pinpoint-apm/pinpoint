@@ -18,8 +18,10 @@ package com.navercorp.pinpoint.profiler.monitor;
 
 import static org.junit.Assert.*;
 
-import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
-import com.navercorp.pinpoint.test.PeekableDataSender;
+import com.navercorp.pinpoint.profiler.sender.DataSender;
+import com.navercorp.pinpoint.test.ListenableDataSender;
+import com.navercorp.pinpoint.test.TBaseRecorder;
+import com.navercorp.pinpoint.test.TBaseRecorderAdaptor;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 
 import org.junit.Before;
@@ -35,12 +37,20 @@ public class AgentStatMonitorTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private PeekableDataSender<TAgentStatBatch> peekableDataSender;
+    private TBaseRecorder<TAgentStatBatch> tBaseRecorder;
+    private DataSender dataSender;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        this.peekableDataSender = new PeekableDataSender<TAgentStatBatch>();
+
+
+        this.tBaseRecorder = new TBaseRecorder<TAgentStatBatch>();
+        TBaseRecorderAdaptor recorderAdaptor = new TBaseRecorderAdaptor(tBaseRecorder);
+
+        ListenableDataSender listenableDataSender = new ListenableDataSender();
+        listenableDataSender.setListener(recorderAdaptor);
+        this.dataSender = listenableDataSender;
     }
 
     @Test
@@ -52,14 +62,15 @@ public class AgentStatMonitorTest {
         final long totalTestDurationMs = collectionIntervalMs * numCollectionsPerBatch * minNumBatchToTest;
         // When
         System.setProperty("pinpoint.log", "test.");
-        AgentStatMonitor monitor = new AgentStatMonitor(this.peekableDataSender, "agentId", System.currentTimeMillis(), collectionIntervalMs,
+
+        AgentStatMonitor monitor = new AgentStatMonitor(this.dataSender, "agentId", System.currentTimeMillis(), collectionIntervalMs,
                 numCollectionsPerBatch);
         monitor.start();
         Thread.sleep(totalTestDurationMs);
         monitor.stop();
         // Then
-        assertTrue(peekableDataSender.size() >= minNumBatchToTest);
-        for (TAgentStatBatch agentStatBatch : peekableDataSender) {
+        assertTrue(tBaseRecorder.size() >= minNumBatchToTest);
+        for (TAgentStatBatch agentStatBatch : tBaseRecorder) {
             logger.debug("agentStatBatch:{}", agentStatBatch);
             assertTrue(agentStatBatch.getAgentStats().size() <= numCollectionsPerBatch);
         }

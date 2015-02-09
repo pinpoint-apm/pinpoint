@@ -22,25 +22,26 @@ import org.junit.runners.model.Statement;
  * @author emeroad
  */
 public class BeforeCallbackStatement extends Statement {
-    private final Statement before;
-    private final StatementCallback beforeCallback;
 
-    public BeforeCallbackStatement(Statement before, StatementCallback beforeCallback) {
+    private final Statement before;
+    private final Statement statement;
+
+    public BeforeCallbackStatement(Statement statement, Statement before) {
+        if (statement == null) {
+            throw new NullPointerException("statement must not be null");
+        }
         if (before == null) {
             throw new NullPointerException("before must not be null");
         }
-        if (beforeCallback == null) {
-            throw new NullPointerException("before must not be null");
-        }
 
+        this.statement = statement;
         this.before = before;
-        this.beforeCallback = beforeCallback;
     }
 
     @Override
     public void evaluate() throws Throwable {
-        beforeCallback.before();
-        before.evaluate();
+        this.before.evaluate();
+        this.statement.evaluate();
     }
 
 }

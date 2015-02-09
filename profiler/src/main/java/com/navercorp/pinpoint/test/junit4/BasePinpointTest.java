@@ -19,6 +19,10 @@ package com.navercorp.pinpoint.test.junit4;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.navercorp.pinpoint.profiler.sender.DataSender;
+import com.navercorp.pinpoint.test.ListenableDataSender;
+import com.navercorp.pinpoint.test.MockAgent;
+import com.navercorp.pinpoint.test.ResettableServerMetaDataHolder;
 import org.apache.thrift.TBase;
 import org.junit.runner.RunWith;
 
@@ -28,20 +32,20 @@ import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.test.PeekableDataSender;
+import com.navercorp.pinpoint.test.TBaseRecorder;
 
 /**
  * @author hyungil.jeong
  */
 @RunWith(value = PinpointJUnit4ClassRunner.class)
 public abstract class BasePinpointTest {
-//    private ThreadLocal<PeekableDataSender<? extends TBase<?, ?>>> traceHolder = new ThreadLocal<PeekableDataSender<? extends TBase<?, ?>>>();
-    private PeekableDataSender<? extends TBase<?, ?>> traceHolder;
-    private ThreadLocal<ServerMetaDataHolder> serverMetaDataHolder = new ThreadLocal<ServerMetaDataHolder>();
 
-    protected final List<SpanEventBo> getCurrentSpanEvents() {
+    private TBaseRecorder<? extends TBase<?, ?>> tBaseRecorder;
+    private ServerMetaDataHolder serverMetaDataHolder;
+
+    protected List<SpanEventBo> getCurrentSpanEvents() {
         List<SpanEventBo> spanEvents = new ArrayList<SpanEventBo>();
-        for (TBase<?, ?> span : this.traceHolder) {
+        for (TBase<?, ?> span : this.tBaseRecorder) {
             if (span instanceof SpanEvent) {
                 SpanEvent spanEvent = (SpanEvent)span;
                 spanEvents.add(new SpanEventBo(spanEvent.getSpan(), spanEvent));
@@ -50,9 +54,9 @@ public abstract class BasePinpointTest {
         return spanEvents;
     }
 
-    protected final List<SpanBo> getCurrentRootSpans() {
+    protected List<SpanBo> getCurrentRootSpans() {
         List<SpanBo> rootSpans = new ArrayList<SpanBo>();
-        for (TBase<?, ?> span : this.traceHolder) {
+        for (TBase<?, ?> span : this.tBaseRecorder) {
             if (span instanceof Span) {
                 rootSpans.add(new SpanBo((Span)span));
             }
@@ -60,15 +64,40 @@ public abstract class BasePinpointTest {
         return rootSpans;
     }
     
-    protected final ServerMetaData getServerMetaData() {
-        return this.serverMetaDataHolder.get().getServerMetaData();
+    protected ServerMetaData getServerMetaData() {
+        return this.serverMetaDataHolder.getServerMetaData();
     }
 
-    final void setCurrentHolder(PeekableDataSender<? extends TBase<?, ?>> dataSender) {
-        traceHolder = dataSender;
+    private void setTBaseRecorder(TBaseRecorder tBaseRecorder) {
+        this.tBaseRecorder = tBaseRecorder;
     }
     
-    final void setServerMetaDataHolder(ServerMetaDataHolder metaDataHolder) {
-        this.serverMetaDataHolder.set(metaDataHolder);
+    private void setServerMetaDataHolder(ServerMetaDataHolder serverMetaDataHolder) {
+        this.serverMetaDataHolder = serverMetaDataHolder;
+    }
+
+    public void setup(TestContext testContext) {
+        MockAgent mockAgent = testContext.getMockAgent();
+
+        DataSender spanDataSender = mockAgent.getSpanDataSender();
+        if (spanDataSender instanceof ListenableDataSender) {
+            ListenableDataSender listenableDataSender = (ListenableDataSender) spanDataSender;
+
+            final TBaseRecorder tBaseRecord = new TBaseRecorder();
+
+            listenableDataSender.setListener(new ListenableDataSender.Listener() {
+                @Override
+                public boolean handleSend(TBase<?, ?> data) {
+                    return tBaseRecord.add(data);
+                }
+            });
+            setTBaseRecorder(tBaseRecord);
+        }
+
+        ServerMetaDataHolder serverMetaDataHolder = mockAgent.getTraceContext().getServerMetaDataHolder();
+        if (serverMetaDataHolder instanceof ResettableServerMetaDataHolder) {
+            ResettableServerMetaDataHolder resettableServerMetaDataHolder = (ResettableServerMetaDataHolder) serverMetaDataHolder;
+            this.setServerMetaDataHolder(resettableServerMetaDataHolder);
+        }
     }
 }

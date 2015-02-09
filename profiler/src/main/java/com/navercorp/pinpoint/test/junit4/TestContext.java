@@ -36,20 +36,23 @@ import java.io.IOException;
  */
 public class TestContext implements Closeable {
 
+    private static final String BASE_TEST_CLASS_NAME = "com.navercorp.pinpoint.test.junit4.BasePinpointTest";
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final PLoggerBinder loggerBinder = new Slf4jLoggerBinder();
-    private final TestClassLoader testClassLoader;
+    private final TestClassLoader classLoader;
     private final MockAgent mockAgent;
 
-    private final Object baseTestClass;
+    private final Class<?> baseTestClass;
+
 
     public TestContext() {
         this.mockAgent = createMockAgent();
-        this.testClassLoader = TestClassLoaderFactory.createTestClassLoader(this.mockAgent.getProfilerConfig(), this.mockAgent.getByteCodeInstrumentor(), this.mockAgent.getClassFileTransformer());
-        this.testClassLoader.initialize();
+        this.classLoader = TestClassLoaderFactory.createTestClassLoader(this.mockAgent.getProfilerConfig(), this.mockAgent.getByteCodeInstrumentor(), this.mockAgent.getClassFileTransformer());
+        this.classLoader.initialize();
         try {
-            this.baseTestClass = testClassLoader.loadClass(BasePinpointTest.class.getName());
+            this.baseTestClass = classLoader.loadClass(BASE_TEST_CLASS_NAME);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -62,8 +65,8 @@ public class TestContext implements Closeable {
         return MockAgent.of("pinpoint.config");
     }
 
-    public TestClassLoader getTestClassLoader() {
-        return testClassLoader;
+    public ClassLoader getClassLoader() {
+        return classLoader;
     }
 
     public MockAgent getMockAgent() {
@@ -72,14 +75,14 @@ public class TestContext implements Closeable {
 
     public TestClass createTestClass(Class<?> testClass) {
         try {
-            final Class<?> testClazz = testClassLoader.loadClass(testClass.getName());
+            final Class<?> testClazz = classLoader.loadClass(testClass.getName());
             return new TestClass(testClazz);
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException(e.getMessage(), e);
         }
     }
 
-    public Object getBaseTestClass() {
+    public Class<?> getBaseTestClass() {
         return this.baseTestClass;
     }
 

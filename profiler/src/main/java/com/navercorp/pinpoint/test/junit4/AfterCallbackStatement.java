@@ -22,27 +22,27 @@ import org.junit.runners.model.Statement;
  * @author emeroad
  */
 public class AfterCallbackStatement extends Statement {
+    private final Statement statement;
     private final Statement after;
-    private final StatementCallback afterCallback;
 
-    public AfterCallbackStatement(Statement after, StatementCallback afterCallback) {
+    public AfterCallbackStatement(Statement statement, Statement after) {
+        if (statement == null) {
+            throw new NullPointerException("statement must not be null");
+        }
         if (after == null) {
             throw new NullPointerException("after must not be null");
         }
-        if (afterCallback == null) {
-            throw new NullPointerException("afterCallBack must not be null");
-        }
+        this.statement = statement;
         this.after = after;
-        this.afterCallback = afterCallback;
     }
 
 
     @Override
     public void evaluate() throws Throwable {
         try {
-            after.evaluate();
+            statement.evaluate();
         } finally {
-            afterCallback.after();
+            after.evaluate();
         }
     }
 }

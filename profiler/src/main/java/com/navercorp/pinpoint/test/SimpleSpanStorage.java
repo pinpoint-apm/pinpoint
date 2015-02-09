@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.test;
 
+import com.navercorp.pinpoint.profiler.sender.DataSender;
 import org.apache.thrift.TBase;
 
 import com.navercorp.pinpoint.profiler.context.Span;
@@ -24,12 +25,16 @@ import com.navercorp.pinpoint.profiler.context.storage.Storage;
 
 /**
  * @author hyungil.jeong
+ * @author emeroad
  */
-public final class HoldingSpanStorage implements Storage {
+public final class SimpleSpanStorage implements Storage {
 
-    private final PeekableDataSender<? extends TBase<?, ?>> dataSender;
+    private final DataSender dataSender;
 
-    public HoldingSpanStorage(PeekableDataSender<? extends TBase<?, ?>> dataSender) {
+    public SimpleSpanStorage(DataSender dataSender) {
+        if (dataSender == null) {
+            throw new NullPointerException("dataSender must not be null");
+        }
         this.dataSender = dataSender;
     }
 

@@ -16,12 +16,9 @@
 
 package com.navercorp.pinpoint.test.junit4;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
-import org.apache.thrift.TBase;
+
 import org.junit.internal.runners.model.EachTestNotifier;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -34,20 +31,13 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.navercorp.pinpoint.test.MockAgent;
-import com.navercorp.pinpoint.test.PeekableDataSender;
-import com.navercorp.pinpoint.test.ResettableServerMetaDataHolder;
-import com.navercorp.pinpoint.test.TestClassLoader;
-import com.navercorp.pinpoint.test.TestClassLoaderFactory;
 
 /**
  * @author hyungil.jeong
  * @author emeroad
  */
-public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner implements StatementCallback {
+public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(PinpointJUnit4ClassRunner.class);
 
@@ -62,6 +52,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner impl
 
     private void beforeTestClass() {
         try {
+            // TODO fix static TestContext
             if (testContext == null) {
                 this.testContext = new TestContext();
             }
@@ -80,17 +71,15 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner impl
 
     @Override
     protected void runChild(FrameworkMethod method, RunNotifier notifier) {
-        System.out.println("runChild start---------------------");
         beginTracing(method);
         final Thread thread = Thread.currentThread();
         ClassLoader originalClassLoader = thread.getContextClassLoader();
         try {
-            thread.setContextClassLoader(this.testContext.getTestClassLoader());
+            thread.setContextClassLoader(this.testContext.getClassLoader());
             super.runChild(method, notifier);
         } finally {
             thread.setContextClassLoader(originalClassLoader);
             endTracing(method, notifier);
-            System.out.println("runChild end===================");
         }
     }
 
@@ -137,43 +126,31 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner impl
 
     @Override
     protected Statement methodInvoker(FrameworkMethod method, Object test) {
-        setupTest(test);
         return super.methodInvoker(method, test);
     }
 
-    private void setupTest(Object test) {
+    @Override
+    protected Statement withBefores(FrameworkMethod method, final Object target, Statement statement) {
+        Statement before =  super.withBefores(method, target, statement);
+        BeforeCallbackStatement callbackStatement = new BeforeCallbackStatement(before, new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+                setupBaseTest(target);
+            }
+        });
+        return callbackStatement;
+    }
+
+    private void setupBaseTest(Object test) {
+        logger.debug("setupBaseTest");
         // It's safe to cast
-        @SuppressWarnings("unchecked")
-        Class<BasePinpointTest> baseTestClass = (Class<BasePinpointTest>)this.testContext.getBaseTestClass();
+        final Class<?> baseTestClass = this.testContext.getBaseTestClass();
         if (baseTestClass.isInstance(test)) {
-            Method[] methods = baseTestClass.getDeclaredMethods();
-            for (Method m : methods) {
-                // Inject testDataSender into the current Test instance.
-                if (m.getName().equals("setCurrentHolder")) {
-                    try {
-                        // reset PeekableDataSender for each test method
-                        this.testContext.getMockAgent().getPeekableSpanDataSender().clear();
-                        m.setAccessible(true);
-                        m.invoke(test, this.testContext.getMockAgent().getPeekableSpanDataSender());
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    } catch (InvocationTargetException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                // Inject serverMetaDataHolder into the current Test instance.
-                if (m.getName().equals("setServerMetaDataHolder")) {
-                    try {
-                        ResettableServerMetaDataHolder serverMetaDataHolder = (ResettableServerMetaDataHolder)this.testContext.getMockAgent().getTraceContext().getServerMetaDataHolder();
-//                        serverMetaDataHolder.reset();
-                        m.setAccessible(true);
-                        m.invoke(test, serverMetaDataHolder);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    } catch (InvocationTargetException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
+            try {
+                Method reset = baseTestClass.getDeclaredMethod("setup", TestContext.class);
+                reset.invoke(test, this.testContext);
+            } catch (Exception e) {
+                throw new RuntimeException("setCurrentHolder Error. Caused by:" + e.getMessage(), e);
             }
         }
     }
@@ -181,24 +158,36 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner impl
     @Override
     protected Statement withBeforeClasses(Statement statement) {
         final Statement beforeClasses = super.withBeforeClasses(statement);
-        return new BeforeCallbackStatement(beforeClasses, this);
+        return new BeforeCallbackStatement(beforeClasses, new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+                before();
+            }
+        });
     }
 
 
-    @Override
     public void before() throws Throwable {
         logger.debug("beforeClass");
+        // TODO MockAgent.start();
     }
 
-    @Override
-    public void after() throws Throwable {
-        logger.debug("afterClass");
-    }
+
 
     @Override
     protected Statement withAfterClasses(Statement statement) {
         final Statement afterClasses = super.withAfterClasses(statement);
-        return new AfterCallbackStatement(afterClasses, this);
+        return new AfterCallbackStatement(afterClasses, new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+                after();
+            }
+        });
+    }
+
+    public void after() throws Throwable {
+        logger.debug("afterClass");
+        // TODO MockAgent.close()
     }
 
 }

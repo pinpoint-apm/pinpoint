@@ -102,7 +102,15 @@ public class TestClassLoader extends Loader {
         this.delegateLoadingOf("com.navercorp.pinpoint.common.");
         this.delegateLoadingOf("com.navercorp.pinpoint.thrift.");
         this.delegateLoadingOf("com.navercorp.pinpoint.profiler.context.");
-        this.delegateLoadingOf("com.navercorp.pinpoint.test.PeekableDataSender");
+
+        this.delegateLoadingOf("com.navercorp.pinpoint.test.MockAgent");
+        this.delegateLoadingOf("com.navercorp.pinpoint.test.TBaseRecorder");
+        this.delegateLoadingOf("com.navercorp.pinpoint.test.TBaseRecorderAdaptor");
+        this.delegateLoadingOf("com.navercorp.pinpoint.test.ListenableDataSender");
+        this.delegateLoadingOf("com.navercorp.pinpoint.test.ListenableDataSender$Listener");
+        this.delegateLoadingOf("com.navercorp.pinpoint.test.ResettableServerMetaDataHolder");
+        this.delegateLoadingOf("com.navercorp.pinpoint.test.junit4.TestContext");
+
         this.delegateLoadingOf("com.navercorp.pinpoint.test.junit4.IsRootSpan");
         this.delegateLoadingOf("org.apache.thrift.TBase");
         this.delegateLoadingOf("junit.");

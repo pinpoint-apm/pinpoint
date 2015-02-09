@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.profiler.sender.DataSender;
 /**
  * @author hyungil.jeong
  */
-public class PeekableDataSender<T extends TBase<?, ?>> implements DataSender, Iterable<T> {
+public class TBaseRecorder<T extends TBase<?, ?>> implements Iterable<T> {
 
     private final Queue<T> queue = new ConcurrentLinkedQueue<T>();
 
@@ -52,24 +52,10 @@ public class PeekableDataSender<T extends TBase<?, ?>> implements DataSender, It
         return this.queue.iterator();
     }
 
-    @Override
-    public boolean send(TBase<?, ?> data) {
-        System.out.println("ddddddddddddddddddddddddddddd");
-        // don't do deep copy. 
-        // because other datasenders preserve references of objects to send if network transmission is delayed
-        @SuppressWarnings("unchecked")
-        T dataToAdd = (T)data;
-        return this.queue.offer(dataToAdd);
+    public boolean add(T data) {
+        return this.queue.offer(data);
     }
 
-    @Override
-    public void stop() {
-    }
-
-    @Override
-    public boolean isNetworkAvailable() {
-        return false;
-    }
 
     @Override
     public String toString() {

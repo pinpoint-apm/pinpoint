@@ -22,7 +22,6 @@ import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.util.List;
 
-import com.navercorp.pinpoint.profiler.interceptor.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.GlobalInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
@@ -86,26 +85,22 @@ public class MockAgent extends DefaultAgent {
 
     @Override
     protected DataSender createUdpStatDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
-        return new PeekableDataSender<TBase<?, ?>>();
+        return new ListenableDataSender<TBase<?, ?>>();
     }
 
     @Override
     protected DataSender createUdpSpanDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
-        return new PeekableDataSender<TBase<?, ?>>();
+        return new ListenableDataSender<TBase<?, ?>>();
     }
 
-    public PeekableDataSender<?> getPeekableSpanDataSender() {
-        DataSender spanDataSender = getSpanDataSender();
-        if (spanDataSender instanceof PeekableDataSender) {
-            return (PeekableDataSender<?>)getSpanDataSender();
-        } else {
-            throw new IllegalStateException("UdpDataSender must be an instance of a PeekableDataSender. Found : " + spanDataSender.getClass().getName());
-        }
+    public DataSender getSpanDataSender() {
+        return super.getSpanDataSender();
     }
+
 
     @Override
     protected StorageFactory createStorageFactory() {
-        return new HoldingSpanStorageFactory(getSpanDataSender());
+        return new SimpleSpanStorageFactory(super.getSpanDataSender());
     }
 
     @Override

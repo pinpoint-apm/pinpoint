@@ -22,25 +22,22 @@ import com.navercorp.pinpoint.profiler.sender.DataSender;
 
 /**
  * @author hyungil.jeong
+ * @author emeroad
  */
-public class HoldingSpanStorageFactory implements StorageFactory {
+public class SimpleSpanStorageFactory implements StorageFactory {
 
-    private final PeekableDataSender<?> dataSender;
+    private final DataSender dataSender;
 
-    public HoldingSpanStorageFactory(DataSender dataSender) {
+    public SimpleSpanStorageFactory(DataSender dataSender) {
         if (dataSender == null) {
             throw new NullPointerException("dataSender must not be null");
         }
-        if (dataSender instanceof PeekableDataSender) {
-            this.dataSender = (PeekableDataSender<?>)dataSender;
-        } else {
-            throw new IllegalArgumentException("dataSender must be an instance of PeekableDataSender.");
-        }
+        this.dataSender = dataSender;
     }
 
     @Override
     public Storage createStorage() {
-        return new HoldingSpanStorage(this.dataSender);
+        return new SimpleSpanStorage(this.dataSender);
     }
 
 }
