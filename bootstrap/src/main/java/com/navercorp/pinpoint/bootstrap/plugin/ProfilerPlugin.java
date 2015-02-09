@@ -16,9 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin;
 
-import com.navercorp.pinpoint.common.plugin.ServiceTypeProvider;
 
 
-public interface ProfilerPlugin extends ServiceTypeProvider {
-    void setUp(PluginSetupContext context);
+public interface ProfilerPlugin {
+    void setUp(ProfilerPluginSetupContext context);
 }

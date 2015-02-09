@@ -20,7 +20,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.navercorp.pinpoint.profiler.plugin.BytecodeUtils;
+import com.navercorp.pinpoint.test.util.BytecodeUtils;
 
 import static org.junit.Assert.*;
 

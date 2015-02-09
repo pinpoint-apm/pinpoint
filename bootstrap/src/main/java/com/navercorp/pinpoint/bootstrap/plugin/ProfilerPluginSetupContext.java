@@ -12,13 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.common.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
 
 /**
- * @author Jongho Moon <jongho.moon@navercorp.com>
+ * @author Jongho Moon
  *
  */
-public interface ServiceTypeProvider {
-    public void setUp(ServiceTypeSetupContext context);
+public interface ProfilerPluginSetupContext extends ProfilerPluginContext {
+    public ProfilerConfig getConfig();
+
+    public ClassEditorBuilder newClassEditorBuilder();
+    
+    public void addServerTypeDetector(ServerTypeDetector... detectors);
 }

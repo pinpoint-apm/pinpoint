@@ -12,13 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.common.plugin;
+package com.navercorp.pinpoint.profiler.plugin.objectfactory;
 
+import java.lang.annotation.Annotation;
 
 /**
- * @author Jongho Moon <jongho.moon@navercorp.com>
+ * @author Jongho Moon
  *
  */
-public interface ServiceTypeProvider {
-    public void setUp(ServiceTypeSetupContext context);
+public interface ParameterResolver {
+    public Option<Object> resolve(int index, Class<?> type, Annotation[] annotations);
 }

@@ -32,14 +32,14 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.plugin.AnnotatedInterceptorFactory;
-import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.TestInterceptors.TestInterceptor0;
 import com.navercorp.pinpoint.profiler.plugin.TestInterceptors.TestInterceptor1;
 import com.navercorp.pinpoint.profiler.plugin.TestInterceptors.TestInterceptor2;
+import com.navercorp.pinpoint.profiler.plugin.interceptor.AnnotatedInterceptorFactory;
 
 public class DefaultInterceptorFactoryTest {
-    private final ProfilerPluginContext pluginContext = mock(ProfilerPluginContext.class);
+    private final DefaultProfilerPluginContext pluginContext = mock(DefaultProfilerPluginContext.class);
     private final ByteCodeInstrumentor instrumentor = mock(ByteCodeInstrumentor.class);
     private final TraceContext traceContext = mock(TraceContext.class);
     private final InstrumentClass aClass = mock(InstrumentClass.class);

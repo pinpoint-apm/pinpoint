@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationServerProperty;
 import com.navercorp.pinpoint.bootstrap.plugin.ServerTypeDetector;
 import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 
 /**
  * @author emeroad
@@ -47,10 +47,10 @@ public class ApplicationServerTypeResolver {
      */
     private boolean manuallyStartupRequired = true;
     
-    public ApplicationServerTypeResolver(List<ProfilerPluginContext> plugins, ServiceType defaultType) {
+    public ApplicationServerTypeResolver(List<DefaultProfilerPluginContext> plugins, ServiceType defaultType) {
         this.defaultType = defaultType;
         
-        for (ProfilerPluginContext context : plugins) {
+        for (DefaultProfilerPluginContext context : plugins) {
             detectors.addAll(context.getServerTypeDetectors());
         }
     }

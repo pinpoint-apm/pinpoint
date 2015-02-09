@@ -12,13 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.common.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin;
 
+import com.navercorp.pinpoint.bootstrap.FieldSnooper;
+import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 
 /**
- * @author Jongho Moon <jongho.moon@navercorp.com>
+ * @author Jongho Moon
  *
  */
-public interface ServiceTypeProvider {
-    public void setUp(ServiceTypeSetupContext context);
+public interface ProfilerPluginContext {
+    public Object setAttribute(String key, Object value);
+    public Object getAttribute(String key);
+
+    public MetadataAccessor getMetadataAccessor(String name);
+    public FieldSnooper getFieldSnooper(String name);
 }

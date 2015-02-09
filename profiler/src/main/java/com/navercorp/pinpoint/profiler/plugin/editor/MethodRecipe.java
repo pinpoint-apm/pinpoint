@@ -12,13 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.common.plugin;
+package com.navercorp.pinpoint.profiler.plugin.editor;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 
 /**
- * @author Jongho Moon <jongho.moon@navercorp.com>
+ * @author Jongho Moon
  *
  */
-public interface ServiceTypeProvider {
-    public void setUp(ServiceTypeSetupContext context);
+public interface MethodRecipe {
+    public void edit(ClassLoader targetClassLoader, InstrumentClass targetClass, MethodInfo targetMethod) throws InstrumentException;
 }

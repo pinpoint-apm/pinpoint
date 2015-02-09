@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor;
 import com.navercorp.pinpoint.profiler.modifier.spring.beans.BeanMethodModifier;
-import com.navercorp.pinpoint.profiler.plugin.BytecodeUtils;
 import com.navercorp.pinpoint.test.MockAgent;
+import com.navercorp.pinpoint.test.util.BytecodeUtils;
 
 import org.junit.Test;
 

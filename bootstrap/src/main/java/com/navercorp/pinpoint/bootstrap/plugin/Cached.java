@@ -19,7 +19,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+
 /**
+ * Indicates that the target have to be cached. 
+ * 
+ * For now, only {@link MethodDescriptor} can be cached. 
+ * You can also annotate {@link MethodInfo} with this annotation 
+ * but it makes the {@link MethodDescriptor} returned by {@link MethodInfo#getDescriptor()} cached 
+ * not {@link MethodInfo} itself.
+ * 
  * @author Jongho Moon
  *
  */

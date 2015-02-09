@@ -21,10 +21,37 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javassist.CannotCompileException;
+import javassist.CtBehavior;
+import javassist.CtClass;
+import javassist.CtConstructor;
+import javassist.CtField;
+import javassist.CtMethod;
+import javassist.CtNewMethod;
+import javassist.NotFoundException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.*;
-import com.navercorp.pinpoint.bootstrap.interceptor.*;
-import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
+import com.navercorp.pinpoint.bootstrap.instrument.DefaultScopeDefinition;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.Scope;
+import com.navercorp.pinpoint.bootstrap.instrument.ScopeDefinition;
+import com.navercorp.pinpoint.bootstrap.instrument.Type;
+import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry;
+import com.navercorp.pinpoint.bootstrap.interceptor.LoggingInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.profiler.interceptor.DebugScopeDelegateSimpleInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.DebugScopeDelegateStaticInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
@@ -32,11 +59,6 @@ import com.navercorp.pinpoint.profiler.interceptor.ScopeDelegateSimpleIntercepto
 import com.navercorp.pinpoint.profiler.interceptor.ScopeDelegateStaticInterceptor;
 import com.navercorp.pinpoint.profiler.util.ApiUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-
-import javassist.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author emeroad
@@ -177,16 +199,16 @@ public class JavaAssistClass implements InstrumentClass {
     }
 
     @Override
-    public void addTraceValue(Class<? extends TraceValue> traceValue) throws InstrumentException {
+    public void addTraceValue(Class<?> traceValue) throws InstrumentException {
         addTraceValue0(traceValue, null);
     }
 
     @Override
-    public void addTraceValue(Class<? extends TraceValue> traceValue, String initValue) throws InstrumentException {
+    public void addTraceValue(Class<?> traceValue, String initValue) throws InstrumentException {
         addTraceValue0(traceValue, initValue);
     }
 
-    public void addTraceValue0(Class<? extends TraceValue> traceValue, String initValue) throws InstrumentException {
+    public void addTraceValue0(Class<?> traceValue, String initValue) throws InstrumentException {
         if (traceValue == null) {
             throw new NullPointerException("traceValue must not be null");
         }
@@ -194,12 +216,12 @@ public class JavaAssistClass implements InstrumentClass {
         // TODO In unit test, we cannot use isAssignableFrom() because same class is loaded by different class loaders.
         // So we compare interface names implemented by traceValue.
         // We'd better find better solution.
-        final boolean marker = checkTraceValueMarker(traceValue);
-        if (!marker) {
-            throw new InstrumentException(traceValue + " marker interface  not implements" );
-        }
+//        final boolean marker = checkTraceValueMarker(traceValue);
+//        if (!marker) {
+//            throw new InstrumentException(traceValue + " marker interface  not implements" );
+//        }
         
-        if (traceValue.getClassLoader() != InstrumentClass.class.getClassLoader()) {
+        if (traceValue.getClassLoader() != MetadataAccessor.class.getClassLoader()) {
             throw new InstrumentException(traceValue + " must be loaded by the class loader which loaded pinpoint-bootstrap" );
         }
 

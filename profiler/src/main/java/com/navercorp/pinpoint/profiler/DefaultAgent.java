@@ -49,7 +49,7 @@ import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
-import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.receiver.service.EchoService;
 import com.navercorp.pinpoint.profiler.receiver.service.ThreadDumpService;
@@ -122,7 +122,7 @@ public class DefaultAgent implements Agent {
         
         this.profilerConfig = profilerConfig;
         
-        List<ProfilerPluginContext> pluginContexts = loadProfilerPlugins(profilerConfig, pluginJars);
+        List<DefaultProfilerPluginContext> pluginContexts = loadProfilerPlugins(profilerConfig, pluginJars);
         
         final ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(pluginContexts, profilerConfig.getApplicationServerType());
         if (!typeResolver.resolve()) {
@@ -180,14 +180,14 @@ public class DefaultAgent implements Agent {
         }
     }
 
-    private List<ProfilerPluginContext> loadProfilerPlugins(ProfilerConfig profilerConfig, URL[] pluginJars) {
+    private List<DefaultProfilerPluginContext> loadProfilerPlugins(ProfilerConfig profilerConfig, URL[] pluginJars) {
         List<ProfilerPlugin> plugins = PluginLoader.load(ProfilerPlugin.class, pluginJars);
-        List<ProfilerPluginContext> pluginContexts = new ArrayList<ProfilerPluginContext>(plugins.size());
+        List<DefaultProfilerPluginContext> pluginContexts = new ArrayList<DefaultProfilerPluginContext>(plugins.size());
         
         for (ProfilerPlugin plugin : plugins) {
             logger.info("Loading plugin: {}", plugin.getClass().getName());
             
-            ProfilerPluginContext context = new ProfilerPluginContext(profilerConfig);
+            DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(profilerConfig);
             plugin.setUp(context);
             pluginContexts.add(context);
         }

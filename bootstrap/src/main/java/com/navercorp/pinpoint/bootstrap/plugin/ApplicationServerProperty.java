@@ -14,10 +14,16 @@
  */
 package com.navercorp.pinpoint.bootstrap.plugin;
 
+import com.navercorp.pinpoint.bootstrap.Agent;
+
 /**
  * @author Jongho Moon
  *
  */
 public enum ApplicationServerProperty {
+    /**
+     * If this property is set, the plugin have to manage pinpoint agent's life cycle.
+     * In other words, the plugin must invoke {@link Agent#start()} and {@link Agent#stop()}
+     */
     MANAGE_PINPOINT_AGENT_LIFECYCLE;
 }

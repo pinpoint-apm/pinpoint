@@ -14,30 +14,26 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin;
+package com.navercorp.pinpoint.profiler.plugin.editor;
 
-import com.navercorp.pinpoint.bootstrap.FieldSnooper;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassRecipe;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 
-/**
- * 
- * @author Jongho Moon <jongho.moon@navercorp.com>
- *
- */
-public class FieldSnooperInjector implements ClassRecipe {
-    
-    private final FieldSnooper snooper;
-    private final String fieldName;
-    
-    public FieldSnooperInjector(FieldSnooper snooper, String fieldName) {
-        this.snooper = snooper;
-        this.fieldName = fieldName;
+public class FilteringMethodEditor implements MethodEditor {
+    private final MethodFilter filter;
+    private final MethodRecipe recipe;
+
+    public FilteringMethodEditor(MethodFilter filter, MethodRecipe recipe) {
+        this.filter = filter;
+        this.recipe = recipe;
     }
 
     @Override
     public void edit(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
-        target.addGetter(snooper.getType(), fieldName);
+        for (MethodInfo methodInfo : target.getDeclaredMethods(filter)) {
+            recipe.edit(classLoader, target, methodInfo);
+        }
     }
 }

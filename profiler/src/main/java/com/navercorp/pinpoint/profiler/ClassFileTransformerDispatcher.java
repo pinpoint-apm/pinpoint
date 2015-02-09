@@ -38,7 +38,7 @@ import com.navercorp.pinpoint.profiler.modifier.ModifierProvider;
 import com.navercorp.pinpoint.profiler.modifier.ModifierRegistry;
 import com.navercorp.pinpoint.profiler.plugin.ClassEditorAdaptor;
 import com.navercorp.pinpoint.profiler.plugin.PluginClassLoaderFactory;
-import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 /**
@@ -62,7 +62,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
     private final ClassFileFilter skipFilter;
     
-    public ClassFileTransformerDispatcher(DefaultAgent agent, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileRetransformer retransformer, List<ProfilerPluginContext> pluginContexts, URL[] pluginJars) {
+    public ClassFileTransformerDispatcher(DefaultAgent agent, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileRetransformer retransformer, List<DefaultProfilerPluginContext> pluginContexts, URL[] pluginJars) {
         if (agent == null) {
             throw new NullPointerException("agent must not be null");
         }
@@ -135,7 +135,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         }
     }
 
-    private ModifierRegistry createModifierRegistry(List<ProfilerPluginContext> pluginContexts, URL[] pluginJars) {
+    private ModifierRegistry createModifierRegistry(List<DefaultProfilerPluginContext> pluginContexts, URL[] pluginJars) {
         DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(agent, byteCodeInstrumentor, retransformer);
 
         modifierRepository.addMethodModifier();
@@ -180,10 +180,10 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         }
     }
 
-    private void loadEditorsFromPlugins(DefaultModifierRegistry modifierRepository, List<ProfilerPluginContext> pluginContexts, URL[] pluginJars) {
+    private void loadEditorsFromPlugins(DefaultModifierRegistry modifierRepository, List<DefaultProfilerPluginContext> pluginContexts, URL[] pluginJars) {
         PluginClassLoaderFactory classLoaderFactory = new PluginClassLoaderFactory(pluginJars);
         
-        for (ProfilerPluginContext pluginContext : pluginContexts) {
+        for (DefaultProfilerPluginContext pluginContext : pluginContexts) {
             for (ClassEditor editor : pluginContext.getClassEditors(agent.getTraceContext(), byteCodeInstrumentor)) {
                 if (editor instanceof DedicatedClassEditor) {
                     DedicatedClassEditor dedicated = (DedicatedClassEditor)editor;

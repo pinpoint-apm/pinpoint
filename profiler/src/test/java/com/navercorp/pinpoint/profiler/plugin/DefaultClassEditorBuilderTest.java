@@ -21,6 +21,8 @@ import static org.mockito.Mockito.*;
 
 import org.junit.Test;
 
+import com.navercorp.pinpoint.bootstrap.FieldSnooper;
+import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
@@ -28,10 +30,9 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.plugin.FieldSnooper;
-import com.navercorp.pinpoint.bootstrap.plugin.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorBuilder;
+import com.navercorp.pinpoint.profiler.plugin.editor.DefaultClassEditorBuilder;
 
 public class DefaultClassEditorBuilderTest {
     public static final String SCOPE_NAME = "test";
@@ -57,7 +58,7 @@ public class DefaultClassEditorBuilderTest {
         when(aMethod.getDescriptor()).thenReturn(aDescriptor);
         when(aClass.addInterceptor(eq(methodName), eq(parameterTypeNames), isA(Interceptor.class))).thenReturn(0);
         
-        ProfilerPluginContext context = new ProfilerPluginContext(null);
+        DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(null);
         DefaultClassEditorBuilder builder = new DefaultClassEditorBuilder(context);
         builder.injectMetadata("a", "java.util.HashMap");
         builder.injectFieldSnooper("someField");

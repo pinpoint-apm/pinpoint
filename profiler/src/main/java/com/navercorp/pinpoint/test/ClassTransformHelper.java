@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.test;
 
 import com.navercorp.pinpoint.profiler.modifier.Modifier;
-import com.navercorp.pinpoint.profiler.plugin.BytecodeUtils;
+import com.navercorp.pinpoint.test.util.BytecodeUtils;
 
 public class ClassTransformHelper {
 
