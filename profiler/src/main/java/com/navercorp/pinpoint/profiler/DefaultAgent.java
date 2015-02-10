@@ -89,10 +89,10 @@ public class DefaultAgent implements Agent {
 
     private final TraceContext traceContext;
 
-    private final PinpointSocketFactory factory;
-    private final PinpointSocket socket;
-
+    private PinpointSocketFactory factory;
+    private PinpointSocket socket;
     private final EnhancedDataSender tcpDataSender;
+
     private final DataSender statDataSender;
     private final DataSender spanDataSender;
 
@@ -155,12 +155,9 @@ public class DefaultAgent implements Agent {
 
 
         CommandDispatcher commandDispatcher = createCommandDispatcher();
-        this.factory = createPinpointSocketFactory(commandDispatcher);
-        this.socket = createPinpointSocket(this.profilerConfig.getCollectorTcpServerIp(), this.profilerConfig.getCollectorTcpServerPort(), factory);
+        this.tcpDataSender = createTcpDataSender(commandDispatcher);
 
         this.serverMetaDataHolder = createServerMetaDataHolder();
-        
-        this.tcpDataSender = createTcpDataSender(socket);
 
         this.spanDataSender = createUdpSpanDataSender(this.profilerConfig.getCollectorSpanServerPort(), "Pinpoint-UdpSpanDataExecutor",
                 this.profilerConfig.getSpanDataSenderWriteQueueSize(), this.profilerConfig.getSpanDataSenderSocketTimeout(),
@@ -343,7 +340,9 @@ public class DefaultAgent implements Agent {
         return socket;
     }
 
-    protected EnhancedDataSender createTcpDataSender(PinpointSocket socket) {
+    protected EnhancedDataSender createTcpDataSender(CommandDispatcher commandDispatcher) {
+        this.factory = createPinpointSocketFactory(commandDispatcher);
+        this.socket = createPinpointSocket(this.profilerConfig.getCollectorTcpServerIp(), this.profilerConfig.getCollectorTcpServerPort(), factory);
         return new TcpDataSender(socket);
     }
 
@@ -408,16 +407,23 @@ public class DefaultAgent implements Agent {
         // Need to process stop
         this.spanDataSender.stop();
         this.statDataSender.stop();
-        this.tcpDataSender.stop();
 
+        closeTcpDataSender();
+
+        PLoggerFactory.unregister(this.binder);
+        this.interceptorRegistryBinder.unbind();
+    }
+
+    private void closeTcpDataSender() {
+        if (this.tcpDataSender != null) {
+            this.tcpDataSender.stop();
+        }
         if (this.socket != null) {
             this.socket.close();
         }
         if (this.factory != null) {
             this.factory.release();
         }
-        PLoggerFactory.unregister(this.binder);
-        this.interceptorRegistryBinder.unbind();
     }
 
 }

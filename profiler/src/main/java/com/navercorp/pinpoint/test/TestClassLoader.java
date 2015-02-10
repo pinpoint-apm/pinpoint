@@ -16,19 +16,14 @@
 
 package com.navercorp.pinpoint.test;
 
-import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.profiler.ClassFileRetransformer;
-import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 
 import javassist.CannotCompileException;
 import javassist.Loader;
 import javassist.NotFoundException;
-
-import org.junit.runners.model.InitializationError;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.util.ArrayList;

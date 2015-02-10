@@ -40,8 +40,8 @@ import com.navercorp.pinpoint.test.TBaseRecorder;
 @RunWith(value = PinpointJUnit4ClassRunner.class)
 public abstract class BasePinpointTest {
 
-    private TBaseRecorder<? extends TBase<?, ?>> tBaseRecorder;
-    private ServerMetaDataHolder serverMetaDataHolder;
+    private volatile TBaseRecorder<? extends TBase<?, ?>> tBaseRecorder;
+    private volatile ServerMetaDataHolder serverMetaDataHolder;
 
     protected List<SpanEventBo> getCurrentSpanEvents() {
         List<SpanEventBo> spanEvents = new ArrayList<SpanEventBo>();
