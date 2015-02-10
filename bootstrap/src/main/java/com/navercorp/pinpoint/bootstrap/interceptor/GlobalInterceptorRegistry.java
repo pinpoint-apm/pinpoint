@@ -22,7 +22,7 @@ package com.navercorp.pinpoint.bootstrap.interceptor;
  */
 public class GlobalInterceptorRegistry {
 
-    public static InterceptorRegistryAdaptor REGISTRY = new DefaultInterceptorRegistryAdaptor();
+    public static final InterceptorRegistryAdaptor REGISTRY = new DefaultInterceptorRegistryAdaptor();
 
     public static void bind(final InterceptorRegistryAdaptor interceptorRegistryAdaptor, final Object lock) {
 
