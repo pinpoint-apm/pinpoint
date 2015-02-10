@@ -58,7 +58,7 @@ public class MySQLConnectionCreateInterceptor implements SimpleAroundInterceptor
             if (InterceptorUtils.isSuccess(throwable)) {
                 // Set only if connection is success.
                 if (target instanceof DatabaseInfoTraceValue) {
-                    ((DatabaseInfoTraceValue)target).__setTraceDatabaseInfo(databaseInfo);
+                    ((DatabaseInfoTraceValue)target)._$PINPOINT$_setTraceDatabaseInfo(databaseInfo);
                 }
             }
         }

@@ -51,10 +51,10 @@ public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInt
         if (success) {
             if (target instanceof DatabaseInfoTraceValue) {
                 // set databaeInfo to PreparedStatement only when preparedStatment is generated successfully. 
-                DatabaseInfo databaseInfo = ((DatabaseInfoTraceValue) target).__getTraceDatabaseInfo();
+                DatabaseInfo databaseInfo = ((DatabaseInfoTraceValue) target)._$PINPOINT$_getTraceDatabaseInfo();
                 if (databaseInfo != null) {
                     if (result instanceof DatabaseInfoTraceValue) {
-                        ((DatabaseInfoTraceValue) result).__setTraceDatabaseInfo(databaseInfo);
+                        ((DatabaseInfoTraceValue) result)._$PINPOINT$_setTraceDatabaseInfo(databaseInfo);
                     }
                 }
             }
@@ -64,7 +64,7 @@ public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInt
                 String sql = (String) args[0];
                 ParsingResult parsingResult = getTraceContext().parseSql(sql);
                 if (parsingResult != null) {
-                    ((ParsingResultTraceValue)result).__setTraceParsingResult(parsingResult);
+                    ((ParsingResultTraceValue)result)._$PINPOINT$_setTraceParsingResult(parsingResult);
                 } else {
                     if (logger.isErrorEnabled()) {
                         logger.error("sqlParsing fail. parsingResult is null sql:{}", sql);
@@ -77,7 +77,7 @@ public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInt
     @Override
     public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
 
-        ParsingResult parsingResult = ((ParsingResultTraceValue) result).__getTraceParsingResult();
+        ParsingResult parsingResult = ((ParsingResultTraceValue) result)._$PINPOINT$_getTraceParsingResult();
         trace.recordSqlParsingResult(parsingResult);
         trace.recordException(throwable);
         trace.recordApi(getMethodDescriptor());

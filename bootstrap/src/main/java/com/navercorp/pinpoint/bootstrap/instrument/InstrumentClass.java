@@ -90,9 +90,9 @@ public interface InstrumentClass {
     @Deprecated
     void addTraceVariable(String variableName, String setterName, String getterName, String variableType) throws InstrumentException;
 
-    void addTraceValue(Class<? extends TraceValue> traceValue, String initValue) throws InstrumentException;
+    void addTraceValue(Class<?> traceValue, String initValue) throws InstrumentException;
 
-    void addTraceValue(Class<? extends TraceValue> traceValue) throws InstrumentException;
+    void addTraceValue(Class<?> traceValue) throws InstrumentException;
 
     boolean insertCodeAfterConstructor(String[] args, String code);
 
@@ -115,4 +115,6 @@ public interface InstrumentClass {
     InstrumentClass getNestedClass(String className);
 
     void addGetter(String getterName, String fieldName, String fieldType) throws InstrumentException;
+    
+    void addGetter(Class<?> interfaceType, String fieldName) throws InstrumentException;
 }

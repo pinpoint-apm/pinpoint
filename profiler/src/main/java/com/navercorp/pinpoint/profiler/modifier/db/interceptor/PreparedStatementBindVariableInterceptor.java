@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
 
+import java.util.Map;
+
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
@@ -25,8 +27,6 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.profiler.util.bindvalue.BindValueConverter;
-
-import java.util.Map;
 
 /**
  * @author emeroad
@@ -55,7 +55,7 @@ public class PreparedStatementBindVariableInterceptor implements StaticAroundInt
         }
         Map<Integer, String> bindList = null;
         if (target instanceof BindValueTraceValue) {
-            bindList = ((BindValueTraceValue)target).__getTraceBindValue();
+            bindList = ((BindValueTraceValue)target)._$PINPOINT$_getTraceBindValue();
         }
         if (bindList == null) {
             if (logger.isWarnEnabled()) {

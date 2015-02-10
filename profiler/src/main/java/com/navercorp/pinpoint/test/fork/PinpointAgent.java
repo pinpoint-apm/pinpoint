@@ -26,6 +26,6 @@ import com.navercorp.pinpoint.common.Version;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface PinpointAgent {
-    String value() default "target/pinpoint-agent";
+    String value() default "target/pinpoint-agent-" + Version.VERSION;
     String version() default Version.VERSION; 
 }

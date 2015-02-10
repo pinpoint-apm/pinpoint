@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 
 import java.lang.instrument.Instrumentation;
+import java.net.URL;
 
 /**
  * @author emeroad
@@ -28,7 +29,7 @@ import java.lang.instrument.Instrumentation;
  */
 public class DummyAgent implements Agent {
 
-    public DummyAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
+    public DummyAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars) {
 
     }
 

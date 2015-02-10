@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -27,6 +25,8 @@ import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.concurrent.Callable;
+
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 /**
  * @author emeroad
@@ -69,7 +69,7 @@ public class AgentClassLoader {
         this.bootClass = bootClass;
     }
 
-    public void boot(final String agentPath, final String agentArgs, final Instrumentation instrumentation, final ProfilerConfig profilerConfig) {
+    public void boot(final String agentArgs, final Instrumentation instrumentation, final ProfilerConfig profilerConfig, final URL[] pluginJars) {
 
         final Class<?> bootStrapClazz = getBootStrapClass();
 
@@ -77,8 +77,8 @@ public class AgentClassLoader {
             @Override
             public Object call() throws Exception {
                 try {
-                    Constructor<?> constructor = bootStrapClazz.getConstructor(String.class, String.class, Instrumentation.class, ProfilerConfig.class);
-                    return constructor.newInstance(agentPath, agentArgs, instrumentation, profilerConfig);
+                    Constructor<?> constructor = bootStrapClazz.getConstructor(String.class, Instrumentation.class, ProfilerConfig.class, URL[].class);
+                    return constructor.newInstance(agentArgs, instrumentation, profilerConfig, pluginJars);
                 } catch (InstantiationException e) {
                     throw new BootStrapException("boot create failed. Error:" + e.getMessage(), e);
                 } catch (IllegalAccessException e) {

@@ -21,10 +21,37 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javassist.CannotCompileException;
+import javassist.CtBehavior;
+import javassist.CtClass;
+import javassist.CtConstructor;
+import javassist.CtField;
+import javassist.CtMethod;
+import javassist.CtNewMethod;
+import javassist.NotFoundException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.*;
-import com.navercorp.pinpoint.bootstrap.interceptor.*;
-import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
+import com.navercorp.pinpoint.bootstrap.instrument.DefaultScopeDefinition;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.Scope;
+import com.navercorp.pinpoint.bootstrap.instrument.ScopeDefinition;
+import com.navercorp.pinpoint.bootstrap.instrument.Type;
+import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry;
+import com.navercorp.pinpoint.bootstrap.interceptor.LoggingInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.profiler.interceptor.DebugScopeDelegateSimpleInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.DebugScopeDelegateStaticInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
@@ -32,11 +59,6 @@ import com.navercorp.pinpoint.profiler.interceptor.ScopeDelegateSimpleIntercepto
 import com.navercorp.pinpoint.profiler.interceptor.ScopeDelegateStaticInterceptor;
 import com.navercorp.pinpoint.profiler.util.ApiUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-
-import javassist.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author emeroad
@@ -54,9 +76,9 @@ public class JavaAssistClass implements InstrumentClass {
 
     private static final int NOT_DEFINE_INTERCEPTOR_ID = -1;
 
-    private static final String FIELD_PREFIX = "__p";
-    private static final String SETTER_PREFIX = "__set";
-    private static final String GETTER_PREFIX = "__get";
+    private static final String FIELD_PREFIX = "_$PINPOINT$_";
+    private static final String SETTER_PREFIX = "_$PINPOINT$_set";
+    private static final String GETTER_PREFIX = "_$PINPOINT$_get";
     private static final String MARKER_CLASS_NAME = "com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue";
 
 
@@ -177,16 +199,16 @@ public class JavaAssistClass implements InstrumentClass {
     }
 
     @Override
-    public void addTraceValue(Class<? extends TraceValue> traceValue) throws InstrumentException {
+    public void addTraceValue(Class<?> traceValue) throws InstrumentException {
         addTraceValue0(traceValue, null);
     }
 
     @Override
-    public void addTraceValue(Class<? extends TraceValue> traceValue, String initValue) throws InstrumentException {
+    public void addTraceValue(Class<?> traceValue, String initValue) throws InstrumentException {
         addTraceValue0(traceValue, initValue);
     }
 
-    public void addTraceValue0(Class<? extends TraceValue> traceValue, String initValue) throws InstrumentException {
+    public void addTraceValue0(Class<?> traceValue, String initValue) throws InstrumentException {
         if (traceValue == null) {
             throw new NullPointerException("traceValue must not be null");
         }
@@ -194,13 +216,17 @@ public class JavaAssistClass implements InstrumentClass {
         // TODO In unit test, we cannot use isAssignableFrom() because same class is loaded by different class loaders.
         // So we compare interface names implemented by traceValue.
         // We'd better find better solution.
-        final boolean marker = checkTraceValueMarker(traceValue);
-        if (!marker) {
-            throw new InstrumentException(traceValue + " marker interface  not implements" );
+//        final boolean marker = checkTraceValueMarker(traceValue);
+//        if (!marker) {
+//            throw new InstrumentException(traceValue + " marker interface  not implements" );
+//        }
+        
+        if (traceValue.getClassLoader() != MetadataAccessor.class.getClassLoader()) {
+            throw new InstrumentException(traceValue + " must be loaded by the class loader which loaded pinpoint-bootstrap" );
         }
 
         try {
-            final CtClass ctValueHandler = instrumentor.getClassPool().get(traceValue.getName());
+            final CtClass ctValueHandler = instrumentor.getClass(traceValue.getClassLoader(), traceValue.getName());
 
             final java.lang.reflect.Method[] declaredMethods = traceValue.getDeclaredMethods();
             final String variableName = FIELD_PREFIX + ctValueHandler.getSimpleName();
@@ -235,8 +261,6 @@ public class JavaAssistClass implements InstrumentClass {
             throw new InstrumentException(traceValue + " implements fail. Cause:" + e.getMessage(), e);
         }
     }
-
-
 
     private boolean checkTraceValueMarker(Class<?> traceValue) {
         for (Class<?> anInterface : traceValue.getInterfaces()) {
@@ -416,7 +440,7 @@ public class JavaAssistClass implements InstrumentClass {
                 return new ScopeDelegateStaticInterceptor((StaticAroundInterceptor)interceptor, scope);
             }
         }
-        throw new IllegalArgumentException("unknown Interceptor Type:" + interceptor.getClass());
+        throw new IllegalArgumentException("unknown TargetMethod Type:" + interceptor.getClass());
 
     }
 
@@ -452,7 +476,7 @@ public class JavaAssistClass implements InstrumentClass {
                     SimpleAroundInterceptor simpleAroundInterceptor = (SimpleAroundInterceptor) interceptor;
                     interceptorId = InterceptorRegistry.addSimpleInterceptor(simpleAroundInterceptor);
                 } else {
-                    throw new InstrumentException("unsupported Interceptor Type:" + interceptor);
+                    throw new InstrumentException("unsupported TargetMethod Type:" + interceptor);
                 }
                 injectInterceptor(behavior, interceptor);
 
@@ -914,16 +938,46 @@ public class JavaAssistClass implements InstrumentClass {
    }
 
     @Override
-   public void addGetter(String getterName, String variableName, String variableType) throws InstrumentException {
-       try {
-           // FIXME Which is better? getField() or getDeclaredField()? getFiled() seems like better chioce if we want to add getter to child classes.
-           CtField traceVariable = ctClass.getField(variableName);
-           CtMethod getterMethod = CtNewMethod.getter(getterName, traceVariable);
-           ctClass.addMethod(getterMethod);
-       } catch (NotFoundException ex) {
-           throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);
-       } catch (CannotCompileException ex) {
-           throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);
-       }
-   }
+    public void addGetter(String getterName, String variableName, String variableType) throws InstrumentException {
+        try {
+            // FIXME Which is better? getField() or getDeclaredField()? getFiled() seems like better chioce if we want to add getter to child classes.
+            CtField traceVariable = ctClass.getField(variableName);
+            CtMethod getterMethod = CtNewMethod.getter(getterName, traceVariable);
+            ctClass.addMethod(getterMethod);
+        } catch (NotFoundException ex) {
+            throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);
+        } catch (CannotCompileException ex) {
+            throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);
+        }
+    }
+    
+    @Override
+    public void addGetter(Class<?> interfaceType, String fieldName) throws InstrumentException {
+        if (interfaceType.getClassLoader() != InstrumentClass.class.getClassLoader()) {
+            throw new InstrumentException(interfaceType + " must be loaded by the class loader which loaded pinpint-bootstrap" );
+        }
+
+        java.lang.reflect.Method[] methods = interfaceType.getMethods();
+        
+        if (methods.length != 1) {
+            throw new InstrumentException("Getter interface must have only one method: " + interfaceType.getName());
+        }
+        
+        java.lang.reflect.Method getter = methods[0];
+        
+        if (getter.getParameterTypes().length != 0) {
+            throw new InstrumentException("Getter interface method must be no-args and non-void: " + interfaceType.getName());
+        }
+        
+        try {
+            CtMethod getterMethod = CtNewMethod.make("public " + getter.getReturnType().getName() + " " + getter.getName() + "() { return " + fieldName + "; }", ctClass);
+            ctClass.addMethod(getterMethod);
+        
+            CtClass ctInterface = instrumentor.getClass(interfaceType.getClassLoader(), interfaceType.getName());
+            ctClass.addInterface(ctInterface);
+        } catch (Exception e) {
+            // Cannot happen. Reaching here means a bug.   
+            throw new InstrumentException("Fail to add getter: " + interfaceType.getName(), e);
+        }
+    }
 }

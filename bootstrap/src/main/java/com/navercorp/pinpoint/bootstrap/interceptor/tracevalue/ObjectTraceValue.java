@@ -21,7 +21,7 @@ package com.navercorp.pinpoint.bootstrap.interceptor.tracevalue;
  */
 public interface ObjectTraceValue extends TraceValue {
 
-    void __setTraceObject(Object value);
+    void _$PINPOINT$_setTraceObject(Object value);
 
-    Object __getTraceObject();
+    Object _$PINPOINT$_getTraceObject();
 }

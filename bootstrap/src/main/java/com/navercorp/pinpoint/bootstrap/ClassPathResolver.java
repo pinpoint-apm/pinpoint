@@ -168,6 +168,10 @@ public class ClassPathResolver {
     public String getAgentLogFilePath() {
         return this.agentDirPath + File.separator + "log";
     }
+    
+    public String getAgentPluginPath() {
+        return this.agentDirPath + File.separator + "plugin";
+    }
 
     public List<URL> resolveLib() {
         String agentLibPath = getAgentLibPath();
@@ -201,6 +205,46 @@ public class ClassPathResolver {
         jarURLList.add(toURI(new File(getBootStrapCoreJar())));
 
         return jarURLList;
+    }
+    
+    public URL[] resolvePlugins() {
+        final File file = new File(getAgentPluginPath());
+        
+        if (!file.exists()) {
+            logger.warning(file + " not found");
+            return new URL[0];
+        }
+        
+        if (!file.isDirectory()) {
+            logger.warning(file + " is not a directory");
+            return new URL[0];
+        }
+        
+        
+        final File[] jars = file.listFiles(new FilenameFilter() {
+            
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".jar");
+            }
+        });
+
+        if (jars == null || jars.length == 0) {
+            return new URL[0];
+        }
+        
+        final URL[] urls = new URL[jars.length];
+        
+        for (int i = 0; i < jars.length; i++) {
+            try {
+                urls[i] = jars[i].toURI().toURL();
+            } catch (MalformedURLException e) {
+                // TODO have to change to PinpointException after moving the exception to pinpint-common
+                throw new RuntimeException("Fail to load plugin jars", e);
+            }
+        }
+        
+        return urls;
     }
 
     private URL toURI(File file) {

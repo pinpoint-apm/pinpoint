@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.modifier.arcus.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.util.MetaObject;
@@ -26,7 +27,7 @@ import net.sf.ehcache.Element;
 /**
  * @author harebox
  */
-public class FrontCacheGetFutureConstructInterceptor implements SimpleAroundInterceptor {
+public class FrontCacheGetFutureConstructInterceptor implements SimpleAroundInterceptor, TargetClassLoader {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();

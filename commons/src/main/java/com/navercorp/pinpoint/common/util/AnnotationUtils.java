@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.navercorp.pinpoint.common.AnnotationKey;
+import com.navercorp.pinpoint.common.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.bo.Span;
@@ -51,68 +53,28 @@ public final class AnnotationUtils {
         return null;
     }
 
-    public static AnnotationBo findArgsAnnotationBo(List<AnnotationBo> annotationBoList) {
-        for (AnnotationBo annotation : annotationBoList) {
-            if (AnnotationKey.isArgsKey(annotation.getKey())) {
-                return annotation;
-            }
-        }
-        return null;
-    }
-
     public static AnnotationBo getDisplayArgument(Span span) {
         // TODO needs a more generalized implementation for Arcus
         List<AnnotationBo> list = span.getAnnotationBoList();
         if (list == null) {
             return null;
         }
+        
         final ServiceType serviceType = span.getServiceType();
-        if (serviceType == ServiceType.ARCUS || serviceType == ServiceType.MEMCACHED) {
-            // Displays any value within the first argument.
-            // TODO Values may be missing when there are 2+ parameters - since there is only 1 parameter dump key for Arcus, it migth be okay for now.
-            return findArgsAnnotationBo(list);
-        }
-
-        // TODO needs a more generalized implementation for rpc connectors
-        if (serviceType == ServiceType.HTTP_CLIENT || serviceType == ServiceType.JDK_HTTPURLCONNECTOR) {
-            return findAnnotationBo(list, AnnotationKey.HTTP_URL);
-        }
+        final AnnotationKeyMatcher matcher = serviceType.getDisplayArgumentMatcher();
         
-        if (serviceType == ServiceType.HTTP_CLIENT_INTERNAL) {
-            return findAnnotationBo(list, AnnotationKey.HTTP_CALL_RETRY_COUNT);
-        }
-        
-        if (serviceType == ServiceType.BLOC_INTERNAL_METHOD) {
-            return findAnnotationBo(list, AnnotationKey.CAll_URL);
-        }
-
-//        For Tomcat spans, there is no need to lookup using annotation as they can just use the rpc field within the Span
-//        if (span.getServiceType() == ServiceType.TOMCAT) {
-//            return findAnnotationBo(list, AnnotationKey.HTTP_URL);
-//        }
-//
-        // TODO something needs fixing
-        if (serviceType == ServiceType.MYSQL || serviceType == ServiceType.MYSQL_EXECUTE_QUERY
-                || serviceType == ServiceType.ORACLE || serviceType == ServiceType.ORACLE_EXECUTE_QUERY
-                || serviceType == ServiceType.MSSQL || serviceType == ServiceType.MSSQL_EXECUTE_QUERY
-                || serviceType == ServiceType.CUBRID || serviceType == ServiceType.CUBRID_EXECUTE_QUERY) {
-            // args0 is a string
-            // TODO needs better implementation
-            return findAnnotationBo(list, AnnotationKey.ARGS0);
-        }
-        
-        if (serviceType == ServiceType.IBATIS || serviceType == ServiceType.MYBATIS) {
-            return findAnnotationBo(list, AnnotationKey.ARGS0);
-        }
-        
-        if (serviceType == ServiceType.SPRING_ORM_IBATIS) {
-            return findAnnotationBo(list, AnnotationKey.ARGS0);
+        for (AnnotationBo annotation : list) {
+            int key = annotation.getKey();
+            
+            if (matcher.matches(key)) {
+                return annotation;
+            }
         }
         
         return null;
     }
 
-    private static  List<AnnotationKey> API_META_DATA_ERROR;
+    private static List<AnnotationKey> API_META_DATA_ERROR;
     static {
         API_META_DATA_ERROR = loadApiMetaDataError();
     }
@@ -120,11 +82,11 @@ public final class AnnotationUtils {
     static List<AnnotationKey> loadApiMetaDataError() {
         List<AnnotationKey> apiMetaData = new ArrayList<AnnotationKey>();
         for (AnnotationKey annotationKey : AnnotationKey.values()) {
-            if (annotationKey.name().startsWith("ERROR_API_METADATA_")) {
+            if (annotationKey.isViewInRecordSet()) {
                 apiMetaData.add(annotationKey);
             }
         }
-         return apiMetaData;
+        return apiMetaData;
     }
 
     public static AnnotationKey getApiMetaDataError(List<AnnotationBo> annotationBoList) {

@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.profiler.modifier.arcus.ArcusClientModifier;
 import com.navercorp.pinpoint.profiler.modifier.arcus.BaseOperationModifier;
 import com.navercorp.pinpoint.profiler.modifier.arcus.CacheManagerModifier;
 import com.navercorp.pinpoint.profiler.modifier.arcus.CollectionFutureModifier;
+import com.navercorp.pinpoint.profiler.modifier.arcus.FrontCacheGetFutureModifier;
 import com.navercorp.pinpoint.profiler.modifier.arcus.GetFutureModifier;
 import com.navercorp.pinpoint.profiler.modifier.arcus.ImmediateFutureModifier;
 import com.navercorp.pinpoint.profiler.modifier.arcus.MemcachedClientModifier;
@@ -200,8 +201,8 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             addModifier(operationFutureModifier);
 
 //            Not working properly. commented out for now.
-//            FrontCacheGetFutureModifier frontCacheGetFutureModifier = new FrontCacheGetFutureModifier(byteCodeInstrumentor, agent);
-//            addModifier(frontCacheGetFutureModifier);
+            FrontCacheGetFutureModifier frontCacheGetFutureModifier = new FrontCacheGetFutureModifier(byteCodeInstrumentor, agent);
+            addModifier(frontCacheGetFutureModifier);
 
             // future modifier end ---------------------------------------------------
 

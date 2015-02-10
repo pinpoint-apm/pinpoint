@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.common.util.ParsingResult;
  * @author emeroad
  */
 public interface ParsingResultTraceValue extends TraceValue {
-    void __setTraceParsingResult(ParsingResult parsingResult);
+    void _$PINPOINT$_setTraceParsingResult(ParsingResult parsingResult);
 
-    ParsingResult __getTraceParsingResult();
+    ParsingResult _$PINPOINT$_getTraceParsingResult();
 }

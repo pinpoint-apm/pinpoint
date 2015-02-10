@@ -69,11 +69,11 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
 
             ParsingResult parsingResult = null;
             if (target instanceof ParsingResultTraceValue) {
-                parsingResult = ((ParsingResultTraceValue) target).__getTraceParsingResult();
+                parsingResult = ((ParsingResultTraceValue) target)._$PINPOINT$_getTraceParsingResult();
             }
             Map<Integer, String> bindValue = null;
             if (target instanceof BindValueTraceValue) {
-                bindValue = ((BindValueTraceValue)target).__getTraceBindValue();
+                bindValue = ((BindValueTraceValue)target)._$PINPOINT$_getTraceBindValue();
             }
             if (bindValue != null) {
                 String bindString = toBindVariable(bindValue);
@@ -101,7 +101,7 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
 
     private void clean(Object target) {
         if (target instanceof BindValueTraceValue) {
-            ((BindValueTraceValue) target).__setTraceBindValue(new HashMap<Integer, String>());
+            ((BindValueTraceValue) target)._$PINPOINT$_setTraceBindValue(new HashMap<Integer, String>());
         }
     }
 
