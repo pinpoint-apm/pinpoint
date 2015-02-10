@@ -44,6 +44,10 @@ public class ListenableDataSender<T extends TBase<?, ?>> implements DataSender {
         return listener.handleSend(data);
     }
 
+    public Listener getListener() {
+        return listener;
+    }
+
     @Override
     public void stop() {
     }

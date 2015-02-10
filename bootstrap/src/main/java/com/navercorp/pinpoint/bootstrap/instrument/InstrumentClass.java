@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.bootstrap.instrument;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
 
 import java.util.List;
 

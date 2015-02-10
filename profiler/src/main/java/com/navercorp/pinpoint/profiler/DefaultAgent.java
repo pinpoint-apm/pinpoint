@@ -109,14 +109,11 @@ public class DefaultAgent implements Agent {
     }
 
 
-    public DefaultAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars) {
-        this(agentPath, agentArgs, instrumentation, profilerConfig, new DefaultInterceptorRegistryBinder(), pluginJars);
+    public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars) {
+        this(agentArgs, instrumentation, profilerConfig, new DefaultInterceptorRegistryBinder(), pluginJars);
     }
 
-    public DefaultAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, InterceptorRegistryBinder interceptorRegistryBinder, URL[] pluginJars) {
-        if (agentPath == null) {
-            throw new NullPointerException("agentPath must not be null");
-        }
+    public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, InterceptorRegistryBinder interceptorRegistryBinder, URL[] pluginJars) {
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
         }

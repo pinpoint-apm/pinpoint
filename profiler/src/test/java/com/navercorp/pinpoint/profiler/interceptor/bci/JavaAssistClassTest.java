@@ -454,7 +454,7 @@ public class JavaAssistClassTest {
         final TestClassLoader loader = getTestClassLoader();
         final String testClassObject = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject3";
         final FieldSnooper snooper = FieldSnooper.get(0);
-        final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getAgent()) {
+        final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getProfilerConfig()) {
 
             @Override
             public byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
