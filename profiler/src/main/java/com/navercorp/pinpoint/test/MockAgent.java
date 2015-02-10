@@ -22,7 +22,6 @@ import java.io.PrintStream;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
@@ -72,7 +71,7 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
             throw new RuntimeException(ex.getMessage(), ex);
         }
 
-        return new MockAgent("", "", profilerConfig);
+        return new MockAgent("", profilerConfig);
     }
     
     public static MockAgent of(ProfilerConfig config) {
@@ -80,25 +79,16 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
     }
 
     public MockAgent(String agentArgs, ProfilerConfig profilerConfig) {
-        this(agentArgs, new DummyInstrumentation(), profilerConfig);
-    public MockAgent(String agentPath, String agentArgs, ProfilerConfig profilerConfig) {
-        this(agentPath, agentArgs, new DummyInstrumentation(), profilerConfig, new GlobalInterceptorRegistryBinder());
+        this(agentArgs, new DummyInstrumentation(), profilerConfig, new GlobalInterceptorRegistryBinder(), new URL[0]);
     }
 
-    public MockAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
-        this(agentArgs, instrumentation, profilerConfig, new URL[0]);
-    public MockAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
-        this(agentPath, agentArgs, instrumentation, profilerConfig, new GlobalInterceptorRegistryBinder());
-    }
-    
     public MockAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars) {
-        super(agentArgs, instrumentation, profilerConfig, pluginJars);
-        
-        PluginTestVerifierHolder.setInstance(this);
+        this(agentArgs, instrumentation, profilerConfig, new GlobalInterceptorRegistryBinder(), pluginJars);
     }
 
-    public MockAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, InterceptorRegistryBinder interceptorRegistryBinder) {
-        super(agentPath, agentArgs, instrumentation, profilerConfig, interceptorRegistryBinder);
+    public MockAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, InterceptorRegistryBinder interceptorRegistryBinder, URL[] pluginJars) {
+        super(agentArgs, instrumentation, profilerConfig, interceptorRegistryBinder, pluginJars);
+        PluginTestVerifierHolder.setInstance(this);
     }
 
     @Override
@@ -153,7 +143,7 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
     
     @Override
     public void verifySpanCount(int expected) {
-        int actual = getPeekableSpanDataSender().size();
+        int actual = getTBaseRecorder().size();
         
         if (expected != actual) {
             throw new AssertionError("Expected count: " + expected + ", actual: " + actual);
@@ -215,7 +205,7 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
 
     @Override
     public void verifySpan(ServiceType serviceType, ExpectedAnnotation... annotations) {
-        Object obj = getPeekableSpanDataSender().poll();
+        Object obj = getTBaseRecorder().poll();
         short code = serviceType.getCode();
         
         if (obj == null) {
@@ -265,7 +255,7 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
     }
     
     public void verifySpanEvent(ServiceType serviceType, Integer apiId, ExpectedAnnotation... annotations) {
-        Object obj = getPeekableSpanDataSender().poll();
+        Object obj = getTBaseRecorder().poll();
         short code = serviceType.getCode();
         
         if (obj == null) {
@@ -329,11 +319,21 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
     
     @Override
     public void printSpans(PrintStream out) {
-        for (Object obj : getPeekableSpanDataSender()) {
+        for (Object obj : getTBaseRecorder()) {
             out.println(obj);
         }
     }
-    
+
+    private TBaseRecorder getTBaseRecorder() {
+        DataSender spanDataSender = getSpanDataSender();
+        if (spanDataSender instanceof ListenableDataSender) {
+            ListenableDataSender listenableDataSender = (ListenableDataSender) spanDataSender;
+            TBaseRecorderAdaptor listener = (TBaseRecorderAdaptor) listenableDataSender.getListener();
+            return listener.getRecorder();
+        }
+        throw new IllegalStateException("unknown type");
+    }
+
     @Override
     public void printApis(PrintStream out) {
         ((TestTcpDataSender)getTcpDataSender()).printApis(out);
@@ -344,8 +344,8 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
         if (createTraceObject) {
             getTraceContext().newTraceObject();
         }
-        
-        getPeekableSpanDataSender().clear();
+
+        getTBaseRecorder().clear();
         ((TestTcpDataSender)getTcpDataSender()).clear();
     }
 
@@ -354,8 +354,8 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
         if (detachTraceObject) {
             getTraceContext().detachTraceObject();
         }
-        
-        getPeekableSpanDataSender().clear();
+
+        getTBaseRecorder().clear();
         ((TestTcpDataSender)getTcpDataSender()).clear();
     }
     

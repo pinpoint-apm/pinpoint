@@ -21,8 +21,10 @@ import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistryAdaptor;
 
 
 /**
+ * for test
  * @author emeroad
  */
+@Deprecated
 public class GlobalInterceptorRegistryBinder implements InterceptorRegistryBinder {
 
     public GlobalInterceptorRegistryBinder() {

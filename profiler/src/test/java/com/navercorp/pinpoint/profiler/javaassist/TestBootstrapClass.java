@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.javaassist;
 
-import com.navercorp.pinpoint.bootstrap.plugin.BytecodeUtils;
+import com.navercorp.pinpoint.test.util.BytecodeUtils;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
