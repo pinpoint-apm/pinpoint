@@ -32,7 +32,8 @@ public enum TCommandTypeVersion {
     V_1_0_3_SNAPSHOT("1.0.3-SNAPSHOT", V_1_0_2, TCommandType.ECHO, TCommandType.TRANSFER, TCommandType.THREAD_DUMP_RESPONSE),
     V_1_0_3("1.0.3", V_1_0_3_SNAPSHOT),
     V_1_0_4_SNAPSHOT("1.0.4-SNAPSHOT", V_1_0_3),
-
+    V_1_0_4("1.0.4", V_1_0_4_SNAPSHOT),
+    
     UNKNOWN("UNKNOWN");
 
     private final String versionName;
