@@ -29,6 +29,8 @@ import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.navercorp.pinpoint.common.util.SimpleProperty;
+import com.navercorp.pinpoint.common.util.SystemProperty;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
@@ -71,10 +73,13 @@ public class DependencyResolver {
     private static final String FOLLOW_PRECEDING = "FOLLOW_PRECEDING";
     private static final String DEFAULT_LOCAL_REPOSITORY = "target/local-repo";
     private static final Logger logger = Logger.getLogger(PinpointBootStrap.class.getName());
-    
+
+    private static final SimpleProperty SYSTEM_PROPERTY = SystemProperty.INSTANCE;
+
     private final List<RemoteRepository> repositories;
     private final RepositorySystem system;
     private final RepositorySystemSession session;
+
     
     private static RepositorySystem newRepositorySystem() {
         DefaultServiceLocator locator = MavenRepositorySystemUtils.newServiceLocator();
@@ -105,7 +110,7 @@ public class DependencyResolver {
     }
     
     private static String resolveLocalRepository() {
-        String userHome = System.getProperty("user.home");
+        String userHome = SYSTEM_PROPERTY.getProperty("user.home");
         
         if (userHome == null) {
             logger.fine("Cannot find user.home property. Use default local repository");

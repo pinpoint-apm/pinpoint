@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+import com.navercorp.pinpoint.common.util.SystemProperty;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
@@ -59,6 +60,8 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
     private final String[] includedLibraries;
     private final String[] jvmArguments;
     private final String javaHomeEnvName;
+
+    private final SystemProperty systemProperty = SystemProperty.INSTANCE;
 
     public ForkRunner(Class<?> testClass) throws InitializationError {
         super(testClass);
@@ -131,7 +134,7 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
             builder.command(buildCommand());
             builder.redirectErrorStream(true);
             
-            System.out.println("Working directory: " + System.getProperty("user.dir"));
+            System.out.println("Working directory: " + systemProperty.getProperty("user.dir"));
             System.out.println("Command: " + builder.command());
 
             Process process;
@@ -260,9 +263,9 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
             
             String javaHome;
             if (javaHomeEnvName == null) {
-                javaHome = System.getProperty("java.home");
+                javaHome = systemProperty.getProperty("java.home");
             } else {
-                javaHome = System.getenv(javaHomeEnvName);
+                javaHome = systemProperty.getEnv(javaHomeEnvName);
             }
             
             builder.append(javaHome);
@@ -271,7 +274,7 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
             builder.append(File.separatorChar);
             builder.append("java");
 
-            if (System.getProperty("os.name").contains("indows")) {
+            if (systemProperty.getProperty("os.name").contains("indows")) {
                 builder.append(".exe");
             }
 
