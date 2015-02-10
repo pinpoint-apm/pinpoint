@@ -17,14 +17,13 @@
 package com.navercorp.pinpoint.common.bo;
 
 
-import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.common.bo.SpanBo;
-
 import junit.framework.Assert;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * @author emeroad
@@ -71,7 +70,7 @@ public class SpanBoTest {
         spanBo.setStartTime(5);
 
 
-        spanBo.setServiceType(ServiceType.BLOC);
+        spanBo.setServiceType(ServiceType.STAND_ALONE);
         byte[] bytes = spanBo.writeValue();
         logger.info("length:{}", bytes.length);
 
@@ -108,7 +107,7 @@ public class SpanBoTest {
         String rpc = createString(255);
         spanBo.setRpc(rpc);
 
-        spanBo.setServiceType(ServiceType.BLOC);
+        spanBo.setServiceType(ServiceType.STAND_ALONE);
 
         byte[] bytes = spanBo.writeValue();
         logger.info("length:{}", bytes.length);

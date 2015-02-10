@@ -17,17 +17,16 @@
 package com.navercorp.pinpoint.bootstrap;
 
 
-import com.navercorp.pinpoint.bootstrap.AgentClassLoader;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import java.io.IOException;
+import java.net.URL;
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.URL;
-import java.security.CodeSource;
-import java.security.ProtectionDomain;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 /**
  * @author emeroad
@@ -40,7 +39,7 @@ public class AgentClassLoaderTest {
     public void boot() throws IOException, ClassNotFoundException {
         AgentClassLoader agentClassLoader = new AgentClassLoader(new URL[0]);
         agentClassLoader.setBootClass("com.navercorp.pinpoint.bootstrap.DummyAgent");
-        agentClassLoader.boot("agentPath", "test", new DummyInstrumentation(), new ProfilerConfig());
+        agentClassLoader.boot("test", new DummyInstrumentation(), new ProfilerConfig(), new URL[0]);
         // TODO need verification - implementation for obtaining logger changed
 //        PLoggerBinder loggerBinder = (PLoggerBinder) agentClassLoader.initializeLoggerBinder();
 //        PLogger test = loggerBinder.getLogger("test");

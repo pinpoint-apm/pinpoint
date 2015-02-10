@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
  * @author emeroad
  */
 public interface DatabaseInfoTraceValue extends TraceValue {
-    void __setTraceDatabaseInfo(DatabaseInfo value);
+    void _$PINPOINT$_setTraceDatabaseInfo(DatabaseInfo value);
 
-    DatabaseInfo __getTraceDatabaseInfo();
+    DatabaseInfo _$PINPOINT$_getTraceDatabaseInfo();
 
 }

@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -37,7 +39,9 @@ import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
+import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
@@ -47,6 +51,7 @@ import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
+import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.receiver.service.EchoService;
 import com.navercorp.pinpoint.profiler.receiver.service.ThreadDumpService;
@@ -77,7 +82,6 @@ public class DefaultAgent implements Agent {
     private final ByteCodeInstrumentor byteCodeInstrumentor;
     private final ClassFileTransformer classFileTransformer;
     
-    private final String agentPath;
     private final ProfilerConfig profilerConfig;
 
     private final AgentInfoSender agentInfoSender;
@@ -105,11 +109,11 @@ public class DefaultAgent implements Agent {
     }
 
 
-    public DefaultAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
-        this(agentPath, agentArgs, instrumentation, profilerConfig, new DefaultInterceptorRegistryBinder());
+    public DefaultAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars) {
+        this(agentPath, agentArgs, instrumentation, profilerConfig, new DefaultInterceptorRegistryBinder(), pluginJars);
     }
 
-    public DefaultAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, InterceptorRegistryBinder interceptorRegistryBinder) {
+    public DefaultAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, InterceptorRegistryBinder interceptorRegistryBinder, URL[] pluginJars) {
         if (agentPath == null) {
             throw new NullPointerException("agentPath must not be null");
         }
@@ -134,11 +138,12 @@ public class DefaultAgent implements Agent {
         dumpConfig(profilerConfig);
 
         changeStatus(AgentStatus.INITIALIZING);
-
-        this.agentPath = agentPath;
+        
         this.profilerConfig = profilerConfig;
-
-        final ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(profilerConfig.getApplicationServerType());
+        
+        List<DefaultProfilerPluginContext> pluginContexts = loadProfilerPlugins(profilerConfig, pluginJars);
+        
+        final ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(pluginContexts, profilerConfig.getApplicationServerType());
         if (!typeResolver.resolve()) {
             throw new PinpointException("ApplicationServerType not found.");
         }
@@ -176,7 +181,7 @@ public class DefaultAgent implements Agent {
         
         ClassFileRetransformer retransformer = new ClassFileRetransformer(instrumentation);
         instrumentation.addTransformer(retransformer, true);
-        this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, retransformer);
+        this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, retransformer, pluginContexts, pluginJars);
         instrumentation.addTransformer(this.classFileTransformer);
 
 
@@ -199,6 +204,20 @@ public class DefaultAgent implements Agent {
         return commandDispatcher;
     }
 
+
+    private List<DefaultProfilerPluginContext> loadProfilerPlugins(ProfilerConfig profilerConfig, URL[] pluginJars) {
+        List<ProfilerPlugin> plugins = PluginLoader.load(ProfilerPlugin.class, pluginJars);
+        List<DefaultProfilerPluginContext> pluginContexts = new ArrayList<DefaultProfilerPluginContext>(plugins.size());
+        
+        for (ProfilerPlugin plugin : plugins) {
+            logger.info("Loading plugin: {}", plugin.getClass().getName());
+            
+            DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(profilerConfig);
+            plugin.setUp(context);
+            pluginContexts.add(context);
+        }
+        return pluginContexts;
+    }
 
     private void preLoadClass() {
         logger.debug("preLoadClass:{}", PreparedStatementUtils.class.getName(), PreparedStatementUtils.findBindVariableSetMethod());
@@ -357,10 +376,6 @@ public class DefaultAgent implements Agent {
 
     public AgentInformation getAgentInformation() {
         return agentInformation;
-    }
-    
-    public String getAgentPath() {
-        return agentPath;
     }
     
     @Override

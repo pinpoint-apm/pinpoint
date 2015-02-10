@@ -63,7 +63,7 @@ public class MySQLConnectionModifier extends AbstractModifier {
             mysqlConnection.addTraceValue(DatabaseInfoTraceValue.class);
 
             // If you want to make this common intercepter class, it has to be loaded to system.
-//            Interceptor createConnection  = new ConnectionCreateInterceptor();
+//            TargetMethod createConnection  = new ConnectionCreateInterceptor();
 //            String[] params = new String[] {
 //                "java.lang.String", "int", "java.util.Properties", "java.lang.String", "java.lang.String"
 //            };

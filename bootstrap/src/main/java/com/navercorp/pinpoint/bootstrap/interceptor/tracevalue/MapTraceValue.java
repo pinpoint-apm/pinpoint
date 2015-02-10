@@ -24,7 +24,7 @@ import java.util.Map;
  *
  */
 public interface MapTraceValue extends TraceValue {
-    void __setTraceBindValue(Map<String, Object> value);
+    void _$PINPOINT$_setTraceBindValue(Map<String, Object> value);
 
-    Map<String, Object> __getTraceBindValue();
+    Map<String, Object> _$PINPOINT$_getTraceBindValue();
 }

@@ -16,32 +16,52 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric;
 
-import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.profiler.monitor.metric.DynamicAcceptHistogram;
-import com.navercorp.pinpoint.profiler.monitor.metric.StaticAcceptHistogram;
+import static com.navercorp.pinpoint.common.HistogramSchema.*;
+import static com.navercorp.pinpoint.common.ServiceTypeProperty.*;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import junit.framework.Assert;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.ServiceTypeProviderLoader;
+import com.navercorp.pinpoint.common.plugin.ServiceTypeProvider;
+import com.navercorp.pinpoint.common.plugin.ServiceTypeSetupContext;
+
 public class WasStaticAcceptHistogramTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    
+    private static final ServiceType APPLICATION_SERVER = ServiceType.of(1999, "AS", NORMAL_SCHEMA, RECORD_STATISTICS);
+    private static final ServiceType NON_APPLICATION_SERVER = ServiceType.of(2000, "NAS", NORMAL_SCHEMA, RECORD_STATISTICS);
+    
+    @BeforeClass
+    public static void init() {
+        ServiceTypeProviderLoader.initializeServiceType(Arrays.<ServiceTypeProvider>asList(new ServiceTypeProvider() {
+            
+            @Override
+            public void setUp(ServiceTypeSetupContext context) {
+                context.addServiceType(APPLICATION_SERVER);
+                context.addServiceType(NON_APPLICATION_SERVER);
+            }
+        }));
+    }
 
     @Test
     public void testLookUp() throws Exception {
         StaticAcceptHistogram table = new StaticAcceptHistogram();
-        Assert.assertTrue(table.addResponseTime("abc", ServiceType.TOMCAT.getCode(), 1000));
-        Assert.assertTrue(table.addResponseTime("abc", ServiceType.BLOC.getCode(), 1000));
         Assert.assertTrue(table.addResponseTime("abc", ServiceType.STAND_ALONE.getCode(), 1000));
-        Assert.assertTrue(table.addResponseTime("abc", ServiceType.BLOC.getCode(), 1000));
+        Assert.assertTrue(table.addResponseTime("abc", APPLICATION_SERVER.getCode(), 1000));
+        Assert.assertTrue(table.addResponseTime("abc", ServiceType.STAND_ALONE.getCode(), 1000));
 
-        Assert.assertFalse(table.addResponseTime("abc", ServiceType.ARCUS.getCode(), 1000));
+        Assert.assertFalse(table.addResponseTime("abc", NON_APPLICATION_SERVER.getCode(), 1000));
     }
 
 

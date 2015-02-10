@@ -16,27 +16,17 @@
 
 package com.navercorp.pinpoint.common;
 
+import java.util.List;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.common.ServiceType;
-
-import java.util.List;
-
 public class ServiceTypeTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-
-    @Test
-    public void testIndexable() {
-        logger.debug("{}", ServiceType.TOMCAT.isIndexable());
-        logger.debug("{}", ServiceType.BLOC.isIndexable());
-        logger.debug("{}", ServiceType.ARCUS.isIndexable());
-    }
-
+    
     @Test
     public void findDesc() {
         String desc = "MYSQL";
@@ -65,8 +55,7 @@ public class ServiceTypeTest {
 
     @Test
     public void test() {
-        ServiceType[] values = ServiceType.values();
-        for (ServiceType value : values) {
+        for (ServiceType value : ServiceType.values()) {
             logger.debug(value.toString() + " " + value.getCode());
         }
 

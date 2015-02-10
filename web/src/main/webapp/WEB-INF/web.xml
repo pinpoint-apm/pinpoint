@@ -9,6 +9,10 @@
         <param-value>classpath:log4j.xml</param-value>
     </context-param>
 
+    <!-- ServiceTypeLoader must be defined before Spring's ContextLoaderListener because ServiceType has to be initialized first.-->
+    <listener>
+        <listener-class >com.navercorp.pinpoint.web.servlet.ServiceTypeLoader</listener-class>
+    </listener>
     <!-- root application context -->
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
@@ -49,7 +53,7 @@
     <filter>
 	    <description>NoCacheFilter</description>
     	<filter-name>NoCacheFilter</filter-name>
-    	<filter-class>com.navercorp.pinpoint.web.servletfilter.NoCacheFilter</filter-class>
+    	<filter-class>com.navercorp.pinpoint.web.servlet.NoCacheFilter</filter-class>
 	</filter>
 
     <filter-mapping>
