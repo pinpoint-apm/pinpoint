@@ -21,10 +21,14 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.SimpleProperty;
+import com.navercorp.pinpoint.common.util.SystemProperty;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Properties;
 
 
 /**
@@ -33,6 +37,7 @@ import org.slf4j.LoggerFactory;
 public class AgentInformationFactory {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final SimpleProperty systemProperty = SystemProperty.INSTANCE;
 
     public AgentInformationFactory() {
     }
@@ -53,7 +58,7 @@ public class AgentInformationFactory {
     }
 
     private String getId(String key, String defaultValue, int maxlen) {
-        String value = System.getProperty(key, defaultValue);
+        String value = systemProperty.getProperty(key, defaultValue);
         validateId(value, key, maxlen);
         return value;
     }

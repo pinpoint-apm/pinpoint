@@ -20,6 +20,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.navercorp.pinpoint.common.util.SimpleProperty;
+import com.navercorp.pinpoint.common.util.SystemProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,12 +43,14 @@ public class ApplicationServerTypeResolver {
     private final ServiceType defaultType;
     private final List<ServerTypeDetector> detectors = new ArrayList<ServerTypeDetector>();
 
+    private final SimpleProperty systemProperty = SystemProperty.INSTANCE;
+
     /**
      * If we have to invoke startup() during agent initialization.
      * Some service types like BLOC or STAND_ALONE don't have an acceptor to do this.
      */
     private boolean manuallyStartupRequired = true;
-    
+
     public ApplicationServerTypeResolver(List<DefaultProfilerPluginContext> plugins, ServiceType defaultType) {
         this.defaultType = defaultType;
         
@@ -108,11 +112,12 @@ public class ApplicationServerTypeResolver {
 
     private String applicationHomePath() {
         String path = null;
-        
-        if (System.getProperty("catalina.home") != null) {
-            path = System.getProperty("catalina.home");
+
+        final SimpleProperty system = this.systemProperty;
+        if (system.getProperty("catalina.home") != null) {
+            path = system.getProperty("catalina.home");
         } else {
-            path = System.getProperty("user.dir");
+            path = system.getProperty("user.dir");
         }
         
         if (logger.isInfoEnabled()) {

@@ -19,10 +19,7 @@ package com.navercorp.pinpoint.bootstrap;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
@@ -34,6 +31,8 @@ import com.navercorp.pinpoint.bootstrap.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.ServiceTypeProviderLoader;
 import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.SimpleProperty;
+import com.navercorp.pinpoint.common.util.SystemProperty;
 
 /**
  * @author emeroad
@@ -48,6 +47,8 @@ public class PinpointBootStrap {
     private static final boolean STATE_NONE = false;
     private static final boolean STATE_STARTED = true;
     private static final AtomicBoolean LOAD_STATE = new AtomicBoolean(STATE_NONE);
+
+    private static final SimpleProperty SYSTEM_PROPERTY = SystemProperty.INSTANCE;
 
     public static void premain(String agentArgs, Instrumentation instrumentation) {
         if (agentArgs != null) {
@@ -65,7 +66,7 @@ public class PinpointBootStrap {
         final ClassPathResolver classPathResolver = new ClassPathResolver();
         boolean agentJarNotFound = classPathResolver.findAgentJar();
         if (!agentJarNotFound) {
-            logger.severe("pinpoint-bootstrap-x.x.x(-SNAPSHOT).jar not found.");
+            logger.severe("pinpoint-bootstrap-x.x.x(-SNAPSHOT).jar Fnot found.");
             logPinpointAgentLoadFail();
             return;
         }
@@ -190,7 +191,7 @@ public class PinpointBootStrap {
     
     private static boolean isValidId(String propertyName, int maxSize) {
         logger.info("check -D" + propertyName);
-        String value = System.getProperty(propertyName);
+        String value = SYSTEM_PROPERTY.getProperty(propertyName);
         if (value == null){
             logger.severe("-D" + propertyName + " is null. value:null");
             return false;
@@ -226,12 +227,12 @@ public class PinpointBootStrap {
         String agentLogFilePath = classPathResolver.getAgentLogFilePath();
         logger.info("logPath:" + agentLogFilePath);
 
-        System.setProperty(ProductInfo.NAME + ".log", agentLogFilePath);
+        SYSTEM_PROPERTY.setProperty(ProductInfo.NAME + ".log", agentLogFilePath);
     }
 
     private static String getConfigPath(ClassPathResolver classPathResolver) {
         final String configName = ProductInfo.NAME + ".config";
-        String pinpointConfigFormSystemProperty = System.getProperty(configName);
+        String pinpointConfigFormSystemProperty = SYSTEM_PROPERTY.getProperty(configName);
         if (pinpointConfigFormSystemProperty != null) {
             logger.info(configName + " systemProperty found. " + pinpointConfigFormSystemProperty);
             return pinpointConfigFormSystemProperty;

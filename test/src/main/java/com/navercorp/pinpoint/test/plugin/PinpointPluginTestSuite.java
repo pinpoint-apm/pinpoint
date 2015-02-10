@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import com.navercorp.pinpoint.common.util.SystemProperty;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
@@ -72,6 +73,8 @@ public class PinpointPluginTestSuite extends Suite {
     private final String libraryPath;
     private final String[] jvmArguments;
     private final String javaHomeEnvName;
+
+    private final SystemProperty simpleProperty = SystemProperty.INSTANCE;
 
     @Override
     protected List<Runner> getChildren() {
@@ -286,25 +289,25 @@ public class PinpointPluginTestSuite extends Suite {
             @Override
             public void evaluate() throws Throwable {
                 ProcessBuilder builder = new ProcessBuilder();
-                
+
                 builder.command(buildCommand(systemLibs, dependencyLibs));
                 builder.redirectErrorStream(true);
-                
-                System.out.println("Working directory: " + System.getProperty("user.dir"));
+
+                System.out.println("Working directory: " + simpleProperty.getProperty("user.dir"));
                 System.out.println("Command: " + builder.command());
-                
+
                 Process process = builder.start();
-                
+
                 final InputStream inputStream = process.getInputStream();
                 final Scanner out = new Scanner(inputStream, DEFAULT_ENCODING);
                 try {
                     while (out.hasNextLine()) {
                         String line = out.nextLine();
-                        
+
                         if (line.startsWith(ForkedPinpointPluginTest.JUNIT_OUTPUT_DELIMETER)) {
                             String[] tokens = line.split(ForkedPinpointPluginTest.JUNIT_OUTPUT_DELIMETER_REGEXP);
                             String event = tokens[1];
-                            
+
                             if ("testRunStarted".equals(event)) {
                                 notifier.fireTestRunStarted(getDescription());
                             } else if ("testRunFinished".equals(event)) {
@@ -333,7 +336,7 @@ public class PinpointPluginTestSuite extends Suite {
                     out.close();
                     close(inputStream);
                 }
-                
+
                 try {
                     process.waitFor();
                 } catch (InterruptedException e) {
@@ -409,9 +412,9 @@ public class PinpointPluginTestSuite extends Suite {
                 
                 String javaHome;
                 if (javaHomeEnvName == null) {
-                    javaHome = System.getProperty("java.home");
+                    javaHome = simpleProperty.getProperty("java.home");
                 } else {
-                    javaHome = System.getenv(javaHomeEnvName);
+                    javaHome = simpleProperty.getEnv(javaHomeEnvName);
                 }
                 
                 builder.append(javaHome);
@@ -420,7 +423,7 @@ public class PinpointPluginTestSuite extends Suite {
                 builder.append(File.separatorChar);
                 builder.append("java");
                 
-                if (System.getProperty("os.name").contains("indows")) {
+                if (simpleProperty.getProperty("os.name").contains("indows")) {
                     builder.append(".exe");
                 }
                 

@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.bootstrap;
 
 
+import com.navercorp.pinpoint.common.util.SystemProperty;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
@@ -86,7 +88,7 @@ public class ClassPathResolver {
     }
 
     public static String getClassPathFromSystemProperty() {
-        return System.getProperty("java.class.path");
+        return SystemProperty.INSTANCE.getProperty("java.class.path");
     }
 
     public boolean findAgentJar() {

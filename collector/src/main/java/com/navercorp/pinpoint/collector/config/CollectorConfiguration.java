@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.collector.config;
 
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 
+import com.navercorp.pinpoint.common.util.SimpleProperty;
+import com.navercorp.pinpoint.common.util.SystemProperty;
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +43,8 @@ public class CollectorConfiguration implements InitializingBean {
     private static final String DEFAULT_LISTEN_IP = "0.0.0.0";
 
     private Properties properties;
+
+    private SimpleProperty SYSTEM_PROPERTY = SystemProperty.INSTANCE;
 
     public void setProperties(Properties properties) {
         this.properties = properties;
@@ -158,7 +162,7 @@ public class CollectorConfiguration implements InitializingBean {
     public void readConfigFile() {
 
         // may be useful for some kind of standalone like testcase. It should be modified to read a classpath for testcase.
-        String configFileName = System.getProperty(CONFIG_FILE_NAME);
+        String configFileName = SYSTEM_PROPERTY.getProperty(CONFIG_FILE_NAME);
         if (configFileName == null) {
             logger.warn("Property is not set. Using default values. PROPERTY_NAME={}, defaultValue={}", CONFIG_FILE_NAME, this);
             return;
