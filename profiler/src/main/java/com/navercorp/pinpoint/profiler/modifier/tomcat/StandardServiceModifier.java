@@ -35,9 +35,11 @@ import org.slf4j.LoggerFactory;
 public class StandardServiceModifier extends AbstractModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Agent agent;
 
     public StandardServiceModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-        super(byteCodeInstrumentor, agent);
+        super(byteCodeInstrumentor, agent.getProfilerConfig());
+        this.agent = agent;
     }
 
     public String getTargetClass() {

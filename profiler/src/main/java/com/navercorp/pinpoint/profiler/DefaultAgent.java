@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import com.navercorp.pinpoint.profiler.interceptor.DefaultInterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,21 +101,38 @@ public class DefaultAgent implements Agent {
 
     private volatile AgentStatus agentStatus;
 
+    private final InterceptorRegistryBinder interceptorRegistryBinder;
+
     static {
         // Preload classes related to pinpoint-rpc module.
         ClassPreLoader.preload();
     }
 
-    public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars) {
+
+    public DefaultAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars) {
+        this(agentPath, agentArgs, instrumentation, profilerConfig, new DefaultInterceptorRegistryBinder(), pluginJars);
+    }
+
+    public DefaultAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, InterceptorRegistryBinder interceptorRegistryBinder, URL[] pluginJars) {
+        if (agentPath == null) {
+            throw new NullPointerException("agentPath must not be null");
+        }
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
         }
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
-        
+        if (interceptorRegistryBinder == null) {
+            throw new NullPointerException("interceptorRegistryBinder must not be null");
+        }
+
+
         this.binder = new Slf4jLoggerBinder();
         bindPLoggerFactory(this.binder);
+
+        this.interceptorRegistryBinder = interceptorRegistryBinder;
+        interceptorRegistryBinder.bind();
 
         dumpSystemProperties();
         dumpConfig(profilerConfig);
@@ -128,7 +147,7 @@ public class DefaultAgent implements Agent {
         if (!typeResolver.resolve()) {
             throw new PinpointException("ApplicationServerType not found.");
         }
-        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(typeResolver.getServerLibPath(), this);
+        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(this, interceptorRegistryBinder);
         if (logger.isInfoEnabled()) {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
@@ -137,10 +156,8 @@ public class DefaultAgent implements Agent {
         this.agentInformation = agentInformationFactory.createAgentInformation(typeResolver.getServerType());
         logger.info("agentInformation:{}", agentInformation);
 
-        CommandDispatcher commandDispatcher = new CommandDispatcher();
-        commandDispatcher.registerCommandService(new ThreadDumpService());
-        commandDispatcher.registerCommandService(new EchoService());
-        
+
+        CommandDispatcher commandDispatcher = createCommandDispatcher();
         this.factory = createPinpointSocketFactory(commandDispatcher);
         this.socket = createPinpointSocket(this.profilerConfig.getCollectorTcpServerIp(), this.profilerConfig.getCollectorTcpServerPort(), factory);
 
@@ -179,6 +196,14 @@ public class DefaultAgent implements Agent {
             start();
         }
     }
+
+    private CommandDispatcher createCommandDispatcher() {
+        CommandDispatcher commandDispatcher = new CommandDispatcher();
+        commandDispatcher.registerCommandService(new ThreadDumpService());
+        commandDispatcher.registerCommandService(new EchoService());
+        return commandDispatcher;
+    }
+
 
     private List<DefaultProfilerPluginContext> loadProfilerPlugins(ProfilerConfig profilerConfig, URL[] pluginJars) {
         List<ProfilerPlugin> plugins = PluginLoader.load(ProfilerPlugin.class, pluginJars);
@@ -395,6 +420,7 @@ public class DefaultAgent implements Agent {
             this.factory.release();
         }
         PLoggerFactory.unregister(this.binder);
+        this.interceptorRegistryBinder.unbind();
     }
 
 }

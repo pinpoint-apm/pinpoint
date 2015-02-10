@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.test;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
@@ -34,8 +35,8 @@ public abstract class TestModifier extends AbstractModifier {
 
     public final List<Interceptor> interceptorList = new ArrayList<Interceptor>();
 
-    public TestModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-        super(byteCodeInstrumentor, agent);
+    public TestModifier(ByteCodeInstrumentor byteCodeInstrumentor, ProfilerConfig profilerConfig) {
+        super(byteCodeInstrumentor, profilerConfig);
     }
 
 
@@ -59,8 +60,6 @@ public abstract class TestModifier extends AbstractModifier {
     public Interceptor getInterceptor(int index) {
         return interceptorList.get(index);
     }
-
-
 
 
     @Override

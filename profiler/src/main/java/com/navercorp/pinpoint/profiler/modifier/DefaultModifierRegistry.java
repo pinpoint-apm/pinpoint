@@ -90,7 +90,7 @@ import com.navercorp.pinpoint.profiler.modifier.tomcat.WebappLoaderModifier;
  * @author netspider
  * @author hyungil.jeong
  * @author Minwoo Jung
- * @authoer jaehong.kim
+ * @author jaehong.kim
  *  - add redis
  */
 public class DefaultModifierRegistry implements ModifierRegistry {
@@ -378,7 +378,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
     public void addSpringBeansModifier() {
         if (profilerConfig.isSpringBeansEnabled()) {
-            addModifier(AbstractAutowireCapableBeanFactoryModifier.of(byteCodeInstrumentor, agent, retransformer));
+            addModifier(AbstractAutowireCapableBeanFactoryModifier.of(byteCodeInstrumentor, agent.getProfilerConfig(), retransformer));
         }
     }
     

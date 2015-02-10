@@ -105,7 +105,7 @@ public class MySQLConnectionModifier extends AbstractModifier {
             mysqlConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int", "int"}, preparedStatementCreateInterceptor6, MYSQLScope.SCOPE_NAME);
 
 
-            final ProfilerConfig profilerConfig = agent.getProfilerConfig();
+            final ProfilerConfig profilerConfig = this.getProfilerConfig();
             if (profilerConfig.isJdbcProfileMySqlSetAutoCommit()) {
                 Interceptor setAutocommit = new TransactionSetAutoCommitInterceptor();
                 mysqlConnection.addScopeInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit, MYSQLScope.SCOPE_NAME);

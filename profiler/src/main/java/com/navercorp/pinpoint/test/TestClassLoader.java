@@ -17,7 +17,9 @@
 package com.navercorp.pinpoint.test;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.profiler.ClassFileRetransformer;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
@@ -28,22 +30,36 @@ import javassist.NotFoundException;
 
 import org.junit.runners.model.InitializationError;
 
+import java.lang.instrument.ClassFileTransformer;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author emeroad
  * @author hyungil.jeong
  */
 public class TestClassLoader extends Loader {
-    private Agent agent;
+    private ProfilerConfig profilerConfig;
     private ByteCodeInstrumentor instrumentor;
     private InstrumentTranslator instrumentTranslator;
+    private final List<String> delegateClass;
 
-    public TestClassLoader(DefaultAgent agent) {
-        if (agent == null) {
+    public TestClassLoader(ProfilerConfig profilerConfig, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileTransformer classFileTransformer) {
+        if (profilerConfig == null) {
             throw new NullPointerException("agent must not be null");
         }
-        this.agent = agent;
-        this.instrumentor = agent.getByteCodeInstrumentor();
-        this.instrumentTranslator = new InstrumentTranslator(this, agent);
+        this.profilerConfig = profilerConfig;
+        this.instrumentor = byteCodeInstrumentor;
+        this.instrumentTranslator = new InstrumentTranslator(this, classFileTransformer);
+        this.delegateClass = new ArrayList<String>();
+    }
+
+
+    public void addDelegateClass(String className) {
+        if (className == null) {
+            throw new NullPointerException("className must not be null");
+        }
+        this.delegateClass.add(className);
     }
 
     @Override
@@ -51,16 +67,20 @@ public class TestClassLoader extends Loader {
         return super.findClass(name);
     }
 
-    public void initialize() throws InitializationError {
+    public void initialize() {
         addDefaultDelegateLoadingOf();
+        addCustomDelegateLoadingOf();
         addTranslator();
     }
 
-    public Agent getAgent() {
-        if (this.agent == null) {
-            throw new IllegalStateException("TestClassLoader is not initialized.");
+    private void addCustomDelegateLoadingOf() {
+        for (String className : delegateClass) {
+            this.delegateLoadingOf(className);
         }
-        return agent;
+    }
+
+    public ProfilerConfig getProfilerConfig() {
+        return profilerConfig;
     }
 
     public ByteCodeInstrumentor getInstrumentor() {
@@ -82,7 +102,15 @@ public class TestClassLoader extends Loader {
         this.delegateLoadingOf("com.navercorp.pinpoint.common.");
         this.delegateLoadingOf("com.navercorp.pinpoint.thrift.");
         this.delegateLoadingOf("com.navercorp.pinpoint.profiler.context.");
-        this.delegateLoadingOf("com.navercorp.pinpoint.test.PeekableDataSender");
+
+        this.delegateLoadingOf("com.navercorp.pinpoint.test.MockAgent");
+        this.delegateLoadingOf("com.navercorp.pinpoint.test.TBaseRecorder");
+        this.delegateLoadingOf("com.navercorp.pinpoint.test.TBaseRecorderAdaptor");
+        this.delegateLoadingOf("com.navercorp.pinpoint.test.ListenableDataSender");
+        this.delegateLoadingOf("com.navercorp.pinpoint.test.ListenableDataSender$Listener");
+        this.delegateLoadingOf("com.navercorp.pinpoint.test.ResettableServerMetaDataHolder");
+        this.delegateLoadingOf("com.navercorp.pinpoint.test.junit4.TestContext");
+
         this.delegateLoadingOf("com.navercorp.pinpoint.test.junit4.IsRootSpan");
         this.delegateLoadingOf("org.apache.thrift.TBase");
         this.delegateLoadingOf("junit.");

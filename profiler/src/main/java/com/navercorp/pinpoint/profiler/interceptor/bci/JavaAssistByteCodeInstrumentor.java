@@ -27,6 +27,8 @@ import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
+import com.navercorp.pinpoint.profiler.interceptor.GlobalInterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.ScopePool;
 
 import com.navercorp.pinpoint.profiler.util.ThreadLocalScopePool;
@@ -54,18 +56,30 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     private final ScopePool scopePool = new ThreadLocalScopePool();
 
     private final ClassLoadChecker classLoadChecker = new ClassLoadChecker();
+    private final InterceptorRegistryBinder interceptorRegistryBinder;
 
-    public JavaAssistByteCodeInstrumentor() {
-        this.rootClassPool = createClassPool(null, "rootClassPool");
-        this.childClassPool = new NamedClassPool(rootClassPool, "childClassPool");
+    public static JavaAssistByteCodeInstrumentor createTestInstrumentor() {
+        return new JavaAssistByteCodeInstrumentor();
     }
 
-    public JavaAssistByteCodeInstrumentor(String[] pathNames, Agent agent) {
-        this.rootClassPool = createClassPool(pathNames, "rootClassPool");
+    // for test
+    private JavaAssistByteCodeInstrumentor() {
+        this.rootClassPool = createClassPool("rootClassPool");
+        this.childClassPool = new NamedClassPool(rootClassPool, "childClassPool");
+        this.interceptorRegistryBinder = new GlobalInterceptorRegistryBinder();
+    }
+
+    public JavaAssistByteCodeInstrumentor(Agent agent, InterceptorRegistryBinder interceptorRegistryBinder) {
+        if (interceptorRegistryBinder == null) {
+            throw new NullPointerException("interceptorRegistryBinder must not be null");
+        }
+
+        this.rootClassPool = createClassPool("rootClassPool");
         this.childClassPool = createChildClassPool(rootClassPool, "childClassPool");
         this.agent = agent;
         // Add Pinpoint classes to rootClassPool
         checkLibrary(this.getClass().getClassLoader(), this.rootClassPool, this.getClass().getName());
+        this.interceptorRegistryBinder = interceptorRegistryBinder;
     }
 
     public Agent getAgent() {
@@ -92,21 +106,14 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         return this.scopePool.getScope(scopeDefinition);
     }
 
-    private NamedClassPool createClassPool(String[] pathNames, String classPoolName) {
+    private NamedClassPool createClassPool(String classPoolName) {
         NamedClassPool classPool = new NamedClassPool(null, classPoolName);
-        classPool.appendSystemPath();
-//        if (pathNames != null) {
-//            for (String path : pathNames) {
-//                appendClassPath(classPool, path);
-//            }
-//        }
         classPool.appendClassPath(new LoaderClassPath(this.getClass().getClassLoader()));
         return classPool;
     }
 
     private NamedClassPool createChildClassPool(ClassPool rootClassPool, String classPoolName) {
         NamedClassPool childClassPool = new NamedClassPool(rootClassPool, classPoolName);
-        childClassPool.appendSystemPath();
         childClassPool.childFirstLookup = true;
         return childClassPool;
     }
@@ -145,7 +152,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     @Override
     public InstrumentClass getClass(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) throws InstrumentException {
         CtClass cc = getClass(classLoader, javassistClassName);
-        return new JavaAssistClass(this, cc);
+        return new JavaAssistClass(this, cc, interceptorRegistryBinder);
     }
     
     public CtClass getClass(ClassLoader classLoader, String className) throws InstrumentException {

@@ -38,7 +38,7 @@ public class AbstractAutowireCapableBeanFactoryModifierTest {
         ClassFileRetransformer retransformer = mock(ClassFileRetransformer.class);
         Modifier beanModifier = mock(Modifier.class);
         
-        AbstractAutowireCapableBeanFactoryModifier modifier = AbstractAutowireCapableBeanFactoryModifier.of(agent.getByteCodeInstrumentor(), agent, retransformer, beanModifier);
+        AbstractAutowireCapableBeanFactoryModifier modifier = AbstractAutowireCapableBeanFactoryModifier.of(agent.getByteCodeInstrumentor(), agent.getProfilerConfig(), retransformer, beanModifier);
 
         
         ClassLoader loader = getClass().getClassLoader();

@@ -17,35 +17,20 @@
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
 /**
+ * for test
  * @author emeroad
  */
-public final class InterceptorRegistry {
+public class GlobalInterceptorRegistry {
 
-    private static final LoggingInterceptor LOGGING_INTERCEPTOR = new LoggingInterceptor("com.navercorp.pinpoint.profiler.interceptor.LOGGING_INTERCEPTOR");
-
-    private static final Locker LOCK = new DefaultLocker();
-
-    private static InterceptorRegistryAdaptor REGISTRY;
+    public static InterceptorRegistryAdaptor REGISTRY = new DefaultInterceptorRegistryAdaptor();
 
     public static void bind(final InterceptorRegistryAdaptor interceptorRegistryAdaptor, final Object lock) {
-        if (interceptorRegistryAdaptor == null) {
-            throw new NullPointerException("interceptorRegistryAdaptor must not be null");
-        }
-        if (LOCK.lock(lock)) {
-            REGISTRY = interceptorRegistryAdaptor;
-        } else {
-            throw new IllegalStateException("bind failed.");
-        }
+
     }
 
     public static void unbind(final Object lock) {
-        if (LOCK.unlock(lock)) {
-            REGISTRY = null;
-        } else {
-            throw new IllegalStateException("unbind failed.");
-        }
-    }
 
+    }
 
 
     public static StaticAroundInterceptor getStaticInterceptor(int key) {
@@ -60,5 +45,4 @@ public final class InterceptorRegistry {
     public static SimpleAroundInterceptor getSimpleInterceptor(int key) {
         return REGISTRY.getSimpleInterceptor(key);
     }
-
 }

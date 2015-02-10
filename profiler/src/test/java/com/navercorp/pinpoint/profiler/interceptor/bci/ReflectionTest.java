@@ -33,6 +33,7 @@ public class ReflectionTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private ClassPool pool = new ClassPool();
+
     @Before
     public void setUp() throws Exception {
         pool.appendSystemPath();

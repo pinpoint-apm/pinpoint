@@ -37,7 +37,7 @@ public class UdpSocketTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     // port conflict against base port. so increased 5
-    private int PORT = 60001;
+    private int PORT = 61112;
     // The correct maximum UDP message size is 65507, as determined by the following formula:
     // 0xffff - (sizeof(IP Header) + sizeof(UDP Header)) = 65535-(20+8) = 65507
     private static int AcceptedSize = 65507;
@@ -99,8 +99,7 @@ public class UdpSocketTest {
         try {
             sender.send(packet1);
             Assert.fail("expected fail, but succeed");
-        } catch (IOException e) {
-            logger.info("message is too large " + e.getMessage(), e);
+        } catch (IOException ignore) {
         }
     }
 
@@ -122,11 +121,10 @@ public class UdpSocketTest {
         DatagramPacket packet1 = newDatagramPacket(50000);
         sender.send(packet1);
 
-
         DatagramPacket r1 = newDatagramPacket(50000);
         receiver.receive(r1);
 
-        logger.info(String.valueOf(r1.getLength()));
+        logger.debug("packetSize:{}", r1.getLength());
 
 
     }
@@ -138,9 +136,9 @@ public class UdpSocketTest {
             DatagramPacket datagramPacket = newDatagramPacket(70000);
             try {
                 receiver.receive(datagramPacket);
-                logger.info("data size:" + datagramPacket.getLength());
+                logger.info("data size:{}", datagramPacket.getLength());
             } catch (IOException e) {
-                logger.warn("receive error:" + e.getMessage(), e);
+                logger.warn("receive error:{}", e.getMessage(), e);
             }
         }
     }
@@ -166,13 +164,13 @@ public class UdpSocketTest {
         try {
             so.send(newDatagramPacket(AcceptedSize + 1));
             Assert.fail("failed");
-        } catch (IOException e) {
+        } catch (IOException ignore) {
         }
 
         try {
             so.send(newDatagramPacket(70000));
             Assert.fail("failed");
-        } catch (IOException e) {
+        } catch (IOException ignore) {
         }
 
         so.close();

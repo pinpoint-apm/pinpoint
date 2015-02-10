@@ -44,7 +44,7 @@ public class ArcusClientModifier extends AbstractModifier {
 
     public ArcusClientModifier(ByteCodeInstrumentor byteCodeInstrumentor,
             Agent agent) {
-        super(byteCodeInstrumentor, agent);
+        super(byteCodeInstrumentor, agent.getProfilerConfig());
     }
 
     public String getTargetClass() {
@@ -73,7 +73,7 @@ public class ArcusClientModifier extends AbstractModifier {
 
                 SimpleAroundInterceptor apiInterceptor = (SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
                                 "com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.ApiInterceptor");
-                if (agent.getProfilerConfig().isArucsKeyTrace()) {
+                if (this.getProfilerConfig().isArucsKeyTrace()) {
                     final int index = ParameterUtils.findFirstString(method, 3);
                     if (index != -1) {
                         ((ParameterExtractorSupport)apiInterceptor).setParameterExtractor(new IndexParameterExtractor(index));

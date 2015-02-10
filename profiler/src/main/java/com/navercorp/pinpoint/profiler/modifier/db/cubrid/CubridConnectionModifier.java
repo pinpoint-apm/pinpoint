@@ -87,7 +87,7 @@ public class CubridConnectionModifier extends AbstractModifier {
             Interceptor preparedStatementCreateInterceptor6 = new PreparedStatementCreateInterceptor();
             cubridConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int", "int"}, preparedStatementCreateInterceptor6, CubridScope.SCOPE_NAME);
 
-            final ProfilerConfig profilerConfig = agent.getProfilerConfig();
+            final ProfilerConfig profilerConfig = this.getProfilerConfig();
             if (profilerConfig.isJdbcProfileCubridSetAutoCommit()) {
                 Interceptor setAutoCommit = new TransactionSetAutoCommitInterceptor();
                 cubridConnection.addScopeInterceptor("setAutoCommit", new String[]{"boolean"}, setAutoCommit, CubridScope.SCOPE_NAME);

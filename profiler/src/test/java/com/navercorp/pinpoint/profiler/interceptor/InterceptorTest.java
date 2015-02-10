@@ -16,12 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.DefaultInterceptorRegistryAdaptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.test.util.LoaderUtils;
 import javassist.*;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +40,18 @@ public class InterceptorTest {
 
     private final Logger logger = LoggerFactory.getLogger(InterceptorTest.class.getName());
 
+    private static DefaultInterceptorRegistryAdaptor INTERCEPTOR_REGISTRY_ADAPTOR;
+    @Before
+    public void setUp() throws Exception {
+        INTERCEPTOR_REGISTRY_ADAPTOR = new DefaultInterceptorRegistryAdaptor();
+        InterceptorRegistry.bind(INTERCEPTOR_REGISTRY_ADAPTOR, null);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        InterceptorRegistry.unbind(null);
+        INTERCEPTOR_REGISTRY_ADAPTOR = null;
+    }
 
     //    @Test
     public void methodName() throws NoSuchMethodException {
@@ -59,6 +73,7 @@ public class InterceptorTest {
     }
 
     //    @Deprecated
+//    @Test
     public void interceptor() throws NotFoundException, CannotCompileException, IllegalAccessException, InstantiationException, IOException, ClassNotFoundException, NoSuchMethodException {
         SimpleAroundInterceptor aroundInterceptor = new SimpleAroundInterceptor() {
 
@@ -72,7 +87,7 @@ public class InterceptorTest {
                 logger.info("after target: " + target + " args:" + Arrays.toString(args) + " result:" + result + " throwalbe:" + throwable);
             }
         };
-        int interceptorId = InterceptorRegistry.addSimpleInterceptor(aroundInterceptor);
+        int interceptorId = INTERCEPTOR_REGISTRY_ADAPTOR.addSimpleInterceptor(aroundInterceptor);
 
 
         final ClassPool classPool = new ClassPool(true);
@@ -98,7 +113,7 @@ public class InterceptorTest {
         "}");
 //        hello.addCatch("{" +
 ////            " interceptor.after(ctx);"+
-////           " AroundInterceptor a = (AroundInterceptor) " + InterceptorRegistry.class.getName() + ".getInterceptor(\"a\");"+
+////           " AroundInterceptor a = (AroundInterceptor) " + InterceptorRegistry.class.getName() + ".getStaticInterceptor(\"a\");"+
 //                " throw $e;" +
 //                "}", throwable);
 //        hello.insertAfter("{" +
@@ -175,7 +190,7 @@ public class InterceptorTest {
 
         sb.append("}");
         sb.append("{");
-        sb.append("  interceptor = (AroundInterceptor) " + InterceptorRegistry.class.getName() + ".getInterceptor(\"a\");");
+        sb.append("  interceptor = (AroundInterceptor) " + InterceptorRegistry.class.getName() + ".getStaticInterceptor(\"a\");");
         sb.append("  interceptor.before(ctx);");
         sb.append("  result = null;");
 //        println(sb, "before systemout \"ttt\"");

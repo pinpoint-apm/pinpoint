@@ -27,13 +27,20 @@ public final class ParameterUtils {
     }
 
     public static int findFirstString(MethodInfo method, int maxIndex) {
+        return findFirstClass("java.lang.String", method, maxIndex);
+    }
+
+    public static int findFirstClass(String className, MethodInfo method, int maxIndex) {
+        if (className == null) {
+            throw new NullPointerException("className must not be null");
+        }
         if (method == null) {
             return -1;
         }
         final String[] methodParams = method.getParameterTypes();
         final int minIndex = Math.min(methodParams.length, maxIndex);
-        for(int i =0; i < minIndex; i++) {
-            if ("java.lang.String".equals(methodParams[i])) {
+        for (int i =0; i < minIndex; i++) {
+            if (className.equals(methodParams[i])) {
                 return i;
             }
         }

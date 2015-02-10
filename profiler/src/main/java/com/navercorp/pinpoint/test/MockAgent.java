@@ -16,14 +16,19 @@
 
 package com.navercorp.pinpoint.test;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.instrument.Instrumentation;
+import java.net.URL;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
+import com.navercorp.pinpoint.profiler.interceptor.GlobalInterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import org.apache.thrift.TBase;
 
 import com.google.common.base.Objects;
@@ -53,13 +58,21 @@ import com.navercorp.pinpoint.thrift.dto.TAnnotation;
  * @author hyungil.jeong
  */
 public class MockAgent extends DefaultAgent implements PluginTestVerifier {
-   
-    public static MockAgent of(String configPath) throws IOException {
-        String path = MockAgent.class.getClassLoader().getResource(configPath).getPath();
-        ProfilerConfig profilerConfig = ProfilerConfig.load(path);
-        profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE);
-        
-        return of(profilerConfig);
+    
+    public static MockAgent of(String configPath) {
+        ProfilerConfig profilerConfig = null;
+        try {
+            URL resource = MockAgent.class.getClassLoader().getResource(configPath);
+            if (resource == null) {
+                throw new FileNotFoundException("pinpoint.config not found. configPath:" + configPath);
+            }
+            profilerConfig = ProfilerConfig.load(resource.getPath());
+            profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex.getMessage(), ex);
+        }
+
+        return new MockAgent("", "", profilerConfig);
     }
     
     public static MockAgent of(ProfilerConfig config) {
@@ -68,10 +81,14 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
 
     public MockAgent(String agentArgs, ProfilerConfig profilerConfig) {
         this(agentArgs, new DummyInstrumentation(), profilerConfig);
+    public MockAgent(String agentPath, String agentArgs, ProfilerConfig profilerConfig) {
+        this(agentPath, agentArgs, new DummyInstrumentation(), profilerConfig, new GlobalInterceptorRegistryBinder());
     }
 
     public MockAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
         this(agentArgs, instrumentation, profilerConfig, new URL[0]);
+    public MockAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
+        this(agentPath, agentArgs, instrumentation, profilerConfig, new GlobalInterceptorRegistryBinder());
     }
     
     public MockAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars) {
@@ -80,28 +97,33 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
         PluginTestVerifierHolder.setInstance(this);
     }
 
+    public MockAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, InterceptorRegistryBinder interceptorRegistryBinder) {
+        super(agentPath, agentArgs, instrumentation, profilerConfig, interceptorRegistryBinder);
+    }
+
+    @Override
+    protected PinpointSocketFactory createPinpointSocketFactory(CommandDispatcher commandDispatcher) {
+        return super.createPinpointSocketFactory(commandDispatcher);
+    }
+
     @Override
     protected DataSender createUdpStatDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
-        return new PeekableDataSender<TBase<?, ?>>();
+        return new ListenableDataSender<TBase<?, ?>>();
     }
 
     @Override
     protected DataSender createUdpSpanDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
-        return new PeekableDataSender<TBase<?, ?>>();
+        return new ListenableDataSender<TBase<?, ?>>();
     }
 
-    public PeekableDataSender<?> getPeekableSpanDataSender() {
-        DataSender spanDataSender = getSpanDataSender();
-        if (spanDataSender instanceof PeekableDataSender) {
-            return (PeekableDataSender<?>)getSpanDataSender();
-        } else {
-            throw new IllegalStateException("UdpDataSender must be an instance of a PeekableDataSender. Found : " + spanDataSender.getClass().getName());
-        }
+    public DataSender getSpanDataSender() {
+        return super.getSpanDataSender();
     }
+
 
     @Override
     protected StorageFactory createStorageFactory() {
-        return new HoldingSpanStorageFactory(getSpanDataSender());
+        return new SimpleSpanStorageFactory(super.getSpanDataSender());
     }
 
     @Override
