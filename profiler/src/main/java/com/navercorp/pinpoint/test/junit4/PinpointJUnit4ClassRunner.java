@@ -161,13 +161,13 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         return new BeforeCallbackStatement(beforeClasses, new Statement() {
             @Override
             public void evaluate() throws Throwable {
-                before();
+                beforeClass();
             }
         });
     }
 
 
-    public void before() throws Throwable {
+    public void beforeClass() throws Throwable {
         logger.debug("beforeClass");
         // TODO MockAgent.start();
     }
@@ -180,12 +180,12 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         return new AfterCallbackStatement(afterClasses, new Statement() {
             @Override
             public void evaluate() throws Throwable {
-                after();
+                afterClass();
             }
         });
     }
 
-    public void after() throws Throwable {
+    public void afterClass() throws Throwable {
         logger.debug("afterClass");
         // TODO MockAgent.close()
     }

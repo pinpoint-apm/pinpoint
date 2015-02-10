@@ -92,11 +92,6 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
     }
 
     @Override
-    protected PinpointSocketFactory createPinpointSocketFactory(CommandDispatcher commandDispatcher) {
-        return super.createPinpointSocketFactory(commandDispatcher);
-    }
-
-    @Override
     protected DataSender createUdpStatDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
         return new ListenableDataSender<TBase<?, ?>>();
     }
@@ -116,13 +111,9 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
         return new SimpleSpanStorageFactory(super.getSpanDataSender());
     }
 
-    @Override
-    protected PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
-        return null;
-    }
 
     @Override
-    protected EnhancedDataSender createTcpDataSender(PinpointSocket socket) {
+    protected EnhancedDataSender createTcpDataSender(CommandDispatcher commandDispatcher) {
         return new TestTcpDataSender();
     }
 

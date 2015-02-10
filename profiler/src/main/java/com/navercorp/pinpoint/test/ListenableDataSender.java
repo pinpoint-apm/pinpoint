@@ -30,7 +30,7 @@ public class ListenableDataSender<T extends TBase<?, ?>> implements DataSender {
             return true;
         }
     };;
-    private Listener listener = DEFAULT_LISTENER;
+    private volatile Listener listener = DEFAULT_LISTENER;
 
     public ListenableDataSender() {
     }

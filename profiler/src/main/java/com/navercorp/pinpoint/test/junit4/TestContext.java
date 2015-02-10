@@ -60,7 +60,6 @@ public class TestContext implements Closeable {
 
 
     private MockAgent createMockAgent() {
-        PLoggerFactory.initialize(loggerBinder);
         logger.trace("agent create");
         return MockAgent.of("pinpoint.config");
     }
