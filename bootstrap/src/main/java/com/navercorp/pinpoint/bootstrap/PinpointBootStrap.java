@@ -129,6 +129,10 @@ public class PinpointBootStrap {
     private static Map<String, String> parseAgentArgs(String str) {
         Map<String, String> map = new HashMap<String, String>();
         
+        if (str == null || str.isEmpty()) {
+            return map;
+        }
+        
         Scanner scanner = new Scanner(str);
         scanner.useDelimiter("\\s*,\\s*");
         
