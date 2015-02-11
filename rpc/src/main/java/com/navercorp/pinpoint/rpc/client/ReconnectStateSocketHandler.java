@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.rpc.DefaultFuture;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.client.ConnectFuture.Result;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
@@ -32,14 +33,13 @@ import java.net.SocketAddress;
  */
 public class ReconnectStateSocketHandler implements SocketHandler {
 
-
-    @Override
-    public void setConnectSocketAddress(SocketAddress connectSocketAddress) {
+    private static final ConnectFuture failedConnectFuture = new ConnectFuture();
+    static {
+        failedConnectFuture.setResult(Result.FAIL);
     }
 
     @Override
-    public void open() {
-        throw new IllegalStateException();
+    public void setConnectSocketAddress(SocketAddress connectSocketAddress) {
     }
 
     @Override
@@ -47,6 +47,11 @@ public class ReconnectStateSocketHandler implements SocketHandler {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    @Override
+    public ConnectFuture getConnectFuture() {
+        return failedConnectFuture;
+    }
+    
     @Override
     public void setPinpointSocket(PinpointSocket pinpointSocket) {
     }
