@@ -61,7 +61,7 @@ public final class AnnotationUtils {
         }
         
         final ServiceType serviceType = span.getServiceType();
-        final AnnotationKeyMatcher matcher = serviceType.getDisplayArgumentMatcher();
+        final AnnotationKeyMatcher matcher = ServiceType.findAnnotationKeyMatcher(serviceType);;
         
         for (AnnotationBo annotation : list) {
             int key = annotation.getKey();

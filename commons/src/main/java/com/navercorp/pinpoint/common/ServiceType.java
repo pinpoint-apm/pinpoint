@@ -58,7 +58,7 @@ public class ServiceType {
     public static ServiceType of(int code, String name, HistogramSchema histogramSchema, AnnotationKey displayArgument, ServiceTypeProperty... properties) {
         return of(code, name, name, histogramSchema, displayArgument, properties);
     }
-    
+
     public static ServiceType of(int code, String name, HistogramSchema histogramSchema, AnnotationKeyMatcher displayArgumentMatcher, ServiceTypeProperty... properties) {
         return new ServiceType(code, name, name, histogramSchema, displayArgumentMatcher, properties);
     }
@@ -70,7 +70,7 @@ public class ServiceType {
     public static ServiceType of(int code, String name, String desc, HistogramSchema histogramSchema, AnnotationKey displayArgument, ServiceTypeProperty... properties) {
         return new ServiceType(code, name, desc, histogramSchema, new AnnotationKeyMatcher.ExactMatcher(displayArgument), properties);
     }
-    
+
     public ServiceType(int code, String name, String desc, HistogramSchema histogramSchema, AnnotationKeyMatcher displayArgumentMatcher, ServiceTypeProperty... properties) {
         // code must be a short value but constructors accept int to make declaring ServiceType values more cleaner by removing casting to short.
         if (code > Short.MAX_VALUE || code < Short.MIN_VALUE) {
@@ -158,10 +158,6 @@ public class ServiceType {
         return isWas(this.code);
     }
     
-    public AnnotationKeyMatcher getDisplayArgumentMatcher() {
-        return displayArgumentMatcher;
-    }
-
     @Override
     public String toString() {
         return desc;
@@ -286,6 +282,7 @@ public class ServiceType {
     private static List<ServiceType> VALUES;
     private static IntHashMap<ServiceType> CODE_LOOKUP_TABLE = null;
     private static Map<String, List<ServiceType>> STATISTICS_LOOKUP_TABLE = null;
+    private static IntHashMap<AnnotationKeyMatcher> ANNOTATION_MATCHER_LOOKUP_TABLE = null;
 
     
     // Initialization
@@ -298,6 +295,7 @@ public class ServiceType {
         VALUES = serviceTypes;
         CODE_LOOKUP_TABLE = initializeServiceTypeCodeLookupTable(serviceTypes);
         STATISTICS_LOOKUP_TABLE = initializeServiceTypeStatisticsLookupTable(serviceTypes);
+        ANNOTATION_MATCHER_LOOKUP_TABLE = initializeAnnotationMatcherLookupTable(serviceTypes);
     }
     
     static synchronized boolean isInitialized() {
@@ -347,7 +345,23 @@ public class ServiceType {
         return table;
     }
 
-    
+    private static IntHashMap<AnnotationKeyMatcher> initializeAnnotationMatcherLookupTable(List<ServiceType> serviceTypes) {
+        IntHashMap<AnnotationKeyMatcher> table = new IntHashMap<AnnotationKeyMatcher>(256);
+
+        for (ServiceType serviceType : serviceTypes) {
+            table.put(serviceType.getCode(), serviceType.displayArgumentMatcher);
+        }
+        return table;
+    }
+
+
+    // work around. decoupling AnnotationKeyMatcher
+    public static AnnotationKeyMatcher findAnnotationKeyMatcher(ServiceType serviceType) {
+        if (serviceType == null) {
+            throw new NullPointerException("serviceType must not be null");
+        }
+        return ANNOTATION_MATCHER_LOOKUP_TABLE.get(serviceType.getCode());
+    }
     
     
     // FIXME it may be not good to find serviceType by using this api
