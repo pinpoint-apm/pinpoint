@@ -22,6 +22,6 @@ import com.navercorp.pinpoint.common.ServiceType;
  *
  */
 public interface ServiceTypeSetupContext {
-    public void addServiceType(ServiceType... serviceType);
-    public void addAnnotationKey(AnnotationKey... annotationKey);
+    void addServiceType(ServiceType... serviceType);
+    void addAnnotationKey(AnnotationKey... annotationKey);
 }
