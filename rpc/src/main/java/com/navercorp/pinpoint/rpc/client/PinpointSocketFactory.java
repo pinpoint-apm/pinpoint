@@ -65,7 +65,6 @@ public class PinpointSocketFactory {
     private static final long DEFAULT_PING_DELAY = 60 * 1000 * 5;
     private static final long DEFAULT_ENABLE_WORKER_PACKET_DELAY = 60 * 1000 * 1;
 
-
     private volatile boolean released;
     private ClientBootstrap bootstrap;
     private Map<String, Object> properties = Collections.emptyMap();
@@ -237,19 +236,21 @@ public class PinpointSocketFactory {
         return pinpointSocket;
     }
 
-    SocketHandler getSocketHandler(ChannelFuture connectFuture, SocketAddress address) {
+    SocketHandler getSocketHandler(ChannelFuture channelConnectFuture, SocketAddress address) {
         if (address == null) {
             throw new NullPointerException("address");
         }
 
-        SocketHandler socketHandler = getSocketHandler(connectFuture.getChannel());
+        SocketHandler socketHandler = getSocketHandler(channelConnectFuture.getChannel());
         socketHandler.setConnectSocketAddress(address);
-
-        connectFuture.awaitUninterruptibly();
-        if (!connectFuture.isSuccess()) {
-            throw new PinpointSocketException("connect fail. " + address, connectFuture.getCause());
+        
+        ConnectFuture handlerConnectFuture = socketHandler.getConnectFuture();
+        handlerConnectFuture.awaitUninterruptibly();
+        
+        if (ConnectFuture.Result.FAIL == handlerConnectFuture.getResult()) {
+            throw new PinpointSocketException("connect fail to " + address + ".", channelConnectFuture.getCause());
         }
-        socketHandler.open();
+
         return socketHandler;
     }
 
@@ -343,7 +344,6 @@ public class PinpointSocketFactory {
                     if (future.isSuccess()) {
                         Channel channel = future.getChannel();
                         logger.warn("reconnect success {}, {}", socketAddress, channel);
-                        socketHandler.open();
                         pinpointSocket.reconnectSocketHandler(socketHandler);
                     } else {
                          if (!pinpointSocket.isClosed()) {

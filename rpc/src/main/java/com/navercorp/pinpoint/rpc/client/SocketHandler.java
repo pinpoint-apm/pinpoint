@@ -32,10 +32,10 @@ public interface SocketHandler {
 
     void setConnectSocketAddress(SocketAddress address);
 
-    void open();
-
     void initReconnect();
 
+    ConnectFuture getConnectFuture();
+    
     void setPinpointSocket(PinpointSocket pinpointSocket);
 
     void sendSync(byte[] bytes);
