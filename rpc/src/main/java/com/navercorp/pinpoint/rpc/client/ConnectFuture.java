@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.rpc.client;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +29,11 @@ import org.slf4j.LoggerFactory;
 public class ConnectFuture {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
+    private static final AtomicReferenceFieldUpdater<ConnectFuture, Result> FIELD_UPDATER = AtomicReferenceFieldUpdater.newUpdater(ConnectFuture.class, Result.class, "result");
+
     private final CountDownLatch latch;
-    private final AtomicReference<Result> resultReference;
+    private volatile Result result;
 
     public static enum Result {
         SUCCESS, FAIL
@@ -39,18 +41,16 @@ public class ConnectFuture {
 
     public ConnectFuture() {
         this.latch = new CountDownLatch(1);
-        this.resultReference = new AtomicReference<ConnectFuture.Result>();
     }
 
     public Result getResult() {
-        return this.resultReference.get();
+        return this.result;
     }
     
     void setResult(Result connectResult) {
-        Result result = this.resultReference.get();
-
+        final Result result = this.result;
         if (result == null) {
-            if (this.resultReference.compareAndSet(null, connectResult)) {
+            if (FIELD_UPDATER.compareAndSet(this, null, connectResult)) {
                 latch.countDown();
             }
         }
