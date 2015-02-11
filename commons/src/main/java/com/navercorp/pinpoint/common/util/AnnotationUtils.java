@@ -62,15 +62,17 @@ public final class AnnotationUtils {
         
         final ServiceType serviceType = span.getServiceType();
         final AnnotationKeyMatcher matcher = ServiceType.findAnnotationKeyMatcher(serviceType);;
-        
+        if (matcher == null) {
+            return null;
+        }
+
         for (AnnotationBo annotation : list) {
             int key = annotation.getKey();
-            
+
             if (matcher.matches(key)) {
                 return annotation;
             }
         }
-        
         return null;
     }
 
