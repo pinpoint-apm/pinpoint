@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.rpc;
 
-import com.navercorp.pinpoint.rpc.client.PinpointSocket;
-import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
-import com.navercorp.pinpoint.rpc.server.PinpointServerSocket;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.navercorp.pinpoint.rpc.client.PinpointSocket;
+import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
+import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 
 /**
  * @author emeroad
@@ -38,12 +38,12 @@ public final class ClassPreLoader {
     }
 
     public static void preload(int port) {
-        PinpointServerSocket serverSocket = null;
+        PinpointServerAcceptor serverAcceptor = null;
         PinpointSocket socket = null;
         PinpointSocketFactory socketFactory = null;
         try {
-            serverSocket = new PinpointServerSocket();
-            serverSocket.bind("127.0.0.1", port);
+            serverAcceptor = new PinpointServerAcceptor();
+            serverAcceptor.bind("127.0.0.1", port);
 
             socketFactory = new PinpointSocketFactory();
             socket = socketFactory.connect("127.0.0.1", port);
@@ -79,9 +79,9 @@ public final class ClassPreLoader {
                 }
             }
 
-            if (serverSocket != null) {
+            if (serverAcceptor != null) {
                 try {
-                    serverSocket.close();
+                    serverAcceptor.close();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

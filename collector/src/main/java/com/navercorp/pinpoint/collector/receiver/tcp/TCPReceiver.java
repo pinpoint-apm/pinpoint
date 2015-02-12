@@ -46,9 +46,9 @@ import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.rpc.server.PinpointServerSocket;
+import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
+import com.navercorp.pinpoint.rpc.server.WritablePinpointServer;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
-import com.navercorp.pinpoint.rpc.server.SocketChannel;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.Header;
@@ -71,7 +71,7 @@ public class TCPReceiver {
     private final Logger logger = LoggerFactory.getLogger(TCPReceiver.class);
 
     private final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("Pinpoint-TCP-Worker");
-    private final PinpointServerSocket pinpointServerSocket;
+    private final PinpointServerAcceptor serverAcceptor;
     private final DispatchHandler dispatchHandler;
     private final String bindAddress;
     private final int port;
@@ -102,9 +102,10 @@ public class TCPReceiver {
         }
         
         if (service == null || !service.isEnable()) {
-            this.pinpointServerSocket = new PinpointServerSocket();
+            this.serverAcceptor = new PinpointServerAcceptor();
         } else {
-            this.pinpointServerSocket = new PinpointServerSocket(service.getChannelStateChangeEventHandler());
+            this.serverAcceptor = new PinpointServerAcceptor();
+            this.serverAcceptor.setStateChangeEventHandler(service.getChannelStateChangeEventHandler());
         }
         
         this.dispatchHandler = dispatchHandler;
@@ -112,7 +113,7 @@ public class TCPReceiver {
         this.port = port;
     }
 
-    private void setL4TcpChannel(PinpointServerSocket pinpointServerSocket) {
+    private void setL4TcpChannel(PinpointServerAcceptor serverFactory) {
         if (l4ipList == null) {
             return;
         }
@@ -131,7 +132,7 @@ public class TCPReceiver {
             }
             
             InetAddress[] inetAddressArray = new InetAddress[inetAddressList.size()];
-            pinpointServerSocket.setIgnoreAddressList(inetAddressList.toArray(inetAddressArray));
+            serverFactory.setIgnoreAddressList(inetAddressList.toArray(inetAddressArray));
         } catch (UnknownHostException e) {
             logger.warn("l4ipList error {}", l4ipList, e);
         }
@@ -139,18 +140,18 @@ public class TCPReceiver {
 
     @PostConstruct
     public void start() {
-        setL4TcpChannel(pinpointServerSocket);
+        setL4TcpChannel(serverAcceptor);
         // take care when attaching message handlers as events are generated from the IO thread.
         // pass them to a separate queue and handle them in a different thread.
-        this.pinpointServerSocket.setMessageListener(new ServerMessageListener() {
+        this.serverAcceptor.setMessageListener(new ServerMessageListener() {
             @Override
-            public void handleSend(SendPacket sendPacket, SocketChannel channel) {
-                receive(sendPacket, channel);
+            public void handleSend(SendPacket sendPacket, WritablePinpointServer pinpointServer) {
+                receive(sendPacket, pinpointServer);
             }
 
             @Override
-            public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
-                requestResponse(requestPacket, channel);
+            public void handleRequest(RequestPacket requestPacket, WritablePinpointServer pinpointServer) {
+                requestResponse(requestPacket, pinpointServer);
             }
 
             @Override
@@ -172,23 +173,23 @@ public class TCPReceiver {
                 }
             }
         });
-        this.pinpointServerSocket.bind(bindAddress, port);
+        this.serverAcceptor.bind(bindAddress, port);
 
 
     }
 
-    private void receive(SendPacket sendPacket, SocketChannel channel) {
+    private void receive(SendPacket sendPacket, WritablePinpointServer pinpointServer) {
         try {
-            worker.execute(new Dispatch(sendPacket.getPayload(), channel.getRemoteAddress()));
+            worker.execute(new Dispatch(sendPacket.getPayload(), pinpointServer.getRemoteAddress()));
         } catch (RejectedExecutionException e) {
             // cause is clear - full stack trace not necessary 
             logger.warn("RejectedExecutionException Caused:{}", e.getMessage());
         }
     }
 
-    private void requestResponse(RequestPacket requestPacket, SocketChannel channel) {
+    private void requestResponse(RequestPacket requestPacket, WritablePinpointServer pinpointServer) {
         try {
-            worker.execute(new RequestResponseDispatch(requestPacket, channel));
+            worker.execute(new RequestResponseDispatch(requestPacket, pinpointServer));
         } catch (RejectedExecutionException e) {
             // cause is clear - full stack trace not necessary
             logger.warn("RejectedExecutionException Caused:{}", e.getMessage());
@@ -234,22 +235,22 @@ public class TCPReceiver {
 
     private class RequestResponseDispatch implements Runnable {
         private final RequestPacket requestPacket;
-        private final SocketChannel socketChannel;
+        private final WritablePinpointServer pinpointServer;
 
 
-        private RequestResponseDispatch(RequestPacket requestPacket, SocketChannel socketChannel) {
+        private RequestResponseDispatch(RequestPacket requestPacket, WritablePinpointServer pinpointServer) {
             if (requestPacket == null) {
                 throw new NullPointerException("requestPacket");
             }
             this.requestPacket = requestPacket;
-            this.socketChannel = socketChannel;
+            this.pinpointServer = pinpointServer;
         }
 
         @Override
         public void run() {
 
             byte[] bytes = requestPacket.getPayload();
-            SocketAddress remoteAddress = socketChannel.getRemoteAddress();
+            SocketAddress remoteAddress = pinpointServer.getRemoteAddress();
             try {
                 TBase<?, ?> tBase = SerializationUtils.deserialize(bytes, deserializerFactory);
                 if (tBase instanceof L4Packet) {
@@ -262,7 +263,7 @@ public class TCPReceiver {
                 TBase result = dispatchHandler.dispatchRequestMessage(tBase, bytes, Header.HEADER_SIZE, bytes.length);
                 if (result != null) {
                     byte[] resultBytes = SerializationUtils.serialize(result, serializerFactory);
-                    socketChannel.sendResponseMessage(requestPacket, resultBytes);
+                    pinpointServer.response(requestPacket, resultBytes);
                 }
             } catch (TException e) {
                 if (logger.isWarnEnabled()) {
@@ -286,7 +287,7 @@ public class TCPReceiver {
     @PreDestroy
     public void stop() {
         logger.info("Pinpoint-TCP-Server stop");
-        pinpointServerSocket.close();
+        serverAcceptor.close();
         worker.shutdown();
         try {
             worker.awaitTermination(10, TimeUnit.SECONDS);

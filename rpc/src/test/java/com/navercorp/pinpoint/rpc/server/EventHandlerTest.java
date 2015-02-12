@@ -63,18 +63,19 @@ public class EventHandlerTest {
     public void registerAgentSuccessTest() throws Exception {
         EventHandler eventHandler = new EventHandler();
 
-        PinpointServerSocket serverSocket = new PinpointServerSocket(eventHandler);
-        serverSocket.setMessageListener(new SimpleListener());
-        serverSocket.bind("127.0.0.1", bindPort);
+        PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
+        serverAcceptor.setStateChangeEventHandler(eventHandler);
+        serverAcceptor.setMessageListener(new SimpleListener());
+        serverAcceptor.bind("127.0.0.1", bindPort);
 
         Socket socket = null;
         try {
             socket = new Socket("127.0.0.1", bindPort);
             sendAndReceiveSimplePacket(socket);
-            Assert.assertEquals(eventHandler.getCode(), PinpointServerSocketStateCode.RUN_WITHOUT_HANDSHAKE);
+            Assert.assertEquals(eventHandler.getCode(), PinpointServerStateCode.RUN_WITHOUT_HANDSHAKE);
 
             int code = sendAndReceiveRegisterPacket(socket, PinpointRPCTestUtils.getParams());
-            Assert.assertEquals(eventHandler.getCode(), PinpointServerSocketStateCode.RUN_DUPLEX);
+            Assert.assertEquals(eventHandler.getCode(), PinpointServerStateCode.RUN_DUPLEX);
 
             sendAndReceiveSimplePacket(socket);
         } finally {
@@ -82,7 +83,7 @@ public class EventHandlerTest {
                 socket.close();
             }
             
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
     
@@ -90,9 +91,10 @@ public class EventHandlerTest {
     public void registerAgentFailTest() throws Exception {
         ThrowExceptionEventHandler eventHandler = new ThrowExceptionEventHandler();
 
-        PinpointServerSocket serverSocket = new PinpointServerSocket(eventHandler);
-        serverSocket.setMessageListener(new SimpleListener());
-        serverSocket.bind("127.0.0.1", bindPort);
+        PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
+        serverAcceptor.setStateChangeEventHandler(eventHandler);
+        serverAcceptor.setMessageListener(new SimpleListener());
+        serverAcceptor.bind("127.0.0.1", bindPort);
 
         Socket socket = null;
         try {
@@ -105,7 +107,7 @@ public class EventHandlerTest {
                 socket.close();
             }
             
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 
@@ -191,14 +193,15 @@ public class EventHandlerTest {
 
     class SimpleListener implements ServerMessageListener {
         @Override
-        public void handleSend(SendPacket sendPacket, SocketChannel channel) {
+        public void handleSend(SendPacket sendPacket, WritablePinpointServer pinpointServer) {
 
         }
 
         @Override
-        public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
-            logger.info("handlerRequest {}", requestPacket, channel);
-            channel.sendResponseMessage(requestPacket, requestPacket.getPayload());
+        public void handleRequest(RequestPacket requestPacket, WritablePinpointServer pinpointServer) {
+            logger.info("handlerRequest {}", requestPacket);
+            
+            pinpointServer.response(requestPacket, requestPacket.getPayload());
         }
 
         @Override
@@ -211,18 +214,18 @@ public class EventHandlerTest {
 
     class EventHandler implements ChannelStateChangeEventHandler {
 
-        private PinpointServerSocketStateCode code;
+        private PinpointServerStateCode code;
 
         @Override
-        public void eventPerformed(ChannelContext channelContext, PinpointServerSocketStateCode stateCode) {
+        public void eventPerformed(PinpointServer pinpointServer, PinpointServerStateCode stateCode) {
             this.code = stateCode;
         }
         
         @Override
-        public void exceptionCaught(ChannelContext channelContext, PinpointServerSocketStateCode stateCode, Throwable e) {
+        public void exceptionCaught(PinpointServer pinpointServer, PinpointServerStateCode stateCode, Throwable e) {
         }
 
-        public PinpointServerSocketStateCode getCode() {
+        public PinpointServerStateCode getCode() {
             return code;
         }
     }
@@ -232,12 +235,12 @@ public class EventHandlerTest {
         private int errorCount = 0;
         
         @Override
-        public void eventPerformed(ChannelContext channelContext, PinpointServerSocketStateCode stateCode) throws Exception {
+        public void eventPerformed(PinpointServer pinpointServer, PinpointServerStateCode stateCode) throws Exception {
             throw new Exception("always error.");
         }
 
         @Override
-        public void exceptionCaught(ChannelContext channelContext, PinpointServerSocketStateCode stateCode, Throwable e) {
+        public void exceptionCaught(PinpointServer pinpointServer, PinpointServerStateCode stateCode, Throwable e) {
             errorCount++;
         }
 

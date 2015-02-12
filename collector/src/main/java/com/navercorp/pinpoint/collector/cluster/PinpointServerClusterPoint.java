@@ -22,18 +22,16 @@ import org.apache.commons.lang.StringUtils;
 
 import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
 import com.navercorp.pinpoint.rpc.Future;
-import com.navercorp.pinpoint.rpc.server.ChannelContext;
-import com.navercorp.pinpoint.rpc.server.SocketChannel;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.util.AssertUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 
 /**
  * @author koo.taejin
  */
-public class ChannelContextClusterPoint implements TargetClusterPoint {
+public class PinpointServerClusterPoint implements TargetClusterPoint {
 
-    private final ChannelContext channelContext;
-    private final SocketChannel socketChannel;
+    private final PinpointServer pinpointServer;
 
     private final String applicationName;
     private final String agentId;
@@ -41,14 +39,11 @@ public class ChannelContextClusterPoint implements TargetClusterPoint {
 
     private final String version;
 
-    public ChannelContextClusterPoint(ChannelContext channelContext) {
-        AssertUtils.assertNotNull(channelContext, "ChannelContext may not be null.");
-        this.channelContext = channelContext;
+    public PinpointServerClusterPoint(PinpointServer pinpointServer) {
+        AssertUtils.assertNotNull(pinpointServer, "pinpointServer may not be null.");
+        this.pinpointServer = pinpointServer;
 
-        this.socketChannel = channelContext.getSocketChannel();
-        AssertUtils.assertNotNull(socketChannel, "SocketChannel may not be null.");
-
-        Map<Object, Object> properties = channelContext.getChannelProperties();
+        Map<Object, Object> properties = pinpointServer.getChannelProperties();
         this.version = MapUtils.getString(properties, AgentHandshakePropertyType.VERSION.getName());
         AssertUtils.assertTrue(!StringUtils.isBlank(version), "Version may not be null or empty.");
 
@@ -63,13 +58,13 @@ public class ChannelContextClusterPoint implements TargetClusterPoint {
     }
 
     @Override
-    public void send(byte[] data) {
-        socketChannel.sendMessage(data);
+    public void send(byte[] payload) {
+        pinpointServer.send(payload);
     }
 
     @Override
-    public Future request(byte[] data) {
-        return socketChannel.sendRequestMessage(data);
+    public Future request(byte[] payload) {
+        return pinpointServer.request(payload);
     }
 
     @Override
@@ -91,13 +86,13 @@ public class ChannelContextClusterPoint implements TargetClusterPoint {
         return version;
     }
 
-    public ChannelContext getChannelContext() {
-        return channelContext;
+    public PinpointServer getPinpointServer() {
+        return pinpointServer;
     }
     
     @Override
     public String toString() {
-        return socketChannel.toString();
+        return pinpointServer.toString();
     }
     
     @Override
@@ -118,11 +113,11 @@ public class ChannelContextClusterPoint implements TargetClusterPoint {
             return true;
         }
 
-        if (!(obj instanceof ChannelContextClusterPoint)) {
+        if (!(obj instanceof PinpointServerClusterPoint)) {
             return false;
         }
 
-        if (this.getChannelContext() == ((ChannelContextClusterPoint) obj).getChannelContext()) {
+        if (this.getPinpointServer() == ((PinpointServerClusterPoint) obj).getPinpointServer()) {
             return true;
         }
 

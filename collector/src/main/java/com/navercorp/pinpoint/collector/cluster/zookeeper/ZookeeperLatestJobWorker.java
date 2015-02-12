@@ -40,8 +40,8 @@ import com.navercorp.pinpoint.collector.cluster.zookeeper.job.Job;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.job.UpdateJob;
 import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.rpc.server.ChannelContext;
-import com.navercorp.pinpoint.rpc.server.PinpointServerSocketStateCode;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
+import com.navercorp.pinpoint.rpc.server.PinpointServerStateCode;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 
 /**
@@ -70,10 +70,10 @@ public class ZookeeperLatestJobWorker implements Runnable {
 
     private final ZookeeperClient zookeeperClient;
 
-    private final ConcurrentHashMap<ChannelContext, Job> latestJobRepository = new ConcurrentHashMap<ChannelContext, Job>();
+    private final ConcurrentHashMap<PinpointServer, Job> latestJobRepository = new ConcurrentHashMap<PinpointServer, Job>();
 
-    // Storage for managing ChannelContexts received by Worker
-    private final CopyOnWriteArrayList<ChannelContext> channelContextRepository = new CopyOnWriteArrayList<ChannelContext>();
+    // Storage for managing PinpointServers received by Worker
+    private final CopyOnWriteArrayList<PinpointServer> pinpointServerRepository = new CopyOnWriteArrayList<PinpointServer>();
 
     private final BlockingQueue<Job> leakJobQueue = new LinkedBlockingQueue<Job>();
 
@@ -143,7 +143,7 @@ public class ZookeeperLatestJobWorker implements Runnable {
 
         // Things to consider
         // spinlock possible when events are not deleted
-        // may lead to ChannelContext leak when events are left unresolved
+        // may lead to PinpointServer leak when events are left unresolved
         while (workerState.isStarted()) {
             boolean eventCreated = await(60000, 200);
             if (!workerState.isStarted()) {
@@ -151,14 +151,14 @@ public class ZookeeperLatestJobWorker implements Runnable {
             }
 
             // handle events
-            // check and handle ChannelContext leak if events are not triggered
+            // check and handle PinpointServer leak if events are not triggered
             if (eventCreated) {
                 // to avoid ConcurrentModificationException
-                Iterator<ChannelContext> keyIterator = getLatestJobRepositoryKeyIterator();
+                Iterator<PinpointServer> keyIterator = getLatestJobRepositoryKeyIterator();
 
                 while (keyIterator.hasNext()) {
-                    ChannelContext channelContext = keyIterator.next();
-                    Job job = getJob(channelContext);
+                    PinpointServer pinpointServer = keyIterator.next();
+                    Job job = getJob(pinpointServer);
                     if (job == null) {
                         continue;
                     }
@@ -182,14 +182,14 @@ public class ZookeeperLatestJobWorker implements Runnable {
                     }
 
                     if (job instanceof UpdateJob) {
-                        putRetryJob(new UpdateJob(job.getChannelContext(), 1, ((UpdateJob) job).getContents()));
+                        putRetryJob(new UpdateJob(job.getPinpointServer(), 1, ((UpdateJob) job).getContents()));
                     }
                 }
 
-                for (ChannelContext channelContext : channelContextRepository) {
-                    if (PinpointServerSocketStateCode.isFinished(channelContext.getCurrentStateCode())) {
-                        logger.info("LeakDetector Find Leak ChannelContext={}.", channelContext);
-                        putJob(new DeleteJob(channelContext));
+                for (PinpointServer pinpointServer : pinpointServerRepository) {
+                    if (PinpointServerStateCode.isFinished(pinpointServer.getCurrentStateCode())) {
+                        logger.info("LeakDetector Find Leak PinpointServer={}.", pinpointServer);
+                        putJob(new DeleteJob(pinpointServer));
                     }
                 }
 
@@ -200,16 +200,16 @@ public class ZookeeperLatestJobWorker implements Runnable {
     }
 
     public boolean handleUpdate(UpdateJob job) {
-        ChannelContext channelContext = job.getChannelContext();
+        PinpointServer pinpointServer = job.getPinpointServer();
 
-        PinpointServerSocketStateCode code = channelContext.getCurrentStateCode();
-        if (PinpointServerSocketStateCode.isFinished(code)) {
-            putJob(new DeleteJob(channelContext));
+        PinpointServerStateCode code = pinpointServer.getCurrentStateCode();
+        if (PinpointServerStateCode.isFinished(code)) {
+            putJob(new DeleteJob(pinpointServer));
             return false;
         }
 
         try {
-            String addContents = createProfilerContents(channelContext);
+            String addContents = createProfilerContents(pinpointServer);
 
             if (zookeeperClient.exists(collectorUniqPath)) {
                 byte[] contents = zookeeperClient.getData(collectorUniqPath);
@@ -234,18 +234,18 @@ public class ZookeeperLatestJobWorker implements Runnable {
     }
 
     public boolean handleDelete(Job job) {
-        ChannelContext channelContext = job.getChannelContext();
+        PinpointServer pinpointServer = job.getPinpointServer();
 
         try {
             if (zookeeperClient.exists(collectorUniqPath)) {
                 byte[] contents = zookeeperClient.getData(collectorUniqPath);
 
-                String removeContents = createProfilerContents(channelContext);
+                String removeContents = createProfilerContents(pinpointServer);
                 String data = removeIfExistContents(new String(contents, charset), removeContents);
 
                 zookeeperClient.setData(collectorUniqPath, data.getBytes(charset));
             }
-            channelContextRepository.remove(channelContext);
+            pinpointServerRepository.remove(pinpointServer);
             return true;
         } catch (Exception e) {
             logger.warn(e.getMessage(), e);
@@ -267,8 +267,8 @@ public class ZookeeperLatestJobWorker implements Runnable {
         return null;
     }
 
-    public List<ChannelContext> getRegisteredChannelContextList() {
-        return new ArrayList<ChannelContext>(channelContextRepository);
+    public List<PinpointServer> getRegisteredPinpointServerList() {
+        return new ArrayList<PinpointServer>(pinpointServerRepository);
     }
 
     /**
@@ -312,29 +312,29 @@ public class ZookeeperLatestJobWorker implements Runnable {
         return waitTimeMillis < (System.currentTimeMillis() - startTimeMillis);
     }
 
-    private Iterator<ChannelContext> getLatestJobRepositoryKeyIterator() {
+    private Iterator<PinpointServer> getLatestJobRepositoryKeyIterator() {
         synchronized (lock) {
             return latestJobRepository.keySet().iterator();
         }
     }
 
     // must be invoked within a Runnable only
-    private Job getJob(ChannelContext channelContext) {
+    private Job getJob(PinpointServer pinpointServer) {
         synchronized (lock) {
-            Job job = latestJobRepository.remove(channelContext);
+            Job job = latestJobRepository.remove(pinpointServer);
             return job;
         }
     }
 
     public void putJob(Job job) {
-        ChannelContext channelContext = job.getChannelContext();
-        if (!checkRequiredProperties(channelContext)) {
+        PinpointServer pinpointServer = job.getPinpointServer();
+        if (!checkRequiredProperties(pinpointServer)) {
             return;
         }
 
         synchronized (lock) {
-            channelContextRepository.addIfAbsent(channelContext);
-            latestJobRepository.put(channelContext, job);
+            pinpointServerRepository.addIfAbsent(pinpointServer);
+            latestJobRepository.put(pinpointServer, job);
             lock.notifyAll();
         }
     }
@@ -350,10 +350,10 @@ public class ZookeeperLatestJobWorker implements Runnable {
             return;
         }
 
-        ChannelContext channelContext = job.getChannelContext();
+        PinpointServer pinpointServer = job.getPinpointServer();
 
         synchronized (lock) {
-            latestJobRepository.putIfAbsent(channelContext, job);
+            latestJobRepository.putIfAbsent(pinpointServer, job);
             lock.notifyAll();
         }
     }
@@ -370,8 +370,8 @@ public class ZookeeperLatestJobWorker implements Runnable {
         return fullPath.toString();
     }
 
-    private boolean checkRequiredProperties(ChannelContext channelContext) {
-        Map<Object, Object> agentProperties = channelContext.getChannelProperties();
+    private boolean checkRequiredProperties(PinpointServer pinpointServer) {
+        Map<Object, Object> agentProperties = pinpointServer.getChannelProperties();
         final String applicationName = MapUtils.getString(agentProperties, AgentHandshakePropertyType.APPLICATION_NAME.getName());
         final String agentId = MapUtils.getString(agentProperties, AgentHandshakePropertyType.AGENT_ID.getName());
         final Long startTimeStampe = MapUtils.getLong(agentProperties, AgentHandshakePropertyType.START_TIMESTAMP.getName());
@@ -384,10 +384,10 @@ public class ZookeeperLatestJobWorker implements Runnable {
         return true;
     }
 
-    private String createProfilerContents(ChannelContext channelContext) {
+    private String createProfilerContents(PinpointServer pinpointServer) {
         StringBuilder profilerContents = new StringBuilder();
 
-        Map<Object, Object> agentProperties = channelContext.getChannelProperties();
+        Map<Object, Object> agentProperties = pinpointServer.getChannelProperties();
         final String applicationName = MapUtils.getString(agentProperties, AgentHandshakePropertyType.APPLICATION_NAME.getName());
         final String agentId = MapUtils.getString(agentProperties, AgentHandshakePropertyType.AGENT_ID.getName());
         final Long startTimeStampe = MapUtils.getLong(agentProperties, AgentHandshakePropertyType.START_TIMESTAMP.getName());

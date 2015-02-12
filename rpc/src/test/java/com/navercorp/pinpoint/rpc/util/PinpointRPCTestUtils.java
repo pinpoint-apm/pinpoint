@@ -39,10 +39,9 @@ import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.AgentHandshakePropertyType;
-import com.navercorp.pinpoint.rpc.server.ChannelContext;
-import com.navercorp.pinpoint.rpc.server.PinpointServerSocket;
+import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
+import com.navercorp.pinpoint.rpc.server.WritablePinpointServer;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
-import com.navercorp.pinpoint.rpc.server.SocketChannel;
 
 public final class PinpointRPCTestUtils {
     
@@ -76,30 +75,30 @@ public final class PinpointRPCTestUtils {
         throw new IOException("can't find avaiable port.");
     }
 
-    public static PinpointServerSocket createServerSocket(int bindPort) {
-        return createServerSocket(bindPort, null);
+    public static PinpointServerAcceptor createPinpointServerFactory(int bindPort) {
+        return createPinpointServerFactory(bindPort, null);
     }
     
-    public static PinpointServerSocket createServerSocket(int bindPort, ServerMessageListener messageListener) {
-        PinpointServerSocket serverSocket = new PinpointServerSocket();
-        serverSocket.bind("127.0.0.1", bindPort);
+    public static PinpointServerAcceptor createPinpointServerFactory(int bindPort, ServerMessageListener messageListener) {
+        PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
+        serverAcceptor.bind("127.0.0.1", bindPort);
         
         if (messageListener != null) {
-            serverSocket.setMessageListener(messageListener);
+            serverAcceptor.setMessageListener(messageListener);
         }
 
-        return serverSocket;
+        return serverAcceptor;
     }
     
-    public static void close(PinpointServerSocket serverSocket, PinpointServerSocket... serverSockets) {
-        if (serverSocket != null) {
-            serverSocket.close();
+    public static void close(PinpointServerAcceptor serverAcceptor, PinpointServerAcceptor... serverAcceptors) {
+        if (serverAcceptor != null) {
+            serverAcceptor.close();
         }
         
-        if (serverSockets != null) {
-            for (PinpointServerSocket eachServerSocket : serverSockets) {
-                if (eachServerSocket != null) {
-                    eachServerSocket.close();
+        if (serverAcceptors != null) {
+            for (PinpointServerAcceptor eachServerAcceptor : serverAcceptors) {
+                if (eachServerAcceptor != null) {
+                    eachServerAcceptor.close();
                 }
             }
         }
@@ -120,19 +119,18 @@ public final class PinpointRPCTestUtils {
         return socketFactory;
     }
 
-    public static byte[] request(PinpointSocket socket, byte[] message) {
-        Future<ResponseMessage> future = socket.request(message);
+    public static byte[] request(WritablePinpointServer writableServer, byte[] message) {
+        Future<ResponseMessage> future = writableServer.request(message);
         future.await();
         return future.getResult().getMessage();
     }
-    
-    public static byte[] request(ChannelContext channelContext, byte[] message) {
-        Future<ResponseMessage> future = channelContext.getSocketChannel().sendRequestMessage(message);
-        future.await();
 
+    public static byte[] request(PinpointSocket pinpointSocket, byte[] message) {
+        Future<ResponseMessage> future = pinpointSocket.request(message);
+        future.await();
         return future.getResult().getMessage();
     }
-    
+
     public static void close(PinpointSocket socket, PinpointSocket... sockets) {
         if (socket != null) {
             socket.close();
@@ -189,16 +187,17 @@ public final class PinpointRPCTestUtils {
         private final List<RequestPacket> requestPacketRepository = new ArrayList<RequestPacket>();
         
         @Override
-        public void handleSend(SendPacket sendPacket, SocketChannel channel) {
+        public void handleSend(SendPacket sendPacket, WritablePinpointServer pinpointServer) {
             sendPacketRepository.add(sendPacket);
         }
 
         @Override
-        public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
+        public void handleRequest(RequestPacket requestPacket, WritablePinpointServer pinpointServer) {
             requestPacketRepository.add(requestPacket);
 
-            logger.info("handlerRequest {}", requestPacket, channel);
-            channel.sendResponseMessage(requestPacket, requestPacket.getPayload());
+            logger.info("handlerRequest {}", requestPacket);
+            
+            pinpointServer.response(requestPacket, requestPacket.getPayload());
         }
 
         @Override

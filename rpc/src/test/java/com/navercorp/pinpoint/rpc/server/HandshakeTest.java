@@ -62,7 +62,7 @@ public class HandshakeTest {
     // simple test
     @Test
     public void handshakeTest1() throws InterruptedException {
-        PinpointServerSocket serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort, new AlwaysHandshakeSuccessListener());
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new AlwaysHandshakeSuccessListener());
 
         PinpointSocketFactory clientSocketFactory1 = PinpointRPCTestUtils.createSocketFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
         PinpointSocketFactory clientSocketFactory2 = PinpointRPCTestUtils.createSocketFactory(PinpointRPCTestUtils.getParams(), null);
@@ -72,8 +72,8 @@ public class HandshakeTest {
 
             Thread.sleep(500);
 
-            List<ChannelContext> channelContextList = serverSocket.getDuplexCommunicationChannelContext();
-            if (channelContextList.size() != 2) {
+            List<WritablePinpointServer> writableServerList = serverAcceptor.getWritableServerList();
+            if (writableServerList.size() != 2) {
                 Assert.fail();
             }
 
@@ -82,13 +82,13 @@ public class HandshakeTest {
             clientSocketFactory1.release();
             clientSocketFactory2.release();
 
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 
     @Test
     public void handshakeTest2() throws InterruptedException {
-        PinpointServerSocket serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort, new AlwaysHandshakeSuccessListener());
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new AlwaysHandshakeSuccessListener());
 
         Map params = PinpointRPCTestUtils.getParams();
         
@@ -98,17 +98,16 @@ public class HandshakeTest {
             PinpointSocket socket = clientSocketFactory1.connect("127.0.0.1", bindPort);
             Thread.sleep(500);
 
-            ChannelContext channelContext = getChannelContext("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()), serverSocket.getDuplexCommunicationChannelContext());
-            Assert.assertNotNull(channelContext);
+            WritablePinpointServer writableServer = getWritableServer("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()), serverAcceptor.getWritableServerList());
+            Assert.assertNotNull(writableServer);
 
-            channelContext = getChannelContext("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()) + 1,
-                    serverSocket.getDuplexCommunicationChannelContext());
-            Assert.assertNull(channelContext);
+            writableServer = getWritableServer("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()) + 1, serverAcceptor.getWritableServerList());
+            Assert.assertNull(writableServer);
 
             PinpointRPCTestUtils.close(socket);
         } finally {
             clientSocketFactory1.release();
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 
@@ -136,7 +135,7 @@ public class HandshakeTest {
         Assert.assertTrue(handshaker.isFinished());
     }
 
-    private ChannelContext getChannelContext(String applicationName, String agentId, long startTimeMillis, List<ChannelContext> duplexChannelContextList) {
+    private WritablePinpointServer getWritableServer(String applicationName, String agentId, long startTimeMillis, List<WritablePinpointServer> writableServerList) {
         if (applicationName == null) {
             return null;
         }
@@ -149,36 +148,34 @@ public class HandshakeTest {
             return null;
         }
 
-        List<ChannelContext> channelContextList = new ArrayList<ChannelContext>();
+        List<WritablePinpointServer> result = new ArrayList<WritablePinpointServer>();
 
-        for (ChannelContext eachContext : duplexChannelContextList) {
-            if (eachContext.getCurrentStateCode() == PinpointServerSocketStateCode.RUN_DUPLEX) {
-                Map agentProperties = eachContext.getChannelProperties();
+        for (WritablePinpointServer writableServer : writableServerList) {
+            Map agentProperties = writableServer.getChannelProperties();
 
-                if (!applicationName.equals(agentProperties.get(AgentHandshakePropertyType.APPLICATION_NAME.getName()))) {
-                    continue;
-                }
-
-                if (!agentId.equals(agentProperties.get(AgentHandshakePropertyType.AGENT_ID.getName()))) {
-                    continue;
-                }
-
-                if (startTimeMillis != (Long) agentProperties.get(AgentHandshakePropertyType.START_TIMESTAMP.getName())) {
-                    continue;
-                }
-
-                channelContextList.add(eachContext);
+            if (!applicationName.equals(agentProperties.get(AgentHandshakePropertyType.APPLICATION_NAME.getName()))) {
+                continue;
             }
+
+            if (!agentId.equals(agentProperties.get(AgentHandshakePropertyType.AGENT_ID.getName()))) {
+                continue;
+            }
+
+            if (startTimeMillis != (Long) agentProperties.get(AgentHandshakePropertyType.START_TIMESTAMP.getName())) {
+                continue;
+            }
+
+            result.add(writableServer);
         }
 
-        if (channelContextList.size() == 0) {
+        if (result.size() == 0) {
             return null;
         }
 
-        if (channelContextList.size() == 1) {
-            return channelContextList.get(0);
+        if (result.size() == 1) {
+            return result.get(0);
         } else {
-            logger.warn("Ambiguous Channel Context {}, {}, {} (Valid Agent list={}).", applicationName, agentId, startTimeMillis, channelContextList);
+            logger.warn("Ambiguous Channel Context {}, {}, {} (Valid Agent list={}).", applicationName, agentId, startTimeMillis, result);
             return null;
         }
     }

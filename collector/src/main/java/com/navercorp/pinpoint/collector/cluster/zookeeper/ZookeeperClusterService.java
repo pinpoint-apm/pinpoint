@@ -38,7 +38,7 @@ import com.navercorp.pinpoint.collector.cluster.WorkerState;
 import com.navercorp.pinpoint.collector.cluster.WorkerStateContext;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
-import com.navercorp.pinpoint.rpc.server.ChannelContext;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler;
 
 /**
@@ -203,9 +203,9 @@ public class ZookeeperClusterService extends AbstractClusterService {
 
                 // duplicate event possible - but the logic does not change
                 if (ZookeeperUtils.isConnectedEvent(state, eventType)) {
-                    List<ChannelContext> currentChannelContextList = profilerClusterManager.getRegisteredChannelContextList();
-                    for (ChannelContext channelContext : currentChannelContextList) {
-                        profilerClusterManager.eventPerformed(channelContext, channelContext.getCurrentStateCode());
+                    List<PinpointServer> pinpointServerList = profilerClusterManager.getRegisteredPinpointServerList();
+                    for (PinpointServer pinpointServer : pinpointServerList) {
+                        profilerClusterManager.eventPerformed(pinpointServer, pinpointServer.getCurrentStateCode());
                     }
 
                     webClusterManager.handleAndRegisterWatcher(PINPOINT_WEB_CLUSTER_PATH);

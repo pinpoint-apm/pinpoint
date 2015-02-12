@@ -26,15 +26,15 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.collector.cluster.ChannelContextClusterPoint;
+import com.navercorp.pinpoint.collector.cluster.PinpointServerClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRepository;
 import com.navercorp.pinpoint.collector.cluster.WorkerState;
 import com.navercorp.pinpoint.collector.cluster.WorkerStateContext;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.job.DeleteJob;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.job.UpdateJob;
 import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
-import com.navercorp.pinpoint.rpc.server.ChannelContext;
-import com.navercorp.pinpoint.rpc.server.PinpointServerSocketStateCode;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
+import com.navercorp.pinpoint.rpc.server.PinpointServerStateCode;
 import com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 
@@ -113,27 +113,27 @@ public class ZookeeperProfilerClusterManager implements ChannelStateChangeEventH
     }
 
     @Override
-    public void eventPerformed(ChannelContext channelContext, PinpointServerSocketStateCode stateCode) {
+    public void eventPerformed(PinpointServer pinpointServer, PinpointServerStateCode stateCode) {
         if (workerState.isStarted()) {
-            logger.info("eventPerformed ChannelContext={}, State={}", channelContext, stateCode);
+            logger.info("eventPerformed PinpointServer={}, State={}", pinpointServer, stateCode);
 
-            Map agentProperties = channelContext.getChannelProperties();
+            Map agentProperties = pinpointServer.getChannelProperties();
 
             // skip when applicationName and agentId is unknown
             if (skipAgent(agentProperties)) {
                 return;
             }
 
-            if (PinpointServerSocketStateCode.RUN_DUPLEX == stateCode) {
-                UpdateJob job = new UpdateJob(channelContext, new byte[0]);
+            if (PinpointServerStateCode.RUN_DUPLEX == stateCode) {
+                UpdateJob job = new UpdateJob(pinpointServer, new byte[0]);
                 worker.putJob(job);
 
-                profileCluster.addClusterPoint(new ChannelContextClusterPoint(channelContext));
-            } else if (PinpointServerSocketStateCode.isFinished(stateCode)) {
-                DeleteJob job = new DeleteJob(channelContext);
+                profileCluster.addClusterPoint(new PinpointServerClusterPoint(pinpointServer));
+            } else if (PinpointServerStateCode.isFinished(stateCode)) {
+                DeleteJob job = new DeleteJob(pinpointServer);
                 worker.putJob(job);
 
-                profileCluster.removeClusterPoint(new ChannelContextClusterPoint(channelContext));
+                profileCluster.removeClusterPoint(new PinpointServerClusterPoint(pinpointServer));
             }
         } else {
             WorkerState state = this.workerState.getCurrentState();
@@ -143,7 +143,7 @@ public class ZookeeperProfilerClusterManager implements ChannelStateChangeEventH
     }
     
     @Override
-    public void exceptionCaught(ChannelContext channelContext, PinpointServerSocketStateCode stateCode, Throwable e) {
+    public void exceptionCaught(PinpointServer pinpointServer, PinpointServerStateCode stateCode, Throwable e) {
         if (logger.isWarnEnabled()) {
             logger.warn(this.getClass().getSimpleName() + " exception occured. Error: " + e.getMessage() + "."  , e);
         }
@@ -168,8 +168,8 @@ public class ZookeeperProfilerClusterManager implements ChannelStateChangeEventH
         return result;
     }
 
-    public List<ChannelContext> getRegisteredChannelContextList() {
-        return worker.getRegisteredChannelContextList();
+    public List<PinpointServer> getRegisteredPinpointServerList() {
+        return worker.getRegisteredPinpointServerList();
     }
 
     private boolean skipAgent(Map<Object, Object> agentProperties) {
