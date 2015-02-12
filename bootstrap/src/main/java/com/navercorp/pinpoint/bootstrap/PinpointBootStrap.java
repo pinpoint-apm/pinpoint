@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.ServiceTypeProviderLoader;
+import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.SystemProperty;
@@ -106,6 +107,8 @@ public class PinpointBootStrap {
 
         // set the path of log file as a system property
         saveLogFilePath(classPathResolver);
+        
+        savePinpointVersion();
 
         try {
             // Is it right to load the configuration in the bootstrap?
@@ -229,6 +232,11 @@ public class PinpointBootStrap {
 
         SYSTEM_PROPERTY.setProperty(ProductInfo.NAME + ".log", agentLogFilePath);
     }
+    
+    private static void savePinpointVersion() { 
+        logger.info("pinpoint version:" + Version.VERSION); 
+        SYSTEM_PROPERTY.setProperty(ProductInfo.NAME + ".version", Version.VERSION); 
+    } 
 
     private static String getConfigPath(ClassPathResolver classPathResolver) {
         final String configName = ProductInfo.NAME + ".config";

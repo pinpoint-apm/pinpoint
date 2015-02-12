@@ -32,7 +32,8 @@ public class ProfilerLibClass {
             "com.google.common",
             "org.apache.commons.lang",
             "org.apache.log4j",
-            "com.codahale.metrics"
+            "com.codahale.metrics",
+            "com.nhncorp.nelo2"
     };
 
     public boolean onLoadClass(String clazzName) {
