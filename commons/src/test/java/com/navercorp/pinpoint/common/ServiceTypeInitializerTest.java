@@ -25,8 +25,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.common.plugin.ServiceTypeProvider;
-import com.navercorp.pinpoint.common.plugin.ServiceTypeSetupContext;
+import com.navercorp.pinpoint.common.plugin.TypeProvider;
+import com.navercorp.pinpoint.common.plugin.TypeSetupContext;
 
 /**
  * @author Jongho Moon <jongho.moon@navercorp.com>
@@ -95,7 +95,7 @@ public class ServiceTypeInitializerTest {
 
     @Test
     public void testWithPlugins() {
-        ServiceTypeProviderLoader.initializeServiceType(Arrays.<ServiceTypeProvider>asList(new TestProvider(TEST_TYPES, TEST_KEYS)));
+        TypeProviderLoader.initializeServiceType(Arrays.<TypeProvider>asList(new TestProvider(TEST_TYPES, TEST_KEYS)));
         
         verifyServiceTypes(ServiceType.DEFAULT_VALUES);
         verifyAnnotationKeys(AnnotationKey.DEFAULT_VALUES);
@@ -106,7 +106,7 @@ public class ServiceTypeInitializerTest {
     
     @Test(expected=RuntimeException.class)
     public void testDuplicated() {
-        new ServiceTypeProviderLoader().load(Arrays.<ServiceTypeProvider>asList(
+        new TypeProviderLoader().load(Arrays.<TypeProvider>asList(
                 new TestProvider(TEST_TYPES, TEST_KEYS),
                 new TestProvider(new ServiceType[0], TEST_KEYS)
         ));
@@ -114,7 +114,7 @@ public class ServiceTypeInitializerTest {
     
     @Test(expected=RuntimeException.class)
     public void testDuplicated2() {
-        new ServiceTypeProviderLoader().load(Arrays.<ServiceTypeProvider>asList(
+        new TypeProviderLoader().load(Arrays.<TypeProvider>asList(
                 new TestProvider(TEST_TYPES, TEST_KEYS),
                 new TestProvider(TEST_TYPES, new AnnotationKey[0])
         ));
@@ -122,7 +122,7 @@ public class ServiceTypeInitializerTest {
     
     @Test(expected=RuntimeException.class)
     public void testDuplicated3() {
-        new ServiceTypeProviderLoader().load(Arrays.<ServiceTypeProvider>asList(
+        new TypeProviderLoader().load(Arrays.<TypeProvider>asList(
                 new TestProvider(TEST_TYPES, TEST_KEYS),
                 new TestProvider(TEST_TYPES, new AnnotationKey[0])
         ));
@@ -130,27 +130,27 @@ public class ServiceTypeInitializerTest {
 
     @Test(expected=RuntimeException.class)
     public void testDuplicatedWithDefault() {
-        new ServiceTypeProviderLoader().load(Arrays.<ServiceTypeProvider>asList(
+        new TypeProviderLoader().load(Arrays.<TypeProvider>asList(
                 new TestProvider(DUPLICATED_CODE_WITH_DEFAULT_TYPE, TEST_KEYS)
         ));
     }
 
     @Test(expected=RuntimeException.class)
     public void testDuplicatedWithDefault2() {
-        new ServiceTypeProviderLoader().load(Arrays.<ServiceTypeProvider>asList(
+        new TypeProviderLoader().load(Arrays.<TypeProvider>asList(
                 new TestProvider(DUPLICATED_NAME_WITH_DEFAULT_TYPE, TEST_KEYS)
         ));
     }
 
     @Test(expected=RuntimeException.class)
     public void testDuplicatedWithDefault3() {
-        new ServiceTypeProviderLoader().load(Arrays.<ServiceTypeProvider>asList(
+        new TypeProviderLoader().load(Arrays.<TypeProvider>asList(
                 new TestProvider(TEST_TYPES, DUPLICATED_CODE_WITH_DEFAULT_KEY)
         ));
     }
     
     
-    private static class TestProvider implements ServiceTypeProvider {
+    private static class TestProvider implements TypeProvider {
         private final ServiceType[] serviceTypes;
         private final AnnotationKey[] annotationKeys;
         
@@ -160,9 +160,9 @@ public class ServiceTypeInitializerTest {
         }
         
         @Override
-        public void setUp(ServiceTypeSetupContext context) {
+        public void setUp(TypeSetupContext context) {
             for (ServiceType type : serviceTypes) {
-                context.addServiceType(type);
+                context.addType(type);
             }
 
             for (AnnotationKey key : annotationKeys) {

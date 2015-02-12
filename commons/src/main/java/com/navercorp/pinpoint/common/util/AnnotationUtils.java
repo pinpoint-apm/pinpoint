@@ -20,10 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.AnnotationKey;
-import com.navercorp.pinpoint.common.AnnotationKeyMatcher;
-import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.bo.AnnotationBo;
-import com.navercorp.pinpoint.common.bo.Span;
 
 /**
  * @author emeroad
@@ -47,29 +44,6 @@ public final class AnnotationUtils {
         for (AnnotationBo annotation : annotationBoList) {
             int key = annotation.getKey();
             if (annotationKey.getCode() == key) {
-                return annotation;
-            }
-        }
-        return null;
-    }
-
-    public static AnnotationBo getDisplayArgument(Span span) {
-        // TODO needs a more generalized implementation for Arcus
-        List<AnnotationBo> list = span.getAnnotationBoList();
-        if (list == null) {
-            return null;
-        }
-        
-        final ServiceType serviceType = span.getServiceType();
-        final AnnotationKeyMatcher matcher = ServiceType.findAnnotationKeyMatcher(serviceType);;
-        if (matcher == null) {
-            return null;
-        }
-
-        for (AnnotationBo annotation : list) {
-            int key = annotation.getKey();
-
-            if (matcher.matches(key)) {
                 return annotation;
             }
         }

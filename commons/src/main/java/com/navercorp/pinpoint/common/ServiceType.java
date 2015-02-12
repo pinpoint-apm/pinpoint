@@ -16,18 +16,17 @@
 
 package com.navercorp.pinpoint.common;
 
-import static com.navercorp.pinpoint.common.AnnotationKeyMatcher.*;
 import static com.navercorp.pinpoint.common.HistogramSchema.*;
 import static com.navercorp.pinpoint.common.ServiceTypeProperty.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
 import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 
 
@@ -41,7 +40,6 @@ public class ServiceType {
     private final short code;
     private final String name;
     private final String desc;
-    private final AnnotationKeyMatcher displayArgumentMatcher;
     private final boolean terminal;
 
     // FIXME record statistics of only rpc call currently. so is it all right to chane into isRecordRpc()
@@ -54,24 +52,13 @@ public class ServiceType {
     public static ServiceType of(int code, String name, HistogramSchema histogramSchema, ServiceTypeProperty... properties) {
         return of(code, name, name, histogramSchema, properties);
     }
-    
-    public static ServiceType of(int code, String name, HistogramSchema histogramSchema, AnnotationKey displayArgument, ServiceTypeProperty... properties) {
-        return of(code, name, name, histogramSchema, displayArgument, properties);
-    }
-
-    public static ServiceType of(int code, String name, HistogramSchema histogramSchema, AnnotationKeyMatcher displayArgumentMatcher, ServiceTypeProperty... properties) {
-        return new ServiceType(code, name, name, histogramSchema, displayArgumentMatcher, properties);
-    }
 
     public static ServiceType of(int code, String name, String desc, HistogramSchema histogramSchema, ServiceTypeProperty... properties) {
-        return new ServiceType(code, name, desc, histogramSchema, NOTHING_MATCHER, properties);
-    }
-    
-    public static ServiceType of(int code, String name, String desc, HistogramSchema histogramSchema, AnnotationKey displayArgument, ServiceTypeProperty... properties) {
-        return new ServiceType(code, name, desc, histogramSchema, new AnnotationKeyMatcher.ExactMatcher(displayArgument), properties);
+        return new ServiceType(code, name, desc, histogramSchema, properties);
     }
 
-    public ServiceType(int code, String name, String desc, HistogramSchema histogramSchema, AnnotationKeyMatcher displayArgumentMatcher, ServiceTypeProperty... properties) {
+
+    public ServiceType(int code, String name, String desc, HistogramSchema histogramSchema, ServiceTypeProperty... properties) {
         // code must be a short value but constructors accept int to make declaring ServiceType values more cleaner by removing casting to short.
         if (code > Short.MAX_VALUE || code < Short.MIN_VALUE) {
             throw new IllegalArgumentException("code must be a short value");
@@ -81,8 +68,7 @@ public class ServiceType {
         this.name = name;
         this.desc = desc;
         this.histogramSchema = histogramSchema;
-        this.displayArgumentMatcher = displayArgumentMatcher;
-        
+
         boolean terminal = false;
         boolean recordStatistics = false;
         boolean includeDestinationId = false;
@@ -187,20 +173,20 @@ public class ServiceType {
      * Database shown only as xxx_EXECUTE_QUERY at the statistics info section in the server map
      */
     // DB 2000
-    public static final ServiceType UNKNOWN_DB = of(2050, "UNKNOWN_DB", NORMAL_SCHEMA, AnnotationKey.ARGS0, TERMINAL, INCLUDE_DESTINATION_ID);
-    public static final ServiceType UNKNOWN_DB_EXECUTE_QUERY = of(2051, "UNKNOWN_DB_EXECUTE_QUERY", "UNKNOWN_DB", NORMAL_SCHEMA, AnnotationKey.ARGS0, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
+    public static final ServiceType UNKNOWN_DB = of(2050, "UNKNOWN_DB", NORMAL_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
+    public static final ServiceType UNKNOWN_DB_EXECUTE_QUERY = of(2051, "UNKNOWN_DB_EXECUTE_QUERY", "UNKNOWN_DB", NORMAL_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
 
-    public static final ServiceType MYSQL = of(2100, "MYSQL", NORMAL_SCHEMA, AnnotationKey.ARGS0, TERMINAL, INCLUDE_DESTINATION_ID);
-    public static final ServiceType MYSQL_EXECUTE_QUERY = of(2101, "MYSQL_EXECUTE_QUERY", "MYSQL", NORMAL_SCHEMA, AnnotationKey.ARGS0, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
+    public static final ServiceType MYSQL = of(2100, "MYSQL", NORMAL_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
+    public static final ServiceType MYSQL_EXECUTE_QUERY = of(2101, "MYSQL_EXECUTE_QUERY", "MYSQL", NORMAL_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
 
-    public static final ServiceType MSSQL = of(2200, "MSSQL", "MSSQLSERVER", NORMAL_SCHEMA, AnnotationKey.ARGS0, TERMINAL, INCLUDE_DESTINATION_ID);
-    public static final ServiceType MSSQL_EXECUTE_QUERY = of(2201, "MSSQL_EXECUTE_QUERY", "MSSQLSERVER", NORMAL_SCHEMA, AnnotationKey.ARGS0, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
+    public static final ServiceType MSSQL = of(2200, "MSSQL", "MSSQLSERVER", NORMAL_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
+    public static final ServiceType MSSQL_EXECUTE_QUERY = of(2201, "MSSQL_EXECUTE_QUERY", "MSSQLSERVER", NORMAL_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
 
-    public static final ServiceType ORACLE = of(2300, "ORACLE", NORMAL_SCHEMA, AnnotationKey.ARGS0, TERMINAL, INCLUDE_DESTINATION_ID);
-    public static final ServiceType ORACLE_EXECUTE_QUERY = of(2301, "ORACLE_EXECUTE_QUERY", "ORACLE", NORMAL_SCHEMA, AnnotationKey.ARGS0, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
+    public static final ServiceType ORACLE = of(2300, "ORACLE", NORMAL_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
+    public static final ServiceType ORACLE_EXECUTE_QUERY = of(2301, "ORACLE_EXECUTE_QUERY", "ORACLE", NORMAL_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
 
-    public static final ServiceType CUBRID = of(2400, "CUBRID", NORMAL_SCHEMA, AnnotationKey.ARGS0, TERMINAL, INCLUDE_DESTINATION_ID);
-    public static final ServiceType CUBRID_EXECUTE_QUERY = of(2401, "CUBRID_EXECUTE_QUERY", "CUBRID", NORMAL_SCHEMA, AnnotationKey.ARGS0, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
+    public static final ServiceType CUBRID = of(2400, "CUBRID", NORMAL_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
+    public static final ServiceType CUBRID_EXECUTE_QUERY = of(2401, "CUBRID_EXECUTE_QUERY", "CUBRID", NORMAL_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
 
     // Internal method
     // FIXME it's not clear to put internal method here. but do that for now.
@@ -210,20 +196,20 @@ public class ServiceType {
     public static final ServiceType SPRING = of(5050, "SPRING", NORMAL_SCHEMA);
     public static final ServiceType SPRING_MVC = of(5051, "SPRING_MVC", "SPRING", NORMAL_SCHEMA);
     // FIXME need to define how to handle spring related codes
-    public static final ServiceType SPRING_ORM_IBATIS = of(5061, "SPRING_ORM_IBATIS", "SPRING", NORMAL_SCHEMA, AnnotationKey.ARGS0);
+    public static final ServiceType SPRING_ORM_IBATIS = of(5061, "SPRING_ORM_IBATIS", "SPRING", NORMAL_SCHEMA);
     public static final ServiceType SPRING_BEAN = of(5071, "SPRING_BEAN", "SPRING_BEAN", NORMAL_SCHEMA);
 
     // xBatis
-    public static final ServiceType IBATIS = of(5500, "IBATIS", NORMAL_SCHEMA, AnnotationKey.ARGS0);
-    public static final ServiceType MYBATIS = of(5510, "MYBATIS", NORMAL_SCHEMA, AnnotationKey.ARGS0);
+    public static final ServiceType IBATIS = of(5500, "IBATIS", NORMAL_SCHEMA);
+    public static final ServiceType MYBATIS = of(5510, "MYBATIS", NORMAL_SCHEMA);
 
     // DBCP
     public static final ServiceType DBCP = of(6050, "DBCP", NORMAL_SCHEMA);
 
     // Memory cache
-    public static final ServiceType MEMCACHED = of(8050, "MEMCACHED", FAST_SCHEMA, ARGS_MATCHER, TERMINAL, RECORD_STATISTICS);
+    public static final ServiceType MEMCACHED = of(8050, "MEMCACHED", FAST_SCHEMA, TERMINAL, RECORD_STATISTICS);
     public static final ServiceType MEMCACHED_FUTURE_GET = of(8051, "MEMCACHED_FUTURE_GET", "MEMCACHED", FAST_SCHEMA, TERMINAL);
-    public static final ServiceType ARCUS = of(8100, "ARCUS", FAST_SCHEMA, ARGS_MATCHER, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
+    public static final ServiceType ARCUS = of(8100, "ARCUS", FAST_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
     public static final ServiceType ARCUS_FUTURE_GET = of(8101, "ARCUS_FUTURE_GET", "ARCUS", FAST_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
     public static final ServiceType ARCUS_EHCACHE_FUTURE_GET = of(8102, "ARCUS_EHCACHE_FUTURE_GET", "ARCUS-EHCACHE", FAST_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
 
@@ -232,62 +218,30 @@ public class ServiceType {
     public static final ServiceType NBASE_ARC = of(8250, "NBASE_ARC", FAST_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
 
     // Connector, Client
-    public static final ServiceType HTTP_CLIENT = of(9050, "HTTP_CLIENT", NORMAL_SCHEMA, AnnotationKey.HTTP_URL, RECORD_STATISTICS);
-    public static final ServiceType HTTP_CLIENT_INTERNAL = of(9051, "HTTP_CLIENT_INTERNAL", "HTTP_CLIENT", NORMAL_SCHEMA, AnnotationKey.HTTP_CALL_RETRY_COUNT);
-    public static final ServiceType JDK_HTTPURLCONNECTOR = of(9055, "JDK_HTTPURLCONNECTOR", "JDK_HTTPCONNECTOR", NORMAL_SCHEMA, AnnotationKey.HTTP_URL, RECORD_STATISTICS);
+    public static final ServiceType HTTP_CLIENT = of(9050, "HTTP_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
+    public static final ServiceType HTTP_CLIENT_INTERNAL = of(9051, "HTTP_CLIENT_INTERNAL", "HTTP_CLIENT", NORMAL_SCHEMA);
+    public static final ServiceType JDK_HTTPURLCONNECTOR = of(9055, "JDK_HTTPURLCONNECTOR", "JDK_HTTPCONNECTOR", NORMAL_SCHEMA);
     public static final ServiceType NPC_CLIENT = of(9060, "NPC_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
     public static final ServiceType NIMM_CLIENT = of(9070, "NIMM_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
 
-    static final List<ServiceType> DEFAULT_VALUES = Collections.unmodifiableList(Arrays.asList(
-        UNDEFINED,
-        UNKNOWN,
-        USER,
-        UNKNOWN_GROUP,
-        TEST,
-        STAND_ALONE,
-        TEST_STAND_ALONE,
-        TOMCAT,
-        UNKNOWN_DB,
-        UNKNOWN_DB_EXECUTE_QUERY,
-        MYSQL,
-        MYSQL_EXECUTE_QUERY,
-        MSSQL,
-        MSSQL_EXECUTE_QUERY,
-        ORACLE,
-        ORACLE_EXECUTE_QUERY,
-        CUBRID,
-        CUBRID_EXECUTE_QUERY,
-        INTERNAL_METHOD,
-        SPRING,
-        SPRING_MVC,
-        SPRING_ORM_IBATIS,
-        SPRING_BEAN,
-        IBATIS,
-        MYBATIS,
-        DBCP,
-        MEMCACHED,
-        MEMCACHED_FUTURE_GET,
-//        ARCUS,
-//        ARCUS_FUTURE_GET,
-//        ARCUS_EHCACHE_FUTURE_GET,
-        REDIS,
-        NBASE_ARC,
-        HTTP_CLIENT,
-        HTTP_CLIENT_INTERNAL,
-        JDK_HTTPURLCONNECTOR,
-        NPC_CLIENT,
-        NIMM_CLIENT
-    ));
+    static final List<ServiceType> DEFAULT_VALUES = Collections.unmodifiableList(defaultLookup());
+
+    private static List<ServiceType> defaultLookup() {
+        StaticFieldLookUp<ServiceType> lookUp = new StaticFieldLookUp<ServiceType>(ServiceType.class, ServiceType.class);
+        ServiceType[] exclude = { ARCUS, ARCUS_FUTURE_GET, ARCUS_EHCACHE_FUTURE_GET};
+        StaticFieldLookUp.ExcludeFilter<ServiceType> excludeFilter = new StaticFieldLookUp.ExcludeFilter<ServiceType>(exclude);
+        return lookUp.lookup(excludeFilter);
+    }
 
     private static List<ServiceType> VALUES;
     private static IntHashMap<ServiceType> CODE_LOOKUP_TABLE = null;
     private static Map<String, List<ServiceType>> STATISTICS_LOOKUP_TABLE = null;
-    private static IntHashMap<AnnotationKeyMatcher> ANNOTATION_MATCHER_LOOKUP_TABLE = null;
+
 
     
     // Initialization
     static {
-        ServiceTypeProviderLoader.checkServiceTypes(DEFAULT_VALUES);
+        TypeProviderLoader.checkServiceTypes(DEFAULT_VALUES);
         setValues(DEFAULT_VALUES);
     }
 
@@ -295,7 +249,6 @@ public class ServiceType {
         VALUES = serviceTypes;
         CODE_LOOKUP_TABLE = initializeServiceTypeCodeLookupTable(serviceTypes);
         STATISTICS_LOOKUP_TABLE = initializeServiceTypeStatisticsLookupTable(serviceTypes);
-        ANNOTATION_MATCHER_LOOKUP_TABLE = initializeAnnotationMatcherLookupTable(serviceTypes);
     }
     
     static synchronized boolean isInitialized() {
@@ -345,25 +298,6 @@ public class ServiceType {
         return table;
     }
 
-    private static IntHashMap<AnnotationKeyMatcher> initializeAnnotationMatcherLookupTable(List<ServiceType> serviceTypes) {
-        IntHashMap<AnnotationKeyMatcher> table = new IntHashMap<AnnotationKeyMatcher>(256);
-
-        for (ServiceType serviceType : serviceTypes) {
-            table.put(serviceType.getCode(), serviceType.displayArgumentMatcher);
-        }
-        return table;
-    }
-
-
-    // work around. decoupling AnnotationKeyMatcher
-    public static AnnotationKeyMatcher findAnnotationKeyMatcher(ServiceType serviceType) {
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null");
-        }
-        return ANNOTATION_MATCHER_LOOKUP_TABLE.get(serviceType.getCode());
-    }
-    
-    
     // FIXME it may be not good to find serviceType by using this api
     public static List<ServiceType> findDesc(String desc) {
         if (desc == null) {

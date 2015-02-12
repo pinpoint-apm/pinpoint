@@ -236,7 +236,7 @@ public class AnnotationKey {
 
     
     static {
-        ServiceTypeProviderLoader.checkAnnotationKeys(DEFAULT_VALUES);
+        TypeProviderLoader.checkAnnotationKeys(DEFAULT_VALUES);
         setValues(DEFAULT_VALUES);
     }
 

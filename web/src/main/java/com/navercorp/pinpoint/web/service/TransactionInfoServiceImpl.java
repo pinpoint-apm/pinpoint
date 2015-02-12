@@ -21,7 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.AnnotationKey;
+import com.navercorp.pinpoint.common.AnnotationKeyMatcher;
+import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.bo.Span;
 import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.util.AnnotationUtils;
@@ -53,6 +56,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     @Autowired
     private TraceDao traceDao;
+
+    @Autowired
+    private AnnotationKeyMatcherService annotationKeyMatcherService;
     
     @Override
     public BusinessTransactions selectBusinessTransactions(List<TransactionId> transactionIdList, String applicationName, Range range, Filter filter) {
@@ -200,7 +206,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         return firstSpan;
     }
 
-    private static class SpanAlignPopulate {
+    private class SpanAlignPopulate {
         private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
         private final ApiDescriptionParser apiDescriptionParser = new ApiDescriptionParser();
@@ -528,27 +534,50 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         }
     }
 
-    private static String getDisplayArgument(SpanBo spanBo) {
-        AnnotationBo displayArgument = AnnotationUtils.getDisplayArgument(spanBo);
+    private String getDisplayArgument(SpanBo spanBo) {
+        AnnotationBo displayArgument = getDisplayArgument0(spanBo);
         if (displayArgument == null) {
             return "";
         }
         return ObjectUtils.toString(displayArgument.getValue());
     }
 
-    private static String getDisplayArgument(SpanEventBo spanEventBo) {
-        AnnotationBo displayArgument = AnnotationUtils.getDisplayArgument(spanEventBo);
+    private String getDisplayArgument(SpanEventBo spanEventBo) {
+        AnnotationBo displayArgument = getDisplayArgument0(spanEventBo);
         if (displayArgument == null) {
             return "";
         }
         return ObjectUtils.toString(displayArgument.getValue());
     }
 
-    private static String getRpcArgument(SpanBo spanBo) {
+    private String getRpcArgument(SpanBo spanBo) {
         String rpc = spanBo.getRpc();
         if (rpc != null) {
             return rpc;
         }
         return getDisplayArgument(spanBo);
+    }
+
+    public AnnotationBo getDisplayArgument0(Span span) {
+        // TODO needs a more generalized implementation for Arcus
+        List<AnnotationBo> list = span.getAnnotationBoList();
+        if (list == null) {
+            return null;
+        }
+
+        final ServiceType serviceType = span.getServiceType();
+        final AnnotationKeyMatcher matcher = annotationKeyMatcherService.findAnnotationKeyMatcher(serviceType);;
+        if (matcher == null) {
+            return null;
+        }
+
+        for (AnnotationBo annotation : list) {
+            int key = annotation.getKey();
+
+            if (matcher.matches(key)) {
+                return annotation;
+            }
+        }
+        return null;
     }
 }

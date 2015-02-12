@@ -19,6 +19,6 @@ package com.navercorp.pinpoint.common.plugin;
  * @author Jongho Moon <jongho.moon@navercorp.com>
  *
  */
-public interface ServiceTypeProvider {
-    public void setUp(ServiceTypeSetupContext context);
+public interface TypeProvider {
+    void setUp(TypeSetupContext context);
 }
