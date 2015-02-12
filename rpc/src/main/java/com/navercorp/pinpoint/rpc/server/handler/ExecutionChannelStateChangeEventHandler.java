@@ -21,8 +21,8 @@ import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.rpc.server.ChannelContext;
-import com.navercorp.pinpoint.rpc.server.PinpointServerSocketStateCode;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
+import com.navercorp.pinpoint.rpc.server.PinpointServerStateCode;
 
 /**
  * @author koo.taejin
@@ -40,28 +40,28 @@ public abstract class ExecutionChannelStateChangeEventHandler implements Channel
     }
     
     @Override
-    public void eventPerformed(ChannelContext channelContext, PinpointServerSocketStateCode stateCode) {
-        logger.info("{} eventPerformed {}:{}", this.getClass().getSimpleName(), channelContext, stateCode);
+    public void eventPerformed(PinpointServer pinpointServer, PinpointServerStateCode stateCode) {
+        logger.info("{} eventPerformed {}:{}", this.getClass().getSimpleName(), pinpointServer, stateCode);
 
-        Execution execution = new Execution(channelContext, stateCode);
+        Execution execution = new Execution(pinpointServer, stateCode);
         this.executor.execute(execution);
     }
     
     private class Execution implements Runnable {
-        private final ChannelContext channelContext;
-        private final PinpointServerSocketStateCode stateCode;
+        private final PinpointServer pinpointServer;
+        private final PinpointServerStateCode stateCode;
 
-        public Execution(ChannelContext channelContext, PinpointServerSocketStateCode stateCode) {
-            this.channelContext = channelContext;
+        public Execution(PinpointServer pinpointServer, PinpointServerStateCode stateCode) {
+            this.pinpointServer = pinpointServer;
             this.stateCode = stateCode;
         }
         
         @Override
         public void run() {
             try {
-                handler.eventPerformed(channelContext, stateCode);
+                handler.eventPerformed(pinpointServer, stateCode);
             } catch (Exception e) {
-                handler.exceptionCaught(channelContext, stateCode, e);
+                handler.exceptionCaught(pinpointServer, stateCode, e);
             }
         }
     }

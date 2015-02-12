@@ -28,8 +28,8 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.server.ChannelContext;
-import com.navercorp.pinpoint.rpc.server.PinpointServerSocket;
+import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
+import com.navercorp.pinpoint.rpc.server.WritablePinpointServer;
 import com.navercorp.pinpoint.rpc.server.SimpleLoggingServerMessageListener;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils.EchoClientListener;
@@ -39,15 +39,15 @@ public class ClientMessageListenerTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static int bindPort;
-    
+
     @BeforeClass
     public static void setUp() throws IOException {
         bindPort = PinpointRPCTestUtils.findAvailablePort();
     }
-    
+
     @Test
     public void clientMessageListenerTest1() throws InterruptedException {
-        PinpointServerSocket serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort, new AlwaysHandshakeSuccessListener());
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new AlwaysHandshakeSuccessListener());
 
         EchoClientListener echoMessageListener = new EchoClientListener();
         PinpointSocketFactory clientSocketFactory = PinpointRPCTestUtils.createSocketFactory(PinpointRPCTestUtils.getParams(), echoMessageListener);
@@ -56,29 +56,29 @@ public class ClientMessageListenerTest {
             PinpointSocket socket = clientSocketFactory.connect("127.0.0.1", bindPort);
             Thread.sleep(500);
 
-            List<ChannelContext> channelContextList = serverSocket.getDuplexCommunicationChannelContext();
-            if (channelContextList.size() != 1) {
+            List<WritablePinpointServer> writableServerList = serverAcceptor.getWritableServerList();
+            if (writableServerList.size() != 1) {
                 Assert.fail();
             }
 
-            ChannelContext channelContext = channelContextList.get(0);
-            assertSendMessage(channelContextList.get(0), "simple", echoMessageListener);
-            assertRequestMessage(channelContext, "request", echoMessageListener);
+            WritablePinpointServer writableServer = writableServerList.get(0);
+            assertSendMessage(writableServer, "simple", echoMessageListener);
+            assertRequestMessage(writableServer, "request", echoMessageListener);
 
             PinpointRPCTestUtils.close(socket);
         } finally {
             clientSocketFactory.release();
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 
     @Test
     public void clientMessageListenerTest2() throws InterruptedException {
-        PinpointServerSocket serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort, new AlwaysHandshakeSuccessListener());
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new AlwaysHandshakeSuccessListener());
 
         EchoClientListener echoMessageListener1 = PinpointRPCTestUtils.createEchoClientListener();
         PinpointSocketFactory clientSocketFactory1 = PinpointRPCTestUtils.createSocketFactory(PinpointRPCTestUtils.getParams(), echoMessageListener1);
-        
+
         EchoClientListener echoMessageListener2 = PinpointRPCTestUtils.createEchoClientListener();
         PinpointSocketFactory clientSocketFactory2 = PinpointRPCTestUtils.createSocketFactory(PinpointRPCTestUtils.getParams(), echoMessageListener2);
 
@@ -88,39 +88,38 @@ public class ClientMessageListenerTest {
 
             Thread.sleep(500);
 
-            List<ChannelContext> channelContextList = serverSocket.getDuplexCommunicationChannelContext();
-            if (channelContextList.size() != 2) {
+            List<WritablePinpointServer> writableServerList = serverAcceptor.getWritableServerList();
+            if (writableServerList.size() != 2) {
                 Assert.fail();
             }
 
-            // channelcontext matching error
-            ChannelContext channelContext = channelContextList.get(0);
-            assertRequestMessage(channelContext, "socket1", null);
+            WritablePinpointServer writableServer = writableServerList.get(0);
+            assertRequestMessage(writableServer, "socket1", null);
 
-            ChannelContext channelContext2 = channelContextList.get(1);
-            assertRequestMessage(channelContext2, "socket2", null);
+            WritablePinpointServer writableServer2 = writableServerList.get(1);
+            assertRequestMessage(writableServer2, "socket2", null);
 
             Assert.assertEquals(1, echoMessageListener1.getRequestPacketRepository().size());
             Assert.assertEquals(1, echoMessageListener2.getRequestPacketRepository().size());
-            
+
             PinpointRPCTestUtils.close(socket, socket2);
         } finally {
             clientSocketFactory1.release();
             clientSocketFactory2.release();
 
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 
-    private void assertSendMessage(ChannelContext channelContext, String message, EchoClientListener echoMessageListener) throws InterruptedException {
-        channelContext.getSocketChannel().sendMessage(message.getBytes());
+    private void assertSendMessage(WritablePinpointServer writableServer, String message, EchoClientListener echoMessageListener) throws InterruptedException {
+        writableServer.send(message.getBytes());
         Thread.sleep(100);
 
         Assert.assertEquals(message, new String(echoMessageListener.getSendPacketRepository().get(0).getPayload()));
     }
 
-    private void assertRequestMessage(ChannelContext channelContext, String message, EchoClientListener echoMessageListener) throws InterruptedException {
-        byte[] response = PinpointRPCTestUtils.request(channelContext, message.getBytes());
+    private void assertRequestMessage(WritablePinpointServer writableServer, String message, EchoClientListener echoMessageListener) throws InterruptedException {
+        byte[] response = PinpointRPCTestUtils.request(writableServer, message.getBytes());
         Assert.assertEquals(message, new String(response));
 
         if (echoMessageListener != null) {

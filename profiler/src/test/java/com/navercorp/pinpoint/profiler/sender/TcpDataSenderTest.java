@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.client.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
@@ -37,9 +36,9 @@ import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.rpc.server.PinpointServerSocket;
+import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
-import com.navercorp.pinpoint.rpc.server.SocketChannel;
+import com.navercorp.pinpoint.rpc.server.WritablePinpointServer;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 
 /**
@@ -52,16 +51,16 @@ public class TcpDataSenderTest {
     public static final int PORT = 10050;
     public static final String HOST = "127.0.0.1";
 
-    private PinpointServerSocket server;
+    private PinpointServerAcceptor serverAcceptor;
     private CountDownLatch sendLatch;
 
     @Before
     public void serverStart() {
-        server = new PinpointServerSocket();
-        server.setMessageListener(new ServerMessageListener() {
-
+        serverAcceptor = new PinpointServerAcceptor();
+        serverAcceptor.setMessageListener(new ServerMessageListener() {
+            
             @Override
-            public void handleSend(SendPacket sendPacket, SocketChannel channel) {
+            public void handleSend(SendPacket sendPacket, WritablePinpointServer pinpointServer) {
                 logger.info("handleSend:{}", sendPacket);
                 if (sendLatch != null) {
                     sendLatch.countDown();
@@ -69,7 +68,7 @@ public class TcpDataSenderTest {
             }
 
             @Override
-            public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
+            public void handleRequest(RequestPacket requestPacket, WritablePinpointServer pinpointServer) {
                 logger.info("handleRequest:{}", requestPacket);
             }
             
@@ -78,13 +77,13 @@ public class TcpDataSenderTest {
                 return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
             }
         });
-        server.bind(HOST, PORT);
+        serverAcceptor.bind(HOST, PORT);
     }
 
     @After
     public void serverShutdown() {
-        if (server != null) {
-            server.close();
+        if (serverAcceptor != null) {
+            serverAcceptor.close();
         }
     }
 

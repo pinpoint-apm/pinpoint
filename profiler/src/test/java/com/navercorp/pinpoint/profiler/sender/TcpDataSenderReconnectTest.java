@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.client.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
@@ -31,9 +30,9 @@ import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.rpc.server.PinpointServerSocket;
+import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
-import com.navercorp.pinpoint.rpc.server.SocketChannel;
+import com.navercorp.pinpoint.rpc.server.WritablePinpointServer;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 
 /**
@@ -48,45 +47,45 @@ public class TcpDataSenderReconnectTest {
 
     private int send;
 
-    public PinpointServerSocket serverStart() {
-        PinpointServerSocket server = new PinpointServerSocket();
-        server.setMessageListener(new ServerMessageListener() {
-
+    public PinpointServerAcceptor serverAcceptorStart() {
+        PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
+        serverAcceptor.setMessageListener(new ServerMessageListener() {
+            
             @Override
-            public void handleSend(SendPacket sendPacket, SocketChannel channel) {
+            public void handleSend(SendPacket sendPacket, WritablePinpointServer pinpointServer) {
                 logger.info("handleSend:{}", sendPacket);
                 send++;
             }
 
             @Override
-            public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
+            public void handleRequest(RequestPacket requestPacket, WritablePinpointServer pinpointServer) {
                 logger.info("handleRequest:{}", requestPacket);
             }
-
+            
             @Override
             public HandshakeResponseCode handleHandshake(Map properties) {
                 return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
             }
         });
-        server.bind(HOST, PORT);
-        return server;
+        serverAcceptor.bind(HOST, PORT);
+        return serverAcceptor;
     }
 
 
     @Test
     public void connectAndSend() throws InterruptedException {
-        PinpointServerSocket old = serverStart();
+        PinpointServerAcceptor oldAcceptor = serverAcceptorStart();
 
         PinpointSocketFactory socketFactory = createPinpointSocketFactory();
         PinpointSocket socket = createPinpointSocket(HOST, PORT, socketFactory);
 
         TcpDataSender sender = new TcpDataSender(socket);
         Thread.sleep(500);
-        old.close();
+        oldAcceptor.close();
 
         Thread.sleep(500);
         logger.info("Server start------------------");
-        PinpointServerSocket pinpointServerSocket = serverStart();
+        PinpointServerAcceptor serverAcceptor = serverAcceptorStart();
 
         Thread.sleep(5000);
         logger.info("sendMessage------------------");
@@ -96,7 +95,7 @@ public class TcpDataSenderReconnectTest {
         logger.info("sender stop------------------");
         sender.stop();
 
-        pinpointServerSocket.close();
+        serverAcceptor.close();
         socket.close();
         socketFactory.release();
     }

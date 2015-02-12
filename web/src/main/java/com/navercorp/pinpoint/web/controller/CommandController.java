@@ -34,7 +34,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.rpc.server.ChannelContext;
+import com.navercorp.pinpoint.rpc.server.WritablePinpointServer;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDump;
@@ -72,10 +72,10 @@ public class CommandController {
     public ModelAndView echo(@RequestParam("application") String applicationName, @RequestParam("agent") String agentId,
             @RequestParam("startTimeStamp") long startTimeStamp, @RequestParam("message") String message) throws TException {
 
-        ChannelContext context = socketManager.getCollectorChannelContext(applicationName, agentId, startTimeStamp);
+        WritablePinpointServer collector = socketManager.getCollector(applicationName, agentId, startTimeStamp);
 
-        if (context == null) {
-            return createResponse(false, String.format("Can't find suitable ChannelContext(%s/%s/%d).", applicationName, agentId, startTimeStamp));
+        if (collector == null) {
+            return createResponse(false, String.format("Can't find suitable PinpointServer(%s/%s/%d).", applicationName, agentId, startTimeStamp));
         }
 
         TCommandEcho echo = new TCommandEcho();
@@ -89,7 +89,7 @@ public class CommandController {
         transfer.setStartTime(startTimeStamp);
         transfer.setPayload(payload);
 
-        Future<ResponseMessage> future = context.getSocketChannel().sendRequestMessage(serialize(transfer));
+        Future<ResponseMessage> future = collector.request(serialize(transfer));
         future.await();
 
         String exceptionMessage = StringUtils.EMPTY;
@@ -99,7 +99,7 @@ public class CommandController {
             TBase result = deserialize(responseMessage.getMessage());
 
             if (result == null) {
-                return createResponse(false, String.format("Can't get message from %s.", context));
+                return createResponse(false, String.format("Can't get message from %s.", collector));
             } else if (result instanceof TCommandEcho) {
                 return createResponse(true, ((TCommandEcho) result).getMessage());
             } else if (result instanceof TResult) {
@@ -119,10 +119,10 @@ public class CommandController {
     public ModelAndView echo(@RequestParam("application") String applicationName, @RequestParam("agent") String agentId,
             @RequestParam("startTimeStamp") long startTimeStamp) throws TException {
 
-        ChannelContext context = socketManager.getCollectorChannelContext(applicationName, agentId, startTimeStamp);
+        WritablePinpointServer collector = socketManager.getCollector(applicationName, agentId, startTimeStamp);
 
-        if (context == null) {
-            return createResponse(false, String.format("Can't find suitable ChannelContext(%s/%s/%d).", applicationName, agentId, startTimeStamp));
+        if (collector == null) {
+            return createResponse(false, String.format("Can't find suitable PinpointServer(%s/%s/%d).", applicationName, agentId, startTimeStamp));
         }
 
         TCommandThreadDump threadDump = new TCommandThreadDump();
@@ -135,7 +135,7 @@ public class CommandController {
         transfer.setStartTime(startTimeStamp);
         transfer.setPayload(payload);
 
-        Future<ResponseMessage> future = context.getSocketChannel().sendRequestMessage(serialize(transfer));
+        Future<ResponseMessage> future = collector.request(serialize(transfer));
         future.await();
 
         String exceptionMessage = StringUtils.EMPTY;
@@ -145,7 +145,7 @@ public class CommandController {
             TBase result = deserialize(responseMessage.getMessage());
 
             if (result == null) {
-                return createResponse(false, String.format("Can't get message from %s.", context));
+                return createResponse(false, String.format("Can't get message from %s.", collector));
             } else if (result instanceof TCommandThreadDumpResponse) {
                 Map<String, String> map = createThreadDump((TCommandThreadDumpResponse) result);
 

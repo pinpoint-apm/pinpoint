@@ -25,16 +25,16 @@ import org.slf4j.LoggerFactory;
 /**
  * @author koo.taejin
  */
-class PinpointServerSocketState {
+class PinpointServerState {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private PinpointServerSocketStateCode beforeState = PinpointServerSocketStateCode.NONE;
-    private PinpointServerSocketStateCode currentState = PinpointServerSocketStateCode.NONE;
+    private PinpointServerStateCode beforeState = PinpointServerStateCode.NONE;
+    private PinpointServerStateCode currentState = PinpointServerStateCode.NONE;
 
-    private synchronized PinpointServerSocketStateCode changeState0(PinpointServerSocketStateCode nextState, List<PinpointServerSocketStateCode> skipLogicStateList, boolean throwException) {
+    private synchronized PinpointServerStateCode changeState0(PinpointServerStateCode nextState, List<PinpointServerStateCode> skipLogicStateList, boolean throwException) {
         if (skipLogicStateList != null) {
-            for (PinpointServerSocketStateCode skipLogicState : skipLogicStateList) {
+            for (PinpointServerStateCode skipLogicState : skipLogicStateList) {
                 if (this.currentState == skipLogicState) {
                     return currentState;
                 }
@@ -50,13 +50,13 @@ class PinpointServerSocketState {
         
         // if state can't be changed, just log.
         // no problem because the state of socket has been already closed.
-        PinpointServerSocketStateCode checkBefore = this.beforeState;
-        PinpointServerSocketStateCode checkCurrent = this.currentState;
+        PinpointServerStateCode checkBefore = this.beforeState;
+        PinpointServerStateCode checkCurrent = this.currentState;
 
         String errorMessage = cannotChangeMessage(checkBefore, checkCurrent, nextState);
 
         this.beforeState = this.currentState;
-        this.currentState = PinpointServerSocketStateCode.ERROR_ILLEGAL_STATE_CHANGE;
+        this.currentState = PinpointServerStateCode.ERROR_ILLEGAL_STATE_CHANGE;
 
         if (throwException) {
             throw new IllegalStateException(errorMessage);
@@ -70,19 +70,19 @@ class PinpointServerSocketState {
     * @return <tt>null</tt> if state changed expected value. or
     *         <tt>currentState</tt> if state do not changed.
     */
-    public PinpointServerSocketStateCode changeState(PinpointServerSocketStateCode nextState, PinpointServerSocketStateCode... skipLogicStateList) {
+    public PinpointServerStateCode changeState(PinpointServerStateCode nextState, PinpointServerStateCode... skipLogicStateList) {
         return changeState0(nextState, Arrays.asList(skipLogicStateList), false);
     }
 
-    public PinpointServerSocketStateCode changeStateThrowWhenFailed(PinpointServerSocketStateCode nextState, PinpointServerSocketStateCode... skipLogicStateList) {
+    public PinpointServerStateCode changeStateThrowWhenFailed(PinpointServerStateCode nextState, PinpointServerStateCode... skipLogicStateList) {
         return changeState0(nextState, Arrays.asList(skipLogicStateList), true);
     }
 
-    private String cannotChangeMessage(PinpointServerSocketStateCode checkBefore, PinpointServerSocketStateCode checkCurrent, PinpointServerSocketStateCode nextState) {
+    private String cannotChangeMessage(PinpointServerStateCode checkBefore, PinpointServerStateCode checkCurrent, PinpointServerStateCode nextState) {
         return "Can not change State(current:" + checkCurrent + " before:" + checkBefore + " next:" + nextState + ")";
     }
 
-    public synchronized PinpointServerSocketStateCode getCurrentState() {
+    public synchronized PinpointServerStateCode getCurrentState() {
         return currentState;
     }
 

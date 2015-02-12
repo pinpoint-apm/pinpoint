@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.RequestResponseServerMessageListener;
 import com.navercorp.pinpoint.rpc.TestByteUtils;
-import com.navercorp.pinpoint.rpc.server.PinpointServerSocket;
+import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.TestSeverMessageListener;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 
@@ -84,45 +84,45 @@ public class PinpointSocketFactoryTest {
 
     @Test
     public void connect() throws IOException, InterruptedException {
-        PinpointServerSocket serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort);
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort);
 
         try {
             PinpointSocket socket = socketFactory.connect("127.0.0.1", bindPort);
             PinpointRPCTestUtils.close(socket);
         } finally {
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 
     @Test
     public void pingInternal() throws IOException, InterruptedException {
-        PinpointServerSocket serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort);
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort);
 
         try {
             PinpointSocket socket = socketFactory.connect("127.0.0.1", bindPort);
             Thread.sleep(1000);
             PinpointRPCTestUtils.close(socket);
         } finally {
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 
     @Test
     public void ping() throws IOException, InterruptedException {
-        PinpointServerSocket serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort);
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort);
 
         try {
             PinpointSocket socket = socketFactory.connect("127.0.0.1", bindPort);
             socket.sendPing();
             PinpointRPCTestUtils.close(socket);
         } finally {
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 
     @Test
     public void pingAndRequestResponse() throws IOException, InterruptedException {
-        PinpointServerSocket serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort, new RequestResponseServerMessageListener());
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new RequestResponseServerMessageListener());
 
         try {
             PinpointSocket socket = socketFactory.connect("127.0.0.1", bindPort);
@@ -133,13 +133,13 @@ public class PinpointSocketFactoryTest {
             Assert.assertArrayEquals(randomByte, response);
             PinpointRPCTestUtils.close(socket);
         } finally {
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 
     @Test
     public void sendSync() throws IOException, InterruptedException {
-        PinpointServerSocket serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort, new TestSeverMessageListener());
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new TestSeverMessageListener());
 
         try {
             PinpointSocket socket = socketFactory.connect("127.0.0.1", bindPort);
@@ -150,13 +150,13 @@ public class PinpointSocketFactoryTest {
 
             PinpointRPCTestUtils.close(socket);
         } finally {
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 
     @Test
     public void requestAndResponse() throws IOException, InterruptedException {
-        PinpointServerSocket serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort, new TestSeverMessageListener());
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new TestSeverMessageListener());
 
         try {
             PinpointSocket socket = socketFactory.connect("127.0.0.1", bindPort);
@@ -167,7 +167,7 @@ public class PinpointSocketFactoryTest {
             Assert.assertArrayEquals(randomByte, response);
             PinpointRPCTestUtils.close(socket);
         } finally {
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 

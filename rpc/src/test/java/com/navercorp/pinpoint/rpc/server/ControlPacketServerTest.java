@@ -61,7 +61,7 @@ public class ControlPacketServerTest {
     // Test for being possible to send messages in case of failure of registering packet ( return code : 2, lack of parameter)
     @Test
     public void registerAgentTest1() throws Exception {
-        PinpointServerSocket serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort, new SimpleListener());
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new SimpleListener());
 
         Socket socket = null;
         try {
@@ -75,14 +75,14 @@ public class ControlPacketServerTest {
             sendAndReceiveSimplePacket(socket);
         } finally {
             PinpointRPCTestUtils.close(socket);
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 
     // Test for being possible to send messages in case of success of registering packet ( return code : 0)
     @Test
     public void registerAgentTest2() throws Exception {
-        PinpointServerSocket serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort, new SimpleListener());
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new SimpleListener());
 
         Socket socket = null;
         try {
@@ -96,14 +96,14 @@ public class ControlPacketServerTest {
             sendAndReceiveSimplePacket(socket);
         } finally {
             PinpointRPCTestUtils.close(socket);
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 
     // when failure of registering and retrying to register, confirm to return same code ( return code : 2
     @Test
     public void registerAgentTest3() throws Exception {
-        PinpointServerSocket serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort, new SimpleListener());
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new SimpleListener());
 
         Socket socket = null;
         try {
@@ -117,7 +117,7 @@ public class ControlPacketServerTest {
             sendAndReceiveSimplePacket(socket);
         } finally {
             PinpointRPCTestUtils.close(socket);
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 
@@ -125,7 +125,7 @@ public class ControlPacketServerTest {
     // test 1) confirm to return success code, 2) confirm to return already success code.
     @Test
     public void registerAgentTest4() throws Exception {
-        PinpointServerSocket serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort, new SimpleListener());
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new SimpleListener());
 
         Socket socket = null;
         try {
@@ -143,7 +143,7 @@ public class ControlPacketServerTest {
             sendAndReceiveSimplePacket(socket);
         } finally {
             PinpointRPCTestUtils.close(socket);
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 
@@ -234,14 +234,15 @@ public class ControlPacketServerTest {
 
     class SimpleListener implements ServerMessageListener {
         @Override
-        public void handleSend(SendPacket sendPacket, SocketChannel channel) {
+        public void handleSend(SendPacket sendPacket, WritablePinpointServer pinpointServer) {
 
         }
 
         @Override
-        public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
-            logger.info("handlerRequest {} {}", requestPacket, channel);
-            channel.sendResponseMessage(requestPacket, requestPacket.getPayload());
+        public void handleRequest(RequestPacket requestPacket, WritablePinpointServer pinpointServer) {
+            logger.info("handlerRequest {} {}", requestPacket, pinpointServer);
+            
+            pinpointServer.response(requestPacket, requestPacket.getPayload());
         }
 
         @Override

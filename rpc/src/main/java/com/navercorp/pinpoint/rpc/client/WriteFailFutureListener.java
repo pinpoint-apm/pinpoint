@@ -28,6 +28,10 @@ public class WriteFailFutureListener implements ChannelFutureListener {
     private final Logger logger;
     private final String failMessage;
     private final String successMessage;
+    
+    public WriteFailFutureListener(Logger logger, String failMessage) {
+        this (logger, failMessage, null);
+    }
 
     public WriteFailFutureListener(Logger logger, String failMessage, String successMessage) {
         if (logger == null) {
@@ -46,8 +50,10 @@ public class WriteFailFutureListener implements ChannelFutureListener {
                 logger.warn("{} channel:{} Caused:{}", failMessage, future.getChannel(), cause.getMessage(), cause);
             }
         } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug("{} channel:{}", successMessage, future.getChannel());
+            if (successMessage != null) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("{} channel:{}", successMessage, future.getChannel());
+                }
             }
         }
     }

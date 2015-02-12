@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import com.navercorp.pinpoint.rpc.*;
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.util.Timeout;
@@ -26,11 +28,14 @@ import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.navercorp.pinpoint.rpc.ChannelWriteFailListenableFuture;
+import com.navercorp.pinpoint.rpc.DefaultFuture;
+import com.navercorp.pinpoint.rpc.FailureEventHandler;
+import com.navercorp.pinpoint.rpc.PinpointSocketException;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
 
 /**
  * @author emeroad
@@ -44,16 +49,20 @@ public class RequestManager {
     private final ConcurrentMap<Integer, DefaultFuture<ResponseMessage>> requestMap = new ConcurrentHashMap<Integer, DefaultFuture<ResponseMessage>>();
     // Have to move Timer into factory?
     private final Timer timer;
+    private final long defaultTimeoutMillis;
 
-
-
-    public RequestManager(Timer timer) {
+    public RequestManager(Timer timer, long defaultTimeoutMillis) {
         if (timer == null) {
             throw new NullPointerException("timer must not be null");
         }
+        
+        if (defaultTimeoutMillis <= 0) {
+            throw new IllegalArgumentException("defaultTimeoutMillis must greater than zero.");
+        }
+        
         this.timer = timer;
+        this.defaultTimeoutMillis = defaultTimeoutMillis;
     }
-
 
     private FailureEventHandler createFailureEventHandler(final int requestId) {
         FailureEventHandler failureEventHandler = new FailureEventHandler() {
@@ -88,15 +97,29 @@ public class RequestManager {
         return this.requestId.getAndIncrement();
     }
 
-
-    public void messageReceived(ResponsePacket responsePacket, Channel channel) {
+    public void messageReceived(ResponsePacket responsePacket, String objectUniqName) {
         final int requestId = responsePacket.getRequestId();
         final DefaultFuture<ResponseMessage> future = removeMessageFuture(requestId);
         if (future == null) {
-            logger.warn("future not found:{}, channel:{}", responsePacket, channel);
+            logger.warn("future not found:{}, objectUniqName:{}", responsePacket, objectUniqName);
             return;
         } else {
-            logger.debug("responsePacket arrived packet:{}, channel:{}", responsePacket, channel);
+            logger.debug("responsePacket arrived packet:{}, objectUniqName:{}", responsePacket, objectUniqName);
+        }
+
+        ResponseMessage response = new ResponseMessage();
+        response.setMessage(responsePacket.getPayload());
+        future.setResult(response);
+    }
+
+    public void messageReceived(ResponsePacket responsePacket, PinpointServer pinpointServer) {
+        final int requestId = responsePacket.getRequestId();
+        final DefaultFuture<ResponseMessage> future = removeMessageFuture(requestId);
+        if (future == null) {
+            logger.warn("future not found:{}, channel:{}", responsePacket, pinpointServer);
+            return;
+        } else {
+            logger.debug("responsePacket arrived packet:{}, channel:{}", responsePacket, pinpointServer);
         }
 
         ResponseMessage response = new ResponseMessage();
@@ -112,7 +135,9 @@ public class RequestManager {
         logger.error("unexpectedMessage received:{} address:{}", requestPacket, channel.getRemoteAddress());
     }
 
-
+    public ChannelWriteFailListenableFuture<ResponseMessage> register(RequestPacket requestPacket) {
+        return register(requestPacket, defaultTimeoutMillis);
+    }
 
     public ChannelWriteFailListenableFuture<ResponseMessage> register(RequestPacket requestPacket, long timeoutMillis) {
         // shutdown check

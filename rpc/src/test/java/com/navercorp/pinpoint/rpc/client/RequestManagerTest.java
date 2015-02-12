@@ -40,7 +40,7 @@ public class RequestManagerTest {
     @Test
     public void testRegisterRequest() throws Exception {
         HashedWheelTimer timer = getTimer();
-        RequestManager requestManager = new RequestManager(timer);
+        RequestManager requestManager = new RequestManager(timer, 3000);
         try {
             RequestPacket packet = new RequestPacket(new byte[0]);
             Future future = requestManager.register(packet, 50);
@@ -59,7 +59,7 @@ public class RequestManagerTest {
     @Test
     public void testRemoveMessageFuture() throws Exception {
         HashedWheelTimer timer = getTimer();
-        RequestManager requestManager = new RequestManager(timer);
+        RequestManager requestManager = new RequestManager(timer, 3000);
         try {
             RequestPacket packet = new RequestPacket(1, new byte[0]);
             DefaultFuture future = requestManager.register(packet, 2000);

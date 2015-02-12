@@ -18,29 +18,29 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper.job;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.navercorp.pinpoint.rpc.server.ChannelContext;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
 
 public class AbstractJob implements Job {
 
-    private final ChannelContext channelContext;
+    private final PinpointServer pinpointServer;
 
     private final int maxCount;
     private final AtomicInteger currentCount;
 
-    public AbstractJob(ChannelContext channelContext) {
-        this(channelContext, 3);
+    public AbstractJob(PinpointServer pinpointServer) {
+        this(pinpointServer, 3);
     }
 
-    public AbstractJob(ChannelContext channelContext, int maxCount) {
-        this.channelContext = channelContext;
+    public AbstractJob(PinpointServer pinpointServer, int maxCount) {
+        this.pinpointServer = pinpointServer;
 
         this.maxCount = maxCount;
         this.currentCount = new AtomicInteger(0);
     }
 
     @Override
-    public ChannelContext getChannelContext() {
-        return channelContext;
+    public PinpointServer getPinpointServer() {
+        return pinpointServer;
     }
 
     @Override
@@ -62,7 +62,7 @@ public class AbstractJob implements Job {
     public String toString() {
         StringBuilder buffer = new StringBuilder();
         buffer.append(this.getClass().getSimpleName());
-        buffer.append(", ChannelContext=").append(channelContext);
+        buffer.append(", PinpointServer=").append(pinpointServer);
         buffer.append(", Retry=").append(currentCount.get()).append("/").append(maxCount);
 
         return buffer.toString();
