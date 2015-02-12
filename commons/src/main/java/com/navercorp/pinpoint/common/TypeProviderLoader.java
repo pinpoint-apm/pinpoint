@@ -23,41 +23,40 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import com.navercorp.pinpoint.common.plugin.PluginLoader;
-import com.navercorp.pinpoint.common.plugin.ServiceTypeProvider;
-import com.navercorp.pinpoint.common.plugin.ServiceTypeSetupContext;
+import com.navercorp.pinpoint.common.plugin.*;
+import com.navercorp.pinpoint.common.plugin.TypeProvider;
 
 /**
  * @author Jongho Moon
  *
  */
-public class ServiceTypeProviderLoader {
+public class TypeProviderLoader {
     private final Logger logger = Logger.getLogger(getClass().getName());
     
     private final ServiceTypeChecker serviceTypeChecker = new ServiceTypeChecker();
     private final AnnotationKeyChecker annotationKeyChecker = new AnnotationKeyChecker();
     
-    private final List<ServiceType> serviceTypes = new ArrayList<ServiceType>();
+    private final List<Type> types = new ArrayList<Type>();
     private final List<AnnotationKey> annotationKeys = new ArrayList<AnnotationKey>();
     
     public void load(URL[] urls) {
-        List<ServiceTypeProvider> providers = PluginLoader.load(ServiceTypeProvider.class, urls);
+        List<TypeProvider> providers = PluginLoader.load(TypeProvider.class, urls);
         load(providers);
     }
     
     public void load(ClassLoader loader) {
-        List<ServiceTypeProvider> providers = PluginLoader.load(ServiceTypeProvider.class, loader);
+        List<TypeProvider> providers = PluginLoader.load(TypeProvider.class, loader);
         load(providers);
     }
     
-    void load(List<ServiceTypeProvider> providers) {
+    void load(List<TypeProvider> providers) {
         logger.info("Loading ServiceTypeProviders");
         
         loadDefaults();
 
-        for (ServiceTypeProvider provider : providers) {
+        for (TypeProvider provider : providers) {
             logger.fine("Loading ServiceTypeProvider: " + provider.getClass());
-            ServiceTypeSetupContextImpl context = new ServiceTypeSetupContextImpl(provider.getClass());
+            TypeSetupContextImpl context = new TypeSetupContextImpl(provider.getClass());
             provider.setUp(context);
         }
         
@@ -67,10 +66,10 @@ public class ServiceTypeProviderLoader {
     private void loadDefaults() {
         logger.fine("Loading Default ServiceTypes");
 
-        ServiceTypeSetupContextImpl context = new ServiceTypeSetupContextImpl(ServiceType.class);
+        TypeSetupContextImpl context = new TypeSetupContextImpl(Type.class);
         
         for (ServiceType type : ServiceType.DEFAULT_VALUES) {
-            context.addServiceType(type);
+            context.addType(type);
         }
         
         for (AnnotationKey key : AnnotationKey.DEFAULT_VALUES) {
@@ -118,8 +117,8 @@ public class ServiceTypeProviderLoader {
     
     
     
-    public List<ServiceType> getServiceTypes() {
-        return serviceTypes;
+    public List<Type> getTypes() {
+        return types;
     }
 
     public List<AnnotationKey> getAnnotationKeys() {
@@ -127,28 +126,43 @@ public class ServiceTypeProviderLoader {
     }
 
 
-    private class ServiceTypeSetupContextImpl implements ServiceTypeSetupContext {
+    private class TypeSetupContextImpl implements TypeSetupContext {
         private final Class<?> provider;
         
-        public ServiceTypeSetupContextImpl(Class<?> provider) {
+        public TypeSetupContextImpl(Class<?> provider) {
             this.provider = provider;
         }
 
         @Override
-        public void addServiceType(ServiceType... serviceTypes) {
-            for (ServiceType type : serviceTypes) {
-                serviceTypeChecker.check(type, provider);
-                ServiceTypeProviderLoader.this.serviceTypes.add(type);
-            }
+        public void addType(ServiceType serviceType) {
+            Type type = new DefaultType(serviceType);
+            addType(type);
         }
 
         @Override
-        public void addAnnotationKey(AnnotationKey... annotationKeys) {
-            for (AnnotationKey key : annotationKeys) {
-                annotationKeyChecker.check(key, provider);
-                ServiceTypeProviderLoader.this.annotationKeys.add(key);
-            }
+        public void addType(ServiceType serviceType, AnnotationKeyMatcher annotationKeyMatcher) {
+            Type type = new DefaultType(serviceType, annotationKeyMatcher);
+            addType(type);
         }
+
+
+        public void addType(Type type) {
+            if (type == null) {
+                throw new NullPointerException("type must not be null");
+            }
+            serviceTypeChecker.check(type.getServiceType(), provider);
+            TypeProviderLoader.this.types.add(type);
+        }
+
+        @Override
+        public void addAnnotationKey(AnnotationKey annotationKey) {
+            annotationKeyChecker.check(annotationKey, provider);
+            TypeProviderLoader.this.annotationKeys.add(annotationKey);
+        }
+    }
+
+    private void addType(Type type) {
+        this.types.add(type);
     }
 
     private static String serviceTypePairToString(Pair<ServiceType> pair) {
@@ -191,7 +205,7 @@ public class ServiceTypeProviderLoader {
         }
         
     }
-    
+
     private static class AnnotationKeyChecker {
         private final Map<Integer, Pair<AnnotationKey>> annotationKeyCodeMap = new HashMap<Integer, Pair<AnnotationKey>>();
 
@@ -223,26 +237,45 @@ public class ServiceTypeProviderLoader {
     }
     
     public static void initializeServiceType(ClassLoader classLoader) {
-        ServiceTypeProviderLoader loader = new ServiceTypeProviderLoader();
+        TypeProviderLoader loader = new TypeProviderLoader();
         loader.load(classLoader);
-        
-        ServiceType.initialize(loader.getServiceTypes());
+
+        List<ServiceType> serviceTypes = buildServiceTypeList(loader);
+        ServiceType.initialize(serviceTypes);
         AnnotationKey.initialize(loader.getAnnotationKeys());
     }
     
     public static void initializeServiceType(URL[] urls) {
-        ServiceTypeProviderLoader loader = new ServiceTypeProviderLoader();
+        TypeProviderLoader loader = new TypeProviderLoader();
         loader.load(urls);
-        
-        ServiceType.initialize(loader.getServiceTypes());
+
+        List<ServiceType> serviceTypes = buildServiceTypeList(loader);
+        ServiceType.initialize(serviceTypes);
         AnnotationKey.initialize(loader.getAnnotationKeys());
     }
     
-    public static void initializeServiceType(List<ServiceTypeProvider> providers) {
-        ServiceTypeProviderLoader loader = new ServiceTypeProviderLoader();
+    public static void initializeServiceType(List<TypeProvider> providers) {
+        TypeProviderLoader loader = new TypeProviderLoader();
         loader.load(providers);
-        
-        ServiceType.initialize(loader.getServiceTypes());
+
+        List<ServiceType> serviceTypes = buildServiceTypeList(loader);
+        ServiceType.initialize(serviceTypes);
         AnnotationKey.initialize(loader.getAnnotationKeys());
+    }
+
+    private static List<ServiceType> buildServiceTypeList(TypeProviderLoader loader) {
+        if (loader == null) {
+            throw new NullPointerException("loader must not be null");
+        }
+
+        final List<Type> typeList = loader.getTypes();
+        if (typeList == null) {
+            return Collections.emptyList();
+        }
+        List<ServiceType> serviceTypeList= new ArrayList<ServiceType>(typeList.size());
+        for (Type type : typeList) {
+            serviceTypeList.add(type.getServiceType());
+        }
+        return serviceTypeList;
     }
 }

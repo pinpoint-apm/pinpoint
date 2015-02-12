@@ -15,13 +15,18 @@
 package com.navercorp.pinpoint.common.plugin;
 
 import com.navercorp.pinpoint.common.AnnotationKey;
+import com.navercorp.pinpoint.common.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * @author Jongho Moon
  *
  */
-public interface ServiceTypeSetupContext {
-    void addServiceType(ServiceType... serviceType);
-    void addAnnotationKey(AnnotationKey... annotationKey);
+public interface TypeSetupContext {
+
+    void addType(ServiceType serviceType);
+
+    void addType(ServiceType serviceType, AnnotationKeyMatcher annotationKeyMatcher);
+
+    void addAnnotationKey(AnnotationKey annotationKey);
 }

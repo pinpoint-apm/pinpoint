@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.collector.servlet;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import com.navercorp.pinpoint.common.ServiceTypeProviderLoader;
+import com.navercorp.pinpoint.common.TypeProviderLoader;
 
 /**
  * @author Jongho Moon <jongho.moon@navercorp.com>
@@ -38,7 +38,7 @@ public class ServiceTypeLoader implements ServletContextListener {
      */
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
-        ServiceTypeProviderLoader.initializeServiceType(getClass().getClassLoader());
+        TypeProviderLoader.initializeServiceType(getClass().getClassLoader());
     }
 
 }

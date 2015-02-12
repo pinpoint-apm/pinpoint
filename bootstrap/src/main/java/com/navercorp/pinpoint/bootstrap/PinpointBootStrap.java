@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.ServiceTypeProviderLoader;
+import com.navercorp.pinpoint.common.TypeProviderLoader;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.SystemProperty;
@@ -152,7 +152,7 @@ public class PinpointBootStrap {
     }
     
     private static void loadServiceTypeProviders(URL[] pluginJars) {
-        ServiceTypeProviderLoader.initializeServiceType(pluginJars);
+        TypeProviderLoader.initializeServiceType(pluginJars);
     }
 
     private static JarFile getBootStrapJarFile(String bootStrapCoreJar) {
