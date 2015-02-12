@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.rpc.server;
 
 import com.navercorp.pinpoint.rpc.codec.PacketDecoder;
 import com.navercorp.pinpoint.rpc.codec.PacketEncoder;
+import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor.PinpointServerChannelHandler;
 
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
@@ -28,13 +29,13 @@ import org.jboss.netty.channel.Channels;
  * @author emeroad
  */
 public class ServerPipelineFactory implements ChannelPipelineFactory {
-    private PinpointServerSocket serverSocket;
+    private PinpointServerChannelHandler pinpointServerChannelHandler;
 
-    public ServerPipelineFactory(PinpointServerSocket pinpointServerSocket) {
-        if (pinpointServerSocket == null) {
-            throw new NullPointerException("pinpointServerSocket");
+    public ServerPipelineFactory(PinpointServerChannelHandler pinpointServerChannelHandler) {
+        if (pinpointServerChannelHandler == null) {
+            throw new NullPointerException("PinpointServerFactory");
         }
-        this.serverSocket = pinpointServerSocket;
+        this.pinpointServerChannelHandler = pinpointServerChannelHandler;
     }
 
     @Override
@@ -43,7 +44,7 @@ public class ServerPipelineFactory implements ChannelPipelineFactory {
 
         pipeline.addLast("decoder", new PacketDecoder());
         pipeline.addLast("encoder", new PacketEncoder());
-        pipeline.addLast("handler", serverSocket);
+        pipeline.addLast("handler", pinpointServerChannelHandler);
 
         return pipeline;
     }

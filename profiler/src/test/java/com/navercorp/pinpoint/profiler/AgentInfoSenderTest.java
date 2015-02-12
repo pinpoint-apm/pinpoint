@@ -25,14 +25,11 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.thrift.TException;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import com.navercorp.pinpoint.profiler.AgentInfoSender;
-import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
@@ -42,9 +39,9 @@ import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.rpc.server.PinpointServerSocket;
+import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
-import com.navercorp.pinpoint.rpc.server.SocketChannel;
+import com.navercorp.pinpoint.rpc.server.WritablePinpointServer;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
@@ -64,7 +61,7 @@ public class AgentInfoSenderTest {
 
         ResponseServerMessageListener serverListener = new ResponseServerMessageListener(requestCount, successCount);
 
-        PinpointServerSocket server = createServer(serverListener);
+        PinpointServerAcceptor serverAcceptor = createServerAcceptor(serverListener);
 
         PinpointSocketFactory socketFactory = createPinpointSocketFactory();
         PinpointSocket socket = createPinpointSocket(HOST, PORT, socketFactory);
@@ -76,7 +73,7 @@ public class AgentInfoSenderTest {
             agentInfoSender.start();
             Thread.sleep(10000L);
         } finally {
-            closeAll(server, agentInfoSender, socket, socketFactory);
+            closeAll(serverAcceptor, agentInfoSender, socket, socketFactory);
         }
         assertEquals(1, requestCount.get());
         assertEquals(1, successCount.get());
@@ -91,7 +88,7 @@ public class AgentInfoSenderTest {
 
         ResponseServerMessageListener serverListener = new ResponseServerMessageListener(requestCount, successCount, expectedTriesUntilSuccess);
 
-        PinpointServerSocket server = createServer(serverListener);
+        PinpointServerAcceptor serverAcceptor = createServerAcceptor(serverListener);
 
         PinpointSocketFactory socketFactory = createPinpointSocketFactory();
         PinpointSocket socket = createPinpointSocket(HOST, PORT, socketFactory);
@@ -103,7 +100,7 @@ public class AgentInfoSenderTest {
             agentInfoSender.start();
             Thread.sleep(agentInfoSendRetryIntervalMs * expectedTriesUntilSuccess);
         } finally {
-            closeAll(server, agentInfoSender, socket, socketFactory);
+            closeAll(serverAcceptor, agentInfoSender, socket, socketFactory);
         }
         assertEquals(expectedTriesUntilSuccess, requestCount.get());
         assertEquals(1, successCount.get());
@@ -146,7 +143,7 @@ public class AgentInfoSenderTest {
 
         ResponseServerMessageListener serverListener = new ResponseServerMessageListener(requestCount, successCount, Integer.MAX_VALUE);
 
-        PinpointServerSocket server = createServer(serverListener);
+        PinpointServerAcceptor serverAcceptor = createServerAcceptor(serverListener);
 
         PinpointSocketFactory socketFactory = createPinpointSocketFactory();
         PinpointSocket socket = createPinpointSocket(HOST, PORT, socketFactory);
@@ -158,7 +155,7 @@ public class AgentInfoSenderTest {
             agentInfoSender.start();
             Thread.sleep(agentInfoSendRetryIntervalMs * minimumAgentInfoSendRetryCount);
         } finally {
-            closeAll(server, agentInfoSender, socket, socketFactory);
+            closeAll(serverAcceptor, agentInfoSender, socket, socketFactory);
         }
         assertTrue(requestCount.get() >= minimumAgentInfoSendRetryCount);
         assertEquals(0, successCount.get());
@@ -199,20 +196,20 @@ public class AgentInfoSenderTest {
         assertEquals(expectedTriesUntilSuccess, requestCount.get());
     }
 
-    private PinpointServerSocket createServer(ServerMessageListener listener) {
-        PinpointServerSocket server = new PinpointServerSocket();
+    private PinpointServerAcceptor createServerAcceptor(ServerMessageListener listener) {
+        PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
         // server.setMessageListener(new
         // NoResponseServerMessageListener(requestCount));
-        server.setMessageListener(listener);
-        server.bind(HOST, PORT);
+        serverAcceptor.setMessageListener(listener);
+        serverAcceptor.bind(HOST, PORT);
 
-        return server;
+        return serverAcceptor;
     }
 
     private void createAndDeleteServer(ServerMessageListener listner, long waitTimeMillis) throws InterruptedException {
-        PinpointServerSocket server = null;
+        PinpointServerAcceptor server = null;
         try {
-            server = createServer(listner);
+            server = createServerAcceptor(listner);
             Thread.sleep(waitTimeMillis);
         } finally {
             if (server != null) {
@@ -221,9 +218,9 @@ public class AgentInfoSenderTest {
         }
     }
 
-    private void closeAll(PinpointServerSocket server, AgentInfoSender agentInfoSender, PinpointSocket socket, PinpointSocketFactory factory) {
-        if (server != null) {
-            server.close();
+    private void closeAll(PinpointServerAcceptor serverAcceptor, AgentInfoSender agentInfoSender, PinpointSocket socket, PinpointSocketFactory factory) {
+        if (serverAcceptor != null) {
+            serverAcceptor.close();
         }
 
         if (agentInfoSender != null) {
@@ -266,13 +263,13 @@ public class AgentInfoSenderTest {
         }
 
         @Override
-        public void handleSend(SendPacket sendPacket, SocketChannel channel) {
+        public void handleSend(SendPacket sendPacket, WritablePinpointServer pinpointServer) {
             logger.info("handleSend:{}", sendPacket);
 
         }
 
         @Override
-        public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
+        public void handleRequest(RequestPacket requestPacket, WritablePinpointServer pinpointServer) {
             int requestCount = this.requestCount.incrementAndGet();
 
             if (requestCount < successCondition) {
@@ -289,7 +286,7 @@ public class AgentInfoSenderTest {
 
                 this.successCount.incrementAndGet();
 
-                channel.sendResponseMessage(requestPacket, resultBytes);
+                pinpointServer.response(requestPacket, resultBytes);
             } catch (TException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

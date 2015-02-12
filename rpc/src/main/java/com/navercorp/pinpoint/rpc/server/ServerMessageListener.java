@@ -25,9 +25,9 @@ import com.navercorp.pinpoint.rpc.server.handler.HandshakerHandler;
  */
 public interface ServerMessageListener extends HandshakerHandler {
 
-    void handleSend(SendPacket sendPacket, SocketChannel channel);
+    void handleSend(SendPacket sendPacket, WritablePinpointServer pinpointServer);
 
     // TODO make another tcp channel in case of exposed channel.
-    void handleRequest(RequestPacket requestPacket, SocketChannel channel);
+    void handleRequest(RequestPacket requestPacket, WritablePinpointServer pinpointServer);
 
 }

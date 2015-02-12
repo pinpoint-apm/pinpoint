@@ -159,7 +159,7 @@ public class ClusterTest {
             zookeeper = new ZooKeeper(zookeeperAddress, 5000, null);
             getNodeAndCompareContents(zookeeper);
 
-            Assert.assertEquals(0, socketManager.getCollectorChannelContext().size());
+            Assert.assertEquals(0, socketManager.getCollectorList().size());
 
             factory = new PinpointSocketFactory();
             factory.setMessageListener(new SimpleListener());
@@ -168,7 +168,7 @@ public class ClusterTest {
 
             Thread.sleep(1000);
 
-            Assert.assertEquals(1, socketManager.getCollectorChannelContext().size());
+            Assert.assertEquals(1, socketManager.getCollectorList().size());
 
         } finally {
             closePinpointSocket(factory, socket);

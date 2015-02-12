@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.cluster.zookeeper.job;
 
-import com.navercorp.pinpoint.rpc.server.ChannelContext;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
 
 /**
  * @author koo.taejin
@@ -25,13 +25,13 @@ public class UpdateJob extends AbstractJob {
 
     private final byte[] contents;
 
-    public UpdateJob(ChannelContext channelContext, byte[] contents) {
-        super(channelContext);
+    public UpdateJob(PinpointServer pinpointServer, byte[] contents) {
+        super(pinpointServer);
         this.contents = contents;
     }
 
-    public UpdateJob(ChannelContext channelContext, int maxRetryCount, byte[] contents) {
-        super(channelContext, maxRetryCount);
+    public UpdateJob(PinpointServer pinpointServer, int maxRetryCount, byte[] contents) {
+        super(pinpointServer, maxRetryCount);
         this.contents = contents;
     }
 

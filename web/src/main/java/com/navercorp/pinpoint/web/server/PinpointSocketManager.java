@@ -35,10 +35,9 @@ import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.rpc.server.ChannelContext;
-import com.navercorp.pinpoint.rpc.server.PinpointServerSocket;
+import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
-import com.navercorp.pinpoint.rpc.server.SocketChannel;
+import com.navercorp.pinpoint.rpc.server.WritablePinpointServer;
 import com.navercorp.pinpoint.web.cluster.ClusterManager;
 import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterManager;
 import com.navercorp.pinpoint.web.config.WebConfig;
@@ -58,13 +57,13 @@ public class PinpointSocketManager {
 
     private WebConfig config;
 
-    private final PinpointServerSocket pinpointServerSocket;
+    private final PinpointServerAcceptor serverAcceptor;
 
     private ClusterManager clusterManager;
 
     public PinpointSocketManager(WebConfig config) {
         this.config = config;
-        this.pinpointServerSocket = new PinpointServerSocket();
+        this.serverAcceptor = new PinpointServerAcceptor();
     }
 
     @PostConstruct
@@ -86,8 +85,8 @@ public class PinpointSocketManager {
                 throw new SocketException("Unexpected LocalAddress. LocalAddress format must be ip:port (" + nodeName + ").");
             }
 
-            this.pinpointServerSocket.setMessageListener(new PinpointSocketManagerHandler());
-            this.pinpointServerSocket.bind(representationLocalIp, config.getClusterTcpPort());
+            this.serverAcceptor.setMessageListener(new PinpointSocketManagerHandler());
+            this.serverAcceptor.bind(representationLocalIp, config.getClusterTcpPort());
 
             this.clusterManager = new ZookeeperClusterManager(config.getClusterZookeeperAddress(), config.getClusterZookeeperSessionTimeout(), config.getClusterZookeeperRetryInterval());
 
@@ -103,17 +102,17 @@ public class PinpointSocketManager {
                 clusterManager.close();
             }
 
-            if (pinpointServerSocket != null) {
-                pinpointServerSocket.close();
+            if (serverAcceptor != null) {
+                serverAcceptor.close();
             }
         }
     }
 
-    public List<ChannelContext> getCollectorChannelContext() {
-        return pinpointServerSocket.getDuplexCommunicationChannelContext();
+    public List<WritablePinpointServer> getCollectorList() {
+        return serverAcceptor.getWritableServerList();
     }
 
-    public ChannelContext getCollectorChannelContext(String applicationName, String agentId, long startTimeStamp) {
+    public WritablePinpointServer getCollector(String applicationName, String agentId, long startTimeStamp) {
         List<String> agentNameList = clusterManager.getRegisteredAgentList(applicationName, agentId, startTimeStamp);
 
         // having duplicate AgentName registered is an exceptional case
@@ -127,12 +126,12 @@ public class PinpointSocketManager {
 
         String agentName = agentNameList.get(0);
 
-        List<ChannelContext> channelContextList = getCollectorChannelContext();
+        List<WritablePinpointServer> collectorList = getCollectorList();
 
-        for (ChannelContext channelContext : channelContextList) {
-            String id = (String) channelContext.getChannelProperties().get("id");
+        for (WritablePinpointServer collector : collectorList) {
+            String id = (String) collector.getChannelProperties().get("id");
             if (agentName.startsWith(id)) {
-                return channelContext;
+                return collector;
             }
         }
 
@@ -173,13 +172,13 @@ public class PinpointSocketManager {
 
     private class PinpointSocketManagerHandler implements ServerMessageListener {
         @Override
-        public void handleSend(SendPacket sendPacket, SocketChannel channel) {
-            logger.warn("Unsupport send received {} {}", sendPacket, channel);
+        public void handleSend(SendPacket sendPacket, WritablePinpointServer pinpointServer) {
+            logger.warn("Unsupport send received {} {}", sendPacket, pinpointServer);
         }
 
         @Override
-        public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
-            logger.warn("Unsupport request received {} {}", requestPacket, channel);
+        public void handleRequest(RequestPacket requestPacket, WritablePinpointServer pinpointServer) {
+            logger.warn("Unsupport request received {} {}", requestPacket, pinpointServer);
         }
 
         @Override

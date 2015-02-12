@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  * @author koo.taejin
  */
-public enum PinpointServerSocketStateCode {
+public enum PinpointServerStateCode {
 
     // NONE : No event
     // RUN_WITHOUT_HANDSHAKE  : can send message only to server without handshake each other.
@@ -46,20 +46,20 @@ public enum PinpointServerSocketStateCode {
     ERROR_UNKOWN(RUN_SIMPLEX, RUN_DUPLEX, RUN_WITHOUT_HANDSHAKE),
     ERROR_ILLEGAL_STATE_CHANGE(NONE, RUN_SIMPLEX, RUN_DUPLEX, RUN_WITHOUT_HANDSHAKE, BEING_SHUTDOWN, SHUTDOWN);
 
-    private final Set<PinpointServerSocketStateCode> validBeforeStateSet;
+    private final Set<PinpointServerStateCode> validBeforeStateSet;
 
-    private PinpointServerSocketStateCode(PinpointServerSocketStateCode... validBeforeStates) {
-        this.validBeforeStateSet = new HashSet<PinpointServerSocketStateCode>();
+    private PinpointServerStateCode(PinpointServerStateCode... validBeforeStates) {
+        this.validBeforeStateSet = new HashSet<PinpointServerStateCode>();
 
         if (validBeforeStates != null) {
-            for (PinpointServerSocketStateCode eachStateCode : validBeforeStates) {
+            for (PinpointServerStateCode eachStateCode : validBeforeStates) {
                 getValidBeforeStateSet().add(eachStateCode);
             }
         }
     }
 
-    public boolean canChangeState(PinpointServerSocketStateCode nextState) {
-        Set<PinpointServerSocketStateCode> validBeforeStateSet = nextState.getValidBeforeStateSet();
+    public boolean canChangeState(PinpointServerStateCode nextState) {
+        Set<PinpointServerStateCode> validBeforeStateSet = nextState.getValidBeforeStateSet();
 
         if (validBeforeStateSet.contains(this)) {
             return true;
@@ -68,11 +68,11 @@ public enum PinpointServerSocketStateCode {
         return false;
     }
 
-    public Set<PinpointServerSocketStateCode> getValidBeforeStateSet() {
+    public Set<PinpointServerStateCode> getValidBeforeStateSet() {
         return validBeforeStateSet;
     }
 
-    public static boolean isRun(PinpointServerSocketStateCode code) {
+    public static boolean isRun(PinpointServerStateCode code) {
         if (code == RUN_SIMPLEX || code == RUN_DUPLEX || code == RUN_WITHOUT_HANDSHAKE) {
             return true;
         }
@@ -80,7 +80,7 @@ public enum PinpointServerSocketStateCode {
         return false;
     }
 
-    public static boolean isRunDuplexCommunication(PinpointServerSocketStateCode code) {
+    public static boolean isRunDuplexCommunication(PinpointServerStateCode code) {
         if (code == RUN_DUPLEX) {
             return true;
         }
@@ -88,17 +88,17 @@ public enum PinpointServerSocketStateCode {
         return false;
     }
 
-    public static boolean isFinished(PinpointServerSocketStateCode code) {
+    public static boolean isFinished(PinpointServerStateCode code) {
         if (code == SHUTDOWN || code == UNEXPECTED_SHUTDOWN || code == ERROR_UNKOWN || code == ERROR_ILLEGAL_STATE_CHANGE) {
             return true;
         }
         return false;
     }
 
-    public static PinpointServerSocketStateCode getStateCode(String name) {
-        PinpointServerSocketStateCode[] allStateCodes = PinpointServerSocketStateCode.values();
+    public static PinpointServerStateCode getStateCode(String name) {
+        PinpointServerStateCode[] allStateCodes = PinpointServerStateCode.values();
 
-        for (PinpointServerSocketStateCode code : allStateCodes) {
+        for (PinpointServerStateCode code : allStateCodes) {
             if (code.name().equalsIgnoreCase(name)) {
                 return code;
             }

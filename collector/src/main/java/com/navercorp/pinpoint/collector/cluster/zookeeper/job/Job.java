@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.cluster.zookeeper.job;
 
-import com.navercorp.pinpoint.rpc.server.ChannelContext;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
 
 /**
  * @author koo.taejin
@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.rpc.server.ChannelContext;
 public interface Job {
 
 
-    ChannelContext getChannelContext();
+    PinpointServer getPinpointServer();
 
     int getMaxRetryCount();
 

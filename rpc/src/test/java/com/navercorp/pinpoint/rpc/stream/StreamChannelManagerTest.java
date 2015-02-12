@@ -34,14 +34,10 @@ import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
 import com.navercorp.pinpoint.rpc.client.SimpleLoggingMessageListener;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
-import com.navercorp.pinpoint.rpc.server.ChannelContext;
-import com.navercorp.pinpoint.rpc.server.PinpointServerSocket;
+import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
+import com.navercorp.pinpoint.rpc.server.WritablePinpointServer;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 import com.navercorp.pinpoint.rpc.server.TestSeverMessageListener;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 
 public class StreamChannelManagerTest {
@@ -58,8 +54,8 @@ public class StreamChannelManagerTest {
     public void streamSuccessTest1() throws IOException, InterruptedException {
         SimpleStreamBO bo = new SimpleStreamBO();
 
-        PinpointServerSocket serverSocket = createServerSocket(new TestSeverMessageListener(), new ServerListener(bo));
-        serverSocket.bind("localhost", bindPort);
+        PinpointServerAcceptor serverAcceptor = createServerFactory(new TestSeverMessageListener(), new ServerListener(bo));
+        serverAcceptor.bind("localhost", bindPort);
 
         PinpointSocketFactory pinpointSocketFactory = createSocketFactory();
         try {
@@ -84,7 +80,7 @@ public class StreamChannelManagerTest {
             PinpointRPCTestUtils.close(socket);
         } finally {
             pinpointSocketFactory.release();
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 
@@ -93,8 +89,8 @@ public class StreamChannelManagerTest {
     public void streamSuccessTest2() throws IOException, InterruptedException {
         SimpleStreamBO bo = new SimpleStreamBO();
 
-        PinpointServerSocket serverSocket = createServerSocket(new TestSeverMessageListener(), new ServerListener(bo));
-        serverSocket.bind("localhost", bindPort);
+        PinpointServerAcceptor serverAcceptor = createServerFactory(new TestSeverMessageListener(), new ServerListener(bo));
+        serverAcceptor.bind("localhost", bindPort);
 
         PinpointSocketFactory pinpointSocketFactory = createSocketFactory();
         try {
@@ -137,14 +133,14 @@ public class StreamChannelManagerTest {
             PinpointRPCTestUtils.close(socket);
         } finally {
             pinpointSocketFactory.release();
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 
     @Test
     public void streamSuccessTest3() throws IOException, InterruptedException {
-        PinpointServerSocket serverSocket = createServerSocket(new TestSeverMessageListener(), null);
-        serverSocket.bind("localhost", bindPort);
+        PinpointServerAcceptor serverAcceptor = createServerFactory(new TestSeverMessageListener(), null);
+        serverAcceptor.bind("localhost", bindPort);
 
         SimpleStreamBO bo = new SimpleStreamBO();
 
@@ -155,14 +151,14 @@ public class StreamChannelManagerTest {
 
             Thread.sleep(100);
 
-            List<ChannelContext> contextList = serverSocket.getDuplexCommunicationChannelContext();
-            Assert.assertEquals(1, contextList.size());
+            List<WritablePinpointServer> writableServerList = serverAcceptor.getWritableServerList();
+            Assert.assertEquals(1, writableServerList.size());
 
-            ChannelContext context = contextList.get(0);
+            WritablePinpointServer writableServer = writableServerList.get(0);
 
             RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
 
-            ClientStreamChannelContext clientContext = context.createStreamChannel(new byte[0], clientListener);
+            ClientStreamChannelContext clientContext = writableServer.createStream(new byte[0], clientListener);
 
             int sendCount = 4;
 
@@ -179,14 +175,14 @@ public class StreamChannelManagerTest {
             PinpointRPCTestUtils.close(socket);
         } finally {
             pinpointSocketFactory.release();
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 
     @Test(expected = PinpointSocketException.class)
     public void streamClosedTest1() throws IOException, InterruptedException {
-        PinpointServerSocket serverSocket = createServerSocket(new TestSeverMessageListener(), null);
-        serverSocket.bind("localhost", bindPort);
+        PinpointServerAcceptor serverAcceptor = createServerFactory(new TestSeverMessageListener(), null);
+        serverAcceptor.bind("localhost", bindPort);
 
         PinpointSocketFactory pinpointSocketFactory = createSocketFactory();
         try {
@@ -203,7 +199,7 @@ public class StreamChannelManagerTest {
             PinpointRPCTestUtils.close(socket);
         } finally {
             pinpointSocketFactory.release();
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 
@@ -211,8 +207,8 @@ public class StreamChannelManagerTest {
     public void streamClosedTest2() throws IOException, InterruptedException {
         SimpleStreamBO bo = new SimpleStreamBO();
 
-        PinpointServerSocket serverSocket = createServerSocket(new TestSeverMessageListener(), new ServerListener(bo));
-        serverSocket.bind("localhost", bindPort);
+        PinpointServerAcceptor serverAcceptor = createServerFactory(new TestSeverMessageListener(), new ServerListener(bo));
+        serverAcceptor.bind("localhost", bindPort);
 
         PinpointSocketFactory pinpointSocketFactory = createSocketFactory();
 
@@ -235,7 +231,7 @@ public class StreamChannelManagerTest {
         } finally {
             PinpointRPCTestUtils.close(socket);
             pinpointSocketFactory.release();
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 
@@ -245,8 +241,8 @@ public class StreamChannelManagerTest {
     // ServerStreamChannel first close.
     @Test(expected = PinpointSocketException.class)
     public void streamClosedTest3() throws IOException, InterruptedException {
-        PinpointServerSocket serverSocket = createServerSocket(new TestSeverMessageListener(), null);
-        serverSocket.bind("localhost", bindPort);
+        PinpointServerAcceptor serverAcceptor = createServerFactory(new TestSeverMessageListener(), null);
+        serverAcceptor.bind("localhost", bindPort);
 
         SimpleStreamBO bo = new SimpleStreamBO();
 
@@ -257,14 +253,14 @@ public class StreamChannelManagerTest {
 
             Thread.sleep(100);
 
-            List<ChannelContext> contextList = serverSocket.getDuplexCommunicationChannelContext();
-            Assert.assertEquals(1, contextList.size());
+            List<WritablePinpointServer> writableServerList = serverAcceptor.getWritableServerList();
+            Assert.assertEquals(1, writableServerList.size());
 
-            ChannelContext context = contextList.get(0);
+            WritablePinpointServer writableServer = writableServerList.get(0);
 
             RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
 
-            ClientStreamChannelContext clientContext = context.createStreamChannel(new byte[0], clientListener);
+            ClientStreamChannelContext clientContext = writableServer.createStream(new byte[0], clientListener);
 
 
             StreamChannelContext aaa = socket.findStreamChannel(2);
@@ -280,24 +276,23 @@ public class StreamChannelManagerTest {
         } finally {
             PinpointRPCTestUtils.close(socket);
             pinpointSocketFactory.release();
-            PinpointRPCTestUtils.close(serverSocket);
+            PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
 
 
-    private PinpointServerSocket createServerSocket(ServerMessageListener severMessageListener,
-            ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
-        PinpointServerSocket serverSocket = new PinpointServerSocket();
+    private PinpointServerAcceptor createServerFactory(ServerMessageListener severMessageListener, ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
+        PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
 
         if (severMessageListener != null) {
-            serverSocket.setMessageListener(severMessageListener);
+            serverAcceptor.setMessageListener(severMessageListener);
         }
 
         if (serverStreamChannelMessageListener != null) {
-            serverSocket.setServerStreamChannelMessageListener(serverStreamChannelMessageListener);
+            serverAcceptor.setServerStreamChannelMessageListener(serverStreamChannelMessageListener);
         }
 
-        return serverSocket;
+        return serverAcceptor;
     }
 
     private PinpointSocketFactory createSocketFactory() {

@@ -20,13 +20,13 @@ import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.collector.cluster.ChannelContextClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
+import com.navercorp.pinpoint.collector.cluster.PinpointServerClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
-import com.navercorp.pinpoint.rpc.server.ChannelContext;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
@@ -95,13 +95,13 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
         }
 
         try {
-            if (clusterPoint instanceof ChannelContextClusterPoint) {
+            if (clusterPoint instanceof PinpointServerClusterPoint) {
                 StreamRouteManager routeManager = new StreamRouteManager(event);
 
                 ServerStreamChannelContext consumerContext = event.getStreamChannelContext();
                 consumerContext.setAttributeIfAbsent(ATTACHMENT_KEY, routeManager);
 
-                ClientStreamChannelContext producerContext = createStreamChannel((ChannelContextClusterPoint) clusterPoint, event.getDeliveryCommand().getPayload(), routeManager);
+                ClientStreamChannelContext producerContext = createStreamChannel((PinpointServerClusterPoint) clusterPoint, event.getDeliveryCommand().getPayload(), routeManager);
                 routeManager.setProducer(producerContext.getStreamChannel());
 
                 return new RouteResult(RouteStatus.OK);
@@ -117,9 +117,9 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
         return new RouteResult(RouteStatus.NOT_ACCEPTABLE_UNKNOWN);
     }
     
-    private ClientStreamChannelContext createStreamChannel(ChannelContextClusterPoint clusterPoint, byte[] payload, ClientStreamChannelMessageListener messageListener) {
-        ChannelContext channelContext = clusterPoint.getChannelContext();
-        return channelContext.createStreamChannel(payload, messageListener);
+    private ClientStreamChannelContext createStreamChannel(PinpointServerClusterPoint clusterPoint, byte[] payload, ClientStreamChannelMessageListener messageListener) {
+        PinpointServer pinpointServer = clusterPoint.getPinpointServer();
+        return pinpointServer.createStream(payload, messageListener);
     }
     
     public void close(ServerStreamChannelContext consumerContext) {

@@ -58,6 +58,7 @@ import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListe
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
+import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.IDGenerator;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 
@@ -104,6 +105,8 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     
     private final ConnectFuture connectFuture = new ConnectFuture();
     
+    private final String objectUniqName;
+    
     public PinpointSocketHandler(PinpointSocketFactory pinpointSocketFactory) {
         this(pinpointSocketFactory, DEFAULT_PING_DELAY, DEFAULT_ENABLE_WORKER_PACKET_DELAY, DEFAULT_TIMEOUTMILLIS);
     }
@@ -117,7 +120,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         timer.start();
         this.channelTimer = timer;
         this.pinpointSocketFactory = pinpointSocketFactory;
-        this.requestManager = new RequestManager(timer);
+        this.requestManager = new RequestManager(timer, timeoutMillis);
         this.pingDelay = pingDelay;
         this.handshakeRetryInterval = handshakeRetryInterval;
         this.timeoutMillis = timeoutMillis;
@@ -135,6 +138,8 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         } else {
             this.serverStreamChannelMessageListener = DisabledServerStreamChannelMessageListener.INSTANCE;
         }
+        
+        this.objectUniqName = ClassUtils.simpleClassNameAndHashCodeString(this);
         
         pinpointSocketFactory.getServerStreamChannelMessageListener();
         
@@ -374,7 +379,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
             final short packetType = packet.getPacketType();
             switch (packetType) {
                 case PacketType.APPLICATION_RESPONSE:
-                    this.requestManager.messageReceived((ResponsePacket) message, e.getChannel());
+                    this.requestManager.messageReceived((ResponsePacket) message, objectUniqName);
                     return;
                 // have to handle a request message through connector
                 case PacketType.APPLICATION_REQUEST:
