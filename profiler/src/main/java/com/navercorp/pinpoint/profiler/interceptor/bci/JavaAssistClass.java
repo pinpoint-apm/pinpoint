@@ -213,17 +213,10 @@ public class JavaAssistClass implements InstrumentClass {
             throw new NullPointerException("traceValue must not be null");
         }
         
-        // TODO In unit test, we cannot use isAssignableFrom() because same class is loaded by different class loaders.
-        // So we compare interface names implemented by traceValue.
-        // We'd better find better solution.
-//        final boolean marker = checkTraceValueMarker(traceValue);
-//        if (!marker) {
-//            throw new InstrumentException(traceValue + " marker interface  not implements" );
+//        TODO uncomment after converting every modifiers to plugins.
+//        if (traceValue.getClassLoader() != MetadataAccessor.class.getClassLoader()) {
+//            throw new InstrumentException(traceValue + " must be loaded by the class loader which loaded pinpoint-bootstrap" );
 //        }
-        
-        if (traceValue.getClassLoader() != MetadataAccessor.class.getClassLoader()) {
-            throw new InstrumentException(traceValue + " must be loaded by the class loader which loaded pinpoint-bootstrap" );
-        }
 
         try {
             final CtClass ctValueHandler = instrumentor.getClass(traceValue.getClassLoader(), traceValue.getName());
