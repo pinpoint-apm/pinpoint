@@ -125,9 +125,9 @@ public class MockAgent extends DefaultAgent implements PluginTestVerifier {
     
     @Override
     public void verifyServerType(ServiceType serviceType) {
-        short actualType = getAgentInformation().getServerType();
+        ServiceType actualType = getAgentInformation().getServerType();
         
-        if (serviceType.getCode() != actualType) {
+        if (serviceType.getCode() != actualType.getCode()) {
             throw new AssertionError("Expected server type: " + serviceType.getName() + "[" + serviceType.getCode() + "] but was [" + actualType + "]");
         };
     }

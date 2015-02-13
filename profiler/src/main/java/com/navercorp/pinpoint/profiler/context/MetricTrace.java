@@ -366,7 +366,7 @@ public class MetricTrace implements Trace {
     }
     
     @Override
-    public ServiceType getServiceType() {
+    public short getServiceType() {
         return currentStackFrame.getServiceType();
     }
 }

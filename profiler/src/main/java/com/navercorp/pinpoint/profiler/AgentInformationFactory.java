@@ -54,7 +54,7 @@ public class AgentInformationFactory {
         final String applicationName = getId("pinpoint.applicationName", "UnknownApplicationName", PinpointConstants.APPLICATION_NAME_MAX_LEN);
         final long startTime = RuntimeMXBeanUtils.getVmStartTime();
         final int pid = RuntimeMXBeanUtils.getPid();
-        return new AgentInformation(agentId, applicationName, startTime, pid, machineName, hostIp, serverType.getCode(), Version.VERSION);
+        return new AgentInformation(agentId, applicationName, startTime, pid, machineName, hostIp, serverType, Version.VERSION);
     }
 
     private String getId(String key, String defaultValue, int maxlen) {

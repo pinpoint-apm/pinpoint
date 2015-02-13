@@ -46,6 +46,7 @@ import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.ws.Service;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,10 +88,10 @@ public class DefaultTraceContext implements TraceContext {
 
     // for test
     public DefaultTraceContext() {
-        this(LRUCache.DEFAULT_CACHE_SIZE, ServiceType.STAND_ALONE.getCode(), new LogStorageFactory(), new TrueSampler(), new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs()));
+        this(LRUCache.DEFAULT_CACHE_SIZE, ServiceType.STAND_ALONE, new LogStorageFactory(), new TrueSampler(), new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs()));
     }
 
-    public DefaultTraceContext(final int sqlCacheSize, final short contextServiceType, StorageFactory storageFactory, Sampler sampler, ServerMetaDataHolder serverMetaDataHolder) {
+    public DefaultTraceContext(final int sqlCacheSize, final ServiceType contextServiceType, StorageFactory storageFactory, Sampler sampler, ServerMetaDataHolder serverMetaDataHolder) {
         if (storageFactory == null) {
             throw new NullPointerException("storageFactory must not be null");
         }
@@ -98,7 +99,7 @@ public class DefaultTraceContext implements TraceContext {
             throw new NullPointerException("sampler must not be null");
         }
         this.sqlCache = new SimpleCache<String>(sqlCacheSize);
-        this.contextServiceType = ServiceType.findServiceType(contextServiceType);
+        this.contextServiceType = contextServiceType;
         this.metricRegistry = new MetricRegistry(this.contextServiceType);
 
         this.traceFactory = new ThreadLocalTraceFactory(this, metricRegistry, storageFactory, sampler);
@@ -187,12 +188,12 @@ public class DefaultTraceContext implements TraceContext {
 
     @Override
     public short getServerTypeCode() {
-        return this.agentInformation.getServerType();
+        return this.agentInformation.getServerType().getCode();
     }
 
     @Override
     public String getServerType() {
-        return this.agentInformation.getServerServiceType().getDesc();
+        return this.agentInformation.getServerType().getDesc();
     }
 
 

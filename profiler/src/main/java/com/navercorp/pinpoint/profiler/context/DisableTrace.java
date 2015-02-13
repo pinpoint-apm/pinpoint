@@ -201,7 +201,7 @@ public class DisableTrace  implements Trace {
     }
     
     @Override
-    public ServiceType getServiceType() {
+    public short getServiceType() {
         throw new UnsupportedOperationException();
     }
 }

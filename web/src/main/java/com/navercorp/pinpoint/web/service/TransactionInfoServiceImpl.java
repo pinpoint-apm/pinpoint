@@ -534,21 +534,14 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         }
     }
 
-    private String getDisplayArgument(SpanBo spanBo) {
-        AnnotationBo displayArgument = getDisplayArgument0(spanBo);
+    private String getDisplayArgument(Span span) {
+        AnnotationBo displayArgument = getDisplayArgument0(span);
         if (displayArgument == null) {
             return "";
         }
         return ObjectUtils.toString(displayArgument.getValue());
     }
 
-    private String getDisplayArgument(SpanEventBo spanEventBo) {
-        AnnotationBo displayArgument = getDisplayArgument0(spanEventBo);
-        if (displayArgument == null) {
-            return "";
-        }
-        return ObjectUtils.toString(displayArgument.getValue());
-    }
 
     private String getRpcArgument(SpanBo spanBo) {
         String rpc = spanBo.getRpc();

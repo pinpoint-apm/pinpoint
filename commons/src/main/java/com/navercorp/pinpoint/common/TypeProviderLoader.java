@@ -239,8 +239,15 @@ public class TypeProviderLoader {
     public static void initializeServiceType(ClassLoader classLoader) {
         TypeProviderLoader loader = new TypeProviderLoader();
         loader.load(classLoader);
+        initializeServiceType(loader);
+    }
 
-        List<ServiceType> serviceTypes = buildServiceTypeList(loader);
+    public static void initializeServiceType(TypeProviderLoader loader) {
+        if (loader == null) {
+            throw new NullPointerException("loader must not be null");
+        }
+        List<Type> types = loader.getTypes();
+        List<ServiceType> serviceTypes = getServiceTypeList(types);
         ServiceType.initialize(serviceTypes);
         AnnotationKey.initialize(loader.getAnnotationKeys());
     }
@@ -249,7 +256,8 @@ public class TypeProviderLoader {
         TypeProviderLoader loader = new TypeProviderLoader();
         loader.load(urls);
 
-        List<ServiceType> serviceTypes = buildServiceTypeList(loader);
+        List<Type> types = loader.getTypes();
+        List<ServiceType> serviceTypes = getServiceTypeList(types);
         ServiceType.initialize(serviceTypes);
         AnnotationKey.initialize(loader.getAnnotationKeys());
     }
@@ -258,17 +266,13 @@ public class TypeProviderLoader {
         TypeProviderLoader loader = new TypeProviderLoader();
         loader.load(providers);
 
-        List<ServiceType> serviceTypes = buildServiceTypeList(loader);
+        List<Type> types = loader.getTypes();
+        List<ServiceType> serviceTypes = getServiceTypeList(types);
         ServiceType.initialize(serviceTypes);
         AnnotationKey.initialize(loader.getAnnotationKeys());
     }
 
-    private static List<ServiceType> buildServiceTypeList(TypeProviderLoader loader) {
-        if (loader == null) {
-            throw new NullPointerException("loader must not be null");
-        }
-
-        final List<Type> typeList = loader.getTypes();
+    public static List<ServiceType> getServiceTypeList(List<Type> typeList) {
         if (typeList == null) {
             return Collections.emptyList();
         }

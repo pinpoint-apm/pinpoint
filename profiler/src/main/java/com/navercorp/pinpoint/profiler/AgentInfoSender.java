@@ -96,7 +96,7 @@ public class AgentInfoSender {
         agentInfo.setApplicationName(this.agentInformation.getApplicationName());
         agentInfo.setPid(this.agentInformation.getPid());
         agentInfo.setStartTimestamp(this.agentInformation.getStartTime());
-        agentInfo.setServiceType(this.agentInformation.getServerType());
+        agentInfo.setServiceType(this.agentInformation.getServerType().getCode());
         agentInfo.setVersion(Version.VERSION);
 
         agentInfo.setServerMetaData(createTServiceInfo(serverMetaData));

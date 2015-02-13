@@ -70,7 +70,7 @@ public class DefaultTraceContextTest {
 
     @Test
     public void threadLocalBindTest() {
-        AgentInformation agentInformation = new AgentInformation("d", "d", System.currentTimeMillis(), 123, "machineName", "127.0.0.1", ServiceType.TEST_STAND_ALONE.getCode(), Version.VERSION);
+        AgentInformation agentInformation = new AgentInformation("d", "d", System.currentTimeMillis(), 123, "machineName", "127.0.0.1", ServiceType.TEST_STAND_ALONE, Version.VERSION);
 
         DefaultTraceContext traceContext1 = new DefaultTraceContext();
         traceContext1.setAgentInformation(agentInformation);

@@ -40,7 +40,7 @@ public interface RecordableTrace {
 
     boolean isRoot();
     
-    ServiceType getServiceType();
+    short getServiceType();
 
 
     void recordException(Throwable throwable);

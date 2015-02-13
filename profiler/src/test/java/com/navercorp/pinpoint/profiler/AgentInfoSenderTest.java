@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.navercorp.pinpoint.common.ServiceType;
 import org.apache.thrift.TException;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -237,7 +238,7 @@ public class AgentInfoSenderTest {
     }
 
     private AgentInformation getAgentInfo() {
-        AgentInformation agentInfo = new AgentInformation("agentId", "appName", System.currentTimeMillis(), 1111, "hostname", "127.0.0.1", (short)2, "1");
+        AgentInformation agentInfo = new AgentInformation("agentId", "appName", System.currentTimeMillis(), 1111, "hostname", "127.0.0.1", ServiceType.USER, "1");
         return agentInfo;
     }
 

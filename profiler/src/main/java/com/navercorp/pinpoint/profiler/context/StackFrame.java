@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * @author emeroad
@@ -48,8 +47,8 @@ public interface StackFrame {
     void setServiceType(short serviceType);
 
     void addAnnotation(Annotation annotation);
-    
-    ServiceType getServiceType();
+
+    short getServiceType();
 
     void attachFrameObject(Object frameObject);
 
