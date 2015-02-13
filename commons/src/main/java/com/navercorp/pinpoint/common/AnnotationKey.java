@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.common;
 
 import static com.navercorp.pinpoint.common.AnnotationKeyProperty.*;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
 import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 
 /**
@@ -166,71 +166,14 @@ public class AnnotationKey {
 
     public final static int MAX_ARGS_SIZE = 10;
     
-    static final List<AnnotationKey> DEFAULT_VALUES = Collections.unmodifiableList(Arrays.asList(
-            API,
-            API_METADATA,
-            RETURN_DATA,
-            
-            ERROR_API_METADATA_ERROR,
-            ERROR_API_METADATA_AGENT_INFO_NOT_FOUND,
-            ERROR_API_METADATA_IDENTIFIER_CHECK_ERROR,
-            ERROR_API_METADATA_NOT_FOUND,
-            ERROR_API_METADATA_DID_COLLSION,
+    static final List<AnnotationKey> DEFAULT_VALUES = Collections.unmodifiableList(defaultLookup());
 
-            SQL_ID,
-            SQL,
-            SQL_METADATA,
-            SQL_PARAM,
-            SQL_BINDVALUE,
 
-            STRING_ID,
+    private static List<AnnotationKey> defaultLookup() {
+        StaticFieldLookUp<AnnotationKey> lookUp = new StaticFieldLookUp<AnnotationKey>(AnnotationKey.class, AnnotationKey.class);
+        return lookUp.lookup();
+    }
 
-            HTTP_URL,
-            HTTP_PARAM,
-            HTTP_PARAM_ENTITY,
-            HTTP_COOKIE,
-            HTTP_STATUS_CODE,
-            HTTP_CALL_RETRY_COUNT,
-            
-            NPC_URL,
-            NPC_PARAM,
-            NPC_CONNECT_OPTION,
-
-            NIMM_OBJECT_NAME,
-            NIMM_METHOD_NAME,
-            NIMM_PARAM,
-            NIMM_CONNECT_OPTION,
-            
-            ARGS0,
-            ARGS1,
-            ARGS2,
-            ARGS3,
-            ARGS4,
-            ARGS5,
-            ARGS6,
-            ARGS7,
-            ARGS8,
-            ARGS9,
-            ARGSN,
-
-            CACHE_ARGS0,
-            CACHE_ARGS1,
-            CACHE_ARGS2,
-            CACHE_ARGS3,
-            CACHE_ARGS4,
-            CACHE_ARGS5,
-            CACHE_ARGS6,
-            CACHE_ARGS7,
-            CACHE_ARGS8,
-            CACHE_ARGS9,
-            CACHE_ARGSN,
-
-            EXCEPTION,
-            EXCEPTION_CLASS,
-            UNKNOWN
-    ));
-
-    
     private static List<AnnotationKey> VALUES;
     private static IntHashMap<AnnotationKey> CODE_LOOKUP_TABLE;
 

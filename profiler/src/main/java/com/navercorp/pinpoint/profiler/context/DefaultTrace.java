@@ -534,7 +534,7 @@ public final class DefaultTrace implements Trace {
     }
     
     @Override
-    public ServiceType getServiceType() {
+    public short getServiceType() {
         return currentStackFrame.getServiceType();
     }
-}                                                                                                                            
+}

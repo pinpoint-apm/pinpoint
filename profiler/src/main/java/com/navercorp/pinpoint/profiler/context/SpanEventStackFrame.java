@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * @author emeroad
@@ -132,8 +131,8 @@ public class SpanEventStackFrame implements StackFrame {
     }
     
     @Override
-    public ServiceType getServiceType() {
-        return ServiceType.findServiceType(spanEvent.getServiceType());
+    public short getServiceType() {
+        return spanEvent.getServiceType();
     }
 
 

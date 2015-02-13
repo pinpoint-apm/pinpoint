@@ -33,11 +33,10 @@ public class AgentInformation {
     private final int pid;
     private final String machineName;
     private final String hostIp;
-    private final short serverType;
-    private final ServiceType serverServiceType;
+    private final ServiceType serverType;
     private final String version;
 
-    public AgentInformation(String agentId, String applicationName, long startTime, int pid, String machineName, String hostIp, short serverType, String version) {
+    public AgentInformation(String agentId, String applicationName, long startTime, int pid, String machineName, String hostIp, ServiceType serverType, String version) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -57,7 +56,6 @@ public class AgentInformation {
         this.machineName = machineName;
         this.hostIp = hostIp;
         this.serverType = serverType;
-        this.serverServiceType =  ServiceType.findServiceType(serverType);
         this.version = version;
     }
 
@@ -87,13 +85,10 @@ public class AgentInformation {
         return hostIp;
     }
 
-    public short getServerType() {
+    public ServiceType getServerType() {
         return serverType;
     }
 
-    public ServiceType getServerServiceType() {
-        return serverServiceType;
-    }
 
     public String getVersion() {
         return version;
@@ -107,7 +102,7 @@ public class AgentInformation {
         map.put(AgentHandshakePropertyType.HOSTNAME.getName(), this.machineName);
         map.put(AgentHandshakePropertyType.IP.getName(), this.hostIp);
         map.put(AgentHandshakePropertyType.PID.getName(), this.pid);
-        map.put(AgentHandshakePropertyType.SERVICE_TYPE.getName(), this.serverType);
+        map.put(AgentHandshakePropertyType.SERVICE_TYPE.getName(), this.serverType.getCode());
         map.put(AgentHandshakePropertyType.START_TIMESTAMP.getName(), this.startTime);
         map.put(AgentHandshakePropertyType.VERSION.getName(), this.version);
 

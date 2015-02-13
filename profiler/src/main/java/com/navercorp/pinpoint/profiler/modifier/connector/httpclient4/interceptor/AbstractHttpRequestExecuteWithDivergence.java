@@ -153,7 +153,7 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
         if (trace == null) {
             return false;
         }
-        if (trace.getServiceType() != ServiceType.HTTP_CLIENT) {
+        if (trace.getServiceType() != ServiceType.HTTP_CLIENT.getCode()) {
             return false;
         }
 

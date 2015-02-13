@@ -35,7 +35,7 @@ import java.util.List;
 public class SpanChunkFactoryTest {
     @Test
     public void create() {
-        AgentInformation agentInformation = new AgentInformation("agentId", "applicationName", 0,0, "machineName", "127.0.0.1", ServiceType.TOMCAT.getCode(), Version.VERSION);
+        AgentInformation agentInformation = new AgentInformation("agentId", "applicationName", 0,0, "machineName", "127.0.0.1", ServiceType.TOMCAT, Version.VERSION);
         SpanChunkFactory spanChunkFactory = new SpanChunkFactory(agentInformation);
 
         try {

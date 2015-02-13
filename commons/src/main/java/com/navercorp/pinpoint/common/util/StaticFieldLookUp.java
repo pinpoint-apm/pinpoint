@@ -91,10 +91,10 @@ public class StaticFieldLookUp<T> {
             if (!field.getType().equals(findClazz)) {
                 continue;
             }
-            final Object serviceTypeObject = getObject(field);
+            final Object filedObject = getObject(field);
 
-            if (findClazz.isInstance(serviceTypeObject)) {
-                T type = findClazz.cast(serviceTypeObject);
+            if (findClazz.isInstance(filedObject)) {
+                T type = findClazz.cast(filedObject);
                 if (filter.filter(type) == Filter.FILTERED) {
                     continue;
                 }

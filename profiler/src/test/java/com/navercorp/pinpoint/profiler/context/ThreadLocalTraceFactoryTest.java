@@ -38,7 +38,7 @@ public class ThreadLocalTraceFactoryTest {
         LogStorageFactory logStorageFactory = new LogStorageFactory();
         TrueSampler trueSampler = new TrueSampler();
         ServerMetaDataHolder serverMetaDataHolder = new DefaultServerMetaDataHolder(Collections.<String>emptyList());
-        DefaultTraceContext traceContext = new DefaultTraceContext(100, ServiceType.TOMCAT.getCode(), logStorageFactory, trueSampler, serverMetaDataHolder);
+        DefaultTraceContext traceContext = new DefaultTraceContext(100, ServiceType.TOMCAT, logStorageFactory, trueSampler, serverMetaDataHolder);
         MetricRegistry metricRegistry = new MetricRegistry(ServiceType.TOMCAT);
         return new ThreadLocalTraceFactory(traceContext, metricRegistry, logStorageFactory, trueSampler);
     }

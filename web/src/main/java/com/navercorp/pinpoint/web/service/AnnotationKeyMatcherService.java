@@ -27,22 +27,24 @@ import com.navercorp.pinpoint.common.plugin.Type;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 /**
  * @author emeroad
  */
-@Service
+@Order(Ordered.HIGHEST_PRECEDENCE)
+@Component
 public class AnnotationKeyMatcherService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private AnnotationKeyMatcherRegistry registry;
+    private final AnnotationKeyMatcherRegistry registry;
 
-    @PostConstruct
-    public void init() {
+    public AnnotationKeyMatcherService() {
+
         AnnotationKeyMatcherRegistry.Builder builder = new AnnotationKeyMatcherRegistry.Builder();
 
         StaticFieldLookUp<DisplayArgumentMatcher> staticFieldLookUp = new StaticFieldLookUp<DisplayArgumentMatcher>(DefaultDisplayArgument.class, DisplayArgumentMatcher.class);

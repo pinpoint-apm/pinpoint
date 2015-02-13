@@ -211,7 +211,7 @@ public class MockTrace implements Trace {
     }
     
     @Override
-    public ServiceType getServiceType() {
-        return null;
+    public short getServiceType() {
+        return ServiceType.UNDEFINED.getCode();
     }
 }
