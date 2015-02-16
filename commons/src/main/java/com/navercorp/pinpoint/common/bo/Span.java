@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.ServiceType;
  * @author emeroad
  */
 public interface Span {
-    ServiceType getServiceType();
+    short getServiceType();
 
     String getRpc();
 

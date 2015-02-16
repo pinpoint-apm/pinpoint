@@ -41,7 +41,7 @@ public class SpanEventBoTest {
         spanEventBo.setNextSpanId(4);
         spanEventBo.setRpc("rpc");
 
-        spanEventBo.setServiceType(ServiceType.TOMCAT);
+        spanEventBo.setServiceType(ServiceType.TOMCAT.getCode());
         spanEventBo.setSpanId(12);
         spanEventBo.setStartElapsed(100);
 

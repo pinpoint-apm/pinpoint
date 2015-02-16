@@ -77,7 +77,7 @@ public class AnnotationKeyMatcherService {
         return loader.getTypes();
     }
 
-    public AnnotationKeyMatcher findAnnotationKeyMatcher(ServiceType serviceType) {
+    public AnnotationKeyMatcher findAnnotationKeyMatcher(short serviceType) {
         return registry.findAnnotationKeyMatcher(serviceType);
     }
 }

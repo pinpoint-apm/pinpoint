@@ -35,7 +35,7 @@ public class AgentInfoBoMapper implements ThriftBoMapper<AgentInfoBo, TAgentInfo
         final String ports = thriftObject.getPorts();
         final String agentId = thriftObject.getAgentId();
         final String applicationName = thriftObject.getApplicationName();
-        final ServiceType serviceType = ServiceType.findServiceType(thriftObject.getServiceType());
+        final short serviceType = thriftObject.getServiceType();
         final int pid = thriftObject.getPid();
         final String version = thriftObject.getVersion();
         final long startTime = thriftObject.getStartTimestamp();
