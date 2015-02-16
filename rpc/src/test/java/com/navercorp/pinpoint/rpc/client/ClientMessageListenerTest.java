@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import com.navercorp.pinpoint.rpc.server.WritablePinpointServer;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.SimpleLoggingServerMessageListener;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils.EchoClientListener;
@@ -56,12 +56,12 @@ public class ClientMessageListenerTest {
             PinpointSocket socket = clientSocketFactory.connect("127.0.0.1", bindPort);
             Thread.sleep(500);
 
-            List<WritablePinpointServer> writableServerList = serverAcceptor.getWritableServerList();
+            List<PinpointServer> writableServerList = serverAcceptor.getWritableServerList();
             if (writableServerList.size() != 1) {
                 Assert.fail();
             }
 
-            WritablePinpointServer writableServer = writableServerList.get(0);
+            PinpointServer writableServer = writableServerList.get(0);
             assertSendMessage(writableServer, "simple", echoMessageListener);
             assertRequestMessage(writableServer, "request", echoMessageListener);
 
@@ -88,15 +88,15 @@ public class ClientMessageListenerTest {
 
             Thread.sleep(500);
 
-            List<WritablePinpointServer> writableServerList = serverAcceptor.getWritableServerList();
+            List<PinpointServer> writableServerList = serverAcceptor.getWritableServerList();
             if (writableServerList.size() != 2) {
                 Assert.fail();
             }
 
-            WritablePinpointServer writableServer = writableServerList.get(0);
+            PinpointServer writableServer = writableServerList.get(0);
             assertRequestMessage(writableServer, "socket1", null);
 
-            WritablePinpointServer writableServer2 = writableServerList.get(1);
+            PinpointServer writableServer2 = writableServerList.get(1);
             assertRequestMessage(writableServer2, "socket2", null);
 
             Assert.assertEquals(1, echoMessageListener1.getRequestPacketRepository().size());
@@ -111,14 +111,14 @@ public class ClientMessageListenerTest {
         }
     }
 
-    private void assertSendMessage(WritablePinpointServer writableServer, String message, EchoClientListener echoMessageListener) throws InterruptedException {
+    private void assertSendMessage(PinpointServer writableServer, String message, EchoClientListener echoMessageListener) throws InterruptedException {
         writableServer.send(message.getBytes());
         Thread.sleep(100);
 
         Assert.assertEquals(message, new String(echoMessageListener.getSendPacketRepository().get(0).getPayload()));
     }
 
-    private void assertRequestMessage(WritablePinpointServer writableServer, String message, EchoClientListener echoMessageListener) throws InterruptedException {
+    private void assertRequestMessage(PinpointServer writableServer, String message, EchoClientListener echoMessageListener) throws InterruptedException {
         byte[] response = PinpointRPCTestUtils.request(writableServer, message.getBytes());
         Assert.assertEquals(message, new String(response));
 

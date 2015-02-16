@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.rpc.client.SimpleLoggingMessageListener;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import com.navercorp.pinpoint.rpc.server.WritablePinpointServer;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 import com.navercorp.pinpoint.rpc.server.TestSeverMessageListener;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
@@ -151,10 +151,10 @@ public class StreamChannelManagerTest {
 
             Thread.sleep(100);
 
-            List<WritablePinpointServer> writableServerList = serverAcceptor.getWritableServerList();
+            List<PinpointServer> writableServerList = serverAcceptor.getWritableServerList();
             Assert.assertEquals(1, writableServerList.size());
 
-            WritablePinpointServer writableServer = writableServerList.get(0);
+            PinpointServer writableServer = writableServerList.get(0);
 
             RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
 
@@ -253,10 +253,10 @@ public class StreamChannelManagerTest {
 
             Thread.sleep(100);
 
-            List<WritablePinpointServer> writableServerList = serverAcceptor.getWritableServerList();
+            List<PinpointServer> writableServerList = serverAcceptor.getWritableServerList();
             Assert.assertEquals(1, writableServerList.size());
 
-            WritablePinpointServer writableServer = writableServerList.get(0);
+            PinpointServer writableServer = writableServerList.get(0);
 
             RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
 

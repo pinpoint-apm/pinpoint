@@ -36,12 +36,12 @@ public class SimpleLoggingServerMessageListener implements ServerMessageListener
     public static final SimpleLoggingServerMessageListener LISTENER = new SimpleLoggingServerMessageListener();
 
     @Override
-    public void handleSend(SendPacket sendPacket, WritablePinpointServer pinpointServer) {
+    public void handleSend(SendPacket sendPacket, PinpointServer pinpointServer) {
         logger.info("handlerSend {} {}", sendPacket, pinpointServer);
     }
 
     @Override
-    public void handleRequest(RequestPacket requestPacket, WritablePinpointServer pinpointServer) {
+    public void handleRequest(RequestPacket requestPacket, PinpointServer pinpointServer) {
         logger.info("handlerRequest {} {}", requestPacket, pinpointServer);
     }
 

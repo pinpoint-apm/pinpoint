@@ -116,10 +116,10 @@ public class RequestManager {
         final int requestId = responsePacket.getRequestId();
         final DefaultFuture<ResponseMessage> future = removeMessageFuture(requestId);
         if (future == null) {
-            logger.warn("future not found:{}, channel:{}", responsePacket, pinpointServer);
+            logger.warn("future not found:{}, pinpointServer:{}", responsePacket, pinpointServer);
             return;
         } else {
-            logger.debug("responsePacket arrived packet:{}, channel:{}", responsePacket, pinpointServer);
+            logger.debug("responsePacket arrived packet:{}, pinpointServer:{}", responsePacket, pinpointServer);
         }
 
         ResponseMessage response = new ResponseMessage();
