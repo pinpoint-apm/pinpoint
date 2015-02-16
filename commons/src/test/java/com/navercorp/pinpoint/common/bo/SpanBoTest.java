@@ -70,7 +70,7 @@ public class SpanBoTest {
         spanBo.setStartTime(5);
 
 
-        spanBo.setServiceType(ServiceType.STAND_ALONE);
+        spanBo.setServiceType(ServiceType.STAND_ALONE.getCode());
         byte[] bytes = spanBo.writeValue();
         logger.info("length:{}", bytes.length);
 
@@ -107,7 +107,7 @@ public class SpanBoTest {
         String rpc = createString(255);
         spanBo.setRpc(rpc);
 
-        spanBo.setServiceType(ServiceType.STAND_ALONE);
+        spanBo.setServiceType(ServiceType.STAND_ALONE.getCode());
 
         byte[] bytes = spanBo.writeValue();
         logger.info("length:{}", bytes.length);

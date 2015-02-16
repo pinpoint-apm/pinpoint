@@ -39,11 +39,8 @@ public class AnnotationKeyMatcherRegistry {
     }
 
 
-    public AnnotationKeyMatcher findAnnotationKeyMatcher(ServiceType serviceType) {
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null");
-        }
-        return annotationMatcherMap.get(serviceType.getCode());
+    public AnnotationKeyMatcher findAnnotationKeyMatcher(short serviceType) {
+        return annotationMatcherMap.get(serviceType);
     }
 
 

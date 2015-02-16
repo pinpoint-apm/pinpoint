@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.bo;
 
-import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
@@ -47,7 +46,7 @@ public class AgentInfoBo {
     private final String ports;
     private final String agentId;
     private final String applicationName;
-    private final ServiceType serviceType;
+    private final short serviceType;
     private final int pid;
     private final String version;
 
@@ -110,7 +109,7 @@ public class AgentInfoBo {
         return pid;
     }
 
-    public ServiceType getServiceType() {
+    public short getServiceType() {
         return serviceType;
     }
 
@@ -128,7 +127,7 @@ public class AgentInfoBo {
         buffer.putPrefixedString(this.getIp());
         buffer.putPrefixedString(this.getPorts());
         buffer.putPrefixedString(this.getApplicationName());
-        buffer.put(this.serviceType.getCode());
+        buffer.put(this.getServiceType());
         buffer.put(this.getPid());
         buffer.putPrefixedString(this.getVersion());
 
@@ -188,7 +187,7 @@ public class AgentInfoBo {
         private String ports;
         private String agentId;
         private String applicationName;
-        private ServiceType serviceType;
+        private short serviceType;
         private int pid;
         private String version;
 
@@ -208,7 +207,7 @@ public class AgentInfoBo {
             this.ip = buffer.readPrefixedString();
             this.ports = buffer.readPrefixedString();
             this.applicationName = buffer.readPrefixedString();
-            this.serviceType = ServiceType.findServiceType(buffer.readShort());
+            this.serviceType = buffer.readShort();
             this.pid = buffer.readInt();
             this.version = buffer.readPrefixedString();
 
@@ -237,7 +236,7 @@ public class AgentInfoBo {
             this.applicationName = applicationName;
         }
 
-        public void serviceType(ServiceType serviceType) {
+        public void serviceType(short serviceType) {
             this.serviceType = serviceType;
         }
 
@@ -278,8 +277,6 @@ public class AgentInfoBo {
                 this.applicationName = "";
             if (this.version == null)
                 this.version = "";
-            if (this.serviceType == null)
-                this.serviceType = ServiceType.UNKNOWN;
             return new AgentInfoBo(this);
         }
     }

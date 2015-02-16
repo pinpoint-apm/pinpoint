@@ -45,7 +45,7 @@ public class ApplicationGroupSerializer extends JsonSerializer<ApplicationGroup>
         jgen.writeStartObject();
         jgen.writeStringField("applicationName", application.getName());
         jgen.writeStringField("serviceType", application.getServiceType().getDesc());
-        jgen.writeNumberField("code", application.getServiceType().getCode());
+        jgen.writeNumberField("code", application.getServiceTypeCode());
         jgen.writeEndObject();
     }
 }

@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
 import com.navercorp.pinpoint.web.applicationmap.link.ServerMatcher;
@@ -58,7 +59,7 @@ public class ApplicationAgentListSerializer extends JsonSerializer<ApplicationAg
             jgen.writeStringField("ports", agentInfoBo.getPorts());
             jgen.writeStringField("agentId", agentInfoBo.getAgentId());
             jgen.writeStringField("applicationName", agentInfoBo.getApplicationName());
-            jgen.writeStringField("serviceType", agentInfoBo.getServiceType().toString());
+            jgen.writeStringField("serviceType", ServiceType.findServiceType(agentInfoBo.getServiceType()).toString());
             jgen.writeNumberField("pid", agentInfoBo.getPid());
             jgen.writeStringField("version", agentInfoBo.getVersion());
             jgen.writeNumberField("startTime", agentInfoBo.getStartTime());

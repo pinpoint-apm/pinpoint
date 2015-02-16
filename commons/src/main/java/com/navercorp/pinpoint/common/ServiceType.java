@@ -234,6 +234,8 @@ public class ServiceType {
     }
 
     private static List<ServiceType> VALUES;
+
+    @Deprecated
     private static IntHashMap<ServiceType> CODE_LOOKUP_TABLE = null;
     private static Map<String, List<ServiceType>> STATISTICS_LOOKUP_TABLE = null;
 
@@ -311,6 +313,7 @@ public class ServiceType {
         return ServiceTypeCategory.SERVER.contains(code);
     }
 
+    @Deprecated
     public static ServiceType findServiceType(short code) {
         ServiceType serviceType = CODE_LOOKUP_TABLE.get(code);
         if (serviceType == null) {

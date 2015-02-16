@@ -54,7 +54,7 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
     private int elapsed;
 
     private String rpc;
-    private ServiceType serviceType;
+    private short serviceType;
     private String endPoint;
     private int apiId;
 
@@ -98,7 +98,7 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
 
         this.rpc = span.getRpc();
 
-        this.serviceType = ServiceType.findServiceType(span.getServiceType());
+        this.serviceType = span.getServiceType();
         this.endPoint = span.getEndPoint();
         this.flag = span.getFlag();
         this.apiId = span.getApiId();
@@ -303,11 +303,11 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
         return spanEventBoList;
     }
 
-    public ServiceType getServiceType() {
+    public short getServiceType() {
         return serviceType;
     }
 
-    public void setServiceType(ServiceType serviceType) {
+    public void setServiceType(short serviceType) {
         this.serviceType = serviceType;
     }
     
@@ -389,7 +389,7 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
 
         buffer.putPrefixedString(rpc);
         buffer.putPrefixedString(applicationId);
-        buffer.put(serviceType.getCode());
+        buffer.put(serviceType);
         buffer.putPrefixedString(endPoint);
         buffer.putPrefixedString(remoteAddr);
         buffer.putSVar(apiId);
@@ -429,7 +429,7 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
 
         this.rpc = buffer.readPrefixedString();
         this.applicationId = buffer.readPrefixedString();
-        this.serviceType = ServiceType.findServiceType(buffer.readShort());
+        this.serviceType = buffer.readShort();
         this.endPoint = buffer.readPrefixedString();
         this.remoteAddr = buffer.readPrefixedString();
         this.apiId = buffer.readSVarInt();

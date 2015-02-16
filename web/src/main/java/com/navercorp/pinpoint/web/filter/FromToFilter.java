@@ -60,20 +60,20 @@ public class FromToFilter implements Filter {
     public boolean include(List<SpanBo> transaction) {
         if (includeServiceType(fromServiceCode, ServiceType.USER)) {
             for (SpanBo span : transaction) {
-                if (span.isRoot() && includeServiceType(toServiceCode, span.getServiceType()) && toApplicationName.equals(span.getApplicationId())) {
+                if (span.isRoot() && includeServiceType(toServiceCode, getServiceType(span.getServiceType())) && toApplicationName.equals(span.getApplicationId())) {
                     return true;
                 }
             }
         } else if (includeUnknown(toServiceCode)) {
             for (SpanBo span : transaction) {
-                if (includeServiceType(fromServiceCode, span.getServiceType()) && fromApplicationName.equals(span.getApplicationId())) {
+                if (includeServiceType(fromServiceCode, getServiceType(span.getServiceType())) && fromApplicationName.equals(span.getApplicationId())) {
                     List<SpanEventBo> eventBoList = span.getSpanEventBoList();
                     if (eventBoList == null) {
                         continue;
                     }
                     for (SpanEventBo event : eventBoList) {
                         // check only whether client exists or not
-                        if (event.getServiceType().isRpcClient() && toApplicationName.equals(event.getDestinationId())) {
+                        if (getServiceType(event.getServiceType()).isRpcClient() && toApplicationName.equals(event.getDestinationId())) {
                             return true;
                         }
                     }
@@ -85,14 +85,14 @@ public class FromToFilter implements Filter {
              * find src first. span (from, to) may exist more than one. so (spanId == parentSpanID) should be checked.
              */
             for (SpanBo srcSpan : transaction) {
-                if (includeServiceType(fromServiceCode, srcSpan.getServiceType()) && fromApplicationName.equals(srcSpan.getApplicationId())) {
+                if (includeServiceType(fromServiceCode, getServiceType(srcSpan.getServiceType())) && fromApplicationName.equals(srcSpan.getApplicationId())) {
                     // find dest of src.
                     for (SpanBo destSpan : transaction) {
                         if (destSpan.getParentSpanId() != srcSpan.getSpanId()) {
                             continue;
                         }
 
-                        if (includeServiceType(toServiceCode, destSpan.getServiceType()) && toApplicationName.equals(destSpan.getApplicationId())) {
+                        if (includeServiceType(toServiceCode, getServiceType(destSpan.getServiceType())) && toApplicationName.equals(destSpan.getApplicationId())) {
                             return true;
                         }
                     }
@@ -101,13 +101,13 @@ public class FromToFilter implements Filter {
             }
         } else {
             for (SpanBo span : transaction) {
-                if (includeServiceType(fromServiceCode, span.getServiceType()) && fromApplicationName.equals(span.getApplicationId())) {
+                if (includeServiceType(fromServiceCode, getServiceType(span.getServiceType())) && fromApplicationName.equals(span.getApplicationId())) {
                     List<SpanEventBo> eventBoList = span.getSpanEventBoList();
                     if (eventBoList == null) {
                         continue;
                     }
                     for (SpanEventBo event : eventBoList) {
-                        if (includeServiceType(toServiceCode, event.getServiceType()) && toApplicationName.equals(event.getDestinationId())) {
+                        if (includeServiceType(toServiceCode, getServiceType(event.getServiceType())) && toApplicationName.equals(event.getDestinationId())) {
                             return true;
                         }
                     }
@@ -118,6 +118,10 @@ public class FromToFilter implements Filter {
         return false;
     }
 
+    @Deprecated
+    public ServiceType getServiceType(short code) {
+        return ServiceType.findServiceType(code);
+    }
 
     private boolean includeUnknown(List<ServiceType> serviceTypeList) {
         for (ServiceType serviceType : serviceTypeList) {

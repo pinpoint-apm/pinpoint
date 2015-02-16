@@ -43,7 +43,7 @@ public class ServerInstanceListSerializerTest {
         
         AgentInfoBo.Builder agentInfoBuilder = new AgentInfoBo.Builder();
         agentInfoBuilder.agentId("agentId");
-        agentInfoBuilder.serviceType(ServiceType.TOMCAT);
+        agentInfoBuilder.serviceType(ServiceType.TOMCAT.getCode());
         agentInfoBuilder.hostName("testcomputer");
 
         AgentInfoBo agentInfoBo = agentInfoBuilder.build();

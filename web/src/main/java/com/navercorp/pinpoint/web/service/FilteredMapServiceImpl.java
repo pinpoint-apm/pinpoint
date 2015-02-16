@@ -128,7 +128,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
         // scan transaction list
         for (SpanBo span : filteredTransactionList) {
-            if (sourceApplication.equals(span.getApplicationId(), span.getServiceType())) {
+            if (sourceApplication.equals(span.getApplicationId(), ServiceType.findServiceType(span.getServiceType()))) {
                 List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
                 if (spanEventBoList == null) {
                     continue;
@@ -136,7 +136,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
                 // find dest elapsed time
                 for (SpanEventBo spanEventBo : spanEventBoList) {
-                    if (destinationApplication.equals(spanEventBo.getDestinationId(), spanEventBo.getServiceType())) {
+                    if (destinationApplication.equals(spanEventBo.getDestinationId(), ServiceType.findServiceType(spanEventBo.getServiceType()))) {
                         // find exception
                         boolean hasException = spanEventBo.hasException();
                         // add sample
@@ -324,7 +324,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         LinkDataMap sourceLinkDataMap = linkDataDuplexMap.getSourceLinkDataMap();
         for (SpanEventBo spanEvent : spanEventBoList) {
 
-            ServiceType destServiceType = spanEvent.getServiceType();
+            ServiceType destServiceType = ServiceType.findServiceType(spanEvent.getServiceType());
             if (!destServiceType.isRecordStatistics()) {
                 // internal method
                 continue;
@@ -362,7 +362,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
             return new Application(applicationName, serviceType);
         } else {
             String parentApplicationName = parentSpan.getApplicationId();
-            ServiceType serviceType = parentSpan.getServiceType();
+            ServiceType serviceType = ServiceType.findServiceType(parentSpan.getServiceType());
             return new Application(parentApplicationName, serviceType);
         }
     }

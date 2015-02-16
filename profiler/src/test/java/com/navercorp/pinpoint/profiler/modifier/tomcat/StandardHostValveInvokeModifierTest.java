@@ -94,7 +94,7 @@ public class StandardHostValveInvokeModifierTest extends BasePinpointTest {
 
         final SpanBo rootSpan = rootSpans.get(0);
         assertEquals(rootSpan.getParentSpanId(), -1);
-        assertEquals(rootSpan.getServiceType(), SERVICE_TYPE);
+        assertEquals(rootSpan.getServiceType(), SERVICE_TYPE.getCode());
         assertEquals(rootSpan.getRpc(), REQUEST_URI);
         assertEquals(rootSpan.getEndPoint(), SERVER_NAME + ":" + SERVER_PORT);
         assertEquals(rootSpan.getRemoteAddr(), REMOTE_ADDRESS);
@@ -116,7 +116,7 @@ public class StandardHostValveInvokeModifierTest extends BasePinpointTest {
 
             final SpanBo rootSpan = rootSpans.get(0);
             assertEquals(rootSpan.getParentSpanId(), -1);
-            assertEquals(rootSpan.getServiceType(), SERVICE_TYPE);
+            assertEquals(rootSpan.getServiceType(), SERVICE_TYPE.getCode());
             assertTrue(rootSpan.hasException());
         }
     }

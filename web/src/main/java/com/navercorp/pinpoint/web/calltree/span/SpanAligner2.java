@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.calltree.span;
 
 import java.util.*;
 
+import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
 
@@ -167,7 +168,7 @@ public class SpanAligner2 {
                 currentDepth = spanDepth + spanEventBo.getDepth();
             }
             if (logger.isDebugEnabled()) {
-                logger.debug("spanEvent type:{} depth:{} spanEventDepth:{} ", spanEventBo.getServiceType(), currentDepth, spanEventBo.getDepth());
+                logger.debug("spanEvent type:{} depth:{} spanEventDepth:{} ", ServiceType.findServiceType(spanEventBo.getServiceType()), currentDepth, spanEventBo.getDepth());
             }
 
             SpanAlign spanEventAlign = new SpanAlign(currentDepth, span, spanEventBo);

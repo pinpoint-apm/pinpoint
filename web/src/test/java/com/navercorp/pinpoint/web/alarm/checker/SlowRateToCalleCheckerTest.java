@@ -71,7 +71,7 @@ public class SlowRateToCalleCheckerTest {
                         timeHistogramList.add(timeHistogram);
                     }
                     
-                    linkCallDataMap.addCallData(fromApplication.getName(), fromApplication.getServiceType().getCode(), toApplication.getName(), toApplication.getServiceType().getCode(), timeHistogramList);
+                    linkCallDataMap.addCallData(fromApplication.getName(), fromApplication.getServiceTypeCode(), toApplication.getName(), toApplication.getServiceTypeCode(), timeHistogramList);
                     LinkData linkData = new LinkData(fromApplication, toApplication, linkCallDataMap);
                     linkDataMap.addLinkData(linkData);
                 }

@@ -63,10 +63,6 @@ public class Histogram {
         addCallCount(slotTime, 1);
     }
 
-    public Histogram(final short serviceType) {
-        this(ServiceType.findServiceType(serviceType));
-    }
-
     // TODO one may extract slot number from this class
     public void addCallCount(final short slotTime, final long count) {
         final HistogramSchema schema = this.schema;

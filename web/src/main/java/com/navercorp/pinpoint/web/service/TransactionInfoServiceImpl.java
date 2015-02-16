@@ -303,7 +303,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                                     getGap(stack),
                                                     spanBo.getAgentId(),
                                                     spanBo.getApplicationId(),
-                                                    spanBo.getServiceType(),
+                                                    ServiceType.findServiceType(spanBo.getServiceType()),
                                                     null,
                                                     spanAlign.isHasChild(),
                                                     false);
@@ -323,7 +323,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                                     getGap(stack),
                                                     spanBo.getAgentId(),
                                                     spanBo.getApplicationId(),
-                                                    spanBo.getServiceType(),
+                                                    ServiceType.findServiceType(spanBo.getServiceType()),
                                                     null,
                                                     spanAlign.isHasChild(),
                                                     false);
@@ -376,11 +376,11 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                                     getGap(stack),
                                                     spanEventBo.getAgentId(),
                                                     spanBo.getApplicationId(),
-                                                    spanEventBo.getServiceType(),
+                                                    ServiceType.findServiceType(spanEventBo.getServiceType()),
                                                     /* spanEventBo.getDestinationId(), spanEventBo.getServiceType(),*/
-                                                    destinationId,
-                                                    spanAlign.isHasChild(),
-                                                    false);
+                                                            destinationId,
+                                                            spanAlign.isHasChild(),
+                                                            false);
                         record.setSimpleClassName(apiDescription.getSimpleClassName());
                         record.setFullApiDescription(method);
 
@@ -404,7 +404,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                                     getGap(stack),
                                                     spanEventBo.getAgentId(),
                                                     spanBo.getApplicationId(),
-                                                    spanEventBo.getServiceType(),
+                                                    ServiceType.findServiceType(spanEventBo.getServiceType()),
                                                     /*spanEventBo.getDestinationId(), spanEventBo.getServiceType(),*/
                                                     destinationId,
                                                     spanAlign.isHasChild(),
@@ -558,8 +558,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             return null;
         }
 
-        final ServiceType serviceType = span.getServiceType();
-        final AnnotationKeyMatcher matcher = annotationKeyMatcherService.findAnnotationKeyMatcher(serviceType);;
+        final AnnotationKeyMatcher matcher = annotationKeyMatcherService.findAnnotationKeyMatcher(span.getServiceType());;
         if (matcher == null) {
             return null;
         }

@@ -51,7 +51,7 @@ public class SpanEventBo implements Span {
     private int endElapsed;
 
     private String rpc;
-    private ServiceType serviceType;
+    private short serviceType;
 
     private String destinationId;
     private String endPoint;
@@ -100,7 +100,7 @@ public class SpanEventBo implements Span {
         this.endElapsed = tSpanEvent.getEndElapsed();
 
         this.rpc = tSpanEvent.getRpc();
-        this.serviceType = ServiceType.findServiceType(tSpanEvent.getServiceType());
+        this.serviceType = tSpanEvent.getServiceType();
 
 
         this.destinationId = tSpanEvent.getDestinationId();
@@ -153,7 +153,7 @@ public class SpanEventBo implements Span {
         this.endElapsed = spanEvent.getEndElapsed();
 
         this.rpc = spanEvent.getRpc();
-        this.serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
+        this.serviceType = spanEvent.getServiceType();
 
         this.destinationId = spanEvent.getDestinationId();
 
@@ -268,11 +268,11 @@ public class SpanEventBo implements Span {
         this.rpc = rpc;
     }
 
-    public ServiceType getServiceType() {
+    public short getServiceType() {
         return serviceType;
     }
 
-    public void setServiceType(ServiceType serviceType) {
+    public void setServiceType(short serviceType) {
         this.serviceType = serviceType;
     }
 
@@ -373,7 +373,7 @@ public class SpanEventBo implements Span {
         // buffer.put(sequence);
 
         buffer.putPrefixedString(rpc);
-        buffer.put(serviceType.getCode());
+        buffer.put(serviceType);
         buffer.putPrefixedString(endPoint);
         buffer.putPrefixedString(destinationId);
         buffer.putSVar(apiId);
@@ -423,7 +423,7 @@ public class SpanEventBo implements Span {
 
 
         this.rpc = buffer.readPrefixedString();
-        this.serviceType = ServiceType.findServiceType(buffer.readShort());
+        this.serviceType = buffer.readShort();
         this.endPoint = buffer.readPrefixedString();
         this.destinationId = buffer.readPrefixedString();
         this.apiId = buffer.readSVarInt();
