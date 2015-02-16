@@ -92,7 +92,21 @@ public class PinpointServerClusterPoint implements TargetClusterPoint {
     
     @Override
     public String toString() {
-        return pinpointServer.toString();
+        StringBuilder log = new StringBuilder(32);
+        log.append(this.getClass().getSimpleName());
+        log.append("(");
+        log.append(applicationName);
+        log.append("/");
+        log.append(agentId);
+        log.append("/");
+        log.append(startTimeStamp);
+        log.append(")");
+        log.append(", version:");
+        log.append(version);
+        log.append(", pinpointServer:");
+        log.append(pinpointServer);
+        
+        return log.toString();
     }
     
     @Override

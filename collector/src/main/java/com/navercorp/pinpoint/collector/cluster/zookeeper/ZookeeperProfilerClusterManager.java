@@ -144,9 +144,7 @@ public class ZookeeperProfilerClusterManager implements ChannelStateChangeEventH
     
     @Override
     public void exceptionCaught(PinpointServer pinpointServer, PinpointServerStateCode stateCode, Throwable e) {
-        if (logger.isWarnEnabled()) {
-            logger.warn(this.getClass().getSimpleName() + " exception occured. Error: " + e.getMessage() + "."  , e);
-        }
+        logger.warn("ZookeeperProfilerClusterManager exceptionCaught() (pinpointServer:{}, PinpointServerStateCode:{}). Error: {}.", pinpointServer, stateCode, e.getMessage(), e);
     }
     
     public List<String> getClusterData() {

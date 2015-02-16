@@ -193,12 +193,12 @@ public class EventHandlerTest {
 
     class SimpleListener implements ServerMessageListener {
         @Override
-        public void handleSend(SendPacket sendPacket, WritablePinpointServer pinpointServer) {
+        public void handleSend(SendPacket sendPacket, PinpointServer pinpointServer) {
 
         }
 
         @Override
-        public void handleRequest(RequestPacket requestPacket, WritablePinpointServer pinpointServer) {
+        public void handleRequest(RequestPacket requestPacket, PinpointServer pinpointServer) {
             logger.info("handlerRequest {}", requestPacket);
             
             pinpointServer.response(requestPacket, requestPacket.getPayload());

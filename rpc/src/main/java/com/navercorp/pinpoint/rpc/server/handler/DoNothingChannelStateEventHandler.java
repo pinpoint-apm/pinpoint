@@ -33,14 +33,12 @@ public class DoNothingChannelStateEventHandler implements ChannelStateChangeEven
 
     @Override
     public void eventPerformed(PinpointServer pinpointServer, PinpointServerStateCode stateCode) {
-        logger.info("{} eventPerformed {}:{}", this.getClass().getSimpleName(), pinpointServer, stateCode);
+        logger.info("{} eventPerformed(). pinpointServer:{}, code:{}", this.getClass().getSimpleName(), pinpointServer, stateCode);
     }
     
     @Override
     public void exceptionCaught(PinpointServer pinpointServer, PinpointServerStateCode stateCode, Throwable e) {
-        if (logger.isWarnEnabled()) {
-            logger.warn(this.getClass().getSimpleName() + " exception occured. Error: " + e.getMessage() + "."  , e);
-        }
+        logger.warn("{} exceptionCaught(). pinpointServer:{}, code:{}. Error: {}.", this.getClass().getSimpleName(), pinpointServer, stateCode, e.getMessage(), e);
     }
 
 }

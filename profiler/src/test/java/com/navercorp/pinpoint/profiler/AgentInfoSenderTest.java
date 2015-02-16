@@ -42,7 +42,7 @@ import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
-import com.navercorp.pinpoint.rpc.server.WritablePinpointServer;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
@@ -264,13 +264,13 @@ public class AgentInfoSenderTest {
         }
 
         @Override
-        public void handleSend(SendPacket sendPacket, WritablePinpointServer pinpointServer) {
+        public void handleSend(SendPacket sendPacket, PinpointServer pinpointServer) {
             logger.info("handleSend:{}", sendPacket);
 
         }
 
         @Override
-        public void handleRequest(RequestPacket requestPacket, WritablePinpointServer pinpointServer) {
+        public void handleRequest(RequestPacket requestPacket, PinpointServer pinpointServer) {
             int requestCount = this.requestCount.incrementAndGet();
 
             if (requestCount < successCondition) {

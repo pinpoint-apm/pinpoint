@@ -37,7 +37,7 @@ import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
-import com.navercorp.pinpoint.rpc.server.WritablePinpointServer;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.web.cluster.ClusterManager;
 import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterManager;
 import com.navercorp.pinpoint.web.config.WebConfig;
@@ -108,11 +108,11 @@ public class PinpointSocketManager {
         }
     }
 
-    public List<WritablePinpointServer> getCollectorList() {
+    public List<PinpointServer> getCollectorList() {
         return serverAcceptor.getWritableServerList();
     }
 
-    public WritablePinpointServer getCollector(String applicationName, String agentId, long startTimeStamp) {
+    public PinpointServer getCollector(String applicationName, String agentId, long startTimeStamp) {
         List<String> agentNameList = clusterManager.getRegisteredAgentList(applicationName, agentId, startTimeStamp);
 
         // having duplicate AgentName registered is an exceptional case
@@ -126,9 +126,9 @@ public class PinpointSocketManager {
 
         String agentName = agentNameList.get(0);
 
-        List<WritablePinpointServer> collectorList = getCollectorList();
+        List<PinpointServer> collectorList = getCollectorList();
 
-        for (WritablePinpointServer collector : collectorList) {
+        for (PinpointServer collector : collectorList) {
             String id = (String) collector.getChannelProperties().get("id");
             if (agentName.startsWith(id)) {
                 return collector;
@@ -172,12 +172,12 @@ public class PinpointSocketManager {
 
     private class PinpointSocketManagerHandler implements ServerMessageListener {
         @Override
-        public void handleSend(SendPacket sendPacket, WritablePinpointServer pinpointServer) {
+        public void handleSend(SendPacket sendPacket, PinpointServer pinpointServer) {
             logger.warn("Unsupport send received {} {}", sendPacket, pinpointServer);
         }
 
         @Override
-        public void handleRequest(RequestPacket requestPacket, WritablePinpointServer pinpointServer) {
+        public void handleRequest(RequestPacket requestPacket, PinpointServer pinpointServer) {
             logger.warn("Unsupport request received {} {}", requestPacket, pinpointServer);
         }
 

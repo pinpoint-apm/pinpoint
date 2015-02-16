@@ -40,7 +40,7 @@ import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.AgentHandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import com.navercorp.pinpoint.rpc.server.WritablePinpointServer;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 
 public final class PinpointRPCTestUtils {
@@ -119,7 +119,7 @@ public final class PinpointRPCTestUtils {
         return socketFactory;
     }
 
-    public static byte[] request(WritablePinpointServer writableServer, byte[] message) {
+    public static byte[] request(PinpointServer writableServer, byte[] message) {
         Future<ResponseMessage> future = writableServer.request(message);
         future.await();
         return future.getResult().getMessage();
@@ -187,12 +187,12 @@ public final class PinpointRPCTestUtils {
         private final List<RequestPacket> requestPacketRepository = new ArrayList<RequestPacket>();
         
         @Override
-        public void handleSend(SendPacket sendPacket, WritablePinpointServer pinpointServer) {
+        public void handleSend(SendPacket sendPacket, PinpointServer pinpointServer) {
             sendPacketRepository.add(sendPacket);
         }
 
         @Override
-        public void handleRequest(RequestPacket requestPacket, WritablePinpointServer pinpointServer) {
+        public void handleRequest(RequestPacket requestPacket, PinpointServer pinpointServer) {
             requestPacketRepository.add(requestPacket);
 
             logger.info("handlerRequest {}", requestPacket);

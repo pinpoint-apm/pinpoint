@@ -154,8 +154,8 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
         sendPing();
     }
 
-    private PinpointServer createPinpointServer(Channel channel) {
-        PinpointServer pinpointServer = new PinpointServer(channel, this);
+    private DefaultPinpointServer createPinpointServer(Channel channel) {
+        DefaultPinpointServer pinpointServer = new DefaultPinpointServer(channel, this);
         return pinpointServer;
     }
 
@@ -304,7 +304,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     
     private void sendServerClosePacket() {
         for (Channel channel : channelGroup) {
-            PinpointServer pinpointServer = (PinpointServer) channel.getAttachment();
+            DefaultPinpointServer pinpointServer = (DefaultPinpointServer) channel.getAttachment();
 
             if (pinpointServer != null) {
                 pinpointServer.sendClosePacket();
@@ -314,17 +314,17 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     
     private void closePinpointServer() {
         for (Channel channel : channelGroup) {
-            PinpointServer pinpointServer = (PinpointServer) channel.getAttachment();
+            DefaultPinpointServer pinpointServer = (DefaultPinpointServer) channel.getAttachment();
 
             pinpointServer.sendClosePacket();
         }
     }
     
-    public List<WritablePinpointServer> getWritableServerList() {
-        List<WritablePinpointServer> pinpointServerList = new ArrayList<WritablePinpointServer>();
+    public List<PinpointServer> getWritableServerList() {
+        List<PinpointServer> pinpointServerList = new ArrayList<PinpointServer>();
 
         for (Channel channel : channelGroup) {
-            PinpointServer pinpointServer = (PinpointServer) channel.getAttachment();
+            DefaultPinpointServer pinpointServer = (DefaultPinpointServer) channel.getAttachment();
             if (pinpointServer != null) {
                 if (pinpointServer.isEnableDuplexCommunication()) {
                     pinpointServerList.add(pinpointServer);
@@ -358,7 +358,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
                 return;
             }
 
-            PinpointServer pinpointServer = createPinpointServer(channel);
+            DefaultPinpointServer pinpointServer = createPinpointServer(channel);
             
             channel.setAttachment(pinpointServer);
             channelGroup.add(channel);
@@ -372,7 +372,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
         public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
             final Channel channel = e.getChannel();
 
-            PinpointServer pinpointServer = (PinpointServer) channel.getAttachment();
+            DefaultPinpointServer pinpointServer = (DefaultPinpointServer) channel.getAttachment();
             if (pinpointServer != null) {
                 pinpointServer.stop();
             }
@@ -396,7 +396,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
         public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
             final Channel channel = e.getChannel();
 
-            PinpointServer pinpointServer = (PinpointServer) channel.getAttachment();
+            DefaultPinpointServer pinpointServer = (DefaultPinpointServer) channel.getAttachment();
             if (pinpointServer != null) {
                 Object message = e.getMessage();
 

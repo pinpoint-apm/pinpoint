@@ -39,12 +39,12 @@ public class TestSeverMessageListener implements ServerMessageListener {
     private List<byte[]> sendMessageList = new ArrayList<byte[]>();
 
     @Override
-    public void handleSend(SendPacket sendPacket, WritablePinpointServer pinpointServer) {
+    public void handleSend(SendPacket sendPacket, PinpointServer pinpointServer) {
         logger.debug("sendPacket:{} channel:{}", sendPacket, pinpointServer);
     }
 
     @Override
-    public void handleRequest(RequestPacket requestPacket, WritablePinpointServer pinpointServer) {
+    public void handleRequest(RequestPacket requestPacket, PinpointServer pinpointServer) {
         logger.debug("requestPacket:{} channel:{}", requestPacket, pinpointServer);
 
         pinpointServer.response(requestPacket, requestPacket.getPayload());

@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.rpc.server.WritablePinpointServer;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 
 /**
@@ -38,14 +38,14 @@ public class RequestResponseServerMessageListener implements ServerMessageListen
     public static final RequestResponseServerMessageListener LISTENER = new RequestResponseServerMessageListener();
 
     @Override
-    public void handleSend(SendPacket sendPacket, WritablePinpointServer pinpointServer) {
+    public void handleSend(SendPacket sendPacket, PinpointServer pinpointServer) {
         logger.info("handlerSend {} {}", sendPacket, pinpointServer);
 
     }
 
     @Override
-    public void handleRequest(RequestPacket requestPacket, WritablePinpointServer pinpointServer) {
-        logger.info("handlerRequest {}", requestPacket, pinpointServer);
+    public void handleRequest(RequestPacket requestPacket, PinpointServer pinpointServer) {
+        logger.info("handlerRequest {} {}", requestPacket, pinpointServer);
         pinpointServer.response(requestPacket, requestPacket.getPayload());
     }
 

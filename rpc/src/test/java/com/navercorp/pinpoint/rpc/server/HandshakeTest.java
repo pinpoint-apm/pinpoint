@@ -72,7 +72,7 @@ public class HandshakeTest {
 
             Thread.sleep(500);
 
-            List<WritablePinpointServer> writableServerList = serverAcceptor.getWritableServerList();
+            List<PinpointServer> writableServerList = serverAcceptor.getWritableServerList();
             if (writableServerList.size() != 2) {
                 Assert.fail();
             }
@@ -98,7 +98,7 @@ public class HandshakeTest {
             PinpointSocket socket = clientSocketFactory1.connect("127.0.0.1", bindPort);
             Thread.sleep(500);
 
-            WritablePinpointServer writableServer = getWritableServer("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()), serverAcceptor.getWritableServerList());
+            PinpointServer writableServer = getWritableServer("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()), serverAcceptor.getWritableServerList());
             Assert.assertNotNull(writableServer);
 
             writableServer = getWritableServer("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()) + 1, serverAcceptor.getWritableServerList());
@@ -135,7 +135,7 @@ public class HandshakeTest {
         Assert.assertTrue(handshaker.isFinished());
     }
 
-    private WritablePinpointServer getWritableServer(String applicationName, String agentId, long startTimeMillis, List<WritablePinpointServer> writableServerList) {
+    private PinpointServer getWritableServer(String applicationName, String agentId, long startTimeMillis, List<PinpointServer> writableServerList) {
         if (applicationName == null) {
             return null;
         }
@@ -148,9 +148,9 @@ public class HandshakeTest {
             return null;
         }
 
-        List<WritablePinpointServer> result = new ArrayList<WritablePinpointServer>();
+        List<PinpointServer> result = new ArrayList<PinpointServer>();
 
-        for (WritablePinpointServer writableServer : writableServerList) {
+        for (PinpointServer writableServer : writableServerList) {
             Map agentProperties = writableServer.getChannelProperties();
 
             if (!applicationName.equals(agentProperties.get(AgentHandshakePropertyType.APPLICATION_NAME.getName()))) {

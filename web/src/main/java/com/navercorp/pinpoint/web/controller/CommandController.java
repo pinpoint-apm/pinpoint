@@ -34,7 +34,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.rpc.server.WritablePinpointServer;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDump;
@@ -72,7 +72,7 @@ public class CommandController {
     public ModelAndView echo(@RequestParam("application") String applicationName, @RequestParam("agent") String agentId,
             @RequestParam("startTimeStamp") long startTimeStamp, @RequestParam("message") String message) throws TException {
 
-        WritablePinpointServer collector = socketManager.getCollector(applicationName, agentId, startTimeStamp);
+        PinpointServer collector = socketManager.getCollector(applicationName, agentId, startTimeStamp);
 
         if (collector == null) {
             return createResponse(false, String.format("Can't find suitable PinpointServer(%s/%s/%d).", applicationName, agentId, startTimeStamp));
@@ -119,7 +119,7 @@ public class CommandController {
     public ModelAndView echo(@RequestParam("application") String applicationName, @RequestParam("agent") String agentId,
             @RequestParam("startTimeStamp") long startTimeStamp) throws TException {
 
-        WritablePinpointServer collector = socketManager.getCollector(applicationName, agentId, startTimeStamp);
+        PinpointServer collector = socketManager.getCollector(applicationName, agentId, startTimeStamp);
 
         if (collector == null) {
             return createResponse(false, String.format("Can't find suitable PinpointServer(%s/%s/%d).", applicationName, agentId, startTimeStamp));

@@ -47,7 +47,7 @@ import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import com.navercorp.pinpoint.rpc.server.WritablePinpointServer;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
@@ -145,12 +145,12 @@ public class TCPReceiver {
         // pass them to a separate queue and handle them in a different thread.
         this.serverAcceptor.setMessageListener(new ServerMessageListener() {
             @Override
-            public void handleSend(SendPacket sendPacket, WritablePinpointServer pinpointServer) {
+            public void handleSend(SendPacket sendPacket, PinpointServer pinpointServer) {
                 receive(sendPacket, pinpointServer);
             }
 
             @Override
-            public void handleRequest(RequestPacket requestPacket, WritablePinpointServer pinpointServer) {
+            public void handleRequest(RequestPacket requestPacket, PinpointServer pinpointServer) {
                 requestResponse(requestPacket, pinpointServer);
             }
 
@@ -178,7 +178,7 @@ public class TCPReceiver {
 
     }
 
-    private void receive(SendPacket sendPacket, WritablePinpointServer pinpointServer) {
+    private void receive(SendPacket sendPacket, PinpointServer pinpointServer) {
         try {
             worker.execute(new Dispatch(sendPacket.getPayload(), pinpointServer.getRemoteAddress()));
         } catch (RejectedExecutionException e) {
@@ -187,7 +187,7 @@ public class TCPReceiver {
         }
     }
 
-    private void requestResponse(RequestPacket requestPacket, WritablePinpointServer pinpointServer) {
+    private void requestResponse(RequestPacket requestPacket, PinpointServer pinpointServer) {
         try {
             worker.execute(new RequestResponseDispatch(requestPacket, pinpointServer));
         } catch (RejectedExecutionException e) {
@@ -235,10 +235,10 @@ public class TCPReceiver {
 
     private class RequestResponseDispatch implements Runnable {
         private final RequestPacket requestPacket;
-        private final WritablePinpointServer pinpointServer;
+        private final PinpointServer pinpointServer;
 
 
-        private RequestResponseDispatch(RequestPacket requestPacket, WritablePinpointServer pinpointServer) {
+        private RequestResponseDispatch(RequestPacket requestPacket, PinpointServer pinpointServer) {
             if (requestPacket == null) {
                 throw new NullPointerException("requestPacket");
             }
