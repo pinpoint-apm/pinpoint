@@ -1,7 +1,7 @@
 'use strict';
 
 pinpointApp
-  .constant('helpContent', {
+  .constant('helpContent-en', {
         "navbar": {
             "applicationSelector": "<div style='width:400px;'><strong>Application List</strong><br/>Shows the list of applications with Pinpoint installed.<br/><br/>" +
                     "[Legend]<br/>" +
@@ -10,7 +10,7 @@ pinpointApp
                     "<li>Text : Application Name. The value set using <code>-Dpinpoint.applicationName</code> when launching Pinpoint agent.</li>" +
                     "</ul>" +
                     "</div>",
-                    "periodSelector": "<strong>Period Selector</strong><br/>Selects the time period for querying data.<br/><br/>" +
+            "periodSelector": "<strong>Period Selector</strong><br/>Selects the time period for querying data.<br/><br/>" +
                     "[Usage]<br/>" +
                     "<ul>" +
                     "<li><button type='button' class='btn btn-success btn-xs'><span class='glyphicon glyphicon-th-list'></span></button> : Query for data traced during the most recent selected time-period.<br/>Auto-refresh is supported for 5m, 10m, 3h time-period.</li>" +
@@ -108,7 +108,7 @@ pinpointApp
                     "</ul>" +
                     "</div>",
             "unknownList": "<div style='width:400px'>From the chart's top-right icon,<br/>1st : Toggle between Response Summary Chart / Load Chart<br/>2nd : Show Node Details</div>",
-            "searchAndOrder": "<div style='width:400px'>Filter by server name or total count.<br/>Clicking Name or Count sorts the list in ascending/descending order.</div>"
+            "searchAndOrder": "<div style='width:400px'>Filter by server name or total count.<br/>Clicking Name or Count sorts the list in ascending/descending order.</div>",
         },
         "linkInfoDetails": {
             "responseSummary": "<div style='width:400px'><strong>Response Summary Chart</strong><br/><br/>" +
@@ -158,6 +158,6 @@ pinpointApp
                     "</ul>" +
                     "</div>",
             "unknownList": "<div style='width:400px'>From the chart's top-right icon,<br/>1st : Toggle between Response Summary Chart / Load Chart<br/>2nd : Show Node Details</div>",
-            "searchAndOrder": "<div style='width:400px'>Filter by server name or total count.<br/>Clicking Name or Count sorts the list in ascending/descending order.</div>"
+            "searchAndOrder": "<div style='width:400px'>Filter by server name or total count.<br/>Clicking Name or Count sorts the list in ascending/descending order.</div>",
         }
 });
