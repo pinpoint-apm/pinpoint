@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 import com.navercorp.pinpoint.common.util.SystemProperty;
+
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
@@ -56,7 +57,8 @@ public class PinpointPluginTestSuite extends Suite {
     private static final String DEFAULT_ENCODING = "UTF-8";
     
     private static final String[] REQUIRED_CLASS_PATHS = new String[] {
-        "junit", // JUNIT
+        "junit", // JUNit
+        "hamcrest-core", // for JUnit
         "pinpoint-test", // pinpoint-test-{VERSION}.jar
         "/test/target/classes" // pinpoint-test build output directory
     };
@@ -71,6 +73,7 @@ public class PinpointPluginTestSuite extends Suite {
     private final String[] repositories;
     private final String[] dependencies;
     private final String libraryPath;
+    private final String[] librarySubDirs;
     private final String[] jvmArguments;
     private final String javaHomeEnvName;
 
@@ -80,8 +83,6 @@ public class PinpointPluginTestSuite extends Suite {
     protected List<Runner> getChildren() {
         return runners;
     }
-    
-    
 
     public PinpointPluginTestSuite(Class<?> testClass) throws InitializationError, ArtifactResolutionException, DependencyResolutionException {
         super(testClass, Collections.<Runner> emptyList());
@@ -99,15 +100,28 @@ public class PinpointPluginTestSuite extends Suite {
         Dependency deps = testClass.getAnnotation(Dependency.class);
         this.dependencies = deps == null ? null : deps.value();
         
-        Library lib = testClass.getAnnotation(Library.class);
-        this.libraryPath = lib == null ? null : lib.value();
+        TestRoot lib = testClass.getAnnotation(TestRoot.class);
+        
+        if (lib == null) {
+            this.libraryPath = null;
+            this.librarySubDirs = null;
+        } else {
+            String path = lib.value();
+            
+            if (path.isEmpty()) {
+                path = lib.path();
+            }
+            
+            this.libraryPath = path;
+            this.librarySubDirs = lib.libraryDir();
+        }
         
         if (deps != null && lib != null) {
-            throw new IllegalArgumentException("@Dependency and @Library can not annotate a class at the same time");
+            throw new IllegalArgumentException("@Dependency and @TestRoot can not annotate a class at the same time");
         }
 
         Repository repos = testClass.getAnnotation(Repository.class);
-        this.repositories = deps == null ? new String[0] : repos.value();
+        this.repositories = repos == null ? new String[0] : repos.value();
 
         JvmArgument jvmArgument = testClass.getAnnotation(JvmArgument.class);
         this.jvmArguments = jvmArgument == null ? new String[0] : jvmArgument.value();
@@ -128,14 +142,14 @@ public class PinpointPluginTestSuite extends Suite {
         }
     }
     
-    private void addRunner(Class<?> testClass, String testName, List<String> libraries) throws InitializationError {
+    private void addRunner(Class<?> testClass, String testId, List<String> libraries) throws InitializationError {
         if (testOnChildClassLoader) {
-            PinpointPluginTestRunner runner = new PinpointPluginTestRunner(testClass, testName + ":child", libraries, true);
+            PinpointPluginTestRunner runner = new PinpointPluginTestRunner(testClass, testId, libraries, true);
             runners.add(runner);
         }
         
         if (testOnSystemClassLoader) {
-            PinpointPluginTestRunner runner = new PinpointPluginTestRunner(testClass, testName + ":system", libraries, false);
+            PinpointPluginTestRunner runner = new PinpointPluginTestRunner(testClass, testId, libraries, false);
             runners.add(runner);
         }
     }
@@ -150,16 +164,28 @@ public class PinpointPluginTestSuite extends Suite {
             
             List<String> libraries = new ArrayList<String>();
             
-            for (File f : file.listFiles()) {
-                if (f.getName().endsWith(".jar")) {
-                    libraries.add(f.getAbsolutePath());
+            if (librarySubDirs.length == 0) {
+                addJars(child, libraries);
+                libraries.add(child.getAbsolutePath());
+            } else {
+                for (String subDir : librarySubDirs) {
+                    File libDir = new File(child, subDir);
+                    addJars(libDir, libraries);
+                    libraries.add(libDir.getAbsolutePath());
                 }
             }
             
-            libraries.add(child.getAbsolutePath());
             libraries.add(testClassLocation);
             
             addRunner(testClass, child.getName(), libraries);
+        }
+    }
+
+    private void addJars(File libDir, List<String> libraries) {
+        for (File f : libDir.listFiles()) {
+            if (f.getName().endsWith(".jar")) {
+                libraries.add(f.getAbsolutePath());
+            }
         }
     }
     
@@ -247,6 +273,7 @@ public class PinpointPluginTestSuite extends Suite {
     
     private class PinpointPluginTestRunner extends BlockJUnit4ClassRunner {
         private final String testId;
+        private final String testName;
         private final List<String> dependencyLibs;
         private final boolean testOnChildClassLoader;
 
@@ -254,18 +281,19 @@ public class PinpointPluginTestSuite extends Suite {
             super(testClass);
             
             this.testId = id;
+            this.testName = PluginTestProperty.makeTestName(testId, testOnChildClassLoader);
             this.dependencyLibs = dependencyLibs;
             this.testOnChildClassLoader = testOnChildClassLoader;
         }
 
         @Override
         protected String getName() {
-            return String.format("[%s]", testId);
+            return String.format("[%s]", testName);
         }
 
         @Override
         protected String testName(final FrameworkMethod method) {
-            return String.format("%s[%s]", method.getName(), testId);
+            return String.format("%s[%s]", method.getName(), testName);
         }
 
         @Override
@@ -355,9 +383,17 @@ public class PinpointPluginTestSuite extends Suite {
                 list.add("-Dpinpoint.agentId=build.test.0");
                 list.add("-Dpinpoint.applicationName=test");
                 list.add("-Dfile.encoding=" + DEFAULT_ENCODING);
+                list.add("-D" + PluginTestProperty.PINPOINT_TEST_ID + "=" + testId);
+                
+                String testDirectory = libraryPath + "/" + testId;
+
+                if (libraryPath != null) {
+                    list.add("-D" + PluginTestProperty.PINPOINT_TEST_DIRECTORY + "=" + testDirectory);
+                }
                 
                 for (String arg : jvmArguments) {
-                    list.add(arg);
+                    String replaced = arg.replace("${" + PluginTestProperty.PINPOINT_TEST_DIRECTORY + "}", testDirectory);
+                    list.add(replaced);
                 }
                 
                 if (isDebugMode()) {
@@ -369,13 +405,11 @@ public class PinpointPluginTestSuite extends Suite {
                 }
                 
                 list.add(ForkedPinpointPluginTest.class.getName());
-                
+                list.add(getTestClass().getName());
+
                 if (testOnChildClassLoader) {
                     list.add(getChildClassPath(dependencyLibs));
                 }
-                
-                list.add(String.valueOf(testId));
-                list.add(getTestClass().getName());
                 
                 return list.toArray(new String[list.size()]);
             }
@@ -404,7 +438,7 @@ public class PinpointPluginTestSuite extends Suite {
             }
             
             private String getAgent() {
-                return "-javaagent:" + agentJar + "=bootClass=com.navercorp.pinpoint.test.MockAgent";
+                return "-javaagent:" + agentJar + "=bootClass=com.navercorp.pinpoint.test.PluginTestAgent";
             }
             
             private String getJavaExecutable() {

@@ -52,13 +52,13 @@ public class ResponseCountCheckerTest {
             public List<ResponseTime> selectResponseTime(Application application, Range range) {
                 List<ResponseTime> list = new LinkedList<ResponseTime>();
                 long timeStamp = 1409814914298L;
-                ResponseTime responseTime = new ResponseTime(SERVICE_NAME, ServiceType.TOMCAT.getCode(), timeStamp);
+                ResponseTime responseTime = new ResponseTime(SERVICE_NAME, ServiceType.STAND_ALONE.getCode(), timeStamp);
                 list.add(responseTime);
                 TimeHistogram histogram = null;
 
                 for (int i=0 ; i < 5; i++) {
                     for (int j=0 ; j < 5; j++) {
-                        histogram = new TimeHistogram(ServiceType.TOMCAT, timeStamp);
+                        histogram = new TimeHistogram(ServiceType.STAND_ALONE, timeStamp);
                         histogram.addCallCountByElapsedTime(1000);
                         histogram.addCallCountByElapsedTime(3000);
                         histogram.addCallCountByElapsedTime(-1);
@@ -80,7 +80,7 @@ public class ResponseCountCheckerTest {
      */
     @Test
     public void checkTest1() {
-        Application application = new Application(SERVICE_NAME, ServiceType.TOMCAT);
+        Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
         Rule rule = new Rule(SERVICE_NAME, CheckerCategory.RESPONSE_COUNT.getName(), 125, "testGroup", false, false, "");
         ResponseCountChecker filter = new ResponseCountChecker(collector, rule);
@@ -94,7 +94,7 @@ public class ResponseCountCheckerTest {
      */
     @Test
     public void checkTest2() {
-        Application application = new Application(SERVICE_NAME, ServiceType.TOMCAT);
+        Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(SERVICE_NAME, CheckerCategory.RESPONSE_COUNT.getName(), 126, "testGroup", false, false, "");
         ResponseCountChecker filter = new ResponseCountChecker(collector, rule);

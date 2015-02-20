@@ -57,87 +57,87 @@ public class BaseOperationTransitionStateInterceptor implements SimpleAroundInte
 
     @Override
     public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-
-        AsyncTrace asyncTrace = (AsyncTrace) getAsyncTrace.invoke(target);
-        if (asyncTrace == null) {
-            if (isDebug) {
-                logger.debug("asyncTrace not found");
-            }
-            return;
-        }
-        // TODO Don't we have to check null? Don't fix now because this interceptor is deprecated.
-        OperationState newState = (OperationState) args[0];
-
-        BaseOperationImpl baseOperation = (BaseOperationImpl) target;
-        if (newState == OperationState.READING) {
-            if (isDebug) {
-                logger.debug("event:{} asyncTrace:{}", newState, asyncTrace);
-            }
-            if (asyncTrace.getState() != AsyncTrace.STATE_INIT) {
-                return;
-            }
-            MemcachedNode handlingNode = baseOperation.getHandlingNode();
-            SocketAddress socketAddress = handlingNode.getSocketAddress();
-            if (socketAddress instanceof InetSocketAddress) {
-                InetSocketAddress address = (InetSocketAddress) socketAddress;
-                asyncTrace.recordEndPoint(address.getHostName() + ":" + address.getPort());
-            }
-
-            String serviceCode = (String) getServiceCode.invoke(target);
-
-            if (serviceCode == null) {
-                serviceCode = "UNKNOWN";
-            }
-
-            ServiceType svcType = ServiceType.ARCUS;
-
-            if(serviceCode.equals(ServiceType.MEMCACHED.getDesc())) {
-                svcType = ServiceType.MEMCACHED;
-            }
-
-            asyncTrace.recordServiceType(svcType);
-//            asyncTrace.recordRpcName(baseOperation.getClass().getSimpleName());
-            asyncTrace.recordApi(methodDescriptor);
-
-            asyncTrace.recordDestinationId(serviceCode);
-
-            String cmd = getCommand(baseOperation);
-//            asyncTrace.recordAttribute(AnnotationKey.ARCUS_COMMAND, cmd);
-
-            // TimeObject timeObject = (TimeObject)
-            // asyncTrace.getFrameObject();
-            // timeObject.markSendTime();
-
-            // long createTime = asyncTrace.getBeforeTime();
-            asyncTrace.markAfterTime();
-//            asyncTrace.traceBlockEnd();
-        } else if (newState == OperationState.COMPLETE || isArcusTimeout(newState)) {
-            if (isDebug) {
-                logger.debug("event:{} asyncTrace:{}", newState, asyncTrace);
-            }
-            boolean fire = asyncTrace.fire();
-            if (!fire) {
-                return;
-            }
-            Exception exception = baseOperation.getException();
-            asyncTrace.recordException(exception);
-
-            if (!baseOperation.isCancelled()) {
-                TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
-                // asyncTrace.record(Annotation.ClientRecv, timeObject.getSendTime());
-                asyncTrace.markAfterTime();
-                asyncTrace.traceBlockEnd();
-            } else {
-                asyncTrace.recordAttribute(AnnotationKey.EXCEPTION, "cancelled by user");
-                TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
-                // asyncTrace.record(Annotation.ClientRecv, timeObject.getCancelTime());
-                asyncTrace.markAfterTime();
-                asyncTrace.traceBlockEnd();
-            }
-        }
+//        if (isDebug) {
+//            logger.beforeInterceptor(target, args);
+//        }
+//
+//        AsyncTrace asyncTrace = (AsyncTrace) getAsyncTrace.invoke(target);
+//        if (asyncTrace == null) {
+//            if (isDebug) {
+//                logger.debug("asyncTrace not found");
+//            }
+//            return;
+//        }
+//        // TODO Don't we have to check null? Don't fix now because this interceptor is deprecated.
+//        OperationState newState = (OperationState) args[0];
+//
+//        BaseOperationImpl baseOperation = (BaseOperationImpl) target;
+//        if (newState == OperationState.READING) {
+//            if (isDebug) {
+//                logger.debug("event:{} asyncTrace:{}", newState, asyncTrace);
+//            }
+//            if (asyncTrace.getState() != AsyncTrace.STATE_INIT) {
+//                return;
+//            }
+//            MemcachedNode handlingNode = baseOperation.getHandlingNode();
+//            SocketAddress socketAddress = handlingNode.getSocketAddress();
+//            if (socketAddress instanceof InetSocketAddress) {
+//                InetSocketAddress address = (InetSocketAddress) socketAddress;
+//                asyncTrace.recordEndPoint(address.getHostName() + ":" + address.getPort());
+//            }
+//
+//            String serviceCode = (String) getServiceCode.invoke(target);
+//
+//            if (serviceCode == null) {
+//                serviceCode = "UNKNOWN";
+//            }
+//
+//            ServiceType svcType = ServiceType.ARCUS;
+//
+//            if(serviceCode.equals(ServiceType.MEMCACHED.getDesc())) {
+//                svcType = ServiceType.MEMCACHED;
+//            }
+//
+//            asyncTrace.recordServiceType(svcType);
+////            asyncTrace.recordRpcName(baseOperation.getClass().getSimpleName());
+//            asyncTrace.recordApi(methodDescriptor);
+//
+//            asyncTrace.recordDestinationId(serviceCode);
+//
+//            String cmd = getCommand(baseOperation);
+////            asyncTrace.recordAttribute(AnnotationKey.ARCUS_COMMAND, cmd);
+//
+//            // TimeObject timeObject = (TimeObject)
+//            // asyncTrace.getFrameObject();
+//            // timeObject.markSendTime();
+//
+//            // long createTime = asyncTrace.getBeforeTime();
+//            asyncTrace.markAfterTime();
+////            asyncTrace.traceBlockEnd();
+//        } else if (newState == OperationState.COMPLETE || isArcusTimeout(newState)) {
+//            if (isDebug) {
+//                logger.debug("event:{} asyncTrace:{}", newState, asyncTrace);
+//            }
+//            boolean fire = asyncTrace.fire();
+//            if (!fire) {
+//                return;
+//            }
+//            Exception exception = baseOperation.getException();
+//            asyncTrace.recordException(exception);
+//
+//            if (!baseOperation.isCancelled()) {
+//                TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
+//                // asyncTrace.record(Annotation.ClientRecv, timeObject.getSendTime());
+//                asyncTrace.markAfterTime();
+//                asyncTrace.traceBlockEnd();
+//            } else {
+//                asyncTrace.recordAttribute(AnnotationKey.EXCEPTION, "cancelled by user");
+//                TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
+//                // asyncTrace.record(Annotation.ClientRecv, timeObject.getCancelTime());
+//                asyncTrace.markAfterTime();
+//                asyncTrace.traceBlockEnd();
+//            }
+//        }
     }
 
     private boolean isArcusTimeout(OperationState newState) {

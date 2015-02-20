@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.profiler.modifier.tomcat.aspect;
 
 import com.navercorp.pinpoint.bootstrap.context.Header;
-import com.navercorp.pinpoint.profiler.interceptor.aspect.Aspect;
-import com.navercorp.pinpoint.profiler.interceptor.aspect.JointPoint;
-import com.navercorp.pinpoint.profiler.interceptor.aspect.PointCut;
+import com.navercorp.pinpoint.bootstrap.plugin.aspect.Aspect;
+import com.navercorp.pinpoint.bootstrap.plugin.aspect.JointPoint;
+import com.navercorp.pinpoint.bootstrap.plugin.aspect.PointCut;
 
 import java.util.Enumeration;
 

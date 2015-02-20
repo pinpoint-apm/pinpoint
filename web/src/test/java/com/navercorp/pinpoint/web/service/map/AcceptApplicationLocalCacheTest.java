@@ -34,7 +34,7 @@ public class AcceptApplicationLocalCacheTest {
     public void testFind() throws Exception {
         AcceptApplicationLocalCache cache = new AcceptApplicationLocalCache();
 
-        Application tomcat = new Application("Tomcat", ServiceType.TOMCAT);
+        Application tomcat = new Application("Tomcat", ServiceType.STAND_ALONE);
         RpcApplication rpc = new RpcApplication("localhost:8080", tomcat);
         // find the application that accept the rpc request of calling to localhost:8080 at tomcat itself
 

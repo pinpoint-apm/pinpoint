@@ -31,6 +31,12 @@
             <artifactId>pinpoint-thrift</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-plugins</artifactId>
+            <type>pom</type>
+        </dependency>
+        
+        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty</artifactId>
         </dependency>

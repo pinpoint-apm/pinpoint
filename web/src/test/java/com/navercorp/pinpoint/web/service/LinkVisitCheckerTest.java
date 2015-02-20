@@ -33,11 +33,11 @@ public class LinkVisitCheckerTest {
     public void testVisitCaller() throws Exception {
         LinkVisitChecker checker = new LinkVisitChecker();
 
-        Application testApplication = new Application("test", ServiceType.TOMCAT);
+        Application testApplication = new Application("test", ServiceType.STAND_ALONE);
         Assert.assertFalse(checker.visitCaller(testApplication));
         Assert.assertTrue(checker.visitCaller(testApplication));
 
-        Application newApp = new Application("newApp", ServiceType.TOMCAT);
+        Application newApp = new Application("newApp", ServiceType.STAND_ALONE);
         Assert.assertFalse(checker.visitCaller(newApp));
         Assert.assertTrue(checker.visitCaller(newApp));
     }
@@ -46,11 +46,11 @@ public class LinkVisitCheckerTest {
     public void testVisitCallee() throws Exception {
         LinkVisitChecker checker = new LinkVisitChecker();
 
-        Application testApplication = new Application("test", ServiceType.TOMCAT);
+        Application testApplication = new Application("test", ServiceType.STAND_ALONE);
         Assert.assertFalse(checker.visitCallee(testApplication));
         Assert.assertTrue(checker.visitCallee(testApplication));
 
-        Application newApp = new Application("newApp", ServiceType.TOMCAT);
+        Application newApp = new Application("newApp", ServiceType.STAND_ALONE);
         Assert.assertFalse(checker.visitCallee(newApp));
         Assert.assertTrue(checker.visitCallee(newApp));
     }

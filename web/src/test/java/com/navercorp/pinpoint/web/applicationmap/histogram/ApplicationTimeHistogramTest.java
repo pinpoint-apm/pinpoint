@@ -46,7 +46,7 @@ public class ApplicationTimeHistogramTest {
     @Test
     public void testViewModel() throws IOException {
 
-        Application app = new Application("test", ServiceType.TOMCAT);
+        Application app = new Application("test", ServiceType.STAND_ALONE);
         ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(app, new Range(0, 10*6000));
         List<ResponseTime> responseHistogramList = createResponseTime(app);
         ApplicationTimeHistogram histogram = builder.build(responseHistogramList);

@@ -41,11 +41,11 @@ public class HistogramTest {
 
     @Test
     public void testDeepCopy() throws Exception {
-        Histogram original = new Histogram(ServiceType.TOMCAT);
+        Histogram original = new Histogram(ServiceType.STAND_ALONE);
         original.addCallCount((short) 1000, 100);
 
 
-        Histogram copy = new Histogram(ServiceType.TOMCAT);
+        Histogram copy = new Histogram(ServiceType.STAND_ALONE);
         Assert.assertEquals(copy.getFastCount(), 0);
         copy.add(original);
         Assert.assertEquals(original.getFastCount(), copy.getFastCount());
@@ -58,8 +58,8 @@ public class HistogramTest {
 
     @Test
     public void testJson() throws Exception {
-        HistogramSchema schema = ServiceType.TOMCAT.getHistogramSchema();
-        Histogram original = new Histogram(ServiceType.TOMCAT);
+        HistogramSchema schema = ServiceType.STAND_ALONE.getHistogramSchema();
+        Histogram original = new Histogram(ServiceType.STAND_ALONE);
         original.addCallCount(schema.getFastSlot().getSlotTime(), 100);
 
         String json = objectMapper.writeValueAsString(original);

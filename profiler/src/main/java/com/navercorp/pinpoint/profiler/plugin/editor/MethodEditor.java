@@ -14,7 +14,6 @@
  */
 package com.navercorp.pinpoint.profiler.plugin.editor;
 
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassRecipe;
 
 /**
  * @author Jongho Moon

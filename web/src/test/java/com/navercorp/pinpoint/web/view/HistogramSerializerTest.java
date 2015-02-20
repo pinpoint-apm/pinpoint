@@ -41,7 +41,7 @@ public class HistogramSerializerTest {
 
     @Test
     public void testSerialize() throws Exception {
-        Histogram original = new Histogram(ServiceType.TOMCAT);
+        Histogram original = new Histogram(ServiceType.STAND_ALONE);
         HistogramSchema schema = original.getHistogramSchema();
         original.addCallCount(schema.getFastSlot().getSlotTime(), 1);
         original.addCallCount(schema.getNormalSlot().getSlotTime(), 2);

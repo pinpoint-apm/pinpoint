@@ -61,60 +61,60 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result, throwable);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            trace.recordApi(methodDescriptor);
-//            Do not record because it's not important.
-//            String annotation = "future.get() timeout:" + args[0] + " " + ((TimeUnit)args[1]).name();
-//            trace.recordAttribute(AnnotationKey.ARCUS_COMMAND, annotation);
-
-            // find the target node
-            final Operation op = (Operation) getOperation.invoke(target);
-            if (op != null) {
-                MemcachedNode handlingNode = op.getHandlingNode();
-                if (handlingNode != null) {
-                    SocketAddress socketAddress = handlingNode.getSocketAddress();
-                    if (socketAddress instanceof InetSocketAddress) {
-                        InetSocketAddress address = (InetSocketAddress) socketAddress;
-                        trace.recordEndPoint(address.getHostName() + ":" + address.getPort());
-                    }
-                } else {
-                    logger.info("no handling node");
-                }
-            } else {
-                logger.info("operation not found");
-            }
-
-            // determine the service type
-            String serviceCode = (String) getServiceCode.invoke((Operation)op);
-            if (serviceCode != null) {
-                trace.recordDestinationId(serviceCode);
-                trace.recordServiceType(ServiceType.ARCUS_FUTURE_GET);
-            } else {
-                trace.recordDestinationId("MEMCACHED");
-                trace.recordServiceType(ServiceType.MEMCACHED_FUTURE_GET);
-            }
-
-            if (op != null) {
-                trace.recordException(op.getException());
-            }
-//            When it's canceled, doen't it throw exception?
-//            if (op.isCancelled()) {
-//                trace.recordAttribute(AnnotationKey.EXCEPTION, "cancelled by user");
+//        if (isDebug) {
+//            logger.afterInterceptor(target, args, result, throwable);
+//        }
+//
+//        final Trace trace = traceContext.currentTraceObject();
+//        if (trace == null) {
+//            return;
+//        }
+//
+//        try {
+//            trace.recordApi(methodDescriptor);
+////            Do not record because it's not important.
+////            String annotation = "future.get() timeout:" + args[0] + " " + ((TimeUnit)args[1]).name();
+////            trace.recordAttribute(AnnotationKey.ARCUS_COMMAND, annotation);
+//
+//            // find the target node
+//            final Operation op = (Operation) getOperation.invoke(target);
+//            if (op != null) {
+//                MemcachedNode handlingNode = op.getHandlingNode();
+//                if (handlingNode != null) {
+//                    SocketAddress socketAddress = handlingNode.getSocketAddress();
+//                    if (socketAddress instanceof InetSocketAddress) {
+//                        InetSocketAddress address = (InetSocketAddress) socketAddress;
+//                        trace.recordEndPoint(address.getHostName() + ":" + address.getPort());
+//                    }
+//                } else {
+//                    logger.info("no handling node");
+//                }
+//            } else {
+//                logger.info("operation not found");
 //            }
-
-            trace.markAfterTime();
-        } finally {
-            trace.traceBlockEnd();
-        }
+//
+//            // determine the service type
+//            String serviceCode = (String) getServiceCode.invoke((Operation)op);
+//            if (serviceCode != null) {
+//                trace.recordDestinationId(serviceCode);
+//                trace.recordServiceType(ServiceType.ARCUS_FUTURE_GET);
+//            } else {
+//                trace.recordDestinationId("MEMCACHED");
+//                trace.recordServiceType(ServiceType.MEMCACHED_FUTURE_GET);
+//            }
+//
+//            if (op != null) {
+//                trace.recordException(op.getException());
+//            }
+////            When it's canceled, doen't it throw exception?
+////            if (op.isCancelled()) {
+////                trace.recordAttribute(AnnotationKey.EXCEPTION, "cancelled by user");
+////            }
+//
+//            trace.markAfterTime();
+//        } finally {
+//            trace.traceBlockEnd();
+//        }
     }
     
     @Override

@@ -46,26 +46,27 @@ public class ForkedPinpointPluginTest {
     public static void main(String[] args) throws ClassNotFoundException, MalformedURLException, InitializationError {
         forked = true;
         
-        int index = 0;
+        String testClassName = args[0];
+
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        boolean testOnChildClassLoader = false;
         
-        if (args[index].startsWith(CHILD_CLASS_PATH_PREFIX)) {
-            String jars = args[0].substring(CHILD_CLASS_PATH_PREFIX.length());
+        if (args.length >= 2 && args[1].startsWith(CHILD_CLASS_PATH_PREFIX)) {
+            String jars = args[1].substring(CHILD_CLASS_PATH_PREFIX.length());
             List<URL> urls = getJarUrls(jars);
             classLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]), classLoader);
-            index++;
+         
+            testOnChildClassLoader = true;
         }
         
-        String testId = args[index];
-        index++;
-        
-        String testClassName = args[index];
+        String testId = System.getProperty(PluginTestProperty.PINPOINT_TEST_ID, "");
+        String testName = PluginTestProperty.makeTestName(testId, testOnChildClassLoader);
 
         ClassLoader old = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
 
         Class<?> testClass = classLoader.loadClass(testClassName);
-        Result result = runTests(testClass, testId);
+        Result result = runTests(testClass, testName);
         
         Thread.currentThread().setContextClassLoader(old);
 

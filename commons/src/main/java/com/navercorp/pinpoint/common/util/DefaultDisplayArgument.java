@@ -50,8 +50,7 @@ public class DefaultDisplayArgument {
     public static final DisplayArgumentMatcher MYBATIS_MATCHER = createArgumentMatcher(ServiceType.MYBATIS, AnnotationKey.ARGS0);
 
     public static final DisplayArgumentMatcher MEMCACHED_MATCHER = createArgumentMatcher(ServiceType.MEMCACHED, ARGS_MATCHER);
-    public static final DisplayArgumentMatcher ARCUS_MATCHER = createArgumentMatcher(ServiceType.ARCUS, ARGS_MATCHER);
-
+    
     public static final DisplayArgumentMatcher HTTP_CLIENT_MATCHER = createArgumentMatcher(ServiceType.HTTP_CLIENT, AnnotationKey.HTTP_URL);
     public static final DisplayArgumentMatcher HTTP_CLIENT_INTERNAL_MATCHER = createArgumentMatcher(ServiceType.HTTP_CLIENT_INTERNAL, AnnotationKey.HTTP_CALL_RETRY_COUNT);
     public static final DisplayArgumentMatcher JDK_HTTPURLCONNECTOR_MATCHER = createArgumentMatcher(ServiceType.JDK_HTTPURLCONNECTOR, AnnotationKey.HTTP_URL);

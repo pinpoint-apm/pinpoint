@@ -126,7 +126,8 @@ public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCode
 
             trace.markBeforeTime();
             // TODO Wrong. should be Servlet
-            trace.recordServiceType(ServiceType.TOMCAT);
+            // commented below line to prevent compile error. This intercpetor is not used at all so can not fix this error. 
+//            trace.recordServiceType(ServiceType.TOMCAT);
             trace.recordRpcName(requestURL);
 
             int port = request.getServerPort();

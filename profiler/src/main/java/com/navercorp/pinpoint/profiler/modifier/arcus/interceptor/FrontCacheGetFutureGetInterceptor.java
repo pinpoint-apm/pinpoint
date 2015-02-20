@@ -55,33 +55,33 @@ public class FrontCacheGetFutureGetInterceptor implements SimpleAroundIntercepto
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result, throwable);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            trace.recordApi(methodDescriptor);
-
-//            String cacheKey = (String) getCacheKey.invoke(target);
-//            if (cacheKey != null) {
-//                // annotate it.
+//        if (isDebug) {
+//            logger.afterInterceptor(target, args, result, throwable);
+//        }
+//
+//        final Trace trace = traceContext.currentTraceObject();
+//        if (trace == null) {
+//            return;
+//        }
+//
+//        try {
+//            trace.recordApi(methodDescriptor);
+//
+////            String cacheKey = (String) getCacheKey.invoke(target);
+////            if (cacheKey != null) {
+////                // annotate it.
+////            }
+//
+//            String cacheName = (String) getCacheName.invoke(target);
+//            if (cacheName != null) {
+//                trace.recordDestinationId(cacheName);
 //            }
-
-            String cacheName = (String) getCacheName.invoke(target);
-            if (cacheName != null) {
-                trace.recordDestinationId(cacheName);
-            }
-
-            trace.recordServiceType(ServiceType.ARCUS_EHCACHE_FUTURE_GET);
-            trace.markAfterTime();
-        } finally {
-            trace.traceBlockEnd();
-        }
+//
+//            trace.recordServiceType(ServiceType.ARCUS_EHCACHE_FUTURE_GET);
+//            trace.markAfterTime();
+//        } finally {
+//            trace.traceBlockEnd();
+//        }
     }
 
     @Override

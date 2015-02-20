@@ -37,10 +37,10 @@ public class ResponseTimeMapperTest {
     @Test
     public void testResponseTimeMapperTest() throws Exception {
         ResponseTimeMapper responseTimeMapper = new ResponseTimeMapper();
-        ResponseTime responseTime = new ResponseTime("applicaionName", ServiceType.TOMCAT.getCode(), System.currentTimeMillis());
+        ResponseTime responseTime = new ResponseTime("applicaionName", ServiceType.STAND_ALONE.getCode(), System.currentTimeMillis());
 
         Buffer buffer = new AutomaticBuffer();
-        HistogramSlot histogramSlot = ServiceType.TOMCAT.getHistogramSchema().findHistogramSlot(1000);
+        HistogramSlot histogramSlot = ServiceType.STAND_ALONE.getHistogramSchema().findHistogramSlot(1000);
         short histogramSlotTime = histogramSlot.getSlotTime();
         buffer.put(histogramSlotTime);
         buffer.put(Bytes.toBytes("agent"));

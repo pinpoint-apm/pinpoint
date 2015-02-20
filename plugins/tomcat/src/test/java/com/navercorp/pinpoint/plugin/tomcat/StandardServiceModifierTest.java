@@ -1,3 +1,4 @@
+package com.navercorp.pinpoint.plugin.tomcat;
 /*
  * Copyright 2014 NAVER Corp.
  *
@@ -14,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.tomcat;
+
 
 import static org.junit.Assert.*;
 

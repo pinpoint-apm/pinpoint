@@ -58,14 +58,14 @@ public class TotalCountToCalleCheckerTest {
             public LinkDataMap selectCaller(Application callerApplication, Range range) {
                 long timeStamp = 1409814914298L;
                 LinkDataMap linkDataMap = new LinkDataMap();
-                Application fromApplication = new Application(FROM_SERVICE_NAME, ServiceType.TOMCAT);
+                Application fromApplication = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
                 for (int i = 1 ; i < 6  ; i++) {
                     LinkCallDataMap linkCallDataMap = new LinkCallDataMap();
-                    Application toApplication = new Application(TO_SERVICE_NAME + i, ServiceType.TOMCAT);
+                    Application toApplication = new Application(TO_SERVICE_NAME + i, ServiceType.STAND_ALONE);
                     Collection<TimeHistogram> timeHistogramList = new ArrayList<TimeHistogram>();
                     
                     for (int j = 1 ; j < 11  ; j++) {
-                        TimeHistogram timeHistogram = new TimeHistogram(ServiceType.TOMCAT, timeStamp);
+                        TimeHistogram timeHistogram = new TimeHistogram(ServiceType.STAND_ALONE, timeStamp);
                         timeHistogram.addCallCountByElapsedTime(i * j * 1000);
                         timeHistogramList.add(timeHistogram);
                     }
@@ -82,7 +82,7 @@ public class TotalCountToCalleCheckerTest {
     
     @Test
     public void checkTest() {
-        Application application = new Application(FROM_SERVICE_NAME, ServiceType.TOMCAT);
+        Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
         MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.TOTAL_COUNT_TO_CALLE.getName(), 10, "testGroup", false, false, TO_SERVICE_NAME + 1);
         TotalCountToCalleChecker checker = new TotalCountToCalleChecker(dataCollector, rule);
@@ -93,7 +93,7 @@ public class TotalCountToCalleCheckerTest {
     
     @Test
     public void checkTest2() {
-        Application application = new Application(FROM_SERVICE_NAME, ServiceType.TOMCAT);
+        Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
         MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.TOTAL_COUNT_TO_CALLE.getName(), 11, "testGroup", false, false, TO_SERVICE_NAME + 1);
         TotalCountToCalleChecker checker = new TotalCountToCalleChecker(dataCollector, rule);
@@ -104,7 +104,7 @@ public class TotalCountToCalleCheckerTest {
     
     @Test
     public void checkTest3() {
-        Application application = new Application(FROM_SERVICE_NAME, ServiceType.TOMCAT);
+        Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
         MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.TOTAL_COUNT_TO_CALLE.getName(), 10, "testGroup", false, false, TO_SERVICE_NAME + 2);
         TotalCountToCalleChecker checker = new TotalCountToCalleChecker(dataCollector, rule);

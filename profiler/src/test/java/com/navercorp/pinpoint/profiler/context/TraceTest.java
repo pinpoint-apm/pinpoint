@@ -84,7 +84,7 @@ public class TraceTest {
 
     private DefaultTraceContext getDefaultTraceContext() {
         DefaultTraceContext defaultTraceContext = new DefaultTraceContext();
-        defaultTraceContext.setAgentInformation(new AgentInformation("agentId", "applicationName", System.currentTimeMillis(), 10, "test", "127.0.0.1", ServiceType.TOMCAT, Version.VERSION));
+        defaultTraceContext.setAgentInformation(new AgentInformation("agentId", "applicationName", System.currentTimeMillis(), 10, "test", "127.0.0.1", ServiceType.STAND_ALONE, Version.VERSION));
         return defaultTraceContext;
     }
 

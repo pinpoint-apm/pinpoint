@@ -26,11 +26,13 @@ public class DedicatedMethodEditor implements MethodEditor {
     private final String targetMethodName;
     private final String[] targetMethodParameterTypes;
     private final MethodRecipe recipe;
+    private final boolean ignoreIfNotExist;
 
-    public DedicatedMethodEditor(String targetMethodName, String[] targetMethodParameterTypes, MethodRecipe recipe) {
+    public DedicatedMethodEditor(String targetMethodName, String[] targetMethodParameterTypes, MethodRecipe recipe, boolean ignoreIfNotExist) {
         this.targetMethodName = targetMethodName;
         this.targetMethodParameterTypes = targetMethodParameterTypes;
         this.recipe = recipe;
+        this.ignoreIfNotExist = ignoreIfNotExist;
     }
 
     @Override
@@ -38,7 +40,11 @@ public class DedicatedMethodEditor implements MethodEditor {
         MethodInfo targetMethod = target.getDeclaredMethod(targetMethodName, targetMethodParameterTypes);
         
         if (targetMethod == null) {
-            throw new InstrumentException("No such method: " + targetMethodName + "(" + Arrays.deepToString(targetMethodParameterTypes) + ")");
+            if (ignoreIfNotExist) {
+                return;
+            } else {
+                throw new InstrumentException("No such method: " + targetMethodName + "(" + Arrays.deepToString(targetMethodParameterTypes) + ")");
+            }
         }
         
         recipe.edit(classLoader, target, targetMethod);

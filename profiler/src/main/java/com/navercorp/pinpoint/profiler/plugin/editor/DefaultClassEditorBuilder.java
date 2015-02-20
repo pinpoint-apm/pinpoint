@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.profiler.plugin.editor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.FieldSnooper;
@@ -26,15 +28,14 @@ import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassCondition;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassRecipe;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ConstructorEditorBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.DedicatedClassEditor;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorBuilder;
-import com.navercorp.pinpoint.profiler.plugin.FieldSnooperInjector;
-import com.navercorp.pinpoint.profiler.plugin.MetadataInitializationStrategy;
-import com.navercorp.pinpoint.profiler.plugin.MetadataInjector;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorProperty;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
+import com.navercorp.pinpoint.profiler.plugin.FieldSnooperInjector;
 import com.navercorp.pinpoint.profiler.plugin.MetadataInitializationStrategy.ByConstructor;
+import com.navercorp.pinpoint.profiler.plugin.MetadataInjector;
 import com.navercorp.pinpoint.profiler.plugin.interceptor.AnnotatedInterceptorInjector;
 import com.navercorp.pinpoint.profiler.plugin.interceptor.TargetAnnotatedInterceptorInjector;
 
@@ -119,6 +120,11 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
         recipeBuilders.add(builder);
         return builder;
     }
+    
+    @Override
+    public void weave(String aspectClassName) {
+        recipes.add(new ClassWeaver(aspectClassName));
+    }
 
     public DedicatedClassEditor build(TraceContext context, ByteCodeInstrumentor instrumentor) {
         ClassRecipe recipe = buildClassRecipe(context, instrumentor); 
@@ -189,8 +195,9 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
         private final String methodName;
         private final String[] parameterTypeNames;
         private final MethodFilter filter;
+        private final List<RecipeBuilder<MethodRecipe>> recipeBuilders = new ArrayList<RecipeBuilder<MethodRecipe>>();
+        private final EnumSet<MethodEditorProperty> properties = EnumSet.noneOf(MethodEditorProperty.class);
         private ClassCondition condition;
-        private List<RecipeBuilder<MethodRecipe>> recipeBuilders = new ArrayList<RecipeBuilder<MethodRecipe>>();
 
         private DefaultMethodEditorBuilder(String... parameterTypeNames) {
             this.methodName = null;
@@ -216,6 +223,11 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
         }
         
         @Override
+        public void setProperty(MethodEditorProperty... properties) {
+            this.properties.addAll(Arrays.asList(properties));
+        }
+
+        @Override
         public void injectInterceptor(String interceptorClassName, Object... constructorArguments) {
             recipeBuilders.add(new AnnotatedInterceptorInjectorBuilder(interceptorClassName, constructorArguments));
         }
@@ -232,9 +244,9 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
             if (filter != null) {
                 editor = new FilteringMethodEditor(filter, recipe);
             } else if (methodName != null) {
-                editor = new DedicatedMethodEditor(methodName, parameterTypeNames, recipe);
+                editor = new DedicatedMethodEditor(methodName, parameterTypeNames, recipe, properties.contains(MethodEditorProperty.IGNORE_IF_NOT_EXIST));
             } else {
-                editor = new ConstructorEditor(parameterTypeNames, recipe);
+                editor = new ConstructorEditor(parameterTypeNames, recipe, properties.contains(MethodEditorProperty.IGNORE_IF_NOT_EXIST));
             }
             
             if (condition != null) {

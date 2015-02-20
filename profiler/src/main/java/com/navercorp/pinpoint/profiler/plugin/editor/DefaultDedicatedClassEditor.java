@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.plugin.editor;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassRecipe;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.DedicatedClassEditor;
 import com.navercorp.pinpoint.exception.PinpointException;
 

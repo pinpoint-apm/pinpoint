@@ -212,28 +212,28 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     }
 
     public void addTomcatModifier() {
-        StandardHostValveInvokeModifier standardHostValveInvokeModifier = new StandardHostValveInvokeModifier(byteCodeInstrumentor, agent);
-        addModifier(standardHostValveInvokeModifier);
+//        StandardHostValveInvokeModifier standardHostValveInvokeModifier = new StandardHostValveInvokeModifier(byteCodeInstrumentor, agent);
+//        addModifier(standardHostValveInvokeModifier);
 
-        HttpServletModifier httpServletModifier = new HttpServletModifier(byteCodeInstrumentor, agent);
-        addModifier(httpServletModifier);
+//        HttpServletModifier httpServletModifier = new HttpServletModifier(byteCodeInstrumentor, agent);
+//        addModifier(httpServletModifier);
 
         SpringFrameworkServletModifier springServletModifier = new SpringFrameworkServletModifier(byteCodeInstrumentor, agent);
         addModifier(springServletModifier);
 
-        AbstractModifier tomcatStandardServiceModifier = new StandardServiceModifier(byteCodeInstrumentor, agent);
-        addModifier(tomcatStandardServiceModifier);
-
-        AbstractModifier tomcatConnectorModifier = new TomcatConnectorModifier(byteCodeInstrumentor, agent);
-        addModifier(tomcatConnectorModifier);
-        
-        AbstractModifier tomcatWebappLoaderModifier = new WebappLoaderModifier(byteCodeInstrumentor, agent);
-        addModifier(tomcatWebappLoaderModifier);
-
-        if (profilerConfig.isTomcatHidePinpointHeader()) {
-            AbstractModifier requestFacadeModifier = new RequestFacadeModifier(byteCodeInstrumentor, agent);
-            addModifier(requestFacadeModifier);
-        }
+//        AbstractModifier tomcatStandardServiceModifier = new StandardServiceModifier(byteCodeInstrumentor, agent);
+//        addModifier(tomcatStandardServiceModifier);
+//
+//        AbstractModifier tomcatConnectorModifier = new TomcatConnectorModifier(byteCodeInstrumentor, agent);
+//        addModifier(tomcatConnectorModifier);
+//        
+//        AbstractModifier tomcatWebappLoaderModifier = new WebappLoaderModifier(byteCodeInstrumentor, agent);
+//        addModifier(tomcatWebappLoaderModifier);
+//
+//        if (profilerConfig.isTomcatHidePinpointHeader()) {
+//            AbstractModifier requestFacadeModifier = new RequestFacadeModifier(byteCodeInstrumentor, agent);
+//            addModifier(requestFacadeModifier);
+//        }
     }
 
     public void addJdbcModifier() {

@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.plugin;
 import com.navercorp.pinpoint.bootstrap.FieldSnooper;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassRecipe;
+import com.navercorp.pinpoint.profiler.plugin.editor.ClassRecipe;
 
 /**
  * 

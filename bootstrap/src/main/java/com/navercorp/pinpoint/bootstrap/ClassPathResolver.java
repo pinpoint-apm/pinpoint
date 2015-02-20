@@ -237,6 +237,7 @@ public class ClassPathResolver {
         
         final URL[] urls = new URL[jars.length];
         
+        
         for (int i = 0; i < jars.length; i++) {
             try {
                 urls[i] = jars[i].toURI().toURL();
@@ -246,6 +247,8 @@ public class ClassPathResolver {
             }
         }
         
+        logger.info("Found plugins: " + Arrays.deepToString(jars));
+
         return urls;
     }
 

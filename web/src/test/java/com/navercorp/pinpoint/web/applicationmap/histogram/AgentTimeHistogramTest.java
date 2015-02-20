@@ -48,7 +48,7 @@ public class AgentTimeHistogramTest {
     @Test
     public void testViewModel() throws IOException {
 
-        Application app = new Application("test", ServiceType.TOMCAT);
+        Application app = new Application("test", ServiceType.STAND_ALONE);
         AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(app, new Range(0, 1000*60));
         List<ResponseTime> responseHistogramList = createResponseTime(app, "test1", "test2");
         AgentTimeHistogram histogram = builder.build(responseHistogramList);

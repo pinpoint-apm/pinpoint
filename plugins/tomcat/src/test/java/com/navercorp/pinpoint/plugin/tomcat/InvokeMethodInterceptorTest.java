@@ -1,3 +1,4 @@
+package com.navercorp.pinpoint.plugin.tomcat;
 /*
  * Copyright 2014 NAVER Corp.
  *
@@ -14,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.tomcat;
+
 
 import static org.mockito.Mockito.*;
 
@@ -30,12 +31,15 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor;
+import com.navercorp.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.navercorp.pinpoint.profiler.modifier.tomcat.interceptor.StandardHostValveInvokeInterceptor;
-import com.navercorp.pinpoint.test.MockTraceContextFactory;
+import com.navercorp.pinpoint.test.mock.MockTraceContext;
 
 /**
  * @author emeroad
@@ -47,6 +51,8 @@ public class InvokeMethodInterceptorTest {
     
     @Mock
     public HttpServletResponse response;
+
+    private final MethodDescriptor descriptor = new DefaultMethodDescriptor("org.apache.catalina.core.StandardHostValve", "invoke", new String[] {"org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response"}, new String[] {"request", "response"});;
     
     @BeforeClass
     public static void before() {
@@ -71,9 +77,8 @@ public class InvokeMethodInterceptorTest {
         Enumeration<?> enumeration = mock(Enumeration.class);
         when(request.getParameterNames()).thenReturn(enumeration);
 
-        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor();
-        TraceContext traceContext = new MockTraceContextFactory().create();
-        interceptor.setTraceContext(traceContext);
+        TraceContext traceContext = new MockTraceContext();
+        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>());
 
         interceptor.before("target", new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
@@ -95,8 +100,8 @@ public class InvokeMethodInterceptorTest {
         Enumeration<?> enumeration = mock(Enumeration.class);
         when(request.getParameterNames()).thenReturn(enumeration);
 
-        TraceContext traceContext = new MockTraceContextFactory().create();
-        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor();
+        TraceContext traceContext = new MockTraceContext();
+        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>());
         interceptor.setTraceContext(traceContext);
         interceptor.before("target",  new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
@@ -118,8 +123,8 @@ public class InvokeMethodInterceptorTest {
         Enumeration<?> enumeration = mock(Enumeration.class);
         when(request.getParameterNames()).thenReturn(enumeration);
 
-        TraceContext traceContext = new MockTraceContextFactory().create();
-        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor();
+        TraceContext traceContext = new MockTraceContext();
+        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>());
         interceptor.setTraceContext(traceContext);
 
         interceptor.before("target", new Object[]{request, response});

@@ -37,6 +37,15 @@ public class MethodInterceptor implements SimpleAroundInterceptor, ServiceTypeSu
     private TraceContext traceContext;
     private ServiceType serviceType = ServiceType.INTERNAL_METHOD;
 
+    public MethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor, ServiceType serviceType) {
+        this.descriptor = descriptor;
+        this.traceContext = traceContext;
+        this.serviceType = serviceType;
+    }
+    
+    public MethodInterceptor() {
+        // empty
+    }
 
     @Override
     public void before(Object target, Object[] args) {

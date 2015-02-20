@@ -213,11 +213,6 @@ public class JavaAssistClass implements InstrumentClass {
             throw new NullPointerException("traceValue must not be null");
         }
         
-//        TODO uncomment after converting every modifiers to plugins.
-//        if (traceValue.getClassLoader() != MetadataAccessor.class.getClassLoader()) {
-//            throw new InstrumentException(traceValue + " must be loaded by the class loader which loaded pinpoint-bootstrap" );
-//        }
-
         try {
             final CtClass ctValueHandler = instrumentor.getClass(traceValue.getClassLoader(), traceValue.getName());
 
@@ -946,10 +941,6 @@ public class JavaAssistClass implements InstrumentClass {
     
     @Override
     public void addGetter(Class<?> interfaceType, String fieldName) throws InstrumentException {
-        if (interfaceType.getClassLoader() != InstrumentClass.class.getClassLoader()) {
-            throw new InstrumentException(interfaceType + " must be loaded by the class loader which loaded pinpint-bootstrap" );
-        }
-
         java.lang.reflect.Method[] methods = interfaceType.getMethods();
         
         if (methods.length != 1) {
