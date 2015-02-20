@@ -19,63 +19,63 @@ package com.navercorp.pinpoint.bootstrap;
  *
  */
 @SuppressWarnings("unchecked")
-public abstract class FieldSnooper {
-    private static final FieldSnooper[] VALUES = {
-        new FieldSnooper(ObjectSnooper0.class) {
+public abstract class FieldAccessor {
+    private static final FieldAccessor[] VALUES = {
+        new FieldAccessor(ObjectSnooper0.class) {
             @Override
             public <T> T get(Object object) {
                 return (T)((ObjectSnooper0)object)._$PINPOINT$_getObjectField0();
             }
         },
-        new FieldSnooper(ObjectSnooper1.class) {
+        new FieldAccessor(ObjectSnooper1.class) {
             @Override
             public <T> T get(Object object) {
                 return (T)((ObjectSnooper1)object)._$PINPOINT$_getObjectField1();
             }
         },
-        new FieldSnooper(ObjectSnooper2.class) {
+        new FieldAccessor(ObjectSnooper2.class) {
             @Override
             public <T> T get(Object object) {
                 return (T)((ObjectSnooper2)object)._$PINPOINT$_getObjectField2();
             }
         },
-        new FieldSnooper(ObjectSnooper3.class) {
+        new FieldAccessor(ObjectSnooper3.class) {
             @Override
             public <T> T get(Object object) {
                 return (T)((ObjectSnooper3)object)._$PINPOINT$_getObjectField3();
             }
         },
-        new FieldSnooper(ObjectSnooper4.class) {
+        new FieldAccessor(ObjectSnooper4.class) {
             @Override
             public <T> T get(Object object) {
                 return (T)((ObjectSnooper4)object)._$PINPOINT$_getObjectField4();
             }
         },
-        new FieldSnooper(ObjectSnooper5.class) {
+        new FieldAccessor(ObjectSnooper5.class) {
             @Override
             public <T> T get(Object object) {
                 return (T)((ObjectSnooper5)object)._$PINPOINT$_getObjectField5();
             }
         },
-        new FieldSnooper(ObjectSnooper6.class) {
+        new FieldAccessor(ObjectSnooper6.class) {
             @Override
             public <T> T get(Object object) {
                 return (T)((ObjectSnooper6)object)._$PINPOINT$_getObjectField6();
             }
         },
-        new FieldSnooper(ObjectSnooper7.class) {
+        new FieldAccessor(ObjectSnooper7.class) {
             @Override
             public <T> T get(Object object) {
                 return (T)((ObjectSnooper7)object)._$PINPOINT$_getObjectField7();
             }
         },
-        new FieldSnooper(ObjectSnooper8.class) {
+        new FieldAccessor(ObjectSnooper8.class) {
             @Override
             public <T> T get(Object object) {
                 return (T)((ObjectSnooper8)object)._$PINPOINT$_getObjectField8();
             }
         },
-        new FieldSnooper(ObjectSnooper9.class) {
+        new FieldAccessor(ObjectSnooper9.class) {
             @Override
             public <T> T get(Object object) {
                 return (T)((ObjectSnooper9)object)._$PINPOINT$_getObjectField9();
@@ -85,7 +85,7 @@ public abstract class FieldSnooper {
     
     private final Class<?> type;
     
-    private FieldSnooper(Class<?> type) {
+    private FieldAccessor(Class<?> type) {
         this.type = type;
     }
     
@@ -100,7 +100,7 @@ public abstract class FieldSnooper {
     public abstract <T> T get(Object object);
 
     
-    public static FieldSnooper get(int index) {
+    public static FieldAccessor get(int index) {
         return VALUES[index];
     }
     

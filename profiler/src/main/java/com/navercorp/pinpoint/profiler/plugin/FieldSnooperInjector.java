@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import com.navercorp.pinpoint.bootstrap.FieldSnooper;
+import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.profiler.plugin.editor.ClassRecipe;
@@ -28,10 +28,10 @@ import com.navercorp.pinpoint.profiler.plugin.editor.ClassRecipe;
  */
 public class FieldSnooperInjector implements ClassRecipe {
     
-    private final FieldSnooper snooper;
+    private final FieldAccessor snooper;
     private final String fieldName;
     
-    public FieldSnooperInjector(FieldSnooper snooper, String fieldName) {
+    public FieldSnooperInjector(FieldAccessor snooper, String fieldName) {
         this.snooper = snooper;
         this.fieldName = fieldName;
     }

@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.FieldSnooper;
+import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
@@ -73,7 +73,7 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
      */
     @Override
     public void injectFieldSnooper(String fieldName) {
-        FieldSnooper snooper = pluginContext.allocateFieldSnooper(fieldName);
+        FieldAccessor snooper = pluginContext.allocateFieldSnooper(fieldName);
         recipes.add(new FieldSnooperInjector(snooper, fieldName));
     }
     

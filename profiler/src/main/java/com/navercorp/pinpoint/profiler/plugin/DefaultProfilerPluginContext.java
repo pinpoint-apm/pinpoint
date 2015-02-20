@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.navercorp.pinpoint.bootstrap.FieldSnooper;
+import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -43,7 +43,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     
     private final ConcurrentMap<String, Object> attributeMap = new ConcurrentHashMap<String, Object>();
     private final Map<String, MetadataAccessor> metadataAccessorMap = new HashMap<String, MetadataAccessor>();
-    private final Map<String, FieldSnooper> fieldSnooperMap = new HashMap<String, FieldSnooper>();
+    private final Map<String, FieldAccessor> fieldSnooperMap = new HashMap<String, FieldAccessor>();
     
     private int metadataAccessorIndex = 0;
     private int fieldSnooperIndex = 0;
@@ -83,17 +83,17 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
         return accessor;
     }
 
-    public FieldSnooper allocateFieldSnooper(String name) {
-        FieldSnooper snooper = fieldSnooperMap.get(name);
+    public FieldAccessor allocateFieldSnooper(String name) {
+        FieldAccessor snooper = fieldSnooperMap.get(name);
         
         if (snooper != null) {
             return snooper;
         }
         
         try {
-            snooper = FieldSnooper.get(fieldSnooperIndex);
+            snooper = FieldAccessor.get(fieldSnooperIndex);
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new IllegalStateException("Cannot allocate FieldSnooper. Exceeded max:" + fieldSnooperIndex);
+            throw new IllegalStateException("Cannot allocate FieldAccessor. Exceeded max:" + fieldSnooperIndex);
         }
         
         fieldSnooperMap.put(name, snooper);
@@ -108,7 +108,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     }
 
     @Override
-    public FieldSnooper getFieldSnooper(String name) {
+    public FieldAccessor getFieldSnooper(String name) {
         return fieldSnooperMap.get(name);
     }
 

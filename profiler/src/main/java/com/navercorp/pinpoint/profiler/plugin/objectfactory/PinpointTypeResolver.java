@@ -16,7 +16,7 @@ package com.navercorp.pinpoint.profiler.plugin.objectfactory;
 
 import java.lang.annotation.Annotation;
 
-import com.navercorp.pinpoint.bootstrap.FieldSnooper;
+import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -81,14 +81,14 @@ public class PinpointTypeResolver implements ParameterResolver {
             
             MetadataAccessor accessor = pluginContext.getMetadataAccessor(((Name)annotation).value());
             return Option.<Object>withValue(accessor);
-        } else if (type == FieldSnooper.class) {
+        } else if (type == FieldAccessor.class) {
             Annotation annotation = TypeUtils.findAnnotation(annotations, Name.class);
             
             if (annotation == null) {
                 return null;
             }
             
-            FieldSnooper snooper = pluginContext.getFieldSnooper(((Name)annotation).value());
+            FieldAccessor snooper = pluginContext.getFieldSnooper(((Name)annotation).value());
             return Option.<Object>withValue(snooper);
         }
         

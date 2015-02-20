@@ -30,6 +30,6 @@ public class ClassWeaver implements ClassRecipe {
 
     @Override
     public void edit(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
-        target.weaving(aspectClassName);
+        target.weave(aspectClassName, classLoader);
     }
 }

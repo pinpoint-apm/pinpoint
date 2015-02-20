@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 
 import org.junit.Test;
 
-import com.navercorp.pinpoint.bootstrap.FieldSnooper;
+import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
@@ -72,6 +72,6 @@ public class DefaultClassEditorBuilderTest {
         
         verify(aClass).addInterceptor(eq(methodName), isA(String[].class), isA(Interceptor.class));
         verify(aClass).addTraceValue(MetadataAccessor.get(0).getType(), "new java.util.HashMap();");
-        verify(aClass).addGetter(FieldSnooper.get(0).getType(), "someField");
+        verify(aClass).addGetter(FieldAccessor.get(0).getType(), "someField");
     }
 }

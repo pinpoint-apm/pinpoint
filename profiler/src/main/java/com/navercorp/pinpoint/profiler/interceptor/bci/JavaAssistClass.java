@@ -21,20 +21,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.navercorp.pinpoint.profiler.interceptor.*;
 import javassist.CannotCompileException;
+import javassist.ClassPool;
 import javassist.CtBehavior;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtField;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
+import javassist.LoaderClassPath;
 import javassist.NotFoundException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DefaultScopeDefinition;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
@@ -53,6 +53,12 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
+import com.navercorp.pinpoint.profiler.interceptor.DebugScopeDelegateSimpleInterceptor;
+import com.navercorp.pinpoint.profiler.interceptor.DebugScopeDelegateStaticInterceptor;
+import com.navercorp.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
+import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.interceptor.ScopeDelegateSimpleInterceptor;
+import com.navercorp.pinpoint.profiler.interceptor.ScopeDelegateStaticInterceptor;
 import com.navercorp.pinpoint.profiler.util.ApiUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
@@ -583,10 +589,13 @@ public class JavaAssistClass implements InstrumentClass {
     }
 
     @Override
-    public void weaving(String adviceClassName) throws InstrumentException {
+    public void weave(String adviceClassName, ClassLoader loader) throws InstrumentException {
+        ClassPool pool = new ClassPool();
+        pool.appendClassPath(new LoaderClassPath(loader));
+        
         CtClass adviceClass;
         try {
-            adviceClass = this.instrumentor.getClassPool().get(adviceClassName);
+            adviceClass = pool.get(adviceClassName);
         } catch (NotFoundException e) {
             throw new NotFoundInstrumentException(adviceClassName + " not found. Caused:" + e.getMessage(), e);
         }
