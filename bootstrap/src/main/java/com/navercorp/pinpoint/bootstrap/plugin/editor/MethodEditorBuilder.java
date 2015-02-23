@@ -20,5 +20,5 @@ package com.navercorp.pinpoint.bootstrap.plugin.editor;
  *
  */
 public interface MethodEditorBuilder extends BaseMethodEditorBuilder {
-
+    
 }

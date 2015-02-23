@@ -66,7 +66,7 @@ public class TypeProviderLoader {
     private void loadDefaults() {
         logger.fine("Loading Default ServiceTypes");
 
-        TypeSetupContextImpl context = new TypeSetupContextImpl(Type.class);
+        TypeSetupContextImpl context = new TypeSetupContextImpl(ServiceType.class);
         
         for (ServiceType type : ServiceType.DEFAULT_VALUES) {
             context.addType(type);

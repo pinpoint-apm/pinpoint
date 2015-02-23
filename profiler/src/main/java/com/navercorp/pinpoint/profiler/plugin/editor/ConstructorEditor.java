@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.plugin.editor;
 
+import java.util.Arrays;
+
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
@@ -23,15 +25,26 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 public class ConstructorEditor implements MethodEditor {
     private final String[] targetParameterTypes;
     private final MethodRecipe recipe;
+    private final boolean ignoreIfNotExist;
 
-    public ConstructorEditor(String[] targetParameterTypes, MethodRecipe recipe) {
+    public ConstructorEditor(String[] targetParameterTypes, MethodRecipe recipe, boolean ignoreIfNotExist) {
         this.targetParameterTypes = targetParameterTypes;
         this.recipe = recipe;
+        this.ignoreIfNotExist = ignoreIfNotExist;
     }
 
     @Override
     public void edit(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
-        MethodInfo targetMethod = target.getConstructor(targetParameterTypes);
-        recipe.edit(classLoader, target, targetMethod);
+        MethodInfo targetConstructor = target.getConstructor(targetParameterTypes);
+        
+        if (targetConstructor == null) {
+            if (ignoreIfNotExist) {
+                return;
+            } else {
+                throw new InstrumentException("No constructor with parameter type (" + Arrays.deepToString(targetParameterTypes) + ")");
+            }
+        }
+        
+        recipe.edit(classLoader, target, targetConstructor);
     }
 }

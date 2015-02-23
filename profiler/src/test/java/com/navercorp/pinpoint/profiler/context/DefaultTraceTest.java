@@ -50,7 +50,7 @@ public class DefaultTraceTest {
     @Test
     public void testPushPop() {
         DefaultTraceContext defaultTraceContext = new DefaultTraceContext();
-        defaultTraceContext.setAgentInformation(new AgentInformation("agentId", "applicationName", System.currentTimeMillis(), 10, "test", "127.0.0.1", ServiceType.TOMCAT, Version.VERSION));
+        defaultTraceContext.setAgentInformation(new AgentInformation("agentId", "applicationName", System.currentTimeMillis(), 10, "test", "127.0.0.1", ServiceType.STAND_ALONE, Version.VERSION));
         DefaultTrace trace = new DefaultTrace(defaultTraceContext, 1);
 
         trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));

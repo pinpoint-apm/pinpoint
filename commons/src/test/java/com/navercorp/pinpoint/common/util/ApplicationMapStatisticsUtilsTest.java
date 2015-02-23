@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 
 public class ApplicationMapStatisticsUtilsTest {
 
@@ -52,9 +53,9 @@ public class ApplicationMapStatisticsUtilsTest {
     public void testMakeColumnName2() {
 //        short serviceType, String applicationName, String destHost, short slotNumber
         final short slotNumber = 10;
-        final byte[] columnNameBytes = ApplicationMapStatisticsUtils.makeColumnName(ServiceType.TOMCAT.getCode(), "applicationName", "dest", slotNumber);
+        final byte[] columnNameBytes = ApplicationMapStatisticsUtils.makeColumnName(ServiceType.STAND_ALONE.getCode(), "applicationName", "dest", slotNumber);
         Buffer buffer = new FixedBuffer(columnNameBytes);
-        Assert.assertEquals(ServiceType.TOMCAT.getCode(), buffer.readShort());
+        Assert.assertEquals(ServiceType.STAND_ALONE.getCode(), buffer.readShort());
         Assert.assertEquals(10, buffer.readShort());
         Assert.assertEquals("applicationName", buffer.read2PrefixedString());
 

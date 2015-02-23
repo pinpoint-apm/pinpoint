@@ -16,16 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.navercorp.pinpoint.common.util.SimpleProperty;
-import com.navercorp.pinpoint.common.util.SystemProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ApplicationServerProperty;
 import com.navercorp.pinpoint.bootstrap.plugin.ServerTypeDetector;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
@@ -38,12 +34,9 @@ public class ApplicationServerTypeResolver {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private ServiceType serverType;
-    private String[] serverLibPath;
 
     private final ServiceType defaultType;
     private final List<ServerTypeDetector> detectors = new ArrayList<ServerTypeDetector>();
-
-    private final SimpleProperty systemProperty = SystemProperty.INSTANCE;
 
     /**
      * If we have to invoke startup() during agent initialization.
@@ -64,7 +57,7 @@ public class ApplicationServerTypeResolver {
     }
 
     public String[] getServerLibPath() {
-        return serverLibPath;
+        return new String[0];
     }
 
     public ServiceType getServerType() {
@@ -74,101 +67,42 @@ public class ApplicationServerTypeResolver {
     public boolean isManuallyStartupRequired() {
         return manuallyStartupRequired;
     }
-
+    
     public boolean resolve() {
-        
+        String serverType = null;
+
         for (ServerTypeDetector detector : detectors) {
-            logger.debug("try resolve using {}", detector.getClass());
+            logger.debug("try to resolve using {}", detector.getClass());
+            
+            if (serverType != null && !detector.canOverride(serverType)) {
+                continue;
+            }
             
             if (detector.detect()) {
-                this.serverType = detector.getServerType();
-                this.serverLibPath = detector.getServerClassPath();
-                this.manuallyStartupRequired = !detector.hasServerProperty(ApplicationServerProperty.MANAGE_PINPOINT_AGENT_LIFECYCLE);
+                serverType = detector.getServerTypeName();
 
                 if (logger.isInfoEnabled()) {
-                    logger.info("Configured applicationServerType [{}] by {}", serverType, detector.getClass().getName());
+                    logger.info("Resolved applicationServerType [{}] by {}", serverType, detector.getClass().getName());
                 }
-                
-                return true;
             }
         }
         
-        String applicationHome = applicationHomePath();
-                
-        if (tomcatResolve(applicationHome)) {
-            return initializeApplicationInfo(applicationHome, ServiceType.TOMCAT);
+        if (serverType != null) {
+            this.serverType = ServiceType.valueOf(serverType);
+            return true;
         }
-
+        
         if (defaultType != null) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Configured applicationServerType:{}", defaultType);
-            }
-            
-            return initializeApplicationInfo(applicationHome, defaultType);
-        }
-        
-        return initializeApplicationInfo(applicationHome, ServiceType.STAND_ALONE);
-    }
-
-    private String applicationHomePath() {
-        String path = null;
-
-        final SimpleProperty system = this.systemProperty;
-        if (system.getProperty("catalina.home") != null) {
-            path = system.getProperty("catalina.home");
+            // TODO validate default type. is defaultType a server type?
+            this.serverType = defaultType;
         } else {
-            path = system.getProperty("user.dir");
+            this.serverType = ServiceType.STAND_ALONE;
         }
         
         if (logger.isInfoEnabled()) {
-            logger.info("Resolved ApplicationHome : {}", path);
+            logger.info("Configured applicationServerType:{}", defaultType);
         }
         
-        return path;
-    }
-
-    private boolean tomcatResolve(String applicationHome) {
-        boolean isTomcat = false;
-        
-        if (isFileExist(new File(applicationHome + "/lib/catalina.jar"))) {
-            this.manuallyStartupRequired = false;
-            isTomcat = true;
-        }
-        
-        return isTomcat;
-    }
-
-    private boolean initializeApplicationInfo(String applicationHome, ServiceType serviceType) {
-        if (applicationHome == null) {
-            logger.warn("applicationHome is null");
-            return false;
-        }
-
-        if (ServiceType.TOMCAT.equals(serviceType)) {
-            this.serverLibPath = new String[] { applicationHome + "/lib/servlet-api.jar", applicationHome + "/lib/catalina.jar" };
-        } else if (ServiceType.STAND_ALONE.equals(serviceType)) {
-            this.serverLibPath = new String[] {};
-        } else if (ServiceType.TEST_STAND_ALONE.equals(serviceType)) {
-            this.serverLibPath = new String[] {};
-        } else {
-            logger.warn("Invalid Default ApplicationServiceType:{} ", defaultType);
-            return false;
-        }
-
-        this.serverType = serviceType;
-
-        logger.info("ApplicationServerType:{}, RequiredServerLibraryPath:{}", serverType, serverLibPath);
-
         return true;
-    }
-
-    private boolean isFileExist(File libFile) {
-        final boolean found = libFile.exists(); // && libFile.isFile();
-        if (found) {
-            logger.debug("libFile found:{}", libFile);
-        } else {
-            logger.debug("libFile not found:{}", libFile);
-        }
-        return found;
     }
 }

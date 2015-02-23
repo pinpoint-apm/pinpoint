@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.interceptor.bci.mock;
 
+import com.navercorp.pinpoint.bootstrap.plugin.aspect.Aspect;
+import com.navercorp.pinpoint.bootstrap.plugin.aspect.JointPoint;
+import com.navercorp.pinpoint.bootstrap.plugin.aspect.PointCut;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.profiler.interceptor.aspect.Aspect;
-import com.navercorp.pinpoint.profiler.interceptor.aspect.JointPoint;
-import com.navercorp.pinpoint.profiler.interceptor.aspect.PointCut;
 
 import java.util.Map;
 

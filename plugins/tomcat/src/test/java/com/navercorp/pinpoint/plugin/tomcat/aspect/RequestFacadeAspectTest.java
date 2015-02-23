@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.tomcat.aspect;
-
-import com.navercorp.pinpoint.bootstrap.context.Header;
-import com.navercorp.pinpoint.profiler.modifier.tomcat.aspect.RequestFacadeAspect;
-
-import junit.framework.Assert;
-
-import org.junit.Test;
+package com.navercorp.pinpoint.plugin.tomcat.aspect;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.plugin.tomcat.aspect.RequestFacadeAspect;
 
 
 public class RequestFacadeAspectTest {

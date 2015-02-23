@@ -18,8 +18,7 @@ package com.navercorp.pinpoint.common;
 
 import java.util.List;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +39,7 @@ public class ServiceTypeTest {
         Assert.assertTrue(find);
 
         try {
-            mysqlList.add(ServiceType.ARCUS);
+            mysqlList.add(ServiceType.ORACLE);
             Assert.fail();
         } catch (Exception e) {
         }

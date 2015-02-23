@@ -79,7 +79,7 @@ public class ApiInterceptor extends SpanEventSimpleAroundInterceptor implements 
         String serviceCode = (String) getServiceCode.invoke(target);
         if (serviceCode != null) {
             trace.recordDestinationId(serviceCode);
-            trace.recordServiceType(ServiceType.ARCUS);
+//            trace.recordServiceType(ServiceType.ARCUS);
         } else {
             trace.recordDestinationId("MEMCACHED");
             trace.recordServiceType(ServiceType.MEMCACHED);

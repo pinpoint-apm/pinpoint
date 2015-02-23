@@ -43,7 +43,7 @@ public class HistogramSchemaTest {
 
     @Test
     public void testFindHistogramSlot() throws Exception {
-        HistogramSchema histogramSchema = ServiceType.TOMCAT.getHistogramSchema();
+        HistogramSchema histogramSchema = ServiceType.STAND_ALONE.getHistogramSchema();
         Assert.assertEquals(histogramSchema.findHistogramSlot(999).getSlotTime(), 1000);
         Assert.assertEquals(histogramSchema.findHistogramSlot(1000).getSlotTime(), 1000);
         Assert.assertEquals(histogramSchema.findHistogramSlot(1111).getSlotTime(), 3000);

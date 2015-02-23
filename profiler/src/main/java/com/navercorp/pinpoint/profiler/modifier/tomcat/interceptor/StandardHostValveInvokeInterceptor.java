@@ -49,7 +49,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         final HttpServletRequest request = (HttpServletRequest) args[0];
         trace.markBeforeTime();
         if (trace.canSampled()) {
-            trace.recordServiceType(ServiceType.TOMCAT);
+//            trace.recordServiceType(ServiceType.TOMCAT);
 
             final String requestURL = request.getRequestURI();
             trace.recordRpcName(requestURL);

@@ -16,12 +16,10 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.web.vo.Application;
-
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
+
+import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * @author emeroad
@@ -29,15 +27,15 @@ import org.junit.Test;
 public class ApplicationTest {
     @Test
     public void testEquals() throws Exception {
-        Application one = new Application("test", ServiceType.TOMCAT);
-        Application two = new Application("test", ServiceType.TOMCAT);
+        Application one = new Application("test", ServiceType.STAND_ALONE);
+        Application two = new Application("test", ServiceType.STAND_ALONE);
 
         Assert.assertTrue(one.equals(two));
 
         Assert.assertTrue(one.equals(two.getName(), two.getServiceType()));
 
         Assert.assertFalse(one.equals("test2", two.getServiceType()));
-        Assert.assertFalse(one.equals("test", ServiceType.STAND_ALONE));
+        Assert.assertFalse(one.equals("test", ServiceType.INTERNAL_METHOD));
         Assert.assertFalse(one.equals("test2", ServiceType.STAND_ALONE));
 
     }

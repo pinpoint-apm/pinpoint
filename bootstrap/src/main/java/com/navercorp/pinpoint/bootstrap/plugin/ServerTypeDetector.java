@@ -14,15 +14,13 @@
  */
 package com.navercorp.pinpoint.bootstrap.plugin;
 
-import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * @author Jongho Moon
  *
  */
 public interface ServerTypeDetector {
+    public String getServerTypeName();
     public boolean detect();
-    public ServiceType getServerType();
-    public String[] getServerClassPath();
-    public boolean hasServerProperty(ApplicationServerProperty property);
+    public boolean canOverride(String serverType);
 }

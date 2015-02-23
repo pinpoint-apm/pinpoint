@@ -18,7 +18,6 @@ import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassRecipe;
 
 /**
  * @author Jongho Moon

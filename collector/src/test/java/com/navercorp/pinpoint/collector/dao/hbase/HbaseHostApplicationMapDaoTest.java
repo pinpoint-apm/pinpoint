@@ -16,7 +16,11 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase;
 
-import com.navercorp.pinpoint.collector.dao.hbase.HbaseHostApplicationMapDao;
+import org.junit.Assert;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
@@ -24,12 +28,6 @@ import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.util.DefaultTimeSlot;
 import com.navercorp.pinpoint.common.util.TimeSlot;
 import com.navercorp.pinpoint.common.util.TimeUtils;
-
-import junit.framework.Assert;
-
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class HbaseHostApplicationMapDaoTest {
@@ -42,7 +40,7 @@ public class HbaseHostApplicationMapDaoTest {
     public void testCreateRowKey() throws Exception {
         HbaseHostApplicationMapDao dao = new HbaseHostApplicationMapDao();
         long statisticsRowSlot = timeSlot.getTimeSlot(System.currentTimeMillis());
-        byte[] parentApps = dao.createRowKey0("parentApp", ServiceType.TOMCAT.getCode(), statisticsRowSlot, null);
+        byte[] parentApps = dao.createRowKey0("parentApp", ServiceType.STAND_ALONE.getCode(), statisticsRowSlot, null);
         logger.debug("rowKey size:{}", parentApps.length);
 
         Buffer readBuffer = new FixedBuffer(parentApps);
@@ -51,7 +49,7 @@ public class HbaseHostApplicationMapDaoTest {
         long time = TimeUtils.recoveryTimeMillis(readBuffer.readLong());
 
         Assert.assertEquals("applicationName check",appName, "parentApp");
-        Assert.assertEquals("serviceType check", code, ServiceType.TOMCAT.getCode());
+        Assert.assertEquals("serviceType check", code, ServiceType.STAND_ALONE.getCode());
         Assert.assertEquals("time check", statisticsRowSlot, time);
     }
 }

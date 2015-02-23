@@ -41,16 +41,16 @@ public class AgentHistogramTest {
     private ObjectMapper mapper = new ObjectMapper();
     @Test
     public void testDeepCopy() throws Exception {
-        AgentHistogram agentHistogram = new AgentHistogram(new Application("test", ServiceType.TOMCAT));
-        TimeHistogram histogram = new TimeHistogram(ServiceType.TOMCAT, 0);
-        histogram.addCallCount(ServiceType.TOMCAT.getHistogramSchema().getErrorSlot().getSlotTime(), 1);
+        AgentHistogram agentHistogram = new AgentHistogram(new Application("test", ServiceType.STAND_ALONE));
+        TimeHistogram histogram = new TimeHistogram(ServiceType.STAND_ALONE, 0);
+        histogram.addCallCount(ServiceType.STAND_ALONE.getHistogramSchema().getErrorSlot().getSlotTime(), 1);
         agentHistogram.addTimeHistogram(histogram);
 
         AgentHistogram copy = new AgentHistogram(agentHistogram);
         Assert.assertEquals(copy.getHistogram().getErrorCount(), 1);
 
-        TimeHistogram histogram2 = new TimeHistogram(ServiceType.TOMCAT, 0);
-        histogram2.addCallCount(ServiceType.TOMCAT.getHistogramSchema().getErrorSlot().getSlotTime(), 2);
+        TimeHistogram histogram2 = new TimeHistogram(ServiceType.STAND_ALONE, 0);
+        histogram2.addCallCount(ServiceType.STAND_ALONE.getHistogramSchema().getErrorSlot().getSlotTime(), 2);
         agentHistogram.addTimeHistogram(histogram2);
         Assert.assertEquals(agentHistogram.getHistogram().getErrorCount(), 3);
 
@@ -61,17 +61,17 @@ public class AgentHistogramTest {
     @Test
     public void testJsonCompatibility() throws Exception {
         // compatibility test for changing to Jackson
-        AgentHistogram agentHistogram = new AgentHistogram(new Application("test", ServiceType.TOMCAT));
-        TimeHistogram histogram = new TimeHistogram(ServiceType.TOMCAT, 0);
-        histogram.addCallCount(ServiceType.TOMCAT.getHistogramSchema().getErrorSlot().getSlotTime(), 1);
+        AgentHistogram agentHistogram = new AgentHistogram(new Application("test", ServiceType.STAND_ALONE));
+        TimeHistogram histogram = new TimeHistogram(ServiceType.STAND_ALONE, 0);
+        histogram.addCallCount(ServiceType.STAND_ALONE.getHistogramSchema().getErrorSlot().getSlotTime(), 1);
         agentHistogram.addTimeHistogram(histogram);
 
         AgentHistogram copy = new AgentHistogram(agentHistogram);
         logger.debug(copy.getHistogram().toString());
         Assert.assertEquals(copy.getHistogram().getErrorCount(), 1);
 
-        TimeHistogram histogram2 = new TimeHistogram(ServiceType.TOMCAT, 0);
-        histogram2.addCallCount(ServiceType.TOMCAT.getHistogramSchema().getErrorSlot().getSlotTime(), 2);
+        TimeHistogram histogram2 = new TimeHistogram(ServiceType.STAND_ALONE, 0);
+        histogram2.addCallCount(ServiceType.STAND_ALONE.getHistogramSchema().getErrorSlot().getSlotTime(), 2);
         agentHistogram.addTimeHistogram(histogram2);
         Assert.assertEquals(agentHistogram.getHistogram().getErrorCount(), 3);
 

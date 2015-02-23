@@ -20,14 +20,11 @@ import static com.navercorp.pinpoint.common.HistogramSchema.*;
 import static com.navercorp.pinpoint.common.ServiceTypeProperty.*;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.navercorp.pinpoint.common.plugin.TypeProvider;
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -36,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.TypeProviderLoader;
+import com.navercorp.pinpoint.common.plugin.TypeProvider;
 import com.navercorp.pinpoint.common.plugin.TypeSetupContext;
 
 @Ignore
@@ -81,7 +79,7 @@ public class WasStaticAcceptHistogramTest {
         execute(new Runnable() {
             @Override
             public void run() {
-                table.addResponseTime("test", ServiceType.TOMCAT.getCode(), 1000);
+                table.addResponseTime("test", ServiceType.STAND_ALONE.getCode(), 1000);
             }
         });
 
@@ -89,7 +87,7 @@ public class WasStaticAcceptHistogramTest {
         execute(new Runnable() {
             @Override
             public void run() {
-                hashTable.addResponseTime("test", ServiceType.TOMCAT.getCode(), 1000);
+                hashTable.addResponseTime("test", ServiceType.STAND_ALONE.getCode(), 1000);
             }
         });
 

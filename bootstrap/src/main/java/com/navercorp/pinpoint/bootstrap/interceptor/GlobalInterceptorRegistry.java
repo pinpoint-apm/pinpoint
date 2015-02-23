@@ -32,7 +32,6 @@ public class GlobalInterceptorRegistry {
 
     }
 
-
     public static StaticAroundInterceptor getStaticInterceptor(int key) {
         return REGISTRY.getStaticInterceptor(key);
     }
@@ -40,7 +39,6 @@ public class GlobalInterceptorRegistry {
     public static Interceptor findInterceptor(int key) {
         return REGISTRY.findInterceptor(key);
     }
-
 
     public static SimpleAroundInterceptor getSimpleInterceptor(int key) {
         return REGISTRY.getSimpleInterceptor(key);

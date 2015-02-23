@@ -14,7 +14,7 @@
  */
 package com.navercorp.pinpoint.bootstrap.plugin;
 
-import com.navercorp.pinpoint.bootstrap.FieldSnooper;
+import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 
 /**
@@ -26,5 +26,5 @@ public interface ProfilerPluginContext {
     public Object getAttribute(String key);
 
     public MetadataAccessor getMetadataAccessor(String name);
-    public FieldSnooper getFieldSnooper(String name);
+    public FieldAccessor getFieldSnooper(String name);
 }

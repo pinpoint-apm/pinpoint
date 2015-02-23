@@ -35,6 +35,8 @@ public interface ClassEditorBuilder {
     public void injectMetadata(String name, String initialValueType);
     
     public void injectInterceptor(String className, Object... constructorArgs);
+    
+    public void weave(String aspectClassName);
 
     public MethodEditorBuilder editMethods(MethodFilter filter);
     

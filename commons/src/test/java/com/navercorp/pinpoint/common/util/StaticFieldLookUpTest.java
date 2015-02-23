@@ -16,13 +16,14 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import com.navercorp.pinpoint.common.AnnotationKeyMatcher;
-import com.navercorp.pinpoint.common.HistogramSchema;
-import com.navercorp.pinpoint.common.ServiceType;
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.List;
+import com.navercorp.pinpoint.common.AnnotationKeyMatcher;
+import com.navercorp.pinpoint.common.HistogramSchema;
+import com.navercorp.pinpoint.common.ServiceType;
 
 public class StaticFieldLookUpTest {
 
@@ -50,7 +51,6 @@ public class StaticFieldLookUpTest {
         StaticFieldLookUp<DisplayArgumentMatcher> staticFieldLookUp = new StaticFieldLookUp<DisplayArgumentMatcher>(DefaultDisplayArgument.class, DisplayArgumentMatcher.class);
         List<DisplayArgumentMatcher> lookup = staticFieldLookUp.lookup();
 
-        Assert.assertTrue(findType(lookup, DefaultDisplayArgument.ARCUS_MATCHER));
         Assert.assertTrue(findType(lookup, DefaultDisplayArgument.UNKNOWN_DB_MATCHER));
     }
 

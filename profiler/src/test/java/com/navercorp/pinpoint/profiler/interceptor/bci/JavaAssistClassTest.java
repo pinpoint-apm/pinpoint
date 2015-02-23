@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.FieldSnooper;
+import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
@@ -453,7 +453,7 @@ public class JavaAssistClassTest {
     public void testAddGetter() throws Exception {
         final TestClassLoader loader = getTestClassLoader();
         final String testClassObject = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject3";
-        final FieldSnooper snooper = FieldSnooper.get(0);
+        final FieldAccessor snooper = FieldAccessor.get(0);
         final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getProfilerConfig()) {
 
             @Override

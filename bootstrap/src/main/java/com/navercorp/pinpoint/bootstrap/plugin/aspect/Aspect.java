@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.test.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin.aspect;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Retention(RetentionPolicy.RUNTIME)
+/**
+ * @author emeroad
+ */
 @Target(ElementType.TYPE)
-public @interface Library {
-    String value();
+@Retention(RetentionPolicy.CLASS)
+public @interface Aspect {
 }

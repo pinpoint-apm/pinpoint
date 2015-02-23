@@ -67,7 +67,7 @@ public interface InstrumentClass {
 
     int addInterceptor(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
 
-    void weaving(String adviceClassName) throws InstrumentException;
+    void weave(String adviceClassName, ClassLoader classLoader) throws InstrumentException;
 
     boolean addDebugLogBeforeAfterMethod();
 

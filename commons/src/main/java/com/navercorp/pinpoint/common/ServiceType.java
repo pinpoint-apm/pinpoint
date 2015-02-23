@@ -167,7 +167,6 @@ public class ServiceType {
     // Java applications, WAS
     public static final ServiceType STAND_ALONE = of(1000, "STAND_ALONE", NORMAL_SCHEMA, RECORD_STATISTICS);
     public static final ServiceType TEST_STAND_ALONE = of(1005, "TEST_STAND_ALONE", NORMAL_SCHEMA, RECORD_STATISTICS);
-    public static final ServiceType TOMCAT = of(1010, "TOMCAT", NORMAL_SCHEMA, RECORD_STATISTICS);
 
     /**
      * Database shown only as xxx_EXECUTE_QUERY at the statistics info section in the server map
@@ -206,12 +205,8 @@ public class ServiceType {
     // DBCP
     public static final ServiceType DBCP = of(6050, "DBCP", NORMAL_SCHEMA);
 
-    // Memory cache
     public static final ServiceType MEMCACHED = of(8050, "MEMCACHED", FAST_SCHEMA, TERMINAL, RECORD_STATISTICS);
     public static final ServiceType MEMCACHED_FUTURE_GET = of(8051, "MEMCACHED_FUTURE_GET", "MEMCACHED", FAST_SCHEMA, TERMINAL);
-    public static final ServiceType ARCUS = of(8100, "ARCUS", FAST_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
-    public static final ServiceType ARCUS_FUTURE_GET = of(8101, "ARCUS_FUTURE_GET", "ARCUS", FAST_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
-    public static final ServiceType ARCUS_EHCACHE_FUTURE_GET = of(8102, "ARCUS_EHCACHE_FUTURE_GET", "ARCUS-EHCACHE", FAST_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
 
     // Redis & nBase-ARC
     public static final ServiceType REDIS = of(8200, "REDIS", FAST_SCHEMA, TERMINAL, RECORD_STATISTICS);
@@ -228,7 +223,7 @@ public class ServiceType {
 
     private static List<ServiceType> defaultLookup() {
         StaticFieldLookUp<ServiceType> lookUp = new StaticFieldLookUp<ServiceType>(ServiceType.class, ServiceType.class);
-        ServiceType[] exclude = { ARCUS, ARCUS_FUTURE_GET, ARCUS_EHCACHE_FUTURE_GET};
+        ServiceType[] exclude = { };
         StaticFieldLookUp.ExcludeFilter<ServiceType> excludeFilter = new StaticFieldLookUp.ExcludeFilter<ServiceType>(exclude);
         return lookUp.lookup(excludeFilter);
     }

@@ -50,7 +50,7 @@ public class AlarmPartitionerTest {
                 List<Application> apps = new LinkedList<Application>();
                 
                 for(int i = 0; i <= 37; i++) {
-                    apps.add(new Application("app" + i, ServiceType.TOMCAT));
+                    apps.add(new Application("app" + i, ServiceType.STAND_ALONE));
                 }
                 
                 return apps;

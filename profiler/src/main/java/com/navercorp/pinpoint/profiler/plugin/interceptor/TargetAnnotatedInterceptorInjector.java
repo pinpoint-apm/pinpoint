@@ -27,11 +27,11 @@ import com.navercorp.pinpoint.bootstrap.plugin.TargetConstructor;
 import com.navercorp.pinpoint.bootstrap.plugin.TargetFilter;
 import com.navercorp.pinpoint.bootstrap.plugin.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.plugin.Targets;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassRecipe;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
 import com.navercorp.pinpoint.profiler.plugin.editor.ClassCookBook;
+import com.navercorp.pinpoint.profiler.plugin.editor.ClassRecipe;
 import com.navercorp.pinpoint.profiler.plugin.editor.ConstructorEditor;
 import com.navercorp.pinpoint.profiler.plugin.editor.DedicatedMethodEditor;
 import com.navercorp.pinpoint.profiler.plugin.editor.FilteringMethodEditor;
@@ -119,12 +119,12 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
         
         String[] parameterTypeNames = annotation.paramTypes();
         
-        return new DedicatedMethodEditor(methodName, parameterTypeNames, injector);
+        return new DedicatedMethodEditor(methodName, parameterTypeNames, injector, false);
     }
     
     private MethodEditor createConstructorEditor(TargetConstructor annotation, InterceptorInjector injector) {
         String[] parameterTypeNames = annotation.value();
-        return new ConstructorEditor(parameterTypeNames, injector);
+        return new ConstructorEditor(parameterTypeNames, injector, false);
     }
     
     private MethodEditor createFilteredMethodEditor(TargetFilter annotation, InstrumentClass targetClass, InterceptorInjector injector) {

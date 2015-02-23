@@ -32,7 +32,7 @@ import org.junit.Test;
 
 public class BufferedStorageTest {
 
-    private AgentInformation agentInformation = new AgentInformation("agentId", "applicationName", 0, 1, "hostName", "127.0.0.1", ServiceType.TOMCAT, Version.VERSION);
+    private AgentInformation agentInformation = new AgentInformation("agentId", "applicationName", 0, 1, "hostName", "127.0.0.1", ServiceType.STAND_ALONE, Version.VERSION);
     private SpanChunkFactory spanChunkFactory = new SpanChunkFactory(agentInformation);
     private CountingDataSender countingDataSender = new CountingDataSender();
 

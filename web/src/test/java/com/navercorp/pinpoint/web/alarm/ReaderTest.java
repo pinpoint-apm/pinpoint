@@ -113,7 +113,7 @@ public class ReaderTest {
                 List<Application> apps = new LinkedList<Application>();
 
                 for(int i = 0; i < 7; i++) {
-                    apps.add(new Application(APP_NAME + i, ServiceType.TOMCAT));
+                    apps.add(new Application(APP_NAME + i, ServiceType.STAND_ALONE));
                 }
                 return apps;
             }

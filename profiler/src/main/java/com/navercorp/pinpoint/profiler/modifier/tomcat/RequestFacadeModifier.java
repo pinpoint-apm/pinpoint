@@ -50,7 +50,7 @@ public class RequestFacadeModifier extends AbstractModifier {
 
         try {
             InstrumentClass requestFacade = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
-            requestFacade.weaving("com.navercorp.pinpoint.profiler.modifier.tomcat.aspect.RequestFacadeAspect");
+            requestFacade.weave("com.navercorp.pinpoint.profiler.modifier.tomcat.aspect.RequestFacadeAspect", getClass().getClassLoader());
             return requestFacade.toBytecode();
         } catch (InstrumentException e) {
             logger.warn("modify fail. Cause:" + e.getMessage(), e);

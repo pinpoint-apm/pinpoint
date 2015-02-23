@@ -24,6 +24,8 @@ public enum ApplicationServerProperty {
     /**
      * If this property is set, the plugin have to manage pinpoint agent's life cycle.
      * In other words, the plugin must invoke {@link Agent#start()} and {@link Agent#stop()}
+     * 
+     * @deprecated
      */
     MANAGE_PINPOINT_AGENT_LIFECYCLE;
 }
