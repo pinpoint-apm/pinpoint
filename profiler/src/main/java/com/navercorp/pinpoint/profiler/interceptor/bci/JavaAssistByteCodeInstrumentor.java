@@ -28,8 +28,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.profiler.util.ScopePool;
-
 import com.navercorp.pinpoint.profiler.util.ThreadLocalScopePool;
+
 import javassist.*;
 
 import org.slf4j.Logger;
@@ -250,6 +250,12 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public boolean findClass(ClassLoader classLoader, String javassistClassName) {
+        ClassPool classPool = findClassPool(classLoader);
+        return findClass(javassistClassName, classPool);
     }
 
     @Override

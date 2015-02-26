@@ -26,6 +26,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 public interface ByteCodeInstrumentor {
 
     InstrumentClass getClass(ClassLoader classLoader, String jvmClassName, byte[] classFileBuffer) throws InstrumentException;
+    
+    boolean findClass(ClassLoader classLoader, String javassistClassName);
 
     Scope getScope(String scopeName);
 
