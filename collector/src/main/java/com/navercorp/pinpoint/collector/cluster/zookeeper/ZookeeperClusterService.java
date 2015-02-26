@@ -46,6 +46,8 @@ import com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler;
  */
 public class ZookeeperClusterService extends AbstractClusterService {
 
+    static final long DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED = 30000;
+    
     private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
     private static final String PINPOINT_WEB_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/web";
     private static final String PINPOINT_PROFILER_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/profiler";
@@ -186,10 +188,15 @@ public class ZookeeperClusterService extends AbstractClusterService {
 
             KeeperState state = event.getState();
             EventType eventType = event.getType();
-
+            
             // ephemeral node is removed on disconnect event (leave node management exclusively to zookeeper)
             if (ZookeeperUtils.isDisconnectedEvent(state, eventType)) {
                 connected.compareAndSet(true, false);
+                if (state == KeeperState.Expired) {
+                    if (client != null) {
+                        client.reconnectWhenSessionExpired();
+                    }
+                }
                 return;
             }
 
