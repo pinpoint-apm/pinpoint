@@ -61,7 +61,9 @@ import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLPreparedStatementJ
 import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLPreparedStatementModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLStatementModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.OracleDriverModifier;
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.OraclePreparedStatementModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.OraclePreparedStatementWrapperModifier;
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.OracleStatementModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.OracleStatementWrapperModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.PhysicalConnectionModifier;
 import com.navercorp.pinpoint.profiler.modifier.method.MethodModifier;
@@ -75,15 +77,9 @@ import com.navercorp.pinpoint.profiler.modifier.redis.JedisModifier;
 import com.navercorp.pinpoint.profiler.modifier.redis.JedisMultiKeyPipelineBaseModifier;
 import com.navercorp.pinpoint.profiler.modifier.redis.JedisPipelineBaseModifier;
 import com.navercorp.pinpoint.profiler.modifier.redis.JedisPipelineModifier;
-import com.navercorp.pinpoint.profiler.modifier.servlet.HttpServletModifier;
 import com.navercorp.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
 import com.navercorp.pinpoint.profiler.modifier.spring.beans.AbstractAutowireCapableBeanFactoryModifier;
 import com.navercorp.pinpoint.profiler.modifier.spring.orm.ibatis.SqlMapClientTemplateModifier;
-import com.navercorp.pinpoint.profiler.modifier.tomcat.RequestFacadeModifier;
-import com.navercorp.pinpoint.profiler.modifier.tomcat.StandardHostValveInvokeModifier;
-import com.navercorp.pinpoint.profiler.modifier.tomcat.StandardServiceModifier;
-import com.navercorp.pinpoint.profiler.modifier.tomcat.TomcatConnectorModifier;
-import com.navercorp.pinpoint.profiler.modifier.tomcat.WebappLoaderModifier;
 
 /**
  * @author emeroad
@@ -321,11 +317,15 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         AbstractModifier oracleConnectionModifier = new PhysicalConnectionModifier(byteCodeInstrumentor, agent);
         addModifier(oracleConnectionModifier);
 
-        AbstractModifier oraclePreparedStatementModifier = new OraclePreparedStatementWrapperModifier(byteCodeInstrumentor, agent);
+        AbstractModifier oraclePreparedStatementWrapperModifier = new OraclePreparedStatementWrapperModifier(byteCodeInstrumentor, agent);
+        addModifier(oraclePreparedStatementWrapperModifier);
+        AbstractModifier oraclePreparedStatementModifier = new OraclePreparedStatementModifier(byteCodeInstrumentor, agent);
         addModifier(oraclePreparedStatementModifier);
 
-        AbstractModifier oracleStatement = new OracleStatementWrapperModifier(byteCodeInstrumentor, agent);
-        addModifier(oracleStatement);
+        AbstractModifier oracleStatementWrapperModifier = new OracleStatementWrapperModifier(byteCodeInstrumentor, agent);
+        addModifier(oracleStatementWrapperModifier);
+        AbstractModifier oracleStatementModifier = new OracleStatementModifier(byteCodeInstrumentor, agent);
+        addModifier(oracleStatementModifier);
         //
         // Modifier oracleResultSetModifier = new OracleResultSetModifier(byteCodeInstrumentor, agent);
         // addModifier(oracleResultSetModifier);
