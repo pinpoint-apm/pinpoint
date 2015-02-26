@@ -20,6 +20,7 @@ package com.navercorp.pinpoint.web.cluster.zookeeper;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.zookeeper.CreateMode;
@@ -28,9 +29,13 @@ import org.apache.zookeeper.KeeperException.Code;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
+import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.Timeout;
+import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.web.cluster.zookeeper.exception.AuthException;
 import com.navercorp.pinpoint.web.cluster.zookeeper.exception.BadOperationException;
 import com.navercorp.pinpoint.web.cluster.zookeeper.exception.ConnectionException;
@@ -46,18 +51,93 @@ public class ZookeeperClient {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    // ZK client is thread-safe
-    private final ZookeeperClusterManager manager;
-
-    private final ZooKeeper zookeeper;
     private final AtomicBoolean clientState = new AtomicBoolean(true);
+
+    private final HashedWheelTimer timer;
+
+    private final String hostPort;
+    private final int sessionTimeout;
+    private final ZookeeperClusterManager manager;
+    private final long reconnectDelayWhenSessionExpired;
+
+    // ZK client is thread-safe
+    private volatile ZooKeeper zookeeper;
 
     // hmm this structure should contain all necessary information
     public ZookeeperClient(String hostPort, int sessionTimeout, ZookeeperClusterManager manager) throws KeeperException, IOException, InterruptedException {
+        this(hostPort, sessionTimeout, manager, ZookeeperClusterManager.DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED);
+    }
+    
+    public ZookeeperClient(String hostPort, int sessionTimeout, ZookeeperClusterManager manager, long reconnectDelayWhenSessionExpired) throws KeeperException, IOException, InterruptedException {
+        this.hostPort = hostPort;
+        this.sessionTimeout = sessionTimeout;
         this.manager = manager;
-        zookeeper = new ZooKeeper(hostPort, sessionTimeout, this.manager); // server
+        this.reconnectDelayWhenSessionExpired = reconnectDelayWhenSessionExpired;
+        
+        this.zookeeper = new ZooKeeper(hostPort, sessionTimeout, manager); // server
+        
+        this.timer = TimerFactory.createHashedWheelTimer(this.getClass().getSimpleName(), 100, TimeUnit.MILLISECONDS, 512);
     }
 
+
+    public void reconnectWhenSessionExpired() {
+        if (!clientState.get()) {
+            logger.warn("ZookeeperClient.reconnectWhenSessionExpired() failed. Error: Already closed.");
+            return;
+        }
+        
+        ZooKeeper zookeeper = this.zookeeper;
+        if (zookeeper.getState().isConnected()) {
+            logger.warn("ZookeeperClient.reconnectWhenSessionExpired() failed. Error: session(0x{}) is connected.", Long.toHexString(zookeeper.getSessionId()));
+            return;
+        }
+
+        logger.warn("Exeucte ZookeeperClient.reconnectWhenSessionExpired()(Expired session:0x{}).", Long.toHexString(zookeeper.getSessionId()));
+
+        try {
+            zookeeper.close();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        
+        ZooKeeper newZookeeper = createNewZookeeper();
+        if (newZookeeper == null) {
+            logger.warn("Failed to create new Zookeeper instance. It will be retry  after {}ms.", reconnectDelayWhenSessionExpired);
+
+            timer.newTimeout(new TimerTask() {
+                @Override
+                public void run(Timeout timeout) throws Exception {
+                    if (timeout.isCancelled()) {
+                        return;
+                    }
+                    
+                    reconnectWhenSessionExpired();
+                }
+            }, reconnectDelayWhenSessionExpired, TimeUnit.MILLISECONDS);
+        } else {
+            this.zookeeper = newZookeeper;
+        }
+
+    }
+    
+    private ZooKeeper createNewZookeeper() {
+        ZooKeeper zookeeper = null;
+        try {
+            zookeeper = new ZooKeeper(hostPort, sessionTimeout, manager);
+            return zookeeper;
+        } catch (IOException e) {
+            if (zookeeper != null) {
+                try {
+                    zookeeper.close();
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+        
+        return null;
+    }
+    
     /**
      * do not create node in path suffix
      *
@@ -67,6 +147,7 @@ public class ZookeeperClient {
     public void createPath(String path) throws PinpointZookeeperException, InterruptedException {
         checkState();
 
+        ZooKeeper zookeeper = this.zookeeper;
         int pos = 1;
         do {
             pos = path.indexOf('/', pos + 1);
@@ -95,7 +176,8 @@ public class ZookeeperClient {
     // we need deep node inspection for verification purpose (node content)
     public String createNode(String znodePath, byte[] data, CreateMode createMode) throws PinpointZookeeperException, InterruptedException {
         checkState();
-
+        
+        ZooKeeper zookeeper = this.zookeeper;
         try {
             if (zookeeper.exists(znodePath, false) != null) {
                 return znodePath;
@@ -114,6 +196,7 @@ public class ZookeeperClient {
     public List<String> getChildren(String path, boolean watch) throws PinpointZookeeperException, InterruptedException {
         checkState();
 
+        ZooKeeper zookeeper = this.zookeeper;
         try {
             return zookeeper.getChildren(path, watch);
         } catch (KeeperException exception) {
@@ -132,6 +215,7 @@ public class ZookeeperClient {
     public byte[] getData(String path, boolean watch) throws PinpointZookeeperException, InterruptedException {
         checkState();
 
+        ZooKeeper zookeeper = this.zookeeper;
         try {
             return zookeeper.getData(path, watch, null);
         } catch (KeeperException exception) {
@@ -145,6 +229,7 @@ public class ZookeeperClient {
     public void delete(String path) throws PinpointZookeeperException, InterruptedException {
         checkState();
 
+        ZooKeeper zookeeper = this.zookeeper;
         try {
             zookeeper.delete(path, -1);
         } catch (KeeperException exception) {
@@ -157,6 +242,7 @@ public class ZookeeperClient {
     public boolean exists(String path) throws PinpointZookeeperException, InterruptedException {
         checkState();
 
+        ZooKeeper zookeeper = this.zookeeper;
         try {
             Stat stat = zookeeper.exists(path, false);
             if (stat == null) {
@@ -202,6 +288,10 @@ public class ZookeeperClient {
 
     public void close() {
         if (clientState.compareAndSet(true, false)) {
+            if (timer != null) {
+                timer.stop();
+            }
+            
             if (zookeeper != null) {
                 try {
                     zookeeper.close();

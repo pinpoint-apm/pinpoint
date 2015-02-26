@@ -47,6 +47,8 @@ import com.navercorp.pinpoint.web.cluster.zookeeper.exception.NoNodeException;
  */
 public class ZookeeperClusterManager implements ClusterManager, Watcher {
 
+    static final long DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED = 30000;
+
     private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
     private static final String PINPOINT_WEB_CLUSTER_PATh = PINPOINT_CLUSTER_PATH + "/web";
     private static final String PINPOINT_COLLECTOR_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/collector";
@@ -69,7 +71,7 @@ public class ZookeeperClusterManager implements ClusterManager, Watcher {
     private final CollectorClusterInfoRepository collectorClusterInfo = new CollectorClusterInfoRepository();
 
     public ZookeeperClusterManager(String zookeeperAddress, int sessionTimeout, int retryInterval) throws KeeperException, IOException, InterruptedException {
-        this.client = new ZookeeperClient(zookeeperAddress, sessionTimeout, this);
+        this.client = new ZookeeperClient(zookeeperAddress, sessionTimeout, this, DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED);
         this.retryInterval = retryInterval;
         // it could be better to create upon failure
         this.timer = createTimer();
@@ -114,7 +116,10 @@ public class ZookeeperClusterManager implements ClusterManager, Watcher {
 
         // when this happens, ephemeral node disappears
         // reconnects automatically, and process gets notified for all events
-        if (state == KeeperState.Disconnected || state == KeeperState.Expired) {
+        if (state == KeeperState.Expired) {
+            result = handleDisconnected();
+            client.reconnectWhenSessionExpired();
+        } else if (state == KeeperState.Expired) {
             result = handleDisconnected();
         } else if ((state == KeeperState.SyncConnected || state == KeeperState.NoSyncConnected) && eventType == EventType.None) {
             result = handleConnected();
