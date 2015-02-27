@@ -14,47 +14,34 @@
  */
 package com.navercorp.pinpoint.plugin.tomcat;
 
-import java.io.File;
-
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ServerTypeDetector;
-import com.navercorp.pinpoint.common.util.SystemProperty;
+import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
+import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * @author Jongho Moon
+ * @author HyunGil Jeong
  *
  */
 public class TomcatDetector implements ServerTypeDetector, TomcatConstants {
-    private final PLogger logger = PLoggerFactory.getLogger(getClass()); 
+    
+    private static final String REQUIRED_MAIN_CLASS = "org.apache.catalina.startup.Bootstrap";
+    
+    private static final String REQUIRED_SYSTEM_PROPERTY = "catalina.home";
+    
+    private static final String REQUIRED_CLASS = "org.apache.catalina.startup.Bootstrap";
     
     @Override
-    public String getServerTypeName() {
-        return TYPE_NAME;
-    }
-
-    public boolean detect() {
-        String homeDir = SystemProperty.INSTANCE.getProperty("catalina.home");
-        
-        if (homeDir == null) {
-            logger.debug("catalina.home is not defined. This is not a Tomcat instance");
-            return false;
-        }
-        
-        File catalinaJar = new File(homeDir, "/lib/catalina.jar");
-        
-        if (!catalinaJar.exists()) {
-            logger.debug(catalinaJar + " is not exist. This is not a Tomcat instance");
-            return false;
-        }
-        
-        logger.debug("catalina.home (" + homeDir + ") is defined and " + catalinaJar + " is exist. This is a Tomcat instance");
-        
-        return catalinaJar.exists();
+    public ServiceType getServerType() {
+        return TOMCAT;
     }
 
     @Override
-    public boolean canOverride(String serverType) {
-        return false;
+    public boolean detect(ConditionProvider provider) {
+        String bootstrapMain = provider.getMainClassCondition().getValue();
+        return bootstrapMain.equals(REQUIRED_MAIN_CLASS) &&
+               provider.getSystemPropertyCondition().check(REQUIRED_SYSTEM_PROPERTY) &&
+               provider.getLibraryClassCondition().check(REQUIRED_CLASS);
     }
+
 }

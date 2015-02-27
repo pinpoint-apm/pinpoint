@@ -43,7 +43,6 @@ import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
 import com.navercorp.pinpoint.profiler.context.storage.BufferedStorageFactory;
@@ -170,15 +169,12 @@ public class DefaultAgent implements Agent {
         String applicationServerTypeString = profilerConfig.getApplicationServerType();
         ServiceType applicationServerType = this.serviceTypeRegistryService.findServiceTypeByName(applicationServerTypeString);
 
-        final ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(pluginContexts, applicationServerType, this.serviceTypeRegistryService);
-        if (!typeResolver.resolve()) {
-            throw new PinpointException("ApplicationServerType not found.");
-        }
+        final ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(pluginContexts, applicationServerType, profilerConfig.getApplicationTypeDetectOrder());
         
         final AgentInformationFactory agentInformationFactory = new AgentInformationFactory();
-        this.agentInformation = agentInformationFactory.createAgentInformation(typeResolver.getServerType());
+        this.agentInformation = agentInformationFactory.createAgentInformation(typeResolver.resolve());
         logger.info("agentInformation:{}", agentInformation);
-
+        
         CommandDispatcher commandDispatcher = createCommandDispatcher();
         this.tcpDataSender = createTcpDataSender(commandDispatcher);
 
