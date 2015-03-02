@@ -16,15 +16,18 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
+import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.web.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +36,9 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ResponseTimeMapper implements RowMapper<ResponseTime> {
+    @Autowired
+    private ServiceTypeRegistryService registry;
+
     @Override
     public ResponseTime mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
@@ -65,8 +71,9 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
     private ResponseTime createResponseTime(byte[] rowKey) {
         final Buffer row = new FixedBuffer(rowKey);
         String applicationName = row.read2PrefixedString();
-        short serviceType = row.readShort();
+        short serviceTypeCode = row.readShort();
         final long timestamp = TimeUtils.recoveryTimeMillis(row.readLong());
+        ServiceType serviceType = registry.findServiceType(serviceTypeCode);
         return new ResponseTime(applicationName, serviceType, timestamp);
     }
 

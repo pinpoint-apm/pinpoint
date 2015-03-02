@@ -59,6 +59,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     @Autowired
     private AnnotationKeyMatcherService annotationKeyMatcherService;
+
+    @Autowired
+    private ServiceTypeRegistryService registry;
     
     @Override
     public BusinessTransactions selectBusinessTransactions(List<TransactionId> transactionIdList, String applicationName, Range range, Filter filter) {
@@ -303,7 +306,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                                     getGap(stack),
                                                     spanBo.getAgentId(),
                                                     spanBo.getApplicationId(),
-                                                    ServiceType.findServiceType(spanBo.getServiceType()),
+                                                    registry.findServiceType(spanBo.getServiceType()),
                                                     null,
                                                     spanAlign.isHasChild(),
                                                     false);
@@ -323,7 +326,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                                     getGap(stack),
                                                     spanBo.getAgentId(),
                                                     spanBo.getApplicationId(),
-                                                    ServiceType.findServiceType(spanBo.getServiceType()),
+                                                    registry.findServiceType(spanBo.getServiceType()),
                                                     null,
                                                     spanAlign.isHasChild(),
                                                     false);
@@ -376,11 +379,11 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                                     getGap(stack),
                                                     spanEventBo.getAgentId(),
                                                     spanBo.getApplicationId(),
-                                                    ServiceType.findServiceType(spanEventBo.getServiceType()),
-                                                    /* spanEventBo.getDestinationId(), spanEventBo.getServiceType(),*/
-                                                            destinationId,
-                                                            spanAlign.isHasChild(),
-                                                            false);
+                                                    registry.findServiceType(spanEventBo.getServiceType()),
+                                                    /* spanEventBo.getDestinationId(), spanEventBo.getServiceTypeCode(),*/
+                                                    destinationId,
+                                                    spanAlign.isHasChild(),
+                                                    false);
                         record.setSimpleClassName(apiDescription.getSimpleClassName());
                         record.setFullApiDescription(method);
 
@@ -404,8 +407,8 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                                     getGap(stack),
                                                     spanEventBo.getAgentId(),
                                                     spanBo.getApplicationId(),
-                                                    ServiceType.findServiceType(spanEventBo.getServiceType()),
-                                                    /*spanEventBo.getDestinationId(), spanEventBo.getServiceType(),*/
+                                                    registry.findServiceType(spanEventBo.getServiceType()),
+                                                    /*spanEventBo.getDestinationId(), spanEventBo.getServiceTypeCode(),*/
                                                     destinationId,
                                                     spanAlign.isHasChild(),
                                                     false);

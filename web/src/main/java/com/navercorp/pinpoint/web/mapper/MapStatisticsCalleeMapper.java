@@ -16,11 +16,13 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
+import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.navercorp.pinpoint.web.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import org.apache.hadoop.hbase.KeyValue;
@@ -28,6 +30,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -42,6 +45,9 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final LinkFilter filter;
+
+    @Autowired
+    private ServiceTypeRegistryService registry;
 
     public MapStatisticsCalleeMapper() {
         this(SkipLinkFilter.FILTER);
@@ -100,12 +106,17 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
     private Application readCallerApplication(byte[] qualifier) {
         String callerApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
         short callerServiceType = ApplicationMapStatisticsUtils.getDestServiceTypeFromColumnName(qualifier);
-        return new Application(callerApplicationName, callerServiceType);
+        return createApplication(callerApplicationName, callerServiceType);
     }
 
     private Application readCalleeApplication(Buffer row) {
         String calleeApplicationName = row.read2PrefixedString();
         short calleeServiceType = row.readShort();
-        return new Application(calleeApplicationName, calleeServiceType);
+        return createApplication(calleeApplicationName, calleeServiceType);
+    }
+
+    private Application createApplication(String applicationName, short serviceTypeCode) {
+        ServiceType serviceType = registry.findServiceType(serviceTypeCode);
+        return new Application(applicationName, serviceType);
     }
 }

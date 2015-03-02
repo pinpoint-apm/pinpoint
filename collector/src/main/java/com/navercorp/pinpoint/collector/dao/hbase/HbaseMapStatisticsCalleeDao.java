@@ -76,7 +76,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
 
     @Override
-    public void update(String calleeApplicationName, short calleeServiceType, String callerApplicationName, short callerServiceType, String callerHost, int elapsed, boolean isError) {
+    public void update(String calleeApplicationName, ServiceType calleeServiceType, String callerApplicationName, ServiceType callerServiceType, String callerHost, int elapsed, boolean isError) {
         if (callerApplicationName == null) {
             throw new NullPointerException("callerApplicationName must not be null");
         }
@@ -86,8 +86,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
         if (logger.isDebugEnabled()) {
             logger.debug("[Callee] {} ({}) <- {} ({})[{}]",
-                    calleeApplicationName, ServiceType.findServiceType(calleeServiceType),
-                    callerApplicationName, ServiceType.findServiceType(callerServiceType), callerHost);
+                    calleeApplicationName, calleeServiceType, callerApplicationName, callerServiceType, callerHost);
         }
 
         // there may be no endpoint in case of httpclient
@@ -97,10 +96,10 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         // make row key. rowkey is me
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
         final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
-        final RowKey calleeRowKey = new CallRowKey(calleeApplicationName, calleeServiceType, rowTimeSlot);
+        final RowKey calleeRowKey = new CallRowKey(calleeApplicationName, calleeServiceType.getCode(), rowTimeSlot);
 
-        final short callerSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(callerServiceType, elapsed, isError);
-        final ColumnName callerColumnName = new CallerColumnName(callerServiceType, callerApplicationName, callerHost, callerSlotNumber);
+        final short callerSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(calleeServiceType, elapsed, isError);
+        final ColumnName callerColumnName = new CallerColumnName(callerServiceType.getCode(), callerApplicationName, callerHost, callerSlotNumber);
 
         if (useBulk) {
             RowInfo rowInfo = new DefaultRowInfo(calleeRowKey, callerColumnName);

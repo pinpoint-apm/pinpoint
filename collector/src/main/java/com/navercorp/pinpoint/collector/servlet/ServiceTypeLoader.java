@@ -18,12 +18,15 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import com.navercorp.pinpoint.common.TypeProviderLoader;
+import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 
 /**
  * @author Jongho Moon <jongho.moon@navercorp.com>
  *
  */
 public class ServiceTypeLoader implements ServletContextListener {
+
+    private static TypeProviderLoader typeProviderLoader;
 
     /* (non-Javadoc)
      * @see javax.servlet.ServletContextListener#contextDestroyed(javax.servlet.ServletContextEvent)
@@ -38,7 +41,16 @@ public class ServiceTypeLoader implements ServletContextListener {
      */
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
+        final ClassLoader defaultClassLoader = ClassLoaderUtils.getDefaultClassLoader();
+        TypeProviderLoader loader = new TypeProviderLoader(false);
+        loader.load(defaultClassLoader);
         TypeProviderLoader.initializeServiceType(getClass().getClassLoader());
+
+        this.typeProviderLoader = loader;
+    }
+
+    public static TypeProviderLoader getTypeProviderLoader() {
+        return typeProviderLoader;
     }
 
 }

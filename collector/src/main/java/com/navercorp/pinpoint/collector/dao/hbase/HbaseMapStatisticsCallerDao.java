@@ -75,7 +75,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
     }
 
     @Override
-    public void update(String callerApplicationName, short callerServiceType, String callerAgentid, String calleeApplicationName, short calleeServiceType, String calleeHost, int elapsed, boolean isError) {
+    public void update(String callerApplicationName, ServiceType callerServiceType, String callerAgentid, String calleeApplicationName, ServiceType calleeServiceType, String calleeHost, int elapsed, boolean isError) {
         if (callerApplicationName == null) {
             throw new NullPointerException("callerApplicationName must not be null");
         }
@@ -84,9 +84,8 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("[Caller] {} ({}) {} -> {} ({})[{}]",
-                    callerApplicationName, ServiceType.findServiceType(callerServiceType), callerAgentid,
-                    calleeApplicationName, ServiceType.findServiceType(calleeServiceType), calleeHost);
+            logger.debug("[Caller] {} ({}) {} -> {} ({})[{}]", callerApplicationName, callerServiceType, callerAgentid,
+                    calleeApplicationName, calleeServiceType, calleeHost);
         }
 
         // there may be no endpoint in case of httpclient
@@ -95,10 +94,10 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         // make row key. rowkey is me
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
         final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
-        final RowKey callerRowKey = new CallRowKey(callerApplicationName, callerServiceType, rowTimeSlot);
+        final RowKey callerRowKey = new CallRowKey(callerApplicationName, callerServiceType.getCode(), rowTimeSlot);
 
         final short calleeSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(calleeServiceType, elapsed, isError);
-        final ColumnName calleeColumnName = new CalleeColumnName(callerAgentid, calleeServiceType, calleeApplicationName, calleeHost, calleeSlotNumber);
+        final ColumnName calleeColumnName = new CalleeColumnName(callerAgentid, calleeServiceType.getCode(), calleeApplicationName, calleeHost, calleeSlotNumber);
         if (useBulk) {
             RowInfo rowInfo = new DefaultRowInfo(callerRowKey, calleeColumnName);
             this.counter.increment(rowInfo, 1L);

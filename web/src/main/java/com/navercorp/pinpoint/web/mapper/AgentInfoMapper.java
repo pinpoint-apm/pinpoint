@@ -21,11 +21,13 @@ import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 
+import com.navercorp.pinpoint.web.service.ServiceTypeRegistryService;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -40,6 +42,9 @@ import java.util.List;
 public class AgentInfoMapper implements RowMapper<List<AgentInfoBo>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    private ServiceTypeRegistryService registry;
 
     @Override
     public List<AgentInfoBo> mapRow(Result result, int rowNum) throws Exception {
@@ -65,8 +70,10 @@ public class AgentInfoMapper implements RowMapper<List<AgentInfoBo>> {
         long startTime = TimeUtils.recoveryTimeMillis(reverseStartTime);
 
         final AgentInfoBo.Builder builder = new AgentInfoBo.Builder(keyValue.getValue());
-        builder.agentId(agentId);
-        builder.startTime(startTime);
+        builder.setAgentId(agentId);
+        builder.setStartTime(startTime);
+        // TODO fix
+        builder.setServiceType(registry.findServiceType(builder.getServiceTypeCode()));
         AgentInfoBo agentInfoBo = builder.build();
         logger.debug("agentInfo:{}", agentInfoBo);
         return agentInfoBo;

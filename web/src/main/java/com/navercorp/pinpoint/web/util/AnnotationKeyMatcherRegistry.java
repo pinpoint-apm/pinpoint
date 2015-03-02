@@ -19,6 +19,10 @@ package com.navercorp.pinpoint.web.util;
 import com.navercorp.pinpoint.common.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.util.apache.IntHashMap;
+import com.navercorp.pinpoint.common.util.apache.IntHashMapUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author emeroad
@@ -38,6 +42,14 @@ public class AnnotationKeyMatcherRegistry {
         this.annotationMatcherMap = annotationMatcherMap;
     }
 
+    private IntHashMap<AnnotationKeyMatcher> copy(HashMap<Short, AnnotationKeyMatcher> annotationMatcherMap) {
+        final IntHashMap<AnnotationKeyMatcher> copy = new IntHashMap<AnnotationKeyMatcher>();
+        for (Map.Entry<Short, AnnotationKeyMatcher> entry : annotationMatcherMap.entrySet()) {
+            copy.put(entry.getKey(), entry.getValue());
+        }
+        return copy;
+    }
+
 
     public AnnotationKeyMatcher findAnnotationKeyMatcher(short serviceType) {
         return annotationMatcherMap.get(serviceType);
@@ -46,7 +58,7 @@ public class AnnotationKeyMatcherRegistry {
 
     public static class Builder {
 
-        private IntHashMap<AnnotationKeyMatcher> buildMap = new IntHashMap<AnnotationKeyMatcher>();
+        private final HashMap<Integer, AnnotationKeyMatcher> buildMap = new HashMap<Integer, AnnotationKeyMatcher>();
 
         public AnnotationKeyMatcher addAnnotationMatcher(ServiceType serviceType, AnnotationKeyMatcher annotationKeyMatcher) {
             if (serviceType == null) {
@@ -55,14 +67,14 @@ public class AnnotationKeyMatcherRegistry {
             if (annotationKeyMatcher == null) {
                 throw new NullPointerException("annotationKeyMatcher must not be null");
             }
-            return this.buildMap.put(serviceType.getCode(), annotationKeyMatcher);
+            int code = serviceType.getCode();
+            return this.buildMap.put(code, annotationKeyMatcher);
         }
 
 
         public AnnotationKeyMatcherRegistry build() {
-            AnnotationKeyMatcherRegistry annotationKeyMatcherRegistry = new AnnotationKeyMatcherRegistry(buildMap);
-            buildMap = new IntHashMap<AnnotationKeyMatcher>();
-            return annotationKeyMatcherRegistry;
+            IntHashMap<AnnotationKeyMatcher> copy = IntHashMapUtils.copy(buildMap);
+            return new AnnotationKeyMatcherRegistry(copy);
         }
     }
 }

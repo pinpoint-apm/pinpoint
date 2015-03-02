@@ -42,9 +42,9 @@ public class ServerInstanceListSerializerTest {
         ObjectMapper mapper = applicationContext.getBean(ObjectMapper.class);
         
         AgentInfoBo.Builder agentInfoBuilder = new AgentInfoBo.Builder();
-        agentInfoBuilder.agentId("agentId");
-        agentInfoBuilder.serviceType(ServiceType.STAND_ALONE.getCode());
-        agentInfoBuilder.hostName("testcomputer");
+        agentInfoBuilder.setAgentId("agentId");
+        agentInfoBuilder.setServiceTypeCode(ServiceType.TEST_STAND_ALONE.getCode());
+        agentInfoBuilder.setHostName("testcomputer");
 
         AgentInfoBo agentInfoBo = agentInfoBuilder.build();
 

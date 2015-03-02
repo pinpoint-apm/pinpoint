@@ -14,15 +14,27 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.dao;
+package com.navercorp.pinpoint.common.util.apache;
 
-import com.navercorp.pinpoint.common.ServiceType;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * 
- * @author netspider
  * @author emeroad
  */
-public interface MapStatisticsCallerDao extends CachedStatisticsDao {
-    void update(String callerApplicationName, ServiceType callerServiceType, String callerAgentId, String calleeApplicationName, ServiceType calleeServiceType, String calleeHost, int elapsed, boolean isError);
+public final class IntHashMapUtils {
+
+    private IntHashMapUtils() {
+    }
+
+    public static <V> IntHashMap<V> copy(Map<Integer, V> target) {
+        if (target == null) {
+            throw new NullPointerException("target must not be null");
+        }
+        final IntHashMap<V> copyMap = new IntHashMap<V>();
+        for (Map.Entry<Integer, V> entry : target.entrySet()) {
+            copyMap.put(entry.getKey(), entry.getValue());
+        }
+        return copyMap;
+    }
 }

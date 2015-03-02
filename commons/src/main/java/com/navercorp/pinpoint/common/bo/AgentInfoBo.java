@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.bo;
 
+import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
@@ -46,7 +47,8 @@ public class AgentInfoBo {
     private final String ports;
     private final String agentId;
     private final String applicationName;
-    private final short serviceType;
+    private final short serviceTypeCode;
+    private final ServiceType serviceType;
     private final int pid;
     private final String version;
 
@@ -64,13 +66,14 @@ public class AgentInfoBo {
         this.ports = builder.ports;
         this.agentId = builder.agentId;
         this.applicationName = builder.applicationName;
-        this.serviceType = builder.serviceType;
+        this.serviceTypeCode = builder.serviceTypeCode;
         this.pid = builder.pid;
         this.version = builder.version;
         this.startTime = builder.startTime;
         this.endTimeStamp = builder.endTimeStamp;
         this.endStatus = builder.endStatus;
         this.serverMetaData = builder.serverMetaData;
+        this.serviceType = builder.serviceType;
     }
 
     public String getIp() {
@@ -109,7 +112,11 @@ public class AgentInfoBo {
         return pid;
     }
 
-    public short getServiceType() {
+    public short getServiceTypeCode() {
+        return serviceTypeCode;
+    }
+
+    public ServiceType getServiceType() {
         return serviceType;
     }
 
@@ -127,7 +134,7 @@ public class AgentInfoBo {
         buffer.putPrefixedString(this.getIp());
         buffer.putPrefixedString(this.getPorts());
         buffer.putPrefixedString(this.getApplicationName());
-        buffer.put(this.getServiceType());
+        buffer.put(this.getServiceTypeCode());
         buffer.put(this.getPid());
         buffer.putPrefixedString(this.getVersion());
 
@@ -171,7 +178,7 @@ public class AgentInfoBo {
         sb.append(", ports='").append(ports).append('\'');
         sb.append(", agentId='").append(agentId).append('\'');
         sb.append(", applicationName='").append(applicationName).append('\'');
-        sb.append(", serviceType=").append(serviceType);
+        sb.append(", serviceTypeCode=").append(serviceTypeCode);
         sb.append(", pid=").append(pid);
         sb.append(", version='").append(version).append('\'');
         sb.append(", startTime=").append(startTime);
@@ -187,7 +194,8 @@ public class AgentInfoBo {
         private String ports;
         private String agentId;
         private String applicationName;
-        private short serviceType;
+        private short serviceTypeCode;
+        private ServiceType serviceType;
         private int pid;
         private String version;
 
@@ -207,7 +215,7 @@ public class AgentInfoBo {
             this.ip = buffer.readPrefixedString();
             this.ports = buffer.readPrefixedString();
             this.applicationName = buffer.readPrefixedString();
-            this.serviceType = buffer.readShort();
+            this.serviceTypeCode = buffer.readShort();
             this.pid = buffer.readInt();
             this.version = buffer.readPrefixedString();
 
@@ -216,51 +224,62 @@ public class AgentInfoBo {
             this.endStatus = buffer.readInt();
         }
 
-        public void hostName(String hostName) {
+        public void setHostName(String hostName) {
             this.hostName = hostName;
         }
 
-        public void ip(String ip) {
+        public void setIp(String ip) {
             this.ip = ip;
         }
 
-        public void ports(String ports) {
+        public void setPorts(String ports) {
             this.ports = ports;
         }
 
-        public void agentId(String agentId) {
+        public void setAgentId(String agentId) {
             this.agentId = agentId;
         }
 
-        public void applicationName(String applicationName) {
+        public void setApplicationName(String applicationName) {
             this.applicationName = applicationName;
         }
 
-        public void serviceType(short serviceType) {
+        public void setServiceTypeCode(short serviceTypeCode) {
+            this.serviceTypeCode = serviceTypeCode;
+        }
+
+        public short getServiceTypeCode() {
+            return serviceTypeCode;
+        }
+
+        public void setServiceType(ServiceType serviceType) {
+            if (serviceType == null) {
+                throw new NullPointerException("serviceType must not be null");
+            }
             this.serviceType = serviceType;
         }
 
-        public void pid(int pid) {
+        public void setPid(int pid) {
             this.pid = pid;
         }
 
-        public void version(String version) {
+        public void setVersion(String version) {
             this.version = version;
         }
 
-        public void startTime(long startTime) {
+        public void setStartTime(long startTime) {
             this.startTime = startTime;
         }
 
-        public void endTimeStamp(long endTimeStamp) {
+        public void setEndTimeStamp(long endTimeStamp) {
             this.endTimeStamp = endTimeStamp;
         }
 
-        public void endStatus(int endStatus) {
+        public void setEndStatus(int endStatus) {
             this.endStatus = endStatus;
         }
         
-        public void serverMetaData(ServerMetaDataBo serverMetaData) {
+        public void setServerMetaData(ServerMetaDataBo serverMetaData) {
             this.serverMetaData = serverMetaData;
         }
 
@@ -275,8 +294,15 @@ public class AgentInfoBo {
                 this.agentId = "";
             if (this.applicationName == null)
                 this.applicationName = "";
-            if (this.version == null)
+            if (this.version == null) {
                 this.version = "";
+            }
+            if (this.serviceType == null) {
+                throw new IllegalStateException("serviceType not set");
+            }
+            if (this.serviceType.getCode() !=this.serviceTypeCode) {
+                throw new IllegalStateException("serviceType not equals");
+            }
             return new AgentInfoBo(this);
         }
     }

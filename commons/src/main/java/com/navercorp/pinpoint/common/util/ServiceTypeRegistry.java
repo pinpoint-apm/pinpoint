@@ -18,6 +18,10 @@ package com.navercorp.pinpoint.common.util;
 
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.util.apache.IntHashMap;
+import com.navercorp.pinpoint.common.util.apache.IntHashMapUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author emeroad
@@ -26,13 +30,16 @@ public class ServiceTypeRegistry {
 
     private final IntHashMap<ServiceType> codeLookupTable;
 
-     private ServiceTypeRegistry(IntHashMap<ServiceType> codeLookupTable) {
-        if (codeLookupTable == null) {
-            throw new NullPointerException("codeLookupTable must not be null");
-        }
-        this.codeLookupTable = codeLookupTable;
+    private ServiceTypeRegistry() {
+        this.codeLookupTable = new IntHashMap<ServiceType>();
     }
 
+    private ServiceTypeRegistry(IntHashMap<ServiceType> buildMap) {
+        if (buildMap == null) {
+            throw new NullPointerException("codeLookupTable must not be null");
+        }
+        this.codeLookupTable = buildMap;
+    }
 
     public ServiceType findServiceType(short code) {
         ServiceType serviceType = this.codeLookupTable.get(code);
@@ -45,23 +52,23 @@ public class ServiceTypeRegistry {
 
     public static class Builder {
 
-        private IntHashMap<ServiceType> buildMap = new IntHashMap<ServiceType>();
+        private final HashMap<Integer, ServiceType> buildMap = new HashMap<Integer, ServiceType>();
 
         public void addServiceType(ServiceType serviceType) {
             if (serviceType == null) {
                 throw new NullPointerException("serviceType must not be null");
             }
-            final ServiceType exist = this.buildMap.put(serviceType.getCode(), serviceType);
+            int code = serviceType.getCode();
+            final ServiceType exist = this.buildMap.put(code, serviceType);
             if (exist != null) {
-                throw new IllegalStateException("already exist.");
+                throw new IllegalStateException("already exist. serviceType:" + serviceType + ", exist:" + exist);
             }
         }
 
 
         public ServiceTypeRegistry build() {
-            ServiceTypeRegistry serviceTypeRegistry = new ServiceTypeRegistry(buildMap);
-            buildMap = new IntHashMap<ServiceType>();
-            return serviceTypeRegistry;
+            IntHashMap<ServiceType> copy = IntHashMapUtils.copy(buildMap);
+            return new ServiceTypeRegistry(copy);
         }
     }
 

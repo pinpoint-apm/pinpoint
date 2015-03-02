@@ -42,14 +42,6 @@ public final class Application {
         this.code = serviceType.getCode();
     }
 
-    public Application(String name, short serviceType) {
-        if (name == null) {
-            throw new NullPointerException("name must not be null");
-        }
-        this.name = name;
-        this.serviceType = ServiceType.findServiceType(serviceType);
-        this.code = serviceType;
-    }
 
     public String getName() {
         return name;

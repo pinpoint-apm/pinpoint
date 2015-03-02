@@ -111,7 +111,9 @@ public class DefaultFilterBuilder implements FilterBuilder {
                 chain.addFilter(new FromToResponseFilter(descriptor, hint));
 
                 if (descriptor.isSetUrl()) {
-                    chain.addFilter(new URLPatternFilter(descriptor));
+                    FromToFilter fromToFilter = new FromToFilter(descriptor.getFromServiceType(), descriptor.getFromApplicationName(), descriptor.getToServiceType(), descriptor.getToApplicationName());
+                    Filter urlPatternFilter = new URLPatternFilter(fromToFilter, descriptor.getUrlPattern());
+                    chain.addFilter(urlPatternFilter);
                 }
             }
         } catch (IOException e) {

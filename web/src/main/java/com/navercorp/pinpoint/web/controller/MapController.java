@@ -16,11 +16,13 @@
 
 package com.navercorp.pinpoint.web.controller;
 
+import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.MapWrap;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.service.MapService;
+import com.navercorp.pinpoint.web.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.util.Limiter;
 import com.navercorp.pinpoint.web.util.TimeUtils;
 import com.navercorp.pinpoint.web.view.ResponseTimeViewModel;
@@ -58,6 +60,9 @@ public class MapController {
     @Autowired
     private Limiter dateLimit;
 
+    @Autowired
+    private ServiceTypeRegistryService registry;
+
     /**
    * Server map data query within from ~ to timeframe
      *
@@ -77,7 +82,9 @@ public class MapController {
         final Range range = new Range(from, to);
         this.dateLimit.limit(from, to);
         logger.debug("range:{}", TimeUnit.MILLISECONDS.toMinutes(range.getRange()));
-        Application application = new Application(applicationName, serviceTypeCode);
+
+        ServiceType serviceType = registry.findServiceType(serviceTypeCode);
+        Application application = new Application(applicationName, serviceType);
 
         ApplicationMap map = mapService.selectApplicationMap(application, range);
 
@@ -127,8 +134,8 @@ public class MapController {
                                     @RequestParam("targetApplicationName") String targetApplicationName,
                                     @RequestParam("targetServiceType") short targetServiceType) {
 
-    final Application sourceApplication = new Application(sourceApplicationName, sourceServiceType);
-    final Application destinationApplication = new Application(targetApplicationName, targetServiceType);
+    final Application sourceApplication = new Application(sourceApplicationName, registry.findServiceType(sourceServiceType));
+    final Application destinationApplication = new Application(targetApplicationName, registry.findServiceType(targetServiceType));
     final Range range = new Range(from, to);
 
     NodeHistogram nodeHistogram = mapService.linkStatistics(sourceApplication, destinationApplication, range);

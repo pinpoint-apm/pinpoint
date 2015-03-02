@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.handler;
 
 import java.util.List;
 
+import com.navercorp.pinpoint.collector.util.ServiceTypeRegistryService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
@@ -55,6 +56,9 @@ public class SpanHandler implements SimpleHandler {
     @Autowired
     private HostApplicationMapDao hostApplicationMapDao;
 
+    @Autowired
+    private ServiceTypeRegistryService registry;
+
     public void handleSimple(TBase<?, ?> tbase) {
 
         if (!(tbase instanceof TSpan)) {
@@ -80,6 +84,7 @@ public class SpanHandler implements SimpleHandler {
     }
 
     private void insertSpanStat(TSpan span) {
+        final ServiceType spanType = registry.findServiceType(span.getServiceType());
         // TODO consider to change span.isSetErr();
         final boolean isError = span.getErr() != 0;
         int bugCheck = 0;
@@ -87,10 +92,10 @@ public class SpanHandler implements SimpleHandler {
             // FIXME this is for only testing. insert agentId instead of host
 
             // create virtual user
-            statisticsHandler.updateCaller(span.getApplicationName(), ServiceType.USER.getCode(), span.getAgentId(), span.getApplicationName(), span.getServiceType(), span.getAgentId(), span.getElapsed(), isError);
+            statisticsHandler.updateCaller(span.getApplicationName(), ServiceType.USER, span.getAgentId(), span.getApplicationName(), spanType, span.getAgentId(), span.getElapsed(), isError);
 
             // update the span information of node itself
-            statisticsHandler.updateCallee(span.getApplicationName(), span.getServiceType(), span.getApplicationName(), ServiceType.USER.getCode(), span.getAgentId(), span.getElapsed(), isError);
+            statisticsHandler.updateCallee(span.getApplicationName(), spanType, span.getApplicationName(), ServiceType.USER, span.getAgentId(), span.getElapsed(), isError);
             bugCheck++;
         }
 
@@ -101,8 +106,8 @@ public class SpanHandler implements SimpleHandler {
 
             // TODO originally you must know the serviceType of parent(previous) node.
             // Assume all parent nodes as TOMCAT
-            statisticsHandler.updateCallee(span.getApplicationName(), span.getServiceType(), span.getParentApplicationName(), span.getParentApplicationType(), span.getAgentId(), span.getElapsed(), isError);
-            // statisticsHandler.updateCallee(span.getParentApplicationName(), span.getParentApplicationType(), span.getApplicationName(), span.getServiceType(), span.getEndPoint(), span.getElapsed(), span.getErr() > 0);
+            final ServiceType parentApplicationType = registry.findServiceType(span.getParentApplicationType());
+            statisticsHandler.updateCallee(span.getApplicationName(), spanType, span.getParentApplicationName(), parentApplicationType, span.getAgentId(), span.getElapsed(), isError);
             bugCheck++;
         }
 
@@ -110,7 +115,7 @@ public class SpanHandler implements SimpleHandler {
         // blow code may be conflict of idea above callee key.
         // it is odd to record reversely, because of already recording the caller data at previous node.
         // the data may be different due to timeout or network error.
-        statisticsHandler.updateResponseTime(span.getApplicationName(), span.getServiceType(), span.getAgentId(), span.getElapsed(), isError);
+        statisticsHandler.updateResponseTime(span.getApplicationName(), spanType, span.getAgentId(), span.getElapsed(), isError);
 
         if (bugCheck != 1) {
             logger.warn("ambiguous span found(bug). span:{}", span);
@@ -124,11 +129,13 @@ public class SpanHandler implements SimpleHandler {
             return;
         }
 
+        final ServiceType spanType = registry.findServiceType(span.getServiceType());
+
         logger.debug("handle spanEvent size:{}", spanEventList.size());
         // TODO need to batch update later.
         for (TSpanEvent spanEvent : spanEventList) {
-            ServiceType serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
-            if (!serviceType.isRecordStatistics()) {
+            final ServiceType spanEventType = registry.findServiceType(spanEvent.getServiceType());
+            if (!spanEventType.isRecordStatistics()) {
                 continue;
             }
 
@@ -140,10 +147,10 @@ public class SpanHandler implements SimpleHandler {
              * save information to draw a server map based on statistics
              */
             // save the information of caller (the spanevent that span called )
-            statisticsHandler.updateCaller(span.getApplicationName(), span.getServiceType(), span.getAgentId(), spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
+            statisticsHandler.updateCaller(span.getApplicationName(), spanType, span.getAgentId(), spanEvent.getDestinationId(), spanEventType, spanEvent.getEndPoint(), elapsed, hasException);
 
             // save the information of callee (the span that called spanevent)
-            statisticsHandler.updateCallee(spanEvent.getDestinationId(), spanEvent.getServiceType(), span.getApplicationName(), span.getServiceType(), span.getEndPoint(), elapsed, hasException);
+            statisticsHandler.updateCallee(spanEvent.getDestinationId(), spanEventType, span.getApplicationName(), spanType, span.getEndPoint(), elapsed, hasException);
         }
     }
 

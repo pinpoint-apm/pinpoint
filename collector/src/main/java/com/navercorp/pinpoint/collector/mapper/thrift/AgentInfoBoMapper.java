@@ -16,10 +16,11 @@
 
 package com.navercorp.pinpoint.collector.mapper.thrift;
 
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.collector.util.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,6 +28,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AgentInfoBoMapper implements ThriftBoMapper<AgentInfoBo, TAgentInfo> {
+    @Autowired
+    private ServiceTypeRegistryService registry;
 
     @Override
     public AgentInfoBo map(TAgentInfo thriftObject) {
@@ -43,17 +46,18 @@ public class AgentInfoBoMapper implements ThriftBoMapper<AgentInfoBo, TAgentInfo
         final int endStatus = thriftObject.getEndStatus();
 
         AgentInfoBo.Builder builder = new AgentInfoBo.Builder();
-        builder.hostName(hostName);
-        builder.ip(ip);
-        builder.ports(ports);
-        builder.agentId(agentId);
-        builder.applicationName(applicationName);
-        builder.serviceType(serviceType);
-        builder.pid(pid);
-        builder.version(version);
-        builder.startTime(startTime);
-        builder.endTimeStamp(endTimeStamp);
-        builder.endStatus(endStatus);
+        builder.setHostName(hostName);
+        builder.setIp(ip);
+        builder.setPorts(ports);
+        builder.setAgentId(agentId);
+        builder.setApplicationName(applicationName);
+        builder.setServiceTypeCode(serviceType);
+        builder.setServiceType(registry.findServiceType(serviceType));
+        builder.setPid(pid);
+        builder.setVersion(version);
+        builder.setStartTime(startTime);
+        builder.setEndTimeStamp(endTimeStamp);
+        builder.setEndStatus(endStatus);
 
         return builder.build();
     }
