@@ -210,7 +210,6 @@ public class ServiceType {
 
     // Redis & nBase-ARC
     public static final ServiceType REDIS = of(8200, "REDIS", FAST_SCHEMA, TERMINAL, RECORD_STATISTICS);
-    public static final ServiceType NBASE_ARC = of(8250, "NBASE_ARC", FAST_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
 
     // Connector, Client
     public static final ServiceType HTTP_CLIENT = of(9050, "HTTP_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
