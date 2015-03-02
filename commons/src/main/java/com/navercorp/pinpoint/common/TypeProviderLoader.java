@@ -38,7 +38,16 @@ public class TypeProviderLoader {
     
     private final List<Type> types = new ArrayList<Type>();
     private final List<AnnotationKey> annotationKeys = new ArrayList<AnnotationKey>();
-    
+    private final boolean defaultServiceTypeLoad;
+
+    public TypeProviderLoader() {
+        this(true);
+    }
+
+    public TypeProviderLoader(boolean defaultServiceTypeLoad) {
+        this.defaultServiceTypeLoad = defaultServiceTypeLoad;
+    }
+
     public void load(URL[] urls) {
         List<TypeProvider> providers = PluginLoader.load(TypeProvider.class, urls);
         load(providers);
@@ -51,8 +60,10 @@ public class TypeProviderLoader {
     
     void load(List<TypeProvider> providers) {
         logger.info("Loading ServiceTypeProviders");
-        
-        loadDefaults();
+
+        if (defaultServiceTypeLoad) {
+            loadDefaults();
+        }
 
         for (TypeProvider provider : providers) {
             logger.fine("Loading ServiceTypeProvider: " + provider.getClass());
@@ -67,11 +78,11 @@ public class TypeProviderLoader {
         logger.fine("Loading Default ServiceTypes");
 
         TypeSetupContextImpl context = new TypeSetupContextImpl(ServiceType.class);
-        
+
         for (ServiceType type : ServiceType.DEFAULT_VALUES) {
             context.addType(type);
         }
-        
+
         for (AnnotationKey key : AnnotationKey.DEFAULT_VALUES) {
             context.addAnnotationKey(key);
         }

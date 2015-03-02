@@ -25,13 +25,13 @@ public class AcceptApplication {
     private final String host;
     private final Application application;
 
-    public AcceptApplication(String host, String applicationName, short serviceCode) {
-        this(host, new Application(applicationName, serviceCode));
-    }
 
     public AcceptApplication(String host, Application application) {
         if (host == null) {
             throw new NullPointerException("host must not be null");
+        }
+        if (application == null) {
+            throw new NullPointerException("application must not be null");
         }
         this.application = application;
         this.host = host;

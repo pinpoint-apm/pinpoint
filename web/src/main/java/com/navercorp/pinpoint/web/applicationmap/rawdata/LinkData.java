@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
 
+import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import org.slf4j.Logger;
@@ -71,7 +72,7 @@ public class LinkData {
      * @param slot
      * @param count
      */
-    public void addLinkData(String callerAgentId, short callerServiceTypeCode, String hostname, short serviceTypeCode, long timestamp, short slot, long count) {
+    public void addLinkData(String callerAgentId, ServiceType callerServiceTypeCode, String hostname, ServiceType serviceTypeCode, long timestamp, short slot, long count) {
         if (hostname == null) {
             throw new NullPointerException("hostname must not be null");
         }

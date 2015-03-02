@@ -78,7 +78,7 @@ public class ResponseHistogramBuilder {
         }
         ResponseTime responseTime = responseTimeMap.get(application);
         if (responseTime == null) {
-            responseTime = new ResponseTime(application.getName(), application.getServiceTypeCode(), timeStamp);
+            responseTime = new ResponseTime(application.getName(), application.getServiceType(), timeStamp);
             responseTimeMap.put(application, responseTime);
         }
         return responseTime;

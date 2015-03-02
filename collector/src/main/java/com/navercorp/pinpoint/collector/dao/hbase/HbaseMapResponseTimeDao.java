@@ -74,7 +74,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
     }
 
     @Override
-    public void received(String applicationName, short applicationServiceType, String agentId, int elapsed, boolean isError) {
+    public void received(String applicationName, ServiceType applicationServiceType, String agentId, int elapsed, boolean isError) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
@@ -83,15 +83,14 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("[Received] {} ({})[{}]",
-                    applicationName, ServiceType.findServiceType(applicationServiceType), agentId);
+            logger.debug("[Received] {} ({})[{}]", applicationName, applicationServiceType, agentId);
         }
 
 
         // make row key. rowkey is me
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
         final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
-        final RowKey selfRowKey = new CallRowKey(applicationName, applicationServiceType, rowTimeSlot);
+        final RowKey selfRowKey = new CallRowKey(applicationName, applicationServiceType.getCode(), rowTimeSlot);
 
         final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(applicationServiceType, elapsed, isError);
         final ColumnName selfColumnName = new ResponseColumnName(agentId, slotNumber);

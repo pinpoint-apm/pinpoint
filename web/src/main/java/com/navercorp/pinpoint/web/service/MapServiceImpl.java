@@ -62,6 +62,9 @@ public class MapServiceImpl implements MapService {
     @Autowired(required=false)
     private MatcherGroup matcherGroup;
 
+    @Autowired()
+    private ServiceTypeRegistryService registry;
+
 
     /**
      * Used in the main UI - draws the server map by querying the timeslot by time.
@@ -132,7 +135,7 @@ public class MapServiceImpl implements MapService {
             logger.debug("Find 'client -> any' link statistics");
             // client is recorded as applicationName + serviceType.client
             // Therefore, src and dest are both identical to dest
-            Application userApplication = new Application(destinationApplication.getName(), sourceApplication.getServiceTypeCode());
+            Application userApplication = new Application(destinationApplication.getName(), sourceApplication.getServiceType());
             return mapStatisticsCallerDao.selectCallerStatistics(userApplication, destinationApplication, range);
         } else if (destinationApplication.getServiceType().isWas()) {
             logger.debug("Find 'any -> was' link statistics");

@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
+import com.navercorp.pinpoint.web.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.vo.Range;
 
 import org.apache.hadoop.hbase.client.*;
@@ -47,6 +48,9 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
     @Autowired
     private HbaseOperations2 hbaseOperations2;
+
+    @Autowired
+    private ServiceTypeRegistryService registry;
 
     /**
      * get a unique id based on agentId and startTime
@@ -101,11 +105,13 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
                     }
 
                     final AgentInfoBo.Builder agentInfoBoBuilder = new AgentInfoBo.Builder(serializedAgentInfo);
-                    agentInfoBoBuilder.agentId(agentId);
-                    agentInfoBoBuilder.startTime(startTime);
+                    agentInfoBoBuilder.setAgentId(agentId);
+                    agentInfoBoBuilder.setStartTime(startTime);
+                    // TODO fix
+                    agentInfoBoBuilder.setServiceType(registry.findServiceType(agentInfoBoBuilder.getServiceTypeCode()));
 
                     if (serializedServerMetaData != null) {
-                        agentInfoBoBuilder.serverMetaData(new ServerMetaDataBo.Builder(serializedServerMetaData).build());
+                        agentInfoBoBuilder.setServerMetaData(new ServerMetaDataBo.Builder(serializedServerMetaData).build());
                     }
                     final AgentInfoBo agentInfoBo = agentInfoBoBuilder.build();
 
@@ -152,10 +158,12 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
                         byte[] serializedServerMetaData = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_SERVER_META_DATA);
 
                         final AgentInfoBo.Builder agentInfoBoBuilder = new AgentInfoBo.Builder(serializedAgentInfo);
-                        agentInfoBoBuilder.agentId(agentId);
-                        agentInfoBoBuilder.startTime(startTime);
+                        agentInfoBoBuilder.setAgentId(agentId);
+                        agentInfoBoBuilder.setStartTime(startTime);
+                        // TODO fix
+                        agentInfoBoBuilder.setServiceType(registry.findServiceType(agentInfoBoBuilder.getServiceTypeCode()));
                         if (serializedServerMetaData != null) {
-                            agentInfoBoBuilder.serverMetaData(new ServerMetaDataBo.Builder(serializedServerMetaData).build());
+                            agentInfoBoBuilder.setServerMetaData(new ServerMetaDataBo.Builder(serializedServerMetaData).build());
                         }
                         final AgentInfoBo agentInfoBo = agentInfoBoBuilder.build();
 

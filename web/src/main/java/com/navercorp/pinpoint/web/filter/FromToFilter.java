@@ -19,8 +19,10 @@ package com.navercorp.pinpoint.web.filter;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.ServiceTypeCategory;
 import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.web.service.ServiceTypeRegistryService;
 
 /**
  * 
@@ -58,22 +60,22 @@ public class FromToFilter implements Filter {
 
     @Override
     public boolean include(List<SpanBo> transaction) {
-        if (includeServiceType(fromServiceCode, ServiceType.USER)) {
+        if (includeServiceType(fromServiceCode, ServiceType.USER.getCode())) {
             for (SpanBo span : transaction) {
-                if (span.isRoot() && includeServiceType(toServiceCode, getServiceType(span.getServiceType())) && toApplicationName.equals(span.getApplicationId())) {
+                if (span.isRoot() && includeServiceType(toServiceCode, span.getServiceType()) && toApplicationName.equals(span.getApplicationId())) {
                     return true;
                 }
             }
         } else if (includeUnknown(toServiceCode)) {
             for (SpanBo span : transaction) {
-                if (includeServiceType(fromServiceCode, getServiceType(span.getServiceType())) && fromApplicationName.equals(span.getApplicationId())) {
+                if (includeServiceType(fromServiceCode, span.getServiceType()) && fromApplicationName.equals(span.getApplicationId())) {
                     List<SpanEventBo> eventBoList = span.getSpanEventBoList();
                     if (eventBoList == null) {
                         continue;
                     }
                     for (SpanEventBo event : eventBoList) {
                         // check only whether client exists or not
-                        if (getServiceType(event.getServiceType()).isRpcClient() && toApplicationName.equals(event.getDestinationId())) {
+                        if (isRpcClient(event.getServiceType()) && toApplicationName.equals(event.getDestinationId())) {
                             return true;
                         }
                     }
@@ -85,14 +87,14 @@ public class FromToFilter implements Filter {
              * find src first. span (from, to) may exist more than one. so (spanId == parentSpanID) should be checked.
              */
             for (SpanBo srcSpan : transaction) {
-                if (includeServiceType(fromServiceCode, getServiceType(srcSpan.getServiceType())) && fromApplicationName.equals(srcSpan.getApplicationId())) {
+                if (includeServiceType(fromServiceCode, srcSpan.getServiceType()) && fromApplicationName.equals(srcSpan.getApplicationId())) {
                     // find dest of src.
                     for (SpanBo destSpan : transaction) {
                         if (destSpan.getParentSpanId() != srcSpan.getSpanId()) {
                             continue;
                         }
 
-                        if (includeServiceType(toServiceCode, getServiceType(destSpan.getServiceType())) && toApplicationName.equals(destSpan.getApplicationId())) {
+                        if (includeServiceType(toServiceCode, destSpan.getServiceType()) && toApplicationName.equals(destSpan.getApplicationId())) {
                             return true;
                         }
                     }
@@ -101,13 +103,13 @@ public class FromToFilter implements Filter {
             }
         } else {
             for (SpanBo span : transaction) {
-                if (includeServiceType(fromServiceCode, getServiceType(span.getServiceType())) && fromApplicationName.equals(span.getApplicationId())) {
+                if (includeServiceType(fromServiceCode, span.getServiceType()) && fromApplicationName.equals(span.getApplicationId())) {
                     List<SpanEventBo> eventBoList = span.getSpanEventBoList();
                     if (eventBoList == null) {
                         continue;
                     }
                     for (SpanEventBo event : eventBoList) {
-                        if (includeServiceType(toServiceCode, getServiceType(event.getServiceType())) && toApplicationName.equals(event.getDestinationId())) {
+                        if (includeServiceType(toServiceCode, event.getServiceType()) && toApplicationName.equals(event.getDestinationId())) {
                             return true;
                         }
                     }
@@ -118,9 +120,8 @@ public class FromToFilter implements Filter {
         return false;
     }
 
-    @Deprecated
-    public ServiceType getServiceType(short code) {
-        return ServiceType.findServiceType(code);
+    private boolean isRpcClient(short serviceType) {
+        return ServiceTypeCategory.RPC.contains(serviceType);
     }
 
     private boolean includeUnknown(List<ServiceType> serviceTypeList) {
@@ -140,9 +141,9 @@ public class FromToFilter implements Filter {
         return false;
     }
 
-    private boolean includeServiceType(List<ServiceType> serviceTypeList, ServiceType targetServiceType) {
+    private boolean includeServiceType(List<ServiceType> serviceTypeList, short targetServiceType) {
         for (ServiceType serviceType : serviceTypeList) {
-            if (serviceType == targetServiceType) {
+            if (serviceType.getCode() == targetServiceType) {
                 return true;
             }
         }

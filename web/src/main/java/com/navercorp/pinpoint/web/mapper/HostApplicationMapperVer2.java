@@ -16,14 +16,18 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
+import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.web.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.service.map.AcceptApplication;
 
+import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -40,6 +44,9 @@ import java.util.List;
 public class HostApplicationMapperVer2 implements RowMapper<List<AcceptApplication>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    private ServiceTypeRegistryService registry;
 
     @Override
     public List<AcceptApplication> mapRow(Result result, int rowNum) throws Exception {
@@ -71,7 +78,10 @@ public class HostApplicationMapperVer2 implements RowMapper<List<AcceptApplicati
         Buffer reader = new FixedBuffer(qualifier);
         String host = reader.readPrefixedString();
         String bindApplicationName = reader.readPrefixedString();
-        short bindServiceType = reader.readShort();
-        return new AcceptApplication(host, bindApplicationName, bindServiceType);
+        short bindServiceTypeCode = reader.readShort();
+
+        ServiceType bindServiceType = registry.findServiceType(bindServiceTypeCode);
+        Application bindApplication = new Application(bindApplicationName, bindServiceType);
+        return new AcceptApplication(host, bindApplication);
     }
 }

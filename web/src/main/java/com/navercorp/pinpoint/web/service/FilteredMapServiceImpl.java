@@ -71,6 +71,9 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     @Autowired(required=false)
     private MatcherGroup matcherGroup;
 
+    @Autowired
+    private ServiceTypeRegistryService registry;
+
     private static final Object V = new Object();
 
     @Override
@@ -128,7 +131,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
         // scan transaction list
         for (SpanBo span : filteredTransactionList) {
-            if (sourceApplication.equals(span.getApplicationId(), ServiceType.findServiceType(span.getServiceType()))) {
+            if (sourceApplication.equals(span.getApplicationId(), registry.findServiceType(span.getServiceType()))) {
                 List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
                 if (spanEventBoList == null) {
                     continue;
@@ -136,7 +139,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
                 // find dest elapsed time
                 for (SpanEventBo spanEventBo : spanEventBoList) {
-                    if (destinationApplication.equals(spanEventBo.getDestinationId(), ServiceType.findServiceType(spanEventBo.getServiceType()))) {
+                    if (destinationApplication.equals(spanEventBo.getDestinationId(), registry.findServiceType(spanEventBo.getServiceType()))) {
                         // find exception
                         boolean hasException = spanEventBo.hasException();
                         // add sample
@@ -230,7 +233,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
         final LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
 
-        final DotExtractor dotExtractor = new DotExtractor(scanRange);
+        final DotExtractor dotExtractor = new DotExtractor(scanRange, registry);
         final ResponseHistogramBuilder mapHistogramSummary = new ResponseHistogramBuilder(range);
         /**
          * Convert to statistical data
@@ -240,7 +243,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
             for (SpanBo span : transaction) {
                 final Application parentApplication = createParentApplication(span, transactionSpanMap);
-                final Application spanApplication = new Application(span.getApplicationId(), span.getServiceType());
+                final Application spanApplication = new Application(span.getApplicationId(), registry.findServiceType(span.getServiceType()));
 
                 // records the Span's response time statistics
                 recordSpanResponseTime(spanApplication, span, mapHistogramSummary, span.getCollectorAcceptTime());
@@ -319,12 +322,12 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         if (CollectionUtils.isEmpty(spanEventBoList)) {
             return;
         }
-        final Application srcApplication = new Application(span.getApplicationId(), span.getServiceType());
+        final Application srcApplication = new Application(span.getApplicationId(), registry.findServiceType(span.getServiceType()));
 
         LinkDataMap sourceLinkDataMap = linkDataDuplexMap.getSourceLinkDataMap();
         for (SpanEventBo spanEvent : spanEventBoList) {
 
-            ServiceType destServiceType = ServiceType.findServiceType(spanEvent.getServiceType());
+            ServiceType destServiceType = registry.findServiceType(spanEvent.getServiceType());
             if (!destServiceType.isRecordStatistics()) {
                 // internal method
                 continue;
@@ -362,7 +365,8 @@ public class FilteredMapServiceImpl implements FilteredMapService {
             return new Application(applicationName, serviceType);
         } else {
             String parentApplicationName = parentSpan.getApplicationId();
-            ServiceType serviceType = ServiceType.findServiceType(parentSpan.getServiceType());
+
+            ServiceType serviceType = registry.findServiceType(parentSpan.getServiceType());
             return new Application(parentApplicationName, serviceType);
         }
     }

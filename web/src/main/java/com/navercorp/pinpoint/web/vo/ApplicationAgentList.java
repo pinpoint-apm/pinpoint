@@ -42,7 +42,7 @@ public class ApplicationAgentList {
         this.applicationAgentList = applicationAgentList;
     }
     
-    public SortedMap<String, List<AgentInfoBo>> getapplicationAgentList() {
+    public SortedMap<String, List<AgentInfoBo>> getApplicationAgentList() {
         return this.applicationAgentList;
     }
     

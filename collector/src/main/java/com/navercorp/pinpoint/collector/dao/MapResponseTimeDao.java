@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.collector.dao;
 
+import com.navercorp.pinpoint.common.ServiceType;
+
 /**
  * @author emeroad
  */
 public interface MapResponseTimeDao extends CachedStatisticsDao {
-    void received(String applicationName, short serviceType, String agentId, int elapsed, boolean isError);
+    void received(String applicationName, ServiceType serviceType, String agentId, int elapsed, boolean isError);
 }

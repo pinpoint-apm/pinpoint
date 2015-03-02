@@ -36,12 +36,12 @@ public class URLPatternFilter implements Filter {
     private final Filter fromToFilter;
     private final AntPathMatcher matcher = new AntPathMatcher();
 
-    public URLPatternFilter(FilterDescriptor filterDescriptor) {
-        this(filterDescriptor.getFromServiceType(), filterDescriptor.getFromApplicationName(), filterDescriptor.getToServiceType(), filterDescriptor.getToApplicationName(), filterDescriptor.getUrlPattern());
-    }
 
-    public URLPatternFilter(String fromServiceType, String fromApplicationName, String toServiceType, String toApplicationName, String urlPattern) {
-        this.fromToFilter = new FromToFilter(fromServiceType, fromApplicationName, toServiceType, toApplicationName);
+    public URLPatternFilter(Filter fromToFilter, String urlPattern) {
+        if (fromToFilter == null) {
+            throw new NullPointerException("fromToFilter must not be null");
+        }
+        this.fromToFilter = fromToFilter;
         this.urlPattern = new String(Base64.decodeBase64(urlPattern), Charset.forName("UTF-8"));
     }
 

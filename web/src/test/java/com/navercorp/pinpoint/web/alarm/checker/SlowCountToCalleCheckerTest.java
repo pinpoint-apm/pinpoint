@@ -70,7 +70,7 @@ public class SlowCountToCalleCheckerTest {
                         timeHistogramList.add(timeHistogram);
                     }
                     
-                    linkCallDataMap.addCallData(fromApplication.getName(), fromApplication.getServiceTypeCode(), toApplication.getName(), toApplication.getServiceTypeCode(), timeHistogramList);
+                    linkCallDataMap.addCallData(fromApplication.getName(), fromApplication.getServiceType(), toApplication.getName(), toApplication.getServiceType(), timeHistogramList);
                     LinkData linkData = new LinkData(fromApplication, toApplication, linkCallDataMap);
                     linkDataMap.addLinkData(linkData);
                 }

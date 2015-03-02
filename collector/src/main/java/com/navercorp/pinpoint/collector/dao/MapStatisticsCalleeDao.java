@@ -16,11 +16,13 @@
 
 package com.navercorp.pinpoint.collector.dao;
 
+import com.navercorp.pinpoint.common.ServiceType;
+
 /**
  * 
  * @author netspider
  * @author emeroad
  */
 public interface MapStatisticsCalleeDao extends CachedStatisticsDao {
-    void update(String calleeApplicationName, short calleeServiceType, String callerApplicationName, short callerServiceType, String callerHost, int elapsed, boolean isError);
+    void update(String calleeApplicationName, ServiceType calleeServiceType, String callerApplicationName, ServiceType callerServiceType, String callerHost, int elapsed, boolean isError);
 }

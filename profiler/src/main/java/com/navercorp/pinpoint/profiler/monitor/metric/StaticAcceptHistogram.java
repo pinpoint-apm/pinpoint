@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric;
 
+import com.navercorp.pinpoint.common.HistogramSchema;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 
@@ -64,8 +65,8 @@ public class StaticAcceptHistogram implements AcceptHistogram {
         if (hit != null) {
             return hit;
         }
-        final ServiceType serviceType = ServiceType.findServiceType(serviceTypeCode);
-        final Histogram histogram = new LongAdderHistogram(serviceType);
+        // serverType must be NORMAL_SCHEMA
+        final Histogram histogram = new LongAdderHistogram(serviceTypeCode, HistogramSchema.NORMAL_SCHEMA);
         final Histogram old = histogramMap.putIfAbsent(parentApplicationName, histogram);
         if (old != null) {
             return old;

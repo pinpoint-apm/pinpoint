@@ -9,7 +9,7 @@
   
   <fileSets>
     <fileSet>
-      <directory>${basedir}/src/main/resources-${env}</directory>
+      <directory>${basedir}/src/main/resources</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
   </fileSets>

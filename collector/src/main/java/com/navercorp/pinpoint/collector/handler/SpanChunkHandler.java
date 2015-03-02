@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.handler;
 
 import java.util.List;
 
+import com.navercorp.pinpoint.collector.util.ServiceTypeRegistryService;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +46,9 @@ public class SpanChunkHandler implements SimpleHandler {
     @Autowired
     private StatisticsHandler statisticsHandler;
 
+    @Autowired
+    private ServiceTypeRegistryService registry;
+
     @Override
     public void handleSimple(TBase<?, ?> tbase) {
 
@@ -61,14 +65,15 @@ public class SpanChunkHandler implements SimpleHandler {
 
             traceDao.insertSpanChunk(spanChunk);
 
+            final ServiceType spanType = registry.findServiceType(spanChunk.getServiceType());
             List<TSpanEvent> spanEventList = spanChunk.getSpanEventList();
             if (spanEventList != null) {
                 logger.debug("SpanChunk Size:{}", spanEventList.size());
                 // TODO need to batch update later.
                 for (TSpanEvent spanEvent : spanEventList) {
-                    final ServiceType serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
+                    final ServiceType spanEventType = registry.findServiceType(spanEvent.getServiceType());
 
-                    if (!serviceType.isRecordStatistics()) {
+                    if (!spanEventType.isRecordStatistics()) {
                         continue;
                     }
 
@@ -80,10 +85,10 @@ public class SpanChunkHandler implements SimpleHandler {
                      * save information to draw a server map based on statistics
                      */
                     // save the information of caller (the spanevent that span called)
-                    statisticsHandler.updateCaller(spanChunk.getApplicationName(), spanChunk.getServiceType(), spanChunk.getAgentId(), spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
+                    statisticsHandler.updateCaller(spanChunk.getApplicationName(), spanType, spanChunk.getAgentId(), spanEvent.getDestinationId(), spanEventType, spanEvent.getEndPoint(), elapsed, hasException);
 
                     // save the information of callee (the span that called spanevent)
-                    statisticsHandler.updateCallee(spanEvent.getDestinationId(), spanEvent.getServiceType(), spanChunk.getApplicationName(), spanChunk.getServiceType(), spanChunk.getEndPoint(), elapsed, hasException);
+                    statisticsHandler.updateCallee(spanEvent.getDestinationId(), spanEventType, spanChunk.getApplicationName(), spanType, spanChunk.getEndPoint(), elapsed, hasException);
                 }
             }
         } catch (Exception e) {

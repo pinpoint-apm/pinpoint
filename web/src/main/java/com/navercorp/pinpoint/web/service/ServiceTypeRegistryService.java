@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.dao;
+package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.ServiceType;
 
 /**
- * 
- * @author netspider
  * @author emeroad
  */
-public interface MapStatisticsCallerDao extends CachedStatisticsDao {
-    void update(String callerApplicationName, ServiceType callerServiceType, String callerAgentId, String calleeApplicationName, ServiceType calleeServiceType, String calleeHost, int elapsed, boolean isError);
+public interface ServiceTypeRegistryService {
+    ServiceType findServiceType(short serviceType);
 }

@@ -18,10 +18,13 @@ package com.navercorp.pinpoint.web.mapper;
 
 import java.util.Arrays;
 
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.web.service.ServiceTypeRegistryService;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +41,9 @@ public class HostApplicationMapper implements RowMapper<Application> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @Autowired
+    private ServiceTypeRegistryService registry;
+
     @Override
     public Application mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
@@ -50,8 +56,8 @@ public class HostApplicationMapper implements RowMapper<Application> {
         }
 
         String applicationName = Bytes.toString(value, 0, HBaseTables.APPLICATION_NAME_MAX_LEN - 1).trim();
-        short serviceType = Bytes.toShort(value, HBaseTables.APPLICATION_NAME_MAX_LEN);
-
+        short serviceTypeCode = Bytes.toShort(value, HBaseTables.APPLICATION_NAME_MAX_LEN);
+        ServiceType serviceType = registry.findServiceType(serviceTypeCode);
         return new Application(applicationName, serviceType);
     }
 }

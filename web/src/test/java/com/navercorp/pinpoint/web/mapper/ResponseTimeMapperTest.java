@@ -37,7 +37,7 @@ public class ResponseTimeMapperTest {
     @Test
     public void testResponseTimeMapperTest() throws Exception {
         ResponseTimeMapper responseTimeMapper = new ResponseTimeMapper();
-        ResponseTime responseTime = new ResponseTime("applicaionName", ServiceType.STAND_ALONE.getCode(), System.currentTimeMillis());
+        ResponseTime responseTime = new ResponseTime("applicationName", ServiceType.STAND_ALONE, System.currentTimeMillis());
 
         Buffer buffer = new AutomaticBuffer();
         HistogramSlot histogramSlot = ServiceType.STAND_ALONE.getHistogramSchema().findHistogramSlot(1000);

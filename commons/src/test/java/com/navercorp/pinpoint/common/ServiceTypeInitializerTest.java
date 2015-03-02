@@ -85,7 +85,7 @@ public class ServiceTypeInitializerTest {
 
     private void verifyServiceTypes(List<ServiceType> serviceTypes) {
         for (ServiceType type : serviceTypes) {
-            assertSame(type, ServiceType.findServiceType(type.getCode()));
+            assertEquals(type.getCode(), type.getCode());
             
             if (type.isRecordStatistics()) {
                 assertTrue(ServiceType.findDesc(type.getDesc()).contains(type));

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric;
 
+import com.navercorp.pinpoint.common.HistogramSchema;
 import com.navercorp.pinpoint.common.ServiceType;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,11 +46,7 @@ public class DynamicAcceptHistogram implements AcceptHistogram {
         // TODO As already explained, ServiceType.UNDEFINED is returned if serviceTypeCode is of new service type which is added to newer version.
         // How to handle this situation?
         // We can infer if we know the type of histogramSchema. Server can determine the server type with code + schemaType. 
-        final ServiceType serviceType = ServiceType.findServiceType(serviceTypeCode);
-        if (serviceType == ServiceType.UNDEFINED) {
-            return false;
-        }
-        final ResponseKey responseKey = new ResponseKey(parentApplicationName, serviceType);
+        final ResponseKey responseKey = new ResponseKey(parentApplicationName, serviceTypeCode);
         final Histogram histogram = getHistogram(responseKey);
         histogram.addResponseTime(millis);
         return true;
@@ -60,7 +57,7 @@ public class DynamicAcceptHistogram implements AcceptHistogram {
         if (hit != null) {
             return hit;
         }
-        final Histogram histogram = new LongAdderHistogram(responseKey.getServiceType());
+        final Histogram histogram = new LongAdderHistogram(responseKey.getServiceType(), HistogramSchema.NORMAL_SCHEMA);
         final Histogram old = map.putIfAbsent(responseKey, histogram);
         if (old != null) {
             return old;
@@ -70,15 +67,12 @@ public class DynamicAcceptHistogram implements AcceptHistogram {
 
 
     private static final class ResponseKey {
-        private final ServiceType serviceType;
+        private final short serviceType;
         private final String parentApplicationName;
 
-        private ResponseKey(String parentApplicationName, ServiceType serviceType) {
+        private ResponseKey(String parentApplicationName, short serviceType) {
             if (parentApplicationName == null) {
                 throw new NullPointerException("parentApplicationName must not be null");
-            }
-            if (serviceType == null) {
-                throw new NullPointerException("serviceType must not be null");
             }
 
             this.parentApplicationName = parentApplicationName;
@@ -89,7 +83,7 @@ public class DynamicAcceptHistogram implements AcceptHistogram {
             return parentApplicationName;
         }
 
-        public ServiceType getServiceType() {
+        public short getServiceType() {
             return serviceType;
         }
 
@@ -109,7 +103,7 @@ public class DynamicAcceptHistogram implements AcceptHistogram {
 
         @Override
         public int hashCode() {
-            int result = serviceType.hashCode();
+            int result = (int) serviceType;
             result = 31 * result + parentApplicationName.hashCode();
             return result;
         }

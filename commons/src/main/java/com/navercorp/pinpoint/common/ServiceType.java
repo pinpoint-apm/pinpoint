@@ -223,15 +223,11 @@ public class ServiceType {
 
     private static List<ServiceType> defaultLookup() {
         StaticFieldLookUp<ServiceType> lookUp = new StaticFieldLookUp<ServiceType>(ServiceType.class, ServiceType.class);
-        ServiceType[] exclude = { };
-        StaticFieldLookUp.ExcludeFilter<ServiceType> excludeFilter = new StaticFieldLookUp.ExcludeFilter<ServiceType>(exclude);
-        return lookUp.lookup(excludeFilter);
+        return lookUp.lookup();
     }
 
     private static List<ServiceType> VALUES;
 
-    @Deprecated
-    private static IntHashMap<ServiceType> CODE_LOOKUP_TABLE = null;
     private static Map<String, List<ServiceType>> STATISTICS_LOOKUP_TABLE = null;
 
 
@@ -244,7 +240,6 @@ public class ServiceType {
 
     private static void setValues(List<ServiceType> serviceTypes) {
         VALUES = serviceTypes;
-        CODE_LOOKUP_TABLE = initializeServiceTypeCodeLookupTable(serviceTypes);
         STATISTICS_LOOKUP_TABLE = initializeServiceTypeStatisticsLookupTable(serviceTypes);
     }
     
@@ -309,18 +304,11 @@ public class ServiceType {
     }
 
     @Deprecated
-    public static ServiceType findServiceType(short code) {
-        ServiceType serviceType = CODE_LOOKUP_TABLE.get(code);
-        if (serviceType == null) {
-            return UNDEFINED;
-        }
-        return serviceType;
-    }
-
     public static List<ServiceType> values() {
         return VALUES;
     }
 
+    @Deprecated
     public static ServiceType valueOf(String name) {
         for (ServiceType type : VALUES) {
             if (name.equals(type.name)) {

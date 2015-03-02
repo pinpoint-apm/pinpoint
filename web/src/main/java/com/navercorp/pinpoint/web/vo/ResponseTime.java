@@ -35,12 +35,15 @@ public class ResponseTime {
     private final Map<String, TimeHistogram> responseHistogramMap = new HashMap<String, TimeHistogram>();
 
 
-    public ResponseTime(String applicationName, short applicationServiceType, long timeStamp) {
+    public ResponseTime(String applicationName, ServiceType applicationServiceType, long timeStamp) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
+        if (applicationServiceType == null) {
+            throw new NullPointerException("applicationServiceType must not be null");
+        }
         this.applicationName = applicationName;
-        this.applicationServiceType = ServiceType.findServiceType(applicationServiceType);
+        this.applicationServiceType = applicationServiceType;
         this.timeStamp = timeStamp;
     }
 

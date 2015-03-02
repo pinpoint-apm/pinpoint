@@ -52,7 +52,7 @@ public class ServerInstance {
         }
         this.hostName = agentInfo.getHostName();
         this.name = agentInfo.getAgentId();
-        this.serviceType = ServiceType.findServiceType(agentInfo.getServiceType());
+        this.serviceType = agentInfo.getServiceType();
         this.agentInfo = agentInfo;
         this.serverType = ServerType.Physical;
         this.match = MATCHER_GROUP.match(hostName);

@@ -305,8 +305,8 @@ public class LinkDataSelector {
 
 //                linkCallDataMap.addCallData(beforeLinkCallData.getSource(), beforeLinkCallData.getSourceServiceType().getCode(),
 //                        beforeLinkCallData.getTarget(), beforeLinkCallData.getTargetServiceType().getCode(), timeHistogramList);
-                linkCallDataMap.addCallData(agentHistogram.getTarget(), agentHistogram.getTargetServiceType().getCode(),
-                        beforeLinkCallData.getTarget(), beforeLinkCallData.getTargetServiceType().getCode(), timeHistogramList);
+                linkCallDataMap.addCallData(agentHistogram.getTarget(), agentHistogram.getTargetServiceType(),
+                        beforeLinkCallData.getTarget(), beforeLinkCallData.getTargetServiceType(), timeHistogramList);
             }
 
         }
