@@ -60,7 +60,9 @@ import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLPreparedStatementJ
 import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLPreparedStatementModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLStatementModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.OracleDriverModifier;
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.OraclePreparedStatementModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.OraclePreparedStatementWrapperModifier;
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.OracleStatementModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.OracleStatementWrapperModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.PhysicalConnectionModifier;
 import com.navercorp.pinpoint.profiler.modifier.method.MethodModifier;
@@ -320,11 +322,15 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         AbstractModifier oracleConnectionModifier = new PhysicalConnectionModifier(byteCodeInstrumentor, agent);
         addModifier(oracleConnectionModifier);
 
-        AbstractModifier oraclePreparedStatementModifier = new OraclePreparedStatementWrapperModifier(byteCodeInstrumentor, agent);
+        AbstractModifier oraclePreparedStatementWrapperModifier = new OraclePreparedStatementWrapperModifier(byteCodeInstrumentor, agent);
+        addModifier(oraclePreparedStatementWrapperModifier);
+        AbstractModifier oraclePreparedStatementModifier = new OraclePreparedStatementModifier(byteCodeInstrumentor, agent);
         addModifier(oraclePreparedStatementModifier);
 
-        AbstractModifier oracleStatement = new OracleStatementWrapperModifier(byteCodeInstrumentor, agent);
-        addModifier(oracleStatement);
+        AbstractModifier oracleStatementWrapperModifier = new OracleStatementWrapperModifier(byteCodeInstrumentor, agent);
+        addModifier(oracleStatementWrapperModifier);
+        AbstractModifier oracleStatementModifier = new OracleStatementModifier(byteCodeInstrumentor, agent);
+        addModifier(oracleStatementModifier);
         //
         // Modifier oracleResultSetModifier = new OracleResultSetModifier(byteCodeInstrumentor, agent);
         // addModifier(oracleResultSetModifier);

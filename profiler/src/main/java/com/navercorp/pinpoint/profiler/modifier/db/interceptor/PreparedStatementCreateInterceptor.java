@@ -76,9 +76,10 @@ public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInt
 
     @Override
     public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
-
-        ParsingResult parsingResult = ((ParsingResultTraceValue) result).__getTraceParsingResult();
-        trace.recordSqlParsingResult(parsingResult);
+        if (result instanceof ParsingResultTraceValue) {
+            ParsingResult parsingResult = ((ParsingResultTraceValue) result).__getTraceParsingResult();
+            trace.recordSqlParsingResult(parsingResult);
+        }
         trace.recordException(throwable);
         trace.recordApi(getMethodDescriptor());
 
