@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.rpc.server.handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.rpc.server.PinpointServerStateCode;
 
 /**
  * @author koo.taejin
@@ -32,12 +32,12 @@ public class DoNothingChannelStateEventHandler implements ChannelStateChangeEven
     public static final ChannelStateChangeEventHandler INSTANCE = new DoNothingChannelStateEventHandler();
 
     @Override
-    public void eventPerformed(PinpointServer pinpointServer, PinpointServerStateCode stateCode) {
+    public void eventPerformed(PinpointServer pinpointServer, SocketStateCode stateCode) {
         logger.info("{} eventPerformed(). pinpointServer:{}, code:{}", this.getClass().getSimpleName(), pinpointServer, stateCode);
     }
     
     @Override
-    public void exceptionCaught(PinpointServer pinpointServer, PinpointServerStateCode stateCode, Throwable e) {
+    public void exceptionCaught(PinpointServer pinpointServer, SocketStateCode stateCode, Throwable e) {
         logger.warn("{} exceptionCaught(). pinpointServer:{}, code:{}. Error: {}.", this.getClass().getSimpleName(), pinpointServer, stateCode, e.getMessage(), e);
     }
 

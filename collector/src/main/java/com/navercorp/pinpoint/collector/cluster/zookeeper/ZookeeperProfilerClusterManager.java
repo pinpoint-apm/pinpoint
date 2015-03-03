@@ -26,15 +26,15 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.collector.cluster.PinpointServerClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRepository;
+import com.navercorp.pinpoint.collector.cluster.PinpointServerClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.WorkerState;
 import com.navercorp.pinpoint.collector.cluster.WorkerStateContext;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.job.DeleteJob;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.job.UpdateJob;
 import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
+import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.rpc.server.PinpointServerStateCode;
 import com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 
@@ -113,7 +113,7 @@ public class ZookeeperProfilerClusterManager implements ChannelStateChangeEventH
     }
 
     @Override
-    public void eventPerformed(PinpointServer pinpointServer, PinpointServerStateCode stateCode) {
+    public void eventPerformed(PinpointServer pinpointServer, SocketStateCode stateCode) {
         if (workerState.isStarted()) {
             logger.info("eventPerformed PinpointServer={}, State={}", pinpointServer, stateCode);
 
@@ -124,12 +124,12 @@ public class ZookeeperProfilerClusterManager implements ChannelStateChangeEventH
                 return;
             }
 
-            if (PinpointServerStateCode.RUN_DUPLEX == stateCode) {
+            if (SocketStateCode.RUN_DUPLEX == stateCode) {
                 UpdateJob job = new UpdateJob(pinpointServer, new byte[0]);
                 worker.putJob(job);
 
                 profileCluster.addClusterPoint(new PinpointServerClusterPoint(pinpointServer));
-            } else if (PinpointServerStateCode.isFinished(stateCode)) {
+            } else if (SocketStateCode.isClosed(stateCode)) {
                 DeleteJob job = new DeleteJob(pinpointServer);
                 worker.putJob(job);
 
@@ -143,7 +143,7 @@ public class ZookeeperProfilerClusterManager implements ChannelStateChangeEventH
     }
     
     @Override
-    public void exceptionCaught(PinpointServer pinpointServer, PinpointServerStateCode stateCode, Throwable e) {
+    public void exceptionCaught(PinpointServer pinpointServer, SocketStateCode stateCode, Throwable e) {
         logger.warn("ZookeeperProfilerClusterManager exceptionCaught() (pinpointServer:{}, PinpointServerStateCode:{}). Error: {}.", pinpointServer, stateCode, e.getMessage(), e);
     }
     

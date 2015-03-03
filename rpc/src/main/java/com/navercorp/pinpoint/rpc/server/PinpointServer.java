@@ -20,6 +20,7 @@ import java.net.SocketAddress;
 import java.util.Map;
 
 import com.navercorp.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
@@ -39,7 +40,7 @@ public interface PinpointServer {
 
     void messageReceived(Object message);
 
-    PinpointServerStateCode getCurrentStateCode();
+    SocketStateCode getCurrentStateCode();
 
     SocketAddress getRemoteAddress();
 

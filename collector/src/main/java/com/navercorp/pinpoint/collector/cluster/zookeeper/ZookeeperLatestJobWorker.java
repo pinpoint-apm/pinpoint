@@ -40,8 +40,8 @@ import com.navercorp.pinpoint.collector.cluster.zookeeper.job.Job;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.job.UpdateJob;
 import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.rpc.server.PinpointServerStateCode;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 
 /**
@@ -187,7 +187,7 @@ public class ZookeeperLatestJobWorker implements Runnable {
                 }
 
                 for (PinpointServer pinpointServer : pinpointServerRepository) {
-                    if (PinpointServerStateCode.isFinished(pinpointServer.getCurrentStateCode())) {
+                    if (SocketStateCode.isClosed(pinpointServer.getCurrentStateCode())) {
                         logger.info("LeakDetector Find Leak PinpointServer={}.", pinpointServer);
                         putJob(new DeleteJob(pinpointServer));
                     }
@@ -202,8 +202,8 @@ public class ZookeeperLatestJobWorker implements Runnable {
     public boolean handleUpdate(UpdateJob job) {
         PinpointServer pinpointServer = job.getPinpointServer();
 
-        PinpointServerStateCode code = pinpointServer.getCurrentStateCode();
-        if (PinpointServerStateCode.isFinished(code)) {
+        SocketStateCode code = pinpointServer.getCurrentStateCode();
+        if (SocketStateCode.isClosed(code)) {
             putJob(new DeleteJob(pinpointServer));
             return false;
         }

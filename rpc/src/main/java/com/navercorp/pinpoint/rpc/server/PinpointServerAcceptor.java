@@ -285,7 +285,6 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
         }
         healthCheckTimer.stop();
         
-        sendServerClosePacket();
         closePinpointServer();
 
         if (serverChannel != null) {
@@ -302,21 +301,13 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
         requestManagerTimer.stop();
     }
     
-    private void sendServerClosePacket() {
+    private void closePinpointServer() {
         for (Channel channel : channelGroup) {
             DefaultPinpointServer pinpointServer = (DefaultPinpointServer) channel.getAttachment();
 
             if (pinpointServer != null) {
                 pinpointServer.sendClosePacket();
             }
-        }
-    }
-    
-    private void closePinpointServer() {
-        for (Channel channel : channelGroup) {
-            DefaultPinpointServer pinpointServer = (DefaultPinpointServer) channel.getAttachment();
-
-            pinpointServer.sendClosePacket();
         }
     }
     
@@ -374,7 +365,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
             DefaultPinpointServer pinpointServer = (DefaultPinpointServer) channel.getAttachment();
             if (pinpointServer != null) {
-                pinpointServer.stop();
+                pinpointServer.stop(released);
             }
 
             super.channelDisconnected(ctx, e);

@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.control.ProtocolException;
 import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
 import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
@@ -72,10 +73,10 @@ public class EventHandlerTest {
         try {
             socket = new Socket("127.0.0.1", bindPort);
             sendAndReceiveSimplePacket(socket);
-            Assert.assertEquals(eventHandler.getCode(), PinpointServerStateCode.RUN_WITHOUT_HANDSHAKE);
+            Assert.assertEquals(eventHandler.getCode(), SocketStateCode.RUN_WITHOUT_HANDSHAKE);
 
             int code = sendAndReceiveRegisterPacket(socket, PinpointRPCTestUtils.getParams());
-            Assert.assertEquals(eventHandler.getCode(), PinpointServerStateCode.RUN_DUPLEX);
+            Assert.assertEquals(eventHandler.getCode(), SocketStateCode.RUN_DUPLEX);
 
             sendAndReceiveSimplePacket(socket);
         } finally {
@@ -214,18 +215,18 @@ public class EventHandlerTest {
 
     class EventHandler implements ChannelStateChangeEventHandler {
 
-        private PinpointServerStateCode code;
+        private SocketStateCode code;
 
         @Override
-        public void eventPerformed(PinpointServer pinpointServer, PinpointServerStateCode stateCode) {
+        public void eventPerformed(PinpointServer pinpointServer, SocketStateCode stateCode) {
             this.code = stateCode;
         }
         
         @Override
-        public void exceptionCaught(PinpointServer pinpointServer, PinpointServerStateCode stateCode, Throwable e) {
+        public void exceptionCaught(PinpointServer pinpointServer, SocketStateCode stateCode, Throwable e) {
         }
 
-        public PinpointServerStateCode getCode() {
+        public SocketStateCode getCode() {
             return code;
         }
     }
@@ -235,12 +236,12 @@ public class EventHandlerTest {
         private int errorCount = 0;
         
         @Override
-        public void eventPerformed(PinpointServer pinpointServer, PinpointServerStateCode stateCode) throws Exception {
+        public void eventPerformed(PinpointServer pinpointServer, SocketStateCode stateCode) throws Exception {
             throw new Exception("always error.");
         }
 
         @Override
-        public void exceptionCaught(PinpointServer pinpointServer, PinpointServerStateCode stateCode, Throwable e) {
+        public void exceptionCaught(PinpointServer pinpointServer, SocketStateCode stateCode, Throwable e) {
             errorCount++;
         }
 
