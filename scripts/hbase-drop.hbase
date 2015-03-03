@@ -13,7 +13,6 @@ disable 'ApplicationMapStatisticsCaller'
 disable 'ApplicationMapStatisticsCallee'
 disable 'ApplicationMapStatisticsSelf'
 
-disable 'ApplicationStatistics'
 disable 'HostApplicationMap'
 disable 'HostApplicationMap_Ver2'
 
@@ -33,7 +32,6 @@ drop 'ApplicationMapStatisticsCaller'
 drop 'ApplicationMapStatisticsCallee'
 drop 'ApplicationMapStatisticsSelf'
 
-drop 'ApplicationStatistics'
 drop 'HostApplicationMap'
 drop 'HostApplicationMap_Ver2'
 
