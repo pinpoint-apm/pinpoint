@@ -36,6 +36,9 @@ import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.RequestManager;
 import com.navercorp.pinpoint.rpc.client.WriteFailFutureListener;
+import com.navercorp.pinpoint.rpc.common.SocketState;
+import com.navercorp.pinpoint.rpc.common.SocketStateChangeResult;
+import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.control.ProtocolException;
 import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
 import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
@@ -68,7 +71,7 @@ public class DefaultPinpointServer implements PinpointServer {
     private final Channel channel;
     private final RequestManager requestManager;
 
-    private final PinpointServerState state;
+    private final SocketState state;
 
     private final ServerMessageListener messageListener;
 
@@ -107,7 +110,7 @@ public class DefaultPinpointServer implements PinpointServer {
         RequestManager requestManager = new RequestManager(serverConfig.getRequestManagerTimer(), serverConfig.getDefaultRequestTimeout());
         this.requestManager = requestManager;
 
-        this.state = new PinpointServerState();
+        this.state = new SocketState();
         
         this.objectUniqName = ClassUtils.simpleClassNameAndHashCodeString(this);
         
@@ -116,14 +119,37 @@ public class DefaultPinpointServer implements PinpointServer {
     }
     
     public void start() {
-        changeStateToRunWithoutHandshake();
+        logger.info("{} start() started. channel:{}.", objectUniqName, channel);
+        
+        stateToConnected();
+        stateToRunWithoutHandshake();
+        
+        logger.info("{} start() completed.", objectUniqName);
     }
     
     public void stop() {
-        if (PinpointServerStateCode.BEING_SHUTDOWN == getCurrentStateCode()) {
-            changeStateToShutdown();
+        logger.info("{} stop() started. channel:{}.", objectUniqName, channel);
+
+        stop(false);
+        
+        logger.info("{} stop() completed.", objectUniqName);
+    }
+    
+    public void stop(boolean serverStop) {
+        SocketStateCode currentStateCode = state.getCurrentState();
+        if (SocketStateCode.BEING_CLOSE_BY_SERVER == currentStateCode) {
+            stateToClosed();
+        } else if (SocketStateCode.BEING_CLOSE_BY_CLIENT == currentStateCode) {
+            stateToClosedByPeer();
+        } else if (SocketStateCode.isRun(currentStateCode) && serverStop) {
+            stateToUnexpectedClosed();
+        } else if (SocketStateCode.isRun(currentStateCode) ) {
+            stateToUnexpectedClosedByPeer();
+        } else if (SocketStateCode.isClosed(currentStateCode)){
+            logger.warn("{} stop(). Socket has closed state({}).", objectUniqName, currentStateCode);
         } else {
-            changeStateToUnexpectedShutdown();
+            stateToErrorUnknown();
+            logger.warn("{} stop(). Socket has unexpected state.", objectUniqName, currentStateCode);
         }
         
         if (this.channel.isConnected()) {
@@ -191,11 +217,20 @@ public class DefaultPinpointServer implements PinpointServer {
 
     @Override
     public ClientStreamChannelContext createStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
-        return streamChannelManager.openStreamChannel(payload, clientStreamChannelMessageListener);
+        logger.info("{} createStream() started.", objectUniqName);
+
+        ClientStreamChannelContext streamChannel = streamChannelManager.openStreamChannel(payload, clientStreamChannelMessageListener);
+        
+        logger.info("{} createStream() completed.", objectUniqName);
+        return streamChannel;
     }
 
     public void closeAllStreamChannel() {
+        logger.info("{} closeAllStreamChannel() started.", objectUniqName);
+
         streamChannelManager.close();
+
+        logger.info("{} closeAllStreamChannel() completed.", objectUniqName);
     }
     
     @Override
@@ -218,33 +253,31 @@ public class DefaultPinpointServer implements PinpointServer {
     }
 
     public ChannelFuture sendClosePacket() {
-        logger.info("sendServerClosedPacket start");
+        logger.info("{} sendClosePacket() started.", objectUniqName);
         
-        PinpointServerStateCode errorCode = changeStateBeingShutdown();
-        
-        if (errorCode == null) {
+        SocketStateChangeResult stateChangeResult = stateToBeingClose();
+        if (stateChangeResult.isChange()) {
             final ChannelFuture writeFuture = this.channel.write(ServerClosePacket.DEFAULT_SERVER_CLOSE_PACKET);
             writeFuture.addListener(serverCloseWriteListener);
 
-            logger.info("sendServerClosedPacket end");
+            logger.info("{} sendClosePacket() completed.", objectUniqName);
             return writeFuture;
         } else {
-            logger.info("sendServerClosedPacket fail. Error: change state failed.");
+            logger.info("{} sendClosePacket() failed. Error:{}.", objectUniqName, stateChangeResult);
             return null;
         }
     }
 
     @Override
     public void messageReceived(Object message) {
-        // TODO Auto-generated method stub
-        if (!PinpointServerStateCode.isRun(getCurrentStateCode())) {
+        if (!isEnableCommunication()) {
             // FIXME need change rules.
             // as-is : do nothing when state is not run.
             // candidate : close channel when state is not run.
-            logger.warn("{} messageReceived:{} from IllegalState this message will be ignore.", this, message);
+            logger.warn("{} messageReceived() failed. Error: Illegal state this message({}) will be ignore.", objectUniqName, message);
             return;
         }
-
+        
         final short packetType = getPacketType(message);
         switch (packetType) {
             case PacketType.APPLICATION_SEND: {
@@ -310,25 +343,37 @@ public class DefaultPinpointServer implements PinpointServer {
     }
 
     private void handleHandshake(ControlHandshakePacket handshakepacket) {
+        logger.info("{} handleHandshake() started. Packet:{}", objectUniqName, handshakepacket);
+        
         int requestId = handshakepacket.getRequestId();
         Map<Object, Object> handshakeData = decodeHandshakePacket(handshakepacket);
         HandshakeResponseCode responseCode = messageListener.handleHandshake(handshakeData);
         boolean isFirst = setChannelProperties(handshakeData);
         if (isFirst) {
             if (HandshakeResponseCode.DUPLEX_COMMUNICATION == responseCode) {
-                changeStateToRunDuplex(PinpointServerStateCode.RUN_DUPLEX);
+                stateToRunDuplex();
             } else if (HandshakeResponseCode.SIMPLEX_COMMUNICATION == responseCode) {
-                changeStateToRunSimplex(PinpointServerStateCode.RUN_SIMPLEX);
+                stateToRunSimplex();
             }
         }
 
+        logger.info("{} handleHandshake(). ResponseCode:{}", objectUniqName, responseCode);
+
         Map<String, Object> responseData = createHandshakeResponse(responseCode, isFirst);
         sendHandshakeResponse0(requestId, responseData);
+        
+        logger.info("{} handleHandshake() completed.", objectUniqName);
     }
 
     private void handleClosePacket(Channel channel) {
-        logger.debug("handleClosePacket channel:{}", channel);
-        changeStateBeingShutdown(PinpointServerStateCode.BEING_SHUTDOWN);
+        logger.info("{} handleClosePacket() started.", objectUniqName);
+        
+        SocketStateChangeResult stateChangeResult = stateToBeingCloseByPeer();
+        if (!stateChangeResult.isChange()) {
+            logger.info("{} handleClosePacket() failed. Error: {}", objectUniqName, stateChangeResult);
+        } else {
+            logger.info("{} handleClosePacket() completed.", objectUniqName);
+        }
     }
 
     private Map<String, Object> createHandshakeResponse(HandshakeResponseCode responseCode, boolean isFirst) {
@@ -354,8 +399,6 @@ public class DefaultPinpointServer implements PinpointServer {
 
     private void sendHandshakeResponse0(int requestId, Map<String, Object> data) {
         try {
-            logger.info("write HandshakeResponsePakcet. channel:{}, HandshakeResponseCode:{}.", channel, data);
-
             byte[] resultPayload = ControlMessageEncodingUtils.encode(data);
             ControlHandshakeResponsePacket packet = new ControlHandshakeResponsePacket(requestId, resultPayload);
 
@@ -378,79 +421,94 @@ public class DefaultPinpointServer implements PinpointServer {
     }
     
     @Override
-    public PinpointServerStateCode getCurrentStateCode() {
+    public SocketStateCode getCurrentStateCode() {
         return state.getCurrentState();
     }
 
-    private PinpointServerStateCode changeStateToRunWithoutHandshake(PinpointServerStateCode... skipLogicStateList) {
-        PinpointServerStateCode nextState = PinpointServerStateCode.RUN_WITHOUT_HANDSHAKE;
-        return change0(nextState, skipLogicStateList);
+    private SocketStateChangeResult stateToConnected() {
+        SocketStateCode nextState = SocketStateCode.CONNECTED;
+        return stateTo(nextState);
+    }
+    
+    private SocketStateChangeResult stateToRunWithoutHandshake() {
+        SocketStateCode nextState = SocketStateCode.RUN_WITHOUT_HANDSHAKE;
+        return stateTo(nextState);
     }
 
-    private PinpointServerStateCode changeStateToRunSimplex(PinpointServerStateCode... skipLogicStateList) {
-        PinpointServerStateCode nextState = PinpointServerStateCode.RUN_SIMPLEX;
-        return change0(nextState, skipLogicStateList);
+    private SocketStateChangeResult stateToRunSimplex() {
+        SocketStateCode nextState = SocketStateCode.RUN_SIMPLEX;
+        return stateTo(nextState);
+    }
+    
+    private SocketStateChangeResult stateToRunDuplex() {
+        SocketStateCode nextState = SocketStateCode.RUN_DUPLEX;
+        return stateTo(nextState);
     }
 
-    private PinpointServerStateCode changeStateToRunDuplex(PinpointServerStateCode... skipLogicStateList) {
-        PinpointServerStateCode nextState = PinpointServerStateCode.RUN_DUPLEX;
-        return change0(nextState, skipLogicStateList);
+    private SocketStateChangeResult stateToBeingClose() {
+        SocketStateCode nextState = SocketStateCode.BEING_CLOSE_BY_SERVER;
+        return stateTo(nextState);
+    }
+    
+    private SocketStateChangeResult stateToBeingCloseByPeer() {
+        SocketStateCode nextState = SocketStateCode.BEING_CLOSE_BY_CLIENT;
+        return stateTo(nextState);
+    }
+    
+    private SocketStateChangeResult stateToClosed() {
+        SocketStateCode nextState = SocketStateCode.CLOSED_BY_SERVER;
+        return stateTo(nextState);
+    }
+    
+    private SocketStateChangeResult stateToClosedByPeer() {
+        SocketStateCode nextState = SocketStateCode.CLOSED_BY_CLIENT;
+        return stateTo(nextState);
+    }
+    
+    private SocketStateChangeResult stateToUnexpectedClosed() {
+        SocketStateCode nextState = SocketStateCode.UNEXPECTED_CLOSE_BY_SERVER;
+        return stateTo(nextState);
+    }
+    
+    private SocketStateChangeResult stateToUnexpectedClosedByPeer() {
+        SocketStateCode nextState = SocketStateCode.UNEXPECTED_CLOSE_BY_CLIENT;
+        return stateTo(nextState);
+    }
+    
+    private SocketStateChangeResult stateToErrorUnknown() {
+        SocketStateCode nextState = SocketStateCode.ERROR_UNKOWN;
+        return stateTo(nextState);
     }
 
-    private PinpointServerStateCode changeStateBeingShutdown(PinpointServerStateCode... skipLogicStateList) {
-        PinpointServerStateCode nextState = PinpointServerStateCode.BEING_SHUTDOWN;
-        return change0(nextState, skipLogicStateList);
-    }
+    private SocketStateChangeResult stateTo(SocketStateCode nextState) {
+        logger.debug("{} stateTo() started. to:{}", objectUniqName, nextState);
 
-    private PinpointServerStateCode changeStateToShutdown(PinpointServerStateCode... skipLogicStateList) {
-        PinpointServerStateCode nextState = PinpointServerStateCode.SHUTDOWN;
-        return change0(nextState, skipLogicStateList);
-    }
-
-    private PinpointServerStateCode changeStateToUnexpectedShutdown(PinpointServerStateCode... skipLogicStateList) {
-        PinpointServerStateCode nextState = PinpointServerStateCode.UNEXPECTED_SHUTDOWN;
-        return change0(nextState, skipLogicStateList);
-    }
-
-    private PinpointServerStateCode change0(PinpointServerStateCode nextState, PinpointServerStateCode... skipLogicStateList) {
-        logger.debug("Channel({}) state will be changed {}.", channel, nextState);
-        PinpointServerStateCode beforeState = state.changeState(nextState, skipLogicStateList);
-        if (beforeState == null) {
+        SocketStateChangeResult stateChangeResult = state.changeState(nextState);
+        if (stateChangeResult.isChange()) {
             executeChangeEventHandler(this, nextState);
-        } else if (!isSkipedChange0(beforeState, skipLogicStateList)) {
-            executeChangeEventHandler(this, state.getCurrentState());
         }
 
-        return beforeState;
-    }
+        logger.info("{} stateTo() completed. {}", objectUniqName, stateChangeResult);
 
-    private boolean isSkipedChange0(PinpointServerStateCode beforeState, PinpointServerStateCode... skipLogicStateList) {
-        if (skipLogicStateList != null) {
-            for (PinpointServerStateCode skipLogicState : skipLogicStateList) {
-                if (beforeState == skipLogicState) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return stateChangeResult;
     }
-
-    private void executeChangeEventHandler(DefaultPinpointServer pinpointServer, PinpointServerStateCode stateCode) {
+    
+    private void executeChangeEventHandler(DefaultPinpointServer pinpointServer, SocketStateCode nextState) {
          for (ChannelStateChangeEventHandler eachListener : this.stateChangeEventListeners) {
              try {
-                 eachListener.eventPerformed(this, stateCode);
+                 eachListener.eventPerformed(this, nextState);
              } catch (Exception e) {
-                 eachListener.exceptionCaught(this, stateCode, e);
+                 eachListener.exceptionCaught(this, nextState, e);
              }
          }
     }
     
     public boolean isEnableCommunication() {
-        return PinpointServerStateCode.isRun(getCurrentStateCode());
+        return SocketStateCode.isRun(getCurrentStateCode());
     }
     
     public boolean isEnableDuplexCommunication() {
-        return PinpointServerStateCode.isRunDuplexCommunication(getCurrentStateCode());
+        return SocketStateCode.isRunDuplex(getCurrentStateCode());
     }
 
     @Override

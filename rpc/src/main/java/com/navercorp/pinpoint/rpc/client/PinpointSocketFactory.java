@@ -398,6 +398,14 @@ public class PinpointSocketFactory {
     public MessageListener getMessageListener() {
         return messageListener;
     }
+    
+    public MessageListener getMessageListener(MessageListener defaultMessageListener) {
+        if (messageListener == null) {
+            return defaultMessageListener;
+        }
+        
+        return messageListener;
+    }
 
     public void setMessageListener(MessageListener messageListener) {
         AssertUtils.assertNotNull(messageListener, "messageListener must not be null");
@@ -408,7 +416,15 @@ public class PinpointSocketFactory {
     public ServerStreamChannelMessageListener getServerStreamChannelMessageListener() {
         return serverStreamChannelMessageListener;
     }
-
+    
+    public ServerStreamChannelMessageListener getServerStreamChannelMessageListener(ServerStreamChannelMessageListener defaultStreamMessageListener) {
+        if (serverStreamChannelMessageListener == null) {
+            return defaultStreamMessageListener;
+        }
+        
+        return serverStreamChannelMessageListener;
+    }
+    
     public void setServerStreamChannelMessageListener(ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
         AssertUtils.assertNotNull(messageListener, "messageListener must not be null");
 

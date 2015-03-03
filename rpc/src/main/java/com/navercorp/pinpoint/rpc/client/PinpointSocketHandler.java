@@ -118,6 +118,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         
         HashedWheelTimer timer = TimerFactory.createHashedWheelTimer("Pinpoint-SocketHandler-Timer", 100, TimeUnit.MILLISECONDS, 512);
         timer.start();
+        
         this.channelTimer = timer;
         this.pinpointSocketFactory = pinpointSocketFactory;
         this.requestManager = new RequestManager(timer, timeoutMillis);
@@ -125,24 +126,10 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         this.handshakeRetryInterval = handshakeRetryInterval;
         this.timeoutMillis = timeoutMillis;
         
-        MessageListener messageLisener = pinpointSocketFactory.getMessageListener();
-        if (messageLisener != null) {
-            this.messageListener = messageLisener;
-        } else {
-            this.messageListener = SimpleLoggingMessageListener.LISTENER;
-        }
-
-        ServerStreamChannelMessageListener serverStreamChannelMessageListener = pinpointSocketFactory.getServerStreamChannelMessageListener();
-        if (serverStreamChannelMessageListener != null) {
-            this.serverStreamChannelMessageListener = serverStreamChannelMessageListener;
-        } else {
-            this.serverStreamChannelMessageListener = DisabledServerStreamChannelMessageListener.INSTANCE;
-        }
+        this.messageListener = pinpointSocketFactory.getMessageListener(SimpleLoggingMessageListener.LISTENER);
+        this.serverStreamChannelMessageListener = pinpointSocketFactory.getServerStreamChannelMessageListener(DisabledServerStreamChannelMessageListener.INSTANCE);
         
         this.objectUniqName = ClassUtils.simpleClassNameAndHashCodeString(this);
-        
-        pinpointSocketFactory.getServerStreamChannelMessageListener();
-        
         this.handshaker = new PinpointClientSocketHandshaker(channelTimer, (int) handshakeRetryInterval, maxHandshakeCount);
     }
 
@@ -198,12 +185,12 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
         StreamChannelManager streamChannelManager = new StreamChannelManager(channel, IDGenerator.createOddIdGenerator(), serverStreamChannelMessageListener);
 
-        SocketHandlerContext context = new SocketHandlerContext(channel, streamChannelManager);
+        PinpointSocketHandlerContext context = new PinpointSocketHandlerContext(channel, streamChannelManager);
         channel.setAttachment(context);
     }
 
-    private SocketHandlerContext getChannelContext(Channel channel) {
-        return (SocketHandlerContext) channel.getAttachment();
+    private PinpointSocketHandlerContext getChannelContext(Channel channel) {
+        return (PinpointSocketHandlerContext) channel.getAttachment();
     }
 
     @Override
@@ -246,8 +233,8 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
             return;
         }
         logger.debug("writePing {}", channel);
-        ChannelFuture write = this.channel.write(PingPacket.PING_PACKET);
-        write.addListener(pingWriteFailFutureListener);
+        
+        write0(PingPacket.PING_PACKET, pingWriteFailFutureListener);
     }
 
     public void sendPing() {
@@ -255,10 +242,11 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
             return;
         }
         logger.debug("sendPing {}", channel);
-        ChannelFuture write = this.channel.write(PingPacket.PING_PACKET);
-        write.awaitUninterruptibly();
-        if (!write.isSuccess()) {
-            Throwable cause = write.getCause();
+        
+        ChannelFuture future = write0(PingPacket.PING_PACKET);
+        future.awaitUninterruptibly();
+        if (!future.isSuccess()) {
+            Throwable cause = future.getCause();
             throw new PinpointSocketException("send ping failed. Error:" + cause.getMessage(), cause);
         }
         logger.debug("sendPing success {}", channel);
@@ -327,7 +315,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         ensureOpen();
         SendPacket send = new SendPacket(bytes);
 
-        return this.channel.write(send);
+        return write0(send);
     }
 
     public Future<ResponseMessage> request(byte[] bytes) {
@@ -343,13 +331,9 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         }
 
         RequestPacket request = new RequestPacket(bytes);
-
-        final Channel channel = this.channel;
         final ChannelWriteFailListenableFuture<ResponseMessage> messageFuture = this.requestManager.register(request, this.timeoutMillis);
 
-        ChannelFuture write = channel.write(request);
-        write.addListener(messageFuture);
-
+        write0(request, messageFuture);
         return messageFuture;
     }
     
@@ -358,8 +342,8 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         ensureOpen();
 
         final Channel channel = this.channel;
-        SocketHandlerContext context = getChannelContext(channel);
-        return context.getStreamChannelManager().openStreamChannel(payload, clientStreamChannelMessageListener);
+        PinpointSocketHandlerContext context = getChannelContext(channel);
+        return context.createStream(payload, clientStreamChannelMessageListener);
     }
     
     @Override
@@ -367,8 +351,8 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         ensureOpen();
 
         final Channel channel = this.channel;
-        SocketHandlerContext context = getChannelContext(channel);
-        return context.getStreamChannelManager().findStreamChannel(streamChannelId);
+        PinpointSocketHandlerContext context = getChannelContext(channel);
+        return context.getStreamChannel(streamChannelId);
     }
 
     @Override
@@ -395,8 +379,8 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
                 case PacketType.APPLICATION_STREAM_RESPONSE:
                 case PacketType.APPLICATION_STREAM_PING:
                 case PacketType.APPLICATION_STREAM_PONG:
-                    SocketHandlerContext context = getChannelContext(channel);
-                    context.getStreamChannelManager().messageReceived((StreamPacket) message);
+                    PinpointSocketHandlerContext context = getChannelContext(channel);
+                    context.handleStreamEvent((StreamPacket) message);
                     return;
                 case PacketType.CONTROL_SERVER_CLOSE:
                     messageReceivedServerClosed(e.getChannel());
@@ -520,9 +504,9 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         }
 
         // stream channel clear and send stream close packet 
-        SocketHandlerContext context = getChannelContext(channel);
+        PinpointSocketHandlerContext context = getChannelContext(channel);
         if (context != null) {
-            context.getStreamChannelManager().close();
+            context.closeAllStreamChannel();
         }
     }
 
@@ -582,6 +566,19 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
             connectFuture.setResult(Result.FAIL);
         }
     }
+
+    private ChannelFuture write0(Object message) {
+        return write0(message, null);
+    }
+    
+    private ChannelFuture write0(Object message, ChannelFutureListener futureListener) {
+        ChannelFuture future = channel.write(message);
+        if (futureListener != null) {
+            future.addListener(futureListener);
+        }
+        
+        return future;
+    }
     
     // Calling this method on a closed SocketHandler has no effect.
     private void releaseResource() {
@@ -614,30 +611,6 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     public void doHandshake() {
         Map<String, Object> handshakeData = this.pinpointSocketFactory.getProperties();
         handshaker.handshakeStart(channel, handshakeData);
-    }
-
-    static class SocketHandlerContext {
-        private final Channel channel;
-        private final StreamChannelManager streamChannelManager;
-
-        public SocketHandlerContext(Channel channel, StreamChannelManager streamChannelManager) {
-            if (channel == null) {
-                throw new NullPointerException("channel must not be null");
-            }
-            if (streamChannelManager == null) {
-                throw new NullPointerException("streamChannelManager must not be null");
-            }
-            this.channel = channel;
-            this.streamChannelManager = streamChannelManager;
-        }
-
-        public Channel getChannel() {
-            return channel;
-        }
-
-        public StreamChannelManager getStreamChannelManager() {
-            return streamChannelManager;
-        }
     }
 
 }

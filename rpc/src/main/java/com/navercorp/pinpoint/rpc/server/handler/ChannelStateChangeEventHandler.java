@@ -16,16 +16,16 @@
 
 package com.navercorp.pinpoint.rpc.server.handler;
 
+import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.rpc.server.PinpointServerStateCode;
 
 /**
  * @author koo.taejin
  */
 public interface ChannelStateChangeEventHandler {
 
-    void eventPerformed(PinpointServer pinpointServer, PinpointServerStateCode stateCode) throws Exception;
+    void eventPerformed(PinpointServer pinpointServer, SocketStateCode stateCode) throws Exception;
     
-    void exceptionCaught(PinpointServer pinpointServer, PinpointServerStateCode stateCode, Throwable e);
+    void exceptionCaught(PinpointServer pinpointServer, SocketStateCode stateCode, Throwable e);
 
 }
