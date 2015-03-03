@@ -117,20 +117,11 @@ public class ZookeeperClient {
     }
     
     private ZooKeeper createNewZookeeper() {
-        ZooKeeper zookeeper = null;
         try {
-            zookeeper = new ZooKeeper(hostPort, sessionTimeout, watcher);
-            return zookeeper;
-        } catch (IOException e) {
-            if (zookeeper != null) {
-                try {
-                    zookeeper.close();
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                }
-            }
+            return new ZooKeeper(hostPort, sessionTimeout, watcher);
+        } catch (IOException ignore) {
+            // ignore
         }
-        
         return null;
     }
     
