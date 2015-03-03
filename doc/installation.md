@@ -63,7 +63,7 @@ Once the above requirements are met, simply run the command below :
 `mvn install -Dmaven.test.skip=true`
 
 ## Pinpoint Collector
-Download the **latest release** of Pinpoint Collector from GitHub (WIP) or **build pinpoint-collector** manually from the Git clone using `mvn package`. Either way, you should end up with the following **war** file that can be deployed to a web container.
+Download the [**latest release**](https://github.com/naver/pinpoint/releases/latest) of Pinpoint Collector from GitHub or **build pinpoint-collector** manually from the Git clone using `mvn package`. Either way, you should end up with the following **war** file that can be deployed to a web container.
 
 *pinpoint-collector-$VERSION.war*
 
@@ -78,13 +78,15 @@ There are 2 configuration files available for Pinpoint Collector: *pinpoint-coll
 	* `collector.udpStatListenPort` (agent's *profiler.collector.stat.port* - default: 9995)
 	* `collector.udpSpanListenPort` (agent's *profiler.collector.span.port* - default: 9996)
 * hbase.properties - contains configurations to connect to HBase.
-	* `hbase.client.host`
-	* `hbase.client.port`
+	* `hbase.client.host` (default: localhost)
+	* `hbase.client.port` (default: 2181)
+
+These files are located under `WEB-INF/classes/` inside the war file.
 
 You may take a look at the default configuration files here: [pinpoint-collector.properties](../collector/src/main/resources/pinpoint-collector.properties), [hbase.properties](../collector/src/main/resources/hbase.properties)
 
 ## Pinpoint Web
-Download the **latest release** of Pinpoint Web from GitHub (WIP) or **build pinpoint-web** manually from the Git clone using `mvn package`. Either way, you should end up with the following **war** file that can be deployed to a web container.
+Download the [**latest release**](https://github.com/naver/pinpoint/releases/latest) of Pinpoint Web from GitHub or **build pinpoint-web** manually from the Git clone using `mvn package`. Either way, you should end up with the following **war** file that can be deployed to a web container.
 
 *pinpoint-web-$VERSION.war*
 
@@ -97,13 +99,15 @@ Similar to the collector, Pinpoint Web has configuration files related to instal
 Make sure you check the following configuration options :
 
 * hbase.properties - contains configurations to connect to HBase.
-	* `hbase.client.host`
-	* `hbase.client.port`
+	* `hbase.client.host` (default: localhost)
+	* `hbase.client.port` (default: 2181)
+
+These files are located under `WEB-INF/classes/` inside the war file.
 
 You may take a look at the default configuration files here: [pinpoint-web.properties](../web/src/main/resources/pinpoint-web.properties), [hbase.properties](../web/src/main/resources/hbase.properties)
 
 ## Pinpoint Agent
-Download and unzip the **latest release** of Pinpoint Agent from GitHub (WIP) or **build pinpoint-agent** manually from the GitHub clone using `mvn package`. Either way, you should end up with **pinpoint-agent** directory with the layout below :
+Download and unzip the [**latest release**](https://github.com/naver/pinpoint/releases/latest) of Pinpoint Agent from GitHub or **build pinpoint-agent** manually from the GitHub clone using `mvn package`. Either way, you should end up with **pinpoint-agent** directory with the layout below :
 
 ```
 pinpoint-agent
