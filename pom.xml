@@ -7,7 +7,7 @@
     </organization>
     <groupId>com.navercorp.pinpoint</groupId>
     <artifactId>pom</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5-SNAPSHOT</version>
     <name>pinpoint</name>
     <packaging>pom</packaging>
 
