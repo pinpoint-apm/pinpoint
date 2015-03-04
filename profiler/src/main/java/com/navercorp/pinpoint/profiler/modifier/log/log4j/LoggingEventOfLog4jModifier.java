@@ -28,6 +28,12 @@ import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 
 /**
+ * This modifier support log4j 1.2.14 version, or greater.
+ * Because under 1.2.14 version is not exist MDC function and the number of constructor is different
+ * and under 1.2.14 version is too old.
+ * By the way 1.2.13 version release on Dec. 2005.
+ * Refer to url http://mvnrepository.com/artifact/log4j/log4j for detail.
+ * 
  * @author minwoo.jung
  */
 public class LoggingEventOfLog4jModifier extends AbstractModifier {
@@ -45,17 +51,31 @@ public class LoggingEventOfLog4jModifier extends AbstractModifier {
             logger.info("Modifing. {}", javassistClassName);
         }
 
-
+        try {
+            Class<?> mdcClass = classLoader.loadClass("org.apache.log4j.MDC");
+            mdcClass.getMethod("put", String.class, Object.class);
+            mdcClass.getMethod("remove", String.class);
+        } catch (SecurityException e) {
+            logger.warn("modify fail. There is the problem while checking org.apache.log4j.MDC class. Cause:" + e.getMessage(), e);
+            return null;
+        } catch (NoSuchMethodException e) {
+            logger.warn("modify fail. Because put, remove method does not existed org.apache.log4j.MDC class. Cause:" + e.getMessage(), e);
+            return null;
+        } catch (ClassNotFoundException e) {
+            logger.warn("modify fail. Because org.apache.log4j.MDC does not existed. Cause:" + e.getMessage(), e);
+            return null;
+        }
+        
         try {
             InstrumentClass loggingEvent = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
             
-            Interceptor interceptor1 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.log.log4j.interceptor.LoggingEventInterceptor");
+            Interceptor interceptor1 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.log.log4j.interceptor.LoggingEventOfLog4jInterceptor");
             loggingEvent.addConstructorInterceptor(new String[]{"java.lang.String", "org.apache.log4j.Category", "org.apache.log4j.Priority", "java.lang.Object", "java.lang.Throwable"}, interceptor1);
             
-            Interceptor interceptor2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.log.log4j.interceptor.LoggingEventInterceptor");
+            Interceptor interceptor2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.log.log4j.interceptor.LoggingEventOfLog4jInterceptor");
             loggingEvent.addConstructorInterceptor(new String[]{"java.lang.String", "org.apache.log4j.Category", "long", "org.apache.log4j.Priority", "java.lang.Object", "java.lang.Throwable"}, interceptor2);
             
-            Interceptor interceptor3 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.log.log4j.interceptor.LoggingEventInterceptor");
+            Interceptor interceptor3 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.log.log4j.interceptor.LoggingEventOfLog4jInterceptor");
             loggingEvent.addConstructorInterceptor(new String[]{"java.lang.String", "org.apache.log4j.Category", "long", "org.apache.log4j.Level", "java.lang.Object", "java.lang.String", "org.apache.log4j.spi.ThrowableInformation", "java.lang.String", "org.apache.log4j.spi.LocationInfo", "java.util.Map"}, interceptor3);
             
             return loggingEvent.toBytecode();

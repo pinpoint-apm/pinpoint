@@ -160,6 +160,12 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         // redis
         modifierRepository.addRedisModifier();
         
+        // log4j
+        modifierRepository.addLog4jModifier();
+        
+        // logback
+        modifierRepository.addLogbackModifier();
+        
         loadModifiers(modifierRepository);
         loadEditorsFromPlugins(modifierRepository, pluginContexts, pluginJars);
         
