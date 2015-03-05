@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.sender;
 import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
 import com.navercorp.pinpoint.profiler.sender.BufferedUdpDataSender;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 

@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.util;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 import org.slf4j.Logger;

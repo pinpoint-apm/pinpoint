@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.web.service.LinkVisitChecker;
 import com.navercorp.pinpoint.web.vo.Application;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 
