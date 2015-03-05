@@ -17,14 +17,20 @@
 package com.navercorp.pinpoint.common.util;
 
 
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+
 /**
  * @author emeroad
  */
 public class DefaultParsingResult implements ParsingResult {
+
     public static final char SEPARATOR = ',';
+
+    private static final AtomicIntegerFieldUpdater<DefaultParsingResult> ID_UPDATER = AtomicIntegerFieldUpdater.newUpdater(DefaultParsingResult.class, "id");
+
     private String sql;
     private StringBuilder output;
-    private int id;
+    private volatile int id = ParsingResult.ID_NOT_EXIST;
 
 
     public DefaultParsingResult() {
@@ -50,8 +56,8 @@ public class DefaultParsingResult implements ParsingResult {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public boolean setId(int id) {
+        return ID_UPDATER.compareAndSet(this, ID_NOT_EXIST, id);
     }
 
     @Override
@@ -89,11 +95,14 @@ public class DefaultParsingResult implements ParsingResult {
         this.output.append(ch);
     }
 
+
     @Override
     public String toString() {
-        return "ParsingResult{" +
-                "sql='" + sql + '\'' +
-                ", output=" + output +
-                '}';
+        final StringBuilder sb = new StringBuilder("DefaultParsingResult{");
+        sb.append("sql='").append(sql).append('\'');
+        sb.append(", output=").append(output);
+        sb.append(", id=").append(id);
+        sb.append('}');
+        return sb.toString();
     }
 }

@@ -59,6 +59,8 @@ public interface TraceContext {
 
     ParsingResult parseSql(String sql);
 
+    boolean cacheSql(ParsingResult parsingResult);
+
     DatabaseInfo parseJdbcUrl(String sql);
 
     DatabaseInfo createDatabaseInfo(ServiceType type, ServiceType executeQueryType, String url, int port, String databaseId);

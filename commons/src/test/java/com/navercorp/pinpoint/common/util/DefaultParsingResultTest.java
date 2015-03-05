@@ -16,18 +16,21 @@
 
 package com.navercorp.pinpoint.common.util;
 
-/**
- * @author emeroad
- */
-public interface ParsingResult {
+import org.junit.Assert;
+import org.junit.Test;
 
-    int ID_NOT_EXIST = 0;
+public class DefaultParsingResultTest {
 
-    String getSql();
+    @Test
+    public void testId() throws Exception {
+        DefaultParsingResult result = new DefaultParsingResult();
+        Assert.assertEquals(ParsingResult.ID_NOT_EXIST, result.getId());
 
-    String getOutput();
+        // update
+        Assert.assertTrue(result.setId(1));
 
-    int getId();
+        // already updated
+        Assert.assertFalse(result.setId(1));
+    }
 
-    boolean setId(int id);
 }
