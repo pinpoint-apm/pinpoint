@@ -38,12 +38,18 @@ public class ServerInstanceListSerializerTest {
 
     @Test
     public void testSerialize() throws Exception {
-        GenericXmlApplicationContext applicationContext = new GenericXmlApplicationContext("/applicationContext-web.xml");
-        ObjectMapper mapper = applicationContext.getBean(ObjectMapper.class);
+
+        PinpointObjectMapper mapper = new PinpointObjectMapper();
+        mapper.afterPropertiesSet();
+
         
         AgentInfoBo.Builder agentInfoBuilder = new AgentInfoBo.Builder();
         agentInfoBuilder.setAgentId("agentId");
+
         agentInfoBuilder.setServiceTypeCode(ServiceType.TEST_STAND_ALONE.getCode());
+        // TODO FIX api
+        agentInfoBuilder.setServiceType(ServiceType.TEST_STAND_ALONE);
+
         agentInfoBuilder.setHostName("testcomputer");
 
         AgentInfoBo agentInfoBo = agentInfoBuilder.build();
