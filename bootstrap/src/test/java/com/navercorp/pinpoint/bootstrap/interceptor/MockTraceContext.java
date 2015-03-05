@@ -106,6 +106,11 @@ public class MockTraceContext implements TraceContext {
     }
 
     @Override
+    public boolean cacheSql(ParsingResult parsingResult) {
+        return false;
+    }
+
+    @Override
     public DatabaseInfo parseJdbcUrl(String sql) {
         return null;
     }

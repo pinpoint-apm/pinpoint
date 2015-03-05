@@ -248,6 +248,18 @@ public class DefaultTraceContext implements TraceContext {
     public ParsingResult parseSql(final String sql) {
 
         final DefaultParsingResult parsingResult = this.sqlParser.normalizedSql(sql);
+        return parsingResult;
+    }
+
+    @Override
+    public boolean cacheSql(ParsingResult parsingResult) {
+        if (parsingResult == null) {
+            return false;
+        }
+        if (parsingResult.getId() != ParsingResult.ID_NOT_EXIST) {
+            // already cached
+            return false;
+        }
         final String normalizedSql = parsingResult.getSql();
 
         final Result cachingResult = this.sqlCache.put(normalizedSql);
@@ -256,8 +268,8 @@ public class DefaultTraceContext implements TraceContext {
                 // TODO logging hit ratio could help debugging
                 logger.debug("NewSQLParsingResult:{}", parsingResult);
             }
-            
-            // isNewValue means that the value is newly cached.  
+
+            // isNewValue means that the value is newly cached.
             // So the sql could be new one. We have to send sql metadata to collector.
             final TSqlMetaData sqlMetaData = new TSqlMetaData();
             sqlMetaData.setAgentId(getAgentId());
@@ -266,11 +278,9 @@ public class DefaultTraceContext implements TraceContext {
             sqlMetaData.setSqlId(cachingResult.getId());
             sqlMetaData.setSql(normalizedSql);
 
-            // Need more reliable tcp connection
             this.priorityDataSender.request(sqlMetaData);
         }
-        parsingResult.setId(cachingResult.getId());
-        return parsingResult;
+        return parsingResult.setId(cachingResult.getId());
     }
 
     @Override
