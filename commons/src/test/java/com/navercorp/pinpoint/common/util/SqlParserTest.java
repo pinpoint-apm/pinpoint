@@ -16,8 +16,7 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import junit.framework.Assert;
-import junit.framework.AssertionFailedError;
+import org.junit.Assert;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -278,7 +277,7 @@ public class SqlParserTest {
         String normalizedSql = parsingResult.getSql();
         try {
             Assert.assertEquals(expected, normalizedSql);
-        } catch (AssertionFailedError e) {
+        } catch (AssertionError e) {
             logger.warn("Original :{}", expected);
             throw e;
         }
@@ -289,7 +288,7 @@ public class SqlParserTest {
         String normalizedSql = parsingResult.getSql();
         try {
             Assert.assertEquals(actual, normalizedSql);
-        } catch (AssertionFailedError e) {
+        } catch (AssertionError e) {
             logger.warn("Original :{}", expected);
             throw e;
         }
@@ -304,7 +303,7 @@ public class SqlParserTest {
         logger.debug("combine:" + s);
         try {
             Assert.assertEquals("normalizedSql check", actual, normalizedSql);
-        } catch (AssertionFailedError e) {
+        } catch (AssertionError e) {
             logger.warn("Original :{}", expected);
             throw e;
         }
@@ -318,7 +317,7 @@ public class SqlParserTest {
         try {
             Assert.assertEquals("normalizedSql check", expected, normalizedSql);
             Assert.assertSame(expected, normalizedSql);
-        } catch (AssertionFailedError e) {
+        } catch (AssertionError e) {
             logger.warn("Original :{}", expected);
             throw e;
         }

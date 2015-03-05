@@ -156,8 +156,12 @@ public class PinpointPluginTestSuite extends Suite {
 
     private void addRunnersWithLibraryPath(Class<?> testClass, String testClassLocation) throws InitializationError {
         File file = new File(libraryPath);
-        
-        for (File child : file.listFiles()) {
+
+        final File[] fileList = file.listFiles();
+        if (fileList == null) {
+            return;
+        }
+        for (File child : fileList) {
             if (!child.isDirectory()) {
                 continue;
             }
@@ -182,7 +186,11 @@ public class PinpointPluginTestSuite extends Suite {
     }
 
     private void addJars(File libDir, List<String> libraries) {
-        for (File f : libDir.listFiles()) {
+        final File[] libList = libDir.listFiles();
+        if (libList == null) {
+            return;
+        }
+        for (File f : libList) {
             if (f.getName().endsWith(".jar")) {
                 libraries.add(f.getAbsolutePath());
             }

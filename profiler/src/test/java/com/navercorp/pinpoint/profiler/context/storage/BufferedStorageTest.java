@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.storage.BufferedStorage;
 import com.navercorp.pinpoint.profiler.sender.CountingDataSender;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Before;
 import org.junit.Test;

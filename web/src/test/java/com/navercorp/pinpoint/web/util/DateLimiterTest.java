@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.web.util.DateLimiter;
 import com.navercorp.pinpoint.web.util.Limiter;
 import com.navercorp.pinpoint.web.vo.Range;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 

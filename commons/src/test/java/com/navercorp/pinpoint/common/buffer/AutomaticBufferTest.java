@@ -61,10 +61,10 @@ public class AutomaticBufferTest {
         buffer.putPadBytes(test, TOTAL_LENGTH);
 
         byte[] result = buffer.getBuffer();
-        junit.framework.Assert.assertEquals(result.length, TOTAL_LENGTH);
-        junit.framework.Assert.assertTrue("check data", Bytes.equals(test, 0, TEST_SIZE, result, 0, TEST_SIZE));
+        org.junit.Assert.assertEquals(result.length, TOTAL_LENGTH);
+        org.junit.Assert.assertTrue("check data", Bytes.equals(test, 0, TEST_SIZE, result, 0, TEST_SIZE));
         byte[] padBytes = new byte[TOTAL_LENGTH - TEST_SIZE];
-        junit.framework.Assert.assertTrue("check pad", Bytes.equals(padBytes, 0, TEST_SIZE, result, TEST_SIZE, PAD_SIZE));
+        org.junit.Assert.assertTrue("check pad", Bytes.equals(padBytes, 0, TEST_SIZE, result, TEST_SIZE, PAD_SIZE));
 
     }
 
@@ -113,7 +113,7 @@ public class AutomaticBufferTest {
 
         String padString = new String(result, TOTAL_LENGTH - TEST_SIZE, PAD_SIZE, "UTF-8");
         byte[] padBytes = new byte[TOTAL_LENGTH - TEST_SIZE];
-        junit.framework.Assert.assertEquals("check pad", padString, new String(padBytes, Charset.forName("UTF-8")));
+        org.junit.Assert.assertEquals("check pad", padString, new String(padBytes, Charset.forName("UTF-8")));
 
     }
 

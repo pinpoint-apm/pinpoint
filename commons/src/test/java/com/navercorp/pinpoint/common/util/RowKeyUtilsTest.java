@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.common.util;
 
 import com.navercorp.pinpoint.common.bo.SqlMetaDataBo;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 

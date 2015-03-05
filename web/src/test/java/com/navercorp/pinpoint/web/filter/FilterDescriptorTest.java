@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.filter;
 
 import java.util.List;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 

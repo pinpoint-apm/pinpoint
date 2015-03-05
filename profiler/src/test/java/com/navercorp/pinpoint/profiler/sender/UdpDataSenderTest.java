@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
 import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.thrift.TBase;

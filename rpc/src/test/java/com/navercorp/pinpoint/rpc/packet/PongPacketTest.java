@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.packet;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.junit.Test;

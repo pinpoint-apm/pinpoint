@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.common.util;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
