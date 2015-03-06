@@ -19,12 +19,12 @@ package com.navercorp.pinpoint.profiler.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.plugin.ServerTypeDetector;
 import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 
 /**
@@ -40,26 +40,18 @@ public class ApplicationServerTypeResolver {
     private final List<ServerTypeDetector> detectors = new ArrayList<ServerTypeDetector>();
 
     private final ServiceTypeRegistryService serviceTypeRegistryService;
-    /**
-     * If we have to invoke startup() during agent initialization.
-     * Some service types like BLOC or STAND_ALONE don't have an acceptor to do this.
-     */
-    private boolean manuallyStartupRequired = true;
 
     public ApplicationServerTypeResolver(List<DefaultProfilerPluginContext> plugins, ServiceType defaultType, ServiceTypeRegistryService serviceTypeRegistryService) {
         if (serviceTypeRegistryService == null) {
             throw new NullPointerException("serviceTypeRegistryService must not be null");
         }
-
+        this.serviceTypeRegistryService = serviceTypeRegistryService;
         this.defaultType = defaultType;
         
         for (DefaultProfilerPluginContext context : plugins) {
             detectors.addAll(context.getServerTypeDetectors());
         }
-
-        this.serviceTypeRegistryService = serviceTypeRegistryService;
     }
-
 
     public String[] getServerLibPath() {
         return new String[0];
@@ -67,10 +59,6 @@ public class ApplicationServerTypeResolver {
 
     public ServiceType getServerType() {
         return serverType;
-    }
-    
-    public boolean isManuallyStartupRequired() {
-        return manuallyStartupRequired;
     }
     
     public boolean resolve() {

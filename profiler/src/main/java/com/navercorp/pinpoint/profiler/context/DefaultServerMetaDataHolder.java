@@ -33,6 +33,8 @@ import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
  * @author hyungil.jeong
  */
 public class DefaultServerMetaDataHolder implements ServerMetaDataHolder {
+    
+    private final List<ServerMetaDataListener> listeners;
 
     protected String serverName;
     private final List<String> vmArgs;
@@ -40,6 +42,7 @@ public class DefaultServerMetaDataHolder implements ServerMetaDataHolder {
     protected final Queue<ServiceInfo> serviceInfos = new ConcurrentLinkedQueue<ServiceInfo>();
 
     public DefaultServerMetaDataHolder(List<String> vmArgs) {
+        this.listeners = new ArrayList<ServerMetaDataListener>();
         this.vmArgs = vmArgs;
     }
 
@@ -60,7 +63,24 @@ public class DefaultServerMetaDataHolder implements ServerMetaDataHolder {
     }
 
     @Override
-    public ServerMetaData getServerMetaData() {
+    public void addListener(ServerMetaDataListener listener) {
+        this.listeners.add(listener);
+    }
+
+    @Override
+    public void removeListener(ServerMetaDataListener listener) {
+        this.listeners.remove(listener);
+    }
+
+    @Override
+    public void publishServerMetaData() {
+        final ServerMetaData serverMetaData = createServerMetaData();
+        for (ServerMetaDataListener listener : this.listeners) {
+            listener.publishServerMetaData(serverMetaData);
+        }
+    }
+
+    private ServerMetaData createServerMetaData() {
         String serverName = this.serverName == null ? "" : this.serverName;
         List<String> vmArgs = 
                 this.vmArgs == null ? Collections.<String>emptyList() : new ArrayList<String>(this.vmArgs);

@@ -51,5 +51,7 @@ public class StandardServiceStartInterceptor implements SimpleAroundInterceptor 
 
         String serverInfo = ServerInfo.getServerInfo();
         this.traceContext.getServerMetaDataHolder().setServerName(serverInfo);
+        // Service started. Publish server meta data.
+        this.traceContext.getServerMetaDataHolder().publishServerMetaData();
     }
 }
