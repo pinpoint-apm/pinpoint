@@ -18,11 +18,9 @@ package com.navercorp.pinpoint.test.plugin;
  * @author Jongho Moon
  *
  */
-public class PluginTestProperty {
-    public static final String PINPOINT_TEST_ID = "pinpoint.test.id";
-    public static final String PINPOINT_TEST_DIRECTORY = "pinpoint.test.directory";  
-    
-    public static String makeTestName(String id, boolean childClassLoader) {
-        return id + ":" + (childClassLoader ? "child" : "system");
+public class ChildProcessException extends Exception {
+    public ChildProcessException(String message, StackTraceElement[] stackTrace) {
+        super(message);
+        setStackTrace(stackTrace);
     }
 }

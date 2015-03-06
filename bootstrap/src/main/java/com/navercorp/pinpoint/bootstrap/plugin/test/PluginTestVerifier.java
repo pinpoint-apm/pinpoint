@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.test;
 
 import java.io.PrintStream;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
@@ -27,11 +28,17 @@ import com.navercorp.pinpoint.common.ServiceType;
  *
  */
 public interface PluginTestVerifier {
-    public void verifyServerType(ServiceType serviceType);
-    public void verifySpanCount(int count);
+    public void verifyServerType(ServiceType expected);
+    public void verifyServerInfo(String expected);
+    public void verifyConnector(String protocol, int port);
+    public void verifyService(String context, List<String> libs);
+    public void verifySpanCount(int expected);
     public void verifySpan(ServiceType serviceType, ExpectedAnnotation...annotations);
     public void verifySpanEvent(ServiceType serviceType, ExpectedAnnotation...annotations);
-    public void verifyApi(ServiceType serviceType, Method method, Object... args);
+    public void verifySpan(ServiceType serviceType, Method method, String rpc, String endPoint, String remoteAddr, ExpectedAnnotation... annotations);
+    public void verifySpanEvent(ServiceType serviceType, Method method, String rpc, String endPoint, String destinationId, ExpectedAnnotation... annotations);
+    public void verifyApi(ServiceType serviceType, Method method, Object...args);
+    public void popSpan();
     public void printSpans(PrintStream out);
     public void printApis(PrintStream out);
     public void initialize(boolean initializeTraceObject);
@@ -40,6 +47,16 @@ public interface PluginTestVerifier {
     public static class ExpectedAnnotation {
         public static ExpectedAnnotation annotation(AnnotationKey key, Object value) {
             return new ExpectedAnnotation(key.getCode(), value);
+        }
+
+        public static ExpectedAnnotation[] args(Object... args) {
+            ExpectedAnnotation[] annotations = new ExpectedAnnotation[args.length];
+            
+            for (int i = 0; i < args.length; i++) {
+                annotations[i] = ExpectedAnnotation.annotation(AnnotationKey.getArgs(i), args[i]);
+            }
+            
+            return annotations;
         }
 
         private final int key;
@@ -62,5 +79,6 @@ public interface PluginTestVerifier {
         public String toString() {
             return key + "=" + value;
         }
+        
     }
 }

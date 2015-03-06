@@ -32,10 +32,7 @@ import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 import org.junit.runners.model.InitializationError;
 
-public class ForkedPinpointPluginTest {
-    static final String CHILD_CLASS_PATH_PREFIX = "-child=";
-    static final String JUNIT_OUTPUT_DELIMETER = "#####";
-    static final String JUNIT_OUTPUT_DELIMETER_REGEXP = Pattern.quote(JUNIT_OUTPUT_DELIMETER);
+public class ForkedPinpointPluginTest implements PinpointPluginTestConstants {
     private static boolean forked = false;
     
     public static boolean isForked() {
@@ -49,24 +46,20 @@ public class ForkedPinpointPluginTest {
         String testClassName = args[0];
 
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        boolean testOnChildClassLoader = false;
         
         if (args.length >= 2 && args[1].startsWith(CHILD_CLASS_PATH_PREFIX)) {
             String jars = args[1].substring(CHILD_CLASS_PATH_PREFIX.length());
             List<URL> urls = getJarUrls(jars);
             classLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]), classLoader);
-         
-            testOnChildClassLoader = true;
         }
         
-        String testId = System.getProperty(PluginTestProperty.PINPOINT_TEST_ID, "");
-        String testName = PluginTestProperty.makeTestName(testId, testOnChildClassLoader);
+        String testId = System.getProperty(PinpointPluginTestConstants.PINPOINT_TEST_ID, "");
 
         ClassLoader old = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
 
         Class<?> testClass = classLoader.loadClass(testClassName);
-        Result result = runTests(testClass, testName);
+        Result result = runTests(testClass, testId);
         
         Thread.currentThread().setContextClassLoader(old);
 

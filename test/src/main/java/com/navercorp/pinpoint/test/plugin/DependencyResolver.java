@@ -31,6 +31,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.SystemProperty;
+
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
@@ -335,7 +336,8 @@ public class DependencyResolver {
                     t.addAll(thisArtifacts);
                     t.addAll(subArtifacts);
                     
-                    String key = thisKey + ", " + subEntry.getKey(); 
+                    String subKey = subEntry.getKey();
+                    String key = subKey.isEmpty() ? thisKey : thisKey + ", " + subKey; 
                     result.put(key, t);
                 }
             }
