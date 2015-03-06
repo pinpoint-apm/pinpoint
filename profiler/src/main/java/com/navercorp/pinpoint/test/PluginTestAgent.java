@@ -54,6 +54,8 @@ import com.navercorp.pinpoint.thrift.dto.TAnnotation;
  */
 public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier {
     
+    private TestableServerMetaDataListener serverMetaDataListener;
+    
     public PluginTestAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars) {
         super(agentArgs, instrumentation, profilerConfig, pluginJars);
         PluginTestVerifierHolder.setInstance(this);
@@ -88,7 +90,10 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     @Override
     protected ServerMetaDataHolder createServerMetaDataHolder() {
         List<String> vmArgs = RuntimeMXBeanUtils.getVmArgs();
-        return new ResettableServerMetaDataHolder(vmArgs);
+        ServerMetaDataHolder serverMetaDataHolder = new ResettableServerMetaDataHolder(vmArgs);
+        this.serverMetaDataListener = new TestableServerMetaDataListener();
+        serverMetaDataHolder.addListener(this.serverMetaDataListener);
+        return serverMetaDataHolder;
     }
     
     @Override
@@ -102,7 +107,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     
     @Override
     public void verifyServerInfo(String expected) {
-        String actualName = getTraceContext().getServerMetaDataHolder().getServerMetaData().getServerInfo();
+        String actualName = this.serverMetaDataListener.getServerMetaData().getServerInfo();
         
         if (!actualName.equals(expected)) {
             throw new AssertionError("Expected server name [" + expected + "] but was [" + actualName + "]");
@@ -111,7 +116,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     @Override
     public void verifyConnector(String protocol, int port) {
-        Map<Integer, String> connectorMap = getTraceContext().getServerMetaDataHolder().getServerMetaData().getConnectors();
+        Map<Integer, String> connectorMap = this.serverMetaDataListener.getServerMetaData().getConnectors();
         String actualProtocol = connectorMap.get(port);
         
         if (actualProtocol == null || !actualProtocol.equals(protocol)) {
@@ -121,7 +126,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     @Override
     public void verifyService(String name, List<String> libs) {
-        List<ServiceInfo> serviceInfos = getTraceContext().getServerMetaDataHolder().getServerMetaData().getServiceInfos();
+        List<ServiceInfo> serviceInfos = this.serverMetaDataListener.getServerMetaData().getServiceInfos();
         
         for (ServiceInfo serviceInfo : serviceInfos) {
             if (serviceInfo.getServiceName().equals(name)) {

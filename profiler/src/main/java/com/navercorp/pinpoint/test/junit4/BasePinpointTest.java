@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.test.ListenableDataSender;
 import com.navercorp.pinpoint.test.MockAgent;
 import com.navercorp.pinpoint.test.ResettableServerMetaDataHolder;
+import com.navercorp.pinpoint.test.TestableServerMetaDataListener;
+
 import org.apache.thrift.TBase;
 import org.junit.runner.RunWith;
 
@@ -42,6 +44,7 @@ public abstract class BasePinpointTest {
 
     private volatile TBaseRecorder<? extends TBase<?, ?>> tBaseRecorder;
     private volatile ServerMetaDataHolder serverMetaDataHolder;
+    private final TestableServerMetaDataListener listener = new TestableServerMetaDataListener();
 
     protected List<SpanEventBo> getCurrentSpanEvents() {
         List<SpanEventBo> spanEvents = new ArrayList<SpanEventBo>();
@@ -65,7 +68,7 @@ public abstract class BasePinpointTest {
     }
     
     protected ServerMetaData getServerMetaData() {
-        return this.serverMetaDataHolder.getServerMetaData();
+        return this.listener.getServerMetaData();
     }
 
     private void setTBaseRecorder(TBaseRecorder tBaseRecorder) {
@@ -99,5 +102,6 @@ public abstract class BasePinpointTest {
             ResettableServerMetaDataHolder resettableServerMetaDataHolder = (ResettableServerMetaDataHolder) serverMetaDataHolder;
             this.setServerMetaDataHolder(resettableServerMetaDataHolder);
         }
+        this.serverMetaDataHolder.addListener(this.listener);
     }
 }
