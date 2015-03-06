@@ -12,17 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.plugin.editor;
+package com.navercorp.pinpoint.test.plugin;
+
+import java.util.List;
+import java.util.Scanner;
 
 /**
  * @author Jongho Moon
  *
  */
-public enum MethodEditorProperty {
-    /**
-     * If this property is set, exception will not be thrown even if the target method/constructor is not exist.
-     */
-    IGNORE_IF_NOT_EXIST
+public interface PinpointPluginTestInstance {
+    public String getTestId();
+    public List<String> getClassPath();
+    public List<String> getVmArgs();
+    public String getMainClass();
+    public List<String> getAppArgs();
     
-    // TODO 수정 도중 예외가 발생하더라도 무시하고 넘어갈 수 있는 옵션들 추가
+    public Scanner startTest(Process process) throws Throwable;
+    public void endTest(Process process) throws Throwable;
 }

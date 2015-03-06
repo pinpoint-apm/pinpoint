@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 
 import org.apache.thrift.TBase;
 
@@ -49,8 +50,14 @@ public class TestTcpDataSender implements EnhancedDataSender {
     private void addData(TBase<?, ?> data) {
         if (data instanceof TApiMetaData) {
             TApiMetaData md = (TApiMetaData)data;
-            idMap.put(md.getApiId(), md.getApiInfo());
-            descriptionMap.put(md.getApiInfo(), md.getApiId());
+            
+            String api = md.getApiInfo();
+            if (md.getLine() != -1) {
+                api += ":" + md.getLine();
+            }
+            
+            idMap.put(md.getApiId(), api);
+            descriptionMap.put(api, md.getApiId());
         }
         
         datas.add(data);
@@ -99,7 +106,13 @@ public class TestTcpDataSender implements EnhancedDataSender {
     }
 
     public int getApiId(String description) {
-        return descriptionMap.get(description);
+        Integer id = descriptionMap.get(description);
+        
+        if (id == null) {
+            throw new NoSuchElementException(description);
+        }
+        
+        return id;
     }
     
 

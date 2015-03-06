@@ -14,10 +14,34 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 /**
  * @author Jongho Moon
  *
  */
-public @interface JavaVersion {
-    int value() default 6;
+public class StreamRedirecter implements Runnable {
+    private final InputStream in;
+    private final OutputStream out;
+
+    public StreamRedirecter(InputStream in, OutputStream out) {
+        this.in = in;
+        this.out = out;
+    }
+
+    @Override
+    public void run() {
+        byte[] buffer = new byte[1024];
+        int read;
+        
+        try {
+            while ((read = in.read(buffer)) > 0) {
+                out.write(buffer, 0, read);
+            }
+        } catch (IOException e) {
+            // do nothing
+        }
+    }
 }

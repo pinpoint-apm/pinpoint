@@ -32,7 +32,12 @@ public class JavassistMethodInfo implements MethodInfo {
         this.behavior = behavior;
         
         String[] parameterVariableNames = JavaAssistUtils.getParameterVariableName(behavior);
-        this.descriptor = new DefaultMethodDescriptor(behavior.getDeclaringClass().getName(), behavior.getName(), getParameterTypes(), parameterVariableNames);
+        int lineNumber = JavaAssistUtils.getLineNumber(behavior);
+
+        DefaultMethodDescriptor descriptor = new DefaultMethodDescriptor(behavior.getDeclaringClass().getName(), behavior.getName(), getParameterTypes(), parameterVariableNames);
+        descriptor.setLineNumber(lineNumber);
+        
+        this.descriptor = descriptor;
     }
 
     @Override
