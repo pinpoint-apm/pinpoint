@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common;
 
 import java.util.List;
 
+import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -28,8 +29,9 @@ public class ServiceTypeTest {
     
     @Test
     public void findDesc() {
+        DefaultServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService();
         String desc = "MYSQL";
-        List<ServiceType> mysqlList = ServiceType.findDesc(desc);
+        List<ServiceType> mysqlList = serviceTypeRegistryService.findDesc(desc);
         boolean find = false;
         for (ServiceType serviceType : mysqlList) {
             if(serviceType.getDesc().equals(desc)) {
@@ -45,19 +47,6 @@ public class ServiceTypeTest {
         }
     }
 
-    @Test
-    public void child() {
-        ServiceType oracle = ServiceType.ORACLE;
 
-
-    }
-
-    @Test
-    public void test() {
-        for (ServiceType value : ServiceType.values()) {
-            logger.debug(value.toString() + " " + value.getCode());
-        }
-
-    }
 
 }

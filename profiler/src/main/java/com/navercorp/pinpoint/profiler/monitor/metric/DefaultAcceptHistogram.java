@@ -16,33 +16,96 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.common.HistogramSchema;
+import com.navercorp.pinpoint.common.ServiceType;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author emeroad
  */
 public class DefaultAcceptHistogram implements AcceptHistogram {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final ConcurrentMap<ResponseKey, Histogram> map;
 
-    private final AcceptHistogram staticAcceptHistogram = new StaticAcceptHistogram();
-
-    private final AcceptHistogram dynamicAcceptHistogram = new DynamicAcceptHistogram();
+    public DefaultAcceptHistogram() {
+        this.map = new ConcurrentHashMap<ResponseKey, Histogram>();
+    }
 
     @Override
-    public boolean addResponseTime(String parentApplicationName, short serviceType, int millis) {
+    public boolean addResponseTime(String parentApplicationName, short serviceTypeCode, int millis) {
+        if (parentApplicationName == null) {
+            throw new NullPointerException("parentApplicationName must not be null");
+        }
+        // Cannot compare by ServiceType value because it could be incompatible if new service type is added.  
+        if (!ServiceType.isWas(serviceTypeCode)) {
+            return false;
+        }
+        
+        // TODO As already explained, ServiceType.UNDEFINED is returned if serviceTypeCode is of new service type which is added to newer version.
+        // How to handle this situation?
+        // We can infer if we know the type of histogramSchema. Server can determine the server type with code + schemaType. 
+        final ResponseKey responseKey = new ResponseKey(parentApplicationName, serviceTypeCode);
+        final Histogram histogram = getHistogram(responseKey);
+        histogram.addResponseTime(millis);
+        return true;
+    }
 
-        final boolean staticResult = this.staticAcceptHistogram.addResponseTime(parentApplicationName, serviceType, millis);
-        if (staticResult) {
+    private Histogram getHistogram(ResponseKey responseKey) {
+        final Histogram hit = map.get(responseKey);
+        if (hit != null) {
+            return hit;
+        }
+        final Histogram histogram = new LongAdderHistogram(responseKey.getServiceType(), HistogramSchema.NORMAL_SCHEMA);
+        final Histogram old = map.putIfAbsent(responseKey, histogram);
+        if (old != null) {
+            return old;
+        }
+        return histogram;
+    }
+
+
+    private static final class ResponseKey {
+        private final short serviceType;
+        private final String parentApplicationName;
+
+        private ResponseKey(String parentApplicationName, short serviceType) {
+            if (parentApplicationName == null) {
+                throw new NullPointerException("parentApplicationName must not be null");
+            }
+
+            this.parentApplicationName = parentApplicationName;
+            this.serviceType = serviceType;
+        }
+
+        public String getParentApplicationName() {
+            return parentApplicationName;
+        }
+
+        public short getServiceType() {
+            return serviceType;
+        }
+
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            ResponseKey that = (ResponseKey) o;
+
+            if (!parentApplicationName.equals(that.parentApplicationName)) return false;
+            if (serviceType != that.serviceType) return false;
+
             return true;
         }
 
-        final boolean dynamicResult = this.dynamicAcceptHistogram.addResponseTime(parentApplicationName, serviceType, millis);
-        if (!dynamicResult) {
-            logger.info("response data add fail. parentApplicationName:{} serviceType:{} millis:{}", parentApplicationName, serviceType, millis);
-            return true;
+        @Override
+        public int hashCode() {
+            int result = (int) serviceType;
+            result = 31 * result + parentApplicationName.hashCode();
+            return result;
         }
-        return false;
     }
 }

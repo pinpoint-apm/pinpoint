@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.bootstrap;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
@@ -29,7 +30,7 @@ import java.net.URL;
  */
 public class DummyAgent implements Agent {
 
-    public DummyAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars) {
+    public DummyAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars, ServiceTypeRegistryService serviceTypeRegistryService) {
 
     }
 
@@ -51,18 +52,4 @@ public class DummyAgent implements Agent {
         return null;
     }
 
-    // @Override
-    // public PLoggerBinder initializeLogger() {
-    // return new PLoggerBinder() {
-    // @Override
-    // public PLogger getLogger(String name) {
-    // return new DummyPLogger();
-    // }
-    //
-    // @Override
-    // public void shutdown() {
-    //
-    // }
-    // };
-    // }
 }

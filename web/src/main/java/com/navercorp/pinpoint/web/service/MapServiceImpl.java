@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.service;
 import java.util.*;
 
 import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;

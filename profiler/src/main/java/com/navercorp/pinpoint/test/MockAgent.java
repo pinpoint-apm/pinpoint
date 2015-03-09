@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
+import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import org.apache.thrift.TBase;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
@@ -57,7 +58,7 @@ public class MockAgent extends DefaultAgent {
                 throw new FileNotFoundException("pinpoint.config not found. configPath:" + configPath);
             }
             profilerConfig = ProfilerConfig.load(resource.getPath());
-            profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE);
+            profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
         } catch (IOException ex) {
             throw new RuntimeException(ex.getMessage(), ex);
         }
@@ -78,7 +79,7 @@ public class MockAgent extends DefaultAgent {
     }
 
     public MockAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, InterceptorRegistryBinder interceptorRegistryBinder, URL[] pluginJars) {
-        super(agentArgs, instrumentation, profilerConfig, interceptorRegistryBinder, pluginJars);
+        super(agentArgs, instrumentation, profilerConfig, interceptorRegistryBinder, pluginJars, new DefaultServiceTypeRegistryService());
     }
 
     @Override

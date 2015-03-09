@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.util;
+package com.navercorp.pinpoint.common.service;
 
-import org.junit.Assert;
+import com.navercorp.pinpoint.common.plugin.Type;
 
-import org.junit.Test;
+import java.util.List;
 
-import com.navercorp.pinpoint.common.util.RpcCodeRange;
-
-public class RpcCodeRangeTest {
-
-    @Test
-    public void testIsRpcRange() throws Exception {
-        Assert.assertTrue(RpcCodeRange.isRpcRange(RpcCodeRange.RPC_START));
-        Assert.assertTrue(RpcCodeRange.isRpcRange((short) (RpcCodeRange.RPC_END - 1)));
-        Assert.assertFalse(RpcCodeRange.isRpcRange((short) 1));
-    }
-
+/**
+ * @author emeroad
+ */
+public interface TypeLoaderService {
+    List<Type> getTypes();
 }

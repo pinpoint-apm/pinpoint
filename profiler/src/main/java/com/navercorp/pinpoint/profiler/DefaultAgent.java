@@ -26,6 +26,8 @@ import java.util.Properties;
 import java.util.Set;
 
 import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.interceptor.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
 import org.slf4j.Logger;
@@ -103,18 +105,22 @@ public class DefaultAgent implements Agent {
     private volatile AgentStatus agentStatus;
 
     private final InterceptorRegistryBinder interceptorRegistryBinder;
+    private final ServiceTypeRegistryService serviceTypeRegistryService;
 
     static {
         // Preload classes related to pinpoint-rpc module.
         ClassPreLoader.preload();
     }
 
-
     public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars) {
-        this(agentArgs, instrumentation, profilerConfig, new DefaultInterceptorRegistryBinder(), pluginJars);
+        this(agentArgs, instrumentation, profilerConfig, new DefaultInterceptorRegistryBinder(), pluginJars, new DefaultServiceTypeRegistryService());
     }
 
-    public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, InterceptorRegistryBinder interceptorRegistryBinder, URL[] pluginJars) {
+    public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars, ServiceTypeRegistryService serviceTypeRegistryService) {
+        this(agentArgs, instrumentation, profilerConfig, new DefaultInterceptorRegistryBinder(), pluginJars, serviceTypeRegistryService);
+    }
+
+    public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, InterceptorRegistryBinder interceptorRegistryBinder, URL[] pluginJars, ServiceTypeRegistryService serviceTypeRegistryService) {
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
         }
@@ -124,6 +130,9 @@ public class DefaultAgent implements Agent {
         if (interceptorRegistryBinder == null) {
             throw new NullPointerException("interceptorRegistryBinder must not be null");
         }
+        if (serviceTypeRegistryService == null) {
+            throw new NullPointerException("serviceTypeRegistryService must not be null");
+        }
 
 
         this.binder = new Slf4jLoggerBinder();
@@ -131,6 +140,7 @@ public class DefaultAgent implements Agent {
 
         this.interceptorRegistryBinder = interceptorRegistryBinder;
         interceptorRegistryBinder.bind();
+        this.serviceTypeRegistryService = serviceTypeRegistryService;
 
         dumpSystemProperties();
         dumpConfig(profilerConfig);
@@ -140,8 +150,11 @@ public class DefaultAgent implements Agent {
         this.profilerConfig = profilerConfig;
         
         List<DefaultProfilerPluginContext> pluginContexts = loadProfilerPlugins(profilerConfig, pluginJars);
-        
-        final ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(pluginContexts, profilerConfig.getApplicationServerType());
+
+        String applicationServerTypeString = profilerConfig.getApplicationServerType();
+        ServiceType applicationServerType = serviceTypeRegistryService.findServiceTypeByName(applicationServerTypeString);
+
+        final ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(pluginContexts, applicationServerType, serviceTypeRegistryService);
         if (!typeResolver.resolve()) {
             throw new PinpointException("ApplicationServerType not found.");
         }

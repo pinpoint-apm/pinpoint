@@ -127,5 +127,11 @@
 
     <bean id="timeSlot" class="com.navercorp.pinpoint.common.util.DefaultTimeSlot">
     </bean>
+
+
+    <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.service.DefaultTypeLoaderService"/>
+    <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService">
+        <constructor-arg ref="typeLoaderService"/>
+    </bean>
     
 </beans>

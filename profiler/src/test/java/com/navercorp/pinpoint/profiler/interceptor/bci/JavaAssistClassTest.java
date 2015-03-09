@@ -264,7 +264,7 @@ public class JavaAssistClassTest {
 
 
         ProfilerConfig profilerConfig = new ProfilerConfig();
-        profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE);
+        profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
         DefaultAgent agent = MockAgent.of(profilerConfig);
 
         return new TestClassLoader(agent.getProfilerConfig(), agent.getByteCodeInstrumentor(), agent.getClassFileTransformer());

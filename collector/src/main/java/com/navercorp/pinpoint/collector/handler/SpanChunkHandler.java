@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.handler;
 
 import java.util.List;
 
-import com.navercorp.pinpoint.collector.util.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 
-import com.navercorp.pinpoint.web.service.ServiceTypeRegistryService;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;

@@ -44,39 +44,29 @@ public class FromToResponseFilter implements Filter {
 
     private final FilterHint hint;
 
-    public FromToResponseFilter(FilterDescriptor filterDescriptor, FilterHint hint) {
-        if (filterDescriptor == null) {
-            throw new NullPointerException("filter descriptor must not be null");
+    public FromToResponseFilter(List<ServiceType> fromServiceList, String fromApplicationName, String fromAgentName, List<ServiceType> toServiceList, String toApplicationName, String toAgentName, Long fromResponseTime, Long toResponseTime, Boolean includeFailed, FilterHint hint) {
+
+        if (fromServiceList == null) {
+            throw new NullPointerException("fromServiceList must not be null");
         }
-
-        String fromServiceType = filterDescriptor.getFromServiceType();
-        String fromApplicationName = filterDescriptor.getFromApplicationName();
-        String fromAgentName = filterDescriptor.getFromAgentName();
-        String toServiceType = filterDescriptor.getToServiceType();
-        String toApplicationName = filterDescriptor.getToApplicationName();
-        String toAgentName = filterDescriptor.getToAgentName();
-        Long fromResponseTime = filterDescriptor.getResponseFrom();
-        Long toResponseTime = filterDescriptor.getResponseTo();
-        Boolean includeFailed = filterDescriptor.getIncludeException();
-
         if (fromApplicationName == null) {
             throw new NullPointerException("fromApplicationName must not be null");
+        }
+        if (toServiceList == null) {
+            throw new NullPointerException("toServiceList must not be null");
         }
         if (toApplicationName == null) {
             throw new NullPointerException("toApplicationName must not be null");
         }
-
-        this.fromServiceCode = ServiceType.findDesc(fromServiceType);
-        if (fromServiceCode == null) {
-            throw new IllegalArgumentException("fromServiceCode not found. fromServiceType:" + fromServiceType);
+        if (hint == null) {
+            throw new NullPointerException("hint must not be null");
         }
+
+        this.fromServiceCode = fromServiceList;
         this.fromApplicationName = fromApplicationName;
         this.fromAgentName = fromAgentName;
 
-        this.toServiceCode = ServiceType.findDesc(toServiceType);
-        if (toServiceCode == null) {
-            throw new IllegalArgumentException("toServiceCode not found. toServiceCode:" + toServiceType);
-        }
+        this.toServiceCode = toServiceList;
         this.toApplicationName = toApplicationName;
         this.toAgentName = toAgentName;
 
@@ -84,9 +74,7 @@ public class FromToResponseFilter implements Filter {
         this.toResponseTime = toResponseTime;
         this.includeFailed = includeFailed;
 
-        if (hint == null) {
-            throw new NullPointerException("hint must not be null");
-        }
+
         this.hint = hint;
     }
 
