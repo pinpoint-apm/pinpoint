@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.web.util.AnnotationKeyMatcherRegistry;
 import com.navercorp.pinpoint.common.plugin.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -38,16 +39,19 @@ import java.util.List;
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Component
-public class DefaultAnnotationKeyMatcherService implements AnnotationKeyMatcherService {
+public class DefaultAnnotationKeyMatcherService implements AnnotationKeyMatcherService, InitializingBean {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final AnnotationKeyMatcherRegistry registry;
+    private AnnotationKeyMatcherRegistry registry;
 
     @Autowired
     private TypeLoaderService typeLoaderService;
 
     public DefaultAnnotationKeyMatcherService() {
+    }
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
         AnnotationKeyMatcherRegistry.Builder builder = new AnnotationKeyMatcherRegistry.Builder();
 
         StaticFieldLookUp<DisplayArgumentMatcher> staticFieldLookUp = new StaticFieldLookUp<DisplayArgumentMatcher>(DefaultDisplayArgument.class, DisplayArgumentMatcher.class);
