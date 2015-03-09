@@ -16,34 +16,48 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
-import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.vo.Application;
 
 /**
  *
  */
 @Component
-public class ApplicationNameMapper implements RowMapper<Application> {
+public class ApplicationNameMapper implements RowMapper<List<Application>> {
 
     @Autowired
     private ServiceTypeRegistryService registry;
 
     @Override
-    public Application mapRow(Result result, int rowNum) throws Exception {
+    public List<Application> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
+        Set<Short> uniqueTypeCodes = new HashSet<Short>();
         String applicationName = Bytes.toString(result.getRow());
-        short serviceTypeCode = Bytes.toShort(result.value());
-
-        ServiceType serviceType = registry.findServiceType(serviceTypeCode);
-        return new Application(applicationName, serviceType);
+        
+        List<KeyValue> list = result.list();
+        for(KeyValue value :list) {
+            short serviceTypeCode = Bytes.toShort(value.getValue());
+            uniqueTypeCodes.add(serviceTypeCode);
+        }
+        List<Application> applications = new ArrayList<Application>();
+        for (short serviceTypeCode : uniqueTypeCodes) {
+            applications.add(new Application(applicationName, registry.findServiceType(serviceTypeCode)));
+        }
+        return applications;
     }
 }
