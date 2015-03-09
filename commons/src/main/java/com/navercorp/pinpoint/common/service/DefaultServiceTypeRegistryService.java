@@ -20,16 +20,16 @@ import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.plugin.Type;
 import com.navercorp.pinpoint.common.util.ServiceTypeRegistry;
 import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author emeroad
  */
 public class DefaultServiceTypeRegistryService implements ServiceTypeRegistryService {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = Logger.getLogger(DefaultServiceTypeRegistryService.class.getName());
 
     private final TypeLoaderService typeLoaderService;
     private final ServiceTypeRegistry registry;
@@ -53,13 +53,17 @@ public class DefaultServiceTypeRegistryService implements ServiceTypeRegistrySer
         StaticFieldLookUp<ServiceType> staticFieldLookUp = new StaticFieldLookUp<ServiceType>(ServiceType.class, ServiceType.class);
         List<ServiceType> lookup = staticFieldLookUp.lookup();
         for (ServiceType serviceType: lookup) {
-            logger.debug("add Default ServiceType:{}", serviceType);
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("add Default ServiceType:" + serviceType);
+            }
             builder.addServiceType(serviceType);
         }
 
-        List<Type> types = loadType();
+        final List<Type> types = loadType();
         for (Type type : types) {
-            logger.debug("add Plugin ServiceType:{}, ", type.getServiceType());
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("add Plugin ServiceType:" + type.getServiceType());
+            }
             builder.addServiceType(type.getServiceType());
         }
 

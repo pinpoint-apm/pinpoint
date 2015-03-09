@@ -39,19 +39,21 @@ import java.util.List;
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Component
-public class DefaultAnnotationKeyMatcherService implements AnnotationKeyMatcherService, InitializingBean {
+public class DefaultAnnotationKeyMatcherService implements AnnotationKeyMatcherService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private AnnotationKeyMatcherRegistry registry;
 
-    @Autowired
-    private TypeLoaderService typeLoaderService;
 
-    public DefaultAnnotationKeyMatcherService() {
+    @Autowired
+    public DefaultAnnotationKeyMatcherService(TypeLoaderService typeLoaderService) {
+        if (typeLoaderService == null) {
+            throw new NullPointerException("typeLoaderService must not be null");
+        }
+        this.registry = build(typeLoaderService);
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    private AnnotationKeyMatcherRegistry build(TypeLoaderService typeLoaderService) {
         AnnotationKeyMatcherRegistry.Builder builder = new AnnotationKeyMatcherRegistry.Builder();
 
         StaticFieldLookUp<DisplayArgumentMatcher> staticFieldLookUp = new StaticFieldLookUp<DisplayArgumentMatcher>(DefaultDisplayArgument.class, DisplayArgumentMatcher.class);
@@ -65,7 +67,7 @@ public class DefaultAnnotationKeyMatcherService implements AnnotationKeyMatcherS
             builder.addAnnotationMatcher(displayArgumentMatcher.getServiceType(), annotationKeyMatcher);
         }
 
-        List<Type> types = loadType();
+        List<Type> types = typeLoaderService.getTypes();
         for (Type type : types) {
             if (type.getAnnotationKeyMatcher() == null) {
                 continue;
@@ -73,12 +75,9 @@ public class DefaultAnnotationKeyMatcherService implements AnnotationKeyMatcherS
             logger.debug("add AnnotationKeyMatcher ServiceType:{}, AnnotationKeyMatcher:{}", type.getServiceType(), type.getAnnotationKeyMatcher());
             builder.addAnnotationMatcher(type.getServiceType(), type.getAnnotationKeyMatcher());
         }
-        this.registry = builder.build();
+        return builder.build();
     }
 
-    private List<Type> loadType() {
-        return typeLoaderService.getTypes();
-    }
 
     @Override
     public AnnotationKeyMatcher findAnnotationKeyMatcher(short serviceType) {
