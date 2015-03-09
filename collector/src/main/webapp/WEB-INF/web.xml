@@ -9,10 +9,6 @@
         <param-value>classpath:log4j.xml</param-value>
     </context-param>
 
-    <!-- ServiceTypeLoader must be defined before Spring's ContextLoaderListener because ServiceType has to be initialized first.-->
-    <listener>
-        <listener-class >com.navercorp.pinpoint.collector.servlet.ServiceTypeLoader</listener-class>
-    </listener>
     <!-- root application context -->
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
