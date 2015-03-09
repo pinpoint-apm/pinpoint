@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 
 import com.navercorp.pinpoint.common.plugin.*;
 import com.navercorp.pinpoint.common.plugin.TypeProvider;
+import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
 
 /**
  * @author Jongho Moon
@@ -75,13 +76,7 @@ public class TypeProviderLoader {
     }
 
     private void loadDefaults() {
-        logger.fine("Loading Default ServiceTypes");
-
         TypeSetupContextImpl context = new TypeSetupContextImpl(ServiceType.class);
-
-        for (ServiceType type : ServiceType.DEFAULT_VALUES) {
-            context.addType(type);
-        }
 
         for (AnnotationKey key : AnnotationKey.DEFAULT_VALUES) {
             context.addAnnotationKey(key);
@@ -231,14 +226,7 @@ public class TypeProviderLoader {
         }
     }
     
-    static void checkServiceTypes(List<ServiceType> serviceTypes) {
-        ServiceTypeChecker serviceTypeChecker = new ServiceTypeChecker();
-        
-        for (ServiceType type : serviceTypes) {
-            serviceTypeChecker.check(type, ServiceType.class);
-        }
-    }
-    
+
     static void checkAnnotationKeys(List<AnnotationKey> annotationKeys) {
         AnnotationKeyChecker annotationKeyChecker = new AnnotationKeyChecker();
         
@@ -259,17 +247,6 @@ public class TypeProviderLoader {
         }
         List<Type> types = loader.getTypes();
         List<ServiceType> serviceTypes = getServiceTypeList(types);
-        ServiceType.initialize(serviceTypes);
-        AnnotationKey.initialize(loader.getAnnotationKeys());
-    }
-    
-    public static void initializeServiceType(URL[] urls) {
-        TypeProviderLoader loader = new TypeProviderLoader();
-        loader.load(urls);
-
-        List<Type> types = loader.getTypes();
-        List<ServiceType> serviceTypes = getServiceTypeList(types);
-        ServiceType.initialize(serviceTypes);
         AnnotationKey.initialize(loader.getAnnotationKeys());
     }
     
@@ -279,7 +256,6 @@ public class TypeProviderLoader {
 
         List<Type> types = loader.getTypes();
         List<ServiceType> serviceTypes = getServiceTypeList(types);
-        ServiceType.initialize(serviceTypes);
         AnnotationKey.initialize(loader.getAnnotationKeys());
     }
 

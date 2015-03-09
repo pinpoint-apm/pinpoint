@@ -209,7 +209,7 @@ public class ProfilerConfig {
     private final long DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL = 5 * 60 * 1000L;
     private long agentInfoSendRetryInterval = DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL;
 
-    private ServiceType applicationServerType;
+    private String applicationServerType;
     private boolean log4jLoggingTransactionInfo;
     private boolean logbackLoggingTransactionInfo;
 
@@ -590,11 +590,11 @@ public class ProfilerConfig {
         return profilableClassFilter;
     }
 
-    public ServiceType getApplicationServerType() {
+    public String getApplicationServerType() {
         return applicationServerType;
     }
 
-    public void setApplicationServerType(ServiceType applicationServerType) {
+    public void setApplicationServerType(String applicationServerType) {
         this.applicationServerType = applicationServerType;
     }
     
@@ -768,7 +768,7 @@ public class ProfilerConfig {
         this.agentInfoSendRetryInterval = readLong("profiler.agentInfo.send.retry.interval", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
 
         // service type
-        this.applicationServerType = readServiceType("profiler.applicationservertype");
+        this.applicationServerType = readString("profiler.applicationservertype", null);
 
         
         // TODO have to remove        
@@ -834,27 +834,6 @@ public class ProfilerConfig {
             logger.info(propertyName + "=" + result);
         }
         return result;
-    }
-
-    public ServiceType readServiceType(String propertyName) {
-        String value = properties.getProperty(propertyName);
-        if (value == null) {
-            return null;
-        }
-        ServiceType serviceType = getServiceType(value);
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info(propertyName + "=" + serviceType);
-        }
-        return serviceType;
-    }
-
-    public ServiceType getServiceType(String defaultValue) {
-        try {
-            return ServiceType.valueOf(defaultValue);
-        } catch (IllegalArgumentException e) {
-            logger.log(Level.WARNING, "ServiceType.valueOf() fail. " + defaultValue + " Caused:" + e.getMessage(), e);
-            return null;
-        }
     }
 
     public boolean readBoolean(String propertyName, boolean defaultValue) {

@@ -14,61 +14,76 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.util;
+package com.navercorp.pinpoint.common.service;
 
-import com.navercorp.pinpoint.collector.servlet.ServiceTypeLoader;
 import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.common.TypeProviderLoader;
 import com.navercorp.pinpoint.common.plugin.Type;
 import com.navercorp.pinpoint.common.util.ServiceTypeRegistry;
 import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 /**
- * TODO FIX duplicated web DefaultServiceTypeRegistryService
  * @author emeroad
  */
-@Order(Ordered.HIGHEST_PRECEDENCE)
-@Component
 public class DefaultServiceTypeRegistryService implements ServiceTypeRegistryService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final TypeLoaderService typeLoaderService;
     private final ServiceTypeRegistry registry;
 
     public DefaultServiceTypeRegistryService() {
+        this(new DefaultTypeLoaderService());
+    }
 
+
+    public DefaultServiceTypeRegistryService(TypeLoaderService typeLoaderService) {
+        if (typeLoaderService == null) {
+            throw new NullPointerException("typeLoaderService must not be null");
+        }
+        this.typeLoaderService = typeLoaderService;
+        this.registry = buildServiceTypeRegistry();
+    }
+
+    private ServiceTypeRegistry buildServiceTypeRegistry() {
         ServiceTypeRegistry.Builder builder = new ServiceTypeRegistry.Builder();
 
         StaticFieldLookUp<ServiceType> staticFieldLookUp = new StaticFieldLookUp<ServiceType>(ServiceType.class, ServiceType.class);
         List<ServiceType> lookup = staticFieldLookUp.lookup();
         for (ServiceType serviceType: lookup) {
-            logger.debug("add Default ServiceType ServiceType:{}", serviceType);
+            logger.debug("add Default ServiceType:{}", serviceType);
             builder.addServiceType(serviceType);
         }
 
         List<Type> types = loadType();
         for (Type type : types) {
-            logger.debug("add ServiceType ServiceType:{}, AnnotationKeyMatcher:{}", type.getServiceType(), type.getAnnotationKeyMatcher());
+            logger.debug("add Plugin ServiceType:{}, ", type.getServiceType());
             builder.addServiceType(type.getServiceType());
         }
-        this.registry = builder.build();
+
+
+        return builder.build();
     }
 
+
     private List<Type> loadType() {
-        // TODO remove static method
-        final TypeProviderLoader typeProviderLoader = ServiceTypeLoader.getTypeProviderLoader();
-        return typeProviderLoader.getTypes();
+        return typeLoaderService.getTypes();
     }
 
     @Override
     public ServiceType findServiceType(short serviceType) {
         return registry.findServiceType(serviceType);
+    }
+
+    public ServiceType findServiceTypeByName(String typeName) {
+        return registry.findServiceTypeByName(typeName);
+    }
+
+    @Override
+    public List<ServiceType> findDesc(String desc) {
+        return registry.findDesc(desc);
     }
 
 }

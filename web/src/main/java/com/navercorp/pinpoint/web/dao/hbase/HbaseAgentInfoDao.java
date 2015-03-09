@@ -20,11 +20,11 @@ import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.bo.ServerMetaDataBo;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
-import com.navercorp.pinpoint.web.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.vo.Range;
 
 import org.apache.hadoop.hbase.client.*;

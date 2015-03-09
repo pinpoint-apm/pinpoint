@@ -17,12 +17,12 @@
 package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.MapWrap;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.service.MapService;
-import com.navercorp.pinpoint.web.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.util.Limiter;
 import com.navercorp.pinpoint.web.util.TimeUtils;
 import com.navercorp.pinpoint.web.view.ResponseTimeViewModel;

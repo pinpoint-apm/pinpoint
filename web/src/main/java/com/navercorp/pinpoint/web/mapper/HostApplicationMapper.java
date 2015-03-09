@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.mapper;
 import java.util.Arrays;
 
 import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.web.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;

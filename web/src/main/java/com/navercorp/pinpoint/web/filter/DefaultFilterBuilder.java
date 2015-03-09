@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.List;
 
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import org.apache.commons.lang.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,6 +44,9 @@ public class DefaultFilterBuilder implements FilterBuilder {
 
     @Autowired
     private ObjectMapper jsonObjectMapper;
+
+    @Autowired
+    private ServiceTypeRegistryService registry;
 
     @Override
     public Filter build(String filterText) {
@@ -108,10 +113,11 @@ public class DefaultFilterBuilder implements FilterBuilder {
 
                 logger.debug("FilterDescriptor={}", descriptor);
 
-                chain.addFilter(new FromToResponseFilter(descriptor, hint));
+                FromToResponseFilter fromToResponseFilter = createFromToResponseFilter(descriptor, hint);
+                chain.addFilter(fromToResponseFilter);
 
                 if (descriptor.isSetUrl()) {
-                    FromToFilter fromToFilter = new FromToFilter(descriptor.getFromServiceType(), descriptor.getFromApplicationName(), descriptor.getToServiceType(), descriptor.getToApplicationName());
+                    FromToFilter fromToFilter = createFromToFilter(descriptor);
                     Filter urlPatternFilter = new URLPatternFilter(fromToFilter, descriptor.getUrlPattern());
                     chain.addFilter(urlPatternFilter);
                 }
@@ -120,5 +126,42 @@ public class DefaultFilterBuilder implements FilterBuilder {
             throw new RuntimeException(e.getMessage(), e);
         }
         return chain.get();
+    }
+
+    private FromToResponseFilter createFromToResponseFilter(FilterDescriptor descriptor, FilterHint hint) {
+        if (descriptor == null) {
+            throw new NullPointerException("descriptor must not be null");
+        }
+        List<ServiceType> fromServiceType = registry.findDesc(descriptor.getFromServiceType());
+        if (fromServiceType == null) {
+            throw new IllegalArgumentException("fromServiceCode not found. fromServiceType:" + descriptor.getFromServiceType());
+        }
+        String fromApplicationName = descriptor.getFromApplicationName();
+        String fromAgentName = descriptor.getFromAgentName();
+
+        List<ServiceType> toServiceType = registry.findDesc(descriptor.getToServiceType());
+        if (toServiceType == null) {
+            throw new IllegalArgumentException("toServiceType not found. fromServiceType:" + descriptor.getToServiceType());
+        }
+        String toApplicationName = descriptor.getToApplicationName();
+        String toAgentName = descriptor.getToAgentName();
+        Long fromResponseTime = descriptor.getResponseFrom();
+        Long toResponseTime = descriptor.getResponseTo();
+        Boolean includeFailed = descriptor.getIncludeException();
+        return new FromToResponseFilter(fromServiceType, fromApplicationName, fromAgentName, toServiceType, toApplicationName, toAgentName,fromResponseTime, toResponseTime, includeFailed, hint);
+    }
+
+    private FromToFilter createFromToFilter(FilterDescriptor descriptor) {
+
+        final List<ServiceType> fromServiceTypeList = registry.findDesc(descriptor.getFromServiceType());
+        if (fromServiceTypeList == null) {
+            throw new IllegalArgumentException("fromServiceCode not found. fromServiceType:" + descriptor.getFromServiceType());
+        }
+        final List<ServiceType> toServiceTypeList = registry.findDesc(descriptor.getToServiceType());
+        if (toServiceTypeList == null) {
+            throw new IllegalArgumentException("toServiceTypeList not found. toServiceType:" + descriptor.getToServiceType());
+        }
+
+        return new FromToFilter(fromServiceTypeList, descriptor.getFromApplicationName(), toServiceTypeList, descriptor.getToApplicationName());
     }
 }

@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.service;
+package com.navercorp.pinpoint.common.service;
 
 import com.navercorp.pinpoint.common.ServiceType;
+
+import java.util.List;
 
 /**
  * @author emeroad
  */
 public interface ServiceTypeRegistryService {
     ServiceType findServiceType(short serviceType);
+
+    ServiceType findServiceTypeByName(String typeName);
+
+    @Deprecated
+    List<ServiceType> findDesc(String desc);
 }

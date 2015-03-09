@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.ServiceTypeCategory;
 import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
-import com.navercorp.pinpoint.web.service.ServiceTypeRegistryService;
 
 /**
  * 
@@ -37,24 +36,24 @@ public class FromToFilter implements Filter {
     private final List<ServiceType> toServiceCode;
     private final String toApplicationName;
 
-    public FromToFilter(String fromServiceType, String fromApplicationName, String toServiceType, String toApplicationName) {
+    public FromToFilter(List<ServiceType> fromServiceTypeList, String fromApplicationName, List<ServiceType> toServiceTypeList, String toApplicationName) {
+        if (fromServiceTypeList == null) {
+            throw new NullPointerException("fromServiceTypeList must not be null");
+        }
         if (fromApplicationName == null) {
             throw new NullPointerException("fromApplicationName must not be null");
+        }
+        if (toServiceTypeList == null) {
+            throw new NullPointerException("toServiceTypeList must not be null");
         }
         if (toApplicationName == null) {
             throw new NullPointerException("toApplicationName must not be null");
         }
 
-        this.fromServiceCode = ServiceType.findDesc(fromServiceType);
-        if (fromServiceCode == null) {
-            throw new IllegalArgumentException("fromServiceCode not found. fromServiceType:" + fromServiceType);
-        }
-
+        this.fromServiceCode = fromServiceTypeList;
         this.fromApplicationName = fromApplicationName;
-        this.toServiceCode = ServiceType.findDesc(toServiceType);
-        if (toServiceCode == null) {
-            throw new IllegalArgumentException("toServiceCode not found. toServiceCode:" + toServiceType);
-        }
+
+        this.toServiceCode = toServiceTypeList;
         this.toApplicationName = toApplicationName;
     }
 

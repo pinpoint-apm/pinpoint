@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.common.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.bo.Span;
 import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.util.AnnotationUtils;
 import com.navercorp.pinpoint.common.util.ApiDescription;
 import com.navercorp.pinpoint.common.util.ApiDescriptionParser;

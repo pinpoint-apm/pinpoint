@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,23 +39,27 @@ public class ApplicationServerTypeResolver {
     private final ServiceType defaultType;
     private final List<ServerTypeDetector> detectors = new ArrayList<ServerTypeDetector>();
 
+    private final ServiceTypeRegistryService serviceTypeRegistryService;
     /**
      * If we have to invoke startup() during agent initialization.
      * Some service types like BLOC or STAND_ALONE don't have an acceptor to do this.
      */
     private boolean manuallyStartupRequired = true;
 
-    public ApplicationServerTypeResolver(List<DefaultProfilerPluginContext> plugins, ServiceType defaultType) {
+    public ApplicationServerTypeResolver(List<DefaultProfilerPluginContext> plugins, ServiceType defaultType, ServiceTypeRegistryService serviceTypeRegistryService) {
+        if (serviceTypeRegistryService == null) {
+            throw new NullPointerException("serviceTypeRegistryService must not be null");
+        }
+
         this.defaultType = defaultType;
         
         for (DefaultProfilerPluginContext context : plugins) {
             detectors.addAll(context.getServerTypeDetectors());
         }
+
+        this.serviceTypeRegistryService = serviceTypeRegistryService;
     }
 
-    public ApplicationServerTypeResolver() {
-        this.defaultType = null;
-    }
 
     public String[] getServerLibPath() {
         return new String[0];
@@ -88,7 +93,7 @@ public class ApplicationServerTypeResolver {
         }
         
         if (serverType != null) {
-            this.serverType = ServiceType.valueOf(serverType);
+            this.serverType = serviceTypeRegistryService.findServiceTypeByName(serverType);
             return true;
         }
         

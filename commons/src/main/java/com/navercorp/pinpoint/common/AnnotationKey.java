@@ -202,7 +202,7 @@ public class AnnotationKey {
         return VALUES != DEFAULT_VALUES;
     }
 
-    static synchronized void initialize(List<AnnotationKey> annotationKeys) {
+    public static synchronized void initialize(List<AnnotationKey> annotationKeys) {
         if (isIntialized()) {
             throw new IllegalStateException("AnnotationKey is already initialized");
         }

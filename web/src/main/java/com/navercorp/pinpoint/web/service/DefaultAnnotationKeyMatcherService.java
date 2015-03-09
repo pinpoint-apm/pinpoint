@@ -18,14 +18,16 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.TypeProviderLoader;
+import com.navercorp.pinpoint.common.service.TypeLoaderService;
 import com.navercorp.pinpoint.common.util.DefaultDisplayArgument;
 import com.navercorp.pinpoint.common.util.DisplayArgumentMatcher;
 import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
-import com.navercorp.pinpoint.web.servlet.ServiceTypeLoader;
 import com.navercorp.pinpoint.web.util.AnnotationKeyMatcherRegistry;
 import com.navercorp.pinpoint.common.plugin.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -37,13 +39,19 @@ import java.util.List;
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Component
-public class DefaultAnnotationKeyMatcherService implements AnnotationKeyMatcherService {
+public class DefaultAnnotationKeyMatcherService implements AnnotationKeyMatcherService, InitializingBean {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final AnnotationKeyMatcherRegistry registry;
+    private AnnotationKeyMatcherRegistry registry;
+
+    @Autowired
+    private TypeLoaderService typeLoaderService;
 
     public DefaultAnnotationKeyMatcherService() {
+    }
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
         AnnotationKeyMatcherRegistry.Builder builder = new AnnotationKeyMatcherRegistry.Builder();
 
         StaticFieldLookUp<DisplayArgumentMatcher> staticFieldLookUp = new StaticFieldLookUp<DisplayArgumentMatcher>(DefaultDisplayArgument.class, DisplayArgumentMatcher.class);
@@ -69,8 +77,7 @@ public class DefaultAnnotationKeyMatcherService implements AnnotationKeyMatcherS
     }
 
     private List<Type> loadType() {
-        final TypeProviderLoader typeProviderLoader = ServiceTypeLoader.getTypeProviderLoader();
-        return typeProviderLoader.getTypes();
+        return typeLoaderService.getTypes();
     }
 
     @Override

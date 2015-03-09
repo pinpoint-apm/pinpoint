@@ -29,8 +29,11 @@ import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.TypeProviderLoader;
 import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.service.DefaultTypeLoaderService;
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.service.TypeLoaderService;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.SystemProperty;
@@ -97,7 +100,7 @@ public class PinpointBootStrap {
         }
         
         URL[] pluginJars = classPathResolver.resolvePlugins();
-        loadServiceTypeProviders(pluginJars);
+        ServiceTypeRegistryService serviceTypeRegistryService = loadServiceTypeProviders(pluginJars);
 
         String configPath = getConfigPath(classPathResolver);
         if (configPath == null) {
@@ -120,7 +123,7 @@ public class PinpointBootStrap {
             String bootClass = argMap.containsKey("bootClass") ? argMap.get("bootClass") : BOOT_CLASS;
             agentClassLoader.setBootClass(bootClass);
             logger.info("pinpoint agent [" + bootClass + "] starting...");
-            agentClassLoader.boot(agentArgs, instrumentation, profilerConfig, pluginJars);
+            agentClassLoader.boot(agentArgs, instrumentation, profilerConfig, pluginJars, serviceTypeRegistryService);
             logger.info("pinpoint agent started normally.");
         } catch (Exception e) {
             // unexpected exception that did not be checked above
@@ -154,8 +157,10 @@ public class PinpointBootStrap {
         return map;
     }
     
-    private static void loadServiceTypeProviders(URL[] pluginJars) {
-        TypeProviderLoader.initializeServiceType(pluginJars);
+    private static ServiceTypeRegistryService loadServiceTypeProviders(URL[] pluginJars) {
+        TypeLoaderService typeLoaderService = new DefaultTypeLoaderService(pluginJars);
+        ServiceTypeRegistryService serviceTypeRegistryService  = new DefaultServiceTypeRegistryService(typeLoaderService);
+        return serviceTypeRegistryService;
     }
 
     private static JarFile getBootStrapJarFile(String bootStrapCoreJar) {
