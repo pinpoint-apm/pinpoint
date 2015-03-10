@@ -20,6 +20,7 @@ import java.net.SocketAddress;
 
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
@@ -57,7 +58,7 @@ public interface SocketHandler {
     boolean isConnected();
 
     boolean isSupportServerMode();
-
-    void doHandshake();
+    
+    SocketStateCode getCurrentStateCode();
 
 }

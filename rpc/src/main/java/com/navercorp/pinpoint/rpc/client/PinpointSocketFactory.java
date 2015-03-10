@@ -300,7 +300,6 @@ public class PinpointSocketFactory {
         timer.newTimeout(connectEvent, reconnectDelay, TimeUnit.MILLISECONDS);
     }
 
-
     private class ConnectEvent implements TimerTask {
 
         private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -429,6 +428,10 @@ public class PinpointSocketFactory {
         AssertUtils.assertNotNull(messageListener, "messageListener must not be null");
 
         this.serverStreamChannelMessageListener = serverStreamChannelMessageListener;
+    }
+
+    boolean isReleased() {
+        return released;
     }
 
 }

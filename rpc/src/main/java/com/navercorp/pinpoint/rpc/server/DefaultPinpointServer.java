@@ -36,7 +36,6 @@ import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.RequestManager;
 import com.navercorp.pinpoint.rpc.client.WriteFailFutureListener;
-import com.navercorp.pinpoint.rpc.common.SocketState;
 import com.navercorp.pinpoint.rpc.common.SocketStateChangeResult;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.control.ProtocolException;
@@ -71,7 +70,7 @@ public class DefaultPinpointServer implements PinpointServer {
     private final Channel channel;
     private final RequestManager requestManager;
 
-    private final SocketState state;
+    private final DefaultPinpointServerState state;
 
     private final ServerMessageListener messageListener;
 
@@ -110,19 +109,20 @@ public class DefaultPinpointServer implements PinpointServer {
         RequestManager requestManager = new RequestManager(serverConfig.getRequestManagerTimer(), serverConfig.getDefaultRequestTimeout());
         this.requestManager = requestManager;
 
-        this.state = new SocketState();
         
         this.objectUniqName = ClassUtils.simpleClassNameAndHashCodeString(this);
         
         this.serverCloseWriteListener = new WriteFailFutureListener(logger, objectUniqName + " sendClosePacket() write fail.", "serverClosePacket write success");
         this.responseWriteFailListener = new WriteFailFutureListener(logger, objectUniqName + " response() write fail.");
+
+        this.state = new DefaultPinpointServerState(this, this.stateChangeEventListeners);
     }
     
     public void start() {
         logger.info("{} start() started. channel:{}.", objectUniqName, channel);
         
-        stateToConnected();
-        stateToRunWithoutHandshake();
+        state.toConnected();
+        state.toRunWithoutHandshake();
         
         logger.info("{} start() completed.", objectUniqName);
     }
@@ -136,19 +136,19 @@ public class DefaultPinpointServer implements PinpointServer {
     }
     
     public void stop(boolean serverStop) {
-        SocketStateCode currentStateCode = state.getCurrentState();
+        SocketStateCode currentStateCode = getCurrentStateCode();
         if (SocketStateCode.BEING_CLOSE_BY_SERVER == currentStateCode) {
-            stateToClosed();
+            state.toClosed();
         } else if (SocketStateCode.BEING_CLOSE_BY_CLIENT == currentStateCode) {
-            stateToClosedByPeer();
+            state.toClosedByPeer();
         } else if (SocketStateCode.isRun(currentStateCode) && serverStop) {
-            stateToUnexpectedClosed();
-        } else if (SocketStateCode.isRun(currentStateCode) ) {
-            stateToUnexpectedClosedByPeer();
-        } else if (SocketStateCode.isClosed(currentStateCode)){
+            state.toUnexpectedClosed();
+        } else if (SocketStateCode.isRun(currentStateCode)) {
+            state.toUnexpectedClosedByPeer();
+        } else if (SocketStateCode.isClosed(currentStateCode)) {
             logger.warn("{} stop(). Socket has closed state({}).", objectUniqName, currentStateCode);
         } else {
-            stateToErrorUnknown();
+            state.toErrorUnknown();
             logger.warn("{} stop(). Socket has unexpected state.", objectUniqName, currentStateCode);
         }
         
@@ -255,7 +255,7 @@ public class DefaultPinpointServer implements PinpointServer {
     public ChannelFuture sendClosePacket() {
         logger.info("{} sendClosePacket() started.", objectUniqName);
         
-        SocketStateChangeResult stateChangeResult = stateToBeingClose();
+        SocketStateChangeResult stateChangeResult = state.toBeingClose();
         if (stateChangeResult.isChange()) {
             final ChannelFuture writeFuture = this.channel.write(ServerClosePacket.DEFAULT_SERVER_CLOSE_PACKET);
             writeFuture.addListener(serverCloseWriteListener);
@@ -351,9 +351,9 @@ public class DefaultPinpointServer implements PinpointServer {
         boolean isFirst = setChannelProperties(handshakeData);
         if (isFirst) {
             if (HandshakeResponseCode.DUPLEX_COMMUNICATION == responseCode) {
-                stateToRunDuplex();
+                state.toRunDuplex();
             } else if (HandshakeResponseCode.SIMPLEX_COMMUNICATION == responseCode) {
-                stateToRunSimplex();
+                state.toRunSimplex();
             }
         }
 
@@ -368,7 +368,7 @@ public class DefaultPinpointServer implements PinpointServer {
     private void handleClosePacket(Channel channel) {
         logger.info("{} handleClosePacket() started.", objectUniqName);
         
-        SocketStateChangeResult stateChangeResult = stateToBeingCloseByPeer();
+        SocketStateChangeResult stateChangeResult = state.toBeingCloseByPeer();
         if (!stateChangeResult.isChange()) {
             logger.info("{} handleClosePacket() failed. Error: {}", objectUniqName, stateChangeResult);
         } else {
@@ -419,98 +419,24 @@ public class DefaultPinpointServer implements PinpointServer {
 
         return null;
     }
-    
-    @Override
-    public SocketStateCode getCurrentStateCode() {
-        return state.getCurrentState();
-    }
 
-    private SocketStateChangeResult stateToConnected() {
-        SocketStateCode nextState = SocketStateCode.CONNECTED;
-        return stateTo(nextState);
-    }
-    
-    private SocketStateChangeResult stateToRunWithoutHandshake() {
-        SocketStateCode nextState = SocketStateCode.RUN_WITHOUT_HANDSHAKE;
-        return stateTo(nextState);
-    }
-
-    private SocketStateChangeResult stateToRunSimplex() {
-        SocketStateCode nextState = SocketStateCode.RUN_SIMPLEX;
-        return stateTo(nextState);
-    }
-    
-    private SocketStateChangeResult stateToRunDuplex() {
-        SocketStateCode nextState = SocketStateCode.RUN_DUPLEX;
-        return stateTo(nextState);
-    }
-
-    private SocketStateChangeResult stateToBeingClose() {
-        SocketStateCode nextState = SocketStateCode.BEING_CLOSE_BY_SERVER;
-        return stateTo(nextState);
-    }
-    
-    private SocketStateChangeResult stateToBeingCloseByPeer() {
-        SocketStateCode nextState = SocketStateCode.BEING_CLOSE_BY_CLIENT;
-        return stateTo(nextState);
-    }
-    
-    private SocketStateChangeResult stateToClosed() {
-        SocketStateCode nextState = SocketStateCode.CLOSED_BY_SERVER;
-        return stateTo(nextState);
-    }
-    
-    private SocketStateChangeResult stateToClosedByPeer() {
-        SocketStateCode nextState = SocketStateCode.CLOSED_BY_CLIENT;
-        return stateTo(nextState);
-    }
-    
-    private SocketStateChangeResult stateToUnexpectedClosed() {
-        SocketStateCode nextState = SocketStateCode.UNEXPECTED_CLOSE_BY_SERVER;
-        return stateTo(nextState);
-    }
-    
-    private SocketStateChangeResult stateToUnexpectedClosedByPeer() {
-        SocketStateCode nextState = SocketStateCode.UNEXPECTED_CLOSE_BY_CLIENT;
-        return stateTo(nextState);
-    }
-    
-    private SocketStateChangeResult stateToErrorUnknown() {
-        SocketStateCode nextState = SocketStateCode.ERROR_UNKOWN;
-        return stateTo(nextState);
-    }
-
-    private SocketStateChangeResult stateTo(SocketStateCode nextState) {
-        logger.debug("{} stateTo() started. to:{}", objectUniqName, nextState);
-
-        SocketStateChangeResult stateChangeResult = state.changeState(nextState);
-        if (stateChangeResult.isChange()) {
-            executeChangeEventHandler(this, nextState);
-        }
-
-        logger.info("{} stateTo() completed. {}", objectUniqName, stateChangeResult);
-
-        return stateChangeResult;
-    }
-    
-    private void executeChangeEventHandler(DefaultPinpointServer pinpointServer, SocketStateCode nextState) {
-         for (ChannelStateChangeEventHandler eachListener : this.stateChangeEventListeners) {
-             try {
-                 eachListener.eventPerformed(this, nextState);
-             } catch (Exception e) {
-                 eachListener.exceptionCaught(this, nextState, e);
-             }
-         }
-    }
-    
     public boolean isEnableCommunication() {
-        return SocketStateCode.isRun(getCurrentStateCode());
+        return state.isEnableCommunication();
     }
     
     public boolean isEnableDuplexCommunication() {
-        return SocketStateCode.isRunDuplex(getCurrentStateCode());
+        return state.isEnableDuplexCommunication();
     }
 
+    String getObjectUniqName() {
+        return objectUniqName;
+    }
+    
+    @Override
+    public SocketStateCode getCurrentStateCode() {
+        return state.getCurrentStateCode();
+    }
+    
     @Override
     public String toString() {
         StringBuilder log = new StringBuilder(32);

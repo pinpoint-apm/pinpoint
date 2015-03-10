@@ -111,11 +111,11 @@ public enum SocketStateCode {
         }
     }
     
-    public boolean onDisconnect() {
-        return onDisconnect(this);
+    public boolean onClose() {
+        return onClose(this);
     }
     
-    public static boolean onDisconnect(SocketStateCode code) {
+    public static boolean onClose(SocketStateCode code) {
         switch (code) {
             case BEING_CLOSE_BY_CLIENT:
             case BEING_CLOSE_BY_SERVER:

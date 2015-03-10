@@ -42,6 +42,8 @@ import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.ConnectFuture.Result;
+import com.navercorp.pinpoint.rpc.common.SocketStateChangeResult;
+import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.packet.ClientClosePacket;
 import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
@@ -77,7 +79,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final State state = new State();
+    private final PinpointSocketHandlerState state;
 
     private volatile Channel channel;
 
@@ -99,8 +101,10 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     private final RequestManager requestManager;
 
     private final ChannelFutureListener pingWriteFailFutureListener = new WriteFailFutureListener(this.logger, "ping write fail.", "ping write success.");
-    private final ChannelFutureListener sendWriteFailFutureListener = new WriteFailFutureListener(this.logger, "send() write fail.", "send() write fail.");
+    private final ChannelFutureListener sendWriteFailFutureListener = new WriteFailFutureListener(this.logger, "send() write fail.", "send() write success.");
 
+    private final ChannelFutureListener sendClosePacketFailFutureListener = new WriteFailFutureListener(this.logger, "sendClosedPacket() write fail.", "sendClosedPacket() write success.");
+    
     private final PinpointClientSocketHandshaker handshaker;
     
     private final ConnectFuture connectFuture = new ConnectFuture();
@@ -123,7 +127,6 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         this.pinpointSocketFactory = pinpointSocketFactory;
         this.requestManager = new RequestManager(timer, timeoutMillis);
         this.pingDelay = pingDelay;
-        this.handshakeRetryInterval = handshakeRetryInterval;
         this.timeoutMillis = timeoutMillis;
         
         this.messageListener = pinpointSocketFactory.getMessageListener(SimpleLoggingMessageListener.LISTENER);
@@ -131,17 +134,14 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         
         this.objectUniqName = ClassUtils.simpleClassNameAndHashCodeString(this);
         this.handshaker = new PinpointClientSocketHandshaker(channelTimer, (int) handshakeRetryInterval, maxHandshakeCount);
-    }
-
-    public Timer getChannelTimer() {
-        return channelTimer;
+        
+        this.state = new PinpointSocketHandlerState(this.objectUniqName);
     }
 
     public void setPinpointSocket(PinpointSocket pinpointSocket) {
         if (pinpointSocket == null) {
             throw new NullPointerException("pinpointSocket must not be null");
         }
-        
         this.pinpointSocket = pinpointSocket;
     }
 
@@ -155,53 +155,60 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     @Override
     public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         Channel channel = e.getChannel();
-        if (logger.isDebugEnabled()) {
-            logger.debug("channelOpen() state:{} {}", state.getString(), channel);
-        }
+        
+        logger.debug("{} channelOpen() started. channel:{}", objectUniqName, channel);
+
         this.channel = channel;
     }
 
     @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        logger.info("channelConnected() change state=RUN");
-
         Channel channel = ctx.getChannel();
         if ((null == channel) || (this.channel != channel)) {
             throw new IllegalArgumentException("Invalid channel variable. this.channel:" + this.channel + ", channel:" + channel + ".");
         }
+
+        logger.info("{} channelConnected() started. channel:{}", objectUniqName, channel);
         
-        if (!state.changeToRun()) {
-            throw new IllegalStateException("invalid open state:" + state.getString());
+        SocketStateChangeResult stateChangeResult = state.toConnected();
+        if (!stateChangeResult.isChange()) {
+            throw new IllegalStateException("Invalid state:" + stateChangeResult.getCurrentState());
         }
         
         prepareChannel(channel);
+        
+        stateChangeResult = state.toRunWithoutHandshake();
+        if (!stateChangeResult.isChange()) {
+            throw new IllegalStateException("Failed to execute channelConnected() method. Error:" + stateChangeResult);
+        }
+        
         registerPing();
+
+        Map<String, Object> handshakeData = this.pinpointSocketFactory.getProperties();
+        handshaker.handshakeStart(channel, handshakeData);
         
         connectFuture.setResult(Result.SUCCESS);
+        
+        logger.info("{} channelConnected() completed.", objectUniqName);
     }
     
     private void prepareChannel(Channel channel) {
-        ServerStreamChannelMessageListener serverStreamChannelMessageListener = this.serverStreamChannelMessageListener;
-
         StreamChannelManager streamChannelManager = new StreamChannelManager(channel, IDGenerator.createOddIdGenerator(), serverStreamChannelMessageListener);
 
         PinpointSocketHandlerContext context = new PinpointSocketHandlerContext(channel, streamChannelManager);
         channel.setAttachment(context);
     }
 
-    private PinpointSocketHandlerContext getChannelContext(Channel channel) {
-        return (PinpointSocketHandlerContext) channel.getAttachment();
-    }
-
     @Override
     public void initReconnect() {
-        logger.info("initReconnect() change state=INIT_RECONNECT");
-        state.setState(State.INIT_RECONNECT);
-    }
+        logger.info("{} initReconnect() started.", objectUniqName);
+        
+        SocketStateChangeResult stateChangeResult = state.toBeingConnect();
+        if (!stateChangeResult.isChange()) {
+            throw new IllegalStateException("Failed to execute initReconnect() method. Error:" + stateChangeResult);
+        }
 
-    @Override
-    public ConnectFuture getConnectFuture() {
-        return connectFuture;
+        logger.info("{} initReconnect() completed.", objectUniqName);
     }
 
     private void registerPing() {
@@ -220,28 +227,30 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
                 newPingTimeout(this);
                 return;
             }
-            if (isClosed()) {
+            
+            if (state.isClosed()) {
                 return;
             }
+
             writePing();
             newPingTimeout(this);
         }
     }
 
     void writePing() {
-        if (!isRun()) {
+        if (!state.isEnableCommunication()) {
             return;
         }
-        logger.debug("writePing {}", channel);
+        logger.debug("{} writePing() started. channel:{}", objectUniqName, channel);
         
         write0(PingPacket.PING_PACKET, pingWriteFailFutureListener);
     }
 
     public void sendPing() {
-        if (!isRun()) {
+        if (!state.isEnableCommunication()) {
             return;
         }
-        logger.debug("sendPing {}", channel);
+        logger.debug("{} sendPing() started.", objectUniqName);
         
         ChannelFuture future = write0(PingPacket.PING_PACKET);
         future.awaitUninterruptibly();
@@ -249,22 +258,16 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
             Throwable cause = future.getCause();
             throw new PinpointSocketException("send ping failed. Error:" + cause.getMessage(), cause);
         }
-        logger.debug("sendPing success {}", channel);
+        
+        logger.debug("{} sendPing() completed.", objectUniqName);
     }
 
     public void send(byte[] bytes) {
-        if (bytes == null) {
-            throw new NullPointerException("bytes");
-        }
         ChannelFuture future = send0(bytes);
         future.addListener(sendWriteFailFutureListener);
     }
 
     public Future sendAsync(byte[] bytes) {
-        if (bytes == null) {
-            throw new NullPointerException("bytes");
-        }
-
         ChannelFuture channelFuture = send0(bytes);
         final ChannelWriteCompleteListenableFuture future = new ChannelWriteCompleteListenableFuture(timeoutMillis);
         channelFuture.addListener(future);
@@ -272,9 +275,6 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     }
 
     public void sendSync(byte[] bytes) {
-        if (bytes == null) {
-            throw new NullPointerException("bytes");
-        }
         ChannelFuture write = send0(bytes);
         await(write);
     }
@@ -312,6 +312,10 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     }
 
     private ChannelFuture send0(byte[] bytes) {
+        if (bytes == null) {
+            throw new NullPointerException("bytes");
+        }
+
         ensureOpen();
         SendPacket send = new SendPacket(bytes);
 
@@ -323,10 +327,10 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
             throw new NullPointerException("bytes");
         }
 
-        boolean run = isRun();
-        if (!run) {
+        boolean isEnable = state.isEnableCommunication();
+        if (!isEnable) {
             DefaultFuture<ResponseMessage> closedException = new DefaultFuture<ResponseMessage>();
-            closedException.setFailure(new PinpointSocketException("invalid state:" + state.getString() + " channel:" + channel));
+            closedException.setFailure(new PinpointSocketException("invalid state:" + state.getCurrentStateCode() + " channel:" + channel));
             return closedException;
         }
 
@@ -341,7 +345,6 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     public ClientStreamChannelContext createStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
         ensureOpen();
 
-        final Channel channel = this.channel;
         PinpointSocketHandlerContext context = getChannelContext(channel);
         return context.createStream(payload, clientStreamChannelMessageListener);
     }
@@ -350,7 +353,6 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     public StreamChannelContext findStreamChannel(int streamChannelId) {
         ensureOpen();
 
-        final Channel channel = this.channel;
         PinpointSocketHandlerContext context = getChannelContext(channel);
         return context.getStreamChannel(streamChannelId);
     }
@@ -383,60 +385,64 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
                     context.handleStreamEvent((StreamPacket) message);
                     return;
                 case PacketType.CONTROL_SERVER_CLOSE:
-                    messageReceivedServerClosed(e.getChannel());
+                    handleClosedPacket(e.getChannel());
                     return;
                 case PacketType.CONTROL_HANDSHAKE_RESPONSE:
-                    messageReceivedHandshakeResponse((ControlHandshakeResponsePacket)message, e.getChannel());
+                    handleHandshakePacket((ControlHandshakeResponsePacket)message, e.getChannel());
                     return;
                 default:
-                    logger.warn("unexpectedMessage received:{} address:{}", message, e.getRemoteAddress());
+                    logger.warn("{} messageReceived() failed. unexpectedMessage received:{} address:{}", objectUniqName, message, e.getRemoteAddress());
             }
         } else {
-            logger.warn("invalid messageReceived:{}", message);
+            logger.warn("{} messageReceived() failed. invalid messageReceived:{}", objectUniqName, message);
         }
     }
 
-    private void messageReceivedServerClosed(Channel channel) {
-        logger.info("ServerClosed Packet received. {}", channel);
+    private void handleClosedPacket(Channel channel) {
+        logger.info("{} handleClosedPacket() started. channel:{}", objectUniqName, channel);
 
-        state.setState(State.RECONNECT);
+        state.toBeingCloseByPeer();
     }
-
-    private void messageReceivedHandshakeResponse(ControlHandshakeResponsePacket message, Channel channel) {
+    
+    private void handleHandshakePacket(ControlHandshakeResponsePacket message, Channel channel) {
         boolean isCompleted = handshaker.handshakeComplete(message);
 
+        logger.info("{} handleHandshakePacket() started. message:{}", objectUniqName, message);
+        
         if (isCompleted) {
             HandshakeResponseCode code = handshaker.getHandshakeResult();
-            logger.debug("HandshakeResponse packet({} code={}) received. {}", message, code, channel);
 
             if (code == HandshakeResponseCode.SUCCESS || code == HandshakeResponseCode.ALREADY_KNOWN) {
-                state.changeToRunSimplexCommunication();
+                state.toRunSimplex();
             } else if (code == HandshakeResponseCode.DUPLEX_COMMUNICATION || code == HandshakeResponseCode.ALREADY_DUPLEX_COMMUNICATION) {
-                state.changeToRunDuplexCommunication();
+                state.toRunDuplex();
             } else if (code == HandshakeResponseCode.SIMPLEX_COMMUNICATION || code == HandshakeResponseCode.ALREADY_SIMPLEX_COMMUNICATION) {
-                state.changeToRunSimplexCommunication();
+                state.toRunSimplex();
             } else {
-                logger.warn("Invalid Handshake Packet ({}) code={} received. {}", message, code, channel);
+                logger.warn("{} handleHandshakePacket() failed. Error:Invalid Handshake Packet(code:{}).", objectUniqName, code);
                 return;
             }
 
-            logger.info("Handshake completed. channel:{}, state:{}.", channel, state.getString());
+            logger.info("{} handleHandshakePacket() completed. code:{}", channel, code);
         } else if (handshaker.isFinished()){
-            logger.warn("Handshake already completed.");
+            logger.warn("{} handleHandshakePacket() failed. Error:Handshake already completed.");
         } else {
-            logger.warn("Maybe handshake not stated.");
+            logger.warn("{} handleHandshakePacket() failed. Error:Handshake not yet started.");
         }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         Throwable cause = e.getCause();
-        if (state.getState() == State.INIT_RECONNECT) {
+        
+        SocketStateCode currentStateCode = state.getCurrentStateCode();
+        if (currentStateCode == SocketStateCode.BEING_CONNECT) {
             // removed stackTrace when reconnect. so many logs.
-            logger.info("exceptionCaught() reconnect failed. state:{} {} Caused:{}", state.getString(), e.getChannel(), cause.getMessage());
+            logger.info("{} exceptionCaught() occured. state:{}, caused:{}.", objectUniqName, currentStateCode, cause.getMessage());
         } else {
-            logger.warn("exceptionCaught() UnexpectedError happened. state:{} {} Caused:{}", state.getString(), e.getChannel(), cause.getMessage(), cause);
+            logger.warn("{} exceptionCaught() occured. state:{}. Caused:{}", objectUniqName, currentStateCode, cause.getMessage(), cause);
         }
+
         // need to handle a error more precisely.
         // below code dose not reconnect when node on channel is just hang up or dead without specific reasons.
 
@@ -445,56 +451,58 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 //        if (channel.isConnected()) {
 //            channel.close();
 //        }
-
     }
 
     private void ensureOpen() {
-        final int currentState = state.getState();
-        if (state.isRun(currentState)) {
+        SocketStateCode currentStateCode = state.getCurrentStateCode();
+        if (state.isEnableCommunication(currentStateCode)) {
             return;
         }
-        if (currentState == State.CLOSED) {
-            throw new PinpointSocketException("already closed");
-        } else if(currentState == State.RECONNECT) {
+
+        if (state.isReconnect(currentStateCode)) {
             throw new PinpointSocketException("reconnecting...");
         }
-        logger.info("invalid socket state:{}", state.getString(currentState));
-        throw new PinpointSocketException("invalid socket state:" + currentState);
-    }
-
-
-    boolean isRun() {
-        return state.isRun();
-    }
-
-    boolean isClosed() {
-        return state.isClosed();
+        
+        throw new PinpointSocketException("Invalid socket state:" + currentStateCode);
     }
 
     // Calling this method on a closed SocketHandler has no effect.
     public void close() {
-        logger.debug("close() call");
+        logger.debug("{} close() started.", objectUniqName);
         
-        int currentState = this.state.getState();
-        if (currentState == State.CLOSED) {
-            logger.debug("already close()");
-            return;
+        SocketStateCode currentStateCode = state.getCurrentStateCode();
+        if (currentStateCode.isRun()) {
+            state.toBeingClose();
+            closeChannel();
+        } else if (currentStateCode.isBeforeConnected()) {
+            state.toClosed();
+            closeResources();
+        } else if (currentStateCode.onClose() || currentStateCode.isClosed()) {
+            logger.warn("close() failed. Already closed.");
+        } else {
+            logger.warn("Illegal State :{}.", currentStateCode);
         }
-        logger.debug("close() start");
-        if (!this.state.changeToClosed(currentState)) {
-            logger.info("close() invalid state");
-            return;
+    }
+    
+    private void closeChannel() {
+        Channel channel = this.channel;
+        if (channel != null) {
+            closeStreamChannelManager(channel);
+            sendClosedPacket(channel);
+            
+            ChannelFuture closeFuture = channel.close();
+            closeFuture.addListener(new WriteFailFutureListener(logger, "close() event failed.", "close() event success."));
+            closeFuture.awaitUninterruptibly();
         }
-        logger.debug("close() state change complete");
-        // hand shake close
-        final Channel channel = this.channel;
-        // is it correct that send a "close packet" first and release resources?
-        // when you release resources, you need to clear messages about request/response and stream channel. need to handle reversely?
-        // handling timer is unclear so just make and enhance later.
+    }
+    
+    // Calling this method on a closed SocketHandler has no effect.
+    private void closeResources() {
+        logger.debug("{} closeResources() started.", objectUniqName);
 
-        closeStreamChannelManager(channel);
-        sendClosedPacket(channel);
-        closeChannel(channel);
+        this.handshaker.handshakeAbort();
+        this.requestManager.close();
+        this.channelTimer.stop();
     }
 
     private void closeStreamChannelManager(Channel channel) {
@@ -512,57 +520,45 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
     private void sendClosedPacket(Channel channel) {
         if (!channel.isConnected()) {
-            logger.debug("channel already closed. skip sendClosedPacket() {}", channel);
+            logger.debug("{} sendClosedPacket() failed. Error:channel already closed.", objectUniqName);
             return;
         }
         
-        logger.debug("write ClientClosePacket");
+        logger.debug("{} sendClosedPacket() started.", objectUniqName);
+
         ClientClosePacket clientClosePacket = new ClientClosePacket();
-        ChannelFuture write = channel.write(clientClosePacket);
-        write.addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-                if (!future.isSuccess()) {
-                    logger.warn("ClientClosePacket write failed. channel:{}", future.getCause(), future.getCause());
-                } else {
-                    logger.debug("ClientClosePacket write success. channel:{}", future.getChannel());
-                }
-            }
-        });
+        ChannelFuture write = write0(clientClosePacket, sendClosePacketFailFutureListener);
         write.awaitUninterruptibly(3000, TimeUnit.MILLISECONDS);
-    }
-    
-    private void closeChannel(Channel channel) {
-        logger.debug("channel.close()");
-        ChannelFuture closeFuture = channel.close();
-        closeFuture.addListener(new WriteFailFutureListener(logger, "close() event failed.", "close() event success."));
-        closeFuture.awaitUninterruptibly();
-        logger.debug("close() complete");
     }
 
     @Override
     public void channelClosed(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+        logger.info("{} channelClosed() started.", objectUniqName); 
+        
         try {
-            final int currentState = state.getState();
+            boolean factoryReleased = pinpointSocketFactory.isReleased();
             
-            if (State.CLOSED == currentState) {
-                logger.debug("channelClosed() normal. state:{} {}", state.getString(currentState), e.getChannel());
-            } else if(State.INIT_RECONNECT == currentState){
-                logger.debug("channelClosed() reconnect fail. state:{} {}", state.getString(currentState), e.getChannel());
-            } else if (state.isRun(currentState) || State.RECONNECT == currentState) {
-                // abnormal closed from here
-                if (state.isRun(currentState)) {
-                    logger.debug("change state=reconnect");
-                    state.setState(State.RECONNECT);
-                }
-                logger.info("channelClosed() UnexpectedChannelClosed. state:{} try reconnect channel:{}, connectSocketAddress:{}", state.getString(), e.getChannel(), connectSocketAddress);
-
-                this.pinpointSocketFactory.reconnect(this.pinpointSocket, this.connectSocketAddress);
+            boolean needReconnect = false;
+            SocketStateCode currentStateCode = state.getCurrentStateCode();
+            if (currentStateCode == SocketStateCode.BEING_CLOSE_BY_CLIENT) {
+                state.toClosed();
+            } else if (currentStateCode == SocketStateCode.BEING_CLOSE_BY_SERVER) {
+                needReconnect = state.toClosedByPeer().isChange();
+            } else if (currentStateCode.isRun() && factoryReleased) {
+                state.toUnexpectedClosed();
+            } else if (currentStateCode.isRun()) {
+                needReconnect = state.toUnexpectedClosedByPeer().isChange();
+            } else if (currentStateCode.isBeforeConnected()) {
+                state.toConnectFailed();
             } else {
-                logger.info("channelClosed() UnexpectedChannelClosed. state:{} {}", state.getString(currentState), e.getChannel());
+                state.toErrorUnknown();
             }
-            releaseResource();
+
+            if (needReconnect) {
+                pinpointSocketFactory.reconnect(this.pinpointSocket, this.connectSocketAddress);
+            }
         } finally {
+            closeResources();
             connectFuture.setResult(Result.FAIL);
         }
     }
@@ -579,38 +575,46 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         
         return future;
     }
-    
-    // Calling this method on a closed SocketHandler has no effect.
-    private void releaseResource() {
-        logger.debug("releaseResource()");
 
-        this.handshaker.handshakeAbort();
-        this.requestManager.close();
-        this.channelTimer.stop();
+    public Timer getChannelTimer() {
+        return channelTimer;
+    }
+
+    @Override
+    public ConnectFuture getConnectFuture() {
+        return connectFuture;
     }
     
     @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("PinpointSocketHandler{");
-        sb.append("channel=").append(channel);
-        sb.append('}');
-        return sb.toString();
+    public SocketStateCode getCurrentStateCode() {
+        return state.getCurrentStateCode();
+    }
+    
+    private PinpointSocketHandlerContext getChannelContext(Channel channel) {
+        if (channel == null) {
+            throw new NullPointerException("channel must not be null");
+        }
+        return (PinpointSocketHandlerContext) channel.getAttachment();
     }
 
     @Override
     public boolean isConnected() {
-        return this.state.isRun();
+        return this.state.isEnableCommunication();
     }
 
     @Override
     public boolean isSupportServerMode() {
         return messageListener != SimpleLoggingMessageListener.LISTENER;
     }
-
+    
     @Override
-    public void doHandshake() {
-        Map<String, Object> handshakeData = this.pinpointSocketFactory.getProperties();
-        handshaker.handshakeStart(channel, handshakeData);
+    public String toString() {
+        final StringBuilder sb = new StringBuilder(objectUniqName);
+        sb.append('{');
+        sb.append("channel=").append(channel);
+        sb.append("state=").append(state);
+        sb.append('}');
+        return sb.toString();
     }
 
 }
