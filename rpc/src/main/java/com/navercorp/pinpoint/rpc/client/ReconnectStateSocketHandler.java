@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.ConnectFuture.Result;
+import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
@@ -38,6 +39,8 @@ public class ReconnectStateSocketHandler implements SocketHandler {
         failedConnectFuture.setResult(Result.FAIL);
     }
 
+    private volatile SocketStateCode state = SocketStateCode.BEING_CONNECT;
+    
     @Override
     public void setConnectSocketAddress(SocketAddress connectSocketAddress) {
     }
@@ -74,6 +77,7 @@ public class ReconnectStateSocketHandler implements SocketHandler {
 
     @Override
     public void close() {
+        this.state = SocketStateCode.CLOSED_BY_CLIENT;
     }
 
     @Override
@@ -104,6 +108,11 @@ public class ReconnectStateSocketHandler implements SocketHandler {
     }
 
     @Override
+    public SocketStateCode getCurrentStateCode() {
+        return state;
+    }
+    
+    @Override
     public boolean isConnected() {
         return false;
     }
@@ -111,11 +120,6 @@ public class ReconnectStateSocketHandler implements SocketHandler {
     @Override
     public boolean isSupportServerMode() {
         return false;
-    }
-
-    @Override
-    public void doHandshake() {
-//        throw new UnsupportedOperationException();
     }
 
 }
