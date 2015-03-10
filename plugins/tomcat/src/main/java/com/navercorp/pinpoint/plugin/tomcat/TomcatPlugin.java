@@ -65,12 +65,12 @@ public class TomcatPlugin implements ProfilerPlugin {
         
         // Tomcat 6
         MethodEditorBuilder startEditor = builder.editMethod("start");
-        startEditor.setProperty(IGNORE_IF_NOT_EXIST);
+        startEditor.property(IGNORE_IF_NOT_EXIST);
         startEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardServiceStartInterceptor");
         
         // Tomcat 7
         MethodEditorBuilder startInternalEditor = builder.editMethod("startInternal");
-        startInternalEditor.setProperty(IGNORE_IF_NOT_EXIST);
+        startInternalEditor.property(IGNORE_IF_NOT_EXIST);
         startInternalEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardServiceStartInterceptor");
     }
     
@@ -80,12 +80,12 @@ public class TomcatPlugin implements ProfilerPlugin {
 
         // Tomcat 6
         MethodEditorBuilder initializeEditor = builder.editMethod("initialize");
-        initializeEditor.setProperty(IGNORE_IF_NOT_EXIST);
+        initializeEditor.property(IGNORE_IF_NOT_EXIST);
         initializeEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.ConnectorInitializeInterceptor");
 
         // Tomcat 7
         MethodEditorBuilder initInternalEditor = builder.editMethod("initInternal");
-        initInternalEditor.setProperty(IGNORE_IF_NOT_EXIST);
+        initInternalEditor.property(IGNORE_IF_NOT_EXIST);
         initInternalEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.ConnectorInitializeInterceptor");
     }
     
@@ -96,12 +96,12 @@ public class TomcatPlugin implements ProfilerPlugin {
         
         // Tomcat 6 - org.apache.catalina.loader.WebappLoader.start()
         MethodEditorBuilder startEditor = builder.editMethod("start");
-        startEditor.setProperty(IGNORE_IF_NOT_EXIST);
+        startEditor.property(IGNORE_IF_NOT_EXIST);
         startEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.WebappLoaderStartInterceptor");
         
         // Tomcat 7, 8 - org.apache.catalina.loader.WebappLoader.startInternal()
         MethodEditorBuilder startInternalEditor = builder.editMethod("startInternal");
-        startInternalEditor.setProperty(IGNORE_IF_NOT_EXIST);
+        startInternalEditor.property(IGNORE_IF_NOT_EXIST);
         startInternalEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.WebappLoaderStartInterceptor");
     }
 }

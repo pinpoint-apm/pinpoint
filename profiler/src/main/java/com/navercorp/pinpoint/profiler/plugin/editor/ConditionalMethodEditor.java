@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.plugin.editor;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassCondition;
 
 public class ConditionalMethodEditor implements MethodEditor {
@@ -30,7 +29,7 @@ public class ConditionalMethodEditor implements MethodEditor {
     }
     
     @Override
-    public void edit(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
+    public void edit(ClassLoader classLoader, InstrumentClass target) throws Exception {
         if (condition.check(classLoader, target)) {
             delegate.edit(classLoader, target);
         }

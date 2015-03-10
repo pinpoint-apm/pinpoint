@@ -16,24 +16,45 @@
 
 package com.navercorp.pinpoint.profiler.plugin.editor;
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorExceptionHandler;
 
 public class FilteringMethodEditor implements MethodEditor {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+    
     private final MethodFilter filter;
-    private final MethodRecipe recipe;
+    private final List<MethodRecipe> recipes;
+    private final MethodEditorExceptionHandler exceptionHandler; 
 
-    public FilteringMethodEditor(MethodFilter filter, MethodRecipe recipe) {
+    public FilteringMethodEditor(MethodFilter filter, List<MethodRecipe> recipes, MethodEditorExceptionHandler handler) {
         this.filter = filter;
-        this.recipe = recipe;
+        this.recipes = recipes;
+        this.exceptionHandler = handler;
     }
 
     @Override
-    public void edit(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
-        for (MethodInfo methodInfo : target.getDeclaredMethods(filter)) {
-            recipe.edit(classLoader, target, methodInfo);
+    public void edit(ClassLoader classLoader, InstrumentClass target) throws Exception {
+        for (MethodInfo targetMethod : target.getDeclaredMethods(filter)) {
+            for (MethodRecipe recipe : recipes) {
+                try {
+                    recipe.edit(classLoader, target, targetMethod);
+                } catch (Throwable t) {
+                    if (exceptionHandler != null) {
+                        exceptionHandler.handle(target.getName(), targetMethod.getName(), targetMethod.getParameterTypes(), t);
+                        logger.info("Exception thrown while editing" + targetMethod.getDescriptor().getApiDescriptor() + " but MethodEditorExceptionHandler handled it.", t);
+                    } else {
+                        throw new InstrumentException("Fail to edit method " + targetMethod.getDescriptor().getApiDescriptor(), t);
+                    }
+                }
+            }
         }
     }
 }
