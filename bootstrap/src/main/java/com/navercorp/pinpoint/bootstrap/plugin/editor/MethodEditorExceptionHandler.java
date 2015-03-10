@@ -14,13 +14,22 @@
  */
 package com.navercorp.pinpoint.bootstrap.plugin.editor;
 
+
 /**
  * @author Jongho Moon
  *
  */
-public interface BaseMethodEditorBuilder {
-    void condition(ClassCondition condition);
-    void injectInterceptor(String interceptorClassName, Object... constructorArguments);
-    void exceptionHandler(MethodEditorExceptionHandler handler);
-    void property(MethodEditorProperty... properties);
+public interface MethodEditorExceptionHandler {
+    /**
+     * Handles exception thrown wile editing method.
+     * 
+     * If you want to continue editing class, return normally.
+     * If you want to stop editing class, throw an exception.
+     * 
+     * @param targetClassName
+     * @param targetMethodName
+     * @param targetMethodParameterTypes
+     * @param exception
+     */
+    public void handle(String targetClassName, String targetMethodName, String[] targetMethodParameterTypes, Throwable exception) throws Exception;
 }

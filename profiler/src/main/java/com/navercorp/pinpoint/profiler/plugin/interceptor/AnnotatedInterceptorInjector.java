@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.profiler.plugin.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.Scope;
@@ -48,7 +47,7 @@ public class AnnotatedInterceptorInjector implements InterceptorInjector {
     }
     
     @Override
-    public void edit(ClassLoader targetClassLoader, InstrumentClass targetClass, MethodInfo targetMethod) throws InstrumentException {
+    public void edit(ClassLoader targetClassLoader, InstrumentClass targetClass, MethodInfo targetMethod) throws Exception {
         Class<? extends Interceptor> interceptorType = TypeUtils.loadClass(targetClassLoader, interceptorName);
         
         InterceptorFactory factory = createInterceptorFactory(interceptorType);

@@ -15,12 +15,12 @@
 package com.navercorp.pinpoint.profiler.plugin.interceptor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.TargetConstructor;
@@ -36,6 +36,7 @@ import com.navercorp.pinpoint.profiler.plugin.editor.ConstructorEditor;
 import com.navercorp.pinpoint.profiler.plugin.editor.DedicatedMethodEditor;
 import com.navercorp.pinpoint.profiler.plugin.editor.FilteringMethodEditor;
 import com.navercorp.pinpoint.profiler.plugin.editor.MethodEditor;
+import com.navercorp.pinpoint.profiler.plugin.editor.MethodRecipe;
 import com.navercorp.pinpoint.profiler.plugin.objectfactory.AutoBindingObjectFactory;
 
 /**
@@ -60,7 +61,7 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
     }
 
     @Override
-    public void edit(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
+    public void edit(ClassLoader classLoader, InstrumentClass target) throws Exception {
         Class<? extends Interceptor> interceptorType = TypeUtils.loadClass(classLoader, interceptorName);
         
         AnnotatedInterceptorInjector injector = new AnnotatedInterceptorInjector(traceContext, pluginContext, instrumentor, interceptorName, providedArguments);
@@ -119,12 +120,12 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
         
         String[] parameterTypeNames = annotation.paramTypes();
         
-        return new DedicatedMethodEditor(methodName, parameterTypeNames, injector, false);
+        return new DedicatedMethodEditor(methodName, parameterTypeNames, Arrays.<MethodRecipe>asList(injector), null, false);
     }
     
     private MethodEditor createConstructorEditor(TargetConstructor annotation, InterceptorInjector injector) {
         String[] parameterTypeNames = annotation.value();
-        return new ConstructorEditor(parameterTypeNames, injector, false);
+        return new ConstructorEditor(parameterTypeNames, Arrays.<MethodRecipe>asList(injector), null, false);
     }
     
     private MethodEditor createFilteredMethodEditor(TargetFilter annotation, InstrumentClass targetClass, InterceptorInjector injector) {
@@ -143,6 +144,6 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
         AutoBindingObjectFactory<MethodFilter> filterFactory = new AutoBindingObjectFactory<MethodFilter>(traceContext, pluginContext, instrumentor, targetClass, constructorArguments);
         MethodFilter filter = filterFactory.createInstance(type);
         
-        return new FilteringMethodEditor(filter, injector);
+        return new FilteringMethodEditor(filter, Arrays.<MethodRecipe>asList(injector), null);
     }
 }

@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ConstructorEditorBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.DedicatedClassEditor;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorExceptionHandler;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorProperty;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.FieldSnooperInjector;
@@ -198,6 +199,7 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
         private final List<RecipeBuilder<MethodRecipe>> recipeBuilders = new ArrayList<RecipeBuilder<MethodRecipe>>();
         private final EnumSet<MethodEditorProperty> properties = EnumSet.noneOf(MethodEditorProperty.class);
         private ClassCondition condition;
+        private MethodEditorExceptionHandler exceptionHandler;
 
         private DefaultMethodEditorBuilder(String... parameterTypeNames) {
             this.methodName = null;
@@ -223,46 +225,48 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
         }
         
         @Override
-        public void setProperty(MethodEditorProperty... properties) {
+        public void property(MethodEditorProperty... properties) {
             this.properties.addAll(Arrays.asList(properties));
         }
-
+        
         @Override
         public void injectInterceptor(String interceptorClassName, Object... constructorArguments) {
             recipeBuilders.add(new AnnotatedInterceptorInjectorBuilder(interceptorClassName, constructorArguments));
         }
         
+        @Override
+        public void exceptionHandler(MethodEditorExceptionHandler handler) {
+            this.exceptionHandler = handler;
+        }
+
         public MethodEditor build(TraceContext context, ByteCodeInstrumentor instrumentor) {
-            MethodRecipe recipe = buildMethodRecipe(context, instrumentor);
-            MethodEditor editor = buildMethodEditor(recipe);
+            List<MethodRecipe> recipes = buildMethodRecipe(context, instrumentor);
+            MethodEditor editor = buildMethodEditor(recipes);
             
             return editor;
         }
 
-        private MethodEditor buildMethodEditor(MethodRecipe recipe) {
+        private MethodEditor buildMethodEditor(List<MethodRecipe> recipes) {
             MethodEditor editor;
             if (filter != null) {
-                editor = new FilteringMethodEditor(filter, recipe);
+                editor = new FilteringMethodEditor(filter, recipes, exceptionHandler);
             } else if (methodName != null) {
-                editor = new DedicatedMethodEditor(methodName, parameterTypeNames, recipe, properties.contains(MethodEditorProperty.IGNORE_IF_NOT_EXIST));
+                editor = new DedicatedMethodEditor(methodName, parameterTypeNames, recipes, exceptionHandler, properties.contains(MethodEditorProperty.IGNORE_IF_NOT_EXIST));
             } else {
-                editor = new ConstructorEditor(parameterTypeNames, recipe, properties.contains(MethodEditorProperty.IGNORE_IF_NOT_EXIST));
+                editor = new ConstructorEditor(parameterTypeNames, recipes, exceptionHandler, properties.contains(MethodEditorProperty.IGNORE_IF_NOT_EXIST));
             }
             
             if (condition != null) {
                 editor = new ConditionalMethodEditor(condition, editor);
             }
+            
             return editor;
         }
 
-        private MethodRecipe buildMethodRecipe(TraceContext context, ByteCodeInstrumentor instrumentor) {
+        private List<MethodRecipe> buildMethodRecipe(TraceContext context, ByteCodeInstrumentor instrumentor) {
             if (recipeBuilders.isEmpty()) {
                 // For now, a method editor without any interceptor is meaningless. 
                 throw new IllegalStateException("No interceptors are defiend");
-            }
-
-            if (recipeBuilders.size() == 1) {
-                return recipeBuilders.get(0).build(context, instrumentor);
             }
 
             List<MethodRecipe> recipes = new ArrayList<MethodRecipe>(recipeBuilders.size());
@@ -271,7 +275,7 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
                 recipes.add(builder.build(context, instrumentor));
             }
             
-            return new MethodCookBook(recipes);
+            return recipes;
         }
     }
 }

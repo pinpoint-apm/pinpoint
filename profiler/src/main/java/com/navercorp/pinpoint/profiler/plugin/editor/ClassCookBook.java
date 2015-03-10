@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.profiler.plugin.editor;
 import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 
 /**
  * @author Jongho Moon
@@ -34,7 +33,7 @@ public class ClassCookBook implements ClassRecipe {
      * @see com.navercorp.pinpoint.bootstrap.plugin.ClassEditor#edit(java.lang.ClassLoader, com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass)
      */
     @Override
-    public void edit(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
+    public void edit(ClassLoader classLoader, InstrumentClass target) throws Exception {
         for (ClassRecipe recipe : recipes) {
             recipe.edit(classLoader, target);
         }
