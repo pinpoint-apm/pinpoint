@@ -134,7 +134,6 @@ public class DefaultAgent implements Agent {
             throw new NullPointerException("serviceTypeRegistryService must not be null");
         }
 
-
         this.binder = new Slf4jLoggerBinder();
         bindPLoggerFactory(this.binder);
 
@@ -193,10 +192,7 @@ public class DefaultAgent implements Agent {
         this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, retransformer, pluginContexts, pluginJars);
         instrumentation.addTransformer(this.classFileTransformer);
 
-
         preLoadClass();
-
-        start();
     }
 
     private CommandDispatcher createCommandDispatcher() {
