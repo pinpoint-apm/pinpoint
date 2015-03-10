@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
  * @author emeroad
  * @author hyungil.jeong
  */
+@Deprecated
 public class LifeCycleEventListener {
 
     private final static PLogger logger = PLoggerFactory.getLogger(LifeCycleEventListener.class.getName());

@@ -36,6 +36,7 @@ import org.junit.Test;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
+import com.navercorp.pinpoint.test.TestableServerMetaDataListener;
 
 /**
  * @author hyungil.jeong
@@ -48,7 +49,7 @@ public class DefaultServerMetaDataHolderTest {
     private static final List<String> VM_ARGS = Arrays.asList("testVmArgs");
 
     private ExecutorService executorService;
-
+    
     @Before
     public void setUp() {
         this.executorService = Executors.newFixedThreadPool(THREAD_COUNT);
@@ -68,7 +69,9 @@ public class DefaultServerMetaDataHolderTest {
         final Queue<Throwable> exceptions = new ConcurrentLinkedQueue<Throwable>();
         
         final String serviceName = "/test";
+        final TestableServerMetaDataListener listener = new TestableServerMetaDataListener();
         final ServerMetaDataHolder metaDataContext = new DefaultServerMetaDataHolder(VM_ARGS);
+        metaDataContext.addListener(listener);
         metaDataContext.setServerName(SERVER_INFO);
         // When
         for (int i = 0; i < THREAD_COUNT; ++i) {
@@ -80,6 +83,7 @@ public class DefaultServerMetaDataHolderTest {
                     try {
                         startLatch.await();
                         metaDataContext.addServiceInfo(serviceName, serviceLibs);
+                        metaDataContext.publishServerMetaData();
                     } catch (final Throwable t) {
                         exceptions.add(t);
                     } finally {
@@ -94,7 +98,7 @@ public class DefaultServerMetaDataHolderTest {
         endLatch.await();
         // Then
         assertTrue("Failed with exceptions : " + exceptions, exceptions.isEmpty());
-        ServerMetaData metaData = metaDataContext.getServerMetaData();
+        ServerMetaData metaData = listener.getServerMetaData();
         assertEquals(metaData.getServerInfo(), SERVER_INFO);
         assertEquals(metaData.getVmArgs(), VM_ARGS);
         assertEquals(metaData.getServiceInfos().size(), THREAD_COUNT);
@@ -108,7 +112,9 @@ public class DefaultServerMetaDataHolderTest {
         final CountDownLatch endLatch = new CountDownLatch(THREAD_COUNT);
         final Queue<Throwable> exceptions = new ConcurrentLinkedQueue<Throwable>();
         
+        final TestableServerMetaDataListener listener = new TestableServerMetaDataListener();
         final ServerMetaDataHolder metaDataContext = new DefaultServerMetaDataHolder(VM_ARGS);
+        metaDataContext.addListener(listener);
         metaDataContext.setServerName(SERVER_INFO);
         // When
         final List<ServerMetaData> serverMetaDatas = new Vector<ServerMetaData>(THREAD_COUNT/2);
@@ -123,6 +129,7 @@ public class DefaultServerMetaDataHolderTest {
                         try {
                             startLatch.await();
                             metaDataContext.addServiceInfo(serviceName, serviceLibs);
+                            metaDataContext.publishServerMetaData();
                         } catch (Throwable t) {
                             exceptions.add(t);
                         } finally {
@@ -138,7 +145,7 @@ public class DefaultServerMetaDataHolderTest {
                         initLatch.countDown();
                         try {
                             startLatch.await();
-                            ServerMetaData serverMetaData = metaDataContext.getServerMetaData();
+                            ServerMetaData serverMetaData = listener.getServerMetaData();
                             serverMetaDatas.add(serverMetaData);
                         } catch (Throwable t) {
                             exceptions.add(t);
@@ -155,11 +162,11 @@ public class DefaultServerMetaDataHolderTest {
         endLatch.await();
         // Then
         assertTrue("Failed with exceptions : " + exceptions, exceptions.isEmpty());
-        ServerMetaData metaData = metaDataContext.getServerMetaData();
+        ServerMetaData metaData = listener.getServerMetaData();
         assertEquals(metaData.getServerInfo(), SERVER_INFO);
         assertEquals(metaData.getVmArgs(), VM_ARGS);
         assertEquals(metaData.getServiceInfos().size(), THREAD_COUNT/2);
         assertEquals(serverMetaDatas.size(), THREAD_COUNT/2);
     }
-
+    
 }

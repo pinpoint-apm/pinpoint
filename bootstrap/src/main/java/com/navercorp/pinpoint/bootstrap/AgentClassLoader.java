@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.bootstrap;
 
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
@@ -40,7 +38,6 @@ public class AgentClassLoader {
 
     private String bootClass;
 
-    private Agent agentBootStrap;
     private final ContextClassLoaderExecuteTemplate<Object> executeTemplate;
 
     public AgentClassLoader(URL[] urls) {
@@ -70,7 +67,7 @@ public class AgentClassLoader {
         this.bootClass = bootClass;
     }
 
-    public void boot(final String agentArgs, final Instrumentation instrumentation, final ProfilerConfig profilerConfig, final URL[] pluginJars, final ServiceTypeRegistryService serviceTypeRegistryService) {
+    public Agent boot(final String agentArgs, final Instrumentation instrumentation, final ProfilerConfig profilerConfig, final URL[] pluginJars, final ServiceTypeRegistryService serviceTypeRegistryService) {
 
         final Class<?> bootStrapClazz = getBootStrapClass();
 
@@ -89,7 +86,7 @@ public class AgentClassLoader {
         });
 
         if (agent instanceof Agent) {
-            this.agentBootStrap = (Agent) agent;
+            return (Agent) agent;
         } else {
             String agentClassName;
             if (agent == null) {
@@ -101,45 +98,11 @@ public class AgentClassLoader {
         }
     }
 
-
     private Class<?> getBootStrapClass() {
         try {
             return this.classLoader.loadClass(bootClass);
         } catch (ClassNotFoundException e) {
             throw new BootStrapException("boot class not found. bootClass:" + bootClass + " Error:" + e.getMessage(), e);
-        }
-    }
-
-    @Deprecated
-    public Object initializeLoggerBinder() {
-        if (agentBootStrap != null) {
-            return reflectionInvoke(this.agentBootStrap, "initializeLogger", null, null);
-        }
-        return null;
-    }
-
-    private Object reflectionInvoke(Object target, String method, Class[] type, final Object[] args) {
-        final Method findMethod = findMethod(target.getClass(), method, type);
-        return executeTemplate.execute(new Callable<Object>() {
-            @Override
-            public Object call() {
-                try {
-                    return findMethod.invoke(agentBootStrap, args);
-                } catch (InvocationTargetException e) {
-                    throw new BootStrapException(findMethod.getName() + "() failed. Error:" + e.getMessage(), e);
-                } catch (IllegalAccessException e) {
-                    throw new BootStrapException("boot method invoke failed. Error:" + e.getMessage(), e);
-                }
-            }
-        });
-
-    }
-
-    private Method findMethod(Class<?> clazz, String method, Class[] type) {
-        try {
-            return clazz.getDeclaredMethod(method, type);
-        } catch (NoSuchMethodException e) {
-            throw new BootStrapException("(" + method + ") boot method not found. Error:" + e.getMessage(), e);
         }
     }
 

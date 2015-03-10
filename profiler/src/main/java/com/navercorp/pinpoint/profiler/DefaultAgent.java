@@ -134,7 +134,6 @@ public class DefaultAgent implements Agent {
             throw new NullPointerException("serviceTypeRegistryService must not be null");
         }
 
-
         this.binder = new Slf4jLoggerBinder();
         bindPLoggerFactory(this.binder);
 
@@ -152,9 +151,9 @@ public class DefaultAgent implements Agent {
         List<DefaultProfilerPluginContext> pluginContexts = loadProfilerPlugins(profilerConfig, pluginJars);
 
         String applicationServerTypeString = profilerConfig.getApplicationServerType();
-        ServiceType applicationServerType = serviceTypeRegistryService.findServiceTypeByName(applicationServerTypeString);
+        ServiceType applicationServerType = this.serviceTypeRegistryService.findServiceTypeByName(applicationServerTypeString);
 
-        final ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(pluginContexts, applicationServerType, serviceTypeRegistryService);
+        final ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(pluginContexts, applicationServerType, this.serviceTypeRegistryService);
         if (!typeResolver.resolve()) {
             throw new PinpointException("ApplicationServerType not found.");
         }
@@ -182,7 +181,8 @@ public class DefaultAgent implements Agent {
 
         this.traceContext = createTraceContext(agentInformation.getServerType());
 
-        this.agentInfoSender = new AgentInfoSender(tcpDataSender, profilerConfig.getAgentInfoSendRetryInterval(), this.agentInformation, this.serverMetaDataHolder);
+        this.agentInfoSender = new AgentInfoSender(tcpDataSender, profilerConfig.getAgentInfoSendRetryInterval(), this.agentInformation);
+        this.serverMetaDataHolder.addListener(this.agentInfoSender);
 
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime());
         
@@ -192,17 +192,7 @@ public class DefaultAgent implements Agent {
         this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, retransformer, pluginContexts, pluginJars);
         instrumentation.addTransformer(this.classFileTransformer);
 
-
         preLoadClass();
-
-        /**
-         * FIXME
-         * In case of Tomcat, com.navercorp.pinpoint.profiler.modifier.tomcat.interceptor.CatalinaAwaitInterceptor invokes start() method 
-         * before entering await() method of org.apache.catalina.startup.Catalina. But for other applications, it must be invoked directly. 
-         */
-        if (typeResolver.isManuallyStartupRequired()) {
-            start();
-        }
     }
 
     private CommandDispatcher createCommandDispatcher() {

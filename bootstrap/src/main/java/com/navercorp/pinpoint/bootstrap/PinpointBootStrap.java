@@ -123,7 +123,9 @@ public class PinpointBootStrap {
             String bootClass = argMap.containsKey("bootClass") ? argMap.get("bootClass") : BOOT_CLASS;
             agentClassLoader.setBootClass(bootClass);
             logger.info("pinpoint agent [" + bootClass + "] starting...");
-            agentClassLoader.boot(agentArgs, instrumentation, profilerConfig, pluginJars, serviceTypeRegistryService);
+            Agent pinpointAgent = agentClassLoader.boot(agentArgs, instrumentation, profilerConfig, pluginJars, serviceTypeRegistryService);
+            pinpointAgent.start();
+            registerShutdownHook(pinpointAgent);
             logger.info("pinpoint agent started normally.");
         } catch (Exception e) {
             // unexpected exception that did not be checked above
@@ -133,6 +135,15 @@ public class PinpointBootStrap {
 
     }
     
+    private static void registerShutdownHook(final Agent pinpointAgent) {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                pinpointAgent.stop();
+            }
+        });
+    }
+
     private static Map<String, String> parseAgentArgs(String str) {
         Map<String, String> map = new HashMap<String, String>();
         
