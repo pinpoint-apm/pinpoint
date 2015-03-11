@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder.ServerMetaDataListener;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
@@ -45,7 +45,7 @@ import com.navercorp.pinpoint.thrift.dto.TServiceInfo;
  * @author koo.taejin
  * @author hyungil.jeong
  */
-public class AgentInfoSender {
+public class AgentInfoSender implements ServerMetaDataListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentInfoSender.class);
 
     private static final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("Pinpoint-agentInfo-sender", true);
@@ -54,9 +54,8 @@ public class AgentInfoSender {
     private final long agentInfoSendIntervalMs; 
     private final EnhancedDataSender dataSender;
     private final AgentInformation agentInformation;
-    private final ServerMetaDataHolder serverMetaDataHolder;
 
-    public AgentInfoSender(EnhancedDataSender dataSender, long agentInfoSendIntervalMs, AgentInformation agentInformation, ServerMetaDataHolder serverMetaDataHolder) {
+    public AgentInfoSender(EnhancedDataSender dataSender, long agentInfoSendIntervalMs, AgentInformation agentInformation) {
         if (dataSender == null) {
             throw new NullPointerException("dataSender must not be null");
         }
@@ -66,7 +65,6 @@ public class AgentInfoSender {
         this.agentInfoSendIntervalMs = agentInfoSendIntervalMs;
         this.dataSender = dataSender;
         this.agentInformation = agentInformation;
-        this.serverMetaDataHolder = serverMetaDataHolder;
     }
 
     public void start() {
@@ -74,20 +72,43 @@ public class AgentInfoSender {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("AgentInfoSender started. Sending startup information to Pinpoint server via {}. agentInfo={}", dataSender.getClass().getSimpleName(), agentInfo);
         }
+        send(agentInfo);
+    }
+    
+    @Override
+    public void publishServerMetaData(ServerMetaData serverMetaData) {
+        final TAgentInfo agentInfo = createTAgentInfo(serverMetaData);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Sending AgentInfo with ServerMetaData. {}", agentInfo);
+        }
+        send(agentInfo);
+    }
+    
+    private void send(final TAgentInfo agentInfo) {
         final AgentInfoSendRunnable agentInfoSendJob = new AgentInfoSendRunnable(agentInfo);
         new AgentInfoSendRunnableWrapper(agentInfoSendJob).repeatWithFixedDelay(EXECUTOR_SERVICE, 0, this.agentInfoSendIntervalMs, TimeUnit.MILLISECONDS);
     }
     
     private TAgentInfo createTAgentInfo() {
-        final ServerMetaData serverMetaData = this.serverMetaDataHolder.getServerMetaData();
-        
+        final TAgentInfo agentInfo = new TAgentInfo();
+        agentInfo.setIp(this.agentInformation.getHostIp());
+        agentInfo.setHostname(this.agentInformation.getMachineName());
+        agentInfo.setPorts("");
+        agentInfo.setAgentId(this.agentInformation.getAgentId());
+        agentInfo.setApplicationName(this.agentInformation.getApplicationName());
+        agentInfo.setPid(this.agentInformation.getPid());
+        agentInfo.setStartTimestamp(this.agentInformation.getStartTime());
+        agentInfo.setServiceType(this.agentInformation.getServerType().getCode());
+        agentInfo.setVersion(Version.VERSION);
+        return agentInfo;
+    }
+    
+    private TAgentInfo createTAgentInfo(final ServerMetaData serverMetaData) {
         final StringBuilder ports = new StringBuilder();
-
         for (Entry<Integer, String> entry : serverMetaData.getConnectors().entrySet()) {
             ports.append(" ");
             ports.append(entry.getKey());
         }
-        
         final TAgentInfo agentInfo = new TAgentInfo();
         agentInfo.setIp(this.agentInformation.getHostIp());
         agentInfo.setHostname(this.agentInformation.getMachineName());
@@ -98,9 +119,7 @@ public class AgentInfoSender {
         agentInfo.setStartTimestamp(this.agentInformation.getStartTime());
         agentInfo.setServiceType(this.agentInformation.getServerType().getCode());
         agentInfo.setVersion(Version.VERSION);
-
         agentInfo.setServerMetaData(createTServiceInfo(serverMetaData));
-        
         return agentInfo;
     }
     

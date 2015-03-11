@@ -53,7 +53,6 @@ public class PinpointSocket {
 
     public PinpointSocket(SocketHandler socketHandler) {
         AssertUtils.assertNotNull(socketHandler, "socketHandler");
-        socketHandler.doHandshake();
 
         this.socketHandler = socketHandler;
         socketHandler.setPinpointSocket(this);
@@ -68,9 +67,6 @@ public class PinpointSocket {
             return;
         }
         logger.warn("reconnectSocketHandler:{}", socketHandler);
-        
-        // register listener before becoming internal object of Pinpoint socket.
-        socketHandler.doHandshake();
         
         this.socketHandler = socketHandler;
         
