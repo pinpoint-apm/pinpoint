@@ -57,7 +57,7 @@ public class JedisPipelineMethodInterceptor extends SpanEventSimpleAroundInterce
 
         trace.recordApi(getMethodDescriptor());
         trace.recordEndPoint(endPoint != null ? endPoint : "Unknown");
-        trace.recordDestinationId(REDIS.toString());
+        trace.recordDestinationId(REDIS.getName());
         trace.recordServiceType(REDIS);
         trace.recordException(throwable);
         trace.markAfterTime();

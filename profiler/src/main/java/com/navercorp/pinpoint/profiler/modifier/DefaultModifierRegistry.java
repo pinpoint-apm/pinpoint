@@ -73,12 +73,6 @@ import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.SqlMapClientImplModif
 import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.SqlMapSessionImplModifier;
 import com.navercorp.pinpoint.profiler.modifier.orm.mybatis.DefaultSqlSessionModifier;
 import com.navercorp.pinpoint.profiler.modifier.orm.mybatis.SqlSessionTemplateModifier;
-import com.navercorp.pinpoint.profiler.modifier.redis.BinaryJedisModifier;
-import com.navercorp.pinpoint.profiler.modifier.redis.JedisClientModifier;
-import com.navercorp.pinpoint.profiler.modifier.redis.JedisModifier;
-import com.navercorp.pinpoint.profiler.modifier.redis.JedisMultiKeyPipelineBaseModifier;
-import com.navercorp.pinpoint.profiler.modifier.redis.JedisPipelineBaseModifier;
-import com.navercorp.pinpoint.profiler.modifier.redis.JedisPipelineModifier;
 import com.navercorp.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
 import com.navercorp.pinpoint.profiler.modifier.spring.beans.AbstractAutowireCapableBeanFactoryModifier;
 import com.navercorp.pinpoint.profiler.modifier.spring.orm.ibatis.SqlMapClientTemplateModifier;
@@ -381,20 +375,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     public void addSpringBeansModifier() {
         if (profilerConfig.isSpringBeansEnabled()) {
             addModifier(AbstractAutowireCapableBeanFactoryModifier.of(byteCodeInstrumentor, agent.getProfilerConfig(), retransformer));
-        }
-    }
-    
-    public void addRedisModifier() {
-        if(profilerConfig.isRedisEnabled()) {
-            addModifier(new BinaryJedisModifier(byteCodeInstrumentor, agent));
-            addModifier(new JedisModifier(byteCodeInstrumentor, agent));
-        }
-
-        if(profilerConfig.isRedisPipelineEnabled()) {
-            addModifier(new JedisClientModifier(byteCodeInstrumentor, agent));
-            addModifier(new JedisPipelineBaseModifier(byteCodeInstrumentor, agent));
-            addModifier(new JedisMultiKeyPipelineBaseModifier(byteCodeInstrumentor, agent));
-            addModifier(new JedisPipelineModifier(byteCodeInstrumentor, agent));
         }
     }
 

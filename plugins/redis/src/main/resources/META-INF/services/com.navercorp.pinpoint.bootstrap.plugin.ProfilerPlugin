@@ -1,1 +1,1 @@
-com.navercorp.pinpoint.plugin.tomcat.TomcatPlugin
+com.navercorp.pinpoint.plugin.redis.RedisPlugin

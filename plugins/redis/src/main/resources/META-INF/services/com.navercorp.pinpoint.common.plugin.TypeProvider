@@ -1,1 +1,1 @@
-com.navercorp.pinpoint.plugin.tomcat.TomcatTypeProvider
+com.navercorp.pinpoint.plugin.redis.RedisTypeProvider
