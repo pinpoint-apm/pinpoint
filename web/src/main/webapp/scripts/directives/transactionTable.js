@@ -45,6 +45,8 @@ pinpointApp.directive('transactionTable', ['$window', function ($window) {
                 var index = 1;
                 angular.forEach(scope.transactionList, function (val, key) {
                     val['index'] = index++;
+                    val['logName'] = "nelo";
+                    val['logUrl'] = "http://localhost/NeloLogWithTransactionId.pinpoint?transactionId=minwoo_local_tomcat%5E1425368654938%5E10";
                 });
             };
 

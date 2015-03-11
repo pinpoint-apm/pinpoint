@@ -16,8 +16,8 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
 
                 // initialize variables of methods
                 var initialize, treeFormatter, treeFilter, parseData, execTimeFormatter,
-                     getColorByString, progressBarFormatter, argumentFormatter, hasChildNode;
-                    //getColorByString, progressBarFormatter, argumentFormatter, linkFormatter, hasChildNode;
+//                     getColorByString, progressBarFormatter, argumentFormatter, hasChildNode;
+                    getColorByString, progressBarFormatter, argumentFormatter, linkFormatter, hasChildNode;
 
                 // bootstrap
                 window.callStacks = []; // Due to Slick.Data.DataView, must use window property to resolve scope-related problems.
@@ -125,14 +125,14 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                 };
                 
                 
-                //linkFormatter = function (row, cell, value, columnDef, dataConrtext) {
-                //    var html = [];
-                //    html.push('<a class="btn btn-default btn-xs"');
-                //    html.push('href="')
-                //    html.push(value);
-                //    html.push('" target="_blank">nelo</a>');
-                //    return html.join('');
-                //};
+                linkFormatter = function (row, cell, value, columnDef, dataConrtext) {
+                    var html = [];
+                    html.push('<a class="btn btn-default btn-xs"');
+                    html.push('href="')
+                    html.push(value);
+                    html.push('" target="_blank">nelo</a>');
+                    return html.join('');
+                };
 
                 /**
                  * exec time formatter
@@ -182,8 +182,8 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                     {id: "class", name: "Class", field: "class", width: 120},
                     {id: "api-type", name: "Api Type", field: "apiType", width: 90},
                     {id: "agent", name: "Agent", field: "agent", width: 130},
-                    {id: "application-name", name: "Application Name", field: "applicationName", width: 150}//,
-                    //{id: "Loglink", name: "log", field: "logLink", width: 50, formatter:linkFormatter}
+                    {id: "application-name", name: "Application Name", field: "applicationName", width: 150},
+                    {id: "Loglink", name: "log", field: "logLink", width: 50, formatter:linkFormatter}
                 ];
 
                 /**
@@ -211,8 +211,8 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                             agent: val[index['agent']],
                             applicationName: val[index['applicationName']],
                             hasException: val[index['hasException']],
-                            isMethod: val[index['isMethod']] //,
-                            //logLink : "http://localhost/urllogLink/"
+                            isMethod: val[index['isMethod']] ,
+                            logLink : "http://localhost/NeloLogWithTransactionId.pinpoint?transactionId=minwoo_local_tomcat%5E1425368654938%5E10"
                         });
                     });
                     return result;
