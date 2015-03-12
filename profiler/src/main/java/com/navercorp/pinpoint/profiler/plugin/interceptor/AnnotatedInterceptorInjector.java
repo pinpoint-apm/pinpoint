@@ -31,17 +31,13 @@ import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
  */
 
 public class AnnotatedInterceptorInjector implements InterceptorInjector {
-    private final TraceContext traceContext;
     private final DefaultProfilerPluginContext pluginContext;
-    private final ByteCodeInstrumentor instrumentor;
     private final String interceptorName;
     private final Object[] providedArguments;
 
 
-    public AnnotatedInterceptorInjector(TraceContext traceContext, DefaultProfilerPluginContext pluginContext, ByteCodeInstrumentor instrumentor, String interceptorName, Object[] providedArguments) {
-        this.traceContext = traceContext;
+    public AnnotatedInterceptorInjector(DefaultProfilerPluginContext pluginContext, String interceptorName, Object[] providedArguments) {
         this.pluginContext = pluginContext;
-        this.instrumentor = instrumentor;
         this.interceptorName = interceptorName;
         this.providedArguments = providedArguments;
     }
@@ -65,7 +61,7 @@ public class AnnotatedInterceptorInjector implements InterceptorInjector {
     }
     
     private InterceptorFactory createInterceptorFactory(Class<? extends Interceptor> interceptorType) {
-        InterceptorFactory factory = new AnnotatedInterceptorFactory(traceContext, pluginContext, instrumentor, interceptorType, providedArguments);
+        InterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext, interceptorType, providedArguments);
         
         Scope scope = interceptorType.getAnnotation(Scope.class);
         
@@ -76,7 +72,7 @@ public class AnnotatedInterceptorInjector implements InterceptorInjector {
                 throw new PinpointException("@Scope must provide scope name. Interceptor class: " + interceptorName);
             }
             
-            factory = new ScopedInterceptorFactory(factory, instrumentor, scopeName);
+            factory = new ScopedInterceptorFactory(factory, pluginContext.getByteCodeInstrumentor(), scopeName);
         }
         
         return factory;

@@ -36,7 +36,9 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
@@ -56,8 +58,8 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     
     private TestableServerMetaDataListener serverMetaDataListener;
     
-    public PluginTestAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars) {
-        super(agentArgs, instrumentation, profilerConfig, pluginJars);
+    public PluginTestAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars, ServiceTypeRegistryService serviceTypeRegistryService) {
+        super(agentArgs, instrumentation, profilerConfig, pluginJars, serviceTypeRegistryService);
         PluginTestVerifierHolder.setInstance(this);
     }
 
@@ -97,11 +99,12 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
     
     @Override
-    public void verifyServerType(ServiceType serviceType) {
+    public void verifyServerType(String serviceTypeName) {
+        ServiceType expectedType = findServiceType(serviceTypeName);
         ServiceType actualType = getAgentInformation().getServerType();
         
-        if (serviceType != actualType) {
-            throw new AssertionError("Expected server type: " + serviceType.getName() + "[" + serviceType.getCode() + "] but was " + actualType + "[" + actualType.getCode() + "]");
+        if (expectedType != actualType) {
+            throw new AssertionError("Expected server type: " + expectedType.getName() + "[" + expectedType.getCode() + "] but was " + actualType + "[" + actualType.getCode() + "]");
         }
     }
     
@@ -152,27 +155,41 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         }
     }
     
+    private ServiceType findServiceType(String name) {
+        ServiceType serviceType = getServiceTypeRegistryService().findServiceTypeByName(name);
+        
+        if (serviceType == ServiceType.UNDEFINED) {
+            throw new AssertionError("No such service type: " + name);
+        }
+        
+        return serviceType;
+    }
+    
     @Override
-    public void verifySpan(ServiceType serviceType, ExpectedAnnotation... annotations) {
+    public void verifySpan(String serviceTypeName, ExpectedAnnotation... annotations) {
+        ServiceType serviceType = findServiceType(serviceTypeName);
         Expected expected = new Expected(Span.class, serviceType, null, null, null, null, null, annotations);
         verifySpan(expected);
     }
     
     @Override
-    public void verifySpanEvent(ServiceType serviceType, ExpectedAnnotation... annotations) {
+    public void verifySpanEvent(String serviceTypeName, ExpectedAnnotation... annotations) {
+        ServiceType serviceType = findServiceType(serviceTypeName);
         Expected expected = new Expected(SpanEvent.class, serviceType, null, null, null, null, null, annotations);
         verifySpan(expected);
     }
 
     @Override
-    public void verifySpan(ServiceType serviceType, Method method, String rpc, String endPoint, String remoteAddr, ExpectedAnnotation... annotations) {
+    public void verifySpan(String serviceTypeName, Method method, String rpc, String endPoint, String remoteAddr, ExpectedAnnotation... annotations) {
+        ServiceType serviceType = findServiceType(serviceTypeName);
         int apiId = findApiId(method);
         Expected expected = new Expected(Span.class, serviceType, apiId, rpc, endPoint, remoteAddr, null, annotations);
         verifySpan(expected);
     }
     
     @Override
-    public void verifySpanEvent(ServiceType serviceType, Method method, String rpc, String endPoint, String destinationId, ExpectedAnnotation... annotations) {
+    public void verifySpanEvent(String serviceTypeName, Method method, String rpc, String endPoint, String destinationId, ExpectedAnnotation... annotations) {
+        ServiceType serviceType = findServiceType(serviceTypeName);
         int apiId = findApiId(method);
         Expected expected = new Expected(Span.class, serviceType, apiId, rpc, endPoint, null, destinationId, annotations);
         verifySpan(expected);
@@ -462,16 +479,18 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         
         for (int i = 0; i < len; i++) {
             ExpectedAnnotation expect = expected.annotations[i];
+            AnnotationKey expectedAnnotationKey = AnnotationKey.valueOf(expect.getKeyName());
             TAnnotation actual = actualAnnotations.get(i);
             
-            if (expect.getKey() != actual.getKey() || !Objects.equal(expect.getValue(), actual.getValue().getFieldValue())) {
+            if (expectedAnnotationKey.getCode() != actual.getKey() || !Objects.equal(expect.getValue(), actual.getValue().getFieldValue())) {
                 throw new AssertionError("Expected " + i + "th annotation [" + expect + "] but was [" + toString(actual) + "], expected: " + expected + ", was: " + span);
             }
         }
     }
     
     @Override
-    public void verifyApi(ServiceType serviceType, Method method, Object... args) {
+    public void verifyApi(String serviceTypeName, Method method, Object... args) {
+        ServiceType serviceType = findServiceType(serviceTypeName);
         int apiId = findApiId(method);
         ExpectedAnnotation[] annotations = ExpectedAnnotation.args(args);
         Expected expected = new Expected(SpanEvent.class, serviceType, apiId, null, null, null, null, annotations);

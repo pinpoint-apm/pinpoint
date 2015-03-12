@@ -39,7 +39,7 @@ public class DefaultTypeLoaderService implements TypeLoaderService {
         if (jarLists == null) {
             throw new NullPointerException("classLoader must not be null");
         }
-        this.loader = new TypeProviderLoader(false);
+        this.loader = new TypeProviderLoader();
         loader.load(jarLists);
 
         initAnnotationKey();
@@ -54,7 +54,7 @@ public class DefaultTypeLoaderService implements TypeLoaderService {
         if (classLoader == null) {
             throw new NullPointerException("classLoader must not be null");
         }
-        this.loader = new TypeProviderLoader(false);
+        this.loader = new TypeProviderLoader();
         loader.load(classLoader);
     }
 

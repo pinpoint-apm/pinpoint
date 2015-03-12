@@ -22,10 +22,14 @@ import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
  * @author Jongho Moon
  *
  */
-public interface ProfilerPluginSetupContext extends ProfilerPluginContext {
+public interface ProfilerPluginSetupContext {
     public ProfilerConfig getConfig();
+
+    public Object setAttribute(String key, Object value);
+    public Object getAttribute(String key);
 
     public ClassEditorBuilder newClassEditorBuilder();
     
+    public void addClassEditor(ClassEditor classEditor);
     public void addServerTypeDetector(ServerTypeDetector... detectors);
 }

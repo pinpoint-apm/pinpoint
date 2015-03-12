@@ -78,9 +78,11 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
     private void addJedisClassEditors(ProfilerPluginSetupContext context, RedisPluginConfig config) {
         final ClassEditorBuilder classEditorBuilder = addJedisExtendedClassEditor(context, config, BINARY_JEDIS);
         classEditorBuilder.injectMetadata(METADATA_END_POINT);
+        context.addClassEditor(classEditorBuilder.build());
 
         // Jedis extends BinaryJedis
-        addJedisExtendedClassEditor(context, config, JEDIS);
+        context.addClassEditor(addJedisExtendedClassEditor(context, config, JEDIS).build());
+        
     }
 
     private ClassEditorBuilder addJedisExtendedClassEditor(ProfilerPluginSetupContext context, RedisPluginConfig config, final String targetClassName) {
@@ -130,18 +132,20 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
         final ConstructorEditorBuilder constructorEditorBuilderArg1 = classEditorBuilder.editConstructor(STRING);
         constructorEditorBuilderArg1.property(MethodEditorProperty.IGNORE_IF_NOT_EXIST);
         constructorEditorBuilderArg1.injectInterceptor(JEDIS_CLIENT_CONSTRUCTOR_INTERCEPTOR);
-
+        
         final ConstructorEditorBuilder constructorEditorBuilderArg2 = classEditorBuilder.editConstructor(STRING, INT);
         constructorEditorBuilderArg2.property(MethodEditorProperty.IGNORE_IF_NOT_EXIST);
         constructorEditorBuilderArg2.injectInterceptor(JEDIS_CLIENT_CONSTRUCTOR_INTERCEPTOR);
+
+        context.addClassEditor(classEditorBuilder.build());
     }
 
     // Pipeline
     private void addJedisPipelineClassEditors(ProfilerPluginSetupContext context, RedisPluginConfig config) {
-        addJedisPipelineBaseExtendedClassEditor(context, config, JEDIS_PIPELINE_BASE);
+        context.addClassEditor(addJedisPipelineBaseExtendedClassEditor(context, config, JEDIS_PIPELINE_BASE).build());
 
         // MultikeyPipellineBase extends PipelineBase
-        addJedisPipelineBaseExtendedClassEditor(context, config, JEDIS_MULTIKEY_PIPELINE_BASE);
+        context.addClassEditor(addJedisPipelineBaseExtendedClassEditor(context, config, JEDIS_MULTIKEY_PIPELINE_BASE).build());
 
         // Pipeline extends PipelineBase
         final ClassEditorBuilder classEditorBuilder = addJedisPipelineBaseExtendedClassEditor(context, config, JEDIS_PIPELINE);
@@ -153,6 +157,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
         final ConstructorEditorBuilder constructorEditorBuilder = classEditorBuilder.editConstructor(JEDIS_CLIENT);
         constructorEditorBuilder.property(MethodEditorProperty.IGNORE_IF_NOT_EXIST);
         constructorEditorBuilder.injectInterceptor(JEDIS_PIPELINE_CONSTRUCTOR_INTERCEPTOR);
+        context.addClassEditor(classEditorBuilder.build());
     }
 
     private ClassEditorBuilder addJedisPipelineBaseExtendedClassEditor(ProfilerPluginSetupContext context, RedisPluginConfig config, String targetClassName) {
