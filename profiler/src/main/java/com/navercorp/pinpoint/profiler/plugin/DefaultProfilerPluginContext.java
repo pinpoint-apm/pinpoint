@@ -33,13 +33,14 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ServerTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
+import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.plugin.editor.DefaultClassEditorBuilder;
 
 public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, ProfilerPluginContext {
-    private final ProfilerConfig config;
+    private final DefaultAgent agent;
     
     private final List<ServerTypeDetector> serverTypeDetectors = new ArrayList<ServerTypeDetector>();
-    private final List<DefaultClassEditorBuilder> classEditorBuilders = new ArrayList<DefaultClassEditorBuilder>();
+    private final List<ClassEditor> classEditors = new ArrayList<ClassEditor>();
     
     private final ConcurrentMap<String, Object> attributeMap = new ConcurrentHashMap<String, Object>();
     private final Map<String, MetadataAccessor> metadataAccessorMap = new HashMap<String, MetadataAccessor>();
@@ -48,22 +49,35 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     private int metadataAccessorIndex = 0;
     private int fieldSnooperIndex = 0;
     
-    public DefaultProfilerPluginContext(ProfilerConfig config) {
-        this.config = config;
+    public DefaultProfilerPluginContext(DefaultAgent agent) {
+        this.agent = agent;
     }
 
     @Override
     public ClassEditorBuilder newClassEditorBuilder() {
-        DefaultClassEditorBuilder builder = new DefaultClassEditorBuilder(this);
-        classEditorBuilders.add(builder);
-        return builder;
+        return new DefaultClassEditorBuilder(this);
     }
     
     @Override
-    public ProfilerConfig getConfig() {
-        return config;
+    public void addClassEditor(ClassEditor classEditor) {
+        classEditors.add(classEditor);
     }
-    
+
+    @Override
+    public ProfilerConfig getConfig() {
+        return agent.getProfilerConfig();
+    }
+
+    @Override
+    public TraceContext getTraceContext() {
+        return agent.getTraceContext();
+    }
+
+    @Override
+    public ByteCodeInstrumentor getByteCodeInstrumentor() {
+        return agent.getByteCodeInstrumentor();
+    }
+
     public MetadataAccessor allocateMetadataAccessor(String name) {
         MetadataAccessor accessor = metadataAccessorMap.get(name);
         
@@ -129,14 +143,8 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
         }
     }
 
-    public List<ClassEditor> getClassEditors(TraceContext context, ByteCodeInstrumentor instrumentor) {
-        List<ClassEditor> editors = new ArrayList<ClassEditor>(classEditorBuilders.size());
-        
-        for (DefaultClassEditorBuilder builder : classEditorBuilders) {
-            editors.add(builder.build(context, instrumentor));
-        }
-        
-        return editors;
+    public List<ClassEditor> getClassEditors() {
+        return classEditors;
     }
 
     public List<ServerTypeDetector> getServerTypeDetectors() {

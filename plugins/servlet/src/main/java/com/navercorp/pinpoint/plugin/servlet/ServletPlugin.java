@@ -39,5 +39,7 @@ public class ServletPlugin implements ProfilerPlugin {
         
         MethodEditorBuilder doPostBuilder = builder.editMethod("doPost", "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse");
         doPostBuilder.injectInterceptor("com.navercorp.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor", ServletConstants.SERVLET);
+        
+        context.addClassEditor(builder.build());
     }
 }
