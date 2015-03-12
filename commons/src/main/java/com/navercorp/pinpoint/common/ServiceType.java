@@ -197,8 +197,8 @@ public class ServiceType {
     public static final ServiceType MEMCACHED = of(8050, "MEMCACHED", FAST_SCHEMA, TERMINAL, RECORD_STATISTICS);
     public static final ServiceType MEMCACHED_FUTURE_GET = of(8051, "MEMCACHED_FUTURE_GET", "MEMCACHED", FAST_SCHEMA, TERMINAL);
 
-    // Redis & nBase-ARC
-    public static final ServiceType REDIS = of(8200, "REDIS", FAST_SCHEMA, TERMINAL, RECORD_STATISTICS);
+    // Redis
+    // public static final ServiceType REDIS = of(8200, "REDIS", FAST_SCHEMA, TERMINAL, RECORD_STATISTICS);
 
     // Connector, Client
     public static final ServiceType HTTP_CLIENT = of(9050, "HTTP_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);

@@ -4,34 +4,32 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pom</artifactId>
+        <relativePath>../..</relativePath>
         <version>1.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pinpoint-plugins</artifactId>
-    <name>pinpoint-plugins</name>
-    <packaging>pom</packaging>
-    
-    <modules>
-        <module>servlet</module>
-        <module>tomcat</module>
-        <module>redis</module>
-    </modules>
+    <artifactId>pinpoint-redis-plugin</artifactId>
+    <name>pinpoint-redis-plugin</name>
+    <packaging>jar</packaging>
 
     <dependencies>
+        <!-- should be replaced with below dependencies after pinpoint-test 
+            project is completed -->
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-servlet-plugin</artifactId>
-            <version>${project.version}</version>
+            <artifactId>pinpoint-profiler</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-tomcat-plugin</artifactId>
-            <version>${project.version}</version>
+            <artifactId>pinpoint-test</artifactId>
+            <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-redis-plugin</artifactId>
-            <version>${project.version}</version>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

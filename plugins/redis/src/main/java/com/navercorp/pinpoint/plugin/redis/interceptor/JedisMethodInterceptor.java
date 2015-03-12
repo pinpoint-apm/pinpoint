@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.redis.interceptor;
+package com.navercorp.pinpoint.plugin.redis.interceptor;
 
-import java.util.Map;
-
+import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.MapTraceValue;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.bootstrap.plugin.Cached;
+import com.navercorp.pinpoint.bootstrap.plugin.Name;
+import com.navercorp.pinpoint.plugin.redis.RedisConstants;
 
 /**
  * Jedis (redis client) method interceptor
@@ -30,10 +31,17 @@ import com.navercorp.pinpoint.common.ServiceType;
  * @author jaehong.kim
  *
  */
-public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptor implements TargetClassLoader {
+public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptor implements RedisConstants {
 
-    public JedisMethodInterceptor() {
+    private MetadataAccessor endPointAccessor;
+
+    public JedisMethodInterceptor(TraceContext traceContext, @Cached MethodDescriptor methodDescriptor, @Name(METADATA_END_POINT) MetadataAccessor endPointAccessor) {
         super(JedisMethodInterceptor.class);
+
+        this.endPointAccessor = endPointAccessor;
+
+        setTraceContext(traceContext);
+        setMethodDescriptor(methodDescriptor);
     }
 
     @Override
@@ -44,17 +52,15 @@ public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptor imp
     @Override
     public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
         String endPoint = null;
-        if (target instanceof MapTraceValue) {
-            final Map<String, Object> traceValue = ((MapTraceValue) target)._$PINPOINT$_getTraceBindValue();
-            if (traceValue != null) {
-                endPoint = (String) traceValue.get("endPoint");
-            }
+
+        if (endPointAccessor.isApplicable(target)) {
+            endPoint = endPointAccessor.get(target);
         }
 
         trace.recordApi(getMethodDescriptor());
         trace.recordEndPoint(endPoint != null ? endPoint : "Unknown");
-        trace.recordDestinationId(ServiceType.REDIS.toString());
-        trace.recordServiceType(ServiceType.REDIS);
+        trace.recordDestinationId(REDIS.getName());
+        trace.recordServiceType(REDIS);
         trace.recordException(throwable);
         trace.markAfterTime();
     }
