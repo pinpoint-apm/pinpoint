@@ -290,6 +290,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                     } else {
                         parentSequence = parent.getId();
                     }
+                    logger.debug("apiId={}", spanBo.getApiId());
                     logger.debug("spanBoSequence:{}, parentSequence:{}", spanBoSequence, parentSequence);
 
 

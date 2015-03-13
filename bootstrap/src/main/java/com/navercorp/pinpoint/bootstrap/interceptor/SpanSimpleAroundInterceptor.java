@@ -53,6 +53,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
             if (!trace.canSampled()) {
                 return;
             }
+            trace.traceBlockBegin();
             //------------------------------------------------------
             doInBeforeTrace(trace, target, args);
         } catch (Throwable th) {
@@ -89,7 +90,8 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
                 logger.warn("after. Caused:{}", th.getMessage(), th);
             }
         } finally {
-            trace.traceRootBlockEnd();
+            trace.traceBlockEnd();
+            //trace.traceRootBlockEnd();
         }
     }
 

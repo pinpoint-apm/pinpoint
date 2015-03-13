@@ -156,6 +156,10 @@ public class DefaultTraceContext implements TraceContext {
     }
 
 
+    public void attachTraceObject(Trace trace) {
+        this.traceFactory.attachTraceObject(trace);
+    }
+    
     @Override
     public void detachTraceObject() {
         this.traceFactory.detachTraceObject();

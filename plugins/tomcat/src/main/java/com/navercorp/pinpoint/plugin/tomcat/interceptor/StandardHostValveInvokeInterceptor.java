@@ -42,7 +42,7 @@ import com.navercorp.pinpoint.profiler.context.SpanId;
 /**
  * @author emeroad
  */
-@TargetMethod(name="invoke", paramTypes={"org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response"})
+@TargetMethod(name = "invoke", paramTypes = { "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response" })
 public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundInterceptor {
 
     private final boolean isTrace = logger.isTraceEnabled();
@@ -50,7 +50,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
 
     public StandardHostValveInvokeInterceptor(TraceContext traceContext, @Cached MethodDescriptor descriptor, Filter<String> excludeFilter) {
         super(StandardHostValveInvokeInterceptor.class);
-        
+
         setTraceContext(traceContext);
         setMethodDescriptor(descriptor);
 
@@ -60,6 +60,95 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     @Override
     protected void doInBeforeTrace(RecordableTrace trace, Object target, Object[] args) {
         final HttpServletRequest request = (HttpServletRequest) args[0];
+
+        trace.markBeforeTime();
+        if (trace.canSampled()) {
+            trace.recordServiceType(ServiceType.INTERNAL_METHOD);
+
+//            final String requestURL = request.getRequestURI();
+//            trace.recordRpcName(requestURL);
+
+//            final int port = request.getServerPort();
+//            final String endPoint = request.getServerName() + ":" + port;
+//            trace.recordEndPoint(endPoint);
+//
+//            final String remoteAddr = request.getRemoteAddr();
+//            trace.recordRemoteAddress(remoteAddr);
+        }
+
+//        if (!trace.isRoot()) {
+//            recordParentInfo(trace, request);
+//        }
+    }
+
+    @Override
+    protected Trace createTrace(Object target, Object[] args) {
+        final HttpServletRequest request = (HttpServletRequest) args[0];
+
+        if (request.getAttribute("PINPOINT_TRACE") != null) {
+            Trace trace = (Trace) request.getAttribute("PINPOINT_TRACE");
+            getTraceContext().attachTraceObject(trace);
+            return trace;
+        }
+
+        final String requestURI = request.getRequestURI();
+        if (excludeUrlFilter.filter(requestURI)) {
+            if (isTrace) {
+                logger.trace("filter requestURI:{}", requestURI);
+            }
+            return null;
+        }
+
+        // check sampling flag from client. If the flag is false, do not sample this request.
+        final boolean sampling = samplingEnable(request);
+        if (!sampling) {
+            // Even if this transaction is not a sampling target, we have to create Trace object to mark 'not sampling'.
+            // For example, if this transaction invokes rpc call, we can add parameter to tell remote node 'don't sample this transaction'
+            final TraceContext traceContext = getTraceContext();
+            final Trace trace = traceContext.disableSampling();
+            if (isDebug) {
+                logger.debug("remotecall sampling flag found. skip trace requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
+            }
+            return trace;
+        }
+
+        final TraceId traceId = populateTraceIdFromRequest(request);
+        if (traceId != null) {
+            // TODO Maybe we should decide to trace or not even if the sampling flag is true to prevent too many requests are traced.
+            final TraceContext traceContext = getTraceContext();
+            final Trace trace = traceContext.continueTraceObject(traceId);
+            initTrace(trace, request);
+            if (trace.canSampled()) {
+                if (isDebug) {
+                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[] { traceId, request.getRequestURI(), request.getRemoteAddr() });
+                }
+            } else {
+                if (isDebug) {
+                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[] { traceId, request.getRequestURI(), request.getRemoteAddr() });
+                }
+            }
+            return trace;
+        } else {
+            final TraceContext traceContext = getTraceContext();
+            final Trace trace = traceContext.newTraceObject();
+            initTrace(trace, request);
+            if (trace.canSampled()) {
+                if (isDebug) {
+                    logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
+                }
+            } else {
+                if (isDebug) {
+                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
+                }
+            }
+            return trace;
+        }
+    }
+
+    private void initTrace(final Trace trace, final HttpServletRequest request) {
+        getTraceContext().cacheApi(TomcatConstants.syncMethodDescriptor);
+        trace.recordApi(TomcatConstants.syncMethodDescriptor);
+        request.setAttribute("PINPOINT_TRACE", trace);
         trace.markBeforeTime();
         if (trace.canSampled()) {
             trace.recordServiceType(TomcatConstants.TOMCAT);
@@ -78,67 +167,9 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         if (!trace.isRoot()) {
             recordParentInfo(trace, request);
         }
-    }
-
-    @Override
-    protected Trace createTrace(Object target, Object[] args) {
-        final HttpServletRequest request = (HttpServletRequest) args[0];
-        final String requestURI = request.getRequestURI();
-        if (excludeUrlFilter.filter(requestURI)) {
-            if (isTrace) {
-                logger.trace("filter requestURI:{}", requestURI);
-            }
-            return null;
-        }
         
         
-        // check sampling flag from client. If the flag is false, do not sample this request. 
-        final boolean sampling = samplingEnable(request);
-        if (!sampling) {
-            // Even if this transaction is not a sampling target, we have to create Trace object to mark 'not sampling'.
-            // For example, if this transaction invokes rpc call, we can add parameter to tell remote node 'don't sample this transaction'  
-            final TraceContext traceContext = getTraceContext();
-            final Trace trace = traceContext.disableSampling();
-            if (isDebug) {
-                logger.debug("remotecall sampling flag found. skip trace requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
-            }
-            return trace;
-        }
-
-
-        final TraceId traceId = populateTraceIdFromRequest(request);
-        if (traceId != null) {
-            // TODO Maybe we should decide to trace or not even if the sampling flag is true to prevent too many requests are traced.
-            final TraceContext traceContext = getTraceContext();
-            final Trace trace = traceContext.continueTraceObject(traceId);
-            
-            if (trace.canSampled()) {
-                if (isDebug) {
-                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[] {traceId, request.getRequestURI(), request.getRemoteAddr()});
-                }
-            } else {
-                if (isDebug) {
-                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[] {traceId, request.getRequestURI(), request.getRemoteAddr()});
-                }
-            }
-            return trace;
-        } else {
-            final TraceContext traceContext = getTraceContext();
-            final Trace trace = traceContext.newTraceObject();
-            if (trace.canSampled()) {
-                if (isDebug) {
-                    logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
-                }
-            } else {
-                if (isDebug) {
-                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
-                }
-            }
-            return trace;
-        }
     }
-
-
 
     private void recordParentInfo(RecordableTrace trace, HttpServletRequest request) {
         String parentApplicationName = request.getHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString());
@@ -205,13 +236,13 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         final StringBuilder params = new StringBuilder(64);
 
         while (attrs.hasMoreElements()) {
-            if (params.length() != 0 ) {
+            if (params.length() != 0) {
                 params.append('&');
             }
             // skip appending parameters if parameter size is bigger than totalLimit
             if (params.length() > totalLimit) {
                 params.append("...");
-                return  params.toString();
+                return params.toString();
             }
             String key = attrs.nextElement().toString();
             params.append(StringUtils.drop(key, eachLimit));
