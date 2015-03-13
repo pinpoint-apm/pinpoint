@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.common.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.bo.Span;
 import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.util.AnnotationUtils;
 import com.navercorp.pinpoint.common.util.ApiDescription;
@@ -63,6 +64,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     @Autowired
     private ServiceTypeRegistryService registry;
+
+    @Autowired
+    private AnnotationKeyRegistryService annotationKeyRegistryService;
     
     @Override
     public BusinessTransactions selectBusinessTransactions(List<TransactionId> transactionIdList, String applicationName, Range range, Filter filter) {
@@ -315,7 +319,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                         record.setFullApiDescription(method);
                         recordList.add(record);
                     } else {
-                        AnnotationKey apiMetaDataError = AnnotationUtils.getApiMetaDataError(spanBo.getAnnotationBoList());
+                        AnnotationKey apiMetaDataError = getApiMetaDataError(spanBo.getAnnotationBoList());
                         Record record = new Record(spanAlign.getDepth(),
                                                     spanBoSequence,
                                                     parentSequence,
@@ -390,7 +394,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
                         recordList.add(record);
                     } else {
-                        AnnotationKey apiMetaDataError = AnnotationUtils.getApiMetaDataError(spanEventBo.getAnnotationBoList());
+                        AnnotationKey apiMetaDataError = getApiMetaDataError(spanEventBo.getAnnotationBoList());
                         String destinationId = spanEventBo.getDestinationId();
 
                         long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
@@ -523,7 +527,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             List<Record> recordList = new ArrayList<Record>(annotationBoList.size());
 
             for (AnnotationBo ann : annotationBoList) {
-                AnnotationKey annotation = AnnotationKey.findAnnotationKey(ann.getKey());
+                AnnotationKey annotation = findAnnotationKey(ann.getKey());
                 if (annotation.isViewInRecordSet()) {
                     Record record = new Record(depth, getNextId(), parentId, false, annotation.getName(), ann.getValue().toString(), 0L, 0L, 0, null, null, null, null, false, false);
                     recordList.add(record);
@@ -575,5 +579,20 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             }
         }
         return null;
+    }
+
+    public AnnotationKey getApiMetaDataError(List<AnnotationBo> annotationBoList) {
+        for (AnnotationBo bo : annotationBoList) {
+            AnnotationKey apiErrorCode = annotationKeyRegistryService.findApiErrorCode(bo.getKey());
+            if (apiErrorCode != null) {
+                return apiErrorCode;
+            }
+        }
+        // could not find a more specific error - returns generalized error
+        return AnnotationKey.ERROR_API_METADATA_ERROR;
+    }
+
+    private AnnotationKey findAnnotationKey(int key) {
+        return annotationKeyRegistryService.findAnnotationKey(key);
     }
 }

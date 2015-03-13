@@ -21,11 +21,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.navercorp.pinpoint.common.plugin.*;
 import com.navercorp.pinpoint.common.plugin.TypeProvider;
-import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
 
 /**
  * @author Jongho Moon
@@ -33,96 +33,84 @@ import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
  */
 public class TypeProviderLoader {
     private final Logger logger = Logger.getLogger(getClass().getName());
-    
-    private final ServiceTypeChecker serviceTypeChecker = new ServiceTypeChecker();
-    private final AnnotationKeyChecker annotationKeyChecker = new AnnotationKeyChecker();
-    
+
     private final List<Type> types = new ArrayList<Type>();
+    private final ServiceTypeChecker serviceTypeChecker = new ServiceTypeChecker();
+
     private final List<AnnotationKey> annotationKeys = new ArrayList<AnnotationKey>();
-    private final boolean defaultServiceTypeLoad;
+    private final AnnotationKeyChecker annotationKeyChecker = new AnnotationKeyChecker();
+
 
     public TypeProviderLoader() {
-        this(true);
     }
 
-    public TypeProviderLoader(boolean defaultServiceTypeLoad) {
-        this.defaultServiceTypeLoad = defaultServiceTypeLoad;
-    }
 
     public void load(URL[] urls) {
+        if (urls == null) {
+            throw new NullPointerException("urls must not be null");
+        }
+
         List<TypeProvider> providers = PluginLoader.load(TypeProvider.class, urls);
         load(providers);
     }
     
     public void load(ClassLoader loader) {
+        if (loader == null) {
+            throw new NullPointerException("loader must not be null");
+        }
+
         List<TypeProvider> providers = PluginLoader.load(TypeProvider.class, loader);
         load(providers);
     }
     
-    void load(List<TypeProvider> providers) {
-        logger.info("Loading ServiceTypeProviders");
-
-        if (defaultServiceTypeLoad) {
-            loadDefaults();
+    public void load(List<TypeProvider> providers) {
+        if (providers == null) {
+            throw new NullPointerException("providers must not be null");
         }
+
+        logger.info("Loading TypeProviders");
+
+        final List<TypeSetupContextImpl> setupContextList = new ArrayList<TypeSetupContextImpl>();
 
         for (TypeProvider provider : providers) {
-            logger.fine("Loading ServiceTypeProvider: " + provider.getClass());
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("Loading TypeProvider: " + provider.getClass().getName() + " name:" + provider.toString());
+            }
+
             TypeSetupContextImpl context = new TypeSetupContextImpl(provider.getClass());
             provider.setUp(context);
+
+
+            setupContextList.add(context);
         }
-        
-        logResult();
+
+        buildType(setupContextList);
+        buildAnnotationKey(setupContextList);
     }
 
-    private void loadDefaults() {
-        TypeSetupContextImpl context = new TypeSetupContextImpl(ServiceType.class);
+    public void buildType(List<TypeSetupContextImpl> setupContextList) {
 
-        for (AnnotationKey key : AnnotationKey.DEFAULT_VALUES) {
-            context.addAnnotationKey(key);
-        }
-    }
-    
-    private void logResult() {
-        logger.info("Finished loading ServiceTypeProviders");
-        logger.info("ServiceType:");
-        
-        List<Pair<ServiceType>> serviceTypes = new ArrayList<Pair<ServiceType>>(serviceTypeChecker.serviceTypeCodeMap.values());
-        Collections.sort(serviceTypes, new Comparator<Pair<ServiceType>>() {
-            @Override
-            public int compare(Pair<ServiceType> o1, Pair<ServiceType> o2) {
-                short code1 = o1.value.getCode();
-                short code2 = o2.value.getCode();
-                
-                return code1 > code2 ? 1 : (code1 < code2 ? -1 : 0);
+        for (TypeSetupContextImpl typeSetupContext : setupContextList) {
+            for (Type type : typeSetupContext.getTypes()) {
+                this.serviceTypeChecker.check(type.getServiceType(), typeSetupContext.getProvider());
+                types.add(type);
             }
-        });
-        
-        for (Pair<ServiceType> serviceType : serviceTypes) {
-            logger.info(serviceTypePairToString(serviceType));
         }
-        
-        
-        logger.info("AnnotationKeys:");
-        
-        List<Pair<AnnotationKey>> annotationKeys = new ArrayList<Pair<AnnotationKey>>(annotationKeyChecker.annotationKeyCodeMap.values());
-        Collections.sort(annotationKeys, new Comparator<Pair<AnnotationKey>>() {
-            @Override
-            public int compare(Pair<AnnotationKey> o1, Pair<AnnotationKey> o2) {
-                int code1 = o1.value.getCode();
-                int code2 = o2.value.getCode();
-                
-                return code1 > code2 ? 1 : (code1 < code2 ? -1 : 0);
-            }
-        });
-        
-        for (Pair<AnnotationKey> annotaionKey : annotationKeys) {
-            logger.info(annotationKeyPairToString(annotaionKey));
-        }
+        this.serviceTypeChecker.logResult();
     }
-    
-    
-    
+
+    public void buildAnnotationKey(List<TypeSetupContextImpl> setupContextList) {
+
+        for (TypeSetupContextImpl typeSetupContext : setupContextList) {
+            for (AnnotationKey annotationKey : typeSetupContext.getAnnotationKeys()) {
+                this.annotationKeyChecker.check(annotationKey, typeSetupContext.getProvider());
+                annotationKeys.add(annotationKey);
+            }
+        }
+        this.annotationKeyChecker.logResult();
+    }
+
+
     public List<Type> getTypes() {
         return types;
     }
@@ -134,42 +122,69 @@ public class TypeProviderLoader {
 
     private class TypeSetupContextImpl implements TypeSetupContext {
         private final Class<?> provider;
+        private final List<Type> types = new ArrayList<Type>();
+        private final List<AnnotationKey> annotationKeys = new ArrayList<AnnotationKey>();
+
+        private final ServiceTypeChecker contextServiceTypeChecker = new ServiceTypeChecker();
+        private final AnnotationKeyChecker contextAnnotationKeyChecker = new AnnotationKeyChecker();
         
         public TypeSetupContextImpl(Class<?> provider) {
             this.provider = provider;
         }
 
+        private Class<?> getProvider() {
+            return provider;
+        }
+
         @Override
         public void addType(ServiceType serviceType) {
+            if (serviceType == null) {
+                throw new NullPointerException("serviceType must not be null");
+            }
             Type type = new DefaultType(serviceType);
-            addType(type);
+            addType0(type);
         }
 
         @Override
         public void addType(ServiceType serviceType, AnnotationKeyMatcher annotationKeyMatcher) {
+            if (serviceType == null) {
+                throw new NullPointerException("serviceType must not be null");
+            }
+            if (annotationKeyMatcher == null) {
+                throw new NullPointerException("annotationKeyMatcher must not be null");
+            }
             Type type = new DefaultType(serviceType, annotationKeyMatcher);
-            addType(type);
+            addType0(type);
         }
 
-
-        public void addType(Type type) {
+        private void addType0(Type type) {
             if (type == null) {
                 throw new NullPointerException("type must not be null");
             }
-            serviceTypeChecker.check(type.getServiceType(), provider);
-            TypeProviderLoader.this.types.add(type);
+            // local check
+            contextServiceTypeChecker.check(type.getServiceType(), provider);
+            this.types.add(type);
+        }
+
+        private List<Type> getTypes() {
+            return types;
         }
 
         @Override
         public void addAnnotationKey(AnnotationKey annotationKey) {
-            annotationKeyChecker.check(annotationKey, provider);
-            TypeProviderLoader.this.annotationKeys.add(annotationKey);
+            if (annotationKey == null) {
+                throw new NullPointerException("annotationKey must not be null");
+            }
+            // local check
+            contextAnnotationKeyChecker.check(annotationKey, provider);
+            this.annotationKeys.add(annotationKey);
+        }
+
+        private List<AnnotationKey> getAnnotationKeys() {
+            return annotationKeys;
         }
     }
 
-    private void addType(Type type) {
-        this.types.add(type);
-    }
 
     private static String serviceTypePairToString(Pair<ServiceType> pair) {
         return pair.value.getName() + "(" + pair.value.getCode() + ") from " + pair.provider.getName();
@@ -189,7 +204,7 @@ public class TypeProviderLoader {
         }
     }
     
-    private static class ServiceTypeChecker { 
+    private class ServiceTypeChecker {
         private final Map<String, Pair<ServiceType>> serviceTypeNameMap = new HashMap<String, Pair<ServiceType>>();
         private final Map<Short, Pair<ServiceType>> serviceTypeCodeMap = new HashMap<Short, Pair<ServiceType>>();
 
@@ -209,10 +224,29 @@ public class TypeProviderLoader {
                 throw new RuntimeException("ServiceType code of " + serviceTypePairToString(pair) + " is duplicated with " + serviceTypePairToString(prev));
             }
         }
+
+        private void logResult() {
+            logger.info("Finished loading ServiceType:");
+
+            List<Pair<ServiceType>> serviceTypes = new ArrayList<Pair<ServiceType>>(serviceTypeCodeMap.values());
+            Collections.sort(serviceTypes, new Comparator<Pair<ServiceType>>() {
+                @Override
+                public int compare(Pair<ServiceType> o1, Pair<ServiceType> o2) {
+                    short code1 = o1.value.getCode();
+                    short code2 = o2.value.getCode();
+
+                    return code1 > code2 ? 1 : (code1 < code2 ? -1 : 0);
+                }
+            });
+
+            for (Pair<ServiceType> serviceType : serviceTypes) {
+                logger.info(serviceTypePairToString(serviceType));
+            }
+        }
         
     }
 
-    private static class AnnotationKeyChecker {
+    private class AnnotationKeyChecker {
         private final Map<Integer, Pair<AnnotationKey>> annotationKeyCodeMap = new HashMap<Integer, Pair<AnnotationKey>>();
 
         private void check(AnnotationKey key, Class<?> providerClass) {
@@ -224,49 +258,26 @@ public class TypeProviderLoader {
                 throw new RuntimeException("AnnotationKey code of " + annotationKeyPairToString(pair) + " is duplicated with " + annotationKeyPairToString(prev));
             }
         }
-    }
-    
 
-    static void checkAnnotationKeys(List<AnnotationKey> annotationKeys) {
-        AnnotationKeyChecker annotationKeyChecker = new AnnotationKeyChecker();
-        
-        for (AnnotationKey key : annotationKeys) {
-            annotationKeyChecker.check(key, AnnotationKey.class);
+        private void logResult() {
+            logger.info("Finished loading AnnotationKeys:");
+
+            List<Pair<AnnotationKey>> annotationKeys = new ArrayList<Pair<AnnotationKey>>(annotationKeyCodeMap.values());
+            Collections.sort(annotationKeys, new Comparator<Pair<AnnotationKey>>() {
+                @Override
+                public int compare(Pair<AnnotationKey> o1, Pair<AnnotationKey> o2) {
+                    int code1 = o1.value.getCode();
+                    int code2 = o2.value.getCode();
+
+                    return code1 > code2 ? 1 : (code1 < code2 ? -1 : 0);
+                }
+            });
+
+            for (Pair<AnnotationKey> annotaionKey : annotationKeys) {
+                logger.info(annotationKeyPairToString(annotaionKey));
+            }
         }
     }
-    
-    public static void initializeServiceType(ClassLoader classLoader) {
-        TypeProviderLoader loader = new TypeProviderLoader();
-        loader.load(classLoader);
-        initializeServiceType(loader);
-    }
 
-    public static void initializeServiceType(TypeProviderLoader loader) {
-        if (loader == null) {
-            throw new NullPointerException("loader must not be null");
-        }
-        List<Type> types = loader.getTypes();
-        List<ServiceType> serviceTypes = getServiceTypeList(types);
-        AnnotationKey.initialize(loader.getAnnotationKeys());
-    }
-    
-    public static void initializeServiceType(List<TypeProvider> providers) {
-        TypeProviderLoader loader = new TypeProviderLoader();
-        loader.load(providers);
 
-        List<Type> types = loader.getTypes();
-        List<ServiceType> serviceTypes = getServiceTypeList(types);
-        AnnotationKey.initialize(loader.getAnnotationKeys());
-    }
-
-    public static List<ServiceType> getServiceTypeList(List<Type> typeList) {
-        if (typeList == null) {
-            return Collections.emptyList();
-        }
-        List<ServiceType> serviceTypeList= new ArrayList<ServiceType>(typeList.size());
-        for (Type type : typeList) {
-            serviceTypeList.add(type.getServiceType());
-        }
-        return serviceTypeList;
-    }
 }

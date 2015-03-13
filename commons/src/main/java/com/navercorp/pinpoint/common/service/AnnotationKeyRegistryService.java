@@ -17,15 +17,14 @@
 package com.navercorp.pinpoint.common.service;
 
 import com.navercorp.pinpoint.common.AnnotationKey;
-import com.navercorp.pinpoint.common.plugin.Type;
-
-import java.util.List;
 
 /**
  * @author emeroad
  */
-public interface TypeLoaderService {
-    List<Type> getTypes();
+public interface AnnotationKeyRegistryService {
+    AnnotationKey findAnnotationKey(int annotationCode);
 
-    List<AnnotationKey> getAnnotationKeys();
+    AnnotationKey findAnnotationKeyByName(String keyName);
+
+    AnnotationKey findApiErrorCode(int annotationCode);
 }

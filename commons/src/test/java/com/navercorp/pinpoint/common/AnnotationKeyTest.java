@@ -16,6 +16,10 @@
 
 package com.navercorp.pinpoint.common;
 
+import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
+import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
+import com.navercorp.pinpoint.common.service.DefaultTypeLoaderService;
+import com.navercorp.pinpoint.common.service.TypeLoaderService;
 import org.junit.Assert;
 
 import org.junit.Test;
@@ -31,7 +35,10 @@ public class AnnotationKeyTest {
 
     @Test
     public void getCode() {
-        AnnotationKey annotationKey = AnnotationKey.findAnnotationKey(AnnotationKey.API.getCode());
+        TypeLoaderService typeLoaderService = new DefaultTypeLoaderService();
+        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(typeLoaderService);
+
+        AnnotationKey annotationKey = annotationKeyRegistryService.findAnnotationKey(AnnotationKey.API.getCode());
         Assert.assertEquals(annotationKey, AnnotationKey.API);
     }
 
@@ -64,7 +71,10 @@ public class AnnotationKeyTest {
     
     @Test
     public void testValueOf() {
-        AnnotationKey valueof = AnnotationKey.valueOf(AnnotationKey.ARGS0.getName());
+        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService();
+        annotationKeyRegistryService.findAnnotationKeyByName(AnnotationKey.ARGS0.getName());
+
+        AnnotationKey valueof = annotationKeyRegistryService.findAnnotationKeyByName(AnnotationKey.ARGS0.getName());
         Assert.assertSame(AnnotationKey.ARGS0, valueof);
     }
 }
