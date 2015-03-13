@@ -31,7 +31,7 @@ public class AnnotationKeyRegistry {
 
     private final IntHashMap<AnnotationKey> codeLookupTable;
 
-    private final HashMap<String, List<AnnotationKey>> nameLookupTable;
+    private final HashMap<String, AnnotationKey> nameLookupTable;
 
     private final IntHashMap<AnnotationKey> apiErrorLookupTable;
 
@@ -44,20 +44,22 @@ public class AnnotationKeyRegistry {
         this.apiErrorLookupTable = buildApiMetaDataError(buildMap.values());
     }
 
-    private HashMap<String, List<AnnotationKey>> buildNameTable(Collection<AnnotationKey> buildMap) {
+    private HashMap<String, AnnotationKey> buildNameTable(Collection<AnnotationKey> buildMap) {
 
-        final HashMap<String, List<AnnotationKey>> nameLookupTable = new HashMap<String, List<AnnotationKey>>();
+        final HashMap<String, AnnotationKey> nameLookupTable = new HashMap<String, AnnotationKey>();
 
         for (AnnotationKey annotationKey : buildMap) {
-            List<AnnotationKey> annotationKeyList = nameLookupTable.get(annotationKey.getName());
-            if (annotationKeyList == null) {
-                annotationKeyList = new ArrayList<AnnotationKey>();
-                nameLookupTable.put(annotationKey.getName(), annotationKeyList);
+            final AnnotationKey exist = nameLookupTable.put(annotationKey.getName(), annotationKey);
+            if (exist != null) {
+                throwDuplicatedAnnotationKey(annotationKey, exist);
             }
-            annotationKeyList.add(annotationKey);
         }
 
         return nameLookupTable;
+    }
+
+    private static void throwDuplicatedAnnotationKey(AnnotationKey annotationKey, AnnotationKey exist) {
+        throw new IllegalStateException("already exist. annotationKey:" + annotationKey + ", exist:" + exist);
     }
 
 
@@ -81,18 +83,13 @@ public class AnnotationKeyRegistry {
         return annotationKey;
     }
 
-    @Deprecated
     public AnnotationKey findAnnotationKeyByName(String keyName) {
-        final List<AnnotationKey> annotationKeyList = nameLookupTable.get(keyName);
-        if (annotationKeyList == null) {
+        final AnnotationKey annotationKey = nameLookupTable.get(keyName);
+        if (annotationKey == null) {
             throw new NoSuchElementException(keyName);
-        } else {
-            if (annotationKeyList.isEmpty()) {
-                throw new NoSuchElementException(keyName);
-            } else {
-                return annotationKeyList.get(0);
-            }
         }
+
+        return annotationKey;
     }
 
     public AnnotationKey findApiErrorCode(int annotationCode) {
@@ -110,7 +107,7 @@ public class AnnotationKeyRegistry {
             int code = annotationKey.getCode();
             final AnnotationKey exist = this.buildMap.put(code, annotationKey);
             if (exist != null) {
-                throw new IllegalStateException("already exist. annotationKey:" + annotationKey + ", exist:" + exist);
+                throwDuplicatedAnnotationKey(annotationKey, exist);
             }
         }
 

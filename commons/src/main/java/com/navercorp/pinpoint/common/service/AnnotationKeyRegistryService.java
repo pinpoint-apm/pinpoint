@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.common.AnnotationKey;
 public interface AnnotationKeyRegistryService {
     AnnotationKey findAnnotationKey(int annotationCode);
 
-    @Deprecated
     AnnotationKey findAnnotationKeyByName(String keyName);
 
     AnnotationKey findApiErrorCode(int annotationCode);

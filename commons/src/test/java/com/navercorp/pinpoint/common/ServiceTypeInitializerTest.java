@@ -38,7 +38,7 @@ public class ServiceTypeInitializerTest {
     };
     
     private static final AnnotationKey[] TEST_KEYS = {
-        new AnnotationKey(1209, "API")
+        new AnnotationKey(1209, "Duplicate-API")
     };
 
     private static final ServiceType[] DUPLICATED_CODE_WITH_DEFAULT_TYPE = {
