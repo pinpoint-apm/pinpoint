@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.service;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.TypeProviderLoader;
 import com.navercorp.pinpoint.common.plugin.Type;
+import com.navercorp.pinpoint.common.plugin.TypeProvider;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 
 import java.net.URL;
@@ -37,30 +38,39 @@ public class DefaultTypeLoaderService implements TypeLoaderService {
 
     public DefaultTypeLoaderService(URL[] jarLists) {
         if (jarLists == null) {
-            throw new NullPointerException("classLoader must not be null");
+            throw new NullPointerException("jarLists must not be null");
         }
-        this.loader = new TypeProviderLoader(false);
+        this.loader = new TypeProviderLoader();
         loader.load(jarLists);
 
-        initAnnotationKey();
     }
 
-    @Deprecated
-    private void initAnnotationKey() {
-        AnnotationKey.initialize(loader.getAnnotationKeys());
+    public DefaultTypeLoaderService(List<TypeProvider> providers) {
+        if (providers == null) {
+            throw new NullPointerException("providers must not be null");
+        }
+        this.loader = new TypeProviderLoader();
+        loader.load(providers);
+
     }
+
 
     public DefaultTypeLoaderService(ClassLoader classLoader) {
         if (classLoader == null) {
             throw new NullPointerException("classLoader must not be null");
         }
-        this.loader = new TypeProviderLoader(false);
+        this.loader = new TypeProviderLoader();
         loader.load(classLoader);
     }
 
     @Override
     public List<Type> getTypes() {
         return loader.getTypes();
+    }
+
+    @Override
+    public List<AnnotationKey> getAnnotationKeys() {
+        return loader.getAnnotationKeys();
     }
 
 

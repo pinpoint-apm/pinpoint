@@ -50,39 +50,4 @@ public final class AnnotationUtils {
         return null;
     }
 
-    private static List<AnnotationKey> API_META_DATA_ERROR;
-    static {
-        API_META_DATA_ERROR = loadApiMetaDataError();
-    }
-
-    static List<AnnotationKey> loadApiMetaDataError() {
-        List<AnnotationKey> apiMetaData = new ArrayList<AnnotationKey>();
-        for (AnnotationKey annotationKey : AnnotationKey.values()) {
-            if (annotationKey.isViewInRecordSet()) {
-                apiMetaData.add(annotationKey);
-            }
-        }
-        return apiMetaData;
-    }
-
-    public static AnnotationKey getApiMetaDataError(List<AnnotationBo> annotationBoList) {
-        for (AnnotationBo bo : annotationBoList) {
-            AnnotationKey apiErrorCode = findApiErrorCode(bo);
-            if (apiErrorCode != null) {
-                return apiErrorCode;
-            }
-        }
-        // could not find a more specific error - returns generalized error
-        return AnnotationKey.ERROR_API_METADATA_ERROR;
-    }
-
-    private static AnnotationKey findApiErrorCode(AnnotationBo bo) {
-        for (AnnotationKey annotationKey : API_META_DATA_ERROR) {
-            if (bo.getKey() == annotationKey.getCode()) {
-                return annotationKey;
-            }
-        }
-        return null;
-    }
-
 }

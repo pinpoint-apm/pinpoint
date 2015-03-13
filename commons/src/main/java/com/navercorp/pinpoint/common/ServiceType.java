@@ -52,10 +52,11 @@ public class ServiceType {
         if (code > Short.MAX_VALUE || code < Short.MIN_VALUE) {
             throw new IllegalArgumentException("code must be a short value");
         }
-        
+        checkSupportHistogramSchema(code, histogramSchema);
         this.code = (short)code;
         this.name = name;
         this.desc = desc;
+
         this.histogramSchema = histogramSchema;
 
         boolean terminal = false;
@@ -75,12 +76,23 @@ public class ServiceType {
             case INCLUDE_DESTINATION_ID:
                 includeDestinationId = true;
                 break;
+            default:
+                throw new IllegalStateException("Unknown ServiceTypeProperty:" + property);
             }
         }
         
         this.terminal = terminal;
         this.recordStatistics = recordStatistics;
         this.includeDestinationId = includeDestinationId;
+    }
+
+    private void checkSupportHistogramSchema(int code, HistogramSchema histogramSchema) {
+        if (!isWas((short)code)) {
+            return;
+        }
+        if (histogramSchema != HistogramSchema.NORMAL_SCHEMA) {
+            throw new IllegalArgumentException("Server ServiceType only support HistogramSchema.NORMAL_SCHEMA. code:" + code);
+        }
     }
 
     public boolean isInternalMethod() {

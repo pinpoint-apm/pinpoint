@@ -90,4 +90,8 @@
         <constructor-arg ref="typeLoaderService"/>
     </bean>
 
+    <bean id="annotationKeyRegistryService" class="com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService">
+        <constructor-arg ref="typeLoaderService"/>
+    </bean>
+
 </beans>
