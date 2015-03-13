@@ -768,7 +768,7 @@ public class ProfilerConfig {
         this.agentInfoSendRetryInterval = readLong("profiler.agentInfo.send.retry.interval", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
 
         // service type
-        this.applicationServerType = readString("profiler.applicationservertype", null);
+        this.applicationServerType = readString("profiler.applicationservertype", ServiceType.STAND_ALONE.getName());
 
         
         // TODO have to remove        

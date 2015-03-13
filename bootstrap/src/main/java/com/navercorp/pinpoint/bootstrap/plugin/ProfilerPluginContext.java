@@ -16,6 +16,8 @@ package com.navercorp.pinpoint.bootstrap.plugin;
 
 import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 
 /**
  * @author Jongho Moon
@@ -27,4 +29,7 @@ public interface ProfilerPluginContext {
 
     public MetadataAccessor getMetadataAccessor(String name);
     public FieldAccessor getFieldSnooper(String name);
+    
+    public TraceContext getTraceContext();
+    public ByteCodeInstrumentor getByteCodeInstrumentor();
 }

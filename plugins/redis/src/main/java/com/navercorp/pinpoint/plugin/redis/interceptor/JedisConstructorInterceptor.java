@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.redis.interceptor;
+package com.navercorp.pinpoint.plugin.redis.interceptor;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 import redis.clients.jedis.JedisShardInfo;
 
+import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.MapTraceValue;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.Cached;
+import com.navercorp.pinpoint.bootstrap.plugin.Name;
+import com.navercorp.pinpoint.plugin.redis.RedisConstants;
 
 /**
  * Jedis (redis client) constructor interceptor
@@ -35,10 +37,16 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
  * @author jaehong.kim
  *
  */
-public class JedisConstructorInterceptor implements SimpleAroundInterceptor, TargetClassLoader {
+public class JedisConstructorInterceptor implements SimpleAroundInterceptor, RedisConstants {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
+
+    private MetadataAccessor endPointAccessor;
+
+    public JedisConstructorInterceptor(TraceContext traceContext, @Cached MethodDescriptor methodDescriptor, @Name(METADATA_END_POINT) MetadataAccessor endPointAccessor) {
+        this.endPointAccessor = endPointAccessor;
+    }
 
     @Override
     public void before(Object target, Object[] args) {
@@ -46,13 +54,12 @@ public class JedisConstructorInterceptor implements SimpleAroundInterceptor, Tar
             logger.beforeInterceptor(target, args);
         }
 
-        // check trace endPoint
-        if (!(target instanceof MapTraceValue)) {
-            return;
-        }
-
-        final StringBuilder endPoint = new StringBuilder();
         try {
+            if (!validate(target, args)) {
+                return;
+            }
+
+            final StringBuilder endPoint = new StringBuilder();
             // first arg is host
             if (args[0] instanceof String) {
                 endPoint.append(args[0]);
@@ -74,16 +81,27 @@ public class JedisConstructorInterceptor implements SimpleAroundInterceptor, Tar
                 endPoint.append(":");
                 endPoint.append(info.getPort());
             }
-        } catch (Exception e) {
-            // expect 'class not found exception - JedisShardInfo'
+
+            endPointAccessor.set(target, endPoint.toString());
+        } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
-                logger.warn("Failed to trace endPoint('not found JedisShardInfo' is compatibility error). caused={}", e.getMessage(), e);
+                logger.warn("Failed to before process. {}", t.getMessage(), t);
             }
         }
+    }
 
-        final Map<String, Object> traceValue = new HashMap<String, Object>();
-        traceValue.put("endPoint", endPoint.toString());
-        ((MapTraceValue) target)._$PINPOINT$_setTraceBindValue(traceValue);
+    private boolean validate(final Object target, final Object[] args) {
+        if (args == null || args.length == 0 || args[0] == null) {
+            logger.debug("Invalid arguments. Null or not found args({}).", args);
+            return false;
+        }
+
+        if (!endPointAccessor.isApplicable(target)) {
+            logger.debug("Invalid target object. Need metadata accessor({}).", METADATA_END_POINT);
+            return false;
+        }
+
+        return true;
     }
 
     @Override

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.redis.filter;
+package com.navercorp.pinpoint.plugin.redis.filter;
 
 import java.util.Arrays;
 import java.util.HashSet;

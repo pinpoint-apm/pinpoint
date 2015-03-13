@@ -13,26 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.navercorp.pinpoint.plugin.redis;
 
-package com.navercorp.pinpoint.profiler.modifier.redis;
+import com.navercorp.pinpoint.common.plugin.TypeProvider;
+import com.navercorp.pinpoint.common.plugin.TypeSetupContext;
 
-import com.navercorp.pinpoint.bootstrap.Agent;
-import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-
-/**
- * jedis(redis client) pipeline modifier
- * 
- * @author jaehong.kim
- *
- */
-public class JedisMultiKeyPipelineBaseModifier extends JedisPipelineBaseModifier {
-
-    public JedisMultiKeyPipelineBaseModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-        super(byteCodeInstrumentor, agent);
-    }
+public class RedisTypeProvider implements TypeProvider, RedisConstants{
 
     @Override
-    public String getTargetClass() {
-        return "redis/clients/jedis/MultiKeyPipelineBase";
+    public void setUp(TypeSetupContext context) {
+        context.addType(REDIS);
     }
 }

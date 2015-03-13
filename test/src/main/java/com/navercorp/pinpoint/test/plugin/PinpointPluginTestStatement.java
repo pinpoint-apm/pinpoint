@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.test.plugin;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Timer;
@@ -88,10 +89,12 @@ public class PinpointPluginTestStatement extends Statement implements PinpointPl
                         Description ofTest = findDescription(parentDescription, tokens[2]);
                         notifier.fireTestFinished(ofTest);
                     } else if ("testFailure".equals(event)) {
-                        Failure failure = toFailure(parentDescription, tokens[2], tokens[3], tokens[4], Arrays.asList(tokens).subList(5, tokens.length - 1));
+                        List<String> stackTrace = tokens.length > 5 ? Arrays.asList(tokens).subList(5, tokens.length - 1) : Collections.<String>emptyList();
+                        Failure failure = toFailure(parentDescription, tokens[2], tokens[3], tokens[4], stackTrace);
                         notifier.fireTestFailure(failure);
                     } else if ("testAssumptionFailure".equals(event)) {
-                        Failure failure = toFailure(parentDescription, tokens[2], tokens[3], tokens[4], Arrays.asList(tokens).subList(5, tokens.length - 1));
+                        List<String> stackTrace = tokens.length > 5 ? Arrays.asList(tokens).subList(5, tokens.length - 1) : Collections.<String>emptyList();
+                        Failure failure = toFailure(parentDescription, tokens[2], tokens[3], tokens[4], stackTrace);
                         notifier.fireTestAssumptionFailed(failure);
                     } else if ("testIgnored".equals(event)) {
                         Description ofTest = findDescription(parentDescription, tokens[2]);

@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorBuilder;
+import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.plugin.editor.DefaultClassEditorBuilder;
 
 public class DefaultClassEditorBuilderTest {
@@ -45,12 +46,15 @@ public class DefaultClassEditorBuilderTest {
         MethodInfo aMethod = mock(MethodInfo.class);
         MethodDescriptor aDescriptor = mock(MethodDescriptor.class);
         Scope aScope = mock(Scope.class);
+        DefaultAgent agent = mock(DefaultAgent.class);
         
         ClassLoader classLoader = getClass().getClassLoader();
         String methodName = "someMethod";
         Class<?>[] parameterTypes = new Class<?>[] { String.class };
         String[] parameterTypeNames = TypeUtils.toClassNames(parameterTypes);
         
+        when(agent.getByteCodeInstrumentor()).thenReturn(instrumentor);
+        when(agent.getTraceContext()).thenReturn(traceContext);
         when(instrumentor.getScope(SCOPE_NAME)).thenReturn(aScope);
         when(aClass.getDeclaredMethod(methodName, parameterTypeNames)).thenReturn(aMethod);
         when(aMethod.getName()).thenReturn(methodName);
@@ -58,7 +62,7 @@ public class DefaultClassEditorBuilderTest {
         when(aMethod.getDescriptor()).thenReturn(aDescriptor);
         when(aClass.addInterceptor(eq(methodName), eq(parameterTypeNames), isA(Interceptor.class))).thenReturn(0);
         
-        DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(null);
+        DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(agent);
         DefaultClassEditorBuilder builder = new DefaultClassEditorBuilder(context);
         builder.injectMetadata("a", "java.util.HashMap");
         builder.injectFieldSnooper("someField");
@@ -66,7 +70,7 @@ public class DefaultClassEditorBuilderTest {
         MethodEditorBuilder ib = builder.editMethod(methodName, parameterTypeNames);
         ib.injectInterceptor("com.navercorp.pinpoint.profiler.plugin.TestInterceptor", "provided");
         
-        ClassEditor editor = builder.build(traceContext, instrumentor);
+        ClassEditor editor = builder.build();
         
         editor.edit(classLoader, aClass);
         

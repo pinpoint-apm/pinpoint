@@ -14,6 +14,7 @@
     <modules>
         <module>servlet</module>
         <module>tomcat</module>
+        <module>redis</module>
     </modules>
 
     <dependencies>
@@ -25,6 +26,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-tomcat-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-redis-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

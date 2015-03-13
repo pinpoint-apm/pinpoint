@@ -28,16 +28,16 @@ import com.navercorp.pinpoint.common.ServiceType;
  *
  */
 public interface PluginTestVerifier {
-    public void verifyServerType(ServiceType expected);
+    public void verifyServerType(String expected);
     public void verifyServerInfo(String expected);
     public void verifyConnector(String protocol, int port);
     public void verifyService(String context, List<String> libs);
     public void verifySpanCount(int expected);
-    public void verifySpan(ServiceType serviceType, ExpectedAnnotation...annotations);
-    public void verifySpanEvent(ServiceType serviceType, ExpectedAnnotation...annotations);
-    public void verifySpan(ServiceType serviceType, Method method, String rpc, String endPoint, String remoteAddr, ExpectedAnnotation... annotations);
-    public void verifySpanEvent(ServiceType serviceType, Method method, String rpc, String endPoint, String destinationId, ExpectedAnnotation... annotations);
-    public void verifyApi(ServiceType serviceType, Method method, Object...args);
+    public void verifySpan(String serviceType, ExpectedAnnotation...annotations);
+    public void verifySpanEvent(String serviceType, ExpectedAnnotation...annotations);
+    public void verifySpan(String serviceType, Method method, String rpc, String endPoint, String remoteAddr, ExpectedAnnotation... annotations);
+    public void verifySpanEvent(String serviceType, Method method, String rpc, String endPoint, String destinationId, ExpectedAnnotation... annotations);
+    public void verifyApi(String serviceType, Method method, Object...args);
     public void popSpan();
     public void printSpans(PrintStream out);
     public void printApis(PrintStream out);
@@ -45,30 +45,30 @@ public interface PluginTestVerifier {
     public void cleanUp(boolean detachTraceObject);
     
     public static class ExpectedAnnotation {
-        public static ExpectedAnnotation annotation(AnnotationKey key, Object value) {
-            return new ExpectedAnnotation(key.getCode(), value);
+        public static ExpectedAnnotation annotation(String annotationKeyName, Object value) {
+            return new ExpectedAnnotation(annotationKeyName, value);
         }
 
         public static ExpectedAnnotation[] args(Object... args) {
             ExpectedAnnotation[] annotations = new ExpectedAnnotation[args.length];
             
             for (int i = 0; i < args.length; i++) {
-                annotations[i] = ExpectedAnnotation.annotation(AnnotationKey.getArgs(i), args[i]);
+                annotations[i] = ExpectedAnnotation.annotation(AnnotationKey.getArgs(i).getName(), args[i]);
             }
             
             return annotations;
         }
 
-        private final int key;
+        private final String keyName;
         private final Object value;
         
-        public ExpectedAnnotation(int key, Object value) {
-            this.key = key;
+        public ExpectedAnnotation(String keyName, Object value) {
+            this.keyName = keyName;
             this.value = value;
         }
 
-        public int getKey() {
-            return key;
+        public String getKeyName() {
+            return keyName;
         }
 
         public Object getValue() {
@@ -77,7 +77,7 @@ public interface PluginTestVerifier {
 
         @Override
         public String toString() {
-            return key + "=" + value;
+            return keyName + "=" + value;
         }
         
     }

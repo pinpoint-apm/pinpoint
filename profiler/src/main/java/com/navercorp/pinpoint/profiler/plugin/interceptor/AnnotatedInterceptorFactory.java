@@ -25,25 +25,21 @@ import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.objectfactory.AutoBindingObjectFactory;
 
 public class AnnotatedInterceptorFactory implements InterceptorFactory {
-    private final TraceContext traceContext;
     private final DefaultProfilerPluginContext pluginContext;
-    private final ByteCodeInstrumentor instrumentor;
     
     private final Class<? extends Interceptor> interceptorType;
     private final Object[] providedValues;
     
     
-    public AnnotatedInterceptorFactory(TraceContext traceContext, DefaultProfilerPluginContext pluginContext, ByteCodeInstrumentor instrumentor, Class<? extends Interceptor> interceptorType, Object[] providedArguments) {
-        this.traceContext = traceContext;
+    public AnnotatedInterceptorFactory(DefaultProfilerPluginContext pluginContext, Class<? extends Interceptor> interceptorType, Object[] providedArguments) {
         this.pluginContext = pluginContext;
-        this.instrumentor = instrumentor;
         this.interceptorType = interceptorType;
         this.providedValues = providedArguments;
     }
 
     @Override
     public Interceptor getInterceptor(ClassLoader classLoader, InstrumentClass target, MethodInfo targetMethod) {
-        AutoBindingObjectFactory<Interceptor> factory = new AutoBindingObjectFactory<Interceptor>(traceContext, pluginContext, instrumentor, target, targetMethod, providedValues);
+        AutoBindingObjectFactory<Interceptor> factory = new AutoBindingObjectFactory<Interceptor>(pluginContext, target, targetMethod, providedValues);
         return factory.createInstance(interceptorType);
     }
 }

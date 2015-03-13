@@ -67,7 +67,11 @@ public class AnnotationKeyTest {
     public void isCachedArgsToArgs() {
         int i = AnnotationKey.cachedArgsToArgs(AnnotationKey.CACHE_ARGS0.getCode());
         Assert.assertEquals(i, AnnotationKey.ARGS0.getCode());
-
-
+    }
+    
+    @Test
+    public void testValueOf() {
+        AnnotationKey valueof = AnnotationKey.valueOf(AnnotationKey.ARGS0.getName());
+        Assert.assertSame(AnnotationKey.ARGS0, valueof);
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.redis.filter;
+package com.navercorp.pinpoint.plugin.redis.filter;
 
 import java.lang.reflect.Modifier;
 import java.util.Set;
