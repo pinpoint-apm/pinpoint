@@ -43,4 +43,6 @@ public interface ClassEditorBuilder {
     public MethodEditorBuilder editMethod(String name, String... parameterTypeNames);
     
     public ConstructorEditorBuilder editConstructor(String... parameterTypeNames);
+    
+    public ClassEditor build();
 }

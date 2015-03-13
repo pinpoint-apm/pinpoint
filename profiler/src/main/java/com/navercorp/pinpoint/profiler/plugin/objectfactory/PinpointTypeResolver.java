@@ -34,16 +34,12 @@ import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
  *
  */
 public class PinpointTypeResolver implements ParameterResolver {
-    private final TraceContext traceContext;
     private final ProfilerPluginContext pluginContext;
-    private final ByteCodeInstrumentor instrumentor;
     private final InstrumentClass targetClass;
     private final MethodInfo targetMethod;
 
-    public PinpointTypeResolver(TraceContext traceContext, ProfilerPluginContext pluginContext, ByteCodeInstrumentor instrumentor, InstrumentClass targetClass, MethodInfo targetMethod) {
-        this.traceContext = traceContext;
+    public PinpointTypeResolver(ProfilerPluginContext pluginContext, InstrumentClass targetClass, MethodInfo targetMethod) {
         this.pluginContext = pluginContext;
-        this.instrumentor = instrumentor;
         this.targetClass = targetClass;
         this.targetMethod = targetMethod;
     }
@@ -54,13 +50,13 @@ public class PinpointTypeResolver implements ParameterResolver {
     @Override
     public Option<Object> resolve(int index, Class<?> type, Annotation[] annotations) {
         if (type == Trace.class) {
-            return Option.<Object>withValue(traceContext.currentTraceObject());
+            return Option.<Object>withValue(pluginContext.getTraceContext().currentTraceObject());
         } else if (type == TraceContext.class) {
-            return Option.<Object>withValue(traceContext);
+            return Option.<Object>withValue(pluginContext.getTraceContext());
         } else if (type == ProfilerPluginContext.class) {
             return Option.<Object>withValue(pluginContext);
         } else if (type == ByteCodeInstrumentor.class) {
-            return Option.<Object>withValue(instrumentor);
+            return Option.<Object>withValue(pluginContext.getByteCodeInstrumentor());
         } else if (type == InstrumentClass.class) {
             return Option.<Object>withValue(targetClass);
         } else if (type == MethodDescriptor.class) {
@@ -98,7 +94,7 @@ public class PinpointTypeResolver implements ParameterResolver {
     private void cacheApiIfAnnotationPresent(Annotation[] annotations, MethodDescriptor descriptor) {
         Annotation annotation = TypeUtils.findAnnotation(annotations, Cached.class);
         if (annotation != null) {
-            traceContext.cacheApi(descriptor);
+            pluginContext.getTraceContext().cacheApi(descriptor);
         }
     }
 }

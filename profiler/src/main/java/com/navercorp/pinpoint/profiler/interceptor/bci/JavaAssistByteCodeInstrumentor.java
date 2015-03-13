@@ -23,19 +23,30 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.LoaderClassPath;
+import javassist.NotFoundException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.bootstrap.Agent;
-import com.navercorp.pinpoint.bootstrap.instrument.*;
+import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.DefaultScopeDefinition;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.Scope;
+import com.navercorp.pinpoint.bootstrap.instrument.ScopeDefinition;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
+import com.navercorp.pinpoint.profiler.ClassFileRetransformer;
 import com.navercorp.pinpoint.profiler.interceptor.GlobalInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.ScopePool;
 import com.navercorp.pinpoint.profiler.util.ThreadLocalScopePool;
-
-import javassist.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author emeroad
@@ -57,6 +68,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     private final ClassLoadChecker classLoadChecker = new ClassLoadChecker();
     private final InterceptorRegistryBinder interceptorRegistryBinder;
+    private ClassFileRetransformer retransformer = null;
 
     public static JavaAssistByteCodeInstrumentor createTestInstrumentor() {
         return new JavaAssistByteCodeInstrumentor();
@@ -67,6 +79,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         this.rootClassPool = createClassPool("rootClassPool");
         this.childClassPool = new NamedClassPool(rootClassPool, "childClassPool");
         this.interceptorRegistryBinder = new GlobalInterceptorRegistryBinder();
+        this.retransformer = null;
     }
 
     public JavaAssistByteCodeInstrumentor(Agent agent, InterceptorRegistryBinder interceptorRegistryBinder) {
@@ -315,5 +328,14 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         }
         logger.info("appendClassPath. classPool:{} ClassLoader:{}", classPool.getName(), classLoader);
         classPool.appendClassPath(new LoaderClassPath(classLoader));
+    }
+    
+    @Override
+    public void retransform(Class<?> target, ClassEditor editor) {
+        retransformer.retransform(target, editor);
+    }
+
+    public void setRetransformer(ClassFileRetransformer retransformer) {
+        this.retransformer = retransformer;
     }
 }

@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
@@ -32,21 +30,17 @@ import com.navercorp.pinpoint.exception.PinpointException;
  */
 public class AutoBindingObjectFactory<T> {
 
-    private final TraceContext traceContext;
     private final ProfilerPluginContext pluginContext;
-    private final ByteCodeInstrumentor instrumentor;
     private final InstrumentClass targetClass;
     private final MethodInfo targetMethod;
     private final Object[] providedValues;
     
-    public AutoBindingObjectFactory(TraceContext traceContext, ProfilerPluginContext pluginContext, ByteCodeInstrumentor instrumentor, InstrumentClass targetClass, Object[] providedValues) {
-        this(traceContext, pluginContext, instrumentor, targetClass, null, providedValues);
+    public AutoBindingObjectFactory(ProfilerPluginContext pluginContext, InstrumentClass targetClass, Object[] providedValues) {
+        this(pluginContext, targetClass, null, providedValues);
     }
 
-    public AutoBindingObjectFactory(TraceContext traceContext, ProfilerPluginContext pluginContext, ByteCodeInstrumentor instrumentor, InstrumentClass targetClass, MethodInfo targetMethod, Object[] providedValues) {
-        this.traceContext = traceContext;
+    public AutoBindingObjectFactory(ProfilerPluginContext pluginContext, InstrumentClass targetClass, MethodInfo targetMethod, Object[] providedValues) {
         this.pluginContext = pluginContext;
-        this.instrumentor = instrumentor;
         this.targetClass = targetClass;
         this.targetMethod = targetMethod;
         this.providedValues = providedValues;
@@ -68,7 +62,7 @@ public class AutoBindingObjectFactory<T> {
     private ConstructorResolver<T> createConstructorResolver(InstrumentClass target, MethodInfo targetMethod, Class<? extends T> interceptorClass) {
         List<ParameterResolver> suppliers = new ArrayList<ParameterResolver>();
         
-        PinpointTypeResolver pinpointResolver = new PinpointTypeResolver(traceContext, pluginContext, instrumentor, target, targetMethod);
+        PinpointTypeResolver pinpointResolver = new PinpointTypeResolver(pluginContext, target, targetMethod);
         suppliers.add(pinpointResolver);
         
         if (providedValues != null) { 

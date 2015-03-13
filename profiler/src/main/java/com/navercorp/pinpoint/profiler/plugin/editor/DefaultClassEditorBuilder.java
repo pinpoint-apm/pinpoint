@@ -23,8 +23,6 @@ import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassCondition;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
@@ -53,43 +51,28 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
         this.pluginContext = pluginContext;
     }
 
-    /* (non-Javadoc)
-     * @see com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder#target(java.lang.String)
-     */
     @Override
     public void target(String targetClassName) {
         this.targetClassName = targetClassName;
     }
     
-    /* (non-Javadoc)
-     * @see com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder#condition(com.navercorp.pinpoint.bootstrap.plugin.editor.ClassCondition)
-     */
     @Override
     public void condition(ClassCondition condition) {
         this.condition = condition;
     }
     
-    /* (non-Javadoc)
-     * @see com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder#injectFieldSnooper(java.lang.String)
-     */
     @Override
     public void injectFieldSnooper(String fieldName) {
         FieldAccessor snooper = pluginContext.allocateFieldSnooper(fieldName);
         recipes.add(new FieldSnooperInjector(snooper, fieldName));
     }
     
-    /* (non-Javadoc)
-     * @see com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder#injectMetadata(java.lang.String)
-     */
     @Override
     public void injectMetadata(String name) {
         MetadataAccessor accessor = pluginContext.allocateMetadataAccessor(name);
         recipes.add(new MetadataInjector(accessor));
     }
     
-    /* (non-Javadoc)
-     * @see com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder#injectMetadata(java.lang.String, java.lang.String)
-     */
     @Override
     public void injectMetadata(String name, String initialValueType) {
         MetadataAccessor accessor = pluginContext.allocateMetadataAccessor(name);
@@ -126,9 +109,10 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
     public void weave(String aspectClassName) {
         recipes.add(new ClassWeaver(aspectClassName));
     }
-
-    public DedicatedClassEditor build(TraceContext context, ByteCodeInstrumentor instrumentor) {
-        ClassRecipe recipe = buildClassRecipe(context, instrumentor); 
+    
+    @Override
+    public DedicatedClassEditor build() {
+        ClassRecipe recipe = buildClassRecipe(); 
         DedicatedClassEditor editor = buildClassEditor(recipe);
         
         return editor;
@@ -143,11 +127,11 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
         return editor;
     }
 
-    private ClassRecipe buildClassRecipe(TraceContext context, ByteCodeInstrumentor instrumentor) {
+    private ClassRecipe buildClassRecipe() {
         List<ClassRecipe> recipes = new ArrayList<ClassRecipe>(this.recipes);
         
         for (RecipeBuilder<ClassRecipe> builder : recipeBuilders) {
-            recipes.add(builder.build(context, instrumentor));
+            recipes.add(builder.build());
         }
         
         if (recipes.isEmpty()) {
@@ -159,7 +143,7 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
     }
     
     private interface RecipeBuilder<T> {
-        public T build(TraceContext context, ByteCodeInstrumentor instrumentor);
+        public T build();
     }
 
     private class TargetAnnotatedInterceptorInjectorBuilder implements RecipeBuilder<ClassRecipe> {
@@ -172,8 +156,8 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
         }
 
         @Override
-        public ClassRecipe build(TraceContext context, ByteCodeInstrumentor instrumentor) {
-            return new TargetAnnotatedInterceptorInjector(context, pluginContext, instrumentor, interceptorClassName, constructorArguments);
+        public ClassRecipe build() {
+            return new TargetAnnotatedInterceptorInjector(pluginContext, interceptorClassName, constructorArguments);
         }
     }
 
@@ -187,8 +171,8 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
         }
 
         @Override
-        public MethodRecipe build(TraceContext context, ByteCodeInstrumentor instrumentor) {
-            return new AnnotatedInterceptorInjector(context, pluginContext, instrumentor, interceptorClassName, constructorArguments);
+        public MethodRecipe build() {
+            return new AnnotatedInterceptorInjector(pluginContext, interceptorClassName, constructorArguments);
         }
     }
     
@@ -239,8 +223,8 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
             this.exceptionHandler = handler;
         }
 
-        public MethodEditor build(TraceContext context, ByteCodeInstrumentor instrumentor) {
-            List<MethodRecipe> recipes = buildMethodRecipe(context, instrumentor);
+        public MethodEditor build() {
+            List<MethodRecipe> recipes = buildMethodRecipe();
             MethodEditor editor = buildMethodEditor(recipes);
             
             return editor;
@@ -263,7 +247,7 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
             return editor;
         }
 
-        private List<MethodRecipe> buildMethodRecipe(TraceContext context, ByteCodeInstrumentor instrumentor) {
+        private List<MethodRecipe> buildMethodRecipe() {
             if (recipeBuilders.isEmpty()) {
                 // For now, a method editor without any interceptor is meaningless. 
                 throw new IllegalStateException("No interceptors are defiend");
@@ -272,7 +256,7 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
             List<MethodRecipe> recipes = new ArrayList<MethodRecipe>(recipeBuilders.size());
             
             for (RecipeBuilder<MethodRecipe> builder : recipeBuilders) {
-                recipes.add(builder.build(context, instrumentor));
+                recipes.add(builder.build());
             }
             
             return recipes;

@@ -82,12 +82,14 @@ public class TomcatPlugin implements ProfilerPlugin {
         ClassEditorBuilder builder = context.newClassEditorBuilder();
         builder.target("org.apache.catalina.connector.RequestFacade");
         builder.weave("com.navercorp.pinpoint.plugin.tomcat.aspect.RequestFacadeAspect");
+        context.addClassEditor(builder.build());
     }
 
     private void addStandardHostValveEditor(ProfilerPluginSetupContext context, TomcatConfiguration config) {
         ClassEditorBuilder builder = context.newClassEditorBuilder();
         builder.target("org.apache.catalina.core.StandardHostValve");
         builder.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor", config.getTomcatExcludeUrlFilter());
+        context.addClassEditor(builder.build());
     }
 
     private void addStandardServiceEditor(ProfilerPluginSetupContext context) {
@@ -103,6 +105,8 @@ public class TomcatPlugin implements ProfilerPlugin {
         MethodEditorBuilder startInternalEditor = builder.editMethod("startInternal");
         startInternalEditor.property(IGNORE_IF_NOT_EXIST);
         startInternalEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardServiceStartInterceptor");
+        
+        context.addClassEditor(builder.build());
     }
 
     private void addTomcatConnectorEditor(ProfilerPluginSetupContext context) {
@@ -118,6 +122,8 @@ public class TomcatPlugin implements ProfilerPlugin {
         MethodEditorBuilder initInternalEditor = builder.editMethod("initInternal");
         initInternalEditor.property(IGNORE_IF_NOT_EXIST);
         initInternalEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.ConnectorInitializeInterceptor");
+        
+        context.addClassEditor(builder.build());
     }
 
     private void addWebappLoaderEditor(ProfilerPluginSetupContext context) {
@@ -133,5 +139,7 @@ public class TomcatPlugin implements ProfilerPlugin {
         MethodEditorBuilder startInternalEditor = builder.editMethod("startInternal");
         startInternalEditor.property(IGNORE_IF_NOT_EXIST);
         startInternalEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.WebappLoaderStartInterceptor");
+        
+        context.addClassEditor(builder.build());
     }
 }

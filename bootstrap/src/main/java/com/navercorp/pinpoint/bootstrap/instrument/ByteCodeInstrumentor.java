@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.bootstrap.instrument;
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
 
 /**
  * @author emeroad
@@ -40,4 +41,6 @@ public interface ByteCodeInstrumentor {
 //    TargetMethod newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN, Object[] params) throws InstrumentException;
 
     Interceptor newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN, Object[] params, Class[] paramClazz) throws InstrumentException;
+    
+    void retransform(Class<?> target, ClassEditor classEditor);
 }

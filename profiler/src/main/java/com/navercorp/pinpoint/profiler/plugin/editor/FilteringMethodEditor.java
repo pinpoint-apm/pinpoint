@@ -39,7 +39,7 @@ public class FilteringMethodEditor implements MethodEditor {
         this.recipes = recipes;
         this.exceptionHandler = handler;
     }
-
+    
     @Override
     public void edit(ClassLoader classLoader, InstrumentClass target) throws Exception {
         for (MethodInfo targetMethod : target.getDeclaredMethods(filter)) {
