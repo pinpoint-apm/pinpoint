@@ -388,6 +388,78 @@ public class FixedBufferTest {
 
     }
 
+//    @Test
+    public void find_SVarInt_errorCode() throws Exception {
+        Random random = new Random();
+        byte[] bytes = new byte[10];
+
+        while(true) {
+            random.nextBytes(bytes);
+            Buffer buffer = new FixedBuffer(bytes);
+            try {
+                int i = buffer.readVarInt();
+            } catch (IllegalArgumentException e) {
+                logger.info(e.getMessage(), e);
+                String binaryString = Bytes.toStringBinary(bytes);
+                logger.info(binaryString);;
+                for (byte aByte : bytes) {
+                    String code = String.valueOf((int) aByte);
+                    logger.info(code);
+                }
+                return;
+            }
+        }
+    }
+
+//    @Test
+    public void find_SVarLong_errorCode() throws Exception {
+        Random random = new Random();
+        byte[] bytes = new byte[10];
+
+        while(true) {
+            random.nextBytes(bytes);
+            Buffer buffer = new FixedBuffer(bytes);
+            try {
+                long i = buffer.readVarLong();
+            } catch (IllegalArgumentException e) {
+                logger.info(e.getMessage(), e);
+                String binaryString = Bytes.toStringBinary(bytes);
+                logger.info(binaryString);;
+                for (byte aByte : bytes) {
+                    String code = String.valueOf((int) aByte);
+                    logger.info(code);
+                }
+                return;
+            }
+        }
+    }
+
+    @Test
+    public void readVarInt_errorCase() {
+        byte[] errorCode = new byte[] {-118, -41, -17, -117, -81, -115, -64, -64, -108, -88};
+        Buffer buffer = new FixedBuffer(errorCode);
+        try {
+            buffer.readVarInt();
+            Assert.fail("invalid varInt");
+        } catch (IllegalArgumentException ignore) {
+        }
+
+        Assert.assertEquals(0, buffer.getOffset());
+    }
+
+    @Test
+    public void readVarLong_errorCase() {
+        byte[] errorCode = new byte[] {-25, -45, -47, -14, -16, -104, -53, -48, -72, -9};
+        Buffer buffer = new FixedBuffer(errorCode);
+        try {
+            buffer.readVarLong();
+            Assert.fail("invalid varLong");
+        } catch (IllegalArgumentException ignore) {
+        }
+
+        Assert.assertEquals(0, buffer.getOffset());
+    }
+
     private void checkSVarInt(int v, int offset) {
         Buffer buffer = new FixedBuffer(32);
         buffer.putSVar(v);
@@ -403,7 +475,40 @@ public class FixedBufferTest {
 
     @Test
     public void testPutVar64() throws Exception {
+        checkVarLong(0);
+        checkVarLong(1);
+        checkVarLong(-1);
 
+        checkVarLong(Long.MAX_VALUE);
+        checkVarLong(Long.MIN_VALUE);
+
+        checkVarLong(Long.MAX_VALUE/2);
+        checkVarLong(Long.MIN_VALUE/2);
+
+        checkVarLong(Long.MAX_VALUE/128);
+
+        checkVarLong(Long.MAX_VALUE/102400);
+
+        checkVarLong(900719925474L);
+        checkVarLong(9007199254L);
+        checkVarLong(225179981);
+        checkVarLong(1179981);
+        checkVarLong(9981);
+        checkVarLong(127);
+        checkVarLong(-127);
+    }
+
+    private void checkVarLong(long v) {
+        Buffer buffer = new FixedBuffer(32);
+        buffer.putVar(v);
+
+        buffer.setOffset(0);
+        long readV = buffer.readVarLong();
+        Assert.assertEquals(readV, v);
+
+        if (logger.isTraceEnabled()) {
+            logger.trace("v:{} offset:{}", v, buffer.getOffset());
+        }
     }
 
     private void checkUnsignedByte(int value) {

@@ -246,36 +246,42 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public int readVarInt() {
+        final byte[] buffer = this.buffer;
+        int offset = this.offset;
         // borrowing the protocol buffer's concept of variable-length encoding
-        byte v = readByte();
+        int result;
+        byte v = buffer[offset++];
         if (v >= 0) {
+            this.offset = offset;
             return v;
         }
-        int result = v & 0x7f;
-        if ((v = readByte()) >= 0) {
+        result = v & 0x7f;
+        if ((v = buffer[offset++]) >= 0) {
             result |= v << 7;
         } else {
             result |= (v & 0x7f) << 7;
-            if ((v = readByte()) >= 0) {
+            if ((v = buffer[offset++]) >= 0) {
                 result |= v << 14;
             } else {
                 result |= (v & 0x7f) << 14;
-                if ((v = readByte()) >= 0) {
+                if ((v = buffer[offset++]) >= 0) {
                     result |= v << 21;
                 } else {
                     result |= (v & 0x7f) << 21;
-                    result |= (v = readByte()) << 28;
+                    result |= (v = buffer[offset++]) << 28;
                     if (v < 0) {
                         for (int i = 0; i < 5; i++) {
-                            if (readByte() >= 0) {
+                            if (buffer[offset++] >= 0) {
+                                this.offset = offset;
                                 return result;
                             }
                         }
-                        throw new IllegalArgumentException("invalid varInt");
+                        throw new IllegalArgumentException("invalid varInt. start offset:" +  this.offset + " readOffset:" + offset);
                     }
                 }
             }
         }
+        this.offset = offset;
         return result;
     }
 
@@ -303,17 +309,21 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public long readVarLong() {
+        final byte[] buffer = this.buffer;
+        int offset = this.offset;
+
         int shift = 0;
         long result = 0;
         while (shift < 64) {
-            final byte v = readByte();
+            final byte v = buffer[offset++];
             result |= (long)(v & 0x7F) << shift;
             if ((v & 0x80) == 0) {
+                this.offset = offset;
                 return result;
             }
             shift += 7;
         }
-        throw new IllegalArgumentException("invalid varLong");
+        throw new IllegalArgumentException("invalid varLong. start offset:" +  this.offset + " readOffset:" + offset);
     }
 
     @Override
