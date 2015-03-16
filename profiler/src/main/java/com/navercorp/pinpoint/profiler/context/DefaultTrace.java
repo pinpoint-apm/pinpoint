@@ -78,6 +78,7 @@ public final class DefaultTrace implements Trace {
         span.setAgentId(traceContext.getAgentId());
         span.setApplicationName(traceContext.getApplicationName());
         span.setAgentStartTime(traceContext.getAgentStartTime());
+        span.setApplicationServiceType(traceContext.getServerTypeCode());
 
         // have to recode traceId latter.
         span.recordTraceId(traceId);

@@ -56,6 +56,7 @@ public class SpanChunkFactory {
         spanChunk.setAgentId(agentId);
         spanChunk.setApplicationName(this.agentInformation.getApplicationName());
         spanChunk.setAgentStartTime(this.agentInformation.getStartTime());
+        spanChunk.setApplicationServiceType(this.agentInformation.getServerType().getCode());
 
         spanChunk.setServiceType(parentSpan.getServiceType());
 

@@ -132,7 +132,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
         // scan transaction list
         for (SpanBo span : filteredTransactionList) {
-            if (sourceApplication.equals(span.getApplicationId(), registry.findServiceType(span.getServiceType()))) {
+            if (sourceApplication.equals(span.getApplicationId(), registry.findServiceType(span.getApplicationServiceType()))) {
                 List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
                 if (spanEventBoList == null) {
                     continue;
@@ -244,7 +244,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
             for (SpanBo span : transaction) {
                 final Application parentApplication = createParentApplication(span, transactionSpanMap);
-                final Application spanApplication = new Application(span.getApplicationId(), registry.findServiceType(span.getServiceType()));
+                final Application spanApplication = new Application(span.getApplicationId(), registry.findServiceType(span.getApplicationServiceType()));
 
                 // records the Span's response time statistics
                 recordSpanResponseTime(spanApplication, span, mapHistogramSummary, span.getCollectorAcceptTime());
@@ -323,7 +323,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         if (CollectionUtils.isEmpty(spanEventBoList)) {
             return;
         }
-        final Application srcApplication = new Application(span.getApplicationId(), registry.findServiceType(span.getServiceType()));
+        final Application srcApplication = new Application(span.getApplicationId(), registry.findServiceType(span.getApplicationServiceType()));
 
         LinkDataMap sourceLinkDataMap = linkDataDuplexMap.getSourceLinkDataMap();
         for (SpanEventBo spanEvent : spanEventBoList) {
@@ -367,7 +367,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         } else {
             String parentApplicationName = parentSpan.getApplicationId();
 
-            ServiceType serviceType = registry.findServiceType(parentSpan.getServiceType());
+            ServiceType serviceType = registry.findServiceType(parentSpan.getApplicationServiceType());
             return new Application(parentApplicationName, serviceType);
         }
     }
