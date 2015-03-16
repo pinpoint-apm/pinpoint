@@ -53,7 +53,7 @@ public final class ClassLoaderUtils {
         return defaultClassLoaderCallable.getClassLoader();
     }
 
-    public static interface ClassLoaderCallable {
+    public interface ClassLoaderCallable {
         ClassLoader getClassLoader();
     }
 }

@@ -85,7 +85,7 @@ public class AnnotationKey {
     // used for developing the annotation that dumps api by string. you also consider to remove it later.
     public static final AnnotationKey API = new AnnotationKey(12, "API");
     public static final AnnotationKey API_METADATA = new AnnotationKey(13, "API-METADATA");
-    public static final AnnotationKey RETURN_DATA = new AnnotationKey(14, "RETRUN_DATA", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey RETURN_DATA = new AnnotationKey(14, "RETURN_DATA", VIEW_IN_RECORD_SET);
     
     // when you don't know the correct cause of errors.
     public static final AnnotationKey ERROR_API_METADATA_ERROR = new AnnotationKey(10000010, "API-METADATA-ERROR", ERROR_API_METADATA);
@@ -165,75 +165,10 @@ public class AnnotationKey {
     private final boolean errorApiMetadata;
 
     public final static int MAX_ARGS_SIZE = 10;
-    
-    static final List<AnnotationKey> DEFAULT_VALUES = Collections.unmodifiableList(defaultLookup());
 
 
-    private static List<AnnotationKey> defaultLookup() {
-        StaticFieldLookUp<AnnotationKey> lookUp = new StaticFieldLookUp<AnnotationKey>(AnnotationKey.class, AnnotationKey.class);
-        return lookUp.lookup();
-    }
 
-    private static List<AnnotationKey> VALUES;
-    private static IntHashMap<AnnotationKey> CODE_LOOKUP_TABLE;
 
-    
-    static {
-        TypeProviderLoader.checkAnnotationKeys(DEFAULT_VALUES);
-        setValues(DEFAULT_VALUES);
-    }
-
-    private static void setValues(List<AnnotationKey> annotationKeys) {
-        VALUES = annotationKeys;
-        CODE_LOOKUP_TABLE = initializeAnnotationKeyCodeLookupTable(annotationKeys);
-    }
-    
-    private static IntHashMap<AnnotationKey> initializeAnnotationKeyCodeLookupTable(List<AnnotationKey> annotationKeys) {
-        IntHashMap<AnnotationKey> table = new IntHashMap<AnnotationKey>();
-        
-        for (AnnotationKey serviceType : annotationKeys) {
-            table.put(serviceType.getCode(), serviceType);
-        }
-        
-        return table;
-    }
-    
-    static synchronized boolean isIntialized() {
-        return VALUES != DEFAULT_VALUES;
-    }
-
-    public static synchronized void initialize(List<AnnotationKey> annotationKeys) {
-        if (isIntialized()) {
-            throw new IllegalStateException("AnnotationKey is already initialized");
-        }
-        
-        setValues(annotationKeys);
-    }
-
-    public static List<AnnotationKey> values() {
-        return VALUES;
-    }
-    
-    public static AnnotationKey valueOf(String name) {
-        for (AnnotationKey key : VALUES) {
-            if (key.getName().equals(name)) {
-                return key;
-            }
-        }
-        
-        throw new NoSuchElementException(name);
-    }
-
-    public static AnnotationKey findAnnotationKey(int code) {
-        AnnotationKey annotationKey = CODE_LOOKUP_TABLE.get(code);
-        if (annotationKey == null) {
-            return UNKNOWN;
-        }
-        return annotationKey;
-    }
-
-    
-    
     ////////////////////////////////
     // Arguments
     ////////////////////////////////
@@ -320,5 +255,14 @@ public class AnnotationKey {
         final int cachedIndex = CACHE_ARGS0.getCode() - ARGS0.getCode();
         // you have to - (minus) operation because of negative name
         return index - cachedIndex;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("AnnotationKey{");
+        sb.append("code=").append(code);
+        sb.append(", name='").append(name);
+        sb.append('}');
+        return sb.toString();
     }
 }

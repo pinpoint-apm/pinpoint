@@ -21,9 +21,8 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
+import com.navercorp.pinpoint.common.service.*;
+import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
 import org.junit.Test;
 
 import com.navercorp.pinpoint.common.plugin.TypeProvider;
@@ -33,14 +32,13 @@ import com.navercorp.pinpoint.common.plugin.TypeSetupContext;
  * @author Jongho Moon <jongho.moon@navercorp.com>
  *
  */
-@Ignore
 public class ServiceTypeInitializerTest {
     private static final ServiceType[] TEST_TYPES = {
         ServiceType.of(1209, "FOR_UNIT_TEST", "UNDEFINED", HistogramSchema.NORMAL_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID)
     };
     
     private static final AnnotationKey[] TEST_KEYS = {
-        new AnnotationKey(1209, "API")
+        new AnnotationKey(1209, "Duplicate-API")
     };
 
     private static final ServiceType[] DUPLICATED_CODE_WITH_DEFAULT_TYPE = {
@@ -55,67 +53,90 @@ public class ServiceTypeInitializerTest {
         new AnnotationKey(AnnotationKey.ARGS0.getCode(), "API")
     };
 
-
-    private void verifyAnnotationKeys(List<AnnotationKey> annotationKeys) {
+    private void verifyAnnotationKeys(List<AnnotationKey> annotationKeys, AnnotationKeyRegistryService annotationKeyRegistryService) {
         for (AnnotationKey key : annotationKeys) {
-            assertSame(key, AnnotationKey.findAnnotationKey(key.getCode()));
+            assertSame(key, annotationKeyRegistryService.findAnnotationKey(key.getCode()));
         }
     }
 
 
     @Test
     public void testWithPlugins() {
-        TypeProviderLoader.initializeServiceType(Arrays.<TypeProvider>asList(new TestProvider(TEST_TYPES, TEST_KEYS)));
-        
-        verifyAnnotationKeys(AnnotationKey.DEFAULT_VALUES);
-        
 
-        verifyAnnotationKeys(Arrays.asList(TEST_KEYS));
+        List<TypeProvider> typeProviders = Arrays.<TypeProvider>asList(new TestProvider(TEST_TYPES, TEST_KEYS));
+        TypeLoaderService typeLoaderService = new DefaultTypeLoaderService(typeProviders);
+        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(typeLoaderService);
+
+        StaticFieldLookUp<AnnotationKey> lookUp = new StaticFieldLookUp<AnnotationKey>(AnnotationKey.class, AnnotationKey.class);
+        verifyAnnotationKeys(lookUp.lookup(), annotationKeyRegistryService);
+
+
+        verifyAnnotationKeys(Arrays.asList(TEST_KEYS), annotationKeyRegistryService);
     }
     
     @Test(expected=RuntimeException.class)
     public void testDuplicated() {
-        new TypeProviderLoader().load(Arrays.<TypeProvider>asList(
+
+        List<TypeProvider> providers = Arrays.<TypeProvider>asList(
                 new TestProvider(TEST_TYPES, TEST_KEYS),
                 new TestProvider(new ServiceType[0], TEST_KEYS)
-        ));
+        );
+
+        TypeProviderLoader loader = new TypeProviderLoader();
+        loader.load(providers);
     }
     
     @Test(expected=RuntimeException.class)
     public void testDuplicated2() {
-        new TypeProviderLoader().load(Arrays.<TypeProvider>asList(
+        List<TypeProvider> providers = Arrays.<TypeProvider>asList(
                 new TestProvider(TEST_TYPES, TEST_KEYS),
                 new TestProvider(TEST_TYPES, new AnnotationKey[0])
-        ));
+        );
+
+        TypeProviderLoader loader = new TypeProviderLoader();
+        loader.load(providers);
     }
     
     @Test(expected=RuntimeException.class)
     public void testDuplicated3() {
-        new TypeProviderLoader().load(Arrays.<TypeProvider>asList(
+        List<TypeProvider> providers = Arrays.<TypeProvider>asList(
                 new TestProvider(TEST_TYPES, TEST_KEYS),
                 new TestProvider(TEST_TYPES, new AnnotationKey[0])
-        ));
+        );
+
+        TypeProviderLoader loader = new TypeProviderLoader();
+        loader.load(providers);
     }
 
     @Test(expected=RuntimeException.class)
     public void testDuplicatedWithDefault() {
-        new TypeProviderLoader().load(Arrays.<TypeProvider>asList(
+        List<TypeProvider> providers = Arrays.<TypeProvider>asList(
                 new TestProvider(DUPLICATED_CODE_WITH_DEFAULT_TYPE, TEST_KEYS)
-        ));
+        );
+
+        TypeLoaderService loaderService = new DefaultTypeLoaderService(providers);
+        ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService(loaderService);
     }
 
     @Test(expected=RuntimeException.class)
     public void testDuplicatedWithDefault2() {
-        new TypeProviderLoader().load(Arrays.<TypeProvider>asList(
+        List<TypeProvider> providers = Arrays.<TypeProvider>asList(
                 new TestProvider(DUPLICATED_NAME_WITH_DEFAULT_TYPE, TEST_KEYS)
-        ));
+        );
+
+        TypeLoaderService loaderService = new DefaultTypeLoaderService(providers);
+        ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService(loaderService);
     }
 
     @Test(expected=RuntimeException.class)
     public void testDuplicatedWithDefault3() {
-        new TypeProviderLoader().load(Arrays.<TypeProvider>asList(
+        List<TypeProvider> providers = Arrays.<TypeProvider>asList(
                 new TestProvider(TEST_TYPES, DUPLICATED_CODE_WITH_DEFAULT_KEY)
-        ));
+        );
+
+        TypeLoaderService loaderService = new DefaultTypeLoaderService(providers);
+        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(loaderService);
+
     }
     
     

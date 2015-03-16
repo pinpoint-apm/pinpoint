@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
+import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import org.apache.thrift.TBase;
 
 import com.google.common.base.Objects;
@@ -57,9 +59,11 @@ import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier {
     
     private TestableServerMetaDataListener serverMetaDataListener;
-    
+    private AnnotationKeyRegistryService annotationKeyRegistryService;
+
     public PluginTestAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars, ServiceTypeRegistryService serviceTypeRegistryService) {
         super(agentArgs, instrumentation, profilerConfig, pluginJars, serviceTypeRegistryService);
+        this.annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService();
         PluginTestVerifierHolder.setInstance(this);
     }
 
@@ -479,7 +483,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         
         for (int i = 0; i < len; i++) {
             ExpectedAnnotation expect = expected.annotations[i];
-            AnnotationKey expectedAnnotationKey = AnnotationKey.valueOf(expect.getKeyName());
+            AnnotationKey expectedAnnotationKey = annotationKeyRegistryService.findAnnotationKeyByName(expect.getKeyName());
             TAnnotation actual = actualAnnotations.get(i);
             
             if (expectedAnnotationKey.getCode() != actual.getKey() || !Objects.equal(expect.getValue(), actual.getValue().getFieldValue())) {
