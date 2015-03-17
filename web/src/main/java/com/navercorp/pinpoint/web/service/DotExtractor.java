@@ -59,7 +59,7 @@ public class DotExtractor {
             throw new NullPointerException("span must not be null");
         }
 
-        Application spanApplication = new Application(span.getApplicationId(), registry.findServiceType(span.getServiceType()));
+        Application spanApplication = new Application(span.getApplicationId(), registry.findServiceType(span.getApplicationServiceType()));
         final List<Dot> dotList = getDotList(spanApplication);
 
         final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());

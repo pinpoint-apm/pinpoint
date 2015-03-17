@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
  */
 public class MockTraceContextFactory {
     public TraceContext create() {
-        DefaultTraceContext traceContext = new DefaultTraceContext() ;
+        DefaultTraceContext traceContext = new DefaultTraceContext(new TestAgentInformation()) ;
         ProfilerConfig profilerConfig = new ProfilerConfig();
         traceContext.setProfilerConfig(profilerConfig);
         return traceContext;

@@ -191,7 +191,7 @@ public class DefaultAgent implements Agent {
                 this.profilerConfig.getStatDataSenderWriteQueueSize(), this.profilerConfig.getStatDataSenderSocketTimeout(),
                 this.profilerConfig.getStatDataSenderSocketSendBufferSize());
 
-        this.traceContext = createTraceContext(agentInformation.getServerType());
+        this.traceContext = createTraceContext();
 
         this.agentInfoSender = new AgentInfoSender(tcpDataSender, profilerConfig.getAgentInfoSendRetryInterval(), this.agentInformation);
         this.serverMetaDataHolder.addListener(this.agentInfoSender);
@@ -272,7 +272,7 @@ public class DefaultAgent implements Agent {
         PLoggerFactory.initialize(binder);
     }
 
-    private TraceContext createTraceContext(ServiceType serverType) {
+    private TraceContext createTraceContext() {
         final StorageFactory storageFactory = createStorageFactory();
         logger.info("StorageFactoryType:{}", storageFactory);
 
@@ -280,8 +280,7 @@ public class DefaultAgent implements Agent {
         logger.info("SamplerType:{}", sampler);
         
         final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
-        final DefaultTraceContext traceContext = new DefaultTraceContext(jdbcSqlCacheSize, serverType, storageFactory, sampler, this.serverMetaDataHolder);
-        traceContext.setAgentInformation(this.agentInformation);
+        final DefaultTraceContext traceContext = new DefaultTraceContext(jdbcSqlCacheSize, this.agentInformation, storageFactory, sampler, this.serverMetaDataHolder);
         traceContext.setPriorityDataSender(this.tcpDataSender);
 
         traceContext.setProfilerConfig(profilerConfig);
