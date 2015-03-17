@@ -12,7 +12,7 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
             link: function postLink(scope, element, attrs) {
 
                 // initialize variables
-                var grid, columns, dataView, lastAgent;
+            	var grid, dataView, lastAgent;
 
                 // initialize variables of methods
                 var initialize, treeFormatter, treeFilter, parseData, execTimeFormatter,
@@ -125,12 +125,24 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                 };
                 
                 
-                linkFormatter = function (row, cell, value, columnDef, dataConrtext) {
+                linkFormatter = function (row, cell, value, columnDef, dataContext) {
+                	
+                	if (!value || 0 === value.length) {
+                		return;
+                	}
+                	
                     var html = [];
                     html.push('<a class="btn btn-default btn-xs"');
                     html.push('href="')
                     html.push(value);
-                    html.push('" target="_blank">nelo</a>');
+                    html.push('" target="_blank">');
+
+                    var item = dataView.getItemById(dataContext.id);
+                    var logButtonName = item.logButtonName;
+                    html.push(logButtonName);
+                    
+                    html.push('</a>');
+                    
                     return html.join('');
                 };
 
@@ -171,21 +183,6 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                     return "<span class='percent-complete-bar' style='background:" + color + ";width:" + value + "%'></span>";
                 };
 
-                // columns
-                columns = [
-                    {id: "method", name: "Method", field: "method", width: 400, formatter: treeFormatter},
-                    {id: "argument", name: "Argument", field: "argument", width: 300, formatter: argumentFormatter},
-                    {id: "exec-time", name: "Exec Time", field: "execTime", width: 90, formatter: execTimeFormatter},
-                    {id: "gap-ms", name: "Gap(ms)", field: "gapMs", width: 60, cssClass: "right-align"},
-                    {id: "time-ms", name: "Time(ms)", field: "timeMs", width: 60, cssClass: "right-align"},
-                    {id: "time-per", name: "Time(%)", field: "timePer", width: 100, formatter: progressBarFormatter},
-                    {id: "class", name: "Class", field: "class", width: 120},
-                    {id: "api-type", name: "Api Type", field: "apiType", width: 90},
-                    {id: "agent", name: "Agent", field: "agent", width: 130},
-                    {id: "application-name", name: "Application Name", field: "applicationName", width: 150},
-                    {id: "Loglink", name: "log", field: "logLink", width: 50, formatter:linkFormatter}
-                ];
-
                 /**
                  * parse data
                  * @param index
@@ -212,7 +209,8 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                             applicationName: val[index['applicationName']],
                             hasException: val[index['hasException']],
                             isMethod: val[index['isMethod']] ,
-                            logLink : "http://localhost/NeloLogWithTransactionId.pinpoint?transactionId=minwoo_local_tomcat%5E1425368654938%5E10"
+                            logLink : val[index['logPageUrl']],
+                            logButtonName : val[index['logButtonName']],
                         });
                     });
                     return result;
@@ -253,6 +251,23 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
 //                    };
                     dataView.endUpdate();
 
+                    var columns = [
+	                    {id: "method", name: "Method", field: "method", width: 400, formatter: treeFormatter},
+	                    {id: "argument", name: "Argument", field: "argument", width: 300, formatter: argumentFormatter},
+	                    {id: "exec-time", name: "Exec Time", field: "execTime", width: 90, formatter: execTimeFormatter},
+	                    {id: "gap-ms", name: "Gap(ms)", field: "gapMs", width: 60, cssClass: "right-align"},
+	                    {id: "time-ms", name: "Time(ms)", field: "timeMs", width: 60, cssClass: "right-align"},
+	                    {id: "time-per", name: "Time(%)", field: "timePer", width: 100, formatter: progressBarFormatter},
+	                    {id: "class", name: "Class", field: "class", width: 120},
+	                    {id: "api-type", name: "Api Type", field: "apiType", width: 90},
+	                    {id: "agent", name: "Agent", field: "agent", width: 130},
+	                    {id: "application-name", name: "Application Name", field: "applicationName", width: 150}
+                    ];
+                  
+                    if (t.logLinkEnable) {
+                    	columns.push({id: "Loglink", name: "log", field: "logLink", width: 50, formatter:linkFormatter});
+                    }
+                    
                     grid = new Slick.Grid(element.get(0), dataView, columns, options);
 
                     var isSingleClick = true, clickTimeout = false;
