@@ -913,12 +913,14 @@ public class JavaAssistClass implements InstrumentClass {
        return null;
    }
 
-    @Override
+   @Override
    public void addGetter(String getterName, String variableName, String variableType) throws InstrumentException {
        try {
-           // FIXME Which is better? getField() or getDeclaredField()? getFiled() seems like better chioce if we want to add getter to child classes.
            CtField traceVariable = ctClass.getField(variableName);
-           CtMethod getterMethod = CtNewMethod.getter(getterName, traceVariable);
+           // CtNewMethod.getter() returns a CtMethod binded to the class which declared the variable.
+           // It makes us cannot add the getter to a child class of the declaring class.
+           // So we use CtNewMethod.make() instead.
+           CtMethod getterMethod = CtNewMethod.make("public " + traceVariable.getType().getName() + " " + getterName + "() { return " + variableName + "; }", ctClass);
            ctClass.addMethod(getterMethod);
        } catch (NotFoundException ex) {
            throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);
