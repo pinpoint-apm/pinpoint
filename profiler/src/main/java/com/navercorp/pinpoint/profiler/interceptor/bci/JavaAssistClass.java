@@ -911,6 +911,17 @@ public class JavaAssistClass implements InstrumentClass {
            return false;
        }
    }
+   
+   @Override
+    public boolean hasField(String name, String type) {
+        try {
+            ctClass.getField(name, type);
+        } catch (NotFoundException e) {
+            return false;
+        }
+        
+        return true;
+    }
 
    @Override
    public InstrumentClass getNestedClass(String className) {
@@ -939,7 +950,7 @@ public class JavaAssistClass implements InstrumentClass {
         try {
             // FIXME Which is better? getField() or getDeclaredField()? getFiled() seems like better chioce if we want to add getter to child classes.
             CtField traceVariable = ctClass.getField(variableName);
-            CtMethod getterMethod = CtNewMethod.getter(getterName, traceVariable);
+            CtMethod getterMethod = CtNewMethod.make("public " + traceVariable.getType().getName() + " " + getterName + "() { return " + variableName + "; }", ctClass);
             ctClass.addMethod(getterMethod);
         } catch (NotFoundException ex) {
             throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);

@@ -18,7 +18,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,9 +27,6 @@ import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
-import com.navercorp.pinpoint.common.util.SimpleProperty;
-import com.navercorp.pinpoint.common.util.SystemProperty;
 
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
@@ -65,13 +61,15 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.navercorp.pinpoint.bootstrap.PinpointBootStrap;
+import com.navercorp.pinpoint.common.util.SimpleProperty;
+import com.navercorp.pinpoint.common.util.SystemProperty;
 
 /**
  * @author Jongho Moon
  *
  */
 public class DependencyResolver {
-    private static final String FOLLOW_PRECEDING = "FOLLOW_PRECEDING";
+    private static final String FOLLOW_PRECEEDING = "FOLLOW_PRECEEDING";
     private static final String DEFAULT_LOCAL_REPOSITORY = "target/local-repo";
     private static final Logger logger = Logger.getLogger(PinpointBootStrap.class.getName());
 
@@ -241,12 +239,12 @@ public class DependencyResolver {
             
             int second = a.indexOf(':', first + 1);
             if (second == -1) {
-                a += ":" + FOLLOW_PRECEDING;
+                a += ":" + FOLLOW_PRECEEDING;
             }
             
             DefaultArtifact artifact = new DefaultArtifact(a);
             
-            if (FOLLOW_PRECEDING.equals(artifact.getVersion())) {
+            if (FOLLOW_PRECEEDING.equals(artifact.getVersion())) {
                 if (lastCompanion != null) {
                     lastCompanion.add(artifact);
                 } else {

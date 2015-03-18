@@ -110,6 +110,8 @@ public interface InstrumentClass {
     boolean hasDeclaredMethod(String methodName, String[] args);
 
     boolean hasMethod(String methodName, String[] parameterTypeArray, String returnType);
+    
+    boolean hasField(String name, String type);
 
     InstrumentClass getNestedClass(String className);
 

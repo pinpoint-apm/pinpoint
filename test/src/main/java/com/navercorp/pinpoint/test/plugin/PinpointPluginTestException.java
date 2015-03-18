@@ -18,8 +18,9 @@ package com.navercorp.pinpoint.test.plugin;
  * @author Jongho Moon
  *
  */
-public class ChildProcessException extends Exception {
-    public ChildProcessException(String message, StackTraceElement[] stackTrace) {
+@SuppressWarnings("serial")
+public class PinpointPluginTestException extends Exception {
+    public PinpointPluginTestException(String message, StackTraceElement[] stackTrace) {
         super(message);
         setStackTrace(stackTrace);
     }

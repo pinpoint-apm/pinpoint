@@ -214,7 +214,7 @@ public class PinpointPluginTestStatement extends Statement implements PinpointPl
         return failure;
     }
     
-    private ChildProcessException toException(String message, String exceptionClass, List<String> traceInText) {
+    private PinpointPluginTestException toException(String message, String exceptionClass, List<String> traceInText) {
         StackTraceElement[] stackTrace = new StackTraceElement[traceInText.size()];
         
         for (int i = 0; i < traceInText.size(); i++) {
@@ -224,6 +224,6 @@ public class PinpointPluginTestStatement extends Statement implements PinpointPl
             stackTrace[i] = new StackTraceElement(tokens[0], tokens[1], tokens[2], Integer.parseInt(tokens[3]));
         }
         
-        return new ChildProcessException(exceptionClass + ": " + message, stackTrace);
+        return new PinpointPluginTestException(exceptionClass + ": " + message, stackTrace);
     }
 }
