@@ -20,6 +20,9 @@ import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.catalina.connector.Request;
+
+import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
@@ -29,6 +32,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.Cached;
+import com.navercorp.pinpoint.bootstrap.plugin.Name;
 import com.navercorp.pinpoint.bootstrap.plugin.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
@@ -43,18 +47,20 @@ import com.navercorp.pinpoint.profiler.context.SpanId;
  * @author emeroad
  */
 @TargetMethod(name = "invoke", paramTypes = { "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response" })
-public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundInterceptor {
+public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundInterceptor implements TomcatConstants {
 
     private final boolean isTrace = logger.isTraceEnabled();
     private Filter<String> excludeUrlFilter;
+    private MetadataAccessor asyncAccessor;
 
-    public StandardHostValveInvokeInterceptor(TraceContext traceContext, @Cached MethodDescriptor descriptor, Filter<String> excludeFilter) {
+    public StandardHostValveInvokeInterceptor(TraceContext traceContext, @Cached MethodDescriptor descriptor, Filter<String> excludeFilter, @Name(METADATA_ASYNC) MetadataAccessor asyncAccessor) {
         super(StandardHostValveInvokeInterceptor.class);
 
         setTraceContext(traceContext);
         setMethodDescriptor(descriptor);
 
         this.excludeUrlFilter = excludeFilter;
+        this.asyncAccessor = asyncAccessor;
     }
 
     @Override
@@ -65,29 +71,40 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         if (trace.canSampled()) {
             trace.recordServiceType(ServiceType.INTERNAL_METHOD);
 
-//            final String requestURL = request.getRequestURI();
-//            trace.recordRpcName(requestURL);
+            // final String requestURL = request.getRequestURI();
+            // trace.recordRpcName(requestURL);
 
-//            final int port = request.getServerPort();
-//            final String endPoint = request.getServerName() + ":" + port;
-//            trace.recordEndPoint(endPoint);
-//
-//            final String remoteAddr = request.getRemoteAddr();
-//            trace.recordRemoteAddress(remoteAddr);
+            // final int port = request.getServerPort();
+            // final String endPoint = request.getServerName() + ":" + port;
+            // trace.recordEndPoint(endPoint);
+            //
+            // final String remoteAddr = request.getRemoteAddr();
+            // trace.recordRemoteAddress(remoteAddr);
         }
 
-//        if (!trace.isRoot()) {
-//            recordParentInfo(trace, request);
-//        }
+        // if (!trace.isRoot()) {
+        // recordParentInfo(trace, request);
+        // }
     }
 
     @Override
     protected Trace createTrace(Object target, Object[] args) {
-        final HttpServletRequest request = (HttpServletRequest) args[0];
+        final Request request = (Request) args[0];
 
         if (request.getAttribute("PINPOINT_TRACE") != null) {
             Trace trace = (Trace) request.getAttribute("PINPOINT_TRACE");
             getTraceContext().attachTraceObject(trace);
+
+            logger.debug("Continue servlet process");
+            if (asyncAccessor.isApplicable(request) && asyncAccessor.get(request) != null) {
+                logger.debug("Check async");
+                Boolean async = asyncAccessor.get(request);
+                if (async) {
+                    getTraceContext().cacheApi(TomcatConstants.servletAsynchronousMethodDescriptor);
+                    trace.recordApi(TomcatConstants.servletAsynchronousMethodDescriptor);
+                }
+            }
+
             return trace;
         }
 
@@ -146,8 +163,8 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     }
 
     private void initTrace(final Trace trace, final HttpServletRequest request) {
-        getTraceContext().cacheApi(TomcatConstants.syncMethodDescriptor);
-        trace.recordApi(TomcatConstants.syncMethodDescriptor);
+        getTraceContext().cacheApi(TomcatConstants.servletSynchronousMethodDescriptor);
+        trace.recordApi(TomcatConstants.servletSynchronousMethodDescriptor);
         request.setAttribute("PINPOINT_TRACE", trace);
         trace.markBeforeTime();
         if (trace.canSampled()) {
@@ -167,8 +184,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         if (!trace.isRoot()) {
             recordParentInfo(trace, request);
         }
-        
-        
+
     }
 
     private void recordParentInfo(RecordableTrace trace, HttpServletRequest request) {

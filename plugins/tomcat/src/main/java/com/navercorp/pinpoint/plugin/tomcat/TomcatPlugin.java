@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorBuilder;
  * @author Jongho Moon
  *
  */
-public class TomcatPlugin implements ProfilerPlugin {
+public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
 
     /*
      * (non-Javadoc)
@@ -54,10 +54,17 @@ public class TomcatPlugin implements ProfilerPlugin {
 
     private void addRequestEditor(ProfilerPluginSetupContext context) {
         ClassEditorBuilder builder = context.newClassEditorBuilder();
+        builder.injectMetadata(METADATA_ASYNC);
         builder.target("org.apache.catalina.connector.Request");
         
-        MethodEditorBuilder methodEditorBuilder = builder.editMethod("recycle");
-        methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestRecycleInterceptor");
+        MethodEditorBuilder recycleMethodEditorBuilder = builder.editMethod("recycle");
+        recycleMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestRecycleInterceptor");
+        
+        MethodEditorBuilder startAsyncMethodEditor = builder.editMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
+        startAsyncMethodEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestStartAsyncInterceptor");
+        
+        context.addClassEditor(builder.build());
+        
     }
 
     private void addCoyoteAdapterEditor(ProfilerPluginSetupContext context) {
@@ -76,6 +83,7 @@ public class TomcatPlugin implements ProfilerPlugin {
             }
         });
         methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.CoyoteAdapterInterceptor");
+        context.addClassEditor(builder.build());
     }
 
     private void addRequestFacadeEditor(ProfilerPluginSetupContext context) {

@@ -57,7 +57,7 @@ public class ApiDescriptionParser {
         }
 
         String className = parseClassName(apiDescriptionString, classIndex);
-        ApiDescription api = new ApiDescription();
+        ApiDescription api = new DefaultApiDescription();
         api.setClassName(className);
 
         String methodName = parseMethodName(apiDescriptionString, methodStart, classIndex);

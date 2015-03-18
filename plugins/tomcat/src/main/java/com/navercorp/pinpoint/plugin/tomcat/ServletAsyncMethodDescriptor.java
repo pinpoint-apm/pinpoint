@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.plugin.tomcat;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 
-public class ServletSyncMethodDescriptor implements MethodDescriptor {
+public class ServletAsyncMethodDescriptor implements MethodDescriptor {
     private static final String CLASS_NAME = "";
     private static final String METHOD_NAME = "Tomcat";
     private int apiId = 0;
@@ -39,7 +39,7 @@ public class ServletSyncMethodDescriptor implements MethodDescriptor {
 
     @Override
     public String getFullName() {
-        return ".Tomcat Servlet Process()";
+        return ".Tomcat Servlet Asynchronous Process()";
     }
 
     @Override
@@ -54,6 +54,6 @@ public class ServletSyncMethodDescriptor implements MethodDescriptor {
 
     @Override
     public String getApiDescriptor() {
-        return ".Tomcat Servlet Process()";
+        return ".Tomcat Servlet Asynchronous Process()";
     }
 }

@@ -26,5 +26,8 @@ import com.navercorp.pinpoint.common.ServiceType;
 public interface TomcatConstants {
     public static final String TYPE_NAME = "TOMCAT";
     public static final ServiceType TOMCAT = ServiceType.of(1010, "TOMCAT", NORMAL_SCHEMA, RECORD_STATISTICS);
-    public static final ServletSyncMethodDescriptor syncMethodDescriptor = new ServletSyncMethodDescriptor(); 
+    public static final String METADATA_ASYNC = "async";
+    
+    public static final ServletSyncMethodDescriptor servletSynchronousMethodDescriptor = new ServletSyncMethodDescriptor();
+    public static final ServletAsyncMethodDescriptor servletAsynchronousMethodDescriptor = new ServletAsyncMethodDescriptor();
 }
