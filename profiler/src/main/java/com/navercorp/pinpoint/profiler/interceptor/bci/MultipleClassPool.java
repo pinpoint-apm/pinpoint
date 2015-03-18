@@ -22,7 +22,7 @@ import javassist.ClassPool;
  * @author emeroad
  */
 public interface MultipleClassPool {
-    ClassPool getClassPool(ClassLoader classLoader);
 
+    NamedClassPool getClassPool(ClassLoader classLoader);
 
 }

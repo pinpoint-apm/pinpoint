@@ -28,6 +28,10 @@ public final class ClassLoaderUtils {
         }
     };
 
+    private static final ClassLoader SYSTEM = ClassLoader.getSystemClassLoader();
+    private static final ClassLoader EXT = SYSTEM.getParent();
+    private static final ClassLoader BOOT = EXT.getParent();
+
     private ClassLoaderUtils() {
     }
 
@@ -55,5 +59,13 @@ public final class ClassLoaderUtils {
 
     public interface ClassLoaderCallable {
         ClassLoader getClassLoader();
+    }
+
+
+    public static boolean isSystemClassLoader(ClassLoader classLoader) {
+        if (BOOT == classLoader || SYSTEM == classLoader || EXT == classLoader) {
+            return true;
+        }
+        return false;
     }
 }

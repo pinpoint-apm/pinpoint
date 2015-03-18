@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.interceptor.bci;
 
 import javassist.ClassPool;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,7 @@ public class HierarchyMultipleClassPoolTest {
 
     @Test
     public void testGetClassPool() throws Exception {
-        ClassPool cp = new ClassPool();
+        NamedClassPool cp = new NamedClassPool("test");
         HierarchyMultipleClassPool multipleClassPool = new HierarchyMultipleClassPool(cp);
         ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
 
@@ -39,31 +40,33 @@ public class HierarchyMultipleClassPoolTest {
     }
 
     @Test
-    public void test() {
+    public void logSystemClassLoader() {
         ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
 
-        logger.debug("classLoader:{}", systemClassLoader);
+        logger.debug("classLoader system:{}", systemClassLoader);
 
-        ClassLoader parent = systemClassLoader.getParent();
-        logger.debug("classLoader parent:{}", parent);
-        logger.debug("classLoader parent.parent:{}", parent.getParent());
+        ClassLoader ext = systemClassLoader.getParent();
+        logger.debug("classLoader ext:{}", ext);
 
+        ClassLoader boot = ext.getParent();
+        logger.debug("classLoader boot:{}", boot);
 
+        logger.debug("boot:{}", String.class.getClassLoader());
 
-
+        logger.debug("system:{}", this.getClass().getClassLoader());
     }
 
 
     @Test
     public void testTestClass() throws Exception {
-        ClassPool pool = new ClassPool();
+        NamedClassPool pool = new NamedClassPool("test");
         pool.childFirstLookup = true;
 
         HierarchyMultipleClassPool multipleClassPool = new HierarchyMultipleClassPool(pool);
 
         ClassLoader classLoader = new URLClassLoader(new URL[0], ClassLoader.getSystemClassLoader());
 
-        ClassPool classPool = multipleClassPool.getClassPool(classLoader);
+        multipleClassPool.getClassPool(classLoader);
 
         logger.debug("{}", multipleClassPool.size());
 
@@ -73,6 +76,7 @@ public class HierarchyMultipleClassPoolTest {
             logger.debug("classPool:{}", ((NamedClassPool)classPool1).getName());
         }
 
+        Assert.assertEquals(2, multipleClassPool.size());
     }
 
 }

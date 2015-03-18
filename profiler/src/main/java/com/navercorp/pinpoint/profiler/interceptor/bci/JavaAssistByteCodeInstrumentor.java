@@ -23,6 +23,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 
+import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -60,7 +61,8 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     private final NamedClassPool rootClassPool;
     
     // TODO Need to separate childClassPool per class space to prevent collision(ex: multiple web applications on a Tomcat server)
-    private final NamedClassPool childClassPool;
+//    private final NamedClassPool childClassPool;
+    private final MultipleClassPool childClassPool;
 
     private Agent agent;
 
@@ -77,7 +79,8 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     // for test
     private JavaAssistByteCodeInstrumentor() {
         this.rootClassPool = createClassPool("rootClassPool");
-        this.childClassPool = new NamedClassPool(rootClassPool, "childClassPool");
+//        this.childClassPool = new NamedClassPool(rootClassPool, "childClassPool");
+        childClassPool = new SimpleMultipleClassPool(rootClassPool);
         this.interceptorRegistryBinder = new GlobalInterceptorRegistryBinder();
         this.retransformer = null;
     }
@@ -88,7 +91,8 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         }
 
         this.rootClassPool = createClassPool("rootClassPool");
-        this.childClassPool = createChildClassPool(rootClassPool, "childClassPool");
+//        this.childClassPool = createChildClassPool(rootClassPool, "childClassPool");
+        this.childClassPool = new SimpleMultipleClassPool(rootClassPool);
         this.agent = agent;
         // Add Pinpoint classes to rootClassPool
         checkLibrary(this.getClass().getClassLoader(), this.rootClassPool, this.getClass().getName());
@@ -99,10 +103,10 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         return agent;
     }
 
-//    @Deprecated
-    public ClassPool getClassPool() {
-        return this.childClassPool;
-    }
+////    @Deprecated
+//    public ClassPool getClassPool() {
+//        return this.childClassPool;
+//    }
 
     @Override
     public Scope getScope(String scopeName) {
@@ -157,7 +161,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
                 }
                 return;
             }
-            loadClassLoaderLibraries(classLoader, classPool);
+            loadClassLoader(classLoader, classPool);
 //        }
     }
 
@@ -169,7 +173,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     }
     
     public CtClass getClass(ClassLoader classLoader, String className) throws InstrumentException {
-        final NamedClassPool classPool = findClassPool(classLoader);
+        final NamedClassPool classPool = getClassPool(classLoader);
         checkLibrary(classLoader, classPool, className);
         try {
             return classPool.get(className);
@@ -178,13 +182,13 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         }
     }
 
-    private NamedClassPool findClassPool(ClassLoader classLoader) {
-        if (classLoader == null) {
-            // SystemClassLoader
+    public NamedClassPool getClassPool(ClassLoader classLoader) {
+        if (ClassLoaderUtils.isSystemClassLoader(classLoader)) {
+            return rootClassPool;
         }
-        // TODO fix find classPool
-        return childClassPool;
+        return childClassPool.getClassPool(classLoader);
     }
+
 
     @Override
     public Class<?> defineClass(ClassLoader classLoader, String defineClass, ProtectionDomain protectedDomain) throws InstrumentException {
@@ -192,7 +196,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
             logger.info("defineClass class:{}, cl:{}", defineClass, classLoader);
         }
         try {
-            final NamedClassPool classPool = findClassPool(classLoader);
+            final NamedClassPool classPool = getClassPool(classLoader);
             
             // It's safe to synchronize on classLoader because current thread already hold lock on classLoader.
             // Without lock, maybe something could go wrong.
@@ -277,7 +281,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     @Override
     public boolean findClass(ClassLoader classLoader, String javassistClassName) {
-        ClassPool classPool = findClassPool(classLoader);
+        ClassPool classPool = getClassPool(classLoader);
         return findClass(javassistClassName, classPool);
     }
 
@@ -311,7 +315,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     }
 
-    private void loadClassLoaderLibraries(ClassLoader classLoader, NamedClassPool classPool) {
+    private void loadClassLoader(ClassLoader classLoader, NamedClassPool classPool) {
         if (isInfo) {
             if (classLoader instanceof URLClassLoader) {
                 URLClassLoader urlClassLoader = (URLClassLoader) classLoader;

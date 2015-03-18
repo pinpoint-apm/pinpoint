@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.interceptor.bci;
 
 import com.google.common.collect.MapMaker;
+import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import javassist.ClassPath;
 import javassist.ClassPool;
 import javassist.LoaderClassPath;
@@ -37,14 +38,13 @@ public class HierarchyMultipleClassPool implements MultipleClassPool {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static final ClassLoader SYSTEM_CLASS_LOADER = ClassLoader.getSystemClassLoader();
-    private static final ClassLoader EXT_CLASS_LOADER = SYSTEM_CLASS_LOADER.getParent();
+    private static final ClassLoader SYSTEM = ClassLoader.getSystemClassLoader();
 
-    private final ConcurrentMap<ClassLoader, ClassPool> classMap;
-    private final ClassPool parentClassPool;
+    private final ConcurrentMap<ClassLoader, NamedClassPool> classMap;
+    private final NamedClassPool parentClassPool;
 
 
-    public HierarchyMultipleClassPool(ClassPool parentClassPool) {
+    public HierarchyMultipleClassPool(NamedClassPool parentClassPool) {
         if (parentClassPool == null) {
             throw new NullPointerException("parentClassPool must not be null");
         }
@@ -55,18 +55,18 @@ public class HierarchyMultipleClassPool implements MultipleClassPool {
     }
 
     @Override
-    public ClassPool getClassPool(ClassLoader classLoader) {
+    public NamedClassPool getClassPool(ClassLoader classLoader) {
         if (classLoader == null) {
             throw new NullPointerException("classLoader must not be null");
         }
-        final ClassPool hit = this.classMap.get(classLoader);
+        final NamedClassPool hit = this.classMap.get(classLoader);
         if (hit != null) {
             return hit;
         }
         // concurrent classPool create
         prepareHierarchyClassPool(classLoader);
 
-        final ClassPool classPool = this.classMap.get(classLoader);
+        final NamedClassPool classPool = this.classMap.get(classLoader);
         if (classPool == null) {
             logger.warn("ClassPool FindError :{}" + classLoader);
             return null;
@@ -74,8 +74,8 @@ public class HierarchyMultipleClassPool implements MultipleClassPool {
         return classPool;
     }
 
-    private ClassPool put(ClassLoader classLoader, ClassPool classPool) {
-        final ClassPool exist = this.classMap.putIfAbsent(classLoader, classPool);
+    private NamedClassPool put(ClassLoader classLoader, NamedClassPool classPool) {
+        final NamedClassPool exist = this.classMap.putIfAbsent(classLoader, classPool);
         if (exist != null) {
             return exist;
         }
@@ -85,9 +85,9 @@ public class HierarchyMultipleClassPool implements MultipleClassPool {
 
 
 
-    private ClassPool createClassPool(ClassLoader classLoader, ClassPool parentClassPool) {
+    private NamedClassPool createClassPool(ClassLoader classLoader, NamedClassPool parentClassPool) {
         String classLoaderName = classLoader.getClass().getName();
-        ClassPool newClassPool = new NamedClassPool(parentClassPool, classLoaderName + "-" + ID.getAndIncrement());
+        NamedClassPool newClassPool = new NamedClassPool(parentClassPool, classLoaderName + "-" + ID.getAndIncrement());
         newClassPool.childFirstLookup = true;
 
         final ClassPath classPath = new LoaderClassPath(classLoader);
@@ -100,13 +100,13 @@ public class HierarchyMultipleClassPool implements MultipleClassPool {
         final Collection<ClassLoader> classLoaderHierarchyList = findClassLoaderHierarchy(findClassLoader);
         logger.debug("ClassLoaderHierarchy:{}", classLoaderHierarchyList);
 
-        ClassPool parentClassPool = this.parentClassPool;
+        NamedClassPool parentClassPool = this.parentClassPool;
         for (ClassLoader classLoader : classLoaderHierarchyList) {
-            final ClassPool existClassPool = this.classMap.get(classLoader);
+            final NamedClassPool existClassPool = this.classMap.get(classLoader);
             if (existClassPool != null) {
                 parentClassPool = existClassPool;
             } else {
-                ClassPool classPool = createClassPool(classLoader, parentClassPool);
+                NamedClassPool classPool = createClassPool(classLoader, parentClassPool);
                 parentClassPool = put(classLoader, classPool);
             }
         }
@@ -124,7 +124,8 @@ public class HierarchyMultipleClassPool implements MultipleClassPool {
         ClassLoader parent;
         while (true) {
             parent = classLoader.getParent();
-            if (isRoot(parent)) {
+            if (ClassLoaderUtils.isSystemClassLoader(parent)) {
+                classLoaderHierarchyList.addFirst(SYSTEM);
                 break;
             }
             classLoaderHierarchyList.addFirst(parent);
@@ -133,17 +134,13 @@ public class HierarchyMultipleClassPool implements MultipleClassPool {
         return classLoaderHierarchyList;
     }
 
-    private boolean isRoot(ClassLoader parent) {
-        return parent == SYSTEM_CLASS_LOADER || parent == EXT_CLASS_LOADER || parent == null;
-    }
-
 
     public int size() {
         return this.classMap.size();
     }
 
 
-    public Collection<ClassPool> values() {
+    public Collection<NamedClassPool> values() {
         return classMap.values();
     }
 }

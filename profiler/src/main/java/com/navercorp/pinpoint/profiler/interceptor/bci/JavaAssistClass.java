@@ -182,7 +182,7 @@ public class JavaAssistClass implements InstrumentClass {
     @Deprecated
     private void addTraceVariable0(String variableName, String setterName, String getterName, String variableType, String initValue) throws InstrumentException {
         try {
-            CtClass type = instrumentor.getClassPool().get(variableType);
+            CtClass type = getClassPool().get(variableType);
             CtField traceVariable = new CtField(type, variableName, ctClass);
             if (initValue == null) {
                 ctClass.addField(traceVariable);
@@ -301,7 +301,7 @@ public class JavaAssistClass implements InstrumentClass {
         } else {
             resolveType = setterType;
         }
-        CtClass type = instrumentor.getClassPool().get(resolveType.getName());
+        CtClass type = getClassPool().get(resolveType.getName());
         return new CtField(type, variableName, ctClass);
     }
 
@@ -590,12 +590,10 @@ public class JavaAssistClass implements InstrumentClass {
 
     @Override
     public void weave(String adviceClassName, ClassLoader loader) throws InstrumentException {
-        ClassPool pool = new ClassPool();
-        pool.appendClassPath(new LoaderClassPath(loader));
-        
+        final NamedClassPool classPool = instrumentor.getClassPool(loader);
         CtClass adviceClass;
         try {
-            adviceClass = pool.get(adviceClassName);
+            adviceClass = classPool.get(adviceClassName);
         } catch (NotFoundException e) {
             throw new NotFoundInstrumentException(adviceClassName + " not found. Caused:" + e.getMessage(), e);
         }
@@ -657,9 +655,13 @@ public class JavaAssistClass implements InstrumentClass {
         if (isDebug) {
             logger.debug("addAfterInterceptor catch behavior:{} code:{}", behavior.getLongName(), buildCatch);
         }
-        CtClass th = instrumentor.getClassPool().get("java.lang.Throwable");
+        CtClass th = getClassPool().get("java.lang.Throwable");
         behavior.addCatch(buildCatch, th);
 
+    }
+
+    private ClassPool getClassPool() {
+        return ctClass.getClassPool();
     }
 
     private String getTargetIdentifier(CtBehavior behavior) {

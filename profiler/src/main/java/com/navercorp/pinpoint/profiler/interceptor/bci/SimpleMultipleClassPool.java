@@ -35,11 +35,11 @@ public class SimpleMultipleClassPool implements MultipleClassPool {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ConcurrentMap<ClassLoader, ClassPool> classMap;
-    private final ClassPool parentClassPool;
+    private final ConcurrentMap<ClassLoader, NamedClassPool> classMap;
+    private final NamedClassPool parentClassPool;
 
 
-    public SimpleMultipleClassPool(ClassPool parentClassPool) {
+    public SimpleMultipleClassPool(NamedClassPool parentClassPool) {
         if (parentClassPool == null) {
             throw new NullPointerException("parentClassPool must not be null");
         }
@@ -50,20 +50,20 @@ public class SimpleMultipleClassPool implements MultipleClassPool {
     }
 
     @Override
-    public ClassPool getClassPool(ClassLoader classLoader) {
+    public NamedClassPool getClassPool(ClassLoader classLoader) {
         if (classLoader == null) {
             throw new NullPointerException("classLoader must not be null");
         }
-        final ClassPool hit = this.classMap.get(classLoader);
+        final NamedClassPool hit = this.classMap.get(classLoader);
         if (hit != null) {
             return hit;
         }
-        ClassPool newClassPool = createClassPool(classLoader, parentClassPool);
+        NamedClassPool newClassPool = createClassPool(classLoader, parentClassPool);
         return put(classLoader, newClassPool);
     }
 
-    private ClassPool put(ClassLoader classLoader, ClassPool classPool) {
-        final ClassPool exist = this.classMap.putIfAbsent(classLoader, classPool);
+    private NamedClassPool put(ClassLoader classLoader, NamedClassPool classPool) {
+        final NamedClassPool exist = this.classMap.putIfAbsent(classLoader, classPool);
         if (exist != null) {
             return exist;
         }
@@ -73,9 +73,9 @@ public class SimpleMultipleClassPool implements MultipleClassPool {
 
 
 
-    private ClassPool createClassPool(ClassLoader classLoader, ClassPool parentClassPool) {
+    private NamedClassPool createClassPool(ClassLoader classLoader, NamedClassPool parentClassPool) {
         String classLoaderName = classLoader.getClass().getName();
-        ClassPool newClassPool = new NamedClassPool(parentClassPool, classLoaderName + "-" + ID.getAndIncrement());
+        NamedClassPool newClassPool = new NamedClassPool(parentClassPool, classLoaderName + "-" + ID.getAndIncrement());
         newClassPool.childFirstLookup = true;
 
         final ClassPath classPath = new LoaderClassPath(classLoader);
@@ -90,7 +90,7 @@ public class SimpleMultipleClassPool implements MultipleClassPool {
     }
 
 
-    public Collection<ClassPool> values() {
+    public Collection<NamedClassPool> values() {
         return classMap.values();
     }
 }
