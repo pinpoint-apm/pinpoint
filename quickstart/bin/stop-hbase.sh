@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-s="${BASH_SOURCE-$0}"
+this="${BASH_SOURCE-$0}"
 while [ -h "$this" ]; do
   ls=`ls -ld "$this"`
   link=`expr "$ls" : '.*-> \(.*\)$'`
