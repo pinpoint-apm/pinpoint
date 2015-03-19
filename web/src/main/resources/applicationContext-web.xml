@@ -53,7 +53,7 @@
     <import resource="classpath:applicationContext-dao-config.xml" />
     <import resource="classpath:applicationContext-scheduler.xml" />
     -->
-    <!--<import resource="classpath:applicationContext-cache.xml" />-->
+    <import resource="classpath:applicationContext-cache.xml" />
 
     <bean id="spanMapper" class="com.navercorp.pinpoint.web.mapper.SpanMapper"></bean>
     <bean id="annotationMapper" class="com.navercorp.pinpoint.web.mapper.AnnotationMapper"></bean>

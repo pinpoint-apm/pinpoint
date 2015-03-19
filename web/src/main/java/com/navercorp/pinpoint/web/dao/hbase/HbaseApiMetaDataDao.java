@@ -23,6 +23,7 @@ import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.client.Get;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -36,7 +37,9 @@ import com.navercorp.pinpoint.web.dao.ApiMetaDataDao;
  */
 @Repository
 public class HbaseApiMetaDataDao implements ApiMetaDataDao {
-
+    static final String SPEL_KEY = "#agentId.toString() + '.' + #time.toString() + '.' + #apiId.toString()";
+            
+    
     @Autowired
     private HbaseOperations2 hbaseOperations2;
 
@@ -49,6 +52,7 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     @Override
+    @Cacheable(value="apiMetaData", key=SPEL_KEY)
     public List<ApiMetaDataBo> getApiMetaData(String agentId, long time, int apiId) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
