@@ -38,6 +38,7 @@ import com.navercorp.pinpoint.web.dao.ApiMetaDataDao;
  */
 @Repository
 public class HbaseApiMetaDataDao implements ApiMetaDataDao {
+    static final String SPEL_KEY = "#agentId.toString() + '.' + #time.toString() + '.' + #apiId.toString()";
     
     @Autowired
     private HbaseOperations2 hbaseOperations2;
@@ -51,7 +52,7 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     @Override
-    @Cacheable(value="apiMetaData")
+    @Cacheable(value="apiMetaData", key=SPEL_KEY)
     public List<ApiMetaDataBo> getApiMetaData(String agentId, long time, int apiId) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
@@ -61,7 +62,6 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
         byte[] sqlId = getDistributedKey(apiMetaDataBo.toRowKey());
         Get get = new Get(sqlId);
         get.addFamily(HBaseTables.API_METADATA_CF_API);
-
         return hbaseOperations2.get(HBaseTables.API_METADATA, get, apiMetaDataMapper);
     }
 

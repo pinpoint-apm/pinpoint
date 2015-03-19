@@ -7,7 +7,8 @@
 		overflowToDisk="false" diskPersistent="false" timeToIdleSeconds="0"
 		timeToLiveSeconds="600" memoryStoreEvictionPolicy="LRU" />
 
-	<cache name="apiMetaData" maxElementsInMemory="50000" eternal="false"
+	<!--  200 * 10 := 2k per api metadata -->
+	<cache name="apiMetaData" maxElementsInMemory="10000" eternal="false"
 		timeToIdleSeconds="0" timeToLiveSeconds="600" overflowToDisk="false"
 		diskPersistent="false" diskExpiryThreadIntervalSeconds="120"
 		memoryStoreEvictionPolicy="LRU">
