@@ -44,11 +44,18 @@ public class Record {
     private final String destinationId;
     private final boolean excludeFromTimeline;
 
+    private final String transactionId;
+    private final long spanId;
+    
     private boolean focused;
     private boolean hasChild;
     private boolean hasException;
+    private String logPageUrl;
+    private String logButtonName;
+    
+    
 
-    public Record(int tab, int id, int parentId, boolean method, String title, String arguments, long begin, long elapsed, long gap, String agent, String applicationName, ServiceType serviceType, String destinationId, boolean hasChild, boolean hasException) {
+    public Record(int tab, int id, int parentId, boolean method, String title, String arguments, long begin, long elapsed, long gap, String agent, String applicationName, ServiceType serviceType, String destinationId, boolean hasChild, boolean hasException, String transactionId, long spanId) {
         this.tab = tab;
         this.id = id;
         this.parentId = parentId;
@@ -68,6 +75,9 @@ public class Record {
         this.excludeFromTimeline = serviceType == null || serviceType.isInternalMethod();
         this.hasChild = hasChild;
         this.hasException = hasException;
+        
+        this.transactionId = transactionId;
+        this.spanId = spanId;
     }
 
     public int getId() {
@@ -174,6 +184,30 @@ public class Record {
     
     public boolean getHasException() {
         return hasException;
+    }
+    
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public long getSpanId() {
+        return spanId;
+    }
+
+    public void setLogPageUrl(String logPageUrl) {
+        this.logPageUrl = logPageUrl;
+    }
+
+    public void setLogButtonName(String logButtonName) {
+        this.logButtonName = logButtonName;
+    }
+    
+    public String getLogPageUrl() {
+        return this.logPageUrl;
+    }
+
+    public String getLogButtonName() {
+        return this.logButtonName;
     }
 
 
