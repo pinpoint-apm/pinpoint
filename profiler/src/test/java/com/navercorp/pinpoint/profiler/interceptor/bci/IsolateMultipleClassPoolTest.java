@@ -17,16 +17,29 @@
 package com.navercorp.pinpoint.profiler.interceptor.bci;
 
 import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.LoaderClassPath;
+import org.junit.Test;
 
-/**
- * @author emeroad
- */
-public interface MultipleClassPool {
+import static org.junit.Assert.*;
 
-    interface EventListener {
-        void onCreateClassPool(ClassLoader classLoader, NamedClassPool classPool);
+public class IsolateMultipleClassPoolTest {
+
+    @Test
+    public void testGetClassPool() throws Exception {
+
     }
 
-    NamedClassPool getClassPool(ClassLoader classLoader);
+    @Test
+    public void testValues() throws Exception {
+//        ClassPool pool = new ClassPool();
+//        pool.get(this.getClass().getName());
 
+        ClassPool pool2 = new ClassPool(true);
+        pool2.get(this.getClass().getName());
+
+//        ClassPool pool3 = new ClassPool(true);
+//        pool3.appendClassPath(new LoaderClassPath(this.getClass().getClassLoader()));
+
+    }
 }

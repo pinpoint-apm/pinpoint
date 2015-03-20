@@ -513,7 +513,7 @@ public class JavaAssistClass implements InstrumentClass {
         } catch (NotFoundException e) {
             throw new InstrumentException(getInterceptorName(interceptor) + " add fail. Cause:" + e.getMessage(), e);
         } catch (CannotCompileException e) {
-            throw new InstrumentException(getInterceptorName(interceptor) + "add fail. Cause:" + e.getMessage(), e);
+            throw new InstrumentException(getInterceptorName(interceptor) + " add fail. Cause:" + e.getMessage(), e);
         }
     }
 

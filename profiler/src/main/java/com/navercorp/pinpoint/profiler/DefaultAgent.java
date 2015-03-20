@@ -19,12 +19,20 @@ package com.navercorp.pinpoint.profiler;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import com.navercorp.pinpoint.bootstrap.AgentOption;
+import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
+import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.LoaderClassPath;
+import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,27 +121,38 @@ public class DefaultAgent implements Agent {
         // Preload classes related to pinpoint-rpc module.
         ClassPreLoader.preload();
     }
-
-    public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars) {
-        this(agentArgs, instrumentation, profilerConfig, new DefaultInterceptorRegistryBinder(), pluginJars, new DefaultServiceTypeRegistryService());
+    public DefaultAgent(AgentOption agentOption) {
+        this(agentOption, new DefaultInterceptorRegistryBinder());
     }
 
-    public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars, ServiceTypeRegistryService serviceTypeRegistryService) {
-        this(agentArgs, instrumentation, profilerConfig, new DefaultInterceptorRegistryBinder(), pluginJars, serviceTypeRegistryService);
-    }
+//    public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars) {
+//        this(createAgentOption(agentArgs, instrumentation, profilerConfig, pluginJars, new DefaultServiceTypeRegistryService()), new DefaultInterceptorRegistryBinder());
+//    }
+//
+//    public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars, ServiceTypeRegistryService serviceTypeRegistryService) {
+//        this(createAgentOption(agentArgs, instrumentation, profilerConfig, pluginJars, serviceTypeRegistryService), new DefaultInterceptorRegistryBinder());
+//    }
+//
+//    public static AgentOption createAgentOption(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars, ServiceTypeRegistryService serviceTypeRegistryService) {
+//        return new DefaultAgentOption(agentArgs, instrumentation, profilerConfig, pluginJars, new URL[0], serviceTypeRegistryService);
+//    }
 
-    public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, InterceptorRegistryBinder interceptorRegistryBinder, URL[] pluginJars, ServiceTypeRegistryService serviceTypeRegistryService) {
-        if (instrumentation == null) {
+    public DefaultAgent(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
+        if (agentOption == null) {
+            throw new NullPointerException("agentOption must not be null");
+        }
+        if (agentOption.getInstrumentation() == null) {
             throw new NullPointerException("instrumentation must not be null");
         }
-        if (profilerConfig == null) {
+        if (agentOption.getProfilerConfig() == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
+        if (agentOption.getServiceTypeRegistryService() == null) {
+            throw new NullPointerException("serviceTypeRegistryService must not be null");
+        }
+
         if (interceptorRegistryBinder == null) {
             throw new NullPointerException("interceptorRegistryBinder must not be null");
-        }
-        if (serviceTypeRegistryService == null) {
-            throw new NullPointerException("serviceTypeRegistryService must not be null");
         }
 
         this.binder = new Slf4jLoggerBinder();
@@ -141,29 +160,30 @@ public class DefaultAgent implements Agent {
 
         this.interceptorRegistryBinder = interceptorRegistryBinder;
         interceptorRegistryBinder.bind();
-        this.serviceTypeRegistryService = serviceTypeRegistryService;
+        this.serviceTypeRegistryService = agentOption.getServiceTypeRegistryService();
 
         dumpSystemProperties();
-        dumpConfig(profilerConfig);
+        dumpConfig(agentOption.getProfilerConfig());
 
         changeStatus(AgentStatus.INITIALIZING);
         
-        this.profilerConfig = profilerConfig;
+        this.profilerConfig = agentOption.getProfilerConfig();
 
-        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(this, interceptorRegistryBinder);
+        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(this, interceptorRegistryBinder, agentOption.getBootStrapJarPath());
         if (logger.isInfoEnabled()) {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
 
-        PluginClassLoaderFactory pluginClassLoaderFactory = new PluginClassLoaderFactory(pluginJars);
+        PluginClassLoaderFactory pluginClassLoaderFactory = new PluginClassLoaderFactory(agentOption.getPluginJars());
         ClassEditorExecutor classEditorExecutor = new ClassEditorExecutor(byteCodeInstrumentor, pluginClassLoaderFactory);
-        ClassFileRetransformer retransformer = new ClassFileRetransformer(instrumentation, classEditorExecutor);
+        ClassFileRetransformer retransformer = new ClassFileRetransformer(agentOption.getInstrumentation(), classEditorExecutor);
         byteCodeInstrumentor.setRetransformer(retransformer);
         
-        List<DefaultProfilerPluginContext> pluginContexts = loadProfilerPlugins(pluginJars);
+        List<DefaultProfilerPluginContext> pluginContexts = loadProfilerPlugins(agentOption.getPluginJars());
 
         this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, retransformer, pluginContexts, classEditorExecutor);
 
+        final Instrumentation instrumentation = agentOption.getInstrumentation();
         instrumentation.addTransformer(retransformer, true);
         instrumentation.addTransformer(this.classFileTransformer);
 
@@ -199,6 +219,58 @@ public class DefaultAgent implements Agent {
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime());
         
         preLoadClass();
+
+        test();
+    }
+    public void test() {
+        ClassLoader classLoader = SimpleAroundInterceptor.class.getClassLoader();
+        logger.info("SimpleAroundInterceptor cl,{}", classLoader);
+        ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+        ClassPool classPool = new ClassPool();
+        LoaderClassPath loaderClassPath = new LoaderClassPath(systemClassLoader);
+        classPool.appendClassPath(loaderClassPath);
+        try {
+            System.out.println("pool------------------");
+            CtClass ctClass = classPool.get("com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor");
+        } catch (NotFoundException e) {
+            logger.info("pool, e:{}",e.getMessage(), e);
+        }
+        try {
+            System.out.println("load------------------");
+            Class<?> aClass = systemClassLoader.loadClass("com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor");
+            logger.info(aClass.toString());
+            System.out.println("re pool------------------");
+            testBootStrap(classPool, "com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor");
+            testBootStrap(classPool, "com.navercorp.pinpoint.ProductInfo");
+        } catch (ClassNotFoundException e) {
+            logger.info("load, e:{}", e.getMessage(), e);
+        } catch (NotFoundException e) {
+            logger.info("load, e:{}", e.getMessage(), e);
+        }
+        logger.error("eeeeeeeeeeeee");
+        URLClassLoader urlClassLoader = new URLClassLoader(new URL[0], ClassLoader.getSystemClassLoader());
+        try {
+            Class<?> aClass = urlClassLoader.loadClass("com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor");
+            logger.info("loadClass:{}", aClass);
+        } catch (ClassNotFoundException e) {
+            logger.info("UrlLoader, e:{}", e.getMessage(), e);
+        }
+
+    }
+
+    private void testBootStrap(ClassPool classPool, String classname) throws NotFoundException {
+        try {
+
+            CtClass productInfo = classPool.get(classname);
+            logger.info("classname.{}", classname);
+        } catch (NotFoundException e) {
+            logger.info("load, e:{}", e.getMessage(), e);
+        }
+    }
+
+    private void testGet(ClassPool classPool) throws NotFoundException {
+        CtClass ctClass = classPool.get("com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor");
+        logger.info("find_--------------");
     }
 
     private CommandDispatcher createCommandDispatcher() {
@@ -398,7 +470,7 @@ public class DefaultAgent implements Agent {
                 return;
             }
         }
-        logger.info("Starting {} Agent.", ProductInfo.CAMEL_NAME);
+        logger.info("Starting {} Agent.", ProductInfo.NAME);
         this.agentInfoSender.start();
         this.agentStatMonitor.start();
     }
@@ -413,7 +485,7 @@ public class DefaultAgent implements Agent {
                 return;
             }
         }
-        logger.info("Stopping {} Agent.", ProductInfo.CAMEL_NAME);
+        logger.info("Stopping {} Agent.", ProductInfo.NAME);
 
         this.agentInfoSender.stop();
         this.agentStatMonitor.stop();

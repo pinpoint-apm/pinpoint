@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.interceptor.bci;
 import com.google.common.collect.MapMaker;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import javassist.ClassPath;
-import javassist.ClassPool;
 import javassist.LoaderClassPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,11 +47,24 @@ public class HierarchyMultipleClassPool implements MultipleClassPool {
         if (parentClassPool == null) {
             throw new NullPointerException("parentClassPool must not be null");
         }
-        MapMaker mapMaker = new MapMaker();
-        mapMaker.weakKeys();
-        this.classMap = mapMaker.makeMap();
+        this.classMap = createWeakConcurrentMap();
         this.parentClassPool = parentClassPool;
     }
+
+
+    public HierarchyMultipleClassPool() {
+        this.classMap = createWeakConcurrentMap();
+        this.parentClassPool = new NamedClassPool("system");
+        parentClassPool.appendSystemPath();
+    }
+
+
+    private ConcurrentMap<ClassLoader, NamedClassPool> createWeakConcurrentMap() {
+        MapMaker mapMaker = new MapMaker();
+        mapMaker.weakKeys();
+        return mapMaker.makeMap();
+    }
+
 
     @Override
     public NamedClassPool getClassPool(ClassLoader classLoader) {
@@ -68,8 +80,7 @@ public class HierarchyMultipleClassPool implements MultipleClassPool {
 
         final NamedClassPool classPool = this.classMap.get(classLoader);
         if (classPool == null) {
-            logger.warn("ClassPool FindError :{}" + classLoader);
-            return null;
+            throw new IllegalStateException("unexpected condition. ClassPool not found. classLoader:" + classLoader);
         }
         return classPool;
     }
@@ -124,7 +135,7 @@ public class HierarchyMultipleClassPool implements MultipleClassPool {
         ClassLoader parent;
         while (true) {
             parent = classLoader.getParent();
-            if (ClassLoaderUtils.isSystemClassLoader(parent)) {
+            if (ClassLoaderUtils.isStandardClassLoader(parent)) {
                 classLoaderHierarchyList.addFirst(SYSTEM);
                 break;
             }
