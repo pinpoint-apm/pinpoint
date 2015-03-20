@@ -18,17 +18,14 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceId;
-import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
+import com.navercorp.pinpoint.test.TestAgentInformation;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +56,7 @@ public class DefaultTraceContextTest {
 
     @Test
     public void disableTrace() {
-        DefaultTraceContext traceContext = new DefaultTraceContext();
+        DefaultTraceContext traceContext = new DefaultTraceContext(new TestAgentInformation());
         Trace trace = traceContext.disableSampling();
         Assert.assertNotNull(trace);
         Assert.assertFalse(trace.canSampled());
@@ -70,14 +67,11 @@ public class DefaultTraceContextTest {
 
     @Test
     public void threadLocalBindTest() {
-        AgentInformation agentInformation = new AgentInformation("d", "d", System.currentTimeMillis(), 123, "machineName", "127.0.0.1", ServiceType.TEST_STAND_ALONE, Version.VERSION);
-
-        DefaultTraceContext traceContext1 = new DefaultTraceContext();
-        traceContext1.setAgentInformation(agentInformation);
+        final AgentInformation agentInformation = new TestAgentInformation();
+        DefaultTraceContext traceContext1 = new DefaultTraceContext(agentInformation);
         Assert.assertNotNull(traceContext1.newTraceObject());
 
-        DefaultTraceContext traceContext2 = new DefaultTraceContext();
-        traceContext2.setAgentInformation(agentInformation);
+        DefaultTraceContext traceContext2 = new DefaultTraceContext(agentInformation);
         Trace notExist = traceContext2.currentRawTraceObject();
         Assert.assertNull(notExist);
 

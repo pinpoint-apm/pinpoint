@@ -70,6 +70,9 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
     private int exceptionId;
     private String exceptionMessage;
     private String exceptionClass;
+    
+    private boolean hasApplicationServiceType = false;
+    private short applicationServiceType;
 
     
     private String remoteAddr; // optional
@@ -107,6 +110,12 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
         
         this.remoteAddr = span.getRemoteAddr();
         
+        // FIXME (2015.03) Legacy - applicationServiceType added in v1.1.0
+        // applicationServiceType is not saved for older versions where applicationServiceType does not exist.
+        if (span.isSetApplicationServiceType()) {
+            this.hasApplicationServiceType = true;
+            this.applicationServiceType = span.getApplicationServiceType();
+        }
 
         // FIXME span.errCode contains error of span and spanEvent
         // because exceptionInfo is the error information of span itself, exceptionInfo can be null even if errCode is not 0
@@ -358,7 +367,19 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
     public void setExceptionClass(String exceptionClass) {
         this.exceptionClass = exceptionClass;
     }
-
+    
+    public void setApplicationServiceType(short applicationServiceType) {
+        this.hasApplicationServiceType = true;
+        this.applicationServiceType  = applicationServiceType;
+    }
+    
+    public short getApplicationServiceType() {
+        if (this.hasApplicationServiceType) {
+            return this.applicationServiceType;
+        } else {
+            return this.serviceType;
+        }
+    }
 
     // Variable encoding has been added in case of write io operation. The data size can be reduced by about 10%.
     public byte[] writeValue() {
@@ -406,6 +427,13 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
         }
 
         buffer.put(flag);
+        
+        if (this.hasApplicationServiceType) {
+            buffer.put(true);
+            buffer.put(this.applicationServiceType);
+        } else {
+            buffer.put(false);
+        }
 
         return buffer.getBuffer();
     }
@@ -443,6 +471,15 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
         }
 
         this.flag = buffer.readShort();
+        
+        // FIXME (2015.03) Legacy - applicationServiceType added in v1.1.0
+        // Defaults to span's service type for older versions where applicationServiceType does not exist.
+        if (buffer.limit() > 0) {
+            this.hasApplicationServiceType = buffer.readBoolean();
+            if (this.hasApplicationServiceType) {
+                this.applicationServiceType = buffer.readShort();
+            }
+        }
 
         return buffer.getOffset();
     }
@@ -475,6 +512,10 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
         sb.append(", exceptionId=").append(exceptionId);
         sb.append(", exceptionMessage='").append(exceptionMessage).append('\'');
         sb.append(", remoteAddr='").append(remoteAddr).append('\'');
+        sb.append(", hasApplicationServiceType=").append(hasApplicationServiceType);
+        if (hasApplicationServiceType) {
+            sb.append(", applicationServiceType=").append(applicationServiceType);
+        }
         sb.append('}');
         return sb.toString();
     }

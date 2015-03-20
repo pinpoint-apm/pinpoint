@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.handler;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +66,7 @@ public class SpanChunkHandler implements SimpleHandler {
 
             traceDao.insertSpanChunk(spanChunk);
 
-            final ServiceType spanType = registry.findServiceType(spanChunk.getServiceType());
+            final ServiceType applicationServiceType = getApplicationServiceType(spanChunk);
             List<TSpanEvent> spanEventList = spanChunk.getSpanEventList();
             if (spanEventList != null) {
                 logger.debug("SpanChunk Size:{}", spanEventList.size());
@@ -85,14 +86,20 @@ public class SpanChunkHandler implements SimpleHandler {
                      * save information to draw a server map based on statistics
                      */
                     // save the information of caller (the spanevent that span called)
-                    statisticsHandler.updateCaller(spanChunk.getApplicationName(), spanType, spanChunk.getAgentId(), spanEvent.getDestinationId(), spanEventType, spanEvent.getEndPoint(), elapsed, hasException);
+                    statisticsHandler.updateCaller(spanChunk.getApplicationName(), applicationServiceType, spanChunk.getAgentId(), spanEvent.getDestinationId(), spanEventType, spanEvent.getEndPoint(), elapsed, hasException);
 
                     // save the information of callee (the span that called spanevent)
-                    statisticsHandler.updateCallee(spanEvent.getDestinationId(), spanEventType, spanChunk.getApplicationName(), spanType, spanChunk.getEndPoint(), elapsed, hasException);
+                    statisticsHandler.updateCallee(spanEvent.getDestinationId(), spanEventType, spanChunk.getApplicationName(), applicationServiceType, spanChunk.getEndPoint(), elapsed, hasException);
                 }
             }
         } catch (Exception e) {
             logger.warn("SpanChunk handle error Caused:{}", e.getMessage(), e);
         }
+    }
+    
+    private ServiceType getApplicationServiceType(TSpanChunk spanChunk) {
+        // Check if applicationServiceType is set. If not, use span's service type. 
+        final short applicationServiceTypeCode = spanChunk.isSetApplicationServiceType() ? spanChunk.getApplicationServiceType() : spanChunk.getServiceType();
+        return registry.findServiceType(applicationServiceTypeCode);
     }
 }
