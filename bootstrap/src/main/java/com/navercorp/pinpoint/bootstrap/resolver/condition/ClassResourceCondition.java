@@ -17,11 +17,10 @@
 package com.navercorp.pinpoint.bootstrap.resolver.condition;
 
 /**
- * Checks whether the specified classes are currently accessible by the System ClassLoader. 
- * 
  * @author HyunGil Jeong
+ * 
  */
-public class LibraryClassCondition implements Condition<String[]> {
+public class ClassResourceCondition implements Condition<String> {
 
     private static final String CLASS_EXTENSION = ".class";
 
@@ -31,24 +30,19 @@ public class LibraryClassCondition implements Condition<String[]> {
     }
     
     /**
-     * Checks if the specified classes can be found in the current System ClassLoader's search path.
+     * Checks if the specified class can be found in the current System ClassLoader's search path.
      * 
-     * @param requiredClasses the fully qualified class names of the classes to check
-     * @return <tt>true</tt> if all of the specified classes can be found in the system class loader's search path, 
+     * @param requiredClass the fully qualified class name of the class to check
+     * @return <tt>true</tt> if the specified class can be found in the system class loader's search path, 
      *         <tt>false</tt> if otherwise
      */
     @Override
-    public boolean check(String ... requiredClasses) {
-        if (requiredClasses == null) {
+    public boolean check(String requiredClass) {
+        if (requiredClass == null || requiredClass.isEmpty()) {
             return false;
         }
-        for (String condition : requiredClasses) {
-            String classNameAsResource = getClassNameAsResource(condition);
-            if (ClassLoader.getSystemResource(classNameAsResource) == null) {
-                return false;
-            }
-        }
-        return true;
+        String classNameAsResource = getClassNameAsResource(requiredClass);
+        return (ClassLoader.getSystemResource(classNameAsResource) != null);
     }
 
 }

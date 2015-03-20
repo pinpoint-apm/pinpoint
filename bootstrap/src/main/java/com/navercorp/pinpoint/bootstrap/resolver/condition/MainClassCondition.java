@@ -25,12 +25,8 @@ import com.navercorp.pinpoint.common.util.SystemProperty;
 import com.navercorp.pinpoint.common.util.SystemPropertyKey;
 
 /**
- * Checks if the application's main class is in one of those specified in {@link MainClassCondition}.
- * <p>
- * The application's main class is extracted by reading the <code>sun.java.command</code> system property, and in cases
- * of executable jars, the <code>Main-Class</code> attribute inside the manifest file.
- * 
  * @author HyunGil Jeong
+ * 
  */
 public class MainClassCondition implements Condition<String>, ConditionValue<String> {
 
@@ -45,7 +41,7 @@ public class MainClassCondition implements Condition<String>, ConditionValue<Str
         this(SystemProperty.INSTANCE);
     }
 
-    MainClassCondition(SimpleProperty property) {
+    public MainClassCondition(SimpleProperty property) {
         if (property == null) {
             throw new IllegalArgumentException("properties should not be null");
         }

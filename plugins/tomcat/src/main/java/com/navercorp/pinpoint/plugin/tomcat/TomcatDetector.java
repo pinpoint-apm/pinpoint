@@ -38,10 +38,9 @@ public class TomcatDetector implements ServerTypeDetector, TomcatConstants {
 
     @Override
     public boolean detect(ConditionProvider provider) {
-        String bootstrapMain = provider.getMainClassCondition().getValue();
-        return bootstrapMain.equals(REQUIRED_MAIN_CLASS) &&
-               provider.getSystemPropertyCondition().check(REQUIRED_SYSTEM_PROPERTY) &&
-               provider.getLibraryClassCondition().check(REQUIRED_CLASS);
+        return provider.checkMainClass(REQUIRED_MAIN_CLASS) &&
+               provider.checkSystemProperty(REQUIRED_SYSTEM_PROPERTY) &&
+               provider.checkForClass(REQUIRED_CLASS);
     }
 
 }

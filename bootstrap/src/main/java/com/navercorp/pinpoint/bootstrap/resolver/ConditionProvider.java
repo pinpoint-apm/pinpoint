@@ -16,69 +16,90 @@
 
 package com.navercorp.pinpoint.bootstrap.resolver;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import com.navercorp.pinpoint.bootstrap.resolver.condition.Condition;
-import com.navercorp.pinpoint.bootstrap.resolver.condition.LibraryClassCondition;
+import com.navercorp.pinpoint.bootstrap.resolver.condition.ClassResourceCondition;
 import com.navercorp.pinpoint.bootstrap.resolver.condition.MainClassCondition;
-import com.navercorp.pinpoint.bootstrap.resolver.condition.SystemPropertyCondition;
+import com.navercorp.pinpoint.bootstrap.resolver.condition.PropertyCondition;
 
 /**
+ * 
  * @author HyunGil Jeong
  */
 public class ConditionProvider {
-
+    
     public static final ConditionProvider DEFAULT_CONDITION_PROVIDER = new ConditionProvider();
-
-    private final Map<Class<? extends Condition<?>>, Condition<?>> conditions;
-
-    public ConditionProvider() {
-        this(new HashMap<Class<? extends Condition<?>>, Condition<?>>());
+    
+    private final MainClassCondition mainClassCondition;
+    
+    private final PropertyCondition systemPropertyCondition;
+    
+    private final ClassResourceCondition classResourceCondition;
+    
+    private ConditionProvider() {
+        this(new MainClassCondition(), new PropertyCondition(), new ClassResourceCondition());
     }
-
-    public ConditionProvider(Map<Class<? extends Condition<?>>, Condition<?>> conditions) {
-        this.conditions = conditions;
-        addDefaultConditions();
+    
+    ConditionProvider(MainClassCondition mainClassCondition, PropertyCondition systemPropertyCondition, ClassResourceCondition classResourceCondition) {
+        this.mainClassCondition = mainClassCondition;
+        this.systemPropertyCondition = systemPropertyCondition;
+        this.classResourceCondition = classResourceCondition;
     }
-
-    private void addDefaultConditions() {
-        this.conditions.put(MainClassCondition.class, new MainClassCondition());
-        this.conditions.put(SystemPropertyCondition.class, new SystemPropertyCondition());
-        this.conditions.put(LibraryClassCondition.class, new LibraryClassCondition());
-    }
-
-    public <T extends Condition<?>> T getCondition(Class<T> conditionClass) {
-        @SuppressWarnings("unchecked")
-        T condition = (T)this.conditions.get(conditionClass);
-        return condition;
+    
+    /**
+     * Returns the fully qualified class name of the application's main class.
+     * 
+     * @return the fully qualified class name of the main class, or an empty string if the main class cannot be resolved
+     * @see MainClassCondition#getValue()
+     */
+    public String getMainClass() {
+        return this.mainClassCondition.getValue();
     }
 
     /**
-     * Returns {@link MainClassCondition} that allows plugins to check for the application's bootstrap main class.
+     * Checks if the specified value matches the fully qualified class name of the application's main class.
+     * If the main class cannot be resolved, the method return <tt>false</tt>.
      * 
-     * @return the {@link MainClassCondition}
+     * @param condition the value to check against the application's main class name
+     * @return <tt>true</tt> if the specified value matches the name of the main class; 
+     *         <tt>false</tt> if otherwise, or if the main class cannot be resolved
+     * @see MainClassCondition#check(String)
      */
-    public MainClassCondition getMainClassCondition() {
-        return (MainClassCondition)this.conditions.get(MainClassCondition.class);
+    public boolean checkMainClass(String mainClass) {
+        return this.mainClassCondition.check(mainClass);
     }
-
+    
     /**
-     * Returns {@link SystemPropertyCondition} that allows plugins to check for system property keys.
+     * Returns the system property value for the specified key.
      * 
-     * @return the {@link SystemPropertyCondition}
+     * @return the system property value, or an empty string if the key is null or empty 
      */
-    public SystemPropertyCondition getSystemPropertyCondition() {
-        return (SystemPropertyCondition)this.conditions.get(SystemPropertyCondition.class);
+    public String getSystemPropertyValue(String systemPropertyKey) {
+        if (systemPropertyKey == null || systemPropertyKey.isEmpty()) {
+            return "";
+        }
+        return this.systemPropertyCondition.getValue().getProperty(systemPropertyKey);
     }
-
+    
     /**
-     * Returns {@link LibraryClassCondition} that allows plugins to check for classes accessible by
-     * the system class loader.
+     * Checks if the specified value is in the system property.
      * 
-     * @return the {@link LibraryClassCondition}
+     * @param requiredKey the values to check if they exist in the system property
+     * @return <tt>true</tt> if the specified key is in the system property; 
+     *         <tt>false</tt> if otherwise, or if <tt>null</tt> or empty key is provided
      */
-    public LibraryClassCondition getLibraryClassCondition() {
-        return (LibraryClassCondition)this.conditions.get(LibraryClassCondition.class);
+    public boolean checkSystemProperty(String systemPropertyKey) {
+        return this.systemPropertyCondition.check(systemPropertyKey);
     }
+    
+    /**
+     * Checks if the specified class can be found in the current System ClassLoader's search path.
+     * 
+     * @param requiredClass the fully qualified class name of the class to check
+     * @return <tt>true</tt> if the specified class can be found in the system class loader's search path, 
+     *         <tt>false</tt> if otherwise
+     * @see ClassResourceCondition#check(String)
+     */
+    public boolean checkForClass(String requiredClass) {
+        return this.classResourceCondition.check(requiredClass);
+    }
+    
 }

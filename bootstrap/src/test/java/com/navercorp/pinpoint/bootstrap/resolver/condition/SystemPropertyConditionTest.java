@@ -23,7 +23,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.navercorp.pinpoint.bootstrap.resolver.condition.SystemPropertyCondition;
+import com.navercorp.pinpoint.bootstrap.resolver.condition.PropertyCondition;
 import com.navercorp.pinpoint.common.util.SystemProperty;
 
 /**
@@ -37,11 +37,13 @@ public class SystemPropertyConditionTest {
         final String existingSystemProperty1 = "set.one.key.one";
         final String existingSystemProperty2 = "set.one.key.two";
         SystemProperty property = createTestProperty(existingSystemProperty1, existingSystemProperty2);
-        SystemPropertyCondition systemPropertyCondition = new SystemPropertyCondition(property);
+        PropertyCondition systemPropertyCondition = new PropertyCondition(property);
         // When
-        boolean matches = systemPropertyCondition.check(existingSystemProperty1, existingSystemProperty2);
+        boolean firstKeyExists = systemPropertyCondition.check(existingSystemProperty1);
+        boolean secondKeyExists = systemPropertyCondition.check(existingSystemProperty2);
         // Then
-        assertTrue(matches);
+        assertTrue(firstKeyExists);
+        assertTrue(secondKeyExists);
     }
     
     @Test
@@ -49,46 +51,21 @@ public class SystemPropertyConditionTest {
         // Given
         final String existingSystemProperty = "existing.system.property";
         SystemProperty property = createTestProperty(existingSystemProperty);
-        SystemPropertyCondition systemPropertyCondition = new SystemPropertyCondition(property);
+        PropertyCondition systemPropertyCondition = new PropertyCondition(property);
         // When
-        boolean matches = systemPropertyCondition.check("some.other.property");
+        boolean keyExists = systemPropertyCondition.check("some.other.property");
         // Then
-        assertFalse(matches);
+        assertFalse(keyExists);
     }
     
     @Test
-    public void partialMatchShouldResultInNoMatch() {
-        // Given
-        final String existingSystemProperty = "set.one.key.one";
-        SystemProperty property = createTestProperty(existingSystemProperty);
-        SystemPropertyCondition systemPropertyCondition = new SystemPropertyCondition(property);
-        // When
-        boolean matches = systemPropertyCondition.check(existingSystemProperty, "some.other.property");
-        // Then
-        assertFalse(matches);
-    }
-    
-    @Test
-    public void emptyConditionShouldMatch() {
+    public void emptyConditionShouldNotMatch() {
         // Given
         final String existingSystemProperty = "existing.system.property";
         SystemProperty property = createTestProperty(existingSystemProperty);
-        SystemPropertyCondition systemPropertyCondition = new SystemPropertyCondition(property);
+        PropertyCondition systemPropertyCondition = new PropertyCondition(property);
         // When
-        boolean matches = systemPropertyCondition.check(new String[0]);
-        // Then
-        assertTrue(matches);
-    }
-    
-    @Test
-    public void conditionWithNullElementShouldMatch() {
-        // Given
-        final String existingSystemProperty = "existing.system.property";
-        SystemProperty property = createTestProperty(existingSystemProperty);
-        SystemPropertyCondition systemPropertyCondition = new SystemPropertyCondition(property);
-        final String[] conditionWithNullElement = new String[] {null}; 
-        // When
-        boolean matches = systemPropertyCondition.check(conditionWithNullElement);
+        boolean matches = systemPropertyCondition.check("");
         // Then
         assertFalse(matches);
     }
@@ -98,10 +75,9 @@ public class SystemPropertyConditionTest {
         // Given
         final String existingSystemProperty = "existing.system.property";
         SystemProperty property = createTestProperty(existingSystemProperty);
-        SystemPropertyCondition systemPropertyCondition = new SystemPropertyCondition(property);
-        final String[] nullCondition = null;
+        PropertyCondition systemPropertyCondition = new PropertyCondition(property);
         // When
-        boolean matches = systemPropertyCondition.check(nullCondition);
+        boolean matches = systemPropertyCondition.check(null);
         // Then
         assertFalse(matches);
     }
