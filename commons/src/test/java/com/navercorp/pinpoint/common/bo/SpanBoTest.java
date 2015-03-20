@@ -90,6 +90,9 @@ public class SpanBoTest {
 //        Assert.assertEquals(newSpanBo.getTraceAgentStartTime(), spanBo.getTraceAgentStartTime());
 //        Assert.assertEquals(newSpanBo.getTraceTransactionSequence(), spanBo.getTraceTransactionSequence());
         Assert.assertEquals(newSpanBo.getParentSpanId(), spanBo.getParentSpanId());
+        
+        Assert.assertEquals(newSpanBo.getServiceType(), spanBo.getServiceType());
+        Assert.assertEquals(newSpanBo.getApplicationServiceType(), spanBo.getServiceType());
 
         Assert.assertEquals(newSpanBo.getVersion(), spanBo.getVersion());
 
@@ -108,6 +111,7 @@ public class SpanBoTest {
         spanBo.setRpc(rpc);
 
         spanBo.setServiceType(ServiceType.STAND_ALONE.getCode());
+        spanBo.setApplicationServiceType(ServiceType.UNKNOWN.getCode());
 
         byte[] bytes = spanBo.writeValue();
         logger.info("length:{}", bytes.length);
@@ -116,6 +120,9 @@ public class SpanBoTest {
         int i = newSpanBo.readValue(bytes, 0);
         logger.info("length:{}", i);
         Assert.assertEquals(bytes.length, i);
+        
+        Assert.assertEquals(spanBo.getServiceType(), spanBo.getServiceType());
+        Assert.assertEquals(spanBo.getApplicationServiceType(), spanBo.getApplicationServiceType());
     }
 
     private String createString(int size) {

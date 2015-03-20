@@ -43,6 +43,7 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
   private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I64, (short)8);
   private static final org.apache.thrift.protocol.TField END_POINT_FIELD_DESC = new org.apache.thrift.protocol.TField("endPoint", org.apache.thrift.protocol.TType.STRING, (short)9);
   private static final org.apache.thrift.protocol.TField SPAN_EVENT_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("spanEventList", org.apache.thrift.protocol.TType.LIST, (short)10);
+  private static final org.apache.thrift.protocol.TField APPLICATION_SERVICE_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("applicationServiceType", org.apache.thrift.protocol.TType.I16, (short)11);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -58,6 +59,7 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
   private long spanId; // required
   private String endPoint; // optional
   private List<TSpanEvent> spanEventList; // required
+  private short applicationServiceType; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -68,7 +70,8 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
     TRANSACTION_ID((short)5, "transactionId"),
     SPAN_ID((short)8, "spanId"),
     END_POINT((short)9, "endPoint"),
-    SPAN_EVENT_LIST((short)10, "spanEventList");
+    SPAN_EVENT_LIST((short)10, "spanEventList"),
+    APPLICATION_SERVICE_TYPE((short)11, "applicationServiceType");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -99,6 +102,8 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
           return END_POINT;
         case 10: // SPAN_EVENT_LIST
           return SPAN_EVENT_LIST;
+        case 11: // APPLICATION_SERVICE_TYPE
+          return APPLICATION_SERVICE_TYPE;
         default:
           return null;
       }
@@ -142,8 +147,9 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
   private static final int __AGENTSTARTTIME_ISSET_ID = 0;
   private static final int __SERVICETYPE_ISSET_ID = 1;
   private static final int __SPANID_ISSET_ID = 2;
+  private static final int __APPLICATIONSERVICETYPE_ISSET_ID = 3;
   private byte __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.END_POINT};
+  private _Fields optionals[] = {_Fields.END_POINT,_Fields.APPLICATION_SERVICE_TYPE};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -164,6 +170,8 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
     tmpMap.put(_Fields.SPAN_EVENT_LIST, new org.apache.thrift.meta_data.FieldMetaData("spanEventList", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TSpanEvent.class))));
+    tmpMap.put(_Fields.APPLICATION_SERVICE_TYPE, new org.apache.thrift.meta_data.FieldMetaData("applicationServiceType", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TSpanChunk.class, metaDataMap);
   }
@@ -221,6 +229,7 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
       }
       this.spanEventList = __this__spanEventList;
     }
+    this.applicationServiceType = other.applicationServiceType;
   }
 
   public TSpanChunk deepCopy() {
@@ -240,6 +249,8 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
     this.spanId = 0;
     this.endPoint = null;
     this.spanEventList = null;
+    setApplicationServiceTypeIsSet(false);
+    this.applicationServiceType = 0;
   }
 
   public String getAgentId() {
@@ -447,6 +458,28 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
     }
   }
 
+  public short getApplicationServiceType() {
+    return this.applicationServiceType;
+  }
+
+  public void setApplicationServiceType(short applicationServiceType) {
+    this.applicationServiceType = applicationServiceType;
+    setApplicationServiceTypeIsSet(true);
+  }
+
+  public void unsetApplicationServiceType() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __APPLICATIONSERVICETYPE_ISSET_ID);
+  }
+
+  /** Returns true if field applicationServiceType is set (has been assigned a value) and false otherwise */
+  public boolean isSetApplicationServiceType() {
+    return EncodingUtils.testBit(__isset_bitfield, __APPLICATIONSERVICETYPE_ISSET_ID);
+  }
+
+  public void setApplicationServiceTypeIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __APPLICATIONSERVICETYPE_ISSET_ID, value);
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case AGENT_ID:
@@ -513,6 +546,14 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
       }
       break;
 
+    case APPLICATION_SERVICE_TYPE:
+      if (value == null) {
+        unsetApplicationServiceType();
+      } else {
+        setApplicationServiceType((Short)value);
+      }
+      break;
+
     }
   }
 
@@ -542,6 +583,9 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
     case SPAN_EVENT_LIST:
       return getSpanEventList();
 
+    case APPLICATION_SERVICE_TYPE:
+      return Short.valueOf(getApplicationServiceType());
+
     }
     throw new IllegalStateException();
   }
@@ -569,6 +613,8 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
       return isSetEndPoint();
     case SPAN_EVENT_LIST:
       return isSetSpanEventList();
+    case APPLICATION_SERVICE_TYPE:
+      return isSetApplicationServiceType();
     }
     throw new IllegalStateException();
   }
@@ -655,6 +701,15 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
       if (!(this_present_spanEventList && that_present_spanEventList))
         return false;
       if (!this.spanEventList.equals(that.spanEventList))
+        return false;
+    }
+
+    boolean this_present_applicationServiceType = true && this.isSetApplicationServiceType();
+    boolean that_present_applicationServiceType = true && that.isSetApplicationServiceType();
+    if (this_present_applicationServiceType || that_present_applicationServiceType) {
+      if (!(this_present_applicationServiceType && that_present_applicationServiceType))
+        return false;
+      if (this.applicationServiceType != that.applicationServiceType)
         return false;
     }
 
@@ -754,6 +809,16 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetApplicationServiceType()).compareTo(other.isSetApplicationServiceType());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetApplicationServiceType()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.applicationServiceType, other.applicationServiceType);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -827,6 +892,12 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
       sb.append(this.spanEventList);
     }
     first = false;
+    if (isSetApplicationServiceType()) {
+      if (!first) sb.append(", ");
+      sb.append("applicationServiceType:");
+      sb.append(this.applicationServiceType);
+      first = false;
+    }
     sb.append(")");
     return sb.toString();
   }
@@ -947,6 +1018,14 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 11: // APPLICATION_SERVICE_TYPE
+            if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
+              struct.applicationServiceType = iprot.readI16();
+              struct.setApplicationServiceTypeIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -1003,6 +1082,11 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
         }
         oprot.writeFieldEnd();
       }
+      if (struct.isSetApplicationServiceType()) {
+        oprot.writeFieldBegin(APPLICATION_SERVICE_TYPE_FIELD_DESC);
+        oprot.writeI16(struct.applicationServiceType);
+        oprot.writeFieldEnd();
+      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -1045,7 +1129,10 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
       if (struct.isSetSpanEventList()) {
         optionals.set(7);
       }
-      oprot.writeBitSet(optionals, 8);
+      if (struct.isSetApplicationServiceType()) {
+        optionals.set(8);
+      }
+      oprot.writeBitSet(optionals, 9);
       if (struct.isSetAgentId()) {
         oprot.writeString(struct.agentId);
       }
@@ -1076,12 +1163,15 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
           }
         }
       }
+      if (struct.isSetApplicationServiceType()) {
+        oprot.writeI16(struct.applicationServiceType);
+      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, TSpanChunk struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(8);
+      BitSet incoming = iprot.readBitSet(9);
       if (incoming.get(0)) {
         struct.agentId = iprot.readString();
         struct.setAgentIdIsSet(true);
@@ -1123,6 +1213,10 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
           }
         }
         struct.setSpanEventListIsSet(true);
+      }
+      if (incoming.get(8)) {
+        struct.applicationServiceType = iprot.readI16();
+        struct.setApplicationServiceTypeIsSet(true);
       }
     }
   }

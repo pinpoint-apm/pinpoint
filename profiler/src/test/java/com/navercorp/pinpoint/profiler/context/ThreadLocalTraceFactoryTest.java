@@ -21,6 +21,8 @@ import java.util.Collections;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
 import com.navercorp.pinpoint.profiler.context.ThreadLocalTraceFactory;
@@ -29,7 +31,6 @@ import com.navercorp.pinpoint.profiler.monitor.metric.MetricRegistry;
 import com.navercorp.pinpoint.profiler.sampler.TrueSampler;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 
 public class ThreadLocalTraceFactoryTest {
@@ -38,7 +39,8 @@ public class ThreadLocalTraceFactoryTest {
         LogStorageFactory logStorageFactory = new LogStorageFactory();
         TrueSampler trueSampler = new TrueSampler();
         ServerMetaDataHolder serverMetaDataHolder = new DefaultServerMetaDataHolder(Collections.<String>emptyList());
-        DefaultTraceContext traceContext = new DefaultTraceContext(100, ServiceType.STAND_ALONE, logStorageFactory, trueSampler, serverMetaDataHolder);
+        AgentInformation agentInformation = new AgentInformation("agentId", "applicationName", System.currentTimeMillis(), 10, "test", "127.0.0.1", ServiceType.STAND_ALONE, Version.VERSION);
+        DefaultTraceContext traceContext = new DefaultTraceContext(100, agentInformation, logStorageFactory, trueSampler, serverMetaDataHolder);
         MetricRegistry metricRegistry = new MetricRegistry(ServiceType.STAND_ALONE);
         return new ThreadLocalTraceFactory(traceContext, metricRegistry, logStorageFactory, trueSampler);
     }

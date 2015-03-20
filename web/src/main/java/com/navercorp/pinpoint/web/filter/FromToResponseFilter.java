@@ -118,7 +118,7 @@ public class FromToResponseFilter implements Filter {
              * USER -> WAS
              */
             for (SpanBo span : transaction) {
-                if (span.isRoot() && includeServiceType(toServiceCode, span.getServiceType()) && toApplicationName.equals(span.getApplicationId())) {
+                if (span.isRoot() && includeServiceType(toServiceCode, span.getApplicationServiceType()) && toApplicationName.equals(span.getApplicationId())) {
                     return checkResponseCondition(span.getElapsed(), span.getErrCode() > 0)
                             && checkPinPointAgentName(null, span.getAgentId());
                 }
@@ -128,7 +128,7 @@ public class FromToResponseFilter implements Filter {
              * WAS -> UNKNOWN
              */
             for (SpanBo span : transaction) {
-                if (includeServiceType(fromServiceCode, span.getServiceType()) && fromApplicationName.equals(span.getApplicationId())) {
+                if (includeServiceType(fromServiceCode, span.getApplicationServiceType()) && fromApplicationName.equals(span.getApplicationId())) {
                     List<SpanEventBo> eventBoList = span.getSpanEventBoList();
                     if (eventBoList == null) {
                         continue;
@@ -175,14 +175,14 @@ public class FromToResponseFilter implements Filter {
                  * if problems happen because of hint, don't use hint at front end (UI) or use below code in order to work properly.
                  */
                 for (SpanBo srcSpan : transaction) {
-                    if (includeServiceType(fromServiceCode, srcSpan.getServiceType()) && fromApplicationName.equals(srcSpan.getApplicationId())) {
+                    if (includeServiceType(fromServiceCode, srcSpan.getApplicationServiceType()) && fromApplicationName.equals(srcSpan.getApplicationId())) {
                         // find dest of src.
                         for (SpanBo destSpan : transaction) {
                             if (destSpan.getParentSpanId() != srcSpan.getSpanId()) {
                                 continue;
                             }
 
-                            if (includeServiceType(toServiceCode, destSpan.getServiceType()) && toApplicationName.equals(destSpan.getApplicationId())) {
+                            if (includeServiceType(toServiceCode, destSpan.getApplicationServiceType()) && toApplicationName.equals(destSpan.getApplicationId())) {
                                 return checkResponseCondition(destSpan.getElapsed(), destSpan.getErrCode() > 0) && checkPinPointAgentName(srcSpan.getAgentId(), destSpan.getAgentId());
                             }
                         }
@@ -194,7 +194,7 @@ public class FromToResponseFilter implements Filter {
              * WAS -> BACKEND (non-WAS)
              */
             for (SpanBo span : transaction) {
-                if (includeServiceType(fromServiceCode, span.getServiceType()) && fromApplicationName.equals(span.getApplicationId())) {
+                if (includeServiceType(fromServiceCode, span.getApplicationServiceType()) && fromApplicationName.equals(span.getApplicationId())) {
                     List<SpanEventBo> eventBoList = span.getSpanEventBoList();
                     if (eventBoList == null) {
                         continue;

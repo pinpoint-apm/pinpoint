@@ -95,6 +95,8 @@ struct TSpan {
 
   25: optional i32 apiId;
   26: optional TIntStringValue exceptionInfo;
+  
+  30: optional i16 applicationServiceType;
 }
 
 struct TSpanChunk {
@@ -115,6 +117,8 @@ struct TSpanChunk {
   9: optional string endPoint
 
   10: list<TSpanEvent> spanEventList
+  
+  11: optional i16 applicationServiceType
 }
 
 

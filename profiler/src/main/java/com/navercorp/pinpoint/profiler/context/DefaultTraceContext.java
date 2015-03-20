@@ -46,7 +46,6 @@ import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.ws.Service;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,14 +62,11 @@ public class DefaultTraceContext implements TraceContext {
 
     private final ActiveThreadCounter activeThreadCounter = new ActiveThreadCounter();
 
-
 //    private GlobalCallTrace globalCallTrace = new GlobalCallTrace();
 
     private AgentInformation agentInformation;
 
     private EnhancedDataSender priorityDataSender;
-
-    private final ServiceType contextServiceType;
 
     private final MetricRegistry metricRegistry;
 
@@ -85,22 +81,25 @@ public class DefaultTraceContext implements TraceContext {
     private ProfilerConfig profilerConfig;
     
     private final ServerMetaDataHolder serverMetaDataHolder;
-
+    
     // for test
-    public DefaultTraceContext() {
-        this(LRUCache.DEFAULT_CACHE_SIZE, ServiceType.STAND_ALONE, new LogStorageFactory(), new TrueSampler(), new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs()));
+    public DefaultTraceContext(final AgentInformation agentInformation) {
+        this(LRUCache.DEFAULT_CACHE_SIZE, agentInformation, new LogStorageFactory(), new TrueSampler(), new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs()));
     }
 
-    public DefaultTraceContext(final int sqlCacheSize, final ServiceType contextServiceType, StorageFactory storageFactory, Sampler sampler, ServerMetaDataHolder serverMetaDataHolder) {
+    public DefaultTraceContext(final int sqlCacheSize, final AgentInformation agentInformation, StorageFactory storageFactory, Sampler sampler, ServerMetaDataHolder serverMetaDataHolder) {
+        if (agentInformation == null) {
+            throw new NullPointerException("agentInformation must not be null");
+        }
         if (storageFactory == null) {
             throw new NullPointerException("storageFactory must not be null");
         }
         if (sampler == null) {
             throw new NullPointerException("sampler must not be null");
         }
+        this.agentInformation = agentInformation;
         this.sqlCache = new SimpleCache<String>(sqlCacheSize);
-        this.contextServiceType = contextServiceType;
-        this.metricRegistry = new MetricRegistry(this.contextServiceType);
+        this.metricRegistry = new MetricRegistry(this.agentInformation.getServerType());
 
         this.traceFactory = new ThreadLocalTraceFactory(this, metricRegistry, storageFactory, sampler);
         
@@ -307,14 +306,6 @@ public class DefaultTraceContext implements TraceContext {
 
     public void setPriorityDataSender(final EnhancedDataSender priorityDataSender) {
         this.priorityDataSender = priorityDataSender;
-    }
-
-
-    public void setAgentInformation(final AgentInformation agentInformation) {
-        if (agentInformation == null) {
-            throw new NullPointerException("agentInformation must not be null");
-        }
-        this.agentInformation = agentInformation;
     }
 
     @Override

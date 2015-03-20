@@ -10,6 +10,7 @@
 	"callStackStart" : ${callstackStart},
 	"callStackEnd" : ${callstackEnd},
     "completeState" : "${completeState}",
+    "logLinkEnable" : ${logLinkEnable},
 	"callStackIndex" : {
 		"depth":0,
 		"begin":1,
@@ -31,7 +32,9 @@
 		"apiType":17,
 		"agent":18,
 		"isFocused":19,
-		"hasException":20
+		"hasException":20,
+		"logButtonName":21,
+		"logPageUrl":22
 	},
 	"callStack" : [
 <c:forEach items="${callstack}" var="record" varStatus="status">[
@@ -55,7 +58,19 @@ ${record.hasChild},
 "${record.apiType}",
 "${record.agent}",
 ${record.focused},
-${record.hasException}
+${record.hasException},
+"${record.logButtonName}",
+<c:choose>
+	<c:when test="${not empty record.logPageUrl}">
+		<c:url value="${record.logPageUrl}" var="logPageUrl">
+			<c:param name="transactionId" value="${record.transactionId}" />
+			<c:param name="spanId" value="${record.spanId}" />
+			<c:param name="time" value="${record.begin}" />
+		</c:url>
+		"${logPageUrl}"
+	</c:when>
+	<c:otherwise>""</c:otherwise>
+</c:choose>
 ]<c:if test="${!status.last}">,</c:if></c:forEach>
 ],
 	"applicationMapData" : {

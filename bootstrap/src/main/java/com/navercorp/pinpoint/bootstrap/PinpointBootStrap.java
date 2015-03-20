@@ -35,6 +35,7 @@ import com.navercorp.pinpoint.common.service.DefaultTypeLoaderService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.service.TypeLoaderService;
 import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.SystemProperty;
 
@@ -136,12 +137,15 @@ public class PinpointBootStrap {
     }
     
     private static void registerShutdownHook(final Agent pinpointAgent) {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
+        final Runnable stop = new Runnable() {
             @Override
             public void run() {
                 pinpointAgent.stop();
             }
-        });
+        };
+        PinpointThreadFactory pinpointThreadFactory = new PinpointThreadFactory("Pinpoint-shutdown-hook");
+        Thread thread = pinpointThreadFactory.newThread(stop);
+        Runtime.getRuntime().addShutdownHook(thread);
     }
 
     private static Map<String, String> parseAgentArgs(String str) {

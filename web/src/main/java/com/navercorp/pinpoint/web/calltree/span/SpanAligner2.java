@@ -150,7 +150,7 @@ public class SpanAligner2 {
         logger.debug("populate start");
         int currentDepth = spanDepth;
         if (logger.isDebugEnabled()) {
-            logger.debug("span type:{} depth:{} spanDepth:{} ", currentDepth, span.getServiceType(), spanDepth);
+            logger.debug("span type:{} depth:{} spanDepth:{} ", currentDepth, span.getApplicationServiceType(), spanDepth);
         }
 
         SpanAlign spanAlign = new SpanAlign(currentDepth, span);

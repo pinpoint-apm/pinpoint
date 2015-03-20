@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.common.Version;
-import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceId;
@@ -30,6 +28,7 @@ import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.PinpointSocketReconnectEventListener;
+import com.navercorp.pinpoint.test.TestAgentInformation;
 
 import org.apache.thrift.TBase;
 import org.junit.Test;
@@ -83,8 +82,7 @@ public class TraceTest {
     }
 
     private DefaultTraceContext getDefaultTraceContext() {
-        DefaultTraceContext defaultTraceContext = new DefaultTraceContext();
-        defaultTraceContext.setAgentInformation(new AgentInformation("agentId", "applicationName", System.currentTimeMillis(), 10, "test", "127.0.0.1", ServiceType.STAND_ALONE, Version.VERSION));
+        DefaultTraceContext defaultTraceContext = new DefaultTraceContext(new TestAgentInformation());
         return defaultTraceContext;
     }
 

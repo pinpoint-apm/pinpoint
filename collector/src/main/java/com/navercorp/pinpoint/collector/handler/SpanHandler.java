@@ -84,18 +84,17 @@ public class SpanHandler implements SimpleHandler {
     }
 
     private void insertSpanStat(TSpan span) {
-        final ServiceType spanType = registry.findServiceType(span.getServiceType());
+        final ServiceType applicationServiceType = getApplicationServiceType(span);
         // TODO consider to change span.isSetErr();
         final boolean isError = span.getErr() != 0;
         int bugCheck = 0;
         if (span.getParentSpanId() == -1) {
-            // FIXME this is for only testing. insert agentId instead of host
 
             // create virtual user
-            statisticsHandler.updateCaller(span.getApplicationName(), ServiceType.USER, span.getAgentId(), span.getApplicationName(), spanType, span.getAgentId(), span.getElapsed(), isError);
+            statisticsHandler.updateCaller(span.getApplicationName(), ServiceType.USER, span.getAgentId(), span.getApplicationName(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
 
-            // update the span information of node itself
-            statisticsHandler.updateCallee(span.getApplicationName(), spanType, span.getApplicationName(), ServiceType.USER, span.getAgentId(), span.getElapsed(), isError);
+            // update the span information of the current node (self)
+            statisticsHandler.updateCallee(span.getApplicationName(), applicationServiceType, span.getApplicationName(), ServiceType.USER, span.getAgentId(), span.getElapsed(), isError);
             bugCheck++;
         }
 
@@ -104,18 +103,17 @@ public class SpanHandler implements SimpleHandler {
         if (span.getParentApplicationName() != null) {
             logger.debug("Received parent application name. {}", span.getParentApplicationName());
 
-            // TODO originally you must know the serviceType of parent(previous) node.
-            // Assume all parent nodes as TOMCAT
             final ServiceType parentApplicationType = registry.findServiceType(span.getParentApplicationType());
-            statisticsHandler.updateCallee(span.getApplicationName(), spanType, span.getParentApplicationName(), parentApplicationType, span.getAgentId(), span.getElapsed(), isError);
+            statisticsHandler.updateCallee(span.getApplicationName(), applicationServiceType, span.getParentApplicationName(), parentApplicationType, span.getAgentId(), span.getElapsed(), isError);
             bugCheck++;
         }
 
-        // record the response time of node itself (Tomcat).
+        // record the response time of the current node (self).
         // blow code may be conflict of idea above callee key.
         // it is odd to record reversely, because of already recording the caller data at previous node.
         // the data may be different due to timeout or network error.
-        statisticsHandler.updateResponseTime(span.getApplicationName(), spanType, span.getAgentId(), span.getElapsed(), isError);
+        
+        statisticsHandler.updateResponseTime(span.getApplicationName(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
 
         if (bugCheck != 1) {
             logger.warn("ambiguous span found(bug). span:{}", span);
@@ -129,7 +127,7 @@ public class SpanHandler implements SimpleHandler {
             return;
         }
 
-        final ServiceType spanType = registry.findServiceType(span.getServiceType());
+        final ServiceType applicationServiceType = getApplicationServiceType(span);
 
         logger.debug("handle spanEvent size:{}", spanEventList.size());
         // TODO need to batch update later.
@@ -147,10 +145,10 @@ public class SpanHandler implements SimpleHandler {
              * save information to draw a server map based on statistics
              */
             // save the information of caller (the spanevent that span called )
-            statisticsHandler.updateCaller(span.getApplicationName(), spanType, span.getAgentId(), spanEvent.getDestinationId(), spanEventType, spanEvent.getEndPoint(), elapsed, hasException);
+            statisticsHandler.updateCaller(span.getApplicationName(), applicationServiceType, span.getAgentId(), spanEvent.getDestinationId(), spanEventType, spanEvent.getEndPoint(), elapsed, hasException);
 
             // save the information of callee (the span that called spanevent)
-            statisticsHandler.updateCallee(spanEvent.getDestinationId(), spanEventType, span.getApplicationName(), spanType, span.getEndPoint(), elapsed, hasException);
+            statisticsHandler.updateCallee(spanEvent.getDestinationId(), spanEventType, span.getApplicationName(), applicationServiceType, span.getEndPoint(), elapsed, hasException);
         }
     }
 
@@ -162,10 +160,16 @@ public class SpanHandler implements SimpleHandler {
             return;
         }
         final String spanApplicationName = span.getApplicationName();
-        final short spanServiceType = span.getServiceType();
+        final short applicationServiceTypeCode = getApplicationServiceType(span).getCode();
 
         final String parentApplicationName = span.getParentApplicationName();
         final short parentServiceType = span.getParentApplicationType();
-        hostApplicationMapDao.insert(acceptorHost, spanApplicationName, spanServiceType, parentApplicationName, parentServiceType);
+        hostApplicationMapDao.insert(acceptorHost, spanApplicationName, applicationServiceTypeCode, parentApplicationName, parentServiceType);
+    }
+    
+    private ServiceType getApplicationServiceType(TSpan span) {
+        // Check if applicationServiceType is set. If not, use span's service type. 
+        final short applicationServiceTypeCode = span.isSetApplicationServiceType() ? span.getApplicationServiceType() : span.getServiceType();
+        return registry.findServiceType(applicationServiceTypeCode);
     }
 }
