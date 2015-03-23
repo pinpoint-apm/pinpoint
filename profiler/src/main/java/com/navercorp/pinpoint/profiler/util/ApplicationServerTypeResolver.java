@@ -17,85 +17,72 @@
 package com.navercorp.pinpoint.profiler.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.plugin.ServerTypeDetector;
+import com.navercorp.pinpoint.bootstrap.resolver.ApplicationServerTypePluginResolver;
 import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 
 /**
  * @author emeroad
  * @author netspider
+ * @author hyungil.jeong
  */
 public class ApplicationServerTypeResolver {
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private ServiceType serverType;
-
     private final ServiceType defaultType;
+    private final ApplicationServerTypePluginResolver resolver;
     private final List<ServerTypeDetector> detectors = new ArrayList<ServerTypeDetector>();
 
-    private final ServiceTypeRegistryService serviceTypeRegistryService;
-
-    public ApplicationServerTypeResolver(List<DefaultProfilerPluginContext> plugins, ServiceType defaultType, ServiceTypeRegistryService serviceTypeRegistryService) {
-        if (serviceTypeRegistryService == null) {
-            throw new NullPointerException("serviceTypeRegistryService must not be null");
+    public ApplicationServerTypeResolver(List<DefaultProfilerPluginContext> plugins, ServiceType defaultType, List<String> orderedDetectors) {
+        if (isValidApplicationServerType(defaultType)) {
+            this.defaultType = defaultType;
+        } else {
+            this.defaultType = ServiceType.UNDEFINED;
         }
-        this.serviceTypeRegistryService = serviceTypeRegistryService;
-        this.defaultType = defaultType;
-        
-        for (DefaultProfilerPluginContext context : plugins) {
-            detectors.addAll(context.getServerTypeDetectors());
+        Map<String, ServerTypeDetector> registeredDetectors = getRegisteredServerTypeDetectors(plugins);
+        for (String orderedDetector : orderedDetectors) {
+            if (registeredDetectors.containsKey(orderedDetector));
+            this.detectors.add(registeredDetectors.remove(orderedDetector));
         }
-    }
-
-    public String[] getServerLibPath() {
-        return new String[0];
-    }
-
-    public ServiceType getServerType() {
-        return serverType;
+        this.detectors.addAll(registeredDetectors.values());
+        this.resolver = new ApplicationServerTypePluginResolver(this.detectors);
     }
     
-    public boolean resolve() {
-        String serverType = null;
-
-        for (ServerTypeDetector detector : detectors) {
-            logger.debug("try to resolve using {}", detector.getClass());
-            
-            if (serverType != null && !detector.canOverride(serverType)) {
-                continue;
-            }
-            
-            if (detector.detect()) {
-                serverType = detector.getServerTypeName();
-
-                if (logger.isInfoEnabled()) {
-                    logger.info("Resolved applicationServerType [{}] by {}", serverType, detector.getClass().getName());
-                }
+    private Map<String, ServerTypeDetector> getRegisteredServerTypeDetectors(List<DefaultProfilerPluginContext> plugins) {
+        Map<String, ServerTypeDetector> registeredDetectors = new HashMap<String, ServerTypeDetector>();
+        for (DefaultProfilerPluginContext context : plugins) {
+            for (ServerTypeDetector detector : context.getServerTypeDetectors()) {
+                registeredDetectors.put(detector.getClass().getName(), detector);
             }
         }
-        
-        if (serverType != null) {
-            this.serverType = serviceTypeRegistryService.findServiceTypeByName(serverType);
-            return true;
-        }
-        
-        if (defaultType != null) {
-            // TODO validate default type. is defaultType a server type?
-            this.serverType = defaultType;
+        return registeredDetectors;
+    }
+    
+    public ServiceType resolve() {
+        ServiceType resolvedApplicationServerType;
+        if (this.defaultType == ServiceType.UNDEFINED) {
+            resolvedApplicationServerType = this.resolver.resolve();
+            logger.info("Resolved ApplicationServerType : {}", resolvedApplicationServerType.getName());
         } else {
-            this.serverType = ServiceType.STAND_ALONE;
+            resolvedApplicationServerType = this.defaultType;
+            logger.info("Configured ApplicationServerType : {}", resolvedApplicationServerType.getName());
         }
-        
-        if (logger.isInfoEnabled()) {
-            logger.info("Configured applicationServerType:{}", defaultType);
+        return resolvedApplicationServerType;
+    }
+    
+    private boolean isValidApplicationServerType(ServiceType serviceType) {
+        if (serviceType == null) {
+            return false;
         }
-        
-        return true;
+        return serviceType.isWas();
     }
 }
