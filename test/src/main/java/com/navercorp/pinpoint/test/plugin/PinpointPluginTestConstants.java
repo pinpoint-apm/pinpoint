@@ -14,7 +14,6 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
-import java.util.regex.Pattern;
 
 /**
  * @author Jongho Moon

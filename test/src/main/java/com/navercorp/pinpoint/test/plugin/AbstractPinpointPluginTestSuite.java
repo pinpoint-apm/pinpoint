@@ -99,6 +99,10 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
             javaHome = SystemProperty.INSTANCE.getEnv(envName);
         }
         
+        if (javaHome == null) {
+            return null;
+        }
+        
         builder.append(javaHome);
         builder.append(File.separatorChar);
         builder.append("bin");
@@ -219,6 +223,14 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
         try {
             for (int ver : jvmVersions) {
                 String javaExe = getJavaExecutable(ver);
+                
+                // TODO for now, java 8 is not mandatory to build pinpoint.
+                // so failing to find java installation should not cause build failure.
+                if (javaExe == null) {
+                    System.out.println("Cannot find Java version " + ver + ". Skip test with Java " + ver);
+                    continue;
+                }
+                
                 PinpointPluginTestContext context = new PinpointPluginTestContext(agentJar, configFile, requiredLibraries, getTestClass().getJavaClass(), testClassLocation, jvmArguments, debug, ver, javaExe); 
                 
                 List<PinpointPluginTestInstance> cases = createTestCases(context);

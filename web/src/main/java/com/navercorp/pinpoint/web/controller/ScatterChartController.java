@@ -38,6 +38,7 @@ import com.navercorp.pinpoint.web.vo.scatter.ScatterIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StopWatch;
@@ -64,6 +65,16 @@ public class ScatterChartController {
 
     @Autowired
     private FilterBuilder filterBuilder;
+    
+
+    @Value("#{pinpointWebProps['log.enable'] ?: false}")
+    private boolean logLinkEnable;
+    
+    @Value("#{pinpointWebProps['log.button.name'] ?: ''}")
+    private String logButtonName;
+    
+    @Value("#{pinpointWebProps['log.page.url'] ?: ''}")
+    private String logPageUrl;
 
     private static final String PREFIX_TRANSACTION_ID = "I";
     private static final String PREFIX_TIME = "T";
@@ -222,7 +233,12 @@ public class ScatterChartController {
             List<SpanBo> metadata = scatter.selectTransactionMetadata(query);
             model.addAttribute("metadata", metadata);
         }
-
+        
+        if (logLinkEnable) {
+            model.addAttribute("logButtonName", logButtonName);
+            model.addAttribute("logPageUrl", logPageUrl);
+        }
+        
         return "transactionmetadata";
     }
 

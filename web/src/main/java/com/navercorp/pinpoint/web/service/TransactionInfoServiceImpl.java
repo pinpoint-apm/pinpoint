@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.web.service;
 
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.AnnotationKey;
@@ -46,6 +48,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -67,6 +70,15 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     @Autowired
     private AnnotationKeyRegistryService annotationKeyRegistryService;
+    
+    @Value("#{pinpointWebProps['log.enable'] ?: false}")
+    private boolean logLinkEnable;
+    
+    @Value("#{pinpointWebProps['log.button.name'] ?: ''}")
+    private String logButtonName;
+    
+    @Value("#{pinpointWebProps['log.page.url'] ?: ''}")
+    private String logPageUrl;
     
     @Override
     public BusinessTransactions selectBusinessTransactions(List<TransactionId> transactionIdList, String applicationName, Range range, Filter filter) {
@@ -153,6 +165,11 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         }
 
         recordSet.setRecordList(recordList);
+        
+        if (logLinkEnable) {
+            addlogLink(recordSet);
+        }
+        
         return recordSet;
     }
 
@@ -165,6 +182,66 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         }
     }
 
+    private void addlogLink(RecordSet recordSet) {
+        List<Record> records = recordSet.getRecordList();
+        List<TransactionInfo> transactionInfoes = new LinkedList<TransactionInfo>();
+        
+        for (Iterator<Record> iterator = records.iterator(); iterator.hasNext();) {
+            Record record = (Record) iterator.next();
+            
+            if(record.getTransactionId() == null) {
+                continue;
+            }
+            
+            TransactionInfo transactionInfo = new TransactionInfo(record.getTransactionId(), record.getSpanId());
+            
+            if (transactionInfoes.contains(transactionInfo)) {
+                continue;
+            };
+            
+            record.setLogPageUrl(logPageUrl);
+            record.setLogButtonName(logButtonName);
+            
+            transactionInfoes.add(transactionInfo);
+        }
+    }
+    
+    private class TransactionInfo {
+
+        private final String transactionId;
+        private final long spanId;
+        
+        public TransactionInfo(String transactionId, long spanId) {
+            this.transactionId = transactionId;
+            this.spanId = spanId;
+        }
+        
+        public String getTransactionId() {
+            return transactionId;
+        }
+
+        public long getSpanId() {
+            return spanId;
+        }
+        
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof TransactionInfo == false) {
+                return false;
+            }
+            
+            TransactionInfo transactionInfo = (TransactionInfo)obj;
+            
+            if (!transactionId.equals(transactionInfo.getTransactionId())) {
+                return false;
+            }
+            if (spanId != transactionInfo.getSpanId()) {
+                return false;
+            }
+            
+            return true;
+        }
+    }
 
     private long getStartTime(List<SpanAlign> spanAlignList) {
         if (spanAlignList == null || spanAlignList.size() == 0) {
@@ -314,7 +391,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                                     registry.findServiceType(spanBo.getServiceType()),
                                                     null,
                                                     spanAlign.isHasChild(),
-                                                    false);
+                                                    false,
+                                                    spanBo.getTransactionId(),
+                                                    spanBo.getSpanId());
                         record.setSimpleClassName(apiDescription.getSimpleClassName());
                         record.setFullApiDescription(method);
                         recordList.add(record);
@@ -334,7 +413,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                                     registry.findServiceType(spanBo.getServiceType()),
                                                     null,
                                                     spanAlign.isHasChild(),
-                                                    false);
+                                                    false,
+                                                    spanBo.getTransactionId(),
+                                                    spanBo.getSpanId());
                         record.setSimpleClassName("");
                         record.setFullApiDescription("");
                         recordList.add(record);
@@ -388,7 +469,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                                     /* spanEventBo.getDestinationId(), spanEventBo.getServiceTypeCode(),*/
                                                     destinationId,
                                                     spanAlign.isHasChild(),
-                                                    false);
+                                                    false,
+                                                    spanBo.getTransactionId(),
+                                                    spanBo.getSpanId());
                         record.setSimpleClassName(apiDescription.getSimpleClassName());
                         record.setFullApiDescription(method);
 
@@ -416,7 +499,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                                     /*spanEventBo.getDestinationId(), spanEventBo.getServiceTypeCode(),*/
                                                     destinationId,
                                                     spanAlign.isHasChild(),
-                                                    false);
+                                                    false,
+                                                    spanBo.getTransactionId(),
+                                                    spanBo.getSpanId());
                         record.setSimpleClassName("");
                         record.setFullApiDescription(method);
 
@@ -454,7 +539,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                         null,
                                         null,
                                         false,
-                                        false);
+                                        false,
+                                        spanBo.getTransactionId(),
+                                        spanBo.getSpanId());
                 }
             } else {
                 final SpanEventBo spanEventBo = spanAlign.getSpanEventBo();
@@ -474,7 +561,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                         null,
                                         null,
                                         false,
-                                        true);
+                                        true,
+                                        null,
+                                        0);
                 }
             }
             return null;
@@ -529,7 +618,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             for (AnnotationBo ann : annotationBoList) {
                 AnnotationKey annotation = findAnnotationKey(ann.getKey());
                 if (annotation.isViewInRecordSet()) {
-                    Record record = new Record(depth, getNextId(), parentId, false, annotation.getName(), ann.getValue().toString(), 0L, 0L, 0, null, null, null, null, false, false);
+                    Record record = new Record(depth, getNextId(), parentId, false, annotation.getName(), ann.getValue().toString(), 0L, 0L, 0, null, null, null, null, false, false, null, 0);
                     recordList.add(record);
                 }
             }
@@ -538,7 +627,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         }
 
         private Record createParameterRecord(int depth, int parentId, String method, String argument) {
-            return new Record(depth, getNextId(), parentId, false, method, argument, 0L, 0L, 0, null, null, null, null, false, false);
+            return new Record(depth, getNextId(), parentId, false, method, argument, 0L, 0L, 0, null, null, null, null, false, false, null, 0);
         }
     }
 

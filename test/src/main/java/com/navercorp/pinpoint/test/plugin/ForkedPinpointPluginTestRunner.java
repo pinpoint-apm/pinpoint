@@ -59,8 +59,11 @@ public class ForkedPinpointPluginTestRunner extends BlockJUnit4ClassRunner {
                 PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
                 
                 verifier.initialize(manageTraceObject);
-                fromSuper.evaluate();
-                verifier.cleanUp(manageTraceObject);
+                try {
+                    fromSuper.evaluate();
+                } finally {
+                    verifier.cleanUp(manageTraceObject);
+                }
             }
         };
     }

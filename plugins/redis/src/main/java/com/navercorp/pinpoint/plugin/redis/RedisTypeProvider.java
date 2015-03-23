@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.plugin.TypeSetupContext;
 public class RedisTypeProvider implements TypeProvider, RedisConstants{
 
     @Override
-    public void setUp(TypeSetupContext context) {
+    public void setup(TypeSetupContext context) {
         context.addType(REDIS);
     }
 }

@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -83,7 +84,21 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite imp
             return createCasesWithLibraryPath(context);
         }
         
-        throw new IllegalStateException("Cannot happen");
+        return createCasesWithJdkOnly(context);
+    }
+
+    private List<PinpointPluginTestInstance> createCasesWithJdkOnly(PinpointPluginTestContext context) {
+        List<PinpointPluginTestInstance> cases = new ArrayList<PinpointPluginTestInstance>();
+        
+        if (testOnSystemClassLoader) {
+            cases.add(new NormalPluginTestCase(context, "", Collections.<String>emptyList(), true));
+        }
+        
+        if (testOnChildClassLoader) {
+            cases.add(new NormalPluginTestCase(context, "", Collections.<String>emptyList(), false));
+        }
+        
+        return cases;
     }
 
 

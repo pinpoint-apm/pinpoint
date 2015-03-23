@@ -12,12 +12,23 @@
     <packaging>pom</packaging>
     
     <modules>
+        <module>jdk-http</module>
+        <module>redis</module>
         <module>servlet</module>
         <module>tomcat</module>
-        <module>redis</module>
     </modules>
 
     <dependencies>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-jdk-http-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-redis-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-servlet-plugin</artifactId>
@@ -26,11 +37,6 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-tomcat-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-redis-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

@@ -28,8 +28,8 @@ public interface ProfilerPluginSetupContext {
     public Object setAttribute(String key, Object value);
     public Object getAttribute(String key);
 
-    public ClassEditorBuilder newClassEditorBuilder();
+    public ClassEditorBuilder getClassEditorBuilder(String targetClassName);
     
     public void addClassEditor(ClassEditor classEditor);
-    public void addServerTypeDetector(ServerTypeDetector... detectors);
+    public void addApplicationTypeDetector(ApplicationTypeDetector... detectors);
 }
