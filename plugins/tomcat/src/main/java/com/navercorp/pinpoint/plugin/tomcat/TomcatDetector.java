@@ -14,7 +14,7 @@
  */
 package com.navercorp.pinpoint.plugin.tomcat;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ServerTypeDetector;
+import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
 import com.navercorp.pinpoint.common.ServiceType;
 
@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.ServiceType;
  * @author HyunGil Jeong
  *
  */
-public class TomcatDetector implements ServerTypeDetector, TomcatConstants {
+public class TomcatDetector implements ApplicationTypeDetector, TomcatConstants {
     
     private static final String REQUIRED_MAIN_CLASS = "org.apache.catalina.startup.Bootstrap";
     

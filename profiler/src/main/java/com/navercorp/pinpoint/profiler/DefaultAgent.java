@@ -212,7 +212,7 @@ public class DefaultAgent implements Agent {
             logger.info("Loading plugin: {}", plugin.getClass().getName());
             
             DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(this);
-            plugin.setUp(context);
+            plugin.setup(context);
             pluginContexts.add(context);
         }
         

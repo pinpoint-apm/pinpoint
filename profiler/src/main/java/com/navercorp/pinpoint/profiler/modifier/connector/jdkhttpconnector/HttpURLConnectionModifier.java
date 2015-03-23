@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.profiler.modifier.connector.jdkhttpconnector;
 
 import java.security.ProtectionDomain;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
@@ -25,15 +28,13 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.jdkhttpconnector.interceptor.ConnectMethodInterceptor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * TODO Fix class loader issue.
  * @author netspider
  * 
  */
 public class HttpURLConnectionModifier extends AbstractModifier {
+    private final static String SCOPE = "HttpURLConnectoin";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -52,9 +53,22 @@ public class HttpURLConnectionModifier extends AbstractModifier {
 
         try {
             InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+            
             ConnectMethodInterceptor connectMethodInterceptor = new ConnectMethodInterceptor();
-            aClass.addInterceptor("connect", null, connectMethodInterceptor);
-
+            aClass.addScopeInterceptor("connect", null, connectMethodInterceptor, SCOPE);
+            
+            ConnectMethodInterceptor getInputStreamInterceptor = new ConnectMethodInterceptor();
+            aClass.addScopeInterceptor("getInputStream", null, getInputStreamInterceptor, SCOPE);
+            
+            ConnectMethodInterceptor getOutputStreamInterceptor = new ConnectMethodInterceptor();
+            aClass.addScopeInterceptor("getOutputStream", null, getOutputStreamInterceptor, SCOPE);
+            
+            aClass.addGetter("__isConnected", "connected", "boolean");
+            
+            if (aClass.hasField("connecting", "boolean")) {
+                aClass.addGetter("__isConnecting", "connecting", "boolean");
+            }
+            
             return aClass.toBytecode();
         } catch (InstrumentException e) {
             logger.warn("HttpURLConnectionModifier fail. Caused:", e.getMessage(), e);

@@ -138,10 +138,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             addModifier(new DefaultHttpMethodRetryHandlerModifier(byteCodeInstrumentor, agent));
         }
 
-        // JDK HTTPUrlConnector
-        HttpURLConnectionModifier httpURLConnectionModifier = new HttpURLConnectionModifier(byteCodeInstrumentor, agent);
-        addModifier(httpURLConnectionModifier);
-
         // ning async http client
         addModifier(new AsyncHttpClientModifier(byteCodeInstrumentor, agent));
 

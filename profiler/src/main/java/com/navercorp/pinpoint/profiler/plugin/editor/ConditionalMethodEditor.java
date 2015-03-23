@@ -17,20 +17,23 @@
 package com.navercorp.pinpoint.profiler.plugin.editor;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassCondition;
 
 public class ConditionalMethodEditor implements MethodEditor {
+    private final ProfilerPluginContext context;
     private final ClassCondition condition;
     private final MethodEditor delegate;
     
-    public ConditionalMethodEditor(ClassCondition condition, MethodEditor delegate) {
+    public ConditionalMethodEditor(ProfilerPluginContext context, ClassCondition condition, MethodEditor delegate) {
+        this.context = context;
         this.condition = condition;
         this.delegate = delegate;
     }
     
     @Override
     public void edit(ClassLoader classLoader, InstrumentClass target) throws Exception {
-        if (condition.check(classLoader, target)) {
+        if (condition.check(context, classLoader, target)) {
             delegate.edit(classLoader, target);
         }
     }

@@ -28,9 +28,9 @@ import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.ServerTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
@@ -39,7 +39,7 @@ import com.navercorp.pinpoint.profiler.plugin.editor.DefaultClassEditorBuilder;
 public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, ProfilerPluginContext {
     private final DefaultAgent agent;
     
-    private final List<ServerTypeDetector> serverTypeDetectors = new ArrayList<ServerTypeDetector>();
+    private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
     private final List<ClassEditor> classEditors = new ArrayList<ClassEditor>();
     
     private final ConcurrentMap<String, Object> attributeMap = new ConcurrentHashMap<String, Object>();
@@ -54,8 +54,8 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     }
 
     @Override
-    public ClassEditorBuilder newClassEditorBuilder() {
-        return new DefaultClassEditorBuilder(this);
+    public ClassEditorBuilder getClassEditorBuilder(String targetClassName) {
+        return new DefaultClassEditorBuilder(this, targetClassName);
     }
     
     @Override
@@ -137,8 +137,8 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     }
     
     @Override
-    public void addServerTypeDetector(ServerTypeDetector... detectors) {
-        for (ServerTypeDetector detector : detectors) {
+    public void addApplicationTypeDetector(ApplicationTypeDetector... detectors) {
+        for (ApplicationTypeDetector detector : detectors) {
             serverTypeDetectors.add(detector);
         }
     }
@@ -147,7 +147,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
         return classEditors;
     }
 
-    public List<ServerTypeDetector> getServerTypeDetectors() {
+    public List<ApplicationTypeDetector> getApplicationTypeDetectors() {
         return serverTypeDetectors;
     }
 }

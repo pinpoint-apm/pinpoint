@@ -57,7 +57,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     @Override
-    public void setUp(ProfilerPluginSetupContext context) {
+    public void setup(ProfilerPluginSetupContext context) {
         final RedisPluginConfig config = new RedisPluginConfig(context.getConfig());
         final boolean enabled = config.isEnabled();
         final boolean pipelineEnabled = config.isPipelineEnabled();
@@ -86,8 +86,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
     }
 
     private ClassEditorBuilder addJedisExtendedClassEditor(ProfilerPluginSetupContext context, RedisPluginConfig config, final String targetClassName) {
-        final ClassEditorBuilder classEditorBuilder = context.newClassEditorBuilder();
-        classEditorBuilder.target(targetClassName);
+        final ClassEditorBuilder classEditorBuilder = context.getClassEditorBuilder(targetClassName);
 
         final ConstructorEditorBuilder constructorEditorBuilderArg1 = classEditorBuilder.editConstructor(STRING);
         constructorEditorBuilderArg1.property(MethodEditorProperty.IGNORE_IF_NOT_EXIST);
@@ -125,8 +124,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
 
     // Client
     private void addJedisClientClassEditor(ProfilerPluginSetupContext context, RedisPluginConfig config) {
-        final ClassEditorBuilder classEditorBuilder = context.newClassEditorBuilder();
-        classEditorBuilder.target(JEDIS_CLIENT);
+        final ClassEditorBuilder classEditorBuilder = context.getClassEditorBuilder(JEDIS_CLIENT);
         classEditorBuilder.injectMetadata(METADATA_END_POINT);
 
         final ConstructorEditorBuilder constructorEditorBuilderArg1 = classEditorBuilder.editConstructor(STRING);
@@ -161,8 +159,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
     }
 
     private ClassEditorBuilder addJedisPipelineBaseExtendedClassEditor(ProfilerPluginSetupContext context, RedisPluginConfig config, String targetClassName) {
-        final ClassEditorBuilder classEditorBuilder = context.newClassEditorBuilder();
-        classEditorBuilder.target(targetClassName);
+        final ClassEditorBuilder classEditorBuilder = context.getClassEditorBuilder(targetClassName);
 
         final MethodEditorBuilder methodEditorBuilder = classEditorBuilder.editMethods(new NameBasedMethodFilter(JedisPipelineMethodNames.get()));
         methodEditorBuilder.exceptionHandler(new MethodEditorExceptionHandler() {

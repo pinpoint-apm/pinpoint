@@ -17,12 +17,12 @@ package com.navercorp.pinpoint.bootstrap.plugin;
 import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
 import com.navercorp.pinpoint.common.ServiceType;
 
+
 /**
  * @author Jongho Moon
- * @author HyunGil Jeong
  *
  */
-public interface ServerTypeDetector {
+public interface ApplicationTypeDetector {
     
     /**
      * Returns the {@link ServiceType} representing the current plugin, 

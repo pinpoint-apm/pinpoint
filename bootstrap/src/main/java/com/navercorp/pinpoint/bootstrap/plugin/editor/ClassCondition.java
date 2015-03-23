@@ -17,7 +17,8 @@
 package com.navercorp.pinpoint.bootstrap.plugin.editor;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 
 public interface ClassCondition {
-    boolean check(ClassLoader classLoader, InstrumentClass target);
+    boolean check(ProfilerPluginContext context, ClassLoader classLoader, InstrumentClass target);
 }

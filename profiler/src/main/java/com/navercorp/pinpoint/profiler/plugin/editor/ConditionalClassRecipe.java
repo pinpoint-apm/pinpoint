@@ -17,29 +17,24 @@
 package com.navercorp.pinpoint.profiler.plugin.editor;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassCondition;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.DedicatedClassEditor;
 
-public class ConditionalClassEditor implements DedicatedClassEditor {
+public class ConditionalClassRecipe implements ClassRecipe {
+    private final ProfilerPluginContext context;
     private final ClassCondition condition;
-    private final DedicatedClassEditor delegate;
+    private final ClassRecipe delegate;
     
-    public ConditionalClassEditor(ClassCondition condition, DedicatedClassEditor delegate) {
+    public ConditionalClassRecipe(ProfilerPluginContext context, ClassCondition condition, ClassRecipe delegate) {
+        this.context = context;
         this.condition = condition;
         this.delegate = delegate;
     }
-
+    
     @Override
-    public byte[] edit(ClassLoader classLoader, InstrumentClass target) {
-        if (condition.check(classLoader, target)) {
-            return delegate.edit(classLoader, target);
+    public void edit(ClassLoader classLoader, InstrumentClass target) throws Exception {
+        if (condition.check(context, classLoader, target)) {
+            delegate.edit(classLoader, target);
         }
-        
-        return null;
-    }
-
-    @Override
-    public String getTargetClassName() {
-        return delegate.getTargetClassName();
     }
 }

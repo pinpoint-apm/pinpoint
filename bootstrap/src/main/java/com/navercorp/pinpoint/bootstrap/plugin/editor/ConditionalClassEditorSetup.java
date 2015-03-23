@@ -12,15 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.test.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin.editor;
 
 /**
  * @author Jongho Moon
  *
  */
-public class ChildProcessException extends Exception {
-    public ChildProcessException(String message, StackTraceElement[] stackTrace) {
-        super(message);
-        setStackTrace(stackTrace);
-    }
+public interface ConditionalClassEditorSetup {
+    public void setup(ConditionalClassEditorBuilder conditional);
 }

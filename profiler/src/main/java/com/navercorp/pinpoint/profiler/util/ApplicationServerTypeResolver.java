@@ -24,7 +24,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ServerTypeDetector;
+import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.resolver.ApplicationServerTypePluginResolver;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
@@ -40,7 +40,7 @@ public class ApplicationServerTypeResolver {
 
     private final ServiceType defaultType;
     private final ApplicationServerTypePluginResolver resolver;
-    private final List<ServerTypeDetector> detectors = new ArrayList<ServerTypeDetector>();
+    private final List<ApplicationTypeDetector> detectors = new ArrayList<ApplicationTypeDetector>();
 
     public ApplicationServerTypeResolver(List<DefaultProfilerPluginContext> plugins, ServiceType defaultType, List<String> orderedDetectors) {
         if (isValidApplicationServerType(defaultType)) {
@@ -48,7 +48,7 @@ public class ApplicationServerTypeResolver {
         } else {
             this.defaultType = ServiceType.UNDEFINED;
         }
-        Map<String, ServerTypeDetector> registeredDetectors = getRegisteredServerTypeDetectors(plugins);
+        Map<String, ApplicationTypeDetector> registeredDetectors = getRegisteredServerTypeDetectors(plugins);
         for (String orderedDetector : orderedDetectors) {
             if (registeredDetectors.containsKey(orderedDetector)) {
                 this.detectors.add(registeredDetectors.remove(orderedDetector));
@@ -58,10 +58,10 @@ public class ApplicationServerTypeResolver {
         this.resolver = new ApplicationServerTypePluginResolver(this.detectors);
     }
     
-    private Map<String, ServerTypeDetector> getRegisteredServerTypeDetectors(List<DefaultProfilerPluginContext> plugins) {
-        Map<String, ServerTypeDetector> registeredDetectors = new HashMap<String, ServerTypeDetector>();
+    private Map<String, ApplicationTypeDetector> getRegisteredServerTypeDetectors(List<DefaultProfilerPluginContext> plugins) {
+        Map<String, ApplicationTypeDetector> registeredDetectors = new HashMap<String, ApplicationTypeDetector>();
         for (DefaultProfilerPluginContext context : plugins) {
-            for (ServerTypeDetector detector : context.getServerTypeDetectors()) {
+            for (ApplicationTypeDetector detector : context.getApplicationTypeDetectors()) {
                 registeredDetectors.put(detector.getClass().getName(), detector);
             }
         }

@@ -26,6 +26,8 @@ import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassCondition;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ConditionalClassEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ConditionalClassEditorSetup;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ConstructorEditorBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.DedicatedClassEditor;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorBuilder;
@@ -38,31 +40,34 @@ import com.navercorp.pinpoint.profiler.plugin.MetadataInjector;
 import com.navercorp.pinpoint.profiler.plugin.interceptor.AnnotatedInterceptorInjector;
 import com.navercorp.pinpoint.profiler.plugin.interceptor.TargetAnnotatedInterceptorInjector;
 
-public class DefaultClassEditorBuilder implements ClassEditorBuilder {
+public class DefaultClassEditorBuilder implements ClassEditorBuilder, ConditionalClassEditorBuilder, RecipeBuilder<ClassRecipe> {
     private final DefaultProfilerPluginContext pluginContext;
     
     private final List<ClassRecipe> recipes = new ArrayList<ClassRecipe>();
     private final List<RecipeBuilder<ClassRecipe>> recipeBuilders = new ArrayList<RecipeBuilder<ClassRecipe>>();
     
-    private String targetClassName;
-    private ClassCondition condition;
+    private final ClassCondition condition;
+    private final String targetClassName;
 
-    public DefaultClassEditorBuilder(DefaultProfilerPluginContext pluginContext) {
-        this.pluginContext = pluginContext;
-    }
-
-    @Override
-    public void target(String targetClassName) {
-        this.targetClassName = targetClassName;
+    public DefaultClassEditorBuilder(DefaultProfilerPluginContext pluginContext, String targetClassName) {
+        this(pluginContext, targetClassName, null);
     }
     
-    @Override
-    public void condition(ClassCondition condition) {
+    private DefaultClassEditorBuilder(DefaultProfilerPluginContext pluginContext, String targetClassName, ClassCondition condition) {
+        this.pluginContext = pluginContext;
+        this.targetClassName = targetClassName;
         this.condition = condition;
     }
+
+    @Override
+    public void conditional(ClassCondition condition, ConditionalClassEditorSetup describer) {
+        DefaultClassEditorBuilder conditional = new DefaultClassEditorBuilder(pluginContext, targetClassName, condition);
+        describer.setup(conditional);
+        recipeBuilders.add(conditional);
+    }
     
     @Override
-    public void injectFieldSnooper(String fieldName) {
+    public void injectFieldAccessor(String fieldName) {
         FieldAccessor snooper = pluginContext.allocateFieldSnooper(fieldName);
         recipes.add(new FieldSnooperInjector(snooper, fieldName));
     }
@@ -113,25 +118,14 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
     @Override
     public DedicatedClassEditor build() {
         ClassRecipe recipe = buildClassRecipe(); 
-        DedicatedClassEditor editor = buildClassEditor(recipe);
-        
-        return editor;
-    }
-
-    private DedicatedClassEditor buildClassEditor(ClassRecipe recipe) {
-        DedicatedClassEditor editor = new DefaultDedicatedClassEditor(targetClassName, recipe);
-        
-        if (condition != null) {
-            editor = new ConditionalClassEditor(condition, editor);
-        }
-        return editor;
+        return new DefaultDedicatedClassEditor(targetClassName, recipe);
     }
 
     private ClassRecipe buildClassRecipe() {
         List<ClassRecipe> recipes = new ArrayList<ClassRecipe>(this.recipes);
         
         for (RecipeBuilder<ClassRecipe> builder : recipeBuilders) {
-            recipes.add(builder.build());
+            recipes.add(builder.buildRecipe());
         }
         
         if (recipes.isEmpty()) {
@@ -142,9 +136,18 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
         return recipe;
     }
     
-    private interface RecipeBuilder<T> {
-        public T build();
+    @Override
+    public ClassRecipe buildRecipe() {
+        if (condition == null) {
+            throw new IllegalStateException();
+        }
+        
+        ClassRecipe recipe = buildClassRecipe();
+        return new ConditionalClassRecipe(pluginContext, condition, recipe);
     }
+
+
+
 
     private class TargetAnnotatedInterceptorInjectorBuilder implements RecipeBuilder<ClassRecipe> {
         private final String interceptorClassName;
@@ -156,7 +159,7 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
         }
 
         @Override
-        public ClassRecipe build() {
+        public ClassRecipe buildRecipe() {
             return new TargetAnnotatedInterceptorInjector(pluginContext, interceptorClassName, constructorArguments);
         }
     }
@@ -171,7 +174,7 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
         }
 
         @Override
-        public MethodRecipe build() {
+        public MethodRecipe buildRecipe() {
             return new AnnotatedInterceptorInjector(pluginContext, interceptorClassName, constructorArguments);
         }
     }
@@ -182,7 +185,6 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
         private final MethodFilter filter;
         private final List<RecipeBuilder<MethodRecipe>> recipeBuilders = new ArrayList<RecipeBuilder<MethodRecipe>>();
         private final EnumSet<MethodEditorProperty> properties = EnumSet.noneOf(MethodEditorProperty.class);
-        private ClassCondition condition;
         private MethodEditorExceptionHandler exceptionHandler;
 
         private DefaultMethodEditorBuilder(String... parameterTypeNames) {
@@ -204,11 +206,6 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
         }
 
         @Override
-        public void condition(ClassCondition condition) {
-            this.condition = condition;
-        }
-        
-        @Override
         public void property(MethodEditorProperty... properties) {
             this.properties.addAll(Arrays.asList(properties));
         }
@@ -223,7 +220,8 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
             this.exceptionHandler = handler;
         }
 
-        public MethodEditor build() {
+        @Override
+        public MethodEditor buildRecipe() {
             List<MethodRecipe> recipes = buildMethodRecipe();
             MethodEditor editor = buildMethodEditor(recipes);
             
@@ -240,10 +238,6 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
                 editor = new ConstructorEditor(parameterTypeNames, recipes, exceptionHandler, properties.contains(MethodEditorProperty.IGNORE_IF_NOT_EXIST));
             }
             
-            if (condition != null) {
-                editor = new ConditionalMethodEditor(condition, editor);
-            }
-            
             return editor;
         }
 
@@ -256,7 +250,7 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder {
             List<MethodRecipe> recipes = new ArrayList<MethodRecipe>(recipeBuilders.size());
             
             for (RecipeBuilder<MethodRecipe> builder : recipeBuilders) {
-                recipes.add(builder.build());
+                recipes.add(builder.buildRecipe());
             }
             
             return recipes;
