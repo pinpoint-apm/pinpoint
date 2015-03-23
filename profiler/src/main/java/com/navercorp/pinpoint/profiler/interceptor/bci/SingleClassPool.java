@@ -29,14 +29,14 @@ public class SingleClassPool implements MultipleClassPool {
 
     private static final Object EXIST = new Object();
 
-    private final NamedClassPool childClassPool;
+    private final NamedClassPool classPool;
 
     private final ConcurrentMap<ClassLoader, Object> checker = createWeakConcurrentMap();
 
 
     public SingleClassPool() {
-        this.childClassPool = new NamedClassPool("singlePool");
-        this.childClassPool.appendSystemPath();
+        this.classPool = new NamedClassPool("singlePool");
+        this.classPool.appendSystemPath();
     }
 
     private ConcurrentMap<ClassLoader, Object>createWeakConcurrentMap() {
@@ -49,17 +49,17 @@ public class SingleClassPool implements MultipleClassPool {
     public NamedClassPool getClassPool(ClassLoader classLoader) {
         final Object hit = this.checker.get(classLoader);
         if (hit != null) {
-            return childClassPool;
+            return classPool;
         }
 
         final ClassPath classPath = new LoaderClassPath(classLoader);
-        synchronized (childClassPool) {
+        synchronized (classPool) {
             Object exist = checker.putIfAbsent(classLoader, EXIST);
             if (exist != null) {
-                return childClassPool;
+                return classPool;
             }
-            this.childClassPool.appendClassPath(classPath);
-            return childClassPool;
+            this.classPool.appendClassPath(classPath);
+            return classPool;
         }
 
     }

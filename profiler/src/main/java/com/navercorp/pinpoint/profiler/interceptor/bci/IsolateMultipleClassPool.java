@@ -34,20 +34,37 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
 
     private static final AtomicInteger ID = new AtomicInteger();
 
+    private static final ClassLoader AGENT_CLASS_LOADER = IsolateMultipleClassPool.class.getClassLoader();
+
     private final NamedClassPool standardClassPool;
 
     private final ConcurrentMap<ClassLoader, NamedClassPool> classMap;
 
     private final EventListener eventListener;
 
+    public static final boolean DEFAULT_CHILD_FIRST_LOOKUP = false;
+    private final boolean childFirstLookup;
 
-    public IsolateMultipleClassPool() {
-        this.standardClassPool = createSystemClassPool(null);
-        this.classMap = createWeakConcurrentMap();
-        this.eventListener = null;
+
+    public static final EventListener EMPTY_EVENT_LISTENER = new EventListener() {
+        @Override
+        public void onCreateClassPool(ClassLoader classLoader, NamedClassPool classPool) {
+        }
+    };
+
+    interface EventListener {
+        void onCreateClassPool(ClassLoader classLoader, NamedClassPool classPool);
     }
 
     public IsolateMultipleClassPool(EventListener eventListener, String bootStrapJarPath) {
+        this(DEFAULT_CHILD_FIRST_LOOKUP, eventListener, bootStrapJarPath);
+    }
+
+    public IsolateMultipleClassPool() {
+        this(DEFAULT_CHILD_FIRST_LOOKUP, EMPTY_EVENT_LISTENER, null);
+    }
+
+    public IsolateMultipleClassPool(boolean childFirstLookup, EventListener eventListener, String bootStrapJarPath) {
         if (eventListener == null) {
             throw new NullPointerException("eventListener must not be null");
         }
@@ -55,6 +72,7 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
         this.standardClassPool = createSystemClassPool(bootStrapJarPath);
         this.classMap = createWeakConcurrentMap();
         this.eventListener = eventListener;
+        this.childFirstLookup = childFirstLookup;
     }
 
 
@@ -82,6 +100,10 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
         if (ClassLoaderUtils.isStandardClassLoader(classLoader)) {
             return standardClassPool;
         }
+
+        if (AGENT_CLASS_LOADER == classLoader ){
+            throw new IllegalArgumentException("unexpectected classLoader access. classLoader:" + classLoader);
+        }
         final NamedClassPool hit = this.classMap.get(classLoader);
         if (hit != null) {
             return hit;
@@ -100,23 +122,19 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
     }
 
     private void fireOnCreateClassPool(ClassLoader classLoader, NamedClassPool classPool) {
-        final EventListener eventListener = this.eventListener;
-        if (eventListener != null) {
-            eventListener.onCreateClassPool(classLoader, classPool);
-        }
+        eventListener.onCreateClassPool(classLoader, classPool);
     }
 
 
     private NamedClassPool createClassPool(ClassLoader classLoader) {
         String classLoaderName = classLoader.toString();
         NamedClassPool newClassPool = new NamedClassPool(standardClassPool, classLoaderName + "-" + getNextId());
+        if (childFirstLookup) {
+            newClassPool.childFirstLookup = true;
+        }
 
         final ClassPath classPath = new LoaderClassPath(classLoader);
         newClassPool.appendClassPath(classPath);
-
-//        newClassPool.appendClassPath(new LoaderClassPath(this.getClass().getClassLoader()));
-
-        newClassPool.appendSystemPath();
 
         return newClassPool;
     }
@@ -130,8 +148,8 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
         return this.classMap.size();
     }
 
-
-    public Collection<NamedClassPool> values() {
+    // for Test
+    Collection<NamedClassPool> values() {
         return classMap.values();
     }
 
@@ -142,5 +160,6 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
         sb.append('}');
         return sb.toString();
     }
+
 
 }

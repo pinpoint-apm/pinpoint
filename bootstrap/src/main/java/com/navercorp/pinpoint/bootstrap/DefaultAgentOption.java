@@ -43,9 +43,9 @@ public class DefaultAgentOption implements AgentOption {
         if (pluginJars == null) {
             throw new NullPointerException("pluginJars must not be null");
         }
-        if (bootStrapJarPath == null) {
-            throw new NullPointerException("bootStrapJarPath must not be null");
-        }
+//        if (bootStrapJarPath == null) {
+//            throw new NullPointerException("bootStrapJarPath must not be null");
+//        }
         if (serviceTypeRegistryService == null) {
             throw new NullPointerException("serviceTypeRegistryService must not be null");
         }

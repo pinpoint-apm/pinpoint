@@ -68,7 +68,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     private final InterceptorRegistryBinder interceptorRegistryBinder;
     private ClassFileRetransformer retransformer = null;
 
-    private final MultipleClassPool.EventListener eventListener =  new MultipleClassPool.EventListener() {
+    private final IsolateMultipleClassPool.EventListener eventListener =  new IsolateMultipleClassPool.EventListener() {
         @Override
         public void onCreateClassPool(ClassLoader classLoader, NamedClassPool classPool) {
             dumpClassLoaderLibList(classLoader, classPool);

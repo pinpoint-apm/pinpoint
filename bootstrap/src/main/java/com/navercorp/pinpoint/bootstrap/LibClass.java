@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.interceptor.bci;
-
-import javassist.ClassPool;
+package com.navercorp.pinpoint.bootstrap;
 
 /**
  * @author emeroad
  */
-public interface MultipleClassPool {
+public interface LibClass {
 
-    NamedClassPool getClassPool(ClassLoader classLoader);
+    boolean ON_LOAD_CLASS = true;
+    boolean DELEGATE_PARENT = false;
 
+    boolean onLoadClass(String clazzName);
 }
