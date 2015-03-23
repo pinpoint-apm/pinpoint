@@ -50,8 +50,9 @@ public class ApplicationServerTypeResolver {
         }
         Map<String, ServerTypeDetector> registeredDetectors = getRegisteredServerTypeDetectors(plugins);
         for (String orderedDetector : orderedDetectors) {
-            if (registeredDetectors.containsKey(orderedDetector));
-            this.detectors.add(registeredDetectors.remove(orderedDetector));
+            if (registeredDetectors.containsKey(orderedDetector)) {
+                this.detectors.add(registeredDetectors.remove(orderedDetector));
+            }
         }
         this.detectors.addAll(registeredDetectors.values());
         this.resolver = new ApplicationServerTypePluginResolver(this.detectors);
