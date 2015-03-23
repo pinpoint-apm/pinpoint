@@ -93,4 +93,10 @@ public interface RecordableTrace {
     void recordAcceptorHost(String host);
 
     int getStackFrameId();
+
+    Object getAttribute(String key);
+    
+    Object setAttribute(String key, Object value);
+    
+    Object removeAttribute(String key);
 }

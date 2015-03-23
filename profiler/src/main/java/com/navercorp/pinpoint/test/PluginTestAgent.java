@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import org.apache.thrift.TBase;
 
 import com.google.common.base.Objects;
@@ -40,6 +38,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
+import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.Span;
@@ -107,7 +107,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         ServiceType expectedType = findServiceType(serviceTypeName);
         ServiceType actualType = getAgentInformation().getServerType();
         
-        if (expectedType != actualType) {
+        if (!expectedType.equals(actualType)) {
             throw new AssertionError("Expected server type: " + expectedType.getName() + "[" + expectedType.getCode() + "] but was " + actualType + "[" + actualType.getCode() + "]");
         }
     }
@@ -195,7 +195,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     public void verifySpanEvent(String serviceTypeName, Method method, String rpc, String endPoint, String destinationId, ExpectedAnnotation... annotations) {
         ServiceType serviceType = findServiceType(serviceTypeName);
         int apiId = findApiId(method);
-        Expected expected = new Expected(Span.class, serviceType, apiId, rpc, endPoint, null, destinationId, annotations);
+        Expected expected = new Expected(SpanEvent.class, serviceType, apiId, rpc, endPoint, null, destinationId, annotations);
         verifySpan(expected);
     }
     

@@ -20,9 +20,14 @@ package com.navercorp.pinpoint.profiler.interceptor.bci;
  */
 public class TestObject3 {
     private String value;
+    private int intValue;
 
     public void setValue(String value) {
         this.value = value;
+    }
+    
+    public void setIntValue(int value) {
+        this.intValue = value;
     }
 
     @Override

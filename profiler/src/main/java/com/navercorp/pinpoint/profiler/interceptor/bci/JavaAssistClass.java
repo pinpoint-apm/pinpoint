@@ -974,14 +974,49 @@ public class JavaAssistClass implements InstrumentClass {
         }
         
         try {
-            CtMethod getterMethod = CtNewMethod.make("public " + getter.getReturnType().getName() + " " + getter.getName() + "() { return " + fieldName + "; }", ctClass);
+            CtField field = ctClass.getField(fieldName);
+            String expression;
+            
+            if (field.getType().isPrimitive()) {
+                String fieldType = field.getType().getName();
+                String wrapperType = getWrapperClassName(fieldType);
+                expression = wrapperType + ".valueOf(" + fieldName + ")";
+            } else {
+                expression = fieldName;
+            }
+            
+            CtMethod getterMethod = CtNewMethod.make("public " + getter.getReturnType().getName() + " " + getter.getName() + "() { return " + expression + "; }", ctClass);
             ctClass.addMethod(getterMethod);
         
             CtClass ctInterface = instrumentor.getClass(interfaceType.getClassLoader(), interfaceType.getName());
             ctClass.addInterface(ctInterface);
+        } catch (NotFoundException ex) {
+            throw new InstrumentException("Failed to add getter. No such field: " + fieldName, ex);
         } catch (Exception e) {
             // Cannot happen. Reaching here means a bug.   
             throw new InstrumentException("Fail to add getter: " + interfaceType.getName(), e);
         }
+    }
+    
+    private String getWrapperClassName(String primitiveType) {
+        if ("boolean".equals(primitiveType)) {
+            return "java.lang.Boolean";
+        } else if ("byte".equals(primitiveType)) {
+            return "java.lang.Byte";
+        } else if ("short".equals(primitiveType)) {
+            return "java.lang.Short";
+        } else if ("int".equals(primitiveType)) {
+            return "java.lang.Integer";
+        } else if ("long".equals(primitiveType)) {
+            return "java.lang.Long";
+        } else if ("float".equals(primitiveType)) {
+            return "java.lang.Float";
+        } else if ("double".equals(primitiveType)) {
+            return "java.lang.Double";
+        } else if ("void".equals(primitiveType)) {
+            return "java.lang.Void";
+        }
+
+        throw new IllegalArgumentException(primitiveType);
     }
 }

@@ -22,6 +22,7 @@ import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,12 +36,22 @@ public class PluginClassLoaderFactory {
 
     private final URL[] pluginJars;
     private final ConcurrentHashMap<ClassLoader, ClassLoader> cache = new ConcurrentHashMap<ClassLoader, ClassLoader>();
+    private final AtomicReference<ClassLoader> forBootstrapClassLoader = new AtomicReference<ClassLoader>();
     
     public PluginClassLoaderFactory(URL[] pluginJars) {
         this.pluginJars = pluginJars;
     }
     
-    public ClassLoader get(ClassLoader loader) { 
+    public ClassLoader get(ClassLoader loader) {
+        if (loader == null) {
+            // boot class loader
+            return getForBootstrap();
+        } else {
+            return getForPlain(loader);
+        }
+    }
+    
+    private ClassLoader getForPlain(ClassLoader loader) {
         final ClassLoader forPlugin = cache.get(loader);
         if (forPlugin != null) {
             return forPlugin;
@@ -50,10 +61,30 @@ public class PluginClassLoaderFactory {
         final ClassLoader before = cache.putIfAbsent(loader, newInstance);
         if (before == null) {
             return newInstance;
-        }
-        else {
+        } else {
             close (newInstance);
             return before;
+        }
+    }
+    
+    private ClassLoader getForBootstrap() {
+        final ClassLoader forPlugin = forBootstrapClassLoader.get();
+        
+        if (forPlugin != null) {
+            return forPlugin;
+        }
+        
+        // Strictly, should pass null as parent class loader.
+        // But if so, All the types used by interceptors have to be loaded by bootstrap class loader.
+        // So we use system class loader as parent.
+        final ClassLoader newInstance = createPluginClassLoader(pluginJars, ClassLoader.getSystemClassLoader());
+        boolean success = forBootstrapClassLoader.compareAndSet(null, newInstance);
+
+        if (success) {
+            return newInstance;
+        } else {
+            close (newInstance);
+            return forBootstrapClassLoader.get();
         }
     }
 

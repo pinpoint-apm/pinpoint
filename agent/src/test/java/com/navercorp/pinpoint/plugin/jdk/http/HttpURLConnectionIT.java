@@ -12,14 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.modifier.connector.jdkhttpconnector;
+package com.navercorp.pinpoint.plugin.jdk.http;
 
+import static com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation.*;
+
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 
@@ -35,8 +40,15 @@ public class HttpURLConnectionIT {
     public void test() throws Exception {
         URL url = new URL("http://www.naver.com");
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+        connection.getHeaderFields();
         
-        System.out.println(connection.getHeaderFields());
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        
+        Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
+        Method getInputStream = targetClass.getMethod("getInputStream");
+        
+        verifier.verifySpanCount(1);
+        verifier.verifySpanEvent("JDK_HTTPURLCONNECTOR", getInputStream, null, null, "www.naver.com", annotation("http.url", "http://www.naver.com"));
     }
     
     @Test
@@ -45,7 +57,16 @@ public class HttpURLConnectionIT {
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
         
         connection.connect();
-        connection.connect();
+        connection.getInputStream();
+        
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printSpans(System.out);
+        
+        Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
+        Method connect = targetClass.getMethod("connect");
+        
+        verifier.verifySpanCount(1);
+        verifier.verifySpanEvent("JDK_HTTPURLCONNECTOR", connect, null, null, "www.naver.com", annotation("http.url", "http://www.naver.com"));
     }
     
 }

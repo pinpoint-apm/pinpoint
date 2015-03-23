@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ServerTypeDetector;
+import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.common.ServiceType;
 
 /**
@@ -35,29 +35,29 @@ public class ApplicationServerTypePluginResolver {
 
     private final Logger logger = Logger.getLogger(ApplicationServerTypePluginResolver.class.getName());
 
-    private final List<ServerTypeDetector> serverTypeDetectors;
+    private final List<ApplicationTypeDetector> applicationTypeDetectors;
     
     private final ConditionProvider conditionProvider;
     
     private static final ServiceType DEFAULT_SERVER_TYPE = ServiceType.STAND_ALONE;
     
-    public ApplicationServerTypePluginResolver(List<ServerTypeDetector> serverTypeDetectors) {
+    public ApplicationServerTypePluginResolver(List<ApplicationTypeDetector> serverTypeDetectors) {
         this(serverTypeDetectors, ConditionProvider.DEFAULT_CONDITION_PROVIDER);
     }
     
-    public ApplicationServerTypePluginResolver(List<ServerTypeDetector> serverTypeDetectors, ConditionProvider conditionProvider) {
+    public ApplicationServerTypePluginResolver(List<ApplicationTypeDetector> serverTypeDetectors, ConditionProvider conditionProvider) {
         if (serverTypeDetectors == null) {
-            throw new IllegalArgumentException("serverTypeDetectors should not be null");
+            throw new IllegalArgumentException("applicationTypeDetectors should not be null");
         }
         if (conditionProvider == null) {
             throw new IllegalArgumentException("conditionProvider should not be null");
         }
-        this.serverTypeDetectors = serverTypeDetectors;
+        this.applicationTypeDetectors = serverTypeDetectors;
         this.conditionProvider = conditionProvider;
     }
 
     public ServiceType resolve() {
-        for (ServerTypeDetector currentDetector : this.serverTypeDetectors) {
+        for (ApplicationTypeDetector currentDetector : this.applicationTypeDetectors) {
             logger.log(Level.INFO, "Attempting to resolve using " + currentDetector.getClass());
             if (currentDetector.detect(this.conditionProvider)) {
                 logger.log(Level.INFO, "Match found using " + currentDetector.getClass().getSimpleName());

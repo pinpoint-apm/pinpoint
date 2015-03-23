@@ -149,6 +149,66 @@ public class ServiceType {
     public String toString() {
         return desc;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        
+        if (obj == null) {
+            return false;
+        }
+        
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        
+        ServiceType other = (ServiceType) obj;
+        if (code != other.code) {
+            return false;
+        }
+        if (desc == null) {
+            if (other.desc != null) {
+                return false;
+            }
+        } else if (!desc.equals(other.desc)) {
+            return false;
+            
+        }
+        
+        if (histogramSchema == null) {
+            if (other.histogramSchema != null) {
+                return false;
+            }
+        } else if (!histogramSchema.equals(other.histogramSchema)) {
+            return false;
+        }
+        
+        if (includeDestinationId != other.includeDestinationId) {
+            return false;
+        }
+        
+        if (name == null) {
+            if (other.name != null) {
+                return false;
+            }
+        } else if (!name.equals(other.name)) {
+            return false;
+        }
+        
+        if (recordStatistics != other.recordStatistics) {
+            return false;
+        }
+        
+        if (terminal != other.terminal) {
+            return false;
+        }
+        
+        return true;
+    }
+
+
 
     // Undefined Service Code
     public static final ServiceType UNDEFINED = of(-1, "UNDEFINED", NORMAL_SCHEMA, TERMINAL);
@@ -215,7 +275,7 @@ public class ServiceType {
     // Connector, Client
     public static final ServiceType HTTP_CLIENT = of(9050, "HTTP_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
     public static final ServiceType HTTP_CLIENT_INTERNAL = of(9051, "HTTP_CLIENT_INTERNAL", "HTTP_CLIENT", NORMAL_SCHEMA);
-    public static final ServiceType JDK_HTTPURLCONNECTOR = of(9055, "JDK_HTTPURLCONNECTOR", "JDK_HTTPCONNECTOR", NORMAL_SCHEMA);
+//    public static final ServiceType JDK_HTTPURLCONNECTOR = of(9055, "JDK_HTTPURLCONNECTOR", "JDK_HTTPCONNECTOR", NORMAL_SCHEMA);
     public static final ServiceType NPC_CLIENT = of(9060, "NPC_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
     public static final ServiceType NIMM_CLIENT = of(9070, "NIMM_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
 
