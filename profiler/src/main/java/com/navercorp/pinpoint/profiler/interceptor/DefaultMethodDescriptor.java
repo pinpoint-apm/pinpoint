@@ -43,6 +43,8 @@ public class DefaultMethodDescriptor implements MethodDescriptor {
     private int apiId = 0;
 
     private String fullName;
+    
+    private int type = 0;
 
     public DefaultMethodDescriptor() {
     }
@@ -148,19 +150,38 @@ public class DefaultMethodDescriptor implements MethodDescriptor {
         return apiId;
     }
 
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
 
     @Override
     public String toString() {
-        return "DefaultMethodDescriptor{" +
-                "className='" + className + '\'' +
-                ", methodName='" + methodName + '\'' +
-                ", parameterTypes=" + (parameterTypes == null ? null : Arrays.asList(parameterTypes)) +
-                ", parameterVariableName=" + (parameterVariableName == null ? null : Arrays.asList(parameterVariableName)) +
-                ", parameterDescriptor='" + parameterDescriptor + '\'' +
-                ", apiDescriptor='" + apiDescriptor + '\'' +
-                ", lineNumber=" + lineNumber +
-                ", apiId=" + apiId +
-                ", fullName='" + fullName + '\'' +
-                '}';
+        StringBuilder builder = new StringBuilder();
+        builder.append("{className=");
+        builder.append(className);
+        builder.append(", methodName=");
+        builder.append(methodName);
+        builder.append(", parameterTypes=");
+        builder.append(Arrays.toString(parameterTypes));
+        builder.append(", parameterVariableName=");
+        builder.append(Arrays.toString(parameterVariableName));
+        builder.append(", parameterDescriptor=");
+        builder.append(parameterDescriptor);
+        builder.append(", apiDescriptor=");
+        builder.append(apiDescriptor);
+        builder.append(", lineNumber=");
+        builder.append(lineNumber);
+        builder.append(", apiId=");
+        builder.append(apiId);
+        builder.append(", fullName=");
+        builder.append(fullName);
+        builder.append(", type=");
+        builder.append(type);
+        builder.append("}");
+        return builder.toString();
     }
 }

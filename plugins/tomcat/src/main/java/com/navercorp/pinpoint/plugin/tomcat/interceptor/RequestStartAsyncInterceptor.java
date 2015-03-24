@@ -36,6 +36,5 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
         } catch (Throwable t) {
             logger.warn("Failed to after process. {}", t.getMessage(), t);
         }
-
     }
 }

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.util.TimeUtils;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
 public class ApiMetaDataBo {
     private String agentId;
@@ -32,6 +33,7 @@ public class ApiMetaDataBo {
 
     private String apiInfo;
     private int lineNumber;
+    private int type;
 
     public ApiMetaDataBo() {
     }
@@ -86,6 +88,14 @@ public class ApiMetaDataBo {
     public void setLineNumber(int lineNumber) {
         this.lineNumber = lineNumber;
     }
+    
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
 
     public void readRowKey(byte[] bytes) {
         this.agentId = BytesUtils.safeTrim(BytesUtils.toString(bytes, 0, PinpointConstants.AGENT_NAME_MAX_LEN));
@@ -115,5 +125,4 @@ public class ApiMetaDataBo {
                 ", lineNumber=" + lineNumber +
                 '}';
     }
-
 }

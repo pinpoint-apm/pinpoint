@@ -54,7 +54,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
                 return;
             }
             trace.traceBlockBegin();
-            //------------------------------------------------------
+            // ------------------------------------------------------
             doInBeforeTrace(trace, target, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -82,7 +82,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
         if (!trace.canSampled()) {
             return;
         }
-        //------------------------------------------------------
+        // ------------------------------------------------------
         try {
             doInAfterTrace(trace, target, args, result, throwable);
         } catch (Throwable th) {
@@ -91,12 +91,13 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
             }
         } finally {
             trace.traceBlockEnd();
-            //trace.traceRootBlockEnd();
+            deleteTrace(trace, target, args, result, throwable);
         }
     }
 
     protected abstract void doInAfterTrace(final RecordableTrace trace, final Object target, final Object[] args, final Object result, Throwable throwable);
 
+    protected abstract void deleteTrace(final Trace trace, final Object target, final Object[] args, final Object result, Throwable throwable);
 
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {

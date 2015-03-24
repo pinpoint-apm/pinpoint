@@ -1,9 +1,5 @@
 package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.catalina.connector.Request;
-
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -20,29 +16,33 @@ public class RequestRecycleInterceptor implements SimpleAroundInterceptor, Tomca
     private PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     private MethodInfo targetMethod;
+    private MetadataAccessor traceAccessor;
     private MetadataAccessor asyncAccessor;
 
-    public RequestRecycleInterceptor(TraceContext context, @Cached MethodInfo targetMethod, @Name(METADATA_ASYNC) MetadataAccessor asyncAccessor) {
+    public RequestRecycleInterceptor(TraceContext context, @Cached MethodInfo targetMethod, @Name(METADATA_TRACE) MetadataAccessor traceAccessor, @Name(METADATA_ASYNC) MetadataAccessor asyncAccessor) {
         this.targetMethod = targetMethod;
+        this.traceAccessor = traceAccessor;
         this.asyncAccessor = asyncAccessor;
     }
 
     @Override
     public void before(Object target, Object[] args) {
         logger.beforeInterceptor(target, target.getClass().getName(), targetMethod.getName(), "", args);
-
         try {
-            final Request request = (Request) target;
             if (asyncAccessor.isApplicable(target)) {
+                // reset
                 asyncAccessor.set(target, Boolean.FALSE);
             }
 
-            if (request.getAttribute("PINPOINT_TRACE") != null) {
-                Trace trace = (Trace) request.getAttribute("PINPOINT_TRACE");
-                if (trace.canSampled()) {
+            if (traceAccessor.isApplicable(target) && traceAccessor.get(target) != null) {
+                Trace trace = traceAccessor.get(target);
+                if (trace != null && trace.canSampled()) {
+                    // end of root span
                     trace.markAfterTime();
                     trace.traceRootBlockEnd();
                 }
+                // reset
+                traceAccessor.set(target, null);
             }
         } catch (Throwable t) {
             logger.warn("Failed to before process. {}", t.getMessage(), t);

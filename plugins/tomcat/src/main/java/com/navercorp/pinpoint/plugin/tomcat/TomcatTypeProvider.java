@@ -26,6 +26,6 @@ public class TomcatTypeProvider implements TypeProvider, TomcatConstants {
     @Override
     public void setUp(TypeSetupContext context) {
         context.addType(TOMCAT);
+        context.addType(TOMCAT_METHOD);
     }
-
 }

@@ -129,7 +129,9 @@ public class AnnotationKey {
     public static final AnnotationKey NIMM_METHOD_NAME = new AnnotationKey(71, "nimm.methodName");
     public static final AnnotationKey NIMM_PARAM = new AnnotationKey(72, "nimm.param");
     public static final AnnotationKey NIMM_CONNECT_OPTION = new AnnotationKey(73, "nimm.connect.options");
-    
+
+    public static final AnnotationKey API_TAG = new AnnotationKey(10015, "API-TAG");
+  
     public static final AnnotationKey ARGS0 = new AnnotationKey(-1, "args[0]");
     public static final AnnotationKey ARGS1 = new AnnotationKey(-2, "args[1]");
     public static final AnnotationKey ARGS2 = new AnnotationKey(-3, "args[2]");

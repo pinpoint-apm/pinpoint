@@ -54,6 +54,7 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
 
     private void addRequestEditor(ProfilerPluginSetupContext context) {
         ClassEditorBuilder builder = context.newClassEditorBuilder();
+        builder.injectMetadata(METADATA_TRACE);
         builder.injectMetadata(METADATA_ASYNC);
         builder.target("org.apache.catalina.connector.Request");
         
@@ -64,7 +65,6 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
         startAsyncMethodEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestStartAsyncInterceptor");
         
         context.addClassEditor(builder.build());
-        
     }
 
     private void addCoyoteAdapterEditor(ProfilerPluginSetupContext context) {
@@ -94,6 +94,7 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
     }
 
     private void addStandardHostValveEditor(ProfilerPluginSetupContext context, TomcatConfiguration config) {
+        
         ClassEditorBuilder builder = context.newClassEditorBuilder();
         builder.target("org.apache.catalina.core.StandardHostValve");
         builder.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor", config.getTomcatExcludeUrlFilter());

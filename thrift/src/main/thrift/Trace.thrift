@@ -148,6 +148,8 @@ struct TApiMetaData {
   4: i32 apiId,
   5: string apiInfo,
   6: optional i32 line,
+  
+  10: optional i32 type;
 }
 
 struct TResult {

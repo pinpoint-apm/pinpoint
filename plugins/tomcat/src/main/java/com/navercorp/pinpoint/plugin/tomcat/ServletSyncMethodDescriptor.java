@@ -6,6 +6,7 @@ public class ServletSyncMethodDescriptor implements MethodDescriptor {
     private static final String CLASS_NAME = "";
     private static final String METHOD_NAME = "Tomcat";
     private int apiId = 0;
+    private int type = 200;
 
     @Override
     public String getMethodName() {
@@ -55,5 +56,13 @@ public class ServletSyncMethodDescriptor implements MethodDescriptor {
     @Override
     public String getApiDescriptor() {
         return ".Tomcat Servlet Process()";
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }

@@ -6,6 +6,7 @@ public class ServletAsyncMethodDescriptor implements MethodDescriptor {
     private static final String CLASS_NAME = "";
     private static final String METHOD_NAME = "Tomcat";
     private int apiId = 0;
+    private int type = 500;
 
     @Override
     public String getMethodName() {
@@ -55,5 +56,13 @@ public class ServletAsyncMethodDescriptor implements MethodDescriptor {
     @Override
     public String getApiDescriptor() {
         return ".Tomcat Servlet Asynchronous Process()";
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }

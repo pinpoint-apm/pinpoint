@@ -215,6 +215,7 @@ public class DefaultTraceContext implements TraceContext {
             apiMetadata.setApiId(result.getId());
             apiMetadata.setApiInfo(methodDescriptor.getApiDescriptor());
             apiMetadata.setLine(methodDescriptor.getLineNumber());
+            apiMetadata.setType(methodDescriptor.getType());
 
             this.priorityDataSender.request(apiMetadata);
         } 
