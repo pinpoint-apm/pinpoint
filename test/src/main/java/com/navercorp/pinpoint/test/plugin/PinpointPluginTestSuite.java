@@ -253,6 +253,10 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite imp
         public void endTest(Process process) throws Exception {
             // do nothing
         }
-        
+
+        @Override
+        public File getWorkingDirectory() {
+            return new File(".");
+        }
     }
 }
