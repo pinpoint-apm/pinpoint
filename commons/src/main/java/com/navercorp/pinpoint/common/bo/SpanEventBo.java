@@ -116,7 +116,7 @@ public class SpanEventBo implements Span {
             this.nextSpanId = tSpanEvent.getNextSpanId();
         }
         
-        setAnnotationBoList(tSpanEvent.getAnnotations());
+        setAnnotationList(tSpanEvent.getAnnotations());
 
         final TIntStringValue exceptionInfo = tSpanEvent.getExceptionInfo();
         if (exceptionInfo != null) {
@@ -168,7 +168,7 @@ public class SpanEventBo implements Span {
             this.nextSpanId = spanEvent.getNextSpanId();
         }
 
-        setAnnotationBoList(spanEvent.getAnnotations());
+        setAnnotationList(spanEvent.getAnnotations());
 
         final TIntStringValue exceptionInfo = spanEvent.getExceptionInfo();
         if (exceptionInfo != null) {
@@ -321,7 +321,7 @@ public class SpanEventBo implements Span {
         this.nextSpanId = nextSpanId;
     }
 
-    private void setAnnotationBoList(List<TAnnotation> annotations) {
+    public void setAnnotationList(List<TAnnotation> annotations) {
         if (annotations == null) {
             return;
         }
@@ -332,6 +332,13 @@ public class SpanEventBo implements Span {
         this.annotationBoList = boList;
     }
 
+    public void setAnnotationBoList(List<AnnotationBo> anoList) {
+        if (anoList == null) {
+            return;
+        }
+        this.annotationBoList = anoList;
+    }
+    
     public boolean hasException() {
         return hasException;
     }

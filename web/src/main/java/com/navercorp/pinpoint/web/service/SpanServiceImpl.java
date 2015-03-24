@@ -74,7 +74,6 @@ public class SpanServiceImpl implements SpanService {
 
         SpanResult result = order(spans, selectedSpanHint);
         List<SpanAlign> order = result.getSpanAlignList();
-//        transitionApiId(order);
         transitionDynamicApiId(order);
         transitionSqlId(order);
         transitionCachedString(order);
@@ -99,7 +98,7 @@ public class SpanServiceImpl implements SpanService {
                 annotationBoList = spanAlign.getSpanEventBo().getAnnotationBoList();
                 if (annotationBoList == null) {
                     annotationBoList = new ArrayList<AnnotationBo>();
-                    spanAlign.getSpanBo().setAnnotationBoList(annotationBoList);
+                    spanAlign.getSpanEventBo().setAnnotationBoList(annotationBoList);
                 }
                 annotationReplacementCallback.replacement(spanAlign, annotationBoList);
             }
