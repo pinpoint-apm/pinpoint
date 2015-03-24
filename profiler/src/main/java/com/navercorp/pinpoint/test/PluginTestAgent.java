@@ -144,11 +144,18 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
             if (serviceInfo.getServiceName().equals(name)) {
                 List<String> actualLibs = serviceInfo.getServiceLibs();
                 
-                if (actualLibs.equals(libs)) {
-                    return;
-                } else {
+                if (actualLibs.size() != libs.size()) {
                     throw new AssertionError("Expected service [" + name + "] with libraries [" + libs + "] but was [" + actualLibs + "]");
                 }
+                
+                for (String lib : libs) {
+                    if (!actualLibs.contains(lib)) {
+                        throw new AssertionError("Expected service [" + name + "] with libraries [" + libs + "] but was [" + actualLibs + "]");
+                    }
+                }
+                
+                // OK
+                return;
             }
         }
         
