@@ -74,7 +74,6 @@ public class SpanServiceImpl implements SpanService {
 
         SpanResult result = order(spans, selectedSpanHint);
         List<SpanAlign> order = result.getSpanAlignList();
-//        transitionApiId(order);
         transitionDynamicApiId(order);
         transitionSqlId(order);
         transitionCachedString(order);

@@ -321,7 +321,7 @@ public class SpanEventBo implements Span {
         this.nextSpanId = nextSpanId;
     }
 
-    private void setAnnotationList(List<TAnnotation> annotations) {
+    public void setAnnotationList(List<TAnnotation> annotations) {
         if (annotations == null) {
             return;
         }
