@@ -14,6 +14,7 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
+import java.io.File;
 import java.util.List;
 import java.util.Scanner;
 
@@ -27,6 +28,7 @@ public interface PinpointPluginTestInstance {
     public List<String> getVmArgs();
     public String getMainClass();
     public List<String> getAppArgs();
+    public File getWorkingDirectory();
     
     public Scanner startTest(Process process) throws Throwable;
     public void endTest(Process process) throws Throwable;
