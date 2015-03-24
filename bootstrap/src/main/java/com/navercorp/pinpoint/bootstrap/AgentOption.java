@@ -14,11 +14,28 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint;
+package com.navercorp.pinpoint.bootstrap;
+
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+
+import java.lang.instrument.Instrumentation;
+import java.net.URL;
 
 /**
  * @author emeroad
  */
-public final class ProductInfo {
-    public static final String NAME = "pinpoint";
+public interface AgentOption {
+
+    String getAgentArgs();
+
+    Instrumentation getInstrumentation();
+
+    ProfilerConfig getProfilerConfig();
+
+    URL[] getPluginJars();
+
+    String getBootStrapJarPath();
+
+    ServiceTypeRegistryService getServiceTypeRegistryService();
 }

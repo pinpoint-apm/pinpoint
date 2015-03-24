@@ -25,6 +25,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import com.navercorp.pinpoint.bootstrap.AgentOption;
+import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
+import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
+import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
+import com.navercorp.pinpoint.profiler.interceptor.DefaultInterceptorRegistryBinder;
 import org.apache.thrift.TBase;
 
 import com.google.common.base.Objects;
@@ -61,8 +66,8 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     private TestableServerMetaDataListener serverMetaDataListener;
     private AnnotationKeyRegistryService annotationKeyRegistryService;
 
-    public PluginTestAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars, ServiceTypeRegistryService serviceTypeRegistryService) {
-        super(agentArgs, instrumentation, profilerConfig, pluginJars, serviceTypeRegistryService);
+    public PluginTestAgent(AgentOption agentOption) {
+        super(agentOption, new DefaultInterceptorRegistryBinder());
         this.annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService();
         PluginTestVerifierHolder.setInstance(this);
     }

@@ -34,10 +34,7 @@ import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultTypeLoaderService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.service.TypeLoaderService;
-import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.common.util.SimpleProperty;
-import com.navercorp.pinpoint.common.util.SystemProperty;
+import com.navercorp.pinpoint.common.util.*;
 
 /**
  * @author emeroad
@@ -57,7 +54,7 @@ public class PinpointBootStrap {
 
     public static void premain(String agentArgs, Instrumentation instrumentation) {
         if (agentArgs != null) {
-            logger.info(ProductInfo.CAMEL_NAME + " agentArgs:" + agentArgs);
+            logger.info(ProductInfo.NAME + " agentArgs:" + agentArgs);
         }
         
         Map<String, String> argMap = parseAgentArgs(agentArgs);
@@ -124,18 +121,24 @@ public class PinpointBootStrap {
             String bootClass = argMap.containsKey("bootClass") ? argMap.get("bootClass") : BOOT_CLASS;
             agentClassLoader.setBootClass(bootClass);
             logger.info("pinpoint agent [" + bootClass + "] starting...");
-            Agent pinpointAgent = agentClassLoader.boot(agentArgs, instrumentation, profilerConfig, pluginJars, serviceTypeRegistryService);
+
+            AgentOption option = createAgentOption(agentArgs, instrumentation, profilerConfig, pluginJars, bootStrapCoreJar, serviceTypeRegistryService);
+            Agent pinpointAgent = agentClassLoader.boot(option);
             pinpointAgent.start();
             registerShutdownHook(pinpointAgent);
             logger.info("pinpoint agent started normally.");
         } catch (Exception e) {
             // unexpected exception that did not be checked above
-            logger.log(Level.SEVERE, ProductInfo.CAMEL_NAME + " start failed. Error:" + e.getMessage(), e);
+            logger.log(Level.SEVERE, ProductInfo.NAME + " start failed. Error:" + e.getMessage(), e);
             logPinpointAgentLoadFail();
         }
-
     }
-    
+
+    private static AgentOption createAgentOption(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars, String bootStrapJarPath, ServiceTypeRegistryService serviceTypeRegistryService) {
+
+        return new DefaultAgentOption(agentArgs, instrumentation, profilerConfig, pluginJars, bootStrapJarPath, serviceTypeRegistryService);
+    }
+
     private static void registerShutdownHook(final Agent pinpointAgent) {
         final Runnable stop = new Runnable() {
             @Override

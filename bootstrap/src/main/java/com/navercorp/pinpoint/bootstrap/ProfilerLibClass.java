@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.bootstrap;
 /**
  * @author emeroad
  */
-public class ProfilerLibClass {
+public class ProfilerLibClass implements LibClass {
 
     private static final String[] PINPOINT_PROFILER_CLASS = new String[] {
             "com.navercorp.pinpoint.profiler",
@@ -36,13 +36,14 @@ public class ProfilerLibClass {
             "com.nhncorp.nelo2"
     };
 
+    @Override
     public boolean onLoadClass(String clazzName) {
         final int length = PINPOINT_PROFILER_CLASS.length;
         for (int i = 0; i < length; i++) {
             if (clazzName.startsWith(PINPOINT_PROFILER_CLASS[i])) {
-                return true;
+                return ON_LOAD_CLASS;
             }
         }
-        return false;
+        return DELEGATE_PARENT;
     }
 }

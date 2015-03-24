@@ -42,4 +42,12 @@ public class NamedClassPool extends ClassPool {
         return name;
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("NamedClassPool{");
+        sb.append("name='").append(name).append('\'');
+        sb.append(", super='").append(super.toString()).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
 }

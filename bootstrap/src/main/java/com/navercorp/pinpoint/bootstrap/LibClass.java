@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint;
+package com.navercorp.pinpoint.bootstrap;
 
 /**
  * @author emeroad
  */
-public final class ProductInfo {
-    public static final String NAME = "pinpoint";
+public interface LibClass {
+
+    boolean ON_LOAD_CLASS = true;
+    boolean DELEGATE_PARENT = false;
+
+    boolean onLoadClass(String clazzName);
 }

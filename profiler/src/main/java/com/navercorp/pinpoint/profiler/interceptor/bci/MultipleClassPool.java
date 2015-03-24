@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint;
+package com.navercorp.pinpoint.profiler.interceptor.bci;
+
+import javassist.ClassPool;
 
 /**
  * @author emeroad
  */
-public final class ProductInfo {
-    public static final String NAME = "pinpoint";
+public interface MultipleClassPool {
+
+    NamedClassPool getClassPool(ClassLoader classLoader);
+
 }

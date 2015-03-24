@@ -28,6 +28,10 @@ public final class ClassLoaderUtils {
         }
     };
 
+    private static final ClassLoader SYSTEM_CLASS_LOADER = ClassLoader.getSystemClassLoader();
+    private static final ClassLoader EXT_CLASS_LOADER = SYSTEM_CLASS_LOADER.getParent();
+    private static final ClassLoader BOOT_CLASS_LOADER = Object.class.getClassLoader();
+
     private ClassLoaderUtils() {
     }
 
@@ -56,4 +60,32 @@ public final class ClassLoaderUtils {
     public interface ClassLoaderCallable {
         ClassLoader getClassLoader();
     }
+
+
+    public static boolean isStandardClassLoader(ClassLoader classLoader) {
+        if (BOOT_CLASS_LOADER == classLoader || SYSTEM_CLASS_LOADER == classLoader || EXT_CLASS_LOADER == classLoader) {
+            return true;
+        }
+        return false;
+    }
+
+    public static String dumpStandardClassLoader() {
+        final StringBuilder buffer = new StringBuilder();
+        appendClassLoaderLog(buffer, "SYSTEM_CLASS_LOADER", SYSTEM_CLASS_LOADER);
+        appendClassLoaderLog(buffer, "EXT_CLASS_LOADER", EXT_CLASS_LOADER);
+        appendClassLoaderLog(buffer, "BOOT_CLASS_LOADER", BOOT_CLASS_LOADER);
+        return buffer.toString();
+    }
+
+    private static void appendClassLoaderLog(StringBuilder buffer, String classLoaderName, ClassLoader classLoader) {
+        buffer.append(classLoaderName);
+        buffer.append(':');
+        if (classLoader == null) {
+            buffer.append("null");
+        } else {
+            buffer.append(classLoader.toString());
+        }
+        buffer.append(", ");
+    }
+
 }
