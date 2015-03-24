@@ -165,7 +165,7 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
     }
 
     private String resolveAgentPath(PinpointAgent agent) {
-        String path = agent == null ? "target/pinpoint-agent-" + Version.VERSION : agent.value();
+        String path = agent == null ? "agent/target/pinpoint-agent-" + Version.VERSION : agent.value();
         String version = agent == null ? Version.VERSION : agent.version();
         String relativePath = path + (!path.endsWith("/") ? "/" : "") + "pinpoint-bootstrap-" + version + ".jar";
 

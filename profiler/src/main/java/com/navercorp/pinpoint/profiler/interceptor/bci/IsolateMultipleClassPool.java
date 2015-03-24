@@ -42,7 +42,7 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
 
     private final EventListener eventListener;
 
-    public static final boolean DEFAULT_CHILD_FIRST_LOOKUP = false;
+    public static final boolean DEFAULT_CHILD_FIRST_LOOKUP = true;
     private final boolean childFirstLookup;
 
 
@@ -52,24 +52,28 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
         }
     };
 
+    interface ClassPoolHandler {
+        void handleClassPool(NamedClassPool classPool);
+    }
+
     interface EventListener {
         void onCreateClassPool(ClassLoader classLoader, NamedClassPool classPool);
     }
 
-    public IsolateMultipleClassPool(EventListener eventListener, String bootStrapJarPath) {
-        this(DEFAULT_CHILD_FIRST_LOOKUP, eventListener, bootStrapJarPath);
+    public IsolateMultipleClassPool(EventListener eventListener, ClassPoolHandler systemClassPoolHandler) {
+        this(DEFAULT_CHILD_FIRST_LOOKUP, eventListener, systemClassPoolHandler);
     }
 
     public IsolateMultipleClassPool() {
         this(DEFAULT_CHILD_FIRST_LOOKUP, EMPTY_EVENT_LISTENER, null);
     }
 
-    public IsolateMultipleClassPool(boolean childFirstLookup, EventListener eventListener, String bootStrapJarPath) {
+    public IsolateMultipleClassPool(boolean childFirstLookup, EventListener eventListener, ClassPoolHandler systemClassPoolHandler) {
         if (eventListener == null) {
             throw new NullPointerException("eventListener must not be null");
         }
 
-        this.standardClassPool = createSystemClassPool(bootStrapJarPath);
+        this.standardClassPool = createSystemClassPool(systemClassPoolHandler);
         this.classMap = createWeakConcurrentMap();
         this.eventListener = eventListener;
         this.childFirstLookup = childFirstLookup;
@@ -82,15 +86,12 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
         return mapMaker.makeMap();
     }
 
-    private NamedClassPool createSystemClassPool(String bootStrapJarPath) {
+    private NamedClassPool createSystemClassPool(ClassPoolHandler systemClassPoolHandler) {
         NamedClassPool systemClassPool = new NamedClassPool("standardClassPool");
         systemClassPool.appendSystemPath();
-        if (bootStrapJarPath != null ) {
-            try {
-                systemClassPool.appendClassPath(bootStrapJarPath);
-            } catch (NotFoundException ex) {
-                throw new PinpointException("bootStrapJar not found. Caused by:" + ex.getMessage(), ex);
-            }
+        if (systemClassPoolHandler != null ) {
+            systemClassPoolHandler.handleClassPool(systemClassPool);
+
         }
         return systemClassPool;
     }

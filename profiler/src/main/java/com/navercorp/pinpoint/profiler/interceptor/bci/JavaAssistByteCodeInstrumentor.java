@@ -23,6 +23,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 
+import com.navercorp.pinpoint.exception.PinpointException;
 import javassist.*;
 
 import org.slf4j.Logger;
@@ -53,11 +54,6 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     private final boolean isInfo = logger.isInfoEnabled();
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final ClassLoader agentClassLoader = this.getClass().getClassLoader();
-    private final NamedClassPool agentClassPool;
-    
-    // TODO Need to separate childClassPool per class space to prevent collision(ex: multiple web applications on a Tomcat server)
-//    private final NamedClassPool childClassPool;
     private final MultipleClassPool childClassPool;
 
     private Agent agent;
@@ -81,9 +77,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     // for test
     private JavaAssistByteCodeInstrumentor() {
-        this.agentClassPool = createAgentClassPool("agentClassPool");
         this.childClassPool = new IsolateMultipleClassPool(eventListener, null);
-//        this.childClassPool = new HierarchyMultipleClassPool();
         this.interceptorRegistryBinder = new GlobalInterceptorRegistryBinder();
         this.retransformer = null;
     }
@@ -92,13 +86,24 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         this(agent, interceptorRegistryBinder, null);
     }
 
-    public JavaAssistByteCodeInstrumentor(Agent agent, InterceptorRegistryBinder interceptorRegistryBinder, String bootStrapJar) {
+    public JavaAssistByteCodeInstrumentor(Agent agent, InterceptorRegistryBinder interceptorRegistryBinder, final String bootStrapJar) {
         if (interceptorRegistryBinder == null) {
             throw new NullPointerException("interceptorRegistryBinder must not be null");
         }
 
-        this.agentClassPool = createAgentClassPool("agentClassPool");
-        this.childClassPool = new IsolateMultipleClassPool(eventListener, bootStrapJar);
+        this.childClassPool = new IsolateMultipleClassPool(eventListener, new IsolateMultipleClassPool.ClassPoolHandler() {
+            @Override
+            public void handleClassPool(NamedClassPool systemClassPool) {
+                try {
+                    // append bootstarp-core
+                    systemClassPool.appendClassPath(bootStrapJar);
+                } catch (NotFoundException ex) {
+                    throw new PinpointException("bootStrapJar not found. Caused by:" + ex.getMessage(), ex);
+                }
+                // append pinpoint classLoader
+                systemClassPool.appendClassPath(new ClassClassPath(this.getClass()));
+            }
+        });
         this.agent = agent;
 
         this.interceptorRegistryBinder = interceptorRegistryBinder;
@@ -123,17 +128,6 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         return this.scopePool.getScope(scopeDefinition);
     }
 
-    private NamedClassPool createAgentClassPool(String classPoolName) {
-        NamedClassPool classPool = new NamedClassPool(classPoolName);
-
-        ClassPath classPath = new LoaderClassPath(agentClassLoader);
-        classPool.appendClassPath(classPath);
-
-        dumpClassLoaderLibList(agentClassLoader, classPool);
-        return classPool;
-    }
-
-
     @Override
     public InstrumentClass getClass(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) throws InstrumentException {
         CtClass cc = getClass(classLoader, javassistClassName);
@@ -150,9 +144,6 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     }
 
     public NamedClassPool getClassPool(ClassLoader classLoader) {
-        if (classLoader == agentClassLoader) {
-            return agentClassPool;
-        }
         return childClassPool.getClassPool(classLoader);
     }
 

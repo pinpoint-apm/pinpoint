@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 
 
 public class IsolateMultipleClassPoolTest {
@@ -100,7 +101,7 @@ public class IsolateMultipleClassPoolTest {
 
 
     @Test
-    public void testGetClass_root_delegate() throws Exception {
+    public void testGetClass() throws Exception {
 
         IsolateMultipleClassPool pool = new IsolateMultipleClassPool();
 
@@ -113,36 +114,40 @@ public class IsolateMultipleClassPoolTest {
         NamedClassPool childPool = pool.getClassPool(child1);
         CtClass childPoolString  = childPool.get("java.lang.String");
 
-        Assert.assertEquals(systemString, childPoolString);
-        Assert.assertEquals(systemString.getClassPool(), childPoolString.getClassPool());
+        Assert.assertNotSame(systemString, childPoolString);
+        Assert.assertNotSame(systemString.getClassPool(), childPoolString.getClassPool());
 
         CtClass testClass = childPool.get(this.getClass().getName());
-        Assert.assertEquals(systemString.getClassPool(), testClass.getClassPool());
+        Assert.assertNotSame(systemString.getClassPool(), testClass.getClassPool());
 
         NamedClassPool childPool2 = pool.getClassPool(child2);
         CtClass testClass2 = childPool2.get(this.getClass().getName());
-        Assert.assertEquals(systemString.getClassPool(), testClass2.getClassPool());
+        Assert.assertNotSame(systemString.getClassPool(), testClass2.getClassPool());
+
+        CtClass testCtClass = childPool2.get(TEST_CLASS);
+        logger.info("className:{}", Arrays.toString(testCtClass.getConstructors()));
+
     }
 
     @Test
     public void testGetClass_childLookupFirst() throws Exception {
 
-        IsolateMultipleClassPool pool = new IsolateMultipleClassPool(true, IsolateMultipleClassPool.EMPTY_EVENT_LISTENER, null);
+        IsolateMultipleClassPool pool = new IsolateMultipleClassPool(false, IsolateMultipleClassPool.EMPTY_EVENT_LISTENER, null);
 
         NamedClassPool systemPool = pool.getClassPool(systemClassLoader);
         CtClass systemLogger = systemPool.get(TEST_CLASS);
 
         NamedClassPool rootPool = pool.getClassPool(root);
         CtClass rootLogger = rootPool.get(TEST_CLASS);
-        Assert.assertNotSame(systemLogger, rootLogger);
+        Assert.assertSame(systemLogger, rootLogger);
 
         NamedClassPool childPool = pool.getClassPool(child1);
         CtClass childLogger = childPool.get(TEST_CLASS);
-        Assert.assertNotSame(systemLogger, childLogger);
+        Assert.assertSame(systemLogger, childLogger);
 
         NamedClassPool childPool2 = pool.getClassPool(child2);
         CtClass child2Logger = childPool2.get(TEST_CLASS);
-        Assert.assertNotSame(systemLogger, child2Logger);
+        Assert.assertSame(systemLogger, child2Logger);
 
     }
 

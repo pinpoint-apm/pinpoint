@@ -66,14 +66,10 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     private TestableServerMetaDataListener serverMetaDataListener;
     private AnnotationKeyRegistryService annotationKeyRegistryService;
 
-    public PluginTestAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars, ServiceTypeRegistryService serviceTypeRegistryService) {
-        super(createAgentOption(agentArgs, instrumentation, profilerConfig, pluginJars, serviceTypeRegistryService), new DefaultInterceptorRegistryBinder());
+    public PluginTestAgent(AgentOption agentOption) {
+        super(agentOption, new DefaultInterceptorRegistryBinder());
         this.annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService();
         PluginTestVerifierHolder.setInstance(this);
-    }
-
-    public static AgentOption createAgentOption(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars, ServiceTypeRegistryService serviceTypeRegistryService) {
-        return new DefaultAgentOption(agentArgs, instrumentation, profilerConfig, pluginJars, null, serviceTypeRegistryService);
     }
 
     @Override

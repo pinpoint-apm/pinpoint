@@ -216,58 +216,8 @@ public class DefaultAgent implements Agent {
         
         preLoadClass();
 
-        test();
-    }
-    public void test() {
-        ClassLoader classLoader = SimpleAroundInterceptor.class.getClassLoader();
-        logger.info("SimpleAroundInterceptor cl,{}", classLoader);
-        ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-        ClassPool classPool = new ClassPool();
-        LoaderClassPath loaderClassPath = new LoaderClassPath(systemClassLoader);
-        classPool.appendClassPath(loaderClassPath);
-        try {
-            System.out.println("pool------------------");
-            CtClass ctClass = classPool.get("com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor");
-        } catch (NotFoundException e) {
-            logger.info("pool, e:{}",e.getMessage(), e);
-        }
-        try {
-            System.out.println("load------------------");
-            Class<?> aClass = systemClassLoader.loadClass("com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor");
-            logger.info(aClass.toString());
-            System.out.println("re pool------------------");
-            testBootStrap(classPool, "com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor");
-            testBootStrap(classPool, "com.navercorp.pinpoint.ProductInfo");
-        } catch (ClassNotFoundException e) {
-            logger.info("load, e:{}", e.getMessage(), e);
-        } catch (NotFoundException e) {
-            logger.info("load, e:{}", e.getMessage(), e);
-        }
-        logger.error("eeeeeeeeeeeee");
-        URLClassLoader urlClassLoader = new URLClassLoader(new URL[0], ClassLoader.getSystemClassLoader());
-        try {
-            Class<?> aClass = urlClassLoader.loadClass("com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor");
-            logger.info("loadClass:{}", aClass);
-        } catch (ClassNotFoundException e) {
-            logger.info("UrlLoader, e:{}", e.getMessage(), e);
-        }
-
     }
 
-    private void testBootStrap(ClassPool classPool, String classname) throws NotFoundException {
-        try {
-
-            CtClass productInfo = classPool.get(classname);
-            logger.info("classname.{}", classname);
-        } catch (NotFoundException e) {
-            logger.info("load, e:{}", e.getMessage(), e);
-        }
-    }
-
-    private void testGet(ClassPool classPool) throws NotFoundException {
-        CtClass ctClass = classPool.get("com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor");
-        logger.info("find_--------------");
-    }
 
     private CommandDispatcher createCommandDispatcher() {
         CommandDispatcher commandDispatcher = new CommandDispatcher();
