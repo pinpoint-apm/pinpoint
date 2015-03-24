@@ -99,7 +99,7 @@ public class SpanServiceImpl implements SpanService {
                 annotationBoList = spanAlign.getSpanEventBo().getAnnotationBoList();
                 if (annotationBoList == null) {
                     annotationBoList = new ArrayList<AnnotationBo>();
-                    spanAlign.getSpanBo().setAnnotationBoList(annotationBoList);
+                    spanAlign.getSpanEventBo().setAnnotationBoList(annotationBoList);
                 }
                 annotationReplacementCallback.replacement(spanAlign, annotationBoList);
             }
