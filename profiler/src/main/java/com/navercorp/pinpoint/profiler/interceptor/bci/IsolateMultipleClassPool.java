@@ -18,10 +18,8 @@ package com.navercorp.pinpoint.profiler.interceptor.bci;
 
 import com.google.common.collect.MapMaker;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
-import com.navercorp.pinpoint.exception.PinpointException;
 import javassist.ClassPath;
 import javassist.LoaderClassPath;
-import javassist.NotFoundException;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
@@ -38,7 +36,7 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
 
     private final NamedClassPool standardClassPool;
 
-    private final ConcurrentMap<ClassLoader, NamedClassPool> classMap;
+    private final ConcurrentMap<ClassLoader, NamedClassPool> classPoolMap;
 
     private final EventListener eventListener;
 
@@ -74,7 +72,7 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
         }
 
         this.standardClassPool = createSystemClassPool(systemClassPoolHandler);
-        this.classMap = createWeakConcurrentMap();
+        this.classPoolMap = createWeakConcurrentMap();
         this.eventListener = eventListener;
         this.childFirstLookup = childFirstLookup;
     }
@@ -103,9 +101,9 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
         }
 
         if (AGENT_CLASS_LOADER == classLoader ){
-            throw new IllegalArgumentException("unexpectected classLoader access. classLoader:" + classLoader);
+            throw new IllegalArgumentException("unexpected classLoader access. classLoader:" + classLoader);
         }
-        final NamedClassPool hit = this.classMap.get(classLoader);
+        final NamedClassPool hit = this.classPoolMap.get(classLoader);
         if (hit != null) {
             return hit;
         }
@@ -114,7 +112,7 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
     }
 
     private NamedClassPool put(ClassLoader classLoader, NamedClassPool classPool) {
-        final NamedClassPool exist = this.classMap.putIfAbsent(classLoader, classPool);
+        final NamedClassPool exist = this.classPoolMap.putIfAbsent(classLoader, classPool);
         if (exist != null) {
             return exist;
         }
@@ -146,18 +144,18 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
 
 
     public int size() {
-        return this.classMap.size();
+        return this.classPoolMap.size();
     }
 
     // for Test
     Collection<NamedClassPool> values() {
-        return classMap.values();
+        return classPoolMap.values();
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("IsolateMultipleClassPool{");
-        sb.append("classMap=").append(classMap);
+        sb.append("classPoolMap=").append(classPoolMap);
         sb.append('}');
         return sb.toString();
     }
