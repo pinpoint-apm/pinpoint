@@ -95,8 +95,10 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
             @Override
             public void handleClassPool(NamedClassPool systemClassPool) {
                 try {
-                    // append bootstarp-core
-                    systemClassPool.appendClassPath(bootStrapJar);
+                    if (bootStrapJar != null) {
+                        // append bootstarp-core
+                        systemClassPool.appendClassPath(bootStrapJar);
+                    }
                 } catch (NotFoundException ex) {
                     throw new PinpointException("bootStrapJar not found. Caused by:" + ex.getMessage(), ex);
                 }
