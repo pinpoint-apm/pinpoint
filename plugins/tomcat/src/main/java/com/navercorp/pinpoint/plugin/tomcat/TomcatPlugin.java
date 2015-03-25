@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorProperty;
 
 /**
  * @author Jongho Moon
@@ -57,10 +58,13 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
         builder.injectMetadata(METADATA_TRACE);
         builder.injectMetadata(METADATA_ASYNC);
         
+        // clear request.
         MethodEditorBuilder recycleMethodEditorBuilder = builder.editMethod("recycle");
         recycleMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestRecycleInterceptor");
         
+        // trace asynchronous process. 
         MethodEditorBuilder startAsyncMethodEditor = builder.editMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
+        startAsyncMethodEditor.property(MethodEditorProperty.IGNORE_IF_NOT_EXIST);
         startAsyncMethodEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestStartAsyncInterceptor");
         
         context.addClassEditor(builder.build());

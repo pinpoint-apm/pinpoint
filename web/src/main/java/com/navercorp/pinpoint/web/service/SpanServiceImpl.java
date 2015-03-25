@@ -234,11 +234,18 @@ public class SpanServiceImpl implements SpanService {
                     apiMetaData.setValue(apiMetaDataBo);
                     annotationBoList.add(apiMetaData);
 
-                    AnnotationBo apiAnnotation = new AnnotationBo();
-                    apiAnnotation.setKey(AnnotationKey.API.getCode());
-                    String apiInfo = getApiInfo(apiMetaDataBo);
-                    apiAnnotation.setValue(apiInfo);
-                    annotationBoList.add(apiAnnotation);
+                    if(apiMetaDataBo.getType() == 0) {
+                        AnnotationBo apiAnnotation = new AnnotationBo();
+                        apiAnnotation.setKey(AnnotationKey.API.getCode());
+                        String apiInfo = getApiInfo(apiMetaDataBo);
+                        apiAnnotation.setValue(apiInfo);
+                        annotationBoList.add(apiAnnotation);
+                    } else {
+                        AnnotationBo apiAnnotation = new AnnotationBo();
+                        apiAnnotation.setKey(AnnotationKey.API_TAG.getCode());
+                        apiAnnotation.setValue(getApiTagInfo(apiMetaDataBo));
+                        annotationBoList.add(apiAnnotation);
+                    }
                 } else {
                     AnnotationBo apiAnnotation = new AnnotationBo();
                     apiAnnotation.setKey(AnnotationKey.ERROR_API_METADATA_DID_COLLSION.getCode());
@@ -377,6 +384,10 @@ public class SpanServiceImpl implements SpanService {
         } else {
             return apiMetaDataBo.getApiInfo();
         }
+    }
+    
+    private String getApiTagInfo(ApiMetaDataBo apiMetaDataBo) {
+        return apiMetaDataBo.getApiInfo();
     }
 
     public static interface AnnotationReplacementCallback {

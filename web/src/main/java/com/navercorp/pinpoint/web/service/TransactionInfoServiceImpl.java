@@ -396,14 +396,13 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                         record.setFullApiDescription(method);
                         recordList.add(record);
                     } else {
-                        AnnotationBo annotation = AnnotationUtils.findAnnotationBo(spanBo.getAnnotationBoList(), AnnotationKey.API_TAG);
-                        if(annotation != null)  {
-                            ApiMetaDataBo apiMetaData = (ApiMetaDataBo) annotation.getValue();
+                        String apiTag = AnnotationUtils.findApiTagAnnotation(spanBo.getAnnotationBoList());
+                        if(apiTag != null)  {
                             Record record = new Record(spanAlign.getDepth(), 
                                                         spanBoSequence,
                                                         parentSequence,
                                                         true,
-                                                        apiMetaData.getApiInfo(),
+                                                        apiTag,
                                                         argument,
                                                         begin,
                                                         elapsed,
