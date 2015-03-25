@@ -63,9 +63,9 @@ public class DefaultClassEditorBuilderTest {
         when(aClass.addInterceptor(eq(methodName), eq(parameterTypeNames), isA(Interceptor.class))).thenReturn(0);
         
         DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(agent);
-        DefaultClassEditorBuilder builder = new DefaultClassEditorBuilder(context);
+        DefaultClassEditorBuilder builder = new DefaultClassEditorBuilder(context, "TargetClass");
         builder.injectMetadata("a", "java.util.HashMap");
-        builder.injectFieldSnooper("someField");
+        builder.injectFieldAccessor("someField");
         
         MethodEditorBuilder ib = builder.editMethod(methodName, parameterTypeNames);
         ib.injectInterceptor("com.navercorp.pinpoint.profiler.plugin.TestInterceptor", "provided");

@@ -20,5 +20,5 @@ package com.navercorp.pinpoint.common.plugin;
  *
  */
 public interface TypeProvider {
-    void setUp(TypeSetupContext context);
+    void setup(TypeSetupContext context);
 }

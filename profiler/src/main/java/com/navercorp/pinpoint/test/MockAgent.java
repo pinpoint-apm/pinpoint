@@ -18,25 +18,24 @@ package com.navercorp.pinpoint.test;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.AgentOption;
+import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import org.apache.thrift.TBase;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.interceptor.GlobalInterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
@@ -63,23 +62,16 @@ public class MockAgent extends DefaultAgent {
             throw new RuntimeException(ex.getMessage(), ex);
         }
 
-        return new MockAgent("", profilerConfig);
+        return of(profilerConfig);
     }
     
     public static MockAgent of(ProfilerConfig config) {
-        return new MockAgent("", config);
+        AgentOption agentOption = new DefaultAgentOption("", new DummyInstrumentation(), config, new URL[0], null, new DefaultServiceTypeRegistryService());
+        return new MockAgent(agentOption);
     }
 
-    public MockAgent(String agentArgs, ProfilerConfig profilerConfig) {
-        this(agentArgs, new DummyInstrumentation(), profilerConfig, new GlobalInterceptorRegistryBinder(), new URL[0]);
-    }
-
-    public MockAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars) {
-        this(agentArgs, instrumentation, profilerConfig, new GlobalInterceptorRegistryBinder(), pluginJars);
-    }
-
-    public MockAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, InterceptorRegistryBinder interceptorRegistryBinder, URL[] pluginJars) {
-        super(agentArgs, instrumentation, profilerConfig, interceptorRegistryBinder, pluginJars, new DefaultServiceTypeRegistryService());
+    public MockAgent(AgentOption agentOption) {
+        super(agentOption, new GlobalInterceptorRegistryBinder());
     }
 
     @Override

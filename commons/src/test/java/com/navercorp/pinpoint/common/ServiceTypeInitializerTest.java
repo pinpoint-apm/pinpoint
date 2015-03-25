@@ -150,7 +150,7 @@ public class ServiceTypeInitializerTest {
         }
         
         @Override
-        public void setUp(TypeSetupContext context) {
+        public void setup(TypeSetupContext context) {
             for (ServiceType type : serviceTypes) {
                 context.addType(type);
             }

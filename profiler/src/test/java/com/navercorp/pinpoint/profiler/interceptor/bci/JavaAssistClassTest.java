@@ -453,7 +453,8 @@ public class JavaAssistClassTest {
     public void testAddGetter() throws Exception {
         final TestClassLoader loader = getTestClassLoader();
         final String testClassObject = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject3";
-        final FieldAccessor snooper = FieldAccessor.get(0);
+        final FieldAccessor accessor0 = FieldAccessor.get(0);
+        final FieldAccessor accessor1 = FieldAccessor.get(1);
         final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getProfilerConfig()) {
 
             @Override
@@ -461,7 +462,8 @@ public class JavaAssistClassTest {
                 try {
                     logger.info("modify cl:{}", classLoader);
                     InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, testClassObject, classFileBuffer);
-                    aClass.addGetter(snooper.getType(), "value");
+                    aClass.addGetter(accessor0.getType(), "value");
+                    aClass.addGetter(accessor1.getType(), "intValue");
 
                     return aClass.toBytecode();
                 } catch (InstrumentException e) {
@@ -475,15 +477,21 @@ public class JavaAssistClassTest {
         loader.initialize();
         
         Object testObject = loader.loadClass(testClassObject).newInstance();
-        Assert.assertTrue(snooper.isApplicable(testObject));
+        Assert.assertTrue(accessor0.isApplicable(testObject));
+        Assert.assertTrue(accessor1.isApplicable(testObject));
         
         String value = "hehe";
+        int intValue = 99;
 
         Method method = testObject.getClass().getMethod("setValue", String.class);
         method.invoke(testObject, value);
 
-        Assert.assertEquals(value, snooper.get(testObject));
+        Assert.assertEquals(value, accessor0.get(testObject));
         
+        Method setIntValue = testObject.getClass().getMethod("setIntValue", int.class);
+        setIntValue.invoke(testObject, intValue);
+
+        Assert.assertEquals(intValue, accessor1.get(testObject));
         
     }
 }

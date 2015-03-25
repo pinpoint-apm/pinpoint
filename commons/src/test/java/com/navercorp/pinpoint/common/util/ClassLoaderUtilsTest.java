@@ -16,16 +16,21 @@
 
 package com.navercorp.pinpoint.common.util;
 
+import org.junit.After;
 import org.junit.Assert;
 
+import org.junit.Before;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.net.URLClassLoader;
 
 public class ClassLoaderUtilsTest {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final URLClassLoader FAKE_CLASS_LOADER = new URLClassLoader(new URL[0]);
 
@@ -35,6 +40,20 @@ public class ClassLoaderUtilsTest {
             return FAKE_CLASS_LOADER;
         }
     };
+
+    private ClassLoader beforeSetupClassLoader;
+
+    @Before
+    public void setUp() throws Exception {
+        Thread currentThread = Thread.currentThread();
+        beforeSetupClassLoader = currentThread.getContextClassLoader();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        Thread currentThread = Thread.currentThread();
+        currentThread.setContextClassLoader(beforeSetupClassLoader);
+    }
 
     @Test
     public void testGetClassLoader1() throws Exception {
@@ -48,30 +67,29 @@ public class ClassLoaderUtilsTest {
 
     @Test
     public void testGetClassLoader2() throws Exception {
-        final Thread thread = Thread.currentThread();
-        final ClassLoader old = Thread.currentThread().getContextClassLoader();
+        final Thread currentThread = Thread.currentThread();
 
-        thread.setContextClassLoader(FAKE_CLASS_LOADER);
+        currentThread.setContextClassLoader(FAKE_CLASS_LOADER);
         ClassLoader classLoader = ClassLoaderUtils.getDefaultClassLoader();
-        try {
-            Assert.assertSame(classLoader, FAKE_CLASS_LOADER);
-        } finally {
-            thread.setContextClassLoader(old);
-        }
+
+        Assert.assertSame(classLoader, FAKE_CLASS_LOADER);
     }
 
     @Test
     public void testGetClassLoader3() throws Exception {
-        final Thread thread = Thread.currentThread();
-        final ClassLoader old = thread.getContextClassLoader();
+        final Thread currentThread = Thread.currentThread();
 
-        thread.setContextClassLoader(null);
+        currentThread.setContextClassLoader(null);
 
         ClassLoader classLoader = ClassLoaderUtils.getDefaultClassLoader(FAKE_CLASS_LOADER_CALLABLE);
-        try {
-            Assert.assertSame(classLoader, FAKE_CLASS_LOADER);
-        } finally {
-            thread.setContextClassLoader(old);
-        }
+
+        Assert.assertSame(classLoader, FAKE_CLASS_LOADER);
+
+    }
+
+    @Test
+    public void append() throws Exception {
+        String log = ClassLoaderUtils.dumpStandardClassLoader();
+        logger.info("StandardClassLoader dump:{}", log);
     }
 }

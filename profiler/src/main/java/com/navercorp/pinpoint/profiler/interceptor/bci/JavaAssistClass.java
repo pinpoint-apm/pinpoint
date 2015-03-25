@@ -182,7 +182,7 @@ public class JavaAssistClass implements InstrumentClass {
     @Deprecated
     private void addTraceVariable0(String variableName, String setterName, String getterName, String variableType, String initValue) throws InstrumentException {
         try {
-            CtClass type = instrumentor.getClassPool().get(variableType);
+            CtClass type = getClassPool().get(variableType);
             CtField traceVariable = new CtField(type, variableName, ctClass);
             if (initValue == null) {
                 ctClass.addField(traceVariable);
@@ -301,7 +301,7 @@ public class JavaAssistClass implements InstrumentClass {
         } else {
             resolveType = setterType;
         }
-        CtClass type = instrumentor.getClassPool().get(resolveType.getName());
+        CtClass type = getClassPool().get(resolveType.getName());
         return new CtField(type, variableName, ctClass);
     }
 
@@ -513,7 +513,7 @@ public class JavaAssistClass implements InstrumentClass {
         } catch (NotFoundException e) {
             throw new InstrumentException(getInterceptorName(interceptor) + " add fail. Cause:" + e.getMessage(), e);
         } catch (CannotCompileException e) {
-            throw new InstrumentException(getInterceptorName(interceptor) + "add fail. Cause:" + e.getMessage(), e);
+            throw new InstrumentException(getInterceptorName(interceptor) + " add fail. Cause:" + e.getMessage(), e);
         }
     }
 
@@ -590,12 +590,10 @@ public class JavaAssistClass implements InstrumentClass {
 
     @Override
     public void weave(String adviceClassName, ClassLoader loader) throws InstrumentException {
-        ClassPool pool = new ClassPool();
-        pool.appendClassPath(new LoaderClassPath(loader));
-        
+        final NamedClassPool classPool = instrumentor.getClassPool(loader);
         CtClass adviceClass;
         try {
-            adviceClass = pool.get(adviceClassName);
+            adviceClass = classPool.get(adviceClassName);
         } catch (NotFoundException e) {
             throw new NotFoundInstrumentException(adviceClassName + " not found. Caused:" + e.getMessage(), e);
         }
@@ -657,9 +655,13 @@ public class JavaAssistClass implements InstrumentClass {
         if (isDebug) {
             logger.debug("addAfterInterceptor catch behavior:{} code:{}", behavior.getLongName(), buildCatch);
         }
-        CtClass th = instrumentor.getClassPool().get("java.lang.Throwable");
+        CtClass th = getClassPool().get("java.lang.Throwable");
         behavior.addCatch(buildCatch, th);
 
+    }
+
+    private ClassPool getClassPool() {
+        return ctClass.getClassPool();
     }
 
     private String getTargetIdentifier(CtBehavior behavior) {
@@ -911,6 +913,17 @@ public class JavaAssistClass implements InstrumentClass {
            return false;
        }
    }
+   
+   @Override
+    public boolean hasField(String name, String type) {
+        try {
+            ctClass.getField(name, type);
+        } catch (NotFoundException e) {
+            return false;
+        }
+        
+        return true;
+    }
 
    @Override
    public InstrumentClass getNestedClass(String className) {
@@ -939,7 +952,7 @@ public class JavaAssistClass implements InstrumentClass {
         try {
             // FIXME Which is better? getField() or getDeclaredField()? getFiled() seems like better chioce if we want to add getter to child classes.
             CtField traceVariable = ctClass.getField(variableName);
-            CtMethod getterMethod = CtNewMethod.getter(getterName, traceVariable);
+            CtMethod getterMethod = CtNewMethod.make("public " + traceVariable.getType().getName() + " " + getterName + "() { return " + variableName + "; }", ctClass);
             ctClass.addMethod(getterMethod);
         } catch (NotFoundException ex) {
             throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);
@@ -963,14 +976,49 @@ public class JavaAssistClass implements InstrumentClass {
         }
         
         try {
-            CtMethod getterMethod = CtNewMethod.make("public " + getter.getReturnType().getName() + " " + getter.getName() + "() { return " + fieldName + "; }", ctClass);
+            CtField field = ctClass.getField(fieldName);
+            String expression;
+            
+            if (field.getType().isPrimitive()) {
+                String fieldType = field.getType().getName();
+                String wrapperType = getWrapperClassName(fieldType);
+                expression = wrapperType + ".valueOf(" + fieldName + ")";
+            } else {
+                expression = fieldName;
+            }
+            
+            CtMethod getterMethod = CtNewMethod.make("public " + getter.getReturnType().getName() + " " + getter.getName() + "() { return " + expression + "; }", ctClass);
             ctClass.addMethod(getterMethod);
         
             CtClass ctInterface = instrumentor.getClass(interfaceType.getClassLoader(), interfaceType.getName());
             ctClass.addInterface(ctInterface);
+        } catch (NotFoundException ex) {
+            throw new InstrumentException("Failed to add getter. No such field: " + fieldName, ex);
         } catch (Exception e) {
             // Cannot happen. Reaching here means a bug.   
             throw new InstrumentException("Fail to add getter: " + interfaceType.getName(), e);
         }
+    }
+    
+    private String getWrapperClassName(String primitiveType) {
+        if ("boolean".equals(primitiveType)) {
+            return "java.lang.Boolean";
+        } else if ("byte".equals(primitiveType)) {
+            return "java.lang.Byte";
+        } else if ("short".equals(primitiveType)) {
+            return "java.lang.Short";
+        } else if ("int".equals(primitiveType)) {
+            return "java.lang.Integer";
+        } else if ("long".equals(primitiveType)) {
+            return "java.lang.Long";
+        } else if ("float".equals(primitiveType)) {
+            return "java.lang.Float";
+        } else if ("double".equals(primitiveType)) {
+            return "java.lang.Double";
+        } else if ("void".equals(primitiveType)) {
+            return "java.lang.Void";
+        }
+
+        throw new IllegalArgumentException(primitiveType);
     }
 }

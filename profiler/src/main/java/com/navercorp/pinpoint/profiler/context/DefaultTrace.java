@@ -16,7 +16,15 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.*;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.AnnotationKey;
@@ -26,9 +34,6 @@ import com.navercorp.pinpoint.common.util.ParsingResult;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
 import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -52,6 +57,8 @@ public final class DefaultTrace implements Trace {
     private Storage storage;
 
     private final TraceContext traceContext;
+    
+    private final Map<String, Object> attributeMap = new HashMap<String, Object>();
 
     // use for calculating depth of each Span.
     private int latestStackIndex = -1;
@@ -546,5 +553,35 @@ public final class DefaultTrace implements Trace {
     @Override
     public short getServiceType() {
         return currentStackFrame.getServiceType();
+    }
+
+    @Override
+    public Object getAttribute(String key) {
+        return attributeMap.get(key);
+    }
+
+    @Override
+    public Object setAttribute(String key, Object value) {
+        return attributeMap.put(key, value);
+    }
+
+    @Override
+    public Object removeAttribute(String key) {
+        return attributeMap.remove(key);
+    }
+
+    @Override
+    public Object setTraceBlockAttachment(Object attachment) {
+        return currentStackFrame.attachFrameObject(attachment);
+    }
+
+    @Override
+    public Object getTraceBlockAttachment() {
+        return currentStackFrame.getFrameObject();
+    }
+
+    @Override
+    public Object removeTraceBlockAttachment() {
+        return currentStackFrame.detachFrameObject();
     }
 }

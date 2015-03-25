@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.bootstrap.plugin.editor;
  *
  */
 public interface BaseMethodEditorBuilder {
-    void condition(ClassCondition condition);
     void injectInterceptor(String interceptorClassName, Object... constructorArguments);
     void exceptionHandler(MethodEditorExceptionHandler handler);
     void property(MethodEditorProperty... properties);

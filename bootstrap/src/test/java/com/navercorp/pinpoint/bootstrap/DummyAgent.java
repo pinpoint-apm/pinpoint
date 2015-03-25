@@ -30,7 +30,7 @@ import java.net.URL;
  */
 public class DummyAgent implements Agent {
 
-    public DummyAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars, ServiceTypeRegistryService serviceTypeRegistryService) {
+    public DummyAgent(AgentOption option) {
 
     }
 
@@ -48,7 +48,7 @@ public class DummyAgent implements Agent {
     }
 
     @Override
-    public ProfilerConfig getProfilerConfig() {
+     public ProfilerConfig getProfilerConfig() {
         return null;
     }
 

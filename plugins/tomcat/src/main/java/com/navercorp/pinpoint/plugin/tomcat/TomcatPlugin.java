@@ -35,8 +35,8 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
      * @see com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin#setUp(com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext)
      */
     @Override
-    public void setUp(ProfilerPluginSetupContext context) {
-        context.addServerTypeDetector(new TomcatDetector());
+    public void setup(ProfilerPluginSetupContext context) {
+        context.addApplicationTypeDetector(new TomcatDetector());
 
         TomcatConfiguration config = new TomcatConfiguration(context.getConfig());
 
@@ -53,10 +53,9 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
     }
 
     private void addRequestEditor(ProfilerPluginSetupContext context) {
-        ClassEditorBuilder builder = context.newClassEditorBuilder();
+        ClassEditorBuilder builder = context.getClassEditorBuilder("org.apache.catalina.connector.Request");
         builder.injectMetadata(METADATA_TRACE);
         builder.injectMetadata(METADATA_ASYNC);
-        builder.target("org.apache.catalina.connector.Request");
         
         MethodEditorBuilder recycleMethodEditorBuilder = builder.editMethod("recycle");
         recycleMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestRecycleInterceptor");
@@ -68,8 +67,7 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
     }
 
     private void addCoyoteAdapterEditor(ProfilerPluginSetupContext context) {
-        ClassEditorBuilder builder = context.newClassEditorBuilder();
-        builder.target("org.apache.catalina.connector.CoyoteAdapter");
+        ClassEditorBuilder builder = context.getClassEditorBuilder("org.apache.catalina.connector.CoyoteAdapter");
 
         MethodEditorBuilder methodEditorBuilder = builder.editMethods(new MethodFilter() {
             @Override
@@ -87,24 +85,19 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
     }
 
     private void addRequestFacadeEditor(ProfilerPluginSetupContext context) {
-        ClassEditorBuilder builder = context.newClassEditorBuilder();
-        builder.target("org.apache.catalina.connector.RequestFacade");
+        ClassEditorBuilder builder = context.getClassEditorBuilder("org.apache.catalina.connector.RequestFacade");
         builder.weave("com.navercorp.pinpoint.plugin.tomcat.aspect.RequestFacadeAspect");
         context.addClassEditor(builder.build());
     }
 
     private void addStandardHostValveEditor(ProfilerPluginSetupContext context, TomcatConfiguration config) {
-        
-        ClassEditorBuilder builder = context.newClassEditorBuilder();
-        builder.target("org.apache.catalina.core.StandardHostValve");
+        ClassEditorBuilder builder = context.getClassEditorBuilder("org.apache.catalina.core.StandardHostValve");
         builder.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor", config.getTomcatExcludeUrlFilter());
         context.addClassEditor(builder.build());
     }
 
     private void addStandardServiceEditor(ProfilerPluginSetupContext context) {
-        ClassEditorBuilder builder = context.newClassEditorBuilder();
-        builder.target("org.apache.catalina.core.StandardService");
-
+        ClassEditorBuilder builder = context.getClassEditorBuilder("org.apache.catalina.core.StandardService");
         // Tomcat 6
         MethodEditorBuilder startEditor = builder.editMethod("start");
         startEditor.property(IGNORE_IF_NOT_EXIST);
@@ -119,8 +112,7 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
     }
 
     private void addTomcatConnectorEditor(ProfilerPluginSetupContext context) {
-        ClassEditorBuilder builder = context.newClassEditorBuilder();
-        builder.target("org.apache.catalina.connector.Connector");
+        ClassEditorBuilder builder = context.getClassEditorBuilder("org.apache.catalina.connector.Connector");
 
         // Tomcat 6
         MethodEditorBuilder initializeEditor = builder.editMethod("initialize");
@@ -136,9 +128,7 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
     }
 
     private void addWebappLoaderEditor(ProfilerPluginSetupContext context) {
-        ClassEditorBuilder builder = context.newClassEditorBuilder();
-        builder.target("org.apache.catalina.loader.WebappLoader");
-
+        ClassEditorBuilder builder = context.getClassEditorBuilder("org.apache.catalina.loader.WebappLoader");
         // Tomcat 6 - org.apache.catalina.loader.WebappLoader.start()
         MethodEditorBuilder startEditor = builder.editMethod("start");
         startEditor.property(IGNORE_IF_NOT_EXIST);

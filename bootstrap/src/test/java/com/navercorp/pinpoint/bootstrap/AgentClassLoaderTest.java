@@ -40,7 +40,8 @@ public class AgentClassLoaderTest {
     public void boot() throws IOException, ClassNotFoundException {
         AgentClassLoader agentClassLoader = new AgentClassLoader(new URL[0]);
         agentClassLoader.setBootClass("com.navercorp.pinpoint.bootstrap.DummyAgent");
-        agentClassLoader.boot("test", new DummyInstrumentation(), new ProfilerConfig(), new URL[0], new DefaultServiceTypeRegistryService());
+        AgentOption option = new DefaultAgentOption("test", new DummyInstrumentation(), new ProfilerConfig(), new URL[0], null, new DefaultServiceTypeRegistryService());
+        agentClassLoader.boot(option);
         // TODO need verification - implementation for obtaining logger changed
 //        PLoggerBinder loggerBinder = (PLoggerBinder) agentClassLoader.initializeLoggerBinder();
 //        PLogger test = loggerBinder.getLogger("test");

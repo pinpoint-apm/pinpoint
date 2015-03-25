@@ -18,11 +18,13 @@ package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
-import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -210,6 +212,7 @@ public class ProfilerConfig {
     private long agentInfoSendRetryInterval = DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL;
 
     private String applicationServerType;
+    private List<String> applicationTypeDetectOrder = Collections.emptyList();
     private boolean log4jLoggingTransactionInfo;
     private boolean logbackLoggingTransactionInfo;
 
@@ -589,6 +592,10 @@ public class ProfilerConfig {
     public Filter<String> getProfilableClassFilter() {
         return profilableClassFilter;
     }
+    
+    public List<String> getApplicationTypeDetectOrder() {
+        return applicationTypeDetectOrder;
+    }
 
     public String getApplicationServerType() {
         return applicationServerType;
@@ -768,8 +775,10 @@ public class ProfilerConfig {
         this.agentInfoSendRetryInterval = readLong("profiler.agentInfo.send.retry.interval", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
 
         // service type
-        this.applicationServerType = readString("profiler.applicationservertype", ServiceType.STAND_ALONE.getName());
+        this.applicationServerType = readString("profiler.applicationservertype", null);
 
+        // application type detector order
+        this.applicationTypeDetectOrder = readTypeDetectOrder("profiler.type.detect.order");
         
         // TODO have to remove        
         // profile package included in order to test "call stack view".
@@ -836,6 +845,15 @@ public class ProfilerConfig {
         return result;
     }
 
+    public List<String> readTypeDetectOrder(String propertyName) {
+        String value = properties.getProperty(propertyName);
+        if (value == null) {
+            return Collections.emptyList();
+        }
+        String[] orders = value.trim().split(",");
+        return Arrays.asList(orders);
+    }
+
     public boolean readBoolean(String propertyName, boolean defaultValue) {
         String value = properties.getProperty(propertyName, Boolean.toString(defaultValue));
         boolean result = Boolean.parseBoolean(value);
@@ -844,7 +862,6 @@ public class ProfilerConfig {
         }
         return result;
     }
-
 
     @Override
     public String toString() {
@@ -929,6 +946,7 @@ public class ProfilerConfig {
         sb.append(", profilableClassFilter=").append(profilableClassFilter);
         sb.append(", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL=").append(DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
         sb.append(", agentInfoSendRetryInterval=").append(agentInfoSendRetryInterval);
+        sb.append(", applicationTypeDetectOrder='").append(applicationTypeDetectOrder).append('\'');
         sb.append(", applicationServerType=").append(applicationServerType);
         sb.append('}');
         return sb.toString();

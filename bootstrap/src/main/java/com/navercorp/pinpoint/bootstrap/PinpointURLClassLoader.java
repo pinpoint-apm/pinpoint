@@ -28,17 +28,26 @@ import java.net.URLClassLoader;
  */
 public class PinpointURLClassLoader extends URLClassLoader {
 
+    private static final LibClass PROFILER_LIB_CLASS = new ProfilerLibClass();
 
     private final ClassLoader parent;
 
-    private final ProfilerLibClass profilerLibClass = new ProfilerLibClass();
+    private final LibClass libClass;
 
-    public PinpointURLClassLoader(URL[] urls, ClassLoader parent) {
+    public PinpointURLClassLoader(URL[] urls, ClassLoader parent, LibClass libClass) {
         super(urls, parent);
         if (parent == null) {
             throw new NullPointerException("parent must not be null");
         }
+        if (libClass == null) {
+            throw new NullPointerException("libClass must not be null");
+        }
         this.parent = parent;
+        this.libClass = libClass;
+    }
+
+    public PinpointURLClassLoader(URL[] urls, ClassLoader parent) {
+        this(urls, parent, PROFILER_LIB_CLASS);
     }
 
 
@@ -70,7 +79,7 @@ public class PinpointURLClassLoader extends URLClassLoader {
 
     // for test
     boolean onLoadClass(String name) {
-        return profilerLibClass.onLoadClass(name);
+        return libClass.onLoadClass(name);
     }
 
 }

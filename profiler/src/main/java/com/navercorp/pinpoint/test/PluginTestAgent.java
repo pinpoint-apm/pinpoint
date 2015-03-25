@@ -25,8 +25,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import com.navercorp.pinpoint.bootstrap.AgentOption;
+import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
+import com.navercorp.pinpoint.profiler.interceptor.DefaultInterceptorRegistryBinder;
 import org.apache.thrift.TBase;
 
 import com.google.common.base.Objects;
@@ -40,6 +43,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
+import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.Span;
@@ -61,8 +66,8 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     private TestableServerMetaDataListener serverMetaDataListener;
     private AnnotationKeyRegistryService annotationKeyRegistryService;
 
-    public PluginTestAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars, ServiceTypeRegistryService serviceTypeRegistryService) {
-        super(agentArgs, instrumentation, profilerConfig, pluginJars, serviceTypeRegistryService);
+    public PluginTestAgent(AgentOption agentOption) {
+        super(agentOption, new DefaultInterceptorRegistryBinder());
         this.annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService();
         PluginTestVerifierHolder.setInstance(this);
     }
@@ -107,7 +112,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         ServiceType expectedType = findServiceType(serviceTypeName);
         ServiceType actualType = getAgentInformation().getServerType();
         
-        if (expectedType != actualType) {
+        if (!expectedType.equals(actualType)) {
             throw new AssertionError("Expected server type: " + expectedType.getName() + "[" + expectedType.getCode() + "] but was " + actualType + "[" + actualType.getCode() + "]");
         }
     }
@@ -139,11 +144,18 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
             if (serviceInfo.getServiceName().equals(name)) {
                 List<String> actualLibs = serviceInfo.getServiceLibs();
                 
-                if (actualLibs.equals(libs)) {
-                    return;
-                } else {
+                if (actualLibs.size() != libs.size()) {
                     throw new AssertionError("Expected service [" + name + "] with libraries [" + libs + "] but was [" + actualLibs + "]");
                 }
+                
+                for (String lib : libs) {
+                    if (!actualLibs.contains(lib)) {
+                        throw new AssertionError("Expected service [" + name + "] with libraries [" + libs + "] but was [" + actualLibs + "]");
+                    }
+                }
+                
+                // OK
+                return;
             }
         }
         
@@ -195,7 +207,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     public void verifySpanEvent(String serviceTypeName, Method method, String rpc, String endPoint, String destinationId, ExpectedAnnotation... annotations) {
         ServiceType serviceType = findServiceType(serviceTypeName);
         int apiId = findApiId(method);
-        Expected expected = new Expected(Span.class, serviceType, apiId, rpc, endPoint, null, destinationId, annotations);
+        Expected expected = new Expected(SpanEvent.class, serviceType, apiId, rpc, endPoint, null, destinationId, annotations);
         verifySpan(expected);
     }
     

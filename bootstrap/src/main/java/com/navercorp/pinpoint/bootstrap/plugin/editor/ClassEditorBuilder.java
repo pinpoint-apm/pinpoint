@@ -14,7 +14,6 @@
  */
 package com.navercorp.pinpoint.bootstrap.plugin.editor;
 
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 
 
 
@@ -22,27 +21,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
  * @author Jongho Moon
  *
  */
-public interface ClassEditorBuilder {
-
-    public void target(String targetClassName);
-
-    public void condition(ClassCondition condition);
-
-    public void injectFieldSnooper(String fieldName);
-
-    public void injectMetadata(String name);
-
-    public void injectMetadata(String name, String initialValueType);
-    
-    public void injectInterceptor(String className, Object... constructorArgs);
-    
-    public void weave(String aspectClassName);
-
-    public MethodEditorBuilder editMethods(MethodFilter filter);
-    
-    public MethodEditorBuilder editMethod(String name, String... parameterTypeNames);
-    
-    public ConstructorEditorBuilder editConstructor(String... parameterTypeNames);
-    
+public interface ClassEditorBuilder extends BaseClassEditorBuilder {
+    public void conditional(ClassCondition condition, ConditionalClassEditorSetup descriptor);
     public ClassEditor build();
 }

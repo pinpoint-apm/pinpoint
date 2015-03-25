@@ -12,15 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.plugin;
-
+package com.navercorp.pinpoint.bootstrap.plugin.editor;
 
 /**
  * @author Jongho Moon
  *
  */
-public interface ServerTypeDetector {
-    public String getServerTypeName();
-    public boolean detect();
-    public boolean canOverride(String serverType);
+public interface ConditionalClassEditorSetup {
+    public void setup(ConditionalClassEditorBuilder conditional);
 }

@@ -23,11 +23,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.LoaderClassPath;
-import javassist.NotFoundException;
+import com.navercorp.pinpoint.exception.PinpointException;
+import javassist.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,10 +54,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     private final boolean isInfo = logger.isInfoEnabled();
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final NamedClassPool rootClassPool;
-    
-    // TODO Need to separate childClassPool per class space to prevent collision(ex: multiple web applications on a Tomcat server)
-    private final NamedClassPool childClassPool;
+    private final MultipleClassPool childClassPool;
 
     private Agent agent;
 
@@ -70,38 +64,55 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     private final InterceptorRegistryBinder interceptorRegistryBinder;
     private ClassFileRetransformer retransformer = null;
 
+    private final IsolateMultipleClassPool.EventListener eventListener =  new IsolateMultipleClassPool.EventListener() {
+        @Override
+        public void onCreateClassPool(ClassLoader classLoader, NamedClassPool classPool) {
+            dumpClassLoaderLibList(classLoader, classPool);
+        }
+    };
+
     public static JavaAssistByteCodeInstrumentor createTestInstrumentor() {
         return new JavaAssistByteCodeInstrumentor();
     }
 
     // for test
     private JavaAssistByteCodeInstrumentor() {
-        this.rootClassPool = createClassPool("rootClassPool");
-        this.childClassPool = new NamedClassPool(rootClassPool, "childClassPool");
+        this.childClassPool = new IsolateMultipleClassPool(eventListener, null);
         this.interceptorRegistryBinder = new GlobalInterceptorRegistryBinder();
         this.retransformer = null;
     }
 
     public JavaAssistByteCodeInstrumentor(Agent agent, InterceptorRegistryBinder interceptorRegistryBinder) {
+        this(agent, interceptorRegistryBinder, null);
+    }
+
+    public JavaAssistByteCodeInstrumentor(Agent agent, InterceptorRegistryBinder interceptorRegistryBinder, final String bootStrapJar) {
         if (interceptorRegistryBinder == null) {
             throw new NullPointerException("interceptorRegistryBinder must not be null");
         }
 
-        this.rootClassPool = createClassPool("rootClassPool");
-        this.childClassPool = createChildClassPool(rootClassPool, "childClassPool");
+        this.childClassPool = new IsolateMultipleClassPool(eventListener, new IsolateMultipleClassPool.ClassPoolHandler() {
+            @Override
+            public void handleClassPool(NamedClassPool systemClassPool) {
+                try {
+                    if (bootStrapJar != null) {
+                        // append bootstarp-core
+                        systemClassPool.appendClassPath(bootStrapJar);
+                    }
+                } catch (NotFoundException ex) {
+                    throw new PinpointException("bootStrapJar not found. Caused by:" + ex.getMessage(), ex);
+                }
+                // append pinpoint classLoader
+                systemClassPool.appendClassPath(new ClassClassPath(this.getClass()));
+            }
+        });
         this.agent = agent;
-        // Add Pinpoint classes to rootClassPool
-        checkLibrary(this.getClass().getClassLoader(), this.rootClassPool, this.getClass().getName());
+
         this.interceptorRegistryBinder = interceptorRegistryBinder;
     }
 
     public Agent getAgent() {
         return agent;
-    }
-
-//    @Deprecated
-    public ClassPool getClassPool() {
-        return this.childClassPool;
     }
 
     @Override
@@ -119,49 +130,6 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         return this.scopePool.getScope(scopeDefinition);
     }
 
-    private NamedClassPool createClassPool(String classPoolName) {
-        NamedClassPool classPool = new NamedClassPool(null, classPoolName);
-        classPool.appendClassPath(new LoaderClassPath(this.getClass().getClassLoader()));
-        return classPool;
-    }
-
-    private NamedClassPool createChildClassPool(ClassPool rootClassPool, String classPoolName) {
-        NamedClassPool childClassPool = new NamedClassPool(rootClassPool, classPoolName);
-        childClassPool.childFirstLookup = true;
-        return childClassPool;
-    }
-
-
-    private void appendClassPath(ClassPool classPool, String pathName) {
-        try {
-            classPool.appendClassPath(pathName);
-        } catch (NotFoundException e) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("appendClassPath fail. lib not found. {}", e.getMessage(), e);
-            }
-        }
-    }
-
-    public void checkLibrary(ClassLoader classLoader, NamedClassPool classPool, String javassistClassName) {
-        // if it's loaded by boot class loader, classLoader is null.
-        if (classLoader == null) {
-            return;
-        }
-        
-        // synchronized ??
-//        synchronized (classPool) {
-            final boolean findClass = findClass(javassistClassName, classPool);
-            if (findClass) {
-                if (isDebug) {
-                    logger.debug("checkLibrary cl:{} clPool:{}, class:{} found.", classLoader, classPool.getName(), javassistClassName);
-                }
-                return;
-            }
-            loadClassLoaderLibraries(classLoader, classPool);
-//        }
-    }
-
-
     @Override
     public InstrumentClass getClass(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) throws InstrumentException {
         CtClass cc = getClass(classLoader, javassistClassName);
@@ -169,8 +137,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     }
     
     public CtClass getClass(ClassLoader classLoader, String className) throws InstrumentException {
-        final NamedClassPool classPool = findClassPool(classLoader);
-        checkLibrary(classLoader, classPool, className);
+        final NamedClassPool classPool = getClassPool(classLoader);
         try {
             return classPool.get(className);
         } catch (NotFoundException e) {
@@ -178,13 +145,10 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         }
     }
 
-    private NamedClassPool findClassPool(ClassLoader classLoader) {
-        if (classLoader == null) {
-            // SystemClassLoader
-        }
-        // TODO fix find classPool
-        return childClassPool;
+    public NamedClassPool getClassPool(ClassLoader classLoader) {
+        return childClassPool.getClassPool(classLoader);
     }
+
 
     @Override
     public Class<?> defineClass(ClassLoader classLoader, String defineClass, ProtectionDomain protectedDomain) throws InstrumentException {
@@ -192,7 +156,10 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
             logger.info("defineClass class:{}, cl:{}", defineClass, classLoader);
         }
         try {
-            final NamedClassPool classPool = findClassPool(classLoader);
+            if (classLoader == null) {
+                classLoader = ClassLoader.getSystemClassLoader();
+            }
+            final NamedClassPool classPool = getClassPool(classLoader);
             
             // It's safe to synchronize on classLoader because current thread already hold lock on classLoader.
             // Without lock, maybe something could go wrong.
@@ -277,7 +244,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     @Override
     public boolean findClass(ClassLoader classLoader, String javassistClassName) {
-        ClassPool classPool = findClassPool(classLoader);
+        ClassPool classPool = getClassPool(classLoader);
         return findClass(javassistClassName, classPool);
     }
 
@@ -311,25 +278,24 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     }
 
-    private void loadClassLoaderLibraries(ClassLoader classLoader, NamedClassPool classPool) {
+    private void dumpClassLoaderLibList(ClassLoader classLoader, NamedClassPool classPool) {
         if (isInfo) {
             if (classLoader instanceof URLClassLoader) {
-                URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
-                URL[] urlList = urlClassLoader.getURLs();
+                final URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
+                final URL[] urlList = urlClassLoader.getURLs();
                 if (urlList != null) {
                     final String classLoaderName = classLoader.getClass().getName();
                     final String classPoolName = classPool.getName();
+                    logger.info("classLoader lib cl:{} classPool:{}", classLoaderName, classPoolName);
                     for (URL tempURL : urlList) {
                         String filePath = tempURL.getFile();
-                        logger.info("classLoader lib cl:{} classPool:{} {} ", classLoaderName, classPoolName, filePath);
+                        logger.info("lib:{} ", filePath);
                     }
                 }
             }
         }
-        logger.info("appendClassPath. classPool:{} ClassLoader:{}", classPool.getName(), classLoader);
-        classPool.appendClassPath(new LoaderClassPath(classLoader));
     }
-    
+
     @Override
     public void retransform(Class<?> target, ClassEditor editor) {
         retransformer.retransform(target, editor);
