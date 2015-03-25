@@ -104,6 +104,11 @@ public class SocketState {
         SocketStateCode nextState = SocketStateCode.ERROR_UNKOWN;
         return changeState(nextState);
     }
+    
+    public SocketStateChangeResult stateToSyncStateSessionError() {
+        SocketStateCode nextState = SocketStateCode.ERROR_SYNC_STATE_SESSION;
+        return changeState(nextState);
+    }
 
     public synchronized SocketStateCode getCurrentState() {
         return currentState;

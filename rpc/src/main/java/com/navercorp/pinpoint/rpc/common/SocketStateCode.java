@@ -44,7 +44,8 @@ public enum SocketStateCode {
     UNEXPECTED_CLOSE_BY_SERVER((byte) 36, NONE, CONNECTED, RUN_WITHOUT_HANDSHAKE, RUN_SIMPLEX, RUN_DUPLEX),
 
     ERROR_UNKOWN((byte) 40), 
-    ERROR_ILLEGAL_STATE_CHANGE((byte) 41);
+    ERROR_ILLEGAL_STATE_CHANGE((byte) 41),
+    ERROR_SYNC_STATE_SESSION((byte) 42);
 
     private final byte id;
     private final Set<SocketStateCode> validBeforeStateSet;
@@ -61,6 +62,10 @@ public enum SocketStateCode {
     }
 
     public boolean canChangeState(SocketStateCode nextState) {
+        if (isError(this)) {
+            return false;
+        }
+        
         Set<SocketStateCode> validBeforeStateSet = nextState.getValidBeforeStateSet();
         if (validBeforeStateSet.contains(this)) {
             return true;

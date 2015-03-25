@@ -79,6 +79,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final int socketId;
     private final PinpointSocketHandlerState state;
 
     private volatile Channel channel;
@@ -135,6 +136,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         this.objectUniqName = ClassUtils.simpleClassNameAndHashCodeString(this);
         this.handshaker = new PinpointClientSocketHandshaker(channelTimer, (int) handshakeRetryInterval, maxHandshakeCount);
         
+        this.socketId = pinpointSocketFactory.issueNewSocketId();
         this.state = new PinpointSocketHandlerState(this.objectUniqName);
     }
 
@@ -243,7 +245,8 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         }
         logger.debug("{} writePing() started. channel:{}", objectUniqName, channel);
         
-        write0(PingPacket.PING_PACKET, pingWriteFailFutureListener);
+        PingPacket pingPacket = new PingPacket(socketId, (byte) 0, state.getCurrentStateCode().getId());
+        write0(pingPacket, pingWriteFailFutureListener);
     }
 
     public void sendPing() {
