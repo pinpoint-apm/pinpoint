@@ -22,20 +22,22 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
  */
 public interface BaseClassEditorBuilder {
 
-    public abstract void injectFieldAccessor(String fieldName);
+    public void injectFieldAccessor(String fieldName);
 
-    public abstract void injectMetadata(String name);
+    public void injectMetadata(String name);
 
-    public abstract void injectMetadata(String name, String initialValueType);
+    public void injectMetadata(String name, String initialValueType);
 
-    public abstract void injectInterceptor(String className, Object... constructorArgs);
+    public void injectInterceptor(String className, Object... constructorArgs);
 
-    public abstract void weave(String aspectClassName);
+    public void weave(String aspectClassName);
 
-    public abstract MethodEditorBuilder editMethods(MethodFilter filter);
+    public void apply(ClassInstrumentation instrumentation);
 
-    public abstract MethodEditorBuilder editMethod(String name, String... parameterTypeNames);
+    public MethodEditorBuilder editMethods(MethodFilter filter);
 
-    public abstract ConstructorEditorBuilder editConstructor(String... parameterTypeNames);
+    public MethodEditorBuilder editMethod(String name, String... parameterTypeNames);
+
+    public ConstructorEditorBuilder editConstructor(String... parameterTypeNames);
 
 }
