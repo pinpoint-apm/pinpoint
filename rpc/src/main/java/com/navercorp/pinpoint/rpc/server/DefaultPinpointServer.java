@@ -36,6 +36,7 @@ import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.RequestManager;
 import com.navercorp.pinpoint.rpc.client.WriteFailFutureListener;
+import com.navercorp.pinpoint.rpc.common.CyclicStateChecker;
 import com.navercorp.pinpoint.rpc.common.SocketStateChangeResult;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.control.ProtocolException;
@@ -44,6 +45,8 @@ import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.Packet;
 import com.navercorp.pinpoint.rpc.packet.PacketType;
+import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.packet.PongPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
@@ -71,6 +74,7 @@ public class DefaultPinpointServer implements PinpointServer {
     private final RequestManager requestManager;
 
     private final DefaultPinpointServerState state;
+    private final CyclicStateChecker stateChecker;
 
     private final ServerMessageListener messageListener;
 
@@ -84,6 +88,9 @@ public class DefaultPinpointServer implements PinpointServer {
     
     private final ChannelFutureListener serverCloseWriteListener;
     private final ChannelFutureListener responseWriteFailListener;
+    
+    private final WriteFailFutureListener pongWriteFutureListener = new WriteFailFutureListener(logger, "pong write fail.", "pong write success.");
+    
     
     public DefaultPinpointServer(Channel channel, PinpointServerConfig serverConfig) {
         this(channel, serverConfig, null);
@@ -116,6 +123,7 @@ public class DefaultPinpointServer implements PinpointServer {
         this.responseWriteFailListener = new WriteFailFutureListener(logger, objectUniqName + " response() write fail.");
 
         this.state = new DefaultPinpointServerState(this, this.stateChangeEventListeners);
+        this.stateChecker = new CyclicStateChecker(5);
     }
     
     public void start() {
@@ -308,6 +316,10 @@ public class DefaultPinpointServer implements PinpointServer {
                 handleClosePacket(channel);
                 return;
             }
+            case PacketType.CONTROL_PING: {
+                handlePingPacket(channel, (PingPacket) message);
+                return;
+            }            
             default: {
                 logger.warn("invalid messageReceived msg:{}, connection:{}", message, channel);
             }
@@ -373,6 +385,27 @@ public class DefaultPinpointServer implements PinpointServer {
             logger.info("{} handleClosePacket() failed. Error: {}", objectUniqName, stateChangeResult);
         } else {
             logger.info("{} handleClosePacket() completed.", objectUniqName);
+        }
+    }
+    
+    private void handlePingPacket(Channel channel, PingPacket packet) {
+        logger.debug("{} handlePingPacket() started. packet:{}", objectUniqName, packet);
+        
+        SocketStateCode statusCode = state.getCurrentStateCode();
+
+        if (statusCode.getId() == packet.getStateCode()) {
+            stateChecker.unmark();
+
+            PongPacket pongPacket = PongPacket.PONG_PACKET;
+            ChannelFuture write = channel.write(pongPacket);
+            write.addListener(pongWriteFutureListener);
+        } else {
+            logger.warn("Session state sync failed. channel:{}, packet:{}, server-state:{}", channel, packet, statusCode);
+            
+            if (stateChecker.markAndCheckCondition()) {
+                state.toErrorSyncStateSession();
+                stop();
+            }
         }
     }
 

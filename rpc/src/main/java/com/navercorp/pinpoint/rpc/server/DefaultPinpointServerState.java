@@ -100,6 +100,11 @@ public class DefaultPinpointServerState {
         return to(nextState);
     }
 
+    SocketStateChangeResult toErrorSyncStateSession() {
+        SocketStateCode nextState = SocketStateCode.ERROR_SYNC_STATE_SESSION;
+        return to(nextState);
+    }
+
     private SocketStateChangeResult to(SocketStateCode nextState) {
         String objectUniqName = pinpointServer.getObjectUniqName();
         
