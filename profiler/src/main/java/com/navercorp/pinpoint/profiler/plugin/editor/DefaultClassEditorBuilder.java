@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.editor.DedicatedClassEditor;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorExceptionHandler;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorProperty;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassInstrumentation;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.FieldSnooperInjector;
 import com.navercorp.pinpoint.profiler.plugin.MetadataInitializationStrategy.ByConstructor;
@@ -41,6 +42,7 @@ import com.navercorp.pinpoint.profiler.plugin.interceptor.AnnotatedInterceptorIn
 import com.navercorp.pinpoint.profiler.plugin.interceptor.TargetAnnotatedInterceptorInjector;
 
 public class DefaultClassEditorBuilder implements ClassEditorBuilder, ConditionalClassEditorBuilder, RecipeBuilder<ClassRecipe> {
+
     private final DefaultProfilerPluginContext pluginContext;
     
     private final List<ClassRecipe> recipes = new ArrayList<ClassRecipe>();
@@ -66,6 +68,11 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder, Conditiona
         recipeBuilders.add(conditional);
     }
     
+    @Override
+    public void apply(ClassInstrumentation instrumentation) {
+        recipes.add(new ClassInstrumentationRecipe(pluginContext, instrumentation));
+    }
+
     @Override
     public void injectFieldAccessor(String fieldName) {
         FieldAccessor snooper = pluginContext.allocateFieldSnooper(fieldName);
