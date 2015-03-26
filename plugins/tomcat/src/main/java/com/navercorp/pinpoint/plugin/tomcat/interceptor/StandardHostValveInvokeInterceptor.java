@@ -45,6 +45,7 @@ import com.navercorp.pinpoint.profiler.context.SpanId;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
 @TargetMethod(name = "invoke", paramTypes = { "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response" })
 public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundInterceptor implements TomcatConstants {
@@ -63,8 +64,8 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         this.traceAccessor = traceAccessor;
         this.asyncAccessor = asyncAccessor;
 
-        traceContext.cacheApi(servletAsynchronousMethodDescriptor);
-        traceContext.cacheApi(servletSynchronousMethodDescriptor);
+        traceContext.cacheApi(SERVLET_ASYNCHRONOUS_API_TAG);
+        traceContext.cacheApi(SERVLET_SYNCHRONOUS_API_TAG);
     }
 
     @Override
@@ -80,12 +81,14 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         if (isAsynchronousProcess(request)) {
             // servlet 3.0
             final Trace trace = getTraceMetadata(request);
-            // change api
-            trace.recordApi(TomcatConstants.servletAsynchronousMethodDescriptor);
-            // attach current thread local.
-            getTraceContext().attachTraceObject(trace);
+            if (trace != null) {
+                // change api
+                trace.recordApi(TomcatConstants.SERVLET_ASYNCHRONOUS_API_TAG);
+                // attach current thread local.
+                getTraceContext().attachTraceObject(trace);
 
-            return trace;
+                return trace;
+            }
         }
 
         final String requestURI = request.getRequestURI();
@@ -145,7 +148,9 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     }
 
     private void setTraceMetadata(final Request request, final Trace trace) {
-        traceAccessor.set(request, trace);
+        if(traceAccessor.isApplicable(request)) {
+            traceAccessor.set(request, trace);            
+        }
     }
 
     private Trace getTraceMetadata(final Request request) {
@@ -154,7 +159,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         }
 
         try {
-            Trace trace = traceAccessor.get(request);
+            final Trace trace = traceAccessor.get(request);
             return trace;
         } catch (ClassCastException e) {
             logger.warn("Invalid trace metadata({}).", METADATA_TRACE, e);
@@ -163,7 +168,9 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     }
 
     private void setAsyncMetatdata(final Request request, final Boolean async) {
-        asyncAccessor.set(request, async);
+        if(asyncAccessor.isApplicable(request)) {
+            asyncAccessor.set(request, async);
+        }
     }
 
     private boolean getAsyncMetadata(final Request request) {
@@ -172,7 +179,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         }
 
         try {
-            Boolean async = asyncAccessor.get(request);
+            final Boolean async = asyncAccessor.get(request);
             return async.booleanValue();
         } catch (ClassCastException e) {
             logger.warn("Invalid async metatdata({})", METADATA_ASYNC, e);
@@ -205,7 +212,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         if (!trace.isRoot()) {
             recordParentInfo(trace, request);
         }
-        trace.recordApi(TomcatConstants.servletSynchronousMethodDescriptor);
+        trace.recordApi(TomcatConstants.SERVLET_SYNCHRONOUS_API_TAG);
     }
 
     private void recordParentInfo(RecordableTrace trace, HttpServletRequest request) {
@@ -296,7 +303,9 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     protected void deleteTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
         final Request request = (Request) args[0];
         if (!isAsynchronousProcess(request)) {
+            trace.markAfterTime();
             trace.traceRootBlockEnd();
+            // reset
             setTraceMetadata(request, null);
         }
     }

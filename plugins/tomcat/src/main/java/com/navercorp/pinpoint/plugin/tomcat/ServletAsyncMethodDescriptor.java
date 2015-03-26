@@ -1,21 +1,38 @@
+/**
+ * Copyright 2014 NAVER Corp.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.navercorp.pinpoint.plugin.tomcat;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 
+/**
+ * 
+ * @author jaehong.kim
+ *
+ */
 public class ServletAsyncMethodDescriptor implements MethodDescriptor {
-    private static final String CLASS_NAME = "";
-    private static final String METHOD_NAME = "Tomcat";
     private int apiId = 0;
     private int type = 500;
 
     @Override
     public String getMethodName() {
-        return METHOD_NAME;
+        return "";
     }
 
     @Override
     public String getClassName() {
-        return CLASS_NAME;
+        return "";
     }
 
     @Override
@@ -40,7 +57,7 @@ public class ServletAsyncMethodDescriptor implements MethodDescriptor {
 
     @Override
     public String getFullName() {
-        return ".Tomcat Servlet Asynchronous Process()";
+        return ServletAsyncMethodDescriptor.class.getName();
     }
 
     @Override
@@ -55,7 +72,7 @@ public class ServletAsyncMethodDescriptor implements MethodDescriptor {
 
     @Override
     public String getApiDescriptor() {
-        return ".Tomcat Servlet Asynchronous Process()";
+        return "Servlet Asynchronous Process";
     }
 
     public int getType() {

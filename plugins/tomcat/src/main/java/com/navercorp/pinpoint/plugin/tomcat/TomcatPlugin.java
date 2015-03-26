@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorProperty;
 
 /**
  * @author Jongho Moon
+ * @author jaehong.kim
  *
  */
 public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
@@ -46,7 +47,6 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
         }
 
         addRequestEditor(context);
-        addCoyoteAdapterEditor(context);
         addStandardHostValveEditor(context, config);
         addStandardServiceEditor(context);
         addTomcatConnectorEditor(context);
@@ -67,24 +67,6 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
         startAsyncMethodEditor.property(MethodEditorProperty.IGNORE_IF_NOT_EXIST);
         startAsyncMethodEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestStartAsyncInterceptor");
         
-        context.addClassEditor(builder.build());
-    }
-
-    private void addCoyoteAdapterEditor(ProfilerPluginSetupContext context) {
-        ClassEditorBuilder builder = context.getClassEditorBuilder("org.apache.catalina.connector.CoyoteAdapter");
-
-        MethodEditorBuilder methodEditorBuilder = builder.editMethods(new MethodFilter() {
-            @Override
-            public boolean filter(MethodInfo method) {
-                final String name = method.getName();
-                if (name.equals("event") || name.equals("asyncDispatch") || name.equals("service") || name.equals("errorDispatch") || name.equals("log")) {
-                    return false;
-                }
-
-                return true;
-            }
-        });
-        methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.CoyoteAdapterInterceptor");
         context.addClassEditor(builder.build());
     }
 
