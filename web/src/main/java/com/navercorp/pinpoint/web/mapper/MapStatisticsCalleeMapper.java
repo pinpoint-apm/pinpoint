@@ -76,7 +76,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
         for (KeyValue kv : result.raw()) {
 
             final byte[] qualifier = kv.getQualifier();
-            final Application callerApplication = readCallerApplication(qualifier);
+            final Application callerApplication = readCallerApplication(qualifier, calleeApplication.getServiceType());
             if (filter.filter(callerApplication)) {
                 continue;
             }
@@ -103,9 +103,16 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
         return linkDataMap;
     }
 
-    private Application readCallerApplication(byte[] qualifier) {
-        String callerApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
+    private Application readCallerApplication(byte[] qualifier, ServiceType calleeServiceType) {
         short callerServiceType = ApplicationMapStatisticsUtils.getDestServiceTypeFromColumnName(qualifier);
+        // Caller may be a user node, and user nodes may call nodes with the same application name but different service type.
+        // To distinguish between these user nodes, append callee's service type to the application name.
+        String callerApplicationName;
+        if (registry.findServiceType(callerServiceType).isUser()) {
+            callerApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnNameForUser(qualifier, calleeServiceType);
+        } else {
+            callerApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
+        }
         return createApplication(callerApplicationName, callerServiceType);
     }
 
