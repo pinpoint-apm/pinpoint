@@ -56,7 +56,7 @@ public class LinkList {
         for (Link link : linkMap.values()) {
             Node toNode = link.getTo();
             // find all the callers of toApplication/destination
-            if (toNode.getApplication().equals(toApplication)) {
+            if (toNode.getApplication().equals(toApplication) && toNode.getServiceType().equals(toApplication.getServiceType())) {
                 findList.add(link);
             }
         }
@@ -70,14 +70,14 @@ public class LinkList {
      */
     public List<Link> findFromLink(Application fromApplication) {
         if (fromApplication == null) {
-            throw new NullPointerException("toApplication must not be null");
+            throw new NullPointerException("fromApplication must not be null");
         }
 
         List<Link> findList = new ArrayList<Link>();
         for (Link link : linkMap.values()) {
             Node fromNode = link.getFrom();
 
-            if (fromNode.getApplication().equals(fromApplication)) {
+            if (fromNode.getApplication().equals(fromApplication) && fromNode.getServiceType().equals(fromApplication.getServiceType())) {
                 findList.add(link);
             }
         }

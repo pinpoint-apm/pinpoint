@@ -105,7 +105,13 @@ public class ApplicationMapStatisticsUtils {
         final short length = BytesUtils.bytesToShort(bytes, 4);
         return BytesUtils.toStringAndRightTrim(bytes, 6, length);
     }
-
+    
+    public static String getDestApplicationNameFromColumnNameForUser(byte[] bytes, ServiceType destServiceType) {
+        String destApplicationName = getDestApplicationNameFromColumnName(bytes);
+        String destServiceTypeName = destServiceType.getName();
+        return destApplicationName + "_" + destServiceTypeName;
+    }
+    
     public static String getHost(byte[] bytes) {
         int offset = 6 + BytesUtils.bytesToShort(bytes, 4);
 
