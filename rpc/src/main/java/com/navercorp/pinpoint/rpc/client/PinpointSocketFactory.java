@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
@@ -65,6 +66,8 @@ public class PinpointSocketFactory {
     private static final long DEFAULT_PING_DELAY = 60 * 1000 * 5;
     private static final long DEFAULT_ENABLE_WORKER_PACKET_DELAY = 60 * 1000 * 1;
 
+    private final AtomicInteger socketId = new AtomicInteger(1);
+    
     private volatile boolean released;
     private ClientBootstrap bootstrap;
     private Map<String, Object> properties = Collections.emptyMap();
@@ -432,6 +435,10 @@ public class PinpointSocketFactory {
 
     boolean isReleased() {
         return released;
+    }
+
+    int issueNewSocketId() {
+        return socketId.getAndIncrement();
     }
 
 }
