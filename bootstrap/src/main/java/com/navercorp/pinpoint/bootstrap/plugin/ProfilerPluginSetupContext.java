@@ -19,17 +19,61 @@ import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
 
 /**
+ * {@link ProfilerPlugin} uses this class to setup itself.
+ * 
+ * 
  * @author Jongho Moon
- *
  */
 public interface ProfilerPluginSetupContext {
+    /**
+     * Get the {@link ProfilerConfig}
+     * 
+     * @return {@link ProfilerConfig}
+     */
     public ProfilerConfig getConfig();
 
-    public Object setAttribute(String key, Object value);
-    public Object getAttribute(String key);
-
-    public ClassEditorBuilder newClassEditorBuilder();
+    /**
+     * Set an attribute.
+     * 
+     * Interceptors of same plug-in can get attributes set by this method by {@link ProfilerPluginContext#getAttribute(String)}
+     * 
+     * @param name attribute name
+     * @param value attribute value
+     * 
+     * @return Previous value if the key was associated with other value. null otherwise. 
+     */
+    public Object setAttribute(String name, Object value);
     
+    /**
+     * Get an attribute value with given name.
+     * 
+     * @param name attribute name
+     * @return value value associated with given name. null if no value is set.
+     */
+    public Object getAttribute(String name);
+
+    /**
+     * Get a {@link ClassEditorBuilder}.
+     * 
+     * By using returned {@link ClassEditorBuilder} you can create a {@link ClassEditor} easily.
+     * You have to register resulting {@link ClasEditor} by {@link #addClassEditor(ClassEditor)} to make it works.
+     *
+     * @param targetClassName target class name
+     * @return {@link ClassEditorBuilder}
+     */
+    public ClassEditorBuilder getClassEditorBuilder(String targetClassName);
+    
+    /**
+     * Add a {@link ClassEditor} to Pinpoint agent.
+     * 
+     * @param classEditor
+     */
     public void addClassEditor(ClassEditor classEditor);
-    public void addServerTypeDetector(ServerTypeDetector... detectors);
+    
+    /**
+     * Add a {@link ApplicationTypeDetector} to Pinpoint agent.
+     * 
+     * @param detectors
+     */
+    public void addApplicationTypeDetector(ApplicationTypeDetector... detectors);
 }

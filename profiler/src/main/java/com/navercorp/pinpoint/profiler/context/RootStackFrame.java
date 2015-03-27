@@ -110,8 +110,10 @@ public class RootStackFrame implements StackFrame {
     }
 
     @Override
-    public void attachFrameObject(Object frameObject) {
+    public Object attachFrameObject(Object frameObject) {
+        Object copy = this.frameObject;
         this.frameObject = frameObject;
+        return copy;
     }
 
     @Override

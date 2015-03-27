@@ -39,6 +39,8 @@ public interface TraceContext {
 
     Trace newTraceObject();
 
+    void attachTraceObject(Trace trace);
+    
     void detachTraceObject();
 
 //    ActiveThreadCounter getActiveThreadCounter();

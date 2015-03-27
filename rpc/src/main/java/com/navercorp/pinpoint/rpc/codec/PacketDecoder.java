@@ -85,10 +85,13 @@ public class PacketDecoder extends FrameDecoder {
             case PacketType.CONTROL_SERVER_CLOSE:
                 return readControlServerClose(packetType, buffer);
             case PacketType.CONTROL_PING:
-                readPing(packetType, buffer);
-                sendPong(channel);
-                // just drop ping
-                return null;
+                PingPacket pingPacket = (PingPacket) readPing(packetType, buffer);
+                if (pingPacket == PingPacket.PING_PACKET) {
+                    sendPong(channel);
+                    // just drop ping
+                    return null;
+                }
+                return pingPacket;
             case PacketType.CONTROL_PONG:
                 logger.debug("receive pong. {}", channel);
                 readPong(packetType, buffer);

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.interceptor;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
 public interface MethodDescriptor {
     String getMethodName();
@@ -39,4 +40,6 @@ public interface MethodDescriptor {
     int getApiId();
 
     String getApiDescriptor();
+    
+    int getType();
 }

@@ -78,7 +78,7 @@ public class TypeProviderLoader {
             }
 
             TypeSetupContextImpl context = new TypeSetupContextImpl(provider.getClass());
-            provider.setUp(context);
+            provider.setup(context);
 
 
             setupContextList.add(context);

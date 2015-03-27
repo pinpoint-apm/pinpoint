@@ -20,16 +20,60 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 
 /**
+ *  Provides attributes and objects to interceptors.
+ * 
+ *  Only interceptors can acquire an instance of this class as a constructor argument.
+ * 
  * @author Jongho Moon
  *
  */
 public interface ProfilerPluginContext {
-    public Object setAttribute(String key, Object value);
-    public Object getAttribute(String key);
-
-    public MetadataAccessor getMetadataAccessor(String name);
-    public FieldAccessor getFieldSnooper(String name);
+    /**
+     * Set an attribute. Only objects within same plug-in can see this attribute.
+     *   
+     * @param name attribute name
+     * @param value attribute value
+     * @return Previous value if the name was associated with other value. null otherwise.
+     */
+    public Object setAttribute(String name, Object value);
     
+    /**
+     * Get an attribute set within a plug-in.
+     * 
+     * You can get attributes set by {@link ProfilerPluginSetupContext#setAttribute(String, Object)} too.
+     * 
+     * @param name attribute name
+     * @return value value associated with given name. null if no value is set.
+     */
+    public Object getAttribute(String name);
+
+    /**
+     * Get the {@link MetadataAccessor} with given name.
+     * 
+     * @param name 
+     * @return {@link MetadataAccessor} with given name. null if there is no {@link MetadataAccessor} with the name.  
+     */
+    public MetadataAccessor getMetadataAccessor(String name);
+    
+    /**
+     * Get the {@link MetadataAccessor} with given name.
+     * 
+     * @param name
+     * @return {@link MetadataAccessor} with given name. null if there is no {@link MetadataAccessor} with the name.  
+     */
+    public FieldAccessor getFieldAccessor(String name);
+    
+    /**
+     * Get {@link TraceContext}
+     * 
+     * @return {@link TraceContext} of current transction
+     */
     public TraceContext getTraceContext();
+    
+    /**
+     * Get {@link ByteCodeInstrumentor}
+     * 
+     * @return {@link ByteCodeInstrumentor}
+     */
     public ByteCodeInstrumentor getByteCodeInstrumentor();
 }

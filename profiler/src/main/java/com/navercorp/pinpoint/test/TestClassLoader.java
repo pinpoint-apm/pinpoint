@@ -120,7 +120,7 @@ public class TestClassLoader extends Loader {
 
     private void addTranslator() {
         try {
-            addTranslator(((JavaAssistByteCodeInstrumentor)instrumentor).getClassPool(), instrumentTranslator);
+            addTranslator(((JavaAssistByteCodeInstrumentor)instrumentor).getClassPool(this), instrumentTranslator);
         } catch (NotFoundException e) {
             throw new RuntimeException(e.getMessage(), e);
         } catch (CannotCompileException e) {

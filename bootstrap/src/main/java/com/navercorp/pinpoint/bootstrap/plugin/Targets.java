@@ -20,13 +20,26 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * Specify multiple targets of the annotated interceptor.
+ * 
  * @author Jongho Moon
  *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Targets {
+    /**
+     * target methods
+     */
     TargetMethod[] methods() default {};
+    
+    /**
+     * target constructors
+     */
     TargetConstructor[] constructors() default {};
+    
+    /**
+     * target method filters
+     */
     TargetFilter[] filters() default {};
 }

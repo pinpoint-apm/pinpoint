@@ -50,7 +50,7 @@ public interface StackFrame {
 
     short getServiceType();
 
-    void attachFrameObject(Object frameObject);
+    Object attachFrameObject(Object frameObject);
 
     Object getFrameObject();
 

@@ -13,7 +13,14 @@
 			"agentId" : "${span.agentId}",
 			"endpoint" : "${span.endPoint}",
 			"exception" : ${span.errCode},
-			"remoteAddr" : "${span.remoteAddr}"
+			"remoteAddr" : "${span.remoteAddr}"<c:if test="${not empty logPageUrl}">,
+			"logButtonName" : "${logButtonName}",
+			<c:url value="${logPageUrl}" var="url">
+				<c:param name="transactionId" value="${span.transactionId}" />
+				<c:param name="time" value="${span.startTime}" />
+			</c:url>
+			"logPageUrl" : "${url}"
+			</c:if>
 		}
     	<c:if test="${!status.last}">,</c:if>
 		</c:forEach>

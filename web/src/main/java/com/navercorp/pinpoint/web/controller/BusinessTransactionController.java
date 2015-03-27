@@ -18,9 +18,23 @@ package com.navercorp.pinpoint.web.controller;
 
 
 import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
@@ -36,18 +50,8 @@ import com.navercorp.pinpoint.web.vo.BusinessTransactions;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.TransactionId;
+import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 /**
  * @author emeroad
@@ -68,6 +72,9 @@ public class BusinessTransactionController {
 
     @Autowired
     private FilterBuilder filterBuilder;
+    
+    @Value("#{pinpointWebProps['log.enable'] ?: false}")
+    private boolean logLinkEnable;
 
     /**
      * executed URLs in applicationname query within from ~ to timeframe
@@ -164,6 +171,7 @@ public class BusinessTransactionController {
         ApplicationMap map = filteredMapService.selectApplicationMap(traceId);
         mv.addObject("nodes", map.getNodes());
         mv.addObject("links", map.getLinks());
+        mv.addObject("logLinkEnable", logLinkEnable);
 
         // call stacks
         RecordSet recordSet = this.transactionInfoService.createRecordSet(spanAligns, focusTimestamp);

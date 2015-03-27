@@ -67,7 +67,7 @@ public class AgentClassLoader {
         this.bootClass = bootClass;
     }
 
-    public Agent boot(final String agentArgs, final Instrumentation instrumentation, final ProfilerConfig profilerConfig, final URL[] pluginJars, final ServiceTypeRegistryService serviceTypeRegistryService) {
+    public Agent boot(final AgentOption agentOption) {
 
         final Class<?> bootStrapClazz = getBootStrapClass();
 
@@ -75,8 +75,8 @@ public class AgentClassLoader {
             @Override
             public Object call() throws Exception {
                 try {
-                    Constructor<?> constructor = bootStrapClazz.getConstructor(String.class, Instrumentation.class, ProfilerConfig.class, URL[].class, ServiceTypeRegistryService.class);
-                    return constructor.newInstance(agentArgs, instrumentation, profilerConfig, pluginJars, serviceTypeRegistryService);
+                    Constructor<?> constructor = bootStrapClazz.getConstructor(AgentOption.class);
+                    return constructor.newInstance(agentOption);
                 } catch (InstantiationException e) {
                     throw new BootStrapException("boot create failed. Error:" + e.getMessage(), e);
                 } catch (IllegalAccessException e) {

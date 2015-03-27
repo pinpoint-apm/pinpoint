@@ -26,13 +26,12 @@ import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorBuilder;
 public class ServletPlugin implements ProfilerPlugin {
 
     @Override
-    public void setUp(ProfilerPluginSetupContext context) {
+    public void setup(ProfilerPluginSetupContext context) {
         addHttpServletEditor(context);
     }
 
     private void addHttpServletEditor(ProfilerPluginSetupContext context) {
-        ClassEditorBuilder builder = context.newClassEditorBuilder();
-        builder.target("javax.servlet.http.HttpServlet");
+        ClassEditorBuilder builder = context.getClassEditorBuilder("javax.servlet.http.HttpServlet");
         
         MethodEditorBuilder doGetBuilder = builder.editMethod("doGet", "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse");
         doGetBuilder.injectInterceptor("com.navercorp.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor", ServletConstants.SERVLET);

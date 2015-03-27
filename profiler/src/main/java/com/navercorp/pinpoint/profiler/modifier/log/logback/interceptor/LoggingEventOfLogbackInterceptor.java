@@ -46,9 +46,11 @@ public class LoggingEventOfLogbackInterceptor implements SimpleAroundInterceptor
         
         if (trace == null) {
             MDC.remove(MdcKey.TRANSACTION_ID);
+            MDC.remove(MdcKey.SPAN_ID);
             return;
         } else {
             MDC.put(MdcKey.TRANSACTION_ID, trace.getTraceId().getTransactionId());
+            MDC.put(MdcKey.SPAN_ID, String.valueOf(trace.getTraceId().getSpanId()));
         }
     }
 

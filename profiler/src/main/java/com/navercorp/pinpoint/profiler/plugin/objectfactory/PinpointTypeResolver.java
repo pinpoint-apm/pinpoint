@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.plugin.Cached;
 import com.navercorp.pinpoint.bootstrap.plugin.Name;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
 
 /**
@@ -72,7 +73,7 @@ public class PinpointTypeResolver implements ParameterResolver {
             Annotation annotation = TypeUtils.findAnnotation(annotations, Name.class);
             
             if (annotation == null) {
-                return null;
+                throw new PinpointException("MetadataAccessor parameter must be annotated with @Name");
             }
             
             MetadataAccessor accessor = pluginContext.getMetadataAccessor(((Name)annotation).value());
@@ -81,11 +82,11 @@ public class PinpointTypeResolver implements ParameterResolver {
             Annotation annotation = TypeUtils.findAnnotation(annotations, Name.class);
             
             if (annotation == null) {
-                return null;
+                throw new PinpointException("FieldAccessor parameter must be annotated with @Name");
             }
             
-            FieldAccessor snooper = pluginContext.getFieldSnooper(((Name)annotation).value());
-            return Option.<Object>withValue(snooper);
+            FieldAccessor accessor = pluginContext.getFieldAccessor(((Name)annotation).value());
+            return Option.<Object>withValue(accessor);
         }
         
         return Option.<Object>empty();

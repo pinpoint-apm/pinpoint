@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.plugin.TypeSetupContext;
 public class ServletTypeProvider implements TypeProvider {
 
     @Override
-    public void setUp(TypeSetupContext context) {
+    public void setup(TypeSetupContext context) {
         context.addType(ServletConstants.SERVLET);
     }
 

@@ -174,6 +174,10 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     }
 
 
+    public void attachTraceObject(Trace trace) {
+        this.threadLocal.set(trace);
+    }
+    
     @Override
     public void detachTraceObject() {
         this.threadLocal.remove();

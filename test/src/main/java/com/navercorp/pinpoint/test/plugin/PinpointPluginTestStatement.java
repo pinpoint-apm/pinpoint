@@ -59,6 +59,7 @@ public class PinpointPluginTestStatement extends Statement implements PinpointPl
 
         builder.command(buildCommand());
         builder.redirectErrorStream(true);
+        builder.directory(testCase.getWorkingDirectory());
         
         System.out.println("Working directory: " + SystemProperty.INSTANCE.getProperty("user.dir"));
         System.out.println("Command: " + builder.command());
@@ -165,7 +166,13 @@ public class PinpointPluginTestStatement extends Statement implements PinpointPl
             list.add(arg);
         }
         
-        list.add(testCase.getMainClass());
+        String mainClass = testCase.getMainClass();
+        
+        if (mainClass.endsWith(".jar")) {
+            list.add("-jar");
+        }
+        
+        list.add(mainClass);
         list.addAll(testCase.getAppArgs());
 
         return list.toArray(new String[list.size()]);
@@ -181,10 +188,16 @@ public class PinpointPluginTestStatement extends Statement implements PinpointPl
     
     private String getClassPathAsString() {
         StringBuilder classPath = new StringBuilder();
+        boolean first = true;
         
         for (String lib : testCase.getClassPath()) {
+            if (first) {
+                first = false;
+            } else {
+                classPath.append(File.pathSeparatorChar);
+            }
+            
             classPath.append(lib);
-            classPath.append(File.pathSeparatorChar);
         }
         
         return classPath.toString();
@@ -214,7 +227,7 @@ public class PinpointPluginTestStatement extends Statement implements PinpointPl
         return failure;
     }
     
-    private ChildProcessException toException(String message, String exceptionClass, List<String> traceInText) {
+    private PinpointPluginTestException toException(String message, String exceptionClass, List<String> traceInText) {
         StackTraceElement[] stackTrace = new StackTraceElement[traceInText.size()];
         
         for (int i = 0; i < traceInText.size(); i++) {
@@ -224,6 +237,6 @@ public class PinpointPluginTestStatement extends Statement implements PinpointPl
             stackTrace[i] = new StackTraceElement(tokens[0], tokens[1], tokens[2], Integer.parseInt(tokens[3]));
         }
         
-        return new ChildProcessException(exceptionClass + ": " + message, stackTrace);
+        return new PinpointPluginTestException(exceptionClass + ": " + message, stackTrace);
     }
 }

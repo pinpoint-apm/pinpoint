@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -78,7 +79,7 @@ public class InvokeMethodInterceptorTest {
         when(request.getParameterNames()).thenReturn(enumeration);
 
         TraceContext traceContext = new MockTraceContext();
-        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>());
+        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>(), MetadataAccessor.get(0), MetadataAccessor.get(1));
 
         interceptor.before("target", new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
@@ -101,7 +102,7 @@ public class InvokeMethodInterceptorTest {
         when(request.getParameterNames()).thenReturn(enumeration);
 
         TraceContext traceContext = new MockTraceContext();
-        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>());
+        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>(), MetadataAccessor.get(0), MetadataAccessor.get(1));
         interceptor.setTraceContext(traceContext);
         interceptor.before("target",  new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
@@ -124,7 +125,7 @@ public class InvokeMethodInterceptorTest {
         when(request.getParameterNames()).thenReturn(enumeration);
 
         TraceContext traceContext = new MockTraceContext();
-        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>());
+        StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>(), MetadataAccessor.get(0), MetadataAccessor.get(1));
         interceptor.setTraceContext(traceContext);
 
         interceptor.before("target", new Object[]{request, response});
