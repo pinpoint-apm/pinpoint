@@ -22,13 +22,26 @@ import java.lang.annotation.Target;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 
 /**
+ * Specify the {@link MethodFilter} which will be used to filter the annotated interceptor's target methods.
+ * 
  * @author Jongho Moon
  *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface TargetFilter {
+    /**
+     * Filter type
+     */
     public Class<? extends MethodFilter> value();
+    
+    /**
+     * Filter type
+     */
     public Class<? extends MethodFilter> type();
+    
+    /**
+     * Arguments for specified {@link MethodFilter}'s constructor. 
+     */
     public String[] constructorArguments();
 }

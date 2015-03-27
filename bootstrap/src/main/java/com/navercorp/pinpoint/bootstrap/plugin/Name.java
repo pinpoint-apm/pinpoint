@@ -20,6 +20,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * Provides name of auto binded parameter.
+ * 
+ * Some auto binded parameter types should be identified by name. 
+ * 
  * @author Jongho Moon
  *
  */

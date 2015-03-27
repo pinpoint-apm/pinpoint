@@ -20,11 +20,18 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * Specify the target constructor of the annotated interceptor.
+ * 
  * @author Jongho Moon
  *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface TargetConstructor {
+    /**
+     * Target constructor's parameter types.
+     * 
+     * @return
+     */
     public String[] value() default {};
 }
