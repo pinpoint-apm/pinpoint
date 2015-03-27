@@ -20,11 +20,27 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * Indicates that the annotated {@link Interceptor} should in a scope.
+ * 
+ * Scope is used to prevent handling same task twice.
+ * 
+ * Once a transaction entered a scope S by entering a method m() which is intercepted by an interceptor I scoped by S,
+ * the interceptor I's before() is executed normally but all the other interceptors encounterd afterward within the same scope S are skipped
+ * until the interceptor I's after() is executed.
+ * 
+ * For example, if an interceptor I intecept method a() which invokes itself recusively,
+ * interceptor I will be executed every time a() is invoked.
+ * To prevent this, you can put I in a scope S.
+ * Then I will be invoked the first time a() is invoked only.
+ * 
  * @author Jongho Moon
  *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Scope {
+    /**
+     * scope name
+     */
     public String value();
 }
