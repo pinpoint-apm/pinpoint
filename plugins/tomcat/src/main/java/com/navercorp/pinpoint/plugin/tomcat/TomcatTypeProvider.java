@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.common.plugin.TypeSetupContext;
 
 /**
  * @author Jongho Moon
+ * @author jaehong.kim
  *
  */
 public class TomcatTypeProvider implements TypeProvider, TomcatConstants {
@@ -26,6 +27,6 @@ public class TomcatTypeProvider implements TypeProvider, TomcatConstants {
     @Override
     public void setup(TypeSetupContext context) {
         context.addType(TOMCAT);
+        context.addType(TOMCAT_METHOD);
     }
-
 }

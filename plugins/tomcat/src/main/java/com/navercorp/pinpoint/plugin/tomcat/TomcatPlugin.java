@@ -16,37 +16,60 @@ package com.navercorp.pinpoint.plugin.tomcat;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorProperty.*;
 
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorProperty;
 
 /**
  * @author Jongho Moon
+ * @author jaehong.kim
  *
  */
-public class TomcatPlugin implements ProfilerPlugin {
+public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin#setUp(com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext)
      */
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         context.addApplicationTypeDetector(new TomcatDetector());
 
-        
         TomcatConfiguration config = new TomcatConfiguration(context.getConfig());
-        
+
         if (config.isTomcatHidePinpointHeader()) {
             addRequestFacadeEditor(context);
         }
-        
+
+        addRequestEditor(context);
         addStandardHostValveEditor(context, config);
         addStandardServiceEditor(context);
         addTomcatConnectorEditor(context);
         addWebappLoaderEditor(context);
     }
-    
+
+    private void addRequestEditor(ProfilerPluginSetupContext context) {
+        ClassEditorBuilder builder = context.getClassEditorBuilder("org.apache.catalina.connector.Request");
+        builder.injectMetadata(METADATA_TRACE);
+        builder.injectMetadata(METADATA_ASYNC);
+        
+        // clear request.
+        MethodEditorBuilder recycleMethodEditorBuilder = builder.editMethod("recycle");
+        recycleMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestRecycleInterceptor");
+        
+        // trace asynchronous process. 
+        MethodEditorBuilder startAsyncMethodEditor = builder.editMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
+        startAsyncMethodEditor.property(MethodEditorProperty.IGNORE_IF_NOT_EXIST);
+        startAsyncMethodEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestStartAsyncInterceptor");
+        
+        context.addClassEditor(builder.build());
+    }
+
     private void addRequestFacadeEditor(ProfilerPluginSetupContext context) {
         ClassEditorBuilder builder = context.getClassEditorBuilder("org.apache.catalina.connector.RequestFacade");
         builder.weave("com.navercorp.pinpoint.plugin.tomcat.aspect.RequestFacadeAspect");
@@ -58,15 +81,14 @@ public class TomcatPlugin implements ProfilerPlugin {
         builder.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor", config.getTomcatExcludeUrlFilter());
         context.addClassEditor(builder.build());
     }
-    
+
     private void addStandardServiceEditor(ProfilerPluginSetupContext context) {
         ClassEditorBuilder builder = context.getClassEditorBuilder("org.apache.catalina.core.StandardService");
-        
         // Tomcat 6
         MethodEditorBuilder startEditor = builder.editMethod("start");
         startEditor.property(IGNORE_IF_NOT_EXIST);
         startEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardServiceStartInterceptor");
-        
+
         // Tomcat 7
         MethodEditorBuilder startInternalEditor = builder.editMethod("startInternal");
         startInternalEditor.property(IGNORE_IF_NOT_EXIST);
@@ -74,7 +96,7 @@ public class TomcatPlugin implements ProfilerPlugin {
         
         context.addClassEditor(builder.build());
     }
-    
+
     private void addTomcatConnectorEditor(ProfilerPluginSetupContext context) {
         ClassEditorBuilder builder = context.getClassEditorBuilder("org.apache.catalina.connector.Connector");
 
@@ -90,16 +112,14 @@ public class TomcatPlugin implements ProfilerPlugin {
         
         context.addClassEditor(builder.build());
     }
-    
+
     private void addWebappLoaderEditor(ProfilerPluginSetupContext context) {
         ClassEditorBuilder builder = context.getClassEditorBuilder("org.apache.catalina.loader.WebappLoader");
-        
-        
         // Tomcat 6 - org.apache.catalina.loader.WebappLoader.start()
         MethodEditorBuilder startEditor = builder.editMethod("start");
         startEditor.property(IGNORE_IF_NOT_EXIST);
         startEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.WebappLoaderStartInterceptor");
-        
+
         // Tomcat 7, 8 - org.apache.catalina.loader.WebappLoader.startInternal()
         MethodEditorBuilder startInternalEditor = builder.editMethod("startInternal");
         startInternalEditor.property(IGNORE_IF_NOT_EXIST);

@@ -36,5 +36,6 @@ public interface TraceFactory {
 
     Trace newTraceObject();
 
+    void attachTraceObject(Trace trace);
     void detachTraceObject();
 }

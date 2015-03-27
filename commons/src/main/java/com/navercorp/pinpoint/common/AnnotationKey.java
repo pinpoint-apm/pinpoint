@@ -86,6 +86,7 @@ public class AnnotationKey {
     public static final AnnotationKey API = new AnnotationKey(12, "API");
     public static final AnnotationKey API_METADATA = new AnnotationKey(13, "API-METADATA");
     public static final AnnotationKey RETURN_DATA = new AnnotationKey(14, "RETURN_DATA", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey API_TAG = new AnnotationKey(10015, "API-TAG");
     
     // when you don't know the correct cause of errors.
     public static final AnnotationKey ERROR_API_METADATA_ERROR = new AnnotationKey(10000010, "API-METADATA-ERROR", ERROR_API_METADATA);
@@ -129,7 +130,9 @@ public class AnnotationKey {
     public static final AnnotationKey NIMM_METHOD_NAME = new AnnotationKey(71, "nimm.methodName");
     public static final AnnotationKey NIMM_PARAM = new AnnotationKey(72, "nimm.param");
     public static final AnnotationKey NIMM_CONNECT_OPTION = new AnnotationKey(73, "nimm.connect.options");
-    
+
+
+  
     public static final AnnotationKey ARGS0 = new AnnotationKey(-1, "args[0]");
     public static final AnnotationKey ARGS1 = new AnnotationKey(-2, "args[1]");
     public static final AnnotationKey ARGS2 = new AnnotationKey(-3, "args[2]");

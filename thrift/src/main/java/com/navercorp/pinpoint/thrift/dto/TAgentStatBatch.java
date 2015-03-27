@@ -508,14 +508,14 @@ public class TAgentStatBatch implements org.apache.thrift.TBase<TAgentStatBatch,
           case 10: // AGENT_STATS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list0 = iprot.readListBegin();
-                struct.agentStats = new ArrayList<TAgentStat>(_list0.size);
-                for (int _i1 = 0; _i1 < _list0.size; ++_i1)
+                org.apache.thrift.protocol.TList _list24 = iprot.readListBegin();
+                struct.agentStats = new ArrayList<TAgentStat>(_list24.size);
+                for (int _i25 = 0; _i25 < _list24.size; ++_i25)
                 {
-                  TAgentStat _elem2;
-                  _elem2 = new TAgentStat();
-                  _elem2.read(iprot);
-                  struct.agentStats.add(_elem2);
+                  TAgentStat _elem26;
+                  _elem26 = new TAgentStat();
+                  _elem26.read(iprot);
+                  struct.agentStats.add(_elem26);
                 }
                 iprot.readListEnd();
               }
@@ -549,9 +549,9 @@ public class TAgentStatBatch implements org.apache.thrift.TBase<TAgentStatBatch,
         oprot.writeFieldBegin(AGENT_STATS_FIELD_DESC);
         {
           oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.agentStats.size()));
-          for (TAgentStat _iter3 : struct.agentStats)
+          for (TAgentStat _iter27 : struct.agentStats)
           {
-            _iter3.write(oprot);
+            _iter27.write(oprot);
           }
           oprot.writeListEnd();
         }
@@ -594,9 +594,9 @@ public class TAgentStatBatch implements org.apache.thrift.TBase<TAgentStatBatch,
       if (struct.isSetAgentStats()) {
         {
           oprot.writeI32(struct.agentStats.size());
-          for (TAgentStat _iter4 : struct.agentStats)
+          for (TAgentStat _iter28 : struct.agentStats)
           {
-            _iter4.write(oprot);
+            _iter28.write(oprot);
           }
         }
       }
@@ -616,14 +616,14 @@ public class TAgentStatBatch implements org.apache.thrift.TBase<TAgentStatBatch,
       }
       if (incoming.get(2)) {
         {
-          org.apache.thrift.protocol.TList _list5 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.agentStats = new ArrayList<TAgentStat>(_list5.size);
-          for (int _i6 = 0; _i6 < _list5.size; ++_i6)
+          org.apache.thrift.protocol.TList _list29 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.agentStats = new ArrayList<TAgentStat>(_list29.size);
+          for (int _i30 = 0; _i30 < _list29.size; ++_i30)
           {
-            TAgentStat _elem7;
-            _elem7 = new TAgentStat();
-            _elem7.read(iprot);
-            struct.agentStats.add(_elem7);
+            TAgentStat _elem31;
+            _elem31 = new TAgentStat();
+            _elem31.read(iprot);
+            struct.agentStats.add(_elem31);
           }
         }
         struct.setAgentStatsIsSet(true);

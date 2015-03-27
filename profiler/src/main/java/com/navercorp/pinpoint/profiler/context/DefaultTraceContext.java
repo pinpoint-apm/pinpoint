@@ -155,6 +155,10 @@ public class DefaultTraceContext implements TraceContext {
     }
 
 
+    public void attachTraceObject(Trace trace) {
+        this.traceFactory.attachTraceObject(trace);
+    }
+    
     @Override
     public void detachTraceObject() {
         this.traceFactory.detachTraceObject();
@@ -211,6 +215,7 @@ public class DefaultTraceContext implements TraceContext {
             apiMetadata.setApiId(result.getId());
             apiMetadata.setApiInfo(methodDescriptor.getApiDescriptor());
             apiMetadata.setLine(methodDescriptor.getLineNumber());
+            apiMetadata.setType(methodDescriptor.getType());
 
             this.priorityDataSender.request(apiMetadata);
         } 
