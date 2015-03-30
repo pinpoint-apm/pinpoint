@@ -32,6 +32,4 @@ public interface TomcatConstants {
     public static final String METADATA_ASYNC = "async";
     public static final String ATTRIBUTE_PINPOINT_TRACE = "PINPOINT_TRACE";
 
-    public static final ServletSyncMethodDescriptor SERVLET_SYNCHRONOUS_API_TAG = new ServletSyncMethodDescriptor();
-    public static final ServletAsyncMethodDescriptor SERVLET_ASYNCHRONOUS_API_TAG = new ServletAsyncMethodDescriptor();
 }

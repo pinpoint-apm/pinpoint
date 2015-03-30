@@ -40,6 +40,8 @@ import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.plugin.tomcat.ServletAsyncMethodDescriptor;
+import com.navercorp.pinpoint.plugin.tomcat.ServletSyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
 import com.navercorp.pinpoint.profiler.context.SpanId;
 
@@ -49,6 +51,9 @@ import com.navercorp.pinpoint.profiler.context.SpanId;
  */
 @TargetMethod(name = "invoke", paramTypes = { "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response" })
 public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundInterceptor implements TomcatConstants {
+    public static final ServletSyncMethodDescriptor SERVLET_SYNCHRONOUS_API_TAG = new ServletSyncMethodDescriptor();
+    public static final ServletAsyncMethodDescriptor SERVLET_ASYNCHRONOUS_API_TAG = new ServletAsyncMethodDescriptor();
+
     private final boolean isTrace = logger.isTraceEnabled();
     private Filter<String> excludeUrlFilter;
     private MetadataAccessor traceAccessor;
@@ -83,7 +88,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
             final Trace trace = getTraceMetadata(request);
             if (trace != null) {
                 // change api
-                trace.recordApi(TomcatConstants.SERVLET_ASYNCHRONOUS_API_TAG);
+                trace.recordApi(SERVLET_ASYNCHRONOUS_API_TAG);
                 // attach current thread local.
                 getTraceContext().attachTraceObject(trace);
 
@@ -212,7 +217,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         if (!trace.isRoot()) {
             recordParentInfo(trace, request);
         }
-        trace.recordApi(TomcatConstants.SERVLET_SYNCHRONOUS_API_TAG);
+        trace.recordApi(SERVLET_SYNCHRONOUS_API_TAG);
     }
 
     private void recordParentInfo(RecordableTrace trace, HttpServletRequest request) {
