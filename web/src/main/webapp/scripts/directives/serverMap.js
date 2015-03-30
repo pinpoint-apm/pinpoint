@@ -3,6 +3,7 @@
 pinpointApp.constant('serverMapConfig', {
     options: {
         "sContainerId": 'servermap',
+        "sOverviewId": 'servermapOverview',
         "sBigFont": "11pt Lato,NanumGothic,ng,dotum,AppleGothic,sans-serif",
         "sSmallFont": "11pt Lato,NanumGothic,ng,dotum,AppleGothic,sans-serif",
         "sImageDir": '/images/servermap/',
@@ -17,7 +18,8 @@ pinpointApp.constant('serverMapConfig', {
                 "fontFamily": "11pt Lato,NanumGothic,ng,dotum,AppleGothic,sans-serif",
                 "fontColor": "#000000",
                 "fontAlign": "center",
-                "margin": 1
+                "margin": 1,
+                "strokeWidth": 1
             },
             "bad": {
                 "backgroundColor": "#ffc9c9",
@@ -25,7 +27,8 @@ pinpointApp.constant('serverMapConfig', {
                 "fontFamily": "11pt Lato,NanumGothic,ng,dotum,AppleGothic,sans-serif",
                 "fontColor": "#FF1300",
                 "fontAlign": "center",
-                "margin": 1
+                "margin": 1,
+                "strokeWidth": 1
             }
         }
     }
@@ -47,7 +50,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 // define private variables of methods
                 var showServerMap, setNodeContextMenuPosition, reset, emitDataExisting,
                     setLinkContextMenuPosition, setBackgroundContextMenuPosition, serverMapCallback, setLinkOption,
-                    zoomToFit, updateLastSelection, openFilterWizard;
+                    zoomToFit, updateLastSelection, openFilterWizard, searchNode;
 
 
                 // bootstrap
@@ -75,6 +78,9 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 scope.bShowServerMapStatus = false;
                 scope.linkRouting = cfg.options.htLinkType.sRouting;
                 scope.linkCurve = cfg.options.htLinkType.sCurve;
+                scope.searchNodeName = "";
+                scope.searchNodeIndex = 0;
+                scope.searchNodeList = [];
                 $fromAgentName = element.find('.fromAgentName');
                 $toAgentName = element.find('.toAgentName');
                 $fromAgentName.select2();
@@ -95,8 +101,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     };
                     scope.includeFailed = null;
                     $('#filterWizard').modal('hide');
-                    if (!scope.$$phase) {
-                        scope.$digest();
+
+                    if (!(scope.$$phase == '$apply' || scope.$$phase == '$digest') ) {
+                    	if (!(scope.$root.$$phase == '$apply' || scope.$root.$$phase == '$digest') ) {
+                    		scope.$digest();
+                    	}
                     }
                 };
 
@@ -238,11 +247,13 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * @param linkCurve
                  */
                 serverMapCallback = function (query, applicationMapData, mergeUnknowns, linkRouting, linkCurve) {
+                	console.log( applicationMapData );
                     var lastCopiedData = applicationMapData;
                     if (mergeUnknowns) {
                         lastCopiedData = ServerMapDao.mergeUnknown(applicationMapData);
                     }
 
+                    console.log( lastCopiedData );
 //                    ServerMapDao.removeNoneNecessaryDataForHighPerformance(lastCopiedData);
                     oProgressBar.setLoading(80);
                     if (lastCopiedData.nodeDataArray.length === 0) {
@@ -690,6 +701,29 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     htLastLink = link;
                     openFilterWizard();
                 });
+                
+                scope.searchNodeByEnter = function( $event ) {
+                	if ( $event.keyCode == 13 ) {
+                		scope.searchNode();
+                	}                	
+                }
+                scope.searchNodeWithCategory = function( index ) {
+                	if (oServerMap) {
+                		scope.searchNodeIndex = index;
+                        oServerMap.searchNode( scope.searchNodeList[index].applicationName, scope.searchNodeList[index].serviceType );
+                    }
+                }
+                scope.searchNode = function() {
+                	if (oServerMap && scope.searchNodeName !== "" ) {
+                		scope.searchNodeIndex = 0;
+                        scope.searchNodeList = oServerMap.searchNode( scope.searchNodeName );
+                    }
+                };
+                scope.clearSearchNode = function() {
+                	scope.searchNodeIndex = 0;
+                	scope.searchNodeName = "";
+                	scope.searchNodeList = [];
+                }
             }
         };
     }]);

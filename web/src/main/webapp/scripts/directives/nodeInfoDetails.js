@@ -63,9 +63,13 @@ pinpointApp
                         scope.nodeOrderByNameClass = '';
                         scope.nodeOrderByCountClass = 'glyphicon-sort-by-order-alt';
                         scope.nodeOrderByDesc = true;
-                        if (!scope.$$phase) {
-                            scope.$digest();
+
+                        if (!(scope.$$phase == '$apply' || scope.$$phase == '$digest') ) {
+                        	if (!(scope.$root.$$phase == '$apply' || scope.$root.$$phase == '$digest') ) {
+                        		scope.$digest();
+                        	}
                         }
+                        
                     };
 
                     /**
@@ -96,8 +100,13 @@ pinpointApp
                                 element.find('[data-toggle="tooltip"]').tooltip('destroy').tooltip();
                             });
                         }
-                        if (!scope.$$phase) {
-                            scope.$digest();
+//                        if (!scope.$$phase) {
+//                            scope.$digest();
+//                        }
+                        if (!(scope.$$phase == '$apply' || scope.$$phase == '$digest') ) {
+                        	if (!(scope.$root.$$phase == '$apply' || scope.$root.$$phase == '$digest') ) {
+                        		scope.$digest();
+                        	}
                         }
                     };
 
