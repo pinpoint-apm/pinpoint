@@ -23,6 +23,7 @@
         $init: function (htOption) {
             this.option({
                 "sContainerId": '',
+                "sOverviewId": '',
                 "sBigFont": "11pt avn85,NanumGothic,ng,dotum,AppleGothic,sans-serif",
                 "sSmallFont": "10pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
                 "sImageDir": './images/',
@@ -45,6 +46,7 @@
                     'QUEUE': 'QUEUE.png',
                     'STAND_ALONE': 'STAND_ALONE.png',
                     'TOMCAT': 'TOMCAT.png',
+                    'UNDEFINED': 'UNDEFINED.png',
                     'UNKNOWN': 'UNKNOWN.png',
                     'UNKNOWN_GROUP': 'UNKNOWN_GROUP.png',
                     'REDIS': 'REDIS.png',
@@ -75,7 +77,8 @@
                         "fontFamily": "11pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
                         "fontColor": "#000000",
                         "fontAlign": "center",
-                        "margin": 1
+                        "margin": 1,
+                        "strokeWidth": 1
                     },
                     "bad": {
                         "backgroundColor": "#ffc9c9",
@@ -83,16 +86,21 @@
                         "fontFamily": "11pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
                         "fontColor": "#FF1300",
                         "fontAlign": "center",
-                        "margin": 1
+                        "margin": 1,
+                        "strokeWidth": 1
                     }
                 },
                 "htHighlightNode": {
-                    "borderColor": "#25AFF4",
+                    //"borderColor": "#25AFF4",
+                	"borderColor": "#53069B",
                     "backgroundColor": "#289E1D",
                     "fontColor": "#ffffff"
                 },
                 "htHighlightLink": {
-                    "borderColor": "#25AFF4"
+                	"fontFamily": "bold 12pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
+                    //"borderColor": "#25AFF4",
+                	"borderColor": "#53069B",
+                    "strokeWidth": 2
                 },
                 "htPadding": {
                     "top": 10,
@@ -100,6 +108,7 @@
                     "bottom": 10,
                     "left": 10
                 },
+                "unknownGroupName" : "UNKNOWN_GROUP",
                 "fOnNodeClicked": function (eMouseEvent, htData) {
                 },
                 "fOnNodeContextClicked": function (eMouseEvent, htData) {
@@ -121,6 +130,7 @@
             this._initNodeTemplates();
             this._initLinkTemplates();
             this._initDiagramEnvironment();
+            this._initOverview();
         },
 
         /**
@@ -236,6 +246,7 @@
                         go.Panel,
                         go.Panel.Spot,
                         {
+                        	name: "NODE_PANEL",
                             alignment: go.Spot.TopLeft,
                             alignmentFocus: go.Spot.TopLeft
                         },
@@ -590,6 +601,7 @@
                             self.$(
                                 go.TextBlock,  // the label
                                 {
+                                	name: "LINK_TEXT",
                                     textAlign: htOption.fontAlign,
                                     font: htOption.fontFamily,
                                     margin: htOption.margin
@@ -694,6 +706,20 @@
                 }
             });
         },
+        /**
+         * initialize Overview
+         *
+         * @method _initOverview
+         */
+        _initOverview: function () {
+            this._oOverview = this.$( go.Overview,
+            		this.option('sOverviewId'),
+            		{ observed: this._oDiagram }
+            );
+            this._oOverview.box.elt(0).figure = "RoundedRectangle";
+            this._oOverview.box.elt(0).stroke = "#53069B";
+            this._oOverview.box.elt(0).strokeWidth = 4;
+        },
 
         /**
          * load
@@ -723,7 +749,7 @@
          * @method _resetHighlights
          */
         _resetHighlights: function () {
-            var allNodes = this._oDiagram.nodes;
+        	var allNodes = this._oDiagram.nodes;
             var allLinks = this._oDiagram.links;
             while (allNodes.next()) {
                 allNodes.value.highlight = false;
@@ -748,11 +774,11 @@
             this._resetHighlights();
             selection.highlight = 'self';
             if (selection instanceof go.Node) {
-//                this._linksTo(selection, 'from');
-//                this._linksFrom(selection, 'to');
+                this._linksTo(selection, 'from');
+                this._linksFrom(selection, 'to');
             } else if (selection instanceof go.Link) {
-//                this._nodesTo(selection, 'from');
-//                this._nodesFrom(selection, 'to');
+                this._nodesTo(selection, 'from');
+                this._nodesFrom(selection, 'to');
             }
 
             // iterators containing all nodes and links in the diagram
@@ -768,6 +794,7 @@
                 this._highlightLink(allLinks.value.findObject("LINK"), allLinks.value.highlight);
 //                this._highlightLink(allLinks.value.findObject("LINK2"), allLinks.value.highlight);
                 this._highlightLink(allLinks.value.findObject("ARROW"), allLinks.value.highlight, true);
+                this._highlightLinkText(allLinks.value.findObject("LINK_TEXT"), allLinks.value.highlight);
             }
         },
 
@@ -832,10 +859,12 @@
             }
             if (theme) {
                 nodeShape.stroke = this.option('htHighlightNode').borderColor;
+                nodeShape.strokeWidth = 2;
 //                nodeText.stroke = this.option('htHighlightNode')[theme].fontColor;
             } else {
                 var type = (nodeShape.key === this.option('sBoldKey')) ? 'bold' : 'default';
                 nodeShape.stroke = this.option('htNodeTheme')[type].borderColor;
+                nodeShape.strokeWidth = 1;
 //                nodeText.stroke = this.option('htNodeTheme').default.fontColor;
             }
         },
@@ -853,14 +882,23 @@
             var color;
             if (theme) {
                 color = this.option('htHighlightLink').borderColor;
+                shape.strokeWidth = this.option('htHighlightLink').strokeWidth;
             } else {
                 color = this.option('htLinkTheme').default.borderColor;
+                shape.strokeWidth = this.option('htLinkTheme').default.strokeWidth;
             }
             if (toFill) {
                 shape.fill = color;
             } else {
                 shape.stroke = color;
             }
+        },
+        _highlightLinkText: function( nodeText, highlight ) {
+        	if ( highlight ) {
+        		nodeText.font = this.option('htHighlightLink').fontFamily;
+        	} else {
+        		nodeText.font = this.option('htLinkTheme').default.fontFamily;
+        	}
         },
 
         /**
@@ -968,6 +1006,7 @@
          * @param {ojb} ojb
          */
         _onNodeContextClicked: function (e, obj) {
+        	console.log( "nodeContextClicked : ", this );
             var node = obj.part,
                 htData = node.data,
                 fOnNodeContextClicked = this.option('fOnNodeContextClicked');
@@ -1030,8 +1069,58 @@
             this._oDiagram.zoomToFit();
             this._oDiagram.contentAlignment = go.Spot.Center;
             this._oDiagram.contentAlignment = go.Spot.None;
+        },
+        /**
+         * search node
+         */
+        searchNode: function( nodeName, nodeServiceType ) {        	
+        	var allNodes = this._oDiagram.nodes,
+        		selectedNode = null,
+        		selectedIndex = 0,
+        		similarNodeList = [],
+        		returnNodeDataList = [];
+        	
+            while (allNodes.next()) {
+                var node = allNodes.value;
+                if ( node.data.serviceType == this.option("unknownGroupName") && ( nodeServiceType == this.option("unknownGroupName") || nodeServiceType == null ) ) {
+                	var unknownNodeGroup = node.data.unknownNodeGroup;
+                	for( var i = 0; i < unknownNodeGroup.length ; i++ ) {
+                		if ( new RegExp( nodeName, "i" ).test( unknownNodeGroup[i].applicationName ) ) {
+                			this._addNodeToTemporaryList( similarNodeList, returnNodeDataList, node, unknownNodeGroup[i], this.option("unknownGroupName") );
+	                		break;
+                		}
+                	}
+                } else {
+	                if ( !angular.isUndefined( node.data.applicationName ) ) {
+		                if ( new RegExp( nodeName, "i" ).test( node.data.applicationName ) ) {
+		                	this._addNodeToTemporaryList( similarNodeList, returnNodeDataList, node, node.data );
+		                	if ( new RegExp( nodeServiceType, "i" ).test( node.data.serviceType ) ) {
+		                		selectedIndex = similarNodeList.length - 1;
+		                	}
+		                }
+	                }
+                }
+            }
+         
+            if ( similarNodeList.length != 0 ) {
+            	this._selectAndHighlight( similarNodeList[selectedIndex] );
+	        }
+            if ( angular.isUndefined ( nodeServiceType ) ) {
+            	return returnNodeDataList;
+            }
+        },
+        _addNodeToTemporaryList : function( similarNodeList, returnNodeDataList, node, nodeData, serviceType ) {
+        	similarNodeList.push( node );
+    		returnNodeDataList.push({
+        		applicationName: nodeData.applicationName,
+        		serviceType: serviceType || nodeData.serviceType
+        	});
+        },
+        _selectAndHighlight : function( selectedNode ) {
+        	this._oDiagram.select( selectedNode );
+            this._oDiagram.centerRect( selectedNode.actualBounds );
+            this._onNodeClicked(null, selectedNode );
         }
-
     });
 
 })(window, go, jQuery, _);
