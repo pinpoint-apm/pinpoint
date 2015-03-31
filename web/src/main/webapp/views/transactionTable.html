@@ -50,23 +50,23 @@
             <tbody style="overflow: auto;height:100%">
                 <tr ng-repeat="transaction in transactionList | orderBy:transactionOrderBy:transactionReverse"
                     ng-class="{true: 'success', false: {'danger': transaction.exception}}[transaction == currentTransaction]">
-                    <td>
+                    <td style="vertical-align: middle">
                         <div style='padding-right:5px;text-align:right;position:relative;'>
                             <a href ng-href="/transactionInfo.pinpoint?traceId={{transaction.traceId}}&focusTimestamp={{transaction.collectorAcceptTime}}"
                                target="_blank" style="position:absolute;top:0;left:0;width:15px;height:15px;"></a>
                             {{transaction.index | number}}
                         </div>
                     </td>
-                    <td ng-click="traceByApplication(transaction)" style="cursor:pointer" sorttable_customkey="{{transaction.startTime}}">{{transaction.startTime | date:'MM/dd HH:mm:ss sss'}}
+                    <td ng-click="traceByApplication(transaction)" style="cursor:pointer;vertical-align: middle" sorttable_customkey="{{transaction.startTime}}">{{transaction.startTime | date:'MM/dd HH:mm:ss sss'}}
                     </td>
-                    <td ng-click="traceByApplication(transaction)" style="cursor:pointer">
+                    <td ng-click="traceByApplication(transaction)" style="cursor:pointer;vertical-align: middle">
                         {{transaction.application}}
                         <a ng-click="openTransactionView(transaction);$event.stopPropagation()" target="_blank" title="Open Mixed View in New Window" data-toggle="tooltip" data-placement="right"><span class="glyphicon glyphicon-list-alt"></span></a>
-                    <td ng-click="traceByApplication(transaction)" style='cursor:pointer;padding-right:15px;text-align:right'>{{transaction.elapsed | number}}</td>
-                    <td ng-click="traceByApplication(transaction)" style="cursor:pointer;text-align:center;"><span class="glyphicon glyphicon-fire" ng-show="transaction.exception == 1"></span></td>
-                    <td ng-click="traceByApplication(transaction)" style="cursor:pointer">{{transaction.agentId}}</td>
-                    <td ng-click="traceByApplication(transaction)" style="cursor:pointer">{{transaction.remoteAddr}}</td>
-                    <td ng-click="traceByApplication(transaction)" style="cursor:pointer">{{transaction.traceId}} <a ng-if="transaction.logPageUrl" class="btn btn-default btn-xs" href="{{transaction.logPageUrl}}" target="_blank">{{transaction.logButtonName}}</a> </td>
+                    <td ng-click="traceByApplication(transaction)" style='cursor:pointer;padding-right:15px;text-align:right;vertical-align: middle'>{{transaction.elapsed | number}}</td>
+                    <td ng-click="traceByApplication(transaction)" style="cursor:pointer;text-align:center;;vertical-align: middle"><span class="glyphicon glyphicon-fire" ng-show="transaction.exception == 1"></span></td>
+                    <td ng-click="traceByApplication(transaction)" style="cursor:pointer;vertical-align: middle">{{transaction.agentId}}</td>
+                    <td ng-click="traceByApplication(transaction)" style="cursor:pointer;vertical-align: middle">{{transaction.remoteAddr}}</td>
+                    <td ng-click="traceByApplication(transaction)" style="cursor:pointer;vertical-align: middle">{{transaction.traceId}} <a ng-if="transaction.logPageUrl" class="btn btn-default btn-xs" href="{{transaction.logPageUrl}}" target="_blank">{{transaction.logButtonName}}</a> </td>
                 </tr>
             </tbody>
         </table>
