@@ -70,14 +70,15 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     @Autowired
     private AnnotationKeyRegistryService annotationKeyRegistryService;
 
-    @Value("#{pinpointWebProps['log.enable'] ?: false}")
-    private boolean logLinkEnable;
+//    Temporarily disabled Becuase We need to slove authentication problem inter system.      
+//    @Value("#{pinpointWebProps['log.enable'] ?: false}")
+//    private boolean logLinkEnable;
 
-    @Value("#{pinpointWebProps['log.button.name'] ?: ''}")
-    private String logButtonName;
+//    @Value("#{pinpointWebProps['log.button.name'] ?: ''}")
+//    private String logButtonName;
 
-    @Value("#{pinpointWebProps['log.page.url'] ?: ''}")
-    private String logPageUrl;
+//    @Value("#{pinpointWebProps['log.page.url'] ?: ''}")
+//    private String logPageUrl;
 
     @Override
     public BusinessTransactions selectBusinessTransactions(List<TransactionId> transactionIdList, String applicationName, Range range, Filter filter) {
@@ -163,9 +164,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
         recordSet.setRecordList(recordList);
 
-        if (logLinkEnable) {
-            addlogLink(recordSet);
-        }
+//        if (logLinkEnable) {
+//            addlogLink(recordSet);
+//        }
 
         return recordSet;
     }
@@ -179,30 +180,29 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         }
     }
 
-    private void addlogLink(RecordSet recordSet) {
-        List<Record> records = recordSet.getRecordList();
-        List<TransactionInfo> transactionInfoes = new LinkedList<TransactionInfo>();
-
-        for (Iterator<Record> iterator = records.iterator(); iterator.hasNext();) {
-            Record record = (Record) iterator.next();
-
-            if (record.getTransactionId() == null) {
-                continue;
-            }
-
-            TransactionInfo transactionInfo = new TransactionInfo(record.getTransactionId(), record.getSpanId());
-
-            if (transactionInfoes.contains(transactionInfo)) {
-                continue;
-            }
-            ;
-
-            record.setLogPageUrl(logPageUrl);
-            record.setLogButtonName(logButtonName);
-
-            transactionInfoes.add(transactionInfo);
-        }
-    }
+//    private void addlogLink(RecordSet recordSet) {
+//        List<Record> records = recordSet.getRecordList();
+//        List<TransactionInfo> transactionInfoes = new LinkedList<TransactionInfo>();
+//        
+//        for (Iterator<Record> iterator = records.iterator(); iterator.hasNext();) {
+//            Record record = (Record) iterator.next();
+//            
+//            if(record.getTransactionId() == null) {
+//                continue;
+//            }
+//            
+//            TransactionInfo transactionInfo = new TransactionInfo(record.getTransactionId(), record.getSpanId());
+//            
+//            if (transactionInfoes.contains(transactionInfo)) {
+//                continue;
+//            };
+//            
+//            record.setLogPageUrl(logPageUrl);
+//            record.setLogButtonName(logButtonName);
+//            
+//            transactionInfoes.add(transactionInfo);
+//        }
+//    }
 
     private class TransactionInfo {
 
@@ -645,7 +645,6 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         }
 
         final AnnotationKeyMatcher matcher = annotationKeyMatcherService.findAnnotationKeyMatcher(span.getServiceType());
-        ;
         if (matcher == null) {
             return null;
         }

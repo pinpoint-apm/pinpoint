@@ -50,18 +50,19 @@ public class LoggingEventOfLog4jModifier extends AbstractModifier {
         if (logger.isInfoEnabled()) {
             logger.info("Modifing. {}", javassistClassName);
         }
-
+        
         try {
-            Class<?> mdcClass = classLoader.loadClass("org.apache.log4j.MDC");
-            mdcClass.getMethod("put", String.class, Object.class);
-            mdcClass.getMethod("remove", String.class);
-        } catch (SecurityException e) {
-            logger.warn("modify fail. There is the problem while checking org.apache.log4j.MDC class. Cause:" + e.getMessage(), e);
-            return null;
-        } catch (NoSuchMethodException e) {
-            logger.warn("modify fail. Because put, remove method does not existed org.apache.log4j.MDC class. Cause:" + e.getMessage(), e);
-            return null;
-        } catch (ClassNotFoundException e) {
+            InstrumentClass mdcClass = byteCodeInstrumentor.getClass(classLoader, "org.apache.log4j.MDC", classFileBuffer);
+            
+            if (!mdcClass.hasMethod("put", new String[]{"java.lang.String", "java.lang.Object"}, "void")) {
+                logger.warn("modify fail. Because put method does not existed org.apache.log4j.MDC class.");
+                return null;
+            }
+            if (!mdcClass.hasMethod("remove", new String[]{"java.lang.String"}, "void")) {
+                logger.warn("modify fail. Because remove method does not existed org.apache.log4j.MDC class.");
+                return null;
+            }
+        } catch (InstrumentException e) {
             logger.warn("modify fail. Because org.apache.log4j.MDC does not existed. Cause:" + e.getMessage(), e);
             return null;
         }
