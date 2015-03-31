@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.interceptor.bci;
 
-import com.google.common.collect.MapMaker;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
+import com.navercorp.pinpoint.profiler.util.Maps;
 import javassist.ClassPath;
 import javassist.LoaderClassPath;
 import org.slf4j.Logger;
@@ -47,23 +47,17 @@ public class HierarchyMultipleClassPool implements MultipleClassPool {
         if (parentClassPool == null) {
             throw new NullPointerException("parentClassPool must not be null");
         }
-        this.classMap = createWeakConcurrentMap();
+        this.classMap = Maps.newWeakConcurrentMap();
         this.parentClassPool = parentClassPool;
     }
 
 
     public HierarchyMultipleClassPool() {
-        this.classMap = createWeakConcurrentMap();
+        this.classMap = Maps.newWeakConcurrentMap();
         this.parentClassPool = new NamedClassPool("system");
         parentClassPool.appendSystemPath();
     }
 
-
-    private ConcurrentMap<ClassLoader, NamedClassPool> createWeakConcurrentMap() {
-        MapMaker mapMaker = new MapMaker();
-        mapMaker.weakKeys();
-        return mapMaker.makeMap();
-    }
 
 
     @Override
@@ -135,7 +129,7 @@ public class HierarchyMultipleClassPool implements MultipleClassPool {
         ClassLoader parent;
         while (true) {
             parent = classLoader.getParent();
-            if (ClassLoaderUtils.isStandardClassLoader(parent)) {
+            if (ClassLoaderUtils.isJvmClassLoader(parent)) {
                 classLoaderHierarchyList.addFirst(SYSTEM);
                 break;
             }
