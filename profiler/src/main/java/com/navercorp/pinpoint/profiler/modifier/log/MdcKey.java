@@ -19,6 +19,6 @@ package com.navercorp.pinpoint.profiler.modifier.log;
  * @author minwoo.jung
  */
 public class MdcKey {
-    public static final String TRANSACTION_ID = "PtransactionId";
+    public static final String TRANSACTION_ID = "PtxId";
     public static final String SPAN_ID = "PspanId";
 }
