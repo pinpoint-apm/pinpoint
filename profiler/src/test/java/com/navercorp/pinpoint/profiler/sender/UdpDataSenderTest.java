@@ -74,16 +74,26 @@ public class UdpDataSenderTest {
         String random = RandomStringUtils.randomAlphabetic(UdpDataSender.UDP_MAX_PACKET_LENGTH);
         TAgentInfo agentInfo = new TAgentInfo();
         agentInfo.setAgentId(random);
-        boolean limit = sendMessage_getLimit(agentInfo);
+        boolean limit = sendMessage_getLimit(agentInfo, 5000);
         Assert.assertTrue("limit overflow",limit);
 
-        boolean noLimit = sendMessage_getLimit(new TAgentInfo());
+        boolean noLimit = sendMessage_getLimit(new TAgentInfo(), 5000);
         Assert.assertFalse("success", noLimit);
-
-
     }
 
-    private boolean sendMessage_getLimit(TBase tbase) throws InterruptedException {
+    @Test
+    public void sendExceedData() throws InterruptedException {
+        String random = RandomStringUtils.randomAlphabetic(UdpDataSender.UDP_MAX_PACKET_LENGTH + 100);
+        TAgentInfo agentInfo = new TAgentInfo();
+        agentInfo.setAgentId(random);
+        boolean limit = sendMessage_getLimit(agentInfo, 1000);
+
+        // do not execute.
+        Assert.assertFalse(limit);
+    }
+
+    
+    private boolean sendMessage_getLimit(TBase tbase, long waitTimeMillis) throws InterruptedException {
         final AtomicBoolean limitCounter = new AtomicBoolean(false);
         final CountDownLatch latch = new CountDownLatch(1);
 
@@ -98,7 +108,7 @@ public class UdpDataSenderTest {
         };
         try {
             sender.send(tbase);
-            latch.await(5000, TimeUnit.MILLISECONDS);
+            latch.await(waitTimeMillis, TimeUnit.MILLISECONDS);
         } finally {
             sender.stop();
         }
