@@ -164,4 +164,8 @@ public class MockTraceContext implements TraceContext {
     public ServerMetaDataHolder getServerMetaDataHolder() {
         return null;
     }
+
+    @Override
+    public void attachTraceObject(Trace trace) {
+    }
 }

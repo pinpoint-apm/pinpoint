@@ -122,7 +122,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     }
 
     @Override
-    public FieldAccessor getFieldSnooper(String name) {
+    public FieldAccessor getFieldAccessor(String name) {
         return fieldSnooperMap.get(name);
     }
 

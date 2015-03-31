@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.interceptor.bci;
 
-import com.google.common.collect.MapMaker;
 import javassist.ClassPath;
 import javassist.LoaderClassPath;
 
-import java.util.concurrent.ConcurrentMap;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 /**
  * @author emeroad
@@ -31,7 +31,8 @@ public class SingleClassPool implements MultipleClassPool {
 
     private final NamedClassPool classPool;
 
-    private final ConcurrentMap<ClassLoader, Object> checker = createWeakConcurrentMap();
+
+    private final Map<ClassLoader, Object> checker = new WeakHashMap<ClassLoader, Object>();
 
 
     public SingleClassPool() {
@@ -39,25 +40,18 @@ public class SingleClassPool implements MultipleClassPool {
         this.classPool.appendSystemPath();
     }
 
-    private ConcurrentMap<ClassLoader, Object>createWeakConcurrentMap() {
-        MapMaker mapMaker = new MapMaker();
-        mapMaker.weakKeys();
-        return mapMaker.makeMap();
-    }
-
     @Override
     public NamedClassPool getClassPool(ClassLoader classLoader) {
-        final Object hit = this.checker.get(classLoader);
-        if (hit != null) {
-            return classPool;
-        }
 
-        final ClassPath classPath = new LoaderClassPath(classLoader);
         synchronized (classPool) {
-            Object exist = checker.putIfAbsent(classLoader, EXIST);
-            if (exist != null) {
+            final Object hit = this.checker.get(classLoader);
+            if (hit != null) {
                 return classPool;
             }
+
+            this.checker.put(classLoader, EXIST);
+
+            final ClassPath classPath = new LoaderClassPath(classLoader);
             this.classPool.appendClassPath(classPath);
             return classPool;
         }

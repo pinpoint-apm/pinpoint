@@ -19,12 +19,20 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
+
 /**
+ * Indicates that the annotated interceptor have to be singleton.
+ * 
+ * For now, this annotation is applied only when a interceptor is injected by {@link com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorBuilder MethodEditorBuilder} returned from {@link com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder#editMethods(com.navercorp.pinpoint.bootstrap.instrument.MethodFilter) ClassEditorBuilder#editMethods(MethodFilter)}.
+ * If so, only one instance of the interceptor is created and that instance is injected to all the target methods of the {@link com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorBuilder MethodEditorBuilder}.
+ * 
+ * If you inject an interceptor with this annotation by other ways, every injection will create a new instance.
+ * 
  * @author Jongho Moon
  *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Singleton {
-    public String value();
 }

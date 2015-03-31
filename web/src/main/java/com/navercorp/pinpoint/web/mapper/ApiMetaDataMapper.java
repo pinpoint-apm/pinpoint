@@ -62,8 +62,13 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
             Buffer buffer = new FixedBuffer(qualifier);
             String apiInfo = buffer.readPrefixedString();
             int lineNumber = buffer.readInt();
+            int type = 0;
+            if(buffer.limit() > 0) {
+                type = buffer.readInt();
+            }
             apiMetaDataBo.setApiInfo(apiInfo);
             apiMetaDataBo.setLineNumber(lineNumber);
+            apiMetaDataBo.setType(type);
             apiMetaDataList.add(apiMetaDataBo);
             if (logger.isDebugEnabled()) {
                 logger.debug("read apiAnnotation:{}", apiMetaDataBo);

@@ -40,6 +40,7 @@ public class TApiMetaData implements org.apache.thrift.TBase<TApiMetaData, TApiM
   private static final org.apache.thrift.protocol.TField API_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("apiId", org.apache.thrift.protocol.TType.I32, (short)4);
   private static final org.apache.thrift.protocol.TField API_INFO_FIELD_DESC = new org.apache.thrift.protocol.TField("apiInfo", org.apache.thrift.protocol.TType.STRING, (short)5);
   private static final org.apache.thrift.protocol.TField LINE_FIELD_DESC = new org.apache.thrift.protocol.TField("line", org.apache.thrift.protocol.TType.I32, (short)6);
+  private static final org.apache.thrift.protocol.TField TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("type", org.apache.thrift.protocol.TType.I32, (short)10);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -52,6 +53,7 @@ public class TApiMetaData implements org.apache.thrift.TBase<TApiMetaData, TApiM
   private int apiId; // required
   private String apiInfo; // required
   private int line; // optional
+  private int type; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -59,7 +61,8 @@ public class TApiMetaData implements org.apache.thrift.TBase<TApiMetaData, TApiM
     AGENT_START_TIME((short)2, "agentStartTime"),
     API_ID((short)4, "apiId"),
     API_INFO((short)5, "apiInfo"),
-    LINE((short)6, "line");
+    LINE((short)6, "line"),
+    TYPE((short)10, "type");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -84,6 +87,8 @@ public class TApiMetaData implements org.apache.thrift.TBase<TApiMetaData, TApiM
           return API_INFO;
         case 6: // LINE
           return LINE;
+        case 10: // TYPE
+          return TYPE;
         default:
           return null;
       }
@@ -127,8 +132,9 @@ public class TApiMetaData implements org.apache.thrift.TBase<TApiMetaData, TApiM
   private static final int __AGENTSTARTTIME_ISSET_ID = 0;
   private static final int __APIID_ISSET_ID = 1;
   private static final int __LINE_ISSET_ID = 2;
+  private static final int __TYPE_ISSET_ID = 3;
   private byte __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.LINE};
+  private _Fields optionals[] = {_Fields.LINE,_Fields.TYPE};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -141,6 +147,8 @@ public class TApiMetaData implements org.apache.thrift.TBase<TApiMetaData, TApiM
     tmpMap.put(_Fields.API_INFO, new org.apache.thrift.meta_data.FieldMetaData("apiInfo", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.LINE, new org.apache.thrift.meta_data.FieldMetaData("line", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.TYPE, new org.apache.thrift.meta_data.FieldMetaData("type", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TApiMetaData.class, metaDataMap);
@@ -178,6 +186,7 @@ public class TApiMetaData implements org.apache.thrift.TBase<TApiMetaData, TApiM
       this.apiInfo = other.apiInfo;
     }
     this.line = other.line;
+    this.type = other.type;
   }
 
   public TApiMetaData deepCopy() {
@@ -194,6 +203,8 @@ public class TApiMetaData implements org.apache.thrift.TBase<TApiMetaData, TApiM
     this.apiInfo = null;
     setLineIsSet(false);
     this.line = 0;
+    setTypeIsSet(false);
+    this.type = 0;
   }
 
   public String getAgentId() {
@@ -308,6 +319,28 @@ public class TApiMetaData implements org.apache.thrift.TBase<TApiMetaData, TApiM
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __LINE_ISSET_ID, value);
   }
 
+  public int getType() {
+    return this.type;
+  }
+
+  public void setType(int type) {
+    this.type = type;
+    setTypeIsSet(true);
+  }
+
+  public void unsetType() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __TYPE_ISSET_ID);
+  }
+
+  /** Returns true if field type is set (has been assigned a value) and false otherwise */
+  public boolean isSetType() {
+    return EncodingUtils.testBit(__isset_bitfield, __TYPE_ISSET_ID);
+  }
+
+  public void setTypeIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __TYPE_ISSET_ID, value);
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case AGENT_ID:
@@ -350,6 +383,14 @@ public class TApiMetaData implements org.apache.thrift.TBase<TApiMetaData, TApiM
       }
       break;
 
+    case TYPE:
+      if (value == null) {
+        unsetType();
+      } else {
+        setType((Integer)value);
+      }
+      break;
+
     }
   }
 
@@ -369,6 +410,9 @@ public class TApiMetaData implements org.apache.thrift.TBase<TApiMetaData, TApiM
 
     case LINE:
       return Integer.valueOf(getLine());
+
+    case TYPE:
+      return Integer.valueOf(getType());
 
     }
     throw new IllegalStateException();
@@ -391,6 +435,8 @@ public class TApiMetaData implements org.apache.thrift.TBase<TApiMetaData, TApiM
       return isSetApiInfo();
     case LINE:
       return isSetLine();
+    case TYPE:
+      return isSetType();
     }
     throw new IllegalStateException();
   }
@@ -450,6 +496,15 @@ public class TApiMetaData implements org.apache.thrift.TBase<TApiMetaData, TApiM
       if (!(this_present_line && that_present_line))
         return false;
       if (this.line != that.line)
+        return false;
+    }
+
+    boolean this_present_type = true && this.isSetType();
+    boolean that_present_type = true && that.isSetType();
+    if (this_present_type || that_present_type) {
+      if (!(this_present_type && that_present_type))
+        return false;
+      if (this.type != that.type)
         return false;
     }
 
@@ -519,6 +574,16 @@ public class TApiMetaData implements org.apache.thrift.TBase<TApiMetaData, TApiM
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetType()).compareTo(other.isSetType());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetType()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.type, other.type);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -566,6 +631,12 @@ public class TApiMetaData implements org.apache.thrift.TBase<TApiMetaData, TApiM
       if (!first) sb.append(", ");
       sb.append("line:");
       sb.append(this.line);
+      first = false;
+    }
+    if (isSetType()) {
+      if (!first) sb.append(", ");
+      sb.append("type:");
+      sb.append(this.type);
       first = false;
     }
     sb.append(")");
@@ -653,6 +724,14 @@ public class TApiMetaData implements org.apache.thrift.TBase<TApiMetaData, TApiM
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 10: // TYPE
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.type = iprot.readI32();
+              struct.setTypeIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -685,6 +764,11 @@ public class TApiMetaData implements org.apache.thrift.TBase<TApiMetaData, TApiM
       if (struct.isSetLine()) {
         oprot.writeFieldBegin(LINE_FIELD_DESC);
         oprot.writeI32(struct.line);
+        oprot.writeFieldEnd();
+      }
+      if (struct.isSetType()) {
+        oprot.writeFieldBegin(TYPE_FIELD_DESC);
+        oprot.writeI32(struct.type);
         oprot.writeFieldEnd();
       }
       oprot.writeFieldStop();
@@ -720,7 +804,10 @@ public class TApiMetaData implements org.apache.thrift.TBase<TApiMetaData, TApiM
       if (struct.isSetLine()) {
         optionals.set(4);
       }
-      oprot.writeBitSet(optionals, 5);
+      if (struct.isSetType()) {
+        optionals.set(5);
+      }
+      oprot.writeBitSet(optionals, 6);
       if (struct.isSetAgentId()) {
         oprot.writeString(struct.agentId);
       }
@@ -736,12 +823,15 @@ public class TApiMetaData implements org.apache.thrift.TBase<TApiMetaData, TApiM
       if (struct.isSetLine()) {
         oprot.writeI32(struct.line);
       }
+      if (struct.isSetType()) {
+        oprot.writeI32(struct.type);
+      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, TApiMetaData struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(5);
+      BitSet incoming = iprot.readBitSet(6);
       if (incoming.get(0)) {
         struct.agentId = iprot.readString();
         struct.setAgentIdIsSet(true);
@@ -761,6 +851,10 @@ public class TApiMetaData implements org.apache.thrift.TBase<TApiMetaData, TApiM
       if (incoming.get(4)) {
         struct.line = iprot.readI32();
         struct.setLineIsSet(true);
+      }
+      if (incoming.get(5)) {
+        struct.type = iprot.readI32();
+        struct.setTypeIsSet(true);
       }
     }
   }

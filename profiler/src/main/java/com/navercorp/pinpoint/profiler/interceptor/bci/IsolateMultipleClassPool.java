@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.interceptor.bci;
 
-import com.google.common.collect.MapMaker;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
+import com.navercorp.pinpoint.profiler.util.Maps;
 import javassist.ClassPath;
 import javassist.LoaderClassPath;
 
@@ -72,17 +72,12 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
         }
 
         this.standardClassPool = createSystemClassPool(systemClassPoolHandler);
-        this.classPoolMap = createWeakConcurrentMap();
+        this.classPoolMap = Maps.newWeakConcurrentMap();
         this.eventListener = eventListener;
         this.childFirstLookup = childFirstLookup;
     }
 
 
-    private ConcurrentMap<ClassLoader, NamedClassPool> createWeakConcurrentMap() {
-        MapMaker mapMaker = new MapMaker();
-        mapMaker.weakKeys();
-        return mapMaker.makeMap();
-    }
 
     private NamedClassPool createSystemClassPool(ClassPoolHandler systemClassPoolHandler) {
         NamedClassPool systemClassPool = new NamedClassPool("standardClassPool");
@@ -96,7 +91,7 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
 
     @Override
     public NamedClassPool getClassPool(ClassLoader classLoader) {
-        if (ClassLoaderUtils.isStandardClassLoader(classLoader)) {
+        if (ClassLoaderUtils.isJvmClassLoader(classLoader)) {
             return standardClassPool;
         }
 

@@ -90,5 +90,13 @@ public class ApiDescriptionParserTest {
     }
 
 
+    @Test
+    public void parseTag() {
+        final String apiDescriptionString = ".Tomcat Servlet Process()";
+        ApiDescription result = apiParser.parse(apiDescriptionString);
+        
+        System.out.println(result.getSimpleMethodDescription());
+        System.out.println(result.getSimpleClassName());
+    }
 
 }

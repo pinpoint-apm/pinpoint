@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.service;
 
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -24,8 +23,8 @@ import java.util.List;
 
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.AnnotationKeyMatcher;
-import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.bo.Span;
 import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
@@ -70,16 +69,16 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     @Autowired
     private AnnotationKeyRegistryService annotationKeyRegistryService;
-    
+
     @Value("#{pinpointWebProps['log.enable'] ?: false}")
     private boolean logLinkEnable;
-    
+
     @Value("#{pinpointWebProps['log.button.name'] ?: ''}")
     private String logButtonName;
-    
+
     @Value("#{pinpointWebProps['log.page.url'] ?: ''}")
     private String logPageUrl;
-    
+
     @Override
     public BusinessTransactions selectBusinessTransactions(List<TransactionId> transactionIdList, String applicationName, Range range, Filter filter) {
         if (transactionIdList == null) {
@@ -95,7 +94,6 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             // TODO range is not used - check the logic again
             throw new NullPointerException("range must not be null");
         }
-
 
         List<List<SpanBo>> traceList;
 
@@ -133,7 +131,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         // finds and marks the focusTimestamp.
         // focusTimestamp is needed to determine which span to use as reference when there are more than 2 spans making up a transaction.
         // for cases where focus cannot be found due to an error, a separate marker is needed.
-        // TODO potential error - because server time is used, there may be more than 2 focusTime due to differences in server times.  
+        // TODO potential error - because server time is used, there may be more than 2 focusTime due to differences in server times.
         SpanBo focusTimeSpanBo = findFocusTimeSpanBo(spanAlignList, focusTimestamp);
         // FIXME patched temporarily for cases where focusTimeSpanBo is not found. Need a more complete solution.
         if (focusTimeSpanBo != null) {
@@ -143,7 +141,6 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             final String applicationName = getRpcArgument(focusTimeSpanBo);
             recordSet.setApplicationName(applicationName);
         }
-
 
         // find the startTime to use as reference
         long startTime = getStartTime(spanAlignList);
@@ -165,11 +162,11 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         }
 
         recordSet.setRecordList(recordList);
-        
+
         if (logLinkEnable) {
             addlogLink(recordSet);
         }
-        
+
         return recordSet;
     }
 
@@ -185,37 +182,38 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     private void addlogLink(RecordSet recordSet) {
         List<Record> records = recordSet.getRecordList();
         List<TransactionInfo> transactionInfoes = new LinkedList<TransactionInfo>();
-        
+
         for (Iterator<Record> iterator = records.iterator(); iterator.hasNext();) {
             Record record = (Record) iterator.next();
-            
-            if(record.getTransactionId() == null) {
+
+            if (record.getTransactionId() == null) {
                 continue;
             }
-            
+
             TransactionInfo transactionInfo = new TransactionInfo(record.getTransactionId(), record.getSpanId());
-            
+
             if (transactionInfoes.contains(transactionInfo)) {
                 continue;
-            };
-            
+            }
+            ;
+
             record.setLogPageUrl(logPageUrl);
             record.setLogButtonName(logButtonName);
-            
+
             transactionInfoes.add(transactionInfo);
         }
     }
-    
+
     private class TransactionInfo {
 
         private final String transactionId;
         private final long spanId;
-        
+
         public TransactionInfo(String transactionId, long spanId) {
             this.transactionId = transactionId;
             this.spanId = spanId;
         }
-        
+
         public String getTransactionId() {
             return transactionId;
         }
@@ -223,22 +221,22 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         public long getSpanId() {
             return spanId;
         }
-        
+
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof TransactionInfo == false) {
                 return false;
             }
-            
-            TransactionInfo transactionInfo = (TransactionInfo)obj;
-            
+
+            TransactionInfo transactionInfo = (TransactionInfo) obj;
+
             if (!transactionId.equals(transactionInfo.getTransactionId())) {
                 return false;
             }
             if (spanId != transactionInfo.getSpanId()) {
                 return false;
             }
-            
+
             return true;
         }
     }
@@ -272,7 +270,6 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             return begin + elapsed;
         }
     }
-
 
     private SpanBo findFocusTimeSpanBo(List<SpanAlign> spanAlignList, long focusTimestamp) {
         SpanBo firstSpan = null;
@@ -371,6 +368,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                     } else {
                         parentSequence = parent.getId();
                     }
+                    logger.debug("apiId={}", spanBo.getApiId());
                     logger.debug("spanBoSequence:{}, parentSequence:{}", spanBoSequence, parentSequence);
 
 
@@ -398,27 +396,53 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                         record.setFullApiDescription(method);
                         recordList.add(record);
                     } else {
-                        AnnotationKey apiMetaDataError = getApiMetaDataError(spanBo.getAnnotationBoList());
-                        Record record = new Record(spanAlign.getDepth(),
-                                                    spanBoSequence,
-                                                    parentSequence,
-                                                    true,
-                                                    apiMetaDataError.getName(),
-                                                    argument,
-                                                    begin,
-                                                    elapsed,
-                                                    getGap(stack),
-                                                    spanBo.getAgentId(),
-                                                    spanBo.getApplicationId(),
-                                                    registry.findServiceType(spanBo.getServiceType()),
-                                                    null,
-                                                    spanAlign.isHasChild(),
-                                                    false,
-                                                    spanBo.getTransactionId(),
-                                                    spanBo.getSpanId());
-                        record.setSimpleClassName("");
-                        record.setFullApiDescription("");
-                        recordList.add(record);
+                        String apiTag = AnnotationUtils.findApiTagAnnotation(spanBo.getAnnotationBoList());
+                        if(apiTag != null)  {
+                            Record record = new Record(spanAlign.getDepth(), 
+                                                        spanBoSequence,
+                                                        parentSequence,
+                                                        true,
+                                                        apiTag,
+                                                        argument,
+                                                        begin,
+                                                        elapsed,
+                                                        getGap(stack),
+                                                        spanBo.getAgentId(),
+                                                        spanBo.getApplicationId(),
+                                                        registry.findServiceType(spanBo.getServiceType()),
+                                                        null,
+                                                        spanAlign.isHasChild(),
+                                                        false,
+                                                        spanBo.getTransactionId(),
+                                                        spanBo.getSpanId());
+                            record.setSimpleClassName("");
+                            record.setFullApiDescription("");
+                            recordList.add(record);
+                            
+                            
+                        } else {
+                            AnnotationKey apiMetaDataError = getApiMetaDataError(spanBo.getAnnotationBoList());
+                            Record record = new Record(spanAlign.getDepth(),
+                                                        spanBoSequence,
+                                                        parentSequence,
+                                                        true,
+                                                        apiMetaDataError.getName(),
+                                                        argument,
+                                                        begin,
+                                                        elapsed,
+                                                        getGap(stack),
+                                                        spanBo.getAgentId(),
+                                                        spanBo.getApplicationId(),
+                                                        registry.findServiceType(spanBo.getServiceType()),
+                                                        null,
+                                                        spanAlign.isHasChild(),
+                                                        false,
+                                                        spanBo.getTransactionId(),
+                                                        spanBo.getSpanId());
+                            record.setSimpleClassName("");
+                            record.setFullApiDescription("");
+                            recordList.add(record);
+                        }
                     }
                     // add exception record
                     final Record exceptionRecord = getExceptionRecord(spanAlign, spanBoSequence);
@@ -525,45 +549,13 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                 final SpanBo spanBo = spanAlign.getSpanBo();
                 if (spanBo.hasException()) {
                     String simpleExceptionClass = getSimpleExceptionName(spanBo.getExceptionClass());
-                    return new Record(spanAlign.getDepth() + 1, 
-                                        getNextId(),
-                                        parentSequence,
-                                        false,
-                                        simpleExceptionClass,
-                                        spanBo.getExceptionMessage(),
-                                        0L,
-                                        0L,
-                                        0,
-                                        null,
-                                        null,
-                                        null,
-                                        null,
-                                        false,
-                                        false,
-                                        spanBo.getTransactionId(),
-                                        spanBo.getSpanId());
+                    return new Record(spanAlign.getDepth() + 1, getNextId(), parentSequence, false, simpleExceptionClass, spanBo.getExceptionMessage(), 0L, 0L, 0, null, null, null, null, false, false, spanBo.getTransactionId(), spanBo.getSpanId());
                 }
             } else {
                 final SpanEventBo spanEventBo = spanAlign.getSpanEventBo();
                 if (spanEventBo.hasException()) {
                     String simpleExceptionClass = getSimpleExceptionName(spanEventBo.getExceptionClass());
-                    return new Record(spanAlign.getDepth() + 1, 
-                                        getNextId(),
-                                        parentSequence,
-                                        false,
-                                        simpleExceptionClass,
-                                        spanEventBo.getExceptionMessage(),
-                                        0L,
-                                        0L,
-                                        0,
-                                        null,
-                                        null,
-                                        null,
-                                        null,
-                                        false,
-                                        true,
-                                        null,
-                                        0);
+                    return new Record(spanAlign.getDepth() + 1, getNextId(), parentSequence, false, simpleExceptionClass, spanEventBo.getExceptionMessage(), 0L, 0L, 0, null, null, null, null, false, true, null, 0);
                 }
             }
             return null;
@@ -575,11 +567,10 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             }
             final int index = exceptionClass.lastIndexOf('.');
             if (index != -1) {
-                exceptionClass = exceptionClass.substring(index+1, exceptionClass.length());
+                exceptionClass = exceptionClass.substring(index + 1, exceptionClass.length());
             }
             return exceptionClass;
         }
-
 
         private long getGap(Stack<SpanDepth> stack) {
             SpanDepth last = stack.getLast();
@@ -611,7 +602,6 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             }
         }
 
-
         private List<Record> createAnnotationRecord(int depth, int parentId, List<AnnotationBo> annotationBoList) {
             List<Record> recordList = new ArrayList<Record>(annotationBoList.size());
 
@@ -639,7 +629,6 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         return ObjectUtils.toString(displayArgument.getValue());
     }
 
-
     private String getRpcArgument(SpanBo spanBo) {
         String rpc = spanBo.getRpc();
         if (rpc != null) {
@@ -655,7 +644,8 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             return null;
         }
 
-        final AnnotationKeyMatcher matcher = annotationKeyMatcherService.findAnnotationKeyMatcher(span.getServiceType());;
+        final AnnotationKeyMatcher matcher = annotationKeyMatcherService.findAnnotationKeyMatcher(span.getServiceType());
+        ;
         if (matcher == null) {
             return null;
         }

@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
 import static org.mockito.Mockito.*;
-import org.junit.Assert;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -197,6 +197,10 @@ public class SpanSimpleAroundInterceptorTest {
 
         public int getBeforeTouchCount() {
             return beforeTouchCount;
+        }
+
+        @Override
+        protected void deleteTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
         }
     }
 }

@@ -34,6 +34,7 @@ import org.mockito.MockitoAnnotations;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
 import com.navercorp.pinpoint.test.junit4.IsRootSpan;
@@ -118,7 +119,11 @@ public class StandardHostValveInvokeModifierTest extends BasePinpointTest {
             final SpanBo rootSpan = rootSpans.get(0);
             assertEquals(rootSpan.getParentSpanId(), -1);
             assertEquals(rootSpan.getServiceType(), SERVICE_TYPE.getCode());
-            assertTrue(rootSpan.hasException());
+            
+            final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
+            final SpanEventBo spanEvent = spanEvents.get(0);
+            
+            assertTrue(spanEvent.hasException());
         }
     }
     

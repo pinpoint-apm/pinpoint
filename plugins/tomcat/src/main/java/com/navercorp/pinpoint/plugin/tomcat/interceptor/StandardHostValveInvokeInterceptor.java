@@ -20,6 +20,9 @@ import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.catalina.connector.Request;
+
+import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
@@ -29,6 +32,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.Cached;
+import com.navercorp.pinpoint.bootstrap.plugin.Name;
 import com.navercorp.pinpoint.bootstrap.plugin.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
@@ -36,53 +40,62 @@ import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.plugin.tomcat.ServletAsyncMethodDescriptor;
+import com.navercorp.pinpoint.plugin.tomcat.ServletSyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
 import com.navercorp.pinpoint.profiler.context.SpanId;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
-@TargetMethod(name="invoke", paramTypes={"org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response"})
-public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundInterceptor {
+@TargetMethod(name = "invoke", paramTypes = { "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response" })
+public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundInterceptor implements TomcatConstants {
+    public static final ServletSyncMethodDescriptor SERVLET_SYNCHRONOUS_API_TAG = new ServletSyncMethodDescriptor();
+    public static final ServletAsyncMethodDescriptor SERVLET_ASYNCHRONOUS_API_TAG = new ServletAsyncMethodDescriptor();
 
     private final boolean isTrace = logger.isTraceEnabled();
     private Filter<String> excludeUrlFilter;
+    private MetadataAccessor traceAccessor;
+    private MetadataAccessor asyncAccessor;
 
-    public StandardHostValveInvokeInterceptor(TraceContext traceContext, @Cached MethodDescriptor descriptor, Filter<String> excludeFilter) {
+    public StandardHostValveInvokeInterceptor(TraceContext traceContext, @Cached MethodDescriptor descriptor, Filter<String> excludeFilter, @Name(METADATA_TRACE) MetadataAccessor traceAccessor, @Name(METADATA_ASYNC) MetadataAccessor asyncAccessor) {
         super(StandardHostValveInvokeInterceptor.class);
-        
+
         setTraceContext(traceContext);
         setMethodDescriptor(descriptor);
 
         this.excludeUrlFilter = excludeFilter;
+        this.traceAccessor = traceAccessor;
+        this.asyncAccessor = asyncAccessor;
+
+        traceContext.cacheApi(SERVLET_ASYNCHRONOUS_API_TAG);
+        traceContext.cacheApi(SERVLET_SYNCHRONOUS_API_TAG);
     }
 
     @Override
     protected void doInBeforeTrace(RecordableTrace trace, Object target, Object[] args) {
-        final HttpServletRequest request = (HttpServletRequest) args[0];
         trace.markBeforeTime();
-        if (trace.canSampled()) {
-            trace.recordServiceType(TomcatConstants.TOMCAT);
-
-            final String requestURL = request.getRequestURI();
-            trace.recordRpcName(requestURL);
-
-            final int port = request.getServerPort();
-            final String endPoint = request.getServerName() + ":" + port;
-            trace.recordEndPoint(endPoint);
-
-            final String remoteAddr = request.getRemoteAddr();
-            trace.recordRemoteAddress(remoteAddr);
-        }
-
-        if (!trace.isRoot()) {
-            recordParentInfo(trace, request);
-        }
+        trace.recordServiceType(TOMCAT_METHOD);
     }
 
     @Override
     protected Trace createTrace(Object target, Object[] args) {
-        final HttpServletRequest request = (HttpServletRequest) args[0];
+        final Request request = (Request) args[0];
+
+        if (isAsynchronousProcess(request)) {
+            // servlet 3.0
+            final Trace trace = getTraceMetadata(request);
+            if (trace != null) {
+                // change api
+                trace.recordApi(SERVLET_ASYNCHRONOUS_API_TAG);
+                // attach current thread local.
+                getTraceContext().attachTraceObject(trace);
+
+                return trace;
+            }
+        }
+
         final String requestURI = request.getRequestURI();
         if (excludeUrlFilter.filter(requestURI)) {
             if (isTrace) {
@@ -90,13 +103,12 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
             }
             return null;
         }
-        
-        
-        // check sampling flag from client. If the flag is false, do not sample this request. 
+
+        // check sampling flag from client. If the flag is false, do not sample this request.
         final boolean sampling = samplingEnable(request);
         if (!sampling) {
             // Even if this transaction is not a sampling target, we have to create Trace object to mark 'not sampling'.
-            // For example, if this transaction invokes rpc call, we can add parameter to tell remote node 'don't sample this transaction'  
+            // For example, if this transaction invokes rpc call, we can add parameter to tell remote node 'don't sample this transaction'
             final TraceContext traceContext = getTraceContext();
             final Trace trace = traceContext.disableSampling();
             if (isDebug) {
@@ -105,20 +117,20 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
             return trace;
         }
 
-
         final TraceId traceId = populateTraceIdFromRequest(request);
         if (traceId != null) {
             // TODO Maybe we should decide to trace or not even if the sampling flag is true to prevent too many requests are traced.
             final TraceContext traceContext = getTraceContext();
             final Trace trace = traceContext.continueTraceObject(traceId);
-            
             if (trace.canSampled()) {
+                recordRootSpan(trace, request);
+                setTraceMetadata(request, trace);
                 if (isDebug) {
-                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[] {traceId, request.getRequestURI(), request.getRemoteAddr()});
+                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[] { traceId, request.getRequestURI(), request.getRemoteAddr() });
                 }
             } else {
                 if (isDebug) {
-                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[] {traceId, request.getRequestURI(), request.getRemoteAddr()});
+                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[] { traceId, request.getRequestURI(), request.getRemoteAddr() });
                 }
             }
             return trace;
@@ -126,6 +138,8 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
             final TraceContext traceContext = getTraceContext();
             final Trace trace = traceContext.newTraceObject();
             if (trace.canSampled()) {
+                recordRootSpan(trace, request);
+                setTraceMetadata(request, trace);
                 if (isDebug) {
                     logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
                 }
@@ -138,7 +152,73 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         }
     }
 
+    private void setTraceMetadata(final Request request, final Trace trace) {
+        if(traceAccessor.isApplicable(request)) {
+            traceAccessor.set(request, trace);            
+        }
+    }
 
+    private Trace getTraceMetadata(final Request request) {
+        if (!traceAccessor.isApplicable(request) || traceAccessor.get(request) == null) {
+            return null;
+        }
+
+        try {
+            final Trace trace = traceAccessor.get(request);
+            return trace;
+        } catch (ClassCastException e) {
+            logger.warn("Invalid trace metadata({}).", METADATA_TRACE, e);
+            return null;
+        }
+    }
+
+    private void setAsyncMetatdata(final Request request, final Boolean async) {
+        if(asyncAccessor.isApplicable(request)) {
+            asyncAccessor.set(request, async);
+        }
+    }
+
+    private boolean getAsyncMetadata(final Request request) {
+        if (!asyncAccessor.isApplicable(request) || asyncAccessor.get(request) == null) {
+            return false;
+        }
+
+        try {
+            final Boolean async = asyncAccessor.get(request);
+            return async.booleanValue();
+        } catch (ClassCastException e) {
+            logger.warn("Invalid async metatdata({})", METADATA_ASYNC, e);
+            return false;
+        }
+    }
+
+    private boolean isAsynchronousProcess(final Request request) {
+        if (getTraceMetadata(request) == null) {
+            return false;
+        }
+
+        return getAsyncMetadata(request);
+    }
+
+    private void recordRootSpan(final Trace trace, final HttpServletRequest request) {
+        trace.markBeforeTime();
+        trace.recordServiceType(TomcatConstants.TOMCAT);
+
+        final String requestURL = request.getRequestURI();
+        trace.recordRpcName(requestURL);
+
+        final int port = request.getServerPort();
+        final String endPoint = request.getServerName() + ":" + port;
+        trace.recordEndPoint(endPoint);
+
+        final String remoteAddr = request.getRemoteAddr();
+        trace.recordRemoteAddress(remoteAddr);
+
+        if (!trace.isRoot()) {
+            recordParentInfo(trace, request);
+        }
+        trace.recordApi(SERVLET_SYNCHRONOUS_API_TAG);
+    }
 
     private void recordParentInfo(RecordableTrace trace, HttpServletRequest request) {
         String parentApplicationName = request.getHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString());
@@ -205,13 +285,13 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         final StringBuilder params = new StringBuilder(64);
 
         while (attrs.hasMoreElements()) {
-            if (params.length() != 0 ) {
+            if (params.length() != 0) {
                 params.append('&');
             }
             // skip appending parameters if parameter size is bigger than totalLimit
             if (params.length() > totalLimit) {
                 params.append("...");
-                return  params.toString();
+                return params.toString();
             }
             String key = attrs.nextElement().toString();
             params.append(StringUtils.drop(key, eachLimit));
@@ -222,5 +302,16 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
             }
         }
         return params.toString();
+    }
+
+    @Override
+    protected void deleteTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
+        final Request request = (Request) args[0];
+        if (!isAsynchronousProcess(request)) {
+            trace.markAfterTime();
+            trace.traceRootBlockEnd();
+            // reset
+            setTraceMetadata(request, null);
+        }
     }
 }
