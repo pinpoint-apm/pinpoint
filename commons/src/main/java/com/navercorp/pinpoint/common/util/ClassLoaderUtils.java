@@ -28,9 +28,23 @@ public final class ClassLoaderUtils {
         }
     };
 
-    private static final ClassLoader SYSTEM_CLASS_LOADER = ClassLoader.getSystemClassLoader();
-    private static final ClassLoader EXT_CLASS_LOADER = SYSTEM_CLASS_LOADER.getParent();
-    private static final ClassLoader BOOT_CLASS_LOADER = Object.class.getClassLoader();
+    private static final ClassLoader SYSTEM_CLASS_LOADER;
+    private static final ClassLoader EXT_CLASS_LOADER;
+    private static final ClassLoader BOOT_CLASS_LOADER;
+
+    static {
+        SYSTEM_CLASS_LOADER = ClassLoader.getSystemClassLoader();
+        if (SYSTEM_CLASS_LOADER != null) {
+            EXT_CLASS_LOADER = SYSTEM_CLASS_LOADER.getParent();
+        } else {
+            EXT_CLASS_LOADER = null;
+        }
+        if (EXT_CLASS_LOADER != null) {
+            BOOT_CLASS_LOADER = EXT_CLASS_LOADER.getParent();
+        } else {
+            BOOT_CLASS_LOADER = null;
+        }
+    }
 
     private ClassLoaderUtils() {
     }
@@ -62,7 +76,7 @@ public final class ClassLoaderUtils {
     }
 
 
-    public static boolean isStandardClassLoader(ClassLoader classLoader) {
+    public static boolean isJvmClassLoader(ClassLoader classLoader) {
         if (BOOT_CLASS_LOADER == classLoader || SYSTEM_CLASS_LOADER == classLoader || EXT_CLASS_LOADER == classLoader) {
             return true;
         }
