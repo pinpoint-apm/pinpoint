@@ -73,8 +73,9 @@ public class BusinessTransactionController {
     @Autowired
     private FilterBuilder filterBuilder;
     
-    @Value("#{pinpointWebProps['log.enable'] ?: false}")
-    private boolean logLinkEnable;
+//    Temporarily disabled Becuase We need to slove authentication problem inter system.
+//    @Value("#{pinpointWebProps['log.enable'] ?: false}")
+    private boolean logLinkEnable = false;
 
     /**
      * executed URLs in applicationname query within from ~ to timeframe
