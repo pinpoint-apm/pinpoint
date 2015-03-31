@@ -26,38 +26,47 @@ import java.io.ByteArrayOutputStream;
  */
 public final class HeaderTBaseSerializerFactory implements SerializerFactory<HeaderTBaseSerializer> {
 
-    private static final TBaseLocator DEFAULT_TBASE_LOCATOR = new DefaultTBaseLocator();
-
-    private static final TProtocolFactory DEFAULT_PROTOCOL_FACTORY = new TCompactProtocol.Factory();
-
     private static final boolean DEFAULT_SAFE_GURANTEED = true;
 
     public static final int DEFAULT_STREAM_SIZE = 1024 * 8;
-
     public static final int DEFAULT_UDP_STREAM_MAX_SIZE = 1024 * 64;
+    private static final boolean DEFAULT_AUTO_EXPAND = true;
+
+    private static final TBaseLocator DEFAULT_TBASE_LOCATOR = new DefaultTBaseLocator();
+    private static final TProtocolFactory DEFAULT_PROTOCOL_FACTORY = new TCompactProtocol.Factory();
 
     public static final HeaderTBaseSerializerFactory DEFAULT_FACTORY = new HeaderTBaseSerializerFactory();
 
     private final boolean safetyGuranteed;
     private final int outputStreamSize;
+    private final boolean autoExpand;
     private final TProtocolFactory protocolFactory;
     private final TBaseLocator locator;
 
     public HeaderTBaseSerializerFactory() {
-        this(DEFAULT_SAFE_GURANTEED, DEFAULT_STREAM_SIZE, DEFAULT_PROTOCOL_FACTORY, DEFAULT_TBASE_LOCATOR);
+        this(DEFAULT_SAFE_GURANTEED);
     }
 
     public HeaderTBaseSerializerFactory(boolean safetyGuranteed) {
-        this(safetyGuranteed, DEFAULT_STREAM_SIZE, DEFAULT_PROTOCOL_FACTORY, DEFAULT_TBASE_LOCATOR);
+        this(safetyGuranteed, DEFAULT_STREAM_SIZE);
     }
 
     public HeaderTBaseSerializerFactory(boolean safetyGuranteed, int outputStreamSize) {
-        this(safetyGuranteed, outputStreamSize, DEFAULT_PROTOCOL_FACTORY, DEFAULT_TBASE_LOCATOR);
+        this(safetyGuranteed, outputStreamSize, DEFAULT_AUTO_EXPAND);
     }
-
+    
+    public HeaderTBaseSerializerFactory(boolean safetyGuranteed, int outputStreamSize, boolean autoExpand) {
+        this(safetyGuranteed, outputStreamSize, autoExpand, DEFAULT_PROTOCOL_FACTORY, DEFAULT_TBASE_LOCATOR);
+    }
+    
     public HeaderTBaseSerializerFactory(boolean safetyGuranteed, int outputStreamSize, TProtocolFactory protocolFactory, TBaseLocator locator) {
+        this(safetyGuranteed, outputStreamSize, DEFAULT_AUTO_EXPAND, DEFAULT_PROTOCOL_FACTORY, DEFAULT_TBASE_LOCATOR);
+    }
+    
+    public HeaderTBaseSerializerFactory(boolean safetyGuranteed, int outputStreamSize, boolean autoExpand, TProtocolFactory protocolFactory, TBaseLocator locator) {
         this.safetyGuranteed = safetyGuranteed;
         this.outputStreamSize = outputStreamSize;
+        this.autoExpand = autoExpand;
         this.protocolFactory = protocolFactory;
         this.locator = locator;
     }
@@ -82,9 +91,9 @@ public final class HeaderTBaseSerializerFactory implements SerializerFactory<Hea
     public HeaderTBaseSerializer createSerializer() {
         ByteArrayOutputStream baos = null;
         if (safetyGuranteed) {
-            baos = new ByteArrayOutputStream(outputStreamSize);
+            baos = new PinpointByteArrayOutputStream(outputStreamSize, autoExpand);
         } else {
-            baos = new UnsafeByteArrayOutputStream(outputStreamSize);
+            baos = new UnsafeByteArrayOutputStream(outputStreamSize, autoExpand);
         }
 
         return new HeaderTBaseSerializer(baos, protocolFactory, locator);
