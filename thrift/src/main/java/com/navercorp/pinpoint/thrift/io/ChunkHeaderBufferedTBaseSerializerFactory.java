@@ -23,19 +23,21 @@ import java.io.ByteArrayOutputStream;
 
 /**
  * @author jaehong.kim
+ * @author Taejin Koo
  */
 public final class ChunkHeaderBufferedTBaseSerializerFactory implements SerializerFactory<ChunkHeaderBufferedTBaseSerializer> {
-
-    private static final TBaseLocator DEFAULT_TBASE_LOCATOR = new DefaultTBaseLocator();
-
-    private static final TProtocolFactory DEFAULT_PROTOCOL_FACTORY = new TCompactProtocol.Factory();
 
     private static final boolean DEFAULT_SAFE_GURANTEED = false;
 
     private static final int DEFAULT_STREAM_SIZE = 1024 * 8;
+    private static final boolean DEFAULT_AUTO_EXPAND = true;
 
+    private static final TBaseLocator DEFAULT_TBASE_LOCATOR = new DefaultTBaseLocator();
+    private static final TProtocolFactory DEFAULT_PROTOCOL_FACTORY = new TCompactProtocol.Factory();
+    
     private final boolean safetyGuranteed;
     private final int outputStreamSize;
+    private final boolean autoExpand;
     private final TProtocolFactory protocolFactory;
     private final TBaseLocator locator;
 
@@ -44,8 +46,13 @@ public final class ChunkHeaderBufferedTBaseSerializerFactory implements Serializ
     }
 
     public ChunkHeaderBufferedTBaseSerializerFactory(boolean safetyGuranteed, int outputStreamSize, TProtocolFactory protocolFactory, TBaseLocator locator) {
+        this(safetyGuranteed, outputStreamSize, DEFAULT_AUTO_EXPAND, protocolFactory, locator);
+    }
+    
+    public ChunkHeaderBufferedTBaseSerializerFactory(boolean safetyGuranteed, int outputStreamSize, boolean autoExpand, TProtocolFactory protocolFactory, TBaseLocator locator) {
         this.safetyGuranteed = safetyGuranteed;
         this.outputStreamSize = outputStreamSize;
+        this.autoExpand = autoExpand;
         this.protocolFactory = protocolFactory;
         this.locator = locator;
     }
@@ -70,9 +77,9 @@ public final class ChunkHeaderBufferedTBaseSerializerFactory implements Serializ
     public ChunkHeaderBufferedTBaseSerializer createSerializer() {
         ByteArrayOutputStream baos = null;
         if (safetyGuranteed) {
-            baos = new ByteArrayOutputStream(outputStreamSize);
+            baos = new PinpointByteArrayOutputStream(outputStreamSize, autoExpand);
         } else {
-            baos = new UnsafeByteArrayOutputStream(outputStreamSize);
+            baos = new UnsafeByteArrayOutputStream(outputStreamSize, autoExpand);
         }
 
         return new ChunkHeaderBufferedTBaseSerializer(baos, protocolFactory, locator);
