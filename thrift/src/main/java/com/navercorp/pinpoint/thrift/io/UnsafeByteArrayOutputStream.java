@@ -29,6 +29,8 @@ public class UnsafeByteArrayOutputStream extends ByteArrayOutputStream {
 
     private static final String UTF8 = "UTF8";
 
+	private final boolean autoExpand;
+
     /**
      * Creates a new byte array output stream. The buffer capacity is
      * initially 32 bytes, though its size increases if necessary.
@@ -45,9 +47,14 @@ public class UnsafeByteArrayOutputStream extends ByteArrayOutputStream {
      * @throws IllegalArgumentException if size is negative.
      */
     public UnsafeByteArrayOutputStream(int size) {
-        super(size);
+        this(size, true);
     }
 
+    public UnsafeByteArrayOutputStream(int size, boolean autoExpand) {
+        super(size);
+        this.autoExpand = autoExpand;
+    }
+    
     /**
      * Writes the specified byte to this byte array output stream.
      *
@@ -55,9 +62,14 @@ public class UnsafeByteArrayOutputStream extends ByteArrayOutputStream {
      */
     public void write(int b) {
         int newcount = count + 1;
-        if (newcount > buf.length) {
-            buf = Arrays.copyOf(buf, Math.max(buf.length << 1, newcount));
+        if (isOverflow(newcount)) {
+        	if (autoExpand) {
+        		buf = Arrays.copyOf(buf, Math.max(buf.length << 1, newcount));
+        	} else {
+        		throw new BufferOverflowException("Buffer size cannot exceed " + buf.length + ". (now:" + count + ", input-size:1");
+        	}
         }
+        
         buf[count] = (byte) b;
         count = newcount;
     }
@@ -77,10 +89,16 @@ public class UnsafeByteArrayOutputStream extends ByteArrayOutputStream {
         } else if (len == 0) {
             return;
         }
+        
         int newcount = count + len;
-        if (newcount > buf.length) {
-            buf = Arrays.copyOf(buf, Math.max(buf.length << 1, newcount));
+        if (isOverflow(newcount)) {
+        	if (autoExpand) {
+        		buf = Arrays.copyOf(buf, Math.max(buf.length << 1, newcount));
+        	} else {
+        		throw new BufferOverflowException("Buffer size cannot exceed " + buf.length + ". (now:" + count + ", input-size:" + len);
+        	}
         }
+        
         System.arraycopy(b, off, buf, count, len);
         count = newcount;
     }
@@ -187,4 +205,12 @@ public class UnsafeByteArrayOutputStream extends ByteArrayOutputStream {
      */
     public void close() throws IOException {
     }
+    
+    private boolean isOverflow(int minCapacity) {
+        if (minCapacity - buf.length > 0) {
+        	return true;
+        }
+        return false;
+    }
+	
 }
