@@ -76,7 +76,7 @@ public class JavaAssistClassTest {
         String[] testObjectSuperClassInterfaces = testObject.getInterfaces();
         Assert.assertEquals(testObjectSuperClassInterfaces.length, 0);
 
-        InstrumentClass classHierarchyObject = byteCodeInstrumentor.getClass(null, "com.navercorp.pinpoint.profiler.interceptor.bci.ClassHierarchyObject", null);
+        InstrumentClass classHierarchyObject = byteCodeInstrumentor.getClass(null, "com.navercorp.pinpoint.profiler.interceptor.bci.ClassHierarchyTestMock", null);
         String hierarchySuperClass = classHierarchyObject.getSuperClass();
         Assert.assertEquals("java.util.HashMap", hierarchySuperClass);
 

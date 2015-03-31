@@ -21,7 +21,7 @@ import java.util.HashMap;
 /**
  * @author emeroad
  */
-public class ClassHierarchyObject extends HashMap implements Runnable, Comparable {
+public class ClassHierarchyTestMock extends HashMap implements Runnable, Comparable {
     @Override
     public int compareTo(Object o) {
         return 0;

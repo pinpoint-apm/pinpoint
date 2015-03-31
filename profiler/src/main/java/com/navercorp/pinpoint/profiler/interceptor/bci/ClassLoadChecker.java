@@ -32,17 +32,20 @@ public class ClassLoadChecker {
     private final ConcurrentMap<ClassLoader, String> load = Maps.newWeakConcurrentMap();
 
 
-    public boolean exist(ClassLoader cl, String className) {
+    public boolean exist(ClassLoader classLoader, String className) {
+        if (classLoader == null) {
+            throw new NullPointerException("classLoader must not be null");
+        }
 
-        Object old = load.putIfAbsent(cl, className);
+        Object old = load.putIfAbsent(classLoader, className);
         if (old == null) {
             if (isDebug) {
-                logger.debug("{} not exist from ", cl);
+                logger.debug("{} not exist from ", classLoader);
             }
             return false;
         }
         if (isDebug) {
-            logger.debug("{} already exist from ", cl);
+            logger.debug("{} already exist from ", classLoader);
         }
         return true;
     }
