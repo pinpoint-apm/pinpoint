@@ -99,4 +99,10 @@ public interface RecordableTrace {
     Object setAttribute(String key, Object value);
     
     Object removeAttribute(String key);
+    
+    void recordAsyncId(int asyncId);
+    
+    void recordnextAsyncId(int asyncId);
+    
+    boolean isAsync();
 }

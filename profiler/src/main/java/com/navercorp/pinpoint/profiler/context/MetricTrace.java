@@ -403,5 +403,18 @@ public class MetricTrace implements Trace {
     @Override
     public Object removeTraceBlockAttachment() {
         return currentStackFrame.detachFrameObject();
+    }
+
+    @Override
+    public void recordAsyncId(int asyncId) {
+    }
+
+    @Override
+    public void recordnextAsyncId(int asyncId) {
+    }
+
+    @Override
+    public boolean isAsync() {
+        return false;
     }    
 }

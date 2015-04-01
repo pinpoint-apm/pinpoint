@@ -21,6 +21,7 @@ import org.apache.http.HttpRequest;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
 import com.navercorp.pinpoint.bootstrap.plugin.Cached;
 import com.navercorp.pinpoint.bootstrap.plugin.Scope;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;

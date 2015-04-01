@@ -584,4 +584,29 @@ public final class DefaultTrace implements Trace {
     public Object removeTraceBlockAttachment() {
         return currentStackFrame.detachFrameObject();
     }
+
+    @Override
+    public void recordAsyncId(int asyncId) {
+        StackFrame currentStackFrame = this.currentStackFrame;
+        if(currentStackFrame instanceof SpanEventStackFrame) {
+            ((SpanEventStackFrame) currentStackFrame).setAsyncId(asyncId);
+        } else {
+            throw new PinpointException("not SpanEventStackFrame");
+        }
+    }
+
+    @Override
+    public void recordnextAsyncId(int asyncId) {
+        StackFrame currentStackFrame = this.currentStackFrame;
+        if(currentStackFrame instanceof SpanEventStackFrame) {
+            ((SpanEventStackFrame) currentStackFrame).setNextAsyncId(asyncId);
+        } else {
+            throw new PinpointException("not SpanEventStackFrame");
+        }
+    }
+
+    @Override
+    public boolean isAsync() {
+        return false;
+    }
 }

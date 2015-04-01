@@ -55,6 +55,9 @@ struct TSpanEvent {
 
   25: optional i32 apiId;
   26: optional TIntStringValue exceptionInfo;
+  
+  30: optional i32 asyncId;
+  31: optional i32 nextAsyncId;
 }
 
 struct TSpan {

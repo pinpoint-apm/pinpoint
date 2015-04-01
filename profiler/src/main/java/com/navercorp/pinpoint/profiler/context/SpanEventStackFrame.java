@@ -137,5 +137,11 @@ public class SpanEventStackFrame implements StackFrame {
         return spanEvent.getServiceType();
     }
 
-
+    public void setAsyncId(int asyncId) {
+        this.spanEvent.setAsyncId(asyncId);
+    }
+    
+    public void setNextAsyncId(int asyncId) {
+        this.spanEvent.setNextAsyncId(asyncId);
+    }
 }

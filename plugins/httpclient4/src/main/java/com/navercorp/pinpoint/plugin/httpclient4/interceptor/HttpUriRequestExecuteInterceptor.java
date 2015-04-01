@@ -21,9 +21,10 @@ import java.net.URI;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.HttpUriRequest;
 
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
+import com.navercorp.pinpoint.bootstrap.plugin.Scope;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
  * MethodInfo interceptor
@@ -37,12 +38,13 @@ import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
  * @author emeroad
  * @author minwoo.jung
  */
+@Scope(HttpClient4Constants.HTTP_CLIENT4_SCOPE)
 public class HttpUriRequestExecuteInterceptor extends AbstractHttpRequestExecuteWithDivergence implements TargetClassLoader {
 
     private static final int HTTP_URI_REQUEST_INDEX = 0;
 
-    public HttpUriRequestExecuteInterceptor(boolean isHasCallbackParam, Scope scope) {
-        super(HttpUriRequestExecuteInterceptor.class, isHasCallbackParam, scope);
+    public HttpUriRequestExecuteInterceptor(boolean isHasCallbackParam) {
+        super(HttpUriRequestExecuteInterceptor.class, isHasCallbackParam);
     }
 
     @Override

@@ -83,83 +83,12 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
 
     @Override
     public void before(Object target, Object[] args) {
-        if (!isPossibleBeforeProcess()) {
-            return;
-        }
-
         before2(target, args);
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        try {
-            if (isPossibleAfterProcess()) {
-                after2(target, args, result, throwable);
-            } else {
-                addStatusCode(result);
-            }
-        } finally {
-            scope.pop();
-        }
-    }
-
-    ;
-
-    private boolean isPossibleBeforeProcess() {
-        if (scope.push() == Scope.ZERO) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private boolean isPossibleAfterProcess() {
-        final int depth = scope.depth();
-
-        if (depth - 1 == Scope.ZERO) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private void addStatusCode(Object result) {
-        if (!needGetStatusCode()) {
-            return;
-        }
-
-        if (result instanceof HttpResponse) {
-            HttpResponse response = (HttpResponse) result;
-
-            if (response.getStatusLine() != null) {
-                HttpCallContext context = new HttpCallContext();
-                final StatusLine statusLine = response.getStatusLine();
-                if (statusLine != null) {
-                    context.setStatusCode(statusLine.getStatusCode());
-                    scope.setAttachment(context);
-                }
-            }
-        }
-    }
-
-    private boolean needGetStatusCode() {
-        if (isHasCallbackParam) {
-            return false;
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return false;
-        }
-        if (trace.getServiceType() != ServiceType.HTTP_CLIENT.getCode()) {
-            return false;
-        }
-
-        if (scope.getAttachment() != null) {
-            return false;
-        }
-
-        return true;
+        after2(target, args, result, throwable);
     }
 
     Integer getStatusCodeFromResponse(Object result) {
@@ -173,19 +102,6 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
                 return null;
             }
         }
-        return null;
-    }
-
-    private Integer getStatusCodeFromAttachment() {
-        final Object attachment = scope.getAttachment();
-        if (attachment == null) {
-            return null;
-        }
-
-        if (attachment instanceof HttpCallContext) {
-            return ((HttpCallContext) attachment).getStatusCode();
-        }
-
         return null;
     }
 
@@ -230,8 +146,6 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
         }
     }
 
-
-
     private String getEndpoint(String host, int port) {
         if (host == null) {
             return "UnknownHttpClient";
@@ -271,27 +185,12 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
                 recordHttpRequest(trace, httpRequest, throwable);
             }
 
-            if (statusCode) {
-                final Integer statusCodeValue = getStatusCode(result);
-                if (statusCodeValue != null) {
-                    trace.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, statusCodeValue);
-                }
-            }
-
             trace.recordApi(descriptor);
             trace.recordException(throwable);
 
             trace.markAfterTime();
         } finally {
             trace.traceBlockEnd();
-        }
-    }
-
-    private Integer getStatusCode(Object result) {
-        if (isHasCallbackParam) {
-            return getStatusCodeFromAttachment();
-        } else {
-            return getStatusCodeFromResponse(result);
         }
     }
 
@@ -347,18 +246,19 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
     }
 
     /**
-     * copy: EntityUtils
-     * Get the entity content as a String, using the provided default character set
-     * if none is found in the entity.
-     * If defaultCharset is null, the default "ISO-8859-1" is used.
+     * copy: EntityUtils Get the entity content as a String, using the provided default character set if none is found in the entity. If defaultCharset is null, the default "ISO-8859-1" is used.
      *
-     * @param entity must not be null
-     * @param defaultCharset character set to be applied if none found in the entity
-     * @return the entity content as a String. May be null if
-     *   {@link HttpEntity#getContent()} is null.
-     * @throws ParseException if header elements cannot be parsed
-     * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
-     * @throws IOException if an error occurs reading the input stream
+     * @param entity
+     *            must not be null
+     * @param defaultCharset
+     *            character set to be applied if none found in the entity
+     * @return the entity content as a String. May be null if {@link HttpEntity#getContent()} is null.
+     * @throws ParseException
+     *             if header elements cannot be parsed
+     * @throws IllegalArgumentException
+     *             if entity is null or if content length > Integer.MAX_VALUE
+     * @throws IOException
+     *             if an error occurs reading the input stream
      */
     public static String entityUtilsToString(final HttpEntity entity, final String defaultCharset, int maxLength) throws IOException, ParseException {
         if (entity == null) {
@@ -396,13 +296,15 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
     }
 
     /**
-     * copy: EntityUtils
-     * Obtains character set of the entity, if known.
+     * copy: EntityUtils Obtains character set of the entity, if known.
      *
-     * @param entity must not be null
+     * @param entity
+     *            must not be null
      * @return the character set, or null if not found
-     * @throws ParseException if header elements cannot be parsed
-     * @throws IllegalArgumentException if entity is null
+     * @throws ParseException
+     *             if header elements cannot be parsed
+     * @throws IllegalArgumentException
+     *             if entity is null
      */
     public static String getContentCharSet(final HttpEntity entity) throws ParseException {
         if (entity == null) {

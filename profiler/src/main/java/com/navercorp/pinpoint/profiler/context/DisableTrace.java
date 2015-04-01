@@ -239,4 +239,17 @@ public class DisableTrace  implements Trace {
     public Object removeTraceBlockAttachment() {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void recordAsyncId(int asyncId) {
+    }
+
+    @Override
+    public void recordnextAsyncId(int asyncId) {
+    }
+
+    @Override
+    public boolean isAsync() {
+        return false;
+    }
 }

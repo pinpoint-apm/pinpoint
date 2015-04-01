@@ -253,4 +253,17 @@ public class MockTrace implements Trace {
         this.attachment = null;
         return copy;
     }
+
+    @Override
+    public void recordAsyncId(int asyncId) {
+    }
+
+    @Override
+    public void recordnextAsyncId(int asyncId) {
+    }
+
+    @Override
+    public boolean isAsync() {
+        return false;
+    }
 }

@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.thrift.dto.*;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
 public class SpanEventBo implements Span {
     private static final int VERSION_SIZE = 1;
@@ -69,6 +70,8 @@ public class SpanEventBo implements Span {
     // should get exceptionClass from dao
     private String exceptionClass;
 
+    private int asyncId = -1;
+    private int nextAsyncId = -1;
 
     public SpanEventBo() {
     }
@@ -124,6 +127,14 @@ public class SpanEventBo implements Span {
             this.exceptionId = exceptionInfo.getIntValue();
             this.exceptionMessage = exceptionInfo.getStringValue();
         }
+        
+        if(tSpanEvent.isSetAsyncId()) {
+            this.asyncId = tSpanEvent.getAsyncId();
+        }
+        
+        if(tSpanEvent.isSetNextAsyncId()) {
+            this.nextAsyncId = tSpanEvent.getNextAsyncId();
+        }
     }
 
     public SpanEventBo(TSpanChunk spanChunk, TSpanEvent spanEvent) {
@@ -175,6 +186,14 @@ public class SpanEventBo implements Span {
             this.hasException = true;
             this.exceptionId = exceptionInfo.getIntValue();
             this.exceptionMessage = exceptionInfo.getStringValue();
+        }
+        
+        if(spanEvent.isSetAsyncId()) {
+            this.asyncId = spanEvent.getAsyncId();
+        }
+        
+        if(spanEvent.isSetNextAsyncId()) {
+            this.nextAsyncId = spanEvent.getNextAsyncId();
         }
     }
 
@@ -359,7 +378,21 @@ public class SpanEventBo implements Span {
         this.exceptionClass = exceptionClass;
     }
 
+    public int getAsyncId() {
+        return asyncId;
+    }
 
+    public void setAsyncId(int asyncId) {
+        this.asyncId = asyncId;
+    }
+
+    public int getNextAsyncId() {
+        return nextAsyncId;
+    }
+
+    public void setNextAsyncId(int nextAsyncId) {
+        this.nextAsyncId = nextAsyncId;
+    }
 
     public byte[] writeValue() {
         final Buffer buffer = new AutomaticBuffer(512);
@@ -397,20 +430,18 @@ public class SpanEventBo implements Span {
         }
 
         writeAnnotation(buffer);
-
+        buffer.putSVar(nextAsyncId);
 
         return buffer.getBuffer();
     }
-
-
 
     private void writeAnnotation(Buffer buffer) {
         AnnotationBoList annotationBo = new AnnotationBoList(this.annotationBoList);
         annotationBo.writeValue(buffer);
     }
 
-
-    public int readValue(byte[] bytes, int offset) {
+    public int readValue(byte[] bytes, int offset, int length) {
+        final int endOffset = offset + length;
         final Buffer buffer = new OffsetFixedBuffer(bytes, offset);
 
         this.version = buffer.readByte();
@@ -445,6 +476,10 @@ public class SpanEventBo implements Span {
         }
 
         this.annotationBoList = readAnnotation(buffer);
+        if(buffer.getOffset() < endOffset) {
+            nextAsyncId = buffer.readSVarInt();            
+        }
+        
         return buffer.getOffset();
     }
 
@@ -456,31 +491,58 @@ public class SpanEventBo implements Span {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder(256);
-        sb.append("SpanEventBo{");
-        sb.append("version=").append(version);
-        sb.append(", agentId='").append(agentId).append('\'');
-        sb.append(", applicationId='").append(applicationId).append('\'');
-        sb.append(", agentStartTime=").append(agentStartTime);
-        sb.append(", traceAgentId='").append(traceAgentId).append('\'');
-        sb.append(", traceAgentStartTime=").append(traceAgentStartTime);
-        sb.append(", traceTransactionSequence=").append(traceTransactionSequence);
-        sb.append(", spanId=").append(spanId);
-        sb.append(", sequence=").append(sequence);
-        sb.append(", startElapsed=").append(startElapsed);
-        sb.append(", endElapsed=").append(endElapsed);
-        sb.append(", rpc='").append(rpc).append('\'');
-        sb.append(", serviceType=").append(serviceType);
-        sb.append(", destinationId='").append(destinationId).append('\'');
-        sb.append(", endPoint='").append(endPoint).append('\'');
-        sb.append(", apiId=").append(apiId);
-        sb.append(", annotationBoList=").append(annotationBoList);
-        sb.append(", depth=").append(depth);
-        sb.append(", nextSpanId=").append(nextSpanId);
-        sb.append(", hasException=").append(hasException);
-        sb.append(", exceptionId=").append(exceptionId);
-        sb.append(", exceptionMessage='").append(exceptionMessage).append('\'');
-        sb.append('}');
-        return sb.toString();
+        StringBuilder builder = new StringBuilder();
+        builder.append("{version=");
+        builder.append(version);
+        builder.append(", agentId=");
+        builder.append(agentId);
+        builder.append(", applicationId=");
+        builder.append(applicationId);
+        builder.append(", agentStartTime=");
+        builder.append(agentStartTime);
+        builder.append(", traceAgentId=");
+        builder.append(traceAgentId);
+        builder.append(", traceAgentStartTime=");
+        builder.append(traceAgentStartTime);
+        builder.append(", traceTransactionSequence=");
+        builder.append(traceTransactionSequence);
+        builder.append(", spanId=");
+        builder.append(spanId);
+        builder.append(", sequence=");
+        builder.append(sequence);
+        builder.append(", startElapsed=");
+        builder.append(startElapsed);
+        builder.append(", endElapsed=");
+        builder.append(endElapsed);
+        builder.append(", rpc=");
+        builder.append(rpc);
+        builder.append(", serviceType=");
+        builder.append(serviceType);
+        builder.append(", destinationId=");
+        builder.append(destinationId);
+        builder.append(", endPoint=");
+        builder.append(endPoint);
+        builder.append(", apiId=");
+        builder.append(apiId);
+        builder.append(", annotationBoList=");
+        builder.append(annotationBoList);
+        builder.append(", depth=");
+        builder.append(depth);
+        builder.append(", nextSpanId=");
+        builder.append(nextSpanId);
+        builder.append(", hasException=");
+        builder.append(hasException);
+        builder.append(", exceptionId=");
+        builder.append(exceptionId);
+        builder.append(", exceptionMessage=");
+        builder.append(exceptionMessage);
+        builder.append(", exceptionClass=");
+        builder.append(exceptionClass);
+        builder.append(", asyncId=");
+        builder.append(asyncId);
+        builder.append(", nextAsyncId=");
+        builder.append(nextAsyncId);
+        builder.append("}");
+        return builder.toString();
     }
 }

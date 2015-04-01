@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
@@ -25,17 +26,22 @@ import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.Cached;
+import com.navercorp.pinpoint.bootstrap.plugin.Name;
+import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
+import com.navercorp.pinpoint.profiler.context.AsyncTraceId;
 
 /**
  * 
  * suitable method
+ * 
  * <pre>
  * org.apache.http.concurrent.BasicFuture.completed(T)
  * </pre>
  *
- * original code of method
- * <code>
+ * original code of method <code>
  * <pre>
  *     public boolean completed(final T result) {
  *         synchronized (this) {
@@ -57,13 +63,20 @@ import com.navercorp.pinpoint.common.ServiceType;
  * @author netspider
  * 
  */
-public class BasicFutureCompletedInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
+public class BasicFutureCompletedInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, HttpClient4Constants {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private TraceContext traceContext;
     private MethodDescriptor descriptor;
+    private MetadataAccessor asyncTraceIdAccessor;
+
+    public BasicFutureCompletedInterceptor(TraceContext traceContext, @Cached MethodDescriptor methodDescriptor, @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor) {
+        this.traceContext = traceContext;
+        this.descriptor = methodDescriptor;
+        this.asyncTraceIdAccessor = asyncTraceIdAccessor;
+    }
 
     @Override
     public void before(Object target, Object[] args) {
@@ -71,14 +84,36 @@ public class BasicFutureCompletedInterceptor implements SimpleAroundInterceptor,
             logger.beforeInterceptor(target, args);
         }
 
-        Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
+        if (!asyncTraceIdAccessor.isApplicable(target) || asyncTraceIdAccessor.get(target) == null) {
+            logger.debug("Not found asynchronous invocation metadata");
             return;
         }
 
+        final AsyncTraceId asyncTraceId = asyncTraceIdAccessor.get(target);
+
+        boolean async = false;
+        Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
+            trace = traceContext.continueAsyncTraceObject(asyncTraceId, asyncTraceId.getAsyncId(), asyncTraceId.getStartTime());
+            if (trace == null) {
+                logger.warn("Failed to continue async trace. 'result is null'");
+                return;
+            }
+            async = true;
+            if(isDebug) {
+                logger.debug("Continue async trace {} [{}]", asyncTraceId, Thread.currentThread().getName());
+            }
+            
+            return;
+        }
+
+        logger.debug("TraceBlockBegin [{}]", Thread.currentThread().getName());
         trace.traceBlockBegin();
         trace.markBeforeTime();
         trace.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
+        if(async) {
+            trace.recordAttribute(AnnotationKey.ASYNC, "");
+        }
     }
 
     @Override
@@ -98,12 +133,14 @@ public class BasicFutureCompletedInterceptor implements SimpleAroundInterceptor,
             trace.markAfterTime();
         } finally {
             trace.traceBlockEnd();
+            if(trace.isAsync() && trace.isRoot()) {
+                trace.traceRootBlockEnd();
+                traceContext.detachTraceObject();
+                if(isDebug) {
+                    logger.debug("End async trace {} [{}]", trace.getTraceId(), Thread.currentThread().getName());
+                }
+            }
         }
-    }
-
-    @Override
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
     }
 
     @Override
