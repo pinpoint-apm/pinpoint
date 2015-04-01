@@ -16,7 +16,6 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
 
                 // initialize variables of methods
                 var initialize, treeFormatter, treeFilter, parseData, execTimeFormatter,
-//                     getColorByString, progressBarFormatter, argumentFormatter, hasChildNode;
                     getColorByString, progressBarFormatter, argumentFormatter, linkFormatter, hasChildNode;
 
                 // bootstrap

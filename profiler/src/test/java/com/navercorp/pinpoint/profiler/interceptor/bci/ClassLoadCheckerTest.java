@@ -32,4 +32,11 @@ public class ClassLoadCheckerTest {
         boolean exist = checker.exist(ClassLoader.getSystemClassLoader(), "test");
         Assert.assertTrue(exist);
     }
+
+
+    @Test(expected = NullPointerException.class)
+    public void testNull() throws Exception {
+        ClassLoadChecker checker = new ClassLoadChecker();
+        checker.exist(null, "test");
+    }
 }

@@ -52,7 +52,7 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
     protected final DatagramSocket udpSocket;
 
     // Caution. not thread safe
-    private final HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory(false, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE).createSerializer();
+    private final HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory(false, UDP_MAX_PACKET_LENGTH, false).createSerializer();
 
     private AsyncQueueingExecutor<Object> executor;
 

@@ -16,9 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.interceptor.bci;
 
-import com.navercorp.pinpoint.bootstrap.LibClass;
-import com.navercorp.pinpoint.bootstrap.PinpointURLClassLoader;
-import javassist.ClassPool;
 import javassist.CtClass;
 import org.junit.Test;
 import org.junit.Assert;
@@ -125,7 +122,7 @@ public class IsolateMultipleClassPoolTest {
         Assert.assertNotSame(systemString.getClassPool(), testClass2.getClassPool());
 
         CtClass testCtClass = childPool2.get(TEST_CLASS);
-        logger.info("className:{}", Arrays.toString(testCtClass.getConstructors()));
+        logger.debug("className:{}", Arrays.toString(testCtClass.getConstructors()));
 
     }
 

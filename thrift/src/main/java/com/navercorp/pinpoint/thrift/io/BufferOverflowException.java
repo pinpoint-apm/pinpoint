@@ -13,12 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.modifier.log;
+
+package com.navercorp.pinpoint.thrift.io;
 
 /**
- * @author minwoo.jung
+ * 
+ * @author Taejin Koo
  */
-public class MdcKey {
-    public static final String TRANSACTION_ID = "PtxId";
-    public static final String SPAN_ID = "PspanId";
+public class BufferOverflowException extends RuntimeException {
+
+    public BufferOverflowException(String message) {
+        super(message);
+    }
+
+    public BufferOverflowException(String message, Throwable cause) {
+        super(message, cause);
+    }
+    
 }

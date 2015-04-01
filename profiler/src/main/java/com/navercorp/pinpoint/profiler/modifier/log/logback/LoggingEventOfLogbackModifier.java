@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
-import com.navercorp.pinpoint.profiler.modifier.log.log4j.interceptor.LoggingEventOfLog4jInterceptor;
 
 /**
  * This modifier support slf4j 1.4.1 version and logback 0.9.8 version, or greater.
@@ -41,7 +40,7 @@ public class LoggingEventOfLogbackModifier extends AbstractModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public LoggingEventOfLogbackModifier(ByteCodeInstrumentor byteCodeInstrumentor,Agent agent) {
+    public LoggingEventOfLogbackModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
     }
 
@@ -51,18 +50,19 @@ public class LoggingEventOfLogbackModifier extends AbstractModifier {
         if (logger.isInfoEnabled()) {
             logger.info("Modifing. {}", javassistClassName);
         }
-
+        
         try {
-            Class<?> mdcClass = classLoader.loadClass("org.slf4j.MDC");
-            mdcClass.getMethod("put", String.class, String.class);
-            mdcClass.getMethod("remove", String.class);
-        } catch (SecurityException e) {
-            logger.warn("modify fail. There is the problem while checking org.slf4j.MDC class. Cause:" + e.getMessage(), e);
-            return null;
-        } catch (NoSuchMethodException e) {
-            logger.warn("modify fail. Because put, remove method does not existed org.slf4j.MDC class. Cause:" + e.getMessage(), e);
-            return null;
-        } catch (ClassNotFoundException e) {
+            InstrumentClass mdcClass = byteCodeInstrumentor.getClass(classLoader, "org.slf4j.MDC", classFileBuffer);
+            
+            if (!mdcClass.hasMethod("put", new String[]{"java.lang.String", "java.lang.String"}, "void")) {
+                logger.warn("modify fail. Because put method does not existed org.slf4j.MDC class.");
+                return null;
+            }
+            if (!mdcClass.hasMethod("remove", new String[]{"java.lang.String"}, "void")) {
+                logger.warn("modify fail. Because remove method does not existed org.slf4j.MDC class.");
+                return null;
+            }
+        } catch (InstrumentException e) {
             logger.warn("modify fail. Because org.slf4j.MDC does not existed. Cause:" + e.getMessage(), e);
             return null;
         }

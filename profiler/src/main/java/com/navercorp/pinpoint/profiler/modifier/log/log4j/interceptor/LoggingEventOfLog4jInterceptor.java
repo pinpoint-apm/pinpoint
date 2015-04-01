@@ -31,17 +31,10 @@ import com.navercorp.pinpoint.profiler.modifier.log.MdcKey;
  */
 public class LoggingEventOfLog4jInterceptor implements SimpleAroundInterceptor, TraceContextSupport, TargetClassLoader {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-    
     private TraceContext traceContext;
 
     @Override
     public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-        
         Trace trace = traceContext.currentTraceObject();
         
         if (trace == null) {

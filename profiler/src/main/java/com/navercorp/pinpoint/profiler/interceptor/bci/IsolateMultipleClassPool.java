@@ -95,7 +95,7 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
             return standardClassPool;
         }
 
-        if (AGENT_CLASS_LOADER == classLoader ){
+        if (AGENT_CLASS_LOADER == classLoader) {
             throw new IllegalArgumentException("unexpected classLoader access. classLoader:" + classLoader);
         }
         final NamedClassPool hit = this.classPoolMap.get(classLoader);

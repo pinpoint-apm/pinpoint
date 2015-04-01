@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.interceptor.bci;
 
-import javassist.ClassPool;
+import javassist.CtClass;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -36,7 +36,9 @@ public class HierarchyMultipleClassPoolTest {
         HierarchyMultipleClassPool multipleClassPool = new HierarchyMultipleClassPool(cp);
         ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
 
-        ClassPool classPool = multipleClassPool.getClassPool(systemClassLoader);
+        NamedClassPool classPool = multipleClassPool.getClassPool(systemClassLoader);
+        CtClass string = classPool.get("java.lang.String");
+        logger.debug("{}", string);
     }
 
     @Test
@@ -68,12 +70,10 @@ public class HierarchyMultipleClassPoolTest {
 
         multipleClassPool.getClassPool(classLoader);
 
-        logger.debug("{}", multipleClassPool.size());
+        logger.debug("size {}", multipleClassPool.size());
 
-        for (ClassPool classPool1 : multipleClassPool.values()) {
-            logger.debug("classPool:{}", classPool1);
-
-            logger.debug("classPool:{}", ((NamedClassPool)classPool1).getName());
+        for (NamedClassPool classPool1 : multipleClassPool.values()) {
+            logger.debug("classPool:{} name:{}", classPool1, classPool1.getName());
         }
 
         Assert.assertEquals(2, multipleClassPool.size());
