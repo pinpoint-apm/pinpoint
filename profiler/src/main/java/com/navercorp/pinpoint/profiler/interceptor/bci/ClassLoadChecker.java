@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.profiler.util.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -29,25 +30,49 @@ public class ClassLoadChecker {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final ConcurrentMap<ClassLoader, String> load = Maps.newWeakConcurrentMap();
+    private static final Object EXIST = new Object();
+
+    private final ConcurrentMap<ClassLoader, ConcurrentMap<String, Object>> classLoaderMap = Maps.newWeakConcurrentMap();
 
 
     public boolean exist(ClassLoader classLoader, String className) {
         if (classLoader == null) {
             throw new NullPointerException("classLoader must not be null");
         }
+        final ConcurrentMap<String, Object> classMap = findClassMap(classLoader);
 
-        Object old = load.putIfAbsent(classLoader, className);
+        final Object hit = classMap.get(className);
+        if (hit != null) {
+            if (isDebug) {
+                logger.debug("{} already exist from {}", className, classLoader);
+            }
+            return true;
+        }
+
+        final Object old = classMap.putIfAbsent(className, EXIST);
         if (old == null) {
             if (isDebug) {
-                logger.debug("{} not exist from ", classLoader);
+                logger.debug("{} not exist from {}", className, classLoader);
             }
             return false;
         }
         if (isDebug) {
-            logger.debug("{} already exist from ", classLoader);
+            logger.debug("{} already exist from {}", className, classLoader);
         }
         return true;
+    }
+
+    private ConcurrentMap<String, Object> findClassMap(ClassLoader classLoader) {
+        ConcurrentMap<String, Object> hit = this.classLoaderMap.get(classLoader);
+        if (hit != null) {
+            return hit;
+        }
+        ConcurrentMap<String, Object> newClassMap = new ConcurrentHashMap<String, Object>();
+        ConcurrentMap<String, Object> exist = this.classLoaderMap.putIfAbsent(classLoader, newClassMap);
+        if (exist != null) {
+            return exist;
+        }
+        return newClassMap;
     }
 
 }
