@@ -20,7 +20,8 @@
          * @method $init
          * @param {Hash Table} options
          */
-        $init: function (htOption) {
+        $init: function (htOption, $location) {
+        	this._query = "";
             this.option({
                 "sContainerId": '',
                 "sOverviewId": '',
@@ -39,7 +40,9 @@
                     'MEMCACHED': 'MEMCACHED.png',
                     'MONGODB': 'MONGODB.png',
                     'MSSQLSERVER': 'MSSQLSERVER.png',
+                    'MSSQLSERVER_GROUP': 'MSSQLSERVER.png',
                     'MYSQL': 'MYSQL.png',
+                    'MYSQL_GROUP': 'MYSQL.png',
                     'NBASE': 'NBASE.png',
                     'NGINX': 'NGINX.png',
                     'ORACLE': 'ORACLE.png',
@@ -47,6 +50,7 @@
                     'STAND_ALONE': 'STAND_ALONE.png',
                     'TOMCAT': 'TOMCAT.png',
                     'UNDEFINED': 'UNDEFINED.png',
+                    'UNDEFINED_GROUP': 'UNDEFINED.png',
                     'UNKNOWN': 'UNKNOWN.png',
                     'UNKNOWN_GROUP': 'UNKNOWN_GROUP.png',
                     'REDIS': 'REDIS.png',
@@ -58,12 +62,13 @@
                         "backgroundColor": "#ffffff",
                         "borderColor": "#C5C5C5",
                         "borderWidth": 1,
-                        "fontColor": "#1F1F21"
+                        "fontColor": "#000000"
                     },
                     "bold": {
                         "backgroundColor": "#f2f2f2",
                         "borderColor": "#666975",
-                        "borderWidth": 2
+                        "borderWidth": 2,
+                        "fontColor": "#000000"
                     }
                 },
                 "htLinkType": {
@@ -94,7 +99,8 @@
                     //"borderColor": "#25AFF4",
                 	"borderColor": "#53069B",
                     "backgroundColor": "#289E1D",
-                    "fontColor": "#ffffff"
+                    //"fontColor": "#5cb85c"
+                    "fontColor": "#53069B"
                 },
                 "htHighlightLink": {
                 	"fontFamily": "bold 12pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
@@ -130,7 +136,7 @@
             this._initNodeTemplates();
             this._initLinkTemplates();
             this._initDiagramEnvironment();
-            this._initOverview();
+            this._initOverview( $location );
         },
 
         /**
@@ -202,7 +208,7 @@
                         click: function (e, obj) {
                             self._onNodeClicked(e, obj);
                         },
-                        contextClick: self._onNodeContextClicked.bind(this)
+                        contextClick: self._onNodeContextClicked.bind(self)
                     },
                     self.$(
                         go.Shape,
@@ -388,6 +394,7 @@
                 self.$(
                     go.TextBlock,
                     {
+                    	name: "NODE_APPLICATION_NAME",
                         margin: new go.Margin(1, 2),
                         column: 2,
                         font: self.option('sSmallFont'),
@@ -430,7 +437,7 @@
                                 self._onNodeClicked(e, obj);
                             }
                         },
-                        contextClick: self._onNodeContextClicked.bind(this)
+                        contextClick: self._onNodeContextClicked.bind(self)
                     },
                     self.$(
                         go.Shape,
@@ -452,11 +459,13 @@
                         go.Panel,
                         go.Panel.Spot,
                         {
+                        	name: "NODE_1SUB_PANEL",
                         },
                         self.$(
                             go.Panel,
                             go.Panel.Vertical,
                             {
+                            	name: "NODE_2SUB_PANEL",
                                 alignment: go.Spot.TopLeft,
                                 alignmentFocus: go.Spot.TopLeft,
                                 minSize: new go.Size(130, NaN)
@@ -483,12 +492,51 @@
                                 new go.Binding("itemArray", "unknownNodeGroup")
                             )
                         )
+                    ),
+                    self.$(
+                        go.Panel,
+                        go.Panel.Auto,
+                        {
+                            alignment: go.Spot.TopRight,
+                            alignmentFocus: go.Spot.TopRight,
+                            visible: false
+                        },
+                        new go.Binding("visible", "instanceCount", function (v) {
+                            return v > 1 ? true : false;
+                        }),
+                        self.$(
+                            go.Shape,
+                            {
+                                figure: "RoundedRectangle",
+                                fill: "#848484",
+                                strokeWidth: 1,
+                                stroke: "#848484"
+                            }
+                        ),
+                        self.$(
+                            go.Panel,
+                            go.Panel.Auto,
+                            {
+                                margin: new go.Margin(0, 3, 0, 3)
+                            },
+                            self.$(
+                                go.TextBlock,
+                                new go.Binding("text", "instanceCount"),
+                                {
+                                    stroke: "#FFFFFF",
+                                    textAlign: "center",
+                                    height: 16,
+                                    font: self.option('sSmallFont'),
+                                    editable: false
+                                }
+                            )
+                        )
                     )
                 );
             };
 
             _.each(htIcons, function (sVal, sKey) {
-                if (sKey === "UNKNOWN_GROUP") {
+            	if ( sKey.indexOf( "_GROUP" ) != -1 ) {
                     this._oDiagram.nodeTemplateMap.add(sKey, getUnknownGroupTemplate(sVal));
                 } else {
                     this._oDiagram.nodeTemplateMap.add(sKey, getNodeTemplate(sVal));
@@ -711,14 +759,19 @@
          *
          * @method _initOverview
          */
-        _initOverview: function () {
-            this._oOverview = this.$( go.Overview,
-            		this.option('sOverviewId'),
-            		{ observed: this._oDiagram }
-            );
-            this._oOverview.box.elt(0).figure = "RoundedRectangle";
-            this._oOverview.box.elt(0).stroke = "#53069B";
-            this._oOverview.box.elt(0).strokeWidth = 4;
+        _initOverview: function ( $location ) {
+        	
+        	if ( /^\/main/.test( $location.path() ) ) {
+	            this._oOverview = this.$( go.Overview,
+	            		this.option('sOverviewId'),
+	            		{ observed: this._oDiagram }
+	            );
+	            this._oOverview.box.elt(0).figure = "RoundedRectangle";
+	            this._oOverview.box.elt(0).stroke = "#53069B";
+	            this._oOverview.box.elt(0).strokeWidth = 4;
+	        } else {
+	        	$( "#" + this.option('sOverviewId') ).hide();
+	        }
         },
 
         /**
@@ -787,7 +840,7 @@
 
             // nodes, including groups
             while (allNodes.next()) {
-                this._hightlightNode(allNodes.value.findObject("NODE_SHAPE"), allNodes.value.findObject("NODE_TEXT"), allNodes.value.highlight);
+                this._highlightNode(allNodes.value.findObject("NODE_SHAPE"), allNodes.value.findObject("NODE_TEXT"), allNodes.value.highlight);
             }
             // links
             while (allLinks.next()) {
@@ -853,18 +906,43 @@
          * @param theme
          * @private
          */
-        _hightlightNode: function (nodeShape, nodeText, theme) {
+        _highlightNode: function (nodeShape, nodeText, theme) {
             if (nodeShape === null || nodeText === null) {
                 return;
             }
             if (theme) {
                 nodeShape.stroke = this.option('htHighlightNode').borderColor;
                 nodeShape.strokeWidth = 2;
+                nodeShape.part.isShadowed = true;
+                
+                if ( this._query != "" ) {
+	                if ( nodeText.type === go.Panel.Table ) {
+	                	for( var i = 0 ; i < nodeText.rowCount ; i++ ) {
+	                		if ( new RegExp( this._query, "i" ).test( nodeText.elt(i).elt(1).text ) ) {
+	                			nodeText.elt(i).elt(1).stroke = this.option('htHighlightNode').fontColor;
+	                		}
+	                	}
+	                } else {
+	                	if ( new RegExp( this._query, "i" ).test( nodeText.text ) ) {
+	                		nodeText.stroke = this.option('htHighlightNode').fontColor;
+	                	}
+	                }
+                }
 //                nodeText.stroke = this.option('htHighlightNode')[theme].fontColor;
             } else {
                 var type = (nodeShape.key === this.option('sBoldKey')) ? 'bold' : 'default';
                 nodeShape.stroke = this.option('htNodeTheme')[type].borderColor;
                 nodeShape.strokeWidth = 1;
+                nodeShape.part.isShadowed = false;
+
+                if ( nodeText.type === go.Panel.Table ) {                	
+                	for( var i = 0 ; i < nodeText.rowCount ; i++ ) {
+                		nodeText.elt(i).elt(1).stroke = this.option('htNodeTheme')[type].fontColor;
+                	}
+                } else {
+                	nodeText.stroke = this.option('htNodeTheme')[type].fontColor;
+                }
+
 //                nodeText.stroke = this.option('htNodeTheme').default.fontColor;
             }
         },
@@ -1070,10 +1148,14 @@
             this._oDiagram.contentAlignment = go.Spot.Center;
             this._oDiagram.contentAlignment = go.Spot.None;
         },
+        clearQuery: function() {
+        	this._query = "";
+        },
         /**
          * search node
          */
-        searchNode: function( nodeName, nodeServiceType ) {        	
+        searchNode: function( query, nodeServiceType ) {
+        	this._query = query;
         	var allNodes = this._oDiagram.nodes,
         		selectedNode = null,
         		selectedIndex = 0,
@@ -1082,17 +1164,17 @@
         	
             while (allNodes.next()) {
                 var node = allNodes.value;
-                if ( node.data.serviceType == this.option("unknownGroupName") && ( nodeServiceType == this.option("unknownGroupName") || nodeServiceType == null ) ) {
+                if ( node.data.unknownNodeGroup ) {
                 	var unknownNodeGroup = node.data.unknownNodeGroup;
                 	for( var i = 0; i < unknownNodeGroup.length ; i++ ) {
-                		if ( new RegExp( nodeName, "i" ).test( unknownNodeGroup[i].applicationName ) ) {
+                		if ( new RegExp( query, "i" ).test( unknownNodeGroup[i].applicationName ) ) {
                 			this._addNodeToTemporaryList( similarNodeList, returnNodeDataList, node, unknownNodeGroup[i], this.option("unknownGroupName") );
 	                		break;
                 		}
                 	}
                 } else {
 	                if ( !angular.isUndefined( node.data.applicationName ) ) {
-		                if ( new RegExp( nodeName, "i" ).test( node.data.applicationName ) ) {
+		                if ( new RegExp( query, "i" ).test( node.data.applicationName ) ) {
 		                	this._addNodeToTemporaryList( similarNodeList, returnNodeDataList, node, node.data );
 		                	if ( new RegExp( nodeServiceType, "i" ).test( node.data.serviceType ) ) {
 		                		selectedIndex = similarNodeList.length - 1;

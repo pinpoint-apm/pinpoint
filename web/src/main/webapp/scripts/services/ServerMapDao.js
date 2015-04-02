@@ -447,35 +447,30 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
      * @param applicationMapData
      * @returns {*}
      */
-    this.mergeUnknown = function (mapData) {
+    this.mergeGroup = function (mapData, mergeTypeList) {
 //        SERVERMAP_METHOD_CACHE = {};
         var applicationMapData = angular.copy(mapData);
         var nodes = applicationMapData.nodeDataArray;
         var links = applicationMapData.linkDataArray;
 
         var inboundCountMap = {};
+        // 1. 각 노드 별로 인입되는 노드의 갯수와 request 합을 저장해 둠.
+        // 		> sourceCount == 0 인 경우 root node 라고 생각 할 수 있습니다.
+        // 		> sourceCount == 1 인 경우 아마도 merging을 대상이 아님.
         nodes.forEach(function (node) {
-            if (!inboundCountMap[node.key]) {
-                inboundCountMap[node.key] = {
-                    "sourceCount": 0,
-                    "totalCallCount": 0
-                };
-            }
-
-            links.forEach(function (link) {
+        	var sourceCount = 0;
+        	var totalCallCount = 0;
+        	links.forEach(function (link) {
                 if (link.to === node.key) {
-                    inboundCountMap[node.key].sourceCount++;
-                    inboundCountMap[node.key].totalCallCount += link.totalCount;
+                    sourceCount++;
+                    totalCallCount += link.totalCount;
                 }
             });
+        	inboundCountMap[node.key] = {
+                "sourceCount": sourceCount,
+                "totalCallCount": totalCallCount
+            };
         });
-
-        var newNodeList = [];
-        var newLinkList = [];
-
-        var removeNodeIdSet = {};
-        var removeLinkIdSet = {};
-
         function getNodeByApplicationName(applicationName) {
             for(var k in nodes) {
                 if (applicationName === nodes[k].applicationName) {
@@ -485,128 +480,150 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
             return false;
         }
 
-        nodes.forEach(function (node, nodeIndex) {
-            if (node.category === "UNKNOWN") {
-                return;
-            }
-
-            var newNode;
-            var newLink;
-            var newNodeKey = "UNKNOWN_GROUP_" + node.key;
-
-            var unknownCount = 0;
-            links.forEach(function (link, linkIndex) {
-                if (link.from == node.key &&
-                    link.targetInfo.serviceType == "UNKNOWN" &&
-                    inboundCountMap[link.to] && inboundCountMap[link.to].sourceCount == 1) {
-                    unknownCount++;
-                }
-            });
-            if (unknownCount < 2) {
-                return;
-            }
-
-            // for each children.
-            links.forEach(function (link, linkIndex) {
-                if (link.targetInfo.serviceType != "UNKNOWN") {
-                    return;
-                }
-                if (inboundCountMap[link.to] && inboundCountMap[link.to].sourceCount > 1) {
-                    return;
-                }
-
-                // branch out from current node.
-                if (link.from == node.key) {
-                    if (!newNode) {
-                        newNode = {
-                            "key": newNodeKey,
-                            "unknownNodeGroup": [],
-                            "serviceType": "UNKNOWN_GROUP",
-                            "category": "UNKNOWN_GROUP"
-                        };
-                    }
-                    if (!newLink) {
-                        newLink = {
-                            "key": node.key + "-" + newNodeKey,
-                            "from": node.key,
-                            "to": newNodeKey,
-                            "sourceInfo": {},
-                            "targetInfo": [],
-                            "totalCount": 0,
-                            "errorCount": 0,
-                            "slowCount": 0,
-                            "hasAlert": false,
-                            "unknownLinkGroup": [],
-                            "histogram": {}
-                        };
-                    }
-
-                    var thisNode = getNodeByApplicationName(link.targetInfo.applicationName);
-                    delete thisNode.category;
-                    newNode.unknownNodeGroup.push(thisNode);
-
-                    link.targetInfo['totalCount'] = link.totalCount;
-                    newLink.totalCount += link.totalCount;
-                    newLink.errorCount += link.errorCount;
-                    newLink.slowCount += link.slowCount;
-                    newLink.sourceInfo = link.sourceInfo;
-                    if (link.hasAlert) {
-                        newLink.hasAlert = link.hasAlert;
-                    }
-                    newLink.unknownLinkGroup.push(link);
-
-//                    $.each(link.histogram, function (key, value) {
-//                        if (newLink.histogram[key]) {
-//                            newLink.histogram[key] += value;
-//                        } else {
-//                            newLink.histogram[key] = value;
-//                        }
-//                    });
-
-                    removeNodeIdSet[link.to] = null;
-                    removeLinkIdSet[link.key] = null;
-                }
-            });
-
-            if (newNode) {
-                newNode.unknownNodeGroup.sort(function (e1, e2) {
-                    return e2.totalCount - e1.totalCount;
-                });
-                newNodeList.push(newNode);
-            }
-
-            if (newLink) {
-                newLink.unknownLinkGroup.sort(function (e1, e2) {
-                    return e2.totalCount - e1.totalCount;
-                });
-                newLinkList.push(newLink);
-            }
+        mergeTypeList.forEach( function( mergeType ) {
+        	var mergeTypeGroup = mergeType + "_GROUP";
+        	
+            var newNodeList = [];
+            var newLinkList = [];
+            var removeNodeIdSet = {};
+            var removeLinkIdSet = {};
+            
+	        nodes.forEach(function (node, nodeIndex) {
+	            if (node.category === mergeType) {
+	                return;
+	            }
+	
+	            var newNode;
+	            var newLink;
+	            var newNodeKey = mergeTypeGroup + "_" + node.key;
+	
+	            var unknownCount = 0;
+	            // 현재 확인 중인 node가 "UNKNOWN"으로 요청을 보내는 Node인지 확인하고 그렇다면 갯수를 count 함.
+	            // 또한 "UNKNOWN"의 sourceCount는 1인 것 만 대상으로 함.
+	            // 		> 즉 두 개 이상의 노드로 부터 request를 받는 "UNKNOWN"은 mergeing 대상이 아님.
+	            // from은 같고 to가 두 개 이상인 노드와 unknown을 골라 냄.
+	            links.forEach(function (link, linkIndex) {
+	                if (link.from == node.key &&
+	                    link.targetInfo.serviceType == mergeType &&
+	                    inboundCountMap[link.to] && inboundCountMap[link.to].sourceCount == 1) {
+	                    unknownCount++;
+	                }
+	            });
+	            // merging을 해야 하닌 2개 이하는 의미없음.
+	            if (unknownCount < 2) {
+	                return;
+	            }
+	
+	            // @@여기까지 오면 현재 노드는 두 개 이상의 UNKNOWN 으로 요청을 보내는 노드가 됨.( 것두 혼자서 보냄 )  
+	            // 고로 현재 노드의 to 가 되는 Unknown 노드들은 merging을 대상이 됨.
+	            links.forEach(function (link, linkIndex) {
+	            	// 검증
+	                if (link.targetInfo.serviceType != mergeType) {
+	                    return;
+	                }
+	                // 검증
+	                if (inboundCountMap[link.to] && inboundCountMap[link.to].sourceCount > 1) {
+	                    return;
+	                }
+	
+	                // 다시 현재 노드로 부터 나가는 링크들을 골라냄.
+	                if (link.from == node.key) {
+	                    if (!newNode) {
+	                        newNode = {
+	                            "key": newNodeKey,
+	                            "unknownNodeGroup": [],
+	                            "serviceType": mergeTypeGroup,
+	                            "category": mergeTypeGroup,
+	                            "instanceCount": 0
+	                        };
+	                    }
+	                    if (!newLink) {
+	                        newLink = {
+	                            "key": node.key + "-" + newNodeKey,
+	                            "from": node.key,
+	                            "to": newNodeKey,
+	                            "sourceInfo": {},
+	                            "targetInfo": [],
+	                            "totalCount": 0,
+	                            "errorCount": 0,
+	                            "slowCount": 0,
+	                            "hasAlert": false,
+	                            "unknownLinkGroup": [],
+	                            "histogram": {}
+	                        };
+	                    }
+	                    
+	                    // 자 링크의 target이 되는 unknown 노드를 가져옴. 
+	                    var thisNode = getNodeByApplicationName(link.targetInfo.applicationName);
+	                    delete thisNode.category;
+	                    newNode.instanceCount += thisNode.instanceCount;
+	                    newNode.unknownNodeGroup.push(thisNode);
+	
+	                    // 각종 count 정보를 합산함.
+	                    link.targetInfo['totalCount'] = link.totalCount;
+	                    newLink.totalCount += link.totalCount;
+	                    newLink.errorCount += link.errorCount;
+	                    newLink.slowCount += link.slowCount;
+	                    newLink.sourceInfo = link.sourceInfo;
+	                    if (link.hasAlert) {
+	                        newLink.hasAlert = link.hasAlert;
+	                    }
+	                    newLink.unknownLinkGroup.push(link);
+	
+	//                    $.each(link.histogram, function (key, value) {
+	//                        if (newLink.histogram[key]) {
+	//                            newLink.histogram[key] += value;
+	//                        } else {
+	//                            newLink.histogram[key] = value;
+	//                        }
+	//                    });
+	
+	                    // merging으로 인해 삭제할 원 노드와 원 링크의 정보를 저장해 둠.( 나중에 몰아서 삭제하도록 ).
+	                    removeNodeIdSet[link.to] = null;
+	                    removeLinkIdSet[link.key] = null;
+	                }
+	            });
+	
+	            if (newNode) {
+	                newNode.unknownNodeGroup.sort(function (e1, e2) {
+	                    return e2.totalCount - e1.totalCount;
+	                });
+	                newNodeList.push(newNode);
+	            }
+	
+	            if (newLink) {
+	                newLink.unknownLinkGroup.sort(function (e1, e2) {
+	                    return e2.totalCount - e1.totalCount;
+	                });
+	                newLinkList.push(newLink);
+	            }
+	        });
+	
+	        newNodeList.forEach(function (newNode) {
+	            applicationMapData.nodeDataArray.push(newNode);
+	        });
+	
+	        newLinkList.forEach(function (newLink) {
+	            applicationMapData.linkDataArray.push(newLink);
+	        });
+	
+	        $.each(removeNodeIdSet, function (key, val) {
+	            nodes.forEach(function (node, i) {
+	                if (node.key == key) {
+	                    nodes.splice(i, 1);
+	                }
+	            });
+	        });
+	
+	        $.each(removeLinkIdSet, function (key, val) {
+	            links.forEach(function (link, i) {
+	                if (link.key === key) {
+	                    links.splice(i, 1);
+	                }
+	            });
+	        });
         });
-
-        newNodeList.forEach(function (newNode) {
-            applicationMapData.nodeDataArray.push(newNode);
-        });
-
-        newLinkList.forEach(function (newLink) {
-            applicationMapData.linkDataArray.push(newLink);
-        });
-
-        $.each(removeNodeIdSet, function (key, val) {
-            nodes.forEach(function (node, i) {
-                if (node.key == key) {
-                    nodes.splice(i, 1);
-                }
-            });
-        });
-
-        $.each(removeLinkIdSet, function (key, val) {
-            links.forEach(function (link, i) {
-                if (link.key === key) {
-                    links.splice(i, 1);
-                }
-            });
-        });
-
+        
         return applicationMapData;
     };
 

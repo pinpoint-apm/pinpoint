@@ -61,9 +61,9 @@
 	width: 15%;
 	height: 15%;
 	position: absolute;
-	left: 0px;
+	right: 16px;
 	bottom: 16px;
-	background-color: rgba(255, 203, 39, 0.5);
+	background-color: rgba(44, 160, 44, 0.2);
 	z-index: 2;
-	border: 1px solid rgb(255, 203, 39);
+	border: 1px solid rgb(44, 160, 44);
 }

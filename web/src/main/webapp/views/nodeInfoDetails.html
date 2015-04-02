@@ -1,6 +1,6 @@
 <div class="nodeInfoDetails" ng-init="nodeIcon='USER'" ng-show="showNodeInfoDetails">
 
-    <div class="unknown-group" ng-show="node.serviceType == 'UNKNOWN_GROUP'">
+    <div class="unknown-group" ng-show="node.serviceType.indexOf('_GROUP') != -1">
 
         <div class="search-n-order" style="padding-left:15px;">
             <div style="float:left;width:265px;padding-right:5px">
@@ -58,7 +58,7 @@
 
     </div>
 
-    <div class="known-node" ng-hide="node.serviceType == 'UNKNOWN_GROUP'">
+    <div class="known-node" ng-hide="node.serviceType.indexOf( '_GROUP' ) != -1">
 
         <div class='response-summary' ng-show="showNodeResponseSummary">
             <h5>Response Summary</h5>
@@ -102,8 +102,8 @@
             </ul>
         </div>
 
-        <div ng-show="node.serviceType=='UNKNOWN' && htLastUnknownNode">
-            <button type="button" class="btn btn-default btn-xs" ng-click="goBackToUnknownNode()"><span class="glyphicon glyphicon-arrow-left"></span> Go back to Unknown Group</button>
+        <div ng-show="htLastUnknownNode.serviceType.indexOf( '_GROUP' ) != -1 && htLastUnknownNode">
+            <button type="button" class="btn btn-default btn-xs" ng-click="goBackToUnknownNode()"><span class="glyphicon glyphicon-arrow-left"></span> Go back to Group</button>
         </div>
 
     </div>

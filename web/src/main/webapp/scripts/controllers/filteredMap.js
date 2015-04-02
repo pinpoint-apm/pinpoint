@@ -185,7 +185,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
                 oSidebarTitleVo.setTitle(node.applicationName);
                 $scope.$broadcast('scatter.showByNode', node);
             } else if (node.unknownNodeGroup) {
-                oSidebarTitleVo.setTitle('Unknown Group');
+            	oSidebarTitleVo.setTitle( node.serviceType.replace( "_", " " ) );
                 $scope.hasScatter = false;
             } else {
                 oSidebarTitleVo.setTitle(node.applicationName);

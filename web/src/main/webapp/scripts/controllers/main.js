@@ -156,7 +156,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
                 oSidebarTitleVo.setTitle(node.applicationName);
                 $scope.$broadcast('scatter.initializeWithNode', node);
             } else if (node.unknownNodeGroup) {
-                oSidebarTitleVo.setTitle('Unknown Group');
+                oSidebarTitleVo.setTitle( node.serviceType.replace( "_", " " ) );
                 $scope.hasScatter = false;
             } else {
                 oSidebarTitleVo.setTitle(node.applicationName);
@@ -261,7 +261,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             oSidebarTitleVo
                 .setImageType(node.serviceType);
             if (node.unknownNodeGroup) {
-                oSidebarTitleVo.setTitle('Unknown Group');
+                oSidebarTitleVo.setTitle( node.serviceType.replace( "_", " " ) );
                 $scope.hasScatter = false;
             } else {
                 oSidebarTitleVo.setTitle(node.applicationName);
