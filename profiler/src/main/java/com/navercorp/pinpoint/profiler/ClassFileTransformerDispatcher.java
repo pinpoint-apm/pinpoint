@@ -156,6 +156,12 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
         // spring beans
         modifierRepository.addSpringBeansModifier();
+        
+        // log4j
+        modifierRepository.addLog4jModifier();
+        
+        // logback
+        modifierRepository.addLogbackModifier();
 
         // redis
         modifierRepository.addRedisModifier();
