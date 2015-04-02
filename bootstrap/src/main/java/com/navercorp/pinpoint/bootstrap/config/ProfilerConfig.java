@@ -187,6 +187,10 @@ public class ProfilerConfig {
     private DumpType ningAsyncHttpClientProfileParamDumpType = DumpType.EXCEPTION;
     private int ningAsyncHttpClientProfileParamDumpSize = 1024;
     private int ningAsyncHttpClientProfileParamSamplingRate = 1;
+    
+    //logging
+    private boolean log4jLoggingTransactionInfo;
+    private boolean logbackLoggingTransactionInfo;
 
     // Spring Beans
     private boolean springBeans = false;
@@ -719,6 +723,16 @@ public class ProfilerConfig {
         this.ningAsyncHttpClientProfileParamDumpSize = readInt("profiler.ning.asynchttpclient.param.dumpsize", 1024);
         this.ningAsyncHttpClientProfileParamSamplingRate = readInt("profiler.asynchttpclient.param.sampling.rate", 1);
 
+        /**
+         * log4j
+         */
+        this.log4jLoggingTransactionInfo = readBoolean("profiler.log4j.logging.transactioninfo", false);
+        
+        /**
+         * logback
+         */
+        this.logbackLoggingTransactionInfo = readBoolean("profiler.logback.logging.transactioninfo", false);
+        
         // redis & nBase-ARC
         this.redis = readBoolean("profiler.redis", true);
         this.redisPipeline = readBoolean("profiler.redis.pipeline", true);
@@ -844,7 +858,14 @@ public class ProfilerConfig {
         }
         return result;
     }
+    
+    public boolean isLog4jLoggingTransactionInfo() {
+        return this.log4jLoggingTransactionInfo;
+    }
 
+    public boolean isLogbackLoggingTransactionInfo() {
+        return this.logbackLoggingTransactionInfo;
+    }
 
     @Override
     public String toString() {
@@ -917,6 +938,8 @@ public class ProfilerConfig {
         sb.append(", ningAsyncHttpClientProfileParamDumpType=").append(ningAsyncHttpClientProfileParamDumpType);
         sb.append(", ningAsyncHttpClientProfileParamDumpSize=").append(ningAsyncHttpClientProfileParamDumpSize);
         sb.append(", ningAsyncHttpClientProfileParamSamplingRate=").append(ningAsyncHttpClientProfileParamSamplingRate);
+        sb.append(", log4jLoggingTransactionInfo=").append(log4jLoggingTransactionInfo);
+        sb.append(", logbackLoggingTransactionInfo=").append(logbackLoggingTransactionInfo);
         sb.append(", springBeans=").append(springBeans);
         sb.append(", springBeansNamePatterns='").append(springBeansNamePatterns).append('\'');
         sb.append(", springBeansClassPatterns='").append(springBeansClassPatterns).append('\'');
