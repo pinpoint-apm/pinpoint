@@ -69,6 +69,15 @@ public class HttpClient4Modifier extends AbstractModifier {
         if (logger.isInfoEnabled()) {
             logger.info("Modifing. {}", javassistClassName);
         }
+        
+        try {
+            //The execute method was moved to CloseableHttpClient class from httpclient 4.0 or later.
+            //Need to check if CloseableHttpClient class exist.
+            byteCodeInstrumentor.getClass(classLoader, "org.apache.http.impl.client.CloseableHttpClient", classFileBuffer);
+            logger.info("{} don't need to be modified. Because target method is existed in org.apache.http.impl.client.CloseableHttpClient", javassistClassName);
+            return null;
+        } catch (InstrumentException e) {
+        }
 
         try {
             InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
