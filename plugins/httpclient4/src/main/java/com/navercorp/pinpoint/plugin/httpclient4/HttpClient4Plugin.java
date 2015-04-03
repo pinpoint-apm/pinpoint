@@ -85,31 +85,42 @@ public class HttpClient4Plugin implements ProfilerPlugin, HttpClient4Constants {
 
     private void addClosableHttpAsyncClientClassEditor(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
         final ClassEditorBuilder classEditorBuilder = context.getClassEditorBuilder("org.apache.http.impl.nio.client.CloseableHttpAsyncClient");
-        addAsyncClientInterceptor(classEditorBuilder);
-        addAsyncInternalClientInterceptor(classEditorBuilder);
+        injectAsyncClientExecuteInterceptor(classEditorBuilder, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.protocol.HttpContext", "org.apache.http.concurrent.FutureCallback");
+        injectAsyncClientExecuteInterceptor(classEditorBuilder, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.concurrent.FutureCallback");
+        injectAsyncInternalClientExecuteInterceptor(classEditorBuilder, "org.apache.http.nio.protocol.HttpAsyncRequestProducer", "org.apache.http.nio.protocol.HttpAsyncResponseConsumer", "org.apache.http.concurrent.FutureCallback");
+        injectExecuteMethodByHttpUriRequestInterceptor(classEditorBuilder, "org.apache.http.client.methods.HttpUriRequest", "org.apache.http.concurrent.FutureCallback");
         
         context.addClassEditor(classEditorBuilder.build());
     }
 
-    private void addAsyncClientInterceptor(final ClassEditorBuilder classEditorBuilder) {
-        MethodEditorBuilder methodEditorBuilder = classEditorBuilder.editMethod("execute", "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.protocol.HttpContext", "org.apache.http.concurrent.FutureCallback");
+    private void injectAsyncClientExecuteInterceptor(final ClassEditorBuilder classEditorBuilder, String... parameterTypeNames) {
+        MethodEditorBuilder methodEditorBuilder = classEditorBuilder.editMethod("execute", parameterTypeNames);
+        methodEditorBuilder.property(MethodEditorProperty.IGNORE_IF_NOT_EXIST);
         methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.AsyncClientExecuteInterceptor");
     }
 
-    private void addAsyncInternalClientInterceptor(final ClassEditorBuilder classEditorBuilder) {
-        MethodEditorBuilder methodEditorBuilder = classEditorBuilder
-                .editMethod("execute", "org.apache.http.nio.protocol.HttpAsyncRequestProducer", "org.apache.http.nio.protocol.HttpAsyncResponseConsumer", "org.apache.http.concurrent.FutureCallback");
+    private void injectAsyncInternalClientExecuteInterceptor(final ClassEditorBuilder classEditorBuilder, String... parameterTypeNames) {
+        MethodEditorBuilder methodEditorBuilder = classEditorBuilder.editMethod("execute", parameterTypeNames);
+        methodEditorBuilder.property(MethodEditorProperty.IGNORE_IF_NOT_EXIST);
         methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.AsyncInternalClientExecuteInterceptor");
     }
+    
+    private void injectExecuteMethodByHttpUriRequestInterceptor(final ClassEditorBuilder classEditorBuilder, String... parameterTypeNames) {
+        MethodEditorBuilder methodEditorBuilder = classEditorBuilder.editMethod("execute", parameterTypeNames);
+        methodEditorBuilder.property(MethodEditorProperty.IGNORE_IF_NOT_EXIST);
+        methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.AsyncInternalClientExecuteInterceptor");
+    }
+    
 
     private void addDefaultClientExchangeHandlerImplConstructorInterceptor(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
         final ClassEditorBuilder classEditorBuilder = context.getClassEditorBuilder("org.apache.http.impl.nio.client.DefaultClientExchangeHandlerImpl");
-        ConstructorEditorBuilder constructorEditorBuilder = classEditorBuilder.editConstructor("org.apache.commons.logging.Log", "org.apache.http.nio.protocol.HttpAsyncRequestProducer", "org.apache.http.nio.protocol.HttpAsyncResponseConsumer", "org.apache.http.client.protocol.HttpClientContext", "org.apache.http.concurrent.BasicFuture", "org.apache.http.nio.conn.NHttpClientConnectionManager", "org.apache.http.impl.nio.client.InternalClientExec");
+        ConstructorEditorBuilder constructorEditorBuilder = classEditorBuilder.editConstructor("org.apache.commons.logging.Log", "org.apache.http.nio.protocol.HttpAsyncRequestProducer", "org.apache.http.nio.protocol.HttpAsyncResponseConsumer",
+                "org.apache.http.client.protocol.HttpClientContext", "org.apache.http.concurrent.BasicFuture", "org.apache.http.nio.conn.NHttpClientConnectionManager", "org.apache.http.impl.nio.client.InternalClientExec");
         constructorEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.DefaultClientExchangeHandlerImplConstructorInterceptor");
-        
+
         context.addClassEditor(classEditorBuilder.build());
     }
-    
+
     private void addClosableHttpClientClassEditor(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
         final ClassEditorBuilder classEditorBuilder = context.getClassEditorBuilder("org.apache.http.impl.client.CloseableHttpClient");
         injectHttpRequestExecuteMethodInterceptor(classEditorBuilder, "org.apache.http.HttpHost", "org.apache.http.HttpRequest");
@@ -128,22 +139,22 @@ public class HttpClient4Plugin implements ProfilerPlugin, HttpClient4Constants {
     private void addBasicFutureClassEditor(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
         final ClassEditorBuilder classEditorBuilder = context.getClassEditorBuilder("org.apache.http.concurrent.BasicFuture");
         classEditorBuilder.injectMetadata(METADATA_ASYNC_TRACE_ID);
-        
+
         MethodEditorBuilder methodEditorBuilder = classEditorBuilder.editMethod("get");
         methodEditorBuilder.property(MethodEditorProperty.IGNORE_IF_NOT_EXIST);
-        methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureGetInterceptor");
+        methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureMethodInterceptor");
 
         MethodEditorBuilder getMethodEditorBuilder = classEditorBuilder.editMethod("get", "long", "java.util.concurrent.TimeUnit");
         getMethodEditorBuilder.property(MethodEditorProperty.IGNORE_IF_NOT_EXIST);
-        getMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureGetInterceptor");
+        getMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureMethodInterceptor");
 
         MethodEditorBuilder completedMethodEditorBuilder = classEditorBuilder.editMethod("completed", "java.lang.Object");
         completedMethodEditorBuilder.property(MethodEditorProperty.IGNORE_IF_NOT_EXIST);
-        completedMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureCompletedInterceptor");
+        completedMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureMethodInterceptor");
 
         MethodEditorBuilder failMethodEditorBuilder = classEditorBuilder.editMethod("failed", "java.lang.Exception");
         failMethodEditorBuilder.property(MethodEditorProperty.IGNORE_IF_NOT_EXIST);
-        failMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureFailedInterceptor");
+        failMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureMethodInterceptor");
 
         context.addClassEditor(classEditorBuilder.build());
     }

@@ -18,6 +18,11 @@ package com.navercorp.pinpoint.plugin.httpclient4;
 import com.navercorp.pinpoint.common.plugin.TypeProvider;
 import com.navercorp.pinpoint.common.plugin.TypeSetupContext;
 
+/**
+ * 
+ * @author jaehong.kim
+ *
+ */
 public class HttpClient4TypeProvider implements TypeProvider, HttpClient4Constants{
 
     @Override

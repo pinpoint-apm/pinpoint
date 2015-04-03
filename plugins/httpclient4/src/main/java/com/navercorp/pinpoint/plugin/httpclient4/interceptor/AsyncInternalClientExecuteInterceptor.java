@@ -81,6 +81,7 @@ import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
  * 
  * 
  * @author netspider
+ * @author jaehong.kim
  * 
  */
 public class AsyncInternalClientExecuteInterceptor extends AbstractHttpRequestExecute implements TargetClassLoader {

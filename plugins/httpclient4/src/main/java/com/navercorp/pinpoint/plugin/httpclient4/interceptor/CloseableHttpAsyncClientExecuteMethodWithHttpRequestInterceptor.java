@@ -45,12 +45,13 @@ import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
  * </pre>
  * 
  * @author netspider
+ * @author jaehong.kim
  * 
  */
-public class AsyncClientExecuteInterceptor extends AbstractHttpRequestExecute implements TargetClassLoader {
+public class CloseableHttpAsyncClientExecuteMethodWithHttpRequestInterceptor extends AbstractHttpRequestExecute implements TargetClassLoader {
 
-    public AsyncClientExecuteInterceptor() {
-        super(AsyncClientExecuteInterceptor.class);
+    public CloseableHttpAsyncClientExecuteMethodWithHttpRequestInterceptor() {
+        super(CloseableHttpAsyncClientExecuteMethodWithHttpRequestInterceptor.class);
     }
 
     @Override
