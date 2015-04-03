@@ -425,6 +425,11 @@ public final class JavaAssistUtils {
         }
         MethodInfo methodInfo = method.getMethodInfo2();
         CodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+
+        if (codeAttribute == null) {
+            return null;
+        }
+
         AttributeInfo localVariableTable = codeAttribute.getAttribute(LocalVariableAttribute.tag);
         LocalVariableAttribute local = (LocalVariableAttribute) localVariableTable;
         return local;

@@ -126,7 +126,7 @@ public class DefaultAgent implements Agent {
         if (!typeResolver.resolve()) {
             throw new PinpointException("ApplicationServerType not found.");
         }
-        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(typeResolver.getServerLibPath(), this);
+        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(this);
         if (logger.isInfoEnabled()) {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
