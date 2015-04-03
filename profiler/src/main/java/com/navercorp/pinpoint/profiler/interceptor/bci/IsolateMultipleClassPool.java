@@ -34,7 +34,7 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
 
     private static final ClassLoader AGENT_CLASS_LOADER = IsolateMultipleClassPool.class.getClassLoader();
 
-    private final NamedClassPool standardClassPool;
+    private final NamedClassPool rootClassPool;
 
     private final ConcurrentMap<ClassLoader, NamedClassPool> classPoolMap;
 
@@ -66,12 +66,12 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
         this(DEFAULT_CHILD_FIRST_LOOKUP, EMPTY_EVENT_LISTENER, null);
     }
 
-    public IsolateMultipleClassPool(boolean childFirstLookup, EventListener eventListener, ClassPoolHandler systemClassPoolHandler) {
+    public IsolateMultipleClassPool(boolean childFirstLookup, EventListener eventListener, ClassPoolHandler rootClassPoolHandler) {
         if (eventListener == null) {
             throw new NullPointerException("eventListener must not be null");
         }
 
-        this.standardClassPool = createSystemClassPool(systemClassPoolHandler);
+        this.rootClassPool = createRootClassPool(rootClassPoolHandler);
         this.classPoolMap = Maps.newWeakConcurrentMap();
         this.eventListener = eventListener;
         this.childFirstLookup = childFirstLookup;
@@ -79,11 +79,11 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
 
 
 
-    private NamedClassPool createSystemClassPool(ClassPoolHandler systemClassPoolHandler) {
-        NamedClassPool systemClassPool = new NamedClassPool("standardClassPool");
+    private NamedClassPool createRootClassPool(ClassPoolHandler rootClassPoolHandler) {
+        NamedClassPool systemClassPool = new NamedClassPool("rootClassPool");
         systemClassPool.appendSystemPath();
-        if (systemClassPoolHandler != null ) {
-            systemClassPoolHandler.handleClassPool(systemClassPool);
+        if (rootClassPoolHandler != null ) {
+            rootClassPoolHandler.handleClassPool(systemClassPool);
 
         }
         return systemClassPool;
@@ -92,7 +92,7 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
     @Override
     public NamedClassPool getClassPool(ClassLoader classLoader) {
         if (ClassLoaderUtils.isJvmClassLoader(classLoader)) {
-            return standardClassPool;
+            return rootClassPool;
         }
 
         if (AGENT_CLASS_LOADER == classLoader) {
@@ -122,7 +122,7 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
 
     private NamedClassPool createClassPool(ClassLoader classLoader) {
         String classLoaderName = classLoader.toString();
-        NamedClassPool newClassPool = new NamedClassPool(standardClassPool, classLoaderName + "-" + getNextId());
+        NamedClassPool newClassPool = new NamedClassPool(rootClassPool, classLoaderName + "-" + getNextId());
         if (childFirstLookup) {
             newClassPool.childFirstLookup = true;
         }
