@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
 public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
     protected final PLogger logger;
@@ -53,7 +54,6 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
             if (!trace.canSampled()) {
                 return;
             }
-            trace.traceBlockBegin();
             // ------------------------------------------------------
             doInBeforeTrace(trace, target, args);
         } catch (Throwable th) {
@@ -90,7 +90,6 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
                 logger.warn("after. Caused:{}", th.getMessage(), th);
             }
         } finally {
-            trace.traceBlockEnd();
             deleteTrace(trace, target, args, result, throwable);
         }
     }
