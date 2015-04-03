@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
-
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
+
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 
 /**
  * @author emeroad
@@ -32,8 +33,9 @@ public class DefaultAgentOption implements AgentOption {
     private final URL[] pluginJars;
     private final String bootStrapJarPath;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
+    private final AnnotationKeyRegistryService annoationKeyRegistryService;
 
-    public DefaultAgentOption(final String agentArgs, final Instrumentation instrumentation, final ProfilerConfig profilerConfig, final URL[] pluginJars, final String bootStrapJarPath, final ServiceTypeRegistryService serviceTypeRegistryService) {
+    public DefaultAgentOption(final String agentArgs, final Instrumentation instrumentation, final ProfilerConfig profilerConfig, final URL[] pluginJars, final String bootStrapJarPath, final ServiceTypeRegistryService serviceTypeRegistryService, final AnnotationKeyRegistryService annotationKeyRegistryService) {
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
         }
@@ -46,6 +48,9 @@ public class DefaultAgentOption implements AgentOption {
 //        if (bootStrapJarPath == null) {
 //            throw new NullPointerException("bootStrapJarPath must not be null");
 //        }
+        if (annotationKeyRegistryService == null) {
+            throw new NullPointerException("annotationKeyRegistryService must not be null");
+        }
         if (serviceTypeRegistryService == null) {
             throw new NullPointerException("serviceTypeRegistryService must not be null");
         }
@@ -55,7 +60,7 @@ public class DefaultAgentOption implements AgentOption {
         this.pluginJars = pluginJars;
         this.bootStrapJarPath = bootStrapJarPath;
         this.serviceTypeRegistryService = serviceTypeRegistryService;
-
+        this.annoationKeyRegistryService = annotationKeyRegistryService;
     }
 
     @Override
@@ -86,5 +91,10 @@ public class DefaultAgentOption implements AgentOption {
     @Override
     public ServiceTypeRegistryService getServiceTypeRegistryService() {
         return this.serviceTypeRegistryService;
+    }
+
+    @Override
+    public AnnotationKeyRegistryService getAnnotationKeyRegistryService() {
+        return this.annoationKeyRegistryService;
     }
 }

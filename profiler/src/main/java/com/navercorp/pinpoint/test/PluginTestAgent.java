@@ -17,23 +17,16 @@
 package com.navercorp.pinpoint.test;
 
 import java.io.PrintStream;
-import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import com.navercorp.pinpoint.bootstrap.AgentOption;
-import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
-import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
-import com.navercorp.pinpoint.profiler.interceptor.DefaultInterceptorRegistryBinder;
 import org.apache.thrift.TBase;
 
 import com.google.common.base.Objects;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
@@ -45,11 +38,11 @@ import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
+import com.navercorp.pinpoint.profiler.interceptor.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
@@ -68,7 +61,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     public PluginTestAgent(AgentOption agentOption) {
         super(agentOption, new DefaultInterceptorRegistryBinder());
-        this.annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService();
+        this.annotationKeyRegistryService = agentOption.getAnnotationKeyRegistryService();
         PluginTestVerifierHolder.setInstance(this);
     }
 
@@ -181,33 +174,44 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         return serviceType;
     }
     
+    private Class<?> resolveSpanClass(SpanType type) {
+        switch (type) {
+        case SPAN:
+            return Span.class;
+        case SPAN_EVENT:
+            return SpanEvent.class;
+        }
+        
+        throw new IllegalArgumentException(type.toString());
+    }
+    
     @Override
-    public void verifySpan(String serviceTypeName, ExpectedAnnotation... annotations) {
+    public void verifySpan(SpanType type, String serviceTypeName, ExpectedAnnotation... annotations) {
         ServiceType serviceType = findServiceType(serviceTypeName);
-        Expected expected = new Expected(Span.class, serviceType, null, null, null, null, null, annotations);
+        Class<?> spanClass = resolveSpanClass(type);
+        
+        Expected expected = new Expected(spanClass, serviceType, null, null, null, null, null, annotations);
+        
         verifySpan(expected);
     }
     
     @Override
-    public void verifySpanEvent(String serviceTypeName, ExpectedAnnotation... annotations) {
+    public void verifySpan(SpanType type, String serviceTypeName, Method method, String rpc, String endPoint, String remoteAddr, String destinationId, ExpectedAnnotation... annotations) {
         ServiceType serviceType = findServiceType(serviceTypeName);
-        Expected expected = new Expected(SpanEvent.class, serviceType, null, null, null, null, null, annotations);
-        verifySpan(expected);
-    }
-
-    @Override
-    public void verifySpan(String serviceTypeName, Method method, String rpc, String endPoint, String remoteAddr, ExpectedAnnotation... annotations) {
-        ServiceType serviceType = findServiceType(serviceTypeName);
+        Class<?> spanClass = resolveSpanClass(type);
         int apiId = findApiId(method);
-        Expected expected = new Expected(Span.class, serviceType, apiId, rpc, endPoint, remoteAddr, null, annotations);
+        
+        Expected expected = new Expected(spanClass, serviceType, apiId, rpc, endPoint, remoteAddr, destinationId, annotations);
         verifySpan(expected);
     }
     
     @Override
-    public void verifySpanEvent(String serviceTypeName, Method method, String rpc, String endPoint, String destinationId, ExpectedAnnotation... annotations) {
+    public void verifySpan(SpanType type, String serviceTypeName, String methodSignature, String rpc, String endPoint, String remoteAddr, String destinationId, ExpectedAnnotation... annotations) {
         ServiceType serviceType = findServiceType(serviceTypeName);
-        int apiId = findApiId(method);
-        Expected expected = new Expected(SpanEvent.class, serviceType, apiId, rpc, endPoint, null, destinationId, annotations);
+        Class<?> spanClass = resolveSpanClass(type);
+        int apiId = findApiId(methodSignature);
+        
+        Expected expected = new Expected(spanClass, serviceType, apiId, rpc, endPoint, remoteAddr, destinationId, annotations);
         verifySpan(expected);
     }
     
@@ -532,14 +536,15 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         MethodInfo methodInfo = ic.getDeclaredMethod(method.getName(), parameterTypeNames);
         String desc = methodInfo.getDescriptor().getFullName();
         
-        int apiId;
-        
+        return findApiId(desc);
+    }
+
+    private int findApiId(String desc) throws AssertionError {
         try {
-            apiId = ((TestTcpDataSender)getTcpDataSender()).getApiId(desc);
+            return ((TestTcpDataSender)getTcpDataSender()).getApiId(desc);
         } catch (NoSuchElementException e) {
             throw new AssertionError("Cannot find apiId of [" + desc + "]");
         }
-        return apiId;
     }
     
     @Override

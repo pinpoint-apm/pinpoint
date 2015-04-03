@@ -16,7 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
+import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.instrument.Scope;
+import com.navercorp.pinpoint.bootstrap.instrument.ScopeDefinition;
+import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
+import com.navercorp.pinpoint.profiler.plugin.DefaultScope;
 
 /**
  * @author emeroad
@@ -26,34 +30,29 @@ public class ThreadLocalScope implements Scope {
     private final NamedThreadLocal<Scope> scope;
 
 
-    public ThreadLocalScope(final ScopeFactory scopeFactory) {
-        if (scopeFactory == null) {
-            throw new NullPointerException("scopeFactory must not be null");
+    public ThreadLocalScope(final ScopeDefinition scopeDefinition) {
+        if (scopeDefinition == null) {
+            throw new NullPointerException("scopeDefinition must not be null");
         }
-        this.scope = new NamedThreadLocal<Scope>(scopeFactory.getName()) {
+        
+        this.scope = new NamedThreadLocal<Scope>(scopeDefinition.getName()) {
             @Override
             protected Scope initialValue() {
-                return scopeFactory.createScope();
+                return new DefaultScope(scopeDefinition.getName());
             }
         };
     }
 
     @Override
-    public int push() {
+    public boolean tryBefore(ExecutionPoint point) {
         final Scope localScope = getLocalScope();
-        return localScope.push();
+        return localScope.tryBefore(point);
     }
 
     @Override
-    public int depth() {
+    public boolean tryAfter(ExecutionPoint point) {
         final Scope localScope = getLocalScope();
-        return localScope.depth();
-    }
-
-    @Override
-    public int pop() {
-        final Scope localScope = getLocalScope();
-        return localScope.pop();
+        return localScope.tryAfter(point);
     }
 
     protected Scope getLocalScope() {
@@ -72,5 +71,35 @@ public class ThreadLocalScope implements Scope {
         sb.append("scope=").append(scope.getName());
         sb.append('}');
         return sb.toString();
+    }
+
+    @Override
+    public boolean isIn() {
+        final Scope localScope = getLocalScope();
+        return localScope.isIn();
+    }
+
+    @Override
+    public Object setAttachment(Object attachment) {
+        final Scope localScope = getLocalScope();
+        return localScope.setAttachment(attachment);
+    }
+
+    @Override
+    public Object getAttachment() {
+        final Scope localScope = getLocalScope();
+        return localScope.getAttachment();
+    }
+    
+    @Override
+    public Object getOrCreateAttachment(AttachmentFactory factory) {
+        final Scope localScope = getLocalScope();
+        return localScope.getOrCreateAttachment(factory);
+    }
+
+    @Override
+    public Object removeAttachment() {
+        final Scope localScope = getLocalScope();
+        return localScope.removeAttachment();
     }
 }

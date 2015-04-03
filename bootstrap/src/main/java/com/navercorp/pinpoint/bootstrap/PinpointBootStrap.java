@@ -19,7 +19,10 @@ package com.navercorp.pinpoint.bootstrap;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
@@ -30,11 +33,16 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
+import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultTypeLoaderService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.service.TypeLoaderService;
-import com.navercorp.pinpoint.common.util.*;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.util.SimpleProperty;
+import com.navercorp.pinpoint.common.util.SystemProperty;
 
 /**
  * @author emeroad
@@ -98,8 +106,10 @@ public class PinpointBootStrap {
         }
         
         URL[] pluginJars = classPathResolver.resolvePlugins();
-        ServiceTypeRegistryService serviceTypeRegistryService = loadServiceTypeProviders(pluginJars);
-
+        TypeLoaderService typeLoaderService = new DefaultTypeLoaderService(pluginJars);
+        ServiceTypeRegistryService serviceTypeRegistryService  = new DefaultServiceTypeRegistryService(typeLoaderService);
+        AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(typeLoaderService);
+        
         String configPath = getConfigPath(classPathResolver);
         if (configPath == null) {
             logPinpointAgentLoadFail();
@@ -122,7 +132,7 @@ public class PinpointBootStrap {
             agentClassLoader.setBootClass(bootClass);
             logger.info("pinpoint agent [" + bootClass + "] starting...");
 
-            AgentOption option = createAgentOption(agentArgs, instrumentation, profilerConfig, pluginJars, bootStrapCoreJar, serviceTypeRegistryService);
+            AgentOption option = createAgentOption(agentArgs, instrumentation, profilerConfig, pluginJars, bootStrapCoreJar, serviceTypeRegistryService, annotationKeyRegistryService);
             Agent pinpointAgent = agentClassLoader.boot(option);
             pinpointAgent.start();
             registerShutdownHook(pinpointAgent);
@@ -134,9 +144,9 @@ public class PinpointBootStrap {
         }
     }
 
-    private static AgentOption createAgentOption(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars, String bootStrapJarPath, ServiceTypeRegistryService serviceTypeRegistryService) {
+    private static AgentOption createAgentOption(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars, String bootStrapJarPath, ServiceTypeRegistryService serviceTypeRegistryService, AnnotationKeyRegistryService annotaionKeyRegistryService) {
 
-        return new DefaultAgentOption(agentArgs, instrumentation, profilerConfig, pluginJars, bootStrapJarPath, serviceTypeRegistryService);
+        return new DefaultAgentOption(agentArgs, instrumentation, profilerConfig, pluginJars, bootStrapJarPath, serviceTypeRegistryService, annotaionKeyRegistryService);
     }
 
     private static void registerShutdownHook(final Agent pinpointAgent) {
@@ -175,12 +185,6 @@ public class PinpointBootStrap {
         return map;
     }
     
-    private static ServiceTypeRegistryService loadServiceTypeProviders(URL[] pluginJars) {
-        TypeLoaderService typeLoaderService = new DefaultTypeLoaderService(pluginJars);
-        ServiceTypeRegistryService serviceTypeRegistryService  = new DefaultServiceTypeRegistryService(typeLoaderService);
-        return serviceTypeRegistryService;
-    }
-
     private static JarFile getBootStrapJarFile(String bootStrapCoreJar) {
         try {
             return new JarFile(bootStrapCoreJar);

@@ -42,7 +42,7 @@ public class ConstructorEditor implements MethodEditor {
     }
 
     @Override
-    public void edit(ClassLoader classLoader, InstrumentClass target) throws Exception {
+    public void edit(ClassLoader classLoader, InstrumentClass target) throws Throwable {
         MethodInfo targetConstructor = target.getConstructor(targetParameterTypes);
         
         if (targetConstructor == null) {

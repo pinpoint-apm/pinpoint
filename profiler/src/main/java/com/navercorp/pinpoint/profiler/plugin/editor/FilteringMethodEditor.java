@@ -41,7 +41,7 @@ public class FilteringMethodEditor implements MethodEditor {
     }
     
     @Override
-    public void edit(ClassLoader classLoader, InstrumentClass target) throws Exception {
+    public void edit(ClassLoader classLoader, InstrumentClass target) throws Throwable {
         for (MethodInfo targetMethod : target.getDeclaredMethods(filter)) {
             for (MethodRecipe recipe : recipes) {
                 try {

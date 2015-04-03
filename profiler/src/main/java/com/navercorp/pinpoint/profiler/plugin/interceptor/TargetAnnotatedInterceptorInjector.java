@@ -55,10 +55,10 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
     }
 
     @Override
-    public void edit(ClassLoader classLoader, InstrumentClass target) throws Exception {
+    public void edit(ClassLoader classLoader, InstrumentClass target) throws Throwable {
         Class<? extends Interceptor> interceptorType = TypeUtils.loadClass(classLoader, interceptorName);
         
-        AnnotatedInterceptorInjector injector = new AnnotatedInterceptorInjector(pluginContext, interceptorName, providedArguments);
+        AnnotatedInterceptorInjector injector = new AnnotatedInterceptorInjector(pluginContext, interceptorName, providedArguments, null, null);
         ClassRecipe editor = createMethodEditor(interceptorType, target,  injector);
         
         editor.edit(classLoader, target);

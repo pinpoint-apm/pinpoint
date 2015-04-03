@@ -16,83 +16,64 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.instrument.DefaultScopeDefinition;
 import com.navercorp.pinpoint.bootstrap.instrument.Scope;
-import com.navercorp.pinpoint.bootstrap.instrument.ScopeDefinition;
-import org.junit.Assert;
-import org.junit.Test;
+import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
 
 public class ThreadLocalScopePoolTest {
 
     @Test
-    public void testGetScope_Type_SIMPLE() throws Exception {
+    public void testGetScope() throws Exception {
 
         ScopePool pool = new ThreadLocalScopePool();
-        Scope scope = pool.getScope(new DefaultScopeDefinition("test", ScopeDefinition.Type.SIMPLE));
+        Scope scope = pool.getScope(new DefaultScopeDefinition("test"));
         Assert.assertTrue(scope instanceof ThreadLocalScope);
 
         Assert.assertEquals("name", scope.getName(), "test");
     }
 
     @Test
-    public void testGetScope_Type_ATTACHMENT() throws Exception {
-
-        ScopePool pool = new ThreadLocalScopePool();
-        Scope scope = pool.getScope(new DefaultScopeDefinition("test", ScopeDefinition.Type.ATTACHMENT));
-        Assert.assertTrue(scope instanceof AttachmentThreadLocalScope);
-
-        Assert.assertEquals("name", scope.getName(), "test");
-    }
-
-
-    @Test
      public void testAttachment() throws Exception {
 
         ScopePool pool = new ThreadLocalScopePool();
-        Scope test = pool.getScope(new DefaultScopeDefinition("test", ScopeDefinition.Type.ATTACHMENT));
-        @SuppressWarnings("unchecked")
-        AttachmentThreadLocalScope<Object> scope = (AttachmentThreadLocalScope<Object>) test;
-        scope.push();
+        Scope scope = pool.getScope(new DefaultScopeDefinition("test"));
 
-        scope.push();
+        scope.tryBefore(ExecutionPoint.BOUNDARY);
+        scope.tryBefore(ExecutionPoint.BOUNDARY);
         Assert.assertNull(scope.getAttachment());
         scope.setAttachment("test");
-        scope.pop();
+        scope.tryAfter(ExecutionPoint.BOUNDARY);
         Assert.assertEquals(scope.getAttachment(), "test");
-        Assert.assertTrue(scope.pop() == Scope.ZERO);
-        Assert.assertNull(scope.getAttachment());
-
+        Assert.assertTrue(scope.tryAfter(ExecutionPoint.BOUNDARY));
+        
         Assert.assertEquals("name", scope.getName(), "test");
     }
 
 
     @Test
     public void testGetOrCreate() throws Exception {
-
         ScopePool pool = new ThreadLocalScopePool();
-        Scope test = pool.getScope(new DefaultScopeDefinition("test", ScopeDefinition.Type.ATTACHMENT));
-        @SuppressWarnings("unchecked")
-        AttachmentThreadLocalScope<Object> scope = (AttachmentThreadLocalScope<Object>) test;
-        scope.push();
+        Scope scope= pool.getScope(new DefaultScopeDefinition("test"));
+        
+        scope.tryBefore(ExecutionPoint.BOUNDARY);
+        scope.tryBefore(ExecutionPoint.BOUNDARY);
 
-        scope.push();
         Assert.assertNull(scope.getAttachment());
-        Assert.assertEquals(scope.getOrCreate(new AttachmentFactory<Object>() {
+        Assert.assertEquals(scope.getOrCreateAttachment(new AttachmentFactory() {
             @Override
             public Object createAttachment() {
                 return "test";
             };
         }), "test");
-        scope.pop();
+        
+        scope.tryAfter(ExecutionPoint.BOUNDARY);
         Assert.assertEquals(scope.getAttachment(), "test");
-        Assert.assertTrue(scope.pop() == Scope.ZERO);
-        Assert.assertNull(scope.getAttachment());
+        Assert.assertTrue(scope.tryAfter(ExecutionPoint.BOUNDARY));
 
         Assert.assertEquals("name", scope.getName(), "test");
     }
-
-
-
-
 }

@@ -32,7 +32,7 @@ public class ConditionalClassRecipe implements ClassRecipe {
     }
     
     @Override
-    public void edit(ClassLoader classLoader, InstrumentClass target) throws Exception {
+    public void edit(ClassLoader classLoader, InstrumentClass target) throws Throwable {
         if (condition.check(context, classLoader, target)) {
             delegate.edit(classLoader, target);
         }

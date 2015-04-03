@@ -45,7 +45,7 @@ public class DedicatedMethodEditor implements MethodEditor {
     }
 
     @Override
-    public void edit(ClassLoader classLoader, InstrumentClass target) throws Exception {
+    public void edit(ClassLoader classLoader, InstrumentClass target) throws Throwable {
         MethodInfo targetMethod = target.getDeclaredMethod(targetMethodName, targetMethodParameterTypes);
         
         if (targetMethod == null) {

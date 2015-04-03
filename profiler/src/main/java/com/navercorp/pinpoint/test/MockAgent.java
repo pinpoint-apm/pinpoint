@@ -24,7 +24,9 @@ import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
+import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
+
 import org.apache.thrift.TBase;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
@@ -66,7 +68,7 @@ public class MockAgent extends DefaultAgent {
     }
     
     public static MockAgent of(ProfilerConfig config) {
-        AgentOption agentOption = new DefaultAgentOption("", new DummyInstrumentation(), config, new URL[0], null, new DefaultServiceTypeRegistryService());
+        AgentOption agentOption = new DefaultAgentOption("", new DummyInstrumentation(), config, new URL[0], null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
         return new MockAgent(agentOption);
     }
 

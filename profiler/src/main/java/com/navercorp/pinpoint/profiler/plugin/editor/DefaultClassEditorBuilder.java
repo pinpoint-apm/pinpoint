@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassCondition;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassInstrumentation;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ConditionalClassEditorBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ConditionalClassEditorSetup;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ConstructorEditorBuilder;
@@ -33,7 +34,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.editor.DedicatedClassEditor;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorExceptionHandler;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorProperty;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassInstrumentation;
+import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.plugin.interceptor.InterceptorBuilder;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.FieldSnooperInjector;
 import com.navercorp.pinpoint.profiler.plugin.MetadataInitializationStrategy.ByConstructor;
@@ -171,18 +173,32 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder, Conditiona
         }
     }
 
-    private class AnnotatedInterceptorInjectorBuilder implements RecipeBuilder<MethodRecipe> {
+    private class AnnotatedInterceptorInjectorBuilder implements InterceptorBuilder, RecipeBuilder<MethodRecipe> {
         private final String interceptorClassName;
         private final Object[] constructorArguments;
+        
+        private String groupName;
+        private ExecutionPoint executionPoint;
         
         public AnnotatedInterceptorInjectorBuilder(String interceptorClassName, Object[] constructorArguments) {
             this.interceptorClassName = interceptorClassName;
             this.constructorArguments = constructorArguments;
         }
+        
+        @Override
+        public void group(String groupName) {
+            group(groupName, ExecutionPoint.ALWAYS);            
+        }
+        
+        @Override
+        public void group(String groupName, ExecutionPoint point) {
+            this.groupName = groupName;
+            this.executionPoint = point;
+        }
 
         @Override
         public MethodRecipe buildRecipe() {
-            return new AnnotatedInterceptorInjector(pluginContext, interceptorClassName, constructorArguments);
+            return new AnnotatedInterceptorInjector(pluginContext, interceptorClassName, constructorArguments, groupName, executionPoint);
         }
     }
     
@@ -211,15 +227,17 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder, Conditiona
             this.parameterTypeNames = null;
             this.filter = filter;
         }
-
+        
         @Override
         public void property(MethodEditorProperty... properties) {
             this.properties.addAll(Arrays.asList(properties));
         }
-        
+
         @Override
-        public void injectInterceptor(String interceptorClassName, Object... constructorArguments) {
-            recipeBuilders.add(new AnnotatedInterceptorInjectorBuilder(interceptorClassName, constructorArguments));
+        public InterceptorBuilder injectInterceptor(String interceptorClassName, Object... constructorArguments) {
+            AnnotatedInterceptorInjectorBuilder builder = new AnnotatedInterceptorInjectorBuilder(interceptorClassName, constructorArguments);
+            recipeBuilders.add(builder);
+            return builder;
         }
         
         @Override

@@ -18,6 +18,7 @@ import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.plugin.interceptor.InterceptorGroup;
 
 /**
  *  Provides attributes and objects to interceptors.
@@ -76,4 +77,6 @@ public interface ProfilerPluginContext {
      * @return {@link ByteCodeInstrumentor}
      */
     public ByteCodeInstrumentor getByteCodeInstrumentor();
+    
+    public InterceptorGroup getInterceptorGroup(String name);
 }

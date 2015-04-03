@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
 
 /**
  * @author emeroad
@@ -46,10 +47,9 @@ public class DebugScopeDelegateStaticInterceptor implements StaticAroundIntercep
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        final int push = scope.push();
-        if (push != Scope.ZERO) {
+        if (!scope.tryBefore(ExecutionPoint.BOUNDARY)) {
             if (isDebug) {
-                logger.debug("push {}. skip trace. level:{} {}", new Object[]{scope.getName(), push, delegate.getClass()});
+                logger.debug("tryBefore() returns false {}. skip trace. {}", new Object[]{scope, delegate.getClass()});
             }
             return;
         }
@@ -58,10 +58,9 @@ public class DebugScopeDelegateStaticInterceptor implements StaticAroundIntercep
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
-        final int pop = scope.pop();
-        if (pop != Scope.ZERO) {
+        if (!scope.tryAfter(ExecutionPoint.BOUNDARY)) {
             if (isDebug) {
-                logger.debug("pop {}. skip trace. level:{} {}", new Object[]{scope.getName(), pop, delegate.getClass()});
+                logger.debug("tryAfter() returns false {}. skip trace. {}", new Object[]{scope, delegate.getClass()});
             }
             return;
         }

@@ -19,6 +19,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
+
 /**
  * Indicates that the annotated {@link Interceptor} should in a scope.
  * 
@@ -43,4 +46,6 @@ public @interface Scope {
      * scope name
      */
     public String value();
+    
+    public ExecutionPoint executionPoint() default ExecutionPoint.BOUNDARY;
 }

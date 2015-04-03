@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4;
 
 import java.security.ProtectionDomain;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.DefaultScopeDefinition;
@@ -28,9 +31,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.ScopeDefinition;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor.HttpClient4Scope;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Apache httpclient4 modifier (version 4.2 or before)
@@ -81,7 +81,7 @@ public class HttpClient4Modifier extends AbstractModifier {
 
         try {
             InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
-            ScopeDefinition scopeDefinition = new DefaultScopeDefinition(HttpClient4Scope.SCOPE, ScopeDefinition.Type.ATTACHMENT);
+            ScopeDefinition scopeDefinition = new DefaultScopeDefinition(HttpClient4Scope.SCOPE);
             Scope scope = byteCodeInstrumentor.getScope(scopeDefinition);
 
             addHttpRequestApi(classLoader, protectedDomain, aClass, scope);

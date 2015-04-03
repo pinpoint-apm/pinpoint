@@ -17,9 +17,7 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -33,8 +31,10 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.interceptor.InterceptorGroup;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.plugin.editor.DefaultClassEditorBuilder;
+import com.navercorp.pinpoint.profiler.util.NameValueList;
 
 public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, ProfilerPluginContext {
     private final DefaultAgent agent;
@@ -43,8 +43,9 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     private final List<ClassEditor> classEditors = new ArrayList<ClassEditor>();
     
     private final ConcurrentMap<String, Object> attributeMap = new ConcurrentHashMap<String, Object>();
-    private final Map<String, MetadataAccessor> metadataAccessorMap = new HashMap<String, MetadataAccessor>();
-    private final Map<String, FieldAccessor> fieldSnooperMap = new HashMap<String, FieldAccessor>();
+    private final NameValueList<MetadataAccessor> metadataAccessors = new NameValueList<MetadataAccessor>();
+    private final NameValueList<FieldAccessor> fieldSnoopers = new NameValueList<FieldAccessor>();
+    private final NameValueList<InterceptorGroup> interceptorGroups = new NameValueList<InterceptorGroup>();
     
     private int metadataAccessorIndex = 0;
     private int fieldSnooperIndex = 0;
@@ -79,7 +80,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     }
 
     public MetadataAccessor allocateMetadataAccessor(String name) {
-        MetadataAccessor accessor = metadataAccessorMap.get(name);
+        MetadataAccessor accessor = metadataAccessors.get(name);
         
         if (accessor != null) {
             return accessor;
@@ -91,14 +92,14 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
             throw new IllegalStateException("Cannot allocate MetadataAccessor. Exceeded max:" + metadataAccessorIndex);
         }
 
-        metadataAccessorMap.put(name, accessor);
+        metadataAccessors.add(name, accessor);
         metadataAccessorIndex++;
         
         return accessor;
     }
 
     public FieldAccessor allocateFieldSnooper(String name) {
-        FieldAccessor snooper = fieldSnooperMap.get(name);
+        FieldAccessor snooper = fieldSnoopers.get(name);
         
         if (snooper != null) {
             return snooper;
@@ -110,7 +111,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
             throw new IllegalStateException("Cannot allocate FieldAccessor. Exceeded max:" + fieldSnooperIndex);
         }
         
-        fieldSnooperMap.put(name, snooper);
+        fieldSnoopers.add(name, snooper);
         fieldSnooperIndex++;
         
         return snooper;
@@ -118,14 +119,14 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
 
     @Override
     public MetadataAccessor getMetadataAccessor(String name) {
-        return metadataAccessorMap.get(name);
+        return metadataAccessors.get(name);
     }
 
     @Override
     public FieldAccessor getFieldAccessor(String name) {
-        return fieldSnooperMap.get(name);
+        return fieldSnoopers.get(name);
     }
-
+    
     @Override
     public Object setAttribute(String key, Object value) {
         return attributeMap.put(key, value);
@@ -149,5 +150,21 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
 
     public List<ApplicationTypeDetector> getApplicationTypeDetectors() {
         return serverTypeDetectors;
+    }
+    
+    public InterceptorGroup createInterceptorGroup(String name) {
+        InterceptorGroup group = interceptorGroups.get(name);
+        
+        if (group == null) {
+            group = new DefaultInterceptorGroup(name);
+            interceptorGroups.add(name, group);
+        }
+        
+        return group;
+    }
+
+    @Override
+    public InterceptorGroup getInterceptorGroup(String name) {
+        return interceptorGroups.get(name);
     }
 }

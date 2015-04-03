@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.plugin.Cached;
 import com.navercorp.pinpoint.bootstrap.plugin.Name;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.interceptor.InterceptorGroup;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
 
@@ -36,11 +37,13 @@ import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
  */
 public class PinpointTypeResolver implements ParameterResolver {
     private final ProfilerPluginContext pluginContext;
+    private final InterceptorGroup interceptorGroup;
     private final InstrumentClass targetClass;
     private final MethodInfo targetMethod;
 
-    public PinpointTypeResolver(ProfilerPluginContext pluginContext, InstrumentClass targetClass, MethodInfo targetMethod) {
+    public PinpointTypeResolver(ProfilerPluginContext pluginContext, InterceptorGroup interceptorGroup, InstrumentClass targetClass, MethodInfo targetMethod) {
         this.pluginContext = pluginContext;
+        this.interceptorGroup = interceptorGroup;
         this.targetClass = targetClass;
         this.targetMethod = targetMethod;
     }
@@ -70,23 +73,51 @@ public class PinpointTypeResolver implements ParameterResolver {
 
             return Option.<Object>withValue(targetMethod);
         } else if (type == MetadataAccessor.class) {
-            Annotation annotation = TypeUtils.findAnnotation(annotations, Name.class);
+            Name annotation = TypeUtils.findAnnotation(annotations, Name.class);
             
             if (annotation == null) {
                 throw new PinpointException("MetadataAccessor parameter must be annotated with @Name");
             }
             
-            MetadataAccessor accessor = pluginContext.getMetadataAccessor(((Name)annotation).value());
+            MetadataAccessor accessor = pluginContext.getMetadataAccessor(annotation.value());
+            
+            if (accessor == null) {
+                throw new PinpointException("No such MetadataAccessor: " + annotation.value());
+            }
+            
             return Option.<Object>withValue(accessor);
         } else if (type == FieldAccessor.class) {
-            Annotation annotation = TypeUtils.findAnnotation(annotations, Name.class);
+            Name annotation = TypeUtils.findAnnotation(annotations, Name.class);
             
             if (annotation == null) {
                 throw new PinpointException("FieldAccessor parameter must be annotated with @Name");
             }
             
-            FieldAccessor accessor = pluginContext.getFieldAccessor(((Name)annotation).value());
+            FieldAccessor accessor = pluginContext.getFieldAccessor(annotation.value());
+            
+            if (accessor == null) {
+                throw new PinpointException("No such FieldAccessor: " + annotation.value());
+            }
+            
             return Option.<Object>withValue(accessor);
+        } else if (type == InterceptorGroup.class) {
+            Name annotation = TypeUtils.findAnnotation(annotations, Name.class);
+            
+            if (annotation == null) {
+                if (interceptorGroup == null) {
+                    throw new PinpointException("InterceptorGroup parameter is not annotated with @Name and the target class is not associated with any InterceptorGroup");
+                } else {
+                    return Option.<Object>withValue(interceptorGroup);
+                }
+            }
+            
+            InterceptorGroup group = pluginContext.getInterceptorGroup(annotation.value());
+            
+            if (group == null) {
+                throw new PinpointException("No such InterceptorGroup: " + annotation.value());
+            }
+            
+            return Option.<Object>withValue(group);
         }
         
         return Option.<Object>empty();

@@ -19,5 +19,5 @@ package com.navercorp.pinpoint.profiler.plugin.editor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 
 public interface ClassRecipe {
-    void edit(ClassLoader classLoader, InstrumentClass target) throws Exception;
+    void edit(ClassLoader classLoader, InstrumentClass target) throws Throwable;
 }

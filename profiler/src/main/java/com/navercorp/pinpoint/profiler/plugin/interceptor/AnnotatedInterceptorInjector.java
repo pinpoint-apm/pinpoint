@@ -14,14 +14,13 @@
  */
 package com.navercorp.pinpoint.profiler.plugin.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.Scope;
 import com.navercorp.pinpoint.bootstrap.plugin.Singleton;
-import com.navercorp.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.plugin.interceptor.InterceptorGroup;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
 
@@ -32,19 +31,26 @@ import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
 
 public class AnnotatedInterceptorInjector implements InterceptorInjector {
     private final DefaultProfilerPluginContext pluginContext;
-    private final String interceptorName;
+    
+    private final String interceptorClassName;
     private final Object[] providedArguments;
+    
+    private final String groupName;
+    private final ExecutionPoint executionPoint;
+    
 
 
-    public AnnotatedInterceptorInjector(DefaultProfilerPluginContext pluginContext, String interceptorName, Object[] providedArguments) {
+    public AnnotatedInterceptorInjector(DefaultProfilerPluginContext pluginContext, String interceptorName, Object[] constructorArguments, String groupName, ExecutionPoint executionPoint) {
         this.pluginContext = pluginContext;
-        this.interceptorName = interceptorName;
-        this.providedArguments = providedArguments;
+        this.interceptorClassName = interceptorName;
+        this.providedArguments = constructorArguments;
+        this.groupName = groupName;
+        this.executionPoint = executionPoint; 
     }
     
     @Override
     public void edit(ClassLoader targetClassLoader, InstrumentClass targetClass, MethodInfo targetMethod) throws Exception {
-        Class<? extends Interceptor> interceptorType = TypeUtils.loadClass(targetClassLoader, interceptorName);
+        Class<? extends Interceptor> interceptorType = TypeUtils.loadClass(targetClassLoader, interceptorClassName);
         
         InterceptorFactory factory = createInterceptorFactory(interceptorType);
         InterceptorInjector injector = createInterceptorInjector(interceptorType, factory);
@@ -61,18 +67,23 @@ public class AnnotatedInterceptorInjector implements InterceptorInjector {
     }
     
     private InterceptorFactory createInterceptorFactory(Class<? extends Interceptor> interceptorType) {
-        InterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext, interceptorType, providedArguments);
-        
-        Scope scope = interceptorType.getAnnotation(Scope.class);
-        
-        if (scope != null) {
-            String scopeName = scope.value();
+        String groupName = this.groupName;
+        ExecutionPoint executionPoint = this.executionPoint;
+
+        if (groupName == null) {
+            Scope scope = interceptorType.getAnnotation(Scope.class);
             
-            if (scopeName == null) {
-                throw new PinpointException("@Scope must provide scope name. Interceptor class: " + interceptorName);
+            if (scope != null) {
+                groupName = scope.value();
+                executionPoint = scope.executionPoint();
             }
-            
-            factory = new ScopedInterceptorFactory(factory, pluginContext.getByteCodeInstrumentor(), scopeName);
+        }
+        
+        InterceptorGroup group = groupName == null ? null : pluginContext.createInterceptorGroup(groupName);
+        InterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext, group, interceptorType, providedArguments);
+        
+        if (group != null) {
+            factory = new ScopedInterceptorFactory(factory, group, executionPoint);
         }
         
         return factory;
