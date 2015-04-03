@@ -23,8 +23,11 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 
-import com.navercorp.pinpoint.exception.PinpointException;
-import javassist.*;
+import javassist.CannotCompileException;
+import javassist.ClassClassPath;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.NotFoundException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +42,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.ScopeDefinition;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
+import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.ClassFileRetransformer;
 import com.navercorp.pinpoint.profiler.interceptor.GlobalInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
@@ -117,7 +121,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     @Override
     public Scope getScope(String scopeName) {
-        final ScopeDefinition scopeDefinition = new DefaultScopeDefinition(scopeName, ScopeDefinition.Type.SIMPLE);
+        final ScopeDefinition scopeDefinition = new DefaultScopeDefinition(scopeName);
         return getScope(scopeDefinition);
     }
 

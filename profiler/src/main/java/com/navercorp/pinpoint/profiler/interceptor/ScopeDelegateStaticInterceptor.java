@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
+import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
 
 /**
  * @author emeroad
@@ -42,20 +43,16 @@ public class ScopeDelegateStaticInterceptor implements StaticAroundInterceptor, 
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        final int push = scope.push();
-        if (push != Scope.ZERO) {
-            return;
+        if (scope.tryBefore(ExecutionPoint.BOUNDARY)) {
+            this.delegate.before(target, className, methodName, parameterDescription, args);
         }
-        this.delegate.before(target, className, methodName, parameterDescription, args);
     }
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
-        final int pop = scope.pop();
-        if (pop != Scope.ZERO) {
-            return;
+        if (scope.tryAfter(ExecutionPoint.BOUNDARY)) {
+            this.delegate.after(target, className, methodName, parameterDescription, args, result, throwable);
         }
-        this.delegate.after(target, className, methodName, parameterDescription, args, result, throwable);
     }
 
 

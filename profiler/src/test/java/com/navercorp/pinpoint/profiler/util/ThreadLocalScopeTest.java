@@ -19,9 +19,12 @@ package com.navercorp.pinpoint.profiler.util;
 /**
  * @author emeroad
  */
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
-import org.junit.Test;
 import org.junit.Assert;
+import org.junit.Test;
+
+import com.navercorp.pinpoint.bootstrap.instrument.DefaultScopeDefinition;
+import com.navercorp.pinpoint.bootstrap.instrument.Scope;
+import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
 
 /**
  * @author emeroad
@@ -29,35 +32,27 @@ import org.junit.Assert;
 public class ThreadLocalScopeTest {
     @Test
     public void pushPop() {
-        Scope scope = new ThreadLocalScope(new SimpleScopeFactory("test"));
-        Assert.assertEquals(scope.push(), 0);
-        Assert.assertEquals(scope.push(), 1);
-        Assert.assertEquals(scope.push(), 2);
+        Scope scope = new ThreadLocalScope(new DefaultScopeDefinition("test"));
+        Assert.assertTrue(scope.tryBefore(ExecutionPoint.BOUNDARY));
+        Assert.assertFalse(scope.tryBefore(ExecutionPoint.BOUNDARY));
+        Assert.assertFalse(scope.tryBefore(ExecutionPoint.BOUNDARY));
+        
+        Assert.assertTrue(scope.isIn());
 
-        Assert.assertEquals(scope.depth(), 3);
-
-        Assert.assertEquals(scope.pop(), 2);
-        Assert.assertEquals(scope.pop(), 1);
-        Assert.assertEquals(scope.pop(), 0);
+        Assert.assertFalse(scope.tryAfter(ExecutionPoint.BOUNDARY));
+        Assert.assertFalse(scope.tryAfter(ExecutionPoint.BOUNDARY));
+        Assert.assertTrue(scope.tryAfter(ExecutionPoint.BOUNDARY));
     }
 
-    @Test
+    @Test(expected=IllegalStateException.class)
     public void pushPopError() {
-        Scope scope = new ThreadLocalScope(new SimpleScopeFactory("test"));
-        Assert.assertEquals(scope.pop(), -1);
-        Assert.assertEquals(scope.pop(), -2);
-
-        Assert.assertEquals(scope.push(), -2);
-        Assert.assertEquals(scope.push(), -1);
-
-        Assert.assertEquals(scope.depth(), 0);
-
-
+        Scope scope = new ThreadLocalScope(new DefaultScopeDefinition("test"));
+        scope.tryAfter(ExecutionPoint.BOUNDARY);
     }
 
     @Test
     public void getName() {
-        Scope scope = new ThreadLocalScope(new SimpleScopeFactory("test"));
+        Scope scope = new ThreadLocalScope(new DefaultScopeDefinition("test"));
         Assert.assertEquals(scope.getName(), "test");
 
     }

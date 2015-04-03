@@ -16,19 +16,20 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument;
 
+import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
+
 /**
  * @author emeroad
  */
-public interface Scope  {
-
-    int ZERO = 0;
-
-    int push();
-
-    int depth();
-
-    int pop() ;
-
+public interface Scope {
     String getName();
 
+    boolean tryBefore(ExecutionPoint point);
+    boolean tryAfter(ExecutionPoint point);
+    boolean isIn();
+    
+    Object setAttachment(Object attachment);
+    Object getAttachment();
+    Object getOrCreateAttachment(AttachmentFactory factory);
+    Object removeAttachment();
 }

@@ -39,6 +39,10 @@ public class ClassConditions {
         return new HasDeclaredMethod(name, paramTypes);
     }
     
+    public static ClassCondition hasConstructor(String... paramTypes) {
+        return new HasConstructor(paramTypes);
+    }
+    
     
     private static class HasField implements ClassCondition {
         private final String name;
@@ -88,6 +92,19 @@ public class ClassConditions {
         @Override
         public boolean check(ProfilerPluginContext context, ClassLoader classLoader, InstrumentClass target) {
             return target.hasDeclaredMethod(name, paramTypes);
+        }
+    }
+    
+    private static class HasConstructor implements ClassCondition {
+        private final String[] paramTypes;
+        
+        public HasConstructor(String[] paramTypes) {
+            this.paramTypes = paramTypes;
+        }
+
+        @Override
+        public boolean check(ProfilerPluginContext context, ClassLoader classLoader, InstrumentClass target) {
+            return target.hasConstructor(paramTypes);
         }
     }
 }

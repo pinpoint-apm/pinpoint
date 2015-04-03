@@ -29,7 +29,6 @@ import javassist.CtConstructor;
 import javassist.CtField;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
-import javassist.LoaderClassPath;
 import javassist.NotFoundException;
 
 import org.slf4j.Logger;
@@ -365,7 +364,7 @@ public class JavaAssistClass implements InstrumentClass {
 
     @Override
     public int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException, NotFoundInstrumentException {
-        final ScopeDefinition scopeDefinition = new DefaultScopeDefinition(scopeName, ScopeDefinition.Type.SIMPLE);
+        final ScopeDefinition scopeDefinition = new DefaultScopeDefinition(scopeName);
         return addScopeInterceptor(methodName, args, interceptor, scopeDefinition);
     }
 
@@ -388,7 +387,7 @@ public class JavaAssistClass implements InstrumentClass {
 
     @Override
     public int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException {
-        final ScopeDefinition scopeDefinition = new DefaultScopeDefinition(scopeName, ScopeDefinition.Type.SIMPLE);
+        final ScopeDefinition scopeDefinition = new DefaultScopeDefinition(scopeName);
         return addScopeInterceptorIfDeclared(methodName, args, interceptor, scopeDefinition);
     }
 
@@ -909,6 +908,17 @@ public class JavaAssistClass implements InstrumentClass {
        try {
            CtMethod m = ctClass.getMethod(methodName, signature);
            return m != null;
+       } catch (NotFoundException e) {
+           return false;
+       }
+   }
+   
+   @Override
+   public boolean hasConstructor(String[] parameterTypeArray) {
+       final String signature = JavaAssistUtils.javaTypeToJvmSignature(parameterTypeArray, "void");
+       try {
+           CtConstructor c = ctClass.getConstructor(signature);
+           return c != null;
        } catch (NotFoundException e) {
            return false;
        }

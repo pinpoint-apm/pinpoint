@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
-import com.navercorp.pinpoint.bootstrap.instrument.ScopeDefinition;
-
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import com.navercorp.pinpoint.bootstrap.instrument.Scope;
+import com.navercorp.pinpoint.bootstrap.instrument.ScopeDefinition;
 
 /**
  * @author emeroad
@@ -48,21 +48,7 @@ public class ThreadLocalScopePool implements ScopePool {
     }
 
     private Scope createScope(ScopeDefinition scopeDefinition) {
-
-        if (scopeDefinition.getType() == ScopeDefinition.Type.ATTACHMENT) {
-
-            AttachmentSimpleScopeFactory<Object> factory = new AttachmentSimpleScopeFactory<Object>(scopeDefinition.getName());
-            return new AttachmentThreadLocalScope<Object>(factory);
-
-        } else if (scopeDefinition.getType() == ScopeDefinition.Type.SIMPLE) {
-
-            SimpleScopeFactory simpleScopeFactory = new SimpleScopeFactory(scopeDefinition.getName());
-            return new ThreadLocalScope(simpleScopeFactory);
-
-        } else {
-            throw new UnsupportedOperationException(scopeDefinition.getType() + " type unsupported.");
-        }
-
+        return new ThreadLocalScope(scopeDefinition);
     }
 
 

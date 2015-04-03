@@ -48,9 +48,6 @@ import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpConstants;
         @TargetMethod(name="getOutputStream")
 })
 public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, JdkHttpConstants {
-    /**
-     * 
-     */
     private static final Object TRACE_BLOCK_BEGIN_MARKER = new Object();
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();

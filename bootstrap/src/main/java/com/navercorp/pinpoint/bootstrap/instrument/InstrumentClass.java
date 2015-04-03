@@ -108,6 +108,8 @@ public interface InstrumentClass {
     public boolean isInterceptable();
 
     boolean hasDeclaredMethod(String methodName, String[] args);
+    
+    boolean hasConstructor(String[] parameterTypeArray);
 
     boolean hasMethod(String methodName, String[] parameterTypeArray, String returnType);
     

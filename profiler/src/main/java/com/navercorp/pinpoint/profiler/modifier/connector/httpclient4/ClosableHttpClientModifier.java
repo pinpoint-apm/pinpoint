@@ -63,7 +63,7 @@ public class ClosableHttpClientModifier extends AbstractModifier {
 
         try {
             InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
-            ScopeDefinition scopeDefinition = new DefaultScopeDefinition(HttpClient4Scope.SCOPE, ScopeDefinition.Type.ATTACHMENT);
+            ScopeDefinition scopeDefinition = new DefaultScopeDefinition(HttpClient4Scope.SCOPE);
             Scope scope = byteCodeInstrumentor.getScope(scopeDefinition);
 
             addHttpRequestApi(classLoader, protectedDomain, aClass, scope);

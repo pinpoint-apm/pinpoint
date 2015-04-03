@@ -33,7 +33,7 @@ public class ClassCookBook implements ClassRecipe {
      * @see com.navercorp.pinpoint.bootstrap.plugin.ClassEditor#edit(java.lang.ClassLoader, com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass)
      */
     @Override
-    public void edit(ClassLoader classLoader, InstrumentClass target) throws Exception {
+    public void edit(ClassLoader classLoader, InstrumentClass target) throws Throwable {
         for (ClassRecipe recipe : recipes) {
             recipe.edit(classLoader, target);
         }
