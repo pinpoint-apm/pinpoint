@@ -219,9 +219,4 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
 
         this.excludeUrlFilter = profilerConfig.getTomcatExcludeUrlFilter();
     }
-
-    @Override
-    protected void deleteTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
-        trace.traceRootBlockEnd();
-    }
 }
