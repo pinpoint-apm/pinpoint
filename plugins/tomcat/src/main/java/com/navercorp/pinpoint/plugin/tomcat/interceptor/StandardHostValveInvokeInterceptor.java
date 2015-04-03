@@ -91,7 +91,8 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
                 trace.recordApi(SERVLET_ASYNCHRONOUS_API_TAG);
                 // attach current thread local.
                 getTraceContext().attachTraceObject(trace);
-
+                trace.traceBlockBegin();
+                
                 return trace;
             }
         }
@@ -201,6 +202,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     }
 
     private void recordRootSpan(final Trace trace, final HttpServletRequest request) {
+        // root
         trace.markBeforeTime();
         trace.recordServiceType(TomcatConstants.TOMCAT);
 
@@ -218,6 +220,8 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
             recordParentInfo(trace, request);
         }
         trace.recordApi(SERVLET_SYNCHRONOUS_API_TAG);
+        // begin
+        trace.traceBlockBegin();
     }
 
     private void recordParentInfo(RecordableTrace trace, HttpServletRequest request) {
@@ -306,6 +310,8 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
 
     @Override
     protected void deleteTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
+        trace.traceBlockEnd();
+        
         final Request request = (Request) args[0];
         if (!isAsynchronousProcess(request)) {
             trace.markAfterTime();

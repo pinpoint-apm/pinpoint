@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.SpanType;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
@@ -43,12 +44,14 @@ public class HttpURLConnectionIT {
         connection.getHeaderFields();
         
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printApis(System.out);
+        verifier.printSpans(System.out);
         
         Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
         Method getInputStream = targetClass.getMethod("getInputStream");
         
         verifier.verifySpanCount(1);
-        verifier.verifySpanEvent("JDK_HTTPURLCONNECTOR", getInputStream, null, null, "www.naver.com", annotation("http.url", "http://www.naver.com"));
+        verifier.verifySpan(SpanType.SPAN_EVENT, "JDK_HTTPURLCONNECTOR", getInputStream, null, null, null, "www.naver.com", annotation("http.url", "http://www.naver.com"));
     }
     
     @Test
@@ -66,7 +69,7 @@ public class HttpURLConnectionIT {
         Method connect = targetClass.getMethod("connect");
         
         verifier.verifySpanCount(1);
-        verifier.verifySpanEvent("JDK_HTTPURLCONNECTOR", connect, null, null, "www.naver.com", annotation("http.url", "http://www.naver.com"));
+        verifier.verifySpan(SpanType.SPAN_EVENT, "JDK_HTTPURLCONNECTOR", connect, null, null, null, "www.naver.com", annotation("http.url", "http://www.naver.com"));
     }
     
 }

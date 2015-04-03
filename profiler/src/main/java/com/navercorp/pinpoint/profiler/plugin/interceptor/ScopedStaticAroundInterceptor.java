@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.plugin.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.instrument.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
@@ -26,26 +26,26 @@ import com.navercorp.pinpoint.bootstrap.plugin.interceptor.InterceptorGroup;
 /**
  * @author emeroad
  */
-public class ScopedSimpleAroundInterceptor implements SimpleAroundInterceptor {
+public class ScopedStaticAroundInterceptor implements StaticAroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final boolean debugEnabled = logger.isDebugEnabled();
 
-    private final SimpleAroundInterceptor delegate;
+    private final StaticAroundInterceptor delegate;
     private final InterceptorGroup group;
     private final ExecutionPoint point;
 
-    public ScopedSimpleAroundInterceptor(SimpleAroundInterceptor delegate, InterceptorGroup group, ExecutionPoint point) {
+    public ScopedStaticAroundInterceptor(StaticAroundInterceptor delegate, InterceptorGroup group, ExecutionPoint point) {
         this.delegate = delegate;
         this.group = group;
         this.point = point;
     }
 
     @Override
-    public void before(Object target, Object[] args) {
+    public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
         Scope scope = group.getCurrentTransaction();
         
         if (scope.tryBefore(point)) {
-            delegate.before(target, args);
+            this.delegate.before(target, className, methodName, parameterDescription, args);
         } else {
             if (debugEnabled) {
                 logger.debug("tryBefore() returns false: scope: {}, executionPonint: {}. Skip interceptor {}", new Object[] {scope, point, delegate.getClass()} );
@@ -54,11 +54,11 @@ public class ScopedSimpleAroundInterceptor implements SimpleAroundInterceptor {
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
         Scope scope = group.getCurrentTransaction();
         
         if (scope.tryAfter(point)) {
-            delegate.after(target, args, result, throwable);
+            this.delegate.after(target, className, methodName, parameterDescription, args, result, throwable);
         } else {
             if (debugEnabled) {
                 logger.debug("tryAfter() returns false: scope: {}, executionPonint: {}. Skip interceptor {}", new Object[] {scope, point, delegate.getClass()} );

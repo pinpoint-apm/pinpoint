@@ -19,6 +19,6 @@ package com.navercorp.pinpoint.bootstrap.instrument;
 /**
  * @author emeroad
  */
-public interface AttachmentFactory<T> {
-    T createAttachment();
+public interface AttachmentFactory {
+    Object createAttachment();
 }

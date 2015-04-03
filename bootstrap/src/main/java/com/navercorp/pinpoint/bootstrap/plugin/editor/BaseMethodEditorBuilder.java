@@ -14,12 +14,14 @@
  */
 package com.navercorp.pinpoint.bootstrap.plugin.editor;
 
+import com.navercorp.pinpoint.bootstrap.plugin.interceptor.InterceptorBuilder;
+
 /**
  * @author Jongho Moon
  *
  */
 public interface BaseMethodEditorBuilder {
-    void injectInterceptor(String interceptorClassName, Object... constructorArguments);
+    InterceptorBuilder injectInterceptor(String interceptorClassName, Object... constructorArguments);
     void exceptionHandler(MethodEditorExceptionHandler handler);
     void property(MethodEditorProperty... properties);
 }

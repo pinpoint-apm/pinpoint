@@ -14,13 +14,13 @@
  */
 package com.navercorp.pinpoint.profiler.plugin.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.plugin.interceptor.InterceptorGroup;
 
 /**
  * @author Jongho Moon
@@ -28,24 +28,23 @@ import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
  */
 public class ScopedInterceptorFactory implements InterceptorFactory {
     private final InterceptorFactory next;
-    private final ByteCodeInstrumentor instrumentor;
-    private final String scopeName;
+    private final InterceptorGroup group;
+    private final ExecutionPoint executionPoint;
     
-    public ScopedInterceptorFactory(InterceptorFactory next, ByteCodeInstrumentor instrumentor, String scopeName) {
+    public ScopedInterceptorFactory(InterceptorFactory next, InterceptorGroup group, ExecutionPoint point) {
         this.next = next;
-        this.instrumentor = instrumentor;
-        this.scopeName = scopeName;
+        this.group = group;
+        this.executionPoint = point;
     }
 
     @Override
     public Interceptor getInterceptor(ClassLoader classLoader, InstrumentClass target, MethodInfo targetMethod) {
         Interceptor interceptor = next.getInterceptor(classLoader, target, targetMethod);
-        Scope scope = instrumentor.getScope(scopeName);
         
         if (interceptor instanceof SimpleAroundInterceptor) {
-            return new ScopedSimpleAroundInterceptor((SimpleAroundInterceptor)interceptor, scope);
+            return new ScopedSimpleAroundInterceptor((SimpleAroundInterceptor)interceptor, group, executionPoint);
         }  else if (interceptor instanceof StaticAroundInterceptor) {
-            return new ScopedStaticInterceptor((StaticAroundInterceptor)interceptor, scope);
+            return new ScopedStaticAroundInterceptor((StaticAroundInterceptor)interceptor, group, executionPoint);
         }
         
         throw new IllegalArgumentException("Unexpected interceptor type: " + interceptor.getClass());

@@ -19,8 +19,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
-
 /**
  * Indicates that the annotated interceptor have to be singleton.
  * 
