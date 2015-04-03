@@ -162,7 +162,7 @@ public class AnnotationKey {
     public static final AnnotationKey EXCEPTION_CLASS = new AnnotationKey(-51, "ExceptionClass");
     public static final AnnotationKey UNKNOWN = new AnnotationKey(-9999, "UNKNOWN");
 
-    public static final AnnotationKey ASYNC = new AnnotationKey(-100, "Asynchronous Invocation");
+    public static final AnnotationKey ASYNC = new AnnotationKey(-100, "Asynchronous Invocation", VIEW_IN_RECORD_SET);
     
     private final int code;
     private final String name;

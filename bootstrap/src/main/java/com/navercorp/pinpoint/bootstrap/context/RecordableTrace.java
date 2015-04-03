@@ -35,6 +35,8 @@ public interface RecordableTrace {
     long getAfterTime();
 
     TraceId getTraceId();
+    
+    AsyncTraceId getAsyncTraceId();
 
     boolean canSampled();
 
@@ -105,4 +107,7 @@ public interface RecordableTrace {
     void recordnextAsyncId(int asyncId);
     
     boolean isAsync();
+    
+    long getTraceStartTime();
+   
 }

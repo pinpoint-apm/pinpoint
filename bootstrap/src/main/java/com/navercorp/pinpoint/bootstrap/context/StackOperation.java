@@ -41,4 +41,6 @@ public interface StackOperation {
     Object setTraceBlockAttachment(Object attachment);
     Object getTraceBlockAttachment();
     Object removeTraceBlockAttachment();
+    
+    boolean isRootStack();
 }

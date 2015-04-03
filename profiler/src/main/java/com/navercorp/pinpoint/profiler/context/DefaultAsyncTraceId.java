@@ -1,14 +1,15 @@
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 
-public class AsyncTraceId implements TraceId {
+public class DefaultAsyncTraceId implements AsyncTraceId {
 
     private final TraceId traceId;
     private final int asyncId;
     private final long startTime;
     
-    public AsyncTraceId(final TraceId traceId, final int asyncId, final int startTime) {
+    public DefaultAsyncTraceId(final TraceId traceId, final int asyncId, final long startTime) {
         this.traceId = traceId;
         this.asyncId = asyncId;
         this.startTime = startTime;
@@ -16,10 +17,6 @@ public class AsyncTraceId implements TraceId {
     
     public int getAsyncId() {
         return asyncId;
-    }
-
-    public long getStartTime() {
-        return startTime;
     }
 
     @Override
@@ -65,5 +62,10 @@ public class AsyncTraceId implements TraceId {
     @Override
     public boolean isRoot() {
         return traceId.isRoot();
+    }
+
+    @Override
+    public long getSpanStartTime() {
+        return startTime;
     }
 }

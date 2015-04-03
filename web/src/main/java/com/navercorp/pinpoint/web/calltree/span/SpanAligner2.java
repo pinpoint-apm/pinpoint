@@ -40,8 +40,8 @@ public class SpanAligner2 {
     // transaction in-flight or missing data
     public static final int START_TIME_MATCH = 2;
 
-
     private static final Long ROOT = -1L;
+    private static final int PARENT_DEPTH = -1;
     private final Map<Long, List<SpanBo>> spanIdMap;
     private Long rootSpanId = null;
     private int matchType = FAIL_MATCH;
@@ -81,7 +81,7 @@ public class SpanAligner2 {
         // next best thing is to lookup span based on the beginning of time of span it looked up
         // most likely data exist since the data gets extracted from span. non-existent data possible due to hbase insertion failure
         final List<SpanBo> collectorAcceptTimeMatcher = new ArrayList<SpanBo>();
-        for(SpanBo span : spanList) {
+        for (SpanBo span : spanList) {
             // collectorTime is a hint
             if (span.getCollectorAcceptTime() == collectorAcceptTime) {
                 collectorAcceptTimeMatcher.add(span);
@@ -156,17 +156,40 @@ public class SpanAligner2 {
         SpanAlign spanAlign = new SpanAlign(currentDepth, span);
         container.add(spanAlign);
 
-        List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
+        AsyncSpanEventAligner aligner = new AsyncSpanEventAligner();
+        List<SpanEventBo> spanEventBoList = aligner.sort(span.getSpanEventBoList());
         if (spanEventBoList == null) {
             return;
         }
+        if(logger.isDebugEnabled()) {
+            for(SpanEventBo spanEvent : spanEventBoList) {
+                logger.debug("Align span event {}", spanEvent);            
+            }
+        }
+
 
         spanAlign.setHasChild(true);
 
+        int asyncDepth = currentDepth;
+        int currentSyncDepth = currentDepth;
+        int currentAsyncDepth = currentDepth;
         for (SpanEventBo spanEventBo : spanEventBoList) {
-            if (spanEventBo. getDepth() != -1) {
-                currentDepth = spanDepth + spanEventBo.getDepth();
+            if (spanEventBo.getAsyncId() != -1) {
+                if (spanEventBo.getSequence() == 0) {
+                    asyncDepth = spanDepth + currentDepth;
+                }
+
+                if (spanEventBo.getDepth() != PARENT_DEPTH) {
+                    currentAsyncDepth = asyncDepth + spanEventBo.getDepth();
+                }
+                currentDepth = currentAsyncDepth;
+            } else {
+                if (spanEventBo.getDepth() != PARENT_DEPTH) {
+                    currentSyncDepth = spanDepth + spanEventBo.getDepth();
+                }
+                currentDepth = currentSyncDepth;
             }
+
             if (logger.isDebugEnabled()) {
                 logger.debug("spanEvent type:{} depth:{} spanEventDepth:{} ", spanEventBo.getServiceType(), currentDepth, spanEventBo.getDepth());
             }
@@ -197,9 +220,9 @@ public class SpanAligner2 {
         }
         if (nextSpanBoList.size() == 1) {
             return nextSpanBoList.get(0);
-        } else if(nextSpanBoList.size() > 1) {
+        } else if (nextSpanBoList.size() > 1) {
             // attempt matching based on similarity
-//            return spanBos.get(0);
+            // return spanBos.get(0);
             long spanEventBoStartTime = span.getStartTime() + beforeSpanEventBo.getStartElapsed();
 
             SpanIdMatcher spanIdMatcher = new SpanIdMatcher(nextSpanBoList);

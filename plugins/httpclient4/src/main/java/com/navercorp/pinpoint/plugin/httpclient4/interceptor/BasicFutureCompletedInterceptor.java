@@ -17,13 +17,12 @@
 package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.Cached;
@@ -31,7 +30,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.Name;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
-import com.navercorp.pinpoint.profiler.context.AsyncTraceId;
 
 /**
  * 
@@ -90,11 +88,10 @@ public class BasicFutureCompletedInterceptor implements SimpleAroundInterceptor,
         }
 
         final AsyncTraceId asyncTraceId = asyncTraceIdAccessor.get(target);
-
         boolean async = false;
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
-            trace = traceContext.continueAsyncTraceObject(asyncTraceId, asyncTraceId.getAsyncId(), asyncTraceId.getStartTime());
+            trace = traceContext.continueAsyncTraceObject(asyncTraceId, asyncTraceId.getAsyncId(), asyncTraceId.getSpanStartTime());
             if (trace == null) {
                 logger.warn("Failed to continue async trace. 'result is null'");
                 return;
@@ -103,8 +100,7 @@ public class BasicFutureCompletedInterceptor implements SimpleAroundInterceptor,
             if(isDebug) {
                 logger.debug("Continue async trace {} [{}]", asyncTraceId, Thread.currentThread().getName());
             }
-            
-            return;
+           
         }
 
         logger.debug("TraceBlockBegin [{}]", Thread.currentThread().getName());
@@ -124,6 +120,7 @@ public class BasicFutureCompletedInterceptor implements SimpleAroundInterceptor,
 
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
+            logger.debug("Not found trace");
             return;
         }
 
@@ -133,7 +130,7 @@ public class BasicFutureCompletedInterceptor implements SimpleAroundInterceptor,
             trace.markAfterTime();
         } finally {
             trace.traceBlockEnd();
-            if(trace.isAsync() && trace.isRoot()) {
+            if(trace.isAsync() && trace.isRootStack()) {
                 trace.traceRootBlockEnd();
                 traceContext.detachTraceObject();
                 if(isDebug) {

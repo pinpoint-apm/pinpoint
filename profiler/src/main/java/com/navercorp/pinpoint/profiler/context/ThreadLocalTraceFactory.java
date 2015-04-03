@@ -190,6 +190,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         storage.setAsync(true);
         
         final DefaultTrace trace = new DefaultTrace(traceContext, traceId);
+        trace.getCallStack().getSpan().setStartTime(startTime);
         trace.setStorage(storage);
         trace.setSampling(true);
         

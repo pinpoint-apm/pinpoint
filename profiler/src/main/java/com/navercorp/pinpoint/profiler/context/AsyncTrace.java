@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -197,6 +198,7 @@ public class AsyncTrace implements Trace {
     @Override
     public void traceBlockBegin() {
         trace.traceBlockBegin();
+        trace.recordAsyncId(asyncId);
     }
 
     @Override
@@ -237,5 +239,20 @@ public class AsyncTrace implements Trace {
     @Override
     public boolean isAsync() {
         return true;
+    }
+
+    @Override
+    public long getTraceStartTime() {
+        return trace.getTraceStartTime();
+    }
+
+    @Override
+    public boolean isRootStack() {
+        return trace.isRootStack();
+    }
+
+    @Override
+    public AsyncTraceId getAsyncTraceId() {
+        return trace.getAsyncTraceId();
     }
 }

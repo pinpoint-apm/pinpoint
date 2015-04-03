@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.ConstructorEditorBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorProperty;
 
@@ -41,6 +42,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, HttpClient4Constants {
         // }
 
         addClosableHttpAsyncClientClassEditor(context, config);
+        addDefaultClientExchangeHandlerImplConstructorInterceptor(context, config);
         // addClosableHttpClientClassEditor(context, config);
         addBasicFutureClassEditor(context, config);
     }
@@ -85,7 +87,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, HttpClient4Constants {
         final ClassEditorBuilder classEditorBuilder = context.getClassEditorBuilder("org.apache.http.impl.nio.client.CloseableHttpAsyncClient");
         addAsyncClientInterceptor(classEditorBuilder);
         addAsyncInternalClientInterceptor(classEditorBuilder);
-
+        
         context.addClassEditor(classEditorBuilder.build());
     }
 
@@ -100,6 +102,14 @@ public class HttpClient4Plugin implements ProfilerPlugin, HttpClient4Constants {
         methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.AsyncInternalClientExecuteInterceptor");
     }
 
+    private void addDefaultClientExchangeHandlerImplConstructorInterceptor(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
+        final ClassEditorBuilder classEditorBuilder = context.getClassEditorBuilder("org.apache.http.impl.nio.client.DefaultClientExchangeHandlerImpl");
+        ConstructorEditorBuilder constructorEditorBuilder = classEditorBuilder.editConstructor("org.apache.commons.logging.Log", "org.apache.http.nio.protocol.HttpAsyncRequestProducer", "org.apache.http.nio.protocol.HttpAsyncResponseConsumer", "org.apache.http.client.protocol.HttpClientContext", "org.apache.http.concurrent.BasicFuture", "org.apache.http.nio.conn.NHttpClientConnectionManager", "org.apache.http.impl.nio.client.InternalClientExec");
+        constructorEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.DefaultClientExchangeHandlerImplConstructorInterceptor");
+        
+        context.addClassEditor(classEditorBuilder.build());
+    }
+    
     private void addClosableHttpClientClassEditor(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
         final ClassEditorBuilder classEditorBuilder = context.getClassEditorBuilder("org.apache.http.impl.client.CloseableHttpClient");
         injectHttpRequestExecuteMethodInterceptor(classEditorBuilder, "org.apache.http.HttpHost", "org.apache.http.HttpRequest");

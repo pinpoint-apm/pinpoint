@@ -477,6 +477,18 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                         long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
                         long elapsed = spanEventBo.getEndElapsed();
 
+                        int asyncParentId = -1;
+                        long gap = 0;
+                        if(isFirstAsyncEvent(spanAlign)) {
+                            final SpanDepth asyncParentDepth = findAsyncParent(stack, spanAlign.getSpanEventBo().getAsyncId());
+                            if(asyncParentDepth != null) {
+                                asyncParentId = asyncParentDepth.getId();
+                                gap = spanAlign.getSpanEventBo().getStartElapsed() - asyncParentDepth.getSpanAlign().getSpanEventBo().getStartElapsed();
+                            }
+                        } else {
+                            gap = getGap(stack);
+                        }
+                        
                         // use spanBo's applicationId instead of spanEventBo's destinationId to display the name of the calling application on the call stack.
                         Record record = new Record(spanAlign.getDepth(), 
                                                     spanBoEventSequence,
@@ -486,7 +498,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                                     argument,
                                                     begin,
                                                     elapsed,
-                                                    getGap(stack),
+                                                    gap,
                                                     spanEventBo.getAgentId(),
                                                     spanBo.getApplicationId(),
                                                     registry.findServiceType(spanEventBo.getServiceType()),
@@ -581,6 +593,27 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             } else {
                 return (spanAlign.getSpanBo().getStartTime() + spanAlign.getSpanEventBo().getStartElapsed()) - lastExecuteTime;
             }
+        }
+        
+        private SpanDepth findAsyncParent(final Stack<SpanDepth> stack, final int asyncId) {
+            final int lastIndex = stack.size() - 1;
+            for(int i = lastIndex; i >= 0; i--) {
+                final SpanDepth depth = stack.get(i);
+                if(depth.getSpanAlign().isSpan()) {
+                    continue;
+                }
+                
+                int nextAsyncId = depth.getSpanAlign().getSpanEventBo().getNextAsyncId();
+                if(asyncId == nextAsyncId) {
+                    return depth;
+                }
+            }
+            
+            return null;
+        }
+        
+        private boolean isFirstAsyncEvent(SpanAlign spanAlign) {
+            return spanAlign.getSpanEventBo().getAsyncId() != -1 && spanAlign.getSpanEventBo().getSequence() == 0;
         }
 
         private long getLastTime(SpanAlign spanAlign) {
