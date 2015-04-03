@@ -25,12 +25,23 @@ public class ClassLoadCheckerTest {
 
     @Test
     public void testExist() throws Exception {
-        ClassLoadChecker checker = new ClassLoadChecker();
-        boolean non = checker.exist(ClassLoader.getSystemClassLoader(), "test");
-        Assert.assertFalse(non);
 
-        boolean exist = checker.exist(ClassLoader.getSystemClassLoader(), "test");
-        Assert.assertTrue(exist);
+        ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+
+        ClassLoadChecker checker = new ClassLoadChecker();
+        boolean non1 = checker.exist(systemClassLoader, "1");
+        Assert.assertFalse(non1);
+
+        boolean exist1 = checker.exist(systemClassLoader, "1");
+        Assert.assertTrue(exist1);
+
+
+        boolean non2 = checker.exist(systemClassLoader, "2");
+        Assert.assertFalse(non2);
+
+        boolean exist2 = checker.exist(systemClassLoader, "2");
+        Assert.assertTrue(exist2);
+
     }
 
 

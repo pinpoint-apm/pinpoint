@@ -934,6 +934,8 @@ public class ProfilerConfig {
         sb.append(", ningAsyncHttpClientProfileParamDumpType=").append(ningAsyncHttpClientProfileParamDumpType);
         sb.append(", ningAsyncHttpClientProfileParamDumpSize=").append(ningAsyncHttpClientProfileParamDumpSize);
         sb.append(", ningAsyncHttpClientProfileParamSamplingRate=").append(ningAsyncHttpClientProfileParamSamplingRate);
+        sb.append(", log4jLoggingTransactionInfo=").append(log4jLoggingTransactionInfo);
+        sb.append(", logbackLoggingTransactionInfo=").append(logbackLoggingTransactionInfo);
         sb.append(", springBeans=").append(springBeans);
         sb.append(", springBeansNamePatterns='").append(springBeansNamePatterns).append('\'');
         sb.append(", springBeansClassPatterns='").append(springBeansClassPatterns).append('\'');

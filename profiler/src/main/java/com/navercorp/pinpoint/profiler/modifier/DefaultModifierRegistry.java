@@ -378,13 +378,11 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         if (profilerConfig.isLog4jLoggingTransactionInfo()) {
             addModifier(new LoggingEventOfLog4jModifier(byteCodeInstrumentor, agent));
         }
-        
     }
 
     public void addLogbackModifier() {
         if (profilerConfig.isLogbackLoggingTransactionInfo()) {
             addModifier(new LoggingEventOfLogbackModifier(byteCodeInstrumentor, agent));
         }
-        
     }
 }
