@@ -85,30 +85,34 @@ public class HttpClient4Plugin implements ProfilerPlugin, HttpClient4Constants {
 
     private void addClosableHttpAsyncClientClassEditor(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
         final ClassEditorBuilder classEditorBuilder = context.getClassEditorBuilder("org.apache.http.impl.nio.client.CloseableHttpAsyncClient");
-        injectAsyncClientExecuteInterceptor(classEditorBuilder, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.protocol.HttpContext", "org.apache.http.concurrent.FutureCallback");
-        injectAsyncClientExecuteInterceptor(classEditorBuilder, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.concurrent.FutureCallback");
-        injectAsyncInternalClientExecuteInterceptor(classEditorBuilder, "org.apache.http.nio.protocol.HttpAsyncRequestProducer", "org.apache.http.nio.protocol.HttpAsyncResponseConsumer", "org.apache.http.concurrent.FutureCallback");
-        injectExecuteMethodByHttpUriRequestInterceptor(classEditorBuilder, "org.apache.http.client.methods.HttpUriRequest", "org.apache.http.concurrent.FutureCallback");
+        // with HttpRequest
+        injectCloseableHttpAsyncClientExecuteMethodWithHttpRequestInterceptor(classEditorBuilder, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.protocol.HttpContext", "org.apache.http.concurrent.FutureCallback");
+        injectCloseableHttpAsyncClientExecuteMethodWithHttpRequestInterceptor(classEditorBuilder, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.concurrent.FutureCallback");
+        // with HttpAsyncRequestProducer
+        injectCloseableHttpAsyncClientExecuteMethodWithHttpAsyncRequestProducerInterceptor(classEditorBuilder, "org.apache.http.nio.protocol.HttpAsyncRequestProducer", "org.apache.http.nio.protocol.HttpAsyncResponseConsumer", "org.apache.http.concurrent.FutureCallback");
+        // with HttpUriRequest
+        injectCloseableHttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor(classEditorBuilder, "org.apache.http.client.methods.HttpUriRequest", "org.apache.http.concurrent.FutureCallback");
+        injectCloseableHttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor(classEditorBuilder, "org.apache.http.client.methods.HttpUriRequest", "org.apache.http.protocol.HttpContext", "org.apache.http.concurrent.FutureCallback");
         
         context.addClassEditor(classEditorBuilder.build());
     }
 
-    private void injectAsyncClientExecuteInterceptor(final ClassEditorBuilder classEditorBuilder, String... parameterTypeNames) {
+    private void injectCloseableHttpAsyncClientExecuteMethodWithHttpRequestInterceptor(final ClassEditorBuilder classEditorBuilder, String... parameterTypeNames) {
         MethodEditorBuilder methodEditorBuilder = classEditorBuilder.editMethod("execute", parameterTypeNames);
         methodEditorBuilder.property(MethodEditorProperty.IGNORE_IF_NOT_EXIST);
-        methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.AsyncClientExecuteInterceptor");
+        methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.CloseableHttpAsyncClientExecuteMethodWithHttpRequestInterceptor");
     }
 
-    private void injectAsyncInternalClientExecuteInterceptor(final ClassEditorBuilder classEditorBuilder, String... parameterTypeNames) {
+    private void injectCloseableHttpAsyncClientExecuteMethodWithHttpAsyncRequestProducerInterceptor(final ClassEditorBuilder classEditorBuilder, String... parameterTypeNames) {
         MethodEditorBuilder methodEditorBuilder = classEditorBuilder.editMethod("execute", parameterTypeNames);
         methodEditorBuilder.property(MethodEditorProperty.IGNORE_IF_NOT_EXIST);
-        methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.AsyncInternalClientExecuteInterceptor");
+        methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.CloseableHttpAsyncClientExecuteMethodWithHttpAsyncRequestProducerInterceptor");
     }
     
-    private void injectExecuteMethodByHttpUriRequestInterceptor(final ClassEditorBuilder classEditorBuilder, String... parameterTypeNames) {
+    private void injectCloseableHttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor(final ClassEditorBuilder classEditorBuilder, String... parameterTypeNames) {
         MethodEditorBuilder methodEditorBuilder = classEditorBuilder.editMethod("execute", parameterTypeNames);
         methodEditorBuilder.property(MethodEditorProperty.IGNORE_IF_NOT_EXIST);
-        methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.AsyncInternalClientExecuteInterceptor");
+        methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.CloseableHttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor");
     }
     
 
