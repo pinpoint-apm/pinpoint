@@ -45,4 +45,9 @@ public class DefaultDedicatedClassEditor implements DedicatedClassEditor {
     public String getTargetClassName() {
         return targetClassName;
     }
+
+    @Override
+    public String toString() {
+        return "ClassEditor[target=" + targetClassName + ", subEditors=" + recipe + "]";
+    }
 }

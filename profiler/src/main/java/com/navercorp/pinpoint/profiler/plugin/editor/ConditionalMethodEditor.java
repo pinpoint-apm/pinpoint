@@ -37,4 +37,9 @@ public class ConditionalMethodEditor implements MethodEditor {
             delegate.edit(classLoader, target);
         }
     }
+
+    @Override
+    public String toString() {
+        return "ConditionalMethodEditor[condition=" + condition + ", execute=" + delegate + "]";
+    }
 }

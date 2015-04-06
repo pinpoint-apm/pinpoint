@@ -18,7 +18,7 @@ import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.plugin.interceptor.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 
 /**
  *  Provides attributes and objects to interceptors.

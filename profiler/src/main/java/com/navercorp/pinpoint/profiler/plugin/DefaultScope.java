@@ -16,7 +16,7 @@ package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.instrument.Scope;
-import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
 
 /**
  * @author Jongho Moon
@@ -130,7 +130,7 @@ public class DefaultScope implements Scope {
 
     @Override
     public String toString() {
-        return "Scope(" + name + ")[depth=" + depth +"]";
+        return "Group(" + name + ")[depth=" + depth +"]";
     }
     
     

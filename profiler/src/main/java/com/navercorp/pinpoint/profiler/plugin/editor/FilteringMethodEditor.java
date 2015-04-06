@@ -57,4 +57,21 @@ public class FilteringMethodEditor implements MethodEditor {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("FilteringMethodEditor [filter=");
+        builder.append(filter);
+        builder.append(", recipes=");
+        builder.append(recipes);
+        
+        if (exceptionHandler != null) {
+            builder.append(", exceptionHandler=");
+            builder.append(exceptionHandler);
+        }
+        
+        builder.append(']');
+        return builder.toString();
+    }
 }

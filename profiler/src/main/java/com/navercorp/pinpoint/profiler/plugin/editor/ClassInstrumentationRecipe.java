@@ -35,4 +35,9 @@ public class ClassInstrumentationRecipe implements ClassRecipe {
     public void edit(ClassLoader classLoader, InstrumentClass target) throws Exception {
         instrumentation.execute(context, classLoader, target);
     }
+
+    @Override
+    public String toString() {
+        return "CustomClassInstrumentation[" + instrumentation + "]";
+    }
 }

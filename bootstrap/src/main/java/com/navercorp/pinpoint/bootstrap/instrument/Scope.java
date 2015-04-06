@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument;
 
-import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
 
 /**
  * @author emeroad
