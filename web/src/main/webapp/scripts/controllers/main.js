@@ -146,7 +146,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
         /**
          * scope event on serverMap.nodeClicked
          */
-        $scope.$on('serverMap.nodeClicked', function (event, e, query, node, data) {
+        $scope.$on('serverMap.nodeClicked', function (event, e, query, node, data, searchQuery) {
             bNodeSelected = true;
             var oSidebarTitleVo = new SidebarTitleVo;
             oSidebarTitleVo.setImageType(node.serviceType);
@@ -164,7 +164,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             }
             $scope.hasFilter = false;
             $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
-            $scope.$broadcast('nodeInfoDetails.initialize', e, query, node, data, oNavbarVo);
+            $scope.$broadcast('nodeInfoDetails.initialize', e, query, node, data, oNavbarVo, null, searchQuery);
             $scope.$broadcast('linkInfoDetails.hide');
 
             $scope.refreshHelpIcons();
