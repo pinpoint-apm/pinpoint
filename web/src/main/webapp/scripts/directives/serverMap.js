@@ -321,7 +321,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     oProgressBar.setLoading(90);
 
                     var options = cfg.options;
-                    options.fOnNodeClicked = function (e, node, unknownKey) {
+                    options.fOnNodeClicked = function (e, node, unknownKey, searchQuery) {
                         var originalNode;
                         if (angular.isDefined(node.unknownNodeGroup) && !unknownKey) {
                             node.unknownNodeGroup = ServerMapDao.getUnknownNodeDataByUnknownNodeGroup(htLastMapData.applicationMapData, node.unknownNodeGroup);
@@ -333,7 +333,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         }
                         sLastSelection = 'node';
                         htLastNode = node;
-                        scope.$emit("serverMap.nodeClicked", e, htLastQuery, node, lastCopiedData);
+                        scope.$emit("serverMap.nodeClicked", e, htLastQuery, node, lastCopiedData, searchQuery);
                         reset();
                     };
                     options.fOnNodeContextClicked = function (e, node) {

@@ -308,7 +308,7 @@ pinpointApp
                     /**
                      * scope event on nodeInfoDetails.initialize
                      */
-                    scope.$on('nodeInfoDetails.initialize', function (event, e, query, node, mapData, navbarVo, reloadOnly) {
+                    scope.$on('nodeInfoDetails.initialize', function (event, e, query, node, mapData, navbarVo, reloadOnly, searchQuery) {
                         show();
                         // DISABLE node Cache
                         //if (angular.equals(sLastKey, node.key) && !reloadOnly) {
@@ -323,6 +323,7 @@ pinpointApp
                         htLastNode = node;
                         scope.htLastUnknownNode = false;
                         scope.oNavbarVo = navbarVo;
+                        scope.nodeSearch = searchQuery || "";
                         htServermapData = mapData;
                         showDetailInformation(node);
                     });

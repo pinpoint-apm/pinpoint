@@ -1065,12 +1065,12 @@
          * @param {ojb} ojb
          * @param {String} unknownKey
          */
-        _onNodeClicked: function (e, obj, unknownKey) {
+        _onNodeClicked: function (e, obj, unknownKey, query) {
             var node = obj.part,
                 htData = node.data,
                 fOnNodeClicked = this.option('fOnNodeClicked');
             if (_.isFunction(fOnNodeClicked)) {
-                fOnNodeClicked.call(this, e, htData, unknownKey);
+                fOnNodeClicked.call(this, e, htData, unknownKey, query);
             }
             // node.diagram.startTransaction("onNodeClick");
             // node.diagram.commitTransaction("onNodeClick");
@@ -1201,7 +1201,7 @@
         _selectAndHighlight : function( selectedNode ) {
         	this._oDiagram.select( selectedNode );
             this._oDiagram.centerRect( selectedNode.actualBounds );
-            this._onNodeClicked(null, selectedNode );
+            this._onNodeClicked(null, selectedNode, null, this._query );
         }
     });
 
