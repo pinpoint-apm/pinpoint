@@ -160,6 +160,10 @@ public class HttpClient4Plugin implements ProfilerPlugin, HttpClient4Constants {
         failMethodEditorBuilder.property(MethodEditorProperty.IGNORE_IF_NOT_EXIST);
         failMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureMethodInterceptor");
 
+        MethodEditorBuilder cancelMethodEditorBuilder = classEditorBuilder.editMethod("cancel", "boolean");
+        cancelMethodEditorBuilder.property(MethodEditorProperty.IGNORE_IF_NOT_EXIST);
+        cancelMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureMethodInterceptor");
+        
         context.addClassEditor(classEditorBuilder.build());
     }
 }
