@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
@@ -29,6 +30,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
+import com.navercorp.pinpoint.bootstrap.plugin.Cached;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
@@ -67,9 +69,11 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
     
     protected boolean statusCode;
 
-    public AbstractHttpRequestExecute(Class<? extends AbstractHttpRequestExecute> childClazz) {
+    public AbstractHttpRequestExecute(Class<? extends AbstractHttpRequestExecute> childClazz, TraceContext context, @Cached MethodDescriptor descriptor) {
         this.logger = PLoggerFactory.getLogger(childClazz);
         this.isDebug = logger.isDebugEnabled();
+        setTraceContext(context);
+        setMethodDescriptor(descriptor);
     }
 
     abstract NameIntValuePair<String> getHost(Object[] args);

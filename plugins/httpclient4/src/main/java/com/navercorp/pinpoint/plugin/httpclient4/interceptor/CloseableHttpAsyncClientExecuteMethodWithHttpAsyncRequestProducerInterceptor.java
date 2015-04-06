@@ -18,8 +18,12 @@ package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
 import org.apache.http.HttpHost;
 
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
+import com.navercorp.pinpoint.bootstrap.plugin.Cached;
 import com.navercorp.pinpoint.bootstrap.plugin.Scope;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
@@ -89,8 +93,8 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 @Scope(HttpClient4Constants.HTTP_CLIENT4_SCOPE)
 public class CloseableHttpAsyncClientExecuteMethodWithHttpAsyncRequestProducerInterceptor extends AbstractHttpRequestExecute implements TargetClassLoader {
 
-    public CloseableHttpAsyncClientExecuteMethodWithHttpAsyncRequestProducerInterceptor() {
-        super(CloseableHttpAsyncClientExecuteMethodWithHttpAsyncRequestProducerInterceptor.class);
+    public CloseableHttpAsyncClientExecuteMethodWithHttpAsyncRequestProducerInterceptor(TraceContext context, @Cached MethodDescriptor descriptor) {
+        super(CloseableHttpAsyncClientExecuteMethodWithHttpAsyncRequestProducerInterceptor.class, context, descriptor);
     }
 
     @Override

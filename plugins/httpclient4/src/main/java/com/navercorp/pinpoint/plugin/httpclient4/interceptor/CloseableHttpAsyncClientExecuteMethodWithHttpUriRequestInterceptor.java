@@ -20,8 +20,12 @@ import java.net.URI;
 
 import org.apache.http.client.methods.HttpUriRequest;
 
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
+import com.navercorp.pinpoint.bootstrap.plugin.Cached;
 import com.navercorp.pinpoint.bootstrap.plugin.Scope;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
@@ -69,8 +73,8 @@ public class CloseableHttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor 
 
     private static final int HTTP_URI_REQUEST_INDEX = 0;
 
-    public CloseableHttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor() {
-        super(CloseableHttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor.class);
+    public CloseableHttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor(TraceContext context, @Cached MethodDescriptor descriptor) {
+        super(CloseableHttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor.class, context, descriptor);
     }
 
     @Override
