@@ -22,7 +22,7 @@ import org.junit.Test;
 import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.instrument.DefaultScopeDefinition;
 import com.navercorp.pinpoint.bootstrap.instrument.Scope;
-import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
 
 public class ThreadLocalScopePoolTest {
 

@@ -32,4 +32,9 @@ public class ClassWeaver implements ClassRecipe {
     public void edit(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
         target.weave(aspectClassName, classLoader);
     }
+
+    @Override
+    public String toString() {
+        return "ClassWeaver[aspect=" + aspectClassName + "]";
+    }
 }

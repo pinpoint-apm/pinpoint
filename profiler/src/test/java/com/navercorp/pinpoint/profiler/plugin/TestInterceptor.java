@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.Scope;
+import com.navercorp.pinpoint.bootstrap.plugin.Group;
 
-@Scope(DefaultClassEditorBuilderTest.SCOPE_NAME)
+@Group(DefaultClassEditorBuilderTest.SCOPE_NAME)
 public class TestInterceptor implements SimpleAroundInterceptor {
     private final String field;
     

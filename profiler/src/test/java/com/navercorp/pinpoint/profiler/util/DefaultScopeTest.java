@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import com.navercorp.pinpoint.bootstrap.instrument.Scope;
-import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
 import com.navercorp.pinpoint.profiler.plugin.DefaultScope;
 
 

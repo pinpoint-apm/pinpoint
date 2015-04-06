@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
 import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
-import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 
 

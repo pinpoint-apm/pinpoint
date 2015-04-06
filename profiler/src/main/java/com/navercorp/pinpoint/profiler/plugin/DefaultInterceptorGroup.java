@@ -15,7 +15,7 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.instrument.Scope;
-import com.navercorp.pinpoint.bootstrap.plugin.interceptor.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 
 /**
  * @author Jongho Moon

@@ -75,4 +75,23 @@ public class ConstructorEditor implements MethodEditor {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ConstructorEditor[paramTypes=");
+        builder.append(Arrays.toString(targetParameterTypes));
+        builder.append(", recipes=");
+        builder.append(recipes);
+        builder.append(", ignoreIfNotExist=");
+        builder.append(ignoreIfNotExist);
+        
+        if (exceptionHandler != null) {
+            builder.append(", exceptionHandler=");
+            builder.append(exceptionHandler);
+        }
+        
+        builder.append(']');
+        return builder.toString();
+    }
 }

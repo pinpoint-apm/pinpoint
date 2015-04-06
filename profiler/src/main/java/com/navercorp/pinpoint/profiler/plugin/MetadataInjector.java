@@ -24,15 +24,16 @@ import com.navercorp.pinpoint.profiler.plugin.MetadataInitializationStrategy.ByC
 import com.navercorp.pinpoint.profiler.plugin.editor.ClassRecipe;
 
 public class MetadataInjector implements ClassRecipe {
-    
+    private final String name;
     private final MetadataAccessor metadataHolder;
     private final MetadataInitializationStrategy strategy;
     
-    public MetadataInjector(MetadataAccessor metadataHolder) {
-        this(metadataHolder, null);
+    public MetadataInjector(String name, MetadataAccessor metadataHolder) {
+        this(name, metadataHolder, null);
     }
     
-    public MetadataInjector(MetadataAccessor metadataHolder, MetadataInitializationStrategy strategy) {
+    public MetadataInjector(String name, MetadataAccessor metadataHolder, MetadataInitializationStrategy strategy) {
+        this.name = name;
         this.metadataHolder = metadataHolder;
         this.strategy = strategy;
     }
@@ -50,4 +51,21 @@ public class MetadataInjector implements ClassRecipe {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("MetadataInjector[name=");
+        builder.append(name);
+        
+        if (strategy != null) {
+            builder.append(", intialize=");
+            builder.append(strategy);
+        }
+        
+        builder.append(']');
+        return builder.toString();
+    }
+    
+    
 }

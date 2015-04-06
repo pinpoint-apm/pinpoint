@@ -37,4 +37,9 @@ public class ConditionalClassRecipe implements ClassRecipe {
             delegate.edit(classLoader, target);
         }
     }
+
+    @Override
+    public String toString() {
+        return "ConditionalClassRecipe[condition=" + condition + ", execute=" + delegate + "]";
+    }
 }

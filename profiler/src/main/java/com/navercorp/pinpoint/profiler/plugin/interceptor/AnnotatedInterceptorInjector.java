@@ -14,13 +14,15 @@
  */
 package com.navercorp.pinpoint.profiler.plugin.interceptor;
 
+import java.util.Arrays;
+
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.plugin.Group;
 import com.navercorp.pinpoint.bootstrap.plugin.Singleton;
-import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
-import com.navercorp.pinpoint.bootstrap.plugin.interceptor.InterceptorGroup;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
 
@@ -71,7 +73,7 @@ public class AnnotatedInterceptorInjector implements InterceptorInjector {
         ExecutionPoint executionPoint = this.executionPoint;
 
         if (groupName == null) {
-            Scope scope = interceptorType.getAnnotation(Scope.class);
+            Group scope = interceptorType.getAnnotation(Group.class);
             
             if (scope != null) {
                 groupName = scope.value();
@@ -84,8 +86,30 @@ public class AnnotatedInterceptorInjector implements InterceptorInjector {
         
         if (group != null) {
             factory = new ScopedInterceptorFactory(factory, group, executionPoint);
-        }
+        } 
         
         return factory;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("AnnotatedInterceptorInjector [interceptorClass=");
+        builder.append(interceptorClassName);
+        
+        if (providedArguments != null && providedArguments.length != 0) {
+            builder.append(", constructorArguments=");
+            builder.append(Arrays.toString(providedArguments));
+        }
+        
+        if (groupName != null) {
+            builder.append(", group=");
+            builder.append(groupName);
+            builder.append(", executionPoint=");
+            builder.append(executionPoint);
+        }
+        
+        builder.append(']');
+        return builder.toString();
     }
 }
