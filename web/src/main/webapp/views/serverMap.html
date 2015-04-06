@@ -6,7 +6,7 @@
     </div>
     <div class="servermap-status" ng-show="bShowServerMapStatus" style="right:290px">
     	<form class="form-inline">
-	    	<input type="text" class="form-control" ng-keydown="searchNodeByEnter($event)" ng-model="searchNodeName" placeholder="Enter node name"/>
+	    	<input type="text" class="form-control" ng-keydown="searchNodeByEnter($event)" ng-model="searchNodeQuery" placeholder="Enter node name"/>
 	    	<button class="btn btn-info" style="margin-left:-10px" ng-click="searchNode()"><span class="glyphicon glyphicon-search"></span></button>
 	    	<button class="btn btn-info" ng-click="clearSearchNode()"><span class="glyphicon glyphicon-trash"></span></button>
 	    </form>
@@ -131,9 +131,8 @@
         <li class="dropdown-submenu">
             <a tabindex="-1" href>Node Setting</a>
             <ul class="dropdown-menu">
-                <li><a href ng-click="toggleMergeUnknowns()"><span class="glyphicon" style="width:14px"
-                                                                   ng-class="{'glyphicon-ok': mergeUnknowns}"></span>
-                    Merge Unknowns</a></li>
+                <!--li><a href ng-click="toggleMergeUnknowns()"><span class="glyphicon" style="width:14px" ng-class="{'glyphicon-ok': mergeUnknowns}"></span>Merge Unknowns</a></li-->
+                <li ng-repeat="mergeType in mergeTypeList"><a href ng-click="toggleMergeGroup(mergeType)"><span class="glyphicon" style="width:14px" ng-class="{'glyphicon-ok': mergeStatus[mergeType]}"></span> Merge {{mergeType}}</a></li>
             </ul>
         </li>
         <li class="dropdown-submenu">
