@@ -21,5 +21,5 @@ package com.navercorp.pinpoint.bootstrap.interceptor.group;
 public enum ExecutionPoint {
     ALWAYS,
     BOUNDARY,
-    INTERIOR
+    INTERNAL
 }

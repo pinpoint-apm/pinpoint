@@ -56,7 +56,9 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptor {
 
     @Override
     protected void prepareBeforeTrace(Object target, Object[] args) {
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
+        if (scope.tryEnter(ExecutionPoint.BOUNDARY)) {
+            scope.entered(ExecutionPoint.BOUNDARY);
+        }
     }
 
     @Override
@@ -73,7 +75,9 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptor {
     @Override
     protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {
         // Must not check if current transaction is trace target or not. Connection can be made by other thread. 
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        if (scope.tryLeave(ExecutionPoint.BOUNDARY)) {
+            scope.leaved(ExecutionPoint.BOUNDARY);
+        }
 
         final boolean success = InterceptorUtils.isSuccess(throwable);
         // Must not check if current transaction is trace target or not. Connection can be made by other thread.

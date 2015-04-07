@@ -44,8 +44,9 @@ public class ScopedSimpleAroundInterceptor implements SimpleAroundInterceptor {
     public void before(Object target, Object[] args) {
         Scope scope = group.getCurrentTransaction();
         
-        if (scope.tryBefore(point)) {
+        if (scope.tryEnter(point)) {
             delegate.before(target, args);
+            scope.entered(point);
         } else {
             if (debugEnabled) {
                 logger.debug("tryBefore() returns false: scope: {}, executionPonint: {}. Skip interceptor {}", new Object[] {scope, point, delegate.getClass()} );
@@ -57,8 +58,9 @@ public class ScopedSimpleAroundInterceptor implements SimpleAroundInterceptor {
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         Scope scope = group.getCurrentTransaction();
         
-        if (scope.tryAfter(point)) {
+        if (scope.tryLeave(point)) {
             delegate.after(target, args, result, throwable);
+            scope.leaved(point);
         } else {
             if (debugEnabled) {
                 logger.debug("tryAfter() returns false: scope: {}, executionPonint: {}. Skip interceptor {}", new Object[] {scope, point, delegate.getClass()} );

@@ -33,21 +33,23 @@ public class ThreadLocalScopeTest {
     @Test
     public void pushPop() {
         Scope scope = new ThreadLocalScope(new DefaultScopeDefinition("test"));
-        Assert.assertTrue(scope.tryBefore(ExecutionPoint.BOUNDARY));
-        Assert.assertFalse(scope.tryBefore(ExecutionPoint.BOUNDARY));
-        Assert.assertFalse(scope.tryBefore(ExecutionPoint.BOUNDARY));
+        Assert.assertTrue(scope.tryEnter(ExecutionPoint.BOUNDARY));
+        scope.entered(ExecutionPoint.BOUNDARY);
+        Assert.assertFalse(scope.tryEnter(ExecutionPoint.BOUNDARY));
+        Assert.assertFalse(scope.tryEnter(ExecutionPoint.BOUNDARY));
         
         Assert.assertTrue(scope.isIn());
 
-        Assert.assertFalse(scope.tryAfter(ExecutionPoint.BOUNDARY));
-        Assert.assertFalse(scope.tryAfter(ExecutionPoint.BOUNDARY));
-        Assert.assertTrue(scope.tryAfter(ExecutionPoint.BOUNDARY));
+        Assert.assertFalse(scope.tryLeave(ExecutionPoint.BOUNDARY));
+        Assert.assertFalse(scope.tryLeave(ExecutionPoint.BOUNDARY));
+        Assert.assertTrue(scope.tryLeave(ExecutionPoint.BOUNDARY));
+        scope.leaved(ExecutionPoint.BOUNDARY);
     }
 
     @Test(expected=IllegalStateException.class)
     public void pushPopError() {
         Scope scope = new ThreadLocalScope(new DefaultScopeDefinition("test"));
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        scope.leaved(ExecutionPoint.BOUNDARY);
     }
 
     @Test
