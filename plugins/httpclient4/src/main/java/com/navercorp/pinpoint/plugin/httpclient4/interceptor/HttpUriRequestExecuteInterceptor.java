@@ -23,7 +23,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
-import com.navercorp.pinpoint.bootstrap.plugin.Scope;
+import com.navercorp.pinpoint.bootstrap.plugin.Group;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
@@ -38,7 +38,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author emeroad
  * @author minwoo.jung
  */
-@Scope(HttpClient4Constants.HTTP_CLIENT4_SCOPE)
+@Group(HttpClient4Constants.HTTP_CLIENT4_SCOPE)
 public class HttpUriRequestExecuteInterceptor extends AbstractHttpRequestExecuteWithDivergence implements TargetClassLoader {
 
     private static final int HTTP_URI_REQUEST_INDEX = 0;
