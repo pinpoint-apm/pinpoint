@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author emeroad
@@ -81,6 +82,8 @@ public class DefaultTraceContext implements TraceContext {
     private ProfilerConfig profilerConfig;
     
     private final ServerMetaDataHolder serverMetaDataHolder;
+    
+    private final AtomicInteger asyncId = new AtomicInteger();
     
     // for test
     public DefaultTraceContext(final AgentInformation agentInformation) {
@@ -150,10 +153,14 @@ public class DefaultTraceContext implements TraceContext {
         return traceFactory.continueTraceObject(traceID);
     }
 
+    @Override
+    public Trace continueAsyncTraceObject(TraceId traceId, int asyncId, long startTime) {
+        return traceFactory.continueAsyncTraceObject(traceId, asyncId, startTime);
+    }
+    
     public Trace newTraceObject() {
         return traceFactory.newTraceObject();
     }
-
 
     public void attachTraceObject(Trace trace) {
         this.traceFactory.attachTraceObject(trace);
@@ -341,5 +348,12 @@ public class DefaultTraceContext implements TraceContext {
     @Override
     public ServerMetaDataHolder getServerMetaDataHolder() {
         return this.serverMetaDataHolder;
+    }
+
+
+    @Override
+    public int getAsyncId() {
+        final int id = asyncId.incrementAndGet();
+        return id == -1 ? asyncId.incrementAndGet() : id;
     }
 }

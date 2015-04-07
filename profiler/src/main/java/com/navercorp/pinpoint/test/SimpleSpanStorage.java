@@ -54,4 +54,13 @@ public final class SimpleSpanStorage implements Storage {
         this.dataSender.send(span);
     }
 
+    @Override
+    public void setAsync(boolean async) {
+    }
+
+    @Override
+    public boolean isAsync() {
+        return false;
+    }
+
 }

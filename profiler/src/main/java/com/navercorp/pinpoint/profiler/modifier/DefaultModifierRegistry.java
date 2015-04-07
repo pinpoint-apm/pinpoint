@@ -143,9 +143,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
         // apache nio http client
         // addModifier(new InternalHttpAsyncClientModifier(byteCodeInstrumentor, agent));
-        addModifier(new ClosableHttpAsyncClientModifier(byteCodeInstrumentor, agent));
+//        addModifier(new ClosableHttpAsyncClientModifier(byteCodeInstrumentor, agent));
         addModifier(new ClosableHttpClientModifier(byteCodeInstrumentor, agent));
-        addModifier(new BasicFutureModifier(byteCodeInstrumentor, agent));
+//        addModifier(new BasicFutureModifier(byteCodeInstrumentor, agent));
     }
 
     public void addArcusModifier() {

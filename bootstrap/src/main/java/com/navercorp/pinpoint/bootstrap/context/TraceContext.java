@@ -38,6 +38,8 @@ public interface TraceContext {
     Trace continueTraceObject(TraceId traceID);
 
     Trace newTraceObject();
+    
+    Trace continueAsyncTraceObject(TraceId traceId, int asyncId, long startTime);
 
     void attachTraceObject(Trace trace);
     
@@ -84,5 +86,6 @@ public interface TraceContext {
     void recordUserAcceptResponseTime(int elapsedTime);
     
     ServerMetaDataHolder getServerMetaDataHolder();
-    
+
+    int getAsyncId();
 }

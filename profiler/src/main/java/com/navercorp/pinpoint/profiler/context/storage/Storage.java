@@ -35,4 +35,9 @@ public interface Storage {
      * @param span
      */
     void store(Span span);
+    
+    void setAsync(boolean async);
+    
+    boolean isAsync();
+    
 }

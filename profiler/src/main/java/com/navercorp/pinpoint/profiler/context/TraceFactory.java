@@ -34,6 +34,8 @@ public interface TraceFactory {
     // picked as sampling target at remote
     Trace continueTraceObject(TraceId traceID);
 
+    Trace continueAsyncTraceObject(TraceId traceId, int asyncId, long startTime);
+    
     Trace newTraceObject();
 
     void attachTraceObject(Trace trace);

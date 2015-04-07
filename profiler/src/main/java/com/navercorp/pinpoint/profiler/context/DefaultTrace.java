@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -548,5 +549,45 @@ public final class DefaultTrace implements Trace {
     @Override
     public short getServiceType() {
         return currentStackFrame.getServiceType();
+    }
+
+    @Override
+    public void recordAsyncId(int asyncId) {
+        StackFrame currentStackFrame = this.currentStackFrame;
+        if(currentStackFrame instanceof SpanEventStackFrame) {
+            ((SpanEventStackFrame) currentStackFrame).setAsyncId(asyncId);
+        } else {
+            throw new PinpointException("not SpanEventStackFrame");
+        }
+    }
+
+    @Override
+    public void recordNextAsyncId(int asyncId) {
+        StackFrame currentStackFrame = this.currentStackFrame;
+        if(currentStackFrame instanceof SpanEventStackFrame) {
+            ((SpanEventStackFrame) currentStackFrame).setNextAsyncId(asyncId);
+        } else {
+            throw new PinpointException("not SpanEventStackFrame");
+        }
+    }
+
+    @Override
+    public boolean isAsync() {
+        return false;
+    }
+
+    @Override
+    public long getTraceStartTime() {
+        return callStack.getSpan().getStartTime();
+    }
+
+    @Override
+    public boolean isRootStack() {
+        return currentStackFrame != null ? currentStackFrame.getStackFrameId() == ROOT_STACKID : false;
+    }
+
+    @Override
+    public AsyncTraceId getAsyncTraceId() {
+        return new DefaultAsyncTraceId(traceId, traceContext.getAsyncId(), getTraceStartTime());
     }
 }

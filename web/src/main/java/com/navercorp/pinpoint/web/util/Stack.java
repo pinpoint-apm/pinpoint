@@ -49,6 +49,14 @@ public class Stack<T> {
         return stack.get(parent);
     }
 
+    public int size() {
+        return stack.size();
+    }
+    
+    public T get(int index) {
+        return stack.get(index);
+    }
+    
     @Override
     public String toString() {
         return "Stack{" +

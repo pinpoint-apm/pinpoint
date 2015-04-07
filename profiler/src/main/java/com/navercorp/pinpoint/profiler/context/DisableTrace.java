@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -202,6 +203,34 @@ public class DisableTrace  implements Trace {
     
     @Override
     public short getServiceType() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void recordAsyncId(int asyncId) {
+    }
+
+    @Override
+    public void recordNextAsyncId(int asyncId) {
+    }
+
+    @Override
+    public boolean isAsync() {
+        return false;
+    }
+
+    @Override
+    public long getTraceStartTime() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isRootStack() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public AsyncTraceId getAsyncTraceId() {
         throw new UnsupportedOperationException();
     }
 }

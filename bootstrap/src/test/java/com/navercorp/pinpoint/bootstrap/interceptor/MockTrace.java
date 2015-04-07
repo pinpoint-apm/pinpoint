@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
+
+import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.AnnotationKey;
@@ -212,5 +214,33 @@ public class MockTrace implements Trace {
     @Override
     public short getServiceType() {
         return ServiceType.UNDEFINED.getCode();
+    }
+
+    @Override
+    public void recordAsyncId(int asyncId) {
+    }
+
+    @Override
+    public void recordNextAsyncId(int asyncId) {
+    }
+
+    @Override
+    public boolean isAsync() {
+        return false;
+    }
+
+    @Override
+    public long getTraceStartTime() {
+        return 0;
+    }
+
+    @Override
+    public boolean isRootStack() {
+        return false;
+    }
+
+    @Override
+    public AsyncTraceId getAsyncTraceId() {
+        return null;
     }
 }

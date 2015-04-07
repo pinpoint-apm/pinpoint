@@ -109,7 +109,7 @@ public class HbaseTraceDao implements TracesDao {
         long acceptedTime0 = acceptedTimeService.getAcceptedTime();
         for (TSpanEvent spanEvent : spanEventBoList) {
             SpanEventBo spanEventBo = new SpanEventBo(span, spanEvent);
-            byte[] rowId = BytesUtils.add(spanEventBo.getSpanId(), spanEventBo.getSequence());
+            byte[] rowId = BytesUtils.add(spanEventBo.getSpanId(), spanEventBo.getSequence(), spanEventBo.getAsyncId());
             byte[] value = spanEventBo.writeValue();
             put.add(TRACES_CF_TERMINALSPAN, rowId, acceptedTime0, value);
         }
@@ -128,7 +128,7 @@ public class HbaseTraceDao implements TracesDao {
             SpanEventBo spanEventBo = new SpanEventBo(spanChunk, spanEvent);
 
             byte[] value = spanEventBo.writeValue();
-            byte[] rowId = BytesUtils.add(spanEventBo.getSpanId(), spanEventBo.getSequence());
+            byte[] rowId = BytesUtils.add(spanEventBo.getSpanId(), spanEventBo.getSequence(), spanEventBo.getAsyncId());
 
             put.add(TRACES_CF_TERMINALSPAN, rowId, acceptedTime, value);
         }
