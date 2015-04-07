@@ -40,17 +40,10 @@ public interface MethodEditorExceptionHandler {
         public void handle(String targetClassName, String targetMethodName, String[] targetMethodParameterTypes, Throwable exception) throws Throwable {
             // do nothing
         }
-    };
-    
-    public static final MethodEditorExceptionHandler IGNORE_NO_SUCH_METHOD = new MethodEditorExceptionHandler() {
-        
+
         @Override
-        public void handle(String targetClassName, String targetMethodName, String[] targetMethodParameterTypes, Throwable exception) throws Throwable {
-            if (exception instanceof NoSuchMethodException) {
-                return;
-            }
-            
-            throw exception;
+        public String toString() {
+            return "MethodEditorExceptionHandler.IGNORE";
         }
     };
 }

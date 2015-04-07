@@ -171,21 +171,6 @@ public class AsyncTrace implements Trace {
     }
 
     @Override
-    public Object getAttribute(String key) {
-        return trace.getAttribute(key);
-    }
-
-    @Override
-    public Object setAttribute(String key, Object value) {
-        return trace.setAttribute(key, value);
-    }
-
-    @Override
-    public Object removeAttribute(String key) {
-        return trace.removeAttribute(key);
-    }
-
-    @Override
     public void recordAsyncId(int asyncId) {
         trace.recordAsyncId(asyncId);
     }
@@ -219,21 +204,6 @@ public class AsyncTrace implements Trace {
     @Override
     public void traceBlockEnd(int stackId) {
         trace.traceBlockEnd(stackId);
-    }
-
-    @Override
-    public Object setTraceBlockAttachment(Object attachment) {
-        return trace.setTraceBlockAttachment(attachment);
-    }
-
-    @Override
-    public Object getTraceBlockAttachment() {
-        return trace.getTraceBlockAttachment();
-    }
-
-    @Override
-    public Object removeTraceBlockAttachment() {
-        return trace.removeTraceBlockAttachment();
     }
 
     @Override

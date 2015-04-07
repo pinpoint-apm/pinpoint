@@ -16,9 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,8 +50,6 @@ public class MetricTrace implements Trace {
     private final CallStack callStack;
 
     private final TraceContext traceContext;
-
-    private final Map<String, Object> attributeMap = new HashMap<String, Object>();
 
     // use for calculating depth of each Span.
     private int latestStackIndex = -1;
@@ -374,36 +369,6 @@ public class MetricTrace implements Trace {
     @Override
     public short getServiceType() {
         return currentStackFrame.getServiceType();
-    }
-    
-    @Override
-    public Object getAttribute(String key) {
-        return attributeMap.get(key);
-    }
-
-    @Override
-    public Object setAttribute(String key, Object value) {
-        return attributeMap.put(key, value);
-    }
-
-    @Override
-    public Object removeAttribute(String key) {
-        return attributeMap.remove(key);
-    }
-    
-    @Override
-    public Object setTraceBlockAttachment(Object attachment) {
-        return currentStackFrame.attachFrameObject(attachment);
-    }
-
-    @Override
-    public Object getTraceBlockAttachment() {
-        return currentStackFrame.getFrameObject();
-    }
-
-    @Override
-    public Object removeTraceBlockAttachment() {
-        return currentStackFrame.detachFrameObject();
     }
 
     @Override

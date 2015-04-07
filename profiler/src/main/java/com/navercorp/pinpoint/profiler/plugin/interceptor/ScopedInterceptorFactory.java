@@ -19,8 +19,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
-import com.navercorp.pinpoint.bootstrap.plugin.interceptor.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 
 /**
  * @author Jongho Moon

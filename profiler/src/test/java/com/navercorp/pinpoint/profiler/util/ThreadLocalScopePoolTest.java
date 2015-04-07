@@ -22,7 +22,7 @@ import org.junit.Test;
 import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.instrument.DefaultScopeDefinition;
 import com.navercorp.pinpoint.bootstrap.instrument.Scope;
-import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
 
 public class ThreadLocalScopePoolTest {
 
@@ -42,13 +42,17 @@ public class ThreadLocalScopePoolTest {
         ScopePool pool = new ThreadLocalScopePool();
         Scope scope = pool.getScope(new DefaultScopeDefinition("test"));
 
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
+        scope.tryEnter(ExecutionPoint.BOUNDARY);
+        scope.entered(ExecutionPoint.BOUNDARY);
+        
+        scope.tryEnter(ExecutionPoint.BOUNDARY);
+        
         Assert.assertNull(scope.getAttachment());
         scope.setAttachment("test");
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        
+        scope.tryLeave(ExecutionPoint.BOUNDARY);
         Assert.assertEquals(scope.getAttachment(), "test");
-        Assert.assertTrue(scope.tryAfter(ExecutionPoint.BOUNDARY));
+        Assert.assertTrue(scope.tryLeave(ExecutionPoint.BOUNDARY));
         
         Assert.assertEquals("name", scope.getName(), "test");
     }
@@ -59,8 +63,9 @@ public class ThreadLocalScopePoolTest {
         ScopePool pool = new ThreadLocalScopePool();
         Scope scope= pool.getScope(new DefaultScopeDefinition("test"));
         
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
+        scope.tryEnter(ExecutionPoint.BOUNDARY);
+        scope.entered(ExecutionPoint.BOUNDARY);
+        scope.tryEnter(ExecutionPoint.BOUNDARY);
 
         Assert.assertNull(scope.getAttachment());
         Assert.assertEquals(scope.getOrCreateAttachment(new AttachmentFactory() {
@@ -70,9 +75,9 @@ public class ThreadLocalScopePoolTest {
             };
         }), "test");
         
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        scope.tryLeave(ExecutionPoint.BOUNDARY);
         Assert.assertEquals(scope.getAttachment(), "test");
-        Assert.assertTrue(scope.tryAfter(ExecutionPoint.BOUNDARY));
+        Assert.assertTrue(scope.tryLeave(ExecutionPoint.BOUNDARY));
 
         Assert.assertEquals("name", scope.getName(), "test");
     }

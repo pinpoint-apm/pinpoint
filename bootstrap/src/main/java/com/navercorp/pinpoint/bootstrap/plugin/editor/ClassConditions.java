@@ -43,7 +43,6 @@ public class ClassConditions {
         return new HasConstructor(paramTypes);
     }
     
-    
     private static class HasField implements ClassCondition {
         private final String name;
         private final String type;
@@ -60,6 +59,11 @@ public class ClassConditions {
         @Override
         public boolean check(ProfilerPluginContext context, ClassLoader classLoader, InstrumentClass target) {
             return target.hasField(name, type);
+        }
+
+        @Override
+        public String toString() {
+            return "HasField[" + type + " " + name + "]";
         }
     }
     
@@ -78,6 +82,24 @@ public class ClassConditions {
         public boolean check(ProfilerPluginContext context, ClassLoader classLoader, InstrumentClass target) {
             return target.hasMethod(name, paramTypes, returnType);
         }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("HasMethod[");
+            builder.append(returnType);
+            builder.append(' ');
+            builder.append(name);
+            builder.append('(');
+            
+            for (String p : paramTypes) {
+                builder.append(p);
+            }
+            
+            builder.append(")]");
+            
+            return builder.toString();
+        }
     }
     
     private static class HasDeclaredMethod implements ClassCondition {
@@ -93,6 +115,22 @@ public class ClassConditions {
         public boolean check(ProfilerPluginContext context, ClassLoader classLoader, InstrumentClass target) {
             return target.hasDeclaredMethod(name, paramTypes);
         }
+        
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("HasMethod[");
+            builder.append(name);
+            builder.append('(');
+            
+            for (String p : paramTypes) {
+                builder.append(p);
+            }
+            
+            builder.append(")]");
+            
+            return builder.toString();
+        }
     }
     
     private static class HasConstructor implements ClassCondition {
@@ -105,6 +143,20 @@ public class ClassConditions {
         @Override
         public boolean check(ProfilerPluginContext context, ClassLoader classLoader, InstrumentClass target) {
             return target.hasConstructor(paramTypes);
+        }
+        
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("HasConstructor[");
+            
+            for (String p : paramTypes) {
+                builder.append(p);
+            }
+            
+            builder.append(")]");
+            
+            return builder.toString();
         }
     }
 }

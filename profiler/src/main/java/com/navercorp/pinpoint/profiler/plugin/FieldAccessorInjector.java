@@ -26,18 +26,22 @@ import com.navercorp.pinpoint.profiler.plugin.editor.ClassRecipe;
  * @author Jongho Moon <jongho.moon@navercorp.com>
  *
  */
-public class FieldSnooperInjector implements ClassRecipe {
-    
-    private final FieldAccessor snooper;
+public class FieldAccessorInjector implements ClassRecipe {
+    private final FieldAccessor accessor;
     private final String fieldName;
     
-    public FieldSnooperInjector(FieldAccessor snooper, String fieldName) {
-        this.snooper = snooper;
+    public FieldAccessorInjector(FieldAccessor accessor, String fieldName) {
+        this.accessor = accessor;
         this.fieldName = fieldName;
     }
 
     @Override
     public void edit(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
-        target.addGetter(snooper.getType(), fieldName);
+        target.addGetter(accessor.getType(), fieldName);
+    }
+
+    @Override
+    public String toString() {
+        return "FieldAccessorInjector[field=" + fieldName + "]";
     }
 }

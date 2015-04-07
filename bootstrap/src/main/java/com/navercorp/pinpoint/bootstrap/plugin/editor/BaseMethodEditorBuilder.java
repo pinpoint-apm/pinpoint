@@ -14,7 +14,6 @@
  */
 package com.navercorp.pinpoint.bootstrap.plugin.editor;
 
-import com.navercorp.pinpoint.bootstrap.plugin.interceptor.InterceptorBuilder;
 
 /**
  * @author Jongho Moon

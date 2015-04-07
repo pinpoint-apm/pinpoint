@@ -140,4 +140,19 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
         
         return new FilteringMethodEditor(filter, Arrays.<MethodRecipe>asList(injector), null);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("TargetAnnotatedInterceptorInjector [interceptorClass=");
+        builder.append(interceptorName);
+        
+        if (providedArguments != null) {
+            builder.append(", constructorArguments=");
+            builder.append(Arrays.toString(providedArguments));
+        }
+        
+        builder.append(']');
+        return builder.toString();
+    }
 }

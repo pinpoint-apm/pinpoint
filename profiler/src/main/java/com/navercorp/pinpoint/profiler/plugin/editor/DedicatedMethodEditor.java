@@ -76,4 +76,25 @@ public class DedicatedMethodEditor implements MethodEditor {
             }
         }
     }
+    
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("MethodEditor[method=");
+        builder.append(targetMethodName);
+        builder.append('(');
+        builder.append(Arrays.toString(targetMethodParameterTypes));
+        builder.append("), recipes=");
+        builder.append(recipes);
+        builder.append(", ignoreIfNotExist=");
+        builder.append(ignoreIfNotExist);
+        
+        if (exceptionHandler != null) {
+            builder.append(", exceptionHandler=");
+            builder.append(exceptionHandler);
+        }
+        
+        builder.append(']');
+        return builder.toString();
+    }
 }

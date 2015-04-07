@@ -39,4 +39,8 @@ public class ClassCookBook implements ClassRecipe {
         }
     }
 
+    @Override
+    public String toString() {
+        return recipes.toString();
+    }
 }

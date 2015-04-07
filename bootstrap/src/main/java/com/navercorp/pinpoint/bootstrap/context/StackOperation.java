@@ -36,11 +36,5 @@ public interface StackOperation {
     void traceBlockEnd();
 
     void traceBlockEnd(int stackId);
-    
-    
-    Object setTraceBlockAttachment(Object attachment);
-    Object getTraceBlockAttachment();
-    Object removeTraceBlockAttachment();
-    
     boolean isRootStack();
 }

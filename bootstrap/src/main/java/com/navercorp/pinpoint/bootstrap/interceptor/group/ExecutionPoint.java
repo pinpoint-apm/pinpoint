@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.plugin.interceptor;
+package com.navercorp.pinpoint.bootstrap.interceptor.group;
 
 /**
  * @author Jongho Moon
@@ -21,5 +21,5 @@ package com.navercorp.pinpoint.bootstrap.plugin.interceptor;
 public enum ExecutionPoint {
     ALWAYS,
     BOUNDARY,
-    INTERIOR
+    INTERNAL
 }

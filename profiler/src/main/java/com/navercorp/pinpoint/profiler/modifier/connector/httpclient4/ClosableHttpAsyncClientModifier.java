@@ -58,7 +58,7 @@ public class ClosableHttpAsyncClientModifier extends AbstractModifier {
             InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
  
             /**
-             * Below two methods are overloaded, but they don't call each other. No Scope required.
+             * Below two methods are overloaded, but they don't call each other. No Group required.
              */
             Interceptor executeInterceptor = byteCodeInstrumentor.newInterceptor(classLoader,
                     protectedDomain,

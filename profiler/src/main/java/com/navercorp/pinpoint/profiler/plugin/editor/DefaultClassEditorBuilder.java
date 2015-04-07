@@ -24,6 +24,7 @@ import java.util.List;
 import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassCondition;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassInstrumentation;
@@ -31,13 +32,12 @@ import com.navercorp.pinpoint.bootstrap.plugin.editor.ConditionalClassEditorBuil
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ConditionalClassEditorSetup;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.ConstructorEditorBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.DedicatedClassEditor;
+import com.navercorp.pinpoint.bootstrap.plugin.editor.InterceptorBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorExceptionHandler;
 import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorProperty;
-import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
-import com.navercorp.pinpoint.bootstrap.plugin.interceptor.InterceptorBuilder;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
-import com.navercorp.pinpoint.profiler.plugin.FieldSnooperInjector;
+import com.navercorp.pinpoint.profiler.plugin.FieldAccessorInjector;
 import com.navercorp.pinpoint.profiler.plugin.MetadataInitializationStrategy.ByConstructor;
 import com.navercorp.pinpoint.profiler.plugin.MetadataInjector;
 import com.navercorp.pinpoint.profiler.plugin.interceptor.AnnotatedInterceptorInjector;
@@ -78,19 +78,19 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder, Conditiona
     @Override
     public void injectFieldAccessor(String fieldName) {
         FieldAccessor snooper = pluginContext.allocateFieldSnooper(fieldName);
-        recipes.add(new FieldSnooperInjector(snooper, fieldName));
+        recipes.add(new FieldAccessorInjector(snooper, fieldName));
     }
     
     @Override
     public void injectMetadata(String name) {
         MetadataAccessor accessor = pluginContext.allocateMetadataAccessor(name);
-        recipes.add(new MetadataInjector(accessor));
+        recipes.add(new MetadataInjector(name, accessor));
     }
     
     @Override
     public void injectMetadata(String name, String initialValueType) {
         MetadataAccessor accessor = pluginContext.allocateMetadataAccessor(name);
-        recipes.add(new MetadataInjector(accessor, new ByConstructor(initialValueType)));
+        recipes.add(new MetadataInjector(name, accessor, new ByConstructor(initialValueType)));
     }
     
     @Override

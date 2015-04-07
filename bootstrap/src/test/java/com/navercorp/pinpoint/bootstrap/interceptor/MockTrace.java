@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
-import java.util.HashMap;
-import java.util.Map;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -39,10 +37,7 @@ public class MockTrace implements Trace {
     private boolean sampled = true;
 
     private Clock clock = SystemClock.INSTANCE;
-    
-    private final Map<String, Object> attributeMap = new HashMap<String, Object>();
-    private Object attachment;
-    
+        
     public void setClock(Clock clock) {
         this.clock = clock;
     }
@@ -219,40 +214,6 @@ public class MockTrace implements Trace {
     @Override
     public short getServiceType() {
         return ServiceType.UNDEFINED.getCode();
-    }
-    
-    @Override
-    public Object getAttribute(String key) {
-        return attributeMap.get(key);
-    }
-
-    @Override
-    public Object setAttribute(String key, Object value) {
-        return attributeMap.put(key, value);
-    }
-
-    @Override
-    public Object removeAttribute(String key) {
-        return attributeMap.remove(key);
-    }
-
-    @Override
-    public Object setTraceBlockAttachment(Object attachment) {
-        Object copy = this.attachment;
-        this.attachment = attachment;
-        return copy;
-    }
-
-    @Override
-    public Object getTraceBlockAttachment() {
-        return this.attachment;
-    }
-
-    @Override
-    public Object removeTraceBlockAttachment() {
-        Object copy = this.attachment;
-        this.attachment = null;
-        return copy;
     }
 
     @Override

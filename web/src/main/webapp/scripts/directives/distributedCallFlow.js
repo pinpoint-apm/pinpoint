@@ -23,11 +23,11 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
 
                 /**
                  * get color by string
-                 * @param str
+                 * @param idx
                  * @returns {string}
                  */
                 getColorByString = function(str) {
-                    // str to hash
+                	// str to hash
                     for (var i = 0, hash = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash));
                     // int/hash to hex
                     for (var i = 0, colour = "#"; i < 3; colour += ("00" + ((hash >> i++ * 8) & 0xFF).toString(16)).slice(-2));
@@ -59,8 +59,10 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                     } else if (!item.isMethod) {
                         divClass += ' not-method';
                     }
+
+                    
                     html.push('<div class="'+divClass+'" data-container=".grid-canvas" data-toggle="popover" data-trigger="manual" data-placement="right" data-content="'+value+'">');
-                    html.push("<div style='position:absolute;top:0;left:0;bottom:0;width:5px;background-color:"+leftBarColor+"'></div>");
+                    html.push("<div style='position:absolute;top:0;left:0;bottom:0;width:5px;background-color:"+ leftBarColor +"'></div>");
                     html.push("<span style='display:inline-block;height:1px;width:" + (15 * dataContext["indent"]) + "px'></span>");
 
                     if (window.callStacks[idx + 1] && window.callStacks[idx + 1].indent > window.callStacks[idx].indent) {
@@ -210,6 +212,7 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                             isMethod: val[index['isMethod']] ,
                             logLink : val[index['logPageUrl']],
                             logButtonName : val[index['logButtonName']],
+                            isFocused : val[index['isFocused']]
                         });
                     });
                     return result;
@@ -248,6 +251,17 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
 //                            };
 //                        }
 //                    };
+                    dataView.getItemMetadata = function( row ) {
+                    	var item = dataView.getItemByIdx(row);
+                    	var o = { cssClasses: "" };
+                    	if ( item.isFocused === true ) {
+                    		o.cssClasses += " entry-point";
+                    	}
+                    	if ( item.execTime !== null ) {
+                    		o.cssClasses += " id_" + (row+1);
+                    	}
+                    	return o;
+                    };
                     dataView.endUpdate();
 
                     var columns = [
@@ -268,6 +282,7 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                     }
                     
                     grid = new Slick.Grid(element.get(0), dataView, columns, options);
+                    grid.setSelectionModel(new Slick.RowSelectionModel());
 
                     var isSingleClick = true, clickTimeout = false;
                     grid.onClick.subscribe(function (e, args) {
@@ -376,6 +391,11 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                 scope.$on('distributedCallFlow.resize.' + scope.namespace, function (event) {
                     grid.resizeCanvas();
                 });
+                scope.$on("distributedCallFlow.selectRow." + scope.namespace, function( event, rowId ) {
+                	var gridRow = rowId - 1;
+                	grid.setSelectedRows( [gridRow] );
+                	grid.scrollRowToTop( gridRow );
+            	});
             }
         };
     }

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.plugin.interceptor;
+package com.navercorp.pinpoint.bootstrap.interceptor.group;
 
 import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 

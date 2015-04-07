@@ -43,11 +43,11 @@ import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupp
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
 import com.navercorp.pinpoint.bootstrap.interceptor.http.HttpCallContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
-import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
@@ -94,17 +94,19 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
 
     @Override
     public void before(Object target, Object[] args) {
-        if (!scope.tryBefore(ExecutionPoint.BOUNDARY)) {
+        if (!scope.tryEnter(ExecutionPoint.BOUNDARY)) {
             return;
         }
 
         before2(target, args);
+        scope.entered(ExecutionPoint.BOUNDARY);
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (scope.tryAfter(ExecutionPoint.BOUNDARY)) {
+        if (scope.tryLeave(ExecutionPoint.BOUNDARY)) {
             after2(target, args, result, throwable);
+            scope.leaved(ExecutionPoint.BOUNDARY);
         } else {
             addStatusCode(result);
         }

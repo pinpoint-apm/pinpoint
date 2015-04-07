@@ -32,6 +32,9 @@ pinpointApp.directive('transactionTable', ['$window', function ($window) {
                     scope.transactionReverse = false;
                     element.find('table tbody tr:last-child')[0].scrollIntoView(true);
 //                    $(".transaction-table_wrapper").animate({ scrollTop: element.find('table tbody tr:last-child').offset().top }, 500);
+                } else {
+	                scope.transactionOrderBy = 'elapsed';
+	                scope.transactionReverse = true;
                 }
                 scope.transactionList = scope.transactionList.concat(transactionList);
                 resetIndexToTransactionList();

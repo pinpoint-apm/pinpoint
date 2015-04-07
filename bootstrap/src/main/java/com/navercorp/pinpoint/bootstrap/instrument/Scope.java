@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument;
 
-import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
 
 /**
  * @author emeroad
@@ -24,8 +24,12 @@ import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
 public interface Scope {
     String getName();
 
-    boolean tryBefore(ExecutionPoint point);
-    boolean tryAfter(ExecutionPoint point);
+    boolean tryEnter(ExecutionPoint point);
+    boolean tryLeave(ExecutionPoint point);
+    
+    void entered(ExecutionPoint point);
+    void leaved(ExecutionPoint point);
+    
     boolean isIn();
     
     Object setAttachment(Object attachment);

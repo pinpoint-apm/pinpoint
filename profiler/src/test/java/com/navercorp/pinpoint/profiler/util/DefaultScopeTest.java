@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import com.navercorp.pinpoint.bootstrap.instrument.Scope;
-import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
 import com.navercorp.pinpoint.profiler.plugin.DefaultScope;
 
 
@@ -32,28 +32,35 @@ public class DefaultScopeTest {
         
         assertFalse(scope.isIn());
         
-        assertFalse(scope.tryBefore(ExecutionPoint.INTERIOR));
+        assertFalse(scope.tryEnter(ExecutionPoint.INTERNAL));
         assertFalse(scope.isIn());
         
-        assertTrue(scope.tryBefore(ExecutionPoint.BOUNDARY));
+        assertTrue(scope.tryEnter(ExecutionPoint.BOUNDARY));
+        assertTrue(scope.isIn());
+        scope.entered(ExecutionPoint.BOUNDARY);
         assertTrue(scope.isIn());
         
-        assertTrue(scope.tryBefore(ExecutionPoint.INTERIOR));
+        assertTrue(scope.tryEnter(ExecutionPoint.INTERNAL));
+        assertTrue(scope.isIn());
+        scope.entered(ExecutionPoint.INTERNAL);
         assertTrue(scope.isIn());
         
-        assertFalse(scope.tryBefore(ExecutionPoint.BOUNDARY));
+        assertFalse(scope.tryEnter(ExecutionPoint.BOUNDARY));
         assertTrue(scope.isIn());
         
-        assertFalse(scope.tryAfter(ExecutionPoint.BOUNDARY));
+        assertFalse(scope.tryLeave(ExecutionPoint.BOUNDARY));
         assertTrue(scope.isIn());
         
-        assertTrue(scope.tryAfter(ExecutionPoint.INTERIOR));
+        assertTrue(scope.tryLeave(ExecutionPoint.INTERNAL));
+        scope.leaved(ExecutionPoint.INTERNAL);
         assertTrue(scope.isIn());
         
-        assertTrue(scope.tryAfter(ExecutionPoint.BOUNDARY));
+        assertTrue(scope.tryLeave(ExecutionPoint.BOUNDARY));
+        assertTrue(scope.isIn());
+        scope.leaved(ExecutionPoint.BOUNDARY);
         assertFalse(scope.isIn());
         
-        assertFalse(scope.tryAfter(ExecutionPoint.INTERIOR));
+        assertFalse(scope.tryLeave(ExecutionPoint.INTERNAL));
         assertFalse(scope.isIn());
     }
     
@@ -63,16 +70,24 @@ public class DefaultScopeTest {
         
         assertFalse(scope.isIn());
         
-        assertTrue(scope.tryBefore(ExecutionPoint.ALWAYS));
+        assertTrue(scope.tryEnter(ExecutionPoint.ALWAYS));
+        assertTrue(scope.isIn());
+        scope.entered(ExecutionPoint.ALWAYS);
         assertTrue(scope.isIn());
         
-        assertTrue(scope.tryBefore(ExecutionPoint.ALWAYS));
+        assertTrue(scope.tryEnter(ExecutionPoint.ALWAYS));
+        assertTrue(scope.isIn());
+        scope.entered(ExecutionPoint.ALWAYS);
         assertTrue(scope.isIn());
         
-        assertTrue(scope.tryAfter(ExecutionPoint.ALWAYS));
+        assertTrue(scope.tryLeave(ExecutionPoint.ALWAYS));
+        assertTrue(scope.isIn());
+        scope.leaved(ExecutionPoint.ALWAYS);
         assertTrue(scope.isIn());
         
-        assertTrue(scope.tryAfter(ExecutionPoint.ALWAYS));
+        assertTrue(scope.tryLeave(ExecutionPoint.ALWAYS));
+        assertTrue(scope.isIn());
+        scope.leaved(ExecutionPoint.ALWAYS);
         assertFalse(scope.isIn());
     }
 
@@ -81,19 +96,23 @@ public class DefaultScopeTest {
         String attachment = "context";
         Scope scope = new DefaultScope("test");
         
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
+        scope.tryEnter(ExecutionPoint.ALWAYS);
+        scope.entered(ExecutionPoint.ALWAYS);
         assertNull(scope.getAttachment());
         
         scope.setAttachment(attachment);
         assertSame(scope.getAttachment(), attachment);
 
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
+        scope.tryEnter(ExecutionPoint.ALWAYS);
+        scope.entered(ExecutionPoint.ALWAYS);
         assertSame(scope.getAttachment(), attachment);
 
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        scope.tryLeave(ExecutionPoint.ALWAYS);
+        scope.leaved(ExecutionPoint.ALWAYS);
         assertSame(scope.getAttachment(), attachment);
         
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        scope.tryLeave(ExecutionPoint.ALWAYS);
+        scope.leaved(ExecutionPoint.ALWAYS);
     }
 
     @Test
@@ -101,14 +120,18 @@ public class DefaultScopeTest {
         String attachment = "context";
         Scope scope = new DefaultScope("test");
 
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
+        scope.tryEnter(ExecutionPoint.ALWAYS);
+        scope.entered(ExecutionPoint.ALWAYS);
         assertNull(scope.getAttachment());
         scope.setAttachment(attachment);
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        scope.tryLeave(ExecutionPoint.ALWAYS);
+        scope.leaved(ExecutionPoint.ALWAYS);
 
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
+        scope.tryEnter(ExecutionPoint.ALWAYS);
+        scope.entered(ExecutionPoint.ALWAYS);
         assertNull(scope.getAttachment());
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        scope.tryLeave(ExecutionPoint.ALWAYS);
+        scope.leaved(ExecutionPoint.ALWAYS);
     }
     
     @Test
@@ -117,14 +140,16 @@ public class DefaultScopeTest {
         String newAttachment = "newnew";
         Scope scope = new DefaultScope("test");
 
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
+        scope.tryEnter(ExecutionPoint.ALWAYS);
+        scope.entered(ExecutionPoint.ALWAYS);
         scope.setAttachment(oldAttachment);
         assertSame(oldAttachment, scope.getAttachment());
         assertSame(oldAttachment, scope.setAttachment(newAttachment));
         assertSame(newAttachment, scope.getAttachment());
         assertSame(newAttachment, scope.removeAttachment());
         assertNull(scope.getAttachment());
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        scope.tryLeave(ExecutionPoint.ALWAYS);
+        scope.leaved(ExecutionPoint.ALWAYS);
     }
     
     @Test(expected=IllegalStateException.class)
@@ -137,8 +162,10 @@ public class DefaultScopeTest {
     public void testSetAttachmentFail2() {
         Scope scope = new DefaultScope("test");
 
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        scope.tryEnter(ExecutionPoint.ALWAYS);
+        scope.entered(ExecutionPoint.ALWAYS);
+        scope.tryLeave(ExecutionPoint.ALWAYS);
+        scope.leaved(ExecutionPoint.ALWAYS);
 
         scope.setAttachment("attachment");
     }
@@ -153,8 +180,10 @@ public class DefaultScopeTest {
     public void testGetAttachmentFail2() {
         Scope scope = new DefaultScope("test");
 
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        scope.tryEnter(ExecutionPoint.ALWAYS);
+        scope.entered(ExecutionPoint.ALWAYS);
+        scope.tryLeave(ExecutionPoint.ALWAYS);
+        scope.leaved(ExecutionPoint.ALWAYS);
 
         scope.getAttachment();
     }
@@ -169,8 +198,10 @@ public class DefaultScopeTest {
     public void testRemoveAttachmentFail2() {
         Scope scope = new DefaultScope("test");
 
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        scope.tryEnter(ExecutionPoint.ALWAYS);
+        scope.entered(ExecutionPoint.ALWAYS);
+        scope.tryLeave(ExecutionPoint.ALWAYS);
+        scope.leaved(ExecutionPoint.ALWAYS);
 
         scope.removeAttachment();
     }
@@ -178,18 +209,18 @@ public class DefaultScopeTest {
     @Test(expected=IllegalStateException.class)
     public void testAfterWithoutBefore() {
         Scope scope = new DefaultScope("test");
-        scope.tryAfter(ExecutionPoint.ALWAYS);
+        scope.leaved(ExecutionPoint.ALWAYS);
     }
     
     @Test(expected=IllegalStateException.class)
     public void testAfterWithoutBefore2() {
         Scope scope = new DefaultScope("test");
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        scope.leaved(ExecutionPoint.BOUNDARY);
     }
     
-    @Test
+    @Test(expected=IllegalStateException.class)
     public void testAfterWithoutBefore3() {
         Scope scope = new DefaultScope("test");
-        assertFalse(scope.tryAfter(ExecutionPoint.INTERIOR));
+        scope.leaved(ExecutionPoint.INTERNAL);
     }
 }

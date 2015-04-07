@@ -22,9 +22,9 @@ import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupp
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.interceptor.ExecutionPoint;
 
 /**
  * @author emeroad
@@ -50,24 +50,26 @@ public class DebugScopeDelegateSimpleInterceptor implements SimpleAroundIntercep
 
     @Override
     public void before(Object target, Object[] args) {
-        if (!scope.tryBefore(ExecutionPoint.BOUNDARY)) {
+        if (!scope.tryEnter(ExecutionPoint.BOUNDARY)) {
             if (isDebug) {
                 logger.debug("tryBefore() returns false {}. skip trace. {}", new Object[]{scope, delegate.getClass()});
             }
             return;
         }
         this.delegate.before(target, args);
+        scope.entered(ExecutionPoint.BOUNDARY);
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (!scope.tryAfter(ExecutionPoint.BOUNDARY)) {
+        if (!scope.tryLeave(ExecutionPoint.BOUNDARY)) {
             if (isDebug) {
                 logger.debug("tryAfter() returns false {}. skip trace. {}", new Object[]{scope, delegate.getClass()});
             }
             return;
         }
         this.delegate.after(target, args, result, throwable);
+        scope.leaved(ExecutionPoint.BOUNDARY);
     }
 
     @Override

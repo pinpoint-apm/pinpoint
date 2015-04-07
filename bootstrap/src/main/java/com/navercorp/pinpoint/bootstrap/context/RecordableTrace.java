@@ -95,12 +95,6 @@ public interface RecordableTrace {
     void recordAcceptorHost(String host);
 
     int getStackFrameId();
-
-    Object getAttribute(String key);
-    
-    Object setAttribute(String key, Object value);
-    
-    Object removeAttribute(String key);
     
     void recordAsyncId(int asyncId);
     
@@ -108,6 +102,5 @@ public interface RecordableTrace {
     
     boolean isAsync();
     
-    long getTraceStartTime();
-   
+    long getTraceStartTime(); 
 }
