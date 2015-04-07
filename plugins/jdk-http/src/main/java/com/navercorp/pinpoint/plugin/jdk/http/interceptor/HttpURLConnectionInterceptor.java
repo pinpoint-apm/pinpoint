@@ -26,11 +26,12 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.Cached;
-import com.navercorp.pinpoint.bootstrap.plugin.Name;
 import com.navercorp.pinpoint.bootstrap.plugin.Group;
+import com.navercorp.pinpoint.bootstrap.plugin.Name;
 import com.navercorp.pinpoint.bootstrap.plugin.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.plugin.Targets;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
@@ -56,12 +57,14 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
     private final MethodDescriptor descriptor;
     private final FieldAccessor connectedAccessor;
     private final FieldAccessor connectingAccessor;
+    private final InterceptorGroup group;
     
-    public HttpURLConnectionInterceptor(TraceContext traceContext, @Cached MethodDescriptor descriptor, @Name("connected") FieldAccessor connectedAccessor, @Name("connecting") FieldAccessor connectingAccessor) {
+    public HttpURLConnectionInterceptor(TraceContext traceContext, @Cached MethodDescriptor descriptor, @Name("connected") FieldAccessor connectedAccessor, @Name("connecting") FieldAccessor connectingAccessor, InterceptorGroup group) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
         this.connectedAccessor = connectedAccessor;
         this.connectingAccessor = connectingAccessor;
+        this.group = group;
     }
 
     @Override
@@ -89,8 +92,9 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
             return;
         }
 
+        group.getCurrentTransaction().setAttachment(TRACE_BLOCK_BEGIN_MARKER);
+        
         trace.traceBlockBegin();
-        trace.setTraceBlockAttachment(TRACE_BLOCK_BEGIN_MARKER);
         trace.markBeforeTime();
 
         TraceId nextId = trace.getTraceId().getNextTraceId();
@@ -141,7 +145,7 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
             return;
         }
         
-        Object marker = trace.getTraceBlockAttachment();
+        Object marker = group.getCurrentTransaction().getAttachment();
         
         if (marker != TRACE_BLOCK_BEGIN_MARKER) {
             return;

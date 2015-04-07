@@ -25,7 +25,9 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
 public class DefaultScope implements Scope {
     private final String name;
     private Object attachment = null;
+    
     private int depth = 0;
+    private int skippedBoundary = 0;
     
     public DefaultScope(String name) {
         this.name = name;
@@ -37,47 +39,86 @@ public class DefaultScope implements Scope {
     }
     
     @Override
-    public boolean tryBefore(ExecutionPoint point) {
+    public boolean tryEnter(ExecutionPoint point) {
         switch (point) {
-        case BOUNDARY:
-            return ++depth == 1;
-        case INTERIOR:
-            return depth > 0;
         case ALWAYS:
             depth++;
             return true;
+        case BOUNDARY:
+            if (isIn()) {
+                skippedBoundary++;
+                return false;
+            } else {
+                depth++;
+                return true;
+            }
+        case INTERNAL:
+            if (isIn()) {
+                depth++;
+                return true;
+            } else {
+                return false;
+            }
+        default:
+            throw new IllegalArgumentException("Unexpected: " + point);
         }
-        
-        throw new IllegalArgumentException("Unexpected: " + point);
     }
     
-    private void decreaseDepth() {
-        if (depth == 0) {
-            throw new IllegalStateException();
-        }
-        
-        depth--;
-        
-        if (depth == 0) {
-            attachment = null;
+    @Override
+    public void entered(ExecutionPoint point) {
+        // do nothing
+    }
+
+    @Override
+    public boolean tryLeave(ExecutionPoint point) {
+        switch (point) {
+        case ALWAYS:
+            return true;
+        case BOUNDARY:
+            if (skippedBoundary == 0 && depth == 1) {
+                return true;
+            } else {
+                skippedBoundary--;
+                return false;
+            }
+        case INTERNAL:
+            return depth > 1;
+        default:
+            throw new IllegalArgumentException("Unexpected: " + point);
         }
     }
 
     @Override
-    public boolean tryAfter(ExecutionPoint point) {
-        switch (point) {
-        case BOUNDARY:
-            decreaseDepth();
-            return depth == 0;
-        case INTERIOR:
-            return depth > 0;
-        case ALWAYS:
-            decreaseDepth();
-            return true;
+    public void leaved(ExecutionPoint point) {
+        if (depth == 0) {
+            throw new IllegalStateException();
         }
-        
-        throw new IllegalArgumentException("Unexpected: " + point);
+
+        switch (point) {
+        case ALWAYS:
+            break;
+            
+        case BOUNDARY:
+            if (skippedBoundary != 0 || depth != 1) {
+                throw new IllegalStateException("Cannot leave with BOUNDARY interceptor. depth: " + depth);
+            }
+            break;
+            
+        case INTERNAL:
+            if (depth <= 1) {
+                throw new IllegalStateException("Cannot leave with INTERNAL interceptor. depth: " + depth);
+            }
+            break;
+            
+        default:
+            throw new IllegalArgumentException("Unexpected: " + point);
+        }
+
+        if (--depth == 0) {
+            attachment = null;
+        }
     }
+
 
     @Override
     public boolean isIn() {
@@ -130,7 +171,7 @@ public class DefaultScope implements Scope {
 
     @Override
     public String toString() {
-        return "Group(" + name + ")[depth=" + depth +"]";
+        return "InterceptorGroupTransaction(" + name + ")[depth=" + depth +"]";
     }
     
     

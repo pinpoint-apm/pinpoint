@@ -42,17 +42,29 @@ public class ThreadLocalScope implements Scope {
             }
         };
     }
-
+    
     @Override
-    public boolean tryBefore(ExecutionPoint point) {
+    public void entered(ExecutionPoint point) {
         final Scope localScope = getLocalScope();
-        return localScope.tryBefore(point);
+        localScope.entered(point);
     }
 
     @Override
-    public boolean tryAfter(ExecutionPoint point) {
+    public void leaved(ExecutionPoint point) {
         final Scope localScope = getLocalScope();
-        return localScope.tryAfter(point);
+        localScope.leaved(point);
+    }
+
+    @Override
+    public boolean tryEnter(ExecutionPoint point) {
+        final Scope localScope = getLocalScope();
+        return localScope.tryEnter(point);
+    }
+
+    @Override
+    public boolean tryLeave(ExecutionPoint point) {
+        final Scope localScope = getLocalScope();
+        return localScope.tryLeave(point);
     }
 
     protected Scope getLocalScope() {

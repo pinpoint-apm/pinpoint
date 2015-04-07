@@ -47,24 +47,26 @@ public class DebugScopeDelegateStaticInterceptor implements StaticAroundIntercep
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        if (!scope.tryBefore(ExecutionPoint.BOUNDARY)) {
+        if (!scope.tryEnter(ExecutionPoint.BOUNDARY)) {
             if (isDebug) {
                 logger.debug("tryBefore() returns false {}. skip trace. {}", new Object[]{scope, delegate.getClass()});
             }
             return;
         }
         this.delegate.before(target, className, methodName, parameterDescription, args);
+        scope.entered(ExecutionPoint.BOUNDARY);
     }
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
-        if (!scope.tryAfter(ExecutionPoint.BOUNDARY)) {
+        if (!scope.tryLeave(ExecutionPoint.BOUNDARY)) {
             if (isDebug) {
                 logger.debug("tryAfter() returns false {}. skip trace. {}", new Object[]{scope, delegate.getClass()});
             }
             return;
         }
         this.delegate.after(target, className, methodName, parameterDescription, args, result, throwable);
+        scope.leaved(ExecutionPoint.BOUNDARY);
     }
 
 

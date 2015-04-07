@@ -46,15 +46,17 @@ public class ScopeDelegateSimpleInterceptor implements SimpleAroundInterceptor, 
 
     @Override
     public void before(Object target, Object[] args) {
-        if (scope.tryBefore(ExecutionPoint.BOUNDARY)) {
+        if (scope.tryEnter(ExecutionPoint.BOUNDARY)) {
             this.delegate.before(target, args);
+            scope.entered(ExecutionPoint.BOUNDARY);
         }
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (scope.tryAfter(ExecutionPoint.BOUNDARY)) {
+        if (scope.tryLeave(ExecutionPoint.BOUNDARY)) {
             this.delegate.after(target, args, result, throwable);
+            scope.leaved(ExecutionPoint.BOUNDARY);
         }
     }
 
