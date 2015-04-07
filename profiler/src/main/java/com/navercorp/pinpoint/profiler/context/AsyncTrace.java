@@ -191,8 +191,8 @@ public class AsyncTrace implements Trace {
     }
 
     @Override
-    public void recordnextAsyncId(int asyncId) {
-        trace.recordnextAsyncId(asyncId);
+    public void recordNextAsyncId(int asyncId) {
+        trace.recordNextAsyncId(asyncId);
     }
 
     @Override

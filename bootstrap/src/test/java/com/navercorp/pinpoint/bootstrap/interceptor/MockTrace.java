@@ -260,7 +260,7 @@ public class MockTrace implements Trace {
     }
 
     @Override
-    public void recordnextAsyncId(int asyncId) {
+    public void recordNextAsyncId(int asyncId) {
     }
 
     @Override

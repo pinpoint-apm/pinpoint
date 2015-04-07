@@ -43,7 +43,7 @@ public class DefaultClientExchangeHandlerImplConstructorInterceptor implements S
             }
 
             final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-            trace.recordnextAsyncId(asyncTraceId.getAsyncId());
+            trace.recordNextAsyncId(asyncTraceId.getAsyncId());
             asyncTraceIdAccessor.set(args[4], asyncTraceId);
             logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
         } catch (Throwable t) {

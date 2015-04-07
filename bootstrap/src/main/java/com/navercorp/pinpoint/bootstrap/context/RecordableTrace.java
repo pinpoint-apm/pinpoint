@@ -104,7 +104,7 @@ public interface RecordableTrace {
     
     void recordAsyncId(int asyncId);
     
-    void recordnextAsyncId(int asyncId);
+    void recordNextAsyncId(int asyncId);
     
     boolean isAsync();
     

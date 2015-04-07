@@ -597,7 +597,7 @@ public final class DefaultTrace implements Trace {
     }
 
     @Override
-    public void recordnextAsyncId(int asyncId) {
+    public void recordNextAsyncId(int asyncId) {
         StackFrame currentStackFrame = this.currentStackFrame;
         if(currentStackFrame instanceof SpanEventStackFrame) {
             ((SpanEventStackFrame) currentStackFrame).setNextAsyncId(asyncId);
