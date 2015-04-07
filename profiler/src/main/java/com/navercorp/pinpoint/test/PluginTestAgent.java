@@ -156,7 +156,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
 
     @Override
-    public void verifySpanCount(int expected) {
+    public void verifyTraceBlockCount(int expected) {
         int actual = getTBaseRecorder().size();
         
         if (expected != actual) {
@@ -174,11 +174,11 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         return serviceType;
     }
     
-    private Class<?> resolveSpanClass(SpanType type) {
+    private Class<?> resolveSpanClass(BlockType type) {
         switch (type) {
-        case SPAN:
+        case ROOT:
             return Span.class;
-        case SPAN_EVENT:
+        case EVENT:
             return SpanEvent.class;
         }
         
@@ -186,7 +186,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
     
     @Override
-    public void verifySpan(SpanType type, String serviceTypeName, ExpectedAnnotation... annotations) {
+    public void verifyTraceBlock(BlockType type, String serviceTypeName, ExpectedAnnotation... annotations) {
         ServiceType serviceType = findServiceType(serviceTypeName);
         Class<?> spanClass = resolveSpanClass(type);
         
@@ -196,7 +196,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
     
     @Override
-    public void verifySpan(SpanType type, String serviceTypeName, Method method, String rpc, String endPoint, String remoteAddr, String destinationId, ExpectedAnnotation... annotations) {
+    public void verifyTraceBlock(BlockType type, String serviceTypeName, Method method, String rpc, String endPoint, String remoteAddr, String destinationId, ExpectedAnnotation... annotations) {
         ServiceType serviceType = findServiceType(serviceTypeName);
         Class<?> spanClass = resolveSpanClass(type);
         int apiId = findApiId(method);
@@ -206,7 +206,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
     
     @Override
-    public void verifySpan(SpanType type, String serviceTypeName, String methodSignature, String rpc, String endPoint, String remoteAddr, String destinationId, ExpectedAnnotation... annotations) {
+    public void verifyTraceBlock(BlockType type, String serviceTypeName, String methodSignature, String rpc, String endPoint, String remoteAddr, String destinationId, ExpectedAnnotation... annotations) {
         ServiceType serviceType = findServiceType(serviceTypeName);
         Class<?> spanClass = resolveSpanClass(type);
         int apiId = findApiId(methodSignature);
@@ -548,7 +548,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
     
     @Override
-    public void printSpans(PrintStream out) {
+    public void printBlocks(PrintStream out) {
         for (Object obj : getTBaseRecorder()) {
             out.println(obj);
         }
@@ -562,7 +562,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
 
     @Override
-    public void printApis(PrintStream out) {
+    public void printCachedApis(PrintStream out) {
         ((TestTcpDataSender)getTcpDataSender()).printApis(out);
     }
 
