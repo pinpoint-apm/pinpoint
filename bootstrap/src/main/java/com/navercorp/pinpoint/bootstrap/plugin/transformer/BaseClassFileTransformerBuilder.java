@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.plugin.editor;
+package com.navercorp.pinpoint.bootstrap.plugin.transformer;
 
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 
@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
  * @author Jongho Moon
  *
  */
-public interface BaseClassEditorBuilder {
+public interface BaseClassFileTransformerBuilder {
 
     public void injectFieldAccessor(String fieldName);
 
@@ -31,8 +31,6 @@ public interface BaseClassEditorBuilder {
     public void injectInterceptor(String className, Object... constructorArgs);
 
     public void weave(String aspectClassName);
-
-    public void apply(ClassInstrumentation instrumentation);
 
     public MethodEditorBuilder editMethods(MethodFilter filter);
 

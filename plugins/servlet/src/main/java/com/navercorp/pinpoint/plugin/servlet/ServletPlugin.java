@@ -16,8 +16,8 @@ package com.navercorp.pinpoint.plugin.servlet;
 
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodEditorBuilder;
 
 /**
  * @author Jongho Moon
@@ -31,7 +31,7 @@ public class ServletPlugin implements ProfilerPlugin {
     }
 
     private void addHttpServletEditor(ProfilerPluginSetupContext context) {
-        ClassEditorBuilder builder = context.getClassEditorBuilder("javax.servlet.http.HttpServlet");
+        ClassFileTransformerBuilder builder = context.getClassEditorBuilder("javax.servlet.http.HttpServlet");
         
         MethodEditorBuilder doGetBuilder = builder.editMethod("doGet", "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse");
         doGetBuilder.injectInterceptor("com.navercorp.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor", ServletConstants.SERVLET);
@@ -39,6 +39,6 @@ public class ServletPlugin implements ProfilerPlugin {
         MethodEditorBuilder doPostBuilder = builder.editMethod("doPost", "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse");
         doPostBuilder.injectInterceptor("com.navercorp.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor", ServletConstants.SERVLET);
         
-        context.addClassEditor(builder.build());
+        context.addClassFileTransformer(builder.build());
     }
 }

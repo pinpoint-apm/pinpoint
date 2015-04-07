@@ -14,9 +14,11 @@
  */
 package com.navercorp.pinpoint.bootstrap.plugin;
 
+import java.lang.instrument.ClassFileTransformer;
+
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
 
 /**
  * {@link ProfilerPlugin} uses this class to setup itself.
@@ -53,22 +55,22 @@ public interface ProfilerPluginSetupContext {
     public Object getAttribute(String name);
 
     /**
-     * Get a {@link ClassEditorBuilder}.
+     * Get a {@link ClassFileTransformerBuilder}.
      * 
-     * By using returned {@link ClassEditorBuilder} you can create a {@link ClassEditor} easily.
-     * You have to register resulting {@link ClasEditor} by {@link #addClassEditor(ClassEditor)} to make it works.
+     * By using returned {@link ClassFileTransformerBuilder} you can create a {@link ClassEditor} easily.
+     * You have to register resulting {@link ClasEditor} by {@link #addClassFileTransformer(ClassEditor)} to make it works.
      *
      * @param targetClassName target class name
-     * @return {@link ClassEditorBuilder}
+     * @return {@link ClassFileTransformerBuilder}
      */
-    public ClassEditorBuilder getClassEditorBuilder(String targetClassName);
+    public ClassFileTransformerBuilder getClassEditorBuilder(String targetClassName);
     
     /**
      * Add a {@link ClassEditor} to Pinpoint agent.
      * 
      * @param classEditor
      */
-    public void addClassEditor(ClassEditor classEditor);
+    public void addClassFileTransformer(ClassFileTransformer classEditor);
     
     /**
      * Add a {@link ApplicationTypeDetector} to Pinpoint agent.
@@ -76,4 +78,8 @@ public interface ProfilerPluginSetupContext {
      * @param detectors
      */
     public void addApplicationTypeDetector(ApplicationTypeDetector... detectors);
+    
+    public ByteCodeInstrumentor getByteCodeInstrumentor();
+    
+    public PluginClassLoaderFactory getClassLoaderFactory();
 }

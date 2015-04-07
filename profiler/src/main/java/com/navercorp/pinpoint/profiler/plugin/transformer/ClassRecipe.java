@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin.editor;
+package com.navercorp.pinpoint.profiler.plugin.transformer;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 

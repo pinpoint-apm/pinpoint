@@ -12,15 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.plugin.editor;
+package com.navercorp.pinpoint.bootstrap.plugin.transformer;
 
 
 /**
  * @author Jongho Moon
  *
  */
-public interface BaseMethodEditorBuilder {
+public interface BaseMethodTransformerBuilder {
     InterceptorBuilder injectInterceptor(String interceptorClassName, Object... constructorArguments);
-    void exceptionHandler(MethodEditorExceptionHandler handler);
-    void property(MethodEditorProperty... properties);
+    void exceptionHandler(MethodTransformerExceptionHandler handler);
+    void property(MethodTransformerProperty... properties);
 }

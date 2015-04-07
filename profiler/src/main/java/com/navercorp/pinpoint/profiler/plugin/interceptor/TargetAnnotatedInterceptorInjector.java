@@ -28,14 +28,14 @@ import com.navercorp.pinpoint.bootstrap.plugin.Targets;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
-import com.navercorp.pinpoint.profiler.plugin.editor.ClassCookBook;
-import com.navercorp.pinpoint.profiler.plugin.editor.ClassRecipe;
-import com.navercorp.pinpoint.profiler.plugin.editor.ConstructorEditor;
-import com.navercorp.pinpoint.profiler.plugin.editor.DedicatedMethodEditor;
-import com.navercorp.pinpoint.profiler.plugin.editor.FilteringMethodEditor;
-import com.navercorp.pinpoint.profiler.plugin.editor.MethodEditor;
-import com.navercorp.pinpoint.profiler.plugin.editor.MethodRecipe;
 import com.navercorp.pinpoint.profiler.plugin.objectfactory.AutoBindingObjectFactory;
+import com.navercorp.pinpoint.profiler.plugin.transformer.ClassCookBook;
+import com.navercorp.pinpoint.profiler.plugin.transformer.ClassRecipe;
+import com.navercorp.pinpoint.profiler.plugin.transformer.ConstructorTransformer;
+import com.navercorp.pinpoint.profiler.plugin.transformer.DedicatedMethodTransformer;
+import com.navercorp.pinpoint.profiler.plugin.transformer.FilteringMethodTransformer;
+import com.navercorp.pinpoint.profiler.plugin.transformer.MethodRecipe;
+import com.navercorp.pinpoint.profiler.plugin.transformer.MethodTransformer;
 
 /**
  * @author Jongho Moon
@@ -59,13 +59,13 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
         Class<? extends Interceptor> interceptorType = TypeUtils.loadClass(classLoader, interceptorName);
         
         AnnotatedInterceptorInjector injector = new AnnotatedInterceptorInjector(pluginContext, interceptorName, providedArguments, null, null);
-        ClassRecipe editor = createMethodEditor(interceptorType, target,  injector);
+        ClassRecipe recipe = createMethodEditor(interceptorType, target,  injector);
         
-        editor.edit(classLoader, target);
+        recipe.edit(classLoader, target);
     }
     
     private ClassRecipe createMethodEditor(Class<?> interceptorType, InstrumentClass targetClass, InterceptorInjector injector) {
-        List<MethodEditor> editors = new ArrayList<MethodEditor>();
+        List<MethodTransformer> editors = new ArrayList<MethodTransformer>();
         
         Targets targets = interceptorType.getAnnotation(Targets.class);
         
@@ -105,7 +105,7 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
         return editors.size() == 1 ? editors.get(0) : new ClassCookBook(editors);
     }
     
-    private MethodEditor createDedicatedMethodEditor(TargetMethod annotation, InterceptorInjector injector) {
+    private MethodTransformer createDedicatedMethodEditor(TargetMethod annotation, InterceptorInjector injector) {
         String methodName = annotation.name();
         
         if (methodName == null) {
@@ -114,15 +114,15 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
         
         String[] parameterTypeNames = annotation.paramTypes();
         
-        return new DedicatedMethodEditor(methodName, parameterTypeNames, Arrays.<MethodRecipe>asList(injector), null, false);
+        return new DedicatedMethodTransformer(methodName, parameterTypeNames, Arrays.<MethodRecipe>asList(injector), null, false);
     }
     
-    private MethodEditor createConstructorEditor(TargetConstructor annotation, InterceptorInjector injector) {
+    private MethodTransformer createConstructorEditor(TargetConstructor annotation, InterceptorInjector injector) {
         String[] parameterTypeNames = annotation.value();
-        return new ConstructorEditor(parameterTypeNames, Arrays.<MethodRecipe>asList(injector), null, false);
+        return new ConstructorTransformer(parameterTypeNames, Arrays.<MethodRecipe>asList(injector), null, false);
     }
     
-    private MethodEditor createFilteredMethodEditor(TargetFilter annotation, InstrumentClass targetClass, InterceptorInjector injector) {
+    private MethodTransformer createFilteredMethodEditor(TargetFilter annotation, InstrumentClass targetClass, InterceptorInjector injector) {
         Class<? extends MethodFilter> type = annotation.value();
         
         if (type == null) {
@@ -138,7 +138,7 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
         AutoBindingObjectFactory<MethodFilter> filterFactory = new AutoBindingObjectFactory<MethodFilter>(pluginContext, targetClass, constructorArguments);
         MethodFilter filter = filterFactory.createInstance(type);
         
-        return new FilteringMethodEditor(filter, Arrays.<MethodRecipe>asList(injector), null);
+        return new FilteringMethodTransformer(filter, Arrays.<MethodRecipe>asList(injector), null);
     }
 
     @Override

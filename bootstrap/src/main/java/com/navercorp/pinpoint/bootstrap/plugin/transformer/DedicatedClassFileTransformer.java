@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.editor;
+package com.navercorp.pinpoint.bootstrap.plugin.transformer;
+
+import java.lang.instrument.ClassFileTransformer;
 
 
-public interface DedicatedClassEditor extends ClassEditor {
+public interface DedicatedClassFileTransformer extends ClassFileTransformer {
     String getTargetClassName();
 }

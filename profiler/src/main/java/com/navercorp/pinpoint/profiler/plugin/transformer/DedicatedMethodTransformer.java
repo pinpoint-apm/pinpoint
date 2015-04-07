@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin.editor;
+package com.navercorp.pinpoint.profiler.plugin.transformer;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,18 +25,18 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorExceptionHandler;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerExceptionHandler;
 
-public class DedicatedMethodEditor implements MethodEditor {
+public class DedicatedMethodTransformer implements MethodTransformer {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     
     private final String targetMethodName;
     private final String[] targetMethodParameterTypes;
     private final List<MethodRecipe> recipes;
-    private final MethodEditorExceptionHandler exceptionHandler;
+    private final MethodTransformerExceptionHandler exceptionHandler;
     private final boolean ignoreIfNotExist;
 
-    public DedicatedMethodEditor(String targetMethodName, String[] targetMethodParameterTypes, List<MethodRecipe> recipes, MethodEditorExceptionHandler handler, boolean ignoreIfNotExist) {
+    public DedicatedMethodTransformer(String targetMethodName, String[] targetMethodParameterTypes, List<MethodRecipe> recipes, MethodTransformerExceptionHandler handler, boolean ignoreIfNotExist) {
         this.targetMethodName = targetMethodName;
         this.targetMethodParameterTypes = targetMethodParameterTypes;
         this.recipes = recipes;
@@ -56,7 +56,7 @@ public class DedicatedMethodEditor implements MethodEditor {
                 
                 if (exceptionHandler != null) {
                     exceptionHandler.handle(target.getName(), targetMethodName, targetMethodParameterTypes, e);
-                    logger.info("Cannot find target method" + targetMethodName + "(" + Arrays.deepToString(targetMethodParameterTypes) + ") but MethodEditorExceptionHandler handled it.");
+                    logger.info("Cannot find target method" + targetMethodName + "(" + Arrays.deepToString(targetMethodParameterTypes) + ") but MethodTransformerExceptionHandler handled it.");
                 } else {
                     throw new InstrumentException("Fail to edit method", e);
                 }
@@ -69,7 +69,7 @@ public class DedicatedMethodEditor implements MethodEditor {
             } catch (Throwable t) {
                 if (exceptionHandler != null) {
                     exceptionHandler.handle(target.getName(), targetMethodName, targetMethodParameterTypes, t);
-                    logger.info("Exception thrown while editing" + targetMethod.getDescriptor().getApiDescriptor() + " but MethodEditorExceptionHandler handled it.", t);
+                    logger.info("Exception thrown while editing" + targetMethod.getDescriptor().getApiDescriptor() + " but MethodTransformerExceptionHandler handled it.", t);
                 } else {
                     throw new InstrumentException("Fail to edit method " + targetMethod.getDescriptor().getApiDescriptor(), t);
                 }
@@ -80,7 +80,7 @@ public class DedicatedMethodEditor implements MethodEditor {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("MethodEditor[method=");
+        builder.append("MethodTransformer[method=");
         builder.append(targetMethodName);
         builder.append('(');
         builder.append(Arrays.toString(targetMethodParameterTypes));

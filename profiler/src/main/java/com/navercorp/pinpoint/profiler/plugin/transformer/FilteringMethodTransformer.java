@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin.editor;
+package com.navercorp.pinpoint.profiler.plugin.transformer;
 
 import java.util.List;
 
@@ -25,16 +25,16 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorExceptionHandler;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerExceptionHandler;
 
-public class FilteringMethodEditor implements MethodEditor {
+public class FilteringMethodTransformer implements MethodTransformer {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     
     private final MethodFilter filter;
     private final List<MethodRecipe> recipes;
-    private final MethodEditorExceptionHandler exceptionHandler; 
+    private final MethodTransformerExceptionHandler exceptionHandler; 
 
-    public FilteringMethodEditor(MethodFilter filter, List<MethodRecipe> recipes, MethodEditorExceptionHandler handler) {
+    public FilteringMethodTransformer(MethodFilter filter, List<MethodRecipe> recipes, MethodTransformerExceptionHandler handler) {
         this.filter = filter;
         this.recipes = recipes;
         this.exceptionHandler = handler;
@@ -49,7 +49,7 @@ public class FilteringMethodEditor implements MethodEditor {
                 } catch (Throwable t) {
                     if (exceptionHandler != null) {
                         exceptionHandler.handle(target.getName(), targetMethod.getName(), targetMethod.getParameterTypes(), t);
-                        logger.info("Exception thrown while editing" + targetMethod.getDescriptor().getApiDescriptor() + " but MethodEditorExceptionHandler handled it.", t);
+                        logger.info("Exception thrown while editing" + targetMethod.getDescriptor().getApiDescriptor() + " but MethodTransformerExceptionHandler handled it.", t);
                     } else {
                         throw new InstrumentException("Fail to edit method " + targetMethod.getDescriptor().getApiDescriptor(), t);
                     }
@@ -61,7 +61,7 @@ public class FilteringMethodEditor implements MethodEditor {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("FilteringMethodEditor [filter=");
+        builder.append("FilteringMethodTransformer [filter=");
         builder.append(filter);
         builder.append(", recipes=");
         builder.append(recipes);

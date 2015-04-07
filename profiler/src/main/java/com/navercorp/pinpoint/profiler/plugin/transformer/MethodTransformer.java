@@ -12,13 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.plugin.editor;
+package com.navercorp.pinpoint.profiler.plugin.transformer;
 
 
 /**
  * @author Jongho Moon
  *
  */
-public interface MethodEditor extends ClassRecipe {
+public interface MethodTransformer extends ClassRecipe {
 
 }

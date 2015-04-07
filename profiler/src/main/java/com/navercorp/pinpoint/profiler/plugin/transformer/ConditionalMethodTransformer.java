@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin.editor;
+package com.navercorp.pinpoint.profiler.plugin.transformer;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassCondition;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassCondition;
 
-public class ConditionalMethodEditor implements MethodEditor {
+public class ConditionalMethodTransformer implements MethodTransformer {
     private final ProfilerPluginContext context;
     private final ClassCondition condition;
-    private final MethodEditor delegate;
+    private final MethodTransformer delegate;
     
-    public ConditionalMethodEditor(ProfilerPluginContext context, ClassCondition condition, MethodEditor delegate) {
+    public ConditionalMethodTransformer(ProfilerPluginContext context, ClassCondition condition, MethodTransformer delegate) {
         this.context = context;
         this.condition = condition;
         this.delegate = delegate;
@@ -40,6 +40,6 @@ public class ConditionalMethodEditor implements MethodEditor {
 
     @Override
     public String toString() {
-        return "ConditionalMethodEditor[condition=" + condition + ", execute=" + delegate + "]";
+        return "ConditionalMethodTransformer[condition=" + condition + ", execute=" + delegate + "]";
     }
 }

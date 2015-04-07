@@ -12,14 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.plugin.editor;
+package com.navercorp.pinpoint.bootstrap.plugin.transformer;
 
 
 /**
  * @author Jongho Moon
  *
  */
-public interface MethodEditorExceptionHandler {
+public interface MethodTransformerExceptionHandler {
     /**
      * Handles exception thrown wile editing method.
      * 
@@ -34,7 +34,7 @@ public interface MethodEditorExceptionHandler {
     public void handle(String targetClassName, String targetMethodName, String[] targetMethodParameterTypes, Throwable exception) throws Throwable;
     
     
-    public static final MethodEditorExceptionHandler IGNORE = new MethodEditorExceptionHandler() {
+    public static final MethodTransformerExceptionHandler IGNORE = new MethodTransformerExceptionHandler() {
         
         @Override
         public void handle(String targetClassName, String targetMethodName, String[] targetMethodParameterTypes, Throwable exception) throws Throwable {
@@ -43,7 +43,7 @@ public interface MethodEditorExceptionHandler {
 
         @Override
         public String toString() {
-            return "MethodEditorExceptionHandler.IGNORE";
+            return "MethodTransformerExceptionHandler.IGNORE";
         }
     };
 }

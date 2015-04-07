@@ -12,7 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.plugin.editor;
+package com.navercorp.pinpoint.bootstrap.plugin.transformer;
+
+import java.lang.instrument.ClassFileTransformer;
 
 
 
@@ -21,7 +23,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.editor;
  * @author Jongho Moon
  *
  */
-public interface ClassEditorBuilder extends BaseClassEditorBuilder {
-    public void conditional(ClassCondition condition, ConditionalClassEditorSetup descriptor);
-    public ClassEditor build();
+public interface ClassFileTransformerBuilder extends BaseClassFileTransformerBuilder {
+    public void conditional(ClassCondition condition, ConditionalClassFileTransformerSetup descriptor);
+    public ClassFileTransformer build();
 }

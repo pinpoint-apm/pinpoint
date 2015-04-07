@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin.editor;
+package com.navercorp.pinpoint.profiler.plugin.transformer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,17 +25,16 @@ import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassCondition;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassInstrumentation;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ConditionalClassEditorBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ConditionalClassEditorSetup;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ConstructorEditorBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.DedicatedClassEditor;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.InterceptorBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorExceptionHandler;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorProperty;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassCondition;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerSetup;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConstructorEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.DedicatedClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.InterceptorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerExceptionHandler;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.FieldAccessorInjector;
 import com.navercorp.pinpoint.profiler.plugin.MetadataInitializationStrategy.ByConstructor;
@@ -43,7 +42,7 @@ import com.navercorp.pinpoint.profiler.plugin.MetadataInjector;
 import com.navercorp.pinpoint.profiler.plugin.interceptor.AnnotatedInterceptorInjector;
 import com.navercorp.pinpoint.profiler.plugin.interceptor.TargetAnnotatedInterceptorInjector;
 
-public class DefaultClassEditorBuilder implements ClassEditorBuilder, ConditionalClassEditorBuilder, RecipeBuilder<ClassRecipe> {
+public class DefaultClassFileTransformerBuilder implements ClassFileTransformerBuilder, ConditionalClassFileTransformerBuilder, RecipeBuilder<ClassRecipe> {
 
     private final DefaultProfilerPluginContext pluginContext;
     
@@ -53,28 +52,23 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder, Conditiona
     private final ClassCondition condition;
     private final String targetClassName;
 
-    public DefaultClassEditorBuilder(DefaultProfilerPluginContext pluginContext, String targetClassName) {
+    public DefaultClassFileTransformerBuilder(DefaultProfilerPluginContext pluginContext, String targetClassName) {
         this(pluginContext, targetClassName, null);
     }
     
-    private DefaultClassEditorBuilder(DefaultProfilerPluginContext pluginContext, String targetClassName, ClassCondition condition) {
+    private DefaultClassFileTransformerBuilder(DefaultProfilerPluginContext pluginContext, String targetClassName, ClassCondition condition) {
         this.pluginContext = pluginContext;
         this.targetClassName = targetClassName;
         this.condition = condition;
     }
 
     @Override
-    public void conditional(ClassCondition condition, ConditionalClassEditorSetup describer) {
-        DefaultClassEditorBuilder conditional = new DefaultClassEditorBuilder(pluginContext, targetClassName, condition);
+    public void conditional(ClassCondition condition, ConditionalClassFileTransformerSetup describer) {
+        DefaultClassFileTransformerBuilder conditional = new DefaultClassFileTransformerBuilder(pluginContext, targetClassName, condition);
         describer.setup(conditional);
         recipeBuilders.add(conditional);
     }
     
-    @Override
-    public void apply(ClassInstrumentation instrumentation) {
-        recipes.add(new ClassInstrumentationRecipe(pluginContext, instrumentation));
-    }
-
     @Override
     public void injectFieldAccessor(String fieldName) {
         FieldAccessor snooper = pluginContext.allocateFieldSnooper(fieldName);
@@ -125,9 +119,9 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder, Conditiona
     }
     
     @Override
-    public DedicatedClassEditor build() {
+    public DedicatedClassFileTransformer build() {
         ClassRecipe recipe = buildClassRecipe(); 
-        return new DefaultDedicatedClassEditor(targetClassName, recipe);
+        return new DefaultDedicatedClassFileTransformer(pluginContext.getByteCodeInstrumentor(), pluginContext.getClassLoaderFactory(), targetClassName, recipe);
     }
 
     private ClassRecipe buildClassRecipe() {
@@ -138,7 +132,7 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder, Conditiona
         }
         
         if (recipes.isEmpty()) {
-            throw new IllegalStateException("No class editor registered"); 
+            throw new IllegalStateException("No class transformation registered"); 
         }
         
         ClassRecipe recipe = recipes.size() == 1 ? recipes.get(0) : new ClassCookBook(recipes);
@@ -207,8 +201,8 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder, Conditiona
         private final String[] parameterTypeNames;
         private final MethodFilter filter;
         private final List<RecipeBuilder<MethodRecipe>> recipeBuilders = new ArrayList<RecipeBuilder<MethodRecipe>>();
-        private final EnumSet<MethodEditorProperty> properties = EnumSet.noneOf(MethodEditorProperty.class);
-        private MethodEditorExceptionHandler exceptionHandler;
+        private final EnumSet<MethodTransformerProperty> properties = EnumSet.noneOf(MethodTransformerProperty.class);
+        private MethodTransformerExceptionHandler exceptionHandler;
 
         private DefaultMethodEditorBuilder(String... parameterTypeNames) {
             this.methodName = null;
@@ -229,7 +223,7 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder, Conditiona
         }
         
         @Override
-        public void property(MethodEditorProperty... properties) {
+        public void property(MethodTransformerProperty... properties) {
             this.properties.addAll(Arrays.asList(properties));
         }
 
@@ -241,34 +235,34 @@ public class DefaultClassEditorBuilder implements ClassEditorBuilder, Conditiona
         }
         
         @Override
-        public void exceptionHandler(MethodEditorExceptionHandler handler) {
+        public void exceptionHandler(MethodTransformerExceptionHandler handler) {
             this.exceptionHandler = handler;
         }
 
         @Override
-        public MethodEditor buildRecipe() {
+        public MethodTransformer buildRecipe() {
             List<MethodRecipe> recipes = buildMethodRecipe();
-            MethodEditor editor = buildMethodEditor(recipes);
+            MethodTransformer transformer = buildMethodEditor(recipes);
             
-            return editor;
+            return transformer;
         }
 
-        private MethodEditor buildMethodEditor(List<MethodRecipe> recipes) {
-            MethodEditor editor;
+        private MethodTransformer buildMethodEditor(List<MethodRecipe> recipes) {
+            MethodTransformer transformer;
             if (filter != null) {
-                editor = new FilteringMethodEditor(filter, recipes, exceptionHandler);
+                transformer = new FilteringMethodTransformer(filter, recipes, exceptionHandler);
             } else if (methodName != null) {
-                editor = new DedicatedMethodEditor(methodName, parameterTypeNames, recipes, exceptionHandler, properties.contains(MethodEditorProperty.IGNORE_IF_NOT_EXIST));
+                transformer = new DedicatedMethodTransformer(methodName, parameterTypeNames, recipes, exceptionHandler, properties.contains(MethodTransformerProperty.IGNORE_IF_NOT_EXIST));
             } else {
-                editor = new ConstructorEditor(parameterTypeNames, recipes, exceptionHandler, properties.contains(MethodEditorProperty.IGNORE_IF_NOT_EXIST));
+                transformer = new ConstructorTransformer(parameterTypeNames, recipes, exceptionHandler, properties.contains(MethodTransformerProperty.IGNORE_IF_NOT_EXIST));
             }
             
-            return editor;
+            return transformer;
         }
 
         private List<MethodRecipe> buildMethodRecipe() {
             if (recipeBuilders.isEmpty()) {
-                // For now, a method editor without any interceptor is meaningless. 
+                // For now, a method transformer without any interceptor is meaningless. 
                 throw new IllegalStateException("No interceptors are defiend");
             }
 

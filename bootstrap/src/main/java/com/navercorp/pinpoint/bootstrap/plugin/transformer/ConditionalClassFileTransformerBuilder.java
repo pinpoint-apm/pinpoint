@@ -12,12 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.plugin.editor;
+package com.navercorp.pinpoint.bootstrap.plugin.transformer;
 
 /**
  * @author Jongho Moon
  *
  */
-public interface ConditionalClassEditorBuilder extends BaseClassEditorBuilder {
+public interface ConditionalClassFileTransformerBuilder extends BaseClassFileTransformerBuilder {
 
 }

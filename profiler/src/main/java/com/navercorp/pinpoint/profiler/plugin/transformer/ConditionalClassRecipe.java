@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin.editor;
+package com.navercorp.pinpoint.profiler.plugin.transformer;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassCondition;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassCondition;
 
 public class ConditionalClassRecipe implements ClassRecipe {
     private final ProfilerPluginContext context;

@@ -12,17 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.plugin.editor;
+package com.navercorp.pinpoint.bootstrap.plugin.transformer;
 
 /**
  * @author Jongho Moon
  *
  */
-public enum MethodEditorProperty {
+public enum MethodTransformerProperty {
     /**
      * If this property is set, exception will not be thrown even if the target method/constructor is not exist.
      */
     IGNORE_IF_NOT_EXIST
-    
-    // TODO 수정 도중 예외가 발생하더라도 무시하고 넘어갈 수 있는 옵션들 추가
 }

@@ -14,30 +14,51 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin.editor;
+package com.navercorp.pinpoint.profiler.plugin.transformer;
 
+import java.lang.instrument.IllegalClassFormatException;
+import java.security.ProtectionDomain;
+
+import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.DedicatedClassEditor;
+import com.navercorp.pinpoint.bootstrap.plugin.PluginClassLoaderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.DedicatedClassFileTransformer;
 import com.navercorp.pinpoint.exception.PinpointException;
 
-public class DefaultDedicatedClassEditor implements DedicatedClassEditor {
+public class DefaultDedicatedClassFileTransformer implements DedicatedClassFileTransformer {
+    private final ByteCodeInstrumentor instrumentor;
+    private final PluginClassLoaderFactory classLoaderFactory;
+
     private final String targetClassName;
     private final ClassRecipe recipe;
     
+    
+    public DefaultDedicatedClassFileTransformer(ByteCodeInstrumentor instrumentor, PluginClassLoaderFactory classLoaderFactory, String targetClassName, ClassRecipe recipe) {
+        this.instrumentor = instrumentor;
+        this.classLoaderFactory = classLoaderFactory;
 
-    public DefaultDedicatedClassEditor(String targetClassName, ClassRecipe recipe) {
         this.targetClassName = targetClassName;
         this.recipe = recipe;
     }
-
+    
     @Override
-    public byte[] edit(ClassLoader classLoader, InstrumentClass target) {
+    public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+        ClassLoader forPlugin = classLoaderFactory.get(classLoader);
+        
+        ClassLoader old = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(forPlugin);
+        
         try {
-            recipe.edit(classLoader, target);
-            
+            InstrumentClass target = instrumentor.getClass(classLoader, className, classfileBuffer);
+            recipe.edit(forPlugin, target);
             return target.toBytecode();
-        } catch (Throwable t) {
-            throw new PinpointException("Fail to edit class: " + targetClassName, t);
+        } catch (PinpointException e) {
+            throw e;
+        } catch (Throwable e) {
+            String msg = "Fail to invoke plugin class recipe: " + toString();
+            throw new PinpointException(msg, e);
+        } finally {
+            Thread.currentThread().setContextClassLoader(old);
         }
     }
 

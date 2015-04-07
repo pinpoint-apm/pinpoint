@@ -16,36 +16,34 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
+import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.DedicatedClassEditor;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.DedicatedClassFileTransformer;
+import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 
-public class ClassEditorAdaptor extends AbstractModifier {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final DedicatedClassEditor editor;
-    private final ClassEditorExecutor classEditorExecutor;
+public class ClassFileTransformerAdaptor extends AbstractModifier {
+    private final DedicatedClassFileTransformer transformer;
 
     
-    public ClassEditorAdaptor(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent, DedicatedClassEditor editor, ClassEditorExecutor classEditorExecutor) {
-        super(byteCodeInstrumentor, agent);
-        this.editor = editor;
-        this.classEditorExecutor = classEditorExecutor;
+    public ClassFileTransformerAdaptor(ByteCodeInstrumentor byteCodeInstrumentor, DedicatedClassFileTransformer transformer) {
+        super(byteCodeInstrumentor);
+        this.transformer = transformer;
     }
 
     @Override
-    public byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectionDomain, byte[] classFileBuffer) {
-        logger.debug("Editing class {}", className);
-        return classEditorExecutor.execute(editor, classLoader, className, classFileBuffer);
+    public byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectionDomain, byte[] classfileBuffer) {
+        try {
+            return transformer.transform(classLoader, className, null, protectionDomain, classfileBuffer);
+        } catch (IllegalClassFormatException e) {
+            throw new PinpointException("Fail to transform class: " + className, e);
+        }
     }
 
     @Override
     public String getTargetClass() {
-        return editor.getTargetClassName().replace('.', '/');
+        return transformer.getTargetClassName().replace('.', '/');
     }
 }

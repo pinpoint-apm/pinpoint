@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.plugin.MetadataInitializationStrategy.ByConstructor;
-import com.navercorp.pinpoint.profiler.plugin.editor.ClassRecipe;
+import com.navercorp.pinpoint.profiler.plugin.transformer.ClassRecipe;
 
 public class MetadataInjector implements ClassRecipe {
     private final String name;

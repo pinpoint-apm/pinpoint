@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin.editor;
+package com.navercorp.pinpoint.profiler.plugin.transformer;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,16 +25,16 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.MethodEditorExceptionHandler;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerExceptionHandler;
 
-public class ConstructorEditor implements MethodEditor {
+public class ConstructorTransformer implements MethodTransformer {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final String[] targetParameterTypes;
     private final List<MethodRecipe> recipes;
-    private final MethodEditorExceptionHandler exceptionHandler;
+    private final MethodTransformerExceptionHandler exceptionHandler;
     private final boolean ignoreIfNotExist;
 
-    public ConstructorEditor(String[] targetParameterTypes, List<MethodRecipe> recipes, MethodEditorExceptionHandler exceptionHandler, boolean ignoreIfNotExist) {
+    public ConstructorTransformer(String[] targetParameterTypes, List<MethodRecipe> recipes, MethodTransformerExceptionHandler exceptionHandler, boolean ignoreIfNotExist) {
         this.targetParameterTypes = targetParameterTypes;
         this.recipes = recipes;
         this.exceptionHandler = exceptionHandler;
@@ -53,7 +53,7 @@ public class ConstructorEditor implements MethodEditor {
                 
                 if (exceptionHandler != null) {
                     exceptionHandler.handle(target.getName(), "init", targetParameterTypes, e);
-                    logger.info("Cannot find target constructor with parameter types (" + Arrays.deepToString(targetParameterTypes) + ") but MethodEditorExceptionHandler handled it.");
+                    logger.info("Cannot find target constructor with parameter types (" + Arrays.deepToString(targetParameterTypes) + ") but MethodTransformerExceptionHandler handled it.");
                 } else {
                     throw new InstrumentException("Fail to edit constructor", e);
                 }
@@ -68,7 +68,7 @@ public class ConstructorEditor implements MethodEditor {
                 
                 if (exceptionHandler != null) {
                     exceptionHandler.handle(target.getName(), "init", targetParameterTypes, t);
-                    logger.info("Exception thrown while editing" + targetConstructor.getDescriptor().getApiDescriptor() + " but MethodEditorExceptionHandler handled it.", t);
+                    logger.info("Exception thrown while editing" + targetConstructor.getDescriptor().getApiDescriptor() + " but MethodTransformerExceptionHandler handled it.", t);
                 } else {
                     throw new InstrumentException("Fail to edit constructor " + targetConstructor.getDescriptor().getApiDescriptor(), t);
                 }
@@ -79,7 +79,7 @@ public class ConstructorEditor implements MethodEditor {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("ConstructorEditor[paramTypes=");
+        builder.append("ConstructorTransformer[paramTypes=");
         builder.append(Arrays.toString(targetParameterTypes));
         builder.append(", recipes=");
         builder.append(recipes);

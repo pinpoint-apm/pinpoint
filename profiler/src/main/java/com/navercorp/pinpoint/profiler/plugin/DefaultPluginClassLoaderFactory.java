@@ -26,11 +26,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.navercorp.pinpoint.bootstrap.plugin.PluginClassLoaderFactory;
 import com.navercorp.pinpoint.common.plugin.PluginClassLoader;
 
-public class PluginClassLoaderFactory {
+public class DefaultPluginClassLoaderFactory implements PluginClassLoaderFactory {
 
-    private final Logger logger = Logger.getLogger(PluginClassLoaderFactory.class.getName());
+    private final Logger logger = Logger.getLogger(DefaultPluginClassLoaderFactory.class.getName());
 
     private static final SecurityManager SECURITY_MANAGER = System.getSecurityManager();
 
@@ -38,10 +39,11 @@ public class PluginClassLoaderFactory {
     private final ConcurrentHashMap<ClassLoader, ClassLoader> cache = new ConcurrentHashMap<ClassLoader, ClassLoader>();
     private final AtomicReference<ClassLoader> forBootstrapClassLoader = new AtomicReference<ClassLoader>();
     
-    public PluginClassLoaderFactory(URL[] pluginJars) {
+    public DefaultPluginClassLoaderFactory(URL[] pluginJars) {
         this.pluginJars = pluginJars;
     }
     
+    @Override
     public ClassLoader get(ClassLoader loader) {
         if (loader == null) {
             // boot class loader
