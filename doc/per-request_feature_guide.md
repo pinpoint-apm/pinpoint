@@ -157,7 +157,7 @@ Before
 After
 <appender name = "console" class= "org.apache.log4j.ConsoleAppender" >
      <layout class = "org.apache.log4j.EnhancedPatternLayout">
-          <param name = "ConversionPattern" value= "%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-30c{1}) [TxId : %X{PtxId}] [SpanId : %X{PspanId}] %m%n" />
+          <param name = "ConversionPattern" value= "%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-30c{1}) [TxId : %X{PtxId} , SpanId : %X{PspanId}] %m%n" />
         </layout >
 </appender >
 ```
@@ -174,7 +174,7 @@ Before
 After
 <appender name = "STDOUT" class= "ch.qos.logback.core.ConsoleAppender" >
      <layout class = "ch.qos.logback.classic.PatternLayout">
-          <Pattern >%d{HH:mm} %-5level %logger{36} - [TxId : %X{PtxId}] [SpanId : %X{PspanId}] %msg%n</Pattern >
+          <Pattern >%d{HH:mm} %-5level %logger{36} - [TxId : %X{PtxId} , SpanId : %X{PspanId}] %msg%n</Pattern >
      </layout >
 </appender >
 ```
@@ -394,7 +394,7 @@ ex) log4j - log4j.xml
 변경 후
 <appender name = "console" class= "org.apache.log4j.ConsoleAppender" >
      <layout class = "org.apache.log4j.EnhancedPatternLayout">
-          <param name = "ConversionPattern" value= "%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-30c{1}) [TxId : %X{PtxId}] [SpanId : %X{PspanId}] %m%n" />
+          <param name = "ConversionPattern" value= "%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-30c{1}) [TxId : %X{PtxId} , SpanId : %X{PspanId}] %m%n" />
         </layout >
 </appender >
 ```
@@ -411,7 +411,7 @@ ex) logback - logback.xml
 변경 후
 <appender name = "STDOUT" class= "ch.qos.logback.core.ConsoleAppender" >
      <layout class = "ch.qos.logback.classic.PatternLayout">
-          <Pattern >%d{HH:mm} %-5level %logger{36} - [TxId : %X{PtxId}] [SpanId : %X{PspanId}] %msg%n</Pattern >
+          <Pattern >%d{HH:mm} %-5level %logger{36} - [TxId : %X{PtxId} , SpanId : %X{PspanId}] %msg%n</Pattern >
      </layout >
 </appender >
 ```
