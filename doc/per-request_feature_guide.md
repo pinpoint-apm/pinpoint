@@ -106,7 +106,7 @@ ex) With Pinpoint
 ```
 
 The transactionId printed in the log message is the same as the transactionId in Pinpoint Web’s Transaction List view.
-![per_request_feature_1.jpg](img/per-request_feature_1.jpg)
+![per-request_feature_1.jpg](img/per-request_feature_1.jpg)
 
 ### 2. How to configure
 
@@ -222,7 +222,7 @@ log.enable= true
 log.page.url=XXXX.pinpoint
 log.button.name= log
 ```
-![per_request_feature_2.jpg](img/per_request_feature_2.jpg)
+![per-request_feature_2.jpg](img/per-request_feature_2.jpg)
 
 For details in how the log buttons are generated, please refer to Pinpoint Web’s BusinessTransactionController and ScatterChartController.
 
@@ -340,7 +340,7 @@ ex) With Pinpoint
 ```
 
 로그메시지에 출력된 transactionId는 Pinpoint web의 transactionlist의 transactionId와 일치한다.
-![per_request_feature_1.jpg](img/per_request_feature_1.jpg)
+![per-request_feature_1.jpg](img/per-request_feature_1.jpg)
 
 ### 2. 설정 방법
 
@@ -459,5 +459,5 @@ log.page.url=XXXX.Pinpoint
 log.button.name=log
 ```
 
-![per_request_feature_2.jpg](img/per_request_feature_2.jpg)
+![per-request_feature_2.jpg](img/per-request_feature_2.jpg)
 로그 버튼을 생성해주는 과정을 보시려면, Pinpoint Web의 BusinessTransactionController 와 ScatterChartController class를 참고하세요.
