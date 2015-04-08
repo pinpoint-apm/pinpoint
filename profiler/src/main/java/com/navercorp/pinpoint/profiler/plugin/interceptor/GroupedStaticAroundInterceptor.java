@@ -42,7 +42,7 @@ public class GroupedStaticAroundInterceptor implements StaticAroundInterceptor {
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        InterceptorGroupTransaction transaction = group.getCurrentStack();
+        InterceptorGroupTransaction transaction = group.getCurrentTransaction();
         
         if (transaction.tryEnter(point)) {
             this.delegate.before(target, className, methodName, parameterDescription, args);
@@ -55,7 +55,7 @@ public class GroupedStaticAroundInterceptor implements StaticAroundInterceptor {
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
-        InterceptorGroupTransaction transaction = group.getCurrentStack();
+        InterceptorGroupTransaction transaction = group.getCurrentTransaction();
         
         if (transaction.canLeave(point)) {
             this.delegate.after(target, className, methodName, parameterDescription, args, result, throwable);

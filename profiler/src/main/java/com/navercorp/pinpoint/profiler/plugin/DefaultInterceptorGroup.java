@@ -43,7 +43,7 @@ public class DefaultInterceptorGroup implements InterceptorGroup {
     }
 
     @Override
-    public InterceptorGroupTransaction getCurrentStack() {
+    public InterceptorGroupTransaction getCurrentTransaction() {
         return threadLocal.get();
     }
 }

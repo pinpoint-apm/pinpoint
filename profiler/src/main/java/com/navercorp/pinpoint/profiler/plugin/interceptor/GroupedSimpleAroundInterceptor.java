@@ -42,7 +42,7 @@ public class GroupedSimpleAroundInterceptor implements SimpleAroundInterceptor {
 
     @Override
     public void before(Object target, Object[] args) {
-        InterceptorGroupTransaction transaction = group.getCurrentStack();
+        InterceptorGroupTransaction transaction = group.getCurrentTransaction();
         
         if (transaction.tryEnter(point)) {
             delegate.before(target, args);
@@ -55,7 +55,7 @@ public class GroupedSimpleAroundInterceptor implements SimpleAroundInterceptor {
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        InterceptorGroupTransaction transacton = group.getCurrentStack();
+        InterceptorGroupTransaction transacton = group.getCurrentTransaction();
         
         if (transacton.canLeave(point)) {
             delegate.after(target, args, result, throwable);

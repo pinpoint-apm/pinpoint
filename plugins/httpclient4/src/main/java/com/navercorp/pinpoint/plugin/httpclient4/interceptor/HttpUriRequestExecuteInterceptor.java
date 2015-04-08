@@ -23,7 +23,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
-import com.navercorp.pinpoint.bootstrap.plugin.Group;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
