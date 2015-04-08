@@ -92,7 +92,7 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
             return;
         }
 
-        group.getCurrentStack().setAttachment(TRACE_BLOCK_BEGIN_MARKER);
+        group.getCurrentTransaction().setAttachment(TRACE_BLOCK_BEGIN_MARKER);
         
         trace.traceBlockBegin();
         trace.markBeforeTime();
@@ -145,7 +145,7 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
             return;
         }
         
-        Object marker = group.getCurrentStack().getAttachment();
+        Object marker = group.getCurrentTransaction().getAttachment();
         
         if (marker != TRACE_BLOCK_BEGIN_MARKER) {
             return;
