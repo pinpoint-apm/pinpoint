@@ -14,7 +14,6 @@
  */
 package com.navercorp.pinpoint.bootstrap.interceptor.group;
 
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 
 /**
  * @author Jongho Moon
@@ -22,5 +21,5 @@ import com.navercorp.pinpoint.bootstrap.instrument.Scope;
  */
 public interface InterceptorGroup {
     public String getName();
-    public Scope getCurrentTransaction();
+    public InterceptorGroupTransaction getCurrentStack();
 }

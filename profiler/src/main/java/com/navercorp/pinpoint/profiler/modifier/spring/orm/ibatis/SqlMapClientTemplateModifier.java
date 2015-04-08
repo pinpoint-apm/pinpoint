@@ -68,7 +68,7 @@ public final class SqlMapClientTemplateModifier extends AbstractModifier {
 
             for (MethodInfo method : declaredMethods) {
                 Interceptor sqlMapClientTemplateInterceptor = new IbatisSqlMapOperationInterceptor(serviceType);
-                sqlMapClientTemplate.addScopeInterceptor(method.getName(), method.getParameterTypes(), sqlMapClientTemplateInterceptor, SCOPE);
+                sqlMapClientTemplate.addGroupInterceptor(method.getName(), method.getParameterTypes(), sqlMapClientTemplateInterceptor, SCOPE);
             }
 
             return sqlMapClientTemplate.toBytecode();

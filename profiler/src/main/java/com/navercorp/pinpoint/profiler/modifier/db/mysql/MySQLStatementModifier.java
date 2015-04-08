@@ -55,20 +55,20 @@ public class MySQLStatementModifier extends AbstractModifier {
             InstrumentClass statementClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             Interceptor interceptor = new StatementExecuteQueryInterceptor();
-            statementClass.addScopeInterceptor("executeQuery", new String[]{"java.lang.String"}, interceptor, MYSQLScope.SCOPE_NAME);
+            statementClass.addGroupInterceptor("executeQuery", new String[]{"java.lang.String"}, interceptor, MYSQLScope.SCOPE_NAME);
 
             // FIXME
             Interceptor executeUpdateInterceptor1 = new StatementExecuteUpdateInterceptor();
-            statementClass.addScopeInterceptor("executeUpdate", new String[]{"java.lang.String"}, executeUpdateInterceptor1, MYSQLScope.SCOPE_NAME);
+            statementClass.addGroupInterceptor("executeUpdate", new String[]{"java.lang.String"}, executeUpdateInterceptor1, MYSQLScope.SCOPE_NAME);
 
             Interceptor executeUpdateInterceptor2 = new StatementExecuteUpdateInterceptor();
-            statementClass.addScopeInterceptor("executeUpdate", new String[]{"java.lang.String", "int"}, executeUpdateInterceptor2, MYSQLScope.SCOPE_NAME);
+            statementClass.addGroupInterceptor("executeUpdate", new String[]{"java.lang.String", "int"}, executeUpdateInterceptor2, MYSQLScope.SCOPE_NAME);
 
             Interceptor executeUpdateInterceptor3 = new StatementExecuteUpdateInterceptor();
-            statementClass.addScopeInterceptor("execute", new String[]{"java.lang.String"}, executeUpdateInterceptor3, MYSQLScope.SCOPE_NAME);
+            statementClass.addGroupInterceptor("execute", new String[]{"java.lang.String"}, executeUpdateInterceptor3, MYSQLScope.SCOPE_NAME);
 
             Interceptor executeUpdateInterceptor4 = new StatementExecuteUpdateInterceptor();
-            statementClass.addScopeInterceptor("execute", new String[]{"java.lang.String", "int"}, executeUpdateInterceptor4, MYSQLScope.SCOPE_NAME);
+            statementClass.addGroupInterceptor("execute", new String[]{"java.lang.String", "int"}, executeUpdateInterceptor4, MYSQLScope.SCOPE_NAME);
 
             statementClass.addTraceValue(DatabaseInfoTraceValue.class);
             return statementClass.toBytecode();

@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.interceptor.DriverConnectInterceptor;
 
@@ -48,7 +48,7 @@ public class CubridDriverModifier extends AbstractModifier {
         try {
             InstrumentClass mysqlConnection = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
-            final Scope scope = byteCodeInstrumentor.getScope(CubridScope.SCOPE_NAME);
+            final InterceptorGroupTransaction scope = byteCodeInstrumentor.getInterceptorGroupTransaction(CubridScope.SCOPE_NAME);
             DriverConnectInterceptor driverConnectInterceptor = new DriverConnectInterceptor(scope);
             mysqlConnection.addInterceptor("connect", new String[]{"java.lang.String", "java.util.Properties"}, driverConnectInterceptor);
 

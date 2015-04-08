@@ -32,7 +32,7 @@ public class JdkHttpPlugin implements ProfilerPlugin {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassEditorBuilder("sun.net.www.protocol.http.HttpURLConnection");
+        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("sun.net.www.protocol.http.HttpURLConnection");
     
         builder.injectFieldAccessor("connected");
         builder.injectInterceptor("com.navercorp.pinpoint.plugin.jdk.http.interceptor.HttpURLConnectionInterceptor");

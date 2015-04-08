@@ -12,14 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.interceptor.group;
+package com.navercorp.pinpoint.bootstrap.plugin.annotation;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
+ * Specify the target constructor of the annotated interceptor.
+ * 
  * @author Jongho Moon
  *
  */
-public enum ExecutionPoint {
-    ALWAYS,
-    BOUNDARY,
-    INTERNAL
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface TargetConstructor {
+    /**
+     * Target constructor's parameter types.
+     * 
+     * @return
+     */
+    public String[] value() default {};
 }

@@ -57,13 +57,13 @@ public class HttpClientModifier extends AbstractModifier {
 
     private void addInterceptorForExecuteMethod(ClassLoader classLoader, ProtectionDomain protectedDomain, InstrumentClass aClass) throws InstrumentException {
         Interceptor interceptor = newExecuteInterceptor(classLoader, protectedDomain);
-        aClass.addScopeInterceptorIfDeclared("executeMethod", new String[]{"org.apache.commons.httpclient.HttpMethod"}, interceptor, HttpClient3Scope.SCOPE);
+        aClass.addGroupInterceptorIfDeclared("executeMethod", new String[]{"org.apache.commons.httpclient.HttpMethod"}, interceptor, HttpClient3Scope.SCOPE);
         
         interceptor = newExecuteInterceptor(classLoader, protectedDomain);
-        aClass.addScopeInterceptorIfDeclared("executeMethod", new String[]{"org.apache.commons.httpclient.HostConfiguration", "org.apache.commons.httpclient.HttpMethod"}, interceptor, HttpClient3Scope.SCOPE);
+        aClass.addGroupInterceptorIfDeclared("executeMethod", new String[]{"org.apache.commons.httpclient.HostConfiguration", "org.apache.commons.httpclient.HttpMethod"}, interceptor, HttpClient3Scope.SCOPE);
         
         interceptor = newExecuteInterceptor(classLoader, protectedDomain);
-        aClass.addScopeInterceptorIfDeclared("executeMethod", new String[]{"org.apache.commons.httpclient.HostConfiguration", "org.apache.commons.httpclient.HttpMethod", "org.apache.commons.httpclient.HttpState"}, interceptor, HttpClient3Scope.SCOPE);
+        aClass.addGroupInterceptorIfDeclared("executeMethod", new String[]{"org.apache.commons.httpclient.HostConfiguration", "org.apache.commons.httpclient.HttpMethod", "org.apache.commons.httpclient.HttpState"}, interceptor, HttpClient3Scope.SCOPE);
     }
 
     private Interceptor newExecuteInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {

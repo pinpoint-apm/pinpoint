@@ -19,10 +19,10 @@ import java.util.Arrays;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.plugin.Group;
-import com.navercorp.pinpoint.bootstrap.plugin.Singleton;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Singleton;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
 
@@ -38,11 +38,11 @@ public class AnnotatedInterceptorInjector implements InterceptorInjector {
     private final Object[] providedArguments;
     
     private final String groupName;
-    private final ExecutionPoint executionPoint;
+    private final ExecutionPolicy executionPoint;
     
 
 
-    public AnnotatedInterceptorInjector(DefaultProfilerPluginContext pluginContext, String interceptorName, Object[] constructorArguments, String groupName, ExecutionPoint executionPoint) {
+    public AnnotatedInterceptorInjector(DefaultProfilerPluginContext pluginContext, String interceptorName, Object[] constructorArguments, String groupName, ExecutionPolicy executionPoint) {
         this.pluginContext = pluginContext;
         this.interceptorClassName = interceptorName;
         this.providedArguments = constructorArguments;
@@ -70,14 +70,14 @@ public class AnnotatedInterceptorInjector implements InterceptorInjector {
     
     private InterceptorFactory createInterceptorFactory(Class<? extends Interceptor> interceptorType) {
         String groupName = this.groupName;
-        ExecutionPoint executionPoint = this.executionPoint;
+        ExecutionPolicy executionPoint = this.executionPoint;
 
         if (groupName == null) {
-            Group scope = interceptorType.getAnnotation(Group.class);
+            Group interceptorGroup = interceptorType.getAnnotation(Group.class);
             
-            if (scope != null) {
-                groupName = scope.value();
-                executionPoint = scope.executionPoint();
+            if (interceptorGroup != null) {
+                groupName = interceptorGroup.value();
+                executionPoint = interceptorGroup.executionPoint();
             }
         }
         
@@ -85,7 +85,7 @@ public class AnnotatedInterceptorInjector implements InterceptorInjector {
         InterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext, group, interceptorType, providedArguments);
         
         if (group != null) {
-            factory = new ScopedInterceptorFactory(factory, group, executionPoint);
+            factory = new GroupedInterceptorFactory(factory, group, executionPoint);
         } 
         
         return factory;

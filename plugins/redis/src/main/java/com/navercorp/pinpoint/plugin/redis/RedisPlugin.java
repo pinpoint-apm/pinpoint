@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConstructorEditorBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConstructorTransformerBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerExceptionHandler;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty;
 import com.navercorp.pinpoint.plugin.redis.filter.JedisMethodNames;
@@ -86,29 +86,29 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
     }
 
     private ClassFileTransformerBuilder addJedisExtendedClassEditor(ProfilerPluginSetupContext context, RedisPluginConfig config, final String targetClassName) {
-        final ClassFileTransformerBuilder classEditorBuilder = context.getClassEditorBuilder(targetClassName);
+        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder(targetClassName);
 
-        final ConstructorEditorBuilder constructorEditorBuilderArg1 = classEditorBuilder.editConstructor(STRING);
+        final ConstructorTransformerBuilder constructorEditorBuilderArg1 = classEditorBuilder.editConstructor(STRING);
         constructorEditorBuilderArg1.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
         constructorEditorBuilderArg1.injectInterceptor(JEDIS_CONSTRUCTOR_INTERCEPTOR);
 
-        final ConstructorEditorBuilder constructorEditorBuilderArg2 = classEditorBuilder.editConstructor(STRING, INT);
+        final ConstructorTransformerBuilder constructorEditorBuilderArg2 = classEditorBuilder.editConstructor(STRING, INT);
         constructorEditorBuilderArg2.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
         constructorEditorBuilderArg2.injectInterceptor(JEDIS_CONSTRUCTOR_INTERCEPTOR);
 
-        final ConstructorEditorBuilder constructorEditorBuilderArg3 = classEditorBuilder.editConstructor(STRING, INT, INT);
+        final ConstructorTransformerBuilder constructorEditorBuilderArg3 = classEditorBuilder.editConstructor(STRING, INT, INT);
         constructorEditorBuilderArg3.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
         constructorEditorBuilderArg3.injectInterceptor(JEDIS_CONSTRUCTOR_INTERCEPTOR);
 
-        final ConstructorEditorBuilder constructorEditorBuilderArg4 = classEditorBuilder.editConstructor(URI);
+        final ConstructorTransformerBuilder constructorEditorBuilderArg4 = classEditorBuilder.editConstructor(URI);
         constructorEditorBuilderArg4.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
         constructorEditorBuilderArg4.injectInterceptor(JEDIS_CONSTRUCTOR_INTERCEPTOR);
 
-        final ConstructorEditorBuilder constructorEditorBuilderArg5 = classEditorBuilder.editConstructor(JEDIS_SHARD_INFO);
+        final ConstructorTransformerBuilder constructorEditorBuilderArg5 = classEditorBuilder.editConstructor(JEDIS_SHARD_INFO);
         constructorEditorBuilderArg5.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
         constructorEditorBuilderArg5.injectInterceptor(JEDIS_CONSTRUCTOR_INTERCEPTOR);
 
-        final MethodEditorBuilder methodEditorBuilder = classEditorBuilder.editMethods(new NameBasedMethodFilter(JedisMethodNames.get()));
+        final MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethods(new NameBasedMethodFilter(JedisMethodNames.get()));
         methodEditorBuilder.exceptionHandler(new MethodTransformerExceptionHandler() {
             @Override
             public void handle(String targetClassName, String targetMethodName, String[] targetMethodParameterTypes, Throwable exception) throws Exception {
@@ -124,14 +124,14 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
 
     // Client
     private void addJedisClientClassEditor(ProfilerPluginSetupContext context, RedisPluginConfig config) {
-        final ClassFileTransformerBuilder classEditorBuilder = context.getClassEditorBuilder(JEDIS_CLIENT);
+        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder(JEDIS_CLIENT);
         classEditorBuilder.injectMetadata(METADATA_END_POINT);
 
-        final ConstructorEditorBuilder constructorEditorBuilderArg1 = classEditorBuilder.editConstructor(STRING);
+        final ConstructorTransformerBuilder constructorEditorBuilderArg1 = classEditorBuilder.editConstructor(STRING);
         constructorEditorBuilderArg1.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
         constructorEditorBuilderArg1.injectInterceptor(JEDIS_CLIENT_CONSTRUCTOR_INTERCEPTOR);
         
-        final ConstructorEditorBuilder constructorEditorBuilderArg2 = classEditorBuilder.editConstructor(STRING, INT);
+        final ConstructorTransformerBuilder constructorEditorBuilderArg2 = classEditorBuilder.editConstructor(STRING, INT);
         constructorEditorBuilderArg2.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
         constructorEditorBuilderArg2.injectInterceptor(JEDIS_CLIENT_CONSTRUCTOR_INTERCEPTOR);
 
@@ -148,20 +148,20 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
         // Pipeline extends PipelineBase
         final ClassFileTransformerBuilder classEditorBuilder = addJedisPipelineBaseExtendedClassEditor(context, config, JEDIS_PIPELINE);
         classEditorBuilder.injectMetadata(METADATA_END_POINT);
-        final MethodEditorBuilder setClientMethodEditorBuilder = classEditorBuilder.editMethod("setClient", JEDIS_CLIENT);
+        final MethodTransformerBuilder setClientMethodEditorBuilder = classEditorBuilder.editMethod("setClient", JEDIS_CLIENT);
         setClientMethodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
         setClientMethodEditorBuilder.injectInterceptor(JEDIS_PIPELINE_SET_CLIENT_METHOD_INTERCEPTOR);
 
-        final ConstructorEditorBuilder constructorEditorBuilder = classEditorBuilder.editConstructor(JEDIS_CLIENT);
+        final ConstructorTransformerBuilder constructorEditorBuilder = classEditorBuilder.editConstructor(JEDIS_CLIENT);
         constructorEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
         constructorEditorBuilder.injectInterceptor(JEDIS_PIPELINE_CONSTRUCTOR_INTERCEPTOR);
         context.addClassFileTransformer(classEditorBuilder.build());
     }
 
     private ClassFileTransformerBuilder addJedisPipelineBaseExtendedClassEditor(ProfilerPluginSetupContext context, RedisPluginConfig config, String targetClassName) {
-        final ClassFileTransformerBuilder classEditorBuilder = context.getClassEditorBuilder(targetClassName);
+        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder(targetClassName);
 
-        final MethodEditorBuilder methodEditorBuilder = classEditorBuilder.editMethods(new NameBasedMethodFilter(JedisPipelineMethodNames.get()));
+        final MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethods(new NameBasedMethodFilter(JedisPipelineMethodNames.get()));
         methodEditorBuilder.exceptionHandler(new MethodTransformerExceptionHandler() {
             @Override
             public void handle(String targetClassName, String targetMethodName, String[] targetMethodParameterTypes, Throwable exception) throws Exception {

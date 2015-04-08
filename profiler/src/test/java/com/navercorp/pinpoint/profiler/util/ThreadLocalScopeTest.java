@@ -22,9 +22,9 @@ package com.navercorp.pinpoint.profiler.util;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.bootstrap.instrument.DefaultScopeDefinition;
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.instrument.DefaultInterceptorGroupDefinition;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
 
 /**
  * @author emeroad
@@ -32,29 +32,28 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
 public class ThreadLocalScopeTest {
     @Test
     public void pushPop() {
-        Scope scope = new ThreadLocalScope(new DefaultScopeDefinition("test"));
-        Assert.assertTrue(scope.tryEnter(ExecutionPoint.BOUNDARY));
-        scope.entered(ExecutionPoint.BOUNDARY);
-        Assert.assertFalse(scope.tryEnter(ExecutionPoint.BOUNDARY));
-        Assert.assertFalse(scope.tryEnter(ExecutionPoint.BOUNDARY));
+        InterceptorGroupTransaction scope = new ThreadLocalScope(new DefaultInterceptorGroupDefinition("test"));
+        Assert.assertTrue(scope.tryEnter(ExecutionPolicy.BOUNDARY));
+        Assert.assertFalse(scope.tryEnter(ExecutionPolicy.BOUNDARY));
+        Assert.assertFalse(scope.tryEnter(ExecutionPolicy.BOUNDARY));
         
-        Assert.assertTrue(scope.isIn());
+        Assert.assertTrue(scope.isActive());
 
-        Assert.assertFalse(scope.tryLeave(ExecutionPoint.BOUNDARY));
-        Assert.assertFalse(scope.tryLeave(ExecutionPoint.BOUNDARY));
-        Assert.assertTrue(scope.tryLeave(ExecutionPoint.BOUNDARY));
-        scope.leaved(ExecutionPoint.BOUNDARY);
+        Assert.assertFalse(scope.canLeave(ExecutionPolicy.BOUNDARY));
+        Assert.assertFalse(scope.canLeave(ExecutionPolicy.BOUNDARY));
+        Assert.assertTrue(scope.canLeave(ExecutionPolicy.BOUNDARY));
+        scope.leave(ExecutionPolicy.BOUNDARY);
     }
 
     @Test(expected=IllegalStateException.class)
     public void pushPopError() {
-        Scope scope = new ThreadLocalScope(new DefaultScopeDefinition("test"));
-        scope.leaved(ExecutionPoint.BOUNDARY);
+        InterceptorGroupTransaction scope = new ThreadLocalScope(new DefaultInterceptorGroupDefinition("test"));
+        scope.leave(ExecutionPolicy.BOUNDARY);
     }
 
     @Test
     public void getName() {
-        Scope scope = new ThreadLocalScope(new DefaultScopeDefinition("test"));
+        InterceptorGroupTransaction scope = new ThreadLocalScope(new DefaultInterceptorGroupDefinition("test"));
         Assert.assertEquals(scope.getName(), "test");
 
     }

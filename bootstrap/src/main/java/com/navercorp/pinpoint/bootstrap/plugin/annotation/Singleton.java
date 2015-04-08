@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -22,8 +22,8 @@ import java.lang.annotation.Target;
 /**
  * Indicates that the annotated interceptor have to be singleton.
  * 
- * For now, this annotation is applied only when a interceptor is injected by {@link com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodEditorBuilder MethodEditorBuilder} returned from {@link com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder#editMethods(com.navercorp.pinpoint.bootstrap.instrument.MethodFilter) ClassFileTransformerBuilder#editMethods(MethodFilter)}.
- * If so, only one instance of the interceptor is created and that instance is injected to all the target methods of the {@link com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodEditorBuilder MethodEditorBuilder}.
+ * For now, this annotation is applied only when a interceptor is injected by {@link com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder MethodTransformerBuilder} returned from {@link com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder#editMethods(com.navercorp.pinpoint.bootstrap.instrument.MethodFilter) ClassFileTransformerBuilder#editMethods(MethodFilter)}.
+ * If so, only one instance of the interceptor is created and that instance is injected to all the target methods of the {@link com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder MethodTransformerBuilder}.
  * 
  * If you inject an interceptor with this annotation by other ways, every injection will create a new instance.
  * 

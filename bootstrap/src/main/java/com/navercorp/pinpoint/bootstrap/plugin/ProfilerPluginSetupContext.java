@@ -57,20 +57,20 @@ public interface ProfilerPluginSetupContext {
     /**
      * Get a {@link ClassFileTransformerBuilder}.
      * 
-     * By using returned {@link ClassFileTransformerBuilder} you can create a {@link ClassEditor} easily.
-     * You have to register resulting {@link ClasEditor} by {@link #addClassFileTransformer(ClassEditor)} to make it works.
+     * By using returned {@link ClassFileTransformerBuilder} you can create a {@link ClassFileTransformer} easily.
+     * You have to register resulting {@link ClassFileTransformer} by {@link #addClassFileTransformer(ClassFileTransformer)} to make it works.
      *
      * @param targetClassName target class name
      * @return {@link ClassFileTransformerBuilder}
      */
-    public ClassFileTransformerBuilder getClassEditorBuilder(String targetClassName);
+    public ClassFileTransformerBuilder getClassFileTransformerBuilder(String targetClassName);
     
     /**
      * Add a {@link ClassEditor} to Pinpoint agent.
      * 
      * @param classEditor
      */
-    public void addClassFileTransformer(ClassFileTransformer classEditor);
+    public void addClassFileTransformer(ClassFileTransformer transformer);
     
     /**
      * Add a {@link ApplicationTypeDetector} to Pinpoint agent.

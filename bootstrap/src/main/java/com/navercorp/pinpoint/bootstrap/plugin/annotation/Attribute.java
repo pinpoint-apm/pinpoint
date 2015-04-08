@@ -12,28 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-
 /**
- * Indicates that the target have to be cached. 
- * 
- * For now, only {@link MethodDescriptor} can be cached. 
- * You can also annotate {@link MethodInfo} with this annotation 
- * but it makes the {@link MethodDescriptor} returned by {@link MethodInfo#getDescriptor()} cached 
- * not {@link MethodInfo} itself.
+ * Indicates that an attribute with given name have to be injected to the target.
  * 
  * @author Jongho Moon
- *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface Cached {
+public @interface Attribute {
+    public String value();
 }

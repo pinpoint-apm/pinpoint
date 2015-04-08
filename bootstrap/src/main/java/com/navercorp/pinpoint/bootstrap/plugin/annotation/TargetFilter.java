@@ -12,23 +12,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
+
 /**
- * Provides name of auto binded parameter.
- * 
- * Some auto binded parameter types should be identified by name. 
+ * Specify the {@link MethodFilter} which will be used to filter the annotated interceptor's target methods.
  * 
  * @author Jongho Moon
  *
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
-public @interface Name {
-    public String value();
+@Target(ElementType.TYPE)
+public @interface TargetFilter {
+    /**
+     * Filter type
+     */
+    public Class<? extends MethodFilter> value();
+    
+    /**
+     * Filter type
+     */
+    public Class<? extends MethodFilter> type();
+    
+    /**
+     * Arguments for specified {@link MethodFilter}'s constructor. 
+     */
+    public String[] constructorArguments();
 }

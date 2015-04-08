@@ -12,32 +12,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 
 /**
- * Indicates that the annotated {@link Interceptor} participate in a {@link InterceptorGroup}.
+ * Indicates that the target have to be cached. 
+ * 
+ * For now, only {@link MethodDescriptor} can be cached. 
+ * You can also annotate {@link MethodInfo} with this annotation 
+ * but it makes the {@link MethodDescriptor} returned by {@link MethodInfo#getDescriptor()} cached 
+ * not {@link MethodInfo} itself.
  * 
  * @author Jongho Moon
  *
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Group {
-    /**
-     * group name
-     */
-    public String value();
-    
-    /**
-     * specify when this interceptor have to be invoked.
-     */
-    public ExecutionPoint executionPoint() default ExecutionPoint.BOUNDARY;
+@Target(ElementType.PARAMETER)
+public @interface Cached {
 }

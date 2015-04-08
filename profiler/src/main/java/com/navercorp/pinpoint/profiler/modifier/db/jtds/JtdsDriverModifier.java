@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.interceptor.DriverConnectInterceptor;
 
@@ -54,7 +54,7 @@ public class JtdsDriverModifier extends AbstractModifier {
         try {
             InstrumentClass jtdsDriver = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
-            final Scope scope = byteCodeInstrumentor.getScope(JtdsScope.SCOPE_NAME);
+            final InterceptorGroupTransaction scope = byteCodeInstrumentor.getInterceptorGroupTransaction(JtdsScope.SCOPE_NAME);
             Interceptor createConnection = new DriverConnectInterceptor(scope);
             String[] params = new String[]{ "java.lang.String", "java.util.Properties" };
             jtdsDriver.addInterceptor("connect", params, createConnection);

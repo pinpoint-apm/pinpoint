@@ -20,9 +20,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
-import com.navercorp.pinpoint.bootstrap.instrument.DefaultScopeDefinition;
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.instrument.DefaultInterceptorGroupDefinition;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
 
 public class ThreadLocalScopePoolTest {
 
@@ -30,7 +30,7 @@ public class ThreadLocalScopePoolTest {
     public void testGetScope() throws Exception {
 
         ScopePool pool = new ThreadLocalScopePool();
-        Scope scope = pool.getScope(new DefaultScopeDefinition("test"));
+        InterceptorGroupTransaction scope = pool.getScope(new DefaultInterceptorGroupDefinition("test"));
         Assert.assertTrue(scope instanceof ThreadLocalScope);
 
         Assert.assertEquals("name", scope.getName(), "test");
@@ -40,19 +40,19 @@ public class ThreadLocalScopePoolTest {
      public void testAttachment() throws Exception {
 
         ScopePool pool = new ThreadLocalScopePool();
-        Scope scope = pool.getScope(new DefaultScopeDefinition("test"));
+        InterceptorGroupTransaction scope = pool.getScope(new DefaultInterceptorGroupDefinition("test"));
 
-        scope.tryEnter(ExecutionPoint.BOUNDARY);
-        scope.entered(ExecutionPoint.BOUNDARY);
-        
-        scope.tryEnter(ExecutionPoint.BOUNDARY);
+        scope.tryEnter(ExecutionPolicy.BOUNDARY);
+        scope.tryEnter(ExecutionPolicy.BOUNDARY);
         
         Assert.assertNull(scope.getAttachment());
         scope.setAttachment("test");
         
-        scope.tryLeave(ExecutionPoint.BOUNDARY);
+        scope.canLeave(ExecutionPolicy.BOUNDARY);
         Assert.assertEquals(scope.getAttachment(), "test");
-        Assert.assertTrue(scope.tryLeave(ExecutionPoint.BOUNDARY));
+        
+        Assert.assertTrue(scope.canLeave(ExecutionPolicy.BOUNDARY));
+        scope.leave(ExecutionPolicy.BOUNDARY);
         
         Assert.assertEquals("name", scope.getName(), "test");
     }
@@ -61,11 +61,10 @@ public class ThreadLocalScopePoolTest {
     @Test
     public void testGetOrCreate() throws Exception {
         ScopePool pool = new ThreadLocalScopePool();
-        Scope scope= pool.getScope(new DefaultScopeDefinition("test"));
+        InterceptorGroupTransaction scope= pool.getScope(new DefaultInterceptorGroupDefinition("test"));
         
-        scope.tryEnter(ExecutionPoint.BOUNDARY);
-        scope.entered(ExecutionPoint.BOUNDARY);
-        scope.tryEnter(ExecutionPoint.BOUNDARY);
+        scope.tryEnter(ExecutionPolicy.BOUNDARY);
+        scope.tryEnter(ExecutionPolicy.BOUNDARY);
 
         Assert.assertNull(scope.getAttachment());
         Assert.assertEquals(scope.getOrCreateAttachment(new AttachmentFactory() {
@@ -75,10 +74,11 @@ public class ThreadLocalScopePoolTest {
             };
         }), "test");
         
-        scope.tryLeave(ExecutionPoint.BOUNDARY);
+        scope.canLeave(ExecutionPolicy.BOUNDARY);
         Assert.assertEquals(scope.getAttachment(), "test");
-        Assert.assertTrue(scope.tryLeave(ExecutionPoint.BOUNDARY));
-
+        Assert.assertTrue(scope.canLeave(ExecutionPolicy.BOUNDARY));
+        scope.leave(ExecutionPolicy.BOUNDARY);
+        
         Assert.assertEquals("name", scope.getName(), "test");
     }
 }

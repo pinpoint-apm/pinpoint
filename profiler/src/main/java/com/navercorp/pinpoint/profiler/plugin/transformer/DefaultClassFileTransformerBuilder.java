@@ -24,15 +24,15 @@ import java.util.List;
 import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassCondition;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerSetup;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConstructorEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConstructorTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.DedicatedClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.InterceptorBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerExceptionHandler;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
@@ -93,21 +93,21 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
     }
 
     @Override
-    public MethodEditorBuilder editMethods(MethodFilter filter) {
+    public MethodTransformerBuilder editMethods(MethodFilter filter) {
         DefaultMethodEditorBuilder builder = new DefaultMethodEditorBuilder(filter);
         recipeBuilders.add(builder);
         return builder;
     }
 
     @Override
-    public MethodEditorBuilder editMethod(String name, String... parameterTypeNames) {
+    public MethodTransformerBuilder editMethod(String name, String... parameterTypeNames) {
         DefaultMethodEditorBuilder builder = new DefaultMethodEditorBuilder(name, parameterTypeNames);
         recipeBuilders.add(builder);
         return builder;
     }
 
     @Override
-    public ConstructorEditorBuilder editConstructor(String... parameterTypeNames) {
+    public ConstructorTransformerBuilder editConstructor(String... parameterTypeNames) {
         DefaultMethodEditorBuilder builder = new DefaultMethodEditorBuilder(parameterTypeNames);
         recipeBuilders.add(builder);
         return builder;
@@ -172,7 +172,7 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
         private final Object[] constructorArguments;
         
         private String groupName;
-        private ExecutionPoint executionPoint;
+        private ExecutionPolicy executionPoint;
         
         public AnnotatedInterceptorInjectorBuilder(String interceptorClassName, Object[] constructorArguments) {
             this.interceptorClassName = interceptorClassName;
@@ -181,11 +181,11 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
         
         @Override
         public void group(String groupName) {
-            group(groupName, ExecutionPoint.ALWAYS);            
+            group(groupName, ExecutionPolicy.ALWAYS);            
         }
         
         @Override
-        public void group(String groupName, ExecutionPoint point) {
+        public void group(String groupName, ExecutionPolicy point) {
             this.groupName = groupName;
             this.executionPoint = point;
         }
@@ -196,7 +196,7 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
         }
     }
     
-    public class DefaultMethodEditorBuilder implements MethodEditorBuilder, ConstructorEditorBuilder, RecipeBuilder<ClassRecipe> {
+    public class DefaultMethodEditorBuilder implements MethodTransformerBuilder, ConstructorTransformerBuilder, RecipeBuilder<ClassRecipe> {
         private final String methodName;
         private final String[] parameterTypeNames;
         private final MethodFilter filter;

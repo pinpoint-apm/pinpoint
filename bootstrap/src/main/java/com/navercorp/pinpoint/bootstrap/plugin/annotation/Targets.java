@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -20,18 +20,26 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Specify the target constructor of the annotated interceptor.
+ * Specify multiple targets of the annotated interceptor.
  * 
  * @author Jongho Moon
  *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface TargetConstructor {
+public @interface Targets {
     /**
-     * Target constructor's parameter types.
-     * 
-     * @return
+     * target methods
      */
-    public String[] value() default {};
+    TargetMethod[] methods() default {};
+    
+    /**
+     * target constructors
+     */
+    TargetConstructor[] constructors() default {};
+    
+    /**
+     * target method filters
+     */
+    TargetFilter[] filters() default {};
 }

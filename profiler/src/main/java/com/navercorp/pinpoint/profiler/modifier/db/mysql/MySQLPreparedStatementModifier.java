@@ -21,12 +21,12 @@ import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.BindValueTraceValue;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ParsingResultTraceValue;
-import com.navercorp.pinpoint.profiler.interceptor.ScopeDelegateStaticInterceptor;
+import com.navercorp.pinpoint.profiler.interceptor.GroupDelegateStaticInterceptor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.interceptor.*;
 import com.navercorp.pinpoint.profiler.util.ExcludeBindVariableFilter;
@@ -64,13 +64,13 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
             InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             Interceptor execute = new PreparedStatementExecuteQueryInterceptor();
-            preparedStatement.addScopeInterceptor("execute", null, execute, MYSQLScope.SCOPE_NAME);
+            preparedStatement.addGroupInterceptor("execute", null, execute, MYSQLScope.SCOPE_NAME);
 
             Interceptor executeQuery = new PreparedStatementExecuteQueryInterceptor();
-            preparedStatement.addScopeInterceptor("executeQuery", null, executeQuery, MYSQLScope.SCOPE_NAME);
+            preparedStatement.addGroupInterceptor("executeQuery", null, executeQuery, MYSQLScope.SCOPE_NAME);
 
             Interceptor executeUpdate = new PreparedStatementExecuteQueryInterceptor();
-            preparedStatement.addScopeInterceptor("executeUpdate", null, executeUpdate, MYSQLScope.SCOPE_NAME);
+            preparedStatement.addGroupInterceptor("executeUpdate", null, executeUpdate, MYSQLScope.SCOPE_NAME);
 
             preparedStatement.addTraceValue(DatabaseInfoTraceValue.class);
             preparedStatement.addTraceValue(ParsingResultTraceValue.class);
@@ -91,8 +91,8 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
         ExcludeBindVariableFilter exclude = new ExcludeBindVariableFilter(new String[]{"setRowId", "setNClob", "setSQLXML"});
         List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod(exclude);
 
-        final Scope scope = byteCodeInstrumentor.getScope(MYSQLScope.SCOPE_NAME);
-        Interceptor interceptor = new ScopeDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor(), scope);
+        final InterceptorGroupTransaction scope = byteCodeInstrumentor.getInterceptorGroupTransaction(MYSQLScope.SCOPE_NAME);
+        Interceptor interceptor = new GroupDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor(), scope);
         int interceptorId = -1;
         for (Method method : bindMethod) {
             String methodName = method.getName();

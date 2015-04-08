@@ -17,24 +17,27 @@
 package com.navercorp.pinpoint.profiler.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
  * @author emeroad
  */
-public class DebugScopeDelegateStaticInterceptor implements StaticAroundInterceptor, TraceContextSupport {
+public class DebugGroupDelegateSimpleInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    private final StaticAroundInterceptor delegate;
-    private final Scope scope;
+    private final SimpleAroundInterceptor delegate;
+    private final InterceptorGroupTransaction scope;
 
 
-    public DebugScopeDelegateStaticInterceptor(StaticAroundInterceptor delegate, Scope scope) {
+    public DebugGroupDelegateSimpleInterceptor(SimpleAroundInterceptor delegate, InterceptorGroupTransaction scope) {
         if (delegate == null) {
             throw new NullPointerException("delegate must not be null");
         }
@@ -46,29 +49,34 @@ public class DebugScopeDelegateStaticInterceptor implements StaticAroundIntercep
     }
 
     @Override
-    public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        if (!scope.tryEnter(ExecutionPoint.BOUNDARY)) {
+    public void before(Object target, Object[] args) {
+        if (!scope.tryEnter(ExecutionPolicy.BOUNDARY)) {
             if (isDebug) {
                 logger.debug("tryBefore() returns false {}. skip trace. {}", new Object[]{scope, delegate.getClass()});
             }
             return;
         }
-        this.delegate.before(target, className, methodName, parameterDescription, args);
-        scope.entered(ExecutionPoint.BOUNDARY);
+        this.delegate.before(target, args);
     }
 
     @Override
-    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
-        if (!scope.tryLeave(ExecutionPoint.BOUNDARY)) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        if (!scope.canLeave(ExecutionPolicy.BOUNDARY)) {
             if (isDebug) {
                 logger.debug("tryAfter() returns false {}. skip trace. {}", new Object[]{scope, delegate.getClass()});
             }
             return;
         }
-        this.delegate.after(target, className, methodName, parameterDescription, args, result, throwable);
-        scope.leaved(ExecutionPoint.BOUNDARY);
+        this.delegate.after(target, args, result, throwable);
+        scope.leave(ExecutionPolicy.BOUNDARY);
     }
 
+    @Override
+    public void setMethodDescriptor(MethodDescriptor descriptor) {
+        if (this.delegate instanceof ByteCodeMethodDescriptorSupport) {
+            ((ByteCodeMethodDescriptorSupport) this.delegate).setMethodDescriptor(descriptor);
+        }
+    }
 
     @Override
     public void setTraceContext(TraceContext traceContext) {
@@ -76,7 +84,4 @@ public class DebugScopeDelegateStaticInterceptor implements StaticAroundIntercep
             ((TraceContextSupport) this.delegate).setTraceContext(traceContext);
         }
     }
-
-
-
 }

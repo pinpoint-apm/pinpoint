@@ -15,21 +15,21 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
 
 /**
  * @author Jongho Moon
  *
  */
-public class DefaultScope implements Scope {
+public class DefaultInterceptorStack implements InterceptorGroupTransaction {
     private final String name;
     private Object attachment = null;
     
     private int depth = 0;
     private int skippedBoundary = 0;
     
-    public DefaultScope(String name) {
+    public DefaultInterceptorStack(String name) {
         this.name = name;
     }
 
@@ -39,13 +39,13 @@ public class DefaultScope implements Scope {
     }
     
     @Override
-    public boolean tryEnter(ExecutionPoint point) {
+    public boolean tryEnter(ExecutionPolicy point) {
         switch (point) {
         case ALWAYS:
             depth++;
             return true;
         case BOUNDARY:
-            if (isIn()) {
+            if (isActive()) {
                 skippedBoundary++;
                 return false;
             } else {
@@ -53,7 +53,7 @@ public class DefaultScope implements Scope {
                 return true;
             }
         case INTERNAL:
-            if (isIn()) {
+            if (isActive()) {
                 depth++;
                 return true;
             } else {
@@ -65,12 +65,7 @@ public class DefaultScope implements Scope {
     }
     
     @Override
-    public void entered(ExecutionPoint point) {
-        // do nothing
-    }
-
-    @Override
-    public boolean tryLeave(ExecutionPoint point) {
+    public boolean canLeave(ExecutionPolicy point) {
         switch (point) {
         case ALWAYS:
             return true;
@@ -89,7 +84,7 @@ public class DefaultScope implements Scope {
     }
 
     @Override
-    public void leaved(ExecutionPoint point) {
+    public void leave(ExecutionPolicy point) {
         if (depth == 0) {
             throw new IllegalStateException();
         }
@@ -121,13 +116,13 @@ public class DefaultScope implements Scope {
 
 
     @Override
-    public boolean isIn() {
+    public boolean isActive() {
         return depth > 0;
     }
 
     @Override
     public Object setAttachment(Object attachment) {
-        if (!isIn()) {
+        if (!isActive()) {
             throw new IllegalStateException();
         }
         
@@ -138,7 +133,7 @@ public class DefaultScope implements Scope {
     
     @Override
     public Object getOrCreateAttachment(AttachmentFactory factory) {
-        if (!isIn()) {
+        if (!isActive()) {
             throw new IllegalStateException();
         }
         
@@ -151,7 +146,7 @@ public class DefaultScope implements Scope {
 
     @Override
     public Object getAttachment() {
-        if (!isIn()) {
+        if (!isActive()) {
             throw new IllegalStateException();
         }
         
@@ -160,7 +155,7 @@ public class DefaultScope implements Scope {
 
     @Override
     public Object removeAttachment() {
-        if (!isIn()) {
+        if (!isActive()) {
             throw new IllegalStateException();
         }
         

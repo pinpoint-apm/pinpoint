@@ -29,11 +29,11 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.Cached;
-import com.navercorp.pinpoint.bootstrap.plugin.Group;
-import com.navercorp.pinpoint.bootstrap.plugin.Name;
-import com.navercorp.pinpoint.bootstrap.plugin.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.plugin.Targets;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Cached;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Targets;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpConstants;
@@ -92,7 +92,7 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
             return;
         }
 
-        group.getCurrentTransaction().setAttachment(TRACE_BLOCK_BEGIN_MARKER);
+        group.getCurrentStack().setAttachment(TRACE_BLOCK_BEGIN_MARKER);
         
         trace.traceBlockBegin();
         trace.markBeforeTime();
@@ -145,7 +145,7 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
             return;
         }
         
-        Object marker = group.getCurrentTransaction().getAttachment();
+        Object marker = group.getCurrentStack().getAttachment();
         
         if (marker != TRACE_BLOCK_BEGIN_MARKER) {
             return;

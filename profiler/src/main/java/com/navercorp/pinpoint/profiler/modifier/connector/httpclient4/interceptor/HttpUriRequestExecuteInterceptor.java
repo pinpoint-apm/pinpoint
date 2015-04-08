@@ -21,8 +21,8 @@ import java.net.URI;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.HttpUriRequest;
 
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
 
 /**
@@ -41,7 +41,7 @@ public class HttpUriRequestExecuteInterceptor extends AbstractHttpRequestExecute
 
     private static final int HTTP_URI_REQUEST_INDEX = 0;
 
-    public HttpUriRequestExecuteInterceptor(boolean isHasCallbackParam, Scope scope) {
+    public HttpUriRequestExecuteInterceptor(boolean isHasCallbackParam, InterceptorGroupTransaction scope) {
         super(HttpUriRequestExecuteInterceptor.class, isHasCallbackParam, scope);
     }
 
