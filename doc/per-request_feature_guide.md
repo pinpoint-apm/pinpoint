@@ -223,14 +223,14 @@ log.page.url=XXXX.pinpoint
 log.button.name= log
 ```
 
-
+If those are correctly configured, the buttons are added in the transaction list view.
 ![per-request_feature_2.jpg](img/per-request_feature_2.jpg)
 
 For details in how the log buttons are generated, please refer to Pinpoint Web’s BusinessTransactionController and ScatterChartController.
 
 ---------------------
 
-# KOREAN GUIDE
+# 한국어 가이드
 
 ## Per-request logging
 
