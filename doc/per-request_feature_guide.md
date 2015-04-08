@@ -106,7 +106,8 @@ ex) With Pinpoint
 ```
 
 The transactionId printed in the log message is the same as the transactionId in Pinpoint Web’s Transaction List view.
-![capture_3.jpg](/files/40875)
+![per_request_feature_1.jpg](img/per_request_feature_1.jpg)
+
 
 ### 2. How to configure
 
