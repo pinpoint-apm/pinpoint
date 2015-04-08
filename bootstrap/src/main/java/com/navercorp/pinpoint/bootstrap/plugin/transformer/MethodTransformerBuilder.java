@@ -19,6 +19,6 @@ package com.navercorp.pinpoint.bootstrap.plugin.transformer;
  * @author Jongho Moon
  *
  */
-public interface MethodEditorBuilder extends BaseMethodTransformerBuilder {
+public interface MethodTransformerBuilder extends BaseMethodTransformerBuilder {
     
 }

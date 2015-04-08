@@ -57,10 +57,10 @@ public class FrontCacheGetFutureModifier extends AbstractModifier {
             aClass.addConstructorInterceptor(new String[]{"net.sf.ehcache.Element"}, frontCacheGetFutureConstructInterceptor);
 
             SimpleAroundInterceptor frontCacheGetFutureGetInterceptor = (SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.FrontCacheGetFutureGetInterceptor");
-            aClass.addScopeInterceptor("get", new String[]{Long.TYPE.toString(), "java.util.concurrent.TimeUnit"}, frontCacheGetFutureGetInterceptor, ArcusScope.SCOPE);
+            aClass.addGroupInterceptor("get", new String[]{Long.TYPE.toString(), "java.util.concurrent.TimeUnit"}, frontCacheGetFutureGetInterceptor, ArcusScope.SCOPE);
             
             SimpleAroundInterceptor frontCacheGetFutureGetInterceptor2 = (SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.FrontCacheGetFutureGetInterceptor");
-            aClass.addScopeInterceptor("get", new String[]{}, frontCacheGetFutureGetInterceptor2, ArcusScope.SCOPE);
+            aClass.addGroupInterceptor("get", new String[]{}, frontCacheGetFutureGetInterceptor2, ArcusScope.SCOPE);
 
             return aClass.toBytecode();
         } catch (Exception e) {

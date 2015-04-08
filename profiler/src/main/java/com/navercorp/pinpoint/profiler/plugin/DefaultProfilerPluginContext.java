@@ -56,7 +56,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     }
 
     @Override
-    public ClassFileTransformerBuilder getClassEditorBuilder(String targetClassName) {
+    public ClassFileTransformerBuilder getClassFileTransformerBuilder(String targetClassName) {
         return new DefaultClassFileTransformerBuilder(this, targetClassName);
     }
     

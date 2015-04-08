@@ -19,6 +19,6 @@ package com.navercorp.pinpoint.bootstrap.instrument;
 /**
  * @author emeroad
  */
-public interface ScopeDefinition {
+public interface InterceptorGroupDefinition {
     String getName();
 }

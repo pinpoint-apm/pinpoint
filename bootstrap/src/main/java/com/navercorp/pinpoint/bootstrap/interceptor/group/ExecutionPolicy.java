@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.bootstrap.interceptor.group;
  * @author Jongho Moon
  *
  */
-public enum ExecutionPoint {
+public enum ExecutionPolicy {
     ALWAYS,
     BOUNDARY,
     INTERNAL

@@ -64,7 +64,7 @@ public abstract class MyBatisClientModifier extends AbstractModifier {
             List<MethodInfo> declaredMethods = myBatisClientImpl.getDeclaredMethods(getSqlSessionMethodFilter());
             for (MethodInfo method : declaredMethods) {
                 Interceptor sqlSessionInterceptor = new MyBatisSqlMapOperationInterceptor(serviceType);
-                myBatisClientImpl.addScopeInterceptor(method.getName(), method.getParameterTypes(), sqlSessionInterceptor, SCOPE);
+                myBatisClientImpl.addGroupInterceptor(method.getName(), method.getParameterTypes(), sqlSessionInterceptor, SCOPE);
             }
 
             return myBatisClientImpl.toBytecode();

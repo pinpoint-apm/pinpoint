@@ -49,21 +49,21 @@ public class OracleStatementModifierDelegate extends AbstractModifierDelegate {
         try {
             InstrumentClass statementClass = byteCodeInstrumentor.getClass(classLoader, className, classFileBuffer);
             Interceptor executeQuery = new StatementExecuteQueryInterceptor();
-            statementClass.addScopeInterceptor("executeQuery", new String[]{"java.lang.String"}, executeQuery, OracleScope.SCOPE_NAME);
+            statementClass.addGroupInterceptor("executeQuery", new String[]{"java.lang.String"}, executeQuery, OracleScope.SCOPE_NAME);
 
             // FIXME
             Interceptor executeUpdateInterceptor1 = new StatementExecuteUpdateInterceptor();
-            statementClass.addScopeInterceptor("executeUpdate", new String[]{"java.lang.String"}, executeUpdateInterceptor1, OracleScope.SCOPE_NAME);
+            statementClass.addGroupInterceptor("executeUpdate", new String[]{"java.lang.String"}, executeUpdateInterceptor1, OracleScope.SCOPE_NAME);
 
 
             Interceptor executeUpdateInterceptor2 = new StatementExecuteUpdateInterceptor();
-            statementClass.addScopeInterceptor("executeUpdate", new String[]{"java.lang.String", "int"}, executeUpdateInterceptor2, OracleScope.SCOPE_NAME);
+            statementClass.addGroupInterceptor("executeUpdate", new String[]{"java.lang.String", "int"}, executeUpdateInterceptor2, OracleScope.SCOPE_NAME);
 
             Interceptor executeInterceptor1 = new StatementExecuteUpdateInterceptor();
-            statementClass.addScopeInterceptor("execute", new String[]{"java.lang.String"}, executeInterceptor1, OracleScope.SCOPE_NAME);
+            statementClass.addGroupInterceptor("execute", new String[]{"java.lang.String"}, executeInterceptor1, OracleScope.SCOPE_NAME);
 
             Interceptor executeInterceptor2 = new StatementExecuteUpdateInterceptor();
-            statementClass.addScopeInterceptor("execute", new String[]{"java.lang.String", "int"}, executeInterceptor2, OracleScope.SCOPE_NAME);
+            statementClass.addGroupInterceptor("execute", new String[]{"java.lang.String", "int"}, executeInterceptor2, OracleScope.SCOPE_NAME);
 
             statementClass.addTraceValue(DatabaseInfoTraceValue.class);
             return statementClass.toBytecode();

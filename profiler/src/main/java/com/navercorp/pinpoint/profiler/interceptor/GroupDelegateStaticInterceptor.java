@@ -17,20 +17,20 @@
 package com.navercorp.pinpoint.profiler.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
 
 /**
  * @author emeroad
  */
-public class ScopeDelegateStaticInterceptor implements StaticAroundInterceptor, TraceContextSupport {
+public class GroupDelegateStaticInterceptor implements StaticAroundInterceptor, TraceContextSupport {
     private final StaticAroundInterceptor delegate;
-    private final Scope scope;
+    private final InterceptorGroupTransaction scope;
 
 
-    public ScopeDelegateStaticInterceptor(StaticAroundInterceptor delegate, Scope scope) {
+    public GroupDelegateStaticInterceptor(StaticAroundInterceptor delegate, InterceptorGroupTransaction scope) {
         if (delegate == null) {
             throw new NullPointerException("delegate must not be null");
         }
@@ -43,17 +43,16 @@ public class ScopeDelegateStaticInterceptor implements StaticAroundInterceptor, 
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        if (scope.tryEnter(ExecutionPoint.BOUNDARY)) {
+        if (scope.tryEnter(ExecutionPolicy.BOUNDARY)) {
             this.delegate.before(target, className, methodName, parameterDescription, args);
-            scope.entered(ExecutionPoint.BOUNDARY);
         }
     }
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
-        if (scope.tryLeave(ExecutionPoint.BOUNDARY)) {
+        if (scope.canLeave(ExecutionPolicy.BOUNDARY)) {
             this.delegate.after(target, className, methodName, parameterDescription, args, result, throwable);
-            scope.leaved(ExecutionPoint.BOUNDARY);
+            scope.leave(ExecutionPolicy.BOUNDARY);
         }
     }
 

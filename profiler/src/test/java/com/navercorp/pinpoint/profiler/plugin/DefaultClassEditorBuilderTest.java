@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.plugin.transformer.DefaultClassFileTransformerBuilder;
 
@@ -74,7 +74,7 @@ public class DefaultClassEditorBuilderTest {
         builder.injectMetadata("a", "java.util.HashMap");
         builder.injectFieldAccessor("someField");
         
-        MethodEditorBuilder ib = builder.editMethod(methodName, parameterTypeNames);
+        MethodTransformerBuilder ib = builder.editMethod(methodName, parameterTypeNames);
         ib.injectInterceptor("com.navercorp.pinpoint.profiler.plugin.TestInterceptor", "provided");
         
         ClassFileTransformer transformer = builder.build();

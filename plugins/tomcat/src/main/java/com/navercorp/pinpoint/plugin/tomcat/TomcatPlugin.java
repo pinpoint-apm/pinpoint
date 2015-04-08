@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty;
 
 /**
@@ -54,16 +54,16 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
     }
 
     private void addRequestEditor(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassEditorBuilder("org.apache.catalina.connector.Request");
+        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.apache.catalina.connector.Request");
         builder.injectMetadata(METADATA_TRACE);
         builder.injectMetadata(METADATA_ASYNC);
         
         // clear request.
-        MethodEditorBuilder recycleMethodEditorBuilder = builder.editMethod("recycle");
+        MethodTransformerBuilder recycleMethodEditorBuilder = builder.editMethod("recycle");
         recycleMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestRecycleInterceptor");
         
         // trace asynchronous process. 
-        MethodEditorBuilder startAsyncMethodEditor = builder.editMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
+        MethodTransformerBuilder startAsyncMethodEditor = builder.editMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
         startAsyncMethodEditor.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
         startAsyncMethodEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestStartAsyncInterceptor");
         
@@ -71,26 +71,26 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
     }
 
     private void addRequestFacadeEditor(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassEditorBuilder("org.apache.catalina.connector.RequestFacade");
+        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.apache.catalina.connector.RequestFacade");
         builder.weave("com.navercorp.pinpoint.plugin.tomcat.aspect.RequestFacadeAspect");
         context.addClassFileTransformer(builder.build());
     }
 
     private void addStandardHostValveEditor(ProfilerPluginSetupContext context, TomcatConfiguration config) {
-        ClassFileTransformerBuilder builder = context.getClassEditorBuilder("org.apache.catalina.core.StandardHostValve");
+        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.apache.catalina.core.StandardHostValve");
         builder.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor", config.getTomcatExcludeUrlFilter());
         context.addClassFileTransformer(builder.build());
     }
 
     private void addStandardServiceEditor(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassEditorBuilder("org.apache.catalina.core.StandardService");
+        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.apache.catalina.core.StandardService");
         // Tomcat 6
-        MethodEditorBuilder startEditor = builder.editMethod("start");
+        MethodTransformerBuilder startEditor = builder.editMethod("start");
         startEditor.property(IGNORE_IF_NOT_EXIST);
         startEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardServiceStartInterceptor");
 
         // Tomcat 7
-        MethodEditorBuilder startInternalEditor = builder.editMethod("startInternal");
+        MethodTransformerBuilder startInternalEditor = builder.editMethod("startInternal");
         startInternalEditor.property(IGNORE_IF_NOT_EXIST);
         startInternalEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardServiceStartInterceptor");
         
@@ -98,15 +98,15 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
     }
 
     private void addTomcatConnectorEditor(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassEditorBuilder("org.apache.catalina.connector.Connector");
+        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.apache.catalina.connector.Connector");
 
         // Tomcat 6
-        MethodEditorBuilder initializeEditor = builder.editMethod("initialize");
+        MethodTransformerBuilder initializeEditor = builder.editMethod("initialize");
         initializeEditor.property(IGNORE_IF_NOT_EXIST);
         initializeEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.ConnectorInitializeInterceptor");
 
         // Tomcat 7
-        MethodEditorBuilder initInternalEditor = builder.editMethod("initInternal");
+        MethodTransformerBuilder initInternalEditor = builder.editMethod("initInternal");
         initInternalEditor.property(IGNORE_IF_NOT_EXIST);
         initInternalEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.ConnectorInitializeInterceptor");
         
@@ -114,14 +114,14 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
     }
 
     private void addWebappLoaderEditor(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassEditorBuilder("org.apache.catalina.loader.WebappLoader");
+        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.apache.catalina.loader.WebappLoader");
         // Tomcat 6 - org.apache.catalina.loader.WebappLoader.start()
-        MethodEditorBuilder startEditor = builder.editMethod("start");
+        MethodTransformerBuilder startEditor = builder.editMethod("start");
         startEditor.property(IGNORE_IF_NOT_EXIST);
         startEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.WebappLoaderStartInterceptor");
 
         // Tomcat 7, 8 - org.apache.catalina.loader.WebappLoader.startInternal()
-        MethodEditorBuilder startInternalEditor = builder.editMethod("startInternal");
+        MethodTransformerBuilder startInternalEditor = builder.editMethod("startInternal");
         startInternalEditor.property(IGNORE_IF_NOT_EXIST);
         startInternalEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.WebappLoaderStartInterceptor");
         

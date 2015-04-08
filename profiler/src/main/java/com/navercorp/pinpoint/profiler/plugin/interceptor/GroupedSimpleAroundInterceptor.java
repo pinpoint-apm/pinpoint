@@ -16,25 +16,25 @@
 
 package com.navercorp.pinpoint.profiler.plugin.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
  * @author emeroad
  */
-public class ScopedSimpleAroundInterceptor implements SimpleAroundInterceptor {
+public class GroupedSimpleAroundInterceptor implements SimpleAroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final boolean debugEnabled = logger.isDebugEnabled();
 
     private final SimpleAroundInterceptor delegate;
     private final InterceptorGroup group;
-    private final ExecutionPoint point;
+    private final ExecutionPolicy point;
 
-    public ScopedSimpleAroundInterceptor(SimpleAroundInterceptor delegate, InterceptorGroup group, ExecutionPoint point) {
+    public GroupedSimpleAroundInterceptor(SimpleAroundInterceptor delegate, InterceptorGroup group, ExecutionPolicy point) {
         this.delegate = delegate;
         this.group = group;
         this.point = point;
@@ -42,28 +42,27 @@ public class ScopedSimpleAroundInterceptor implements SimpleAroundInterceptor {
 
     @Override
     public void before(Object target, Object[] args) {
-        Scope scope = group.getCurrentTransaction();
+        InterceptorGroupTransaction transaction = group.getCurrentStack();
         
-        if (scope.tryEnter(point)) {
+        if (transaction.tryEnter(point)) {
             delegate.before(target, args);
-            scope.entered(point);
         } else {
             if (debugEnabled) {
-                logger.debug("tryBefore() returns false: scope: {}, executionPonint: {}. Skip interceptor {}", new Object[] {scope, point, delegate.getClass()} );
+                logger.debug("tryBefore() returns false: interceptorGroupTransaction: {}, executionPonint: {}. Skip interceptor {}", new Object[] {transaction, point, delegate.getClass()} );
             }
         }
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        Scope scope = group.getCurrentTransaction();
+        InterceptorGroupTransaction transacton = group.getCurrentStack();
         
-        if (scope.tryLeave(point)) {
+        if (transacton.canLeave(point)) {
             delegate.after(target, args, result, throwable);
-            scope.leaved(point);
+            transacton.leave(point);
         } else {
             if (debugEnabled) {
-                logger.debug("tryAfter() returns false: scope: {}, executionPonint: {}. Skip interceptor {}", new Object[] {scope, point, delegate.getClass()} );
+                logger.debug("tryAfter() returns false: interceptorGroupTransaction: {}, executionPonint: {}. Skip interceptor {}", new Object[] {transacton, point, delegate.getClass()} );
             }
         }
     }

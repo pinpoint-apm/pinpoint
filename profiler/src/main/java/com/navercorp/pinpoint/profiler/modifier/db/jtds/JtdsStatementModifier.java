@@ -51,20 +51,20 @@ public class JtdsStatementModifier extends AbstractModifier {
         try {
             InstrumentClass statementClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
             Interceptor executeQuery = new StatementExecuteQueryInterceptor();
-            statementClass.addScopeInterceptor("executeQuery", new String[]{"java.lang.String"}, executeQuery, JtdsScope.SCOPE_NAME);
+            statementClass.addGroupInterceptor("executeQuery", new String[]{"java.lang.String"}, executeQuery, JtdsScope.SCOPE_NAME);
 
             Interceptor executeUpdateInterceptor1 = new StatementExecuteUpdateInterceptor();
-            statementClass.addScopeInterceptor("executeUpdate", new String[]{"java.lang.String"}, executeUpdateInterceptor1, JtdsScope.SCOPE_NAME);
+            statementClass.addGroupInterceptor("executeUpdate", new String[]{"java.lang.String"}, executeUpdateInterceptor1, JtdsScope.SCOPE_NAME);
 
 
             Interceptor executeUpdateInterceptor2 = new StatementExecuteUpdateInterceptor();
-            statementClass.addScopeInterceptor("executeUpdate", new String[]{"java.lang.String", "int"}, executeUpdateInterceptor2, JtdsScope.SCOPE_NAME);
+            statementClass.addGroupInterceptor("executeUpdate", new String[]{"java.lang.String", "int"}, executeUpdateInterceptor2, JtdsScope.SCOPE_NAME);
 
             Interceptor executeInterceptor1 = new StatementExecuteUpdateInterceptor();
-            statementClass.addScopeInterceptor("execute", new String[]{"java.lang.String"}, executeInterceptor1, JtdsScope.SCOPE_NAME);
+            statementClass.addGroupInterceptor("execute", new String[]{"java.lang.String"}, executeInterceptor1, JtdsScope.SCOPE_NAME);
 
             Interceptor executeInterceptor2 = new StatementExecuteUpdateInterceptor();
-            statementClass.addScopeInterceptor("execute", new String[]{"java.lang.String", "int"}, executeInterceptor2, JtdsScope.SCOPE_NAME);
+            statementClass.addGroupInterceptor("execute", new String[]{"java.lang.String", "int"}, executeInterceptor2, JtdsScope.SCOPE_NAME);
 
             statementClass.addTraceValue(DatabaseInfoTraceValue.class);
             return statementClass.toBytecode();

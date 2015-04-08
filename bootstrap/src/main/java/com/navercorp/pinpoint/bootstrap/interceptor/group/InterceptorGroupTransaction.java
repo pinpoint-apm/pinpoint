@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.instrument;
+package com.navercorp.pinpoint.bootstrap.interceptor.group;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
 
 /**
+ * 
+ * 
  * @author emeroad
+ * @author Jongho Moon
  */
-public interface Scope {
+public interface InterceptorGroupTransaction {
     String getName();
 
-    boolean tryEnter(ExecutionPoint point);
-    boolean tryLeave(ExecutionPoint point);
+    boolean tryEnter(ExecutionPolicy policy);
+    boolean canLeave(ExecutionPolicy policy);
+    void leave(ExecutionPolicy policy);
     
-    void entered(ExecutionPoint point);
-    void leaved(ExecutionPoint point);
-    
-    boolean isIn();
+    boolean isActive();
     
     Object setAttachment(Object attachment);
     Object getAttachment();

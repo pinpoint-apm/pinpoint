@@ -19,19 +19,19 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 
 /**
  * @author Jongho Moon
  *
  */
-public class ScopedInterceptorFactory implements InterceptorFactory {
+public class GroupedInterceptorFactory implements InterceptorFactory {
     private final InterceptorFactory next;
     private final InterceptorGroup group;
-    private final ExecutionPoint executionPoint;
+    private final ExecutionPolicy executionPoint;
     
-    public ScopedInterceptorFactory(InterceptorFactory next, InterceptorGroup group, ExecutionPoint point) {
+    public GroupedInterceptorFactory(InterceptorFactory next, InterceptorGroup group, ExecutionPolicy point) {
         this.next = next;
         this.group = group;
         this.executionPoint = point;
@@ -42,9 +42,9 @@ public class ScopedInterceptorFactory implements InterceptorFactory {
         Interceptor interceptor = next.getInterceptor(classLoader, target, targetMethod);
         
         if (interceptor instanceof SimpleAroundInterceptor) {
-            return new ScopedSimpleAroundInterceptor((SimpleAroundInterceptor)interceptor, group, executionPoint);
+            return new GroupedSimpleAroundInterceptor((SimpleAroundInterceptor)interceptor, group, executionPoint);
         }  else if (interceptor instanceof StaticAroundInterceptor) {
-            return new ScopedStaticAroundInterceptor((StaticAroundInterceptor)interceptor, group, executionPoint);
+            return new GroupedStaticAroundInterceptor((StaticAroundInterceptor)interceptor, group, executionPoint);
         }
         
         throw new IllegalArgumentException("Unexpected interceptor type: " + interceptor.getClass());

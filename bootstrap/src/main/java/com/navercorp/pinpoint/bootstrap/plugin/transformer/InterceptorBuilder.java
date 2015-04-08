@@ -14,7 +14,7 @@
  */
 package com.navercorp.pinpoint.bootstrap.plugin.transformer;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 
 /**
  * @author Jongho Moon
@@ -22,5 +22,5 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
  */
 public interface InterceptorBuilder {
     public void group(String groupName);
-    public void group(String groupName, ExecutionPoint point);
+    public void group(String groupName, ExecutionPolicy point);
 }
