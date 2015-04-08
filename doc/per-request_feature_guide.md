@@ -222,6 +222,8 @@ log.enable= true
 log.page.url=XXXX.pinpoint
 log.button.name= log
 ```
+
+
 ![per-request_feature_2.jpg](img/per-request_feature_2.jpg)
 
 For details in how the log buttons are generated, please refer to Pinpoint Web’s BusinessTransactionController and ScatterChartController.
@@ -459,5 +461,6 @@ log.page.url=XXXX.Pinpoint
 log.button.name=log
 ```
 
+위와 같이 설정 및 구현을 추가하고 pinpoint web을 동작시키면 아래와 같이 버튼이 추가 된다.
 ![per-request_feature_2.jpg](img/per-request_feature_2.jpg)
 로그 버튼을 생성해주는 과정을 보시려면, Pinpoint Web의 BusinessTransactionController 와 ScatterChartController class를 참고하세요.
