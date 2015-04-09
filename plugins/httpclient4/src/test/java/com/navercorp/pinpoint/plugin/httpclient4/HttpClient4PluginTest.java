@@ -14,33 +14,32 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4;
+package com.navercorp.pinpoint.plugin.httpclient4;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
+/**
+ * @author minwoo.jung 
+ * @author jaehong.kim
+ *
+ */
+public class HttpClient4PluginTest {
 
-public class DefaultHttpRequestRetryHandlerModifierTest extends BasePinpointTest {
-
-    // move to HttpClient4 plugin
-    @Ignore
     @Test
-    public void test() {
+    public void addDefaultHttpRequestRetryHandlerClass() {
         DefaultHttpRequestRetryHandler retryHandler = new DefaultHttpRequestRetryHandler();
         IOException iOException = new IOException();
         HttpContext context = new BasicHttpContext();
-        
+
         assertTrue(retryHandler.retryRequest(iOException, 1, context));
         assertTrue(retryHandler.retryRequest(iOException, 2, context));
-        assertEquals(2, getCurrentSpanEvents().size());
     }
+
 }

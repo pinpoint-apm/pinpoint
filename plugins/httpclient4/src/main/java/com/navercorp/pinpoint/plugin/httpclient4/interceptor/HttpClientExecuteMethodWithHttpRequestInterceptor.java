@@ -20,7 +20,8 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Cached;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
@@ -41,16 +42,17 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * </pre>
  * @author emeroad
  * @author minwoo.jung
+ * @author jaehong.kim
  */
 @Group(HttpClient4Constants.HTTP_CLIENT4_SCOPE)
-public class HttpRequestExecuteInterceptor extends AbstractHttpRequestExecuteWithDivergence {
+public class HttpClientExecuteMethodWithHttpRequestInterceptor extends AbstractHttpClientExecuteMethodInterceptor {
 
     private static final int HTTP_HOST_INDEX = 0;
     private static final int HTTP_REQUEST_INDEX = 1;
 
     
-    public HttpRequestExecuteInterceptor(TraceContext context, @Cached MethodInfo targetMethod, boolean isHasCallbackParam) {
-        super(HttpRequestExecuteInterceptor.class, isHasCallbackParam);
+    public HttpClientExecuteMethodWithHttpRequestInterceptor(boolean isHasCallbackParam, TraceContext context, @Cached MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup) {
+        super(HttpClientExecuteMethodWithHttpRequestInterceptor.class, isHasCallbackParam, context, methodDescriptor, interceptorGroup);
     }
     
     @Override
