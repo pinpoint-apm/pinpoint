@@ -204,7 +204,7 @@ public class PinpointBootStrap {
         Runtime.getRuntime().addShutdownHook(thread);
     }
 
-    private static Map<String, String> parseAgentArgs(String str) {
+    private Map<String, String> parseAgentArgs(String str) {
         Map<String, String> map = new HashMap<String, String>();
 
         if (str == null || str.isEmpty()) {
@@ -228,7 +228,7 @@ public class PinpointBootStrap {
         return Collections.unmodifiableMap(map);
     }
 
-    private static JarFile getBootStrapJarFile(String bootStrapCoreJar) {
+    private JarFile getBootStrapJarFile(String bootStrapCoreJar) {
         try {
             return new JarFile(bootStrapCoreJar);
         } catch (IOException ioe) {
