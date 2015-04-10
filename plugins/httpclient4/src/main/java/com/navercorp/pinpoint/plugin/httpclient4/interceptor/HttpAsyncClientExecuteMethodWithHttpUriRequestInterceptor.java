@@ -18,33 +18,61 @@ package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
 import java.net.URI;
 
-import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.HttpUriRequest;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Cached;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
- * MethodInfo interceptor
- * <p/>
- * <p/>
+ * 
+ * suitable target method
  * 
  * <pre>
- * org.apache.http.impl.client.AbstractHttpClient.
- * public final HttpResponse execute(HttpUriRequest request) throws IOException, ClientProtocolException
+ * org.apache.http.impl.nio.client.CloseableHttpAsyncClient.execute(final HttpUriRequest request, final FutureCallback<HttpResponse> callback)
+ * org.apache.http.impl.nio.client.CloseableHttpAsyncClient.execute(final HttpUriRequest request, final HttpContext context, final FutureCallback<HttpResponse> callback)
  * </pre>
- * @author emeroad
- * @author minwoo.jung
+ * 
+ * original code of method.
+ * 
+ * <pre>
+ * <code>
+ *   public Future<HttpResponse> execute(
+ *            final HttpUriRequest request,
+ *           final FutureCallback<HttpResponse> callback) {
+ *       return execute(request, new BasicHttpContext(), callback);
+ *   }
+ * 
+ *   public Future<HttpResponse> execute(
+ *           final HttpUriRequest request,
+ *           final HttpContext context,
+ *           final FutureCallback<HttpResponse> callback) {
+ *       final HttpHost target;
+ *       try {
+ *           target = determineTarget(request);
+ *       } catch (final ClientProtocolException ex) {
+ *           final BasicFuture<HttpResponse> future = new BasicFuture<HttpResponse>(callback);
+ *           future.failed(ex);
+ *           return future;
+ *       }
+ *       return execute(target, request, context, callback);
+ *   }
+ * </code>
+ * </pre>
+ * 
+ * @author jaehong.kim
+ * 
  */
 @Group(HttpClient4Constants.HTTP_CLIENT4_SCOPE)
-public class HttpUriRequestExecuteInterceptor extends AbstractHttpRequestExecuteWithDivergence implements TargetClassLoader {
+public class HttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor extends AbstractHttpAsyncExecuteExecuteInterceptor {
 
     private static final int HTTP_URI_REQUEST_INDEX = 0;
 
-    public HttpUriRequestExecuteInterceptor(boolean isHasCallbackParam) {
-        super(HttpUriRequestExecuteInterceptor.class, isHasCallbackParam);
+    public HttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor(TraceContext context, @Cached MethodDescriptor descriptor) {
+        super(HttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor.class, context, descriptor);
     }
 
     @Override
@@ -58,8 +86,13 @@ public class HttpUriRequestExecuteInterceptor extends AbstractHttpRequestExecute
     }
 
     @Override
-    protected HttpRequest getHttpRequest(Object[] args) {
+    protected org.apache.http.HttpRequest getHttpRequest(final Object[] args) {
         return getHttpUriRequest(args);
+    }
+
+    @Override
+    Integer getStatusCode(Object result) {
+        return null;
     }
 
     private HttpUriRequest getHttpUriRequest(Object[] args) {
@@ -71,8 +104,8 @@ public class HttpUriRequestExecuteInterceptor extends AbstractHttpRequestExecute
     }
 
     /**
-     * copy
-     * org.apache.http.client.utils.URIUtils#extractHost(java.net.URI)
+     * copy org.apache.http.client.utils.URIUtils#extractHost(java.net.URI)
+     * 
      * @param uri
      * @return
      */
@@ -129,4 +162,5 @@ public class HttpUriRequestExecuteInterceptor extends AbstractHttpRequestExecute
         }
         return target;
     }
+
 }

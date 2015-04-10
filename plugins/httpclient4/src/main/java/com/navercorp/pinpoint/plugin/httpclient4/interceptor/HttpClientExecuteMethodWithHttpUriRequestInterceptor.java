@@ -18,62 +18,37 @@ package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
 import java.net.URI;
 
+import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.HttpUriRequest;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Cached;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
- * 
- * suitable target method
- * 
- * <pre>
- * org.apache.http.impl.nio.client.CloseableHttpAsyncClient.execute(final HttpUriRequest request, final FutureCallback<HttpResponse> callback)
- * org.apache.http.impl.nio.client.CloseableHttpAsyncClient.execute(final HttpUriRequest request, final HttpContext context, final FutureCallback<HttpResponse> callback)
- * </pre>
- * 
- * original code of method.
+ * MethodInfo interceptor
+ * <p/>
+ * <p/>
  * 
  * <pre>
- * <code>
- *   public Future<HttpResponse> execute(
- *            final HttpUriRequest request,
- *           final FutureCallback<HttpResponse> callback) {
- *       return execute(request, new BasicHttpContext(), callback);
- *   }
- * 
- *   public Future<HttpResponse> execute(
- *           final HttpUriRequest request,
- *           final HttpContext context,
- *           final FutureCallback<HttpResponse> callback) {
- *       final HttpHost target;
- *       try {
- *           target = determineTarget(request);
- *       } catch (final ClientProtocolException ex) {
- *           final BasicFuture<HttpResponse> future = new BasicFuture<HttpResponse>(callback);
- *           future.failed(ex);
- *           return future;
- *       }
- *       return execute(target, request, context, callback);
- *   }
- * </code>
+ * org.apache.http.impl.client.AbstractHttpClient.
+ * public final HttpResponse execute(HttpUriRequest request) throws IOException, ClientProtocolException
  * </pre>
- * 
+ * @author emeroad
+ * @author minwoo.jung
  * @author jaehong.kim
- * 
  */
 @Group(HttpClient4Constants.HTTP_CLIENT4_SCOPE)
-public class CloseableHttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor extends AbstractHttpRequestExecute implements TargetClassLoader {
+public class HttpClientExecuteMethodWithHttpUriRequestInterceptor extends AbstractHttpClientExecuteMethodInterceptor {
 
     private static final int HTTP_URI_REQUEST_INDEX = 0;
 
-    public CloseableHttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor(TraceContext context, @Cached MethodDescriptor descriptor) {
-        super(CloseableHttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor.class, context, descriptor);
+    public HttpClientExecuteMethodWithHttpUriRequestInterceptor(boolean isHasCallbackParam, TraceContext context, @Cached MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup) {
+        super(HttpClientExecuteMethodWithHttpUriRequestInterceptor.class, isHasCallbackParam, context, methodDescriptor, interceptorGroup);
     }
 
     @Override
@@ -87,13 +62,8 @@ public class CloseableHttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor 
     }
 
     @Override
-    protected org.apache.http.HttpRequest getHttpRequest(final Object[] args) {
+    protected HttpRequest getHttpRequest(Object[] args) {
         return getHttpUriRequest(args);
-    }
-
-    @Override
-    Integer getStatusCode(Object result) {
-        return null;
     }
 
     private HttpUriRequest getHttpUriRequest(Object[] args) {
@@ -105,8 +75,8 @@ public class CloseableHttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor 
     }
 
     /**
-     * copy org.apache.http.client.utils.URIUtils#extractHost(java.net.URI)
-     * 
+     * copy
+     * org.apache.http.client.utils.URIUtils#extractHost(java.net.URI)
      * @param uri
      * @return
      */
@@ -163,5 +133,4 @@ public class CloseableHttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor 
         }
         return target;
     }
-
 }
