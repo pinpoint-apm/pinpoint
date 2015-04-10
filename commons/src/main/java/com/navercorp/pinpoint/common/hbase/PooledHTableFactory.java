@@ -19,10 +19,14 @@ package com.navercorp.pinpoint.common.hbase;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.HTableInterfaceFactory;
-import org.apache.hadoop.hbase.client.HTablePool;
+import org.apache.hadoop.hbase.client.HConnection;
+import org.apache.hadoop.hbase.client.HConnectionManager;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.data.hadoop.hbase.HbaseSystemException;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * HTableInterfaceFactory based on HTablePool.
@@ -30,21 +34,36 @@ import java.io.IOException;
  */
 public class PooledHTableFactory implements HTableInterfaceFactory, DisposableBean {
 
-    private HTablePool hTablePool;
+    private ExecutorService executor;
+    private HConnection connection;
     public static final int DEFAULT_POOL_SIZE = 256;
 
     public PooledHTableFactory(Configuration config) {
-        this.hTablePool = new HTablePool(config, DEFAULT_POOL_SIZE);
+        this.executor = Executors.newFixedThreadPool(DEFAULT_POOL_SIZE);
+        try {
+            this.connection = HConnectionManager.createConnection(config, executor);
+        } catch (IOException e) {
+            throw new HbaseSystemException(e);
+        }
     }
 
     public PooledHTableFactory(Configuration config, int poolSize) {
-        this.hTablePool = new HTablePool(config, poolSize);
+        this.executor = Executors.newFixedThreadPool(poolSize);
+        try {
+            this.connection = HConnectionManager.createConnection(config, executor);
+        } catch (IOException e) {
+            throw new HbaseSystemException(e);
+        }
     }
 
 
     @Override
     public HTableInterface createHTableInterface(Configuration config, byte[] tableName) {
-        return hTablePool.getTable(tableName);
+        try {
+            return connection.getTable(tableName, executor);
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     @Override
@@ -57,8 +76,8 @@ public class PooledHTableFactory implements HTableInterfaceFactory, DisposableBe
 
     @Override
     public void destroy() throws Exception {
-        if (hTablePool != null) {
-            this.hTablePool.close();
+        if (connection != null) {
+            this.connection.close();
         }
     }
 }
