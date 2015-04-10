@@ -17,7 +17,10 @@
 package com.navercorp.pinpoint.test;
 
 import java.io.PrintStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +40,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
@@ -46,8 +48,11 @@ import com.navercorp.pinpoint.profiler.interceptor.DefaultInterceptorRegistryBin
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 
 /**
  * @author emeroad
@@ -58,6 +63,8 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     
     private TestableServerMetaDataListener serverMetaDataListener;
     private AnnotationKeyRegistryService annotationKeyRegistryService;
+    
+    private final List<Short> ignoredServiceTypes = new ArrayList<Short>();
 
     public PluginTestAgent(AgentOption agentOption) {
         super(agentOption, new DefaultInterceptorRegistryBinder());
@@ -72,19 +79,15 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     @Override
     protected DataSender createUdpSpanDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
-        return new ListenableDataSender<TBase<?, ?>>();
+        ListenableDataSender<TBase<?, ?>> sender = new ListenableDataSender<TBase<?, ?>>();
+        sender.setListener(new OrderedSpanRecorder());
+        return sender;
     }
-
-    public DataSender getSpanDataSender() {
-        return super.getSpanDataSender();
-    }
-
 
     @Override
     protected StorageFactory createStorageFactory() {
         return new SimpleSpanStorageFactory(super.getSpanDataSender());
     }
-
 
     @Override
     protected EnhancedDataSender createTcpDataSender(CommandDispatcher commandDispatcher) {
@@ -154,10 +157,28 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         
         throw new AssertionError("Expected service [" + name + "] with libraries [" + libs + "] but there is no such service");
     }
+    
+    private boolean isIgnored(Object obj) {
+        short serviceType = -1;
+        
+        if (obj instanceof TSpan) {
+            serviceType = ((TSpan) obj).getServiceType();
+        } else if (obj instanceof TSpanEvent) {
+            serviceType = ((TSpanEvent) obj).getServiceType();
+        }
+        
+        return ignoredServiceTypes.contains(serviceType);
+    }
 
     @Override
     public void verifyTraceBlockCount(int expected) {
-        int actual = getTBaseRecorder().size();
+        int actual = 0;
+        
+        for (Object obj : getRecorder()) {
+            if (!isIgnored(obj)) {
+                actual++;
+            }
+        }
         
         if (expected != actual) {
             throw new AssertionError("Expected count: " + expected + ", actual: " + actual);
@@ -196,7 +217,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
     
     @Override
-    public void verifyTraceBlock(BlockType type, String serviceTypeName, Method method, String rpc, String endPoint, String remoteAddr, String destinationId, ExpectedAnnotation... annotations) {
+    public void verifyTraceBlock(BlockType type, String serviceTypeName, Member method, String rpc, String endPoint, String remoteAddr, String destinationId, ExpectedAnnotation... annotations) {
         ServiceType serviceType = findServiceType(serviceTypeName);
         Class<?> spanClass = resolveSpanClass(type);
         int apiId = findApiId(method);
@@ -215,9 +236,11 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         verifySpan(expected);
     }
     
+    
     @Override
-    public void popSpan() {
-        getTBaseRecorder().poll();
+    public void ignoreServiceType(String serviceType) {
+        ServiceType t = findServiceType(serviceType);
+        ignoredServiceTypes.add(t.getCode());
     }
 
     private static void appendAnnotations(StringBuilder builder, List<TAnnotation> annotations) {
@@ -452,17 +475,13 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
 
     private void verifySpan(Expected expected) {
-        Object obj = getTBaseRecorder().poll();
-        
-        if (obj == null) {
-            throw new AssertionError("No " + expected.type.getSimpleName() + ". expected: " + expected);
-        }
+        Object obj = popSpan();
+        Facade span = wrap(obj);
         
         if (!expected.type.isInstance(obj)) {
             throw new AssertionError("Expected an instance of " + expected.type.getSimpleName() + " but was " + obj.getClass().getName() +". expected: " + expected + ", was: " + obj);
         }
         
-        Facade span = wrap(obj);
         
         if (expected.serviceType.getCode() != span.getServiceType()) {
             throw new AssertionError("Expected a " + expected.type.getSimpleName() + " with serviceType[" + expected.serviceType.getCode() + "] but was [" + span.getServiceType() + "]. expected: " + expected + ", was: " + span);
@@ -503,13 +522,13 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
             TAnnotation actual = actualAnnotations.get(i);
             
             if (expectedAnnotationKey.getCode() != actual.getKey() || !Objects.equal(expect.getValue(), actual.getValue().getFieldValue())) {
-                throw new AssertionError("Expected " + i + "th annotation [" + expect + "] but was [" + toString(actual) + "], expected: " + expected + ", was: " + span);
+                throw new AssertionError("Expected " + i + "th annotation [" + expectedAnnotationKey.getCode() + "=" + expect.getValue() + "] but was [" + toString(actual) + "], expected: " + expected + ", was: " + span);
             }
         }
     }
     
     @Override
-    public void verifyApi(String serviceTypeName, Method method, Object... args) {
+    public void verifyApi(String serviceTypeName, Member method, Object... args) {
         ServiceType serviceType = findServiceType(serviceTypeName);
         int apiId = findApiId(method);
         ExpectedAnnotation[] annotations = ExpectedAnnotation.args(args);
@@ -517,53 +536,86 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         verifySpan(expected);
     }
     
-    private int findApiId(Method method) throws AssertionError {
+    private int findApiId(Member method) throws AssertionError {
         Class<?> clazz = method.getDeclaringClass();
+        
         InstrumentClass ic;
         try {
             ic = getByteCodeInstrumentor().getClass(clazz.getClassLoader(), clazz.getName(), null);
         } catch (InstrumentException e) {
             throw new RuntimeException("Cannot get instruemntClass " + clazz.getName(), e);
         }
+
+        MethodInfo methodInfo;
         
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        String[] parameterTypeNames = new String[parameterTypes.length];
-        
-        for (int i = 0; i < parameterTypes.length; i++) {
-            parameterTypeNames[i] = parameterTypes[i].getName();
+        if (method instanceof Method) {
+            methodInfo = getMethodInfo(ic, (Method)method);
+        } else if (method instanceof Constructor) {
+            methodInfo = getMethodInfo(ic, (Constructor<?>)method);
+        } else {
+            throw new IllegalArgumentException("method: " + method);
         }
         
-        MethodInfo methodInfo = ic.getDeclaredMethod(method.getName(), parameterTypeNames);
         String desc = methodInfo.getDescriptor().getFullName();
         
         return findApiId(desc);
     }
+    
+    private MethodInfo getMethodInfo(InstrumentClass ic, Method method) {
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        String[] parameterTypeNames = JavaAssistUtils.toPinpointParameterType(parameterTypes);
+        
+        return ic.getDeclaredMethod(method.getName(), parameterTypeNames);
+    }
+    
+    private MethodInfo getMethodInfo(InstrumentClass ic, Constructor<?> constructor) {
+        Class<?>[] parameterTypes = constructor.getParameterTypes();
+        String[] parameterTypeNames = JavaAssistUtils.getParameterType(parameterTypes);
+        
+        return ic.getConstructor(parameterTypeNames);
+    }
+
 
     private int findApiId(String desc) throws AssertionError {
         try {
-            return ((TestTcpDataSender)getTcpDataSender()).getApiId(desc);
+            return getTestTcpDataSender().getApiId(desc);
         } catch (NoSuchElementException e) {
             throw new AssertionError("Cannot find apiId of [" + desc + "]");
         }
     }
+
+    private TestTcpDataSender getTestTcpDataSender() {
+        return (TestTcpDataSender)getTcpDataSender();
+    }
+    
+    private OrderedSpanRecorder getRecorder() {
+        return (OrderedSpanRecorder)((ListenableDataSender<?>)getSpanDataSender()).getListener();
+    }
     
     @Override
     public void printBlocks(PrintStream out) {
-        for (Object obj : getTBaseRecorder()) {
+        for (Object obj : getRecorder()) {
             out.println(obj);
         }
     }
-
-    private TBaseRecorder getTBaseRecorder() {
-        DataSender spanDataSender = getSpanDataSender();
-        ListenableDataSender listenableDataSender = (ListenableDataSender) spanDataSender;
-        TBaseRecorderAdaptor listener = (TBaseRecorderAdaptor) listenableDataSender.getListener();
-        return listener.getRecorder();
+    
+    private Object popSpan() {
+        while (true) {
+            Object obj = getRecorder().pop();
+            
+            if (obj == null) {
+                return null;
+            }
+            
+            if (!isIgnored(obj)) {
+                return obj;
+            }
+        }
     }
 
     @Override
     public void printCachedApis(PrintStream out) {
-        ((TestTcpDataSender)getTcpDataSender()).printApis(out);
+        getTestTcpDataSender().printApis(out);
     }
 
     @Override
@@ -572,14 +624,8 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
             getTraceContext().newTraceObject();
         }
         
-        DataSender spanDataSender = getSpanDataSender();
-        
-        if (spanDataSender instanceof ListenableDataSender) {
-            ListenableDataSender listenableDataSender = (ListenableDataSender) spanDataSender;
-            listenableDataSender.setListener(new TBaseRecorderAdaptor());
-        }
-        
-        ((TestTcpDataSender)getTcpDataSender()).clear();
+        getRecorder().clear();
+        getTestTcpDataSender().clear();
     }
 
     @Override
@@ -588,6 +634,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
             getTraceContext().detachTraceObject();
         }
 
-        ((TestTcpDataSender)getTcpDataSender()).clear();
+        getRecorder().clear();
+        getTestTcpDataSender().clear();
     }
 }

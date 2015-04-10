@@ -15,11 +15,10 @@
 package com.navercorp.pinpoint.bootstrap.plugin.test;
 
 import java.io.PrintStream;
-import java.lang.reflect.Method;
+import java.lang.reflect.Member;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.AnnotationKey;
-import com.navercorp.pinpoint.common.ServiceType;
 
 
 
@@ -34,10 +33,10 @@ public interface PluginTestVerifier {
     public void verifyService(String context, List<String> libs);
     public void verifyTraceBlockCount(int expected);
     public void verifyTraceBlock(BlockType type, String serviceType, ExpectedAnnotation...annotations);
-    public void verifyTraceBlock(BlockType type, String serviceType, Method method, String rpc, String endPoint, String remoteAddr, String destinationId, ExpectedAnnotation... annotations);
+    public void verifyTraceBlock(BlockType type, String serviceType, Member api, String rpc, String endPoint, String remoteAddr, String destinationId, ExpectedAnnotation... annotations);
     public void verifyTraceBlock(BlockType type, String serviceType, String methodSignature, String rpc, String endPoint, String remoteAddr, String destinationId, ExpectedAnnotation... annotations);
-    public void verifyApi(String serviceType, Method method, Object...args);
-    public void popSpan();
+    public void verifyApi(String serviceType, Member api, Object...args);
+    public void ignoreServiceType(String serviceType);
     public void printBlocks(PrintStream out);
     public void printCachedApis(PrintStream out);
     public void initialize(boolean initializeTraceObject);
