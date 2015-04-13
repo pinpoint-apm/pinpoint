@@ -155,10 +155,17 @@ public class HttpClient4Plugin implements ProfilerPlugin, HttpClient4Constants {
 
     private void addDefaultClientExchangeHandlerImplClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
         final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.http.impl.nio.client.DefaultClientExchangeHandlerImpl");
-        ConstructorTransformerBuilder constructorEditorBuilder = classEditorBuilder.editConstructor("org.apache.commons.logging.Log", "org.apache.http.nio.protocol.HttpAsyncRequestProducer", "org.apache.http.nio.protocol.HttpAsyncResponseConsumer",
-                "org.apache.http.client.protocol.HttpClientContext", "org.apache.http.concurrent.BasicFuture", "org.apache.http.nio.conn.NHttpClientConnectionManager", "org.apache.http.impl.nio.client.InternalClientExec");
-        constructorEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.DefaultClientExchangeHandlerImplConstructorInterceptor");
+        classEditorBuilder.injectFieldAccessor(FIELD_RESULT_FUTURE);
+        
+        
+//        ConstructorTransformerBuilder constructorEditorBuilder = classEditorBuilder.editConstructor("org.apache.commons.logging.Log", "org.apache.http.nio.protocol.HttpAsyncRequestProducer", "org.apache.http.nio.protocol.HttpAsyncResponseConsumer",
+//                "org.apache.http.client.protocol.HttpClientContext", "org.apache.http.concurrent.BasicFuture", "org.apache.http.nio.conn.NHttpClientConnectionManager", "org.apache.http.impl.nio.client.InternalClientExec");
+//        constructorEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.DefaultClientExchangeHandlerImplConstructorInterceptor");
 
+        MethodTransformerBuilder startMethod = classEditorBuilder.editMethod("start");
+        startMethod.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
+        startMethod.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.DefaultClientExchangeHandlerImplStartMethodInterceptor");
+        
         context.addClassFileTransformer(classEditorBuilder.build());
     }
 
