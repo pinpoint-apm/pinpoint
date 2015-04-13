@@ -49,6 +49,7 @@ public class DefaultInterceptorFactoryTest {
     @Before
     public void setUp() {
         reset(instrumentor, traceContext, aClass, aMethod);
+        when(pluginContext.getTraceContext()).thenReturn(traceContext);
         when(aMethod.getDescriptor()).thenReturn(descriptor);
     }
 
