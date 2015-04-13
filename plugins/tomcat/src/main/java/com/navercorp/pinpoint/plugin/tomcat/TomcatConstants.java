@@ -30,6 +30,7 @@ public interface TomcatConstants {
     public static final ServiceType TOMCAT_METHOD = ServiceType.of(1011, "TOMCAT_METHOD", NORMAL_SCHEMA);
     public static final String METADATA_TRACE = "trace";
     public static final String METADATA_ASYNC = "async";
+    public static final String METADATA_ASYNC_TRACE_ID = "asyncTraceId";
     public static final String ATTRIBUTE_PINPOINT_TRACE = "PINPOINT_TRACE";
 
 }
