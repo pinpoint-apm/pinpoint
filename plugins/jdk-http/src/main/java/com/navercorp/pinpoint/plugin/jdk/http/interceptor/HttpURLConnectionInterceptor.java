@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Cached;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
@@ -59,7 +58,7 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
     private final FieldAccessor connectingAccessor;
     private final InterceptorGroup group;
     
-    public HttpURLConnectionInterceptor(TraceContext traceContext, @Cached MethodDescriptor descriptor, @Name("connected") FieldAccessor connectedAccessor, @Name("connecting") FieldAccessor connectingAccessor, InterceptorGroup group) {
+    public HttpURLConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor, @Name("connected") FieldAccessor connectedAccessor, @Name("connecting") FieldAccessor connectingAccessor, InterceptorGroup group) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
         this.connectedAccessor = connectedAccessor;

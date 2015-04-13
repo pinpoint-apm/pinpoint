@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Cached;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
@@ -44,7 +43,7 @@ public class BasicFutureMethodInterceptor implements SimpleAroundInterceptor, Ht
     private MethodDescriptor descriptor;
     private MetadataAccessor asyncTraceIdAccessor;
 
-    public BasicFutureMethodInterceptor(TraceContext traceContext, @Cached MethodDescriptor methodDescriptor, @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor) {
+    public BasicFutureMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor) {
         this.traceContext = traceContext;
         this.asyncTraceIdAccessor = asyncTraceIdAccessor;
 

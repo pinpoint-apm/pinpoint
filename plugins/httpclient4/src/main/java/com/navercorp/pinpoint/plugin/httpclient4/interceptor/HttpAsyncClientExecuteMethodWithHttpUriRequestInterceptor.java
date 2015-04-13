@@ -23,7 +23,6 @@ import org.apache.http.client.methods.HttpUriRequest;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Cached;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
@@ -71,7 +70,7 @@ public class HttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor extends A
 
     private static final int HTTP_URI_REQUEST_INDEX = 0;
 
-    public HttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor(TraceContext context, @Cached MethodDescriptor descriptor) {
+    public HttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor(TraceContext context, MethodDescriptor descriptor) {
         super(HttpAsyncClientExecuteMethodWithHttpUriRequestInterceptor.class, context, descriptor);
     }
 

@@ -35,5 +35,5 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface Cached {
+public @interface NoCache {
 }

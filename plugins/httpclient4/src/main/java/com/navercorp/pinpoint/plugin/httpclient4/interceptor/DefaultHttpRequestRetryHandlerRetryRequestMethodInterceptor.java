@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Cached;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
@@ -40,7 +39,7 @@ public class DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor impleme
     private TraceContext traceContext;
     private ServiceType serviceType = HTTP_CLIENT4_INTERNAL;
 
-    public DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor(TraceContext context, @Cached MethodDescriptor methodDescriptor) {
+    public DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor(TraceContext context, MethodDescriptor methodDescriptor) {
         setTraceContext(context);
         setMethodDescriptor(methodDescriptor);
     }

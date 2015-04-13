@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Cached;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
@@ -51,7 +50,7 @@ public class HttpClientExecuteMethodWithHttpRequestInterceptor extends AbstractH
     private static final int HTTP_REQUEST_INDEX = 1;
 
     
-    public HttpClientExecuteMethodWithHttpRequestInterceptor(boolean isHasCallbackParam, TraceContext context, @Cached MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup) {
+    public HttpClientExecuteMethodWithHttpRequestInterceptor(boolean isHasCallbackParam, TraceContext context, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup) {
         super(HttpClientExecuteMethodWithHttpRequestInterceptor.class, isHasCallbackParam, context, methodDescriptor, interceptorGroup);
     }
     

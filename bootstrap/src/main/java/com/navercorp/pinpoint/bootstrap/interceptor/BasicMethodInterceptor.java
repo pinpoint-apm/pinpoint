@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Cached;
 import com.navercorp.pinpoint.common.ServiceType;
 
 /**
@@ -37,13 +36,13 @@ public class BasicMethodInterceptor implements SimpleAroundInterceptor {
     private final TraceContext traceContext;
     private final ServiceType serviceType;
 
-    public BasicMethodInterceptor(TraceContext traceContext, @Cached MethodDescriptor descriptor, ServiceType serviceType) {
+    public BasicMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor, ServiceType serviceType) {
         this.descriptor = descriptor;
         this.traceContext = traceContext;
         this.serviceType = serviceType;
     }
     
-    public BasicMethodInterceptor(TraceContext traceContext, @Cached MethodDescriptor descriptor) {
+    public BasicMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this(traceContext, descriptor, ServiceType.INTERNAL_METHOD);
     }
 

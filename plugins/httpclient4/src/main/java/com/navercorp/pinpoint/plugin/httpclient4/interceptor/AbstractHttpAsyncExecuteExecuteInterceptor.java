@@ -41,7 +41,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Cached;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
@@ -72,7 +71,7 @@ public abstract class AbstractHttpAsyncExecuteExecuteInterceptor implements Simp
     
     protected boolean statusCode;
 
-    public AbstractHttpAsyncExecuteExecuteInterceptor(Class<? extends AbstractHttpAsyncExecuteExecuteInterceptor> childClazz, TraceContext context, @Cached MethodDescriptor descriptor) {
+    public AbstractHttpAsyncExecuteExecuteInterceptor(Class<? extends AbstractHttpAsyncExecuteExecuteInterceptor> childClazz, TraceContext context, MethodDescriptor descriptor) {
         this.logger = PLoggerFactory.getLogger(childClazz);
         this.isDebug = logger.isDebugEnabled();
         setTraceContext(context);
