@@ -27,11 +27,8 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.DedicatedClassFileTransformer;
-import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.DefaultModifierRegistry;
-import com.navercorp.pinpoint.profiler.modifier.Modifier;
-import com.navercorp.pinpoint.profiler.modifier.ModifierProvider;
 import com.navercorp.pinpoint.profiler.modifier.ModifierRegistry;
 import com.navercorp.pinpoint.profiler.plugin.ClassFileTransformerAdaptor;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
@@ -160,24 +157,9 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         // logback
         modifierRepository.addLogbackModifier();
         
-        loadModifiers(modifierRepository);
         loadEditorsFromPlugins(modifierRepository, pluginContexts);
         
         return modifierRepository;
-    }
-
-    private void loadModifiers(DefaultModifierRegistry modifierRepository) {
-        for (ModifierProvider provider : PluginLoader.load(ModifierProvider.class, getClass().getClassLoader())) {
-            for (Modifier modifier : provider.getModifiers(byteCodeInstrumentor, agent)) {
-                if (modifier instanceof AbstractModifier) {
-                    AbstractModifier abstractModifier = (AbstractModifier)modifier;
-                    modifierRepository.addModifier(abstractModifier);
-                    logger.info("Registering modifier {} from {} for {} ", abstractModifier.getClass().getName(), abstractModifier.getClass().getProtectionDomain().getCodeSource(), abstractModifier.getTargetClass());
-                } else {
-                    logger.warn("Ignore modifier {} from {}", modifier.getClass().getName(), modifier.getClass().getProtectionDomain().getCodeSource());
-                }
-            }
-        }
     }
 
     private void loadEditorsFromPlugins(DefaultModifierRegistry modifierRepository, List<DefaultProfilerPluginContext> pluginContexts) {
