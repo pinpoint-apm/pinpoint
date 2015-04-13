@@ -15,6 +15,7 @@
 package com.navercorp.pinpoint.bootstrap.plugin.transformer;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 
 /**
@@ -26,23 +27,27 @@ public class ClassConditions {
     public static ClassCondition hasField(String name) {
         return new HasField(name);
     }
-    
+
     public static ClassCondition hasField(String name, String type) {
         return new HasField(name, type);
     }
-    
+
     public static ClassCondition hasMethod(String name, String returnType, String... paramTypes) {
         return new HasMethod(name, returnType, paramTypes);
     }
-    
+
     public static ClassCondition hasDeclaredMethod(String name, String... paramTypes) {
         return new HasDeclaredMethod(name, paramTypes);
     }
-    
+
     public static ClassCondition hasConstructor(String... paramTypes) {
         return new HasConstructor(paramTypes);
     }
-    
+
+    public static ClassCondition hasClass(String name) {
+        return new HasClass(name);
+    }
+
     private static class HasField implements ClassCondition {
         private final String name;
         private final String type;
@@ -50,7 +55,7 @@ public class ClassConditions {
         public HasField(String name) {
             this(name, null);
         }
-        
+
         public HasField(String name, String type) {
             this.name = name;
             this.type = type;
@@ -66,12 +71,12 @@ public class ClassConditions {
             return "HasField[" + type + " " + name + "]";
         }
     }
-    
+
     private static class HasMethod implements ClassCondition {
         private final String name;
         private final String returnType;
         private final String[] paramTypes;
-        
+
         public HasMethod(String name, String returnType, String... paramTypes) {
             this.name = name;
             this.returnType = returnType;
@@ -91,21 +96,21 @@ public class ClassConditions {
             builder.append(' ');
             builder.append(name);
             builder.append('(');
-            
+
             for (String p : paramTypes) {
                 builder.append(p);
             }
-            
+
             builder.append(")]");
-            
+
             return builder.toString();
         }
     }
-    
+
     private static class HasDeclaredMethod implements ClassCondition {
         private final String name;
         private final String[] paramTypes;
-        
+
         public HasDeclaredMethod(String name, String[] paramTypes) {
             this.name = name;
             this.paramTypes = paramTypes;
@@ -115,27 +120,27 @@ public class ClassConditions {
         public boolean check(ProfilerPluginContext context, ClassLoader classLoader, InstrumentClass target) {
             return target.hasDeclaredMethod(name, paramTypes);
         }
-        
+
         @Override
         public String toString() {
             StringBuilder builder = new StringBuilder();
             builder.append("HasMethod[");
             builder.append(name);
             builder.append('(');
-            
+
             for (String p : paramTypes) {
                 builder.append(p);
             }
-            
+
             builder.append(")]");
-            
+
             return builder.toString();
         }
     }
-    
+
     private static class HasConstructor implements ClassCondition {
         private final String[] paramTypes;
-        
+
         public HasConstructor(String[] paramTypes) {
             this.paramTypes = paramTypes;
         }
@@ -144,18 +149,45 @@ public class ClassConditions {
         public boolean check(ProfilerPluginContext context, ClassLoader classLoader, InstrumentClass target) {
             return target.hasConstructor(paramTypes);
         }
-        
+
         @Override
         public String toString() {
             StringBuilder builder = new StringBuilder();
             builder.append("HasConstructor[");
-            
+
             for (String p : paramTypes) {
                 builder.append(p);
             }
-            
+
             builder.append(")]");
-            
+
+            return builder.toString();
+        }
+    }
+
+    private static class HasClass implements ClassCondition {
+        private final String name;
+
+        public HasClass(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public boolean check(ProfilerPluginContext context, ClassLoader classLoader, InstrumentClass target) {
+            try {
+                context.getByteCodeInstrumentor().getClass(classLoader, name, null);
+            } catch (InstrumentException e) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("{name=");
+            builder.append(name);
+            builder.append("}");
             return builder.toString();
         }
     }

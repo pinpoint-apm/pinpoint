@@ -123,11 +123,11 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     public void addConnectorModifier() {
         if (profilerConfig.isApacheHttpClient4Profile()) {
             //apache http client 4
-            HttpClient4Modifier httpClient4Modifier = new HttpClient4Modifier(byteCodeInstrumentor, agent);
-            addModifier(httpClient4Modifier);
+//            HttpClient4Modifier httpClient4Modifier = new HttpClient4Modifier(byteCodeInstrumentor, agent);
+//            addModifier(httpClient4Modifier);
             
             //apache http client 4 retry
-            addModifier(new DefaultHttpRequestRetryHandlerModifier(byteCodeInstrumentor, agent));
+//            addModifier(new DefaultHttpRequestRetryHandlerModifier(byteCodeInstrumentor, agent));
         }
         if (profilerConfig.isApacheHttpClient3Profile()) {
             //apache http client 3
@@ -144,7 +144,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         // apache nio http client
         // addModifier(new InternalHttpAsyncClientModifier(byteCodeInstrumentor, agent));
 //        addModifier(new ClosableHttpAsyncClientModifier(byteCodeInstrumentor, agent));
-        addModifier(new ClosableHttpClientModifier(byteCodeInstrumentor, agent));
+//        addModifier(new ClosableHttpClientModifier(byteCodeInstrumentor, agent));
 //        addModifier(new BasicFutureModifier(byteCodeInstrumentor, agent));
     }
 

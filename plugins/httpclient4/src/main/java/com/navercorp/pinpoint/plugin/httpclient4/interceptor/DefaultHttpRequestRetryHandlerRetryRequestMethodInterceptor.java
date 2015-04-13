@@ -18,28 +18,31 @@ package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
  * @author Minwoo Jung
+ * @author jaehong.kim
  */
-public class RetryRequestInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
+public class DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor implements SimpleAroundInterceptor, HttpClient4Constants {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
-    private ServiceType serviceType = ServiceType.HTTP_CLIENT_INTERNAL;
+    private ServiceType serviceType = HTTP_CLIENT4_INTERNAL;
 
+    public DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor(TraceContext context, MethodDescriptor methodDescriptor) {
+        setTraceContext(context);
+        setMethodDescriptor(methodDescriptor);
+    }
 
     @Override
     public void before(Object target, Object[] args) {
@@ -87,13 +90,11 @@ public class RetryRequestInterceptor implements SimpleAroundInterceptor, ByteCod
         }
     }
 
-    @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
         this.traceContext.cacheApi(descriptor);
     }
 
-    @Override
     public void setTraceContext(TraceContext traceContext) {
         this.traceContext = traceContext;
     }

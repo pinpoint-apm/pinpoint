@@ -26,8 +26,10 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
+import org.apache.http.StatusLine;
 import org.apache.http.protocol.HTTP;
 
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
@@ -36,31 +38,33 @@ import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.bootstrap.interceptor.http.HttpCallContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Cached;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.AnnotationKey;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
- * @author emeroad
+ * @author minwoo.jung
  * @author jaehong.kim
  */
-public abstract class AbstractHttpRequestExecute implements TraceContextSupport, ByteCodeMethodDescriptorSupport, SimpleAroundInterceptor {
-
+@Group(HttpClient4Constants.HTTP_CLIENT4_SCOPE)
+public abstract class AbstractHttpClientExecuteMethodInterceptor implements SimpleAroundInterceptor, HttpClient4Constants {
     protected final PLogger logger;
     protected final boolean isDebug;
 
+    private boolean isHasCallbackParam;
     protected TraceContext traceContext;
     protected MethodDescriptor descriptor;
 
@@ -71,26 +75,29 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
     protected boolean entity;
     protected DumpType entityDumpType;
     protected SimpleSampler entitySampler;
-    
-    protected boolean statusCode;
 
-    public AbstractHttpRequestExecute(Class<? extends AbstractHttpRequestExecute> childClazz, TraceContext context, @Cached MethodDescriptor descriptor) {
+    protected boolean statusCode;
+    protected InterceptorGroup interceptorGroup;
+
+    public AbstractHttpClientExecuteMethodInterceptor(Class<? extends AbstractHttpClientExecuteMethodInterceptor> childClazz, boolean isHasCallbackParam, TraceContext context, MethodDescriptor methodDescriptor,
+            InterceptorGroup interceptorGroup) {
         this.logger = PLoggerFactory.getLogger(childClazz);
         this.isDebug = logger.isDebugEnabled();
+
+        this.isHasCallbackParam = isHasCallbackParam;
         setTraceContext(context);
-        setMethodDescriptor(descriptor);
+        setMethodDescriptor(methodDescriptor);
+        this.interceptorGroup = interceptorGroup;
     }
 
     abstract NameIntValuePair<String> getHost(Object[] args);
 
     abstract HttpRequest getHttpRequest(Object[] args);
-    
-    abstract Integer getStatusCode(Object result);
 
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
-            logger.beforeInterceptor(target, args);
+            logger.beforeInterceptor(target, descriptor.getClassName(), descriptor.getMethodName(), "", args);
         }
         final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
@@ -101,7 +108,7 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
 
         final boolean sampling = trace.canSampled();
         if (!sampling) {
-            if(isDebug) {
+            if (isDebug) {
                 logger.debug("set Sampling flag=false");
             }
             if (httpRequest != null) {
@@ -115,7 +122,7 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
 
         TraceId nextId = trace.getTraceId().getNextTraceId();
         trace.recordNextSpanId(nextId.getSpanId());
-        trace.recordServiceType(ServiceType.HTTP_CLIENT);
+        trace.recordServiceType(HTTP_CLIENT4);
 
         if (httpRequest != null) {
             httpRequest.setHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
@@ -129,7 +136,85 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
         }
     }
 
+    @Override
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        if (isDebug) {
+            // Do not log result
+            logger.afterInterceptor(target, descriptor.getClassName(), descriptor.getMethodName(), "", args);
+        }
 
+        final Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
+            return;
+        }
+
+        try {
+            final HttpRequest httpRequest = getHttpRequest(args);
+            if (httpRequest != null) {
+                // Accessing httpRequest here not before() becuase it can cause side effect.
+                trace.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getRequestLine().getUri());
+                final NameIntValuePair<String> host = getHost(args);
+                if (host != null) {
+                    int port = host.getValue();
+                    String endpoint = getEndpoint(host.getName(), port);
+                    trace.recordDestinationId(endpoint);
+                }
+
+                recordHttpRequest(trace, httpRequest, throwable);
+            }
+
+            if (statusCode) {
+                final Integer statusCodeValue = getStatusCode(result);
+                if (statusCodeValue != null) {
+                    trace.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, statusCodeValue);
+                }
+            }
+
+            trace.recordApi(descriptor);
+            trace.recordException(throwable);
+
+            trace.markAfterTime();
+        } finally {
+            trace.traceBlockEnd();
+        }
+    }
+
+    private Integer getStatusCode(Object result) {
+        if (isHasCallbackParam) {
+            return getStatusCodeFromAttachment();
+        } else {
+            return getStatusCodeFromResponse(result);
+        }
+    }
+
+    Integer getStatusCodeFromResponse(Object result) {
+        if (result instanceof HttpResponse) {
+            HttpResponse response = (HttpResponse) result;
+
+            final StatusLine statusLine = response.getStatusLine();
+            if (statusLine != null) {
+                return statusLine.getStatusCode();
+            } else {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private Integer getStatusCodeFromAttachment() {
+        InterceptorGroupTransaction transaction = interceptorGroup.getCurrentTransaction();
+
+        final Object attachment = transaction.getAttachment();
+        if (attachment == null) {
+            return null;
+        }
+
+        if (attachment instanceof HttpCallContext) {
+            return ((HttpCallContext) attachment).getStatusCode();
+        }
+
+        return null;
+    }
 
     private String getEndpoint(String host, int port) {
         if (host == null) {
@@ -145,62 +230,19 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
         return sb.toString();
     }
 
-    @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            // Do not log result
-            logger.afterInterceptor(target, args);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-        try {
-            final HttpRequest httpRequest = getHttpRequest(args);
-            if (httpRequest != null) {
-             // Accessing httpRequest here not before() becuase it can cause side effect.
-                trace.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getRequestLine().getUri());
-                final NameIntValuePair<String> host = getHost(args);
-                if (host != null) {
-                    int port = host.getValue();
-                    String endpoint = getEndpoint(host.getName(), port);
-                    trace.recordDestinationId(endpoint);
-                }
-
-                recordHttpRequest(trace, httpRequest, throwable);
-            }
-
-            if (statusCode) {
-                Integer statusCodeValue = getStatusCode(result);
-                
-                if (statusCodeValue != null) {
-                    trace.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, statusCodeValue);
-                }
-            }
-            
-            trace.recordApi(descriptor);
-            trace.recordException(throwable);
-
-            trace.markAfterTime();
-        } finally {
-            trace.traceBlockEnd();
-        }
-    }
-
     private void recordHttpRequest(Trace trace, HttpRequest httpRequest, Throwable throwable) {
         final boolean isException = InterceptorUtils.isThrowable(throwable);
         if (cookie) {
             if (DumpType.ALWAYS == cookieDumpType) {
                 recordCookie(httpRequest, trace);
-            } else if(DumpType.EXCEPTION == cookieDumpType && isException){
+            } else if (DumpType.EXCEPTION == cookieDumpType && isException) {
                 recordCookie(httpRequest, trace);
             }
         }
         if (entity) {
             if (DumpType.ALWAYS == entityDumpType) {
                 recordEntity(httpRequest, trace);
-            } else if(DumpType.EXCEPTION == entityDumpType && isException) {
+            } else if (DumpType.EXCEPTION == entityDumpType && isException) {
                 recordEntity(httpRequest, trace);
             }
         }
@@ -208,13 +250,13 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
 
     protected void recordCookie(HttpMessage httpMessage, Trace trace) {
         org.apache.http.Header[] cookies = httpMessage.getHeaders("Cookie");
-        for (org.apache.http.Header header: cookies) {
+        for (org.apache.http.Header header : cookies) {
             final String value = header.getValue();
             if (value != null && !value.isEmpty()) {
                 if (cookieSampler.isSampling()) {
                     trace.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, 1024));
                 }
-                
+
                 // Can a cookie have 2 or more values?
                 // PMD complains if we use break here
                 return;
@@ -240,18 +282,19 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
     }
 
     /**
-     * copy: EntityUtils
-     * Get the entity content as a String, using the provided default character set
-     * if none is found in the entity.
-     * If defaultCharset is null, the default "ISO-8859-1" is used.
+     * copy: EntityUtils Get the entity content as a String, using the provided default character set if none is found in the entity. If defaultCharset is null, the default "ISO-8859-1" is used.
      *
-     * @param entity must not be null
-     * @param defaultCharset character set to be applied if none found in the entity
-     * @return the entity content as a String. May be null if
-     *   {@link HttpEntity#getContent()} is null.
-     * @throws ParseException if header elements cannot be parsed
-     * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
-     * @throws IOException if an error occurs reading the input stream
+     * @param entity
+     *            must not be null
+     * @param defaultCharset
+     *            character set to be applied if none found in the entity
+     * @return the entity content as a String. May be null if {@link HttpEntity#getContent()} is null.
+     * @throws ParseException
+     *             if header elements cannot be parsed
+     * @throws IllegalArgumentException
+     *             if entity is null or if content length > Integer.MAX_VALUE
+     * @throws IOException
+     *             if an error occurs reading the input stream
      */
     public static String entityUtilsToString(final HttpEntity entity, final String defaultCharset, int maxLength) throws IOException, ParseException {
         if (entity == null) {
@@ -276,7 +319,7 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
             final StringBuilder buffer = new StringBuilder(maxLength * 2);
             char[] tmp = new char[1024];
             int l;
-            while((l = reader.read(tmp)) != -1) {
+            while ((l = reader.read(tmp)) != -1) {
                 buffer.append(tmp, 0, l);
                 if (buffer.length() >= maxLength) {
                     break;
@@ -289,13 +332,15 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
     }
 
     /**
-     * copy: EntityUtils
-     * Obtains character set of the entity, if known.
+     * copy: EntityUtils Obtains character set of the entity, if known.
      *
-     * @param entity must not be null
+     * @param entity
+     *            must not be null
      * @return the character set, or null if not found
-     * @throws ParseException if header elements cannot be parsed
-     * @throws IllegalArgumentException if entity is null
+     * @throws ParseException
+     *             if header elements cannot be parsed
+     * @throws IllegalArgumentException
+     *             if entity is null
      */
     public static String getContentCharSet(final HttpEntity entity) throws ParseException {
         if (entity == null) {
@@ -314,14 +359,13 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
         return charset;
     }
 
-    @Override
     public void setTraceContext(TraceContext traceContext) {
         this.traceContext = traceContext;
 
         final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
         this.cookie = profilerConfig.isApacheHttpClient4ProfileCookie();
         this.cookieDumpType = profilerConfig.getApacheHttpClient4ProfileCookieDumpType();
-        if (cookie){
+        if (cookie) {
             this.cookieSampler = SimpleSamplerFactory.createSampler(cookie, profilerConfig.getApacheHttpClient4ProfileCookieSamplingRate());
         }
 
@@ -333,9 +377,9 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
         this.statusCode = profilerConfig.isApacheHttpClient4ProfileStatusCode();
     }
 
-    @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
         traceContext.cacheApi(descriptor);
     }
+
 }

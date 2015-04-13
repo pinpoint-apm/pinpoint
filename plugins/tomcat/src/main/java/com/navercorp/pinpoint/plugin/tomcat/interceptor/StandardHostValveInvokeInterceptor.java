@@ -31,7 +31,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanSimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Cached;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
@@ -59,7 +58,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     private MetadataAccessor traceAccessor;
     private MetadataAccessor asyncAccessor;
 
-    public StandardHostValveInvokeInterceptor(TraceContext traceContext, @Cached MethodDescriptor descriptor, Filter<String> excludeFilter, @Name(METADATA_TRACE) MetadataAccessor traceAccessor, @Name(METADATA_ASYNC) MetadataAccessor asyncAccessor) {
+    public StandardHostValveInvokeInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter, @Name(METADATA_TRACE) MetadataAccessor traceAccessor, @Name(METADATA_ASYNC) MetadataAccessor asyncAccessor) {
         super(StandardHostValveInvokeInterceptor.class);
 
         setTraceContext(traceContext);

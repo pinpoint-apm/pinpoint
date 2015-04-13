@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Cached;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.NoCache;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
 
@@ -42,10 +42,9 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
     private MetadataAccessor asyncAccessor;
     private MetadataAccessor asyncTraceIdAccessor;
 
-    public RequestStartAsyncInterceptor(TraceContext context, @Cached MethodDescriptor descriptor, @Name(METADATA_ASYNC) MetadataAccessor asyncAccessor, @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor) {
+    public RequestStartAsyncInterceptor(TraceContext context, MethodDescriptor descriptor, @Name(METADATA_ASYNC) MetadataAccessor asyncAccessor, @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor) {
         this.traceContext = context;
         setMethodDescriptor(descriptor);
-        
         this.asyncAccessor = asyncAccessor;
         this.asyncTraceIdAccessor = asyncTraceIdAccessor;
     }

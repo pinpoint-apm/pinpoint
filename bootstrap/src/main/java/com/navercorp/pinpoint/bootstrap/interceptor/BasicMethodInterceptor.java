@@ -14,56 +14,37 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
+package com.navercorp.pinpoint.bootstrap.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * 
- * suitable method
- * <pre>
- * org.apache.http.concurrent.BasicFuture.failed(Exception)
- * </pre>
- *
- * original code of method
- * <code>
- * <pre>
- *     public boolean failed(final Exception exception) {
- *         synchronized (this) {
- *             if (this.completed) {
- *                 return false;
- *             }
- *             this.completed = true;
- *             this.ex = exception;
- *             notifyAll();
- *         }
- *         if (this.callback != null) {
- *             this.callback.failed(exception);
- *         }
- *         return true;
- *     }
- * </pre>
- * </code>
- * 
  * @author netspider
- * 
+ * @author emeroad
  */
-public class BasicFutureFailedInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
+public class BasicMethodInterceptor implements SimpleAroundInterceptor {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PLogger logger = PLoggerFactory.getLogger(BasicMethodInterceptor.class);
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
-    private MethodDescriptor descriptor;
+    private final MethodDescriptor descriptor;
+    private final TraceContext traceContext;
+    private final ServiceType serviceType;
+
+    public BasicMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor, ServiceType serviceType) {
+        this.descriptor = descriptor;
+        this.traceContext = traceContext;
+        this.serviceType = serviceType;
+    }
+    
+    public BasicMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+        this(traceContext, descriptor, ServiceType.INTERNAL_METHOD);
+    }
 
     @Override
     public void before(Object target, Object[] args) {
@@ -78,7 +59,8 @@ public class BasicFutureFailedInterceptor implements SimpleAroundInterceptor, By
 
         trace.traceBlockBegin();
         trace.markBeforeTime();
-        trace.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
+
+        trace.recordServiceType(serviceType);
     }
 
     @Override
@@ -95,20 +77,10 @@ public class BasicFutureFailedInterceptor implements SimpleAroundInterceptor, By
         try {
             trace.recordApi(descriptor);
             trace.recordException(throwable);
+
             trace.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }
-    }
-
-    @Override
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
-    }
-
-    @Override
-    public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.descriptor = descriptor;
-        traceContext.cacheApi(descriptor);
     }
 }

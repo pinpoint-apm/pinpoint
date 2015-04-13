@@ -18,9 +18,7 @@ package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Cached;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
@@ -54,10 +52,10 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * 
  */
 @Group(HttpClient4Constants.HTTP_CLIENT4_SCOPE)
-public class CloseableHttpAsyncClientExecuteMethodWithHttpRequestInterceptor extends AbstractHttpRequestExecute implements TargetClassLoader {
+public class HttpAsyncClientExecuteMethodWithHttpRequestInterceptor extends AbstractHttpAsyncExecuteExecuteInterceptor {
 
-    public CloseableHttpAsyncClientExecuteMethodWithHttpRequestInterceptor(TraceContext context, @Cached MethodDescriptor descriptor) {
-        super(CloseableHttpAsyncClientExecuteMethodWithHttpRequestInterceptor.class, context, descriptor);
+    public HttpAsyncClientExecuteMethodWithHttpRequestInterceptor(TraceContext context, MethodDescriptor descriptor) {
+        super(HttpAsyncClientExecuteMethodWithHttpRequestInterceptor.class, context, descriptor);
     }
 
     @Override

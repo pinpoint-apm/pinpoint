@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Cached;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.plugin.redis.RedisConstants;
 
@@ -34,7 +33,7 @@ import com.navercorp.pinpoint.plugin.redis.RedisConstants;
 public class JedisPipelineMethodInterceptor extends SpanEventSimpleAroundInterceptor implements RedisConstants {
     private MetadataAccessor endPointAccessor;
 
-    public JedisPipelineMethodInterceptor(TraceContext traceContext, @Cached MethodDescriptor methodDescriptor, @Name(METADATA_END_POINT) MetadataAccessor endPointAccessor) {
+    public JedisPipelineMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, @Name(METADATA_END_POINT) MetadataAccessor endPointAccessor) {
         super(JedisPipelineMethodInterceptor.class);
 
         this.endPointAccessor = endPointAccessor;

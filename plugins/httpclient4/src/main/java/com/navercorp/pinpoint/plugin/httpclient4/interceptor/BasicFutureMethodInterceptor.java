@@ -20,15 +20,12 @@ import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Cached;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.common.AnnotationKey;
-import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
@@ -37,7 +34,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author jaehong.kim
  * 
  */
-public class BasicFutureMethodInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, HttpClient4Constants {
+public class BasicFutureMethodInterceptor implements SimpleAroundInterceptor, HttpClient4Constants {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -46,10 +43,11 @@ public class BasicFutureMethodInterceptor implements SimpleAroundInterceptor, By
     private MethodDescriptor descriptor;
     private MetadataAccessor asyncTraceIdAccessor;
 
-    public BasicFutureMethodInterceptor(TraceContext traceContext, @Cached MethodDescriptor methodDescriptor, @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor) {
+    public BasicFutureMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor) {
         this.traceContext = traceContext;
-        this.descriptor = methodDescriptor;
         this.asyncTraceIdAccessor = asyncTraceIdAccessor;
+
+        setMethodDescriptor(methodDescriptor);
     }
 
     @Override
@@ -73,17 +71,17 @@ public class BasicFutureMethodInterceptor implements SimpleAroundInterceptor, By
                 return;
             }
             async = true;
-            if(isDebug) {
+            if (isDebug) {
                 logger.debug("Continue async trace {} [{}]", asyncTraceId, Thread.currentThread().getName());
             }
-           
+
         }
 
         logger.debug("TraceBlockBegin [{}]", Thread.currentThread().getName());
         trace.traceBlockBegin();
         trace.markBeforeTime();
-        trace.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
-        if(async) {
+        trace.recordServiceType(HTTP_CLIENT4_INTERNAL);
+        if (async) {
             trace.recordAttribute(AnnotationKey.ASYNC, "");
         }
     }
@@ -106,17 +104,16 @@ public class BasicFutureMethodInterceptor implements SimpleAroundInterceptor, By
             trace.markAfterTime();
         } finally {
             trace.traceBlockEnd();
-            if(trace.isAsync() && trace.isRootStack()) {
+            if (trace.isAsync() && trace.isRootStack()) {
                 trace.traceRootBlockEnd();
                 traceContext.detachTraceObject();
-                if(isDebug) {
+                if (isDebug) {
                     logger.debug("End async trace {} [{}]", trace.getTraceId(), Thread.currentThread().getName());
                 }
             }
         }
     }
 
-    @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.descriptor = descriptor;
         traceContext.cacheApi(descriptor);

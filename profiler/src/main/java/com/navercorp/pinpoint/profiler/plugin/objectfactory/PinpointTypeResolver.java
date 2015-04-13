@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Cached;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.NoCache;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
@@ -65,11 +65,11 @@ public class PinpointTypeResolver implements ParameterResolver {
             return Option.<Object>withValue(targetClass);
         } else if (type == MethodDescriptor.class) {
             MethodDescriptor descriptor = targetMethod.getDescriptor();
-            cacheApiIfAnnotationPresent(annotations, descriptor);
+            cacheApiIfAnnotationNotPresent(annotations, descriptor);
             
             return Option.<Object>withValue(descriptor);
         } else if (type == MethodInfo.class) {
-            cacheApiIfAnnotationPresent(annotations, targetMethod.getDescriptor());
+            cacheApiIfAnnotationNotPresent(annotations, targetMethod.getDescriptor());
 
             return Option.<Object>withValue(targetMethod);
         } else if (type == MetadataAccessor.class) {
@@ -123,9 +123,9 @@ public class PinpointTypeResolver implements ParameterResolver {
         return Option.<Object>empty();
     }
 
-    private void cacheApiIfAnnotationPresent(Annotation[] annotations, MethodDescriptor descriptor) {
-        Annotation annotation = TypeUtils.findAnnotation(annotations, Cached.class);
-        if (annotation != null) {
+    private void cacheApiIfAnnotationNotPresent(Annotation[] annotations, MethodDescriptor descriptor) {
+        Annotation annotation = TypeUtils.findAnnotation(annotations, NoCache.class);
+        if (annotation == null) {
             pluginContext.getTraceContext().cacheApi(descriptor);
         }
     }
