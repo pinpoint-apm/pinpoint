@@ -141,7 +141,7 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
             }
         });
         startEditor.property(IGNORE_IF_NOT_EXIST);
-        startEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.AsyncContextImplMethodInterceptor");
+        startEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.AsyncContextImplDispatchMethodInterceptor");
         context.addClassFileTransformer(classBuilder.build());
     }
 }

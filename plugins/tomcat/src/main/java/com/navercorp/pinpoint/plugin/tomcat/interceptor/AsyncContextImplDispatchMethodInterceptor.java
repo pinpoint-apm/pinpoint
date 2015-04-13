@@ -34,7 +34,7 @@ import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
  *
  */
 @Group(TomcatConstants.TOMCAT_SERVLET_ASYNC_SCOPE)
-public class AsyncContextImplMethodInterceptor implements SimpleAroundInterceptor, TomcatConstants {
+public class AsyncContextImplDispatchMethodInterceptor implements SimpleAroundInterceptor, TomcatConstants {
 
     private PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private boolean isDebug = logger.isDebugEnabled();
@@ -44,7 +44,7 @@ public class AsyncContextImplMethodInterceptor implements SimpleAroundIntercepto
 
     private MetadataAccessor asyncTraceIdAccessor;
 
-    public AsyncContextImplMethodInterceptor(TraceContext context, @Cached MethodDescriptor descriptor, @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor) {
+    public AsyncContextImplDispatchMethodInterceptor(TraceContext context, @Cached MethodDescriptor descriptor, @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor) {
         this.traceContext = context;
         setMethodDescriptor(descriptor);
 
