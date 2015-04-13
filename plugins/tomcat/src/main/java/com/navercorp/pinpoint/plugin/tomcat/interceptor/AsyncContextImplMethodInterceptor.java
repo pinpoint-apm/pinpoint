@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
  * @author jaehong.kim
  *
  */
-@Group("TomcatAsyncScope")
+@Group(TomcatConstants.TOMCAT_SERVLET_ASYNC_SCOPE)
 public class AsyncContextImplMethodInterceptor implements SimpleAroundInterceptor, TomcatConstants {
 
     private PLogger logger = PLoggerFactory.getLogger(this.getClass());
