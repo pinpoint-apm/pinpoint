@@ -51,6 +51,8 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
         addStandardServiceEditor(context);
         addTomcatConnectorEditor(context);
         addWebappLoaderEditor(context);
+        
+        addAsyncContextImpl(context);
     }
 
     private void addRequestEditor(ProfilerPluginSetupContext context) {
@@ -126,5 +128,20 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
         startInternalEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.WebappLoaderStartInterceptor");
         
         context.addClassFileTransformer(builder.build());
+    }
+    
+    private void addAsyncContextImpl(ProfilerPluginSetupContext context) {
+        ClassFileTransformerBuilder classBuilder = context.getClassFileTransformerBuilder("org.apache.catalina.core.AsyncContextImpl");
+        classBuilder.injectMetadata(METADATA_ASYNC_TRACE_ID);
+        MethodTransformerBuilder startEditor = classBuilder.editMethods(new MethodFilter() {
+            @Override
+            public boolean filter(MethodInfo method) {
+                final String name = method.getName();
+                return !(name.equals("dispatch"));
+            }
+        });
+        startEditor.property(IGNORE_IF_NOT_EXIST);
+        startEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.AsyncContextImplDispatchMethodInterceptor");
+        context.addClassFileTransformer(classBuilder.build());
     }
 }
