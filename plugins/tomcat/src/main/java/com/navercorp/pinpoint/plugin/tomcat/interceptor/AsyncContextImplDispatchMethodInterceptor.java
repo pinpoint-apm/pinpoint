@@ -58,7 +58,9 @@ public class AsyncContextImplDispatchMethodInterceptor implements SimpleAroundIn
         }
 
         if (!asyncTraceIdAccessor.isApplicable(target) || asyncTraceIdAccessor.get(target) == null) {
-            logger.debug("Not found asynchronous invocation metadata");
+            if(isDebug) {
+                logger.debug("Not found asynchronous invocation metadata");                
+            }
             return;
         }
 
@@ -74,12 +76,10 @@ public class AsyncContextImplDispatchMethodInterceptor implements SimpleAroundIn
             }
             async = true;
             if(isDebug) {
-                logger.debug("Continue async trace {} [{}]", asyncTraceId, Thread.currentThread().getName());
+                logger.debug("Continue async trace {}", asyncTraceId);
             }
-           
         }
 
-        logger.debug("TraceBlockBegin [{}]", Thread.currentThread().getName());
         trace.traceBlockBegin();
         trace.markBeforeTime();
         trace.recordServiceType(TOMCAT_METHOD);
@@ -96,7 +96,6 @@ public class AsyncContextImplDispatchMethodInterceptor implements SimpleAroundIn
 
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
-            logger.debug("Not found trace");
             return;
         }
 
@@ -110,7 +109,7 @@ public class AsyncContextImplDispatchMethodInterceptor implements SimpleAroundIn
                 trace.traceRootBlockEnd();
                 traceContext.detachTraceObject();
                 if(isDebug) {
-                    logger.debug("End async trace {} [{}]", trace.getTraceId(), Thread.currentThread().getName());
+                    logger.debug("End async trace {}", trace.getTraceId());
                 }
             }
         }
