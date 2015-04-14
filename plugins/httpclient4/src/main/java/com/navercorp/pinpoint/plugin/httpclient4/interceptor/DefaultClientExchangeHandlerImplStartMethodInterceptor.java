@@ -24,14 +24,19 @@ import java.io.Reader;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequest;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
+import org.apache.http.nio.protocol.HttpAsyncRequestProducer;
 import org.apache.http.protocol.HTTP;
 
+import com.navercorp.pinpoint.bootstrap.FieldAccessor;
+import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -41,6 +46,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
@@ -50,16 +56,19 @@ import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
- * @author emeroad
+ * 
  * @author jaehong.kim
+ *
  */
-public abstract class AbstractHttpAsyncExecuteExecuteInterceptor implements SimpleAroundInterceptor, HttpClient4Constants {
+public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements SimpleAroundInterceptor, HttpClient4Constants {
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
-    protected final PLogger logger;
-    protected final boolean isDebug;
-
-    protected TraceContext traceContext;
-    protected MethodDescriptor descriptor;
+    private TraceContext traceContext;
+    private MethodDescriptor methodDescriptor;
+    private MetadataAccessor asyncTraceIdAccessor;
+    private FieldAccessor requestProducerAccessor;
+    private FieldAccessor resultFutureAccessor;
 
     protected boolean cookie;
     protected DumpType cookieDumpType;
@@ -68,37 +77,33 @@ public abstract class AbstractHttpAsyncExecuteExecuteInterceptor implements Simp
     protected boolean entity;
     protected DumpType entityDumpType;
     protected SimpleSampler entitySampler;
-    
+
     protected boolean statusCode;
 
-    public AbstractHttpAsyncExecuteExecuteInterceptor(Class<? extends AbstractHttpAsyncExecuteExecuteInterceptor> childClazz, TraceContext context, MethodDescriptor descriptor) {
-        this.logger = PLoggerFactory.getLogger(childClazz);
-        this.isDebug = logger.isDebugEnabled();
-        setTraceContext(context);
-        setMethodDescriptor(descriptor);
+    public DefaultClientExchangeHandlerImplStartMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor,
+            @Name(FIELD_REQUEST_PRODUCER) FieldAccessor requestProducerAccessor, @Name(FIELD_RESULT_FUTURE) FieldAccessor resultFutureAccessor) {
+        setTraceContext(traceContext);
+        this.methodDescriptor = methodDescriptor;
+        this.asyncTraceIdAccessor = asyncTraceIdAccessor;
+        this.requestProducerAccessor = requestProducerAccessor;
+        this.resultFutureAccessor = resultFutureAccessor;
     }
-
-    abstract NameIntValuePair<String> getHost(Object[] args);
-
-    abstract HttpRequest getHttpRequest(Object[] args);
-    
-    abstract Integer getStatusCode(Object result);
 
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
-            logger.beforeInterceptor(target, args);
+            logger.beforeInterceptor(target, "", methodDescriptor.getMethodName(), "", args);
         }
+
         final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
 
-        final HttpRequest httpRequest = getHttpRequest(args);
-
+        final HttpRequest httpRequest = getHttpRequest(target);
         final boolean sampling = trace.canSampled();
         if (!sampling) {
-            if(isDebug) {
+            if (isDebug) {
                 logger.debug("set Sampling flag=false");
             }
             if (httpRequest != null) {
@@ -110,7 +115,8 @@ public abstract class AbstractHttpAsyncExecuteExecuteInterceptor implements Simp
         trace.traceBlockBegin();
         trace.markBeforeTime();
 
-        TraceId nextId = trace.getTraceId().getNextTraceId();
+        // set remote trace
+        final TraceId nextId = trace.getTraceId().getNextTraceId();
         trace.recordNextSpanId(nextId.getSpanId());
         trace.recordServiceType(HTTP_CLIENT4);
 
@@ -124,9 +130,96 @@ public abstract class AbstractHttpAsyncExecuteExecuteInterceptor implements Simp
             httpRequest.setHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
             httpRequest.setHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
         }
+
+        try {
+            if (isAsynchronousInvocation(target, args)) {
+                // set asynchronous trace
+                final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
+                trace.recordNextAsyncId(asyncTraceId.getAsyncId());
+                asyncTraceIdAccessor.set(resultFutureAccessor.get(target), asyncTraceId);
+                if (isDebug) {
+                    logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
+                }
+            }
+        } catch (Throwable t) {
+            logger.warn("Failed to before process. {}", t.getMessage(), t);
+        }
     }
 
+    private HttpRequest getHttpRequest(final Object target) {
+        try {
+            if (!requestProducerAccessor.isApplicable(target)) {
+                return null;
+            }
 
+            final HttpAsyncRequestProducer requestProducer = requestProducerAccessor.get(target);
+            return requestProducer.generateRequest();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private boolean isAsynchronousInvocation(final Object target, final Object[] args) {
+        if (!resultFutureAccessor.isApplicable(target)) {
+            logger.debug("Invalid target object. Need field accessor({}).", FIELD_RESULT_FUTURE);
+            return false;
+        }
+
+        if (resultFutureAccessor.get(target) == null) {
+            logger.debug("Invalid target object. field is null({}).", FIELD_RESULT_FUTURE);
+            return false;
+        }
+
+        if (!asyncTraceIdAccessor.isApplicable(resultFutureAccessor.get(target))) {
+            logger.debug("Invalid resultFuture field object. Need metadata accessor({}).", METADATA_ASYNC_TRACE_ID);
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        if (isDebug) {
+            logger.afterInterceptor(target, args);
+        }
+
+        final Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
+            return;
+        }
+
+        try {
+            final HttpRequest httpRequest = getHttpRequest(target);
+            if (httpRequest != null) {
+                // Accessing httpRequest here not before() becuase it can cause side effect.
+                trace.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getRequestLine().getUri());
+                final NameIntValuePair<String> host = getHost(target);
+                if (host != null) {
+                    int port = host.getValue();
+                    String endpoint = getEndpoint(host.getName(), port);
+                    trace.recordDestinationId(endpoint);
+                }
+                recordHttpRequest(trace, httpRequest, throwable);
+            }
+            trace.recordApi(methodDescriptor);
+            trace.recordException(throwable);
+            trace.markAfterTime();
+        } finally {
+            trace.traceBlockEnd();
+        }
+    }
+
+    private NameIntValuePair<String> getHost(final Object target) {
+        if (!requestProducerAccessor.isApplicable(target)) {
+            return null;
+        }
+
+        final org.apache.http.nio.protocol.HttpAsyncRequestProducer producer = requestProducerAccessor.get(target);
+        final HttpHost httpHost = producer.getTarget();
+
+        return new NameIntValuePair<String>(httpHost.getHostName(), httpHost.getPort());
+    }
 
     private String getEndpoint(String host, int port) {
         if (host == null) {
@@ -142,62 +235,19 @@ public abstract class AbstractHttpAsyncExecuteExecuteInterceptor implements Simp
         return sb.toString();
     }
 
-    @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            // Do not log result
-            logger.afterInterceptor(target, args);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-        try {
-            final HttpRequest httpRequest = getHttpRequest(args);
-            if (httpRequest != null) {
-             // Accessing httpRequest here not before() becuase it can cause side effect.
-                trace.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getRequestLine().getUri());
-                final NameIntValuePair<String> host = getHost(args);
-                if (host != null) {
-                    int port = host.getValue();
-                    String endpoint = getEndpoint(host.getName(), port);
-                    trace.recordDestinationId(endpoint);
-                }
-
-                recordHttpRequest(trace, httpRequest, throwable);
-            }
-
-            if (statusCode) {
-                Integer statusCodeValue = getStatusCode(result);
-                
-                if (statusCodeValue != null) {
-                    trace.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, statusCodeValue);
-                }
-            }
-            
-            trace.recordApi(descriptor);
-            trace.recordException(throwable);
-
-            trace.markAfterTime();
-        } finally {
-            trace.traceBlockEnd();
-        }
-    }
-
     private void recordHttpRequest(Trace trace, HttpRequest httpRequest, Throwable throwable) {
         final boolean isException = InterceptorUtils.isThrowable(throwable);
         if (cookie) {
             if (DumpType.ALWAYS == cookieDumpType) {
                 recordCookie(httpRequest, trace);
-            } else if(DumpType.EXCEPTION == cookieDumpType && isException){
+            } else if (DumpType.EXCEPTION == cookieDumpType && isException) {
                 recordCookie(httpRequest, trace);
             }
         }
         if (entity) {
             if (DumpType.ALWAYS == entityDumpType) {
                 recordEntity(httpRequest, trace);
-            } else if(DumpType.EXCEPTION == entityDumpType && isException) {
+            } else if (DumpType.EXCEPTION == entityDumpType && isException) {
                 recordEntity(httpRequest, trace);
             }
         }
@@ -205,13 +255,13 @@ public abstract class AbstractHttpAsyncExecuteExecuteInterceptor implements Simp
 
     protected void recordCookie(HttpMessage httpMessage, Trace trace) {
         org.apache.http.Header[] cookies = httpMessage.getHeaders("Cookie");
-        for (org.apache.http.Header header: cookies) {
+        for (org.apache.http.Header header : cookies) {
             final String value = header.getValue();
             if (value != null && !value.isEmpty()) {
                 if (cookieSampler.isSampling()) {
                     trace.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, 1024));
                 }
-                
+
                 // Can a cookie have 2 or more values?
                 // PMD complains if we use break here
                 return;
@@ -237,18 +287,19 @@ public abstract class AbstractHttpAsyncExecuteExecuteInterceptor implements Simp
     }
 
     /**
-     * copy: EntityUtils
-     * Get the entity content as a String, using the provided default character set
-     * if none is found in the entity.
-     * If defaultCharset is null, the default "ISO-8859-1" is used.
+     * copy: EntityUtils Get the entity content as a String, using the provided default character set if none is found in the entity. If defaultCharset is null, the default "ISO-8859-1" is used.
      *
-     * @param entity must not be null
-     * @param defaultCharset character set to be applied if none found in the entity
-     * @return the entity content as a String. May be null if
-     *   {@link HttpEntity#getContent()} is null.
-     * @throws ParseException if header elements cannot be parsed
-     * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
-     * @throws IOException if an error occurs reading the input stream
+     * @param entity
+     *            must not be null
+     * @param defaultCharset
+     *            character set to be applied if none found in the entity
+     * @return the entity content as a String. May be null if {@link HttpEntity#getContent()} is null.
+     * @throws ParseException
+     *             if header elements cannot be parsed
+     * @throws IllegalArgumentException
+     *             if entity is null or if content length > Integer.MAX_VALUE
+     * @throws IOException
+     *             if an error occurs reading the input stream
      */
     public static String entityUtilsToString(final HttpEntity entity, final String defaultCharset, int maxLength) throws IOException, ParseException {
         if (entity == null) {
@@ -273,7 +324,7 @@ public abstract class AbstractHttpAsyncExecuteExecuteInterceptor implements Simp
             final StringBuilder buffer = new StringBuilder(maxLength * 2);
             char[] tmp = new char[1024];
             int l;
-            while((l = reader.read(tmp)) != -1) {
+            while ((l = reader.read(tmp)) != -1) {
                 buffer.append(tmp, 0, l);
                 if (buffer.length() >= maxLength) {
                     break;
@@ -286,13 +337,15 @@ public abstract class AbstractHttpAsyncExecuteExecuteInterceptor implements Simp
     }
 
     /**
-     * copy: EntityUtils
-     * Obtains character set of the entity, if known.
+     * copy: EntityUtils Obtains character set of the entity, if known.
      *
-     * @param entity must not be null
+     * @param entity
+     *            must not be null
      * @return the character set, or null if not found
-     * @throws ParseException if header elements cannot be parsed
-     * @throws IllegalArgumentException if entity is null
+     * @throws ParseException
+     *             if header elements cannot be parsed
+     * @throws IllegalArgumentException
+     *             if entity is null
      */
     public static String getContentCharSet(final HttpEntity entity) throws ParseException {
         if (entity == null) {
@@ -317,7 +370,7 @@ public abstract class AbstractHttpAsyncExecuteExecuteInterceptor implements Simp
         final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
         this.cookie = profilerConfig.isApacheHttpClient4ProfileCookie();
         this.cookieDumpType = profilerConfig.getApacheHttpClient4ProfileCookieDumpType();
-        if (cookie){
+        if (cookie) {
             this.cookieSampler = SimpleSamplerFactory.createSampler(cookie, profilerConfig.getApacheHttpClient4ProfileCookieSamplingRate());
         }
 
@@ -326,11 +379,5 @@ public abstract class AbstractHttpAsyncExecuteExecuteInterceptor implements Simp
         if (entity) {
             this.entitySampler = SimpleSamplerFactory.createSampler(entity, profilerConfig.getApacheHttpClient4ProfileEntitySamplingRate());
         }
-        this.statusCode = profilerConfig.isApacheHttpClient4ProfileStatusCode();
-    }
-
-    public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.descriptor = descriptor;
-        traceContext.cacheApi(descriptor);
     }
 }
