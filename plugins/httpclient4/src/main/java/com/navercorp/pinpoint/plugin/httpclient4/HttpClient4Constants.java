@@ -33,6 +33,7 @@ public interface HttpClient4Constants {
     public static final String METADATA_END_POINT = "endPoint";
     public static final String METADATA_DESTINATION_ID = "destinationId";
     public static final String METADATA_ASYNC_TRACE_ID = "asyncTraceId";
+    public static final String FIELD_REQUEST_PRODUCER = "requestProducer";
     public static final String FIELD_RESULT_FUTURE = "resultFuture";
     
     public static final String HTTP_CLIENT4_SCOPE = "HttpClient4Scope"; 
