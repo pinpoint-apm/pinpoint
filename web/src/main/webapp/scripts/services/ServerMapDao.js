@@ -28,7 +28,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
             dataType: 'json',
             data: {
                 applicationName: query.applicationName,
-                serviceTypeCode: query.serviceTypeCode,
+                serviceTypeName: query.serviceTypeName,
                 from: query.from,
                 to: query.to
             },
@@ -53,7 +53,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
     this.getFilteredServerMapData = function (query, cb) {
         var data = {
             applicationName: query.applicationName,
-            serviceTypeCode: query.serviceTypeCode,
+            serviceTypeName: query.serviceTypeName,
             from: query.from,
             to: query.to,
             originTo: query.originTo,

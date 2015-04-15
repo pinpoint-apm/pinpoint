@@ -136,7 +136,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * @param linkRouting
                  * @param linkCurve
                  */
-                showServerMap = function (applicationName, serviceTypeCode, to, period, filterText, hintText, linkRouting, linkCurve) {
+                showServerMap = function (applicationName, serviceTypeName, to, period, filterText, hintText, linkRouting, linkCurve) {
                     oProgressBar.startLoading();
                     oAlert.hideError();
                     oAlert.hideWarning();
@@ -148,7 +148,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
 
                     htLastQuery = {
                         applicationName: applicationName,
-                        serviceTypeCode: serviceTypeCode,
+                        serviceTypeName: serviceTypeName,
                         from: to - period,
                         to: to,
                         originTo: scope.oNavbarVo.getQueryEndTime(),
@@ -710,14 +710,14 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     scope.bShowServerMapStatus = true;
                     bUseLinkContextMenu = bUseBackgroundContextMenu = true;
                     bUseNodeContextMenu = false;
-                    showServerMap(navbarVo.getApplicationName(), navbarVo.getServiceTypeCode(), navbarVo.getQueryEndTime(), navbarVo.getQueryPeriod(), navbarVo.getFilter(), navbarVo.getHint(), scope.linkRouting, scope.linkCurve);
+                    showServerMap(navbarVo.getApplicationName(), navbarVo.getServiceTypeName(), navbarVo.getQueryEndTime(), navbarVo.getQueryPeriod(), navbarVo.getFilter(), navbarVo.getHint(), scope.linkRouting, scope.linkCurve);
                 });
 
                 /**
                  * scope event on serverMap.fetch
                  */
                 scope.$on('serverMap.fetch', function (event, queryPeriod, queryEndTime) {
-                    showServerMap(scope.oNavbarVo.getApplicationName(), scope.oNavbarVo.getServiceTypeCode(), queryEndTime, queryPeriod, scope.oNavbarVo.getFilter(), scope.oNavbarVo.getHint(), scope.linkRouting, scope.linkCurve);
+                    showServerMap(scope.oNavbarVo.getApplicationName(), scope.oNavbarVo.getServiceTypeName(), queryEndTime, queryPeriod, scope.oNavbarVo.getFilter(), scope.oNavbarVo.getHint(), scope.linkRouting, scope.linkCurve);
                 });
 
                 /**
