@@ -186,6 +186,10 @@ public class SpanAligner2 {
             } else {
                 if (spanEventBo.getDepth() != PARENT_DEPTH) {
                     currentSyncDepth = spanDepth + spanEventBo.getDepth();
+                } else {
+                    if(spanDepth == 0) {
+                        currentSyncDepth = 1;
+                    }
                 }
                 currentDepth = currentSyncDepth;
             }
