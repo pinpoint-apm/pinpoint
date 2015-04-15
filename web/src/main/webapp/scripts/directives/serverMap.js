@@ -86,7 +86,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 $fromAgentName.select2();
                 $toAgentName.select2();
                 bIsFilterWizardLoaded = false;
-                scope.mergeTypeList = [];//[ 'APACHE', 'ARCUS', 'BACKEND', 'BLOC', 'CASSANDRA', 'CUBRID', 'JAVA', 'MEMCACHED', 'MONGODB', 'MSSQLSERVER', 'MYSQL', 'NBASE', 'NGINX', 'ORACLE', 'QUEUE', 'STAND_ALONE', 'TOMCAT', 'UNKNOWN', 'REDIS', 'NBASE_ARC' ];
+                scope.mergeTypeList = [];
                 scope.mergeStatus = {};
                 
                 /**
@@ -276,15 +276,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * @param linkCurve
                  */
                 serverMapCallback = function (query, applicationMapData, linkRouting, linkCurve) {
-                	console.log( applicationMapData );
-                    //var lastCopiedData = applicationMapData;
-                    
-                    //if (mergeUnknowns) {
-                        //lastCopiedData = ServerMapDao.mergeUnknown(applicationMapData, mergeTypeList);
-                    var lastCopiedData = ServerMapDao.mergeGroup(applicationMapData, getMergeArray());
-                    //}
+                	//console.log( applicationMapData );
+                	var mergeArray = getMergeArray();
+                	var lastCopiedData = ServerMapDao.mergeMultiLinkGroup( ServerMapDao.mergeGroup(applicationMapData, mergeArray), mergeArray );
 
-                    console.log( lastCopiedData );
+                    //console.log( lastCopiedData );
 //                    ServerMapDao.removeNoneNecessaryDataForHighPerformance(lastCopiedData);
                     oProgressBar.setLoading(80);
                     if (lastCopiedData.nodeDataArray.length === 0) {
@@ -321,6 +317,12 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     oProgressBar.setLoading(90);
 
                     var options = cfg.options;
+                    options.fOnNodeSubGroupClicked = function(e, node, nodeKey, fromName) {
+                    	var link = ServerMapDao.getLinkNodeDataByNodeKey(htLastMapData.applicationMapData, nodeKey, fromName);
+                    	link.fromNode = ServerMapDao.getNodeDataByKey(htLastMapData.applicationMapData, link.from);
+                    	link.toNode = ServerMapDao.getNodeDataByKey(htLastMapData.applicationMapData, link.to);
+                    	options.fOnLinkClicked(e, link);
+                    }
                     options.fOnNodeClicked = function (e, node, unknownKey, searchQuery) {
                         var originalNode;
                         if (angular.isDefined(node.unknownNodeGroup) && !unknownKey) {
@@ -335,6 +337,9 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         htLastNode = node;
                         scope.$emit("serverMap.nodeClicked", e, htLastQuery, node, lastCopiedData, searchQuery);
                         reset();
+                    };
+                    options.fOnNodeDoubleClicked = function(e, node, htData ) {
+                    	e.diagram.zoomToRect( node.actualBounds, 1.2);
                     };
                     options.fOnNodeContextClicked = function (e, node) {
                         reset();
