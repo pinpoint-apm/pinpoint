@@ -49,26 +49,24 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
     private final DefaultAgent agent;
     private final ByteCodeInstrumentor byteCodeInstrumentor;
-    private final ClassFileRetransformer retransformer;
+    private final DefaultClassFileRetransformer retransformer;
 
     private final ProfilerConfig profilerConfig;
 
     private final ClassFileFilter skipFilter;
     
-    public ClassFileTransformerDispatcher(DefaultAgent agent, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileRetransformer retransformer, List<DefaultProfilerPluginContext> pluginContexts) {
+    public ClassFileTransformerDispatcher(DefaultAgent agent, ByteCodeInstrumentor byteCodeInstrumentor, List<DefaultProfilerPluginContext> pluginContexts) {
         if (agent == null) {
             throw new NullPointerException("agent must not be null");
         }
         if (byteCodeInstrumentor == null) {
             throw new NullPointerException("byteCodeInstrumentor must not be null");
         }
-        if (retransformer == null) {
-            throw new NullPointerException("retransformer must not be null");
-        }
+
         
         this.agent = agent;
         this.byteCodeInstrumentor = byteCodeInstrumentor;
-        this.retransformer = retransformer;
+        this.retransformer = new DefaultClassFileRetransformer();
         this.profilerConfig = agent.getProfilerConfig();
         this.modifierRegistry = createModifierRegistry(pluginContexts);
         this.skipFilter = new DefaultClassFileFilter(agentClassLoader);
@@ -76,6 +74,10 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
     @Override
     public byte[] transform(ClassLoader classLoader, String jvmClassName, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws IllegalClassFormatException {
+        if (classBeingRedefined != null) {
+            return this.retransform(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer);
+        }
+
         if (skipFilter.doFilter(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer)) {
             return null;
         }
@@ -113,6 +115,14 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
                     findModifier.getTargetClass(), classLoader, Thread.currentThread().getContextClassLoader(), agentClassLoader, e.getMessage(), e);
             return null;
         }
+    }
+
+    public void addRetransformEvent(Class<?> target, final ClassFileTransformer transformer) {
+        this.retransformer.addRetranformEvent(target, transformer);
+    }
+
+    private byte[] retransform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+        return retransformer.transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
     }
 
     private ClassLoader getContextClassLoader(Thread thread) throws Throwable {

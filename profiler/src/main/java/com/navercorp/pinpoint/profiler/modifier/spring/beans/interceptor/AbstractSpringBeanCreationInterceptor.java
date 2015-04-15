@@ -19,9 +19,10 @@ package com.navercorp.pinpoint.profiler.modifier.spring.beans.interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.profiler.ClassFileRetransformer;
 import com.navercorp.pinpoint.profiler.ProfilerException;
+import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventTrigger;
 import com.navercorp.pinpoint.profiler.modifier.Modifier;
+import com.navercorp.pinpoint.profiler.modifier.ModifierTransformAdaptor;
 
 /**
  * 
@@ -29,13 +30,13 @@ import com.navercorp.pinpoint.profiler.modifier.Modifier;
  */
 public abstract class AbstractSpringBeanCreationInterceptor implements SimpleAroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
-    
-    private final ClassFileRetransformer retransformer;
+
+    private final RetransformEventTrigger retransformEventTrigger;
     private final Modifier modifier;
     private final TargetBeanFilter filter;
     
-    protected AbstractSpringBeanCreationInterceptor(ClassFileRetransformer retransformer, Modifier modifier, TargetBeanFilter filter) {
-        this.retransformer = retransformer;
+    protected AbstractSpringBeanCreationInterceptor(RetransformEventTrigger retransformEventTrigger, Modifier modifier, TargetBeanFilter filter) {
+        this.retransformEventTrigger = retransformEventTrigger;
         this.modifier = modifier;
         this.filter = filter;
     }
@@ -54,7 +55,8 @@ public abstract class AbstractSpringBeanCreationInterceptor implements SimpleAro
         // If you want to trace inherited methods, you have to retranform super classes, too.
         
         try {
-            retransformer.retransform(clazz, modifier);
+            ModifierTransformAdaptor transformAdaptor = new ModifierTransformAdaptor(modifier);
+            retransformEventTrigger.retransform(clazz, transformAdaptor);
 
             if (logger.isInfoEnabled()) {
                 logger.info("Retransform {}", clazz.getName());
