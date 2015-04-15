@@ -24,6 +24,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 
+import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventTrigger;
 import javassist.CannotCompileException;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
@@ -43,7 +44,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
 import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.ClassFileRetransformer;
 import com.navercorp.pinpoint.profiler.interceptor.GlobalInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.ScopePool;
@@ -66,7 +66,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     private final ClassLoadChecker classLoadChecker = new ClassLoadChecker();
     private final InterceptorRegistryBinder interceptorRegistryBinder;
-    private final ClassFileRetransformer retransformer;
+    private final RetransformEventTrigger retransformEventTrigger;
 
     private final IsolateMultipleClassPool.EventListener eventListener =  new IsolateMultipleClassPool.EventListener() {
         @Override
@@ -83,16 +83,19 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     private JavaAssistByteCodeInstrumentor() {
         this.childClassPool = new IsolateMultipleClassPool(eventListener, null);
         this.interceptorRegistryBinder = new GlobalInterceptorRegistryBinder();
-        this.retransformer = null;
+        this.retransformEventTrigger = null;
     }
 
     public JavaAssistByteCodeInstrumentor(Agent agent, InterceptorRegistryBinder interceptorRegistryBinder) {
         this(agent, interceptorRegistryBinder, null, null);
     }
 
-    public JavaAssistByteCodeInstrumentor(Agent agent, InterceptorRegistryBinder interceptorRegistryBinder, final String bootStrapJar, ClassFileRetransformer retransformer) {
+    public JavaAssistByteCodeInstrumentor(Agent agent, InterceptorRegistryBinder interceptorRegistryBinder, final String bootStrapJar, RetransformEventTrigger retransformEventTrigger) {
         if (interceptorRegistryBinder == null) {
             throw new NullPointerException("interceptorRegistryBinder must not be null");
+        }
+        if (retransformEventTrigger == null) {
+            throw new NullPointerException("retransformEventTrigger must not be null");
         }
 
         this.childClassPool = new IsolateMultipleClassPool(eventListener, new IsolateMultipleClassPool.ClassPoolHandler() {
@@ -113,7 +116,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         
         this.agent = agent;
         this.interceptorRegistryBinder = interceptorRegistryBinder;
-        this.retransformer = retransformer;
+        this.retransformEventTrigger = retransformEventTrigger;
     }
 
     public Agent getAgent() {
@@ -303,6 +306,12 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     @Override
     public void retransform(Class<?> target, ClassFileTransformer transformer) {
-        retransformer.retransform(target, transformer);
+        this.retransformEventTrigger.retransform(target, transformer);
+    }
+
+
+    @Override
+    public RetransformEventTrigger getRetransformEventTrigger() {
+        return retransformEventTrigger;
     }
 }

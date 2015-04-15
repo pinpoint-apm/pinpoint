@@ -44,4 +44,6 @@ public interface ByteCodeInstrumentor {
     Interceptor newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN, Object[] params, Class[] paramClazz) throws InstrumentException;
     
     void retransform(Class<?> target, ClassFileTransformer classEditor);
+
+    RetransformEventTrigger getRetransformEventTrigger();
 }
