@@ -19,35 +19,35 @@ package com.navercorp.pinpoint.profiler.util;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
-import com.navercorp.pinpoint.bootstrap.instrument.ScopeDefinition;
+import com.navercorp.pinpoint.bootstrap.instrument.InterceptorGroupDefinition;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
 
 /**
  * @author emeroad
  */
 public class ThreadLocalScopePool implements ScopePool {
 
-    private final ConcurrentMap<ScopeDefinition, Scope> pool = new ConcurrentHashMap<ScopeDefinition, Scope>();
+    private final ConcurrentMap<InterceptorGroupDefinition, InterceptorGroupTransaction> pool = new ConcurrentHashMap<InterceptorGroupDefinition, InterceptorGroupTransaction>();
 
     @Override
-    public Scope getScope(ScopeDefinition scopeDefinition) {
+    public InterceptorGroupTransaction getScope(InterceptorGroupDefinition scopeDefinition) {
         if (scopeDefinition == null) {
             throw new NullPointerException("scopeDefinition must not be null");
         }
-        final Scope scope = this.pool.get(scopeDefinition);
+        final InterceptorGroupTransaction scope = this.pool.get(scopeDefinition);
         if (scope != null) {
             return scope;
         }
 
-        final Scope newScope = createScope(scopeDefinition);
-        final Scope exist = this.pool.putIfAbsent(scopeDefinition, newScope);
+        final InterceptorGroupTransaction newScope = createScope(scopeDefinition);
+        final InterceptorGroupTransaction exist = this.pool.putIfAbsent(scopeDefinition, newScope);
         if (exist != null) {
             return exist;
         }
         return newScope;
     }
 
-    private Scope createScope(ScopeDefinition scopeDefinition) {
+    private InterceptorGroupTransaction createScope(InterceptorGroupDefinition scopeDefinition) {
         return new ThreadLocalScope(scopeDefinition);
     }
 

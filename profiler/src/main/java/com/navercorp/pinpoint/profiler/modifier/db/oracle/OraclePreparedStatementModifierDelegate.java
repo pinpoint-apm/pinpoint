@@ -28,12 +28,12 @@ import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.BindValueTraceValue;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ParsingResultTraceValue;
-import com.navercorp.pinpoint.profiler.interceptor.ScopeDelegateStaticInterceptor;
+import com.navercorp.pinpoint.profiler.interceptor.GroupDelegateStaticInterceptor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifierDelegate;
 import com.navercorp.pinpoint.profiler.modifier.db.interceptor.PreparedStatementBindVariableInterceptor;
 import com.navercorp.pinpoint.profiler.modifier.db.interceptor.PreparedStatementExecuteQueryInterceptor;
@@ -60,11 +60,11 @@ public class OraclePreparedStatementModifierDelegate extends AbstractModifierDel
             InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(classLoader, className, classFileBuffer);
 
             Interceptor execute = new PreparedStatementExecuteQueryInterceptor();
-            preparedStatement.addScopeInterceptor("execute", null, execute, OracleScope.SCOPE_NAME);
+            preparedStatement.addGroupInterceptor("execute", null, execute, OracleScope.SCOPE_NAME);
             Interceptor executeQuery = new PreparedStatementExecuteQueryInterceptor();
-            preparedStatement.addScopeInterceptor("executeQuery", null, executeQuery, OracleScope.SCOPE_NAME);
+            preparedStatement.addGroupInterceptor("executeQuery", null, executeQuery, OracleScope.SCOPE_NAME);
             Interceptor executeUpdate = new PreparedStatementExecuteQueryInterceptor();
-            preparedStatement.addScopeInterceptor("executeUpdate", null, executeUpdate, OracleScope.SCOPE_NAME);
+            preparedStatement.addGroupInterceptor("executeUpdate", null, executeUpdate, OracleScope.SCOPE_NAME);
 
             preparedStatement.addTraceValue(DatabaseInfoTraceValue.class);
             preparedStatement.addTraceValue(ParsingResultTraceValue.class);
@@ -82,8 +82,8 @@ public class OraclePreparedStatementModifierDelegate extends AbstractModifierDel
 
     private void bindVariableIntercept(InstrumentClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
         List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod();
-        final Scope scope = byteCodeInstrumentor.getScope(OracleScope.SCOPE_NAME);
-        Interceptor interceptor = new ScopeDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor(), scope);
+        final InterceptorGroupTransaction scope = byteCodeInstrumentor.getInterceptorGroupTransaction(OracleScope.SCOPE_NAME);
+        Interceptor interceptor = new GroupDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor(), scope);
         int interceptorId = -1;
         for (Method method : bindMethod) {
             String methodName = method.getName();

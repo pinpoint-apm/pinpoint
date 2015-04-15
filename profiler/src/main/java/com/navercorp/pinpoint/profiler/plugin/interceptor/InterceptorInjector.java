@@ -14,7 +14,7 @@
  */
 package com.navercorp.pinpoint.profiler.plugin.interceptor;
 
-import com.navercorp.pinpoint.profiler.plugin.editor.MethodRecipe;
+import com.navercorp.pinpoint.profiler.plugin.transformer.MethodRecipe;
 
 /**
  * @author Jongho Moon

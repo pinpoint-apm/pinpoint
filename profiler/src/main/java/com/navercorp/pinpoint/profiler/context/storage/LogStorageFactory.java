@@ -46,5 +46,14 @@ public class LogStorageFactory implements StorageFactory {
         public void store(Span span) {
             logger.debug("log span:{}", span);
         }
+
+        @Override
+        public void setAsync(boolean async) {
+        }
+
+        @Override
+        public boolean isAsync() {
+            return false;
+        }
     }
 }

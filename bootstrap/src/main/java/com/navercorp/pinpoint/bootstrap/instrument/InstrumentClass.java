@@ -57,13 +57,13 @@ public interface InstrumentClass {
 
     int addInterceptor(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
 
-    int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException, NotFoundInstrumentException;
+    int addGroupInterceptor(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException, NotFoundInstrumentException;
 
-    int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, ScopeDefinition scopeDefinition) throws InstrumentException;
+    int addGroupInterceptor(String methodName, String[] args, Interceptor interceptor, InterceptorGroupDefinition scopeDefinition) throws InstrumentException;
 
-    int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException;
+    int addGroupInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException;
 
-    int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, ScopeDefinition scopeDefinition) throws InstrumentException;
+    int addGroupInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, InterceptorGroupDefinition scopeDefinition) throws InstrumentException;
 
     int addInterceptor(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
 

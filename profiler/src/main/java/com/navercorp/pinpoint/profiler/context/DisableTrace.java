@@ -16,9 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -34,8 +32,6 @@ public class DisableTrace  implements Trace {
 
     public static final DisableTrace INSTANCE = new DisableTrace();
     
-    private final Map<String, Object> attributeMap = new HashMap<String, Object>();
-
     private DisableTrace() {
     }
 
@@ -211,32 +207,30 @@ public class DisableTrace  implements Trace {
     }
 
     @Override
-    public Object getAttribute(String key) {
-        return attributeMap.get(key);
+    public void recordAsyncId(int asyncId) {
     }
 
     @Override
-    public Object setAttribute(String key, Object value) {
-        return attributeMap.put(key, value);
+    public void recordNextAsyncId(int asyncId) {
     }
 
     @Override
-    public Object removeAttribute(String key) {
-        return attributeMap.remove(key);
+    public boolean isAsync() {
+        return false;
     }
-    
+
     @Override
-    public Object setTraceBlockAttachment(Object attachment) {
+    public long getTraceStartTime() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object getTraceBlockAttachment() {
+    public boolean isRootStack() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object removeTraceBlockAttachment() {
+    public AsyncTraceId getAsyncTraceId() {
         throw new UnsupportedOperationException();
     }
 }

@@ -15,13 +15,13 @@ package com.navercorp.pinpoint.plugin.jdk.http;
  * limitations under the License.
  */
 
-import static com.navercorp.pinpoint.bootstrap.plugin.editor.ClassConditions.*;
+import static com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassConditions.*;
 
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ConditionalClassEditorBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ConditionalClassEditorSetup;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerSetup;
 
 /**
  * 
@@ -32,22 +32,22 @@ public class JdkHttpPlugin implements ProfilerPlugin {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        ClassEditorBuilder builder = context.getClassEditorBuilder("sun.net.www.protocol.http.HttpURLConnection");
+        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("sun.net.www.protocol.http.HttpURLConnection");
     
         builder.injectFieldAccessor("connected");
         builder.injectInterceptor("com.navercorp.pinpoint.plugin.jdk.http.interceptor.HttpURLConnectionInterceptor");
         
         // JDK 8
         builder.conditional(hasField("connecting", "boolean"), 
-                new ConditionalClassEditorSetup() {
+                new ConditionalClassFileTransformerSetup() {
                     @Override
-                    public void setup(ConditionalClassEditorBuilder conditional) {
+                    public void setup(ConditionalClassFileTransformerBuilder conditional) {
                         conditional.injectFieldAccessor("connecting");
                     }
                 }
         );
         
-        context.addClassEditor(builder.build());
+        context.addClassFileTransformer(builder.build());
     }
 
 }

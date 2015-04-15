@@ -26,16 +26,11 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.DedicatedClassEditor;
-import com.navercorp.pinpoint.common.plugin.PluginLoader;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.DedicatedClassFileTransformer;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.DefaultModifierRegistry;
-import com.navercorp.pinpoint.profiler.modifier.Modifier;
-import com.navercorp.pinpoint.profiler.modifier.ModifierProvider;
 import com.navercorp.pinpoint.profiler.modifier.ModifierRegistry;
-import com.navercorp.pinpoint.profiler.plugin.ClassEditorAdaptor;
-import com.navercorp.pinpoint.profiler.plugin.ClassEditorExecutor;
+import com.navercorp.pinpoint.profiler.plugin.ClassFileTransformerAdaptor;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
@@ -60,7 +55,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
     private final ClassFileFilter skipFilter;
     
-    public ClassFileTransformerDispatcher(DefaultAgent agent, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileRetransformer retransformer, List<DefaultProfilerPluginContext> pluginContexts, ClassEditorExecutor classEditorExecutor) {
+    public ClassFileTransformerDispatcher(DefaultAgent agent, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileRetransformer retransformer, List<DefaultProfilerPluginContext> pluginContexts) {
         if (agent == null) {
             throw new NullPointerException("agent must not be null");
         }
@@ -75,7 +70,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         this.byteCodeInstrumentor = byteCodeInstrumentor;
         this.retransformer = retransformer;
         this.profilerConfig = agent.getProfilerConfig();
-        this.modifierRegistry = createModifierRegistry(pluginContexts, classEditorExecutor);
+        this.modifierRegistry = createModifierRegistry(pluginContexts);
         this.skipFilter = new DefaultClassFileFilter(agentClassLoader);
     }
 
@@ -133,7 +128,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         }
     }
 
-    private ModifierRegistry createModifierRegistry(List<DefaultProfilerPluginContext> pluginContexts, ClassEditorExecutor classEditorExecutor) {
+    private ModifierRegistry createModifierRegistry(List<DefaultProfilerPluginContext> pluginContexts) {
         DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(agent, byteCodeInstrumentor, retransformer);
 
         modifierRepository.addMethodModifier();
@@ -162,35 +157,20 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         // logback
         modifierRepository.addLogbackModifier();
         
-        loadModifiers(modifierRepository);
-        loadEditorsFromPlugins(modifierRepository, pluginContexts, classEditorExecutor);
+        loadEditorsFromPlugins(modifierRepository, pluginContexts);
         
         return modifierRepository;
     }
 
-    private void loadModifiers(DefaultModifierRegistry modifierRepository) {
-        for (ModifierProvider provider : PluginLoader.load(ModifierProvider.class, getClass().getClassLoader())) {
-            for (Modifier modifier : provider.getModifiers(byteCodeInstrumentor, agent)) {
-                if (modifier instanceof AbstractModifier) {
-                    AbstractModifier abstractModifier = (AbstractModifier)modifier;
-                    modifierRepository.addModifier(abstractModifier);
-                    logger.info("Registering modifier {} from {} for {} ", abstractModifier.getClass().getName(), abstractModifier.getClass().getProtectionDomain().getCodeSource(), abstractModifier.getTargetClass());
-                } else {
-                    logger.warn("Ignore modifier {} from {}", modifier.getClass().getName(), modifier.getClass().getProtectionDomain().getCodeSource());
-                }
-            }
-        }
-    }
-
-    private void loadEditorsFromPlugins(DefaultModifierRegistry modifierRepository, List<DefaultProfilerPluginContext> pluginContexts, ClassEditorExecutor classEditorExecutor) {
+    private void loadEditorsFromPlugins(DefaultModifierRegistry modifierRepository, List<DefaultProfilerPluginContext> pluginContexts) {
         for (DefaultProfilerPluginContext pluginContext : pluginContexts) {
-            for (ClassEditor editor : pluginContext.getClassEditors()) {
-                if (editor instanceof DedicatedClassEditor) {
-                    DedicatedClassEditor dedicated = (DedicatedClassEditor)editor;
-                    logger.info("Registering class editor {} for {} ", dedicated, dedicated.getTargetClassName());
-                    modifierRepository.addModifier(new ClassEditorAdaptor(byteCodeInstrumentor, agent, dedicated, classEditorExecutor));
+            for (ClassFileTransformer transformer : pluginContext.getClassEditors()) {
+                if (transformer instanceof DedicatedClassFileTransformer) {
+                    DedicatedClassFileTransformer dedicated = (DedicatedClassFileTransformer)transformer;
+                    logger.info("Registering class file transformer {} for {} ", dedicated, dedicated.getTargetClassName());
+                    modifierRepository.addModifier(new ClassFileTransformerAdaptor(byteCodeInstrumentor, dedicated));
                 } else {
-                    logger.warn("Ignore class editor {}", editor);
+                    logger.warn("Ignore class file transformer {}", transformer);
                 }
             }
         }

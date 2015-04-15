@@ -54,49 +54,49 @@ public abstract class JtdsConnectionModifier extends AbstractModifier {
 
 
             Interceptor closeConnection = new ConnectionCloseInterceptor();
-            jtdsConnection.addScopeInterceptor("close", null, closeConnection, SCOPE_NAME);
+            jtdsConnection.addGroupInterceptor("close", null, closeConnection, SCOPE_NAME);
 
 
             Interceptor statementCreateInterceptor1 = new StatementCreateInterceptor();
-            jtdsConnection.addScopeInterceptor("createStatement", null, statementCreateInterceptor1, SCOPE_NAME);
+            jtdsConnection.addGroupInterceptor("createStatement", null, statementCreateInterceptor1, SCOPE_NAME);
 
             Interceptor statementCreateInterceptor2 = new StatementCreateInterceptor();
-            jtdsConnection.addScopeInterceptor("createStatement", new String[]{"int", "int"}, statementCreateInterceptor2, SCOPE_NAME);
+            jtdsConnection.addGroupInterceptor("createStatement", new String[]{"int", "int"}, statementCreateInterceptor2, SCOPE_NAME);
 
             Interceptor statementCreateInterceptor3 = new StatementCreateInterceptor();
-            jtdsConnection.addScopeInterceptor("createStatement", new String[]{"int", "int", "int"}, statementCreateInterceptor3, SCOPE_NAME);
+            jtdsConnection.addGroupInterceptor("createStatement", new String[]{"int", "int", "int"}, statementCreateInterceptor3, SCOPE_NAME);
 
 
             Interceptor preparedStatementCreateInterceptor1 = new PreparedStatementCreateInterceptor();
-            jtdsConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String"}, preparedStatementCreateInterceptor1, SCOPE_NAME);
+            jtdsConnection.addGroupInterceptor("prepareStatement", new String[]{"java.lang.String"}, preparedStatementCreateInterceptor1, SCOPE_NAME);
 
             Interceptor preparedStatementCreateInterceptor2 = new PreparedStatementCreateInterceptor();
-            jtdsConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int"}, preparedStatementCreateInterceptor2, SCOPE_NAME);
+            jtdsConnection.addGroupInterceptor("prepareStatement", new String[]{"java.lang.String", "int"}, preparedStatementCreateInterceptor2, SCOPE_NAME);
 
             Interceptor preparedStatementCreateInterceptor3 = new PreparedStatementCreateInterceptor();
-            jtdsConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int[]"}, preparedStatementCreateInterceptor3, SCOPE_NAME);
+            jtdsConnection.addGroupInterceptor("prepareStatement", new String[]{"java.lang.String", "int[]"}, preparedStatementCreateInterceptor3, SCOPE_NAME);
 
             Interceptor preparedStatementCreateInterceptor4 = new PreparedStatementCreateInterceptor();
-            jtdsConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "java.lang.String[]"}, preparedStatementCreateInterceptor4, SCOPE_NAME);
+            jtdsConnection.addGroupInterceptor("prepareStatement", new String[]{"java.lang.String", "java.lang.String[]"}, preparedStatementCreateInterceptor4, SCOPE_NAME);
 
             Interceptor preparedStatementCreateInterceptor5 = new PreparedStatementCreateInterceptor();
-            jtdsConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int"}, preparedStatementCreateInterceptor5, SCOPE_NAME);
+            jtdsConnection.addGroupInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int"}, preparedStatementCreateInterceptor5, SCOPE_NAME);
 
             Interceptor preparedStatementCreateInterceptor6 = new PreparedStatementCreateInterceptor();
-            jtdsConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int", "int"}, preparedStatementCreateInterceptor6, SCOPE_NAME);
+            jtdsConnection.addGroupInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int", "int"}, preparedStatementCreateInterceptor6, SCOPE_NAME);
 
             final ProfilerConfig profilerConfig = this.getProfilerConfig();
             if (profilerConfig.isJdbcProfileJtdsSetAutoCommit()) {
                 Interceptor setAutocommit = new TransactionSetAutoCommitInterceptor();
-                jtdsConnection.addScopeInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit, SCOPE_NAME);
+                jtdsConnection.addGroupInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit, SCOPE_NAME);
             }
             if (profilerConfig.isJdbcProfileJtdsCommit()) {
                 Interceptor commit = new TransactionCommitInterceptor();
-                jtdsConnection.addScopeInterceptor("commit", null, commit, SCOPE_NAME);
+                jtdsConnection.addGroupInterceptor("commit", null, commit, SCOPE_NAME);
             }
             if (profilerConfig.isJdbcProfileJtdsRollback()) {
                 Interceptor rollback = new TransactionRollbackInterceptor();
-                jtdsConnection.addScopeInterceptor("rollback", null, rollback, SCOPE_NAME);
+                jtdsConnection.addGroupInterceptor("rollback", null, rollback, SCOPE_NAME);
             }
 
             if (this.logger.isInfoEnabled()) {

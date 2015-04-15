@@ -35,14 +35,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.DefaultScopeDefinition;
+import com.navercorp.pinpoint.bootstrap.instrument.DefaultInterceptorGroupDefinition;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
-import com.navercorp.pinpoint.bootstrap.instrument.ScopeDefinition;
+import com.navercorp.pinpoint.bootstrap.instrument.InterceptorGroupDefinition;
 import com.navercorp.pinpoint.bootstrap.instrument.Type;
 import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
@@ -52,12 +51,13 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
-import com.navercorp.pinpoint.profiler.interceptor.DebugScopeDelegateSimpleInterceptor;
-import com.navercorp.pinpoint.profiler.interceptor.DebugScopeDelegateStaticInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.profiler.interceptor.DebugGroupDelegateSimpleInterceptor;
+import com.navercorp.pinpoint.profiler.interceptor.DebugGroupDelegateStaticInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
 import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.interceptor.ScopeDelegateSimpleInterceptor;
-import com.navercorp.pinpoint.profiler.interceptor.ScopeDelegateStaticInterceptor;
+import com.navercorp.pinpoint.profiler.interceptor.GroupDelegateSimpleInterceptor;
+import com.navercorp.pinpoint.profiler.interceptor.GroupDelegateStaticInterceptor;
 import com.navercorp.pinpoint.profiler.util.ApiUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
@@ -363,50 +363,50 @@ public class JavaAssistClass implements InstrumentClass {
     }
 
     @Override
-    public int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException, NotFoundInstrumentException {
-        final ScopeDefinition scopeDefinition = new DefaultScopeDefinition(scopeName);
-        return addScopeInterceptor(methodName, args, interceptor, scopeDefinition);
+    public int addGroupInterceptor(String methodName, String[] args, Interceptor interceptor, String groupName) throws InstrumentException, NotFoundInstrumentException {
+        final InterceptorGroupDefinition groupDefinition = new DefaultInterceptorGroupDefinition(groupName);
+        return addGroupInterceptor(methodName, args, interceptor, groupDefinition);
     }
 
     @Override
-    public int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, ScopeDefinition scopeDefinition) throws InstrumentException, NotFoundInstrumentException {
+    public int addGroupInterceptor(String methodName, String[] args, Interceptor interceptor, InterceptorGroupDefinition definition) throws InstrumentException, NotFoundInstrumentException {
         if (methodName == null) {
             throw new NullPointerException("methodName must not be null");
         }
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        if (scopeDefinition == null) {
-            throw new NullPointerException("scopeDefinition must not be null");
+        if (definition == null) {
+            throw new NullPointerException("definition must not be null");
         }
-        final Scope scope = this.instrumentor.getScope(scopeDefinition);
-        interceptor = wrapScopeInterceptor(interceptor, scope);
+        final InterceptorGroupTransaction transaction = this.instrumentor.getInterceptorGroupTransaction(definition);
+        interceptor = wrapGroupInterceptor(interceptor, transaction);
         return addInterceptor(methodName, args, interceptor);
     }
 
 
     @Override
-    public int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException {
-        final ScopeDefinition scopeDefinition = new DefaultScopeDefinition(scopeName);
-        return addScopeInterceptorIfDeclared(methodName, args, interceptor, scopeDefinition);
+    public int addGroupInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, String groupName) throws InstrumentException {
+        final InterceptorGroupDefinition groupDefinition = new DefaultInterceptorGroupDefinition(groupName);
+        return addGroupInterceptorIfDeclared(methodName, args, interceptor, groupDefinition);
     }
 
     @Override
-    public int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, ScopeDefinition scopeDefinition) throws InstrumentException {
+    public int addGroupInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, InterceptorGroupDefinition groupDefinition) throws InstrumentException {
         if (methodName == null) {
             throw new NullPointerException("methodName must not be null");
         }
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        if (scopeDefinition == null) {
-            throw new NullPointerException("scopeDefinition must not be null");
+        if (groupDefinition == null) {
+            throw new NullPointerException("groupDefinition must not be null");
         }
 
-        final Scope scope = this.instrumentor.getScope(scopeDefinition);
+        final InterceptorGroupTransaction transaction = this.instrumentor.getInterceptorGroupTransaction(groupDefinition);
 
         if (hasDeclaredMethod(methodName, args)) {
-            interceptor = wrapScopeInterceptor(interceptor, scope);
+            interceptor = wrapGroupInterceptor(interceptor, transaction);
             return addInterceptor(methodName, args, interceptor);
         } else {
             if (logger.isWarnEnabled()) {
@@ -416,21 +416,21 @@ public class JavaAssistClass implements InstrumentClass {
         }
     }
 
-    private Interceptor wrapScopeInterceptor(Interceptor interceptor, Scope scope) {
+    private Interceptor wrapGroupInterceptor(Interceptor interceptor, InterceptorGroupTransaction transaction) {
         final Logger interceptorLogger = LoggerFactory.getLogger(interceptor.getClass());
 
         if (interceptor instanceof  SimpleAroundInterceptor) {
             if (interceptorLogger.isDebugEnabled()) {
-                return new DebugScopeDelegateSimpleInterceptor((SimpleAroundInterceptor)interceptor, scope);
+                return new DebugGroupDelegateSimpleInterceptor((SimpleAroundInterceptor)interceptor, transaction);
             } else {
-                return new ScopeDelegateSimpleInterceptor((SimpleAroundInterceptor)interceptor, scope);
+                return new GroupDelegateSimpleInterceptor((SimpleAroundInterceptor)interceptor, transaction);
             }
         }
         else if (interceptor instanceof StaticAroundInterceptor) {
             if (interceptorLogger.isDebugEnabled()) {
-                return new DebugScopeDelegateStaticInterceptor((StaticAroundInterceptor)interceptor, scope);
+                return new DebugGroupDelegateStaticInterceptor((StaticAroundInterceptor)interceptor, transaction);
             } else {
-                return new ScopeDelegateStaticInterceptor((StaticAroundInterceptor)interceptor, scope);
+                return new GroupDelegateStaticInterceptor((StaticAroundInterceptor)interceptor, transaction);
             }
         }
         throw new IllegalArgumentException("unknown TargetMethod Type:" + interceptor.getClass());

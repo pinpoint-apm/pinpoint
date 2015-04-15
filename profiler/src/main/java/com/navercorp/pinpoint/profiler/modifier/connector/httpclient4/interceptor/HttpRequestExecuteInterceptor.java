@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.intercept
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
 
 /**
@@ -44,7 +44,7 @@ public class HttpRequestExecuteInterceptor extends AbstractHttpRequestExecuteWit
     private static final int HTTP_REQUEST_INDEX = 1;
 
     
-    public HttpRequestExecuteInterceptor(boolean isHasCallbackParam, Scope scope) {
+    public HttpRequestExecuteInterceptor(boolean isHasCallbackParam, InterceptorGroupTransaction scope) {
         super(HttpRequestExecuteInterceptor.class, isHasCallbackParam, scope);
     }
     

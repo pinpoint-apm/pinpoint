@@ -20,176 +20,191 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
-import com.navercorp.pinpoint.profiler.plugin.DefaultScope;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.profiler.plugin.DefaultInterceptorStack;
 
 
 public class DefaultScopeTest {
     @Test
     public void test0() {
-        Scope scope = new DefaultScope("test");
+        InterceptorGroupTransaction transaction = new DefaultInterceptorStack("test");
         
-        assertFalse(scope.isIn());
+        assertFalse(transaction.isActive());
         
-        assertFalse(scope.tryBefore(ExecutionPoint.INTERIOR));
-        assertFalse(scope.isIn());
+        assertFalse(transaction.tryEnter(ExecutionPolicy.INTERNAL));
+        assertFalse(transaction.isActive());
         
-        assertTrue(scope.tryBefore(ExecutionPoint.BOUNDARY));
-        assertTrue(scope.isIn());
+        assertTrue(transaction.tryEnter(ExecutionPolicy.BOUNDARY));
+        assertTrue(transaction.isActive());
         
-        assertTrue(scope.tryBefore(ExecutionPoint.INTERIOR));
-        assertTrue(scope.isIn());
+        assertTrue(transaction.tryEnter(ExecutionPolicy.INTERNAL));
+        assertTrue(transaction.isActive());
         
-        assertFalse(scope.tryBefore(ExecutionPoint.BOUNDARY));
-        assertTrue(scope.isIn());
+        assertFalse(transaction.tryEnter(ExecutionPolicy.BOUNDARY));
+        assertTrue(transaction.isActive());
         
-        assertFalse(scope.tryAfter(ExecutionPoint.BOUNDARY));
-        assertTrue(scope.isIn());
+        assertFalse(transaction.canLeave(ExecutionPolicy.BOUNDARY));
+        assertTrue(transaction.isActive());
         
-        assertTrue(scope.tryAfter(ExecutionPoint.INTERIOR));
-        assertTrue(scope.isIn());
+        assertTrue(transaction.canLeave(ExecutionPolicy.INTERNAL));
+        transaction.leave(ExecutionPolicy.INTERNAL);
+        assertTrue(transaction.isActive());
         
-        assertTrue(scope.tryAfter(ExecutionPoint.BOUNDARY));
-        assertFalse(scope.isIn());
+        assertTrue(transaction.canLeave(ExecutionPolicy.BOUNDARY));
+        assertTrue(transaction.isActive());
+        transaction.leave(ExecutionPolicy.BOUNDARY);
+        assertFalse(transaction.isActive());
         
-        assertFalse(scope.tryAfter(ExecutionPoint.INTERIOR));
-        assertFalse(scope.isIn());
+        assertFalse(transaction.canLeave(ExecutionPolicy.INTERNAL));
+        assertFalse(transaction.isActive());
     }
     
     @Test
     public void test1() {
-        Scope scope = new DefaultScope("test");
+        InterceptorGroupTransaction transaction = new DefaultInterceptorStack("test");
         
-        assertFalse(scope.isIn());
+        assertFalse(transaction.isActive());
         
-        assertTrue(scope.tryBefore(ExecutionPoint.ALWAYS));
-        assertTrue(scope.isIn());
+        assertTrue(transaction.tryEnter(ExecutionPolicy.ALWAYS));
+        assertTrue(transaction.isActive());
         
-        assertTrue(scope.tryBefore(ExecutionPoint.ALWAYS));
-        assertTrue(scope.isIn());
+        assertTrue(transaction.tryEnter(ExecutionPolicy.ALWAYS));
+        assertTrue(transaction.isActive());
         
-        assertTrue(scope.tryAfter(ExecutionPoint.ALWAYS));
-        assertTrue(scope.isIn());
+        assertTrue(transaction.canLeave(ExecutionPolicy.ALWAYS));
+        assertTrue(transaction.isActive());
+        transaction.leave(ExecutionPolicy.ALWAYS);
+        assertTrue(transaction.isActive());
         
-        assertTrue(scope.tryAfter(ExecutionPoint.ALWAYS));
-        assertFalse(scope.isIn());
+        assertTrue(transaction.canLeave(ExecutionPolicy.ALWAYS));
+        assertTrue(transaction.isActive());
+        transaction.leave(ExecutionPolicy.ALWAYS);
+        assertFalse(transaction.isActive());
     }
 
     @Test
     public void testAttachment() {
         String attachment = "context";
-        Scope scope = new DefaultScope("test");
+        InterceptorGroupTransaction transaction = new DefaultInterceptorStack("test");
         
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
-        assertNull(scope.getAttachment());
+        transaction.tryEnter(ExecutionPolicy.ALWAYS);
+        assertNull(transaction.getAttachment());
         
-        scope.setAttachment(attachment);
-        assertSame(scope.getAttachment(), attachment);
+        transaction.setAttachment(attachment);
+        assertSame(transaction.getAttachment(), attachment);
 
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
-        assertSame(scope.getAttachment(), attachment);
+        transaction.tryEnter(ExecutionPolicy.ALWAYS);
+        assertSame(transaction.getAttachment(), attachment);
 
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
-        assertSame(scope.getAttachment(), attachment);
+        transaction.canLeave(ExecutionPolicy.ALWAYS);
+        transaction.leave(ExecutionPolicy.ALWAYS);
+        assertSame(transaction.getAttachment(), attachment);
         
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        transaction.canLeave(ExecutionPolicy.ALWAYS);
+        transaction.leave(ExecutionPolicy.ALWAYS);
     }
 
     @Test
     public void testAttachment2() {
         String attachment = "context";
-        Scope scope = new DefaultScope("test");
+        InterceptorGroupTransaction transaction = new DefaultInterceptorStack("test");
 
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
-        assertNull(scope.getAttachment());
-        scope.setAttachment(attachment);
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        transaction.tryEnter(ExecutionPolicy.ALWAYS);
+        assertNull(transaction.getAttachment());
+        transaction.setAttachment(attachment);
+        transaction.canLeave(ExecutionPolicy.ALWAYS);
+        transaction.leave(ExecutionPolicy.ALWAYS);
 
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
-        assertNull(scope.getAttachment());
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        transaction.tryEnter(ExecutionPolicy.ALWAYS);
+        assertNull(transaction.getAttachment());
+        transaction.canLeave(ExecutionPolicy.ALWAYS);
+        transaction.leave(ExecutionPolicy.ALWAYS);
     }
     
     @Test
     public void testAttachment3() {
         String oldAttachment = "context";
         String newAttachment = "newnew";
-        Scope scope = new DefaultScope("test");
+        InterceptorGroupTransaction trnasaction = new DefaultInterceptorStack("test");
 
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
-        scope.setAttachment(oldAttachment);
-        assertSame(oldAttachment, scope.getAttachment());
-        assertSame(oldAttachment, scope.setAttachment(newAttachment));
-        assertSame(newAttachment, scope.getAttachment());
-        assertSame(newAttachment, scope.removeAttachment());
-        assertNull(scope.getAttachment());
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        trnasaction.tryEnter(ExecutionPolicy.ALWAYS);
+        trnasaction.setAttachment(oldAttachment);
+        assertSame(oldAttachment, trnasaction.getAttachment());
+        assertSame(oldAttachment, trnasaction.setAttachment(newAttachment));
+        assertSame(newAttachment, trnasaction.getAttachment());
+        assertSame(newAttachment, trnasaction.removeAttachment());
+        assertNull(trnasaction.getAttachment());
+        trnasaction.canLeave(ExecutionPolicy.ALWAYS);
+        trnasaction.leave(ExecutionPolicy.ALWAYS);
     }
     
     @Test(expected=IllegalStateException.class)
     public void testSetAttachmentFail() {
-        Scope scope = new DefaultScope("test");
-        scope.setAttachment("attachment");
+        InterceptorGroupTransaction transaction = new DefaultInterceptorStack("test");
+        transaction.setAttachment("attachment");
     }
     
     @Test(expected=IllegalStateException.class)
     public void testSetAttachmentFail2() {
-        Scope scope = new DefaultScope("test");
+        InterceptorGroupTransaction trnasaction = new DefaultInterceptorStack("test");
 
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        trnasaction.tryEnter(ExecutionPolicy.ALWAYS);
+        trnasaction.canLeave(ExecutionPolicy.ALWAYS);
+        trnasaction.leave(ExecutionPolicy.ALWAYS);
 
-        scope.setAttachment("attachment");
+        trnasaction.setAttachment("attachment");
     }
     
     @Test(expected=IllegalStateException.class)
     public void testGetAttachmentFail() {
-        Scope scope = new DefaultScope("test");
-        scope.getAttachment();
+        InterceptorGroupTransaction trnasaction = new DefaultInterceptorStack("test");
+        trnasaction.getAttachment();
     }
     
     @Test(expected=IllegalStateException.class)
     public void testGetAttachmentFail2() {
-        Scope scope = new DefaultScope("test");
+        InterceptorGroupTransaction trnasaction = new DefaultInterceptorStack("test");
 
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        trnasaction.tryEnter(ExecutionPolicy.ALWAYS);
+        trnasaction.canLeave(ExecutionPolicy.ALWAYS);
+        trnasaction.leave(ExecutionPolicy.ALWAYS);
 
-        scope.getAttachment();
+        trnasaction.getAttachment();
     }
     
     @Test(expected=IllegalStateException.class)
     public void testRemoveAttachmentFail() {
-        Scope scope = new DefaultScope("test");
-        scope.removeAttachment();
+        InterceptorGroupTransaction trnasaction = new DefaultInterceptorStack("test");
+        trnasaction.removeAttachment();
     }
     
     @Test(expected=IllegalStateException.class)
     public void testRemoveAttachmentFail2() {
-        Scope scope = new DefaultScope("test");
+        InterceptorGroupTransaction trnasaction = new DefaultInterceptorStack("test");
 
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        trnasaction.tryEnter(ExecutionPolicy.ALWAYS);
+        trnasaction.canLeave(ExecutionPolicy.ALWAYS);
+        trnasaction.leave(ExecutionPolicy.ALWAYS);
 
-        scope.removeAttachment();
+        trnasaction.removeAttachment();
     }
     
     @Test(expected=IllegalStateException.class)
     public void testAfterWithoutBefore() {
-        Scope scope = new DefaultScope("test");
-        scope.tryAfter(ExecutionPoint.ALWAYS);
+        InterceptorGroupTransaction trnasaction = new DefaultInterceptorStack("test");
+        trnasaction.leave(ExecutionPolicy.ALWAYS);
     }
     
     @Test(expected=IllegalStateException.class)
     public void testAfterWithoutBefore2() {
-        Scope scope = new DefaultScope("test");
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        InterceptorGroupTransaction trnasaction = new DefaultInterceptorStack("test");
+        trnasaction.leave(ExecutionPolicy.BOUNDARY);
     }
     
-    @Test
+    @Test(expected=IllegalStateException.class)
     public void testAfterWithoutBefore3() {
-        Scope scope = new DefaultScope("test");
-        assertFalse(scope.tryAfter(ExecutionPoint.INTERIOR));
+        InterceptorGroupTransaction trnasaction = new DefaultInterceptorStack("test");
+        trnasaction.leave(ExecutionPolicy.INTERNAL);
     }
 }

@@ -26,22 +26,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
 import com.navercorp.pinpoint.profiler.modifier.Modifier;
-import com.navercorp.pinpoint.profiler.plugin.ClassEditorExecutor;
 
 public class ClassFileRetransformer implements ClassFileTransformer {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
     private final Instrumentation instrumentation;
-    private final ClassEditorExecutor classEditorExecutor;
     
     private final ConcurrentHashMap<Class<?>, Modifier> targets = new ConcurrentHashMap<Class<?>, Modifier>();
-    private final ConcurrentHashMap<Class<?>, ClassEditor> editorMap = new ConcurrentHashMap<Class<?>, ClassEditor>();
+    private final ConcurrentHashMap<Class<?>, ClassFileTransformer> transformerMap = new ConcurrentHashMap<Class<?>, ClassFileTransformer>();
     
-    public ClassFileRetransformer(Instrumentation instrumentation, ClassEditorExecutor classEditorExecutor) {
+    public ClassFileRetransformer(Instrumentation instrumentation) {
         this.instrumentation = instrumentation;
-        this.classEditorExecutor = classEditorExecutor;
     }
 
     @Override
@@ -60,12 +56,12 @@ public class ClassFileRetransformer implements ClassFileTransformer {
             }
         }
 
-        final ClassEditor editor = editorMap.remove(classBeingRedefined);
-        if (editor != null) {
+        final ClassFileTransformer transformer = transformerMap.remove(classBeingRedefined);
+        if (transformer != null) {
             try {
-                return classEditorExecutor.execute(editor, loader, className, classfileBuffer);
+                return transformer.transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
             } catch (Throwable t) {
-                logger.warn("Failed to retransform " + className + " with " + editor);
+                logger.warn("Failed to retransform " + className + " with " + transformer);
                 return null;
             }
         }
@@ -93,15 +89,15 @@ public class ClassFileRetransformer implements ClassFileTransformer {
         }
     }
     
-    public void retransform(Class<?> target, ClassEditor modifier) {
+    public void retransform(Class<?> target, ClassFileTransformer transformer) {
         if (!instrumentation.isModifiableClass(target)) {
             throw new ProfilerException("Target class " + target + " is not modifiable");
         }
 
-        ClassEditor prev = editorMap.putIfAbsent(target, modifier);
+        ClassFileTransformer prev = transformerMap.putIfAbsent(target, transformer);
 
         if (prev != null) {
-            throw new ProfilerException("Retransform already requested. target: " + target + ", editor: " + prev);
+            throw new ProfilerException("Retransform already requested. target: " + target + ", transformer: " + prev);
         }
         
         try {

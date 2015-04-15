@@ -15,11 +15,10 @@
 package com.navercorp.pinpoint.bootstrap.plugin.test;
 
 import java.io.PrintStream;
-import java.lang.reflect.Method;
+import java.lang.reflect.Member;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.AnnotationKey;
-import com.navercorp.pinpoint.common.ServiceType;
 
 
 
@@ -32,20 +31,20 @@ public interface PluginTestVerifier {
     public void verifyServerInfo(String expected);
     public void verifyConnector(String protocol, int port);
     public void verifyService(String context, List<String> libs);
-    public void verifySpanCount(int expected);
-    public void verifySpan(SpanType type, String serviceType, ExpectedAnnotation...annotations);
-    public void verifySpan(SpanType type, String serviceType, Method method, String rpc, String endPoint, String remoteAddr, String destinationId, ExpectedAnnotation... annotations);
-    public void verifySpan(SpanType type, String serviceType, String methodSignature, String rpc, String endPoint, String remoteAddr, String destinationId, ExpectedAnnotation... annotations);
-    public void verifyApi(String serviceType, Method method, Object...args);
-    public void popSpan();
-    public void printSpans(PrintStream out);
-    public void printApis(PrintStream out);
+    public void verifyTraceBlockCount(int expected);
+    public void verifyTraceBlock(BlockType type, String serviceType, ExpectedAnnotation...annotations);
+    public void verifyTraceBlock(BlockType type, String serviceType, Member api, String rpc, String endPoint, String remoteAddr, String destinationId, ExpectedAnnotation... annotations);
+    public void verifyTraceBlock(BlockType type, String serviceType, String methodSignature, String rpc, String endPoint, String remoteAddr, String destinationId, ExpectedAnnotation... annotations);
+    public void verifyApi(String serviceType, Member api, Object...args);
+    public void ignoreServiceType(String serviceType);
+    public void printBlocks(PrintStream out);
+    public void printCachedApis(PrintStream out);
     public void initialize(boolean initializeTraceObject);
     public void cleanUp(boolean detachTraceObject);
     
-    public enum SpanType {
-        SPAN,
-        SPAN_EVENT
+    public enum BlockType {
+        ROOT,
+        EVENT
     }
     
     public static class ExpectedAnnotation {

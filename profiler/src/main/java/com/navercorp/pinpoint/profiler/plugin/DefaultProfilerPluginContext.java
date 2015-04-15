@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
+import java.lang.instrument.ClassFileTransformer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,19 +29,19 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
+import com.navercorp.pinpoint.bootstrap.plugin.PluginClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
-import com.navercorp.pinpoint.profiler.plugin.editor.DefaultClassEditorBuilder;
+import com.navercorp.pinpoint.profiler.plugin.transformer.DefaultClassFileTransformerBuilder;
 import com.navercorp.pinpoint.profiler.util.NameValueList;
 
 public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, ProfilerPluginContext {
     private final DefaultAgent agent;
     
     private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
-    private final List<ClassEditor> classEditors = new ArrayList<ClassEditor>();
+    private final List<ClassFileTransformer> classTransformers = new ArrayList<ClassFileTransformer>();
     
     private final ConcurrentMap<String, Object> attributeMap = new ConcurrentHashMap<String, Object>();
     private final NameValueList<MetadataAccessor> metadataAccessors = new NameValueList<MetadataAccessor>();
@@ -55,13 +56,13 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     }
 
     @Override
-    public ClassEditorBuilder getClassEditorBuilder(String targetClassName) {
-        return new DefaultClassEditorBuilder(this, targetClassName);
+    public ClassFileTransformerBuilder getClassFileTransformerBuilder(String targetClassName) {
+        return new DefaultClassFileTransformerBuilder(this, targetClassName);
     }
     
     @Override
-    public void addClassEditor(ClassEditor classEditor) {
-        classEditors.add(classEditor);
+    public void addClassFileTransformer(ClassFileTransformer transformer) {
+        classTransformers.add(transformer);
     }
 
     @Override
@@ -144,8 +145,13 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
         }
     }
 
-    public List<ClassEditor> getClassEditors() {
-        return classEditors;
+    @Override
+    public PluginClassLoaderFactory getClassLoaderFactory() {
+        return agent.getPluginClassLoaderFactory();
+    }
+
+    public List<ClassFileTransformer> getClassEditors() {
+        return classTransformers;
     }
 
     public List<ApplicationTypeDetector> getApplicationTypeDetectors() {

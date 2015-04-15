@@ -19,25 +19,18 @@ package com.navercorp.pinpoint.profiler;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import com.navercorp.pinpoint.bootstrap.AgentOption;
-import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.LoaderClassPath;
-import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.Agent;
+import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -49,7 +42,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
-import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
@@ -61,9 +53,8 @@ import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
-import com.navercorp.pinpoint.profiler.plugin.ClassEditorExecutor;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
-import com.navercorp.pinpoint.profiler.plugin.PluginClassLoaderFactory;
+import com.navercorp.pinpoint.profiler.plugin.DefaultPluginClassLoaderFactory;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.receiver.service.EchoService;
 import com.navercorp.pinpoint.profiler.receiver.service.ThreadDumpService;
@@ -115,6 +106,10 @@ public class DefaultAgent implements Agent {
 
     private final InterceptorRegistryBinder interceptorRegistryBinder;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
+    
+    private final DefaultPluginClassLoaderFactory pluginClassLoaderFactory;
+    private final List<DefaultProfilerPluginContext> pluginContexts;
+    
 
     static {
         // Preload classes related to pinpoint-rpc module.
@@ -168,22 +163,20 @@ public class DefaultAgent implements Agent {
         
         this.profilerConfig = agentOption.getProfilerConfig();
 
-        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(this, interceptorRegistryBinder, agentOption.getBootStrapJarPath());
+        ClassFileRetransformer retransformer = new ClassFileRetransformer(agentOption.getInstrumentation());
+        final Instrumentation instrumentation = agentOption.getInstrumentation();
+        instrumentation.addTransformer(retransformer, true);
+
+        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(this, interceptorRegistryBinder, agentOption.getBootStrapJarPath(), retransformer);
         if (logger.isInfoEnabled()) {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
-
-        PluginClassLoaderFactory pluginClassLoaderFactory = new PluginClassLoaderFactory(agentOption.getPluginJars());
-        ClassEditorExecutor classEditorExecutor = new ClassEditorExecutor(byteCodeInstrumentor, pluginClassLoaderFactory);
-        ClassFileRetransformer retransformer = new ClassFileRetransformer(agentOption.getInstrumentation(), classEditorExecutor);
-        byteCodeInstrumentor.setRetransformer(retransformer);
         
-        List<DefaultProfilerPluginContext> pluginContexts = loadProfilerPlugins(agentOption.getPluginJars());
+        pluginClassLoaderFactory = new DefaultPluginClassLoaderFactory(agentOption.getPluginJars());
+        pluginContexts = loadProfilerPlugins(agentOption.getPluginJars());
 
-        this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, retransformer, pluginContexts, classEditorExecutor);
+        this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, retransformer, pluginContexts);
 
-        final Instrumentation instrumentation = agentOption.getInstrumentation();
-        instrumentation.addTransformer(retransformer, true);
         instrumentation.addTransformer(this.classFileTransformer);
 
         String applicationServerTypeString = profilerConfig.getApplicationServerType();
@@ -403,6 +396,10 @@ public class DefaultAgent implements Agent {
     
     public ServiceTypeRegistryService getServiceTypeRegistryService() {
         return serviceTypeRegistryService;
+    }
+    
+    public DefaultPluginClassLoaderFactory getPluginClassLoaderFactory() {
+        return pluginClassLoaderFactory;
     }
 
     @Override

@@ -48,7 +48,7 @@ public class SpanEventBoTest {
         byte[] bytes = spanEventBo.writeValue();
 
         SpanEventBo newSpanEventBo = new SpanEventBo();
-        int i = newSpanEventBo.readValue(bytes, 0);
+        int i = newSpanEventBo.readValue(bytes, 0, bytes.length);
         Assert.assertEquals(bytes.length, i);
 
 

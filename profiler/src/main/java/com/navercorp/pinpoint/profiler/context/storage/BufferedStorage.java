@@ -39,6 +39,7 @@ public class BufferedStorage implements Storage {
     private List<SpanEvent> storage ;
     private final DataSender dataSender;
     private final SpanChunkFactory spanChunkFactory;
+    private boolean async;
 
     public BufferedStorage(DataSender dataSender, SpanChunkFactory spanChunkFactory) {
         this(dataSender, spanChunkFactory, DEFAULT_BUFFER_SIZE);
@@ -104,13 +105,30 @@ public class BufferedStorage implements Storage {
             spanEventList = storage;
             this.storage = null;
         }
-        if (spanEventList != null && !spanEventList.isEmpty()) {
-            span.setSpanEventList((List) spanEventList);
+        
+        if(async) {
+            if(spanEventList != null && !spanEventList.isEmpty()) {
+                final SpanChunk spanChunk = spanChunkFactory.create(spanEventList);
+                dataSender.send(spanChunk);
+            }
+        } else {
+            if (spanEventList != null && !spanEventList.isEmpty()) {
+                span.setSpanEventList((List) spanEventList);
+            }
+            dataSender.send(span);
         }
+
         if (isDebug) {
             logger.debug("flush span {}", span);
         }
-        dataSender.send(span);
+    }
+
+    public boolean isAsync() {
+        return async;
+    }
+
+    public void setAsync(boolean async) {
+        this.async = async;
     }
 
     @Override

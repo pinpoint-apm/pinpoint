@@ -61,4 +61,13 @@ public class SpanStorage implements Storage {
         spanEventList = null;
         this.dataSender.send(span);
     }
+
+    @Override
+    public void setAsync(boolean async) {
+    }
+
+    @Override
+    public boolean isAsync() {
+        return false;
+    }
 }

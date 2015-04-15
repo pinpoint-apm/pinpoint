@@ -38,12 +38,12 @@ import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
 import com.navercorp.pinpoint.bootstrap.interceptor.http.HttpCallContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -62,7 +62,7 @@ import com.navercorp.pinpoint.common.ServiceType;
 public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceContextSupport, ByteCodeMethodDescriptorSupport, SimpleAroundInterceptor {
 
     private boolean isHasCallbackParam;
-    private Scope scope;
+    private InterceptorGroupTransaction scope;
 
     protected final PLogger logger;
     protected final boolean isDebug;
@@ -80,7 +80,7 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
 
     protected boolean statusCode;
 
-    public AbstractHttpRequestExecuteWithDivergence(Class<? extends AbstractHttpRequestExecuteWithDivergence> childClazz, boolean isHasCallbackParam, Scope scope) {
+    public AbstractHttpRequestExecuteWithDivergence(Class<? extends AbstractHttpRequestExecuteWithDivergence> childClazz, boolean isHasCallbackParam, InterceptorGroupTransaction scope) {
         this.logger = PLoggerFactory.getLogger(childClazz);
         this.isDebug = logger.isDebugEnabled();
 
@@ -94,7 +94,7 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
 
     @Override
     public void before(Object target, Object[] args) {
-        if (!scope.tryBefore(ExecutionPoint.BOUNDARY)) {
+        if (!scope.tryEnter(ExecutionPolicy.BOUNDARY)) {
             return;
         }
 
@@ -103,8 +103,9 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (scope.tryAfter(ExecutionPoint.BOUNDARY)) {
+        if (scope.canLeave(ExecutionPolicy.BOUNDARY)) {
             after2(target, args, result, throwable);
+            scope.leave(ExecutionPolicy.BOUNDARY);
         } else {
             addStatusCode(result);
         }

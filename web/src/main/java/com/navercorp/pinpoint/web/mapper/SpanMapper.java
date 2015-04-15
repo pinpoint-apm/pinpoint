@@ -87,15 +87,21 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
                 spanEventBo.setTraceAgentStartTime(transactionId.getAgentStartTime());
                 spanEventBo.setTraceTransactionSequence(transactionId.getTransactionSequence());
 
+                // qualifier : spanId(long) + sequence(short) + asyncId(int)
                 long spanId = Bytes.toLong(kv.getBuffer(), kv.getQualifierOffset());
 
                 // because above spanId type is "long", so offset is 8
                 final int spanIdOffset = 8;
-                short sequence = Bytes.toShort(kv.getBuffer(), kv.getQualifierOffset() + spanIdOffset);
+                short sequence = Bytes.toShort(kv.getBuffer(), kv.getQualifierOffset() + Bytes.SIZEOF_LONG);
+                int asyncId = -1;
+                if(kv.getQualifierLength() > Bytes.SIZEOF_LONG + Bytes.SIZEOF_SHORT) {
+                    asyncId = Bytes.toInt(kv.getBuffer(), kv.getQualifierOffset() + Bytes.SIZEOF_LONG + Bytes.SIZEOF_SHORT);
+                }
                 spanEventBo.setSpanId(spanId);
                 spanEventBo.setSequence(sequence);
-
-                spanEventBo.readValue(kv.getBuffer(), kv.getValueOffset());
+                spanEventBo.setAsyncId(asyncId);
+                
+                spanEventBo.readValue(kv.getBuffer(), kv.getValueOffset(), kv.getValueLength());
                 if (logger.isDebugEnabled()) {
                     logger.debug("read spanEvent :{}", spanEventBo);
                 }

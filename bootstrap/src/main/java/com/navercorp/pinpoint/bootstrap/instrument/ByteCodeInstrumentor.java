@@ -16,10 +16,11 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument;
 
+import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
 
 /**
  * @author emeroad
@@ -30,9 +31,9 @@ public interface ByteCodeInstrumentor {
     
     boolean findClass(ClassLoader classLoader, String javassistClassName);
 
-    Scope getScope(String scopeName);
+    InterceptorGroupTransaction getInterceptorGroupTransaction(String scopeName);
 
-    Scope getScope(ScopeDefinition scopeDefinition);
+    InterceptorGroupTransaction getInterceptorGroupTransaction(InterceptorGroupDefinition scopeDefinition);
 
     Class<?> defineClass(ClassLoader classLoader, String defineClass, ProtectionDomain protectedDomain) throws InstrumentException;
 
@@ -42,5 +43,5 @@ public interface ByteCodeInstrumentor {
 
     Interceptor newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN, Object[] params, Class[] paramClazz) throws InstrumentException;
     
-    void retransform(Class<?> target, ClassEditor classEditor);
+    void retransform(Class<?> target, ClassFileTransformer classEditor);
 }

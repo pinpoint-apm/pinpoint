@@ -312,6 +312,15 @@ public final class BytesUtils {
         writeShort(postFix, buf, 8);
         return buf;
     }
+    
+    public static byte[] add(final long preFix, final short postFix, final int append) {
+        byte[] buf = new byte[LONG_BYTE_LENGTH + SHORT_BYTE_LENGTH + INT_BYTE_LENGTH];
+        writeLong(preFix, buf, 0);
+        writeShort(postFix, buf, LONG_BYTE_LENGTH);
+        writeInt(append, buf, LONG_BYTE_LENGTH + SHORT_BYTE_LENGTH);
+        return buf;
+    }
+    
 
     public static byte[] toBytes(final String value) {
         if (value == null) {

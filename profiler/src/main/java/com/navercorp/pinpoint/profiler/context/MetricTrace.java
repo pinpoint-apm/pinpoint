@@ -16,12 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -52,8 +50,6 @@ public class MetricTrace implements Trace {
     private final CallStack callStack;
 
     private final TraceContext traceContext;
-
-    private final Map<String, Object> attributeMap = new HashMap<String, Object>();
 
     // use for calculating depth of each Span.
     private int latestStackIndex = -1;
@@ -374,34 +370,32 @@ public class MetricTrace implements Trace {
     public short getServiceType() {
         return currentStackFrame.getServiceType();
     }
-    
+
     @Override
-    public Object getAttribute(String key) {
-        return attributeMap.get(key);
+    public void recordAsyncId(int asyncId) {
     }
 
     @Override
-    public Object setAttribute(String key, Object value) {
-        return attributeMap.put(key, value);
+    public void recordNextAsyncId(int asyncId) {
     }
 
     @Override
-    public Object removeAttribute(String key) {
-        return attributeMap.remove(key);
-    }
-    
-    @Override
-    public Object setTraceBlockAttachment(Object attachment) {
-        return currentStackFrame.attachFrameObject(attachment);
+    public boolean isAsync() {
+        return false;
     }
 
     @Override
-    public Object getTraceBlockAttachment() {
-        return currentStackFrame.getFrameObject();
+    public long getTraceStartTime() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object removeTraceBlockAttachment() {
-        return currentStackFrame.detachFrameObject();
+    public boolean isRootStack() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public AsyncTraceId getAsyncTraceId() {
+        throw new UnsupportedOperationException();
     }    
 }

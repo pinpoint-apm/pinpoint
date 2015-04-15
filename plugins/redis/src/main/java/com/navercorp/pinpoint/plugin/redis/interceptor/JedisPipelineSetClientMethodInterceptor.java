@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.plugin.redis.interceptor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.plugin.Cached;
-import com.navercorp.pinpoint.bootstrap.plugin.Name;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.NoCache;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 
 /**
  * Jedis pipeline (redis client) setClient method interceptor
@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.Name;
  */
 public class JedisPipelineSetClientMethodInterceptor extends JedisClientMetadataAttchInterceptor {
 
-    public JedisPipelineSetClientMethodInterceptor(TraceContext traceContext, @Cached MethodDescriptor methodDescriptor, @Name(METADATA_END_POINT) MetadataAccessor endPointAccessor) {
+    public JedisPipelineSetClientMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, @Name(METADATA_END_POINT) MetadataAccessor endPointAccessor) {
         super(traceContext, methodDescriptor, endPointAccessor);
     }
 }

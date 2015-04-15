@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.interceptor.bci;
 
+import java.lang.instrument.ClassFileTransformer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -34,14 +35,13 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.DefaultScopeDefinition;
+import com.navercorp.pinpoint.bootstrap.instrument.DefaultInterceptorGroupDefinition;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
-import com.navercorp.pinpoint.bootstrap.instrument.ScopeDefinition;
+import com.navercorp.pinpoint.bootstrap.instrument.InterceptorGroupDefinition;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.navercorp.pinpoint.bootstrap.plugin.editor.ClassEditor;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.ClassFileRetransformer;
 import com.navercorp.pinpoint.profiler.interceptor.GlobalInterceptorRegistryBinder;
@@ -66,7 +66,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     private final ClassLoadChecker classLoadChecker = new ClassLoadChecker();
     private final InterceptorRegistryBinder interceptorRegistryBinder;
-    private ClassFileRetransformer retransformer = null;
+    private final ClassFileRetransformer retransformer;
 
     private final IsolateMultipleClassPool.EventListener eventListener =  new IsolateMultipleClassPool.EventListener() {
         @Override
@@ -87,10 +87,10 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     }
 
     public JavaAssistByteCodeInstrumentor(Agent agent, InterceptorRegistryBinder interceptorRegistryBinder) {
-        this(agent, interceptorRegistryBinder, null);
+        this(agent, interceptorRegistryBinder, null, null);
     }
 
-    public JavaAssistByteCodeInstrumentor(Agent agent, InterceptorRegistryBinder interceptorRegistryBinder, final String bootStrapJar) {
+    public JavaAssistByteCodeInstrumentor(Agent agent, InterceptorRegistryBinder interceptorRegistryBinder, final String bootStrapJar, ClassFileRetransformer retransformer) {
         if (interceptorRegistryBinder == null) {
             throw new NullPointerException("interceptorRegistryBinder must not be null");
         }
@@ -110,9 +110,10 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
                 systemClassPool.appendClassPath(new ClassClassPath(this.getClass()));
             }
         });
+        
         this.agent = agent;
-
         this.interceptorRegistryBinder = interceptorRegistryBinder;
+        this.retransformer = retransformer;
     }
 
     public Agent getAgent() {
@@ -120,14 +121,14 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     }
 
     @Override
-    public Scope getScope(String scopeName) {
-        final ScopeDefinition scopeDefinition = new DefaultScopeDefinition(scopeName);
-        return getScope(scopeDefinition);
+    public InterceptorGroupTransaction getInterceptorGroupTransaction(String scopeName) {
+        final InterceptorGroupDefinition scopeDefinition = new DefaultInterceptorGroupDefinition(scopeName);
+        return getInterceptorGroupTransaction(scopeDefinition);
     }
 
 
 
-    public Scope getScope(ScopeDefinition scopeDefinition) {
+    public InterceptorGroupTransaction getInterceptorGroupTransaction(InterceptorGroupDefinition scopeDefinition) {
         if (scopeDefinition == null) {
             throw new NullPointerException("scopeDefinition must not be null");
         }
@@ -301,11 +302,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     }
 
     @Override
-    public void retransform(Class<?> target, ClassEditor editor) {
-        retransformer.retransform(target, editor);
-    }
-
-    public void setRetransformer(ClassFileRetransformer retransformer) {
-        this.retransformer = retransformer;
+    public void retransform(Class<?> target, ClassFileTransformer transformer) {
+        retransformer.retransform(target, transformer);
     }
 }

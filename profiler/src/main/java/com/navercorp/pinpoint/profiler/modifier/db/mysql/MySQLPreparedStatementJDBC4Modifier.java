@@ -21,10 +21,10 @@ import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.instrument.Type;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.profiler.interceptor.ScopeDelegateStaticInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.profiler.interceptor.GroupDelegateStaticInterceptor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.interceptor.PreparedStatementBindVariableInterceptor;
 import com.navercorp.pinpoint.profiler.util.*;
@@ -79,8 +79,8 @@ public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
         
         // TODO Do we have to utilize this logic?
         // It would be better to create util api in bci package which adds interceptors to multiple methods. 
-        final Scope scope = byteCodeInstrumentor.getScope(MYSQLScope.SCOPE_NAME);
-        Interceptor interceptor = new ScopeDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor(), scope);
+        final InterceptorGroupTransaction scope = byteCodeInstrumentor.getInterceptorGroupTransaction(MYSQLScope.SCOPE_NAME);
+        Interceptor interceptor = new GroupDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor(), scope);
         int interceptorId = -1;
         for (Method method : bindMethod) {
             String methodName = method.getName();

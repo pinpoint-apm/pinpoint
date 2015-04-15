@@ -55,7 +55,7 @@ public abstract class AbstractFutureModifier extends AbstractModifier  {
             
             SimpleAroundInterceptor futureGetInterceptor = (SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.FutureGetInterceptor");
 
-            aClass.addScopeInterceptor("get", new String[]{Long.TYPE.toString(), "java.util.concurrent.TimeUnit"}, futureGetInterceptor, ArcusScope.SCOPE);
+            aClass.addGroupInterceptor("get", new String[]{Long.TYPE.toString(), "java.util.concurrent.TimeUnit"}, futureGetInterceptor, ArcusScope.SCOPE);
             
             return aClass.toBytecode();
         } catch (Exception e) {

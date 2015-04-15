@@ -335,6 +335,28 @@ public final class JavaAssistUtils {
         }
         return paramsString;
     }
+    
+    public static String[] toPinpointParameterType(Class<?>[] paramClasses) {
+        if (paramClasses == null) {
+            return null;
+        }
+        
+        String[] paramsString = new String[paramClasses.length];
+        for (int i = 0; i < paramClasses.length; i++) {
+            paramsString[i] = toPinpointParameterType(paramClasses[i]);
+        }
+        
+        return paramsString;
+    }
+    
+    private static String toPinpointParameterType(Class<?> type) {
+        if (type.isArray()) {
+            return toPinpointParameterType(type.getComponentType()) + "[]";
+        } else {
+            return type.getName();
+        }
+    }
+
 
     @Deprecated
     static String[] getParameterType(CtClass[] paramsClass) {

@@ -35,6 +35,8 @@ public interface RecordableTrace {
     long getAfterTime();
 
     TraceId getTraceId();
+    
+    AsyncTraceId getAsyncTraceId();
 
     boolean canSampled();
 
@@ -93,10 +95,12 @@ public interface RecordableTrace {
     void recordAcceptorHost(String host);
 
     int getStackFrameId();
-
-    Object getAttribute(String key);
     
-    Object setAttribute(String key, Object value);
+    void recordAsyncId(int asyncId);
     
-    Object removeAttribute(String key);
+    void recordNextAsyncId(int asyncId);
+    
+    boolean isAsync();
+    
+    long getTraceStartTime(); 
 }

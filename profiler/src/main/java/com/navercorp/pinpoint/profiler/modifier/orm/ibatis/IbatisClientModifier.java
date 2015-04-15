@@ -61,7 +61,7 @@ public abstract class IbatisClientModifier extends AbstractModifier {
 
             for (MethodInfo method : declaredMethods) {
                 Interceptor ibatisApiInterceptor = new IbatisSqlMapOperationInterceptor(serviceType);
-                ibatisClientImpl.addScopeInterceptor(method.getName(), method.getParameterTypes(), ibatisApiInterceptor, SCOPE);
+                ibatisClientImpl.addGroupInterceptor(method.getName(), method.getParameterTypes(), ibatisApiInterceptor, SCOPE);
             }
 
             return ibatisClientImpl.toBytecode();

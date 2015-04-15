@@ -24,12 +24,15 @@ import java.io.IOException;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
 
 public class DefaultHttpRequestRetryHandlerModifierTest extends BasePinpointTest {
 
+    // move to HttpClient4 plugin
+    @Ignore
     @Test
     public void test() {
         DefaultHttpRequestRetryHandler retryHandler = new DefaultHttpRequestRetryHandler();

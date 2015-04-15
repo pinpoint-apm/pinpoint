@@ -16,12 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -57,8 +55,6 @@ public final class DefaultTrace implements Trace {
     private Storage storage;
 
     private final TraceContext traceContext;
-    
-    private final Map<String, Object> attributeMap = new HashMap<String, Object>();
 
     // use for calculating depth of each Span.
     private int latestStackIndex = -1;
@@ -556,32 +552,42 @@ public final class DefaultTrace implements Trace {
     }
 
     @Override
-    public Object getAttribute(String key) {
-        return attributeMap.get(key);
+    public void recordAsyncId(int asyncId) {
+        StackFrame currentStackFrame = this.currentStackFrame;
+        if(currentStackFrame instanceof SpanEventStackFrame) {
+            ((SpanEventStackFrame) currentStackFrame).setAsyncId(asyncId);
+        } else {
+            throw new PinpointException("not SpanEventStackFrame");
+        }
     }
 
     @Override
-    public Object setAttribute(String key, Object value) {
-        return attributeMap.put(key, value);
+    public void recordNextAsyncId(int asyncId) {
+        StackFrame currentStackFrame = this.currentStackFrame;
+        if(currentStackFrame instanceof SpanEventStackFrame) {
+            ((SpanEventStackFrame) currentStackFrame).setNextAsyncId(asyncId);
+        } else {
+            throw new PinpointException("not SpanEventStackFrame");
+        }
     }
 
     @Override
-    public Object removeAttribute(String key) {
-        return attributeMap.remove(key);
+    public boolean isAsync() {
+        return false;
     }
 
     @Override
-    public Object setTraceBlockAttachment(Object attachment) {
-        return currentStackFrame.attachFrameObject(attachment);
+    public long getTraceStartTime() {
+        return callStack.getSpan().getStartTime();
     }
 
     @Override
-    public Object getTraceBlockAttachment() {
-        return currentStackFrame.getFrameObject();
+    public boolean isRootStack() {
+        return currentStackFrame != null ? currentStackFrame.getStackFrameId() == ROOT_STACKID : false;
     }
 
     @Override
-    public Object removeTraceBlockAttachment() {
-        return currentStackFrame.detachFrameObject();
+    public AsyncTraceId getAsyncTraceId() {
+        return new DefaultAsyncTraceId(traceId, traceContext.getAsyncId(), getTraceStartTime());
     }
 }

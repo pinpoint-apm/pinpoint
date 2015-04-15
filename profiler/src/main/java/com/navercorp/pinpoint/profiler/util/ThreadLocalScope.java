@@ -17,45 +17,51 @@
 package com.navercorp.pinpoint.profiler.util;
 
 import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
-import com.navercorp.pinpoint.bootstrap.instrument.ScopeDefinition;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
-import com.navercorp.pinpoint.profiler.plugin.DefaultScope;
+import com.navercorp.pinpoint.bootstrap.instrument.InterceptorGroupDefinition;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.profiler.plugin.DefaultInterceptorStack;
 
 /**
  * @author emeroad
  */
-public class ThreadLocalScope implements Scope {
+public class ThreadLocalScope implements InterceptorGroupTransaction {
 
-    private final NamedThreadLocal<Scope> scope;
+    private final NamedThreadLocal<InterceptorGroupTransaction> scope;
 
 
-    public ThreadLocalScope(final ScopeDefinition scopeDefinition) {
+    public ThreadLocalScope(final InterceptorGroupDefinition scopeDefinition) {
         if (scopeDefinition == null) {
             throw new NullPointerException("scopeDefinition must not be null");
         }
         
-        this.scope = new NamedThreadLocal<Scope>(scopeDefinition.getName()) {
+        this.scope = new NamedThreadLocal<InterceptorGroupTransaction>(scopeDefinition.getName()) {
             @Override
-            protected Scope initialValue() {
-                return new DefaultScope(scopeDefinition.getName());
+            protected InterceptorGroupTransaction initialValue() {
+                return new DefaultInterceptorStack(scopeDefinition.getName());
             }
         };
     }
-
+    
     @Override
-    public boolean tryBefore(ExecutionPoint point) {
-        final Scope localScope = getLocalScope();
-        return localScope.tryBefore(point);
+    public void leave(ExecutionPolicy policy) {
+        final InterceptorGroupTransaction localScope = getLocalScope();
+        localScope.leave(policy);
     }
 
     @Override
-    public boolean tryAfter(ExecutionPoint point) {
-        final Scope localScope = getLocalScope();
-        return localScope.tryAfter(point);
+    public boolean tryEnter(ExecutionPolicy policy) {
+        final InterceptorGroupTransaction localScope = getLocalScope();
+        return localScope.tryEnter(policy);
     }
 
-    protected Scope getLocalScope() {
+    @Override
+    public boolean canLeave(ExecutionPolicy policy) {
+        final InterceptorGroupTransaction localScope = getLocalScope();
+        return localScope.canLeave(policy);
+    }
+
+    protected InterceptorGroupTransaction getLocalScope() {
         return scope.get();
     }
 
@@ -74,32 +80,32 @@ public class ThreadLocalScope implements Scope {
     }
 
     @Override
-    public boolean isIn() {
-        final Scope localScope = getLocalScope();
-        return localScope.isIn();
+    public boolean isActive() {
+        final InterceptorGroupTransaction localScope = getLocalScope();
+        return localScope.isActive();
     }
 
     @Override
     public Object setAttachment(Object attachment) {
-        final Scope localScope = getLocalScope();
+        final InterceptorGroupTransaction localScope = getLocalScope();
         return localScope.setAttachment(attachment);
     }
 
     @Override
     public Object getAttachment() {
-        final Scope localScope = getLocalScope();
+        final InterceptorGroupTransaction localScope = getLocalScope();
         return localScope.getAttachment();
     }
     
     @Override
     public Object getOrCreateAttachment(AttachmentFactory factory) {
-        final Scope localScope = getLocalScope();
+        final InterceptorGroupTransaction localScope = getLocalScope();
         return localScope.getOrCreateAttachment(factory);
     }
 
     @Override
     public Object removeAttachment() {
-        final Scope localScope = getLocalScope();
+        final InterceptorGroupTransaction localScope = getLocalScope();
         return localScope.removeAttachment();
     }
 }

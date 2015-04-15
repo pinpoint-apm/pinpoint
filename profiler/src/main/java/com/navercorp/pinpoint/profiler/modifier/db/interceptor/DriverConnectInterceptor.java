@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
-import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPoint;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 
@@ -30,15 +30,15 @@ import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
  */
 public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptor {
 
-    private final Scope scope;
+    private final InterceptorGroupTransaction scope;
     private final boolean recordConnection;
 
 
-    public DriverConnectInterceptor(Scope scope) {
+    public DriverConnectInterceptor(InterceptorGroupTransaction scope) {
         this(true, scope);
     }
 
-    public DriverConnectInterceptor(boolean recordConnection, Scope scope) {
+    public DriverConnectInterceptor(boolean recordConnection, InterceptorGroupTransaction scope) {
         super(DriverConnectInterceptor.class);
         if (scope == null) {
             throw new NullPointerException("scope must not be null");
@@ -56,7 +56,7 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptor {
 
     @Override
     protected void prepareBeforeTrace(Object target, Object[] args) {
-        scope.tryBefore(ExecutionPoint.BOUNDARY);
+        scope.tryEnter(ExecutionPolicy.BOUNDARY);
     }
 
     @Override
@@ -73,7 +73,9 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptor {
     @Override
     protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {
         // Must not check if current transaction is trace target or not. Connection can be made by other thread. 
-        scope.tryAfter(ExecutionPoint.BOUNDARY);
+        if (scope.canLeave(ExecutionPolicy.BOUNDARY)) {
+            scope.leave(ExecutionPolicy.BOUNDARY);
+        }
 
         final boolean success = InterceptorUtils.isSuccess(throwable);
         // Must not check if current transaction is trace target or not. Connection can be made by other thread.

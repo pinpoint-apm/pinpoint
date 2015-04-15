@@ -182,4 +182,23 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     public void detachTraceObject() {
         this.threadLocal.remove();
     }
+    
+    public Trace continueAsyncTraceObject(TraceId traceId, int asyncId, long startTime) {
+        checkBeforeTraceObject();
+        
+        final Storage storage = storageFactory.createStorage();
+        storage.setAsync(true);
+        
+        final DefaultTrace trace = new DefaultTrace(traceContext, traceId);
+        trace.getCallStack().getSpan().setStartTime(startTime);
+        trace.setStorage(storage);
+        trace.setSampling(true);
+        
+        final AsyncTrace asyncTrace = new AsyncTrace(trace);
+        asyncTrace.setAsyncId(asyncId);
+        
+        threadLocal.set(asyncTrace);
+        
+        return asyncTrace;
+    }
 }
