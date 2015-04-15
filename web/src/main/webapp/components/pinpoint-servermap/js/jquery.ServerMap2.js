@@ -115,7 +115,11 @@
                     "left": 10
                 },
                 "unknownGroupName" : "UNKNOWN_GROUP",
+                "fOnNodeSubGroupClicked": function(eMouseEvent, nodeKey ) {
+                },
                 "fOnNodeClicked": function (eMouseEvent, htData) {
+                },
+                "fOnNodeDoubleClicked": function (eMouseEvent, node, htData) {
                 },
                 "fOnNodeContextClicked": function (eMouseEvent, htData) {
                 },
@@ -207,6 +211,9 @@
                         name: "NODE",
                         click: function (e, obj) {
                             self._onNodeClicked(e, obj);
+                        },
+                        doubleClick: function(e, obj) {
+                        	self._onNodeDoubleClicked(e, obj);
                         },
                         contextClick: self._onNodeContextClicked.bind(self)
                     },
@@ -377,11 +384,8 @@
             var unknownTableTemplate = self.$(
                 go.Panel,
                 go.Panel.TableRow,
-                {
-                },
                 self.$(
-                    go.Picture,
-                    {
+                    go.Picture, {
                         source: sImageDir + 'ERROR.png',
                         margin: new go.Margin(1, 2),
                         desiredSize: new go.Size(10, 10),
@@ -392,27 +396,36 @@
                     new go.Binding("visible", "hasAlert")
                 ),
                 self.$(
-                    go.TextBlock,
-                    {
+                	go.TextBlock, {
+                		name:"NODE_INDEX",
+                		visible: false,
+                		text : "0"
+                	},
+                	new go.Binding("text", "idx")
+                ),
+                self.$(
+                    go.TextBlock, {
                     	name: "NODE_APPLICATION_NAME",
                         margin: new go.Margin(1, 2),
                         column: 2,
                         font: self.option('sSmallFont'),
-//                        height:30,
-                        alignment: go.Spot.Left
+                        alignment: go.Spot.Left,
+                        click : function(e, obj ) {
+                        	e.bubbles = false;
+                        	if ( obj.part.data.isCollapse ) {
+                        		self._onNodeClicked(e, obj, obj.part.data.unknownNodeGroup[e.targetObject.row].key);
+                        	} else {
+                        		var groupData = obj.part.data.subGroup[parseInt( e.targetObject.panel.findObject("NODE_INDEX").text )];
+                        		self._onNodeSubGroupClicked(e, obj, groupData["groups"][e.targetObject.row].key, groupData.applicationName);
+                        	}
+                        	return false;
+                        }
+                        
                     },
-                    new go.Binding('text', 'applicationName'),
-                    new go.Binding('click', 'key', function (key) {
-                        return function (e, obj) {
-                            e.bubbles = false;
-                            self._onNodeClicked(e, obj, key);
-                            return false;
-                        };
-                    })
+                    new go.Binding('text', 'applicationName')
                 ),
                 self.$(
-                    go.TextBlock,
-                    {
+                    go.TextBlock, {
                         margin: new go.Margin(1, 2),
                         column: 3,
                         alignment: go.Spot.Right,
@@ -423,12 +436,49 @@
                     })
                 )
             );
+            var subGroupTemplate = self.$(
+                go.Panel,
+                go.Panel.Vertical,
+                self.$(
+                    go.TextBlock, {
+                    	name: "NODE_SUB_APPLICATION_NAME",
+                        margin: new go.Margin(2, 2),
+                        font: "bold 16px avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif"
+                    },
+                    new go.Binding('text', 'applicationName')
+                ),
+                self.$(
+                	go.Panel,
+                	go.Panel.Table, {
+                        padding: 4,
+                        minSize: new go.Size(100, 10),
+                        defaultStretch: go.GraphObject.Horizontal,
+                        itemTemplate: unknownTableTemplate,
+                        name: "NODE_SUB_TABLE"
+                    },
+                    new go.Binding( "itemArray", "groups" )
+                ),
+                self.$(
+                    go.Shape, {
+                        figure: "RoundedRectangle",
+                        margin: new go.Margin(6, 2, 6, 2),
+                        height: 1,
+                        width: 200,
+                        strokeWidth: 1,
+                        stroke: "#F5A623",
+                        fill: "#F5A623",
+                        visible: true
+                    },
+                    new go.Binding("visible", "isLast", function(v) {
+                    	return !v;
+                    })
+                )
+            );
 
             var getUnknownGroupTemplate = function (sImageName) {
                 return self.$(
                     go.Node,
-                    go.Panel.Auto,
-                    {
+                    go.Panel.Auto, {
                         selectionAdorned: false,
                         cursor: "pointer",
                         name: "NODE",
@@ -437,42 +487,58 @@
                                 self._onNodeClicked(e, obj);
                             }
                         },
+                        doubleClick: function(e, obj) {
+                        	self._onNodeDoubleClicked(e, obj);
+                        },
                         contextClick: self._onNodeContextClicked.bind(self)
                     },
                     self.$(
-                        go.Shape,
-                        {
+                        go.Shape, {
                             figure: "RoundedRectangle",
-//                            margin: new go.Margin(10, 10, 10, 10),
                             isPanelMain: true,
-//                            maxSize: new go.Size(150, NaN),
                             minSize: new go.Size(100, 100),
                             name: "NODE_SHAPE",
                             portId: "",
-                            strokeWidth: self.option('htNodeTheme').default.borderWidth,
-                            stroke: self.option('htNodeTheme').default.borderColor,
-                            fill: self.option('htNodeTheme').default.backgroundColor
-                        },
+                            strokeWidth: self.option('htNodeTheme')["default"].borderWidth,
+                            stroke: self.option('htNodeTheme')["default"].borderColor,
+                            fill: self.option('htNodeTheme')["default"].backgroundColor
+                        },                        
                         new go.Binding("key", "key")
+                    ),
+                    self.$( "Button", {
+                    	alignment: go.Spot.TopLeft,
+                    	width: 20,
+                    	height: 20,
+                    	margin: 2,
+                    	visible : false,
+                    	click: function(e, o) {
+                    		e.bubbles = false;
+                    		var isCollapse = o.part.data.isCollapse;
+                    		self._oDiagram.model.setDataProperty( o.part.data, "isCollapse", !isCollapse );
+                    		o.part.findObject("GROUP_BUTTON").text = isCollapse ? " - " : " + ";
+                    	}},
+                    	new go.Binding( "visible", "isMultiGroup" ),
+                    	self.$(
+                    		go.TextBlock, {
+	                    		name: "GROUP_BUTTON",
+	                    		text: " + ",
+	                    		textAlign: "center",
+	                    		font: "bold 14px serif"
+                    		}
+                    	)
                     ),
                     self.$(
                         go.Panel,
                         go.Panel.Spot,
-                        {
-                        	name: "NODE_1SUB_PANEL",
-                        },
                         self.$(
                             go.Panel,
-                            go.Panel.Vertical,
-                            {
-                            	name: "NODE_2SUB_PANEL",
+                            go.Panel.Vertical, {
                                 alignment: go.Spot.TopLeft,
                                 alignmentFocus: go.Spot.TopLeft,
                                 minSize: new go.Size(130, NaN)
                             },
                             self.$(
-                                go.Picture,
-                                {
+                                go.Picture, {
                                     source: sImageDir + sImageName,
                                     margin: new go.Margin(0, 0, 5, 0),
                                     desiredSize: new go.Size(100, 40),
@@ -481,22 +547,37 @@
                             ),
                             self.$(
                                 go.Panel,
-                                go.Panel.Table,
-                                {
+                                go.Panel.Table, {
                                     padding: 2,
                                     minSize: new go.Size(100, 10),
                                     defaultStretch: go.GraphObject.Horizontal,
                                     itemTemplate: unknownTableTemplate,
-                                    name: "NODE_TEXT"
+                                    name: "NODE_TEXT",
+                                    visible: true
                                 },
-                                new go.Binding("itemArray", "unknownNodeGroup")
+                                new go.Binding("itemArray", "unknownNodeGroup"),
+                                new go.Binding("visible", "isCollapse")
+                            ),
+                            self.$(
+                                go.Panel,
+                                go.Panel.Vertical, {
+                                    padding: 2,
+                                    minSize: new go.Size(100, 10),
+                                    defaultStretch: go.GraphObject.Horizontal,
+                                    itemTemplate: subGroupTemplate,
+                                    name: "NODE_SUB_TEXT",
+                                    visible: true
+                                },
+                                new go.Binding("itemArray", "subGroup"),
+                                new go.Binding("visible", "isCollapse", function(v) {
+                                	return !v;
+                                })
                             )
                         )
                     ),
                     self.$(
                         go.Panel,
-                        go.Panel.Auto,
-                        {
+                        go.Panel.Auto, {
                             alignment: go.Spot.TopRight,
                             alignmentFocus: go.Spot.TopRight,
                             visible: false
@@ -505,8 +586,7 @@
                             return v > 1 ? true : false;
                         }),
                         self.$(
-                            go.Shape,
-                            {
+                            go.Shape, {
                                 figure: "RoundedRectangle",
                                 fill: "#848484",
                                 strokeWidth: 1,
@@ -515,14 +595,12 @@
                         ),
                         self.$(
                             go.Panel,
-                            go.Panel.Auto,
-                            {
+                            go.Panel.Auto, {
                                 margin: new go.Margin(0, 3, 0, 3)
                             },
                             self.$(
                                 go.TextBlock,
-                                new go.Binding("text", "instanceCount"),
-                                {
+                                new go.Binding("text", "instanceCount"), {
                                     stroke: "#FFFFFF",
                                     textAlign: "center",
                                     height: 16,
@@ -579,7 +657,7 @@
                 },
                 htLinkTheme = this.option("htLinkTheme"),
                 sImageDir = this.option('sImageDir'),
-                htDefault = htLinkTheme.default,
+                htDefault = htLinkTheme["default"],
                 bad = htLinkTheme.bad;
 
             var getLinkTemplate = function (htOption) {
@@ -701,7 +779,7 @@
             this._oDiagram.initialContentAlignment = go.Spot.Center;
             this._oDiagram.padding = new go.Margin(htPadding.top, htPadding.right, htPadding.bottom, htPadding.left);
             this._oDiagram.layout = this.$(
-                go.LayeredDigraphLayout,
+            	go.LayeredDigraphLayout,
                 { // rdirection: 90,
                     isOngoing: false,
                     layerSpacing: 100,
@@ -906,44 +984,51 @@
          * @param theme
          * @private
          */
-        _highlightNode: function (nodeShape, nodeText, theme) {
-            if (nodeShape === null || nodeText === null) {
+        _highlightNode: function (shapeNode, textNode, theme) {
+            if (shapeNode === null || textNode === null) {
                 return;
             }
             if (theme) {
-                nodeShape.stroke = this.option('htHighlightNode').borderColor;
-                nodeShape.strokeWidth = 2;
-                nodeShape.part.isShadowed = true;
-                
+            	shapeNode.stroke = this.option('htHighlightNode').borderColor;
+            	shapeNode.strokeWidth = 2;
+            	shapeNode.part.isShadowed = true;
+            	
+            	var reg = new RegExp( this._query, "i" );
+            	var highlightFont = this.option('htHighlightNode').fontColor;
+            	var defaultFont = this.option('htNodeTheme')["default"].fontColor;
                 if ( this._query != "" ) {
-	                if ( nodeText.type === go.Panel.Table ) {
-	                	for( var i = 0 ; i < nodeText.rowCount ; i++ ) {
-	                		if ( new RegExp( this._query, "i" ).test( nodeText.elt(i).elt(1).text ) ) {
-	                			nodeText.elt(i).elt(1).stroke = this.option('htHighlightNode').fontColor;
-	                		}
+	                if ( angular.isDefined( textNode.rowCount ) ) {
+	                	for( var i = 0 ; i < textNode.rowCount ; i++ ) {
+	                		var innerTextNode = textNode.elt(i).elt(2);
+	                		innerTextNode.stroke = reg.test( innerTextNode.text ) ? highlightFont : defaultFont;
+	                	}
+	                	
+	                	var nodeSubTextNode = textNode.panel.findObject("NODE_SUB_TEXT");
+	                	var length = nodeSubTextNode.elements.count;
+	                	for( var i = 0 ; i < length ; i++ ) {
+	                		var innerTableNode = nodeSubTextNode.elt(i).elt(1); 
+                			for( var j = 0 ; j < innerTableNode.elements.count ; j++ ) {
+                				var innerSubTextNode = innerTableNode.elt(j).elt(2);
+                				innerSubTextNode.stroke = reg.test( innerSubTextNode.text ) ? highlightFont : defaultFont;
+                			}
 	                	}
 	                } else {
-	                	if ( new RegExp( this._query, "i" ).test( nodeText.text ) ) {
-	                		nodeText.stroke = this.option('htHighlightNode').fontColor;
-	                	}
+	                	textNode.stroke = reg.test( textNode.text ) ? highlightFont : defaultFont; 
 	                }
                 }
-//                nodeText.stroke = this.option('htHighlightNode')[theme].fontColor;
             } else {
-                var type = (nodeShape.key === this.option('sBoldKey')) ? 'bold' : 'default';
-                nodeShape.stroke = this.option('htNodeTheme')[type].borderColor;
-                nodeShape.strokeWidth = 1;
-                nodeShape.part.isShadowed = false;
+                var type = (shapeNode.key === this.option('sBoldKey')) ? 'bold' : 'default';
+                shapeNode.stroke = this.option('htNodeTheme')[type].borderColor;
+                shapeNode.strokeWidth = 1;
+                shapeNode.part.isShadowed = false;
 
-                if ( nodeText.type === go.Panel.Table ) {                	
-                	for( var i = 0 ; i < nodeText.rowCount ; i++ ) {
-                		nodeText.elt(i).elt(1).stroke = this.option('htNodeTheme')[type].fontColor;
+                if ( angular.isDefined( textNode.rowCount ) ) {                	
+                	for( var i = 0 ; i < textNode.rowCount ; i++ ) {
+                		textNode.elt(i).elt(2).stroke = this.option('htNodeTheme')[type].fontColor;
                 	}
                 } else {
-                	nodeText.stroke = this.option('htNodeTheme')[type].fontColor;
+                	textNode.stroke = this.option('htNodeTheme')[type].fontColor;
                 }
-
-//                nodeText.stroke = this.option('htNodeTheme').default.fontColor;
             }
         },
 
@@ -962,8 +1047,8 @@
                 color = this.option('htHighlightLink').borderColor;
                 shape.strokeWidth = this.option('htHighlightLink').strokeWidth;
             } else {
-                color = this.option('htLinkTheme').default.borderColor;
-                shape.strokeWidth = this.option('htLinkTheme').default.strokeWidth;
+                color = this.option('htLinkTheme')["default"].borderColor;
+                shape.strokeWidth = this.option('htLinkTheme')["default"].strokeWidth;
             }
             if (toFill) {
                 shape.fill = color;
@@ -975,7 +1060,7 @@
         	if ( highlight ) {
         		nodeText.font = this.option('htHighlightLink').fontFamily;
         	} else {
-        		nodeText.font = this.option('htLinkTheme').default.fontFamily;
+        		nodeText.font = this.option('htLinkTheme')["default"].fontFamily;
         	}
         },
 
@@ -1056,7 +1141,22 @@
             }
             return nodesFromList;
         },
-
+        /**
+         * event of merge group node click 
+         *
+         * @method _onNodeSubGroupClicked
+         * @param {Event} e
+         * @param {ojb} ojb
+         * @param {String} unknownKey
+         * @param {String} fromName
+         */
+        _onNodeSubGroupClicked: function(e, obj, unknownKey, fromName) {
+            var node = obj.part,
+            fOnNodeSubGroupClicked = this.option('fOnNodeSubGroupClicked');
+	        if (_.isFunction(fOnNodeSubGroupClicked)) {
+	        	fOnNodeSubGroupClicked.call(this, e, node, unknownKey, fromName);
+	        }
+        },
         /**
          * event of node click
          *
@@ -1072,8 +1172,21 @@
             if (_.isFunction(fOnNodeClicked)) {
                 fOnNodeClicked.call(this, e, htData, unknownKey, query);
             }
-            // node.diagram.startTransaction("onNodeClick");
-            // node.diagram.commitTransaction("onNodeClick");
+        },
+        /**
+         * event of node doubleclick
+         *
+         * @method _onNodeDoubleClicked
+         * @param {Event} e
+         * @param {ojb} ojb
+         */
+        _onNodeDoubleClicked: function(e, obj) {
+            var node = obj.part,
+            htData = node.data,
+            fOnNodeDoubleClicked = this.option('fOnNodeDoubleClicked');
+	        if (_.isFunction(fOnNodeDoubleClicked)) {
+	            fOnNodeDoubleClicked.call(this, e, node, htData);
+	        }        	
         },
 
         /**
@@ -1084,7 +1197,6 @@
          * @param {ojb} ojb
          */
         _onNodeContextClicked: function (e, obj) {
-        	console.log( "nodeContextClicked : ", this );
             var node = obj.part,
                 htData = node.data,
                 fOnNodeContextClicked = this.option('fOnNodeContextClicked');
@@ -1160,33 +1272,27 @@
         		selectedNode = null,
         		selectedIndex = 0,
         		similarNodeList = [],
-        		returnNodeDataList = [];
+        		returnNodeDataList = [],
+        		reg = new RegExp( query, "i" );
         	
             while (allNodes.next()) {
                 var node = allNodes.value;
                 if ( node.data.unknownNodeGroup ) {
                 	var unknownNodeGroup = node.data.unknownNodeGroup;
                 	for( var i = 0; i < unknownNodeGroup.length ; i++ ) {
-                		if ( new RegExp( query, "i" ).test( unknownNodeGroup[i].applicationName ) ) {
+                		if ( reg.test( unknownNodeGroup[i].applicationName ) ) {
                 			this._addNodeToTemporaryList( similarNodeList, returnNodeDataList, node, unknownNodeGroup[i], this.option("unknownGroupName") );
-	                		break;
                 		}
                 	}
                 } else {
 	                if ( !angular.isUndefined( node.data.applicationName ) ) {
-		                if ( new RegExp( query, "i" ).test( node.data.applicationName ) ) {
+		                if ( reg.test( node.data.applicationName ) ) {
 		                	this._addNodeToTemporaryList( similarNodeList, returnNodeDataList, node, node.data );
-		                	if ( new RegExp( nodeServiceType, "i" ).test( node.data.serviceType ) ) {
-		                		selectedIndex = similarNodeList.length - 1;
-		                	}
 		                }
 	                }
                 }
             }
-         
-            if ( similarNodeList.length != 0 ) {
-            	this._selectAndHighlight( similarNodeList[selectedIndex] );
-	        }
+           	this._selectAndHighlight( similarNodeList[selectedIndex] );
             if ( angular.isUndefined ( nodeServiceType ) ) {
             	return returnNodeDataList;
             }
@@ -1199,6 +1305,7 @@
         	});
         },
         _selectAndHighlight : function( selectedNode ) {
+        	this._oDiagram.clearSelection();
         	this._oDiagram.select( selectedNode );
             this._oDiagram.centerRect( selectedNode.actualBounds );
             this._onNodeClicked(null, selectedNode, null, this._query );
