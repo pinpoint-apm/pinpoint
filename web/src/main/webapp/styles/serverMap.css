@@ -17,6 +17,11 @@
 .servermap .servermap-status h6 {
     margin: 0;
 }
+.servermap .servermap-status span.label {
+	float:right;
+	margin:3px;
+	cursor:pointer;
+}
 .servermap .servermap-status .controls .span2:first-child {
     margin-left: 0 !important;
 }
@@ -51,4 +56,14 @@
     -moz-transition: all 0.1s ease;
     -o-transition: all 0.1s ease;
     transition: all 0.1s ease;
+}
+#servermapOverview {
+	width: 15%;
+	height: 15%;
+	position: absolute;
+	right: 16px;
+	bottom: 16px;
+	background-color: rgba(44, 160, 44, 0.2);
+	z-index: 2;
+	border: 1px solid rgb(44, 160, 44);
 }

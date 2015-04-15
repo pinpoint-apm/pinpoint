@@ -1,7 +1,18 @@
 <div class="servermap" style="width:100%;height:100%;position: relative;">
     <div id="servermap" style="width:100%;height:100%;position: relative;"></div>
+    <div id="servermapOverview"></div>
+    <div class="servermap-status" ng-show="bShowServerMapStatus" style="right:540px">
+    	<span class="label label-{{ searchNodeIndex == $index ? 'success' : 'info'}}" ng-repeat="sNode in searchNodeList" ng-click="searchNodeWithCategory($index)">{{sNode.applicationName}}({{sNode.serviceType}})</span>
+    </div>
+    <div class="servermap-status" ng-show="bShowServerMapStatus" style="right:290px">
+    	<form class="form-inline">
+	    	<input type="text" class="form-control" ng-keydown="searchNodeByEnter($event)" ng-model="searchNodeQuery" placeholder="Enter node name"/>
+	    	<button class="btn btn-info" style="margin-left:-10px" ng-click="searchNode()"><span class="glyphicon glyphicon-search"></span></button>
+	    	<button class="btn btn-info" ng-click="clearSearchNode()"><span class="glyphicon glyphicon-trash"></span></button>
+	    </form>
+    </div>
     <div class="servermap-status" ng-show="bShowServerMapStatus">
-        <div class="alert alert-info" style="min-height: 45px;">
+        <div class="alert alert-info" style="min-height: 30px;display:inline-block;padding-bottom:9px;padding-top:10px">
             <h6 ng-show="oNavbarVo.getQueryStartTime() && oNavbarVo.getQueryEndTime()">{{oNavbarVo.getQueryStartTime() |
                 date:'yyyy-MM-dd HH:mm:ss'}} ~ {{oNavbarVo.getQueryEndTime() | date:'yyyy-MM-dd HH:mm:ss'}}</h6>
             <!--<h6 ng-if="oNavbarVo.getFilter()">Base WAS : {{oNavbarVo.getApplicationName()}}</h6>-->
@@ -120,9 +131,8 @@
         <li class="dropdown-submenu">
             <a tabindex="-1" href>Node Setting</a>
             <ul class="dropdown-menu">
-                <li><a href ng-click="toggleMergeUnknowns()"><span class="glyphicon" style="width:14px"
-                                                                   ng-class="{'glyphicon-ok': mergeUnknowns}"></span>
-                    Merge Unknowns</a></li>
+                <!--li><a href ng-click="toggleMergeUnknowns()"><span class="glyphicon" style="width:14px" ng-class="{'glyphicon-ok': mergeUnknowns}"></span>Merge Unknowns</a></li-->
+                <li ng-repeat="mergeType in mergeTypeList"><a href ng-click="toggleMergeGroup(mergeType)"><span class="glyphicon" style="width:14px" ng-class="{'glyphicon-ok': mergeStatus[mergeType]}"></span> Merge {{mergeType}}</a></li>
             </ul>
         </li>
         <li class="dropdown-submenu">

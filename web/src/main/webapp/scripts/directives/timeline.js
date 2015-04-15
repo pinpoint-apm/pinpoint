@@ -28,6 +28,9 @@ pinpointApp.directive('timeline', function () {
             scope.$on('timeline.initialize', function (event, transactionDetail) {
                 initialize(transactionDetail);
             });
+            scope.moveCallFlow = function( item ) {
+            	scope.$emit( "transactionDetail.selectDistributedCallFlowRow", item[6] );
+            };
         }
     };
 });
