@@ -29,7 +29,7 @@ public class ExcludeUrlFilterTest {
 
     @Test
     public void testFilter() throws Exception {
-           Filter<String> filter = new ExcludeUrlFilter("/monitor/l7check.html, test/l4check.html");
+       Filter<String> filter = new ExcludeUrlFilter("/monitor/l7check.html, test/l4check.html");
 
         assertFilter(filter);
     }
@@ -64,4 +64,26 @@ public class ExcludeUrlFilterTest {
 
 
 
+    @Test
+    public void antStylePath() throws Exception {
+        Filter<String> filter = new ExcludeUrlFilter("/monitor/l7check.*,/*/l7check.*");
+
+        Assert.assertTrue(filter.filter("/monitor/l7check.jsp"));
+        Assert.assertTrue(filter.filter("/monitor/l7check.html"));
+
+        Assert.assertFalse(filter.filter("/monitor/test.jsp"));
+
+        Assert.assertTrue(filter.filter("/*/l7check.html"));
+    }
+
+    @Test
+    public void match() throws Exception {
+        Filter<String> filter = new ExcludeUrlFilter("/monitor/stringEquals,/monitor/antstyle.*");
+
+        Assert.assertTrue(filter.filter("/monitor/stringEquals"));
+        Assert.assertTrue(filter.filter("/monitor/antstyle.html"));
+
+        Assert.assertFalse(filter.filter("/monitor/stringEquals.test"));
+        Assert.assertFalse(filter.filter("/monitor/antstyleXXX.html"));
+    }
 }
