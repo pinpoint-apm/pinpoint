@@ -52,7 +52,7 @@ public class LinkSerializer extends JsonSerializer<Link> {
         Application filterApplication = link.getFilterApplication();
         jgen.writeStringField("filterApplicationName", filterApplication.getName());
         jgen.writeNumberField("filterApplicationServiceTypeCode", filterApplication.getServiceTypeCode());
-        jgen.writeStringField("filterApplicationServiceTypeName", filterApplication.getServiceType().getName());
+        jgen.writeStringField("filterApplicationServiceTypeName", filterApplication.getServiceType().name());
         if (link.isWasToWasLink()) {
             writeWasToWasTargetRpcList(link, jgen);
         }
