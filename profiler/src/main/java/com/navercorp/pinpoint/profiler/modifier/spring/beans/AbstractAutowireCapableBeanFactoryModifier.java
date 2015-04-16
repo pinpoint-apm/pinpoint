@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.modifier.spring.beans;
 
 import java.security.ProtectionDomain;
 
-import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
@@ -26,7 +25,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.profiler.ClassFileRetransformer;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.Modifier;
 import com.navercorp.pinpoint.profiler.modifier.spring.beans.interceptor.CreateBeanInstanceInterceptor;
@@ -68,25 +66,23 @@ import com.navercorp.pinpoint.profiler.modifier.spring.beans.interceptor.TargetB
 public class AbstractAutowireCapableBeanFactoryModifier extends AbstractModifier {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     
-    private final ClassFileRetransformer retransformer;
     private final TargetBeanFilter filter;
     private final Modifier modifier;
     
-    public static AbstractAutowireCapableBeanFactoryModifier of(ByteCodeInstrumentor byteCodeInstrumentor, ProfilerConfig profilerConfig, ClassFileRetransformer retransformer) {
+    public static AbstractAutowireCapableBeanFactoryModifier of(ByteCodeInstrumentor byteCodeInstrumentor, ProfilerConfig profilerConfig) {
         Modifier modifier = new BeanMethodModifier(byteCodeInstrumentor);
-        return of(byteCodeInstrumentor, profilerConfig, retransformer, modifier);
+        return of(byteCodeInstrumentor, profilerConfig, modifier);
     }
     
-    public static AbstractAutowireCapableBeanFactoryModifier of(ByteCodeInstrumentor byteCodeInstrumentor, ProfilerConfig profilerConfig, ClassFileRetransformer retransformer, Modifier modifier) {
+    public static AbstractAutowireCapableBeanFactoryModifier of(ByteCodeInstrumentor byteCodeInstrumentor, ProfilerConfig profilerConfig, Modifier modifier) {
         TargetBeanFilter filter = TargetBeanFilter.of(profilerConfig);
         
-        return new AbstractAutowireCapableBeanFactoryModifier(byteCodeInstrumentor, profilerConfig, retransformer, filter, modifier);
+        return new AbstractAutowireCapableBeanFactoryModifier(byteCodeInstrumentor, profilerConfig, filter, modifier);
     }
 
-    public AbstractAutowireCapableBeanFactoryModifier(ByteCodeInstrumentor byteCodeInstrumentor, ProfilerConfig profilerConfig, ClassFileRetransformer retransformer, TargetBeanFilter filter, Modifier modifier) {
+    public AbstractAutowireCapableBeanFactoryModifier(ByteCodeInstrumentor byteCodeInstrumentor, ProfilerConfig profilerConfig, TargetBeanFilter filter, Modifier modifier) {
         super(byteCodeInstrumentor, profilerConfig);
 
-        this.retransformer = retransformer;
         this.filter = filter;
         this.modifier = modifier;
     }
@@ -100,12 +96,12 @@ public class AbstractAutowireCapableBeanFactoryModifier extends AbstractModifier
         try {
             InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, className, classFileBuffer);
 
-            Interceptor createBeanInterceptor = new CreateBeanInstanceInterceptor(retransformer, modifier, filter);
+            Interceptor createBeanInterceptor = new CreateBeanInstanceInterceptor(byteCodeInstrumentor.getRetransformEventTrigger(), modifier, filter);
             aClass.addInterceptor("createBeanInstance",
                     new String[] { "java.lang.String", "org.springframework.beans.factory.support.RootBeanDefinition", "java.lang.Object[]" },
                     createBeanInterceptor);
             
-            Interceptor postProcessorInterceptor = new PostProcessorInterceptor(retransformer, modifier, filter);
+            Interceptor postProcessorInterceptor = new PostProcessorInterceptor(byteCodeInstrumentor.getRetransformEventTrigger(), modifier, filter);
             aClass.addInterceptor("applyBeanPostProcessorsBeforeInstantiation", new String[] { "java.lang.Class", "java.lang.String" }, postProcessorInterceptor);
             
             
