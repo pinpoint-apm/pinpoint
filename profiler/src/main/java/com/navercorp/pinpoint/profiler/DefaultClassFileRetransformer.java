@@ -59,7 +59,7 @@ public class DefaultClassFileRetransformer implements ClassFileRetransformer {
     }
 
     @Override
-    public void addRetranformEvent(Class<?> target, final ClassFileTransformer transformer) {
+    public void addRetransformEvent(Class<?> target, final ClassFileTransformer transformer) {
 
         if (logger.isInfoEnabled()) {
             logger.info("addRetransformEvent class:{}", target.getName());

@@ -94,12 +94,10 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     private final ByteCodeInstrumentor byteCodeInstrumentor;
     private final ProfilerConfig profilerConfig;
     private final Agent agent;
-    private final ClassFileRetransformer retransformer;
 
-    public DefaultModifierRegistry(Agent agent, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileRetransformer retransformer) {
+    public DefaultModifierRegistry(Agent agent, ByteCodeInstrumentor byteCodeInstrumentor) {
         this.agent = agent;
         this.byteCodeInstrumentor = byteCodeInstrumentor;
-        this.retransformer = retransformer;
         this.profilerConfig = agent.getProfilerConfig();
     }
 
