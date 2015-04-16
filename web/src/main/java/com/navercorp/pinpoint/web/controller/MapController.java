@@ -67,17 +67,39 @@ public class MapController {
      * @param to
      * @return
      */
-    @RequestMapping(value = "/getServerMapData", method = RequestMethod.GET)
+    @RequestMapping(value = "/getServerMapData", method = RequestMethod.GET, params="serviceTypeCode")
     @ResponseBody
     public MapWrap getServerMapData(
                                     @RequestParam("applicationName") String applicationName,
                                     @RequestParam("serviceTypeCode") short serviceTypeCode,
                                     @RequestParam("from") long from,
                                     @RequestParam("to") long to) {
+        ServiceType serviceType = registry.findServiceType(serviceTypeCode);
+        return getServerMapData(applicationName, serviceType.getName(), from, to);
+    }
+
+    /**
+   * Server map data query within from ~ to timeframe
+     *
+     * @param applicationName
+     * @param serviceTypeName
+     * @param from
+     * @param to
+     * @return
+     */
+    @RequestMapping(value = "/getServerMapData", method = RequestMethod.GET, params="serviceTypeName")
+    @ResponseBody
+    public MapWrap getServerMapData(
+                                    @RequestParam("applicationName") String applicationName,
+                                    @RequestParam("serviceTypeName") String serviceTypeName,
+                                    @RequestParam("from") long from,
+                                    @RequestParam("to") long to) {
         final Range range = new Range(from, to);
         this.dateLimit.limit(from, to);
         logger.debug("range:{}", TimeUnit.MILLISECONDS.toMinutes(range.getRange()));
-        Application application = new Application(applicationName, serviceTypeCode);
+
+        ServiceType serviceType = registry.findServiceTypeByName(serviceTypeName);
+        Application application = new Application(applicationName, serviceType);
 
         ApplicationMap map = mapService.selectApplicationMap(application, range);
 
@@ -92,7 +114,7 @@ public class MapController {
      * @param period
      * @return
      */
-    @RequestMapping(value = "/getLastServerMapData", method = RequestMethod.GET)
+    @RequestMapping(value = "/getLastServerMapData", method = RequestMethod.GET, params="serviceTypeCode")
     @ResponseBody
     public MapWrap getLastServerMapData(
                                         @RequestParam("applicationName") String applicationName,
@@ -105,8 +127,28 @@ public class MapController {
     }
 
     /**
-   * Possible deprecation expected when UI change push forward to pick a map first from UI
-   * Unfiltered server map request data query
+   * Server map data query for the last "Period" timeframe
+     *
+     * @param applicationName
+     * @param serviceTypeName
+     * @param period
+     * @return
+     */
+    @RequestMapping(value = "/getLastServerMapData", method = RequestMethod.GET, params="serviceTypeName")
+    @ResponseBody
+    public MapWrap getLastServerMapData(
+                                        @RequestParam("applicationName") String applicationName,
+                                        @RequestParam("serviceTypeName") String serviceTypeName,
+                                        @RequestParam("period") long period) {
+
+        long to = TimeUtils.getDelayLastTime();
+        long from = to - period;
+        return getServerMapData(applicationName, serviceTypeName, from, to);
+    }
+
+    /**
+     * Possible deprecation expected when UI change push forward to pick a map first from UI
+     * Unfiltered server map request data query
      *
      * @param model
      * @param from
@@ -118,7 +160,7 @@ public class MapController {
      * @return
      */
     @Deprecated
-    @RequestMapping(value = "/linkStatistics", method = RequestMethod.GET)
+    @RequestMapping(value = "/linkStatistics", method = RequestMethod.GET, params={"sourceServiceType", "targetServiceType"})
     public String getLinkStatistics(Model model,
                                     @RequestParam("from") long from,
                                     @RequestParam("to") long to,
@@ -126,9 +168,41 @@ public class MapController {
                                     @RequestParam("sourceServiceType") short sourceServiceType,
                                     @RequestParam("targetApplicationName") String targetApplicationName,
                                     @RequestParam("targetServiceType") short targetServiceType) {
+        String sourceServiceTypeName = registry.findServiceType(sourceServiceType).getName();
+        String targetServiceTypeName = registry.findServiceType(targetServiceType).getName();
+        return getLinkStatistics(model, from, to, sourceApplicationName, sourceServiceTypeName, targetApplicationName, targetServiceTypeName);
+    }
 
+    /**
+     * Possible deprecation expected when UI change push forward to pick a map first from UI
+     * Unfiltered server map request data query
+     *
+     * @param model
+     * @param from
+     * @param to
+     * @param sourceApplicationName
+     * @param sourceServiceTypeName
+     * @param targetApplicationName
+     * @param sourceServiceTypeName
+     * @return
+     */
+    @Deprecated
+    @RequestMapping(value = "/linkStatistics", method = RequestMethod.GET, params={"sourceServiceTypeName", "targetServiceTypeName"})
+    public String getLinkStatistics(Model model,
+                                    @RequestParam("from") long from,
+                                    @RequestParam("to") long to,
+                                    @RequestParam("sourceApplicationName") String sourceApplicationName,
+                                    @RequestParam("sourceServiceTypeName") String sourceServiceTypeName,
+                                    @RequestParam("targetApplicationName") String targetApplicationName,
+                                    @RequestParam("targetServiceTypeName") String targetServiceTypeName) {
+
+<<<<<<< HEAD
     final Application sourceApplication = new Application(sourceApplicationName, sourceServiceType);
     final Application destinationApplication = new Application(targetApplicationName, targetServiceType);
+=======
+    final Application sourceApplication = new Application(sourceApplicationName, registry.findServiceTypeByName(sourceServiceTypeName));
+    final Application destinationApplication = new Application(targetApplicationName, registry.findServiceTypeByName(targetServiceTypeName));
+>>>>>>> 18c9bcf... added request mappings to support serviceTypeName parameters
     final Range range = new Range(from, to);
 
     NodeHistogram nodeHistogram = mapService.linkStatistics(sourceApplication, destinationApplication, range);
