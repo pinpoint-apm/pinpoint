@@ -21,6 +21,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,7 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
  * @author emeroad
  * @author netspider
  */
-public class ClassFileTransformerDispatcher implements ClassFileTransformer {
+public class ClassFileTransformerDispatcher implements ClassFileTransformer, RetransformEventListener {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -49,7 +50,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
     private final DefaultAgent agent;
     private final ByteCodeInstrumentor byteCodeInstrumentor;
-    private final DefaultClassFileRetransformer retransformer;
+    private final ClassFileRetransformer retransformer;
 
     private final ProfilerConfig profilerConfig;
 
@@ -117,8 +118,9 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         }
     }
 
+    @Override
     public void addRetransformEvent(Class<?> target, final ClassFileTransformer transformer) {
-        this.retransformer.addRetranformEvent(target, transformer);
+        this.retransformer.addRetransformEvent(target, transformer);
     }
 
     private byte[] retransform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
@@ -139,7 +141,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
     }
 
     private ModifierRegistry createModifierRegistry(List<DefaultProfilerPluginContext> pluginContexts) {
-        DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(agent, byteCodeInstrumentor, retransformer);
+        DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(agent, byteCodeInstrumentor);
 
         modifierRepository.addMethodModifier();
 

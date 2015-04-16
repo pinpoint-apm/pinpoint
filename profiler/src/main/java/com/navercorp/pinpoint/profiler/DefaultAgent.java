@@ -163,7 +163,7 @@ public class DefaultAgent implements Agent {
         pluginContexts = loadProfilerPlugins(agentOption.getPluginJars());
 
         this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, pluginContexts);
-        retransformService.bindRetransformEvent(classFileTransformer);
+        retransformService.setRetransformEventListener(classFileTransformer);
         // TODO check retranform support
         instrumentation.addTransformer(this.classFileTransformer, true);
 
