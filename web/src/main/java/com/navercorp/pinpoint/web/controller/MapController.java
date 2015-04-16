@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.controller;
 
+import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.MapWrap;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
@@ -74,8 +75,9 @@ public class MapController {
                                     @RequestParam("serviceTypeCode") short serviceTypeCode,
                                     @RequestParam("from") long from,
                                     @RequestParam("to") long to) {
-        ServiceType serviceType = registry.findServiceType(serviceTypeCode);
-        return getServerMapData(applicationName, serviceType.getName(), from, to);
+        ServiceType serviceType = ServiceType.findServiceType(serviceTypeCode);
+        String serviceTypeName = serviceType.name();
+        return getServerMapData(applicationName, serviceTypeName, from, to);
     }
 
     /**
@@ -98,7 +100,7 @@ public class MapController {
         this.dateLimit.limit(from, to);
         logger.debug("range:{}", TimeUnit.MILLISECONDS.toMinutes(range.getRange()));
 
-        ServiceType serviceType = registry.findServiceTypeByName(serviceTypeName);
+        ServiceType serviceType = ServiceType.valueOf(serviceTypeName);
         Application application = new Application(applicationName, serviceType);
 
         ApplicationMap map = mapService.selectApplicationMap(application, range);
@@ -168,8 +170,8 @@ public class MapController {
                                     @RequestParam("sourceServiceType") short sourceServiceType,
                                     @RequestParam("targetApplicationName") String targetApplicationName,
                                     @RequestParam("targetServiceType") short targetServiceType) {
-        String sourceServiceTypeName = registry.findServiceType(sourceServiceType).getName();
-        String targetServiceTypeName = registry.findServiceType(targetServiceType).getName();
+        String sourceServiceTypeName = ServiceType.findServiceType(sourceServiceType).name();
+        String targetServiceTypeName = ServiceType.findServiceType(targetServiceType).name();
         return getLinkStatistics(model, from, to, sourceApplicationName, sourceServiceTypeName, targetApplicationName, targetServiceTypeName);
     }
 
@@ -196,8 +198,8 @@ public class MapController {
                                     @RequestParam("targetApplicationName") String targetApplicationName,
                                     @RequestParam("targetServiceTypeName") String targetServiceTypeName) {
 
-    final Application sourceApplication = new Application(sourceApplicationName, registry.findServiceTypeByName(sourceServiceTypeName));
-    final Application destinationApplication = new Application(targetApplicationName, registry.findServiceTypeByName(targetServiceTypeName));
+    final Application sourceApplication = new Application(sourceApplicationName, ServiceType.valueOf(sourceServiceTypeName));
+    final Application destinationApplication = new Application(targetApplicationName, ServiceType.valueOf(targetServiceTypeName));
     final Range range = new Range(from, to);
 
     NodeHistogram nodeHistogram = mapService.linkStatistics(sourceApplication, destinationApplication, range);
