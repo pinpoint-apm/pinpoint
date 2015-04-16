@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler;
-
-import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventListener;
+package com.navercorp.pinpoint.bootstrap.instrument;
 
 import java.lang.instrument.ClassFileTransformer;
 
 /**
  * @author emeroad
  */
-public interface ClassFileRetransformer extends ClassFileTransformer, RetransformEventListener {
+public interface RetransformEventTrigger {
 
+//    void retransform(RetransformEvent event);
+
+    void retransform(Class<?> target, ClassFileTransformer transformer);
 }

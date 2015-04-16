@@ -20,7 +20,7 @@ import java.lang.reflect.Method;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.profiler.ClassFileRetransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventTrigger;
 import com.navercorp.pinpoint.profiler.modifier.Modifier;
 
 /**
@@ -31,8 +31,8 @@ import com.navercorp.pinpoint.profiler.modifier.Modifier;
 public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     
-    public CreateBeanInstanceInterceptor(ClassFileRetransformer retransformer, Modifier modifier, TargetBeanFilter filter) {
-        super(retransformer, modifier, filter);
+    public CreateBeanInstanceInterceptor(RetransformEventTrigger retransformEventTrigger, Modifier modifier, TargetBeanFilter filter) {
+        super(retransformEventTrigger, modifier, filter);
     }
 
     @Override

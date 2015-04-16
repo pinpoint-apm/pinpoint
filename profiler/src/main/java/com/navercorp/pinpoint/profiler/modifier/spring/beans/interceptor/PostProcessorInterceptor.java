@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.modifier.spring.beans.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventTrigger;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.profiler.ClassFileRetransformer;
 import com.navercorp.pinpoint.profiler.modifier.Modifier;
 
 /**
@@ -29,8 +29,8 @@ import com.navercorp.pinpoint.profiler.modifier.Modifier;
 public class PostProcessorInterceptor extends AbstractSpringBeanCreationInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     
-    public PostProcessorInterceptor(ClassFileRetransformer retransformer, Modifier modifier, TargetBeanFilter filter) {
-        super(retransformer, modifier, filter);
+    public PostProcessorInterceptor(RetransformEventTrigger retransformEventTrigger, Modifier modifier, TargetBeanFilter filter) {
+        super(retransformEventTrigger, modifier, filter);
     }
 
     @Override

@@ -83,7 +83,7 @@ public class DefaultAgent implements Agent {
     private final PLoggerBinder binder;
 
     private final JavaAssistByteCodeInstrumentor byteCodeInstrumentor;
-    private final ClassFileTransformer classFileTransformer;
+    private final ClassFileTransformerDispatcher classFileTransformer;
     
     private final ProfilerConfig profilerConfig;
 
@@ -119,19 +119,7 @@ public class DefaultAgent implements Agent {
         this(agentOption, new DefaultInterceptorRegistryBinder());
     }
 
-//    public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars) {
-//        this(createAgentOption(agentArgs, instrumentation, profilerConfig, pluginJars, new DefaultServiceTypeRegistryService()), new DefaultInterceptorRegistryBinder());
-//    }
-//
-//    public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars, ServiceTypeRegistryService serviceTypeRegistryService) {
-//        this(createAgentOption(agentArgs, instrumentation, profilerConfig, pluginJars, serviceTypeRegistryService), new DefaultInterceptorRegistryBinder());
-//    }
-//
-//    public static AgentOption createAgentOption(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig, URL[] pluginJars, ServiceTypeRegistryService serviceTypeRegistryService) {
-//        return new DefaultAgentOption(agentArgs, instrumentation, profilerConfig, pluginJars, new URL[0], serviceTypeRegistryService);
-//    }
-
-    public DefaultAgent(AgentOption agentOption, InterceptorRegistryBinder interceptorRegistryBinder) {
+    public DefaultAgent(AgentOption agentOption, final InterceptorRegistryBinder interceptorRegistryBinder) {
         if (agentOption == null) {
             throw new NullPointerException("agentOption must not be null");
         }
@@ -163,21 +151,22 @@ public class DefaultAgent implements Agent {
         
         this.profilerConfig = agentOption.getProfilerConfig();
 
-        ClassFileRetransformer retransformer = new ClassFileRetransformer(agentOption.getInstrumentation());
         final Instrumentation instrumentation = agentOption.getInstrumentation();
-        instrumentation.addTransformer(retransformer, true);
+        RetransformService retransformService = new RetransformService(instrumentation);
 
-        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(this, interceptorRegistryBinder, agentOption.getBootStrapJarPath(), retransformer);
+        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(this, interceptorRegistryBinder, agentOption.getBootStrapJarPath(), retransformService);
         if (logger.isInfoEnabled()) {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
-        
+
         pluginClassLoaderFactory = new DefaultPluginClassLoaderFactory(agentOption.getPluginJars());
         pluginContexts = loadProfilerPlugins(agentOption.getPluginJars());
 
-        this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, retransformer, pluginContexts);
+        this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, pluginContexts);
+        retransformService.setRetransformEventListener(classFileTransformer);
+        // TODO check retranform support
+        instrumentation.addTransformer(this.classFileTransformer, true);
 
-        instrumentation.addTransformer(this.classFileTransformer);
 
         String applicationServerTypeString = profilerConfig.getApplicationServerType();
         ServiceType applicationServerType = this.serviceTypeRegistryService.findServiceTypeByName(applicationServerTypeString);

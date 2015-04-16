@@ -21,6 +21,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,7 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
  * @author emeroad
  * @author netspider
  */
-public class ClassFileTransformerDispatcher implements ClassFileTransformer {
+public class ClassFileTransformerDispatcher implements ClassFileTransformer, RetransformEventListener {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -55,20 +56,18 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
     private final ClassFileFilter skipFilter;
     
-    public ClassFileTransformerDispatcher(DefaultAgent agent, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileRetransformer retransformer, List<DefaultProfilerPluginContext> pluginContexts) {
+    public ClassFileTransformerDispatcher(DefaultAgent agent, ByteCodeInstrumentor byteCodeInstrumentor, List<DefaultProfilerPluginContext> pluginContexts) {
         if (agent == null) {
             throw new NullPointerException("agent must not be null");
         }
         if (byteCodeInstrumentor == null) {
             throw new NullPointerException("byteCodeInstrumentor must not be null");
         }
-        if (retransformer == null) {
-            throw new NullPointerException("retransformer must not be null");
-        }
+
         
         this.agent = agent;
         this.byteCodeInstrumentor = byteCodeInstrumentor;
-        this.retransformer = retransformer;
+        this.retransformer = new DefaultClassFileRetransformer();
         this.profilerConfig = agent.getProfilerConfig();
         this.modifierRegistry = createModifierRegistry(pluginContexts);
         this.skipFilter = new DefaultClassFileFilter(agentClassLoader);
@@ -76,6 +75,10 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
     @Override
     public byte[] transform(ClassLoader classLoader, String jvmClassName, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws IllegalClassFormatException {
+        if (classBeingRedefined != null) {
+            return this.retransform(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer);
+        }
+
         if (skipFilter.doFilter(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer)) {
             return null;
         }
@@ -115,6 +118,15 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         }
     }
 
+    @Override
+    public void addRetransformEvent(Class<?> target, final ClassFileTransformer transformer) {
+        this.retransformer.addRetransformEvent(target, transformer);
+    }
+
+    private byte[] retransform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+        return retransformer.transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+    }
+
     private ClassLoader getContextClassLoader(Thread thread) throws Throwable {
         try {
             return thread.getContextClassLoader();
@@ -129,7 +141,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
     }
 
     private ModifierRegistry createModifierRegistry(List<DefaultProfilerPluginContext> pluginContexts) {
-        DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(agent, byteCodeInstrumentor, retransformer);
+        DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(agent, byteCodeInstrumentor);
 
         modifierRepository.addMethodModifier();
 
