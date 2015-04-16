@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.controller;
 
 import java.util.List;
 
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.util.DateUtils;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWrap;
@@ -56,9 +56,6 @@ public class FilteredMapController {
     @Autowired
     private FilterBuilder filterBuilder;
 
-    @Autowired
-    private ServiceTypeRegistryService registry;
-
     /**
    * filtered server map data query within from ~ to timeframe
      *
@@ -81,7 +78,8 @@ public class FilteredMapController {
                                             @RequestParam(value = "filter", required = false) String filterText,
                                             @RequestParam(value = "hint", required = false) String filterHint,
                                             @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
-        String serviceTypeName = registry.findServiceType(serviceTypeCode).getName();
+        ServiceType serviceType = ServiceType.findServiceType(serviceTypeCode);
+        String serviceTypeName = serviceType.name();
         return getFilteredServerMapData(applicationName, serviceTypeName, from, to, originTo, filterText, filterHint, limit);
     }
 
@@ -148,7 +146,8 @@ public class FilteredMapController {
             @RequestParam(value = "filter", required = false) String filterText,
             @RequestParam(value = "hint", required = false) String filterHint,
             @RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
-        String serviceTypeName = this.registry.findServiceType(serviceTypeCode).getName();
+        ServiceType serviceType = ServiceType.findServiceType(serviceTypeCode);
+        String serviceTypeName = serviceType.name();
         return getLastFilteredServerMapData(applicationName, serviceTypeName, period, filterText, filterHint, limit);
     }
 
