@@ -276,11 +276,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * @param linkCurve
                  */
                 serverMapCallback = function (query, applicationMapData, linkRouting, linkCurve) {
-                	//console.log( applicationMapData );
+//                	console.log( applicationMapData );
                 	var mergeArray = getMergeArray();
                 	var lastCopiedData = ServerMapDao.mergeMultiLinkGroup( ServerMapDao.mergeGroup(applicationMapData, mergeArray), mergeArray );
 
-                    //console.log( lastCopiedData );
+//                    console.log( lastCopiedData );
 //                    ServerMapDao.removeNoneNecessaryDataForHighPerformance(lastCopiedData);
                     oProgressBar.setLoading(80);
                     if (lastCopiedData.nodeDataArray.length === 0) {
@@ -545,9 +545,9 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  */
                 scope.passingTransactionList = function () {
                     var oServerMapFilterVo = new ServerMapFilterVo();
-
                     oServerMapFilterVo
                         .setMainApplication(htLastLink.filterApplicationName)
+                        .setMainServiceTypeName(htLastLink.filterApplicationServiceTypeName)
                         .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode)
                         .setFromApplication(htLastLink.fromNode.applicationName)
                         .setFromServiceType(htLastLink.fromNode.serviceType)
@@ -616,6 +616,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     oServerMapFilterVo
                         .setMainApplication(htLastLink.filterApplicationName)
                         .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode)
+                        .setMainServiceTypeName(htLastLink.filterApplicationServiceTypeName)
                         .setFromApplication(htLastLink.fromNode.applicationName)
                         .setFromServiceType(htLastLink.fromNode.serviceType)
                         .setToApplication(htLastLink.toNode.applicationName)

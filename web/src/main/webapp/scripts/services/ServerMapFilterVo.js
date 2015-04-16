@@ -6,6 +6,7 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
 
         this._sMainApplication = null;
         this._nMainServiceTypeCode = null;
+        this._sMainServiceTypeName = null;
         this._sFromApplication = null;
         this._sFromServiceType = null;
         this._sFromAgentName = null;
@@ -37,9 +38,20 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
             }
             return self;
         };
+        this.setMainServiceTypeName = function(mainServiceTypeName) {
+        	if (angular.isString(mainServiceTypeName)) {
+                self._sMainServiceTypeName = mainServiceTypeName;
+            } else {
+                throw new Error('mainServiceTypeName should be string in ServerMapFilterVo. : ', mainServiceTypeName);
+            }
+            return self;
+        }
         this.getMainServiceTypeCode = function () {
             return self._nMainServiceTypeCode;
         };
+        this.getMainServiceTypeName = function() {
+        	return self._sMainServiceTypeName;
+        }
 
         this.setFromApplication = function (fromApplication) {
             if (angular.isString(fromApplication)) {
