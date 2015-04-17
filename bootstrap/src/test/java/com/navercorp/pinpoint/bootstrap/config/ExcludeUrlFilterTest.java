@@ -60,6 +60,9 @@ public class ExcludeUrlFilterTest {
 
         Assert.assertFalse(filter.filter("test/"));
         Assert.assertFalse(filter.filter("test/l4check.htm"));
+
+        Assert.assertFalse(filter.filter(null));
+        Assert.assertFalse(filter.filter(""));
     }
 
 
@@ -74,10 +77,13 @@ public class ExcludeUrlFilterTest {
         Assert.assertFalse(filter.filter("/monitor/test.jsp"));
 
         Assert.assertTrue(filter.filter("/*/l7check.html"));
+
+        Assert.assertFalse(filter.filter(null));
+        Assert.assertFalse(filter.filter(""));
     }
 
     @Test
-    public void match() throws Exception {
+    public void antstyle_equals_match() throws Exception {
         Filter<String> filter = new ExcludeUrlFilter("/monitor/stringEquals,/monitor/antstyle.*");
 
         Assert.assertTrue(filter.filter("/monitor/stringEquals"));

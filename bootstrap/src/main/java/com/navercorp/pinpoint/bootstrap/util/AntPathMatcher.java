@@ -39,6 +39,9 @@ public class AntPathMatcher implements PathMatcher {
 
     @Override
     public boolean isMatched(String path) {
+        if (path == null) {
+            return false;
+        }
         return this.springAntMatcher.match(pattern, path);
     }
 
