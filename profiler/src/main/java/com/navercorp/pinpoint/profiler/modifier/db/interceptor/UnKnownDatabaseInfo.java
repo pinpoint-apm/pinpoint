@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.profiler.modifier.db.DefaultDatabaseInfo;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author emeroad

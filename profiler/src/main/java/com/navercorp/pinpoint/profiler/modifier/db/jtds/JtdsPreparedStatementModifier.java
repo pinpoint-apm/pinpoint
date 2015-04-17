@@ -16,6 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.modifier.db.jtds;
 
+import java.lang.reflect.Method;
+import java.security.ProtectionDomain;
+import java.util.Arrays;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
@@ -32,14 +40,6 @@ import com.navercorp.pinpoint.profiler.modifier.db.interceptor.PreparedStatement
 import com.navercorp.pinpoint.profiler.modifier.db.interceptor.PreparedStatementExecuteQueryInterceptor;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.profiler.util.PreparedStatementUtils;
-
-import java.lang.reflect.Method;
-import java.security.ProtectionDomain;
-import java.util.Arrays;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class JtdsPreparedStatementModifier extends AbstractModifier {
 

@@ -53,8 +53,8 @@ import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.DefaultPluginClassLoaderFactory;
+import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.receiver.service.EchoService;
 import com.navercorp.pinpoint.profiler.receiver.service.ThreadDumpService;
@@ -64,7 +64,6 @@ import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
 import com.navercorp.pinpoint.profiler.util.ApplicationServerTypeResolver;
-import com.navercorp.pinpoint.profiler.util.PreparedStatementUtils;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.rpc.ClassPreLoader;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
@@ -195,9 +194,6 @@ public class DefaultAgent implements Agent {
         this.serverMetaDataHolder.addListener(this.agentInfoSender);
 
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime());
-        
-        preLoadClass();
-
     }
 
 
@@ -221,10 +217,6 @@ public class DefaultAgent implements Agent {
         }
         
         return pluginContexts;
-    }
-
-    private void preLoadClass() {
-        logger.debug("preLoadClass:{}", PreparedStatementUtils.class.getName(), PreparedStatementUtils.findBindVariableSetMethod());
     }
 
     public ByteCodeInstrumentor getByteCodeInstrumentor() {

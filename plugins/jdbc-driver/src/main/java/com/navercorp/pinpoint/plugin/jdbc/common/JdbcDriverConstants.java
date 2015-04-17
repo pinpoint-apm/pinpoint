@@ -12,14 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.plugin.interceptor;
+package com.navercorp.pinpoint.plugin.jdbc.common;
 
-import com.navercorp.pinpoint.profiler.plugin.transformer.MethodRecipe;
+import java.util.HashMap;
 
 /**
  * @author Jongho Moon
  *
  */
-public interface InterceptorInjector extends MethodRecipe {
+public interface JdbcDriverConstants {
+    public static final String DATABASE_INFO = "databaseInfo";
+    public static final String PARSING_RESULT = "parsingResult";
+    public static final String BIND_VALUE = "bindValue";
+    public static final String BIND_VALUE_INITIAL_VALUE_TYPE = HashMap.class.getName();
+
 
 }

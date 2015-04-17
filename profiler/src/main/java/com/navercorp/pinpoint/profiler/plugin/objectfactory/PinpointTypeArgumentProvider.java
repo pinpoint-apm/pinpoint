@@ -26,8 +26,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.NoCache;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.NoCache;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
 
@@ -35,43 +35,40 @@ import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
  * @author Jongho Moon
  *
  */
-public class PinpointTypeResolver implements ParameterResolver {
+public class PinpointTypeArgumentProvider implements ArgumentProvider {
     private final ProfilerPluginContext pluginContext;
     private final InterceptorGroup interceptorGroup;
     private final InstrumentClass targetClass;
     private final MethodInfo targetMethod;
 
-    public PinpointTypeResolver(ProfilerPluginContext pluginContext, InterceptorGroup interceptorGroup, InstrumentClass targetClass, MethodInfo targetMethod) {
+    public PinpointTypeArgumentProvider(ProfilerPluginContext pluginContext, InterceptorGroup interceptorGroup, InstrumentClass targetClass, MethodInfo targetMethod) {
         this.pluginContext = pluginContext;
         this.interceptorGroup = interceptorGroup;
         this.targetClass = targetClass;
         this.targetMethod = targetMethod;
     }
 
-    /* (non-Javadoc)
-     * @see com.navercorp.pinpoint.profiler.plugin.ParameterResolver#resolve(int, java.lang.Class, java.lang.annotation.Annotation[])
-     */
     @Override
-    public Option<Object> resolve(int index, Class<?> type, Annotation[] annotations) {
+    public Option get(int index, Class<?> type, Annotation[] annotations) {
         if (type == Trace.class) {
-            return Option.<Object>withValue(pluginContext.getTraceContext().currentTraceObject());
+            return Option.withValue(pluginContext.getTraceContext().currentTraceObject());
         } else if (type == TraceContext.class) {
-            return Option.<Object>withValue(pluginContext.getTraceContext());
+            return Option.withValue(pluginContext.getTraceContext());
         } else if (type == ProfilerPluginContext.class) {
-            return Option.<Object>withValue(pluginContext);
+            return Option.withValue(pluginContext);
         } else if (type == ByteCodeInstrumentor.class) {
-            return Option.<Object>withValue(pluginContext.getByteCodeInstrumentor());
+            return Option.withValue(pluginContext.getByteCodeInstrumentor());
         } else if (type == InstrumentClass.class) {
-            return Option.<Object>withValue(targetClass);
+            return Option.withValue(targetClass);
         } else if (type == MethodDescriptor.class) {
             MethodDescriptor descriptor = targetMethod.getDescriptor();
             cacheApiIfAnnotationNotPresent(annotations, descriptor);
             
-            return Option.<Object>withValue(descriptor);
+            return Option.withValue(descriptor);
         } else if (type == MethodInfo.class) {
             cacheApiIfAnnotationNotPresent(annotations, targetMethod.getDescriptor());
 
-            return Option.<Object>withValue(targetMethod);
+            return Option.withValue(targetMethod);
         } else if (type == MetadataAccessor.class) {
             Name annotation = TypeUtils.findAnnotation(annotations, Name.class);
             
@@ -85,7 +82,7 @@ public class PinpointTypeResolver implements ParameterResolver {
                 throw new PinpointException("No such MetadataAccessor: " + annotation.value());
             }
             
-            return Option.<Object>withValue(accessor);
+            return Option.withValue(accessor);
         } else if (type == FieldAccessor.class) {
             Name annotation = TypeUtils.findAnnotation(annotations, Name.class);
             
@@ -99,7 +96,7 @@ public class PinpointTypeResolver implements ParameterResolver {
                 throw new PinpointException("No such FieldAccessor: " + annotation.value());
             }
             
-            return Option.<Object>withValue(accessor);
+            return Option.withValue(accessor);
         } else if (type == InterceptorGroup.class) {
             Name annotation = TypeUtils.findAnnotation(annotations, Name.class);
             
@@ -107,7 +104,7 @@ public class PinpointTypeResolver implements ParameterResolver {
                 if (interceptorGroup == null) {
                     throw new PinpointException("Group parameter is not annotated with @Name and the target class is not associated with any Group");
                 } else {
-                    return Option.<Object>withValue(interceptorGroup);
+                    return Option.withValue(interceptorGroup);
                 }
             }
             
@@ -117,10 +114,10 @@ public class PinpointTypeResolver implements ParameterResolver {
                 throw new PinpointException("No such Group: " + annotation.value());
             }
             
-            return Option.<Object>withValue(group);
+            return Option.withValue(group);
         }
         
-        return Option.<Object>empty();
+        return Option.empty();
     }
 
     private void cacheApiIfAnnotationNotPresent(Annotation[] annotations, MethodDescriptor descriptor) {

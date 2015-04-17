@@ -32,7 +32,7 @@ public class StaticFieldLookUpTest {
         StaticFieldLookUp<ServiceType> staticFieldLookUp = new StaticFieldLookUp<ServiceType>(ServiceType.class, ServiceType.class);
         List<ServiceType> lookup = staticFieldLookUp.lookup();
 
-        Assert.assertTrue(findType(lookup, ServiceType.CUBRID));
+        Assert.assertTrue(findType(lookup, ServiceType.UNKNOWN_DB));
         Assert.assertTrue(findType(lookup, ServiceType.UNDEFINED));
     }
 

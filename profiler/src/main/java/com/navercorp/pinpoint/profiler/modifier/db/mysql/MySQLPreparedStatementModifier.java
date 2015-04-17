@@ -16,6 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.modifier.db.mysql;
 
+import java.lang.reflect.Method;
+import java.security.ProtectionDomain;
+import java.util.Arrays;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
@@ -28,18 +36,11 @@ import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTrace
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ParsingResultTraceValue;
 import com.navercorp.pinpoint.profiler.interceptor.GroupDelegateStaticInterceptor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.interceptor.*;
+import com.navercorp.pinpoint.profiler.modifier.db.interceptor.PreparedStatementBindVariableInterceptor;
+import com.navercorp.pinpoint.profiler.modifier.db.interceptor.PreparedStatementExecuteQueryInterceptor;
 import com.navercorp.pinpoint.profiler.util.ExcludeBindVariableFilter;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.profiler.util.PreparedStatementUtils;
-
-import java.lang.reflect.Method;
-import java.security.ProtectionDomain;
-import java.util.Arrays;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author emeroad

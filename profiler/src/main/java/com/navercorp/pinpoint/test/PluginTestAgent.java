@@ -51,6 +51,7 @@ import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
+import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 
@@ -520,10 +521,42 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
             ExpectedAnnotation expect = expected.annotations[i];
             AnnotationKey expectedAnnotationKey = annotationKeyRegistryService.findAnnotationKeyByName(expect.getKeyName());
             TAnnotation actual = actualAnnotations.get(i);
-            
-            if (expectedAnnotationKey.getCode() != actual.getKey() || !Objects.equal(expect.getValue(), actual.getValue().getFieldValue())) {
+
+            if (expectedAnnotationKey.getCode() != actual.getKey()) {
                 throw new AssertionError("Expected " + i + "th annotation [" + expectedAnnotationKey.getCode() + "=" + expect.getValue() + "] but was [" + toString(actual) + "], expected: " + expected + ", was: " + span);
             }
+
+            if (expectedAnnotationKey == AnnotationKey.SQL_ID && expect instanceof ExpectedSql) {
+                verifySql((ExpectedSql)expect, actual);
+            } else {
+                Object expectedValue = expect.getValue();
+                
+                if (AnnotationKey.isCachedArgsKey(expectedAnnotationKey.getCode())) {
+                    expectedValue = getTestTcpDataSender().getStringId(expectedValue.toString());
+                }
+                
+                if (!Objects.equal(expectedValue, actual.getValue().getFieldValue())) {
+                    throw new AssertionError("Expected " + i + "th annotation [" + expectedAnnotationKey.getCode() + "=" + expect.getValue() + "] but was [" + toString(actual) + "], expected: " + expected + ", was: " + span);
+                }
+            }
+        }
+    }
+    
+    private void verifySql(ExpectedSql expected, TAnnotation actual) {
+        int id = getTestTcpDataSender().getSqlId(expected.getQuery());
+        TIntStringStringValue value = actual.getValue().getIntStringStringValue();
+
+        if (value.getIntValue() != id) {
+            String actualQuery = getTestTcpDataSender().getSql(value.getIntValue());
+            throw new AssertionError("Expected sql [" + id + ": " + expected.getQuery() + "] but was [" + value.getIntValue() + ": " + actualQuery + "], expected: " + expected + ", was: " + actual);
+        }
+        
+        if (!Objects.equal(value.getStringValue1(), expected.getOutput())) {
+            throw new AssertionError("Expected sql with output [" + expected.getOutput() + "] but was [" + value.getStringValue1() + "], expected: " + expected + ", was: " + actual);
+        }
+        
+        if (!Objects.equal(value.getStringValue2(), expected.getBindValuesAsString())) {
+            throw new AssertionError("Expected sql with bindValues [" + expected.getBindValuesAsString() + "] but was [" + value.getStringValue2() + "], expected: " + expected + ", was: " + actual);
         }
     }
     
@@ -614,8 +647,8 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
 
     @Override
-    public void printCachedApis(PrintStream out) {
-        getTestTcpDataSender().printApis(out);
+    public void printCache(PrintStream out) {
+        getTestTcpDataSender().printDatas(out);
     }
 
     @Override

@@ -154,8 +154,19 @@ public abstract class MetadataAccessor {
         return type;
     }
     
+    // TODO rename to isAccessible
     public boolean isApplicable(Object object) {
         return type.isAssignableFrom(object.getClass());
+    }
+    
+    public <T> T get(Object object, T defaultValue) {
+        if (object == null || !isApplicable(object)) {
+            return defaultValue;
+        }
+        
+        T value = get(object);
+        
+        return value == null ? defaultValue : value;
     }
     
     public static MetadataAccessor get(int index) {

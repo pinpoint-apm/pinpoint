@@ -28,7 +28,7 @@ public interface BaseClassFileTransformerBuilder {
 
     public void injectMetadata(String name, String initialValueType);
 
-    public void injectInterceptor(String className, Object... constructorArgs);
+    public InterceptorBuilder injectInterceptor(String className, Object... constructorArgs);
 
     public void weave(String aspectClassName);
 

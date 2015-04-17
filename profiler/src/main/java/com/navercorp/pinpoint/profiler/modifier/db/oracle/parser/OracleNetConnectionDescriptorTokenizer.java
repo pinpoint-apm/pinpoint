@@ -28,7 +28,7 @@ public class OracleNetConnectionDescriptorTokenizer {
     public static final char TOKEN_KEY_START = '(';
     public static final char TOKEN_KEY_END = ')';
 
-    // Connection descriptor can contain below tokens too.
+    // Connection methodDescriptor can contain below tokens too.
     // But we don't support them right now.
     private static final char TOKEN_COMMA = ',';
     private static final char TOKEN_BKSLASH = '\\';
