@@ -16,50 +16,69 @@ package com.navercorp.pinpoint.profiler.plugin.objectfactory;
 
 import java.lang.annotation.Annotation;
 
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
 import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
 
 /**
  * @author Jongho Moon
  *
  */
-public class ProvidedValuesResolver implements JudgingParameterResolver {
+public class OrderedValueProvider implements JudgingParameterResolver {
+    private final AutoBindingObjectFactory objectFactory;
     private final Object[] values;
     private int index = 0;
 
-    public ProvidedValuesResolver(Object[] values) {
+    public OrderedValueProvider(AutoBindingObjectFactory objectFactory, Object[] values) {
+        this.objectFactory = objectFactory;
         this.values = values;
     }
 
     @Override
     public void prepare() {
-        index = 0;
+        index = -1;
+        prepareNextCandidate();
     }
 
     @Override
-    public Option<Object> resolve(int index, Class<?> type, Annotation[] annotations) {
+    public Option get(int index, Class<?> type, Annotation[] annotations) {
         if (this.index >= values.length) {
-            return Option.<Object>empty();
+            return Option.empty();
         }
         
-        Object candidate = values[this.index];
+        Object value = values[this.index];
         
         if (type.isPrimitive()) {
-            if (candidate == null) {
-                return Option.<Object>empty();
+            if (value == null) {
+                return Option.empty();
             }
             
-            if (TypeUtils.getWrapperOf(type) == candidate.getClass()) {
-                this.index++;
-                return Option.withValue(candidate); 
+            if (TypeUtils.getWrapperOf(type) == value.getClass()) {
+                prepareNextCandidate();
+                return Option.withValue(value); 
             }
         } else {
-            if (type.isInstance(candidate)) {
-                this.index++;
-                return Option.withValue(candidate);
+            if (type.isInstance(value)) {
+                prepareNextCandidate();
+                return Option.withValue(value);
             }
         }
         
-        return Option.<Object>empty();
+        return Option.empty();
+    }
+
+    private void prepareNextCandidate() {
+        index++;
+        
+        if (index >= values.length) {
+            return;
+        }
+        
+        Object val = values[index];
+        
+        if (val instanceof ObjectRecipe) {
+            val = objectFactory.createInstance((ObjectRecipe)val);
+            values[index] = val;
+        }
     }
 
     @Override

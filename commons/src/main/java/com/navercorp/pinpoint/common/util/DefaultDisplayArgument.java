@@ -39,10 +39,6 @@ public class DefaultDisplayArgument {
     public static final DisplayArgumentMatcher ORACLE_MATCHER = createArgumentMatcher(ServiceType.ORACLE, AnnotationKey.ARGS0);
     public static final DisplayArgumentMatcher ORACLE_EXECUTE_QUERY_MATCHER = createArgumentMatcher(ServiceType.ORACLE_EXECUTE_QUERY, AnnotationKey.ARGS0);
 
-    public static final DisplayArgumentMatcher CUBRID_MATCHER = createArgumentMatcher(ServiceType.CUBRID, AnnotationKey.ARGS0);
-    public static final DisplayArgumentMatcher CUBRID_EXECUTE_QUERY_MATCHER = createArgumentMatcher(ServiceType.CUBRID_EXECUTE_QUERY, AnnotationKey.ARGS0);
-
-
     public static final DisplayArgumentMatcher SPRING_ORM_IBATIS_MATCHER = createArgumentMatcher(ServiceType.SPRING_ORM_IBATIS, AnnotationKey.ARGS0);
 
 

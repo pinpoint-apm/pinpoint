@@ -44,7 +44,7 @@ public class HttpURLConnectionIT {
         connection.getHeaderFields();
         
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCachedApis(System.out);
+        verifier.printCache(System.out);
         verifier.printBlocks(System.out);
         
         Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");

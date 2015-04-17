@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.util.bindvalue.converter;
+package com.navercorp.pinpoint.plugin.jdbc.common.bindvalue;
 
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 

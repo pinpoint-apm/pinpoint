@@ -14,49 +14,52 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
+package com.navercorp.pinpoint.plugin.jdbc.common.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
-import com.navercorp.pinpoint.bootstrap.interceptor.*;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
-import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
+import com.navercorp.pinpoint.plugin.jdbc.common.JdbcDriverConstants;
+import com.navercorp.pinpoint.plugin.jdbc.common.JdbcUrlParser;
+import com.navercorp.pinpoint.plugin.jdbc.common.UnKnownDatabaseInfo;
 
 
 /**
+ * must be used with ExecutionPolicy.ALWAYS
+ * 
  * @author emeroad
  */
-public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptor {
-
-    private final InterceptorGroupTransaction scope;
+@TargetMethod(name="connect", paramTypes={ "java.lang.String", "java.util.Properties" })
+public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorForPlugin implements JdbcDriverConstants {
+    private final MetadataAccessor databaseInfoAccessor;
+    
+    private final JdbcUrlParser jdbcUrlParser;
     private final boolean recordConnection;
 
 
-    public DriverConnectInterceptor(InterceptorGroupTransaction scope) {
-        this(true, scope);
+    public DriverConnectInterceptor(TraceContext context, MethodDescriptor descriptor, @Name(DATABASE_INFO) MetadataAccessor databaseInfoAccessor, JdbcUrlParser jdbcUrlParser) {
+        this(context, descriptor, databaseInfoAccessor, jdbcUrlParser, true);
     }
 
-    public DriverConnectInterceptor(boolean recordConnection, InterceptorGroupTransaction scope) {
-        super(DriverConnectInterceptor.class);
-        if (scope == null) {
-            throw new NullPointerException("scope must not be null");
-        }
+    public DriverConnectInterceptor(TraceContext context, MethodDescriptor descriptor, @Name(DATABASE_INFO) MetadataAccessor databaseInfoAccessor, JdbcUrlParser jdbcUrlParser, boolean recordConnection) {
+        super(context, descriptor);
+
+        this.databaseInfoAccessor = databaseInfoAccessor;
+        this.jdbcUrlParser = jdbcUrlParser;
         // option for mysql loadbalance only. Destination is recored at lower implementations.
         this.recordConnection = recordConnection;
-        this.scope = scope;
     }
 
     @Override
     protected void logBeforeInterceptor(Object target, Object[] args) {
         // Must not log args because it contains a password
         logger.beforeInterceptor(target, null);
-    }
-
-    @Override
-    protected void prepareBeforeTrace(Object target, Object[] args) {
-        scope.tryEnter(ExecutionPolicy.BOUNDARY);
     }
 
     @Override
@@ -72,18 +75,13 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptor {
 
     @Override
     protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {
-        // Must not check if current transaction is trace target or not. Connection can be made by other thread. 
-        if (scope.canLeave(ExecutionPolicy.BOUNDARY)) {
-            scope.leave(ExecutionPolicy.BOUNDARY);
-        }
-
         final boolean success = InterceptorUtils.isSuccess(throwable);
         // Must not check if current transaction is trace target or not. Connection can be made by other thread.
         final String driverUrl = (String) args[0];
         DatabaseInfo databaseInfo = createDatabaseInfo(driverUrl);
         if (success) {
             if (recordConnection) {
-                DatabaseInfoTraceValueUtils.__setTraceDatabaseInfo(result, databaseInfo);
+                databaseInfoAccessor.set(result, databaseInfo);
             }
         }
     }
@@ -92,15 +90,15 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptor {
     protected void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
 
         if (recordConnection) {
-            final DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(result, UnKnownDatabaseInfo.INSTANCE);
+            final DatabaseInfo databaseInfo = databaseInfoAccessor.get(result, UnKnownDatabaseInfo.INSTANCE);
             // Count database connect too because it's very heavy operation
-            trace.recordServiceType(databaseInfo.getExecuteQueryType());
+            trace.recordServiceType(databaseInfo.getType());
             trace.recordEndPoint(databaseInfo.getMultipleHost());
             trace.recordDestinationId(databaseInfo.getDatabaseId());
         }
         final String driverUrl = (String) args[0];
         // Invoking databaseInfo.getRealUrl() here is dangerous. It doesn't return real URL if it's a loadbalance connection.  
-        trace.recordApiCachedString(getMethodDescriptor(), driverUrl, 0);
+        trace.recordApiCachedString(methodDescriptor, driverUrl, 0);
 
         trace.recordException(throwable);
         trace.markAfterTime();
@@ -110,10 +108,13 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptor {
         if (url == null) {
             return UnKnownDatabaseInfo.INSTANCE;
         }
-        final DatabaseInfo databaseInfo = getTraceContext().parseJdbcUrl(url);
+        
+        final DatabaseInfo databaseInfo = jdbcUrlParser.parse(url);
+        
         if (isDebug) {
             logger.debug("parse DatabaseInfo:{}", databaseInfo);
         }
+        
         return databaseInfo;
     }
 

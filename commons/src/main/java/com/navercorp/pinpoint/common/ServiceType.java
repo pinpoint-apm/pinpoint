@@ -245,8 +245,8 @@ public class ServiceType {
     public static final ServiceType ORACLE = of(2300, "ORACLE", NORMAL_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
     public static final ServiceType ORACLE_EXECUTE_QUERY = of(2301, "ORACLE_EXECUTE_QUERY", "ORACLE", NORMAL_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
 
-    public static final ServiceType CUBRID = of(2400, "CUBRID", NORMAL_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
-    public static final ServiceType CUBRID_EXECUTE_QUERY = of(2401, "CUBRID_EXECUTE_QUERY", "CUBRID", NORMAL_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
+//    public static final ServiceType CUBRID = of(2400, "CUBRID", NORMAL_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
+//    public static final ServiceType CUBRID_EXECUTE_QUERY = of(2401, "CUBRID_EXECUTE_QUERY", "CUBRID", NORMAL_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
 
     // Internal method
     // FIXME it's not clear to put internal method here. but do that for now.

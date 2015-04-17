@@ -14,21 +14,30 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
+package com.navercorp.pinpoint.plugin.jdbc.common.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
+import com.navercorp.pinpoint.plugin.jdbc.common.JdbcDriverConstants;
 
 /**
  * @author emeroad
  */
-public class ConnectionCloseInterceptor implements SimpleAroundInterceptor {
+@TargetMethod(name="close")
+public class ConnectionCloseInterceptor implements SimpleAroundInterceptor, JdbcDriverConstants {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
+    private final MetadataAccessor databaseInfoAccessor;
+    
+    public ConnectionCloseInterceptor(@Name(DATABASE_INFO) MetadataAccessor databaseInfoAccessor) {
+        this.databaseInfoAccessor = databaseInfoAccessor;
+    }
 
     @Override
     public void before(Object target, Object[] args) {
@@ -36,7 +45,7 @@ public class ConnectionCloseInterceptor implements SimpleAroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
         // In case of close, we have to delete data even if the invocation failed.
-        DatabaseInfoTraceValueUtils.__setTraceDatabaseInfo(target, null);
+        databaseInfoAccessor.set(target, null);
     }
 
     @Override

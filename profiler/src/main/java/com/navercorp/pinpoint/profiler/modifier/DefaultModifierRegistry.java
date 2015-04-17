@@ -242,9 +242,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         if (profilerConfig.isJdbcProfileOracle()) {
             addOracleDriver();
         }
-        if (profilerConfig.isJdbcProfileCubrid()) {
-            addCubridDriver();
-        }
+//        if (profilerConfig.isJdbcProfileCubrid()) {
+//            addCubridDriver();
+//        }
 
         if (profilerConfig.isJdbcProfileDbcp()) {
             addDbcpDriver();

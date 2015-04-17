@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.plugin.objectfactory;
  * @author Jongho Moon
  *
  */
-public interface JudgingParameterResolver extends ParameterResolver {
+public interface JudgingParameterResolver extends ArgumentProvider {
     public void prepare();
     public boolean isAcceptable();
 }

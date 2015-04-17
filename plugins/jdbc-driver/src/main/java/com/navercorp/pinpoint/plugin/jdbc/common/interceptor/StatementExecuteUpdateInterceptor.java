@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
+package com.navercorp.pinpoint.plugin.jdbc.common.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
-import com.navercorp.pinpoint.bootstrap.interceptor.*;
-import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Targets;
+import com.navercorp.pinpoint.plugin.jdbc.common.JdbcDriverConstants;
+import com.navercorp.pinpoint.plugin.jdbc.common.UnKnownDatabaseInfo;
 
 /**
  * protected int executeUpdate(String sql, boolean isBatch, boolean returnGeneratedKeys)
@@ -27,10 +34,18 @@ import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTrace
  * @author netspider
  * @author emeroad
  */
-public class StatementExecuteUpdateInterceptor extends SpanEventSimpleAroundInterceptor {
-
-    public StatementExecuteUpdateInterceptor() {
-        super(StatementExecuteUpdateInterceptor.class);
+@Targets(methods={
+        @TargetMethod(name="executeUpdate", paramTypes={ "java.lang.String" }),
+        @TargetMethod(name="executeUpdate", paramTypes={ "java.lang.String", "int" }),
+        @TargetMethod(name="execute", paramTypes={ "java.lang.String" }),
+        @TargetMethod(name="execute", paramTypes={ "java.lang.String", "int" })
+})
+public class StatementExecuteUpdateInterceptor extends SpanEventSimpleAroundInterceptorForPlugin implements JdbcDriverConstants {
+    private final MetadataAccessor databaseInfoAccessor;
+    
+    public StatementExecuteUpdateInterceptor(TraceContext traceContext, MethodDescriptor descriptor, @Name(DATABASE_INFO) MetadataAccessor databaseInfoAccessor) {
+        super(traceContext, descriptor);
+        this.databaseInfoAccessor = databaseInfoAccessor;
     }
 
     @Override
@@ -38,13 +53,13 @@ public class StatementExecuteUpdateInterceptor extends SpanEventSimpleAroundInte
 
         trace.markBeforeTime();
 
-        DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(target, UnKnownDatabaseInfo.INSTANCE);
+        DatabaseInfo databaseInfo = databaseInfoAccessor.get(target, UnKnownDatabaseInfo.INSTANCE);
 
         trace.recordServiceType(databaseInfo.getExecuteQueryType());
         trace.recordEndPoint(databaseInfo.getMultipleHost());
         trace.recordDestinationId(databaseInfo.getDatabaseId());
 
-        trace.recordApi(getMethodDescriptor());
+        trace.recordApi(methodDescriptor);
         if (args != null && args.length > 0) {
             Object arg = args[0];
             if (arg instanceof String) {

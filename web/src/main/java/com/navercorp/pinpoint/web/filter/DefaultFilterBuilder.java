@@ -130,7 +130,7 @@ public class DefaultFilterBuilder implements FilterBuilder {
 
     private FromToResponseFilter createFromToResponseFilter(FilterDescriptor descriptor, FilterHint hint) {
         if (descriptor == null) {
-            throw new NullPointerException("descriptor must not be null");
+            throw new NullPointerException("methodDescriptor must not be null");
         }
         List<ServiceType> fromServiceType = registry.findDesc(descriptor.getFromServiceType());
         if (fromServiceType == null) {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.util;
+package com.navercorp.pinpoint.plugin.jdbc.common;
 
 
 import java.lang.reflect.Method;
@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import com.navercorp.pinpoint.profiler.util.BindVariableFilter;
 
 /**
  * @author emeroad

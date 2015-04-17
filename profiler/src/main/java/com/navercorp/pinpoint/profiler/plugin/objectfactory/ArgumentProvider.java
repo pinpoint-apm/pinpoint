@@ -20,6 +20,6 @@ import java.lang.annotation.Annotation;
  * @author Jongho Moon
  *
  */
-public interface ParameterResolver {
-    public Option<Object> resolve(int index, Class<?> type, Annotation[] annotations);
+public interface ArgumentProvider {
+    public Option get(int index, Class<?> type, Annotation[] annotations);
 }

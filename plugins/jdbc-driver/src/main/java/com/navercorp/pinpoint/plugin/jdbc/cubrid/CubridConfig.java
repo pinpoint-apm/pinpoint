@@ -1,0 +1,71 @@
+/**
+ * Copyright 2014 NAVER Corp.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.navercorp.pinpoint.plugin.jdbc.cubrid;
+
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+
+/**
+ * @author Jongho Moon
+ *
+ */
+public class CubridConfig {
+    private final boolean profileCubrid;
+    private final boolean profileSetAutoCommit;
+    private final boolean profileCommit;
+    private final boolean profileRollback;
+    private final int maxSqlBindValueSize; 
+
+    public CubridConfig(ProfilerConfig config) {
+        this.profileCubrid = config.readBoolean("profiler.jdbc.cubrid", true);
+        this.profileSetAutoCommit = config.readBoolean("profiler.jdbc.cubrid.setautocommit", false);
+        this.profileCommit = config.readBoolean("profiler.jdbc.cubrid.commit", false);
+        this.profileRollback = config.readBoolean("profiler.jdbc.cubrid.rollback", false);
+        this.maxSqlBindValueSize = config.readInt("profiler.jdbc.maxsqlbindvaluesize", 1024);
+    }
+    
+    public boolean isProfileCubrid() {
+        return profileCubrid;
+    }
+
+    public boolean isProfileSetAutoCommit() {
+        return profileSetAutoCommit;
+    }
+
+    public boolean isProfileCommit() {
+        return profileCommit;
+    }
+
+    public boolean isProfileRollback() {
+        return profileRollback;
+    }
+    
+    public int getMaxSqlBindValueSize() {
+        return maxSqlBindValueSize;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append("CubridConfig [profileCubrid=").append(profileCubrid);
+        sb.append(", profileSetAutoCommit=").append(profileSetAutoCommit);
+        sb.append(", profileCommit=").append(profileCommit);
+        sb.append(", profileRollback=").append(profileRollback);
+        sb.append(", maxSqlBindValueSize=").append(maxSqlBindValueSize);
+        sb.append("]");
+
+        return sb.toString();
+    };
+}

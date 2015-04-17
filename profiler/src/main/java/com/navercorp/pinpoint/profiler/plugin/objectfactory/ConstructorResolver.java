@@ -18,31 +18,32 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
 
 /**
  * @author Jongho Moon
  *
  */
-public class ConstructorResolver<T> {
-    private final List<ParameterResolver> parameterResolvers;
-    private final Class<? extends T> type;
+public class ConstructorResolver {
+    private final Class<?> type;
+    private final ArgumentsResolver argumentsResolver;
     
-    private Constructor<? extends T> resolvedConstructor;
+    private Constructor<?> resolvedConstructor;
     private Object[] resolvedArguments;
     
-    public ConstructorResolver(Class<? extends T> type, List<ParameterResolver> resolvers) {
+    public ConstructorResolver(Class<?> type, ArgumentsResolver argumentsResolver) {
         this.type = type;
-        this.parameterResolvers = resolvers;
+        this.argumentsResolver = argumentsResolver;
     }
 
-    @SuppressWarnings("unchecked")
     public boolean resolve() {
-        Constructor<? extends T>[] constructors = (Constructor<? extends T>[]) type.getConstructors();
+        Constructor<?>[] constructors = (Constructor<?>[]) type.getConstructors();
         Arrays.sort(constructors, CONSTRUCTOR_COMPARATOR);
         
-        for (Constructor<? extends T> constructor : constructors) {
-            Object[] resolvedArguments = tryConstructor(constructor);
+        for (Constructor<?> constructor : constructors) {
+            Class<?>[] types = constructor.getParameterTypes();
+            Annotation[][] annotations = constructor.getParameterAnnotations();
+
+            Object[] resolvedArguments = argumentsResolver.resolve(types, annotations);
             
             if (resolvedArguments != null) {
                 this.resolvedConstructor = constructor;
@@ -55,45 +56,7 @@ public class ConstructorResolver<T> {
         return false;
     }
 
-    private Object[] tryConstructor(Constructor<?> constructor) {
-        Class<?>[] types = constructor.getParameterTypes();
-        Annotation[][] annotations = constructor.getParameterAnnotations();
-
-        int length = types.length;
-        Object[] arguments = new Object[length];
-        
-        for (ParameterResolver resolver : parameterResolvers) {
-            if (resolver instanceof JudgingParameterResolver) {
-                ((JudgingParameterResolver)resolver).prepare();
-            }
-        }
-        
-        outer:
-        for (int i = 0; i < length; i++) {
-            for (ParameterResolver resolver : parameterResolvers) {
-                Option<Object> resolved = resolver.resolve(i, types[i], annotations[i]);
-                
-                if (resolved.hasValue()) {
-                    arguments[i] = resolved.getValue();
-                    continue outer;
-                }
-            }
-            
-            return null;
-        }
-        
-        for (ParameterResolver resolver : parameterResolvers) {
-            if (resolver instanceof JudgingParameterResolver) {
-                if (!((JudgingParameterResolver)resolver).isAcceptable()) {
-                    return null;
-                }
-            }
-        }
-        
-        return arguments;
-    }
-    
-    public Constructor<? extends T> getResolvedConstructor() {
+    public Constructor<?> getResolvedConstructor() {
         return resolvedConstructor;
     }
 

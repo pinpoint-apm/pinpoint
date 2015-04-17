@@ -31,8 +31,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
 import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.TestInterceptors.TestInterceptor0;
 import com.navercorp.pinpoint.profiler.plugin.TestInterceptors.TestInterceptor1;
 import com.navercorp.pinpoint.profiler.plugin.TestInterceptors.TestInterceptor2;
@@ -239,6 +239,18 @@ public class DefaultInterceptorFactoryTest {
         assertSame(descriptor, getField(interceptor, "descriptor"));
         assertSame(aClass, getField(interceptor, "targetClass"));
         assertNull(getField(interceptor, "targetMethod"));
+    }
+
+    @Test
+    public void test14() throws Exception {
+        String arg0 = "arg0";
+        Object[] args = new Object[] { ObjectRecipe.byConstructor("java.lang.String", arg0) };
+        
+        AnnotatedInterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext, null, TestInterceptors.TestInterceptor0.class, args);
+        Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), aClass, aMethod);
+        
+        assertEquals(TestInterceptor0.class, interceptor.getClass());
+        assertEquals(arg0, getField(interceptor, "field0"));
     }
 
     

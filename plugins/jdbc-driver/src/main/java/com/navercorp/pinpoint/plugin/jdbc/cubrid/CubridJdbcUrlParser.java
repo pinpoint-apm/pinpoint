@@ -14,30 +14,23 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.db.cubrid;
-
-import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.profiler.modifier.db.ConnectionStringParser;
-import com.navercorp.pinpoint.profiler.modifier.db.DefaultDatabaseInfo;
-import com.navercorp.pinpoint.profiler.modifier.db.JDBCUrlParser;
-import com.navercorp.pinpoint.profiler.modifier.db.StringMaker;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package com.navercorp.pinpoint.plugin.jdbc.cubrid;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.plugin.jdbc.common.DefaultDatabaseInfo;
+import com.navercorp.pinpoint.plugin.jdbc.common.JdbcUrlParser;
+import com.navercorp.pinpoint.plugin.jdbc.common.StringMaker;
+import com.navercorp.pinpoint.profiler.modifier.db.JDBCUrlParser;
+
 /**
  * @author emeroad
  */
-public class CubridConnectionStringParser implements ConnectionStringParser {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+public class CubridJdbcUrlParser extends JdbcUrlParser implements CubridConstants {
     public static final String DEFAULT_HOSTNAME = "localhost";
     public static final int DEFAULT_PORT = 30000;
     public static final String DEFAULT_USER = "public";
@@ -47,15 +40,15 @@ public class CubridConnectionStringParser implements ConnectionStringParser {
     private static final Pattern PATTERN = Pattern.compile(URL_PATTERN, Pattern.CASE_INSENSITIVE);
 
     @Override
-    public DatabaseInfo parse(String url) {
+    public DatabaseInfo doParse(String url) {
         if (url == null) {
-            return JDBCUrlParser.createUnknownDataBase(ServiceType.CUBRID, ServiceType.CUBRID_EXECUTE_QUERY, null);
+            return JDBCUrlParser.createUnknownDataBase(CUBRID, CUBRID_EXECUTE_QUERY, null);
         }
 
         final Matcher matcher = PATTERN.matcher(url);
         if (!matcher.find()) {
             logger.warn("Cubrid connectionString parse fail. url:{}", url);
-            return JDBCUrlParser.createUnknownDataBase(ServiceType.CUBRID, ServiceType.CUBRID_EXECUTE_QUERY, url);
+            return JDBCUrlParser.createUnknownDataBase(CUBRID, CUBRID_EXECUTE_QUERY, url);
         }
 
         String host = matcher.group(2);
@@ -102,7 +95,7 @@ public class CubridConnectionStringParser implements ConnectionStringParser {
 
         // skip alt host
 
-        return new DefaultDatabaseInfo(ServiceType.CUBRID, ServiceType.CUBRID_EXECUTE_QUERY, url, normalizedUrl, hostList, db);
+        return new DefaultDatabaseInfo(CUBRID, CUBRID_EXECUTE_QUERY, url, normalizedUrl, hostList, db);
     }
 
 

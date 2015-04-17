@@ -14,45 +14,39 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.db.cubrid;
-
-import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.profiler.modifier.db.ConnectionStringParser;
-import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridConnectionStringParser;
+package com.navercorp.pinpoint.plugin.jdbc.cubrid;
 
 import org.junit.Assert;
-
 import org.junit.Test;
+
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.plugin.jdbc.common.JdbcUrlParser;
+import com.navercorp.pinpoint.plugin.jdbc.common.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.plugin.jdbc.cubrid.CubridConstants;
+import com.navercorp.pinpoint.plugin.jdbc.cubrid.CubridJdbcUrlParser;
 
 /**
  * @author emeroad
  */
 public class CubridConnectionStringParserTest {
 
-    private final ConnectionStringParser parser = new CubridConnectionStringParser();
+    private final JdbcUrlParser parser = new CubridJdbcUrlParser();
+    
     @Test
     public void testParse() {
         String cubrid = "jdbc:cubrid:10.99.196.126:34001:nrdwapw:::?charset=utf-8:";
 
         DatabaseInfo dbInfo = parser.parse(cubrid);
 
-        Assert.assertEquals(dbInfo.getType(), ServiceType.CUBRID);
-        Assert.assertEquals(dbInfo.getHost().get(0), "10.99.196.126:34001");
-        Assert.assertEquals(dbInfo.getDatabaseId(), "nrdwapw");
-        Assert.assertEquals(dbInfo.getUrl(), "jdbc:cubrid:10.99.196.126:34001:nrdwapw:::");
+        Assert.assertEquals(CubridConstants.CUBRID, dbInfo.getType());
+        Assert.assertEquals("10.99.196.126:34001", dbInfo.getHost().get(0));
+        Assert.assertEquals("nrdwapw", dbInfo.getDatabaseId());
+        Assert.assertEquals("jdbc:cubrid:10.99.196.126:34001:nrdwapw:::", dbInfo.getUrl());
     }
 
     @Test
     public void testNullParse() {
-
         DatabaseInfo dbInfo = parser.parse(null);
-
-        Assert.assertEquals(dbInfo.getType(), ServiceType.CUBRID);
-        Assert.assertEquals(dbInfo.getHost().get(0), "error");
-        Assert.assertEquals(dbInfo.getDatabaseId(), "error");
-        Assert.assertEquals(dbInfo.getUrl(), null);
-
-//        Assert.assertEquals(dbInfo.getUrl(), cubrid);
+        Assert.assertEquals(UnKnownDatabaseInfo.INSTANCE, dbInfo);
     }
 }

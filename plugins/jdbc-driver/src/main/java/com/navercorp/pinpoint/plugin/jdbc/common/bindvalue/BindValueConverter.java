@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.util.bindvalue;
+package com.navercorp.pinpoint.plugin.jdbc.common.bindvalue;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import com.navercorp.pinpoint.profiler.util.bindvalue.converter.*;
 
 public class BindValueConverter {
     private static final BindValueConverter converter;

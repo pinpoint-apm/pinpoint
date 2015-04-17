@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.db;
+package com.navercorp.pinpoint.plugin.jdbc.common;
 
 /**
  * copy lucy 1.5

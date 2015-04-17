@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.objectfactory.AutoBindingObjectFactory;
 
@@ -40,7 +41,9 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
 
     @Override
     public Interceptor getInterceptor(ClassLoader classLoader, InstrumentClass target, MethodInfo targetMethod) {
-        AutoBindingObjectFactory<Interceptor> factory = new AutoBindingObjectFactory<Interceptor>(pluginContext, group, target, targetMethod, providedValues);
-        return factory.createInstance(interceptorType);
+        AutoBindingObjectFactory factory = new AutoBindingObjectFactory(pluginContext, group, target, targetMethod, classLoader);
+        ObjectRecipe recipe = ObjectRecipe.byConstructor(interceptorType.getName(), providedValues);
+        
+        return (Interceptor)factory.createInstance(recipe);
     }
 }

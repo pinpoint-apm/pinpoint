@@ -14,29 +14,44 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
+package com.navercorp.pinpoint.plugin.jdbc.common.interceptor;
 
+import java.sql.Connection;
+
+import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
-import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Targets;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
-
-import java.sql.Connection;
+import com.navercorp.pinpoint.plugin.jdbc.common.JdbcDriverConstants;
+import com.navercorp.pinpoint.plugin.jdbc.common.UnKnownDatabaseInfo;
 
 /**
  * @author emeroad
  */
-public class StatementCreateInterceptor implements SimpleAroundInterceptor, TraceContextSupport {
+@Targets(methods={
+        @TargetMethod(name="createStatement"),
+        @TargetMethod(name="createStatement", paramTypes={"int", "int"}),
+        @TargetMethod(name="createStatement", paramTypes={"int", "int", "int"})
+})
+public class StatementCreateInterceptor implements SimpleAroundInterceptor, JdbcDriverConstants {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
+    private final TraceContext traceContext;
+    private final MetadataAccessor databaseInfoAccessor;
+    
+    public StatementCreateInterceptor(TraceContext traceContext, @Name(DATABASE_INFO) MetadataAccessor databaseInfoAccessor) {
+        this.traceContext = traceContext;
+        this.databaseInfoAccessor = databaseInfoAccessor;
+    }
 
     @Override
     public void before(Object target, Object[] args) {
@@ -60,13 +75,8 @@ public class StatementCreateInterceptor implements SimpleAroundInterceptor, Trac
             return;
         }
         if (target instanceof Connection) {
-            final DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(target, UnKnownDatabaseInfo.INSTANCE);
-            DatabaseInfoTraceValueUtils.__setTraceDatabaseInfo(result, databaseInfo);
+            final DatabaseInfo databaseInfo = databaseInfoAccessor.get(target, UnKnownDatabaseInfo.INSTANCE);
+            databaseInfoAccessor.set(result, databaseInfo);
         }
-    }
-
-    @Override
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
     }
 }

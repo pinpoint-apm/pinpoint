@@ -14,23 +14,30 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
+package com.navercorp.pinpoint.plugin.jdbc.common.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
-import com.navercorp.pinpoint.bootstrap.interceptor.*;
-import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
+import com.navercorp.pinpoint.plugin.jdbc.common.JdbcDriverConstants;
+import com.navercorp.pinpoint.plugin.jdbc.common.UnKnownDatabaseInfo;
 
 /**
  * @author emeroad
  */
-public class TransactionRollbackInterceptor extends SpanEventSimpleAroundInterceptor {
+@TargetMethod(name="rollback")
+public class TransactionRollbackInterceptor extends SpanEventSimpleAroundInterceptorForPlugin implements JdbcDriverConstants {
+    private final MetadataAccessor databaseInfoAccessor;
 
-
-    public TransactionRollbackInterceptor() {
-        super(TransactionRollbackInterceptor.class);
+    public TransactionRollbackInterceptor(TraceContext traceContext, MethodDescriptor descriptor, @Name(DATABASE_INFO) MetadataAccessor databaseInfoAccessor) {
+        super(traceContext, descriptor);
+        this.databaseInfoAccessor = databaseInfoAccessor;
     }
-
 
     @Override
     public void doInBeforeTrace(RecordableTrace trace, Object target, Object[] args) {
@@ -40,15 +47,14 @@ public class TransactionRollbackInterceptor extends SpanEventSimpleAroundInterce
 
     @Override
     public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
-
-        DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(target, UnKnownDatabaseInfo.INSTANCE);
+        DatabaseInfo databaseInfo = databaseInfoAccessor.get(target, UnKnownDatabaseInfo.INSTANCE);
 
         trace.recordServiceType(databaseInfo.getType());
         trace.recordEndPoint(databaseInfo.getMultipleHost());
         trace.recordDestinationId(databaseInfo.getDatabaseId());
 
 
-        trace.recordApi(getMethodDescriptor());
+        trace.recordApi(methodDescriptor);
 //            boolean success = InterceptorUtils.isSuccess(result);
 //            if (success) {
 //                trace.recordAttribute("Transaction", "rollback");
