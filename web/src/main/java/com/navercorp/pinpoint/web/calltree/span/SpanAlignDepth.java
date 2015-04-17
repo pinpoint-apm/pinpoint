@@ -6,41 +6,74 @@ public class SpanAlignDepth {
     private static final int DEFAULT_DEPTH = 0;
     private static final int PARENT_DEPTH = -1;
 
-    private int parent;
-    private int current;
-    private int sync;
-    private int asyncParent;
-    private int async;
-
+    private Depth align;
+    private Depth async;
+    private Depth sync;
+    
     public SpanAlignDepth(final int depth) {
         if (depth < DEFAULT_DEPTH) {
             throw new IllegalArgumentException("invalid depth. depth=" + depth);
         }
-        
-        parent = current = sync = asyncParent = async = depth;
+
+        align = new Depth(depth);
+        sync = new Depth(depth);
+        async = new Depth(depth);
     }
-
+    
     public int getDepth(final SpanEventBo spanEventBo) {
-        if (spanEventBo.getAsyncId() != -1) {
-            if (spanEventBo.getSequence() == 0) {
-                asyncParent = parent + current;
+        if (isAsyncEvent(spanEventBo)) {
+            if (isFirstEvent(spanEventBo) || async.first) {
+                // start async event. 
+                async.parent = align.parent + align.current;
+                async.first = false;
             }
 
-            if (spanEventBo.getDepth() != PARENT_DEPTH) {
-                async = asyncParent + spanEventBo.getDepth();
+            if(isSameParent(spanEventBo)) {
+                if(async.parent == 0) {
+                    async.current = 1;
+                }
+            } else {
+                int depth = spanEventBo.getDepth();
+                if(depth > async.current + 1) {
+                    // rebalance.
+                    depth = async.current + 1;
+                } 
+                async.current = async.parent + depth;
             }
-            current = async;
+            align.current = async.current;
         } else {
-            if (spanEventBo.getDepth() != PARENT_DEPTH) {
-                sync = parent + spanEventBo.getDepth();
+            if(isSameParent(spanEventBo)) {
+                if(align.current == 0) {
+                    sync.current = 1;
+                }
+            } else {
+                int depth = spanEventBo.getDepth();
+                if(depth > sync.current + 1) {
+                    // rebalance.
+                    depth = sync.current + 1;
+                } 
+                sync.current = sync.parent + depth;
             }
-            current = sync;
+            align.current = sync.current;
         }
 
-        return current;
+        return align.current;
+    }
+
+    private boolean isFirstEvent(final SpanEventBo spanEventBo) {
+        return spanEventBo.getSequence() == 0;
+    }
+
+    private boolean isSameParent(final SpanEventBo spanEventBo) {
+        return spanEventBo.getDepth() == PARENT_DEPTH;
+    }
+
+    private boolean isAsyncEvent(final SpanEventBo spanEventBo) {
+        return spanEventBo.getAsyncId() != -1;
     }
 
     private class Depth {
+        boolean first = true;
         int parent;
         int current;
 

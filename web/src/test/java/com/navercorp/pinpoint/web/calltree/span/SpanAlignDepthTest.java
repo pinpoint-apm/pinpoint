@@ -8,57 +8,217 @@ import org.junit.Test;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
 
 public class SpanAlignDepthTest {
+    private static final boolean SYNC = false;
+    private static final boolean ASYNC = true;
 
+    private List<String> expectResult = new ArrayList<String>();
+    private List<SpanEventBo> callTree = new ArrayList<SpanEventBo>();
+
+    @Test
+    public void normal() {
+
+        expectResult.clear();
+        expectResult.add("#");
+        expectResult.add("##");
+        expectResult.add("###");
+        expectResult.add("####");
+
+        callTree.clear();
+        callTree.add(makeSpanEventBo(SYNC, (short) 0, 1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 1, 2));
+        callTree.add(makeSpanEventBo(SYNC, (short) 2, 3));
+        callTree.add(makeSpanEventBo(SYNC, (short) 3, 4));
+        assertDepth(callTree, expectResult);
+
+        expectResult.clear();
+        expectResult.add("#");
+        expectResult.add("##");
+        expectResult.add("###");
+        expectResult.add("####");
+        expectResult.add("####");
+        expectResult.add("####");
+        expectResult.add("####");
+
+        callTree.clear();
+        callTree.add(makeSpanEventBo(SYNC, (short) 0, 1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 1, 2));
+        callTree.add(makeSpanEventBo(SYNC, (short) 2, 3));
+        callTree.add(makeSpanEventBo(SYNC, (short) 3, 4));
+        callTree.add(makeSpanEventBo(SYNC, (short) 4, -1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 5, -1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 6, -1));
+        assertDepth(callTree, expectResult);
+        callTree.clear();
+
+        expectResult.clear();
+        expectResult.add("#");
+        expectResult.add("##");
+        expectResult.add("###");
+        expectResult.add("####");
+        expectResult.add("#####");
+        expectResult.add("#####");
+        expectResult.add("#####");
+        expectResult.add("#####");
+        expectResult.add("#####");
+        expectResult.add("####");
+        expectResult.add("####");
+        expectResult.add("#####");
+        expectResult.add("######");
+        expectResult.add("#######");
+        expectResult.add("#######");
+        expectResult.add("####");
+        expectResult.add("####");
+        expectResult.add("####");
+
+        callTree.clear();
+        callTree.add(makeSpanEventBo(SYNC, (short) 0, 1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 1, 2));
+        callTree.add(makeSpanEventBo(SYNC, (short) 2, 3));
+        callTree.add(makeSpanEventBo(SYNC, (short) 3, 4));
+        callTree.add(makeSpanEventBo(SYNC, (short) 4, 5));
+        callTree.add(makeSpanEventBo(SYNC, (short) 5, -1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 6, -1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 7, -1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 8, -1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 9, 4));
+        callTree.add(makeSpanEventBo(SYNC, (short) 10, -1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 11, 5));
+        callTree.add(makeSpanEventBo(SYNC, (short) 12, 6));
+        callTree.add(makeSpanEventBo(SYNC, (short) 13, 7));
+        callTree.add(makeSpanEventBo(SYNC, (short) 14, -1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 15, 4));
+        callTree.add(makeSpanEventBo(SYNC, (short) 16, -1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 17, -1));
+        assertDepth(callTree, expectResult);
+
+    }
+
+    @Test
+    public void async() {
+        expectResult.clear();
+        expectResult.add("#");
+        expectResult.add("##");
+        expectResult.add("#");
+
+        callTree.clear();
+        callTree.add(makeSpanEventBo(SYNC, (short) 0, 1));
+        callTree.add(makeSpanEventBo(ASYNC, (short) 0, 1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 1, -1));
+        assertDepth(callTree, expectResult);
+
+        expectResult.clear();
+        expectResult.add("#");
+        expectResult.add("##");
+        expectResult.add("###");
+        expectResult.add("####");
+
+        callTree.clear();
+        callTree.add(makeSpanEventBo(SYNC, (short) 0, 1));
+        callTree.add(makeSpanEventBo(ASYNC, (short) 0, 1));
+        callTree.add(makeSpanEventBo(ASYNC, (short) 1, 2));
+        callTree.add(makeSpanEventBo(ASYNC, (short) 0, 1));
+        assertDepth(callTree, expectResult);
+
+        expectResult.clear();
+        expectResult.add("#");
+        expectResult.add("##");
+        expectResult.add("###");
+        expectResult.add("#");
+
+        callTree.clear();
+        callTree.add(makeSpanEventBo(SYNC, (short) 0, 1));
+        callTree.add(makeSpanEventBo(ASYNC, (short) 0, 1));
+        callTree.add(makeSpanEventBo(ASYNC, (short) 0, 1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 1, -1));
+        assertDepth(callTree, expectResult);
+    }
     
     @Test
-    public void test() {
-        // sync
-        //   async
-        // sync
-        List<SpanEventBo> list = new ArrayList<SpanEventBo>();
-        list.add(makeSpanEventBo(false, (short)0, 1));
-        list.add(makeSpanEventBo(true, (short)0, 1));
-        list.add(makeSpanEventBo(false, (short)1, -1));
-        printDepth(list);
+    public void missing() {
+        expectResult.clear();
+        expectResult.add("#");
+        expectResult.add("#");
+        expectResult.add("#");
+        expectResult.add("#");
 
+        callTree.clear();
+        callTree.add(makeSpanEventBo(SYNC, (short) 0, -1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 1, -1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 2, -1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 3, -1));
+        assertDepth(callTree, expectResult);
         
-        // sync
-        //   async
-        //     async
-        //       async
-        list.clear();
-        list.add(makeSpanEventBo(false, (short)0, 1));
-        list.add(makeSpanEventBo(true, (short)0, 1));
-        list.add(makeSpanEventBo(true, (short)1, 2));
-        list.add(makeSpanEventBo(true, (short)0, 1));
-        printDepth(list);
+        expectResult.clear();
+        expectResult.add("#");
+        expectResult.add("##");
+        expectResult.add("###");
+        expectResult.add("###");
+        expectResult.add("###");
+        expectResult.add("###");
+        expectResult.add("####");
+        expectResult.add("####");
+        expectResult.add("#####");
+        expectResult.add("######");
+        expectResult.add("#######");
+        expectResult.add("#######");
+        expectResult.add("####");
+        expectResult.add("####");
+        expectResult.add("####");
 
-        
-        // sync
-        //   async
-        //     async
-        // sync
-        list.clear();
-        list.add(makeSpanEventBo(false, (short)0, 1));
-        list.add(makeSpanEventBo(true, (short)0, 1));
-        list.add(makeSpanEventBo(true, (short)0, 1));
-        list.add(makeSpanEventBo(false, (short)1, -1));
-        printDepth(list);
+        callTree.clear();
+        callTree.add(makeSpanEventBo(SYNC, (short) 0, 1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 1, 2));
+        callTree.add(makeSpanEventBo(SYNC, (short) 2, 3));
+//        callTree.add(makeSpanEventBo(SYNC, (short) 3, 4));
+//        callTree.add(makeSpanEventBo(SYNC, (short) 4, 5));
+//        callTree.add(makeSpanEventBo(SYNC, (short) 5, -1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 6, -1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 7, -1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 8, -1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 9, 4));
+        callTree.add(makeSpanEventBo(SYNC, (short) 10, -1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 11, 5));
+        callTree.add(makeSpanEventBo(SYNC, (short) 12, 6));
+        callTree.add(makeSpanEventBo(SYNC, (short) 13, 7));
+        callTree.add(makeSpanEventBo(SYNC, (short) 14, -1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 15, 4));
+        callTree.add(makeSpanEventBo(SYNC, (short) 16, -1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 17, -1));
+        assertDepth(callTree, expectResult);
+
+        expectResult.clear();
+        expectResult.add("#");
+        expectResult.add("##");
+        expectResult.add("###");
+
+        callTree.clear();
+        callTree.add(makeSpanEventBo(SYNC, (short) 0, 1));
+//        callTree.add(makeSpanEventBo(ASYNC, (short) 0, 1));
+        callTree.add(makeSpanEventBo(ASYNC, (short) 1, 2));
+        callTree.add(makeSpanEventBo(ASYNC, (short) 0, 1));
+        assertDepth(callTree, expectResult);
     }
     
-    
-    private void printDepth(List<SpanEventBo> list) {
+
+    private void assertDepth(List<SpanEventBo> list, List<String> result) {
+        int index = 0;
         SpanAlignDepth depth = new SpanAlignDepth(0);
-        for(SpanEventBo event : list) {
+        for (SpanEventBo event : list) {
             int currentDepth = depth.getDepth(event);
-            for(int i = 0; i < currentDepth; i++) {
-                System.out.print("#");
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < currentDepth; i++) {
+                sb.append("#");
             }
-            System.out.println(currentDepth);
+            final String expected = result.get(index++);
+            if (expected.equals(sb.toString())) {
+                System.out.println("Matched(" + index + "): " + sb.toString());
+            } else {
+                System.out.println("Not Matched(" + index + "): " + sb.toString() + ", expected=" + expected);
+            }
+            // log
         }
+        System.out.println("");
     }
-    
-    
 
     private SpanEventBo makeSpanEventBo(final boolean async, final short sequence, final int depth) {
         SpanEventBo event = new SpanEventBo();
