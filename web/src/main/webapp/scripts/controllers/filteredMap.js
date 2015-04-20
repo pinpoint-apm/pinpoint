@@ -2,7 +2,7 @@
 
 pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routeParams', '$timeout', 'TimeSliderVo', 'NavbarVo', 'encodeURIComponentFilter', '$window', 'SidebarTitleVo', 'filteredMapUtil', '$rootElement',
     function (cfg, $scope, $routeParams, $timeout, TimeSliderVo, NavbarVo, encodeURIComponentFilter, $window, SidebarTitleVo, filteredMapUtil, $rootElement) {
-
+		$at($at.FILTEREDMAP_PAGE);
         // define private variables
         var oNavbarVo, oTimeSliderVo, bNodeSelected, bNoData, reloadOnlyForNode, reloadOnlyForLink;
 

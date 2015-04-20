@@ -55,6 +55,7 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
                     activate: function (event, ui) {
                         var activatedTabText = ui.newTab.text();
                         if (activatedTabText == 'Heap') {
+                        	$at($at.MIXEDVIEW, $at.CLK_HEAP);
                             if (htChartCache.Heap === false) {
                                 showHeapChart(htLastAgentStat);
                             } else {
@@ -62,6 +63,7 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
                             }
                             return;
                         } else if (activatedTabText == 'PermGen') {
+                        	$at($at.MIXEDVIEW, $at.CLK_PERM_GEN);
                             if (htChartCache.PermGen === false) {
                                 showPermGenChart(htLastAgentStat);
                             } else {
@@ -69,6 +71,7 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
                             }
                             return;
                         } else if (activatedTabText == 'CpuLoad') {
+                        	$at($at.MIXEDVIEW, $at.CLK_CPU_LOAD);
                             if (htChartCache.CpuLoad === false) {
                                 showCpuLoadChart(htLastAgentStat);
                             } else {

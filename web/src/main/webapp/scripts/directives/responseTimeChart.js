@@ -88,7 +88,9 @@ pinpointApp
                                 };
                             }
                             oChart = AmCharts.makeChart(id, options);
-
+                            oChart.addListener('clickGraph', function(e) {
+                            	$at($at.MAIN, $at.CLK_RESPONSE_GRAPH);
+                            });
                             if (useFilterTransaction) {
                                 oChart.addListener('clickGraphItem', clickGraphItemListener);
                                 oChart.addListener('rollOverGraphItem', function (e) {

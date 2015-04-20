@@ -523,6 +523,7 @@ var BigScatterChart = $.Class({
             sYMax = sPrefix + 'ymax';
 
         var fConfigToggle = function (e) {
+        	$at($at.MAIN, $at.CLK_SCATTER_SETTING);
             self._welConfigBg.toggle();
             self._welConfigLayer.toggle();
             $('#' + sYMin).val(self.option('nYMin'));
@@ -593,6 +594,7 @@ var BigScatterChart = $.Class({
 
         // download
         var fDownloadToggle = function (e) {
+        	$at($at.MAIN, $at.CLK_DOWNLOAD_SCATTER);
             var sImageUrl = self.getChartAsPNG();
 //            document.location.href = sImageUrl.replace("image/png", "image/octet-stream");
             $(this).attr({
@@ -655,6 +657,12 @@ var BigScatterChart = $.Class({
         var htCheckBoxImage = this.option('htCheckBoxImage');
         _.each(this._htwelTypeLi, function (welTypeLi, sKey) {
             welTypeLi.click(function (e) {
+            	if ( sKey === "Success" ) {
+            		$at($at.MAIN, $at.TG_SCATTER_SUCCESS, welTypeLi.hasClass('unchecked') ? $at.ON : $at.OFF );
+            	} else {
+            		$at($at.MAIN, $at.TG_SCATTER_FAILED, welTypeLi.hasClass('unchecked') ? $at.ON : $at.OFF );
+            	}
+            	
                 e.preventDefault();
                 self._htwelChartCanvas[sKey].toggle();
                 if (!welTypeLi.hasClass('unchecked')) {
