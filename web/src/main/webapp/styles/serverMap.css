@@ -67,3 +67,28 @@
 	z-index: 2;
 	border: 1px solid rgb(44, 160, 44);
 }
+#filterWizard .antStyleHint {
+	position: absolute;
+	top: 216px;
+	left: 168px;
+	width: 562px;
+	height: 180px;
+	border: 1px solid #6ACBE5;
+	z-index: 10000;
+	background-color: #A7E3F4;
+	opacity: 0.92;
+	border-radius: 10px;
+	padding: 10px 0px 10px 20px;
+	font-size: 16px;
+	box-shadow: 2px 2px 4px #59A5B9;
+	letter-spacing: 2px;
+}
+#filterWizard .antStyleHint td:first-child{
+	width: 86px;
+	text-align: center;
+	font-weight: bold;
+	padding-right:10px;
+}
+#filterWizard .antStyleHint td p{
+	margin: 0px;
+}
