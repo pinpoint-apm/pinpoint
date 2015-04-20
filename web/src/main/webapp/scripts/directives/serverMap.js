@@ -544,6 +544,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * passing transaction list
                  */
                 scope.passingTransactionList = function () {
+                	$at($at.CONTEXT, $at.CLK_FILTER_TRANSACTION);
                     var oServerMapFilterVo = new ServerMapFilterVo();
                     oServerMapFilterVo
                         .setMainApplication(htLastLink.filterApplicationName)
@@ -567,6 +568,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * open filter wizard
                  */
                 scope.openFilterWizard = function () {
+                	$at($at.CONTEXT, $at.CLK_FILTER_TRANSACTION_WIZARD);
                     openFilterWizard();
                 };
 
@@ -653,6 +655,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * toggle merge group
                  */
                 scope.toggleMergeGroup = function ( mergeType ) {
+                	$at($at.CONTEXT, $at.TG_MERGE_TYPE, mergeType);
                 	scope.mergeStatus[ mergeType ] = !scope.mergeStatus[ mergeType ];
                     //scope.mergeUnknowns = (scope.mergeUnknowns) ? false : true;
                     serverMapCallback(htLastQuery, htLastMapData.applicationMapData, scope.linkRouting, scope.linkCurve);
@@ -664,6 +667,16 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * @param type
                  */
                 scope.toggleLinkLableTextType = function (type) {
+                	if ( type === "tps" ) {
+                		$at($at.CONTEXT, $at.TG_TPS);
+                		scope.totalRequestCount = false;
+                        scope.tps = true;
+                	} else {
+                		$at($at.CONTEXT, $at.TG_CALL_COUNT);
+                		scope.totalRequestCount = true;
+                        scope.tps = false;
+                	}
+                	
                     scope.totalRequestCount = (type !== 'tps') ? true : false;
                     scope.tps = (type === 'tps') ? true : false;
                     serverMapCallback(htLastQuery, htLastMapData.applicationMapData, scope.linkRouting, scope.linkCurve);
@@ -675,6 +688,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * @param type
                  */
                 scope.toggleLinkRouting = function (type) {
+                	$at($at.CONTEXT, $at.TG_ROUTING, type);
                     scope.linkRouting = cfg.options.htLinkType.sRouting = type;
                     serverMapCallback(htLastQuery, htLastMapData.applicationMapData, scope.linkRouting, scope.linkCurve);
                     reset();
@@ -685,6 +699,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * @param type
                  */
                 scope.toggleLinkCurve = function (type) {
+                	$at($at.CONTEXT, $at.TG_CURVE, type);
                     scope.linkCurve = cfg.options.htLinkType.sCurve = type;
                     serverMapCallback(htLastQuery, htLastMapData.applicationMapData, scope.linkRouting, scope.linkCurve);
                     reset();
@@ -694,7 +709,9 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * refresh
                  */
                 scope.refresh = function () {
+                	$at($at.CONTEXT, $at.CLK_REFRESH);
                     if (oServerMap) {
+                    	
                         oServerMap.refresh();
                     }
                     reset();
@@ -761,11 +778,13 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 }
                 scope.searchNode = function() {
                 	if (oServerMap && scope.searchNodeQuery !== "" ) {
+                		$at($at.MAIN, $at.CLK_SEARCH_NODE);
                 		scope.searchNodeIndex = 0;
                         scope.searchNodeList = oServerMap.searchNode( scope.searchNodeQuery );
                     }
                 };
                 scope.clearSearchNode = function() {
+                	$at($at.MAIN, $at.CLK_CLEAR_SEARCH);
                 	oServerMap.clearQuery();
                 	scope.searchNodeIndex = 0;
                 	scope.searchNodeQuery = "";

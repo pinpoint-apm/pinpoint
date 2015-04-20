@@ -2,7 +2,7 @@
 
 pinpointApp.controller('ScatterFullScreenModeCtrl', [ '$scope', '$rootScope', '$routeParams', '$timeout', 'NavbarVo',
     function ($scope, $rootScope, $routeParams, $timeout, NavbarVo) {
-
+		$at($at.SCATTER_FULL_SCREEN_PAGE);
         // define private variables
         var oNavbarVo;
 
