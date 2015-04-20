@@ -120,6 +120,7 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', '$timeout', function (
              * scope more
              */
             scope.more = function () {
+            	$at($at.CALLSTACK, $at.CLK_MORE);
                 scope.$emit('timeSlider.moreClicked', scope.oTimeSliderVo);
             };
 

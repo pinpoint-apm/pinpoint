@@ -337,6 +337,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                             return m;
                         }
                     }).on("change", function (e) {
+                    	$at( $at.MAIN, $at.CLK_APPLICATION );
                         scope.application = e.val;
                         scope.$digest();
                         broadcast();
@@ -357,6 +358,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                  * @param readablePeriod
                  */
                 scope.setPeriod = function (readablePeriod) {
+                	$at($at.MAIN, $at.CLK_TIME, readablePeriod);
                     scope.periodDelay = true;
                     scope.readablePeriod = readablePeriod;
                     scope.autoUpdate = false;
@@ -423,6 +425,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                  * @param time
                  */
                 scope.setAutoUpdateTime = function (time) {
+                	$at($at.MAIN, $at.CLK_UPDATE_TIME, time + "s");
                     scope.timeCountDown = time;
                     scope.timeLeft = time;
                 };
@@ -450,6 +453,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                  * @param type
                  */
                 scope.togglePeriod = function (type) {
+                	$at($at.MAIN, $at.TG_DATE, type);
                     scope.periodType = type;
                     scope.autoUpdate = false;
                 };
@@ -459,6 +463,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                  */
                 scope.$watch('autoUpdate', function (newVal, oldVal) {
                     if (newVal) {
+                    	$at($at.MAIN, $at.TG_UPDATE_ON);
                         $timeout(startUpdate, 1000);
                     } else {
                         resetTimeLeft();

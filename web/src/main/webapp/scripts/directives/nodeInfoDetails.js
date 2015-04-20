@@ -233,6 +233,7 @@ pinpointApp
                      * @param applicationName
                      */
                     scope.renderNodeAgentCharts = function (applicationName) {
+                    	$at($at.MAIN, $at.CLK_SHOW_GRAPH);
                         if (angular.isDefined(htAgentChartRendered[applicationName])) return;
                         htAgentChartRendered[applicationName] = true;
                         renderResponseSummary(null, applicationName, htLastNode.agentHistogram[applicationName], '100%', '150px');
