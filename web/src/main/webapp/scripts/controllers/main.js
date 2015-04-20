@@ -2,7 +2,7 @@
 
 pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$routeParams', 'location', 'NavbarVo', 'encodeURIComponentFilter', '$window', 'SidebarTitleVo', 'filteredMapUtil', '$rootElement', 'helpContent',
     function (cfg, $scope, $timeout, $routeParams, location, NavbarVo, encodeURIComponentFilter, $window, SidebarTitleVo, filteredMapUtil, $rootElement, helpContent) {
-
+		$at($at.MAIN_PAGE);
         // define private variables
         var oNavbarVo, bNodeSelected, bNoData;
 
@@ -353,6 +353,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
          * on after overlay creation
          */
         $scope.onAfterOverlayCreation = function () {
+        	$at($at.MAIN, $at.CLK_HELP);
             $rootElement.find('#copyright').show();
         };
 

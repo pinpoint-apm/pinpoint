@@ -512,6 +512,7 @@
                     	margin: 2,
                     	visible : false,
                     	click: function(e, o) {
+                    		$at($at.MAIN, $at.TG_NODE_VIEW);
                     		e.bubbles = false;
                     		var isCollapse = o.part.data.isCollapse;
                     		self._oDiagram.model.setDataProperty( o.part.data, "isCollapse", !isCollapse );
@@ -1154,6 +1155,7 @@
             var node = obj.part,
             fOnNodeSubGroupClicked = this.option('fOnNodeSubGroupClicked');
 	        if (_.isFunction(fOnNodeSubGroupClicked)) {
+	        	$at($at.MAIN, $at.CLK_NODE);
 	        	fOnNodeSubGroupClicked.call(this, e, node, unknownKey, fromName);
 	        }
         },
@@ -1170,6 +1172,7 @@
                 htData = node.data,
                 fOnNodeClicked = this.option('fOnNodeClicked');
             if (_.isFunction(fOnNodeClicked)) {
+            	$at($at.MAIN, $at.CLK_NODE);
                 fOnNodeClicked.call(this, e, htData, unknownKey, query);
             }
         },
@@ -1217,6 +1220,7 @@
                 htData = link.data,
                 fOnLinkClicked = this.option('fOnLinkClicked');
             if (_.isFunction(fOnLinkClicked)) {
+            	$at($at.MAIN, $at.CLK_LINK);
                 htData.fromNode = obj.fromNode.part.data;
                 htData.toNode = obj.toNode.part.data;
                 fOnLinkClicked.call(this, e, htData);
