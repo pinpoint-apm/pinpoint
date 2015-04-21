@@ -88,6 +88,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 bIsFilterWizardLoaded = false;
                 scope.mergeTypeList = [];
                 scope.mergeStatus = {};
+                scope.showAntStyleHint = false;
                 
                 /**
                  * extract node serviceType info
@@ -789,6 +790,9 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 	scope.searchNodeIndex = 0;
                 	scope.searchNodeQuery = "";
                 	scope.searchNodeList = [];
+                }
+                scope.toggleShowAntStyleHint = function() {
+                	scope.showAntStyleHint = !scope.showAntStyleHint; 
                 }
             }
         };
