@@ -148,12 +148,8 @@ public class SpanAligner2 {
 
     private void populate(SpanBo span, int spanDepth, List<SpanAlign> container) {
         logger.debug("populate start");
-        int currentDepth = spanDepth;
-        if (logger.isDebugEnabled()) {
-            logger.debug("span type:{} depth:{} spanDepth:{} ", currentDepth, span.getApplicationServiceType(), spanDepth);
-        }
-
-        SpanAlign spanAlign = new SpanAlign(currentDepth, span);
+        SpanAlignDepth spanAlignDepth = new SpanAlignDepth(spanDepth);
+        SpanAlign spanAlign = new SpanAlign(spanDepth, span);
         container.add(spanAlign);
 
         AsyncSpanEventAligner aligner = new AsyncSpanEventAligner();
@@ -161,45 +157,37 @@ public class SpanAligner2 {
         if (spanEventBoList == null) {
             return;
         }
-        if(logger.isDebugEnabled()) {
-            for(SpanEventBo spanEvent : spanEventBoList) {
-                logger.debug("Align span event {}", spanEvent);            
+        if (logger.isDebugEnabled()) {
+            for (SpanEventBo spanEvent : spanEventBoList) {
+                logger.debug("Align span event {}", spanEvent);
             }
         }
 
-
         spanAlign.setHasChild(true);
 
-        int asyncDepth = currentDepth;
-        int currentSyncDepth = currentDepth;
-        int currentAsyncDepth = currentDepth;
         for (SpanEventBo spanEventBo : spanEventBoList) {
-            if (spanEventBo.getAsyncId() != -1) {
-                if (spanEventBo.getSequence() == 0) {
-                    asyncDepth = spanDepth + currentDepth;
-                }
-
-                if (spanEventBo.getDepth() != PARENT_DEPTH) {
-                    currentAsyncDepth = asyncDepth + spanEventBo.getDepth();
-                }
-                currentDepth = currentAsyncDepth;
-            } else {
-                if (spanEventBo.getDepth() != PARENT_DEPTH) {
-                    currentSyncDepth = spanDepth + spanEventBo.getDepth();
-                } else {
-                    if(spanDepth == 0) {
-                        currentSyncDepth = 1;
-                    }
-                }
-                currentDepth = currentSyncDepth;
+            if (spanAlignDepth.isParentMissing(spanEventBo)) {
+                continue;
             }
+
+            if (spanAlignDepth.hasMissing(spanEventBo)) {
+                final int currentDepth = spanAlignDepth.getDepth(spanEventBo);
+                final SpanEventBo missingEvent = new SpanEventBo();
+                missingEvent.setStartElapsed(0);
+                missingEvent.setEndElapsed(0);
+                
+                final SpanAlign spanEventAlign = new SpanAlign(currentDepth, span, missingEvent);
+                container.add(spanEventAlign);
+                continue;
+            }
+
+            final int currentDepth = spanAlignDepth.getDepth(spanEventBo);
+            final SpanAlign spanEventAlign = new SpanAlign(currentDepth, span, spanEventBo);
+            container.add(spanEventAlign);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("spanEvent type:{} depth:{} spanEventDepth:{} ", spanEventBo.getServiceType(), currentDepth, spanEventBo.getDepth());
             }
-
-            SpanAlign spanEventAlign = new SpanAlign(currentDepth, span, spanEventBo);
-            container.add(spanEventAlign);
 
             final long nextSpanId = spanEventBo.getNextSpanId();
             final List<SpanBo> nextSpanBoList = spanIdMap.remove(nextSpanId);
