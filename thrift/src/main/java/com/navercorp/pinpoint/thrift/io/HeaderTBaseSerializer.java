@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.thrift.io;
 
 
-import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 
 import org.apache.thrift.TBase;
@@ -35,14 +34,14 @@ public class HeaderTBaseSerializer {
 
     private static final String UTF8 = "UTF8";
 
-    private final ByteArrayOutputStream baos;
+    private final ResetableByteArrayOutputStream baos;
     private final TProtocol protocol;
     private final TBaseLocator locator;
 
     /**
      * Create a new HeaderTBaseSerializer. 
      */
-    HeaderTBaseSerializer(ByteArrayOutputStream bos, TProtocolFactory protocolFactory, TBaseLocator locator) {
+    HeaderTBaseSerializer(ResetableByteArrayOutputStream bos, TProtocolFactory protocolFactory, TBaseLocator locator) {
         this.baos = bos;
         TIOStreamTransport transport = new TIOStreamTransport(bos);
         this.protocol = protocolFactory.getProtocol(transport);
@@ -63,6 +62,21 @@ public class HeaderTBaseSerializer {
         writeHeader(header);
         base.write(protocol);
         return baos.toByteArray();
+    }
+    
+    public byte[] continueSerialize(TBase<?, ?> base) throws TException {
+        final Header header = locator.headerLookup(base);
+        writeHeader(header);
+        base.write(protocol);
+        return baos.toByteArray();
+    }
+    
+    public void reset() {
+        baos.reset();
+    }
+    
+    public void reset(int resetIndex) {
+        baos.reset(resetIndex);
     }
 
     public int getInterBufferSize() {

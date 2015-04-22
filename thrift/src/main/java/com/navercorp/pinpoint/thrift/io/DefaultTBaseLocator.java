@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
+import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
 import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
 
@@ -56,6 +57,9 @@ class DefaultTBaseLocator implements TBaseLocator {
     private static final short SPANCHUNK = 70;
     private static final Header SPANCHUNK_HEADER = createHeader(SPANCHUNK);
 
+    private static final short SPANEVENT = 80;
+    private static final Header SPANEVENT_HEADER = createHeader(SPANEVENT);
+    
     private static final short SQLMETADATA = 300;
     private static final Header SQLMETADATA_HEADER = createHeader(SQLMETADATA);
 
@@ -84,6 +88,8 @@ class DefaultTBaseLocator implements TBaseLocator {
                 return new TAgentStatBatch();
             case SPANCHUNK:
                 return new TSpanChunk();
+            case SPANEVENT:
+                return new TSpanEvent();
             case SQLMETADATA:
                 return new TSqlMetaData();
             case APIMETADATA:
@@ -107,6 +113,9 @@ class DefaultTBaseLocator implements TBaseLocator {
         }
         if (tbase instanceof TSpanChunk) {
             return SPANCHUNK_HEADER;
+        }
+        if (tbase instanceof TSpanEvent) {
+            return SPANEVENT_HEADER;
         }
         if (tbase instanceof TAgentInfo) {
             return AGENT_INFO_HEADER;
