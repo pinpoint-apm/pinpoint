@@ -41,7 +41,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.interceptor.http.HttpCallContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -202,7 +202,7 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Simp
     }
 
     private Integer getStatusCodeFromAttachment() {
-        InterceptorGroupTransaction transaction = interceptorGroup.getCurrentTransaction();
+        InterceptorGroupInvocation transaction = interceptorGroup.getCurrentInvocation();
 
         final Object attachment = transaction.getAttachment();
         if (attachment == null) {

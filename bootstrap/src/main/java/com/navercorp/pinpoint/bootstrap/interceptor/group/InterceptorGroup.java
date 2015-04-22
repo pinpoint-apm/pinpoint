@@ -21,5 +21,5 @@ package com.navercorp.pinpoint.bootstrap.interceptor.group;
  */
 public interface InterceptorGroup {
     public String getName();
-    public InterceptorGroupTransaction getCurrentTransaction();
+    public InterceptorGroupInvocation getCurrentInvocation();
 }

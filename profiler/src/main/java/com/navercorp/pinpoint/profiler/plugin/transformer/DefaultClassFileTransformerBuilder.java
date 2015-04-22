@@ -71,19 +71,19 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
     
     @Override
     public void injectFieldAccessor(String fieldName) {
-        FieldAccessor snooper = pluginContext.allocateFieldSnooper(fieldName);
+        FieldAccessor snooper = pluginContext.getFieldAccessor(fieldName);
         recipes.add(new FieldAccessorInjector(snooper, fieldName));
     }
     
     @Override
     public void injectMetadata(String name) {
-        MetadataAccessor accessor = pluginContext.allocateMetadataAccessor(name);
+        MetadataAccessor accessor = pluginContext.getMetadataAccessor(name);
         recipes.add(new MetadataInjector(name, accessor));
     }
     
     @Override
     public void injectMetadata(String name, String initialValueType) {
-        MetadataAccessor accessor = pluginContext.allocateMetadataAccessor(name);
+        MetadataAccessor accessor = pluginContext.getMetadataAccessor(name);
         recipes.add(new MetadataInjector(name, accessor, new ByConstructor(initialValueType)));
     }
     

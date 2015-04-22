@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.plugin.interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
@@ -42,7 +42,7 @@ public class GroupedSimpleAroundInterceptor implements SimpleAroundInterceptor {
 
     @Override
     public void before(Object target, Object[] args) {
-        InterceptorGroupTransaction transaction = group.getCurrentTransaction();
+        InterceptorGroupInvocation transaction = group.getCurrentInvocation();
         
         if (transaction.tryEnter(point)) {
             delegate.before(target, args);
@@ -55,7 +55,7 @@ public class GroupedSimpleAroundInterceptor implements SimpleAroundInterceptor {
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        InterceptorGroupTransaction transacton = group.getCurrentTransaction();
+        InterceptorGroupInvocation transacton = group.getCurrentInvocation();
         
         if (transacton.canLeave(point)) {
             delegate.after(target, args, result, throwable);

@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.interceptor.http.HttpCallContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -78,7 +78,7 @@ public class HttpClientExecuteMethodInternalInterceptor implements SimpleAroundI
                 final StatusLine statusLine = response.getStatusLine();
                 if (statusLine != null) {
                     context.setStatusCode(statusLine.getStatusCode());
-                    InterceptorGroupTransaction transaction = interceptorGroup.getCurrentTransaction();
+                    InterceptorGroupInvocation transaction = interceptorGroup.getCurrentInvocation();
                     transaction.setAttachment(context);
                 }
             }
@@ -99,7 +99,7 @@ public class HttpClientExecuteMethodInternalInterceptor implements SimpleAroundI
             return false;
         }
 
-        InterceptorGroupTransaction transaction = interceptorGroup.getCurrentTransaction();
+        InterceptorGroupInvocation transaction = interceptorGroup.getCurrentInvocation();
         if (transaction.getAttachment() != null) {
             return false;
         }

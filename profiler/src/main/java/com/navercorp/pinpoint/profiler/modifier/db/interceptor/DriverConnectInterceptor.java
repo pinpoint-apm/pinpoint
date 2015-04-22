@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 
@@ -30,15 +30,15 @@ import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
  */
 public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptor {
 
-    private final InterceptorGroupTransaction scope;
+    private final InterceptorGroupInvocation scope;
     private final boolean recordConnection;
 
 
-    public DriverConnectInterceptor(InterceptorGroupTransaction scope) {
+    public DriverConnectInterceptor(InterceptorGroupInvocation scope) {
         this(true, scope);
     }
 
-    public DriverConnectInterceptor(boolean recordConnection, InterceptorGroupTransaction scope) {
+    public DriverConnectInterceptor(boolean recordConnection, InterceptorGroupInvocation scope) {
         super(DriverConnectInterceptor.class);
         if (scope == null) {
             throw new NullPointerException("scope must not be null");

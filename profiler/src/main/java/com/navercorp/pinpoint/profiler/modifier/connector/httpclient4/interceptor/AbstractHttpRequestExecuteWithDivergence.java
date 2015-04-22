@@ -43,7 +43,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.interceptor.http.HttpCallContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -62,7 +62,7 @@ import com.navercorp.pinpoint.common.ServiceType;
 public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceContextSupport, ByteCodeMethodDescriptorSupport, SimpleAroundInterceptor {
 
     private boolean isHasCallbackParam;
-    private InterceptorGroupTransaction scope;
+    private InterceptorGroupInvocation scope;
 
     protected final PLogger logger;
     protected final boolean isDebug;
@@ -80,7 +80,7 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
 
     protected boolean statusCode;
 
-    public AbstractHttpRequestExecuteWithDivergence(Class<? extends AbstractHttpRequestExecuteWithDivergence> childClazz, boolean isHasCallbackParam, InterceptorGroupTransaction scope) {
+    public AbstractHttpRequestExecuteWithDivergence(Class<? extends AbstractHttpRequestExecuteWithDivergence> childClazz, boolean isHasCallbackParam, InterceptorGroupInvocation scope) {
         this.logger = PLoggerFactory.getLogger(childClazz);
         this.isDebug = logger.isDebugEnabled();
 

@@ -16,13 +16,13 @@ package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 
 /**
  * @author Jongho Moon
  *
  */
-public class DefaultInterceptorStack implements InterceptorGroupTransaction {
+public class DefaultInterceptorStack implements InterceptorGroupInvocation {
     private final String name;
     private Object attachment = null;
     
@@ -166,7 +166,7 @@ public class DefaultInterceptorStack implements InterceptorGroupTransaction {
 
     @Override
     public String toString() {
-        return "InterceptorGroupTransaction(" + name + ")[depth=" + depth +"]";
+        return "InterceptorGroupInvocation(" + name + ")[depth=" + depth +"]";
     }
     
     

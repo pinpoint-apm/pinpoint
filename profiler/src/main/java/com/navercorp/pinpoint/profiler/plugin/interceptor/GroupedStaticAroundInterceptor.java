@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.plugin.interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
@@ -42,7 +42,7 @@ public class GroupedStaticAroundInterceptor implements StaticAroundInterceptor {
 
     @Override
     public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-        InterceptorGroupTransaction transaction = group.getCurrentTransaction();
+        InterceptorGroupInvocation transaction = group.getCurrentInvocation();
         
         if (transaction.tryEnter(point)) {
             this.delegate.before(target, className, methodName, parameterDescription, args);
@@ -55,7 +55,7 @@ public class GroupedStaticAroundInterceptor implements StaticAroundInterceptor {
 
     @Override
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
-        InterceptorGroupTransaction transaction = group.getCurrentTransaction();
+        InterceptorGroupInvocation transaction = group.getCurrentInvocation();
         
         if (transaction.canLeave(point)) {
             this.delegate.after(target, className, methodName, parameterDescription, args, result, throwable);

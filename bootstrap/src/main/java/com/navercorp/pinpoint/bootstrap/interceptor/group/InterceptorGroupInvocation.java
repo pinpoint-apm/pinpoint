@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
  * @author emeroad
  * @author Jongho Moon
  */
-public interface InterceptorGroupTransaction {
+public interface InterceptorGroupInvocation {
     String getName();
 
     boolean tryEnter(ExecutionPolicy policy);

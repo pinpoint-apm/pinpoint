@@ -14,11 +14,15 @@
  */
 package com.navercorp.pinpoint.bootstrap.plugin;
 
+import java.lang.instrument.ClassFileTransformer;
+
 import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
 
 /**
  *  Provides attributes and objects to interceptors.
@@ -72,6 +76,13 @@ public interface ProfilerPluginContext {
     public TraceContext getTraceContext();
     
     /**
+     * Get the {@link ProfilerConfig}
+     * 
+     * @return {@link ProfilerConfig}
+     */
+    public ProfilerConfig getConfig();
+
+    /**
      * Get {@link ByteCodeInstrumentor}
      * 
      * @return {@link ByteCodeInstrumentor}
@@ -79,4 +90,31 @@ public interface ProfilerPluginContext {
     public ByteCodeInstrumentor getByteCodeInstrumentor();
     
     public InterceptorGroup getInterceptorGroup(String name);
+    
+    public PluginClassLoaderFactory getClassLoaderFactory();
+    
+    /**
+     * Add a {@link ApplicationTypeDetector} to Pinpoint agent.
+     * 
+     * @param detectors
+     */
+    public void addApplicationTypeDetector(ApplicationTypeDetector... detectors);
+
+    /**
+     * Add a {@link ClassEditor} to Pinpoint agent.
+     * 
+     * @param classEditor
+     */
+    public void addClassFileTransformer(ClassFileTransformer transformer);
+
+    /**
+     * Get a {@link ClassFileTransformerBuilder}.
+     * 
+     * By using returned {@link ClassFileTransformerBuilder} you can create a {@link ClassFileTransformer} easily.
+     * You have to register resulting {@link ClassFileTransformer} by {@link #addClassFileTransformer(ClassFileTransformer)} to make it works.
+     *
+     * @param targetClassName target class name
+     * @return {@link ClassFileTransformerBuilder}
+     */
+    public ClassFileTransformerBuilder getClassFileTransformerBuilder(String targetClassName);
 }

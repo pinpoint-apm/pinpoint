@@ -19,7 +19,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransfor
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty;
@@ -34,10 +34,10 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
     /*
      * (non-Javadoc)
      * 
-     * @see com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin#setUp(com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext)
+     * @see com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin#setUp(com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext)
      */
     @Override
-    public void setup(ProfilerPluginSetupContext context) {
+    public void setup(ProfilerPluginContext context) {
         context.addApplicationTypeDetector(new TomcatDetector());
 
         TomcatConfiguration config = new TomcatConfiguration(context.getConfig());
@@ -55,7 +55,7 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
         addAsyncContextImpl(context);
     }
 
-    private void addRequestEditor(ProfilerPluginSetupContext context) {
+    private void addRequestEditor(ProfilerPluginContext context) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.apache.catalina.connector.Request");
         builder.injectMetadata(METADATA_TRACE);
         builder.injectMetadata(METADATA_ASYNC);
@@ -72,19 +72,19 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
         context.addClassFileTransformer(builder.build());
     }
 
-    private void addRequestFacadeEditor(ProfilerPluginSetupContext context) {
+    private void addRequestFacadeEditor(ProfilerPluginContext context) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.apache.catalina.connector.RequestFacade");
         builder.weave("com.navercorp.pinpoint.plugin.tomcat.aspect.RequestFacadeAspect");
         context.addClassFileTransformer(builder.build());
     }
 
-    private void addStandardHostValveEditor(ProfilerPluginSetupContext context, TomcatConfiguration config) {
+    private void addStandardHostValveEditor(ProfilerPluginContext context, TomcatConfiguration config) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.apache.catalina.core.StandardHostValve");
         builder.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor", config.getTomcatExcludeUrlFilter());
         context.addClassFileTransformer(builder.build());
     }
 
-    private void addStandardServiceEditor(ProfilerPluginSetupContext context) {
+    private void addStandardServiceEditor(ProfilerPluginContext context) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.apache.catalina.core.StandardService");
         // Tomcat 6
         MethodTransformerBuilder startEditor = builder.editMethod("start");
@@ -99,7 +99,7 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
         context.addClassFileTransformer(builder.build());
     }
 
-    private void addTomcatConnectorEditor(ProfilerPluginSetupContext context) {
+    private void addTomcatConnectorEditor(ProfilerPluginContext context) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.apache.catalina.connector.Connector");
 
         // Tomcat 6
@@ -115,7 +115,7 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
         context.addClassFileTransformer(builder.build());
     }
 
-    private void addWebappLoaderEditor(ProfilerPluginSetupContext context) {
+    private void addWebappLoaderEditor(ProfilerPluginContext context) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.apache.catalina.loader.WebappLoader");
         // Tomcat 6 - org.apache.catalina.loader.WebappLoader.start()
         MethodTransformerBuilder startEditor = builder.editMethod("start");
@@ -130,7 +130,7 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
         context.addClassFileTransformer(builder.build());
     }
     
-    private void addAsyncContextImpl(ProfilerPluginSetupContext context) {
+    private void addAsyncContextImpl(ProfilerPluginContext context) {
         ClassFileTransformerBuilder classBuilder = context.getClassFileTransformerBuilder("org.apache.catalina.core.AsyncContextImpl");
         classBuilder.injectMetadata(METADATA_ASYNC_TRACE_ID);
         MethodTransformerBuilder startEditor = classBuilder.editMethods(new MethodFilter() {
