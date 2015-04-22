@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.jdk.http;
 import static com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassConditions.*;
 
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerSetup;
@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileT
 public class JdkHttpPlugin implements ProfilerPlugin {
 
     @Override
-    public void setup(ProfilerPluginSetupContext context) {
+    public void setup(ProfilerPluginContext context) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("sun.net.www.protocol.http.HttpURLConnection");
     
         builder.injectFieldAccessor("connected");

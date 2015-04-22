@@ -19,22 +19,26 @@ package com.navercorp.pinpoint.profiler.modifier.spring.beans;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import com.navercorp.pinpoint.bootstrap.instrument.*;
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
-import com.navercorp.pinpoint.profiler.modifier.ModifierTransformAdaptor;
+import java.lang.instrument.ClassFileTransformer;
+import java.security.ProtectionDomain;
+
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InterceptorGroupDefinition;
+import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventTrigger;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.modifier.Modifier;
+import com.navercorp.pinpoint.profiler.modifier.ModifierTransformAdaptor;
 import com.navercorp.pinpoint.test.ClassTransformHelper;
 import com.navercorp.pinpoint.test.MockAgent;
-
-import java.lang.instrument.ClassFileTransformer;
-import java.security.ProtectionDomain;
 
 @Ignore
 public class AbstractAutowireCapableBeanFactoryModifierTest {
@@ -96,18 +100,13 @@ public class AbstractAutowireCapableBeanFactoryModifierTest {
         }
 
         @Override
-        public InterceptorGroupTransaction getInterceptorGroupTransaction(String scopeName) {
+        public InterceptorGroupInvocation getInterceptorGroupTransaction(String scopeName) {
             return delegate.getInterceptorGroupTransaction(scopeName);
         }
 
         @Override
-        public InterceptorGroupTransaction getInterceptorGroupTransaction(InterceptorGroupDefinition scopeDefinition) {
+        public InterceptorGroupInvocation getInterceptorGroupTransaction(InterceptorGroupDefinition scopeDefinition) {
             return delegate.getInterceptorGroupTransaction(scopeDefinition);
-        }
-
-        @Override
-        public Class<?> defineClass(ClassLoader classLoader, String defineClass, ProtectionDomain protectedDomain) throws InstrumentException {
-            return delegate.defineClass(classLoader, defineClass, protectedDomain);
         }
 
         @Override

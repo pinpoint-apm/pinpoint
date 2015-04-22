@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.redis;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConstructorTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
@@ -57,7 +57,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     @Override
-    public void setup(ProfilerPluginSetupContext context) {
+    public void setup(ProfilerPluginContext context) {
         final RedisPluginConfig config = new RedisPluginConfig(context.getConfig());
         final boolean enabled = config.isEnabled();
         final boolean pipelineEnabled = config.isPipelineEnabled();
@@ -75,7 +75,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
     }
 
     // Jedis & BinaryJedis
-    private void addJedisClassEditors(ProfilerPluginSetupContext context, RedisPluginConfig config) {
+    private void addJedisClassEditors(ProfilerPluginContext context, RedisPluginConfig config) {
         final ClassFileTransformerBuilder classEditorBuilder = addJedisExtendedClassEditor(context, config, BINARY_JEDIS);
         classEditorBuilder.injectMetadata(METADATA_END_POINT);
         context.addClassFileTransformer(classEditorBuilder.build());
@@ -85,7 +85,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
         
     }
 
-    private ClassFileTransformerBuilder addJedisExtendedClassEditor(ProfilerPluginSetupContext context, RedisPluginConfig config, final String targetClassName) {
+    private ClassFileTransformerBuilder addJedisExtendedClassEditor(ProfilerPluginContext context, RedisPluginConfig config, final String targetClassName) {
         final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder(targetClassName);
 
         final ConstructorTransformerBuilder constructorEditorBuilderArg1 = classEditorBuilder.editConstructor(STRING);
@@ -123,7 +123,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
     }
 
     // Client
-    private void addJedisClientClassEditor(ProfilerPluginSetupContext context, RedisPluginConfig config) {
+    private void addJedisClientClassEditor(ProfilerPluginContext context, RedisPluginConfig config) {
         final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder(JEDIS_CLIENT);
         classEditorBuilder.injectMetadata(METADATA_END_POINT);
 
@@ -139,7 +139,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
     }
 
     // Pipeline
-    private void addJedisPipelineClassEditors(ProfilerPluginSetupContext context, RedisPluginConfig config) {
+    private void addJedisPipelineClassEditors(ProfilerPluginContext context, RedisPluginConfig config) {
         context.addClassFileTransformer(addJedisPipelineBaseExtendedClassEditor(context, config, JEDIS_PIPELINE_BASE).build());
 
         // MultikeyPipellineBase extends PipelineBase
@@ -158,7 +158,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
         context.addClassFileTransformer(classEditorBuilder.build());
     }
 
-    private ClassFileTransformerBuilder addJedisPipelineBaseExtendedClassEditor(ProfilerPluginSetupContext context, RedisPluginConfig config, String targetClassName) {
+    private ClassFileTransformerBuilder addJedisPipelineBaseExtendedClassEditor(ProfilerPluginContext context, RedisPluginConfig config, String targetClassName) {
         final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder(targetClassName);
 
         final MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethods(new NameBasedMethodFilter(JedisPipelineMethodNames.get()));

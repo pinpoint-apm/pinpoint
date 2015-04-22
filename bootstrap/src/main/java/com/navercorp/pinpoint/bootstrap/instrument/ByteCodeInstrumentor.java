@@ -20,7 +20,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 
 /**
  * @author emeroad
@@ -31,16 +31,18 @@ public interface ByteCodeInstrumentor {
     
     boolean findClass(ClassLoader classLoader, String javassistClassName);
 
-    InterceptorGroupTransaction getInterceptorGroupTransaction(String scopeName);
+    @Deprecated
+    InterceptorGroupInvocation getInterceptorGroupTransaction(String scopeName);
 
-    InterceptorGroupTransaction getInterceptorGroupTransaction(InterceptorGroupDefinition scopeDefinition);
+    @Deprecated
+    InterceptorGroupInvocation getInterceptorGroupTransaction(InterceptorGroupDefinition scopeDefinition);
 
-    Class<?> defineClass(ClassLoader classLoader, String defineClass, ProtectionDomain protectedDomain) throws InstrumentException;
-
+    @Deprecated
     Interceptor newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN) throws InstrumentException;
 
 //    TargetMethod newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN, Object[] params) throws InstrumentException;
 
+    @Deprecated
     Interceptor newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN, Object[] params, Class[] paramClazz) throws InstrumentException;
     
     void retransform(Class<?> target, ClassFileTransformer classEditor);
