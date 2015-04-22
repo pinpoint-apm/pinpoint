@@ -22,7 +22,7 @@ import org.junit.Test;
 import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.instrument.DefaultInterceptorGroupDefinition;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 
 public class ThreadLocalScopePoolTest {
 
@@ -30,7 +30,7 @@ public class ThreadLocalScopePoolTest {
     public void testGetScope() throws Exception {
 
         ScopePool pool = new ThreadLocalScopePool();
-        InterceptorGroupTransaction scope = pool.getScope(new DefaultInterceptorGroupDefinition("test"));
+        InterceptorGroupInvocation scope = pool.getScope(new DefaultInterceptorGroupDefinition("test"));
         Assert.assertTrue(scope instanceof ThreadLocalScope);
 
         Assert.assertEquals("name", scope.getName(), "test");
@@ -40,7 +40,7 @@ public class ThreadLocalScopePoolTest {
      public void testAttachment() throws Exception {
 
         ScopePool pool = new ThreadLocalScopePool();
-        InterceptorGroupTransaction scope = pool.getScope(new DefaultInterceptorGroupDefinition("test"));
+        InterceptorGroupInvocation scope = pool.getScope(new DefaultInterceptorGroupDefinition("test"));
 
         scope.tryEnter(ExecutionPolicy.BOUNDARY);
         scope.tryEnter(ExecutionPolicy.BOUNDARY);
@@ -61,7 +61,7 @@ public class ThreadLocalScopePoolTest {
     @Test
     public void testGetOrCreate() throws Exception {
         ScopePool pool = new ThreadLocalScopePool();
-        InterceptorGroupTransaction scope= pool.getScope(new DefaultInterceptorGroupDefinition("test"));
+        InterceptorGroupInvocation scope= pool.getScope(new DefaultInterceptorGroupDefinition("test"));
         
         scope.tryEnter(ExecutionPolicy.BOUNDARY);
         scope.tryEnter(ExecutionPolicy.BOUNDARY);

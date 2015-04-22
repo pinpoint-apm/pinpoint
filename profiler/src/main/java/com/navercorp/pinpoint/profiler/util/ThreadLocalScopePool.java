@@ -20,34 +20,34 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InterceptorGroupDefinition;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 
 /**
  * @author emeroad
  */
 public class ThreadLocalScopePool implements ScopePool {
 
-    private final ConcurrentMap<InterceptorGroupDefinition, InterceptorGroupTransaction> pool = new ConcurrentHashMap<InterceptorGroupDefinition, InterceptorGroupTransaction>();
+    private final ConcurrentMap<InterceptorGroupDefinition, InterceptorGroupInvocation> pool = new ConcurrentHashMap<InterceptorGroupDefinition, InterceptorGroupInvocation>();
 
     @Override
-    public InterceptorGroupTransaction getScope(InterceptorGroupDefinition scopeDefinition) {
+    public InterceptorGroupInvocation getScope(InterceptorGroupDefinition scopeDefinition) {
         if (scopeDefinition == null) {
             throw new NullPointerException("scopeDefinition must not be null");
         }
-        final InterceptorGroupTransaction scope = this.pool.get(scopeDefinition);
+        final InterceptorGroupInvocation scope = this.pool.get(scopeDefinition);
         if (scope != null) {
             return scope;
         }
 
-        final InterceptorGroupTransaction newScope = createScope(scopeDefinition);
-        final InterceptorGroupTransaction exist = this.pool.putIfAbsent(scopeDefinition, newScope);
+        final InterceptorGroupInvocation newScope = createScope(scopeDefinition);
+        final InterceptorGroupInvocation exist = this.pool.putIfAbsent(scopeDefinition, newScope);
         if (exist != null) {
             return exist;
         }
         return newScope;
     }
 
-    private InterceptorGroupTransaction createScope(InterceptorGroupDefinition scopeDefinition) {
+    private InterceptorGroupInvocation createScope(InterceptorGroupDefinition scopeDefinition) {
         return new ThreadLocalScope(scopeDefinition);
     }
 

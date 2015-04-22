@@ -78,7 +78,7 @@ public class AnnotatedInterceptorInjector implements MethodRecipe {
             }
         }
         
-        InterceptorGroup group = groupName == null ? null : pluginContext.createInterceptorGroup(groupName);
+        InterceptorGroup group = groupName == null ? null : pluginContext.getInterceptorGroup(groupName);
         InterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext, group, interceptorType, providedArguments);
         
         if (group != null) {

@@ -213,6 +213,7 @@ public class DefaultAgent implements Agent {
             
             DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(this);
             plugin.setup(context);
+            context.markInitialized();
             pluginContexts.add(context);
         }
         

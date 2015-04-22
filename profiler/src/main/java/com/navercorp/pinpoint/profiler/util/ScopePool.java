@@ -17,11 +17,11 @@
 package com.navercorp.pinpoint.profiler.util;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InterceptorGroupDefinition;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 
 /**
  * @author emeroad
  */
 public interface ScopePool {
-    InterceptorGroupTransaction getScope(InterceptorGroupDefinition scopeDefinition);
+    InterceptorGroupInvocation getScope(InterceptorGroupDefinition scopeDefinition);
 }

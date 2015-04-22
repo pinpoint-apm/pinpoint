@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
@@ -34,10 +34,10 @@ public class DebugGroupDelegateSimpleInterceptor implements SimpleAroundIntercep
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final SimpleAroundInterceptor delegate;
-    private final InterceptorGroupTransaction scope;
+    private final InterceptorGroupInvocation scope;
 
 
-    public DebugGroupDelegateSimpleInterceptor(SimpleAroundInterceptor delegate, InterceptorGroupTransaction scope) {
+    public DebugGroupDelegateSimpleInterceptor(SimpleAroundInterceptor delegate, InterceptorGroupInvocation scope) {
         if (delegate == null) {
             throw new NullPointerException("delegate must not be null");
         }

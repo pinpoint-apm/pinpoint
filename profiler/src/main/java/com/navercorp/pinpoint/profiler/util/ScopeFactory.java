@@ -16,14 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 
 /**
  * @author emeroad
  */
 public interface ScopeFactory {
 
-    InterceptorGroupTransaction createScope();
+    InterceptorGroupInvocation createScope();
 
     String getName();
 

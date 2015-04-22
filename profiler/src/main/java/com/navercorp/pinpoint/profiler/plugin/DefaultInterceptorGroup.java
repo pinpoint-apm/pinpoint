@@ -15,7 +15,7 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 
 /**
  * @author Jongho Moon
@@ -23,14 +23,14 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransa
  */
 public class DefaultInterceptorGroup implements InterceptorGroup {
     private final String name;
-    private final ThreadLocal<InterceptorGroupTransaction> threadLocal;
+    private final ThreadLocal<InterceptorGroupInvocation> threadLocal;
     
     public DefaultInterceptorGroup(final String name) {
         this.name = name;
-        this.threadLocal = new ThreadLocal<InterceptorGroupTransaction>() {
+        this.threadLocal = new ThreadLocal<InterceptorGroupInvocation>() {
 
             @Override
-            protected InterceptorGroupTransaction initialValue() {
+            protected InterceptorGroupInvocation initialValue() {
                 return new DefaultInterceptorStack(name);
             }
             
@@ -43,7 +43,7 @@ public class DefaultInterceptorGroup implements InterceptorGroup {
     }
 
     @Override
-    public InterceptorGroupTransaction getCurrentTransaction() {
+    public InterceptorGroupInvocation getCurrentInvocation() {
         return threadLocal.get();
     }
 }

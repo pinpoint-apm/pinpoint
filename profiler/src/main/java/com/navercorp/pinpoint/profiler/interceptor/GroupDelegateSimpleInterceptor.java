@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 
 /**
  * @author emeroad
@@ -30,10 +30,10 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransa
 public class GroupDelegateSimpleInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
     private final SimpleAroundInterceptor delegate;
-    private final InterceptorGroupTransaction scope;
+    private final InterceptorGroupInvocation scope;
 
 
-    public GroupDelegateSimpleInterceptor(SimpleAroundInterceptor delegate, InterceptorGroupTransaction scope) {
+    public GroupDelegateSimpleInterceptor(SimpleAroundInterceptor delegate, InterceptorGroupInvocation scope) {
         if (delegate == null) {
             throw new NullPointerException("delegate must not be null");
         }

@@ -31,13 +31,12 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.PluginClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.plugin.transformer.DefaultClassFileTransformerBuilder;
 import com.navercorp.pinpoint.profiler.util.NameValueList;
 
-public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, ProfilerPluginContext {
+public class DefaultProfilerPluginContext implements ProfilerPluginContext {
     private final DefaultAgent agent;
     
     private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
@@ -51,6 +50,9 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     private int metadataAccessorIndex = 0;
     private int fieldSnooperIndex = 0;
     
+    private boolean initailized = false;
+    
+    
     public DefaultProfilerPluginContext(DefaultAgent agent) {
         this.agent = agent;
     }
@@ -62,6 +64,10 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     
     @Override
     public void addClassFileTransformer(ClassFileTransformer transformer) {
+        if (initailized) {
+            throw new IllegalStateException("Context already initilized");
+        }
+
         classTransformers.add(transformer);
     }
 
@@ -72,7 +78,13 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
 
     @Override
     public TraceContext getTraceContext() {
-        return agent.getTraceContext();
+        TraceContext context = agent.getTraceContext();
+        
+        if (context == null) {
+            throw new IllegalStateException("TraceContext is not created yet");
+        }
+        
+        return context;
     }
 
     @Override
@@ -80,7 +92,8 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
         return agent.getByteCodeInstrumentor();
     }
 
-    public MetadataAccessor allocateMetadataAccessor(String name) {
+    @Override
+    public MetadataAccessor getMetadataAccessor(String name) {
         MetadataAccessor accessor = metadataAccessors.get(name);
         
         if (accessor != null) {
@@ -99,7 +112,8 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
         return accessor;
     }
 
-    public FieldAccessor allocateFieldSnooper(String name) {
+    @Override
+    public FieldAccessor getFieldAccessor(String name) {
         FieldAccessor snooper = fieldSnoopers.get(name);
         
         if (snooper != null) {
@@ -117,16 +131,6 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
         
         return snooper;
     }
-
-    @Override
-    public MetadataAccessor getMetadataAccessor(String name) {
-        return metadataAccessors.get(name);
-    }
-
-    @Override
-    public FieldAccessor getFieldAccessor(String name) {
-        return fieldSnoopers.get(name);
-    }
     
     @Override
     public Object setAttribute(String key, Object value) {
@@ -140,6 +144,10 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     
     @Override
     public void addApplicationTypeDetector(ApplicationTypeDetector... detectors) {
+        if (initailized) {
+            throw new IllegalStateException("Context already initilized");
+        }
+        
         for (ApplicationTypeDetector detector : detectors) {
             serverTypeDetectors.add(detector);
         }
@@ -157,8 +165,9 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     public List<ApplicationTypeDetector> getApplicationTypeDetectors() {
         return serverTypeDetectors;
     }
-    
-    public InterceptorGroup createInterceptorGroup(String name) {
+
+    @Override
+    public InterceptorGroup getInterceptorGroup(String name) {
         InterceptorGroup group = interceptorGroups.get(name);
         
         if (group == null) {
@@ -168,9 +177,8 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
         
         return group;
     }
-
-    @Override
-    public InterceptorGroup getInterceptorGroup(String name) {
-        return interceptorGroups.get(name);
+    
+    public void markInitialized() {
+        this.initailized = true;
     }
 }

@@ -103,4 +103,11 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Simpl
 
     protected abstract void doInAfterTrace(final RecordableTrace trace, final Object target, final Object[] args, final Object result, Throwable throwable);
 
+    protected MethodDescriptor getMethodDescriptor() {
+        return methodDescriptor;
+    }
+
+    protected TraceContext getTraceContext() {
+        return traceContext;
+    }
 }

@@ -51,7 +51,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.profiler.interceptor.DebugGroupDelegateSimpleInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.DebugGroupDelegateStaticInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
@@ -379,7 +379,7 @@ public class JavaAssistClass implements InstrumentClass {
         if (definition == null) {
             throw new NullPointerException("definition must not be null");
         }
-        final InterceptorGroupTransaction transaction = this.instrumentor.getInterceptorGroupTransaction(definition);
+        final InterceptorGroupInvocation transaction = this.instrumentor.getInterceptorGroupTransaction(definition);
         interceptor = wrapGroupInterceptor(interceptor, transaction);
         return addInterceptor(methodName, args, interceptor);
     }
@@ -403,7 +403,7 @@ public class JavaAssistClass implements InstrumentClass {
             throw new NullPointerException("groupDefinition must not be null");
         }
 
-        final InterceptorGroupTransaction transaction = this.instrumentor.getInterceptorGroupTransaction(groupDefinition);
+        final InterceptorGroupInvocation transaction = this.instrumentor.getInterceptorGroupTransaction(groupDefinition);
 
         if (hasDeclaredMethod(methodName, args)) {
             interceptor = wrapGroupInterceptor(interceptor, transaction);
@@ -416,7 +416,7 @@ public class JavaAssistClass implements InstrumentClass {
         }
     }
 
-    private Interceptor wrapGroupInterceptor(Interceptor interceptor, InterceptorGroupTransaction transaction) {
+    private Interceptor wrapGroupInterceptor(Interceptor interceptor, InterceptorGroupInvocation transaction) {
         final Logger interceptorLogger = LoggerFactory.getLogger(interceptor.getClass());
 
         if (interceptor instanceof  SimpleAroundInterceptor) {

@@ -20,17 +20,17 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 
 /**
  * @author emeroad
  */
 public class GroupDelegateStaticInterceptor implements StaticAroundInterceptor, TraceContextSupport {
     private final StaticAroundInterceptor delegate;
-    private final InterceptorGroupTransaction scope;
+    private final InterceptorGroupInvocation scope;
 
 
-    public GroupDelegateStaticInterceptor(StaticAroundInterceptor delegate, InterceptorGroupTransaction scope) {
+    public GroupDelegateStaticInterceptor(StaticAroundInterceptor delegate, InterceptorGroupInvocation scope) {
         if (delegate == null) {
             throw new NullPointerException("delegate must not be null");
         }

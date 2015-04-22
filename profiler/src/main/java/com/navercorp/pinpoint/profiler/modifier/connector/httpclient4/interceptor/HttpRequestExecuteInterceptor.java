@@ -20,7 +20,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
 
 /**
@@ -44,7 +44,7 @@ public class HttpRequestExecuteInterceptor extends AbstractHttpRequestExecuteWit
     private static final int HTTP_REQUEST_INDEX = 1;
 
     
-    public HttpRequestExecuteInterceptor(boolean isHasCallbackParam, InterceptorGroupTransaction scope) {
+    public HttpRequestExecuteInterceptor(boolean isHasCallbackParam, InterceptorGroupInvocation scope) {
         super(HttpRequestExecuteInterceptor.class, isHasCallbackParam, scope);
     }
     

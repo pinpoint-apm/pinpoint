@@ -24,7 +24,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 
-import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventTrigger;
 import javassist.CannotCompileException;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
@@ -40,9 +39,10 @@ import com.navercorp.pinpoint.bootstrap.instrument.DefaultInterceptorGroupDefini
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InterceptorGroupDefinition;
+import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventTrigger;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupTransaction;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.interceptor.GlobalInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
@@ -124,14 +124,14 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     }
 
     @Override
-    public InterceptorGroupTransaction getInterceptorGroupTransaction(String scopeName) {
+    public InterceptorGroupInvocation getInterceptorGroupTransaction(String scopeName) {
         final InterceptorGroupDefinition scopeDefinition = new DefaultInterceptorGroupDefinition(scopeName);
         return getInterceptorGroupTransaction(scopeDefinition);
     }
 
 
 
-    public InterceptorGroupTransaction getInterceptorGroupTransaction(InterceptorGroupDefinition scopeDefinition) {
+    public InterceptorGroupInvocation getInterceptorGroupTransaction(InterceptorGroupDefinition scopeDefinition) {
         if (scopeDefinition == null) {
             throw new NullPointerException("scopeDefinition must not be null");
         }
@@ -158,7 +158,6 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     }
 
 
-    @Override
     public Class<?> defineClass(ClassLoader classLoader, String defineClass, ProtectionDomain protectedDomain) throws InstrumentException {
         if (isInfo) {
             logger.info("defineClass class:{}, cl:{}", defineClass, classLoader);
