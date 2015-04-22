@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.common.bo;
 
-import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.Comparator;
 

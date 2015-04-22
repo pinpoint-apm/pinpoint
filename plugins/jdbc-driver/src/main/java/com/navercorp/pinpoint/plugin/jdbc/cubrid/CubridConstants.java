@@ -14,10 +14,10 @@
  */
 package com.navercorp.pinpoint.plugin.jdbc.cubrid;
 
-import static com.navercorp.pinpoint.common.HistogramSchema.*;
-import static com.navercorp.pinpoint.common.ServiceTypeProperty.*;
+import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * @author Jongho Moon

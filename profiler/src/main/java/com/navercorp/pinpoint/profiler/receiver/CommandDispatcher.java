@@ -92,7 +92,7 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
         if (request == null) {
 
             final TResult tResult = new TResult(false);
-            tResult.setMessage("Unsupported Type.");
+            tResult.setMessage("Unsupported ServiceTypeInfo.");
             
             response = tResult;
         } else {

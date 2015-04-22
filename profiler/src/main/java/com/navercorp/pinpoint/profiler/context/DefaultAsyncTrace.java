@@ -22,8 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTrace;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
-import com.navercorp.pinpoint.common.AnnotationKey;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
 
 import org.slf4j.Logger;

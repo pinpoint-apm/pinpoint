@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.test;
 
-import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 
 /**

@@ -15,7 +15,7 @@
 package com.navercorp.pinpoint.bootstrap.plugin;
 
 import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 
 /**
@@ -26,11 +26,11 @@ public interface ApplicationTypeDetector {
     
     /**
      * Returns the {@link ServiceType} representing the current plugin, 
-     * with code in a range corresponding to {@link com.navercorp.pinpoint.common.ServiceTypeCategory#SERVER}
+     * with code in a range corresponding to {@link com.navercorp.pinpoint.common.trace.ServiceTypeCategory#SERVER}
      * 
      * @return the {@link ServiceType} representing the current plugin
      * @see ServiceType#isWas()
-     * @see com.navercorp.pinpoint.common.ServiceTypeCategory#SERVER
+     * @see com.navercorp.pinpoint.common.trace.ServiceTypeCategory#SERVER
      */
     public ServiceType getServerType();
     

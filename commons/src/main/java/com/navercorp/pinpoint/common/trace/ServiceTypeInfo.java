@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.plugin;
+package com.navercorp.pinpoint.common.trace;
 
-import com.navercorp.pinpoint.common.AnnotationKeyMatcher;
-import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * @author emeroad
  */
-public interface Type {
+public interface ServiceTypeInfo {
 
     ServiceType getServiceType();
 
-    AnnotationKeyMatcher getAnnotationKeyMatcher();
+    AnnotationKeyMatcher getPrimaryAnnotationKeyMatcher();
 }

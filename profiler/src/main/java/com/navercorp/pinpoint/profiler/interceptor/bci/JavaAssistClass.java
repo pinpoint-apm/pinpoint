@@ -433,7 +433,7 @@ public class JavaAssistClass implements InstrumentClass {
                 return new GroupDelegateStaticInterceptor((StaticAroundInterceptor)interceptor, transaction);
             }
         }
-        throw new IllegalArgumentException("unknown TargetMethod Type:" + interceptor.getClass());
+        throw new IllegalArgumentException("unknown TargetMethod ServiceTypeInfo:" + interceptor.getClass());
 
     }
 
@@ -469,7 +469,7 @@ public class JavaAssistClass implements InstrumentClass {
                     SimpleAroundInterceptor simpleAroundInterceptor = (SimpleAroundInterceptor) interceptor;
                     interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addSimpleInterceptor(simpleAroundInterceptor);
                 } else {
-                    throw new InstrumentException("unsupported TargetMethod Type:" + interceptor);
+                    throw new InstrumentException("unsupported TargetMethod ServiceTypeInfo:" + interceptor);
                 }
                 injectInterceptor(behavior, interceptor);
 

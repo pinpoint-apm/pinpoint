@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import com.navercorp.pinpoint.common.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.view;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleSerializers;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * @author Jongho Moon

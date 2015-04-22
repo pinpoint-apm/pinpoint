@@ -12,21 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.common.plugin;
+package com.navercorp.pinpoint.common.trace;
 
-import com.navercorp.pinpoint.common.AnnotationKey;
-import com.navercorp.pinpoint.common.AnnotationKeyMatcher;
-import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * @author Jongho Moon
  *
  */
-public interface TypeSetupContext {
+public interface TraceMetadataSetupContext {
 
-    void addType(ServiceType serviceType);
+    void addServiceType(ServiceType serviceType);
 
-    void addType(ServiceType serviceType, AnnotationKeyMatcher annotationKeyMatcher);
+    void addServiceType(ServiceType serviceType, AnnotationKeyMatcher primaryAnnotationKeyMatcher);
 
     void addAnnotationKey(AnnotationKey annotationKey);
 }

@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import org.apache.thrift.TException;
 import org.junit.Test;

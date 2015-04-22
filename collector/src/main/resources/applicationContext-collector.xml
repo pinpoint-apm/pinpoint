@@ -129,7 +129,7 @@
     </bean>
 
 
-    <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.service.DefaultTypeLoaderService"/>
+    <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService"/>
     <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService">
         <constructor-arg ref="typeLoaderService"/>
     </bean>

@@ -21,9 +21,9 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.common.AnnotationKeyMatcher;
-import com.navercorp.pinpoint.common.HistogramSchema;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
+import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public class StaticFieldLookUpTest {
 

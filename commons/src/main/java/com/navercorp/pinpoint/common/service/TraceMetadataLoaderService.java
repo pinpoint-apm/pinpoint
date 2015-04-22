@@ -16,16 +16,16 @@
 
 package com.navercorp.pinpoint.common.service;
 
-import com.navercorp.pinpoint.common.AnnotationKey;
-import com.navercorp.pinpoint.common.plugin.Type;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.ServiceTypeInfo;
 
 import java.util.List;
 
 /**
  * @author emeroad
  */
-public interface TypeLoaderService {
-    List<Type> getTypes();
+public interface TraceMetadataLoaderService {
+    List<ServiceTypeInfo> getServiceTypeInfos();
 
     List<AnnotationKey> getAnnotationKeys();
 }

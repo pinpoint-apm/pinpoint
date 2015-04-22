@@ -31,8 +31,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.navercorp.pinpoint.bootstrap.context.Header;
-import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
 import com.navercorp.pinpoint.test.junit4.IsRootSpan;

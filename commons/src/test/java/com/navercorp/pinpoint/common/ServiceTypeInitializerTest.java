@@ -14,7 +14,7 @@
  */
 package com.navercorp.pinpoint.common;
 
-import static com.navercorp.pinpoint.common.ServiceTypeProperty.*;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 import static org.junit.Assert.*;
 
 import java.lang.reflect.Field;
@@ -22,11 +22,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.service.*;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.TraceMetadataLoader;
+import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
+import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
-import org.junit.Test;
 
-import com.navercorp.pinpoint.common.plugin.TypeProvider;
-import com.navercorp.pinpoint.common.plugin.TypeSetupContext;
+import org.junit.Test;
 
 /**
  * @author Jongho Moon <jongho.moon@navercorp.com>
@@ -63,8 +67,8 @@ public class ServiceTypeInitializerTest {
     @Test
     public void testWithPlugins() {
 
-        List<TypeProvider> typeProviders = Arrays.<TypeProvider>asList(new TestProvider(TEST_TYPES, TEST_KEYS));
-        TypeLoaderService typeLoaderService = new DefaultTypeLoaderService(typeProviders);
+        List<TraceMetadataProvider> typeProviders = Arrays.<TraceMetadataProvider>asList(new TestProvider(TEST_TYPES, TEST_KEYS));
+        TraceMetadataLoaderService typeLoaderService = new DefaultTraceMetadataLoaderService(typeProviders);
         AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(typeLoaderService);
 
         StaticFieldLookUp<AnnotationKey> lookUp = new StaticFieldLookUp<AnnotationKey>(AnnotationKey.class, AnnotationKey.class);
@@ -77,70 +81,70 @@ public class ServiceTypeInitializerTest {
     @Test(expected=RuntimeException.class)
     public void testDuplicated() {
 
-        List<TypeProvider> providers = Arrays.<TypeProvider>asList(
+        List<TraceMetadataProvider> providers = Arrays.<TraceMetadataProvider>asList(
                 new TestProvider(TEST_TYPES, TEST_KEYS),
                 new TestProvider(new ServiceType[0], TEST_KEYS)
         );
 
-        TypeProviderLoader loader = new TypeProviderLoader();
+        TraceMetadataLoader loader = new TraceMetadataLoader();
         loader.load(providers);
     }
     
     @Test(expected=RuntimeException.class)
     public void testDuplicated2() {
-        List<TypeProvider> providers = Arrays.<TypeProvider>asList(
+        List<TraceMetadataProvider> providers = Arrays.<TraceMetadataProvider>asList(
                 new TestProvider(TEST_TYPES, TEST_KEYS),
                 new TestProvider(TEST_TYPES, new AnnotationKey[0])
         );
 
-        TypeProviderLoader loader = new TypeProviderLoader();
+        TraceMetadataLoader loader = new TraceMetadataLoader();
         loader.load(providers);
     }
     
     @Test(expected=RuntimeException.class)
     public void testDuplicated3() {
-        List<TypeProvider> providers = Arrays.<TypeProvider>asList(
+        List<TraceMetadataProvider> providers = Arrays.<TraceMetadataProvider>asList(
                 new TestProvider(TEST_TYPES, TEST_KEYS),
                 new TestProvider(TEST_TYPES, new AnnotationKey[0])
         );
 
-        TypeProviderLoader loader = new TypeProviderLoader();
+        TraceMetadataLoader loader = new TraceMetadataLoader();
         loader.load(providers);
     }
 
     @Test(expected=RuntimeException.class)
     public void testDuplicatedWithDefault() {
-        List<TypeProvider> providers = Arrays.<TypeProvider>asList(
+        List<TraceMetadataProvider> providers = Arrays.<TraceMetadataProvider>asList(
                 new TestProvider(DUPLICATED_CODE_WITH_DEFAULT_TYPE, TEST_KEYS)
         );
 
-        TypeLoaderService loaderService = new DefaultTypeLoaderService(providers);
+        TraceMetadataLoaderService loaderService = new DefaultTraceMetadataLoaderService(providers);
         ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService(loaderService);
     }
 
     @Test(expected=RuntimeException.class)
     public void testDuplicatedWithDefault2() {
-        List<TypeProvider> providers = Arrays.<TypeProvider>asList(
+        List<TraceMetadataProvider> providers = Arrays.<TraceMetadataProvider>asList(
                 new TestProvider(DUPLICATED_NAME_WITH_DEFAULT_TYPE, TEST_KEYS)
         );
 
-        TypeLoaderService loaderService = new DefaultTypeLoaderService(providers);
+        TraceMetadataLoaderService loaderService = new DefaultTraceMetadataLoaderService(providers);
         ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService(loaderService);
     }
 
     @Test(expected=RuntimeException.class)
     public void testDuplicatedWithDefault3() {
-        List<TypeProvider> providers = Arrays.<TypeProvider>asList(
+        List<TraceMetadataProvider> providers = Arrays.<TraceMetadataProvider>asList(
                 new TestProvider(TEST_TYPES, DUPLICATED_CODE_WITH_DEFAULT_KEY)
         );
 
-        TypeLoaderService loaderService = new DefaultTypeLoaderService(providers);
+        TraceMetadataLoaderService loaderService = new DefaultTraceMetadataLoaderService(providers);
         AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(loaderService);
 
     }
     
     
-    private static class TestProvider implements TypeProvider {
+    private static class TestProvider implements TraceMetadataProvider {
         private final ServiceType[] serviceTypes;
         private final AnnotationKey[] annotationKeys;
         
@@ -150,9 +154,9 @@ public class ServiceTypeInitializerTest {
         }
         
         @Override
-        public void setup(TypeSetupContext context) {
+        public void setup(TraceMetadataSetupContext context) {
             for (ServiceType type : serviceTypes) {
-                context.addType(type);
+                context.addServiceType(type);
             }
 
             for (AnnotationKey key : annotationKeys) {

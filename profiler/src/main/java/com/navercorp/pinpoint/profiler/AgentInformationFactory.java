@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler;
 
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.SystemProperty;

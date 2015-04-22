@@ -32,9 +32,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 
-import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
 
 /**

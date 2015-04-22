@@ -20,9 +20,9 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public class ApplicationMapStatisticsUtilsTest {
 

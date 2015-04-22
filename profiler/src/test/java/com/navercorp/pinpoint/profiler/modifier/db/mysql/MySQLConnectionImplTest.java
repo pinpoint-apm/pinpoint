@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.modifier.db.mysql;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.test.MockAgent;
 import com.navercorp.pinpoint.test.TestClassLoader;

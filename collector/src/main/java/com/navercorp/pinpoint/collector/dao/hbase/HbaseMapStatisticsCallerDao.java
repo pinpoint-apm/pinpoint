@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.collector.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.*;
 import com.navercorp.pinpoint.collector.util.AcceptedTimeService;
 import com.navercorp.pinpoint.collector.util.ConcurrentCounterMap;
-import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.util.TimeSlot;
 

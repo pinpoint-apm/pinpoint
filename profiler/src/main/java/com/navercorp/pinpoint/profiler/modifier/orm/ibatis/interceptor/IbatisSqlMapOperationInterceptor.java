@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.modifier.orm.ibatis.interceptor;
 
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.modifier.orm.SqlMapOperationInterceptor;
 
 /**

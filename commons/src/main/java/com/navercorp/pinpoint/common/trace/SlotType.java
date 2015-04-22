@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common;
+package com.navercorp.pinpoint.common.trace;
 
 
 public enum SlotType {

@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.common.HistogramSchema;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 
 import org.junit.Assert;

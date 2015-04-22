@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.common.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 
 /**
  * @author emeroad

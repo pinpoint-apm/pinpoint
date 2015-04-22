@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.CreateType;
 import com.navercorp.pinpoint.web.applicationmap.Link;
 import com.navercorp.pinpoint.web.applicationmap.Node;

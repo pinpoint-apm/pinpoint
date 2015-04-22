@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.common.service;
 
-import com.navercorp.pinpoint.common.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 
 /**
  * @author emeroad

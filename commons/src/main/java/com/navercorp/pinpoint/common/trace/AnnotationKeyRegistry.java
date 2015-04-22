@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.util;
+package com.navercorp.pinpoint.common.trace;
 
-import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 import com.navercorp.pinpoint.common.util.apache.IntHashMapUtils;
 
