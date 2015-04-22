@@ -481,16 +481,14 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 	
 	            var targetNodeCount = 0;
 	            links.forEach(function (link, linkIndex) {
-	                if (link.from == node.key &&
-	                    link.targetInfo.serviceType == mergeType &&
-	                    inboundCountMap[link.to] && inboundCountMap[link.to].toCount == 1) {
+	                if (link.from == node.key && link.targetInfo.serviceType == mergeType && inboundCountMap[link.to] && inboundCountMap[link.to].toCount == 1) {
 	                	targetNodeCount++;
 	                }
 	            });
 	            if (targetNodeCount < 2) {
 	                return;
 	            }
-	
+
 	            links.forEach(function (link, linkIndex) {
 	                if (link.targetInfo.serviceType != mergeType) {
 	                    return;
@@ -506,8 +504,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 	                    if (!newLink) {
 	                    	newLink = self._createNewLink( node.key, newNodeKey );
 	                    }
-	                    
-	                    self._addToSubNode( newNode, self._getNodeByApplicationName(nodes, link.targetInfo.applicationName), function() {} );
+	                    self._addToSubNode( newNode, self._getNodeByApplicationName(nodes, link.targetInfo.applicationName, mergeType ), function() {} );
 	                    self._mergeLinkData( newLink, link );	
 	                    newLink.unknownLinkGroup.push(link);
 	
@@ -650,7 +647,6 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                 		newLinks.push( self._createNewLink( fromNodeArrayOfInner[i], newNodeKey ) );
                 	}
                 }
-                
                 self._addToSubNode( newNode, innerNode, function( innerNodeKey ) {
                 	removeNodeIdSet[innerNodeKey] = null;
                 });
@@ -826,9 +822,9 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
             newLink.hasAlert = oldLink.hasAlert;
         }
     };
-    this._getNodeByApplicationName = function( nodes, applicationName) {
+    this._getNodeByApplicationName = function( nodes, applicationName, mergeType ) {
         for(var k in nodes) {
-            if (applicationName === nodes[k].applicationName) {
+            if (applicationName === nodes[k].applicationName && mergeType === nodes[k].serviceType ) {
                 return nodes[k];
             }
         }
