@@ -19,7 +19,7 @@ import java.lang.reflect.Member;
 import java.util.Arrays;
 import java.util.List;
 
-import com.navercorp.pinpoint.common.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 
 
 

@@ -14,8 +14,8 @@
  */
 package com.navercorp.pinpoint.plugin.servlet;
 
-import com.navercorp.pinpoint.common.HistogramSchema;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * @author Jongho Moon

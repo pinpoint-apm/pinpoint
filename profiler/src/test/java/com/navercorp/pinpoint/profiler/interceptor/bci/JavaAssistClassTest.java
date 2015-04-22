@@ -43,7 +43,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTrace
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.IntTraceValue;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.profiler.modifier.db.interceptor.UnKnownDatabaseInfo;

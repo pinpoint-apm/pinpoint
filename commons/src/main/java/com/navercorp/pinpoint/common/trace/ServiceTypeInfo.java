@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.service;
+package com.navercorp.pinpoint.common.trace;
 
-import com.navercorp.pinpoint.common.AnnotationKey;
-import com.navercorp.pinpoint.common.plugin.Type;
-
-import java.util.List;
 
 /**
  * @author emeroad
  */
-public interface TypeLoaderService {
-    List<Type> getTypes();
+public interface ServiceTypeInfo {
 
-    List<AnnotationKey> getAnnotationKeys();
+    ServiceType getServiceType();
+
+    AnnotationKeyMatcher getPrimaryAnnotationKeyMatcher();
 }

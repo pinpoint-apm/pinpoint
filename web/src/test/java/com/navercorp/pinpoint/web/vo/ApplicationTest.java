@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.vo;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * @author emeroad

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler;
 
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.HashMap;
 import java.util.Map;

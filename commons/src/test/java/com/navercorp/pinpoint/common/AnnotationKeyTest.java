@@ -18,10 +18,11 @@ package com.navercorp.pinpoint.common;
 
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.DefaultTypeLoaderService;
-import com.navercorp.pinpoint.common.service.TypeLoaderService;
-import org.junit.Assert;
+import com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService;
+import com.navercorp.pinpoint.common.service.TraceMetadataLoaderService;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ public class AnnotationKeyTest {
 
     @Test
     public void getCode() {
-        TypeLoaderService typeLoaderService = new DefaultTypeLoaderService();
+        TraceMetadataLoaderService typeLoaderService = new DefaultTraceMetadataLoaderService();
         AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(typeLoaderService);
 
         AnnotationKey annotationKey = annotationKeyRegistryService.findAnnotationKey(AnnotationKey.API.getCode());

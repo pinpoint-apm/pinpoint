@@ -12,13 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.common.plugin;
+package com.navercorp.pinpoint.common.trace;
 
 
 /**
- * @author Jongho Moon <jongho.moon@navercorp.com>
+ * @author Jongho Moon
  *
  */
-public interface TypeProvider {
-    void setup(TypeSetupContext context);
+public interface TraceMetadataSetupContext {
+
+    void addServiceType(ServiceType serviceType);
+
+    void addServiceType(ServiceType serviceType, AnnotationKeyMatcher primaryAnnotationKeyMatcher);
+
+    void addAnnotationKey(AnnotationKey annotationKey);
 }

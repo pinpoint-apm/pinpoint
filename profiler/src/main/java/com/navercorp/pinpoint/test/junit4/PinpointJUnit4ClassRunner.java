@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.test.junit4;
 import java.lang.reflect.Method;
 
 
+
 import org.junit.internal.runners.model.EachTestNotifier;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -31,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * @author hyungil.jeong

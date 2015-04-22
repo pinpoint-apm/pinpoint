@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.vo;
 
 import java.util.*;
 
-import com.navercorp.pinpoint.common.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 
 import org.slf4j.Logger;

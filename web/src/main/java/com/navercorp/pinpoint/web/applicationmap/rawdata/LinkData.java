@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
 
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import org.slf4j.Logger;

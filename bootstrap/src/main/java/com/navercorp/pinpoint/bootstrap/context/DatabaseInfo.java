@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.context;
 
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.List;
 

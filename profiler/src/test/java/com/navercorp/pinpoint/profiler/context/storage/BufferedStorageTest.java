@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context.storage;
 
-import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.profiler.context.storage.BufferedStorage;
 import com.navercorp.pinpoint.profiler.sender.CountingDataSender;
 
 import org.junit.Assert;
-
 import org.junit.Before;
 import org.junit.Test;
 

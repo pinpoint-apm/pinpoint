@@ -16,16 +16,15 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
-import static com.navercorp.pinpoint.common.HistogramSchema.*;
-import static com.navercorp.pinpoint.common.ServiceTypeProperty.*;
+import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 import java.util.List;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 

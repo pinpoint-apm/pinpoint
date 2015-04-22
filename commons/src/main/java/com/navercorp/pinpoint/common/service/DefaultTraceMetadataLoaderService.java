@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.common.service;
 
-import com.navercorp.pinpoint.common.AnnotationKey;
-import com.navercorp.pinpoint.common.TypeProviderLoader;
-import com.navercorp.pinpoint.common.plugin.Type;
-import com.navercorp.pinpoint.common.plugin.TypeProvider;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.ServiceTypeInfo;
+import com.navercorp.pinpoint.common.trace.TraceMetadataLoader;
+import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 
 import java.net.URL;
@@ -28,44 +28,44 @@ import java.util.List;
 /**
  * @author emeroad
  */
-public class DefaultTypeLoaderService implements TypeLoaderService {
+public class DefaultTraceMetadataLoaderService implements TraceMetadataLoaderService {
 
-    private final TypeProviderLoader loader;
+    private final TraceMetadataLoader loader;
 
-    public DefaultTypeLoaderService() {
+    public DefaultTraceMetadataLoaderService() {
         this(ClassLoaderUtils.getDefaultClassLoader());
     }
 
-    public DefaultTypeLoaderService(URL[] jarLists) {
+    public DefaultTraceMetadataLoaderService(URL[] jarLists) {
         if (jarLists == null) {
             throw new NullPointerException("jarLists must not be null");
         }
-        this.loader = new TypeProviderLoader();
+        this.loader = new TraceMetadataLoader();
         loader.load(jarLists);
 
     }
 
-    public DefaultTypeLoaderService(List<TypeProvider> providers) {
+    public DefaultTraceMetadataLoaderService(List<TraceMetadataProvider> providers) {
         if (providers == null) {
             throw new NullPointerException("providers must not be null");
         }
-        this.loader = new TypeProviderLoader();
+        this.loader = new TraceMetadataLoader();
         loader.load(providers);
 
     }
 
 
-    public DefaultTypeLoaderService(ClassLoader classLoader) {
+    public DefaultTraceMetadataLoaderService(ClassLoader classLoader) {
         if (classLoader == null) {
             throw new NullPointerException("classLoader must not be null");
         }
-        this.loader = new TypeProviderLoader();
+        this.loader = new TraceMetadataLoader();
         loader.load(classLoader);
     }
 
     @Override
-    public List<Type> getTypes() {
-        return loader.getTypes();
+    public List<ServiceTypeInfo> getServiceTypeInfos() {
+        return loader.getServiceTypeInfos();
     }
 
     @Override

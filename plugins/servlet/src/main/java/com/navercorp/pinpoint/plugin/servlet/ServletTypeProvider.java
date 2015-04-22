@@ -14,18 +14,18 @@
  */
 package com.navercorp.pinpoint.plugin.servlet;
 
-import com.navercorp.pinpoint.common.plugin.TypeProvider;
-import com.navercorp.pinpoint.common.plugin.TypeSetupContext;
+import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
+import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
 /**
  * @author Jongho Moon
  *
  */
-public class ServletTypeProvider implements TypeProvider {
+public class ServletTypeProvider implements TraceMetadataProvider {
 
     @Override
-    public void setup(TypeSetupContext context) {
-        context.addType(ServletConstants.SERVLET);
+    public void setup(TraceMetadataSetupContext context) {
+        context.addServiceType(ServletConstants.SERVLET);
     }
 
 }

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.Node;
 import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;

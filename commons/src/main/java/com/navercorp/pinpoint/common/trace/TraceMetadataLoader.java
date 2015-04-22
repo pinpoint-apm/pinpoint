@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.common;
+package com.navercorp.pinpoint.common.trace;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -24,33 +24,27 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.navercorp.pinpoint.common.plugin.*;
-import com.navercorp.pinpoint.common.plugin.TypeProvider;
+import com.navercorp.pinpoint.common.plugin.PluginLoader;
 
 /**
  * @author Jongho Moon
  *
  */
-public class TypeProviderLoader {
+public class TraceMetadataLoader {
     private final Logger logger = Logger.getLogger(getClass().getName());
 
-    private final List<Type> types = new ArrayList<Type>();
+    private final List<ServiceTypeInfo> serviceTypeInfos = new ArrayList<ServiceTypeInfo>();
     private final ServiceTypeChecker serviceTypeChecker = new ServiceTypeChecker();
 
     private final List<AnnotationKey> annotationKeys = new ArrayList<AnnotationKey>();
     private final AnnotationKeyChecker annotationKeyChecker = new AnnotationKeyChecker();
-
-
-    public TypeProviderLoader() {
-    }
-
 
     public void load(URL[] urls) {
         if (urls == null) {
             throw new NullPointerException("urls must not be null");
         }
 
-        List<TypeProvider> providers = PluginLoader.load(TypeProvider.class, urls);
+        List<TraceMetadataProvider> providers = PluginLoader.load(TraceMetadataProvider.class, urls);
         load(providers);
     }
     
@@ -59,60 +53,32 @@ public class TypeProviderLoader {
             throw new NullPointerException("loader must not be null");
         }
 
-        List<TypeProvider> providers = PluginLoader.load(TypeProvider.class, loader);
+        List<TraceMetadataProvider> providers = PluginLoader.load(TraceMetadataProvider.class, loader);
         load(providers);
     }
     
-    public void load(List<TypeProvider> providers) {
+    public void load(List<TraceMetadataProvider> providers) {
         if (providers == null) {
             throw new NullPointerException("providers must not be null");
         }
 
-        logger.info("Loading TypeProviders");
+        logger.info("Loading TraceMetadataProviders");
 
-        final List<TypeSetupContextImpl> setupContextList = new ArrayList<TypeSetupContextImpl>();
-
-        for (TypeProvider provider : providers) {
+        for (TraceMetadataProvider provider : providers) {
             if (logger.isLoggable(Level.INFO)) {
-                logger.info("Loading TypeProvider: " + provider.getClass().getName() + " name:" + provider.toString());
+                logger.info("Loading TraceMetadataProvider: " + provider.getClass().getName() + " name:" + provider.toString());
             }
 
-            TypeSetupContextImpl context = new TypeSetupContextImpl(provider.getClass());
+            TraceMetadataSetupContextImpl context = new TraceMetadataSetupContextImpl(provider.getClass());
             provider.setup(context);
-
-
-            setupContextList.add(context);
         }
 
-        buildType(setupContextList);
-        buildAnnotationKey(setupContextList);
-    }
-
-    public void buildType(List<TypeSetupContextImpl> setupContextList) {
-
-        for (TypeSetupContextImpl typeSetupContext : setupContextList) {
-            for (Type type : typeSetupContext.getTypes()) {
-                this.serviceTypeChecker.check(type.getServiceType(), typeSetupContext.getProvider());
-                types.add(type);
-            }
-        }
         this.serviceTypeChecker.logResult();
-    }
-
-    public void buildAnnotationKey(List<TypeSetupContextImpl> setupContextList) {
-
-        for (TypeSetupContextImpl typeSetupContext : setupContextList) {
-            for (AnnotationKey annotationKey : typeSetupContext.getAnnotationKeys()) {
-                this.annotationKeyChecker.check(annotationKey, typeSetupContext.getProvider());
-                annotationKeys.add(annotationKey);
-            }
-        }
         this.annotationKeyChecker.logResult();
     }
 
-
-    public List<Type> getTypes() {
-        return types;
+    public List<ServiceTypeInfo> getServiceTypeInfos() {
+        return serviceTypeInfos;
     }
 
     public List<AnnotationKey> getAnnotationKeys() {
@@ -120,54 +86,41 @@ public class TypeProviderLoader {
     }
 
 
-    private class TypeSetupContextImpl implements TypeSetupContext {
+    private class TraceMetadataSetupContextImpl implements TraceMetadataSetupContext {
         private final Class<?> provider;
-        private final List<Type> types = new ArrayList<Type>();
-        private final List<AnnotationKey> annotationKeys = new ArrayList<AnnotationKey>();
 
-        private final ServiceTypeChecker contextServiceTypeChecker = new ServiceTypeChecker();
-        private final AnnotationKeyChecker contextAnnotationKeyChecker = new AnnotationKeyChecker();
-        
-        public TypeSetupContextImpl(Class<?> provider) {
+        public TraceMetadataSetupContextImpl(Class<?> provider) {
             this.provider = provider;
         }
 
-        private Class<?> getProvider() {
-            return provider;
-        }
-
         @Override
-        public void addType(ServiceType serviceType) {
+        public void addServiceType(ServiceType serviceType) {
             if (serviceType == null) {
                 throw new NullPointerException("serviceType must not be null");
             }
-            Type type = new DefaultType(serviceType);
+            ServiceTypeInfo type = new DefaultServiceTypeInfo(serviceType);
             addType0(type);
         }
 
         @Override
-        public void addType(ServiceType serviceType, AnnotationKeyMatcher annotationKeyMatcher) {
+        public void addServiceType(ServiceType serviceType, AnnotationKeyMatcher annotationKeyMatcher) {
             if (serviceType == null) {
                 throw new NullPointerException("serviceType must not be null");
             }
             if (annotationKeyMatcher == null) {
                 throw new NullPointerException("annotationKeyMatcher must not be null");
             }
-            Type type = new DefaultType(serviceType, annotationKeyMatcher);
+            ServiceTypeInfo type = new DefaultServiceTypeInfo(serviceType, annotationKeyMatcher);
             addType0(type);
         }
 
-        private void addType0(Type type) {
+        private void addType0(ServiceTypeInfo type) {
             if (type == null) {
                 throw new NullPointerException("type must not be null");
             }
             // local check
-            contextServiceTypeChecker.check(type.getServiceType(), provider);
-            this.types.add(type);
-        }
-
-        private List<Type> getTypes() {
-            return types;
+            serviceTypeChecker.check(type.getServiceType(), provider);
+            serviceTypeInfos.add(type);
         }
 
         @Override
@@ -176,12 +129,8 @@ public class TypeProviderLoader {
                 throw new NullPointerException("annotationKey must not be null");
             }
             // local check
-            contextAnnotationKeyChecker.check(annotationKey, provider);
-            this.annotationKeys.add(annotationKey);
-        }
-
-        private List<AnnotationKey> getAnnotationKeys() {
-            return annotationKeys;
+            annotationKeyChecker.check(annotationKey, provider);
+            annotationKeys.add(annotationKey);
         }
     }
 

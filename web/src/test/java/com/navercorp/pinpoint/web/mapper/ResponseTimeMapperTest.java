@@ -16,16 +16,15 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
-import com.navercorp.pinpoint.common.HistogramSlot;
-import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.trace.HistogramSlot;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.mapper.ResponseTimeMapper;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
 import org.junit.Assert;
-
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
 

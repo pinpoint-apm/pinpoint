@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.common.bo;
 
-import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 
 import org.junit.Assert;
 import org.junit.Test;

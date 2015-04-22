@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import com.navercorp.pinpoint.common.AnnotationKey;
-import com.navercorp.pinpoint.common.AnnotationKeyMatcher;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
-import static com.navercorp.pinpoint.common.AnnotationKeyMatcher.ARGS_MATCHER;
+import static com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher.*;
 
 /**
  * @author emeroad

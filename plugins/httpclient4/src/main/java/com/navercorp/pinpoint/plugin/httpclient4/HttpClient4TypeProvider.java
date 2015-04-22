@@ -15,19 +15,19 @@
  */
 package com.navercorp.pinpoint.plugin.httpclient4;
 
-import com.navercorp.pinpoint.common.plugin.TypeProvider;
-import com.navercorp.pinpoint.common.plugin.TypeSetupContext;
+import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
+import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
 /**
  * 
  * @author jaehong.kim
  *
  */
-public class HttpClient4TypeProvider implements TypeProvider, HttpClient4Constants{
+public class HttpClient4TypeProvider implements TraceMetadataProvider, HttpClient4Constants{
 
     @Override
-    public void setup(TypeSetupContext context) {
-        context.addType(HTTP_CLIENT4);
-        context.addType(HTTP_CLIENT4_INTERNAL);
+    public void setup(TraceMetadataSetupContext context) {
+        context.addServiceType(HTTP_CLIENT4);
+        context.addServiceType(HTTP_CLIENT4_INTERNAL);
     }
 }

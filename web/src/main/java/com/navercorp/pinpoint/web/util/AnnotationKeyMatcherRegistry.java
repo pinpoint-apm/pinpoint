@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.util;
 
-import com.navercorp.pinpoint.common.AnnotationKeyMatcher;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 import com.navercorp.pinpoint.common.util.apache.IntHashMapUtils;
 

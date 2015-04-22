@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.common.service;
 
-import com.navercorp.pinpoint.common.AnnotationKey;
-import com.navercorp.pinpoint.common.util.AnnotationKeyRegistry;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyRegistry;
 import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
 
 import java.util.List;
@@ -30,15 +30,15 @@ import java.util.logging.Logger;
 public class DefaultAnnotationKeyRegistryService implements AnnotationKeyRegistryService {
     private final Logger logger = Logger.getLogger(DefaultServiceTypeRegistryService.class.getName());
 
-    private final TypeLoaderService typeLoaderService;
+    private final TraceMetadataLoaderService typeLoaderService;
     private final AnnotationKeyRegistry registry;
 
     public DefaultAnnotationKeyRegistryService() {
-        this(new DefaultTypeLoaderService());
+        this(new DefaultTraceMetadataLoaderService());
     }
 
 
-    public DefaultAnnotationKeyRegistryService(TypeLoaderService typeLoaderService) {
+    public DefaultAnnotationKeyRegistryService(TraceMetadataLoaderService typeLoaderService) {
         if (typeLoaderService == null) {
             throw new NullPointerException("typeLoaderService must not be null");
         }

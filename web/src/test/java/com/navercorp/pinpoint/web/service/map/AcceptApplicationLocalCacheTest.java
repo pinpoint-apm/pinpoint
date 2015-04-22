@@ -20,10 +20,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.Application;
 
 

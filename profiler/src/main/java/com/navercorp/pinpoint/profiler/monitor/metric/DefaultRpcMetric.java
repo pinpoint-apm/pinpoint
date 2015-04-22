@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric;
 
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.ArrayList;
 import java.util.List;

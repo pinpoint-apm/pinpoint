@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.plugin;
+package com.navercorp.pinpoint.common.trace;
 
-import com.navercorp.pinpoint.common.AnnotationKeyMatcher;
-import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * @author emeroad
  */
-public class DefaultType implements Type {
+public class DefaultServiceTypeInfo implements ServiceTypeInfo {
 
     private final ServiceType serviceType;
     private final AnnotationKeyMatcher annotationKeyMatcher;
 
-    public DefaultType(ServiceType serviceType, AnnotationKeyMatcher annotationKeyMatcher) {
+    public DefaultServiceTypeInfo(ServiceType serviceType, AnnotationKeyMatcher annotationKeyMatcher) {
         if (serviceType == null) {
             throw new NullPointerException("serviceType must not be null");
         }
@@ -38,7 +36,7 @@ public class DefaultType implements Type {
         this.annotationKeyMatcher = annotationKeyMatcher;
     }
 
-    public DefaultType(ServiceType serviceType) {
+    public DefaultServiceTypeInfo(ServiceType serviceType) {
         if (serviceType == null) {
             throw new NullPointerException("serviceType must not be null");
         }
@@ -46,7 +44,7 @@ public class DefaultType implements Type {
         this.annotationKeyMatcher = null;
     }
 
-    public AnnotationKeyMatcher getAnnotationKeyMatcher() {
+    public AnnotationKeyMatcher getPrimaryAnnotationKeyMatcher() {
         return annotationKeyMatcher;
     }
 

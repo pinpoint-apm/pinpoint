@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common;
+package com.navercorp.pinpoint.common.trace;
 
-import static com.navercorp.pinpoint.common.AnnotationKeyProperty.*;
+import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
 
 import java.util.Collections;
 import java.util.List;

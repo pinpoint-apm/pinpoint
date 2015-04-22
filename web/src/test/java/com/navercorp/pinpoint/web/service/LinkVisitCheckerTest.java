@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.service.LinkVisitChecker;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 
 /**

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.modifier.orm;
 
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * @author Hyun Jeong

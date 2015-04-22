@@ -15,13 +15,13 @@
  */
 package com.navercorp.pinpoint.plugin.redis;
 
-import com.navercorp.pinpoint.common.plugin.TypeProvider;
-import com.navercorp.pinpoint.common.plugin.TypeSetupContext;
+import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
+import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
-public class RedisTypeProvider implements TypeProvider, RedisConstants{
+public class RedisTypeProvider implements TraceMetadataProvider, RedisConstants{
 
     @Override
-    public void setup(TypeSetupContext context) {
-        context.addType(REDIS);
+    public void setup(TraceMetadataSetupContext context) {
+        context.addServiceType(REDIS);
     }
 }

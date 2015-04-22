@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * @author emeroad

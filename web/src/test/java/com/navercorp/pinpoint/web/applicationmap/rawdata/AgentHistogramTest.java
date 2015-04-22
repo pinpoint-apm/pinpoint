@@ -17,13 +17,12 @@
 package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
