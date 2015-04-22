@@ -12,14 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.plugin.objectfactory;
+package com.navercorp.pinpoint.plugin.jdbc.cubrid;
 
-import java.lang.annotation.Annotation;
+import com.navercorp.pinpoint.common.AnnotationKey;
+import com.navercorp.pinpoint.common.AnnotationKeyMatcher;
+import com.navercorp.pinpoint.common.plugin.TypeProvider;
+import com.navercorp.pinpoint.common.plugin.TypeSetupContext;
 
 /**
  * @author Jongho Moon
  *
  */
-public interface ParameterResolver {
-    public Option<Object> resolve(int index, Class<?> type, Annotation[] annotations);
+public class CubridTypeProvider implements TypeProvider, CubridConstants {
+
+    @Override
+    public void setup(TypeSetupContext context) {
+        context.addType(CUBRID, new AnnotationKeyMatcher.ExactMatcher(AnnotationKey.ARGS0));
+        context.addType(CUBRID_EXECUTE_QUERY, new AnnotationKeyMatcher.ExactMatcher(AnnotationKey.ARGS0));
+    }
+
 }

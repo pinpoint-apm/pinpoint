@@ -21,17 +21,22 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
      * @param callback
      */
      this.getServerMapData = function (query, cb) {
+    	var data = {
+            applicationName: query.applicationName,
+            from: query.from,
+            to: query.to
+        };
+    	if ( isNaN( parseInt( query.serviceTypeName ) ) ) {
+    		data.serviceTypeName = query.serviceTypeName; 
+    	} else {
+    		data.serviceTypeCode = query.serviceTypeName;
+    	}
         jQuery.ajax({
             type: 'GET',
             url: cfg.serverMapDataUrl,
             cache: false,
             dataType: 'json',
-            data: {
-                applicationName: query.applicationName,
-                serviceTypeName: query.serviceTypeName,
-                from: query.from,
-                to: query.to
-            },
+            data: data,
             success: function (result) {
                 if (angular.isFunction(cb)) {
                     cb(null, query, result);
@@ -53,13 +58,17 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
     this.getFilteredServerMapData = function (query, cb) {
         var data = {
             applicationName: query.applicationName,
-            serviceTypeName: query.serviceTypeName,
             from: query.from,
             to: query.to,
             originTo: query.originTo,
             filter: query.filter,
             limit: cfg.FILTER_FETCH_LIMIT
         };
+        if ( isNaN( parseInt( query.serviceTypeName ) ) ) {
+    		data.serviceTypeName = query.serviceTypeName; 
+    	} else {
+    		data.serviceTypeCode = query.serviceTypeName;
+    	}
         if (query.hint) {
             data.hint = query.hint;
         }

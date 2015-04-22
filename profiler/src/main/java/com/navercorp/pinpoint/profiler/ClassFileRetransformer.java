@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.profiler;
 
+import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventListener;
+
 import java.lang.instrument.ClassFileTransformer;
 
 /**
  * @author emeroad
  */
-public interface ClassFileRetransformer extends ClassFileTransformer {
-
-    void addRetranformEvent(Class<?> target, ClassFileTransformer transformer);
+public interface ClassFileRetransformer extends ClassFileTransformer, RetransformEventListener {
 
 }

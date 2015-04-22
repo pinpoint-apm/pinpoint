@@ -61,6 +61,7 @@ public interface TraceContext {
 
     int cacheString(String value);
 
+    // TODO extract jdbc related methods
     ParsingResult parseSql(String sql);
 
     boolean cacheSql(ParsingResult parsingResult);

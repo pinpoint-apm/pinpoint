@@ -16,18 +16,18 @@
 
 package com.navercorp.pinpoint.profiler.modifier.db.jtds;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.profiler.modifier.db.ConnectionStringParser;
 import com.navercorp.pinpoint.profiler.modifier.db.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.profiler.modifier.db.JDBCUrlParser;
 import com.navercorp.pinpoint.profiler.modifier.db.StringMaker;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author emeroad

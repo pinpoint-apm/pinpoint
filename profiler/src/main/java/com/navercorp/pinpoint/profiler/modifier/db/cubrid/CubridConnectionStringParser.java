@@ -16,20 +16,20 @@
 
 package com.navercorp.pinpoint.profiler.modifier.db.cubrid;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.profiler.modifier.db.ConnectionStringParser;
 import com.navercorp.pinpoint.profiler.modifier.db.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.profiler.modifier.db.JDBCUrlParser;
 import com.navercorp.pinpoint.profiler.modifier.db.StringMaker;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author emeroad
@@ -49,13 +49,13 @@ public class CubridConnectionStringParser implements ConnectionStringParser {
     @Override
     public DatabaseInfo parse(String url) {
         if (url == null) {
-            return JDBCUrlParser.createUnknownDataBase(ServiceType.CUBRID, ServiceType.CUBRID_EXECUTE_QUERY, null);
+            return JDBCUrlParser.createUnknownDataBase(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, null);
         }
 
         final Matcher matcher = PATTERN.matcher(url);
         if (!matcher.find()) {
             logger.warn("Cubrid connectionString parse fail. url:{}", url);
-            return JDBCUrlParser.createUnknownDataBase(ServiceType.CUBRID, ServiceType.CUBRID_EXECUTE_QUERY, url);
+            return JDBCUrlParser.createUnknownDataBase(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, url);
         }
 
         String host = matcher.group(2);
@@ -102,7 +102,7 @@ public class CubridConnectionStringParser implements ConnectionStringParser {
 
         // skip alt host
 
-        return new DefaultDatabaseInfo(ServiceType.CUBRID, ServiceType.CUBRID_EXECUTE_QUERY, url, normalizedUrl, hostList, db);
+        return new DefaultDatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, url, normalizedUrl, hostList, db);
     }
 
 

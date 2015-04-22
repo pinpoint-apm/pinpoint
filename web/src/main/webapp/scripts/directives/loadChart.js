@@ -159,6 +159,9 @@ pinpointApp
                             };
                         }
                         oChart = AmCharts.makeChart(id, options);
+                        oChart.addListener("clickGraph", function(e) {
+                        	$at($at.MAIN, $at.CLK_LOAD_GRAPH);
+                        });
                     });
                 };
 

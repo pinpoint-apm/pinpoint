@@ -5,7 +5,7 @@ pinpointApp.constant('TransactionDetailConfig', {
 
 pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$scope', '$rootScope', '$routeParams', '$timeout', '$rootElement', 'Alerts', 'ProgressBar', 'TransactionDao', '$window', '$location',
     function (cfg, $scope, $rootScope, $routeParams, $timeout, $rootElement, Alerts, ProgressBar, TransactionDao, $window, $location) {
-
+		$at($at.TRANSACTION_DETAIL_PAGE);
         // define private variables
         var oAlert, oProgressBar, bShowCallStacksOnce;
 
@@ -97,6 +97,7 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
             $window.open('/#/transactionView/' + $scope.transactionDetail.agentId + '/' + $scope.transactionDetail.transactionId + '/' + $scope.transactionDetail.callStackStart);
         };
         $scope.$on("transactionDetail.selectDistributedCallFlowRow", function( event, rowId ) {
+        	$at($at.CALLSTACK, $at.CLK_DISTRIBUTED_CALL_FLOW);
         	$("#traceTabs li:nth-child(1) a").trigger("click");
         	$scope.$broadcast('distributedCallFlow.selectRow.forTransactionDetail', rowId);
         });
@@ -106,9 +107,11 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
             e.preventDefault();
         });
         $("#traceTabs li:nth-child(2) a").bind("click", function (e) {
+        	$at($at.CALLSTACK, $at.CLK_SERVER_MAP);
             $scope.$broadcast('serverMap.initializeWithMapData', $scope.transactionDetail);
         });
         $("#traceTabs li:nth-child(3) a").bind("click", function (e) {
+        	$at($at.CALLSTACK, $at.CLK_RPC_TIMELINE);
             $scope.$broadcast('timeline.initialize', $scope.transactionDetail);
         });
 

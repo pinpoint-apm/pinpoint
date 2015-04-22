@@ -31,31 +31,49 @@
                 "sBoldKey": null,
                 "htIcons": {
                     'APACHE': 'APACHE.png',
+                    'APACHE_GROUP': 'APACHE.png',
                     'ARCUS': 'ARCUS.png',
+                    'ARCUS_GROUP': 'ARCUS.png',
                     'BACKEND': 'BACKEND.png',
+                    'BACKEND_GROUP': 'BACKEND.png',
                     'BLOC': 'BLOC.png',
+                    'BLOC_GROUP': 'BLOC.png',
                     'CASSANDRA': 'CASSANDRA.png',
+                    'CASSANDRA_GROUP': 'CASSANDRA.png',
                     'CUBRID': 'CUBRID.png',
+                    'CUBRID_GROUP': 'CUBRID.png',
                     'JAVA': 'JAVA.png',
+                    'JAVA_GROUP': 'JAVA.png',
                     'MEMCACHED': 'MEMCACHED.png',
+                    'MEMCACHED_GROUP': 'MEMCACHED.png',
                     'MONGODB': 'MONGODB.png',
+                    'MONGODB_GROUP': 'MONGODB.png',
                     'MSSQLSERVER': 'MSSQLSERVER.png',
                     'MSSQLSERVER_GROUP': 'MSSQLSERVER.png',
                     'MYSQL': 'MYSQL.png',
                     'MYSQL_GROUP': 'MYSQL.png',
                     'NBASE': 'NBASE.png',
+                    'NBASE_GROUP': 'NBASE.png',
                     'NGINX': 'NGINX.png',
+                    'NGINX_GROUP': 'NGINX.png',
                     'ORACLE': 'ORACLE.png',
+                    'ORACLE_GROUP': 'ORACLE.png',
                     'QUEUE': 'QUEUE.png',
+                    'QUEUE_GROUP': 'QUEUE.png',
                     'STAND_ALONE': 'STAND_ALONE.png',
+                    'STAND_ALONE_GROUP': 'STAND_ALONE.png',
                     'TOMCAT': 'TOMCAT.png',
+                    'TOMCAT_GROUP': 'TOMCAT.png',
                     'UNDEFINED': 'UNDEFINED.png',
                     'UNDEFINED_GROUP': 'UNDEFINED.png',
                     'UNKNOWN': 'UNKNOWN.png',
                     'UNKNOWN_GROUP': 'UNKNOWN_GROUP.png',
                     'REDIS': 'REDIS.png',
+                    'REDIS_GROUP': 'REDIS.png',
                     'NBASE_ARC': 'NBASE_ARC.png',
-                    'USER': 'USER.png'
+                    'NBASE_ARC_GROUP': 'NBASE_ARC.png',
+                    'USER': 'USER.png',
+                    'USER_GROUP': 'USER.png'
                 },
                 "htNodeTheme": {
                     "default": {
@@ -512,6 +530,7 @@
                     	margin: 2,
                     	visible : false,
                     	click: function(e, o) {
+                    		$at($at.MAIN, $at.TG_NODE_VIEW);
                     		e.bubbles = false;
                     		var isCollapse = o.part.data.isCollapse;
                     		self._oDiagram.model.setDataProperty( o.part.data, "isCollapse", !isCollapse );
@@ -1154,6 +1173,7 @@
             var node = obj.part,
             fOnNodeSubGroupClicked = this.option('fOnNodeSubGroupClicked');
 	        if (_.isFunction(fOnNodeSubGroupClicked)) {
+	        	$at($at.MAIN, $at.CLK_NODE);
 	        	fOnNodeSubGroupClicked.call(this, e, node, unknownKey, fromName);
 	        }
         },
@@ -1170,6 +1190,7 @@
                 htData = node.data,
                 fOnNodeClicked = this.option('fOnNodeClicked');
             if (_.isFunction(fOnNodeClicked)) {
+            	$at($at.MAIN, $at.CLK_NODE);
                 fOnNodeClicked.call(this, e, htData, unknownKey, query);
             }
         },
@@ -1217,6 +1238,7 @@
                 htData = link.data,
                 fOnLinkClicked = this.option('fOnLinkClicked');
             if (_.isFunction(fOnLinkClicked)) {
+            	$at($at.MAIN, $at.CLK_LINK);
                 htData.fromNode = obj.fromNode.part.data;
                 htData.toNode = obj.toNode.part.data;
                 fOnLinkClicked.call(this, e, htData);

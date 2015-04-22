@@ -2,7 +2,7 @@
 
 pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', 'location', 'NavbarVo',
     function ($scope, $timeout, $routeParams, location, NavbarVo) {
-
+		$at($at.INSPECTOR_PAGE);
         // define private variables
         var oNavbarVo, oAgent;
 

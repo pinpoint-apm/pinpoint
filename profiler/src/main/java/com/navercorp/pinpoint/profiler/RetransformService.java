@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler;
 
+import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventListener;
 import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventTrigger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ public class RetransformService implements RetransformEventTrigger {
 
     private final Instrumentation instrumentation;
 
-    private ClassFileTransformerDispatcher classFileRetransformer;
+    private RetransformEventListener retransformEventListener;
 
     public RetransformService(Instrumentation instrumentation) {
         if (instrumentation == null) {
@@ -50,7 +51,7 @@ public class RetransformService implements RetransformEventTrigger {
         }
         assertClass(target);
 
-        this.classFileRetransformer.addRetransformEvent(target, transformer);
+        this.retransformEventListener.addRetransformEvent(target, transformer);
 
         triggerRetransform(target);
 
@@ -70,11 +71,11 @@ public class RetransformService implements RetransformEventTrigger {
         }
     }
 
-    public void bindRetransformEvent(ClassFileTransformerDispatcher classFileTransformerDispatcher) {
-        if (classFileTransformerDispatcher == null) {
-            throw new NullPointerException("classFileTransformerDispatcher must not be null");
+    public void setRetransformEventListener(RetransformEventListener retransformEventListener) {
+        if (retransformEventListener == null) {
+            throw new NullPointerException("retransformEventListener must not be null");
         }
-        this.classFileRetransformer = classFileTransformerDispatcher;
+        this.retransformEventListener = retransformEventListener;
     }
 
 }

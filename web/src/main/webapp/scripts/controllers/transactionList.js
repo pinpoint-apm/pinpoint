@@ -13,7 +13,7 @@ pinpointApp.constant('TransactionListConfig', {
 
 pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$routeParams', '$rootScope', '$timeout', '$window', '$http', 'webStorage', 'TimeSliderVo', 'encodeURIComponentFilter', 'TransactionDao',
     function (cfg, $scope, $routeParams, $rootScope, $timeout, $window, $http, webStorage, TimeSliderVo, encodeURIComponentFilter, oTransactionDao) {
-
+		$at($at.TRANSACTION_LIST_PAGE);
         // define private variables
         var nFetchCount, nLastFetchedIndex, htTransactionInfo, htTransactionData, oTimeSliderVo;
 

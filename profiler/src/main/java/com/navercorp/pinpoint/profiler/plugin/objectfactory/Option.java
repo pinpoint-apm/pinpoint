@@ -17,28 +17,28 @@
 package com.navercorp.pinpoint.profiler.plugin.objectfactory;
 
 // TODO move package
-public abstract class Option<T> {
-    public abstract T getValue();
+public abstract class Option {
+    public abstract Object getValue();
     public abstract boolean hasValue();
     
-    public static <U> Option<U> withValue(U value) {
-        return new WithValue<U>(value);
+    public static Option withValue(Object value) {
+        return new WithValue(value);
     }
     
     @SuppressWarnings("unchecked")
-    public static <U> Option<U> empty() {
-        return (Option<U>)EMPTY;
+    public static Option empty() {
+        return (Option)EMPTY;
     }
     
-    private static final class WithValue<T> extends Option<T> {
-        private final T value;
+    private static final class WithValue extends Option {
+        private final Object value;
         
-        private WithValue(T value) {
+        private WithValue(Object value) {
             this.value = value;
         }
 
         @Override
-        public T getValue() {
+        public Object getValue() {
             return value;
         }
 
@@ -49,7 +49,7 @@ public abstract class Option<T> {
         
     }
  
-    private static final Option<Object> EMPTY = new Option<Object>() {
+    private static final Option EMPTY = new Option() {
 
         @Override
         public Object getValue() {

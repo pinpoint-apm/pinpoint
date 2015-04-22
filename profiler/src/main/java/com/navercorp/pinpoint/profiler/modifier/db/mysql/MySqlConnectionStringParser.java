@@ -16,16 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.modifier.db.mysql;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.profiler.modifier.db.ConnectionStringParser;
 import com.navercorp.pinpoint.profiler.modifier.db.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.profiler.modifier.db.JDBCUrlParser;
 import com.navercorp.pinpoint.profiler.modifier.db.StringMaker;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author emeroad

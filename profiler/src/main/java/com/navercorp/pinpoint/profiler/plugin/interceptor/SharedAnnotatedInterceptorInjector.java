@@ -14,40 +14,45 @@
  */
 package com.navercorp.pinpoint.profiler.plugin.interceptor;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.profiler.plugin.transformer.MethodRecipe;
 
 /**
  * @author Jongho Moon
  *
  */
-public class SingletonInterceptorInjector implements InterceptorInjector {
-    private final InterceptorFactory factory;
-    private int id = -1;
 
-    public SingletonInterceptorInjector(InterceptorFactory factory) {
-        this.factory = factory;
+public class SharedAnnotatedInterceptorInjector implements MethodRecipe {
+    private final AnnotatedInterceptorInjector injector;
+    private final ConcurrentMap<ClassLoader, Integer> interceptorIdMap = new ConcurrentHashMap<ClassLoader, Integer>();
+    
+    public SharedAnnotatedInterceptorInjector(AnnotatedInterceptorInjector injector) {
+        this.injector = injector;
     }
     
     @Override
-    public void edit(ClassLoader targetClassLoader, InstrumentClass targetClass, MethodInfo targetMethod) throws InstrumentException {
-        if (id == -1) {
-            Interceptor interceptor = factory.getInterceptor(targetClassLoader, targetClass, targetMethod);
-            
-            if (targetMethod.isConstructor()) {
-                id = targetClass.addConstructorInterceptor(targetMethod.getParameterTypes(), interceptor);
-            } else {
-                id = targetClass.addInterceptor(targetMethod.getName(), targetMethod.getParameterTypes(), interceptor);
-            }
+    public void edit(ClassLoader targetClassLoader, InstrumentClass targetClass, MethodInfo targetMethod) throws Exception {
+        Integer interceptorId = interceptorIdMap.get(targetClassLoader);
+        
+        if (interceptorId == null) {
+            interceptorId = injector.inject(targetClassLoader, targetClass, targetMethod);
+            interceptorIdMap.put(targetClassLoader, interceptorId);
         } else {
             if (targetMethod.isConstructor()) {
                 // InstruemtnClass does not have reuseConstructorInterceptor(). Maybe nobody needs it. Don't bother adding unnecessary method.
                 throw new IllegalArgumentException("Reusing constructor interceptor is not supported");
             } else {
-                targetClass.reuseInterceptor(targetMethod.getName(), targetMethod.getParameterTypes(), id);
+                targetClass.reuseInterceptor(targetMethod.getName(), targetMethod.getParameterTypes(), interceptorId);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "SharedAnnotatedInterceptorInjector[" + injector + "]";
     }
 }

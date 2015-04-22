@@ -88,8 +88,10 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
     }
     
     @Override
-    public void injectInterceptor(String className, Object... constructorArgs) {
-        recipeBuilders.add(new TargetAnnotatedInterceptorInjectorBuilder(className, constructorArgs));
+    public InterceptorBuilder injectInterceptor(String className, Object... constructorArgs) {
+        TargetAnnotatedInterceptorInjectorBuilder builder = new TargetAnnotatedInterceptorInjectorBuilder(className, constructorArgs);
+        recipeBuilders.add(builder);
+        return builder;
     }
 
     @Override
@@ -152,18 +154,32 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
 
 
 
-    private class TargetAnnotatedInterceptorInjectorBuilder implements RecipeBuilder<ClassRecipe> {
+    private class TargetAnnotatedInterceptorInjectorBuilder implements InterceptorBuilder, RecipeBuilder<ClassRecipe> {
         private final String interceptorClassName;
         private final Object[] constructorArguments;
         
+        private String groupName;
+        private ExecutionPolicy executionPoint;
+
         public TargetAnnotatedInterceptorInjectorBuilder(String interceptorClassName, Object[] constructorArguments) {
             this.interceptorClassName = interceptorClassName;
             this.constructorArguments = constructorArguments;
         }
 
         @Override
+        public void group(String groupName) {
+            group(groupName, ExecutionPolicy.BOUNDARY);            
+        }
+        
+        @Override
+        public void group(String groupName, ExecutionPolicy point) {
+            this.groupName = groupName;
+            this.executionPoint = point;
+        }
+
+        @Override
         public ClassRecipe buildRecipe() {
-            return new TargetAnnotatedInterceptorInjector(pluginContext, interceptorClassName, constructorArguments);
+            return new TargetAnnotatedInterceptorInjector(pluginContext, interceptorClassName, constructorArguments, groupName, executionPoint);
         }
     }
 
@@ -181,7 +197,7 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
         
         @Override
         public void group(String groupName) {
-            group(groupName, ExecutionPolicy.ALWAYS);            
+            group(groupName, ExecutionPolicy.BOUNDARY);            
         }
         
         @Override

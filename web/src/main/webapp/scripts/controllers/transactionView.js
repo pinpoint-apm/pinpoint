@@ -6,7 +6,7 @@ pinpointApp.constant('TransactionViewConfig', {
 
 pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope', '$rootScope', '$rootElement', 'Alerts', 'ProgressBar', '$timeout', '$routeParams', 'TransactionDao', 'AgentDao',
     function (cfg, $scope, $rootScope, $rootElement, Alerts, ProgressBar, $timeout, $routeParams, TransactionDao, AgentDao) {
-
+		$at($at.TRANSACTION_VIEW_PAGE);
         // define private variables
         var oAlert, oProgressBar;
 

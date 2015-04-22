@@ -15,6 +15,7 @@
 package com.navercorp.pinpoint.profiler.plugin.objectfactory;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,64 +23,87 @@ import java.util.List;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe.ByConstructor;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe.ByStaticFactoryMethod;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
 
 /**
  * @author Jongho Moon
  *
  */
-public class AutoBindingObjectFactory<T> {
+public class AutoBindingObjectFactory {
+    private final ClassLoader classLoader;
+    private final PinpointTypeArgumentProvider pinpointResolver;
 
-    private final ProfilerPluginContext pluginContext;
-    private final InterceptorGroup interceptorGroup;
-    private final InstrumentClass targetClass;
-    private final MethodInfo targetMethod;
-    private final Object[] providedValues;
-    
-    public AutoBindingObjectFactory(ProfilerPluginContext pluginContext, InstrumentClass targetClass, Object[] providedValues) {
-        this(pluginContext, null, targetClass, null, providedValues);
+    public AutoBindingObjectFactory(ProfilerPluginContext pluginContext, InstrumentClass targetClass, ClassLoader classLoader) {
+        this(pluginContext, null, targetClass, null, classLoader);
     }
 
-    public AutoBindingObjectFactory(ProfilerPluginContext pluginContext, InterceptorGroup interceptorGroup, InstrumentClass targetClass, MethodInfo targetMethod, Object[] providedValues) {
-        this.pluginContext = pluginContext;
-        this.interceptorGroup = interceptorGroup;
-        this.targetClass = targetClass;
-        this.targetMethod = targetMethod;
-        this.providedValues = providedValues;
+    public AutoBindingObjectFactory(ProfilerPluginContext pluginContext, InterceptorGroup interceptorGroup, InstrumentClass targetClass, MethodInfo targetMethod, ClassLoader classLoader) {
+        this.classLoader = classLoader;
+        this.pinpointResolver = new PinpointTypeArgumentProvider(pluginContext, interceptorGroup, targetClass, targetMethod);
     }
     
-    public T createInstance(Class<? extends T> type) {
-        ConstructorResolver<T> resolver = createConstructorResolver(targetClass, targetMethod, type);
+    public Object createInstance(ObjectRecipe recipe) {
+        Class<?> type = TypeUtils.loadClass(classLoader, recipe.getClassName());
+        ArgumentsResolver argumentsResolver = getParameterResolvers(classLoader, recipe.getArguments());
+        
+        if (recipe instanceof ByConstructor) {
+            return byConstructor(type, (ByConstructor)recipe, argumentsResolver);
+        } else if (recipe instanceof ByStaticFactoryMethod) {
+            return byStaticFactoryMethod(type, (ByStaticFactoryMethod)recipe, argumentsResolver);
+        }
+        
+        throw new IllegalArgumentException("Unknown recipe type: " + recipe);
+    }
+    
+    private Object byConstructor(Class<?> type, ByConstructor recipe, ArgumentsResolver argumentsResolvers) {
+        ConstructorResolver resolver = new ConstructorResolver(type, argumentsResolvers);
         
         if (!resolver.resolve()) {
             throw new PinpointException("Cannot find suitable constructor for " + type.getName());
         }
         
-        Constructor<? extends T> constructor = resolver.getResolvedConstructor();
+        Constructor<?> constructor = resolver.getResolvedConstructor();
         Object[] resolvedArguments = resolver.getResolvedArguments();
         
-        return invokeConstructor(constructor, resolvedArguments);
+        try {
+            return constructor.newInstance(resolvedArguments);
+        } catch (Exception e) {
+            throw new PinpointException("Fail to invoke constructor: " + constructor + ", arguments: " + Arrays.toString(resolvedArguments), e);
+        }
+    }
+    
+    private Object byStaticFactoryMethod(Class<?> type, ByStaticFactoryMethod recipe, ArgumentsResolver argumentsResolver) {
+        StaticMethodResolver resolver = new StaticMethodResolver(type, recipe.getFactoryMethodName(), argumentsResolver);
+        
+        if (!resolver.resolve()) {
+            throw new PinpointException("Cannot find suitable factory method " + type.getName() + "." + recipe.getFactoryMethodName());
+        }
+        
+        Method method = resolver.getResolvedMethod();
+        Object[] resolvedArguments = resolver.getResolvedArguments();
+        
+        try {
+            return method.invoke(null, resolvedArguments);
+        } catch (Exception e) {
+            throw new PinpointException("Fail to invoke factory method: " + type.getName() + "." + recipe.getFactoryMethodName() + ", arguments: " + Arrays.toString(resolvedArguments), e);
+        }
+
     }
 
-    private ConstructorResolver<T> createConstructorResolver(InstrumentClass target, MethodInfo targetMethod, Class<? extends T> interceptorClass) {
-        List<ParameterResolver> suppliers = new ArrayList<ParameterResolver>();
+    private ArgumentsResolver getParameterResolvers(ClassLoader classLoader, Object[] providedValues) {
+        List<ArgumentProvider> suppliers = new ArrayList<ArgumentProvider>();
         
-        PinpointTypeResolver pinpointResolver = new PinpointTypeResolver(pluginContext, interceptorGroup, target, targetMethod);
         suppliers.add(pinpointResolver);
         
         if (providedValues != null) { 
-            suppliers.add(new ProvidedValuesResolver(providedValues));
+            suppliers.add(new OrderedValueProvider(this, providedValues));
         }
         
-        return new ConstructorResolver<T>(interceptorClass, suppliers);
+        return new ArgumentsResolver(suppliers);
     }
-
-    private T invokeConstructor(Constructor<? extends T> constructor, Object[] arguments) {
-        try {
-            return constructor.newInstance(arguments);
-        } catch (Exception e) {
-            throw new PinpointException("Fail to invoke constructor: " + constructor + ", arguments: " + Arrays.toString(arguments), e);
-        }
-    }    
 }

@@ -56,6 +56,7 @@ pinpointApp.directive('transactionTable', ['$window', function ($window) {
              * @param transaction
              */
             scope.traceByApplication = function (transaction) {
+            	$at($at.CALLSTACK, $at.CLK_TRANSACTION);
                 scope.currentTransaction = transaction;
                 scope.$emit('transactionTable.applicationSelected', transaction);
             };
@@ -87,6 +88,7 @@ pinpointApp.directive('transactionTable', ['$window', function ($window) {
                 } else {
                     scope.transactionReverse = false;
                 }
+                $at($at.CALLSTACK, $at.ST_ + orderKey.charAt(0).toUpperCase() + orderKey.substring(1), scope.transactionReverse ? $at.DESCENDING : $at.ASCENDING );
                 scope.transactionOrderBy = orderKey;
             };
 

@@ -22,26 +22,24 @@ import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Singleton;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
+import com.navercorp.pinpoint.profiler.plugin.transformer.MethodRecipe;
 
 /**
  * @author Jongho Moon
  *
  */
 
-public class AnnotatedInterceptorInjector implements InterceptorInjector {
+public class AnnotatedInterceptorInjector implements MethodRecipe {
     private final DefaultProfilerPluginContext pluginContext;
     
-    private final String interceptorClassName;
+    protected final String interceptorClassName;
     private final Object[] providedArguments;
     
     private final String groupName;
     private final ExecutionPolicy executionPoint;
     
-
-
     public AnnotatedInterceptorInjector(DefaultProfilerPluginContext pluginContext, String interceptorName, Object[] constructorArguments, String groupName, ExecutionPolicy executionPoint) {
         this.pluginContext = pluginContext;
         this.interceptorClassName = interceptorName;
@@ -52,23 +50,22 @@ public class AnnotatedInterceptorInjector implements InterceptorInjector {
     
     @Override
     public void edit(ClassLoader targetClassLoader, InstrumentClass targetClass, MethodInfo targetMethod) throws Exception {
-        Class<? extends Interceptor> interceptorType = TypeUtils.loadClass(targetClassLoader, interceptorClassName);
-        
-        InterceptorFactory factory = createInterceptorFactory(interceptorType);
-        InterceptorInjector injector = createInterceptorInjector(interceptorType, factory);
-        
-        injector.edit(targetClassLoader, targetClass, targetMethod);
+        inject(targetClassLoader, targetClass, targetMethod);
     }
-    
-    private InterceptorInjector createInterceptorInjector(Class<?> interceptorType, InterceptorFactory factory) {
-        if (interceptorType.isAnnotationPresent(Singleton.class)) {
-            return new SingletonInterceptorInjector(factory);
+
+    int inject(ClassLoader targetClassLoader, InstrumentClass targetClass, MethodInfo targetMethod) throws Exception {
+        Class<? extends Interceptor> interceptorType = TypeUtils.loadClass(targetClassLoader, interceptorClassName);
+        InterceptorFactory factory = createInterceptorFactory(interceptorType);
+        Interceptor interceptor = factory.getInterceptor(targetClassLoader, targetClass, targetMethod);
+        
+        if (targetMethod.isConstructor()) {
+            return targetClass.addConstructorInterceptor(targetMethod.getParameterTypes(), interceptor);
         } else {
-            return new DefaultInterceptorInjector(factory);
+            return targetClass.addInterceptor(targetMethod.getName(), targetMethod.getParameterTypes(), interceptor);
         }
     }
     
-    private InterceptorFactory createInterceptorFactory(Class<? extends Interceptor> interceptorType) {
+    protected InterceptorFactory createInterceptorFactory(Class<? extends Interceptor> interceptorType) {
         String groupName = this.groupName;
         ExecutionPolicy executionPoint = this.executionPoint;
 
@@ -105,7 +102,7 @@ public class AnnotatedInterceptorInjector implements InterceptorInjector {
         if (groupName != null) {
             builder.append(", group=");
             builder.append(groupName);
-            builder.append(", executionPoint=");
+            builder.append(", executionPolicy=");
             builder.append(executionPoint);
         }
         
