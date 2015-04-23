@@ -21,6 +21,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchable;
 import java.lang.instrument.ClassFileTransformer;
 
 
-public interface DedicatedClassFileTransformer extends ClassFileTransformer, Matchable {
+public interface PinpointClassFileTransformer extends ClassFileTransformer, Matchable {
 
 }
