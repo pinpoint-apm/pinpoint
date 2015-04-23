@@ -17,17 +17,16 @@
 package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * @author emeroad
  */
-public class DefaultClassNameMatchers implements ClassNameMatchers {
+public class DefaultMultiMultiClassNameMatcher implements MultiClassNameMatcher {
 
     private final List<String> classNameList;
 
-    DefaultClassNameMatchers(List<String> classNameMatcherList) {
+    DefaultMultiMultiClassNameMatcher(List<String> classNameMatcherList) {
         if (classNameMatcherList == null) {
             throw new NullPointerException("classNameMatcherList must not be null");
         }
@@ -44,7 +43,7 @@ public class DefaultClassNameMatchers implements ClassNameMatchers {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        DefaultClassNameMatchers that = (DefaultClassNameMatchers) o;
+        DefaultMultiMultiClassNameMatcher that = (DefaultMultiMultiClassNameMatcher) o;
 
         return classNameList.equals(that.classNameList);
 

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.test;
 
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.ClassNameMatcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.MultiClassNameMatcher;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 
@@ -32,6 +33,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -56,11 +58,21 @@ public class InstrumentTranslator implements Translator {
     }
 
     public AbstractModifier addModifier(AbstractModifier modifier) {
+        // TODO extract matcher process
         final Matcher matcher = modifier.getMatcher();
         if (matcher instanceof ClassNameMatcher) {
             ClassNameMatcher classNameMatcher = (ClassNameMatcher) matcher;
             final String javaName = JavaAssistUtils.jvmNameToJavaName(classNameMatcher.getClassName());
             return modifierMap.put(javaName, modifier);
+        } else {
+            final MultiClassNameMatcher classNameMatcher = (MultiClassNameMatcher)matcher;
+            List<String> classNameList = classNameMatcher.getClassNames();
+            for (String className : classNameList) {
+                AbstractModifier old = modifierMap.put(className, modifier);
+                if (old != null) {
+                    throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + old.getMatcher());
+                }
+            }
         }
         throw new IllegalArgumentException("unsupported Matcher " + matcher);
 

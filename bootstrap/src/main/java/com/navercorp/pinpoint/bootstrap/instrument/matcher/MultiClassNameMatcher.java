@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
  * @author emeroad
  */
-public interface ClassNameMatchers extends ClassMatcher {
+public interface MultiClassNameMatcher extends ClassMatcher {
     List<String> getClassNames();
 }
