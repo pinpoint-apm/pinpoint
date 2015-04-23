@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.common.bo;
 
-import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 
 /**

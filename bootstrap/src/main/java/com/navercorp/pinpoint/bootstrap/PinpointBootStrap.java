@@ -33,9 +33,9 @@ import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.service.DefaultTypeLoaderService;
+import com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.service.TypeLoaderService;
+import com.navercorp.pinpoint.common.service.TraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
@@ -144,7 +144,7 @@ public class PinpointBootStrap {
         }
 
         URL[] pluginJars = classPathResolver.resolvePlugins();
-        TypeLoaderService typeLoaderService = new DefaultTypeLoaderService(pluginJars);
+        TraceMetadataLoaderService typeLoaderService = new DefaultTraceMetadataLoaderService(pluginJars);
         ServiceTypeRegistryService serviceTypeRegistryService  = new DefaultServiceTypeRegistryService(typeLoaderService);
         AnnotationKeyRegistryService annotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(typeLoaderService);
 

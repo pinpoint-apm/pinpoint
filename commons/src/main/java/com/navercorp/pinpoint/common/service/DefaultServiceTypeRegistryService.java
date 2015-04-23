@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.common.service;
 
-import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.common.plugin.Type;
-import com.navercorp.pinpoint.common.util.ServiceTypeRegistry;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeInfo;
+import com.navercorp.pinpoint.common.trace.ServiceTypeRegistry;
 import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
 
 import java.util.List;
@@ -31,15 +31,15 @@ import java.util.logging.Logger;
 public class DefaultServiceTypeRegistryService implements ServiceTypeRegistryService {
     private final Logger logger = Logger.getLogger(DefaultServiceTypeRegistryService.class.getName());
 
-    private final TypeLoaderService typeLoaderService;
+    private final TraceMetadataLoaderService typeLoaderService;
     private final ServiceTypeRegistry registry;
 
     public DefaultServiceTypeRegistryService() {
-        this(new DefaultTypeLoaderService());
+        this(new DefaultTraceMetadataLoaderService());
     }
 
 
-    public DefaultServiceTypeRegistryService(TypeLoaderService typeLoaderService) {
+    public DefaultServiceTypeRegistryService(TraceMetadataLoaderService typeLoaderService) {
         if (typeLoaderService == null) {
             throw new NullPointerException("typeLoaderService must not be null");
         }
@@ -59,8 +59,8 @@ public class DefaultServiceTypeRegistryService implements ServiceTypeRegistrySer
             builder.addServiceType(serviceType);
         }
 
-        final List<Type> types = loadType();
-        for (Type type : types) {
+        final List<ServiceTypeInfo> types = loadType();
+        for (ServiceTypeInfo type : types) {
             if (logger.isLoggable(Level.INFO)) {
                 logger.info("add Plugin ServiceType:" + type.getServiceType());
             }
@@ -72,8 +72,8 @@ public class DefaultServiceTypeRegistryService implements ServiceTypeRegistrySer
     }
 
 
-    private List<Type> loadType() {
-        return typeLoaderService.getTypes();
+    private List<ServiceTypeInfo> loadType() {
+        return typeLoaderService.getServiceTypeInfos();
     }
 
     @Override

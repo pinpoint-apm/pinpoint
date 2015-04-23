@@ -20,8 +20,9 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.List;
 
-import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+
 import org.apache.commons.lang.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

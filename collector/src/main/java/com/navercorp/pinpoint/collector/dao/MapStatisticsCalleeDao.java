@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.dao;
 
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * 

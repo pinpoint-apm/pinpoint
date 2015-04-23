@@ -15,10 +15,10 @@
  */
 package com.navercorp.pinpoint.plugin.httpclient4;
 
-import static com.navercorp.pinpoint.common.HistogramSchema.NORMAL_SCHEMA;
-import static com.navercorp.pinpoint.common.ServiceTypeProperty.RECORD_STATISTICS;
+import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * 

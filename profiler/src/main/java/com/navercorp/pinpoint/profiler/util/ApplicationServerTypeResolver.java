@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.resolver.ApplicationServerTypePluginResolver;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 
 /**

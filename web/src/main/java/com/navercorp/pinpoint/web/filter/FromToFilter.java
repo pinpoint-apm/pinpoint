@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.web.filter;
 
 import java.util.List;
 
-import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.common.ServiceTypeCategory;
 import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 
 /**
  * 

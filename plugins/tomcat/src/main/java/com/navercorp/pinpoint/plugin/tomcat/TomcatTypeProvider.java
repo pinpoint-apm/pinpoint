@@ -14,19 +14,19 @@
  */
 package com.navercorp.pinpoint.plugin.tomcat;
 
-import com.navercorp.pinpoint.common.plugin.TypeProvider;
-import com.navercorp.pinpoint.common.plugin.TypeSetupContext;
+import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
+import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
 /**
  * @author Jongho Moon
  * @author jaehong.kim
  *
  */
-public class TomcatTypeProvider implements TypeProvider, TomcatConstants {
+public class TomcatTypeProvider implements TraceMetadataProvider, TomcatConstants {
 
     @Override
-    public void setup(TypeSetupContext context) {
-        context.addType(TOMCAT);
-        context.addType(TOMCAT_METHOD);
+    public void setup(TraceMetadataSetupContext context) {
+        context.addServiceType(TOMCAT);
+        context.addServiceType(TOMCAT_METHOD);
     }
 }

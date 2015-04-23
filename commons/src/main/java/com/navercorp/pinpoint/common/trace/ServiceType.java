@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common;
+package com.navercorp.pinpoint.common.trace;
 
-import static com.navercorp.pinpoint.common.HistogramSchema.*;
-import static com.navercorp.pinpoint.common.ServiceTypeProperty.*;
+import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 /**
  * @author emeroad

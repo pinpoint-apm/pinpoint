@@ -17,12 +17,11 @@
 package com.navercorp.pinpoint.profiler.modifier.db.jtds;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.modifier.db.ConnectionStringParser;
 import com.navercorp.pinpoint.profiler.modifier.db.jtds.JtdsConnectionStringParser;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

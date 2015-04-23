@@ -16,14 +16,15 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.AnnotationKeyMatcher;
-import com.navercorp.pinpoint.common.TypeProviderLoader;
-import com.navercorp.pinpoint.common.service.TypeLoaderService;
+import com.navercorp.pinpoint.common.service.TraceMetadataLoaderService;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
+import com.navercorp.pinpoint.common.trace.ServiceTypeInfo;
+import com.navercorp.pinpoint.common.trace.TraceMetadataLoader;
 import com.navercorp.pinpoint.common.util.DefaultDisplayArgument;
 import com.navercorp.pinpoint.common.util.DisplayArgumentMatcher;
 import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
 import com.navercorp.pinpoint.web.util.AnnotationKeyMatcherRegistry;
-import com.navercorp.pinpoint.common.plugin.Type;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -46,14 +47,14 @@ public class DefaultAnnotationKeyMatcherService implements AnnotationKeyMatcherS
 
 
     @Autowired
-    public DefaultAnnotationKeyMatcherService(TypeLoaderService typeLoaderService) {
+    public DefaultAnnotationKeyMatcherService(TraceMetadataLoaderService typeLoaderService) {
         if (typeLoaderService == null) {
             throw new NullPointerException("typeLoaderService must not be null");
         }
         this.registry = build(typeLoaderService);
     }
 
-    private AnnotationKeyMatcherRegistry build(TypeLoaderService typeLoaderService) {
+    private AnnotationKeyMatcherRegistry build(TraceMetadataLoaderService typeLoaderService) {
         AnnotationKeyMatcherRegistry.Builder builder = new AnnotationKeyMatcherRegistry.Builder();
 
         StaticFieldLookUp<DisplayArgumentMatcher> staticFieldLookUp = new StaticFieldLookUp<DisplayArgumentMatcher>(DefaultDisplayArgument.class, DisplayArgumentMatcher.class);
@@ -67,13 +68,13 @@ public class DefaultAnnotationKeyMatcherService implements AnnotationKeyMatcherS
             builder.addAnnotationMatcher(displayArgumentMatcher.getServiceType(), annotationKeyMatcher);
         }
 
-        List<Type> types = typeLoaderService.getTypes();
-        for (Type type : types) {
-            if (type.getAnnotationKeyMatcher() == null) {
+        List<ServiceTypeInfo> types = typeLoaderService.getServiceTypeInfos();
+        for (ServiceTypeInfo type : types) {
+            if (type.getPrimaryAnnotationKeyMatcher() == null) {
                 continue;
             }
-            logger.debug("add AnnotationKeyMatcher ServiceType:{}, AnnotationKeyMatcher:{}", type.getServiceType(), type.getAnnotationKeyMatcher());
-            builder.addAnnotationMatcher(type.getServiceType(), type.getAnnotationKeyMatcher());
+            logger.debug("add AnnotationKeyMatcher ServiceType:{}, AnnotationKeyMatcher:{}", type.getServiceType(), type.getPrimaryAnnotationKeyMatcher());
+            builder.addAnnotationMatcher(type.getServiceType(), type.getPrimaryAnnotationKeyMatcher());
         }
         return builder.build();
     }

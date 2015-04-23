@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.item.ExecutionContext;
 
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.alarm.AlarmPartitioner;
 import com.navercorp.pinpoint.web.alarm.AlarmReader;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;

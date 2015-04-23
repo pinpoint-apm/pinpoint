@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.callstacks;
 
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * each stack

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap;
 
 import java.io.IOException;
 
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.view.NodeSerializer;
 import com.navercorp.pinpoint.web.vo.Application;

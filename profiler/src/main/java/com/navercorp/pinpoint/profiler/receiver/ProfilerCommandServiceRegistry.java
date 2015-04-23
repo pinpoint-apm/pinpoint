@@ -52,7 +52,7 @@ public class ProfilerCommandServiceRegistry implements ProfilerCommandServiceLoc
 
         final ProfilerCommandService before = profilerCommandServiceRepository.putIfAbsent(clazz, service);
         if (before != null) {
-            logger.warn("Already Register Type({}).", clazz.getName());
+            logger.warn("Already Register ServiceTypeInfo({}).", clazz.getName());
             return false;
         }
 

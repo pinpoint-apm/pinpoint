@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.collector.handler;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
@@ -28,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.collector.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.collector.dao.TracesDao;
-import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.util.SpanEventUtils;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;

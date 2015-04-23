@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import com.navercorp.pinpoint.common.AnnotationKeyMatcher;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * @author emeroad

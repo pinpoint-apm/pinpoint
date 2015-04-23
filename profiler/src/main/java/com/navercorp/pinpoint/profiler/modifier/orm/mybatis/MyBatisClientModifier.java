@@ -22,11 +22,12 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.orm.mybatis.filter.SqlSessionMethodFilter;
 import com.navercorp.pinpoint.profiler.modifier.orm.mybatis.interceptor.MyBatisScope;
 import com.navercorp.pinpoint.profiler.modifier.orm.mybatis.interceptor.MyBatisSqlMapOperationInterceptor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric;
 
-import com.navercorp.pinpoint.common.HistogramSchema;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.monitor.metric.DefaultRpcMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.HistogramSnapshot;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 
 import java.util.List;

@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.plugin.jdbc.common;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.List;
 

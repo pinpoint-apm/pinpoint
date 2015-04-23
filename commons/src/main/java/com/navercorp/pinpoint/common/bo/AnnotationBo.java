@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.common.bo;
 
-import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.AnnotationTranscoder;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 

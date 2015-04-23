@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import com.navercorp.pinpoint.common.HistogramSchema;
-import com.navercorp.pinpoint.common.HistogramSlot;
 import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.HistogramSlot;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * <pre>
