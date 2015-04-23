@@ -13,10 +13,6 @@
 
     <repositories>
         <repository>
-            <id>cubrid.release.repository</id>
-            <url>http://maven.cubrid.org</url>
-        </repository>
-        <repository>
             <id>cloudera</id>
             <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
         </repository>
@@ -369,11 +365,6 @@
                 <version>5.1.20</version>
             </dependency>
 
-            <dependency>
-                <groupId>cubrid</groupId>
-                <artifactId>cubrid-jdbc</artifactId>
-                <version>8.4.3.1005</version>
-            </dependency>
             <dependency>
                 <groupId>net.sourceforge.jtds</groupId>
                 <artifactId>jtds</artifactId>
