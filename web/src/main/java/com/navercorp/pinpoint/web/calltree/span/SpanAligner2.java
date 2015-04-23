@@ -137,6 +137,11 @@ public class SpanAligner2 {
         }
         SpanBo rootSpanBo = rootList.get(0);
         final List<SpanAlign> list = new ArrayList<SpanAlign>();
+        
+        // TEST
+        List<SpanEventBo> spanEvents = rootSpanBo.getSpanEventBoList();
+        spanEvents.remove(spanEvents.size() - 1);
+        
         populate(rootSpanBo, 0, list);
 
         return list;
