@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.modifier.connector.asynchttpclient;
 
 import java.security.ProtectionDomain;
 
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,8 +43,9 @@ public class AsyncHttpClientModifier extends AbstractModifier {
         super(byteCodeInstrumentor, agent);
     }
 
-    public String getTargetClass() {
-        return "com/ning/http/client/AsyncHttpClient";
+    @Override
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher("com/ning/http/client/AsyncHttpClient");
     }
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {

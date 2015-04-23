@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor;
@@ -42,8 +44,8 @@ public class HttpServletModifier extends AbstractModifier {
         super(byteCodeInstrumentor, agent);
     }
 
-    public String getTargetClass() {
-        return "javax/servlet/http/HttpServlet";
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher("javax/servlet/http/HttpServlet");
     }
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {

@@ -20,9 +20,13 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.ClassNameMatcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.DedicatedClassFileTransformer;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 public class ClassFileTransformerAdaptor extends AbstractModifier {
     private final DedicatedClassFileTransformer transformer;
@@ -43,7 +47,16 @@ public class ClassFileTransformerAdaptor extends AbstractModifier {
     }
 
     @Override
-    public String getTargetClass() {
-        return transformer.getTargetClassName().replace('.', '/');
+    public Matcher getMatcher() {
+        final Matcher matcher = transformer.getMatcher();
+
+        if (matcher instanceof ClassNameMatcher) {
+            ClassNameMatcher classNameMatcher = (ClassNameMatcher)matcher;
+            final String className = classNameMatcher.getClassName();
+
+            String jvmClassName = JavaAssistUtils.javaNameToJvmName(className);
+            return Matchers.newClassNameMatcher(jvmClassName);
+        }
+        throw new IllegalArgumentException("unsupported matcher :" + matcher);
     }
 }

@@ -21,6 +21,8 @@ import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,8 +51,8 @@ public class JtdsPreparedStatementModifier extends AbstractModifier {
         super(byteCodeInstrumentor, agent);
     }
 
-    public String getTargetClass() {
-        return "net/sourceforge/jtds/jdbc/JtdsPreparedStatement";
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher("net/sourceforge/jtds/jdbc/JtdsPreparedStatement");
     }
 
 

@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.interceptor.ParameterExtractorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
@@ -87,7 +89,7 @@ public class FrontCacheMemcachedClientModifier extends AbstractModifier {
         return putFrontCache;
     }
 
-    public String getTargetClass() {
-        return "net/spy/memcached/plugin/FrontCacheMemcachedClient";
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher("net/spy/memcached/plugin/FrontCacheMemcachedClient");
     }
 }

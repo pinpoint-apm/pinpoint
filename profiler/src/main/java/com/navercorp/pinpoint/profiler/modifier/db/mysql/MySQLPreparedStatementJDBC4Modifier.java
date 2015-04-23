@@ -21,6 +21,8 @@ import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,8 +53,8 @@ public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
         super(byteCodeInstrumentor, agent);
     }
 
-    public String getTargetClass() {
-        return "com/mysql/jdbc/JDBC4PreparedStatement";
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher("com/mysql/jdbc/JDBC4PreparedStatement");
     }
 
     @Override

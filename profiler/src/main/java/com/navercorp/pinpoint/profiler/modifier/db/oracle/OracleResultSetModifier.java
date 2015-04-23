@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.modifier.db.oracle;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 
 import java.security.ProtectionDomain;
@@ -36,8 +38,8 @@ public class OracleResultSetModifier extends AbstractModifier {
         super(byteCodeInstrumentor, agent);
     }
 
-    public String getTargetClass() {
-        return "oracle/jdbc/driver/OracleResultSetImpl";
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher("oracle/jdbc/driver/OracleResultSetImpl");
     }
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {

@@ -17,6 +17,8 @@ package com.navercorp.pinpoint.profiler.modifier.log.log4j;
 
 import java.security.ProtectionDomain;
 
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,8 +89,8 @@ public class LoggingEventOfLog4jModifier extends AbstractModifier {
     }
 
     @Override
-    public String getTargetClass() {
-        return "org/apache/log4j/spi/LoggingEvent";
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher("org/apache/log4j/spi/LoggingEvent");
     }
 
 }

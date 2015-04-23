@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4;
 
 import java.security.ProtectionDomain;
 
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,8 +54,8 @@ public class ClosableHttpClientModifier extends AbstractModifier {
         super(byteCodeInstrumentor, agent);
     }
 
-    public String getTargetClass() {
-        return "org/apache/http/impl/client/CloseableHttpClient";
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher("org/apache/http/impl/client/CloseableHttpClient");
     }
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {

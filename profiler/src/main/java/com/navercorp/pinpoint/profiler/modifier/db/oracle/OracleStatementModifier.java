@@ -20,6 +20,8 @@ import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.ModifierDelegate;
 
@@ -39,8 +41,8 @@ public class OracleStatementModifier extends AbstractModifier {
     }
 
     @Override
-    public String getTargetClass() {
-        return OracleClassConstants.ORACLE_STATEMENT;
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher(OracleClassConstants.ORACLE_STATEMENT);
     }
 
     @Override

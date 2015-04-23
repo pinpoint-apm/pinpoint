@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.modifier.orm.ibatis;
 
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
@@ -43,8 +45,8 @@ public final class SqlMapSessionImplModifier extends IbatisClientModifier {
     }
 
     @Override
-    public String getTargetClass() {
-        return TARGET_CLASS_NAME;
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher(TARGET_CLASS_NAME);
     }
 
 

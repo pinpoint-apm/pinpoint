@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.profiler.modifier.arcus;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
@@ -72,7 +74,7 @@ public class FrontCacheGetFutureModifier extends AbstractModifier {
     }
 
     @Override
-    public String getTargetClass() {
-        return "net/spy/memcached/plugin/FrontCacheGetFuture";
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher("net/spy/memcached/plugin/FrontCacheGetFuture");
     }
 }

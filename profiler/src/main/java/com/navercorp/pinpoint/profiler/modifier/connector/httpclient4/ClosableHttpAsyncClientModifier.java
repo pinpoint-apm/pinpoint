@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4;
 
 import java.security.ProtectionDomain;
 
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +45,8 @@ public class ClosableHttpAsyncClientModifier extends AbstractModifier {
     }
 
     @Override
-    public String getTargetClass() {
-        return "org/apache/http/impl/nio/client/CloseableHttpAsyncClient";
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher("org/apache/http/impl/nio/client/CloseableHttpAsyncClient");
     }
 
     @Override

@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -113,7 +115,7 @@ public class AbstractAutowireCapableBeanFactoryModifier extends AbstractModifier
     }
 
     @Override
-    public String getTargetClass() {
-        return "org/springframework/beans/factory/support/AbstractAutowireCapableBeanFactory";
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher("org/springframework/beans/factory/support/AbstractAutowireCapableBeanFactory");
     }
 }

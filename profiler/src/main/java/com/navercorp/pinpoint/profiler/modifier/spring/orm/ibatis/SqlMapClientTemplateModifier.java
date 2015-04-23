@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.profiler.modifier.spring.orm.ibatis;
 import java.security.ProtectionDomain;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,8 +81,8 @@ public final class SqlMapClientTemplateModifier extends AbstractModifier {
     }
 
     @Override
-    public String getTargetClass() {
-        return TARGET_CLASS_NAME;
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher(TARGET_CLASS_NAME);
     }
 
 }
