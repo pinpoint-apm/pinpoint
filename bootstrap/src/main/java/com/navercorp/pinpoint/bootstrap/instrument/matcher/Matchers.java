@@ -16,8 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -33,11 +32,18 @@ public final class Matchers {
         return new DefaultClassNameMatcher(className);
     }
 
-    public static Matcher newClassNameMatchers(List<String> classNameList) {
+    public static Matcher newMultiClassNameMatcher(List<String> classNameList) {
         if (classNameList == null) {
             throw new NullPointerException("classNameList must not be null");
         }
-        return new DefaultClassNameMatchers(classNameList);
+        return new DefaultMultiClassNameMatcher(classNameList);
+    }
+
+    public static Matcher newMultiClassNameMatcher(String... classNameList) {
+        if (classNameList == null) {
+            throw new NullPointerException("classNameList must not be null");
+        }
+        return new DefaultMultiClassNameMatcher(Arrays.asList(classNameList));
     }
 
 }

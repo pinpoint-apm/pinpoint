@@ -17,10 +17,14 @@
 package com.navercorp.pinpoint.profiler.modifier.arcus;
 
 import java.security.ProtectionDomain;
+import java.util.Arrays;
+import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
@@ -32,11 +36,11 @@ import org.slf4j.Logger;
 /**
  * @author emeroad
  */
-public abstract class AbstractFutureModifier extends AbstractModifier  {
+public class FutureModifier extends AbstractModifier  {
 
     protected Logger logger;
 
-    public AbstractFutureModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+    public FutureModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
     }
 
@@ -64,5 +68,16 @@ public abstract class AbstractFutureModifier extends AbstractModifier  {
             }
             return null;
         }
+    }
+
+    @Override
+    public Matcher getMatcher() {
+        List<String> classNameList = Arrays.asList(
+                "net/spy/memcached/internal/OperationFuture",
+                "net/spy/memcached/internal/GetFuture",
+                "net/spy/memcached/internal/ImmediateFuture",
+                // arcus future
+                "net/spy/memcached/internal/CollectionFuture");
+        return Matchers.newMultiClassNameMatcher(classNameList);
     }
 }
