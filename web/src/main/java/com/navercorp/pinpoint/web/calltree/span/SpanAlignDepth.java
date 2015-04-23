@@ -31,7 +31,7 @@ public class SpanAlignDepth {
         return sync.missing;
     }
     
-    public boolean hasMissing(final SpanEventBo spanEventBo) {
+    public boolean findMissing(final SpanEventBo spanEventBo) {
         final int sequence = spanEventBo.getSequence();
         if (isAsyncEvent(spanEventBo)) {
             if (async.first) {

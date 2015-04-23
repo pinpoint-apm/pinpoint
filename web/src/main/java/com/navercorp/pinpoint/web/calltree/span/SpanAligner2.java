@@ -18,8 +18,11 @@ package com.navercorp.pinpoint.web.calltree.span;
 
 import java.util.*;
 
+import com.navercorp.pinpoint.common.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import org.slf4j.Logger;
@@ -140,7 +143,7 @@ public class SpanAligner2 {
         
         // TEST
         List<SpanEventBo> spanEvents = rootSpanBo.getSpanEventBoList();
-        spanEvents.remove(spanEvents.size() - 1);
+        spanEvents.remove(spanEvents.size()/2);
         
         populate(rootSpanBo, 0, list);
 
@@ -175,11 +178,21 @@ public class SpanAligner2 {
                 continue;
             }
 
-            if (spanAlignDepth.hasMissing(spanEventBo)) {
+            if (spanAlignDepth.findMissing(spanEventBo)) {
                 final int currentDepth = spanAlignDepth.getDepth(spanEventBo);
                 final SpanEventBo missingEvent = new SpanEventBo();
                 missingEvent.setStartElapsed(0);
                 missingEvent.setEndElapsed(0);
+                
+                List<AnnotationBo> annotations = new ArrayList<AnnotationBo>();
+                ApiMetaDataBo apiMetaData = new ApiMetaDataBo();
+                apiMetaData.setApiInfo("...");
+                apiMetaData.setType(3);
+                AnnotationBo annotation = new AnnotationBo();
+                annotation.setKey(AnnotationKey.API_METADATA.getCode());
+                annotation.setValue(apiMetaData);
+                annotations.add(annotation);
+                missingEvent.setAnnotationBoList(annotations);
                 
                 final SpanAlign spanEventAlign = new SpanAlign(currentDepth, span, missingEvent);
                 container.add(spanEventAlign);

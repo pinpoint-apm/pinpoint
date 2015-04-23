@@ -194,7 +194,7 @@ public class SpanAlignDepthTest {
             }
             
             int currentDepth = 0;
-            if(depth.hasMissing(event)) {
+            if(depth.findMissing(event)) {
                 currentDepth = depth.getMissingDepth(event);
             } else {
                 currentDepth = depth.getDepth(event);
