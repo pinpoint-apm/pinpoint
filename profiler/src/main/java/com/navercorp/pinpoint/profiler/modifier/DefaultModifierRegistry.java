@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.ClassNameMatcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
-import com.navercorp.pinpoint.profiler.ClassFileRetransformer;
 import com.navercorp.pinpoint.profiler.modifier.arcus.ArcusClientModifier;
 import com.navercorp.pinpoint.profiler.modifier.arcus.BaseOperationModifier;
 import com.navercorp.pinpoint.profiler.modifier.arcus.CacheManagerModifier;
@@ -37,12 +36,6 @@ import com.navercorp.pinpoint.profiler.modifier.arcus.OperationFutureModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.asynchttpclient.AsyncHttpClientModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.httpclient3.DefaultHttpMethodRetryHandlerModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.httpclient3.HttpClientModifier;
-import com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.BasicFutureModifier;
-import com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.ClosableHttpAsyncClientModifier;
-import com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.ClosableHttpClientModifier;
-import com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.DefaultHttpRequestRetryHandlerModifier;
-import com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.HttpClient4Modifier;
-import com.navercorp.pinpoint.profiler.modifier.connector.jdkhttpconnector.HttpURLConnectionModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridConnectionModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridDriverModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridPreparedStatementModifier;
@@ -117,8 +110,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             if (old != null) {
                 throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + old.getMatcher());
             }
+        } else {
+            throw new IllegalArgumentException("unsupported matcher :" + matcher);
         }
-
     }
     
     public void addMethodModifier() {

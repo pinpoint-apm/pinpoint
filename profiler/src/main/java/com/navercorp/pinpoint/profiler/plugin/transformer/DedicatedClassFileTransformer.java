@@ -24,10 +24,11 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.plugin.PluginClassLoaderFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.DedicatedClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
-public class DefaultDedicatedClassFileTransformer implements DedicatedClassFileTransformer {
+public class DedicatedClassFileTransformer implements PinpointClassFileTransformer {
     private final ByteCodeInstrumentor instrumentor;
     private final PluginClassLoaderFactory classLoaderFactory;
 
@@ -35,7 +36,7 @@ public class DefaultDedicatedClassFileTransformer implements DedicatedClassFileT
     private final ClassRecipe recipe;
     
     
-    public DefaultDedicatedClassFileTransformer(ByteCodeInstrumentor instrumentor, PluginClassLoaderFactory classLoaderFactory, String targetClassName, ClassRecipe recipe) {
+    public DedicatedClassFileTransformer(ByteCodeInstrumentor instrumentor, PluginClassLoaderFactory classLoaderFactory, String targetClassName, ClassRecipe recipe) {
         this.instrumentor = instrumentor;
         this.classLoaderFactory = classLoaderFactory;
 
@@ -66,7 +67,7 @@ public class DefaultDedicatedClassFileTransformer implements DedicatedClassFileT
 
     @Override
     public Matcher getMatcher() {
-        return Matchers.newClassNameMatcher(targetClassName);
+        return Matchers.newClassNameMatcher(JavaAssistUtils.javaNameToJvmName(targetClassName));
     }
 
     @Override
