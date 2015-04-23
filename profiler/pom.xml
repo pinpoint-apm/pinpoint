@@ -118,11 +118,6 @@
             <artifactId>mysql-connector-java</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>cubrid</groupId>
-            <artifactId>cubrid-jdbc</artifactId>
-            <scope>provided</scope>
-        </dependency>
         <!--<dependency>-->
             <!--<groupId>oracle</groupId>-->
             <!--<artifactId>ojdbc6</artifactId>-->
