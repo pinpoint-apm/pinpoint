@@ -22,6 +22,8 @@ import java.util.Map;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.ClassNameMatcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.profiler.ClassFileRetransformer;
 import com.navercorp.pinpoint.profiler.modifier.arcus.ArcusClientModifier;
 import com.navercorp.pinpoint.profiler.modifier.arcus.BaseOperationModifier;
@@ -107,10 +109,16 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     }
 
     public void addModifier(AbstractModifier modifier) {
-        AbstractModifier old = registry.put(modifier.getTargetClass(), modifier);
-        if (old != null) {
-            throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + old.getTargetClass());
+        final Matcher matcher = modifier.getMatcher();
+        if (matcher instanceof ClassNameMatcher) {
+            final ClassNameMatcher classNameMatcher = (ClassNameMatcher)matcher;
+            String className = classNameMatcher.getClassName();
+            AbstractModifier old = registry.put(className, modifier);
+            if (old != null) {
+                throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + old.getMatcher());
+            }
         }
+
     }
     
     public void addMethodModifier() {

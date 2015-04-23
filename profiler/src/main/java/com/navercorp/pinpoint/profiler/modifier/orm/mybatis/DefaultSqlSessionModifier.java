@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.modifier.orm.mybatis;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 
 /**
  * @author Hyun Jeong
@@ -31,8 +33,8 @@ public class DefaultSqlSessionModifier extends MyBatisClientModifier {
     }
 
     @Override
-    public String getTargetClass() {
-        return TARGET_CLASS_NAME;
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher(TARGET_CLASS_NAME);
     }
 
 }

@@ -113,7 +113,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Ret
         }
         catch (Throwable e) {
             logger.error("Modifier:{} modify fail. cl:{} ctxCl:{} agentCl:{} Cause:{}",
-                    findModifier.getTargetClass(), classLoader, Thread.currentThread().getContextClassLoader(), agentClassLoader, e.getMessage(), e);
+                    findModifier.getMatcher(), classLoader, Thread.currentThread().getContextClassLoader(), agentClassLoader, e.getMessage(), e);
             return null;
         }
     }
@@ -179,7 +179,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Ret
             for (ClassFileTransformer transformer : pluginContext.getClassEditors()) {
                 if (transformer instanceof DedicatedClassFileTransformer) {
                     DedicatedClassFileTransformer dedicated = (DedicatedClassFileTransformer)transformer;
-                    logger.info("Registering class file transformer {} for {} ", dedicated, dedicated.getTargetClassName());
+                    logger.info("Registering class file transformer {} for {} ", dedicated, dedicated.getMatcher());
                     modifierRepository.addModifier(new ClassFileTransformerAdaptor(byteCodeInstrumentor, dedicated));
                 } else {
                     logger.warn("Ignore class file transformer {}", transformer);

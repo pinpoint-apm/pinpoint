@@ -21,6 +21,8 @@ import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.plugin.PluginClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.DedicatedClassFileTransformer;
 import com.navercorp.pinpoint.exception.PinpointException;
@@ -63,8 +65,8 @@ public class DefaultDedicatedClassFileTransformer implements DedicatedClassFileT
     }
 
     @Override
-    public String getTargetClassName() {
-        return targetClassName;
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher(targetClassName);
     }
 
     @Override

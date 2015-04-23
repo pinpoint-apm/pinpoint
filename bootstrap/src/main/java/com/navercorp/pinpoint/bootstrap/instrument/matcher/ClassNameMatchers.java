@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.transformer;
+package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 
-import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchable;
+import java.util.Collection;
+import java.util.List;
 
-import java.lang.instrument.ClassFileTransformer;
-
-
-public interface DedicatedClassFileTransformer extends ClassFileTransformer, Matchable {
-
+/**
+ * @author emeroad
+ */
+public interface ClassNameMatchers extends ClassMatcher {
+    List<String> getClassNames();
 }

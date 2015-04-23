@@ -19,12 +19,13 @@ package com.navercorp.pinpoint.profiler.modifier;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchable;
 
 
 /**
  * @author emeroad
  */
-public abstract class AbstractModifier implements Modifier {
+public abstract class AbstractModifier implements Modifier, Matchable {
 
     protected final ByteCodeInstrumentor byteCodeInstrumentor;
     private final ProfilerConfig profilerConfig;
@@ -62,7 +63,7 @@ public abstract class AbstractModifier implements Modifier {
     }
 
 
-    public abstract String getTargetClass();
+//    public abstract String getTargetClass();
 
     public ProfilerConfig getProfilerConfig() {
         return profilerConfig;

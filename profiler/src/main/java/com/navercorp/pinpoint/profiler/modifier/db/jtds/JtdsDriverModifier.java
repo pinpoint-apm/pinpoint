@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
@@ -43,8 +45,8 @@ public class JtdsDriverModifier extends AbstractModifier {
         super(byteCodeInstrumentor, agent);
     }
 
-    public String getTargetClass() {
-        return "net/sourceforge/jtds/jdbc/Driver";
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher("net/sourceforge/jtds/jdbc/Driver");
     }
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {

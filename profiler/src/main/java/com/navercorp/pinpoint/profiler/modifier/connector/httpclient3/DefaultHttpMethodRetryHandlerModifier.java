@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.modifier.connector.httpclient3;
 
 import java.security.ProtectionDomain;
 
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +59,7 @@ public class DefaultHttpMethodRetryHandlerModifier extends AbstractModifier {
     }
 
     @Override
-    public String getTargetClass() {
-        return "org/apache/commons/httpclient/DefaultHttpMethodRetryHandler";
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher("org/apache/commons/httpclient/DefaultHttpMethodRetryHandler");
     }
 }

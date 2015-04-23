@@ -17,6 +17,8 @@ package com.navercorp.pinpoint.profiler.modifier.log.logback;
 
 import java.security.ProtectionDomain;
 
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,8 +86,8 @@ public class LoggingEventOfLogbackModifier extends AbstractModifier {
     }
 
     @Override
-    public String getTargetClass() {
-        return "ch/qos/logback/classic/spi/LoggingEvent";
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher("ch/qos/logback/classic/spi/LoggingEvent");
     }
 
 }

@@ -19,6 +19,9 @@ package com.navercorp.pinpoint.test;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchable;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 
@@ -45,8 +48,8 @@ public abstract class TestModifier extends AbstractModifier {
     }
 
     @Override
-    public String getTargetClass() {
-        return targetClass;
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher(targetClass);
     }
 
     public void addInterceptor(Interceptor interceptor) {

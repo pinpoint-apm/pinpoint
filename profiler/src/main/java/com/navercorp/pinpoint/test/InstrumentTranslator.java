@@ -16,12 +16,15 @@
 
 package com.navercorp.pinpoint.test;
 
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.ClassNameMatcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import javassist.*;
 
+import javassist.bytecode.stackmap.TypeData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +56,14 @@ public class InstrumentTranslator implements Translator {
     }
 
     public AbstractModifier addModifier(AbstractModifier modifier) {
-        return modifierMap.put(modifier.getTargetClass().replace('/', '.'), modifier);
+        final Matcher matcher = modifier.getMatcher();
+        if (matcher instanceof ClassNameMatcher) {
+            ClassNameMatcher classNameMatcher = (ClassNameMatcher) matcher;
+            final String javaName = JavaAssistUtils.jvmNameToJavaName(classNameMatcher.getClassName());
+            return modifierMap.put(javaName, modifier);
+        }
+        throw new IllegalArgumentException("unsupported Matcher " + matcher);
+
     }
 
     @Override
