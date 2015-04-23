@@ -22,11 +22,11 @@ import java.util.List;
 /**
  * @author emeroad
  */
-public class DefaultMultiMultiClassNameMatcher implements MultiClassNameMatcher {
+public class DefaultMultiClassNameMatcher implements MultiClassNameMatcher {
 
     private final List<String> classNameList;
 
-    DefaultMultiMultiClassNameMatcher(List<String> classNameMatcherList) {
+    DefaultMultiClassNameMatcher(List<String> classNameMatcherList) {
         if (classNameMatcherList == null) {
             throw new NullPointerException("classNameMatcherList must not be null");
         }
@@ -43,7 +43,7 @@ public class DefaultMultiMultiClassNameMatcher implements MultiClassNameMatcher 
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        DefaultMultiMultiClassNameMatcher that = (DefaultMultiMultiClassNameMatcher) o;
+        DefaultMultiClassNameMatcher that = (DefaultMultiClassNameMatcher) o;
 
         return classNameList.equals(that.classNameList);
 

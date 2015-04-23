@@ -36,14 +36,14 @@ public final class Matchers {
         if (classNameList == null) {
             throw new NullPointerException("classNameList must not be null");
         }
-        return new DefaultMultiMultiClassNameMatcher(classNameList);
+        return new DefaultMultiClassNameMatcher(classNameList);
     }
 
     public static Matcher newMultiClassNameMatcher(String... classNameList) {
         if (classNameList == null) {
             throw new NullPointerException("classNameList must not be null");
         }
-        return new DefaultMultiMultiClassNameMatcher(Arrays.asList(classNameList));
+        return new DefaultMultiClassNameMatcher(Arrays.asList(classNameList));
     }
 
 }
