@@ -1,7 +1,7 @@
-(function( global ) {
-
+(function( global, $ ) {
+	var bSendAllowed = true;
 	var $at = function() {};
-	if ( typeof ga !== "undefined" ) {
+	if ( typeof ga !== "undefined" && bSendAllowed === true ) {
 		$at = function( category, name, label, count, options ) {	
 			if ( arguments.length == 1 ) {
 				ga( 'send', 'pageview', arguments[0] );
@@ -78,4 +78,12 @@
 	
 	
 	global.$at = $at;
-})(window);
+	
+	$.ajax({
+		url: "/configuration.pinpoint"
+	}).done(function( result ) {
+		bSendAllowed = result.sendUsage;
+	}).fail(function() {
+		
+	});
+})(window, jQuery);
