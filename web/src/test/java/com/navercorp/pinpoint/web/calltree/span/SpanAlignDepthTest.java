@@ -101,8 +101,8 @@ public class SpanAlignDepthTest {
         expectResult.add("#");
 
         callTree.clear();
-        callTree.add(makeSpanEventBo(SYNC, (short) 0, 1));
-        callTree.add(makeSpanEventBo(ASYNC, (short) 0, 1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 0, 1, 1, -1));
+        callTree.add(makeSpanEventBo(ASYNC, (short) 0, 1, -1, 1));
         callTree.add(makeSpanEventBo(SYNC, (short) 1, -1));
         assertDepth("async-case-1", callTree, expectResult);
 
@@ -113,10 +113,10 @@ public class SpanAlignDepthTest {
         expectResult.add("####");
 
         callTree.clear();
-        callTree.add(makeSpanEventBo(SYNC, (short) 0, 1));
-        callTree.add(makeSpanEventBo(ASYNC, (short) 0, 1));
-        callTree.add(makeSpanEventBo(ASYNC, (short) 1, 2));
-        callTree.add(makeSpanEventBo(ASYNC, (short) 0, 1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 0, 1, 1, -1));
+        callTree.add(makeSpanEventBo(ASYNC, (short) 0, 1, -1, 1));
+        callTree.add(makeSpanEventBo(ASYNC, (short) 1, 2, 2, 1));
+        callTree.add(makeSpanEventBo(ASYNC, (short) 0, 1, -1, 2));
         assertDepth("async-case-2", callTree, expectResult);
 
         expectResult.clear();
@@ -126,9 +126,9 @@ public class SpanAlignDepthTest {
         expectResult.add("#");
 
         callTree.clear();
-        callTree.add(makeSpanEventBo(SYNC, (short) 0, 1));
-        callTree.add(makeSpanEventBo(ASYNC, (short) 0, 1));
-        callTree.add(makeSpanEventBo(ASYNC, (short) 0, 1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 0, 1, 1, -1));
+        callTree.add(makeSpanEventBo(ASYNC, (short) 0, 1, 2, 1));
+        callTree.add(makeSpanEventBo(ASYNC, (short) 0, 1, -1, 2));
         callTree.add(makeSpanEventBo(SYNC, (short) 1, -1));
         assertDepth("async-case-3", callTree, expectResult);
     }
@@ -148,6 +148,7 @@ public class SpanAlignDepthTest {
         expectResult.clear();
         expectResult.add("#");
         expectResult.add("##");
+        expectResult.add("###");
         expectResult.add("###");
 
         callTree.clear();
@@ -176,11 +177,22 @@ public class SpanAlignDepthTest {
         expectResult.add("##");
 
         callTree.clear();
-        callTree.add(makeSpanEventBo(SYNC, (short) 0, 1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 0, 1, 1, -1));
 //        callTree.add(makeSpanEventBo(ASYNC, (short) 0, 1));
-        callTree.add(makeSpanEventBo(ASYNC, (short) 1, 2));
-        callTree.add(makeSpanEventBo(ASYNC, (short) 0, 1));
+        callTree.add(makeSpanEventBo(ASYNC, (short) 1, 2, 2, 1));
+        callTree.add(makeSpanEventBo(ASYNC, (short) 0, 1, -1, 2));
         assertDepth("missing-case-3", callTree, expectResult);
+        
+        expectResult.clear();
+        expectResult.add("#");
+        expectResult.add("#");
+
+        callTree.clear();
+        callTree.add(makeSpanEventBo(SYNC, (short) 0, 1, 1, -1));
+//        callTree.add(makeSpanEventBo(ASYNC, (short) 0, 1));
+        callTree.add(makeSpanEventBo(SYNC, (short) 1, -1));
+        assertDepth("missing-case-5", callTree, expectResult);
+
     }
     
 
@@ -188,40 +200,66 @@ public class SpanAlignDepthTest {
         System.out.println("===== " + name + "=====");
         int index = 0;
         SpanAlignDepth depth = new SpanAlignDepth(0);
+        
+        boolean asyncEventMissing = false;
         for (SpanEventBo event : list) {
-            if(depth.isParentMissing(event)) {
+            if(event.isAsync() && asyncEventMissing) {
                 continue;
             }
             
-            int currentDepth = 0;
-            if(depth.findMissing(event)) {
-                currentDepth = depth.getMissingDepth(event);
-            } else {
-                currentDepth = depth.getDepth(event);
+            if(depth.isParentMissing(event)) {
+                int currentDepth = depth.getMissingDepth(event);
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < currentDepth; i++) {
+                    sb.append("#");
+                }
+
+                final String expected = result.get(index++);
+                printDepth(index, sb.toString(), expected);
+                
+                if(event.isAsync()) {
+                    asyncEventMissing = true;
+                    continue;
+                } else {
+                    break;
+                }
             }
             
+            int currentDepth = 0;
+            currentDepth = depth.getDepth(event);
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < currentDepth; i++) {
                 sb.append("#");
             }
-            
+
             final String expected = result.get(index++);
-            if (expected.equals(sb.toString())) {
-                System.out.println("Matched(" + index + "): " + sb.toString());
-            } else {
-                System.out.println("Not Matched(" + index + "): " + sb.toString() + ", expected=" + expected);
-            }
-            // log
+            printDepth(index, sb.toString(), expected);
         }
         System.out.println("");
     }
 
+    private void printDepth(final int index, final String depth, final String expected) {
+        if (expected.equals(depth)) {
+            System.out.println("Matched(" + index + "): " + depth);
+        } else {
+            System.out.println("Not Matched(" + index + "): " + depth + ", expected=" + expected);
+        }
+    }
+    
+    
     private SpanEventBo makeSpanEventBo(final boolean async, final short sequence, final int depth) {
+        return makeSpanEventBo(async, sequence, depth, -1, -1);
+    }
+    
+    private SpanEventBo makeSpanEventBo(final boolean async, final short sequence, final int depth, final int nextAsyncId, final int asyncId) {
         SpanEventBo event = new SpanEventBo();
         event.setAsyncId(async ? 1 : -1);
         event.setSequence(sequence);
         event.setDepth(depth);
+        event.setNextAsyncId(nextAsyncId);
+        event.setAsyncId(asyncId);
 
         return event;
     }
+    
 }

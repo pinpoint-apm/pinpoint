@@ -9,6 +9,7 @@ public class SpanAlignDepth {
     private Depth align;
     private Depth async;
     private Depth sync;
+    private SpanEventBo prev;
 
     public SpanAlignDepth(final int depth) {
         if (depth < DEFAULT_DEPTH) {
@@ -33,12 +34,21 @@ public class SpanAlignDepth {
                 }
             } else {
                 if (sequence != 0 && sequence > async.sequence + 1) {
+                    // check sequence
                     return true;
                 }
             }
         } else {
             if (sequence > sync.sequence + 1) {
+                // check sequence
                 return true;
+            }
+            
+            if(prev != null && prev.getNextAsyncId() != -1) {
+                // check next-async-id
+                if(prev.getNextAsyncId() != spanEventBo.getAsyncId()) {
+                    return true;
+                }
             }
         }
 
@@ -109,6 +119,7 @@ public class SpanAlignDepth {
             }
             align.current = sync.current;
         }
+        this.prev = spanEventBo;
 
         return align.current;
     }
