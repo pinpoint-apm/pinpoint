@@ -140,11 +140,7 @@ public class SpanAligner2 {
         }
         SpanBo rootSpanBo = rootList.get(0);
         final List<SpanAlign> list = new ArrayList<SpanAlign>();
-        
-        // TEST
-        List<SpanEventBo> spanEvents = rootSpanBo.getSpanEventBoList();
-        spanEvents.remove(spanEvents.size()/2);
-        
+
         populate(rootSpanBo, 0, list);
 
         return list;
@@ -173,30 +169,26 @@ public class SpanAligner2 {
 
         spanAlign.setHasChild(true);
 
+        boolean asyncEventMissing = false;
         for (SpanEventBo spanEventBo : spanEventBoList) {
-            if (spanAlignDepth.isParentMissing(spanEventBo)) {
+            if (spanEventBo.isAsync() && asyncEventMissing) {
                 continue;
             }
 
-            if (spanAlignDepth.findMissing(spanEventBo)) {
-                final int currentDepth = spanAlignDepth.getDepth(spanEventBo);
-                final SpanEventBo missingEvent = new SpanEventBo();
-                missingEvent.setStartElapsed(0);
-                missingEvent.setEndElapsed(0);
-                
-                List<AnnotationBo> annotations = new ArrayList<AnnotationBo>();
-                ApiMetaDataBo apiMetaData = new ApiMetaDataBo();
-                apiMetaData.setApiInfo("...");
-                apiMetaData.setType(3);
-                AnnotationBo annotation = new AnnotationBo();
-                annotation.setKey(AnnotationKey.API_METADATA.getCode());
-                annotation.setValue(apiMetaData);
-                annotations.add(annotation);
-                missingEvent.setAnnotationBoList(annotations);
-                
-                final SpanAlign spanEventAlign = new SpanAlign(currentDepth, span, missingEvent);
+            if (spanAlignDepth.isParentMissing(spanEventBo)) {
+                logger.debug("Parent missing and make missingEvent");
+
+                final int currentDepth = spanAlignDepth.getMissingDepth(spanEventBo);
+                MissedSpanAlignFactory factory = new MissedSpanAlignFactory();
+                final SpanAlign spanEventAlign = factory.get(currentDepth, span, spanEventBo);
                 container.add(spanEventAlign);
-                continue;
+
+                if (spanEventBo.isAsync()) {
+                    asyncEventMissing = true;
+                    continue;
+                } else {
+                    break;
+                }
             }
 
             final int currentDepth = spanAlignDepth.getDepth(spanEventBo);

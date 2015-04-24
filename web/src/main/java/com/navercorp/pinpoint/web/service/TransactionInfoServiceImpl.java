@@ -469,9 +469,18 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                     final int parentSequence = parent.getId();
                     logger.debug("spanBoEventSequence:{}, parentSequence:{}", spanBoEventSequence, parentSequence);
 
-                    final String method = AnnotationUtils.findApiAnnotation(spanEventBo.getAnnotationBoList());
-                    if (method != null) {
-                        ApiDescription apiDescription = apiDescriptionParser.parse(method);
+                    final AnnotationBo annotation = AnnotationUtils.findAnnotationBo(spanEventBo.getAnnotationBoList(), AnnotationKey.API_METADATA);
+//                    final String method = AnnotationUtils.findApiAnnotation(spanEventBo.getAnnotationBoList());
+                    if (annotation != null) {
+                        ApiMetaDataBo apiMetaData = (ApiMetaDataBo) annotation.getValue();
+                        final String apiInfo = getApiInfo(apiMetaData);
+                        String title = apiInfo;
+                        String className = "";
+                        if(apiMetaData.getType() == 0) {
+                            ApiDescription apiDescription = apiDescriptionParser.parse(apiInfo);
+                            title = apiDescription.getSimpleMethodDescription();
+                            className = apiDescription.getSimpleClassName();
+                        }
                         String destinationId = spanEventBo.getDestinationId();
 
                         long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
@@ -494,7 +503,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                                     spanBoEventSequence,
                                                     parentSequence,
                                                     true,
-                                                    apiDescription.getSimpleMethodDescription(),
+                                                    title,
                                                     argument,
                                                     begin,
                                                     elapsed,
@@ -508,8 +517,8 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                                     false,
                                                     spanBo.getTransactionId(),
                                                     spanBo.getSpanId());
-                        record.setSimpleClassName(apiDescription.getSimpleClassName());
-                        record.setFullApiDescription(method);
+                        record.setSimpleClassName(className);
+                        record.setFullApiDescription(apiInfo);
 
                         recordList.add(record);
                     } else {
@@ -539,7 +548,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                                     spanBo.getTransactionId(),
                                                     spanBo.getSpanId());
                         record.setSimpleClassName("");
-                        record.setFullApiDescription(method);
+                        record.setFullApiDescription("");
 
                         recordList.add(record);
                     }
@@ -651,6 +660,14 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
         private Record createParameterRecord(int depth, int parentId, String method, String argument) {
             return new Record(depth, getNextId(), parentId, false, method, argument, 0L, 0L, 0, null, null, null, null, false, false, null, 0);
+        }
+        
+        private String getApiInfo(ApiMetaDataBo apiMetaDataBo) {
+            if (apiMetaDataBo.getLineNumber() != -1) {
+                return apiMetaDataBo.getApiInfo() + ":" + apiMetaDataBo.getLineNumber();
+            } else {
+                return apiMetaDataBo.getApiInfo();
+            }
         }
     }
 

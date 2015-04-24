@@ -358,6 +358,10 @@ public class SpanEventBo implements Span {
         this.annotationBoList = anoList;
     }
     
+    public boolean isAsync() {
+        return this.asyncId != -1;
+    }
+    
     public boolean hasException() {
         return hasException;
     }

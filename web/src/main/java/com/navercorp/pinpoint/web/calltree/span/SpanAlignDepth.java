@@ -25,15 +25,8 @@ public class SpanAlignDepth {
     }
     
     public boolean isParentMissing(final SpanEventBo spanEventBo) {
-        if(isAsyncEvent(spanEventBo)) {
-            return async.missing;
-        }
-        return sync.missing;
-    }
-    
-    public boolean findMissing(final SpanEventBo spanEventBo) {
         final int sequence = spanEventBo.getSequence();
-        if (isAsyncEvent(spanEventBo)) {
+        if (spanEventBo.isAsync()) {
             if (async.first) {
                 if (sequence != 0) {
                     return true;
@@ -53,7 +46,7 @@ public class SpanAlignDepth {
     }
 
     public int getMissingDepth(final SpanEventBo spanEventBo) {
-        if (isAsyncEvent(spanEventBo)) {
+        if (spanEventBo.isAsync()) {
             if (isFirstEvent(spanEventBo) || async.first) {
                 // start async event.
                 async.parent = align.parent + align.current;
@@ -92,11 +85,11 @@ public class SpanAlignDepth {
         }
 
         return align.current;
-
     }
 
     public int getDepth(final SpanEventBo spanEventBo) {
-        if (isAsyncEvent(spanEventBo)) {
+        if (spanEventBo.isAsync()) {
+            async.sequence = spanEventBo.getSequence();
             if (isFirstEvent(spanEventBo) || async.first) {
                 // start async event.
                 async.parent = align.parent + align.current;
@@ -109,6 +102,7 @@ public class SpanAlignDepth {
             }
             align.current = async.current;
         } else {
+            sync.sequence = spanEventBo.getSequence();
             if (!isSameParent(spanEventBo)) {
                 int depth = spanEventBo.getDepth();
                 sync.current = sync.parent + depth;
@@ -125,10 +119,6 @@ public class SpanAlignDepth {
 
     private boolean isSameParent(final SpanEventBo spanEventBo) {
         return spanEventBo.getDepth() == PARENT_DEPTH;
-    }
-
-    private boolean isAsyncEvent(final SpanEventBo spanEventBo) {
-        return spanEventBo.getAsyncId() != -1;
     }
 
     private class Depth {
