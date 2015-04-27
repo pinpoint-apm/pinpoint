@@ -85,11 +85,11 @@ public class TestClassLoader extends Loader {
         return instrumentor;
     }
 
-    public AbstractModifier addModifier(AbstractModifier modifier) {
+    public void addModifier(AbstractModifier modifier) {
         if (this.instrumentTranslator == null) {
             throw new IllegalStateException("TestClassLoader is not initialized.");
         }
-        return this.instrumentTranslator.addModifier(modifier);
+        this.instrumentTranslator.addModifier(modifier);
     }
 
     private void addDefaultDelegateLoadingOf() {
