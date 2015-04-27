@@ -60,6 +60,7 @@ import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.SqlMapModifier;
 import com.navercorp.pinpoint.profiler.modifier.orm.mybatis.MyBatisModifier;
 import com.navercorp.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
 import com.navercorp.pinpoint.profiler.modifier.spring.beans.AbstractAutowireCapableBeanFactoryModifier;
+import com.navercorp.pinpoint.profiler.modifier.spring.orm.ibatis.SqlMapClientTemplateModifier;
 
 /**
  * @author emeroad
@@ -345,6 +346,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     private void addIBatisSupport() {
         if (profilerConfig.isIBatisEnabled()) {
             addModifier(new SqlMapModifier(byteCodeInstrumentor, agent));
+            addModifier(new SqlMapClientTemplateModifier(byteCodeInstrumentor, agent));
         }
     }
 
