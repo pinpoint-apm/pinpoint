@@ -61,6 +61,7 @@ import com.navercorp.pinpoint.profiler.modifier.orm.mybatis.MyBatisModifier;
 import com.navercorp.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
 import com.navercorp.pinpoint.profiler.modifier.spring.beans.AbstractAutowireCapableBeanFactoryModifier;
 import com.navercorp.pinpoint.profiler.modifier.spring.orm.ibatis.SqlMapClientTemplateModifier;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 /**
  * @author emeroad
@@ -97,24 +98,27 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         if (matcher instanceof ClassNameMatcher) {
             final ClassNameMatcher classNameMatcher = (ClassNameMatcher)matcher;
             String className = classNameMatcher.getClassName();
-            AbstractModifier old = registry.put(className, modifier);
-            if (old != null) {
-                throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + old.getMatcher());
-            }
+            addModifier0(modifier, className);
         } else if (matcher instanceof MultiClassNameMatcher) {
             final MultiClassNameMatcher classNameMatcher = (MultiClassNameMatcher)matcher;
             List<String> classNameList = classNameMatcher.getClassNames();
             for (String className : classNameList) {
-                AbstractModifier old = registry.put(className, modifier);
-                if (old != null) {
-                    throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + old.getMatcher());
-                }
+                addModifier0(modifier, className);
             }
         } else {
             throw new IllegalArgumentException("unsupported matcher :" + matcher);
         }
     }
-    
+
+    private void addModifier0(AbstractModifier modifier, String className) {
+        // check jvmClassName
+        final String checkJvmClassName = JavaAssistUtils.javaNameToJvmName(className);
+        AbstractModifier old = registry.put(checkJvmClassName, modifier);
+        if (old != null) {
+            throw new IllegalStateException("Modifier already exist. className:" + checkJvmClassName + " new:" + modifier.getClass() + " old:" + old.getMatcher());
+        }
+    }
+
     public void addMethodModifier() {
         MethodModifier methodModifier = new MethodModifier(byteCodeInstrumentor, agent);
         addModifier(methodModifier);

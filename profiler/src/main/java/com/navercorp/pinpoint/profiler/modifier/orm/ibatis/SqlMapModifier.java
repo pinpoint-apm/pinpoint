@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.filter.SqlMapClientMethodFilter;
 import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.filter.SqlMapSessionMethodFilter;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.slf4j.Logger;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
@@ -80,10 +81,11 @@ public class SqlMapModifier extends AbstractModifier {
     }
 
     private MethodFilter getIbatisApiMethodFilter(String className) {
-        if (SQLMAP_CLIENT_CLASS_NAME.equals(className)) {
+        final String jvmClassName = JavaAssistUtils.javaNameToJvmName(className);
+        if (SQLMAP_CLIENT_CLASS_NAME.equals(jvmClassName)) {
             return new SqlMapClientMethodFilter();
         }
-        if (SQLMAP_SESSION_CLASS_NAME.equals(className)) {
+        if (SQLMAP_SESSION_CLASS_NAME.equals(jvmClassName)) {
             return new SqlMapSessionMethodFilter();
         }
         throw new IllegalArgumentException("unsupported className:" + className);
