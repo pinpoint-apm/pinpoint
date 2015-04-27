@@ -56,10 +56,8 @@ import com.navercorp.pinpoint.profiler.modifier.db.oracle.PhysicalConnectionModi
 import com.navercorp.pinpoint.profiler.modifier.log.log4j.LoggingEventOfLog4jModifier;
 import com.navercorp.pinpoint.profiler.modifier.log.logback.LoggingEventOfLogbackModifier;
 import com.navercorp.pinpoint.profiler.modifier.method.MethodModifier;
-import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.SqlMapClientImplModifier;
-import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.SqlMapSessionImplModifier;
-import com.navercorp.pinpoint.profiler.modifier.orm.mybatis.DefaultSqlSessionModifier;
-import com.navercorp.pinpoint.profiler.modifier.orm.mybatis.SqlSessionTemplateModifier;
+import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.SqlMapModifier;
+import com.navercorp.pinpoint.profiler.modifier.orm.mybatis.MyBatisModifier;
 import com.navercorp.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
 import com.navercorp.pinpoint.profiler.modifier.spring.beans.AbstractAutowireCapableBeanFactoryModifier;
 import com.navercorp.pinpoint.profiler.modifier.spring.orm.ibatis.SqlMapClientTemplateModifier;
@@ -347,16 +345,14 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
     private void addIBatisSupport() {
         if (profilerConfig.isIBatisEnabled()) {
-            addModifier(new SqlMapSessionImplModifier(byteCodeInstrumentor, agent));
-            addModifier(new SqlMapClientImplModifier(byteCodeInstrumentor, agent));
+            addModifier(new SqlMapModifier(byteCodeInstrumentor, agent));
             addModifier(new SqlMapClientTemplateModifier(byteCodeInstrumentor, agent));
         }
     }
 
     private void addMyBatisSupport() {
         if (profilerConfig.isMyBatisEnabled()) {
-            addModifier(new DefaultSqlSessionModifier(byteCodeInstrumentor, agent));
-            addModifier(new SqlSessionTemplateModifier(byteCodeInstrumentor, agent));
+            addModifier(new MyBatisModifier(byteCodeInstrumentor, agent));
         }
     }
 
