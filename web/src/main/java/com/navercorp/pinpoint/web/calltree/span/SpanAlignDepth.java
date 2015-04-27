@@ -1,7 +1,28 @@
+/*
+ * Copyright 2014 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.web.calltree.span;
 
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
 
+/**
+ * 
+ * @author jaehong.kim
+ *
+ */
 public class SpanAlignDepth {
     private static final int DEFAULT_DEPTH = 0;
     private static final int PARENT_DEPTH = -1;
@@ -24,7 +45,7 @@ public class SpanAlignDepth {
     public int getCurrentDepth() {
         return align.current;
     }
-    
+
     public boolean isParentMissing(final SpanEventBo spanEventBo) {
         final int sequence = spanEventBo.getSequence();
         if (spanEventBo.isAsync()) {
@@ -43,10 +64,10 @@ public class SpanAlignDepth {
                 // check sequence
                 return true;
             }
-            
-            if(prev != null && prev.getNextAsyncId() != -1) {
+
+            if (prev != null && prev.getNextAsyncId() != -1) {
                 // check next-async-id
-                if(prev.getNextAsyncId() != spanEventBo.getAsyncId()) {
+                if (prev.getNextAsyncId() != spanEventBo.getAsyncId()) {
                     return true;
                 }
             }
@@ -75,7 +96,6 @@ public class SpanAlignDepth {
                 }
                 async.current = async.parent + depth;
             }
-            async.missing = true;
             align.current = async.current;
         } else {
             if (isSameParent(spanEventBo)) {
@@ -90,7 +110,6 @@ public class SpanAlignDepth {
                 }
                 sync.current = sync.parent + depth;
             }
-            sync.missing = true;
             align.current = sync.current;
         }
 
@@ -137,7 +156,6 @@ public class SpanAlignDepth {
         int parent;
         int current;
         int sequence;
-        boolean missing = false;
 
         public Depth(int depth) {
             parent = depth;

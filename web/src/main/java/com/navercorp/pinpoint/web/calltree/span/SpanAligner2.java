@@ -18,12 +18,8 @@ package com.navercorp.pinpoint.web.calltree.span;
 
 import java.util.*;
 
-import com.navercorp.pinpoint.common.bo.AnnotationBo;
-import com.navercorp.pinpoint.common.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +28,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author netspider
  * @author emeroad
+ * @author jaehong.kim
  */
 public class SpanAligner2 {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -208,6 +205,7 @@ public class SpanAligner2 {
                 if (spanBo != null) {
                     populate(spanBo, childDepth, container);
                 } else {
+                    // TODO add missed
                     logger.debug("nextSpanId not found. {}", nextSpanId);
                 }
             }
