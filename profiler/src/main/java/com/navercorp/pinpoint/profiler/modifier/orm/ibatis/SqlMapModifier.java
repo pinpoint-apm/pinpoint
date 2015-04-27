@@ -19,6 +19,10 @@ package com.navercorp.pinpoint.profiler.modifier.orm.ibatis;
 import java.security.ProtectionDomain;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
+import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.filter.SqlMapClientMethodFilter;
+import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.filter.SqlMapSessionMethodFilter;
 import org.slf4j.Logger;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
@@ -31,22 +35,25 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.interceptor.IbatisScope;
 import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.interceptor.IbatisSqlMapOperationInterceptor;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base class for modifying iBatis client classes
  *  
  * @author Hyun Jeong
  */
-public abstract class IbatisClientModifier extends AbstractModifier {
+public class SqlMapModifier extends AbstractModifier {
 
     private static final ServiceType serviceType = ServiceType.IBATIS;
     private static final String SCOPE = IbatisScope.SCOPE;
 
-    protected Logger logger;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    protected abstract MethodFilter getIbatisApiMethodFilter();
+    public static final String SQLMAP_CLIENT_CLASS_NAME = "com/ibatis/sqlmap/engine/impl/SqlMapClientImpl";
 
-    public IbatisClientModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+    public static final String SQLMAP_SESSION_CLASS_NAME = "com/ibatis/sqlmap/engine/impl/SqlMapSessionImpl";
+
+    public SqlMapModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
     }
 
@@ -57,7 +64,8 @@ public abstract class IbatisClientModifier extends AbstractModifier {
         }
         try {
             InstrumentClass ibatisClientImpl = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
-            List<MethodInfo> declaredMethods = ibatisClientImpl.getDeclaredMethods(getIbatisApiMethodFilter());
+            final MethodFilter ibatisApiMethodFilter = getIbatisApiMethodFilter(javassistClassName);
+            List<MethodInfo> declaredMethods = ibatisClientImpl.getDeclaredMethods(ibatisApiMethodFilter);
 
             for (MethodInfo method : declaredMethods) {
                 Interceptor ibatisApiInterceptor = new IbatisSqlMapOperationInterceptor(serviceType);
@@ -70,4 +78,20 @@ public abstract class IbatisClientModifier extends AbstractModifier {
             return null;
         }
     }
+
+    private MethodFilter getIbatisApiMethodFilter(String className) {
+        if (SQLMAP_CLIENT_CLASS_NAME.equals(className)) {
+            return new SqlMapClientMethodFilter();
+        }
+        if (SQLMAP_SESSION_CLASS_NAME.equals(className)) {
+            return new SqlMapSessionMethodFilter();
+        }
+        throw new IllegalArgumentException("unsupported className:" + className);
+    }
+
+    @Override
+    public Matcher getMatcher() {
+        return Matchers.newMultiClassNameMatcher(SQLMAP_CLIENT_CLASS_NAME, SQLMAP_SESSION_CLASS_NAME);
+    }
+
 }

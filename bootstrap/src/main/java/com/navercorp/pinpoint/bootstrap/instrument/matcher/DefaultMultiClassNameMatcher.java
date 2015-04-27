@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument.matcher;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,7 +30,7 @@ public class DefaultMultiClassNameMatcher implements MultiClassNameMatcher {
         if (classNameMatcherList == null) {
             throw new NullPointerException("classNameMatcherList must not be null");
         }
-        this.classNameList = new ArrayList<String>(classNameMatcherList);
+        this.classNameList = Collections.unmodifiableList(classNameMatcherList);
     }
 
     @Override

@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
@@ -37,20 +39,22 @@ import java.util.List;
 /**
  * @author Hyun Jeong
  */
-public abstract class MyBatisClientModifier extends AbstractModifier {
+public class MyBatisModifier extends AbstractModifier {
 
     private static final ServiceType serviceType = ServiceType.MYBATIS;
     private static final String SCOPE = MyBatisScope.SCOPE;
     private static final MethodFilter sqlSessionMethodFilter = new SqlSessionMethodFilter();
 
-    protected final Logger logger;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public MyBatisClientModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent, Class<? extends MyBatisClientModifier> childClazz) {
+    public static final String DEFAULT_SQL_SESSION = "org/apache/ibatis/session/defaults/DefaultSqlSession";
+    public static final String SQL_SESSION_TEMPLATE = "org/mybatis/spring/SqlSessionTemplate";
+
+    public MyBatisModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
-        logger = LoggerFactory.getLogger(childClazz);
     }
 
-    protected MethodFilter getSqlSessionMethodFilter() {
+    private MethodFilter getSqlSessionMethodFilter() {
         return sqlSessionMethodFilter;
     }
 
@@ -75,5 +79,9 @@ public abstract class MyBatisClientModifier extends AbstractModifier {
         }
     }
 
+    @Override
+    public Matcher getMatcher() {
+        return Matchers.newMultiClassNameMatcher(SQL_SESSION_TEMPLATE, DEFAULT_SQL_SESSION);
+    }
 
 }
