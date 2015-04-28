@@ -14,29 +14,28 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.service;
 
-import org.springframework.util.Assert;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author emeroad
  */
-public class SearchRange {
-    private final int callerRange;
-    private final int calleeRange;
+public class SearchDepthTest {
 
-    public SearchRange(int callerRange, int calleeRange) {
-        Assert.isTrue(callerRange >= 0, "negative callerRange");
-        Assert.isTrue(calleeRange >= 0, "negative calleeRange");
-        this.callerRange = callerRange;
-        this.calleeRange = calleeRange;
+    @Test
+    public void testSearchDepth() throws Exception {
+        SearchDepth test = new SearchDepth(1);
+
+        Assert.assertEquals(test.getDepth(), 0);
+
+        SearchDepth oneDepth = test.nextDepth();
+        Assert.assertEquals(oneDepth.getDepth(), 1);
+        Assert.assertFalse(oneDepth.isDepthOverflow());
+
+        Assert.assertEquals(oneDepth.nextDepth().getDepth(), 2);
+        Assert.assertTrue(oneDepth.nextDepth().isDepthOverflow());
     }
 
-    public int getCallerRange() {
-        return callerRange;
-    }
-
-    public int getCalleeRange() {
-        return calleeRange;
-    }
 }

@@ -81,7 +81,7 @@ public class LinkDataSelector {
      * @param range
      * @return
      */
-    private LinkDataDuplexMap selectCaller(Application callerApplication, Range range, SearchLevel searchLevel) {
+    private LinkDataDuplexMap selectCaller(Application callerApplication, Range range, SearchDepth searchDepth) {
         // skip if the callerApplication has already been checked
         if (linkVisitChecker.visitCaller(callerApplication)) {
             return new LinkDataDuplexMap();
@@ -112,8 +112,8 @@ public class LinkDataSelector {
             }
 
             // search depth check
-            final SearchLevel nextLevel  = searchLevel.nextLevel();
-            if (nextLevel.isLevelOverflow()) {
+            final SearchDepth nextLevel  = searchDepth.nextDepth();
+            if (nextLevel.isDepthOverflow()) {
                 continue;
             }
             logger.debug("     Find subCaller of {}", toApplication);
@@ -140,7 +140,7 @@ public class LinkDataSelector {
      * @param range
      * @return
      */
-    private LinkDataDuplexMap selectCallee(Application calleeApplication, Range range, SearchLevel searchLevel) {
+    private LinkDataDuplexMap selectCallee(Application calleeApplication, Range range, SearchDepth searchDepth) {
         // skip if the calleeApplication has already been checked
         if (linkVisitChecker.visitCallee(calleeApplication)) {
             return new LinkDataDuplexMap();
@@ -154,8 +154,8 @@ public class LinkDataSelector {
             calleeSet.addTargetLinkData(stat);
 
             // search depth check
-            final SearchLevel nextLevel = searchLevel.nextLevel();
-            if (nextLevel.isLevelOverflow()) {
+            final SearchDepth nextLevel = searchDepth.nextDepth();
+            if (nextLevel.isDepthOverflow()) {
                 continue;
             }
 
@@ -358,12 +358,12 @@ public class LinkDataSelector {
         return new LinkKey(fromApplication, toApplication);
     }
 
-    public LinkDataDuplexMap select(Application sourceApplication, Range range, int callerSearchLevel, int calleeSearchLevel) {
-        final SearchLevel callerLevel = new SearchLevel(callerSearchLevel);
+    public LinkDataDuplexMap select(Application sourceApplication, Range range, int callerSearchDepth, int calleeSearchDepth) {
+        final SearchDepth callerLevel = new SearchDepth(callerSearchDepth);
         LinkDataDuplexMap caller = selectCaller(sourceApplication, range, callerLevel);
         logger.debug("Result of finding caller {}", caller);
 
-        final SearchLevel calleeLevel = new SearchLevel(calleeSearchLevel);
+        final SearchDepth calleeLevel = new SearchDepth(calleeSearchDepth);
         LinkDataDuplexMap callee = selectCallee(sourceApplication, range, calleeLevel);
         logger.debug("Result of finding callee {}", callee);
 

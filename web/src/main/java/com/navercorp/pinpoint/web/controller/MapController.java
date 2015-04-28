@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.navercorp.pinpoint.web.vo.SearchRange;
+import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,12 +108,12 @@ public class MapController {
         this.dateLimit.limit(from, to);
         logger.debug("range:{}", TimeUnit.MILLISECONDS.toMinutes(range.getRange()));
 
-        SearchRange searchRange = new SearchRange(callerRange, calleeRange);
+        SearchOption searchOption = new SearchOption(callerRange, calleeRange);
 
         ServiceType serviceType = registry.findServiceTypeByName(serviceTypeName);
         Application application = new Application(applicationName, serviceType);
 
-        ApplicationMap map = mapService.selectApplicationMap(application, range, searchRange);
+        ApplicationMap map = mapService.selectApplicationMap(application, range, searchOption);
 
         return new MapWrap(map);
     }
