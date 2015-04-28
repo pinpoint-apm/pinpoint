@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.rpc.util;
 
 import java.util.List;
 
+/**
+ * @author Taejin Koo
+ */
 public final class ListUtils {
 
     private ListUtils() {
@@ -57,6 +60,53 @@ public final class ListUtils {
         for (V value : values) {
             addIfValueNotNull(list, value);
         }
+    }
+    
+    public static <V> V getFirst(List<V> list) {
+        return getFirst(list, null);
+    }
+
+    public static <V> V getFirst(List<V> list, V defaultValue) {
+        int size = list.size();
+        
+        if (size > 0) {
+            return list.get(0);
+        } else {
+            return defaultValue;
+        }
+    }
+
+    public static <V> boolean isFirst(List<V> list, V object) {
+        V first = getFirst(list);
+        return first.equals(object);
+    }
+    
+    public static <V> V get(List<V> list, int index, V defaultValue) {
+        try {
+            return list.get(index);
+        } catch (Exception e) {
+        }
+
+        return defaultValue;
+    }
+
+    public static <V> V getLast(List<V> list) {
+        return getLast(list, null);
+    }
+    
+    public static <V> V getLast(List<V> list, V defaultValue) {
+        int size = list.size();
+        
+        if (size > 0) {
+            return list.get(size - 1);
+        } else {
+            return defaultValue;
+        }
+    }
+
+    public static <V> boolean isLast(List<V> list, V object) {
+        V last = getLast(list);
+        return last.equals(object);
     }
     
 }

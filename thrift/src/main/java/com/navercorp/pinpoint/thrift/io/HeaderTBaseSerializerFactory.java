@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.thrift.io;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 
-import java.io.ByteArrayOutputStream;
-
 /**
  * @author koo.taejin
  */
@@ -89,7 +87,7 @@ public final class HeaderTBaseSerializerFactory implements SerializerFactory<Hea
 
     @Override
     public HeaderTBaseSerializer createSerializer() {
-        ByteArrayOutputStream baos = null;
+        ResetableByteArrayOutputStream baos = null;
         if (safetyGuranteed) {
             baos = new PinpointByteArrayOutputStream(outputStreamSize, autoExpand);
         } else {
