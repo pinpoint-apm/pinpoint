@@ -22,46 +22,46 @@ import org.slf4j.LoggerFactory;
 /**
  * @author emeroad
  */
-public class SearchLevel {
+public class SearchDepth {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final int limit;
-    private final int level;
+    private final int depth;
 
-    public SearchLevel(int limit) {
+    public SearchDepth(int limit) {
         this(limit, 0);
     }
 
-    private SearchLevel(int limit, int level) {
+    private SearchDepth(int limit, int depth) {
         if (limit < 0) {
             throw new IllegalArgumentException("negative limit " + limit);
         }
-        if (level < 0) {
-            throw new IllegalArgumentException("negative level" + level);
+        if (depth < 0) {
+            throw new IllegalArgumentException("negative depth" + depth);
         }
         this.limit = limit;
-        this.level = level;
+        this.depth = depth;
     }
 
-    public SearchLevel nextLevel() {
+    public SearchDepth nextDepth() {
         final int nextLevel = next();
-        return new SearchLevel(limit, nextLevel);
+        return new SearchDepth(limit, nextLevel);
     }
 
-    public int getLevel() {
-        return level;
+    public int getDepth() {
+        return depth;
     }
 
-    public boolean isLevelOverflow() {
-        if (limit < level) {
-            logger.debug("level overflow level:{}, limit:{}", level, limit);
+    public boolean isDepthOverflow() {
+        if (limit < depth) {
+            logger.debug("depth overflow depth:{}, limit:{}", depth, limit);
             return true;
         }
         return false;
     }
 
     private int next() {
-        return level + 1;
+        return depth + 1;
     }
 
 }
