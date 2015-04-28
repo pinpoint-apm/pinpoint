@@ -81,7 +81,7 @@ public class LinkDataSelector {
      * @param range
      * @return
      */
-    private LinkDataDuplexMap selectCaller(Application callerApplication, Range range) {
+    private LinkDataDuplexMap selectCaller(Application callerApplication, Range range, SearchLevel searchLevel) {
         // skip if the callerApplication has already been checked
         if (linkVisitChecker.visitCaller(callerApplication)) {
             return new LinkDataDuplexMap();
@@ -93,8 +93,8 @@ public class LinkDataSelector {
         }
 
         final LinkDataMap replaceRpcCaller = new LinkDataMap();
-        for (LinkData link : caller.getLinkDataList()) {
-            final List<LinkData> checkedLink = checkRpcCallAccepted(link, range);
+        for (LinkData callerLink : caller.getLinkDataList()) {
+            final List<LinkData> checkedLink = checkRpcCallAccepted(callerLink, range);
             for (LinkData linkData : checkedLink) {
                 replaceRpcCaller.addLinkData(linkData);
             }
@@ -111,8 +111,13 @@ public class LinkDataSelector {
                 continue;
             }
 
+            // search depth check
+            final SearchLevel nextLevel  = searchLevel.nextLevel();
+            if (nextLevel.isLevelOverflow()) {
+                continue;
+            }
             logger.debug("     Find subCaller of {}", toApplication);
-            LinkDataDuplexMap callerSub = selectCaller(toApplication, range);
+            LinkDataDuplexMap callerSub = selectCaller(toApplication, range, nextLevel);
             logger.debug("     Found subCaller. count={}, caller={}", callerSub.size(), toApplication);
 
             resultCaller.addLinkDataDuplexMap(callerSub);
@@ -120,7 +125,7 @@ public class LinkDataSelector {
             // find all callers of queried subCallers as well
             for (LinkData eachCaller : callerSub.getSourceLinkDataList()) {
                 logger.debug("     Find callee of {}", eachCaller.getFromApplication());
-                LinkDataDuplexMap calleeSub = selectCallee(eachCaller.getFromApplication(), range);
+                LinkDataDuplexMap calleeSub = selectCallee(eachCaller.getFromApplication(), range, nextLevel);
                 logger.debug("     Found subCallee. count={}, callee={}", calleeSub.size(), eachCaller.getFromApplication());
                 resultCaller.addLinkDataDuplexMap(calleeSub);
             }
@@ -135,7 +140,7 @@ public class LinkDataSelector {
      * @param range
      * @return
      */
-    private LinkDataDuplexMap selectCallee(Application calleeApplication, Range range) {
+    private LinkDataDuplexMap selectCallee(Application calleeApplication, Range range, SearchLevel searchLevel) {
         // skip if the calleeApplication has already been checked
         if (linkVisitChecker.visitCallee(calleeApplication)) {
             return new LinkDataDuplexMap();
@@ -148,8 +153,14 @@ public class LinkDataSelector {
         for (LinkData stat : callee.getLinkDataList()) {
             calleeSet.addTargetLinkData(stat);
 
+            // search depth check
+            final SearchLevel nextLevel = searchLevel.nextLevel();
+            if (nextLevel.isLevelOverflow()) {
+                continue;
+            }
+
             // need to find the applications that called me
-            LinkDataDuplexMap calleeSub = selectCallee(stat.getFromApplication(), range);
+            LinkDataDuplexMap calleeSub = selectCallee(stat.getFromApplication(), range, nextLevel);
             calleeSet.addLinkDataDuplexMap(calleeSub);
 
             // find all callees of queried subCallees as well
@@ -159,7 +170,7 @@ public class LinkDataSelector {
                 if (eachCalleeToApplication.getServiceType().isTerminal() || eachCalleeToApplication.getServiceType().isUnknown()) {
                     continue;
                 }
-                LinkDataDuplexMap callerSub = selectCaller(eachCalleeToApplication, range);
+                LinkDataDuplexMap callerSub = selectCaller(eachCalleeToApplication, range, nextLevel);
                 calleeSet.addLinkDataDuplexMap(callerSub);
             }
         }
@@ -172,7 +183,7 @@ public class LinkDataSelector {
         // replace if the rpc client's destination has an agent installed and thus has an application name
         final Application toApplication = linkData.getToApplication();
         if (!toApplication.getServiceType().isRpcClient()) {
-            return Arrays.asList(linkData);
+            return Collections.singletonList(linkData);
         }
 
         logger.debug("checkRpcCallAccepted(). Find applicationName:{} {}", toApplication, range);
@@ -185,7 +196,7 @@ public class LinkDataSelector {
 
                 AcceptApplication first = acceptApplicationList.iterator().next();
                 final LinkData acceptedLinkData = new LinkData(linkData.getFromApplication(), first.getApplication(), linkData.getLinkCallDataMap());
-                return Arrays.asList(acceptedLinkData);
+                return Collections.singletonList(acceptedLinkData);
             } else {
                 // special case - there are more than 2 nodes grouped by a single url
                 return createVirtualLinkData(linkData, toApplication, acceptApplicationList);
@@ -193,7 +204,7 @@ public class LinkDataSelector {
         } else {
             final Application unknown = new Application(toApplication.getName(), ServiceType.UNKNOWN);
             final LinkData unknownLinkData = new LinkData(linkData.getFromApplication(), unknown, linkData.getLinkCallDataMap());
-            return Arrays.asList(unknownLinkData);
+            return Collections.singletonList(unknownLinkData);
         }
 
     }
@@ -347,11 +358,13 @@ public class LinkDataSelector {
         return new LinkKey(fromApplication, toApplication);
     }
 
-    public LinkDataDuplexMap select(Application sourceApplication, Range range) {
-        LinkDataDuplexMap caller = selectCaller(sourceApplication, range);
+    public LinkDataDuplexMap select(Application sourceApplication, Range range, int callerSearchLevel, int calleeSearchLevel) {
+        final SearchLevel callerLevel = new SearchLevel(callerSearchLevel);
+        LinkDataDuplexMap caller = selectCaller(sourceApplication, range, callerLevel);
         logger.debug("Result of finding caller {}", caller);
 
-        LinkDataDuplexMap callee = selectCallee(sourceApplication, range);
+        final SearchLevel calleeLevel = new SearchLevel(calleeSearchLevel);
+        LinkDataDuplexMap callee = selectCallee(sourceApplication, range, calleeLevel);
         logger.debug("Result of finding callee {}", callee);
 
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();

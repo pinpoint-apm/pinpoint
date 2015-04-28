@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.SearchRange;
 
 /**
  * @author netspider
@@ -32,7 +33,7 @@ public interface MapService {
      * @param range
      * @return
      */
-    ApplicationMap selectApplicationMap(Application sourceApplication, Range range);
+    ApplicationMap selectApplicationMap(Application sourceApplication, Range range, SearchRange searchRange);
 
     @Deprecated
     NodeHistogram linkStatistics(Application sourceApplication, Application destinationApplication, Range range);

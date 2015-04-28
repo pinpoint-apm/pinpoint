@@ -71,7 +71,7 @@ public class MapServiceImpl implements MapService {
      * Used in the main UI - draws the server map by querying the timeslot by time.
      */
     @Override
-    public ApplicationMap selectApplicationMap(Application sourceApplication, Range range) {
+    public ApplicationMap selectApplicationMap(Application sourceApplication, Range range, SearchRange searchRange) {
         if (sourceApplication == null) {
             throw new NullPointerException("sourceApplication must not be null");
         }
@@ -83,7 +83,7 @@ public class MapServiceImpl implements MapService {
         StopWatch watch = new StopWatch("applicationMapWatch");
         watch.start();
         LinkDataSelector linkDataSelector = new LinkDataSelector(this.mapStatisticsCalleeDao, this.mapStatisticsCallerDao, hostApplicationMapDao);
-        LinkDataDuplexMap linkDataDuplexMap = linkDataSelector.select(sourceApplication, range);
+        LinkDataDuplexMap linkDataDuplexMap = linkDataSelector.select(sourceApplication, range, searchRange.getCallerRange(), searchRange.getCalleeRange());
 
         ApplicationMapBuilder builder = new ApplicationMapBuilder(range, matcherGroup);
         ApplicationMap map = builder.build(linkDataDuplexMap, agentInfoService, this.mapResponseDao);
