@@ -15,6 +15,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
             templateUrl: 'views/navbar.html',
             link: function (scope, element) {
 
+            	var defaultRange = 7;
                 // define private variables
                 var $application, $fromPicker, $toPicker, oNavbarVo, aReadablePeriodList;
 
@@ -22,8 +23,29 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                 var initialize, initializeDateTimePicker, initializeApplication, setDateTime, getQueryEndTimeFromServer,
                     broadcast, getApplicationList, getQueryStartTime, getQueryEndTime, parseApplicationList, emitAsChanged,
                     initializeWithStaticApplication, getPeriodType, setPeriodTypeAsCurrent, getDate, startUpdate,
-                    resetTimeLeft;
+                    resetTimeLeft, getRangeFromStorage, setRangeToStorage;
 
+                /**
+                 * getRangeFromStorage
+                 */
+                getRangeFromStorage = function(app) {
+                	if ( window.localStorage ) {
+                		return window.localStorage.getItem( app ) || defaultRange;
+                	} else {
+                		return defaultRange;
+                	}
+                };
+                /**
+                 * setRangeToStorage
+                 */
+                setRangeToStorage = function(app, range) {
+                	if (angular.isUndefined(app) || app == null || angular.isUndefined(range) || range == null) {
+                		return;
+                	}
+                	if ( window.localStorage ) {
+                		window.localStorage.setItem(app, range);
+                	}
+                };
                 scope.showNavbar = false;
                 scope.periodDelay = false;
                 aReadablePeriodList = ['5m', '20m', '1h', '3h', '6h', '12h', '1d', '2d'];
@@ -48,6 +70,14 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                         label: '1 minute'
                     }
                 ];
+                scope.range = getRangeFromStorage(scope.applicatoin);
+                scope.rangeList = (function() {
+                	var a = [];
+                	for( var i = 0 ; i <= defaultRange ; i++ ) {
+                		a.push( i );
+                	}
+                	return a;
+                })();
                 scope.applications = [
                     {
                         text: 'Select an application.',
@@ -200,7 +230,11 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                         return;
                     }
                     oNavbarVo.setApplication(scope.application);
-
+                    
+                    scope.range = getRangeFromStorage(scope.application);
+                    oNavbarVo.setCallerRange( scope.range );
+                    oNavbarVo.setCalleeRange( scope.range );
+                    
                     if (scope.periodType === 'last' && scope.readablePeriod) {
                         getQueryEndTimeFromServer(function (currentServerTime) {
                             oNavbarVo.setReadablePeriod(scope.readablePeriod);
@@ -428,6 +462,13 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                 	$at($at.MAIN, $at.CLK_UPDATE_TIME, time + "s");
                     scope.timeCountDown = time;
                     scope.timeLeft = time;
+                };
+                scope.setNodeRange = function(range) {
+                	$at($at.MAIN, $at.CLK_CALLEE_RANGE, range);
+                	$at($at.MAIN, $at.CLK_CALLER_RANGE, range);
+                	scope.range = range;
+                	setRangeToStorage(scope.application, range);
+                	broadcast();
                 };
 
                 /**
