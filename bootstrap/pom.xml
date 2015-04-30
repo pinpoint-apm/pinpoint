@@ -27,7 +27,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.hbase</groupId>
-                    <artifactId>hbase</artifactId>
+                    <artifactId>hbase-client</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
