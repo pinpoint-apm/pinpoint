@@ -47,6 +47,6 @@ public class MissedSpanAlignFactory {
 
         missedEvent.setAnnotationBoList(annotations);
 
-        return new SpanAlign(depth, span, missedEvent);
+        return new SpanAlign(span, missedEvent);
     }
 }

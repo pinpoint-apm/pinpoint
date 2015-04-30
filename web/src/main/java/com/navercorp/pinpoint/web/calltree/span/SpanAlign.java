@@ -29,23 +29,21 @@ public class SpanAlign {
     private boolean span = true;
     private boolean hasChild = false;
 
-    public SpanAlign(int depth, SpanBo spanBo) {
+    public SpanAlign(SpanBo spanBo) {
         if (spanBo == null) {
             throw new NullPointerException("spanBo must not be null");
         }
-        this.depth = depth;
         this.spanBo = spanBo;
         this.span = true;
     }
 
-    public SpanAlign(int depth, SpanBo spanBo, SpanEventBo spanEventBo) {
+    public SpanAlign(SpanBo spanBo, SpanEventBo spanEventBo) {
         if (spanBo == null) {
             throw new NullPointerException("spanBo must not be null");
         }
         if (spanEventBo == null) {
             throw new NullPointerException("spanEventBo must not be null");
         }
-        this.depth = depth;
         this.spanBo = spanBo;
         this.spanEventBo = spanEventBo;
         this.span = false;
@@ -57,6 +55,10 @@ public class SpanAlign {
 
     public boolean isSpan() {
         return span;
+    }
+    
+    public void setDepth(int depth) {
+        this.depth = depth;
     }
 
     public int getDepth() {
