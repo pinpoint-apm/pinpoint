@@ -1,9 +1,7 @@
 package com.navercorp.pinpoint.profiler.sender.planer;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -141,8 +139,8 @@ public class SpanStreamSendDataPlanerTest {
         return relatedBuffer;
     }
 
-    private List<TSpanEvent> deserialize(byte[] data) throws TException {
 
+    private List<TSpanEvent> deserialize(byte[] data) throws TException {
         ByteBuffer bb = ByteBuffer.wrap(data);
 
         bb.get();

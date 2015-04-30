@@ -213,7 +213,7 @@ public class TCPReceiver {
         public void run() {
             try {
                 TBase<?, ?> tBase = SerializationUtils.deserialize(bytes, deserializerFactory);
-                dispatchHandler.dispatchSendMessage(tBase, bytes, Header.HEADER_SIZE, bytes.length);
+                dispatchHandler.dispatchSendMessage(tBase);
             } catch (TException e) {
                 if (logger.isWarnEnabled()) {
                     logger.warn("packet serialize error. SendSocketAddress:{} Cause:{}", remoteAddress, e.getMessage(), e);
@@ -260,7 +260,7 @@ public class TCPReceiver {
                     }
                     return;
                 }
-                TBase result = dispatchHandler.dispatchRequestMessage(tBase, bytes, Header.HEADER_SIZE, bytes.length);
+                TBase result = dispatchHandler.dispatchRequestMessage(tBase);
                 if (result != null) {
                     byte[] resultBytes = SerializationUtils.serialize(result, serializerFactory);
                     pinpointServer.response(requestPacket, resultBytes);

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.sender;
+package com.navercorp.pinpoint.thrift.io;
 
 /**
  * @author Taejin Koo
