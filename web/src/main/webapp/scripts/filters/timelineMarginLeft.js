@@ -5,3 +5,8 @@ pinpointApp.filter('timelineMarginLeft', function () {
         return ((stack[key.begin] - callStackStart) * barRatio) + 0.9;
     };
 });
+pinpointApp.filter('timelineStartTime', function() {
+	return function(stack, key, callStackStart) {
+		return (stack[key.begin] - callStackStart);
+	}
+});
