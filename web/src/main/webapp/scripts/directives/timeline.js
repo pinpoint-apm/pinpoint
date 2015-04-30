@@ -32,6 +32,20 @@ pinpointApp.directive('timeline', function () {
             	$at($at.CALLSTACK, $at.CLK_CALL);
             	scope.$emit( "transactionDetail.selectDistributedCallFlowRow", item[6] );
             };
+            scope.mouseEnterCallFlow = function( $event ) {
+            	$( $event.currentTarget ).parent().css({
+            		"background-color": "#F5CF05",
+            		"box-shadow":"6px 6px 2px -2px rgba(0,0,0,0.75)",
+            		"font-weight":"bold"
+            	});
+            };
+            scope.mouseLeaveCallFlow = function( $event ) {
+            	$( $event.currentTarget ).parent().css({
+            		"background-color": "#84B464",
+            		"box-shadow":"none",
+            		"font-weight":"normal"
+            	});
+            };
         }
     };
 });
