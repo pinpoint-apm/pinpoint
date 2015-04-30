@@ -138,8 +138,8 @@ public class SpanAligner2 {
         SpanBo rootSpanBo = rootList.get(0);
         final List<SpanAlign> list = new ArrayList<SpanAlign>();
 
-        populate(rootSpanBo, 0, list);
-
+        CallTree tree = populate(rootSpanBo);
+        logger.debug("Tree {} ", tree);
         return list;
     }
 
@@ -147,70 +147,91 @@ public class SpanAligner2 {
         return matchType;
     }
 
-    private void populate(SpanBo span, int spanDepth, List<SpanAlign> container) {
-        logger.debug("populate start");
-        SpanAlignDepth spanAlignDepth = new SpanAlignDepth(spanDepth);
-        SpanAlign spanAlign = new SpanAlign(spanDepth, span);
-        container.add(spanAlign);
+    private CallTree populate(final SpanBo span) {
+        logger.debug("Populate start. span={}", span);
+        final List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
+        final Map<Integer, List<SpanEventBo>> asyncSpanEventMap = extractAsyncSpanEvent(spanEventBoList);
 
-        AsyncSpanEventAligner aligner = new AsyncSpanEventAligner();
-        List<SpanEventBo> spanEventBoList = aligner.sort(span.getSpanEventBoList());
+        final SpanAlign spanAlign = new SpanAlign(span);
+        final CallTree tree = new CallTree(spanAlign);
         if (spanEventBoList == null) {
-            return;
-        }
-        if (logger.isDebugEnabled()) {
-            for (SpanEventBo spanEvent : spanEventBoList) {
-                logger.debug("Align span event {}", spanEvent);
-            }
+            return tree;
         }
 
         spanAlign.setHasChild(true);
 
-        boolean asyncEventMissing = false;
         for (SpanEventBo spanEventBo : spanEventBoList) {
-            if (spanEventBo.isAsync() && asyncEventMissing) {
-                continue;
-            }
-
-            if (spanAlignDepth.isParentMissing(spanEventBo)) {
-                logger.debug("Parent missing and make missingEvent");
-
-                final int currentDepth = spanAlignDepth.getMissingDepth(spanEventBo);
-                MissedSpanAlignFactory factory = new MissedSpanAlignFactory();
-                final SpanAlign spanEventAlign = factory.get(currentDepth, span, spanEventBo);
-                container.add(spanEventAlign);
-
-                if (spanEventBo.isAsync()) {
-                    asyncEventMissing = true;
-                    continue;
-                } else {
-                    break;
-                }
-            }
-
-            final int currentDepth = spanAlignDepth.getDepth(spanEventBo);
-            final SpanAlign spanEventAlign = new SpanAlign(currentDepth, span, spanEventBo);
-            container.add(spanEventAlign);
-
             if (logger.isDebugEnabled()) {
-                logger.debug("spanEvent type:{} depth:{} spanEventDepth:{} ", spanEventBo.getServiceType(), currentDepth, spanEventBo.getDepth());
+                logger.debug("Align seq={}, depth={}, async={}, event={}", spanEventBo.getSequence(), spanEventBo.getDepth(), spanEventBo.isAsync(), spanEventBo);
             }
+
+            final SpanAlign spanEventAlign = new SpanAlign(span, spanEventBo);
+            tree.add(spanEventBo.getDepth(), spanEventAlign);
 
             final long nextSpanId = spanEventBo.getNextSpanId();
             final List<SpanBo> nextSpanBoList = spanIdMap.remove(nextSpanId);
             if (nextSpanId != ROOT && nextSpanBoList != null) {
-                int childDepth = currentDepth + 1;
+                final SpanBo nextSpanBo = getNextSpan(span, spanEventBo, nextSpanBoList);
+                if (nextSpanBo != null) {
+                    final CallTree subTree = populate(nextSpanBo);
+                    tree.add(subTree);
+                } else {
+                    logger.debug("nextSpanId not found. {}", nextSpanId);
+                }
+            }
 
+            final int nextAsyncId = spanEventBo.getNextAsyncId();
+            final List<SpanEventBo> nextAsyncSpanEventList = asyncSpanEventMap.remove(nextAsyncId);
+            if (nextAsyncId != -1 && nextAsyncSpanEventList != null && nextAsyncSpanEventList.size() > 0) {
+                final CallTree subTree = populate(span, nextAsyncSpanEventList, asyncSpanEventMap);
+                tree.add(subTree);
+            }
+        }
+        logger.debug("populate end. span={}", span);
+
+        return tree;
+    }
+
+    // for async event
+    private CallTree populate(final SpanBo span, final List<SpanEventBo> spanEventBoList, final Map<Integer, List<SpanEventBo>> asyncSpanEventMap) {
+        logger.debug("Populate start. span={}", span);
+
+        final SpanEventBo firstSpanEventBo = spanEventBoList.get(0);
+        final SpanAlign spanAlign = new SpanAlign(span, firstSpanEventBo);
+        final CallTree tree = new CallTree(spanAlign);
+
+        for (int i = 1; i < spanEventBoList.size(); i++) {
+            final SpanEventBo spanEventBo = spanEventBoList.get(i);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Align seq={}, depth={}, async={}, event={}", spanEventBo.getSequence(), spanEventBo.getDepth(), spanEventBo.isAsync(), spanEventBo);
+            }
+
+            final SpanAlign spanEventAlign = new SpanAlign(span, spanEventBo);
+            tree.add(spanEventBo.getDepth(), spanEventAlign);
+
+            final long nextSpanId = spanEventBo.getNextSpanId();
+            final List<SpanBo> nextSpanBoList = spanIdMap.remove(nextSpanId);
+            if (nextSpanId != ROOT && nextSpanBoList != null) {
                 SpanBo spanBo = getNextSpan(span, spanEventBo, nextSpanBoList);
                 if (spanBo != null) {
-                    populate(spanBo, childDepth, container);
+                    final CallTree subTree = populate(spanBo);
+                    tree.add(subTree);
                 } else {
                     // TODO add missed
                     logger.debug("nextSpanId not found. {}", nextSpanId);
                 }
             }
+
+            final int nextAsyncId = spanEventBo.getNextAsyncId();
+            final List<SpanEventBo> nextAsyncSpanEventList = asyncSpanEventMap.remove(nextAsyncId);
+            if (nextAsyncId != -1 && nextAsyncSpanEventList != null && nextAsyncSpanEventList.size() > 0) {
+                final CallTree subTree = populate(span, nextAsyncSpanEventList, asyncSpanEventMap);
+                tree.add(subTree);
+            }
         }
-        logger.debug("populate end");
+        logger.debug("populate end. span={}", span);
+
+        return tree;
     }
 
     // fix nextSpan collision problem
@@ -241,5 +262,36 @@ public class SpanAligner2 {
         } else {
             throw new IllegalStateException("error");
         }
+    }
+
+    Map<Integer, List<SpanEventBo>> extractAsyncSpanEvent(final List<SpanEventBo> spanEventBoList) {
+        final Map<Integer, List<SpanEventBo>> asyncSpanEventMap = new HashMap<Integer, List<SpanEventBo>>();
+        for (SpanEventBo spanEvent : spanEventBoList) {
+            if (!spanEvent.isAsync()) {
+                continue;
+            }
+            final int id = spanEvent.getAsyncId();
+            List<SpanEventBo> list = asyncSpanEventMap.get(id);
+            if (list == null) {
+                list = new ArrayList<SpanEventBo>();
+                list.add(spanEvent);
+                asyncSpanEventMap.put(id, list);
+            } else {
+                list.add(spanEvent);
+            }
+        }
+
+        for (List<SpanEventBo> list : asyncSpanEventMap.values()) {
+            Collections.sort(list, new Comparator<SpanEventBo>() {
+                public int compare(SpanEventBo source, SpanEventBo target) {
+                    return source.getSequence() - target.getSequence();
+                }
+            });
+        }
+
+        // clear
+        spanEventBoList.removeAll(asyncSpanEventMap.values());
+
+        return asyncSpanEventMap;
     }
 }

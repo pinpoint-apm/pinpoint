@@ -30,7 +30,6 @@ public class SpanAlignDepth {
     private Depth align;
     private Depth async;
     private Depth sync;
-    private SpanEventBo prev;
 
     public SpanAlignDepth(final int depth) {
         if (depth < DEFAULT_DEPTH) {
@@ -48,28 +47,10 @@ public class SpanAlignDepth {
 
     public boolean isParentMissing(final SpanEventBo spanEventBo) {
         final int sequence = spanEventBo.getSequence();
-        if (spanEventBo.isAsync()) {
-            if (async.first) {
-                if (sequence != 0) {
-                    return true;
-                }
-            } else {
-                if (sequence != 0 && sequence > async.sequence + 1) {
-                    // check sequence
-                    return true;
-                }
-            }
-        } else {
+        if (!spanEventBo.isAsync()) {
             if (sequence > sync.sequence + 1) {
                 // check sequence
                 return true;
-            }
-
-            if (prev != null && prev.getNextAsyncId() != -1) {
-                // check next-async-id
-                if (prev.getNextAsyncId() != spanEventBo.getAsyncId()) {
-                    return true;
-                }
             }
         }
 
@@ -77,27 +58,7 @@ public class SpanAlignDepth {
     }
 
     public int getMissingDepth(final SpanEventBo spanEventBo) {
-        if (spanEventBo.isAsync()) {
-            if (isFirstEvent(spanEventBo) || async.first) {
-                // start async event.
-                async.parent = align.parent + align.current;
-                async.first = false;
-            }
-
-            if (isSameParent(spanEventBo)) {
-                if (async.parent == 0) {
-                    async.current = 1;
-                }
-            } else {
-                int depth = spanEventBo.getDepth();
-                if (depth > async.current + 1) {
-                    // rebalance.
-                    depth = async.current + 1;
-                }
-                async.current = async.parent + depth;
-            }
-            align.current = async.current;
-        } else {
+        if (!spanEventBo.isAsync()) {
             if (isSameParent(spanEventBo)) {
                 if (align.current == 0) {
                     sync.current = 1;
@@ -119,10 +80,9 @@ public class SpanAlignDepth {
     public int getDepth(final SpanEventBo spanEventBo) {
         if (spanEventBo.isAsync()) {
             async.sequence = spanEventBo.getSequence();
-            if (isFirstEvent(spanEventBo) || async.first) {
+            if (isFirstEvent(spanEventBo)) {
                 // start async event.
                 async.parent = align.parent + align.current;
-                async.first = false;
             }
 
             if (!isSameParent(spanEventBo)) {
@@ -138,7 +98,6 @@ public class SpanAlignDepth {
             }
             align.current = sync.current;
         }
-        this.prev = spanEventBo;
 
         return align.current;
     }
@@ -152,7 +111,6 @@ public class SpanAlignDepth {
     }
 
     private class Depth {
-        boolean first = true;
         int parent;
         int current;
         int sequence;

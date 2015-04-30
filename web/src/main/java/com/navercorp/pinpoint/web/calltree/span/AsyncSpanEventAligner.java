@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
 
 /**
@@ -19,6 +22,8 @@ import com.navercorp.pinpoint.common.bo.SpanEventBo;
 public class AsyncSpanEventAligner {
     private static final int SYNC = -1;
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     public List<SpanEventBo> sort(final List<SpanEventBo> spanEventBoList) {
         if (spanEventBoList == null) {
             return null;
@@ -28,8 +33,6 @@ public class AsyncSpanEventAligner {
         final List<SpanEventBo> alignedList = new ArrayList<SpanEventBo>();
         populate(allEventMap, findRoot(allEventMap), alignedList);
 
-        
-        
         return alignedList;
     }
 
@@ -89,7 +92,16 @@ public class AsyncSpanEventAligner {
 
     // add async event
     void populate(final Map<Integer, List<SpanEventBo>> allEventMap, final List<SpanEventBo> currentEventList, final List<SpanEventBo> alignedEventList) {
+        int sequence = 0;
         for (SpanEventBo spanEvent : currentEventList) {
+            if (spanEvent.isAsync()) {
+                // check missing event.
+                if (sequence != spanEvent.getSequence()) {
+                    logger.debug("Parent async event missing & ignored");
+                    break;
+                }
+                sequence++;
+            }
             alignedEventList.add(spanEvent);
             final int id = spanEvent.getNextAsyncId();
             if (id != -1) {

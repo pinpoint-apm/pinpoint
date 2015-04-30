@@ -2,7 +2,9 @@ package com.navercorp.pinpoint.web.calltree.span;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
@@ -14,6 +16,7 @@ public class SpanAlignDepthTest {
     private List<String> expectResult = new ArrayList<String>();
     private List<SpanEventBo> callTree = new ArrayList<SpanEventBo>();
 
+    @Ignore
     @Test
     public void normal() {
 
@@ -93,6 +96,7 @@ public class SpanAlignDepthTest {
 
     }
 
+    @Ignore
     @Test
     public void async() {
         expectResult.clear();
@@ -132,7 +136,8 @@ public class SpanAlignDepthTest {
         callTree.add(makeSpanEventBo(SYNC, (short) 1, -1));
         assertDepth("async-case-3", callTree, expectResult);
     }
-    
+
+    @Ignore
     @Test
     public void missing() {
         expectResult.clear();
@@ -261,5 +266,4 @@ public class SpanAlignDepthTest {
 
         return event;
     }
-    
 }
