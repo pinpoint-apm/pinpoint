@@ -79,7 +79,7 @@ public class BaseUDPReceiver extends AbstractUDPReceiver {
                     return;
                 }
                 // dispatch signifies business logic execution
-                receiver.getDispatchHandler().dispatchSendMessage(tBase, packet.getData(), Header.HEADER_SIZE, packet.getLength());
+                receiver.getDispatchHandler().dispatchSendMessage(tBase);
             } catch (TException e) {
                 if (logger.isWarnEnabled()) {
                     logger.warn("packet serialize error. SendSocketAddress:{} Cause:{}", packet.getSocketAddress(), e.getMessage(), e);

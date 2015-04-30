@@ -87,7 +87,7 @@ public class ChunkedUDPReceiver extends AbstractUDPReceiver {
                         continue;
                     }
                     // dispatch signifies business logic execution
-                    receiver.getDispatchHandler().dispatchSendMessage(tBase, packet.getData(), Header.HEADER_SIZE, packet.getLength());
+                    receiver.getDispatchHandler().dispatchSendMessage(tBase);
                 }
             } catch (TException e) {
                 if (logger.isWarnEnabled()) {

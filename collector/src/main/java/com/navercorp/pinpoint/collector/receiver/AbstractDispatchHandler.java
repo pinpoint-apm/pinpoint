@@ -42,7 +42,7 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
 
 
     @Override
-    public void dispatchSendMessage(TBase<?, ?> tBase, byte[] packet, int offset, int length) {
+    public void dispatchSendMessage(TBase<?, ?> tBase) {
 
         // mark accepted time
         acceptedTimeService.accept();
@@ -61,14 +61,14 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
             if (logger.isTraceEnabled()) {
                 logger.trace("handler name:{}", handler.getClass().getName());
             }
-            handler.handle(tBase, packet, offset, length);
+            handler.handle(tBase);
             return;
         }
 
         throw new UnsupportedOperationException("Handler not found. Unknown type of data received. tBase=" + tBase);
     }
     
-    public TBase dispatchRequestMessage(TBase<?,?> tBase, byte[] packet, int offset, int length) {
+    public TBase dispatchRequestMessage(TBase<?,?> tBase) {
         // mark accepted time
         acceptedTimeService.accept();
 

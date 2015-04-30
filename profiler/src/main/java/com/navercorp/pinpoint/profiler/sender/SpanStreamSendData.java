@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.profiler.util.ObjectPool;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.SpanStreamConstants;
 
 /**
  * @author Taejin Koo
