@@ -27,6 +27,8 @@
     <bean id="hbaseTemplate" class="com.navercorp.pinpoint.common.hbase.HbaseTemplate2">
         <property name="configuration" ref="hbaseConfiguration"></property>
     </bean>
+    
+    <bean class="org.apache.hadoop.util.ShutdownHookManagerProxy"/>
 
     <bean id="applicationTraceIndexDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
         <constructor-arg ref="applicationTraceIndex"/>
