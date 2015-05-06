@@ -1,6 +1,6 @@
 # DESCRIPTION       Pinpoint APM HBase (Data Storage)
 # TO_BUILD          docker build -t pinpoint-hbase .
-# TO_RUN            docker run -d -p 2181:2181 -p 60000:60000 -p 60010:60010 -p 60020:60020 -p 60030:60030 --name=pinpoint-hbase pinpoint-hbase
+# TO_RUN            docker run -d --net=host -p 2181:2181 -p 60000:60000 -p 60010:60010 -p 60020:60020 -p 60030:60030 --name=pinpoint-hbase pinpoint-hbase
 
 FROM java:7-jdk
 MAINTAINER John Crygier <john.crygier@ventivtech.com>
