@@ -8,7 +8,8 @@ MAINTAINER John Crygier <john.crygier@ventivtech.com>
 ENV PINPOINT_VERSION 1.0.4
 
 RUN curl -SL "https://github.com/naver/pinpoint/releases/download/$PINPOINT_VERSION/pinpoint-collector-$PINPOINT_VERSION.war" -o pinpoint-collector.war && \
-    rm -rf /usr/local/tomcat/webapps/ROOT && \
+    rm -rf /usr/local/tomcat/webapps && \
+    mkdir -p /usr/local/tomcat/webapps && \
     unzip pinpoint-collector.war -d /usr/local/tomcat/webapps/ROOT && \
     rm -rf pinpoint-collector.war
 
