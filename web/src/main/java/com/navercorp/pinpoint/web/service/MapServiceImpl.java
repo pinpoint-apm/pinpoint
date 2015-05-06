@@ -80,16 +80,19 @@ public class MapServiceImpl implements MapService {
         }
         logger.debug("SelectApplicationMap");
 
-        StopWatch watch = new StopWatch("applicationMapWatch");
-        watch.start();
-        LinkDataSelector linkDataSelector = new LinkDataSelector(this.mapStatisticsCalleeDao, this.mapStatisticsCallerDao, hostApplicationMapDao);
-        LinkDataDuplexMap linkDataDuplexMap = linkDataSelector.select(sourceApplication, range, searchOption.getCallerSearchDepth(), searchOption.getCalleeSearchDepth());
+        StopWatch watch = new StopWatch("ApplicationMap");
+        watch.start("ApplicationMap Hbase Io Fetch Time");
+        LinkSelector linkSelector = new DFSLinkSelector(this.mapStatisticsCalleeDao, this.mapStatisticsCallerDao, hostApplicationMapDao);
+//        LinkSelector linkSelector = new BFSLinkSelector(this.mapStatisticsCalleeDao, this.mapStatisticsCallerDao, hostApplicationMapDao);
+        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(sourceApplication, range, searchOption);
+        watch.stop();
 
+        watch.start("ApplicationMap Memory calculation Time");
         ApplicationMapBuilder builder = new ApplicationMapBuilder(range, matcherGroup);
         ApplicationMap map = builder.build(linkDataDuplexMap, agentInfoService, this.mapResponseDao);
-
         watch.stop();
-        logger.info("Fetch applicationmap elapsed. {}ms", watch.getLastTaskTimeMillis());
+
+        logger.info("ApplicationMap BuildTime: {}", watch.prettyPrint());
 
         return map;
     }

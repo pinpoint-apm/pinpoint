@@ -23,8 +23,6 @@ import org.slf4j.LoggerFactory;
  * @author emeroad
  */
 public class SearchDepth {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private final int limit;
     private final int depth;
 
@@ -52,9 +50,16 @@ public class SearchDepth {
         return depth;
     }
 
+    public int getLimit() {
+        return limit;
+    }
+
+    public int getRemainDepth() {
+        return depth - limit;
+    }
+
     public boolean isDepthOverflow() {
         if (limit < depth) {
-            logger.debug("depth overflow depth:{}, limit:{}", depth, limit);
             return true;
         }
         return false;
@@ -63,5 +68,6 @@ public class SearchDepth {
     private int next() {
         return depth + 1;
     }
+
 
 }
