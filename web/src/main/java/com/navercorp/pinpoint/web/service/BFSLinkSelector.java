@@ -24,23 +24,22 @@ import com.navercorp.pinpoint.web.dao.MapStatisticsCalleeDao;
 import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.web.service.map.AcceptApplication;
 import com.navercorp.pinpoint.web.service.map.AcceptApplicationLocalCache;
-import com.navercorp.pinpoint.web.service.map.AcceptApplicationLocalCacheV1;
 import com.navercorp.pinpoint.web.service.map.RpcApplication;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
 import com.navercorp.pinpoint.web.vo.Range;
 
+import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.hadoop.hbase.HbaseSystemException;
 
 import java.util.*;
 
 /**
  * @author emeroad
  */
-public class LinkDataSelector {
+public class BFSLinkSelector implements LinkSelector {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -54,12 +53,11 @@ public class LinkDataSelector {
 
     private final AcceptApplicationLocalCache acceptApplicationLocalCache = new AcceptApplicationLocalCache();
 
-    @Deprecated
-    private final AcceptApplicationLocalCacheV1 acceptApplicationLocalCacheV1 = new AcceptApplicationLocalCacheV1();
-
     private final Set<LinkData> emulationLinkMarker = new HashSet<LinkData>();
 
-    public LinkDataSelector(MapStatisticsCalleeDao mapStatisticsCalleeDao, MapStatisticsCallerDao mapStatisticsCallerDao, HostApplicationMapDao hostApplicationMapDao) {
+    private Set<Application> nextNode = new HashSet<Application>();
+
+    public BFSLinkSelector(MapStatisticsCalleeDao mapStatisticsCalleeDao, MapStatisticsCallerDao mapStatisticsCallerDao, HostApplicationMapDao hostApplicationMapDao) {
         if (mapStatisticsCalleeDao == null) {
             throw new NullPointerException("mapStatisticsCalleeDao must not be null");
         }
@@ -75,108 +73,92 @@ public class LinkDataSelector {
     }
 
     /**
-     * Queries for all applications(callee) called by the callerApplication
+     * Queries for all applications(callee) called by the targetApplication
      *
-     * @param callerApplication
+     * @param targetApplicationSet
      * @param range
      * @return
      */
-    private LinkDataDuplexMap selectCaller(Application callerApplication, Range range, SearchDepth searchDepth) {
-        // skip if the callerApplication has already been checked
-        if (linkVisitChecker.visitCaller(callerApplication)) {
-            return new LinkDataDuplexMap();
-        }
+    private LinkDataDuplexMap selectLink(Set<Application> targetApplicationSet, Range range, SearchDepth callerDepth, SearchDepth calleeDepth) {
 
-        LinkDataMap caller = mapStatisticsCallerDao.selectCaller(callerApplication, range);
-        if (logger.isDebugEnabled()) {
-            logger.debug("Found Caller. count={}, caller={}", caller.size(), callerApplication);
-        }
+        final LinkDataDuplexMap searchResult = new LinkDataDuplexMap();
 
-        final LinkDataMap replaceRpcCaller = new LinkDataMap();
-        for (LinkData callerLink : caller.getLinkDataList()) {
-            final List<LinkData> checkedLink = checkRpcCallAccepted(callerLink, range);
-            for (LinkData linkData : checkedLink) {
-                replaceRpcCaller.addLinkData(linkData);
-            }
-        }
-
-
-        final LinkDataDuplexMap resultCaller = new LinkDataDuplexMap();
-        for (LinkData link : replaceRpcCaller.getLinkDataList()) {
-            resultCaller.addSourceLinkData(link);
-
-            final Application toApplication = link.getToApplication();
-            // skip if toApplication is a terminal or an unknown cloud
-            if (toApplication.getServiceType().isTerminal() || toApplication.getServiceType().isUnknown()) {
-                continue;
-            }
-
-            // search depth check
-            final SearchDepth nextLevel  = searchDepth.nextDepth();
-            if (nextLevel.isDepthOverflow()) {
-                continue;
-            }
-            logger.debug("     Find subCaller of {}", toApplication);
-            LinkDataDuplexMap callerSub = selectCaller(toApplication, range, nextLevel);
-            logger.debug("     Found subCaller. count={}, caller={}", callerSub.size(), toApplication);
-
-            resultCaller.addLinkDataDuplexMap(callerSub);
-
-            // find all callers of queried subCallers as well
-            for (LinkData eachCaller : callerSub.getSourceLinkDataList()) {
-                logger.debug("     Find callee of {}", eachCaller.getFromApplication());
-                LinkDataDuplexMap calleeSub = selectCallee(eachCaller.getFromApplication(), range, nextLevel);
-                logger.debug("     Found subCallee. count={}, callee={}", calleeSub.size(), eachCaller.getFromApplication());
-                resultCaller.addLinkDataDuplexMap(calleeSub);
-            }
-        }
-        return resultCaller;
-    }
-
-    /**
-     * Queries for all applications(caller) that called calleeApplication
-     *
-     * @param calleeApplication
-     * @param range
-     * @return
-     */
-    private LinkDataDuplexMap selectCallee(Application calleeApplication, Range range, SearchDepth searchDepth) {
-        // skip if the calleeApplication has already been checked
-        if (linkVisitChecker.visitCallee(calleeApplication)) {
-            return new LinkDataDuplexMap();
-        }
-
-        final LinkDataMap callee = mapStatisticsCalleeDao.selectCallee(calleeApplication, range);
-        logger.debug("Found Callee. count={}, callee={}", callee.size(), calleeApplication);
-
-        final LinkDataDuplexMap calleeSet = new LinkDataDuplexMap();
-        for (LinkData stat : callee.getLinkDataList()) {
-            calleeSet.addTargetLinkData(stat);
-
-            // search depth check
-            final SearchDepth nextLevel = searchDepth.nextDepth();
-            if (nextLevel.isDepthOverflow()) {
-                continue;
-            }
-
-            // need to find the applications that called me
-            LinkDataDuplexMap calleeSub = selectCallee(stat.getFromApplication(), range, nextLevel);
-            calleeSet.addLinkDataDuplexMap(calleeSub);
-
-            // find all callees of queried subCallees as well
-            for (LinkData eachCallee : calleeSub.getTargetLinkDataList()) {
-                // skip if terminal node
-                final Application eachCalleeToApplication = eachCallee.getToApplication();
-                if (eachCalleeToApplication.getServiceType().isTerminal() || eachCalleeToApplication.getServiceType().isUnknown()) {
-                    continue;
+        for (Application targetApplication : targetApplicationSet) {
+            final boolean searchCallerNode = checkNextCaller(targetApplication, callerDepth);
+            if (searchCallerNode) {
+                final LinkDataMap caller = mapStatisticsCallerDao.selectCaller(targetApplication, range);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Found Caller. count={}, caller={}, depth={}", caller.size(), targetApplication, callerDepth.getDepth());
                 }
-                LinkDataDuplexMap callerSub = selectCaller(eachCalleeToApplication, range, nextLevel);
-                calleeSet.addLinkDataDuplexMap(callerSub);
+
+                final LinkDataMap replaceRpcCaller = replaceRpcCaller(caller, range);
+
+                for (LinkData link : replaceRpcCaller.getLinkDataList()) {
+                    searchResult.addSourceLinkData(link);
+
+                    final Application toApplication = link.getToApplication();
+                    // skip if nextApplication is a terminal or an unknown cloud
+                    if (toApplication.getServiceType().isTerminal() || toApplication.getServiceType().isUnknown()) {
+                        continue;
+                    }
+
+                    addNextNode(toApplication);
+                }
+            }
+
+            final boolean searchCalleeNode = checkNextCallee(targetApplication, calleeDepth);
+            if (searchCalleeNode) {
+                final LinkDataMap callee = mapStatisticsCalleeDao.selectCallee(targetApplication, range);
+                if (logger.isInfoEnabled()) {
+                    logger.debug("Found Callee. count={}, callee={}, depth={}", callee.size(), targetApplication, calleeDepth.getDepth());
+                }
+                for (LinkData stat : callee.getLinkDataList()) {
+                    searchResult.addTargetLinkData(stat);
+
+                    final Application fromApplication = stat.getFromApplication();
+                    addNextNode(fromApplication);
+                }
             }
         }
-
-        return calleeSet;
+        logger.debug("{} depth search end", callerDepth.getDepth());
+        return searchResult;
     }
+
+    private void addNextNode(Application nextApplication) {
+        final boolean add = this.nextNode.add(nextApplication);
+        if (!add) {
+            logger.debug("already visited nextApplication:{}", nextApplication);
+        }
+    }
+
+    private boolean checkNextCaller(Application targetApplication, SearchDepth depth) {
+        if (depth.isDepthOverflow()) {
+            logger.debug("caller depth overflow application:{} depth:{}", targetApplication, depth.getDepth());
+            return false;
+        }
+
+        if (linkVisitChecker.visitCaller(targetApplication)) {
+            logger.debug("already visited caller:{}", targetApplication);
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean checkNextCallee(Application targetApplication, SearchDepth depth) {
+        if (depth.isDepthOverflow()) {
+            logger.debug("callee depth overflow application:{} depth:{}", targetApplication, depth.getDepth());
+            return false;
+        }
+
+        if (linkVisitChecker.visitCallee(targetApplication)) {
+            logger.debug("already visited callee:{}", targetApplication);
+            return false;
+        }
+
+        return true;
+    }
+
 
 
     private List<LinkData> checkRpcCallAccepted(LinkData linkData, Range range) {
@@ -232,50 +214,19 @@ public class LinkDataSelector {
 
     private Set<AcceptApplication> findAcceptApplication(Application fromApplication, String host, Range range) {
         logger.debug("findAcceptApplication {} {}", fromApplication, host);
-        Set<AcceptApplication> acceptApplicationVer2;
-        try {
-            // queries twice for backward compatibility - queries for the more recent version first
-            // FIXME Remove compatibility code after 6 monthes (from 2014.07)
-            acceptApplicationVer2 = findAcceptApplicationVer2(fromApplication, host, range);
-            logger.debug("findAcceptApplication2 {}->{} result:{}", fromApplication, host, acceptApplicationVer2);
-        } catch (HbaseSystemException ex) {
-            acceptApplicationVer2 = Collections.emptySet();
-        }
-
-        if (CollectionUtils.isEmpty(acceptApplicationVer2)) {
-            Set<AcceptApplication> acceptApplicationVer1 = findAcceptApplicationVer1(host, range);
-            if (CollectionUtils.isNotEmpty(acceptApplicationVer1)) {
-                logger.debug("acceptApplicationVer1 result:{}", acceptApplicationVer1);
-            }
-            return acceptApplicationVer1;
-        }
-        return acceptApplicationVer2;
-    }
-
-    private Set<AcceptApplication> findAcceptApplicationVer1(String host, Range range) {
-
-        final Set<AcceptApplication> hit = acceptApplicationLocalCacheV1.get(host);
-        if (CollectionUtils.isNotEmpty(hit)) {
-            logger.debug("acceptApplicationLocalCacheV1 hit");
-            return hit;
-        }
-
-        final Set<AcceptApplication> acceptApplicationSet= hostApplicationMapDao.findAcceptApplicationName(host, range);
-        this.acceptApplicationLocalCacheV1.put(host, acceptApplicationSet);
-        return acceptApplicationLocalCacheV1.get(host);
-    }
-
-    private Set<AcceptApplication> findAcceptApplicationVer2(Application fromApplication, String host, Range range) {
 
         final RpcApplication rpcApplication = new RpcApplication(host, fromApplication);
         final Set<AcceptApplication> hit = this.acceptApplicationLocalCache.get(rpcApplication);
         if (CollectionUtils.isNotEmpty(hit)) {
-            logger.debug("acceptApplicationLocalCacheV2 hit");
+            logger.debug("acceptApplicationLocalCache hit {}", rpcApplication);
             return hit;
         }
         final Set<AcceptApplication> acceptApplicationSet= hostApplicationMapDao.findAcceptApplicationName(fromApplication, range);
         this.acceptApplicationLocalCache.put(rpcApplication, acceptApplicationSet);
-        return this.acceptApplicationLocalCache.get(rpcApplication);
+
+        Set<AcceptApplication> acceptApplication = this.acceptApplicationLocalCache.get(rpcApplication);
+        logger.debug("findAcceptApplication {}->{} result:{}", fromApplication, host, acceptApplication);
+        return acceptApplication;
     }
 
     private void fillEmulationLink(LinkDataDuplexMap linkDataDuplexMap) {
@@ -314,8 +265,6 @@ public class LinkDataSelector {
                             beforeLinkCallData.getTarget(), beforeLinkCallData.getTargetServiceType().getCode());
                 }
 
-//                linkCallDataMap.addCallData(beforeLinkCallData.getSource(), beforeLinkCallData.getSourceServiceType().getCode(),
-//                        beforeLinkCallData.getTarget(), beforeLinkCallData.getTargetServiceType().getCode(), timeHistogramList);
                 linkCallDataMap.addCallData(agentHistogram.getTarget(), agentHistogram.getTargetServiceType(),
                         beforeLinkCallData.getTarget(), beforeLinkCallData.getTargetServiceType(), timeHistogramList);
             }
@@ -325,16 +274,6 @@ public class LinkDataSelector {
 
     }
 
-    public LinkCallData findBeforeAgent(Collection<LinkCallData> linkCallDataCollection, Application target) {
-        for (LinkCallData linkCallData : linkCallDataCollection) {
-            Application source = new Application(linkCallData.getSource(), linkCallData.getSourceServiceType());
-            if (source.equals(target)) {
-                logger.debug("findBeforeAgent:{}", linkCallData);
-                return linkCallData;
-            }
-        }
-        return null;
-    }
 
     private List<LinkData> findEmulationLinkData(LinkDataDuplexMap linkDataDuplexMap) {
         // LinkDataDuplexMap already has a copy of the data - modifying emulationLinkMarker's data has no effect.
@@ -358,20 +297,53 @@ public class LinkDataSelector {
         return new LinkKey(fromApplication, toApplication);
     }
 
-    public LinkDataDuplexMap select(Application sourceApplication, Range range, int callerSearchDepth, int calleeSearchDepth) {
-        final SearchDepth callerLevel = new SearchDepth(callerSearchDepth);
-        LinkDataDuplexMap caller = selectCaller(sourceApplication, range, callerLevel);
-        logger.debug("Result of finding caller {}", caller);
+    public LinkDataDuplexMap select(Application sourceApplication, Range range, SearchOption searchOption) {
+        if (searchOption == null) {
+            throw new NullPointerException("searchOption must not be null");
+        }
 
-        final SearchDepth calleeLevel = new SearchDepth(calleeSearchDepth);
-        LinkDataDuplexMap callee = selectCallee(sourceApplication, range, calleeLevel);
-        logger.debug("Result of finding callee {}", callee);
+        SearchDepth callerDepth = new SearchDepth(searchOption.getCallerSearchDepth());
+        SearchDepth calleeDepth = new SearchDepth(searchOption.getCalleeSearchDepth());
+
+        addNextNode(sourceApplication);
 
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
-        linkDataDuplexMap.addLinkDataDuplexMap(caller);
-        linkDataDuplexMap.addLinkDataDuplexMap(callee);
+        while (true) {
+            final Set<Application> currentNode = copyNextNode();
+            if (currentNode.isEmpty()) {
+                break;
+            }
+
+            LinkDataDuplexMap levelData = selectLink(currentNode, range, callerDepth, calleeDepth);
+
+            linkDataDuplexMap.addLinkDataDuplexMap(levelData);
+
+            callerDepth = callerDepth.nextDepth();
+            calleeDepth = calleeDepth.nextDepth();
+        }
+
         fillEmulationLink(linkDataDuplexMap);
 
         return linkDataDuplexMap;
     }
+
+    private Set<Application> copyNextNode() {
+        Set<Application> currentQueue = this.nextNode;
+        this.nextNode = new HashSet<Application>();
+        return currentQueue;
+    }
+
+
+    private LinkDataMap replaceRpcCaller(LinkDataMap caller, Range range) {
+        final LinkDataMap replaceRpcCaller = new LinkDataMap();
+        for (LinkData callerLink : caller.getLinkDataList()) {
+            final List<LinkData> checkedLink = checkRpcCallAccepted(callerLink, range);
+            for (LinkData linkData : checkedLink) {
+                replaceRpcCaller.addLinkData(linkData);
+            }
+        }
+        return replaceRpcCaller;
+    }
+
+
 }
