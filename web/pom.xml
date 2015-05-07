@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pom</artifactId>
-        <version>1.0.5-SNAPSHOT</version>
+        <version>1.0.5-p1</version>
     </parent>
 
     <artifactId>pinpoint-web</artifactId>
@@ -326,7 +326,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.commons</groupId>
-                    <artifactId>commons-math</artifactId>
+                    <artifactId>commons-math3</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.curator</groupId>
@@ -355,6 +355,26 @@
                 <exclusion>
                     <groupId>org.apache.commons</groupId>
                     <artifactId>commons-compress</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.servlet.jsp</groupId>
+                    <artifactId>jsp-api</artifactId>
+                </exclusion>
+                <exclusion> 
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>tomcat</groupId>
+                    <artifactId>jasper-runtime</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>tomcat</groupId>
+                    <artifactId>jasper-compiler</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.jdt</groupId>
+                    <artifactId>core</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -402,32 +422,100 @@
 
         <dependency>
             <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-hadoop</artifactId>
+            <artifactId>spring-data-hadoop-hbase</artifactId>
             <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-tx</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>org.springframework</groupId>
                     <artifactId>spring-context-support</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.springframework</groupId>
-                    <artifactId>spring-core</artifactId>
+                    <artifactId>spring-aop</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.apache.hbase</groupId>
-                    <artifactId>hbase</artifactId>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-context</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-jdbc</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.data</groupId>
+                    <artifactId>spring-data-hadoop-pig</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.data</groupId>
+                    <artifactId>spring-data-hadoop-batch</artifactId>
+                </exclusion>
+<!--                 <exclusion> -->
+<!--                     <groupId>org.springframework.data</groupId> -->
+<!--                     <artifactId>spring-data-hadoop-core</artifactId> -->
+<!--                 </exclusion> -->
+                <exclusion>
+                    <groupId>org.springframework.data</groupId>
+                    <artifactId>spring-data-hadoop-hive</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-yarn-common</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-common</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-distcp</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-hdfs</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-mapreduce-client-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-mapreduce-client-common</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-mapreduce-client-shuffle</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
+                </exclusion>
+<!--                 <exclusion> -->
+<!--                     <groupId>org.springframework</groupId> -->
+<!--                     <artifactId>spring-core</artifactId> -->
+<!--                 </exclusion> -->
+<!--                 <exclusion> -->
+<!--                     <groupId>org.apache.hbase</groupId> -->
+<!--                     <artifactId>hbase</artifactId> -->
+<!--                 </exclusion> -->
                 <exclusion>
                     <groupId>org.apache.hadoop</groupId>
                     <artifactId>hadoop-streaming</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>org.apache.hadoop</groupId>
-                    <artifactId>hadoop-tools</artifactId>
-                </exclusion>
+<!--                 <exclusion> -->
+<!--                     <groupId>org.apache.hadoop</groupId> -->
+<!--                     <artifactId>hadoop-tools</artifactId> -->
+<!--                 </exclusion> -->
                 <exclusion>
                     <groupId>jdk.tools</groupId>
                     <artifactId>jdk.tools</artifactId>
                 </exclusion>
+<!--                 <exclusion> -->
+<!--                     <groupId>org.apache.hadoop</groupId> -->
+<!--                     <artifactId>hadoop-annotations</artifactId> -->
+<!--                 </exclusion> -->
             </exclusions>
         </dependency>
 
@@ -660,6 +748,7 @@
             <groupId>org.springframework.batch</groupId>
             <artifactId>spring-batch-test</artifactId>
             <version>${spring-batch-version}</version>
+            <scope>test</scope>
         </dependency>
         
         <!-- for zookeeper test -->
