@@ -64,6 +64,8 @@ public class MapController {
     @Autowired
     private ServiceTypeRegistryService registry;
 
+    private static final int DEAULT_MAX_SEARCH_DEPTH = 8;
+
     /**
    * Server map data query within from ~ to timeframe
      *
@@ -106,9 +108,12 @@ public class MapController {
                                     @RequestParam(value = "calleeRange", defaultValue = "64") int calleeRange) {
         final Range range = new Range(from, to);
         this.dateLimit.limit(from, to);
-        logger.debug("range:{}", TimeUnit.MILLISECONDS.toMinutes(range.getRange()));
 
         SearchOption searchOption = new SearchOption(callerRange, calleeRange);
+        assertSearchOption(searchOption);
+
+        logger.info("getSearverMap() applicationName:{} range:{} searchOption:{}", applicationName, TimeUnit.MILLISECONDS.toMinutes(range.getRange()), searchOption);
+
 
         ServiceType serviceType = registry.findServiceTypeByName(serviceTypeName);
         Application application = new Application(applicationName, serviceType);
@@ -116,6 +121,23 @@ public class MapController {
         ApplicationMap map = mapService.selectApplicationMap(application, range, searchOption);
 
         return new MapWrap(map);
+    }
+
+    private void assertSearchOption(SearchOption searchOption) {
+        int callerSearchDepth = searchOption.getCalleeSearchDepth();
+        assertSearchDepth(callerSearchDepth, "invalid caller depth:" + callerSearchDepth);
+
+        int calleeSearchDepth = searchOption.getCalleeSearchDepth();
+        assertSearchDepth(searchOption.getCallerSearchDepth(), "invalid callee depth:" + calleeSearchDepth);
+    }
+
+    private void assertSearchDepth(int depth, String message) {
+        if (depth < 0) {
+            throw new IllegalArgumentException(message);
+        }
+        if (depth > DEAULT_MAX_SEARCH_DEPTH) {
+            throw new IllegalArgumentException(message);
+        }
     }
 
     /**
