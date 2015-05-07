@@ -54,12 +54,9 @@ public class SearchDepth {
         return limit;
     }
 
-    public int getRemainDepth() {
-        return depth - limit;
-    }
 
     public boolean isDepthOverflow() {
-        if (limit < depth) {
+        if (limit <= depth) {
             return true;
         }
         return false;

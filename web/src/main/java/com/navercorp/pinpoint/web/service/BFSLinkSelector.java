@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
+ * not thread safe
  * @author emeroad
  */
 public class BFSLinkSelector implements LinkSelector {
@@ -55,7 +56,7 @@ public class BFSLinkSelector implements LinkSelector {
 
     private final Set<LinkData> emulationLinkMarker = new HashSet<LinkData>();
 
-    private Set<Application> nextNode = new HashSet<Application>();
+    private final Queue nextQueue = new Queue();
 
     public BFSLinkSelector(MapStatisticsCalleeDao mapStatisticsCalleeDao, MapStatisticsCallerDao mapStatisticsCallerDao, HostApplicationMapDao hostApplicationMapDao) {
         if (mapStatisticsCalleeDao == null) {
@@ -75,15 +76,15 @@ public class BFSLinkSelector implements LinkSelector {
     /**
      * Queries for all applications(callee) called by the targetApplication
      *
-     * @param targetApplicationSet
+     * @param targetApplicationList
      * @param range
      * @return
      */
-    private LinkDataDuplexMap selectLink(Set<Application> targetApplicationSet, Range range, SearchDepth callerDepth, SearchDepth calleeDepth) {
+    private LinkDataDuplexMap selectLink(List<Application> targetApplicationList, Range range, SearchDepth callerDepth, SearchDepth calleeDepth) {
 
         final LinkDataDuplexMap searchResult = new LinkDataDuplexMap();
 
-        for (Application targetApplication : targetApplicationSet) {
+        for (Application targetApplication : targetApplicationList) {
             final boolean searchCallerNode = checkNextCaller(targetApplication, callerDepth);
             if (searchCallerNode) {
                 final LinkDataMap caller = mapStatisticsCallerDao.selectCaller(targetApplication, range);
@@ -124,10 +125,10 @@ public class BFSLinkSelector implements LinkSelector {
         return searchResult;
     }
 
-    private void addNextNode(Application nextApplication) {
-        final boolean add = this.nextNode.add(nextApplication);
+    private void addNextNode(Application sourceApplication) {
+        final boolean add = this.nextQueue.addNextNode(sourceApplication);
         if (!add) {
-            logger.debug("already visited nextApplication:{}", nextApplication);
+            logger.debug("already visited. nextNode:{}", sourceApplication);
         }
     }
 
@@ -207,7 +208,7 @@ public class BFSLinkSelector implements LinkSelector {
     private void traceEmulationLink(LinkData acceptApplication) {
         final boolean add = emulationLinkMarker.add(acceptApplication);
         if (!add) {
-            logger.warn("emulationLink add error. {}", acceptApplication );
+            logger.warn("emulationLink add error. {}", acceptApplication);
         }
     }
 
@@ -305,15 +306,16 @@ public class BFSLinkSelector implements LinkSelector {
         SearchDepth callerDepth = new SearchDepth(searchOption.getCallerSearchDepth());
         SearchDepth calleeDepth = new SearchDepth(searchOption.getCalleeSearchDepth());
 
+        logger.debug("ApplicationMap select {}", sourceApplication);
         addNextNode(sourceApplication);
 
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
-        while (true) {
-            final Set<Application> currentNode = copyNextNode();
-            if (currentNode.isEmpty()) {
-                break;
-            }
 
+        while (!this.nextQueue.isEmpty()) {
+
+            final List<Application> currentNode = this.nextQueue.copyAndClear();
+
+            logger.debug("size:{} depth caller:{} callee:{} node:{}", currentNode.size(), callerDepth.getDepth(), calleeDepth.getDepth(), currentNode);
             LinkDataDuplexMap levelData = selectLink(currentNode, range, callerDepth, calleeDepth);
 
             linkDataDuplexMap.addLinkDataDuplexMap(levelData);
@@ -322,15 +324,74 @@ public class BFSLinkSelector implements LinkSelector {
             calleeDepth = calleeDepth.nextDepth();
         }
 
-        fillEmulationLink(linkDataDuplexMap);
+        if (!emulationLinkMarker.isEmpty()) {
+            logger.debug("Link emulation size:{}", emulationLinkMarker.size());
+            // special case
+            checkUnsearchEmulationCalleeNode(linkDataDuplexMap, range);
+            fillEmulationLink(linkDataDuplexMap);
+        }
 
         return linkDataDuplexMap;
     }
 
-    private Set<Application> copyNextNode() {
-        Set<Application> currentQueue = this.nextNode;
-        this.nextNode = new HashSet<Application>();
-        return currentQueue;
+
+    private void checkUnsearchEmulationCalleeNode(LinkDataDuplexMap searchResult, Range range) {
+
+        List<Application> unvisitedList = getUnvisitedEmulationNode();
+        if (unvisitedList.isEmpty()) {
+            logger.debug("unvisited callee node not found");
+            return;
+        }
+
+        logger.info("unvisited callee node {}", unvisitedList);
+
+        final LinkDataMap calleeLinkData = new LinkDataMap();
+        for (Application application : unvisitedList) {
+            LinkDataMap callee = mapStatisticsCalleeDao.selectCallee(application, range);
+            logger.debug("calleeNode:{}", callee);
+            calleeLinkData.addLinkDataMap(callee);
+        }
+
+        LinkDataMap unvisitedNodeFilter = new LinkDataMap();
+        for (LinkData linkData : calleeLinkData.getLinkDataList()) {
+            Application fromApplication = linkData.getFromApplication();
+            if (!fromApplication.getServiceType().isWas()) {
+                continue;
+            }
+            Application emulatedApplication = linkData.getToApplication();
+            boolean unvisitedNode = isUnVisitedNode(unvisitedList, emulatedApplication, fromApplication);
+            if (unvisitedNode) {
+                logger.debug("EmulationCalleeNode:{}", linkData);
+                unvisitedNodeFilter.addLinkData(linkData);
+            }
+        }
+        logger.debug("UnVisitedNode:{}", unvisitedNodeFilter);
+
+        for (LinkData linkData : unvisitedNodeFilter.getLinkDataList()) {
+            searchResult.addTargetLinkData(linkData);
+        }
+
+    }
+
+    private boolean isUnVisitedNode(List<Application> unvisitedList, Application toApplication, Application fromApplication) {
+        for (Application unvisitedApplication : unvisitedList) {
+            if (toApplication.equals(unvisitedApplication) && linkVisitChecker.isVisitedCaller(fromApplication)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private List<Application> getUnvisitedEmulationNode() {
+        Set<Application> unvisitedList = new HashSet<Application>();
+        for (LinkData linkData : this.emulationLinkMarker) {
+            Application toApplication = linkData.getToApplication();
+            boolean isVisited = this.linkVisitChecker.isVisitedCaller(toApplication);
+            if (!isVisited) {
+                unvisitedList.add(toApplication);
+            }
+        }
+        return new ArrayList<Application>(unvisitedList);
     }
 
 
@@ -345,5 +406,27 @@ public class BFSLinkSelector implements LinkSelector {
         return replaceRpcCaller;
     }
 
+
+    static class Queue {
+
+        private final Set<Application> nextNode = new HashSet<Application>();
+
+        public boolean addNextNode(Application application) {
+            return this.nextNode.add(application);
+        }
+
+        public List<Application> copyAndClear() {
+            List<Application> copyList = new ArrayList<Application>(this.nextNode);
+
+            this.nextNode.clear();
+
+            return copyList;
+        }
+
+        public boolean isEmpty() {
+            return this.nextNode.isEmpty();
+        }
+
+    }
 
 }

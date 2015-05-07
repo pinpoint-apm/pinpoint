@@ -39,4 +39,13 @@ public class SearchOption {
     public int getCalleeSearchDepth() {
         return calleeSearchDepth;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("SearchOption{");
+        sb.append("callerSearchDepth=").append(callerSearchDepth);
+        sb.append(", calleeSearchDepth=").append(calleeSearchDepth);
+        sb.append('}');
+        return sb.toString();
+    }
 }

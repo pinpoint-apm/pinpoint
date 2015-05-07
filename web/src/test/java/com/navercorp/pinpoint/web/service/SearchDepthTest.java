@@ -26,16 +26,18 @@ public class SearchDepthTest {
 
     @Test
     public void testSearchDepth() throws Exception {
-        SearchDepth test = new SearchDepth(1);
+        SearchDepth zero = new SearchDepth(2);
 
-        Assert.assertEquals(test.getDepth(), 0);
+        Assert.assertEquals(zero.getDepth(), 0);
+        Assert.assertFalse(zero.isDepthOverflow());
 
-        SearchDepth oneDepth = test.nextDepth();
+        SearchDepth oneDepth = zero.nextDepth();
         Assert.assertEquals(oneDepth.getDepth(), 1);
         Assert.assertFalse(oneDepth.isDepthOverflow());
 
-        Assert.assertEquals(oneDepth.nextDepth().getDepth(), 2);
-        Assert.assertTrue(oneDepth.nextDepth().isDepthOverflow());
+        SearchDepth twoDepth = oneDepth.nextDepth();
+        Assert.assertEquals(twoDepth.getDepth(), 2);
+        Assert.assertTrue(twoDepth.isDepthOverflow());
     }
 
 }

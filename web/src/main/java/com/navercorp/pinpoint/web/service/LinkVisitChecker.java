@@ -37,20 +37,24 @@ public class LinkVisitChecker {
         return visit(callerFound, caller, "Caller");
     }
 
+    public boolean isVisitedCaller(Application caller) {
+        return callerFound.contains(caller);
+    }
+
     public boolean visitCallee(Application callee) {
         return visit(calleeFound, callee, "Callee");
     }
 
-    private boolean visit(Set<Application> visitedSet, Application caller,  String type) {
-        if (caller == null) {
-            throw new NullPointerException("caller must not be null");
+    private boolean visit(Set<Application> visitedSet, Application application,  String type) {
+        if (application == null) {
+            throw new NullPointerException("application must not be null");
         }
-        final boolean alreadyVisited = !visitedSet.add(caller);
+        final boolean alreadyVisited = !visitedSet.add(application);
         if (logger.isDebugEnabled()) {
             if (alreadyVisited) {
-                logger.debug("Finding {}. {}={}", type, type, caller);
+                logger.debug("Finding {}. {}={}", type, type, application);
             } else {
-                logger.debug("LinkData exists. Skip finding {}. {} ", type, caller);
+                logger.debug("LinkData exists. Skip finding {}. {} ", type, application);
             }
         }
         return alreadyVisited;
