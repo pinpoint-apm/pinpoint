@@ -15,7 +15,8 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
             templateUrl: 'views/navbar.html',
             link: function (scope, element) {
 
-            	var defaultRange = 7;
+            	var DEFAULT_RANGE = 2;
+            	var MAX_RANGE = 8;
                 // define private variables
                 var $application, $fromPicker, $toPicker, oNavbarVo, aReadablePeriodList;
 
@@ -30,9 +31,9 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                  */
                 getRangeFromStorage = function(app) {
                 	if ( window.localStorage ) {
-                		return window.localStorage.getItem( app ) || defaultRange;
+                		return window.localStorage.getItem( app ) || DEFAULT_RANGE;
                 	} else {
-                		return defaultRange;
+                		return DEFAULT_RANGE;
                 	}
                 };
                 /**
@@ -73,7 +74,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                 scope.range = getRangeFromStorage(scope.applicatoin);
                 scope.rangeList = (function() {
                 	var a = [];
-                	for( var i = 0 ; i <= defaultRange ; i++ ) {
+                	for( var i = 1 ; i <= MAX_RANGE ; i++ ) {
                 		a.push( i );
                 	}
                 	return a;
