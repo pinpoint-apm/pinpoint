@@ -21,32 +21,32 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-            </exclusions>
+<!--             <exclusions> -->
+<!--                 <exclusion> -->
+<!--                     <groupId>com.google.guava</groupId> -->
+<!--                     <artifactId>guava</artifactId> -->
+<!--                 </exclusion> -->
+<!--             </exclusions> -->
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-rpc</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-            </exclusions>
+<!--             <exclusions> -->
+<!--                 <exclusion> -->
+<!--                     <groupId>com.google.guava</groupId> -->
+<!--                     <artifactId>guava</artifactId> -->
+<!--                 </exclusion> -->
+<!--             </exclusions> -->
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-thrift</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-            </exclusions>
+<!--             <exclusions> -->
+<!--                 <exclusion> -->
+<!--                     <groupId>com.google.guava</groupId> -->
+<!--                     <artifactId>guava</artifactId> -->
+<!--                 </exclusion> -->
+<!--             </exclusions> -->
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -713,12 +713,12 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-profiler</artifactId>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <artifactId>com.google.guava</artifactId>
-                    <groupId>guava</groupId>
-        </exclusion>
-            </exclusions>
+<!--             <exclusions> -->
+<!--                 <exclusion> -->
+<!--                     <artifactId>com.google.guava</artifactId> -->
+<!--                     <groupId>guava</groupId> -->
+<!--                 </exclusion> -->
+<!--             </exclusions> -->
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
