@@ -363,5 +363,15 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
         $scope.onBeforeOverlayRemoval = function () {
             $rootElement.find('#copyright').hide();
         };
-
+        $scope.loadingOption = {
+        	hideTip : "init"
+        };
+        $scope.$watch( 'loadingOption.hideTip', function(newValue) {
+        	if ( newValue == "init" ) return;
+    		if ( $window.localStorage ) {
+    			var now = new Date();
+    			now.setDate(now.getDate() + 30);
+        		$window.localStorage.setItem( "__HIDE_LOADING_TIP", newValue ? now.valueOf() : "-" ); 
+        	}
+        });
     } ]);
