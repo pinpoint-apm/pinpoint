@@ -16,14 +16,14 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.common.bindvalue;
 
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
-import com.navercorp.pinpoint.profiler.util.ArrayUtils;
-
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Time;
 import java.sql.Timestamp;
+
+import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.plugin.jdbc.common.ArrayUtils;
 
 /**
  * @author emeroad

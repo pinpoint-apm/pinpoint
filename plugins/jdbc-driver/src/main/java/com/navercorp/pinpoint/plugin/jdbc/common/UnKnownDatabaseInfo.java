@@ -33,4 +33,14 @@ public class UnKnownDatabaseInfo {
         urls.add("unknown");
         INSTANCE = new DefaultDatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, "unknown", "unknown", urls, "unknown");
     }
+    
+    public static DatabaseInfo createUnknownDataBase(String url) {
+        return createUnknownDataBase(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, url);
+    }
+
+    public static DatabaseInfo createUnknownDataBase(ServiceType type, ServiceType executeQueryType, String url) {
+        List<String> list = new ArrayList<String>();
+        list.add("error");
+        return new DefaultDatabaseInfo(type, executeQueryType, url, url, list, "error");
+    }
 }

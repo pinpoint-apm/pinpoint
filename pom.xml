@@ -143,6 +143,12 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-plugins</artifactId>
+                <type>zip</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-test</artifactId>
                 <version>${project.version}</version>
             </dependency>

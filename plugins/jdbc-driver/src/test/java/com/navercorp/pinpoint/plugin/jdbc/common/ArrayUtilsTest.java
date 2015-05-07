@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.util;
+package com.navercorp.pinpoint.plugin.jdbc.common;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.profiler.util.ArrayUtils;
+import com.navercorp.pinpoint.plugin.jdbc.common.ArrayUtils;
 
 /**
  * @author emeroad

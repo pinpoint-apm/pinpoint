@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context;
-
-import com.navercorp.pinpoint.profiler.util.jdk.ThreadLocalRandom;
+package com.navercorp.pinpoint.bootstrap.context;
 
 import java.util.Random;
+
+import com.navercorp.pinpoint.bootstrap.util.jdk.ThreadLocalRandom;
 
 /**
  * @author emeroad

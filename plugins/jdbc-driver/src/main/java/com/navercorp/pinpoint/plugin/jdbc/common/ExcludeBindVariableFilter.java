@@ -17,29 +17,31 @@
 package com.navercorp.pinpoint.plugin.jdbc.common;
 
 import java.lang.reflect.Method;
-import java.util.List;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * @author emeroad
  */
-public class PreparedStatementUtilsTest {
+public class ExcludeBindVariableFilter implements BindVariableFilter {
 
-    @Test
-    public void testBindSetMethod() {
-        List<Method> bindVariableSetMethod = PreparedStatementUtils.findBindVariableSetMethod();
-        for (Method method : bindVariableSetMethod) {
-            System.out.println(method);
+    private String[] excudes;
+
+    public ExcludeBindVariableFilter(String[] excludes) {
+        if (excludes == null) {
+            throw new NullPointerException("excludes must not be null");
         }
+        this.excudes = excludes;
     }
 
-    @Test
-    public void testMatch() throws Exception {
-        Assert.assertTrue(PreparedStatementUtils.isSetter("setNCString"));
-        Assert.assertTrue(PreparedStatementUtils.isSetter("setInt"));
-        Assert.assertTrue(PreparedStatementUtils.isSetter("setTestTeTst"));
-
+    @Override
+    public boolean filter(Method method) {
+        if (method == null) {
+            throw new NullPointerException("method must not be null");
+        }
+        for (String exclude : excudes) {
+            if(method.getName().equals(exclude)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

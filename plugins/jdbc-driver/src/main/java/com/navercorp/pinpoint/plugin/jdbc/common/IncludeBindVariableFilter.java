@@ -17,29 +17,30 @@
 package com.navercorp.pinpoint.plugin.jdbc.common;
 
 import java.lang.reflect.Method;
-import java.util.List;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * @author emeroad
  */
-public class PreparedStatementUtilsTest {
+public class IncludeBindVariableFilter implements BindVariableFilter {
+    private String[] includes;
 
-    @Test
-    public void testBindSetMethod() {
-        List<Method> bindVariableSetMethod = PreparedStatementUtils.findBindVariableSetMethod();
-        for (Method method : bindVariableSetMethod) {
-            System.out.println(method);
+    public IncludeBindVariableFilter(String[] includes) {
+        if (includes == null) {
+            throw new NullPointerException("includes must not be null");
         }
+        this.includes = includes;
     }
 
-    @Test
-    public void testMatch() throws Exception {
-        Assert.assertTrue(PreparedStatementUtils.isSetter("setNCString"));
-        Assert.assertTrue(PreparedStatementUtils.isSetter("setInt"));
-        Assert.assertTrue(PreparedStatementUtils.isSetter("setTestTeTst"));
-
+    @Override
+    public boolean filter(Method method) {
+        if (method == null) {
+            throw new NullPointerException("method must not be null");
+        }
+        for (String include: includes) {
+            if(method.getName().equals(include)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

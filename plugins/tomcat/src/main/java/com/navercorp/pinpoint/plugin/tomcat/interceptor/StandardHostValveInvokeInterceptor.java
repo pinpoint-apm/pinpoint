@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
+import com.navercorp.pinpoint.bootstrap.context.SpanId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -42,7 +43,6 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.tomcat.ServletAsyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.tomcat.ServletSyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
-import com.navercorp.pinpoint.profiler.context.SpanId;
 
 /**
  * @author emeroad

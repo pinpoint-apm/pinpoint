@@ -14,27 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jdbc.common.bindvalue;
+package com.navercorp.pinpoint.plugin.jdbc.common;
 
-import com.navercorp.pinpoint.plugin.jdbc.common.ArrayUtils;
+import java.lang.reflect.Method;
 
 /**
  * @author emeroad
  */
-public class BytesConverter implements Converter {
-    @Override
-    public String convert(Object[] args) {
-        if (args == null) {
-            return "null";
-        }
-        if (args.length == 2) {
-            byte[] bytes = (byte[]) args[1];
-            if (bytes == null) {
-                return "null";
-            } else {
-                return ArrayUtils.dropToString(bytes);
-            }
-        }
-        return "error";
-    }
+public interface BindVariableFilter {
+    boolean filter(Method method);
 }

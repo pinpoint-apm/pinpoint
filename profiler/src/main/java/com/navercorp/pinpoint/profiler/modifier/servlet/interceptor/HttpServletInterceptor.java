@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.modifier.servlet.interceptor;
 import java.util.Enumeration;
 
 import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.bootstrap.context.SpanId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
