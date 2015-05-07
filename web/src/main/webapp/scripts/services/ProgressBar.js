@@ -1,8 +1,12 @@
 'use strict';
 
-pinpointApp.factory('ProgressBar', [ '$timeout', function ($timeout) {
-
+pinpointApp.factory('ProgressBar', [ '$timeout', '$window', '$location', 'UserLocales', function ($timeout, $window, $location, UserLocales) {
+	var AVAILABLE_LOCALE = [ "ko", "en" ];
+	var TIP_MAX_COUNT = 5;
+	var STORAGE_NAME = "__HIDE_LOADING_TIP";
+	
     return function (parent) {
+    	
         this.$parent = parent || null;
         this.nPercentage = 0;
         this.bAutoIncrease = true;
@@ -18,9 +22,22 @@ pinpointApp.factory('ProgressBar', [ '$timeout', function ($timeout) {
         }.bind(this);
 
         this.startLoading = function (autoIncrease) {
+        	var bShowTip = true;
+        	if ( $window.localStorage ) {
+        		var savedTipData = $window.localStorage.getItem( STORAGE_NAME ) || "-";
+        		if ( savedTipData === "-" ) {
+        			bShowTip = true;
+        		} else {
+        			bShowTip = ( new Date().valueOf() < parseInt( savedTipData ) ) ? false : true;
+        		}
+        	}
             this.bAutoIncrease = autoIncrease || true;
             this.setLoading(0);
             $timeout(function () {
+            	if ( /^\/main/.test( $location.path() ) && bShowTip ) {
+	            	this.showBackground();
+	            	this.showTip();
+            	}
                 this.getProgress().show();
                 this.autoIncrease();
             }.bind(this));
@@ -30,6 +47,8 @@ pinpointApp.factory('ProgressBar', [ '$timeout', function ($timeout) {
             $timeout.cancel(this.nTimePromise);
             $timeout(function () {
                 this.getProgress().hide();
+                this.hideTip();
+                this.hideBackground();
             }.bind(this), 300);
         }.bind(this);
 
@@ -59,6 +78,38 @@ pinpointApp.factory('ProgressBar', [ '$timeout', function ($timeout) {
                     this.autoIncrease();
                 }.bind(this), 500);
             }
+        }.bind(this);
+        this.showBackground = function() {
+        	if ( this.$parent ) {
+        		$('.progress-back', this.$parent).show();
+        	}
+        }.bind(this);
+        this.showTip = function() {
+        	if ( this.$parent ) {
+        		$('.progress-tip img', this.$parent).attr( "src", "/images/tip/tip" + this._getRandomNum() + "_" + this._getLocale() + ".png");
+        		$('.progress-tip', this.$parent).show();
+        	}
+        }.bind(this);
+        this._getRandomNum = function() {
+        	var num = parseInt( Math.random() * (TIP_MAX_COUNT+1) );
+        	return num < 10 ? "0" + num : num + "";
+        }.bind(this);
+        this._getLocale = function() {
+        	if ( AVAILABLE_LOCALE.indexOf( UserLocales.userLocale ) == -1 ) {
+        		return UserLocales.defaultLocale;
+        	} else {
+        		return UserLocales.userLocale;
+        	}
+        }.bind(this);
+        this.hideBackground = function() {
+        	if ( this.$parent ) {
+        		$('.progress-back', this.$parent).hide();
+        	}        	
+        }.bind(this);
+        this.hideTip = function() {
+        	if ( this.$parent ) {
+        		$('.progress-tip', this.$parent).hide();
+        	}
         }.bind(this);
     };
 }]);
