@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jdbc.common;
+package com.navercorp.pinpoint.profiler.util;
 
 import java.lang.reflect.Method;
 
 /**
  * @author emeroad
  */
-public class IncludeBindVariableFilter implements BindVariableFilter {
-    private String[] includes;
+public class ExcludeBindVariableFilter implements BindVariableFilter {
 
-    public IncludeBindVariableFilter(String[] includes) {
-        if (includes == null) {
-            throw new NullPointerException("includes must not be null");
+    private String[] excudes;
+
+    public ExcludeBindVariableFilter(String[] excludes) {
+        if (excludes == null) {
+            throw new NullPointerException("excludes must not be null");
         }
-        this.includes = includes;
+        this.excudes = excludes;
     }
 
     @Override
@@ -36,11 +37,11 @@ public class IncludeBindVariableFilter implements BindVariableFilter {
         if (method == null) {
             throw new NullPointerException("method must not be null");
         }
-        for (String include: includes) {
-            if(method.getName().equals(include)) {
-                return true;
+        for (String exclude : excudes) {
+            if(method.getName().equals(exclude)) {
+                return false;
             }
         }
-        return false;
+        return true;
     }
 }

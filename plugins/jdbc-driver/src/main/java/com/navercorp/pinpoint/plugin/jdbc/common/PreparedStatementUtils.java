@@ -26,8 +26,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import com.navercorp.pinpoint.profiler.util.BindVariableFilter;
-
 /**
  * @author emeroad
  */

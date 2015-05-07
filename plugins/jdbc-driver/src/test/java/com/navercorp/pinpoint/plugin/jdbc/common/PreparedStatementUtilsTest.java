@@ -16,28 +16,22 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.common;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.plugin.jdbc.common.PreparedStatementUtils;
-
 import java.lang.reflect.Method;
 import java.util.List;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author emeroad
  */
 public class PreparedStatementUtilsTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
 
     @Test
     public void testBindSetMethod() {
         List<Method> bindVariableSetMethod = PreparedStatementUtils.findBindVariableSetMethod();
         for (Method method : bindVariableSetMethod) {
-            logger.debug("{}", method);
+            System.out.println(method);
         }
     }
 

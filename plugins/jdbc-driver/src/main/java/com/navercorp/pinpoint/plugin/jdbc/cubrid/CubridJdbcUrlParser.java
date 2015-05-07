@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.plugin.jdbc.common.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.plugin.jdbc.common.JdbcUrlParser;
 import com.navercorp.pinpoint.plugin.jdbc.common.StringMaker;
-import com.navercorp.pinpoint.profiler.modifier.db.JDBCUrlParser;
+import com.navercorp.pinpoint.plugin.jdbc.common.UnKnownDatabaseInfo;
 
 /**
  * @author emeroad
@@ -42,13 +42,13 @@ public class CubridJdbcUrlParser extends JdbcUrlParser implements CubridConstant
     @Override
     public DatabaseInfo doParse(String url) {
         if (url == null) {
-            return JDBCUrlParser.createUnknownDataBase(CUBRID, CUBRID_EXECUTE_QUERY, null);
+            return UnKnownDatabaseInfo.createUnknownDataBase(CUBRID, CUBRID_EXECUTE_QUERY, null);
         }
 
         final Matcher matcher = PATTERN.matcher(url);
         if (!matcher.find()) {
             logger.warn("Cubrid connectionString parse fail. url:{}", url);
-            return JDBCUrlParser.createUnknownDataBase(CUBRID, CUBRID_EXECUTE_QUERY, url);
+            return UnKnownDatabaseInfo.createUnknownDataBase(CUBRID, CUBRID_EXECUTE_QUERY, url);
         }
 
         String host = matcher.group(2);
