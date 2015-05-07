@@ -15,32 +15,14 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons</artifactId>
-<!--             <exclusions> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>com.google.guava</groupId> -->
-<!--                     <artifactId>guava</artifactId> -->
-<!--                 </exclusion> -->
-<!--             </exclusions> -->
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-rpc</artifactId>
-<!--             <exclusions> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>com.google.guava</groupId> -->
-<!--                     <artifactId>guava</artifactId> -->
-<!--                 </exclusion> -->
-<!--             </exclusions> -->
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-thrift</artifactId>
-<!--             <exclusions> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>com.google.guava</groupId> -->
-<!--                     <artifactId>guava</artifactId> -->
-<!--                 </exclusion> -->
-<!--             </exclusions> -->
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -51,179 +33,6 @@
             <groupId>io.netty</groupId>
             <artifactId>netty</artifactId>
         </dependency>
-
-<!--         <dependency> -->
-<!--             <groupId>org.apache.hadoop</groupId> -->
-<!--             <artifactId>hadoop-common</artifactId> -->
-<!--             <exclusions> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>org.apache.hadoop</groupId> -->
-<!--                     <artifactId>hadoop-annotations</artifactId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>commons-cli</artifactId> -->
-<!--                     <groupId>commons-cli</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>xmlenc</artifactId> -->
-<!--                     <groupId>xmlenc</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>commons-httpclient</artifactId> -->
-<!--                     <groupId>commons-httpclient</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>commons-codec</artifactId> -->
-<!--                     <groupId>commons-codec</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>commons-io</artifactId> -->
-<!--                     <groupId>commons-io</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>commons-net</artifactId> -->
-<!--                     <groupId>commons-net</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>servlet-api</artifactId> -->
-<!--                     <groupId>javax.servlet</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>jetty</artifactId> -->
-<!--                     <groupId>org.mortbay.jetty</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>jetty-util</artifactId> -->
-<!--                     <groupId>org.mortbay.jetty</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>jersey-core</artifactId> -->
-<!--                     <groupId>com.sun.jersey</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>jersey-json</artifactId> -->
-<!--                     <groupId>com.sun.jersey</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>jersey-server</artifactId> -->
-<!--                     <groupId>com.sun.jersey</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>jsp-api</artifactId> -->
-<!--                     <groupId>javax.servlet.jsp</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>commons-el</artifactId> -->
-<!--                     <groupId>commons-el</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>log4j</artifactId> -->
-<!--                     <groupId>log4j</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>jets3t</artifactId> -->
-<!--                     <groupId>net.java.dev.jets3t</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>commons-lang</artifactId> -->
-<!--                     <groupId>commons-lang</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>commons-configuration</artifactId> -->
-<!--                     <groupId>commons-configuration</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>avro</artifactId> -->
-<!--                     <groupId>org.apache.avro</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>protobuf-java</artifactId> -->
-<!--                     <groupId>com.google.protobuf</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>zookeeper</artifactId> -->
-<!--                     <groupId>org.apache.zookeeper</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>jsch</artifactId> -->
-<!--                     <groupId>com.jcraft</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>guava</artifactId> -->
-<!--                     <groupId>com.google.guava</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>commons-math</artifactId> -->
-<!--                     <groupId>org.apache.commons</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>commons-logging</artifactId> -->
-<!--                     <groupId>commons-logging</groupId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>kfs</artifactId> -->
-<!--                     <groupId>net.sf.kosmosfs</groupId> -->
-<!--                 </exclusion> -->
-<!--             </exclusions> -->
-<!--         </dependency> -->
-<!--         <dependency> -->
-<!--             <groupId>org.apache.hadoop</groupId> -->
-<!--             <artifactId>hadoop-core</artifactId> -->
-<!--             <exclusions> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>org.mortbay.jetty</groupId> -->
-<!--                     <artifactId>jetty</artifactId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>org.mortbay.jetty</groupId> -->
-<!--                     <artifactId>jetty-util</artifactId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>org.mortbay.jetty</groupId> -->
-<!--                     <artifactId>jsp-2.1</artifactId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>org.mortbay.jetty</groupId> -->
-<!--                     <artifactId>jsp-api-2.1</artifactId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>org.eclipse.jdt</groupId> -->
-<!--                     <artifactId>core</artifactId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>tomcat</groupId> -->
-<!--                     <artifactId>jasper-runtime</artifactId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>tomcat</groupId> -->
-<!--                     <artifactId>jasper-compiler</artifactId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>org.mortbay.jetty</groupId> -->
-<!--                     <artifactId>servlet-api-2.5</artifactId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>org.mortbay.jetty</groupId> -->
-<!--                     <artifactId>servlet-api</artifactId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>commons-httpclient</groupId> -->
-<!--                     <artifactId>commons-httpclient</artifactId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>commons-logging</groupId> -->
-<!--                     <artifactId>commons-logging</artifactId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>javax.servlet.jsp</groupId> -->
-<!--                     <artifactId>jsp-api</artifactId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>javax.servlet</groupId> -->
-<!--                     <artifactId>servlet-api</artifactId> -->
-<!--                 </exclusion> -->
-<!--             </exclusions> -->
-<!--         </dependency> -->
 
         <dependency>
             <groupId>org.apache.hbase</groupId>
@@ -237,26 +46,6 @@
                     <groupId>org.mortbay.jetty</groupId>
                     <artifactId>jetty-util</artifactId>
                 </exclusion>
-<!--                 <exclusion> -->
-<!--                     <groupId>org.mortbay.jetty</groupId> -->
-<!--                     <artifactId>jsp-2.1</artifactId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>org.mortbay.jetty</groupId> -->
-<!--                     <artifactId>jsp-api-2.1</artifactId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>org.mortbay.jetty</groupId> -->
-<!--                     <artifactId>servlet-api-2.5</artifactId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>tomcat</groupId> -->
-<!--                     <artifactId>jasper-runtime</artifactId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>tomcat</groupId> -->
-<!--                     <artifactId>jasper-compiler</artifactId> -->
-<!--                 </exclusion> -->
                 <exclusion>
                     <groupId>com.sun.jersey</groupId>
                     <artifactId>jersey-core</artifactId>
@@ -273,10 +62,6 @@
                     <groupId>javax.xml.bind</groupId>
                     <artifactId>jaxb-api</artifactId>
                 </exclusion>
-<!--                 <exclusion> -->
-<!--                     <groupId>stax</groupId> -->
-<!--                     <artifactId>stax-api</artifactId> -->
-<!--                 </exclusion> -->
                 <exclusion>
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
@@ -329,10 +114,6 @@
                     <groupId>com.google.code.gson</groupId>
                     <artifactId>gson</artifactId>
                 </exclusion>
-<!--                 <exclusion> -->
-<!--                     <groupId>org.apache.hadoop</groupId> -->
-<!--                     <artifactId>hadoop-auth</artifactId> -->
-<!--                 </exclusion> -->
                 <exclusion>
                     <groupId>com.jamesmurty.utils</groupId>
                     <artifactId>java-xmlbuilder</artifactId>
@@ -368,16 +149,6 @@
             <groupId>com.sematext.hbasewd</groupId>
             <artifactId>hbasewd</artifactId>
         </dependency>
-<!--         <dependency> -->
-<!--             <groupId>org.apache.zookeeper</groupId> -->
-<!--             <artifactId>zookeeper</artifactId> -->
-<!--             <exclusions> -->
-<!--                 <exclusion> -->
-<!--                     <artifactId>jline</artifactId> -->
-<!--                     <groupId>jline</groupId> -->
-<!--                 </exclusion> -->
-<!--             </exclusions> -->
-<!--         </dependency> -->
 
         <dependency>
             <groupId>org.apache.thrift</groupId>
@@ -561,30 +332,14 @@
                     <groupId>org.apache.hadoop</groupId>
                     <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
                 </exclusion>
-<!--                 <exclusion> -->
-<!--                     <groupId>org.springframework</groupId> -->
-<!--                     <artifactId>spring-core</artifactId> -->
-<!--                 </exclusion> -->
-<!--                 <exclusion> -->
-<!--                     <groupId>org.apache.hbase</groupId> -->
-<!--                     <artifactId>hbase</artifactId> -->
-<!--                 </exclusion> -->
                 <exclusion>
                     <groupId>org.apache.hadoop</groupId>
                     <artifactId>hadoop-streaming</artifactId>
                 </exclusion>
-<!--                 <exclusion> -->
-<!--                     <groupId>org.apache.hadoop</groupId> -->
-<!--                     <artifactId>hadoop-tools</artifactId> -->
-<!--                 </exclusion> -->
                 <exclusion>
                     <groupId>jdk.tools</groupId>
                     <artifactId>jdk.tools</artifactId>
                 </exclusion>
-<!--                 <exclusion> -->
-<!--                     <groupId>org.apache.hadoop</groupId> -->
-<!--                     <artifactId>hadoop-annotations</artifactId> -->
-<!--                 </exclusion> -->
             </exclusions>
         </dependency>
 

@@ -262,21 +262,7 @@
                 <artifactId>json-simple</artifactId>
                 <version>1.1.1</version>
             </dependency>
-
-
-
-
-<!--             <dependency> -->
-<!--                 <groupId>org.apache.hadoop</groupId> -->
-<!--                 <artifactId>hadoop-common</artifactId> -->
-<!--                 <version>2.6.0-cdh5.4.0</version> -->
-<!--             </dependency> -->
-<!--             <dependency> -->
-<!--                 <groupId>org.apache.hadoop</groupId> -->
-<!--                 <artifactId>hadoop-core</artifactId> -->
-<!--                 <version>2.6.0-mr1-cdh5.4.0</version> -->
-<!--             </dependency> -->
-
+            
             <dependency>
                 <groupId>org.apache.hbase</groupId>
                 <artifactId>hbase-client</artifactId>
@@ -583,13 +569,6 @@
                 <artifactId>dbunit</artifactId>
                 <version>2.4.3</version>
             </dependency>
-
-
-<!--             <dependency> -->
-<!--                 <groupId>org.apache.zookeeper</groupId> -->
-<!--                 <artifactId>zookeeper</artifactId> -->
-<!--                 <version>3.4.5-cdh5.4.0</version> -->
-<!--             </dependency> -->
 
             <dependency>
                 <groupId>org.apache.thrift</groupId>
