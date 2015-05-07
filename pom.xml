@@ -7,7 +7,7 @@
     </organization>
     <groupId>com.navercorp.pinpoint</groupId>
     <artifactId>pom</artifactId>
-    <version>1.0.5-SNAPSHOT</version>
+    <version>1.0.5-p1</version>
     <name>pinpoint</name>
     <packaging>pom</packaging>
 
@@ -262,25 +262,11 @@
                 <artifactId>json-simple</artifactId>
                 <version>1.1.1</version>
             </dependency>
-
-
-
-
-            <dependency>
-                <groupId>org.apache.hadoop</groupId>
-                <artifactId>hadoop-common</artifactId>
-                <version>2.0.0-cdh4.7.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hadoop</groupId>
-                <artifactId>hadoop-core</artifactId>
-                <version>2.0.0-mr1-cdh4.7.1</version>
-            </dependency>
-
+            
             <dependency>
                 <groupId>org.apache.hbase</groupId>
-                <artifactId>hbase</artifactId>
-                <version>0.94.15-cdh4.7.1</version>
+                <artifactId>hbase-client</artifactId>
+                <version>1.0.0-cdh5.4.0</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-beanutils</groupId>
@@ -297,8 +283,8 @@
 
             <dependency>
                 <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-hadoop</artifactId>
-                <version>1.0.2.RELEASE</version>
+                <artifactId>spring-data-hadoop-hbase</artifactId>
+                <version>2.1.2.RELEASE</version>
             </dependency>
 
 
@@ -582,13 +568,6 @@
                 <groupId>org.dbunit</groupId>
                 <artifactId>dbunit</artifactId>
                 <version>2.4.3</version>
-            </dependency>
-
-
-            <dependency>
-                <groupId>org.apache.zookeeper</groupId>
-                <artifactId>zookeeper</artifactId>
-                <version>3.4.5-cdh4.7.1</version>
             </dependency>
 
             <dependency>
