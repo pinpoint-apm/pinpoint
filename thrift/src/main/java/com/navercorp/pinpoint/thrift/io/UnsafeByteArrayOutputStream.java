@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -25,7 +24,7 @@ import java.util.Arrays;
 /**
  * @author emeroad
  */
-public class UnsafeByteArrayOutputStream extends ByteArrayOutputStream {
+public class UnsafeByteArrayOutputStream extends ResetableByteArrayOutputStream {
 
     private static final String UTF8 = "UTF8";
 

@@ -17,30 +17,19 @@
 package com.navercorp.pinpoint.profiler.modifier;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.profiler.ClassFileRetransformer;
-import com.navercorp.pinpoint.profiler.modifier.arcus.ArcusClientModifier;
-import com.navercorp.pinpoint.profiler.modifier.arcus.BaseOperationModifier;
-import com.navercorp.pinpoint.profiler.modifier.arcus.CacheManagerModifier;
-import com.navercorp.pinpoint.profiler.modifier.arcus.CollectionFutureModifier;
-import com.navercorp.pinpoint.profiler.modifier.arcus.FrontCacheGetFutureModifier;
-import com.navercorp.pinpoint.profiler.modifier.arcus.GetFutureModifier;
-import com.navercorp.pinpoint.profiler.modifier.arcus.ImmediateFutureModifier;
-import com.navercorp.pinpoint.profiler.modifier.arcus.MemcachedClientModifier;
-import com.navercorp.pinpoint.profiler.modifier.arcus.OperationFutureModifier;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.ClassNameMatcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.MultiClassNameMatcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.profiler.modifier.arcus.*;
 import com.navercorp.pinpoint.profiler.modifier.connector.asynchttpclient.AsyncHttpClientModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.httpclient3.DefaultHttpMethodRetryHandlerModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.httpclient3.HttpClientModifier;
-import com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.BasicFutureModifier;
-import com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.ClosableHttpAsyncClientModifier;
-import com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.ClosableHttpClientModifier;
-import com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.DefaultHttpRequestRetryHandlerModifier;
-import com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.HttpClient4Modifier;
-import com.navercorp.pinpoint.profiler.modifier.connector.jdkhttpconnector.HttpURLConnectionModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridConnectionModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridDriverModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridPreparedStatementModifier;
@@ -62,20 +51,17 @@ import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLPreparedStatementM
 import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLStatementModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.OracleDriverModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.OraclePreparedStatementModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.oracle.OraclePreparedStatementWrapperModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.OracleStatementModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.oracle.OracleStatementWrapperModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.PhysicalConnectionModifier;
 import com.navercorp.pinpoint.profiler.modifier.log.log4j.LoggingEventOfLog4jModifier;
 import com.navercorp.pinpoint.profiler.modifier.log.logback.LoggingEventOfLogbackModifier;
 import com.navercorp.pinpoint.profiler.modifier.method.MethodModifier;
-import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.SqlMapClientImplModifier;
-import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.SqlMapSessionImplModifier;
-import com.navercorp.pinpoint.profiler.modifier.orm.mybatis.DefaultSqlSessionModifier;
-import com.navercorp.pinpoint.profiler.modifier.orm.mybatis.SqlSessionTemplateModifier;
+import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.SqlMapModifier;
+import com.navercorp.pinpoint.profiler.modifier.orm.mybatis.MyBatisModifier;
 import com.navercorp.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
 import com.navercorp.pinpoint.profiler.modifier.spring.beans.AbstractAutowireCapableBeanFactoryModifier;
 import com.navercorp.pinpoint.profiler.modifier.spring.orm.ibatis.SqlMapClientTemplateModifier;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 /**
  * @author emeroad
@@ -107,12 +93,32 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     }
 
     public void addModifier(AbstractModifier modifier) {
-        AbstractModifier old = registry.put(modifier.getTargetClass(), modifier);
-        if (old != null) {
-            throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + old.getTargetClass());
+        final Matcher matcher = modifier.getMatcher();
+        // TODO extract matcher process
+        if (matcher instanceof ClassNameMatcher) {
+            final ClassNameMatcher classNameMatcher = (ClassNameMatcher)matcher;
+            String className = classNameMatcher.getClassName();
+            addModifier0(modifier, className);
+        } else if (matcher instanceof MultiClassNameMatcher) {
+            final MultiClassNameMatcher classNameMatcher = (MultiClassNameMatcher)matcher;
+            List<String> classNameList = classNameMatcher.getClassNames();
+            for (String className : classNameList) {
+                addModifier0(modifier, className);
+            }
+        } else {
+            throw new IllegalArgumentException("unsupported matcher :" + matcher);
         }
     }
-    
+
+    private void addModifier0(AbstractModifier modifier, String className) {
+        // check jvmClassName
+        final String checkJvmClassName = JavaAssistUtils.javaNameToJvmName(className);
+        AbstractModifier old = registry.put(checkJvmClassName, modifier);
+        if (old != null) {
+            throw new IllegalStateException("Modifier already exist. className:" + checkJvmClassName + " new:" + modifier.getClass() + " old:" + old.getMatcher());
+        }
+    }
+
     public void addMethodModifier() {
         MethodModifier methodModifier = new MethodModifier(byteCodeInstrumentor, agent);
         addModifier(methodModifier);
@@ -171,20 +177,14 @@ public class DefaultModifierRegistry implements ModifierRegistry {
                 ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor, agent);
                 addModifier(arcusClientModifier);
                 // Future of Arcus
-                CollectionFutureModifier collectionFutureModifier = new CollectionFutureModifier(byteCodeInstrumentor, agent);
-                addModifier(collectionFutureModifier);
+//                CollectionFutureModifier collectionFutureModifier = new CollectionFutureModifier(byteCodeInstrumentor, agent);
+//                addModifier(collectionFutureModifier);
             }
 
             // future modifier start ---------------------------------------------------
-
-            GetFutureModifier getFutureModifier = new GetFutureModifier(byteCodeInstrumentor, agent);
+            // unsupport CollectionFutureModifier
+            FutureModifier getFutureModifier = new FutureModifier(byteCodeInstrumentor, agent);
             addModifier(getFutureModifier);
-
-            ImmediateFutureModifier immediateFutureModifier = new ImmediateFutureModifier(byteCodeInstrumentor, agent);
-            addModifier(immediateFutureModifier);
-
-            OperationFutureModifier operationFutureModifier = new OperationFutureModifier(byteCodeInstrumentor, agent);
-            addModifier(operationFutureModifier);
 
 //            Not working properly. commented out for now.
             FrontCacheGetFutureModifier frontCacheGetFutureModifier = new FrontCacheGetFutureModifier(byteCodeInstrumentor, agent);
@@ -307,13 +307,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         AbstractModifier oracleConnectionModifier = new PhysicalConnectionModifier(byteCodeInstrumentor, agent);
         addModifier(oracleConnectionModifier);
 
-        AbstractModifier oraclePreparedStatementWrapperModifier = new OraclePreparedStatementWrapperModifier(byteCodeInstrumentor, agent);
-        addModifier(oraclePreparedStatementWrapperModifier);
         AbstractModifier oraclePreparedStatementModifier = new OraclePreparedStatementModifier(byteCodeInstrumentor, agent);
         addModifier(oraclePreparedStatementModifier);
 
-        AbstractModifier oracleStatementWrapperModifier = new OracleStatementWrapperModifier(byteCodeInstrumentor, agent);
-        addModifier(oracleStatementWrapperModifier);
         AbstractModifier oracleStatementModifier = new OracleStatementModifier(byteCodeInstrumentor, agent);
         addModifier(oracleStatementModifier);
         //
@@ -353,16 +349,14 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
     private void addIBatisSupport() {
         if (profilerConfig.isIBatisEnabled()) {
-            addModifier(new SqlMapSessionImplModifier(byteCodeInstrumentor, agent));
-            addModifier(new SqlMapClientImplModifier(byteCodeInstrumentor, agent));
+            addModifier(new SqlMapModifier(byteCodeInstrumentor, agent));
             addModifier(new SqlMapClientTemplateModifier(byteCodeInstrumentor, agent));
         }
     }
 
     private void addMyBatisSupport() {
         if (profilerConfig.isMyBatisEnabled()) {
-            addModifier(new DefaultSqlSessionModifier(byteCodeInstrumentor, agent));
-            addModifier(new SqlSessionTemplateModifier(byteCodeInstrumentor, agent));
+            addModifier(new MyBatisModifier(byteCodeInstrumentor, agent));
         }
     }
 

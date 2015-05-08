@@ -21,6 +21,8 @@ import java.security.ProtectionDomain;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 
 import org.slf4j.Logger;
@@ -38,8 +40,8 @@ public class BaseOperationModifier extends AbstractModifier {
         super(byteCodeInstrumentor, agent);
     }
 
-    public String getTargetClass() {
-        return "net/spy/memcached/protocol/BaseOperationImpl";
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher("net/spy/memcached/protocol/BaseOperationImpl");
     }
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {

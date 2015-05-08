@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.DedicatedClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.DefaultModifierRegistry;
 import com.navercorp.pinpoint.profiler.modifier.ModifierRegistry;
@@ -113,7 +113,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Ret
         }
         catch (Throwable e) {
             logger.error("Modifier:{} modify fail. cl:{} ctxCl:{} agentCl:{} Cause:{}",
-                    findModifier.getTargetClass(), classLoader, Thread.currentThread().getContextClassLoader(), agentClassLoader, e.getMessage(), e);
+                    findModifier.getMatcher(), classLoader, Thread.currentThread().getContextClassLoader(), agentClassLoader, e.getMessage(), e);
             return null;
         }
     }
@@ -177,10 +177,10 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Ret
     private void loadEditorsFromPlugins(DefaultModifierRegistry modifierRepository, List<DefaultProfilerPluginContext> pluginContexts) {
         for (DefaultProfilerPluginContext pluginContext : pluginContexts) {
             for (ClassFileTransformer transformer : pluginContext.getClassEditors()) {
-                if (transformer instanceof DedicatedClassFileTransformer) {
-                    DedicatedClassFileTransformer dedicated = (DedicatedClassFileTransformer)transformer;
-                    logger.info("Registering class file transformer {} for {} ", dedicated, dedicated.getTargetClassName());
-                    modifierRepository.addModifier(new ClassFileTransformerAdaptor(byteCodeInstrumentor, dedicated));
+                if (transformer instanceof PinpointClassFileTransformer) {
+                    PinpointClassFileTransformer t = (PinpointClassFileTransformer)transformer;
+                    logger.info("Registering class file transformer {} for {} ", t, t.getMatcher());
+                    modifierRepository.addModifier(new ClassFileTransformerAdaptor(byteCodeInstrumentor, t));
                 } else {
                     logger.warn("Ignore class file transformer {}", transformer);
                 }

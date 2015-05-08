@@ -20,15 +20,16 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.DedicatedClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 
 public class ClassFileTransformerAdaptor extends AbstractModifier {
-    private final DedicatedClassFileTransformer transformer;
+    private final PinpointClassFileTransformer transformer;
 
     
-    public ClassFileTransformerAdaptor(ByteCodeInstrumentor byteCodeInstrumentor, DedicatedClassFileTransformer transformer) {
+    public ClassFileTransformerAdaptor(ByteCodeInstrumentor byteCodeInstrumentor, PinpointClassFileTransformer transformer) {
         super(byteCodeInstrumentor);
         this.transformer = transformer;
     }
@@ -43,7 +44,7 @@ public class ClassFileTransformerAdaptor extends AbstractModifier {
     }
 
     @Override
-    public String getTargetClass() {
-        return transformer.getTargetClassName().replace('.', '/');
+    public Matcher getMatcher() {
+        return transformer.getMatcher();
     }
 }

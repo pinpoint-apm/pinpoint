@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.common.bindvalue;
 
-import com.navercorp.pinpoint.profiler.util.ArrayUtils;
+import com.navercorp.pinpoint.plugin.jdbc.common.ArrayUtils;
 
 /**
  * @author emeroad

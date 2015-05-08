@@ -88,6 +88,10 @@
         <level value="INFO"/>
         <appender-ref ref="console"/>
     </logger>
+    <logger name="org.apache.hadoop.ipc" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="console" />
+    </logger>
 
     <root>
         <level value="DEBUG"/>

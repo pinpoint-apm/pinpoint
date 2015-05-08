@@ -13,15 +13,10 @@
     <packaging>jar</packaging>
 
     <dependencies>
-        <!-- should be replaced with below dependencies after pinpoint-test 
-            project is completed -->
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-profiler</artifactId>
         </dependency>
-        <!-- <dependency> <groupId>com.navercorp.pinpoint</groupId> <artifactId>pinpoint-bootstrap</artifactId> 
-            </dependency> <dependency> <groupId>com.navercorp.pinpoint</groupId> <artifactId>pinpoint-test</artifactId> 
-            <scope>test</scope> </dependency> -->
 
         <dependency>
             <groupId>org.apache.tomcat</groupId>

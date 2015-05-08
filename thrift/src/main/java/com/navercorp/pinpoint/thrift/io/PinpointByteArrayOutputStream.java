@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -24,7 +23,7 @@ import java.io.OutputStream;
  * 
  * @author Taejin Koo
  */
-public class PinpointByteArrayOutputStream extends ByteArrayOutputStream { 
+public class PinpointByteArrayOutputStream extends ResetableByteArrayOutputStream { 
 
     private final boolean autoExpand;
     

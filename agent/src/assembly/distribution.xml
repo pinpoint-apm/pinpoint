@@ -4,17 +4,19 @@
   <id>pinpoint-naver-agent</id>
   <formats>
     <format>dir</format>
+    <format>zip</format>
+    <format>tar.gz</format>
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
   
   <fileSets>
     <fileSet>
       <directory>${basedir}/src/main/resources</directory>
-      <outputDirectory>/</outputDirectory>
+      <outputDirectory></outputDirectory>
     </fileSet>
     <fileSet>
       <directory>${basedir}/src/main/script</directory>
-      <outputDirectory>/script</outputDirectory>
+      <outputDirectory>script</outputDirectory>
     </fileSet>
   </fileSets>
   
@@ -46,7 +48,7 @@
             <include>com.navercorp.pinpoint:pinpoint-plugins</include>
         </includes>
         <outputDirectory>plugin</outputDirectory>
-        <useTransitiveFiltering>true</useTransitiveFiltering>
+        <unpack>true</unpack>
     </dependencySet>
   </dependencySets>
 </assembly>

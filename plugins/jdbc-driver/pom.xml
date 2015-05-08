@@ -13,12 +13,26 @@
     <packaging>jar</packaging>
 
     <dependencies>
-        <!-- should be replaced with below dependencies after pinpoint-test 
-            project is completed -->
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-profiler</artifactId>
+            <artifactId>pinpoint-bootstrap</artifactId>
         </dependency>
 
+        <!-- Logging depedencies -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

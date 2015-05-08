@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.instrument.Type;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.ParameterExtractorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
@@ -46,8 +48,8 @@ public class MemcachedClientModifier extends AbstractModifier {
         super(byteCodeInstrumentor, agent);
     }
 
-    public String getTargetClass() {
-        return "net/spy/memcached/MemcachedClient";
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher("net/spy/memcached/MemcachedClient");
     }
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName,

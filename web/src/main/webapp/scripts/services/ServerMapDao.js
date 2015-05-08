@@ -24,7 +24,9 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
     	var data = {
             applicationName: query.applicationName,
             from: query.from,
-            to: query.to
+            to: query.to,
+            callerRange: query.callerRange || 7,
+            calleeRange: query.calleeRange || 7
         };
     	if ( isNaN( parseInt( query.serviceTypeName ) ) ) {
     		data.serviceTypeName = query.serviceTypeName; 
@@ -456,9 +458,10 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
      * @param applicationMapData
      * @returns {*}
      */
-    this.mergeGroup = function (mapData, mergeTypeList) {
+    this.mergeGroup = function (applicationMapData, mergeTypeList) {
+    //this.mergeGroup = function (mapData, mergeTypeList) {
     	var self = this;
-        var applicationMapData = angular.copy(mapData);
+        //var applicationMapData = angular.copy(mapData);
         var nodes = applicationMapData.nodeDataArray;
         var links = applicationMapData.linkDataArray;
         var inboundCountMap = self._getInboundCountMap( nodes, links );
@@ -597,9 +600,10 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
     	return fromNodeArray;
     };
     
-    this.mergeMultiLinkGroup = function( mapData, mergeTypeList ) {
+    //this.mergeMultiLinkGroup = function( mapData, mergeTypeList ) {
+    this.mergeMultiLinkGroup = function( applicationMapData, mergeTypeList ) {
     	var self = this,
-        	applicationMapData = angular.copy(mapData),
+        	//applicationMapData = angular.copy(mapData),
         	nodes = applicationMapData.nodeDataArray,
         	links = applicationMapData.linkDataArray,
         	inboundCountMap = this._getInboundCountMap( nodes, links ),

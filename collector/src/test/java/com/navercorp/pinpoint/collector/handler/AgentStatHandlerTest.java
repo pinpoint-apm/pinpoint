@@ -59,7 +59,7 @@ public class AgentStatHandlerTest {
         final long startTimestamp = Long.MAX_VALUE;
         final TAgentStat agentStat = createAgentStat(agentId, startTimestamp);
         // When
-        agentStatHandler.handle(agentStat, new byte[0], 0, 0);
+        agentStatHandler.handle(agentStat);
         // Then
         verify(agentStatDao).insert(any(TAgentStat.class));
     }
@@ -72,7 +72,7 @@ public class AgentStatHandlerTest {
         final long startTimestamp = Long.MAX_VALUE;
         final TAgentStatBatch agentStatBatch = createAgentStatBatch(agentId, startTimestamp, numBatches);
         // When
-        agentStatHandler.handle(agentStatBatch, new byte[0], 0, 0);
+        agentStatHandler.handle(agentStatBatch);
         // Then
         verify(agentStatDao, times(numBatches)).insert(any(TAgentStat.class));
     }
@@ -82,7 +82,7 @@ public class AgentStatHandlerTest {
         // Given
         final TAgentInfo wrongTBaseObject = new TAgentInfo();
         // When
-        agentStatHandler.handle(wrongTBaseObject, new byte[0], 0, 0);
+        agentStatHandler.handle(wrongTBaseObject);
         // Then
         fail();
     }

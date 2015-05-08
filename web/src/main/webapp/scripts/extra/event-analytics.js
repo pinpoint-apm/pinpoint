@@ -1,7 +1,7 @@
-(function( global ) {
-
+(function( global, $ ) {
+	var bSendAllowed = true;
 	var $at = function() {};
-	if ( typeof ga !== "undefined" ) {
+	if ( typeof ga !== "undefined" && bSendAllowed === true ) {
 		$at = function( category, name, label, count, options ) {	
 			if ( arguments.length == 1 ) {
 				ga( 'send', 'pageview', arguments[0] );
@@ -48,6 +48,8 @@
 	$at.CLK_PERM_GEN = "ClickPermGen";
 	$at.CLK_CPU_LOAD = "ClickCpuLoad";
 	$at.CLK_REFRESH = "ClickRefresh";
+	$at.CLK_CALLEE_RANGE = "ClickCalleeRange";
+	$at.CLK_CALLER_RANGE = "ClickCallerRange";
 
 	$at.TG_DATE = "ToggleDate";
 	$at.TG_UPDATE_ON = "ToggleUpdateOn";
@@ -78,4 +80,12 @@
 	
 	
 	global.$at = $at;
-})(window);
+	
+	$.ajax({
+		url: "/configuration.pinpoint"
+	}).done(function( result ) {
+		bSendAllowed = result.sendUsage;
+	}).fail(function() {
+		
+	});
+})(window, jQuery);

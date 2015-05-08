@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +64,8 @@ public class MapController {
     @Autowired
     private ServiceTypeRegistryService registry;
 
+    private static final int DEAULT_MAX_SEARCH_DEPTH = 8;
+
     /**
    * Server map data query within from ~ to timeframe
      *
@@ -78,9 +81,11 @@ public class MapController {
                                     @RequestParam("applicationName") String applicationName,
                                     @RequestParam("serviceTypeCode") short serviceTypeCode,
                                     @RequestParam("from") long from,
-                                    @RequestParam("to") long to) {
+                                    @RequestParam("to") long to,
+                                    @RequestParam(value = "callerRange", defaultValue = "64") int callerRange,
+                                    @RequestParam(value = "calleeRange", defaultValue = "64") int calleeRange) {
         ServiceType serviceType = registry.findServiceType(serviceTypeCode);
-        return getServerMapData(applicationName, serviceType.getName(), from, to);
+        return getServerMapData(applicationName, serviceType.getName(), from, to, callerRange, calleeRange);
     }
 
     /**
@@ -98,17 +103,41 @@ public class MapController {
                                     @RequestParam("applicationName") String applicationName,
                                     @RequestParam("serviceTypeName") String serviceTypeName,
                                     @RequestParam("from") long from,
-                                    @RequestParam("to") long to) {
+                                    @RequestParam("to") long to,
+                                    @RequestParam(value = "callerRange", defaultValue = "64") int callerRange,
+                                    @RequestParam(value = "calleeRange", defaultValue = "64") int calleeRange) {
         final Range range = new Range(from, to);
         this.dateLimit.limit(from, to);
-        logger.debug("range:{}", TimeUnit.MILLISECONDS.toMinutes(range.getRange()));
+
+        SearchOption searchOption = new SearchOption(callerRange, calleeRange);
+        assertSearchOption(searchOption);
+
+        logger.info("getSearverMap() applicationName:{} range:{} searchOption:{}", applicationName, TimeUnit.MILLISECONDS.toMinutes(range.getRange()), searchOption);
+
 
         ServiceType serviceType = registry.findServiceTypeByName(serviceTypeName);
         Application application = new Application(applicationName, serviceType);
 
-        ApplicationMap map = mapService.selectApplicationMap(application, range);
+        ApplicationMap map = mapService.selectApplicationMap(application, range, searchOption);
 
         return new MapWrap(map);
+    }
+
+    private void assertSearchOption(SearchOption searchOption) {
+        int callerSearchDepth = searchOption.getCalleeSearchDepth();
+        assertSearchDepth(callerSearchDepth, "invalid caller depth:" + callerSearchDepth);
+
+        int calleeSearchDepth = searchOption.getCalleeSearchDepth();
+        assertSearchDepth(searchOption.getCallerSearchDepth(), "invalid callee depth:" + calleeSearchDepth);
+    }
+
+    private void assertSearchDepth(int depth, String message) {
+        if (depth < 0) {
+            throw new IllegalArgumentException(message);
+        }
+        if (depth > DEAULT_MAX_SEARCH_DEPTH) {
+            throw new IllegalArgumentException(message);
+        }
     }
 
     /**
@@ -124,11 +153,13 @@ public class MapController {
     public MapWrap getLastServerMapData(
                                         @RequestParam("applicationName") String applicationName,
                                         @RequestParam("serviceTypeCode") short serviceTypeCode,
-                                        @RequestParam("period") long period) {
+                                        @RequestParam("period") long period,
+                                        @RequestParam(value = "callerRange", defaultValue = "64") int callerRange,
+                                        @RequestParam(value = "calleeRange", defaultValue = "64") int calleeRange) {
 
         long to = TimeUtils.getDelayLastTime();
         long from = to - period;
-        return getServerMapData(applicationName, serviceTypeCode, from, to);
+        return getServerMapData(applicationName, serviceTypeCode, from, to, callerRange, calleeRange);
     }
 
     /**
@@ -144,11 +175,13 @@ public class MapController {
     public MapWrap getLastServerMapData(
                                         @RequestParam("applicationName") String applicationName,
                                         @RequestParam("serviceTypeName") String serviceTypeName,
-                                        @RequestParam("period") long period) {
+                                        @RequestParam("period") long period,
+                                        @RequestParam(value = "callerRange", defaultValue = "64") int callerRange,
+                                        @RequestParam(value = "calleeRange", defaultValue = "64") int calleeRange) {
 
         long to = TimeUtils.getDelayLastTime();
         long from = to - period;
-        return getServerMapData(applicationName, serviceTypeName, from, to);
+        return getServerMapData(applicationName, serviceTypeName, from, to, callerRange, calleeRange);
     }
 
     /**

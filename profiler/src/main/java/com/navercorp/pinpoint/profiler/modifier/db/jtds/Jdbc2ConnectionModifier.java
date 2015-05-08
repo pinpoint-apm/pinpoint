@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.modifier.db.jtds;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 
 /**
  * 1.2.x -> jdk 1.5
@@ -29,7 +31,7 @@ public class Jdbc2ConnectionModifier extends JtdsConnectionModifier {
         super(byteCodeInstrumentor, agent);
     }
 
-    public String getTargetClass() {
-        return "net/sourceforge/jtds/jdbc/ConnectionJDBC2";
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher("net/sourceforge/jtds/jdbc/ConnectionJDBC2");
     }
 }

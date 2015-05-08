@@ -17,19 +17,21 @@
 package com.navercorp.pinpoint.collector.receiver.udp;
 
 import java.io.IOException;
-import java.net.*;
-
-import com.navercorp.pinpoint.collector.receiver.DataReceiver;
-import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.collector.receiver.udp.BaseUDPReceiver;
-
-import org.junit.Assert;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketException;
 
 import org.apache.thrift.TBase;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.navercorp.pinpoint.collector.receiver.DataReceiver;
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 
 /**
  * @author emeroad
@@ -43,11 +45,11 @@ public class UDPReceiverTest {
         try {
             DataReceiver receiver = new BaseUDPReceiver("test", new DispatchHandler() {
                 @Override
-                public void dispatchSendMessage(TBase<?, ?> tBase, byte[] packet, int offset, int length) {
+                public void dispatchSendMessage(TBase<?, ?> tBase) {
                 }
 
                 @Override
-                public TBase dispatchRequestMessage(TBase<?, ?> tBase, byte[] packet, int offset, int length) {
+                public TBase dispatchRequestMessage(TBase<?, ?> tBase) {
                     // TODO Auto-generated method stub
                     return null;
                 }

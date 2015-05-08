@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.modifier.connector.jdkhttpconnector;
 
 import java.security.ProtectionDomain;
 
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +44,8 @@ public class HttpURLConnectionModifier extends AbstractModifier {
         super(byteCodeInstrumentor, agent);
     }
 
-    public String getTargetClass() {
-        return "sun/net/www/protocol/http/HttpURLConnection";
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher("sun/net/www/protocol/http/HttpURLConnection");
     }
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {

@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.test;
 
-import com.navercorp.pinpoint.profiler.DefaultAgent;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.ClassNameMatcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.MultiClassNameMatcher;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
@@ -29,6 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -39,9 +42,9 @@ public class InstrumentTranslator implements Translator {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
-    private ConcurrentMap<String, AbstractModifier> modifierMap = new ConcurrentHashMap<String, AbstractModifier>();
+    private final ConcurrentMap<String, AbstractModifier> modifierMap = new ConcurrentHashMap<String, AbstractModifier>();
 
-    private ClassLoader loader;
+    private final ClassLoader loader;
     private final ClassFileTransformer classFileTransformer;
 
     public InstrumentTranslator(ClassLoader loader, ClassFileTransformer classFileTransformer) {
@@ -52,8 +55,31 @@ public class InstrumentTranslator implements Translator {
         this.classFileTransformer = classFileTransformer;
     }
 
-    public AbstractModifier addModifier(AbstractModifier modifier) {
-        return modifierMap.put(modifier.getTargetClass().replace('/', '.'), modifier);
+    public void addModifier(AbstractModifier modifier) {
+        // TODO extract matcher process
+        final Matcher matcher = modifier.getMatcher();
+        if (matcher instanceof ClassNameMatcher) {
+            ClassNameMatcher classNameMatcher = (ClassNameMatcher) matcher;
+            String className = classNameMatcher.getClassName();
+            addModifier0(modifier, className);
+        } else if(matcher instanceof MultiClassNameMatcher) {
+            final MultiClassNameMatcher classNameMatcher = (MultiClassNameMatcher)matcher;
+            List<String> classNameList = classNameMatcher.getClassNames();
+            for (String className : classNameList) {
+                addModifier0(modifier, className);
+            }
+        } else {
+            throw new IllegalArgumentException("unsupported Matcher " + matcher);
+        }
+
+    }
+
+    private void addModifier0(AbstractModifier modifier, String className) {
+        final String checkJvmClassName = JavaAssistUtils.javaNameToJvmName(className);
+        AbstractModifier old = modifierMap.put(checkJvmClassName, modifier);
+        if (old != null) {
+            throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + old.getMatcher());
+        }
     }
 
     @Override
@@ -62,45 +88,52 @@ public class InstrumentTranslator implements Translator {
     }
 
     @Override
-    public void onLoad(ClassPool pool, String classname) throws NotFoundException, CannotCompileException {
-        logger.debug("loading className:{}", classname);
+    public void onLoad(ClassPool pool, String javaClassName) throws NotFoundException, CannotCompileException {
+        logger.debug("loading className:{}", javaClassName);
 
+        final String jvmClassName = JavaAssistUtils.javaNameToJvmName(javaClassName);
         try {
             // Find Modifier from agent and try transforming
-            final String jvmName = JavaAssistUtils.javaNameToJvmName(classname);
-            byte[] transform = classFileTransformer.transform(this.loader, jvmName, null, null, null);
+            byte[] transform = classFileTransformer.transform(this.loader, jvmClassName, null, null, null);
             if (transform != null) {
-                pool.makeClass(new ByteArrayInputStream(transform));
+                makeClass(pool, transform, jvmClassName);
                 return;
             }
-        } catch (IOException ex) {
-            throw new NotFoundException(classname + " not found. Caused:" + ex.getMessage(), ex);
         } catch (IllegalClassFormatException ex) {
-            throw new RuntimeException(classname + " not found. Caused:" + ex.getMessage(), ex);
+            throw new RuntimeException(jvmClassName + " not found. Caused:" + ex.getMessage(), ex);
         }
         
          // find from modifierMap
-        findModifierMap(pool, classname);
-
+        onLoadTestModifier(pool, jvmClassName);
 
     }
-    private void findModifierMap(ClassPool pool, String classname) throws NotFoundException, CannotCompileException {
-        AbstractModifier modifier = modifierMap.get(classname);
+
+    private void onLoadTestModifier(ClassPool pool, String jvmClassName) throws NotFoundException, CannotCompileException {
+        logger.info("Modify find classname:{}, loader:{}", jvmClassName, loader);
+        AbstractModifier modifier = modifierMap.get(jvmClassName);
         if (modifier == null) {
             return;
         }
-        logger.info("Modify loader:{}, name:{},  modifier{}", loader, classname, modifier);
+        logger.info("Modify jvmClassName:{},  modifier{}, loader:{}", jvmClassName, modifier, loader);
+
 
         final Thread thread = Thread.currentThread();
         final ClassLoader beforeClassLoader = thread.getContextClassLoader();
         thread.setContextClassLoader(loader);
         try {
-            byte[] modify = modifier.modify(this.loader, classname, null, null);
-            pool.makeClass(new ByteArrayInputStream(modify));
-        } catch (IOException ex) {
-            throw new NotFoundException(classname + " not found. Caused:" + ex.getMessage(), ex);
+            String javaClassName = JavaAssistUtils.jvmNameToJavaName(jvmClassName);
+            byte[] modify = modifier.modify(this.loader, javaClassName, null, null);
+            makeClass(pool, modify, jvmClassName);
         } finally {
             thread.setContextClassLoader(beforeClassLoader);
+        }
+    }
+
+    private void makeClass(ClassPool pool, byte[] transform, String jvmClassName) {
+        try {
+            pool.makeClass(new ByteArrayInputStream(transform));
+        } catch (IOException ex) {
+            throw new RuntimeException("Class make fail. jvmClass:" + jvmClassName + " Caused by:" + ex.getMessage(), ex);
         }
     }
 }

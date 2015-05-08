@@ -219,7 +219,7 @@ public class JavaAssistClassTest {
             @Override
             public byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
                 try {
-                    logger.info("modify cl:{}", classLoader);
+                    logger.info("modify className:{} cl:{}", className, classLoader);
 
                     InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 

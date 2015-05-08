@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.modifier.db.jtds;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 
 import java.security.ProtectionDomain;
@@ -33,8 +35,8 @@ public class JtdsResultSetModifier extends AbstractModifier {
         super(byteCodeInstrumentor, agent);
     }
 
-    public String getTargetClass() {
-        return "net/sourceforge/jtds/jdbc/JtdsResultSet";
+    public Matcher getMatcher() {
+        return Matchers.newClassNameMatcher("net/sourceforge/jtds/jdbc/JtdsResultSet");
     }
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
