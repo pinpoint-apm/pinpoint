@@ -100,6 +100,14 @@ public class SpanAlign {
     public void setDepth(int depth) {
         this.depth = depth;
     }
+    
+    public boolean isAsync() {
+        if(isSpan()) {
+            return false;
+        }
+        
+        return spanEventBo.isAsync();
+    }
 
     @Override
     public String toString() {

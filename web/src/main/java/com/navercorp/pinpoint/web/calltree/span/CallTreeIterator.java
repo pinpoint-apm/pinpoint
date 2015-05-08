@@ -42,7 +42,7 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
     void populate(CallTreeNode node) {
         nodes.add(node);
         index++;
-        
+
         final SpanAlign spanAlign = node.getValue();
         final long gap = getGap(node);
         spanAlign.setGap(gap);
@@ -62,17 +62,17 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         SpanAlign spanAlign = getCurrent().getValue();
         if (spanAlign.isSpan()) {
             return spanAlign.getSpanBo().getStartTime() - lastExecuteTime;
-        } else {
-            if (spanAlign.getSpanEventBo().isAsync() && spanAlign.getSpanEventBo().getSequence() == 0) {
-                CallTreeNode parent = getAsyncParent(getCurrent());
-                if (parent == null) {
-                    return 0;
-                }
-                return spanAlign.getSpanEventBo().getStartElapsed() - parent.getValue().getSpanEventBo().getStartElapsed();
-            }
-
-            return (spanAlign.getSpanBo().getStartTime() + spanAlign.getSpanEventBo().getStartElapsed()) - lastExecuteTime;
         }
+
+        if (spanAlign.getSpanEventBo().isAsync() && spanAlign.getSpanEventBo().getSequence() == 0) {
+            CallTreeNode parent = getAsyncParent(getCurrent());
+            if (parent == null) {
+                return 0;
+            }
+            return spanAlign.getSpanEventBo().getStartElapsed() - parent.getValue().getSpanEventBo().getStartElapsed();
+        }
+
+        return (spanAlign.getSpanBo().getStartTime() + spanAlign.getSpanEventBo().getStartElapsed()) - lastExecuteTime;
     }
 
     long getLastExecuteTime(final CallTreeNode node) {
@@ -80,7 +80,12 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
             return node.getValue().getSpanBo().getStartTime();
         }
 
-        final CallTreeNode prev = getPrev();
+        CallTreeNode prev = getPrev();
+        if(!node.getValue().isSpan() && prev.getValue().isAsync() && !node.getValue().isAsync()) {
+            // skip sub(async) call tree.
+            prev = node.getParent();
+        }
+        
         if (prev.getDepth() < node.getDepth()) {
             return getStartTime(prev);
         } else if (prev.getDepth() > node.getDepth()) {
@@ -198,7 +203,7 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
     public boolean isEmpty() {
         return size() == 0;
     }
-    
+
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         for (CallTreeNode node : nodes) {
