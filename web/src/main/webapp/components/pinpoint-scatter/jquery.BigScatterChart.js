@@ -727,6 +727,30 @@ var BigScatterChart = $.Class({
             }
         });
     },
+    fireDragEvent: function( oParam ) {
+    	var htPosition = this._adjustSelectBoxForChart(oParam),
+        htXY = this._parseCoordinatesToXY(htPosition);
+    	
+    	var fOnSelect = this.option('fOnSelect');
+        if (_.isFunction(fOnSelect)) {
+            fOnSelect.call(this, htPosition, htXY);
+        }
+    },
+    selectFailedOnly: function() {
+    	var self = this;
+    	_.each( self._htwelTypeLi, function( welTypeLi, sKey ) {
+    		if ( sKey === "Success" ) {
+    			self._htwelChartCanvas[sKey].hide();
+    			welTypeLi.addClass('unchecked')
+                welTypeLi.css('background-image', 'url(' + self.option('htCheckBoxImage').unchecked + ')');
+    		} else {
+    			self._htwelChartCanvas[sKey].show();
+    			welTypeLi.removeClass('unchecked')
+                welTypeLi.css('background-image', 'url(' + self.option('htCheckBoxImage').checked + ')');
+    		}
+    	});
+    	return this;
+    },
 
     _checkMouseXYInChart: function (nX, nY) {
         var nPaddingTop = this.option('nPaddingTop'),
@@ -871,7 +895,6 @@ var BigScatterChart = $.Class({
             'nYFrom': (nHeight - (nPaddingBottom + nBubbleSize)) - (htPosition.nTop + htPosition.nHeight),
             'nYTo': (nHeight - (nPaddingBottom + nBubbleSize)) - (htPosition.nTop)
         };
-
         htXY.nXFrom = this._parseMouseXToXData(htXY.nXFrom);
         htXY.nXTo = this._parseMouseXToXData(htXY.nXTo);
         htXY.nYFrom = this._parseMouseYToYData(htXY.nYFrom);
