@@ -21,15 +21,11 @@ package com.navercorp.pinpoint.web.calltree.span;
  * @author jaehong.kim
  *
  */
-public interface CallTree extends Iterable<CallTreeNode> {
+public class MissingSpanEventException extends RuntimeException {
 
-    CallTreeNode getRoot();
+    private static final long serialVersionUID = 1L;
 
-    CallTreeIterator iterator();
-
-    boolean isEmpty();
-
-    void add(CallTree tree);
-
-    void add(final int depth, final SpanAlign spanAlign);
+    public MissingSpanEventException(String message) {
+        super(message);
+    }
 }

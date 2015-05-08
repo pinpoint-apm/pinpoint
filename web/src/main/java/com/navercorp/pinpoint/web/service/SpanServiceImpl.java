@@ -24,8 +24,11 @@ import com.navercorp.pinpoint.common.bo.*;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.OutputParameterParser;
 import com.navercorp.pinpoint.common.util.SqlParser;
+import com.navercorp.pinpoint.web.calltree.span.CallTree;
+import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
 import com.navercorp.pinpoint.web.calltree.span.SpanAligner2;
+import com.navercorp.pinpoint.web.calltree.span.SpanCallTree;
 import com.navercorp.pinpoint.web.dao.ApiMetaDataDao;
 import com.navercorp.pinpoint.web.dao.SqlMetaDataDao;
 import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
@@ -40,6 +43,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
 @Service
 public class SpanServiceImpl implements SpanService {
@@ -67,17 +71,19 @@ public class SpanServiceImpl implements SpanService {
             throw new NullPointerException("transactionId must not be null");
         }
 
-        List<SpanBo> spans = traceDao.selectSpanAndAnnotation(transactionId);
+        final List<SpanBo> spans = traceDao.selectSpanAndAnnotation(transactionId);
         if (spans == null || spans.isEmpty()) {
-            return new SpanResult(SpanAligner2.FAIL_MATCH, Collections.<SpanAlign>emptyList());
+            return new SpanResult(SpanAligner2.FAIL_MATCH, new CallTreeIterator(null));
         }
 
-        SpanResult result = order(spans, selectedSpanHint);
-        List<SpanAlign> order = result.getSpanAlignList();
-        transitionDynamicApiId(order);
-        transitionSqlId(order);
-        transitionCachedString(order);
-        transitionException(order);
+        final SpanResult result = order(spans, selectedSpanHint);
+        final CallTreeIterator callTreeIterator = result.getCallTree();
+        final List<SpanAlign> values = callTreeIterator.values();
+        
+        transitionDynamicApiId(values);
+        transitionSqlId(values);
+        transitionCachedString(values);
+        transitionException(values);
         // TODO need to at least show the row data when root span is not found. 
         return result;
     }
@@ -396,11 +402,9 @@ public class SpanServiceImpl implements SpanService {
 
     private SpanResult order(List<SpanBo> spans, long selectedSpanHint) {
         SpanAligner2 spanAligner = new SpanAligner2(spans, selectedSpanHint);
-        List<SpanAlign> sort = spanAligner.sort();
+        final CallTree callTree = spanAligner.sort();
 
-        logger.trace("SpanAlignList:{}", sort);
-        return new SpanResult(spanAligner.getMatchType(), sort);
-
+        return new SpanResult(spanAligner.getMatchType(), callTree.iterator());
     }
 
 

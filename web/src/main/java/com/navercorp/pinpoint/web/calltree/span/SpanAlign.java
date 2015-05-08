@@ -21,9 +21,9 @@ import com.navercorp.pinpoint.common.bo.SpanEventBo;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
 public class SpanAlign {
-    private int depth;
     private SpanBo spanBo;
     private SpanEventBo spanEventBo;
     private boolean span = true;
@@ -56,14 +56,6 @@ public class SpanAlign {
     public boolean isSpan() {
         return span;
     }
-    
-    public void setDepth(int depth) {
-        this.depth = depth;
-    }
-
-    public int getDepth() {
-        return depth;
-    }
 
     public SpanBo getSpanBo() {
         return spanBo;
@@ -80,11 +72,10 @@ public class SpanAlign {
     public void setHasChild(boolean hasChild) {
         this.hasChild = hasChild;
     }
-
+    
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("SpanAlign{");
-        sb.append("depth=").append(depth);
         if (span) {
             sb.append(", spanBo=").append(spanBo);
             sb.append(", spanEventBo=").append(spanEventBo);

@@ -1,27 +1,50 @@
+/*
+ * Copyright 2015 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.web.calltree.span;
 
+/**
+ * 
+ * @author jaehong.kim
+ *
+ */
 public class CallTreeNode {
 
     private CallTreeNode parent;
     private CallTreeNode child;
     private CallTreeNode sibling;
-    private final SpanAlign data;
+    private final SpanAlign value;
+    private int id;
+    private long gap;
 
-    public CallTreeNode(final CallTreeNode parent, SpanAlign data) {
+    public CallTreeNode(final CallTreeNode parent, SpanAlign value) {
         this.parent = parent;
-        this.data = data;
+        this.value = value;
     }
 
     public void setParent(final CallTreeNode parent) {
         this.parent = parent;
     }
-    
+
     public CallTreeNode getParent() {
         return parent;
     }
 
-    public SpanAlign getData() {
-        return data;
+    public SpanAlign getValue() {
+        return value;
     }
 
     public void setChild(final CallTreeNode child) {
@@ -68,6 +91,22 @@ public class CallTreeNode {
         return parent == null;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+    
+    public long getGap() {
+        return gap;
+    }
+
+    public void setGap(long gap) {
+        this.gap = gap;
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -77,8 +116,10 @@ public class CallTreeNode {
         builder.append(child != null ? true : false);
         builder.append(", sibling=");
         builder.append(sibling != null ? true : false);
-        builder.append(", data=");
-        builder.append(data);
+        builder.append(", gap=");
+        builder.append(gap);
+        builder.append(", value=");
+        builder.append(value);
         builder.append("}");
         return builder.toString();
     }
