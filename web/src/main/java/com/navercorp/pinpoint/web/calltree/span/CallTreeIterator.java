@@ -35,6 +35,10 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
     private int index = -1;
 
     public CallTreeIterator(CallTreeNode root) {
+        if(root == null) {
+            return;
+        }
+        
         populate(root);
         index = -1;
     }

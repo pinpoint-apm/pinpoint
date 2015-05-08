@@ -32,7 +32,7 @@ public class SpanAsyncCallTree implements CallTree {
     @Override
     public CallTreeNode getRoot() {
         if (!tree.getRoot().hasChild()) {
-            throw new IllegalArgumentException("not found root");
+            return null;
         }
 
         return tree.getRoot().getChild();
@@ -45,7 +45,7 @@ public class SpanAsyncCallTree implements CallTree {
 
     @Override
     public boolean isEmpty() {
-        return getRoot().getValue() == null;
+        return getRoot() == null || getRoot().getValue() == null;
     }
 
     @Override

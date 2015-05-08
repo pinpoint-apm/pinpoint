@@ -39,11 +39,11 @@ public class SpanCallTree implements CallTree {
     }
 
     public CallTreeIterator iterator() {
-        return new CallTreeIterator(getRoot());
+        return new CallTreeIterator(root);
     }
 
     public boolean isEmpty() {
-        return getRoot().getValue() == null;
+        return root.getValue() == null;
     }
 
     public void add(final CallTree tree) {
