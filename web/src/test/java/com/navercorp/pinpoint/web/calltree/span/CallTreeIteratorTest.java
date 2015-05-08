@@ -80,10 +80,11 @@ public class CallTreeIteratorTest {
 
         while (iterator.hasNext()) {
             CallTreeNode node = iterator.next();
-            for (int i = 0; i <= node.getDepth(); i++) {
+            SpanAlign align = node.getValue();
+            for (int i = 0; i <= align.getDepth(); i++) {
                 System.out.print("#");
             }
-            System.out.println(" : gap=" + node.getGap());
+            System.out.println(" : gap=" + align.getGap());
         }
     }
     
@@ -94,16 +95,16 @@ public class CallTreeIteratorTest {
         callTree.add(1, makeSpanAlign(root.getSpanBo(), SYNC, (short) 0, 1, 1));
         callTree.add(2, makeSpanAlign(root.getSpanBo(), SYNC, (short) 1, 2, 1));
         callTree.add(3, makeSpanAlign(root.getSpanBo(), SYNC, (short) 2, 3, 1));
-        callTree.add(4, makeSpanAlign(root.getSpanBo(), SYNC, (short) 3, 4, 1));
+        callTree.add(4, makeSpanAlign(root.getSpanBo(), SYNC, (short) 3, 4, 1, -1, 1));
         
         CallTree subTree = new SpanAsyncCallTree(root);
-        subTree.add(1, makeSpanAlign(root.getSpanBo(), ASYNC, (short) 0, 5, 1));
-        subTree.add(2, makeSpanAlign(root.getSpanBo(), ASYNC, (short) 1, 6, 1));
-        subTree.add(3, makeSpanAlign(root.getSpanBo(), ASYNC, (short) 2, 7, 1));
-        subTree.add(4, makeSpanAlign(root.getSpanBo(), ASYNC, (short) 3, 8, 1));
+        subTree.add(1, makeSpanAlign(root.getSpanBo(), ASYNC, (short) 0, 5, 1, 1, -1));
+        subTree.add(2, makeSpanAlign(root.getSpanBo(), ASYNC, (short) 1, 6, 1, 1, -1));
+        subTree.add(3, makeSpanAlign(root.getSpanBo(), ASYNC, (short) 2, 7, 1, 1, -1));
+        subTree.add(4, makeSpanAlign(root.getSpanBo(), ASYNC, (short) 3, 8, 1, 1, -1));
         callTree.add(subTree);
         
-        callTree.add(-1, makeSpanAlign(root.getSpanBo(), SYNC, (short) 4, 5, 1));
+        callTree.add(5, makeSpanAlign(root.getSpanBo(), SYNC, (short) 4, 5, 1));
         callTree.add(2, makeSpanAlign(root.getSpanBo(), SYNC, (short) 5, 6, 1));
         callTree.add(3, makeSpanAlign(root.getSpanBo(), SYNC, (short) 6, 7, 1));
         callTree.add(-1, makeSpanAlign(root.getSpanBo(), SYNC, (short) 7, 8, 1));
@@ -114,10 +115,11 @@ public class CallTreeIteratorTest {
 
         while (iterator.hasNext()) {
             CallTreeNode node = iterator.next();
-            for (int i = 0; i <= node.getDepth(); i++) {
+            SpanAlign align = node.getValue();
+            for (int i = 0; i <= align.getDepth(); i++) {
                 System.out.print("#");
             }
-            System.out.println(" : gap=" + node.getGap());
+            System.out.println(" : gap=" + align.getGap());
         }
     }
 

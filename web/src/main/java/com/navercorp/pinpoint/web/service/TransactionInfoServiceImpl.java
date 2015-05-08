@@ -312,23 +312,24 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             // annotation id has nothing to do with spanAlign's seq and thus may be incremented as long as they don't overlap.
             while (callTreeIterator.hasNext()) {
                 final CallTreeNode node = callTreeIterator.next();
-                node.setId(getNextId());
-
                 final SpanAlign spanAlign = node.getValue();
+                // set record next id.
+                spanAlign.setId(getNextId());
+                
                 if (spanAlign.isSpan()) {
                     SpanBo spanBo = spanAlign.getSpanBo();
                     String argument = getRpcArgument(spanBo);
 
                     final long begin = spanBo.getStartTime();
                     final long elapsed = spanBo.getElapsed();
-                    final int spanBoSequence = node.getId();
+                    final int spanBoSequence = spanAlign.getId();
                     int parentSequence;
                     final CallTreeNode prev = node.getParent();
                     if (prev == null) {
                         // root span
                         parentSequence = 0;
                     } else {
-                        parentSequence = prev.getId();
+                        parentSequence = prev.getValue().getId();
                     }
                     logger.debug("apiId={}", spanBo.getApiId());
                     logger.debug("spanBoSequence:{}, parentSequence:{}", spanBoSequence, parentSequence);
@@ -336,13 +337,13 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                     String method = AnnotationUtils.findApiAnnotation(spanBo.getAnnotationBoList());
                     if (method != null) {
                         ApiDescription apiDescription = apiDescriptionParser.parse(method);
-                        Record record = new Record(node.getDepth(), 
+                        Record record = new Record(spanAlign.getDepth(), 
                                 spanBoSequence, 
                                 parentSequence, 
                                 true, 
                                 apiDescription.getSimpleMethodDescription(), 
                                 argument, begin, elapsed, 
-                                node.getGap(), 
+                                spanAlign.getGap(), 
                                 spanBo.getAgentId(), 
                                 spanBo.getApplicationId(),
                                 registry.findServiceType(spanBo.getServiceType()), 
@@ -357,7 +358,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                     } else {
                         String apiTag = AnnotationUtils.findApiTagAnnotation(spanBo.getAnnotationBoList());
                         if (apiTag != null) {
-                            Record record = new Record(node.getDepth(), 
+                            Record record = new Record(spanAlign.getDepth(), 
                                     spanBoSequence, 
                                     parentSequence, 
                                     true, 
@@ -365,7 +366,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                     argument, 
                                     begin, 
                                     elapsed, 
-                                    node.getGap(), 
+                                    spanAlign.getGap(), 
                                     spanBo.getAgentId(), 
                                     spanBo.getApplicationId(), 
                                     registry.findServiceType(spanBo.getServiceType()), 
@@ -379,7 +380,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                             recordList.add(record);
                         } else {
                             AnnotationKey apiMetaDataError = getApiMetaDataError(spanBo.getAnnotationBoList());
-                            Record record = new Record(node.getDepth(), 
+                            Record record = new Record(spanAlign.getDepth(), 
                                     spanBoSequence, 
                                     parentSequence, 
                                     true, 
@@ -387,7 +388,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                     argument, 
                                     begin, 
                                     elapsed, 
-                                    node.getGap(), 
+                                    spanAlign.getGap(), 
                                     spanBo.getAgentId(), 
                                     spanBo.getApplicationId(),
                                     registry.findServiceType(spanBo.getServiceType()), 
@@ -402,15 +403,15 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                         }
                     }
                     // add exception record
-                    final Record exceptionRecord = getExceptionRecord(node.getDepth(), spanAlign, spanBoSequence);
+                    final Record exceptionRecord = getExceptionRecord(spanAlign.getDepth(), spanAlign, spanBoSequence);
                     if (exceptionRecord != null) {
                         recordList.add(exceptionRecord);
                     }
 
-                    List<Record> annotationRecord = createAnnotationRecord(node.getDepth() + 1, spanBoSequence, spanBo.getAnnotationBoList());
+                    List<Record> annotationRecord = createAnnotationRecord(spanAlign.getDepth() + 1, spanBoSequence, spanBo.getAnnotationBoList());
                     recordList.addAll(annotationRecord);
                     if (spanBo.getRemoteAddr() != null) {
-                        Record remoteAddress = createParameterRecord(node.getDepth() + 1, spanBoSequence, "REMOTE_ADDRESS", spanBo.getRemoteAddr());
+                        Record remoteAddress = createParameterRecord(spanAlign.getDepth() + 1, spanBoSequence, "REMOTE_ADDRESS", spanBo.getRemoteAddr());
                         recordList.add(remoteAddress);
                     }
                 } else {
@@ -418,12 +419,12 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                     SpanBo spanBo = spanAlign.getSpanBo();
 
                     String argument = getDisplayArgument(spanEventBo);
-                    final int spanBoEventSequence = node.getId();
+                    final int spanBoEventSequence = spanAlign.getId();
                     final CallTreeNode parent = node.getParent();
                     if (parent == null) {
                         throw new IllegalStateException("prev is null. nodes=" + callTreeIterator);
                     }
-                    final int parentSequence = parent.getId();
+                    final int parentSequence = parent.getValue().getId();
                     logger.debug("spanBoEventSequence:{}, parentSequence:{}", spanBoEventSequence, parentSequence);
 
                     final AnnotationBo annotation = AnnotationUtils.findAnnotationBo(spanEventBo.getAnnotationBoList(), AnnotationKey.API_METADATA);
@@ -444,7 +445,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                         long elapsed = spanEventBo.getEndElapsed();
 
                         // use spanBo's applicationId instead of spanEventBo's destinationId to display the name of the calling application on the call stack.
-                        Record record = new Record(node.getDepth(), 
+                        Record record = new Record(spanAlign.getDepth(), 
                                 spanBoEventSequence, 
                                 parentSequence, 
                                 true, 
@@ -452,7 +453,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                 argument, 
                                 begin, 
                                 elapsed, 
-                                node.getGap(), 
+                                spanAlign.getGap(), 
                                 spanEventBo.getAgentId(), 
                                 spanBo.getApplicationId(), 
                                 registry.findServiceType(spanEventBo.getServiceType()), 
@@ -474,7 +475,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                         long elapsed = spanEventBo.getEndElapsed();
 
                         // use spanBo's applicationId instead of spanEventBo's destinationId to display the name of the calling application on the call stack.
-                        Record record = new Record(node.getDepth(), 
+                        Record record = new Record(spanAlign.getDepth(), 
                                 spanBoEventSequence, 
                                 parentSequence, 
                                 true, 
@@ -482,7 +483,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                 argument, 
                                 begin, 
                                 elapsed, 
-                                node.getGap(), 
+                                spanAlign.getGap(), 
                                 spanEventBo.getAgentId(), 
                                 spanBo.getApplicationId(),
                                 registry.findServiceType(spanEventBo.getServiceType()), 
@@ -497,12 +498,12 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                         recordList.add(record);
                     }
                     // add exception record
-                    final Record exceptionRecord = getExceptionRecord(node.getDepth(), spanAlign, spanBoEventSequence);
+                    final Record exceptionRecord = getExceptionRecord(spanAlign.getDepth(), spanAlign, spanBoEventSequence);
                     if (exceptionRecord != null) {
                         recordList.add(exceptionRecord);
                     }
 
-                    List<Record> annotationRecord = createAnnotationRecord(node.getDepth() + 1, spanBoEventSequence, spanEventBo.getAnnotationBoList());
+                    List<Record> annotationRecord = createAnnotationRecord(spanAlign.getDepth() + 1, spanBoEventSequence, spanEventBo.getAnnotationBoList());
                     recordList.addAll(annotationRecord);
                 }
             }

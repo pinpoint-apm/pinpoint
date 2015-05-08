@@ -27,8 +27,6 @@ public class CallTreeNode {
     private CallTreeNode child;
     private CallTreeNode sibling;
     private final SpanAlign value;
-    private int id;
-    private long gap;
 
     public CallTreeNode(final CallTreeNode parent, SpanAlign value) {
         this.parent = parent;
@@ -91,22 +89,6 @@ public class CallTreeNode {
         return parent == null;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-    
-    public long getGap() {
-        return gap;
-    }
-
-    public void setGap(long gap) {
-        this.gap = gap;
-    }
-
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -116,8 +98,6 @@ public class CallTreeNode {
         builder.append(child != null ? true : false);
         builder.append(", sibling=");
         builder.append(sibling != null ? true : false);
-        builder.append(", gap=");
-        builder.append(gap);
         builder.append(", value=");
         builder.append(value);
         builder.append("}");

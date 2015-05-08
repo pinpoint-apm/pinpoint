@@ -29,6 +29,10 @@ public class SpanAlign {
     private boolean span = true;
     private boolean hasChild = false;
 
+    private int id;
+    private long gap;
+    private int depth;
+
     public SpanAlign(SpanBo spanBo) {
         if (spanBo == null) {
             throw new NullPointerException("spanBo must not be null");
@@ -73,6 +77,30 @@ public class SpanAlign {
         this.hasChild = hasChild;
     }
     
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public long getGap() {
+        return gap;
+    }
+
+    public void setGap(long gap) {
+        this.gap = gap;
+    }
+
+    public int getDepth() {
+        return depth;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("SpanAlign{");

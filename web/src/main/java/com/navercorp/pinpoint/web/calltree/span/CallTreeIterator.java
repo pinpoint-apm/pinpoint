@@ -43,8 +43,10 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         nodes.add(node);
         index++;
         
+        final SpanAlign spanAlign = node.getValue();
         final long gap = getGap(node);
-        node.setGap(gap);
+        spanAlign.setGap(gap);
+        spanAlign.setDepth(node.getDepth());
 
         if (node.hasChild()) {
             populate(node.getChild());
