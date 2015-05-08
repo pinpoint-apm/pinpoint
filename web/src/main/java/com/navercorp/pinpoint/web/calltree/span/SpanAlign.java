@@ -21,31 +21,33 @@ import com.navercorp.pinpoint.common.bo.SpanEventBo;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
 public class SpanAlign {
-    private int depth;
     private SpanBo spanBo;
     private SpanEventBo spanEventBo;
     private boolean span = true;
     private boolean hasChild = false;
 
-    public SpanAlign(int depth, SpanBo spanBo) {
+    private int id;
+    private long gap;
+    private int depth;
+
+    public SpanAlign(SpanBo spanBo) {
         if (spanBo == null) {
             throw new NullPointerException("spanBo must not be null");
         }
-        this.depth = depth;
         this.spanBo = spanBo;
         this.span = true;
     }
 
-    public SpanAlign(int depth, SpanBo spanBo, SpanEventBo spanEventBo) {
+    public SpanAlign(SpanBo spanBo, SpanEventBo spanEventBo) {
         if (spanBo == null) {
             throw new NullPointerException("spanBo must not be null");
         }
         if (spanEventBo == null) {
             throw new NullPointerException("spanEventBo must not be null");
         }
-        this.depth = depth;
         this.spanBo = spanBo;
         this.spanEventBo = spanEventBo;
         this.span = false;
@@ -57,10 +59,6 @@ public class SpanAlign {
 
     public boolean isSpan() {
         return span;
-    }
-
-    public int getDepth() {
-        return depth;
     }
 
     public SpanBo getSpanBo() {
@@ -78,11 +76,42 @@ public class SpanAlign {
     public void setHasChild(boolean hasChild) {
         this.hasChild = hasChild;
     }
+    
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public long getGap() {
+        return gap;
+    }
+
+    public void setGap(long gap) {
+        this.gap = gap;
+    }
+
+    public int getDepth() {
+        return depth;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
+    
+    public boolean isAsync() {
+        if(isSpan()) {
+            return false;
+        }
+        
+        return spanEventBo.isAsync();
+    }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("SpanAlign{");
-        sb.append("depth=").append(depth);
         if (span) {
             sb.append(", spanBo=").append(spanBo);
             sb.append(", spanEventBo=").append(spanEventBo);

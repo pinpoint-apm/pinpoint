@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.web.controller;
 
 
 import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -27,7 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,7 +34,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
-import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
+import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.service.FilteredMapService;
@@ -50,11 +47,11 @@ import com.navercorp.pinpoint.web.vo.BusinessTransactions;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.TransactionId;
-import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
 @Controller
 public class BusinessTransactionController {
@@ -150,9 +147,9 @@ public class BusinessTransactionController {
 
         // select spans
         final SpanResult spanResult = this.spanService.selectSpan(traceId, focusTimestamp);
-        List<SpanAlign> spanAligns = spanResult.getSpanAlignList();
+        final CallTreeIterator callTreeIterator = spanResult.getCallTree();
 
-        if (spanAligns.isEmpty()) {
+        if (callTreeIterator.isEmpty()) {
             // TODO fix error page.
             final ModelAndView error = new ModelAndView();
             // redefine errorCode.???
@@ -164,7 +161,7 @@ public class BusinessTransactionController {
 
         final ModelAndView mv = new ModelAndView();
         // debug
-        mv.addObject("spanList", spanAligns);
+        mv.addObject("spanList", callTreeIterator.values());
 
         mv.addObject("traceId", traceId);
 
@@ -175,7 +172,7 @@ public class BusinessTransactionController {
         mv.addObject("logLinkEnable", logLinkEnable);
 
         // call stacks
-        RecordSet recordSet = this.transactionInfoService.createRecordSet(spanAligns, focusTimestamp);
+        RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp);
         mv.addObject("recordSet", recordSet);
 
         mv.addObject("applicationName", recordSet.getApplicationName());

@@ -225,6 +225,8 @@ public class ServiceType {
     // Group of TEST, used for running tests
     public static final ServiceType TEST = of(5, "TEST", NORMAL_SCHEMA);
 
+    public static final ServiceType COLLECTOR = of(7, "COLLECTOR", NORMAL_SCHEMA);
+    
     // Java applications, WAS
     public static final ServiceType STAND_ALONE = of(1000, "STAND_ALONE", NORMAL_SCHEMA, RECORD_STATISTICS);
     public static final ServiceType TEST_STAND_ALONE = of(1005, "TEST_STAND_ALONE", NORMAL_SCHEMA, RECORD_STATISTICS);

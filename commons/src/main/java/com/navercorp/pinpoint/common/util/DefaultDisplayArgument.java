@@ -50,6 +50,7 @@ public class DefaultDisplayArgument {
     public static final DisplayArgumentMatcher HTTP_CLIENT_MATCHER = createArgumentMatcher(ServiceType.HTTP_CLIENT, AnnotationKey.HTTP_URL);
     public static final DisplayArgumentMatcher HTTP_CLIENT_INTERNAL_MATCHER = createArgumentMatcher(ServiceType.HTTP_CLIENT_INTERNAL, AnnotationKey.HTTP_CALL_RETRY_COUNT);
 
+    public static final DisplayArgumentMatcher COLLECTOR_MATCHER = createArgumentMatcher(ServiceType.COLLECTOR, AnnotationKey.ARGS0);
 
 
     private static AnnotationKeyMatcher createMatcher(AnnotationKey displayArgument) {
