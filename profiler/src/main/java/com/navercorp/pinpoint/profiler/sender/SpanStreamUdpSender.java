@@ -231,10 +231,16 @@ public class SpanStreamUdpSender extends AbstractDataSender {
         ByteBuffer[] byteBuffers = spanStreamSendData.getSendBuffers();
         int remainingLength = ByteBufferUtils.getRemaining(byteBuffers);
 
-        if (remainingLength != 0) {
-            long sentBufferSize = udpChannel.write(byteBuffers);
-            if (remainingLength != sentBufferSize) {
-                logger.warn("sent buffer {}/{}.", sentBufferSize, remainingLength);
+        try {
+            if (remainingLength != 0) {
+                long sentBufferSize = udpChannel.write(byteBuffers);
+                if (remainingLength != sentBufferSize) {
+                    logger.warn("sent buffer {}/{}.", sentBufferSize, remainingLength);
+                }
+            }
+        } finally {
+            if (spanStreamSendData != null) {
+                spanStreamSendData.done();
             }
         }
     }
@@ -255,6 +261,10 @@ public class SpanStreamUdpSender extends AbstractDataSender {
                 }
             } catch (IOException e) {
                 logger.warn("Failed to flush span stream data.", e);
+            } finally {
+                if (spanStreamSendData != null) {
+                    spanStreamSendData.done();
+                }
             }
         }
 
