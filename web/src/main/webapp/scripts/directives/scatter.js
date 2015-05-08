@@ -351,6 +351,23 @@ pinpointApp.directive('scatter',
                         htLastNode = node;
                         showScatterBy(node.key);
                     });
+                    scope.$on('responseTimeChart.errorClicked', function(event) {
+                    	// max size of drag box
+                    	var oParam = {
+                			animate: function() {},
+                			css : function( param ) {
+                				if ( param === "left" ) return "51px";
+                				else return "40px";
+                			},
+                			width: function() {
+                				return 320;
+                			},
+                			height: function() {
+                				return 200;
+                			}
+                		};
+                    	$window.htoScatter[htLastNode.applicationName].selectFailedOnly().fireDragEvent( oParam );
+                    });
                 }
             };
         } ]);
