@@ -262,7 +262,7 @@ public class ScatterChartController {
     }
 
     /**
-         * trasaction list query for selected points in scatter chart
+     * transaction list query for selected points in scatter chart
      *
      * <pre>
      * TEST URL = http://localhost:7080/transactionmetadata2.pinpoint?application=FRONT-WEB&from=1394432299032&to=1394433498269&responseFrom=100&responseTo=200&responseOffset=100&limit=10

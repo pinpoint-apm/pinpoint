@@ -98,8 +98,8 @@ public class NetworkAvailabilityChecker implements PinpointTools {
         }
     }
 
-    private static void write(StringBuilder buffer, String protcol, String collectorStatIp, int collectorStatPort, boolean udpSenderResult) {
-        buffer.append(protcol);
+    private static void write(StringBuilder buffer, String protocol, String collectorStatIp, int collectorStatPort, boolean udpSenderResult) {
+        buffer.append(protocol);
         buffer.append(collectorStatIp);
         buffer.append(":");
         buffer.append(collectorStatPort);

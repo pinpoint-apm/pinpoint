@@ -192,7 +192,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
         try {
             final HttpRequest httpRequest = getHttpRequest(target);
             if (httpRequest != null) {
-                // Accessing httpRequest here not before() becuase it can cause side effect.
+                // Accessing httpRequest here not before() because it can cause side effect.
                 trace.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getRequestLine().getUri());
                 final NameIntValuePair<String> host = getHost(target);
                 if (host != null) {

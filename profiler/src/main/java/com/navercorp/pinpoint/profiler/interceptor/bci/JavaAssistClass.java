@@ -489,7 +489,7 @@ public class JavaAssistClass implements InstrumentClass {
                         addStaticAfterInterceptor(methodName, interceptorId, behavior);
                         break;
                     default:
-                        throw new UnsupportedOperationException("unsupport type");
+                        throw new UnsupportedOperationException("unsupported type");
                 }
             } else if(interceptor instanceof SimpleAroundInterceptor) {
                 switch (type) {
@@ -503,7 +503,7 @@ public class JavaAssistClass implements InstrumentClass {
                         addSimpleAfterInterceptor(methodName, interceptorId, behavior);
                         break;
                     default:
-                        throw new UnsupportedOperationException("unsupport type");
+                        throw new UnsupportedOperationException("unsupported type");
                 }
             } else {
                 throw new IllegalArgumentException("unsupported");
@@ -960,7 +960,7 @@ public class JavaAssistClass implements InstrumentClass {
     @Override
     public void addGetter(String getterName, String variableName, String variableType) throws InstrumentException {
         try {
-            // FIXME Which is better? getField() or getDeclaredField()? getFiled() seems like better chioce if we want to add getter to child classes.
+            // FIXME Which is better? getField() or getDeclaredField()? getFiled() seems like better choice if we want to add getter to child classes.
             CtField traceVariable = ctClass.getField(variableName);
             CtMethod getterMethod = CtNewMethod.make("public " + traceVariable.getType().getName() + " " + getterName + "() { return " + variableName + "; }", ctClass);
             ctClass.addMethod(getterMethod);

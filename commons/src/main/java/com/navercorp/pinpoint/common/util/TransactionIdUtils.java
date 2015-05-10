@@ -46,7 +46,7 @@ public final class TransactionIdUtils {
 
     public static byte[] formatBytes(String agentId, long agentStartTime, long transactionSequence) {
         // agentId may be null
-        // vesion + prefixed size + string + long + long
+        // version + prefixed size + string + long + long
         final Buffer buffer = new AutomaticBuffer(1 + 5 + 24 + 10 + 10);
         buffer.put(VERSION);
         buffer.putPrefixedString(agentId);

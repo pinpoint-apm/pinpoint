@@ -214,7 +214,7 @@ public class SpanAligner2 {
             long spanEventBoStartTime = span.getStartTime() + beforeSpanEventBo.getStartElapsed();
 
             SpanIdMatcher spanIdMatcher = new SpanIdMatcher(nextSpanBoList);
-            // very susceptible to things like packet loss due to similarilty match based on restricted set of data
+            // very susceptible to things like packet loss due to similarity match based on restricted set of data
             // TODO: need to find a better way to calc similarity based on entire data
             SpanBo matched = spanIdMatcher.approximateMatch(spanEventBoStartTime);
             if (matched == null) {

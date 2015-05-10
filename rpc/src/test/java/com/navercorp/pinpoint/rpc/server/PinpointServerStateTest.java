@@ -105,7 +105,7 @@ public class PinpointServerStateTest {
     }
 
     @Test
-    public void unexpecteCloseByPeerTest() throws InterruptedException, IOException, ProtocolException {
+    public void unexpectedCloseByPeerTest() throws InterruptedException, IOException, ProtocolException {
         PinpointServerAcceptor serverAcceptor = null;
         try {
             serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, PinpointRPCTestUtils.createEchoServerListener());
@@ -129,7 +129,7 @@ public class PinpointServerStateTest {
     }
 
     @Test
-    public void unexpecteCloseTest() throws InterruptedException, IOException, ProtocolException {
+    public void unexpectedCloseTest() throws InterruptedException, IOException, ProtocolException {
         PinpointServerAcceptor serverAcceptor = null;
         PinpointSocket pinpointSocket = null;
         PinpointSocketFactory clientSocketFactory = null;

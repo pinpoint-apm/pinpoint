@@ -23,16 +23,16 @@ public enum HandshakeResponseCode {
     DUPLEX_COMMUNICATION(0, 2, "Duplex Connection successfully established."),
 
     ALREADY_KNOWN(1, 0, "Already Known."),
-    ALREADY_SIMPLEX_COMMUNICATION(1, 1, "Already Simplex Connection eastablished."), 
+    ALREADY_SIMPLEX_COMMUNICATION(1, 1, "Already Simplex Connection established."),
     ALREADY_DUPLEX_COMMUNICATION(1, 2, "Already Duplex Connection established."),
     
     PROPERTY_ERROR(2, 0, "Property error."),
 
     PROTOCOL_ERROR(3, 0, "Illegal protocol error."),
 
-    UNKNOWN_ERROR(4, 0, "Unkown Error."),
+    UNKNOWN_ERROR(4, 0, "Unknown Error."),
 
-    UNKOWN_CODE(-1, -1, "Unkown Code.");
+    UNKNOWN_CODE(-1, -1, "Unknown Code.");
 
     private final int code;
     private final int subCode;
@@ -69,7 +69,7 @@ public enum HandshakeResponseCode {
             }
         }
 
-        return UNKOWN_CODE;
+        return UNKNOWN_CODE;
     }
 
 }

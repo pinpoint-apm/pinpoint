@@ -23,7 +23,7 @@ import java.io.OutputStream;
  * 
  * @author Taejin Koo
  */
-public class PinpointByteArrayOutputStream extends ResetableByteArrayOutputStream { 
+public class PinpointByteArrayOutputStream extends ResettableByteArrayOutputStream {
 
     private final boolean autoExpand;
     

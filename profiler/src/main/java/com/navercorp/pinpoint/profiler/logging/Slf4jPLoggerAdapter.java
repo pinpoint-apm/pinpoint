@@ -165,7 +165,7 @@ public class Slf4jPLoggerAdapter implements PLogger {
     }
 
     private static String getTarget(Object target) {
-        // Use class name instead of target.toString() becuase latter could cause side effects.
+        // Use class name instead of target.toString() because latter could cause side effects.
         if (target == null) {
             return "target=null";
         } else {

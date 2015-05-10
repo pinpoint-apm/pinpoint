@@ -34,14 +34,14 @@ public class HeaderTBaseSerializer {
 
     private static final String UTF8 = "UTF8";
 
-    private final ResetableByteArrayOutputStream baos;
+    private final ResettableByteArrayOutputStream baos;
     private final TProtocol protocol;
     private final TBaseLocator locator;
 
     /**
      * Create a new HeaderTBaseSerializer. 
      */
-    HeaderTBaseSerializer(ResetableByteArrayOutputStream bos, TProtocolFactory protocolFactory, TBaseLocator locator) {
+    HeaderTBaseSerializer(ResettableByteArrayOutputStream bos, TProtocolFactory protocolFactory, TBaseLocator locator) {
         this.baos = bos;
         TIOStreamTransport transport = new TIOStreamTransport(bos);
         this.protocol = protocolFactory.getProtocol(transport);

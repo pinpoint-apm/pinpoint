@@ -71,7 +71,7 @@ public interface ProfilerPluginContext {
     /**
      * Get {@link TraceContext}
      * 
-     * @return {@link TraceContext} of current transction
+     * @return {@link TraceContext} of current transaction
      */
     public TraceContext getTraceContext();
     

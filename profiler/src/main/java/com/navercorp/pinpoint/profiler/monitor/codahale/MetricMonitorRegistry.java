@@ -34,7 +34,7 @@ import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.CpuLoadMetric
 
 /**
  * Use <a href="http://metrics.codahale.com/">Codahale</a> {@link MetricRegistry} for monitoring.
- * We have refered MointorRegistry MonitorRegistry of Netty.
+ * We have referred MonitorRegistry MonitorRegistry of Netty.
  *
  * @author emeroad
  * @author harebox

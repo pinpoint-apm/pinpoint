@@ -60,7 +60,7 @@ public class ZookeeperClusterManager implements ClusterManager, Watcher {
     private final ZookeeperClient client;
     private final ZookeeperClusterManagerHelper zookeeperClusterManagerHelper;
 
-    private final Object initilizeLock = new Object();
+    private final Object initializeLock = new Object();
     
     private final int retryInterval;
 
@@ -71,7 +71,7 @@ public class ZookeeperClusterManager implements ClusterManager, Watcher {
     private final CollectorClusterInfoRepository collectorClusterInfo = new CollectorClusterInfoRepository();
 
     public ZookeeperClusterManager(String zookeeperAddress, int sessionTimeout, int retryInterval) throws KeeperException, IOException, InterruptedException {
-        synchronized(initilizeLock) {
+        synchronized(initializeLock) {
             this.client = new ZookeeperClient(zookeeperAddress, sessionTimeout, this, DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED);
             this.retryInterval = retryInterval;
             // it could be better to create upon failure
@@ -94,7 +94,7 @@ public class ZookeeperClusterManager implements ClusterManager, Watcher {
             return false;
         }
 
-        // successful even for schedular registration completion
+        // successful even for scheduler registration completion
         if (!isConnected()) {
             logger.info("Zookeeper is Disconnected.");
             return true;
@@ -109,11 +109,11 @@ public class ZookeeperClusterManager implements ClusterManager, Watcher {
 
     @Override
     public void process(WatchedEvent event) {
-        synchronized (initilizeLock) {
+        synchronized (initializeLock) {
             // wait for client variable to be assigned.
         }
 
-        logger.info("Zookeepr Event({}) ocurred.", event);
+        logger.info("Zookeeper Event({}) occurred.", event);
         
         KeeperState state = event.getState();
         EventType eventType = event.getType();
@@ -140,7 +140,7 @@ public class ZookeeperClusterManager implements ClusterManager, Watcher {
         }
 
         if (result) {
-            logger.info("Zookeeper Event({}) successed.", event);
+            logger.info("Zookeeper Event({}) succeeded.", event);
         } else {
             logger.info("Zookeeper Event({}) failed.", event);
         }

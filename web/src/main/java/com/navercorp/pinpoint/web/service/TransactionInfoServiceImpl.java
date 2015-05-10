@@ -69,7 +69,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     @Autowired
     private AnnotationKeyRegistryService annotationKeyRegistryService;
 
-    // Temporarily disabled Becuase We need to slove authentication problem inter system.
+    // Temporarily disabled Because We need to solve authentication problem inter system.
     // @Value("#{pinpointWebProps['log.enable'] ?: false}")
     // private boolean logLinkEnable;
 

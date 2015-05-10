@@ -23,14 +23,14 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class StreamChannelState {
 
-    private final AtomicReference<StreamChannelStateCode> currentStateRefernce = new AtomicReference<StreamChannelStateCode>();
+    private final AtomicReference<StreamChannelStateCode> currentStateReference = new AtomicReference<StreamChannelStateCode>();
 
     public StreamChannelState() {
-        currentStateRefernce.set(StreamChannelStateCode.NEW);
+        currentStateReference.set(StreamChannelStateCode.NEW);
     }
 
     public boolean changeStateOpen() {
-        boolean result = currentStateRefernce.compareAndSet(StreamChannelStateCode.NEW, StreamChannelStateCode.OPEN);
+        boolean result = currentStateReference.compareAndSet(StreamChannelStateCode.NEW, StreamChannelStateCode.OPEN);
         if (!result) {
             changeStateIllegal();
         }
@@ -38,7 +38,7 @@ public class StreamChannelState {
     }
 
     public boolean changeStateOpenAwait() {
-        boolean result = currentStateRefernce.compareAndSet(StreamChannelStateCode.OPEN, StreamChannelStateCode.OPEN_AWAIT);
+        boolean result = currentStateReference.compareAndSet(StreamChannelStateCode.OPEN, StreamChannelStateCode.OPEN_AWAIT);
         if (!result) {
             changeStateIllegal();
         }
@@ -46,7 +46,7 @@ public class StreamChannelState {
     }
 
     public boolean changeStateOpenArrived() {
-        boolean result = currentStateRefernce.compareAndSet(StreamChannelStateCode.NEW, StreamChannelStateCode.OPEN_ARRIVED);
+        boolean result = currentStateReference.compareAndSet(StreamChannelStateCode.NEW, StreamChannelStateCode.OPEN_ARRIVED);
         if (!result) {
             changeStateIllegal();
         }
@@ -54,7 +54,7 @@ public class StreamChannelState {
     }
 
     public boolean changeStateRun() {
-        StreamChannelStateCode currentState = this.currentStateRefernce.get();
+        StreamChannelStateCode currentState = this.currentStateReference.get();
 
         StreamChannelStateCode nextState = StreamChannelStateCode.RUN;
         if (!nextState.canChangeState(currentState)) {
@@ -62,24 +62,24 @@ public class StreamChannelState {
             return false;
         }
 
-        return currentStateRefernce.compareAndSet(currentState, StreamChannelStateCode.RUN);
+        return currentStateReference.compareAndSet(currentState, StreamChannelStateCode.RUN);
     }
 
     public boolean changeStateClose() {
-        if (currentStateRefernce.get() == StreamChannelStateCode.CLOSED) {
+        if (currentStateReference.get() == StreamChannelStateCode.CLOSED) {
             return false;
         }
 
-        currentStateRefernce.set(StreamChannelStateCode.CLOSED);
+        currentStateReference.set(StreamChannelStateCode.CLOSED);
         return true;
     }
 
     private void changeStateIllegal() {
-        currentStateRefernce.set(StreamChannelStateCode.ILLEGAL_STATE);
+        currentStateReference.set(StreamChannelStateCode.ILLEGAL_STATE);
     }
 
     public StreamChannelStateCode getCurrentState() {
-        return currentStateRefernce.get();
+        return currentStateReference.get();
     }
 
 }

@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
  * @author netspider
  * 
  */
-public class HbaseApplicationTrraceIndexColumnTest {
+public class HbaseApplicationTraceIndexColumnTest {
 
     @Test
     public void indexedColumnName() {

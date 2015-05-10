@@ -152,8 +152,8 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
                 while (out.hasNextLine()) {
                     String line = out.nextLine();
 
-                    if (line.startsWith(ForkedJUnit.JUNIT_OUTPUT_DELIMETER)) {
-                        String[] tokens = line.split(ForkedJUnit.JUNIT_OUTPUT_DELIMETER_REGEXP);
+                    if (line.startsWith(ForkedJUnit.JUNIT_OUTPUT_DELIMITER)) {
+                        String[] tokens = line.split(ForkedJUnit.JUNIT_OUTPUT_DELIMITER_REGEXP);
                         String event = tokens[1];
 
                         if ("testRunStarted".equals(event)) {

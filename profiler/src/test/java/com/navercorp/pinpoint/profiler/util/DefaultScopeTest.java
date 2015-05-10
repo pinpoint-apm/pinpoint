@@ -126,17 +126,17 @@ public class DefaultScopeTest {
     public void testAttachment3() {
         String oldAttachment = "context";
         String newAttachment = "newnew";
-        InterceptorGroupInvocation trnasaction = new DefaultInterceptorStack("test");
+        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
 
-        trnasaction.tryEnter(ExecutionPolicy.ALWAYS);
-        trnasaction.setAttachment(oldAttachment);
-        assertSame(oldAttachment, trnasaction.getAttachment());
-        assertSame(oldAttachment, trnasaction.setAttachment(newAttachment));
-        assertSame(newAttachment, trnasaction.getAttachment());
-        assertSame(newAttachment, trnasaction.removeAttachment());
-        assertNull(trnasaction.getAttachment());
-        trnasaction.canLeave(ExecutionPolicy.ALWAYS);
-        trnasaction.leave(ExecutionPolicy.ALWAYS);
+        transaction.tryEnter(ExecutionPolicy.ALWAYS);
+        transaction.setAttachment(oldAttachment);
+        assertSame(oldAttachment, transaction.getAttachment());
+        assertSame(oldAttachment, transaction.setAttachment(newAttachment));
+        assertSame(newAttachment, transaction.getAttachment());
+        assertSame(newAttachment, transaction.removeAttachment());
+        assertNull(transaction.getAttachment());
+        transaction.canLeave(ExecutionPolicy.ALWAYS);
+        transaction.leave(ExecutionPolicy.ALWAYS);
     }
     
     @Test(expected=IllegalStateException.class)
@@ -147,64 +147,64 @@ public class DefaultScopeTest {
     
     @Test(expected=IllegalStateException.class)
     public void testSetAttachmentFail2() {
-        InterceptorGroupInvocation trnasaction = new DefaultInterceptorStack("test");
+        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
 
-        trnasaction.tryEnter(ExecutionPolicy.ALWAYS);
-        trnasaction.canLeave(ExecutionPolicy.ALWAYS);
-        trnasaction.leave(ExecutionPolicy.ALWAYS);
+        transaction.tryEnter(ExecutionPolicy.ALWAYS);
+        transaction.canLeave(ExecutionPolicy.ALWAYS);
+        transaction.leave(ExecutionPolicy.ALWAYS);
 
-        trnasaction.setAttachment("attachment");
+        transaction.setAttachment("attachment");
     }
     
     @Test(expected=IllegalStateException.class)
     public void testGetAttachmentFail() {
-        InterceptorGroupInvocation trnasaction = new DefaultInterceptorStack("test");
-        trnasaction.getAttachment();
+        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
+        transaction.getAttachment();
     }
     
     @Test(expected=IllegalStateException.class)
     public void testGetAttachmentFail2() {
-        InterceptorGroupInvocation trnasaction = new DefaultInterceptorStack("test");
+        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
 
-        trnasaction.tryEnter(ExecutionPolicy.ALWAYS);
-        trnasaction.canLeave(ExecutionPolicy.ALWAYS);
-        trnasaction.leave(ExecutionPolicy.ALWAYS);
+        transaction.tryEnter(ExecutionPolicy.ALWAYS);
+        transaction.canLeave(ExecutionPolicy.ALWAYS);
+        transaction.leave(ExecutionPolicy.ALWAYS);
 
-        trnasaction.getAttachment();
+        transaction.getAttachment();
     }
     
     @Test(expected=IllegalStateException.class)
     public void testRemoveAttachmentFail() {
-        InterceptorGroupInvocation trnasaction = new DefaultInterceptorStack("test");
-        trnasaction.removeAttachment();
+        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
+        transaction.removeAttachment();
     }
     
     @Test(expected=IllegalStateException.class)
     public void testRemoveAttachmentFail2() {
-        InterceptorGroupInvocation trnasaction = new DefaultInterceptorStack("test");
+        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
 
-        trnasaction.tryEnter(ExecutionPolicy.ALWAYS);
-        trnasaction.canLeave(ExecutionPolicy.ALWAYS);
-        trnasaction.leave(ExecutionPolicy.ALWAYS);
+        transaction.tryEnter(ExecutionPolicy.ALWAYS);
+        transaction.canLeave(ExecutionPolicy.ALWAYS);
+        transaction.leave(ExecutionPolicy.ALWAYS);
 
-        trnasaction.removeAttachment();
+        transaction.removeAttachment();
     }
     
     @Test(expected=IllegalStateException.class)
     public void testAfterWithoutBefore() {
-        InterceptorGroupInvocation trnasaction = new DefaultInterceptorStack("test");
-        trnasaction.leave(ExecutionPolicy.ALWAYS);
+        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
+        transaction.leave(ExecutionPolicy.ALWAYS);
     }
     
     @Test(expected=IllegalStateException.class)
     public void testAfterWithoutBefore2() {
-        InterceptorGroupInvocation trnasaction = new DefaultInterceptorStack("test");
-        trnasaction.leave(ExecutionPolicy.BOUNDARY);
+        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
+        transaction.leave(ExecutionPolicy.BOUNDARY);
     }
     
     @Test(expected=IllegalStateException.class)
     public void testAfterWithoutBefore3() {
-        InterceptorGroupInvocation trnasaction = new DefaultInterceptorStack("test");
-        trnasaction.leave(ExecutionPolicy.INTERNAL);
+        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
+        transaction.leave(ExecutionPolicy.INTERNAL);
     }
 }

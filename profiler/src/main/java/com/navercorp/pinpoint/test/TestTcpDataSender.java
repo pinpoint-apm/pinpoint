@@ -135,7 +135,7 @@ public class TestTcpDataSender implements EnhancedDataSender {
         return false;
     }
     
-    public String getApiDescirption(int id) {
+    public String getApiDescription(int id) {
         return apiIdMap.get(id);
     }
 

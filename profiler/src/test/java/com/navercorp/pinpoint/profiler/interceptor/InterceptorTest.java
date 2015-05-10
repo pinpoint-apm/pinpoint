@@ -84,7 +84,7 @@ public class InterceptorTest {
 
             @Override
             public void after(Object target, Object[] args, Object result, Throwable throwable) {
-                logger.info("after target: " + target + " args:" + Arrays.toString(args) + " result:" + result + " throwalbe:" + throwable);
+                logger.info("after target: " + target + " args:" + Arrays.toString(args) + " result:" + result + " throwable:" + throwable);
             }
         };
         int interceptorId = INTERCEPTOR_REGISTRY_ADAPTOR.addSimpleInterceptor(aroundInterceptor);

@@ -164,7 +164,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
     }
 
     private void doRequest(final byte[] requestPacket, final int retryCount, final Object targetClass) {
-        FutureListener futureListner = (new FutureListener<ResponseMessage>() {
+        FutureListener futureListener = (new FutureListener<ResponseMessage>() {
             @Override
             public void onComplete(Future<ResponseMessage> future) {
                 if (future.isSuccess()) {
@@ -192,7 +192,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
             }
         });
 
-        doRequest(requestPacket, futureListner);
+        doRequest(requestPacket, futureListener);
     }
 
     private void retryRequest(byte[] requestPacket, int retryCount, final String className) {

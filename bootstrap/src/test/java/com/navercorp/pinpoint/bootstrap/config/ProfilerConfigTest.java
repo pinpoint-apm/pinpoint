@@ -92,7 +92,7 @@ public class ProfilerConfigTest {
     }
     
     @Test
-    public void tcpCommandAcceptrConfigTest1() throws IOException {
+    public void tcpCommandAcceptorConfigTest1() throws IOException {
         String path = ProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test.property").getPath();
         logger.debug("path:{}", path);
 
@@ -102,7 +102,7 @@ public class ProfilerConfigTest {
     }
     
     @Test
-    public void tcpCommandAcceptrConfigTest2() throws IOException {
+    public void tcpCommandAcceptorConfigTest2() throws IOException {
         String path = ProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test2.property").getPath();
         logger.debug("path:{}", path);
 

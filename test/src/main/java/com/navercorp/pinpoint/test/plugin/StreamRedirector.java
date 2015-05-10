@@ -22,11 +22,11 @@ import java.io.OutputStream;
  * @author Jongho Moon
  *
  */
-public class StreamRedirecter implements Runnable {
+public class StreamRedirector implements Runnable {
     private final InputStream in;
     private final OutputStream out;
 
-    public StreamRedirecter(InputStream in, OutputStream out) {
+    public StreamRedirector(InputStream in, OutputStream out) {
         this.in = in;
         this.out = out;
     }

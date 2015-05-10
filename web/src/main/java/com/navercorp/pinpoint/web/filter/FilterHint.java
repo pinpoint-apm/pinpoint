@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Hint for fitering
+ * Hint for filtering
  * 
  * @author netspider
  * 

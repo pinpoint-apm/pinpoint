@@ -56,8 +56,8 @@ public class ZookeeperLatestJobWorker implements Runnable {
     private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
     private static final String PINPOINT_COLLECTOR_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/collector";
 
-    private static final String PATH_SEPRATOR = "/";
-    private static final String PROFILER_SEPERATOR = "\r\n";
+    private static final String PATH_SEPARATOR = "/";
+    private static final String PROFILER_SEPARATOR = "\r\n";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -123,7 +123,7 @@ public class ZookeeperLatestJobWorker implements Runnable {
             return;
         }
 
-        logger.info("{} destorying started.", this.getClass().getSimpleName());
+        logger.info("{} destroying started.", this.getClass().getSimpleName());
         boolean interrupted = false;
         while (this.workerThread.isAlive()) {
             this.workerThread.interrupt();
@@ -135,7 +135,7 @@ public class ZookeeperLatestJobWorker implements Runnable {
         }
 
         this.workerState.changeStateStopped();
-        logger.info("{} destorying completed.", this.getClass().getSimpleName());
+        logger.info("{} destroying completed.", this.getClass().getSimpleName());
     }
 
     @Override
@@ -362,8 +362,8 @@ public class ZookeeperLatestJobWorker implements Runnable {
         StringBuilder fullPath = new StringBuilder();
 
         fullPath.append(path);
-        if (!path.endsWith(PATH_SEPRATOR)) {
-            fullPath.append(PATH_SEPRATOR);
+        if (!path.endsWith(PATH_SEPARATOR)) {
+            fullPath.append(PATH_SEPARATOR);
         }
         fullPath.append(znodeName);
 
@@ -374,10 +374,10 @@ public class ZookeeperLatestJobWorker implements Runnable {
         Map<Object, Object> agentProperties = pinpointServer.getChannelProperties();
         final String applicationName = MapUtils.getString(agentProperties, AgentHandshakePropertyType.APPLICATION_NAME.getName());
         final String agentId = MapUtils.getString(agentProperties, AgentHandshakePropertyType.AGENT_ID.getName());
-        final Long startTimeStampe = MapUtils.getLong(agentProperties, AgentHandshakePropertyType.START_TIMESTAMP.getName());
+        final Long startTimeStamp = MapUtils.getLong(agentProperties, AgentHandshakePropertyType.START_TIMESTAMP.getName());
 
-        if (StringUtils.isBlank(applicationName) || StringUtils.isBlank(agentId) || startTimeStampe == null || startTimeStampe <= 0) {
-            logger.warn("ApplicationName({}) and AgnetId({}) and startTimeStampe({}) may not be null.", applicationName, agentId);
+        if (StringUtils.isBlank(applicationName) || StringUtils.isBlank(agentId) || startTimeStamp == null || startTimeStamp <= 0) {
+            logger.warn("ApplicationName({}) and AgentId({}) and startTimeStamp({}) may not be null.", applicationName, agentId);
             return false;
         }
 
@@ -390,10 +390,10 @@ public class ZookeeperLatestJobWorker implements Runnable {
         Map<Object, Object> agentProperties = pinpointServer.getChannelProperties();
         final String applicationName = MapUtils.getString(agentProperties, AgentHandshakePropertyType.APPLICATION_NAME.getName());
         final String agentId = MapUtils.getString(agentProperties, AgentHandshakePropertyType.AGENT_ID.getName());
-        final Long startTimeStampe = MapUtils.getLong(agentProperties, AgentHandshakePropertyType.START_TIMESTAMP.getName());
+        final Long startTimeStamp = MapUtils.getLong(agentProperties, AgentHandshakePropertyType.START_TIMESTAMP.getName());
 
-        if (StringUtils.isBlank(applicationName) || StringUtils.isBlank(agentId) || startTimeStampe == null || startTimeStampe <= 0) {
-            logger.warn("ApplicationName({}) and AgnetId({}) and startTimeStampe({}) may not be null.", applicationName, agentId);
+        if (StringUtils.isBlank(applicationName) || StringUtils.isBlank(agentId) || startTimeStamp == null || startTimeStamp <= 0) {
+            logger.warn("ApplicationName({}) and AgentId({}) and startTimeStamp({}) may not be null.", applicationName, agentId);
             return StringUtils.EMPTY;
         }
 
@@ -401,13 +401,13 @@ public class ZookeeperLatestJobWorker implements Runnable {
         profilerContents.append(":");
         profilerContents.append(agentId);
         profilerContents.append(":");
-        profilerContents.append(startTimeStampe);
+        profilerContents.append(startTimeStamp);
 
         return profilerContents.toString();
     }
 
     private String addIfAbsentContents(String contents, String addContents) {
-        String[] allContents = contents.split(PROFILER_SEPERATOR);
+        String[] allContents = contents.split(PROFILER_SEPARATOR);
 
         for (String eachContent : allContents) {
             if (StringUtils.equals(eachContent.trim(), addContents.trim())) {
@@ -415,13 +415,13 @@ public class ZookeeperLatestJobWorker implements Runnable {
             }
         }
 
-        return contents + PROFILER_SEPERATOR + addContents;
+        return contents + PROFILER_SEPARATOR + addContents;
     }
 
     private String removeIfExistContents(String contents, String removeContents) {
         StringBuilder newContents = new StringBuilder(contents.length());
 
-        String[] allContents = contents.split(PROFILER_SEPERATOR);
+        String[] allContents = contents.split(PROFILER_SEPARATOR);
 
         Iterator<String> stringIterator = Arrays.asList(allContents).iterator();
 
@@ -436,7 +436,7 @@ public class ZookeeperLatestJobWorker implements Runnable {
                 newContents.append(eachContent);
 
                 if (stringIterator.hasNext()) {
-                    newContents.append(PROFILER_SEPERATOR);
+                    newContents.append(PROFILER_SEPARATOR);
                 }
             }
         }

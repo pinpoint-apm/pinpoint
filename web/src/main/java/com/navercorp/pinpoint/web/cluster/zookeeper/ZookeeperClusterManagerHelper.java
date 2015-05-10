@@ -32,7 +32,7 @@ import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterManager.Push
  */
 public class ZookeeperClusterManagerHelper {
 
-    private static final String PATH_SEPERATOR = "/";
+    private static final String PATH_SEPARATOR = "/";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -64,8 +64,8 @@ public class ZookeeperClusterManagerHelper {
         StringBuilder fullPath = new StringBuilder();
 
         fullPath.append(path);
-        if (!path.endsWith(PATH_SEPERATOR)) {
-            fullPath.append(PATH_SEPERATOR);
+        if (!path.endsWith(PATH_SEPARATOR)) {
+            fullPath.append(PATH_SEPARATOR);
         }
         fullPath.append(znodeName);
 
@@ -122,7 +122,7 @@ public class ZookeeperClusterManagerHelper {
 
             String id = extractCollectorClusterId(key, path);
             if (id == null) {
-                logger.error("Illegal Collector Path({}) finded.", key);
+                logger.error("Illegal Collector Path({}) found.", key);
                 continue;
             }
             result.put(id, value);

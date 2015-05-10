@@ -106,7 +106,7 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
 //            if (op != null) {
 //                trace.recordException(op.getException());
 //            }
-////            When it's canceled, doen't it throw exception?
+////            When it's canceled, doesn't it throw exception?
 ////            if (op.isCancelled()) {
 ////                trace.recordAttribute(AnnotationKey.EXCEPTION, "cancelled by user");
 ////            }

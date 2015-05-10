@@ -92,7 +92,7 @@ public class AbstractAutowireCapableBeanFactoryModifier extends AbstractModifier
     @Override
     public byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
         if (logger.isInfoEnabled()) {
-            logger.info("Modifing. {}", className);
+            logger.info("Modifying. {}", className);
         }
         
         try {

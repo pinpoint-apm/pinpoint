@@ -120,13 +120,13 @@ public class SpanStreamUDPReceiver extends AbstractUDPReceiver {
 
     private byte[] getComponentData(ByteBuffer buffer, HeaderTBaseDeserializer deserializer) {
         if (buffer.remaining() < 2) {
-            logger.warn("Can't avaiable {} fixed buffer.", 2);
+            logger.warn("Can't available {} fixed buffer.", 2);
             return null;
         }
 
         int componentSize = 0xffff & buffer.getShort();
         if (buffer.remaining() < componentSize) {
-            logger.warn("Can't avaiable {} fixed buffer.", buffer.remaining());
+            logger.warn("Can't available {} fixed buffer.", buffer.remaining());
             return null;
         }
 

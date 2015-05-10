@@ -33,7 +33,7 @@ public class DefaultAgentOption implements AgentOption {
     private final URL[] pluginJars;
     private final String bootStrapJarPath;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
-    private final AnnotationKeyRegistryService annoationKeyRegistryService;
+    private final AnnotationKeyRegistryService annotationKeyRegistryService;
 
     public DefaultAgentOption(final String agentArgs, final Instrumentation instrumentation, final ProfilerConfig profilerConfig, final URL[] pluginJars, final String bootStrapJarPath, final ServiceTypeRegistryService serviceTypeRegistryService, final AnnotationKeyRegistryService annotationKeyRegistryService) {
         if (instrumentation == null) {
@@ -60,7 +60,7 @@ public class DefaultAgentOption implements AgentOption {
         this.pluginJars = pluginJars;
         this.bootStrapJarPath = bootStrapJarPath;
         this.serviceTypeRegistryService = serviceTypeRegistryService;
-        this.annoationKeyRegistryService = annotationKeyRegistryService;
+        this.annotationKeyRegistryService = annotationKeyRegistryService;
     }
 
     @Override
@@ -95,6 +95,6 @@ public class DefaultAgentOption implements AgentOption {
 
     @Override
     public AnnotationKeyRegistryService getAnnotationKeyRegistryService() {
-        return this.annoationKeyRegistryService;
+        return this.annotationKeyRegistryService;
     }
 }

@@ -150,7 +150,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
             final com.ning.http.client.Request httpRequest = (com.ning.http.client.Request) args[0];
 
             if (httpRequest != null) {
-                // Accessing httpRequest here not before() becuase it can cause side effect.
+                // Accessing httpRequest here not before() because it can cause side effect.
                 trace.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getUrl());
 
                 String endpoint = getEndpoint(httpRequest.getURI().getHost(), httpRequest.getURI().getPort());

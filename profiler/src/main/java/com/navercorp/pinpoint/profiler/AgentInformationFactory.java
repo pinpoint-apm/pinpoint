@@ -69,7 +69,7 @@ public class AgentInformationFactory {
         }
 
         // TODO AgengId should be validated before bootclass.
-        // or agent should stop when validataion is failed here.
+        // or agent should stop when validation is failed here.
         final byte[] bytes = BytesUtils.toBytes(id);
         if (bytes.length > maxlen) {
             logger.warn("{} is too long(1~24). value={}", idName, id);

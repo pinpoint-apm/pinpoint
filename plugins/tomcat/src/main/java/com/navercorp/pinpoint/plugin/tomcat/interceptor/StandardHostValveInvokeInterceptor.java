@@ -172,7 +172,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         }
     }
 
-    private void setAsyncMetatdata(final Request request, final Boolean async) {
+    private void setAsyncMetadata(final Request request, final Boolean async) {
         if(asyncAccessor.isApplicable(request)) {
             asyncAccessor.set(request, async);
         }
@@ -187,7 +187,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
             final Boolean async = asyncAccessor.get(request);
             return async.booleanValue();
         } catch (ClassCastException e) {
-            logger.warn("Invalid async metatdata({})", METADATA_ASYNC, e);
+            logger.warn("Invalid async metadata({})", METADATA_ASYNC, e);
             return false;
         }
     }
@@ -250,7 +250,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     }
 
     /**
-     * Pupulate source trace from HTTP Header.
+     * Populate source trace from HTTP Header.
      *
      * @param request
      * @return TraceId when it is possible to get a transactionId from Http header. if not possible return null

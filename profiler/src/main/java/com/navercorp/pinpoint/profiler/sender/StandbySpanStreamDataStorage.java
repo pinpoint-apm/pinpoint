@@ -53,7 +53,7 @@ public class StandbySpanStreamDataStorage {
             return false;
         }
 
-        if (standbySpanStreamData.getAvaiableBufferCapacity() > 0 && standbySpanStreamData.getAvaiableBufferCapacity() > 0) {
+        if (standbySpanStreamData.getAvailableBufferCapacity() > 0 && standbySpanStreamData.getAvailableBufferCapacity() > 0) {
             if (priorityQueue.size() >= capacity) {
                 return false;
             }
@@ -64,13 +64,13 @@ public class StandbySpanStreamDataStorage {
         }
     }
 
-    synchronized SpanStreamSendData getStandbySpanStreamSendData(int avaiableCapacity) {
+    synchronized SpanStreamSendData getStandbySpanStreamSendData(int availableCapacity) {
         Iterator<SpanStreamSendData> standbySpanStreamSendDataIterator = priorityQueue.iterator();
 
         while (standbySpanStreamSendDataIterator.hasNext()) {
             SpanStreamSendData standbySpanStreamSendData = standbySpanStreamSendDataIterator.next();
 
-            if (standbySpanStreamSendData.getAvaiableBufferCapacity() > avaiableCapacity) {
+            if (standbySpanStreamSendData.getAvailableBufferCapacity() > availableCapacity) {
                 standbySpanStreamSendDataIterator.remove();
                 return standbySpanStreamSendData;
             }
@@ -80,26 +80,26 @@ public class StandbySpanStreamDataStorage {
     }
 
     synchronized SpanStreamSendData getStandbySpanStreamSendData() {
-        SpanStreamSendData mostAvaiableBufferCapacityStreamSendData = null;
+        SpanStreamSendData mostAvailableBufferCapacityStreamSendData = null;
 
         Iterator<SpanStreamSendData> standbySpanStreamSendDataIterator = priorityQueue.iterator();
         while (standbySpanStreamSendDataIterator.hasNext()) {
             SpanStreamSendData standbySpanStreamSendData = standbySpanStreamSendDataIterator.next();
 
-            if (mostAvaiableBufferCapacityStreamSendData == null) {
-                mostAvaiableBufferCapacityStreamSendData = standbySpanStreamSendData;
+            if (mostAvailableBufferCapacityStreamSendData == null) {
+                mostAvailableBufferCapacityStreamSendData = standbySpanStreamSendData;
             } else {
-                if (mostAvaiableBufferCapacityStreamSendData.getAvaiableBufferCapacity() < standbySpanStreamSendData.getAvaiableBufferCapacity()) {
-                    mostAvaiableBufferCapacityStreamSendData = standbySpanStreamSendData;
+                if (mostAvailableBufferCapacityStreamSendData.getAvailableBufferCapacity() < standbySpanStreamSendData.getAvailableBufferCapacity()) {
+                    mostAvailableBufferCapacityStreamSendData = standbySpanStreamSendData;
                 }
             }
         }
 
-        if (mostAvaiableBufferCapacityStreamSendData != null) {
-            priorityQueue.remove(mostAvaiableBufferCapacityStreamSendData);
+        if (mostAvailableBufferCapacityStreamSendData != null) {
+            priorityQueue.remove(mostAvailableBufferCapacityStreamSendData);
         }
 
-        return mostAvaiableBufferCapacityStreamSendData;
+        return mostAvailableBufferCapacityStreamSendData;
     }
 
     synchronized List<SpanStreamSendData> getForceFlushSpanStreamDataList() {

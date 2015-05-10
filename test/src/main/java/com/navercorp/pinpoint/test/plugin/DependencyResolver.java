@@ -139,7 +139,7 @@ public class DependencyResolver {
                     logger.fine("Use local repository " + localRepository + " configured at " + mavenConfigFile);
                 }
             } catch (Exception e) {
-                logger.log(Level.INFO, "Fail to read maven configuration file: " + mavenConfigFile + ". Use defaul local repository", e);
+                logger.log(Level.INFO, "Fail to read maven configuration file: " + mavenConfigFile + ". Use default local repository", e);
             }
         }
         
@@ -200,8 +200,8 @@ public class DependencyResolver {
         }
         
         CollectRequest collectRequest = new CollectRequest((Dependency)null, dependencies, repositories);
-        DependencyFilter classpathFlter = DependencyFilterUtils.classpathFilter(JavaScopes.RUNTIME);
-        DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, classpathFlter);
+        DependencyFilter classpathFilter = DependencyFilterUtils.classpathFilter(JavaScopes.RUNTIME);
+        DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, classpathFilter);
         DependencyResult result = system.resolveDependencies(session, dependencyRequest);
         
         List<File> files = new ArrayList<File>();

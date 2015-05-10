@@ -255,8 +255,8 @@ public class SpanServiceImpl implements SpanService {
                 } else {
                     AnnotationBo apiAnnotation = new AnnotationBo();
                     apiAnnotation.setKey(AnnotationKey.ERROR_API_METADATA_DID_COLLSION.getCode());
-                    String collisonMessage = collisionApiDidMessage(apiId, apiMetaDataList);
-                    apiAnnotation.setValue(collisonMessage);
+                    String collisionMessage = collisionApiDidMessage(apiId, apiMetaDataList);
+                    apiAnnotation.setValue(collisionMessage);
                     annotationBoList.add(apiAnnotation);
                 }
 

@@ -154,7 +154,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     }
 
     /**
-     * Pupulate source trace from HTTP Header.
+     * Populate source trace from HTTP Header.
      *
      * @param request
      * @return TraceId when it is possible to get a transactionId from Http header. if not possible return null

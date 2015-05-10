@@ -61,7 +61,7 @@ public class CallStack {
 
     
     // We could handle synchronization more precisely.
-    // Maybe synchonizing push, pop, copy would be enough.
+    // Maybe synchronizing push, pop, copy would be enough.
     public synchronized StackFrame getCurrentStackFrame() {
         return stack[index];
     }

@@ -312,10 +312,10 @@ public class AgentInfoSenderTest {
         return serverAcceptor;
     }
 
-    private void createAndDeleteServer(ServerMessageListener listner, long waitTimeMillis) throws InterruptedException {
+    private void createAndDeleteServer(ServerMessageListener listener, long waitTimeMillis) throws InterruptedException {
         PinpointServerAcceptor server = null;
         try {
-            server = createServerAcceptor(listner);
+            server = createServerAcceptor(listener);
             Thread.sleep(waitTimeMillis);
         } finally {
             if (server != null) {

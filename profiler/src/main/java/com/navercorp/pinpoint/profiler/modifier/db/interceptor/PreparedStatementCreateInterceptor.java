@@ -50,7 +50,7 @@ public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInt
         final boolean success = InterceptorUtils.isSuccess(throwable);
         if (success) {
             if (target instanceof DatabaseInfoTraceValue) {
-                // set databaeInfo to PreparedStatement only when preparedStatment is generated successfully. 
+                // set databaseInfo to PreparedStatement only when preparedStatement is generated successfully.
                 DatabaseInfo databaseInfo = ((DatabaseInfoTraceValue) target)._$PINPOINT$_getTraceDatabaseInfo();
                 if (databaseInfo != null) {
                     if (result instanceof DatabaseInfoTraceValue) {

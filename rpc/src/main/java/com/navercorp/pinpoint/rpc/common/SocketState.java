@@ -100,8 +100,8 @@ public class SocketState {
         return changeState(nextState);
     }
 
-    public SocketStateChangeResult stateToUnkownError() {
-        SocketStateCode nextState = SocketStateCode.ERROR_UNKOWN;
+    public SocketStateChangeResult stateToUnknownError() {
+        SocketStateCode nextState = SocketStateCode.ERROR_UNKNOWN;
         return changeState(nextState);
     }
     

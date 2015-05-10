@@ -129,7 +129,7 @@ public class PinpointClientSocketHandshaker {
         
         final ChannelFuture future = channel.write(packet);
         
-        logger.debug("{} handshakePacket sended. channel:{}, packet:{}.", simpleClassNameAndHashCodeString(), channel, packet);
+        logger.debug("{} handshakePacket sent. channel:{}, packet:{}.", simpleClassNameAndHashCodeString(), channel, packet);
         
         future.addListener(handShakeFailFutureListener);
     }
@@ -178,7 +178,7 @@ public class PinpointClientSocketHandshaker {
             logger.warn(e.getMessage(), e);
         }
         
-        return HandshakeResponseCode.UNKOWN_CODE;
+        return HandshakeResponseCode.UNKNOWN_CODE;
     }
     
     public HandshakeResponseCode getHandshakeResult() {

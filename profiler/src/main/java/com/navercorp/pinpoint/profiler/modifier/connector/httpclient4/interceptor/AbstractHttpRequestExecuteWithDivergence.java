@@ -247,7 +247,7 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
         try {
             final HttpRequest httpRequest = getHttpRequest(args);
             if (httpRequest != null) {
-                // Accessing httpRequest here not before() becuase it can cause side effect.
+                // Accessing httpRequest here not before() because it can cause side effect.
                 trace.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getRequestLine().getUri());
                 final NameIntValuePair<String> host = getHost(args);
                 if (host != null) {

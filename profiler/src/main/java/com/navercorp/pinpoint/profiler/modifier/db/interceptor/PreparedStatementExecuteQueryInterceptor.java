@@ -131,7 +131,7 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
         }
 
         try {
-            // TODO Test if it's success. if failed terminate. else calcaulte resultset fetch too. we'd better make resultset fetch optional.
+            // TODO Test if it's success. if failed terminate. else calculate resultset fetch too. we'd better make resultset fetch optional.
             trace.recordException(throwable);
             trace.markAfterTime();
         } finally {

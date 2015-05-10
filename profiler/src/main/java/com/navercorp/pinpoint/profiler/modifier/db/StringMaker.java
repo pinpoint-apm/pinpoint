@@ -364,7 +364,7 @@ public class StringMaker {
     }
 
     /**
-     * Dulicate.
+     * Duplicate.
      *
      * @return the string maker
      */

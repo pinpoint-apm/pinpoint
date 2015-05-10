@@ -50,7 +50,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginContext {
     private int metadataAccessorIndex = 0;
     private int fieldSnooperIndex = 0;
     
-    private boolean initailized = false;
+    private boolean initialized = false;
     
     
     public DefaultProfilerPluginContext(DefaultAgent agent) {
@@ -64,8 +64,8 @@ public class DefaultProfilerPluginContext implements ProfilerPluginContext {
     
     @Override
     public void addClassFileTransformer(ClassFileTransformer transformer) {
-        if (initailized) {
-            throw new IllegalStateException("Context already initilized");
+        if (initialized) {
+            throw new IllegalStateException("Context already initialized");
         }
 
         classTransformers.add(transformer);
@@ -144,8 +144,8 @@ public class DefaultProfilerPluginContext implements ProfilerPluginContext {
     
     @Override
     public void addApplicationTypeDetector(ApplicationTypeDetector... detectors) {
-        if (initailized) {
-            throw new IllegalStateException("Context already initilized");
+        if (initialized) {
+            throw new IllegalStateException("Context already initialized");
         }
         
         for (ApplicationTypeDetector detector : detectors) {
@@ -179,6 +179,6 @@ public class DefaultProfilerPluginContext implements ProfilerPluginContext {
     }
     
     public void markInitialized() {
-        this.initailized = true;
+        this.initialized = true;
     }
 }

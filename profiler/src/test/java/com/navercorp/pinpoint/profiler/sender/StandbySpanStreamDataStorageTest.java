@@ -69,7 +69,7 @@ public class StandbySpanStreamDataStorageTest {
         storage.addStandbySpanStreamData(oldValue);
         storage.addStandbySpanStreamData(newValue);
 
-        // more avaiable capactiy buffer
+        // more available capacity buffer
         Assert.assertEquals(newValue, storage.getStandbySpanStreamSendData());
     }
 

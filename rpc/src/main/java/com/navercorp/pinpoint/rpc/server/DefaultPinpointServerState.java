@@ -96,7 +96,7 @@ public class DefaultPinpointServerState {
     }
 
     SocketStateChangeResult toErrorUnknown() {
-        SocketStateCode nextState = SocketStateCode.ERROR_UNKOWN;
+        SocketStateCode nextState = SocketStateCode.ERROR_UNKNOWN;
         return to(nextState);
     }
 

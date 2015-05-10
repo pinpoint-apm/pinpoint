@@ -14,4 +14,4 @@ For example, you can create Pinpoint tables by running the following line from s
 
 `$HBASE_HOME/bin/hbase shell $PATH_TO_SCRIPTS/hbase-create.hbase`
 
-*hbase-flush-table.hbase*, and *hbase-major-compact-htable.hbase* are there purely for maintanence.
+*hbase-flush-table.hbase*, and *hbase-major-compact-htable.hbase* are there purely for maintenance.

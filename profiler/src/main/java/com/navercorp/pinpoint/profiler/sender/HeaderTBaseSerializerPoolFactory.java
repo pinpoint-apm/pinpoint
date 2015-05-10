@@ -27,7 +27,7 @@ public class HeaderTBaseSerializerPoolFactory implements ObjectPoolFactory<Heade
 
     private final HeaderTBaseSerializerFactory serializerFactory;
 
-    public HeaderTBaseSerializerPoolFactory(boolean safetyGuranteed, int outputStreamSize, boolean autoExpand) {
+    public HeaderTBaseSerializerPoolFactory(boolean safetyGuaranteed, int outputStreamSize, boolean autoExpand) {
         this.serializerFactory = new HeaderTBaseSerializerFactory(false, outputStreamSize, true);
     }
 

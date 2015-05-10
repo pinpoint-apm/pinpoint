@@ -88,12 +88,12 @@ public class ApiDescriptionParser {
         }
         String[] simple = new String[parameterList.length];
         for (int i = 0; i < parameterList.length; i++) {
-            simple[i] = simepleParameter(parameterList[i]);
+            simple[i] = simpleParameter(parameterList[i]);
         }
         return simple;
     }
 
-    private String simepleParameter(String parameter) {
+    private String simpleParameter(String parameter) {
         int packageIndex = parameter.lastIndexOf(DOT);
         if (packageIndex == -1) {
             // same logic as below (-1 + 1 == 0) - explicitly checks as there may be changes in the future.

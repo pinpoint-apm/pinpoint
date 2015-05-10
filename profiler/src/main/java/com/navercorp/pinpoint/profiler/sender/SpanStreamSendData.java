@@ -45,9 +45,9 @@ public class SpanStreamSendData {
 
     private final int maxBufferSize;
     private final int maxGatheringComponentCount;
-    private final int maxAvaiableBufferCapacity;
+    private final int maxAvailableBufferCapacity;
 
-    private int avaiableBufferCapacity;
+    private int availableBufferCapacity;
     private int chunkCount = 0;
     private int componentsIndex = 0;
 
@@ -58,10 +58,10 @@ public class SpanStreamSendData {
     public SpanStreamSendData(int maxPacketSize, int maxGatheringComponentCount, ObjectPool<HeaderTBaseSerializer> serializerPool) {
         this.maxBufferSize = maxPacketSize;
         this.maxGatheringComponentCount = maxGatheringComponentCount - 2;
-        this.maxAvaiableBufferCapacity = maxPacketSize - SpanStreamConstants.START_PROTOCOL_BUFFER_SIZE - SpanStreamConstants.END_PROTOCOL_BUFFER_SIZE;
-        this.avaiableBufferCapacity = maxAvaiableBufferCapacity;
+        this.maxAvailableBufferCapacity = maxPacketSize - SpanStreamConstants.START_PROTOCOL_BUFFER_SIZE - SpanStreamConstants.END_PROTOCOL_BUFFER_SIZE;
+        this.availableBufferCapacity = maxAvailableBufferCapacity;
 
-        if (this.maxAvaiableBufferCapacity <= 0) {
+        if (this.maxAvailableBufferCapacity <= 0) {
             throw new IllegalArgumentException("Illegal maxPacketSize(" + maxPacketSize + ")");
         }
 
@@ -107,7 +107,7 @@ public class SpanStreamSendData {
             firstAccessTime = System.currentTimeMillis();
         }
         
-        if (!checkAddAvaiable(buffers)) {
+        if (!checkAddAvailable(buffers)) {
             return false;
         }
 
@@ -133,19 +133,19 @@ public class SpanStreamSendData {
         encoder.putShort(chunkFlagBuffer, (short) (usedBufferLength));
         chunkFlagBuffer.flip();
 
-        this.avaiableBufferCapacity = this.avaiableBufferCapacity - usedBufferLength - SpanStreamConstants.DEFAULT_CHUNK_FLAG_BUFFER_SIZE;
+        this.availableBufferCapacity = this.availableBufferCapacity - usedBufferLength - SpanStreamConstants.DEFAULT_CHUNK_FLAG_BUFFER_SIZE;
         
         return true;
     }
 
-    private boolean checkAddAvaiable(ByteBuffer[] bufferArray) {
+    private boolean checkAddAvailable(ByteBuffer[] bufferArray) {
         if (bufferArray == null || bufferArray.length == 0) {
             return false;
         }
 
         // check components count
         // input buffer + chunk buffer
-        if (bufferArray.length + 1 > getAvaiableGatheringComponentsCount()) {
+        if (bufferArray.length + 1 > getAvailableGatheringComponentsCount()) {
             return false;
         }
 
@@ -159,23 +159,23 @@ public class SpanStreamSendData {
         }
 
         // check buffer total size
-        return isAvaiableBufferCapacity(usedBufferLength);
+        return isAvailableBufferCapacity(usedBufferLength);
     }
     
-    public boolean isAvaiableBufferCapacity(int length) {
-        logger.debug("inputdata-length:{}, chunk-length:{}, avaiable-length:{}", length, SpanStreamConstants.DEFAULT_CHUNK_FLAG_BUFFER_SIZE, avaiableBufferCapacity);
-        if (length + SpanStreamConstants.DEFAULT_CHUNK_FLAG_BUFFER_SIZE < avaiableBufferCapacity) {
+    public boolean isAvailableBufferCapacity(int length) {
+        logger.debug("inputdata-length:{}, chunk-length:{}, available-length:{}", length, SpanStreamConstants.DEFAULT_CHUNK_FLAG_BUFFER_SIZE, availableBufferCapacity);
+        if (length + SpanStreamConstants.DEFAULT_CHUNK_FLAG_BUFFER_SIZE < availableBufferCapacity) {
             return true;
         } else {
             return false;
         }
     }
 
-    public boolean isAvaiableComponentsCount(int componentsCount) {
-        int avaiableGatheringComponentsCount = getAvaiableGatheringComponentsCount();
-        logger.debug("inputcomponents-count:{}, avaiablecomponents-count:{}", componentsCount, avaiableGatheringComponentsCount);
+    public boolean isAvailableComponentsCount(int componentsCount) {
+        int availableGatheringComponentsCount = getAvailableGatheringComponentsCount();
+        logger.debug("inputcomponents-count:{}, availablecomponents-count:{}", componentsCount, availableGatheringComponentsCount);
 
-        if (componentsCount < avaiableGatheringComponentsCount) {
+        if (componentsCount < availableGatheringComponentsCount) {
             return true;
         }
         return false;
@@ -185,11 +185,11 @@ public class SpanStreamSendData {
         return maxBufferSize;
     }
 
-    public int getAvaiableBufferCapacity() {
-        return avaiableBufferCapacity;
+    public int getAvailableBufferCapacity() {
+        return availableBufferCapacity;
     }
 
-    public int getAvaiableGatheringComponentsCount() {
+    public int getAvailableGatheringComponentsCount() {
         return maxGatheringComponentCount - componentsIndex;
     }
 
@@ -237,7 +237,7 @@ public class SpanStreamSendData {
     public String toString() {
         return "SpanStreamSendData [components=" + Arrays.toString(components) + ", encoder=" + encoder + ", usedSerializerList=" + usedSerializerList
                 + ", serializerPool=" + serializerPool + ", maxBufferSize=" + maxBufferSize + ", maxGatheringComponentCount=" + maxGatheringComponentCount
-                + ", maxAvaiableBufferCapacity=" + maxAvaiableBufferCapacity + ", avaiableBufferCapacity=" + avaiableBufferCapacity + ", chunkCount="
+                + ", maxAvailableBufferCapacity=" + maxAvailableBufferCapacity + ", availableBufferCapacity=" + availableBufferCapacity + ", chunkCount="
                 + chunkCount + ", componentsIndex=" + componentsIndex + ", mode=" + mode + "]";
     }
 

@@ -21,9 +21,9 @@ import java.io.ByteArrayOutputStream;
 /**
  * @author Taejin Koo
  */
-public class ResetableByteArrayOutputStream extends ByteArrayOutputStream {
+public class ResettableByteArrayOutputStream extends ByteArrayOutputStream {
 
-    public ResetableByteArrayOutputStream(int size) {
+    public ResettableByteArrayOutputStream(int size) {
         super(size);
     }
     

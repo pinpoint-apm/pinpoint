@@ -67,7 +67,7 @@ public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInt
         final boolean success = InterceptorUtils.isSuccess(throwable);
         if (success) {
             if (databaseInfoAccessor.isApplicable(target)) {
-                // set databaeInfo to PreparedStatement only when preparedStatment is generated successfully. 
+                // set databaseInfo to PreparedStatement only when preparedStatement is generated successfully.
                 DatabaseInfo databaseInfo = databaseInfoAccessor.get(target);
                 if (databaseInfo != null) {
                     if (databaseInfoAccessor.isApplicable(result)) {

@@ -37,7 +37,7 @@ import com.navercorp.pinpoint.common.util.SystemProperty;
  *
  */
 public class PinpointPluginTestStatement extends Statement implements PinpointPluginTestConstants {
-    private static final String JUNIT_OUTPUT_DELIMETER_REGEXP = Pattern.quote(JUNIT_OUTPUT_DELIMETER);   
+    private static final String JUNIT_OUTPUT_DELIMITER_REGEXP = Pattern.quote(JUNIT_OUTPUT_DELIMITER);
 
     private final PinpointPluginTestRunner runner;
     private final RunNotifier notifier;
@@ -74,9 +74,9 @@ public class PinpointPluginTestStatement extends Statement implements PinpointPl
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
     
-                if (line.startsWith(JUNIT_OUTPUT_DELIMETER)) {
+                if (line.startsWith(JUNIT_OUTPUT_DELIMITER)) {
                     System.out.println(line);
-                    String[] tokens = line.split(JUNIT_OUTPUT_DELIMETER_REGEXP);
+                    String[] tokens = line.split(JUNIT_OUTPUT_DELIMITER_REGEXP);
                     String event = tokens[1];
     
                     if ("testRunStarted".equals(event)) {

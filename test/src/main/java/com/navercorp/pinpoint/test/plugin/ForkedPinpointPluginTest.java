@@ -92,48 +92,48 @@ public class ForkedPinpointPluginTest implements PinpointPluginTestConstants {
 
         @Override
         public void testRunStarted(Description description) throws Exception {
-            System.out.println(JUNIT_OUTPUT_DELIMETER + "testRunStarted");
+            System.out.println(JUNIT_OUTPUT_DELIMITER + "testRunStarted");
         }
 
         @Override
         public void testRunFinished(Result result) throws Exception {
-            System.out.println(JUNIT_OUTPUT_DELIMETER + "testRunFinished");
+            System.out.println(JUNIT_OUTPUT_DELIMITER + "testRunFinished");
         }
 
         @Override
         public void testStarted(Description description) throws Exception {
-            System.out.println(JUNIT_OUTPUT_DELIMETER + "testStarted" + JUNIT_OUTPUT_DELIMETER + description.getDisplayName());
+            System.out.println(JUNIT_OUTPUT_DELIMITER + "testStarted" + JUNIT_OUTPUT_DELIMITER + description.getDisplayName());
         }
 
         @Override
         public void testFinished(Description description) throws Exception {
-            System.out.println(JUNIT_OUTPUT_DELIMETER + "testFinished" + JUNIT_OUTPUT_DELIMETER + description.getDisplayName());
+            System.out.println(JUNIT_OUTPUT_DELIMITER + "testFinished" + JUNIT_OUTPUT_DELIMITER + description.getDisplayName());
         }
 
         @Override
         public void testFailure(Failure failure) throws Exception {
-            System.out.println(JUNIT_OUTPUT_DELIMETER + "testFailure" + JUNIT_OUTPUT_DELIMETER + failureToString(failure));
+            System.out.println(JUNIT_OUTPUT_DELIMITER + "testFailure" + JUNIT_OUTPUT_DELIMITER + failureToString(failure));
         }
 
         @Override
         public void testAssumptionFailure(Failure failure) {
-            System.out.println(JUNIT_OUTPUT_DELIMETER + "testAssumptionFailure" + JUNIT_OUTPUT_DELIMETER + failureToString(failure));
+            System.out.println(JUNIT_OUTPUT_DELIMITER + "testAssumptionFailure" + JUNIT_OUTPUT_DELIMITER + failureToString(failure));
         }
 
         @Override
         public void testIgnored(Description description) throws Exception {
-            System.out.println(JUNIT_OUTPUT_DELIMETER + "testIgnored" + JUNIT_OUTPUT_DELIMETER + description.getDisplayName());
+            System.out.println(JUNIT_OUTPUT_DELIMITER + "testIgnored" + JUNIT_OUTPUT_DELIMITER + description.getDisplayName());
         }
         
         private String failureToString(Failure failure) {
             StringBuilder builder = new StringBuilder();
             
             builder.append(failure.getTestHeader());
-            builder.append(JUNIT_OUTPUT_DELIMETER);
+            builder.append(JUNIT_OUTPUT_DELIMITER);
             builder.append(failure.getException().getClass().getName());
-            builder.append(JUNIT_OUTPUT_DELIMETER);
+            builder.append(JUNIT_OUTPUT_DELIMITER);
             builder.append(failure.getMessage());
-            builder.append(JUNIT_OUTPUT_DELIMETER);
+            builder.append(JUNIT_OUTPUT_DELIMITER);
             
             for (StackTraceElement e : failure.getException().getStackTrace()) {
                 builder.append(e.getClassName());
@@ -144,7 +144,7 @@ public class ForkedPinpointPluginTest implements PinpointPluginTestConstants {
                 builder.append(',');
                 builder.append(e.getLineNumber());
                 
-                builder.append(JUNIT_OUTPUT_DELIMETER);
+                builder.append(JUNIT_OUTPUT_DELIMITER);
             }
             
             return builder.toString();
