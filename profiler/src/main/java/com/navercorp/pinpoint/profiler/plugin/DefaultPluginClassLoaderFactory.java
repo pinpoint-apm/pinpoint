@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.plugin;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -27,17 +28,39 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.navercorp.pinpoint.bootstrap.plugin.PluginClassLoaderFactory;
-import com.navercorp.pinpoint.common.plugin.PluginClassLoader;
+import com.navercorp.pinpoint.exception.PinpointException;
 
 public class DefaultPluginClassLoaderFactory implements PluginClassLoaderFactory {
 
-    private final Logger logger = Logger.getLogger(DefaultPluginClassLoaderFactory.class.getName());
-
     private static final SecurityManager SECURITY_MANAGER = System.getSecurityManager();
+    private static final Constructor<?> CLASS_LOADER_CONSTRUCTOR;
+    
+    static {
+        boolean java6 = false;
+        
+        try {
+            ClassLoader.class.getDeclaredMethod("registerAsParallelCapable");
+        } catch (Exception e) {
+            java6 = true;
+        }
 
+        String pluginClassLoaderName = java6 ? "com.navercorp.pinpoint.profiler.plugin.Java6PluginClassLoader" : "com.navercorp.pinpoint.profiler.plugin.Java7PluginClassLoader";
+        
+        try {
+            Class<?> pluginClassLoaderType = Class.forName(pluginClassLoaderName);
+            CLASS_LOADER_CONSTRUCTOR = pluginClassLoaderType.getDeclaredConstructor(URL[].class, ClassLoader.class);
+        } catch (ClassNotFoundException e) {
+            throw new NoClassDefFoundError("Cannot find plugin class loader: " + pluginClassLoaderName);
+        } catch (Exception e) {
+            throw new PinpointException("Failed to prepare " + pluginClassLoaderName, e);
+        }
+    }
+
+    private final Logger logger = Logger.getLogger(DefaultPluginClassLoaderFactory.class.getName());
     private final URL[] pluginJars;
     private final ConcurrentHashMap<ClassLoader, ClassLoader> cache = new ConcurrentHashMap<ClassLoader, ClassLoader>();
     private final AtomicReference<ClassLoader> forBootstrapClassLoader = new AtomicReference<ClassLoader>();
+    
     
     public DefaultPluginClassLoaderFactory(URL[] pluginJars) {
         this.pluginJars = pluginJars;
@@ -90,15 +113,23 @@ public class DefaultPluginClassLoaderFactory implements PluginClassLoaderFactory
         }
     }
 
-    private PluginClassLoader createPluginClassLoader(final URL[] urls, final ClassLoader parent) {
+    private ClassLoader createPluginClassLoader(final URL[] urls, final ClassLoader parent) {
         if (SECURITY_MANAGER != null) {
-            return AccessController.doPrivileged(new PrivilegedAction<PluginClassLoader>() {
-                public PluginClassLoader run() {
-                    return new PluginClassLoader(urls, parent);
+            return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+                public ClassLoader run() {
+                    return createPluginClassLoader0(urls, parent);
                 }
             });
         } else {
-            return new PluginClassLoader(urls, parent);
+            return createPluginClassLoader0(urls, parent);
+        }
+    }
+    
+    private ClassLoader createPluginClassLoader0(URL[] urls, ClassLoader parent) {
+        try {
+            return (ClassLoader)CLASS_LOADER_CONSTRUCTOR.newInstance(urls, parent);
+        } catch (Exception e) {
+            throw new PinpointException("Failed to create plugin classloader instance", e);
         }
     }
 
@@ -111,7 +142,7 @@ public class DefaultPluginClassLoaderFactory implements PluginClassLoaderFactory
             try {
                 ((Closeable)classLoader).close();
             } catch (IOException e) {
-                logger.log(Level.WARNING, "PluginClassLoader.close() fail. Caused:" + e.getMessage(), e);
+                logger.log(Level.WARNING, "Java6PluginClassLoader.close() fail. Caused:" + e.getMessage(), e);
             }
         }
     }
