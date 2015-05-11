@@ -47,15 +47,15 @@ public class PluginLoader {
         return load(serviceType, classLoader);
     }
 
-    private static PluginClassLoader createPluginClassLoader(final URL[] urls, final ClassLoader parent) {
+    private static PluginLoaderClassLoader createPluginClassLoader(final URL[] urls, final ClassLoader parent) {
         if (SECURITY_MANAGER != null) {
-            return AccessController.doPrivileged(new PrivilegedAction<PluginClassLoader>() {
-                public PluginClassLoader run() {
-                    return new PluginClassLoader(urls, parent);
+            return AccessController.doPrivileged(new PrivilegedAction<PluginLoaderClassLoader>() {
+                public PluginLoaderClassLoader run() {
+                    return new PluginLoaderClassLoader(urls, parent);
                 }
             });
         } else {
-            return new PluginClassLoader(urls, parent);
+            return new PluginLoaderClassLoader(urls, parent);
         }
     }
     
