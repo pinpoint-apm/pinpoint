@@ -35,6 +35,7 @@ public class CallTreeIteratorTest {
     private static final long START_TIME = 1430983914531L;
     private static final int ELAPSED = 10;
 
+    @Ignore
     @Test
     public void depth() {
         SpanAlign root = makeSpanAlign(START_TIME, 240);
@@ -61,6 +62,7 @@ public class CallTreeIteratorTest {
         }
     }
 
+    @Ignore
     @Test
     public void gap() {
         SpanAlign root = makeSpanAlign(START_TIME, 240);
@@ -134,7 +136,7 @@ public class CallTreeIteratorTest {
         callTree.add(3, makeSpanAlign(root.getSpanBo(), SYNC, (short) 2, 3, 1));
         callTree.add(4, makeSpanAlign(root.getSpanBo(), SYNC, (short) 3, 4, 1, -1, 1));
 
-        SpanAlign rpc = makeSpanAlign(START_TIME + 10, 240);
+        SpanAlign rpc = makeSpanAlign(START_TIME + 5, 240);
         CallTree rpcTree = new SpanCallTree(rpc);
         rpcTree.add(1, makeSpanAlign(rpc.getSpanBo(), SYNC, (short) 0, 1, 1));
         rpcTree.add(2, makeSpanAlign(rpc.getSpanBo(), SYNC, (short) 1, 2, 1));
@@ -150,10 +152,10 @@ public class CallTreeIteratorTest {
         callTree.add(asyncTree);
         
         callTree.add(5, makeSpanAlign(root.getSpanBo(), SYNC, (short) 4, 5, 1));
-        callTree.add(2, makeSpanAlign(root.getSpanBo(), SYNC, (short) 5, 6, 1));
-        callTree.add(3, makeSpanAlign(root.getSpanBo(), SYNC, (short) 6, 7, 1));
-        callTree.add(-1, makeSpanAlign(root.getSpanBo(), SYNC, (short) 7, 8, 1));
-        callTree.add(1, makeSpanAlign(root.getSpanBo(), SYNC, (short) 8, 9, 1));
+        callTree.add(2, makeSpanAlign(root.getSpanBo(), SYNC, (short) 5, 3, 1));
+        callTree.add(3, makeSpanAlign(root.getSpanBo(), SYNC, (short) 6, 4, 1));
+        callTree.add(-1, makeSpanAlign(root.getSpanBo(), SYNC, (short) 7, 6, 1));
+        callTree.add(1, makeSpanAlign(root.getSpanBo(), SYNC, (short) 8, 2, 1));
 
         CallTreeIterator iterator = callTree.iterator();
         // assertEquals(5, iterator.size());
@@ -172,6 +174,7 @@ public class CallTreeIteratorTest {
         }
     }
 
+    @Ignore
     @Test
     public void executionTime() {
         SpanAlign root = makeSpanAlign(START_TIME, 10);
