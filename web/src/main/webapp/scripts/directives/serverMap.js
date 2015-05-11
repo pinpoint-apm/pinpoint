@@ -787,7 +787,13 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 }
                 scope.toggleShowAntStyleHint = function() {
                 	scope.showAntStyleHint = !scope.showAntStyleHint; 
-                }
+                };
+                scope.moveThePast = function() {
+                	scope.$emit("navbar.moveThePast");
+                };
+                scope.moveTheFuture = function() {
+                	scope.$emit("navbar.moveTheFuture");
+                };
             }
         };
     }]);

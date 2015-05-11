@@ -4,7 +4,7 @@
     <div class="servermap-status" ng-show="bShowServerMapStatus" style="right:540px">
     	<span class="label label-{{ searchNodeIndex == $index ? 'success' : 'info'}}" ng-repeat="sNode in searchNodeList" ng-click="searchNodeWithCategory($index)">{{sNode.applicationName}}({{sNode.serviceType}})</span>
     </div>
-    <div class="servermap-status" ng-show="bShowServerMapStatus" style="right:290px">
+    <div class="servermap-status" ng-show="bShowServerMapStatus" style="right:390px">
     	<form class="form-inline">
 	    	<input type="text" class="form-control" ng-keydown="searchNodeByEnter($event)" ng-model="searchNodeQuery" placeholder="Enter node name"/>
 	    	<button class="btn btn-info" style="margin-left:-10px" ng-click="searchNode()"><span class="glyphicon glyphicon-search"></span></button>
@@ -12,13 +12,11 @@
 	    </form>
     </div>
     <div class="servermap-status" ng-show="bShowServerMapStatus">
-        <div class="alert alert-info" style="min-height: 30px;display:inline-block;padding-bottom:9px;padding-top:10px">
+    	<button type="button" class="btn btn-default btn-info" style="margin-top:-4px" ng-click="moveThePast()"><span class="glyphicon glyphicon-chevron-left"></span></button>
+    	<button type="button" class="btn btn-default btn-info" style="margin-top:-4px" ng-click="moveTheFuture()"><span class="glyphicon glyphicon-chevron-right"></span></button>
+    	<div class="alert alert-info" style="min-height: 30px;display:inline-block;padding-bottom:9px;padding-top:10px">
             <h6 ng-show="oNavbarVo.getQueryStartTime() && oNavbarVo.getQueryEndTime()">{{oNavbarVo.getQueryStartTime() |
                 date:'yyyy-MM-dd HH:mm:ss'}} ~ {{oNavbarVo.getQueryEndTime() | date:'yyyy-MM-dd HH:mm:ss'}}</h6>
-            <!--<h6 ng-if="oNavbarVo.getFilter()">Base WAS : {{oNavbarVo.getApplicationName()}}</h6>-->
-            <!--<ul class="list-unstyled" ng-if="oNavbarVo.getFilter()"-->
-                <!--ng-bind-html="oNavbarVo.getFilter() | filterToString">-->
-            <!--</ul>-->
         </div>
     </div>
     <div ng-include=" 'error' "></div>
