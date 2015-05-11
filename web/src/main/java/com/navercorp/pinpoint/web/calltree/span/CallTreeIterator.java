@@ -35,10 +35,10 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
     private int index = -1;
 
     public CallTreeIterator(CallTreeNode root) {
-        if(root == null) {
+        if (root == null) {
             return;
         }
-        
+
         populate(root);
         index = -1;
     }
@@ -51,6 +51,8 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         final long gap = getGap(node);
         spanAlign.setGap(gap);
         spanAlign.setDepth(node.getDepth());
+        final long executionTime = getExecutionTime(node);
+        spanAlign.setExecutionTime(executionTime);
 
         if (node.hasChild()) {
             populate(node.getChild());
@@ -85,11 +87,11 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         }
 
         CallTreeNode prev = getPrev();
-        if(!node.getValue().isSpan() && prev.getValue().isAsync() && !node.getValue().isAsync()) {
+        if (!node.getValue().isSpan() && prev.getValue().isAsync() && !node.getValue().isAsync()) {
             // skip sub(async) call tree.
             prev = node.getParent();
         }
-        
+
         if (prev.getDepth() < node.getDepth()) {
             return getStartTime(prev);
         } else if (prev.getDepth() > node.getDepth()) {
@@ -137,6 +139,38 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
             parent = parent.getParent();
         }
         return null;
+    }
+
+    long getExecutionTime(final CallTreeNode node) {
+        final SpanAlign align = node.getValue();
+        long elapsedTime;
+        if (align.isSpan()) {
+            elapsedTime = align.getSpanBo().getElapsed();
+        } else {
+            elapsedTime = align.getSpanEventBo().getEndElapsed();
+        }
+
+        if (!node.hasChild()) {
+            return elapsedTime;
+        }
+
+        return elapsedTime - getChildrenElapsedTime(node);
+    }
+
+    long getChildrenElapsedTime(final CallTreeNode node) {
+        long elapsedTime = 0;
+        CallTreeNode child = node.getChild();
+        while (child != null) {
+            SpanAlign align = child.getValue();
+            if (align.isSpan() || (align.isAsync() && align.getSpanEventBo().getSequence() == 0)) {
+                // skip span and first async event;
+            } else {
+                elapsedTime += align.getSpanEventBo().getEndElapsed();
+            }
+            child = child.getSibling();
+        }
+
+        return elapsedTime;
     }
 
     @Override

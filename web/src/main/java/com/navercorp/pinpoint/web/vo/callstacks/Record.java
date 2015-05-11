@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * 
  * @author netspider
  * @author emeroad
+ * @author jaehong.kim
  */
 public class Record {
     private final int tab;
@@ -38,6 +39,7 @@ public class Record {
     private final long begin;
     private final long elapsed;
     private final long gap;
+    private final long executionMilliseconds;
     private final String agent;
     private final String applicationName;
     private final ServiceType serviceType;
@@ -55,7 +57,7 @@ public class Record {
     
     
 
-    public Record(int tab, int id, int parentId, boolean method, String title, String arguments, long begin, long elapsed, long gap, String agent, String applicationName, ServiceType serviceType, String destinationId, boolean hasChild, boolean hasException, String transactionId, long spanId) {
+    public Record(int tab, int id, int parentId, boolean method, String title, String arguments, long begin, long elapsed, long gap, String agent, String applicationName, ServiceType serviceType, String destinationId, boolean hasChild, boolean hasException, String transactionId, long spanId, long executionMilliseconds) {
         this.tab = tab;
         this.id = id;
         this.parentId = parentId;
@@ -78,6 +80,8 @@ public class Record {
         
         this.transactionId = transactionId;
         this.spanId = spanId;
+        
+        this.executionMilliseconds = executionMilliseconds;
     }
 
     public int getId() {
@@ -210,29 +214,62 @@ public class Record {
         return this.logButtonName;
     }
 
+    public long getExecutionMilliseconds() {
+        return executionMilliseconds;
+    }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Record{");
-        sb.append("tab=").append(tab);
-        sb.append(", id=").append(id);
-        sb.append(", parentId=").append(parentId);
-        sb.append(", method=").append(method);
-        sb.append(", title='").append(title).append('\'');
-        sb.append(", simpleClassName='").append(simpleClassName).append('\'');
-        sb.append(", fullApiDescription='").append(fullApiDescription).append('\'');
-        sb.append(", arguments='").append(arguments).append('\'');
-        sb.append(", begin=").append(begin);
-        sb.append(", elapsed=").append(elapsed);
-        sb.append(", gap=").append(gap);
-        sb.append(", agent='").append(agent).append('\'');
-        sb.append(", applicationName='").append(applicationName).append('\'');
-        sb.append(", serviceType=").append(serviceType);
-        sb.append(", destinationId='").append(destinationId).append('\'');
-        sb.append(", excludeFromTimeline=").append(excludeFromTimeline);
-        sb.append(", focused=").append(focused);
-        sb.append(", hasChild=").append(hasChild);
-        sb.append('}');
-        return sb.toString();
+        StringBuilder builder = new StringBuilder();
+        builder.append("{tab=");
+        builder.append(tab);
+        builder.append(", id=");
+        builder.append(id);
+        builder.append(", parentId=");
+        builder.append(parentId);
+        builder.append(", method=");
+        builder.append(method);
+        builder.append(", title=");
+        builder.append(title);
+        builder.append(", simpleClassName=");
+        builder.append(simpleClassName);
+        builder.append(", fullApiDescription=");
+        builder.append(fullApiDescription);
+        builder.append(", arguments=");
+        builder.append(arguments);
+        builder.append(", begin=");
+        builder.append(begin);
+        builder.append(", elapsed=");
+        builder.append(elapsed);
+        builder.append(", gap=");
+        builder.append(gap);
+        builder.append(", executionMilliseconds=");
+        builder.append(executionMilliseconds);
+        builder.append(", agent=");
+        builder.append(agent);
+        builder.append(", applicationName=");
+        builder.append(applicationName);
+        builder.append(", serviceType=");
+        builder.append(serviceType);
+        builder.append(", destinationId=");
+        builder.append(destinationId);
+        builder.append(", excludeFromTimeline=");
+        builder.append(excludeFromTimeline);
+        builder.append(", transactionId=");
+        builder.append(transactionId);
+        builder.append(", spanId=");
+        builder.append(spanId);
+        builder.append(", focused=");
+        builder.append(focused);
+        builder.append(", hasChild=");
+        builder.append(hasChild);
+        builder.append(", hasException=");
+        builder.append(hasException);
+        builder.append(", logPageUrl=");
+        builder.append(logPageUrl);
+        builder.append(", logButtonName=");
+        builder.append(logButtonName);
+        builder.append("}");
+        return builder.toString();
     }
 }

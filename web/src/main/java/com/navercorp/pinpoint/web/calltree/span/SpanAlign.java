@@ -32,6 +32,7 @@ public class SpanAlign {
     private int id;
     private long gap;
     private int depth;
+    private long executionTime;
 
     public SpanAlign(SpanBo spanBo) {
         if (spanBo == null) {
@@ -109,19 +110,34 @@ public class SpanAlign {
         return spanEventBo.isAsync();
     }
 
+    public long getExecutionTime() {
+        return executionTime;
+    }
+
+    public void setExecutionTime(long executionTime) {
+        this.executionTime = executionTime;
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("SpanAlign{");
-        if (span) {
-            sb.append(", spanBo=").append(spanBo);
-            sb.append(", spanEventBo=").append(spanEventBo);
-        } else {
-            sb.append(", spanEventBo=").append(spanEventBo);
-            sb.append(", spanBo=").append(spanBo);
-        }
-        sb.append(", span=").append(span);
-        sb.append(", hasChild=").append(hasChild);
-        sb.append('}');
-        return sb.toString();
+        StringBuilder builder = new StringBuilder();
+        builder.append("{spanBo=");
+        builder.append(spanBo);
+        builder.append(", spanEventBo=");
+        builder.append(spanEventBo);
+        builder.append(", span=");
+        builder.append(span);
+        builder.append(", hasChild=");
+        builder.append(hasChild);
+        builder.append(", id=");
+        builder.append(id);
+        builder.append(", gap=");
+        builder.append(gap);
+        builder.append(", depth=");
+        builder.append(depth);
+        builder.append(", executionTime=");
+        builder.append(executionTime);
+        builder.append("}");
+        return builder.toString();
     }
 }
