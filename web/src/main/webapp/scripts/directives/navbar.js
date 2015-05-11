@@ -24,7 +24,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                 var initialize, initializeDateTimePicker, initializeApplication, setDateTime, getQueryEndTimeFromServer,
                     broadcast, getApplicationList, getQueryStartTime, getQueryEndTime, parseApplicationList, emitAsChanged,
                     initializeWithStaticApplication, getPeriodType, setPeriodTypeAsCurrent, getDate, startUpdate,
-                    resetTimeLeft, getRangeFromStorage, setRangeToStorage;
+                    resetTimeLeft, getRangeFromStorage, setRangeToStorage, getMilliSecondByReadablePeriod, movePeriod;
 
                 /**
                  * getRangeFromStorage
@@ -145,7 +145,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     $fromPicker = element.find('#from-picker');
                     $fromPicker.datetimepicker({
                         dateFormat: "yy-mm-dd",
-                        timeFormat: "hh:mm tt",
+                        timeFormat: "HH:mm",
                         onSelect: function () {
                             if (getDate($fromPicker).isBefore(getDate($toPicker).add(-2).days()) || getDate($fromPicker).isAfter(getDate($toPicker))) {
                                 setDateTime($toPicker, getDate($fromPicker).add(2).days());
@@ -166,7 +166,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     $toPicker = element.find('#to-picker');
                     $toPicker.datetimepicker({
                         dateFormat: "yy-mm-dd",
-                        timeFormat: "hh:mm tt",
+                        timeFormat: "HH:mm",
                         onSelect: function () {
                             if (getDate($fromPicker).isBefore(getDate($toPicker).add(-2).days()) || getDate($fromPicker).isAfter(getDate($toPicker))) {
                                 setDateTime($fromPicker, getDate($toPicker).add(-2).days());
@@ -380,6 +380,38 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                         // ref2 : http://jsfiddle.net/CDvGy/2/
                     });
                 };
+                getMilliSecondByReadablePeriod = function( period ) {
+                	var time = parseInt( period );
+                	switch( period.substring( period.length - 1) ) {
+	                	case "m":
+	                		time *= 60 * 1000;
+	                		break;
+	                	case "h":
+	                		time *= 60 * 60 * 1000;
+	                		break;
+	                	case "d":
+	                		time *= 60 * 60 * 24 * 1000;
+	                		break;
+                	}
+                	return time;
+                };
+                movePeriod = function( movedTime ) {
+                	if ( scope.periodType === "last" ) {
+	                	oNavbarVo.setQueryEndDateTime(moment(oNavbarVo.getQueryEndTime() + movedTime).format('YYYY-MM-DD-HH-mm-ss'));
+	                    oNavbarVo.autoCalculateByQueryEndDateTimeAndReadablePeriod();
+	                    emitAsChanged();
+	                    setDateTime($fromPicker, oNavbarVo.getQueryStartTime());
+	                    setDateTime($toPicker, oNavbarVo.getQueryEndTime());
+                	} else {
+	                    setDateTime($fromPicker, oNavbarVo.getQueryStartTime() + movedTime);
+	                    setDateTime($toPicker, oNavbarVo.getQueryEndTime() + movedTime );
+                        oNavbarVo.setQueryStartTime(getQueryStartTime());
+                        oNavbarVo.setQueryEndTime(getQueryEndTime());
+                        oNavbarVo.autoCalcultateByQueryStartTimeAndQueryEndTime();
+                        emitAsChanged();
+                	}
+                };
+                
 
                 /**
                  * search
@@ -404,6 +436,12 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                             scope.$digest();
                         }
                     }, 1000);
+                };
+                scope.getPreviousClass = function() {
+                	return "";
+                };
+                scope.getNextClass = function() {
+                	return "";
                 };
 
                 /**
@@ -524,6 +562,22 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                  */
                 scope.$on('navbar.initializeWithStaticApplication', function (event, navbarVo) {
                     initializeWithStaticApplication(navbarVo);
+                });
+                
+                scope.$on('navbar.moveThePast', function (event) {
+                	if ( scope.periodType === "last" ) {
+                		movePeriod(-getMilliSecondByReadablePeriod( scope.readablePeriod ));
+                	} else {
+                		movePeriod(-(oNavbarVo.getQueryEndTime() - oNavbarVo.getQueryStartTime()));
+                	}
+                });
+                
+                scope.$on('navbar.moveTheFuture', function (event) {
+                	if ( scope.periodType === "last" ) {
+                		movePeriod(getMilliSecondByReadablePeriod( scope.readablePeriod ));
+                	} else {
+                		movePeriod(oNavbarVo.getQueryEndTime() - oNavbarVo.getQueryStartTime());
+                	}
                 });
             }
         };

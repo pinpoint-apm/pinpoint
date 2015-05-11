@@ -14,7 +14,7 @@
     padding: 7px 15px;
 }
 .main-navbar .brand {
-    margin-left: 20px;
+    margin-left: 0px;
 }
 .main-navbar .nav>li {
     margin-top: 5px;
@@ -62,7 +62,7 @@
 }
 .navbar .beta {
     position: absolute;
-    left:158px;
+    left:138px;
     top: 12px;
     font-size: 12px;
     color: rgb(216, 33, 33);
