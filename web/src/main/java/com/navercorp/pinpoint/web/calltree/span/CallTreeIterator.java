@@ -21,9 +21,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.navercorp.pinpoint.common.bo.SpanBo;
-import com.navercorp.pinpoint.common.bo.SpanEventBo;
-
 /**
  * 
  * @author jaehong.kim
@@ -34,7 +31,7 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
     private List<CallTreeNode> nodes = new LinkedList<CallTreeNode>();
     private int index = -1;
 
-    public CallTreeIterator(CallTreeNode root) {
+    public CallTreeIterator(final CallTreeNode root) {
         if (root == null) {
             return;
         }
@@ -47,12 +44,10 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         nodes.add(node);
         index++;
 
-        final SpanAlign spanAlign = node.getValue();
-        final long gap = getGap(node);
-        spanAlign.setGap(gap);
-        spanAlign.setDepth(node.getDepth());
-        final long executionTime = getExecutionTime(node);
-        spanAlign.setExecutionTime(executionTime);
+        final SpanAlign align = node.getValue();
+        align.setGap(getGap());
+        align.setDepth(node.getDepth());
+        align.setExecutionMilliseconds(getExecutionTime());
 
         if (node.hasChild()) {
             populate(node.getChild());
@@ -63,41 +58,55 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         }
     }
 
-    long getGap(final CallTreeNode node) {
-        final long lastExecuteTime = getLastExecuteTime(node);
-        SpanAlign spanAlign = getCurrent().getValue();
-        if (spanAlign.isSpan()) {
-            return spanAlign.getSpanBo().getStartTime() - lastExecuteTime;
+    public long getGap() {
+        final CallTreeNode current = getCurrent();
+        final long lastExecuteTime = getLastExecuteTime();
+        final SpanAlign currentAlign = current.getValue();
+        if (currentAlign.isSpan()) {
+            return currentAlign.getStartTime() - lastExecuteTime;
         }
 
-        if (spanAlign.getSpanEventBo().isAsync() && spanAlign.getSpanEventBo().getSequence() == 0) {
-            CallTreeNode parent = getAsyncParent(getCurrent());
+        if (currentAlign.isAsyncFirst()) {
+            final CallTreeNode parent = getAsyncParent(current);
             if (parent == null) {
                 return 0;
             }
-            return spanAlign.getSpanEventBo().getStartElapsed() - parent.getValue().getSpanEventBo().getStartElapsed();
+            final SpanAlign parentAlign = parent.getValue();
+            return currentAlign.getStartTime() - parentAlign.getStartTime();
         }
 
-        return (spanAlign.getSpanBo().getStartTime() + spanAlign.getSpanEventBo().getStartElapsed()) - lastExecuteTime;
+        return currentAlign.getStartTime() - lastExecuteTime;
     }
 
-    long getLastExecuteTime(final CallTreeNode node) {
-        if (node.isRoot()) {
-            return node.getValue().getSpanBo().getStartTime();
+    public long getLastExecuteTime() {
+        final CallTreeNode current = getCurrent();
+        final SpanAlign currentAlign = current.getValue();
+        if (current.isRoot()) {
+            return currentAlign.getStartTime();
         }
 
         CallTreeNode prev = getPrev();
-        if (!node.getValue().isSpan() && prev.getValue().isAsync() && !node.getValue().isAsync()) {
+        final SpanAlign prevAlign = prev.getValue();
+        if (!currentAlign.isAsync() && !prevAlign.isSpan() && prevAlign.isAsync()) {
             // skip sub(async) call tree.
-            prev = node.getParent();
+            prev = current.getParent();
         }
 
-        if (prev.getDepth() < node.getDepth()) {
-            return getStartTime(prev);
-        } else if (prev.getDepth() > node.getDepth()) {
-            return getLastTime(getPrevSibling(node));
+        if (prev.getDepth() == current.getDepth()) {
+            // equal
+            final SpanAlign align = prev.getValue();
+            return align.getLastTime();
+        }
+
+        if (prev.getDepth() > current.getDepth()) {
+            // less, back step
+            CallTreeNode sibling = getPrevSibling(current);
+            final SpanAlign align = sibling.getValue();
+            return align.getStartTime();
         } else {
-            return getLastTime(prev);
+            // bigger
+            final SpanAlign align = prev.getValue();
+            return align.getStartTime();
         }
     }
 
@@ -108,25 +117,6 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         }
 
         return sibling;
-    }
-
-    long getLastTime(final CallTreeNode node) {
-        final SpanBo spanBo = node.getValue().getSpanBo();
-        if (node.getValue().isSpan()) {
-            return spanBo.getStartTime() + spanBo.getElapsed();
-        } else {
-            SpanEventBo spanEventBo = node.getValue().getSpanEventBo();
-            return spanBo.getStartTime() + spanEventBo.getStartElapsed() + spanEventBo.getEndElapsed();
-        }
-    }
-
-    long getStartTime(final CallTreeNode node) {
-        final SpanBo spanBo = node.getValue().getSpanBo();
-        if (node.getValue().isSpan()) {
-            return spanBo.getStartTime();
-        } else {
-            return spanBo.getStartTime() + node.getValue().getSpanEventBo().getStartElapsed();
-        }
     }
 
     CallTreeNode getAsyncParent(final CallTreeNode node) {
@@ -141,36 +131,29 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         return null;
     }
 
-    long getExecutionTime(final CallTreeNode node) {
-        final SpanAlign align = node.getValue();
-        long elapsedTime;
-        if (align.isSpan()) {
-            elapsedTime = align.getSpanBo().getElapsed();
-        } else {
-            elapsedTime = align.getSpanEventBo().getEndElapsed();
+    public long getExecutionTime() {
+        final CallTreeNode current = getCurrent();
+        final SpanAlign align = current.getValue();
+        if (!current.hasChild()) {
+            return align.getElapsed();
         }
 
-        if (!node.hasChild()) {
-            return elapsedTime;
-        }
-
-        return elapsedTime - getChildrenElapsedTime(node);
+        return align.getElapsed() - getChildrenTotalElapsedTime(current);
     }
 
-    long getChildrenElapsedTime(final CallTreeNode node) {
-        long elapsedTime = 0;
+    long getChildrenTotalElapsedTime(final CallTreeNode node) {
+        long totalElapsed = 0;
         CallTreeNode child = node.getChild();
         while (child != null) {
             SpanAlign align = child.getValue();
-            if (align.isSpan() || (align.isAsync() && align.getSpanEventBo().getSequence() == 0)) {
+            if (!align.isSpan() && !align.isAsyncFirst()) {
                 // skip span and first async event;
-            } else {
-                elapsedTime += align.getSpanEventBo().getEndElapsed();
+                totalElapsed += align.getElapsed();
             }
             child = child.getSibling();
         }
 
-        return elapsedTime;
+        return totalElapsed;
     }
 
     @Override

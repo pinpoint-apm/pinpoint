@@ -35,7 +35,6 @@ public class CallTreeIteratorTest {
     private static final long START_TIME = 1430983914531L;
     private static final int ELAPSED = 10;
 
-    @Ignore
     @Test
     public void depth() {
         SpanAlign root = makeSpanAlign(START_TIME, 240);
@@ -62,7 +61,6 @@ public class CallTreeIteratorTest {
         }
     }
 
-    @Ignore
     @Test
     public void gap() {
         SpanAlign root = makeSpanAlign(START_TIME, 240);
@@ -116,6 +114,7 @@ public class CallTreeIteratorTest {
         CallTreeIterator iterator = callTree.iterator();
         // assertEquals(5, iterator.size());
 
+        System.out.println("gapAsync");
         while (iterator.hasNext()) {
             CallTreeNode node = iterator.next();
             SpanAlign align = node.getValue();
@@ -126,7 +125,6 @@ public class CallTreeIteratorTest {
         }
     }
 
-    @Ignore
     @Test
     public void gapComplex() {
         SpanAlign root = makeSpanAlign(START_TIME, 240);
@@ -160,6 +158,7 @@ public class CallTreeIteratorTest {
         CallTreeIterator iterator = callTree.iterator();
         // assertEquals(5, iterator.size());
 
+        System.out.println("gapComplex");
         while (iterator.hasNext()) {
             CallTreeNode node = iterator.next();
             SpanAlign align = node.getValue();
@@ -167,6 +166,7 @@ public class CallTreeIteratorTest {
                 System.out.print("#");
             }
             System.out.println(" : gap=" + align.getGap());
+            assertEquals(1, align.getGap());
         }
     }
 
@@ -203,13 +203,15 @@ public class CallTreeIteratorTest {
         CallTreeIterator iterator = callTree.iterator();
         // assertEquals(5, iterator.size());
 
+        System.out.println("executionTime");
         while (iterator.hasNext()) {
             CallTreeNode node = iterator.next();
             SpanAlign align = node.getValue();
             for (int i = 0; i <= align.getDepth(); i++) {
                 System.out.print("#");
             }
-            System.out.println(" : executionTime=" + align.getExecutionTime());
+            System.out.println(" : executionTime=" + align.getExecutionMilliseconds());
+            assertEquals(1, align.getExecutionMilliseconds());
         }
     }
 

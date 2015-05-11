@@ -32,7 +32,7 @@ public class SpanAlign {
     private int id;
     private long gap;
     private int depth;
-    private long executionTime;
+    private long executionMilliseconds;
 
     public SpanAlign(SpanBo spanBo) {
         if (spanBo == null) {
@@ -77,7 +77,7 @@ public class SpanAlign {
     public void setHasChild(boolean hasChild) {
         this.hasChild = hasChild;
     }
-    
+
     public int getId() {
         return id;
     }
@@ -101,21 +101,53 @@ public class SpanAlign {
     public void setDepth(int depth) {
         this.depth = depth;
     }
-    
+
     public boolean isAsync() {
-        if(isSpan()) {
+        if (isSpan()) {
             return false;
         }
-        
+
         return spanEventBo.isAsync();
     }
 
-    public long getExecutionTime() {
-        return executionTime;
+    public boolean isAsyncFirst() {
+        if (!isAsync()) {
+            return false;
+        }
+
+        return spanEventBo.getSequence() == 0;
     }
 
-    public void setExecutionTime(long executionTime) {
-        this.executionTime = executionTime;
+    public long getExecutionMilliseconds() {
+        return executionMilliseconds;
+    }
+
+    public void setExecutionMilliseconds(long executionMilliseconds) {
+        this.executionMilliseconds = executionMilliseconds;
+    }
+
+    public long getLastTime() {
+        if (isSpan()) {
+            return spanBo.getStartTime() + spanBo.getElapsed();
+        } else {
+            return spanBo.getStartTime() + spanEventBo.getStartElapsed() + spanEventBo.getEndElapsed();
+        }
+    }
+
+    public long getStartTime() {
+        if (isSpan()) {
+            return spanBo.getStartTime();
+        } else {
+            return spanBo.getStartTime() + spanEventBo.getStartElapsed();
+        }
+    }
+
+    public long getElapsed() {
+        if (isSpan()) {
+            return spanBo.getElapsed();
+        } else {
+            return spanEventBo.getEndElapsed();
+        }
     }
 
     @Override
@@ -136,7 +168,7 @@ public class SpanAlign {
         builder.append(", depth=");
         builder.append(depth);
         builder.append(", executionTime=");
-        builder.append(executionTime);
+        builder.append(executionMilliseconds);
         builder.append("}");
         return builder.toString();
     }

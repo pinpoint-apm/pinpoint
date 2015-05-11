@@ -352,7 +352,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                 false, 
                                 spanBo.getTransactionId(), 
                                 spanBo.getSpanId(),
-                                spanAlign.getExecutionTime());
+                                spanAlign.getExecutionMilliseconds());
                         record.setSimpleClassName(apiDescription.getSimpleClassName());
                         record.setFullApiDescription(method);
                         recordList.add(record);
@@ -376,7 +376,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                     false, 
                                     spanBo.getTransactionId(), 
                                     spanBo.getSpanId(),
-                                    spanAlign.getExecutionTime());
+                                    spanAlign.getExecutionMilliseconds());
                             record.setSimpleClassName("");
                             record.setFullApiDescription("");
                             recordList.add(record);
@@ -399,7 +399,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                     false, 
                                     spanBo.getTransactionId(), 
                                     spanBo.getSpanId(),
-                                    spanAlign.getExecutionTime());
+                                    spanAlign.getExecutionMilliseconds());
                             record.setSimpleClassName("");
                             record.setFullApiDescription("");
                             recordList.add(record);
@@ -466,7 +466,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                 false, 
                                 spanBo.getTransactionId(), 
                                 spanBo.getSpanId(),
-                                spanAlign.getExecutionTime());
+                                spanAlign.getExecutionMilliseconds());
                         record.setSimpleClassName(className);
                         record.setFullApiDescription(apiInfo);
 
@@ -497,7 +497,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                                 false, 
                                 spanBo.getTransactionId(), 
                                 spanBo.getSpanId(),
-                                spanAlign.getExecutionTime());
+                                spanAlign.getExecutionMilliseconds());
                         record.setSimpleClassName("");
                         record.setFullApiDescription("");
                         recordList.add(record);
@@ -520,13 +520,29 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                 final SpanBo spanBo = spanAlign.getSpanBo();
                 if (spanBo.hasException()) {
                     String simpleExceptionClass = getSimpleExceptionName(spanBo.getExceptionClass());
-                    return new Record(depth + 1, getNextId(), parentSequence, false, simpleExceptionClass, spanBo.getExceptionMessage(), 0L, 0L, 0, null, null, null, null, false, false, spanBo.getTransactionId(), spanBo.getSpanId(), spanAlign.getExecutionTime());
+                    return new Record(depth + 1, 
+                            getNextId(), 
+                            parentSequence, 
+                            false, 
+                            simpleExceptionClass, 
+                            spanBo.getExceptionMessage(), 
+                            0L, 0L, 0, null, null, null, null, false, false, 
+                            spanBo.getTransactionId(), 
+                            spanBo.getSpanId(), 
+                            spanAlign.getExecutionMilliseconds());
                 }
             } else {
                 final SpanEventBo spanEventBo = spanAlign.getSpanEventBo();
                 if (spanEventBo.hasException()) {
                     String simpleExceptionClass = getSimpleExceptionName(spanEventBo.getExceptionClass());
-                    return new Record(depth + 1, getNextId(), parentSequence, false, simpleExceptionClass, spanEventBo.getExceptionMessage(), 0L, 0L, 0, null, null, null, null, false, true, null, 0, spanAlign.getExecutionTime());
+                    return new Record(depth + 1, 
+                            getNextId(), 
+                            parentSequence, 
+                            false, 
+                            simpleExceptionClass, 
+                            spanEventBo.getExceptionMessage(), 
+                            0L, 0L, 0, null, null, null, null, false, true, null, 0, 
+                            spanAlign.getExecutionMilliseconds());
                 }
             }
             return null;
@@ -549,7 +565,13 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             for (AnnotationBo ann : annotationBoList) {
                 AnnotationKey annotation = findAnnotationKey(ann.getKey());
                 if (annotation.isViewInRecordSet()) {
-                    Record record = new Record(depth, getNextId(), parentId, false, annotation.getName(), ann.getValue().toString(), 0L, 0L, 0, null, null, null, null, false, false, null, 0, 0);
+                    Record record = new Record(depth, 
+                            getNextId(), 
+                            parentId, 
+                            false, 
+                            annotation.getName(), 
+                            ann.getValue().toString(), 
+                            0L, 0L, 0, null, null, null, null, false, false, null, 0, 0);
                     recordList.add(record);
                 }
             }
@@ -558,7 +580,13 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         }
 
         private Record createParameterRecord(int depth, int parentId, String method, String argument) {
-            return new Record(depth, getNextId(), parentId, false, method, argument, 0L, 0L, 0, null, null, null, null, false, false, null, 0, 0);
+            return new Record(depth, 
+                    getNextId(), 
+                    parentId, 
+                    false, 
+                    method, 
+                    argument, 
+                    0L, 0L, 0, null, null, null, null, false, false, null, 0, 0);
         }
 
         private String getApiInfo(ApiMetaDataBo apiMetaDataBo) {
