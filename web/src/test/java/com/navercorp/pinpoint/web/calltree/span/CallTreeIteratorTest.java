@@ -166,7 +166,9 @@ public class CallTreeIteratorTest {
                 System.out.print("#");
             }
             System.out.println(" : gap=" + align.getGap());
-            assertEquals(1, align.getGap());
+            if(!node.isRoot()) {
+                assertEquals(1, align.getGap());                
+            }
         }
     }
 
