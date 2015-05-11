@@ -32,6 +32,7 @@ public class SpanAlign {
     private int id;
     private long gap;
     private int depth;
+    private long executionMilliseconds;
 
     public SpanAlign(SpanBo spanBo) {
         if (spanBo == null) {
@@ -76,7 +77,7 @@ public class SpanAlign {
     public void setHasChild(boolean hasChild) {
         this.hasChild = hasChild;
     }
-    
+
     public int getId() {
         return id;
     }
@@ -100,28 +101,75 @@ public class SpanAlign {
     public void setDepth(int depth) {
         this.depth = depth;
     }
-    
+
     public boolean isAsync() {
-        if(isSpan()) {
+        if (isSpan()) {
             return false;
         }
-        
+
         return spanEventBo.isAsync();
+    }
+
+    public boolean isAsyncFirst() {
+        if (!isAsync()) {
+            return false;
+        }
+
+        return spanEventBo.getSequence() == 0;
+    }
+
+    public long getExecutionMilliseconds() {
+        return executionMilliseconds;
+    }
+
+    public void setExecutionMilliseconds(long executionMilliseconds) {
+        this.executionMilliseconds = executionMilliseconds;
+    }
+
+    public long getLastTime() {
+        if (isSpan()) {
+            return spanBo.getStartTime() + spanBo.getElapsed();
+        } else {
+            return spanBo.getStartTime() + spanEventBo.getStartElapsed() + spanEventBo.getEndElapsed();
+        }
+    }
+
+    public long getStartTime() {
+        if (isSpan()) {
+            return spanBo.getStartTime();
+        } else {
+            return spanBo.getStartTime() + spanEventBo.getStartElapsed();
+        }
+    }
+
+    public long getElapsed() {
+        if (isSpan()) {
+            return spanBo.getElapsed();
+        } else {
+            return spanEventBo.getEndElapsed();
+        }
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("SpanAlign{");
-        if (span) {
-            sb.append(", spanBo=").append(spanBo);
-            sb.append(", spanEventBo=").append(spanEventBo);
-        } else {
-            sb.append(", spanEventBo=").append(spanEventBo);
-            sb.append(", spanBo=").append(spanBo);
-        }
-        sb.append(", span=").append(span);
-        sb.append(", hasChild=").append(hasChild);
-        sb.append('}');
-        return sb.toString();
+        StringBuilder builder = new StringBuilder();
+        builder.append("{spanBo=");
+        builder.append(spanBo);
+        builder.append(", spanEventBo=");
+        builder.append(spanEventBo);
+        builder.append(", span=");
+        builder.append(span);
+        builder.append(", hasChild=");
+        builder.append(hasChild);
+        builder.append(", id=");
+        builder.append(id);
+        builder.append(", gap=");
+        builder.append(gap);
+        builder.append(", depth=");
+        builder.append(depth);
+        builder.append(", executionTime=");
+        builder.append(executionMilliseconds);
+        builder.append("}");
+        return builder.toString();
     }
 }
