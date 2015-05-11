@@ -301,6 +301,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
      * @throws IOException
      *             if an error occurs reading the input stream
      */
+    @SuppressWarnings("deprecation")
     public static String entityUtilsToString(final HttpEntity entity, final String defaultCharset, int maxLength) throws IOException, ParseException {
         if (entity == null) {
             throw new IllegalArgumentException("HTTP entity may not be null");
