@@ -43,7 +43,7 @@ public class SharedAnnotatedInterceptorInjector implements MethodRecipe {
             interceptorIdMap.put(targetClassLoader, interceptorId);
         } else {
             if (targetMethod.isConstructor()) {
-                // InstruemtnClass does not have reuseConstructorInterceptor(). Maybe nobody needs it. Don't bother adding unnecessary method.
+                // InstrumentClass does not have reuseConstructorInterceptor(). Maybe nobody needs it. Don't bother adding unnecessary method.
                 throw new IllegalArgumentException("Reusing constructor interceptor is not supported");
             } else {
                 targetClass.reuseInterceptor(targetMethod.getName(), targetMethod.getParameterTypes(), interceptorId);

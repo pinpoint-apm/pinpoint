@@ -199,9 +199,9 @@ public class ClusterTest {
     private void getNodeAndCompareContents(ZooKeeper zookeeper) throws KeeperException, InterruptedException {
         LOGGER.info("getNodeAndCompareContents() {}", CLUSTER_NODE_PATH);
 
-        byte[] conetents = zookeeper.getData(CLUSTER_NODE_PATH, null, null);
+        byte[] contents = zookeeper.getData(CLUSTER_NODE_PATH, null, null);
 
-        String[] registeredIplist = new String(conetents).split("\r\n");
+        String[] registeredIplist = new String(contents).split("\r\n");
 
         List<String> ipList = NetUtils.getLocalV4IpList();
 

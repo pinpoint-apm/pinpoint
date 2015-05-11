@@ -47,7 +47,7 @@ public class RetransformService implements RetransformEventTrigger {
     @Override
     public void retransform(Class<?> target, ClassFileTransformer transformer) {
         if (this.logger.isDebugEnabled()) {
-            logger.debug("retranform request class:{}", target.getName());
+            logger.debug("retransform request class:{}", target.getName());
         }
         assertClass(target);
 

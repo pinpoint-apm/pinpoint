@@ -405,9 +405,9 @@ public class FilteredMapServiceImpl implements FilteredMapService {
             }
         }
         if (crashKey.size() != 0) {
-            Set<TransactionId> filteredTrasnactionId = filterMap.keySet();
-            logger.info("transactionId crash found. original:{} filter:{} crashKey:{}", transactionIdList.size(), filteredTrasnactionId.size(), crashKey);
-            return filteredTrasnactionId;
+            Set<TransactionId> filteredTransactionId = filterMap.keySet();
+            logger.info("transactionId crash found. original:{} filter:{} crashKey:{}", transactionIdList.size(), filteredTransactionId.size(), crashKey);
+            return filteredTransactionId;
         }
         return transactionIdList;
     }

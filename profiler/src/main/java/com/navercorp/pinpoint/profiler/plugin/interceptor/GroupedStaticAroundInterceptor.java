@@ -48,7 +48,7 @@ public class GroupedStaticAroundInterceptor implements StaticAroundInterceptor {
             this.delegate.before(target, className, methodName, parameterDescription, args);
         } else {
             if (debugEnabled) {
-                logger.debug("tryBefore() returns false: interceptorGroupTransaction: {}, executionPonint: {}. Skip interceptor {}", new Object[] {transaction, point, delegate.getClass()} );
+                logger.debug("tryBefore() returns false: interceptorGroupTransaction: {}, executionPoint: {}. Skip interceptor {}", new Object[] {transaction, point, delegate.getClass()} );
             }
         }
     }
@@ -62,7 +62,7 @@ public class GroupedStaticAroundInterceptor implements StaticAroundInterceptor {
             transaction.leave(point);
         } else {
             if (debugEnabled) {
-                logger.debug("tryAfter() returns false: interceptorGroupTransaction: {}, executionPonint: {}. Skip interceptor {}", new Object[] {transaction, point, delegate.getClass()} );
+                logger.debug("tryAfter() returns false: interceptorGroupTransaction: {}, executionPoint: {}. Skip interceptor {}", new Object[] {transaction, point, delegate.getClass()} );
             }
         }
     }

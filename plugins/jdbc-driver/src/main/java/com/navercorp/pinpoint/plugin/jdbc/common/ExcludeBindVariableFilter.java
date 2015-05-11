@@ -23,13 +23,13 @@ import java.lang.reflect.Method;
  */
 public class ExcludeBindVariableFilter implements BindVariableFilter {
 
-    private String[] excudes;
+    private String[] excludes;
 
     public ExcludeBindVariableFilter(String[] excludes) {
         if (excludes == null) {
             throw new NullPointerException("excludes must not be null");
         }
-        this.excudes = excludes;
+        this.excludes = excludes;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class ExcludeBindVariableFilter implements BindVariableFilter {
         if (method == null) {
             throw new NullPointerException("method must not be null");
         }
-        for (String exclude : excudes) {
+        for (String exclude : excludes) {
             if(method.getName().equals(exclude)) {
                 return false;
             }

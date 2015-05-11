@@ -154,7 +154,7 @@ public class PinpointSocketManager {
         return NetUtils.LOOPBACK_ADDRESS_V4;
     }
 
-    private byte[] convertIpListToBytes(List<String> ipList, String delimeter) {
+    private byte[] convertIpListToBytes(List<String> ipList, String delimiter) {
         StringBuilder stringBuilder = new StringBuilder();
 
         Iterator<String> ipIterator = ipList.iterator();
@@ -163,7 +163,7 @@ public class PinpointSocketManager {
             stringBuilder.append(eachIp);
 
             if (ipIterator.hasNext()) {
-                stringBuilder.append(delimeter);
+                stringBuilder.append(delimiter);
             }
         }
 
@@ -173,12 +173,12 @@ public class PinpointSocketManager {
     private class PinpointSocketManagerHandler implements ServerMessageListener {
         @Override
         public void handleSend(SendPacket sendPacket, PinpointServer pinpointServer) {
-            logger.warn("Unsupport send received {} {}", sendPacket, pinpointServer);
+            logger.warn("Unsupported send received {} {}", sendPacket, pinpointServer);
         }
 
         @Override
         public void handleRequest(RequestPacket requestPacket, PinpointServer pinpointServer) {
-            logger.warn("Unsupport request received {} {}", requestPacket, pinpointServer);
+            logger.warn("Unsupported request received {} {}", requestPacket, pinpointServer);
         }
 
         @Override

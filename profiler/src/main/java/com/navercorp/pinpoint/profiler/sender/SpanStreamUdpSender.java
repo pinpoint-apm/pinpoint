@@ -146,7 +146,7 @@ public class SpanStreamUdpSender extends AbstractDataSender {
 
     @Override
     protected void sendPacket(Object message) {
-        logger.info("sendPacket messsage:{}", message);
+        logger.info("sendPacket message:{}", message);
 
         if (message instanceof TBase) {
             final TBase dto = (TBase) message;

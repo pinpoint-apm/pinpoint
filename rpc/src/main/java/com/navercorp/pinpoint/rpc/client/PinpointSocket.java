@@ -149,7 +149,7 @@ public class PinpointSocket {
     }
 
     /**
-     * write pinng packet on tcp channel
+     * write ping packet on tcp channel
      * PinpointSocketException throws when writing fails.
      *
      */

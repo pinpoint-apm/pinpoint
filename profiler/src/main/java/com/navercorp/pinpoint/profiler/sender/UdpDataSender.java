@@ -158,7 +158,7 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
                 logger.warn("discard packet. Caused:too large message. size:{}, {}", internalBufferSize, dto);
                 return;
             }
-            // it's safe to reuse becaus it's single threaded
+            // it's safe to reuse because it's single threaded
             reusePacket.setData(internalBufferData, 0, internalBufferSize);
 
             try {

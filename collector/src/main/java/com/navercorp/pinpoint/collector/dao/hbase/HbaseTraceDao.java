@@ -77,7 +77,7 @@ public class HbaseTraceDao implements TracesDao {
 
         byte[] spanValue = spanBo.writeValue();
 
-        // TODO  if we can identify whether the columName is duplicate or not,
+        // TODO  if we can identify whether the columnName is duplicated or not,
         // we can also know whether the span id is duplicated or not.
         byte[] spanId = Bytes.toBytes(spanBo.getSpanId());
 

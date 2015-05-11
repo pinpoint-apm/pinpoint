@@ -279,7 +279,7 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
         private List<MethodRecipe> buildMethodRecipe() {
             if (recipeBuilders.isEmpty()) {
                 // For now, a method transformer without any interceptor is meaningless. 
-                throw new IllegalStateException("No interceptors are defiend");
+                throw new IllegalStateException("No interceptors are defined");
             }
 
             List<MethodRecipe> recipes = new ArrayList<MethodRecipe>(recipeBuilders.size());

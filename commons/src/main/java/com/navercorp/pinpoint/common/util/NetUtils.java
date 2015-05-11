@@ -78,7 +78,7 @@ public final class NetUtils {
     }
 
     /**
-     * Returns a list of ip addreses on this machine that is accessible from a remote source.
+     * Returns a list of ip addresses on this machine that is accessible from a remote source.
      * If no network interfaces can be found on this machine, returns an empty List.
      */
     public static List<String> getLocalV4IpList() {

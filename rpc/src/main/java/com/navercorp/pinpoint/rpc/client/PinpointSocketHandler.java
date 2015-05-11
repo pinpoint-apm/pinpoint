@@ -441,9 +441,9 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         SocketStateCode currentStateCode = state.getCurrentStateCode();
         if (currentStateCode == SocketStateCode.BEING_CONNECT) {
             // removed stackTrace when reconnect. so many logs.
-            logger.info("{} exceptionCaught() occured. state:{}, caused:{}.", objectUniqName, currentStateCode, cause.getMessage());
+            logger.info("{} exceptionCaught() occurred. state:{}, caused:{}.", objectUniqName, currentStateCode, cause.getMessage());
         } else {
-            logger.warn("{} exceptionCaught() occured. state:{}. Caused:{}", objectUniqName, currentStateCode, cause.getMessage(), cause);
+            logger.warn("{} exceptionCaught() occurred. state:{}. Caused:{}", objectUniqName, currentStateCode, cause.getMessage(), cause);
         }
 
         // need to handle a error more precisely.

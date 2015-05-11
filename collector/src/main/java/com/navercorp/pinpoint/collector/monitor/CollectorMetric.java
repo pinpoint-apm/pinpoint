@@ -38,9 +38,9 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class CollectorMetric {
 
-    public static final String REPOTER_LOGGER_NAME = "com.navercorp.pinpoint.collector.StateReport";
+    public static final String REPORTER_LOGGER_NAME = "com.navercorp.pinpoint.collector.StateReport";
 
-    private final Logger reporterLogger = LoggerFactory.getLogger(REPOTER_LOGGER_NAME);
+    private final Logger reporterLogger = LoggerFactory.getLogger(REPORTER_LOGGER_NAME);
 
     @Autowired
     private MetricRegistry metricRegistry;

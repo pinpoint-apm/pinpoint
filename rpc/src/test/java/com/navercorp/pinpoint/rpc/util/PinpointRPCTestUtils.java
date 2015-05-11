@@ -72,7 +72,7 @@ public final class PinpointRPCTestUtils {
             return bindPort;
         } 
         
-        throw new IOException("can't find avaiable port.");
+        throw new IOException("can't find available port.");
     }
 
     public static PinpointServerAcceptor createPinpointServerFactory(int bindPort) {

@@ -56,7 +56,7 @@ public class PinpointWebTestUtils {
             return bindPort;
         } 
         
-        throw new IOException("can't find avaiable port.");
+        throw new IOException("can't find available port.");
     }
     
     public static String getRepresentationLocalV4Ip() {

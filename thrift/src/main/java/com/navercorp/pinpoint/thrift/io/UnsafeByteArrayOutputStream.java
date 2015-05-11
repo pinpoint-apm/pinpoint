@@ -24,7 +24,7 @@ import java.util.Arrays;
 /**
  * @author emeroad
  */
-public class UnsafeByteArrayOutputStream extends ResetableByteArrayOutputStream {
+public class UnsafeByteArrayOutputStream extends ResettableByteArrayOutputStream {
 
     private static final String UTF8 = "UTF8";
 

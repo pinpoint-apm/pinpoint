@@ -64,7 +64,7 @@ public class MapController {
     @Autowired
     private ServiceTypeRegistryService registry;
 
-    private static final int DEAULT_MAX_SEARCH_DEPTH = 8;
+    private static final int DEFAULT_MAX_SEARCH_DEPTH = 8;
 
     /**
    * Server map data query within from ~ to timeframe
@@ -112,7 +112,7 @@ public class MapController {
         SearchOption searchOption = new SearchOption(callerRange, calleeRange);
         assertSearchOption(searchOption);
 
-        logger.info("getSearverMap() applicationName:{} range:{} searchOption:{}", applicationName, TimeUnit.MILLISECONDS.toMinutes(range.getRange()), searchOption);
+        logger.info("getServerMap() applicationName:{} range:{} searchOption:{}", applicationName, TimeUnit.MILLISECONDS.toMinutes(range.getRange()), searchOption);
 
 
         ServiceType serviceType = registry.findServiceTypeByName(serviceTypeName);
@@ -135,7 +135,7 @@ public class MapController {
         if (depth < 0) {
             throw new IllegalArgumentException(message);
         }
-        if (depth > DEAULT_MAX_SEARCH_DEPTH) {
+        if (depth > DEFAULT_MAX_SEARCH_DEPTH) {
             throw new IllegalArgumentException(message);
         }
     }

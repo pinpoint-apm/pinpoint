@@ -51,7 +51,7 @@ public class JtdsDriverModifier extends AbstractModifier {
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
         if (logger.isInfoEnabled()) {
-            logger.info("Modifing. {}", javassistClassName);
+            logger.info("Modifying. {}", javassistClassName);
         }
         try {
             InstrumentClass jtdsDriver = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);

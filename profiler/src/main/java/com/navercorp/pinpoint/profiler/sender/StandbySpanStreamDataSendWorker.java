@@ -67,7 +67,7 @@ public class StandbySpanStreamDataSendWorker implements Runnable {
     }
 
     public void stop() {
-        logger.info("{} destorying started.", this.getClass().getSimpleName());
+        logger.info("{} destroying started.", this.getClass().getSimpleName());
 
         this.isStarted = false;
 
@@ -86,7 +86,7 @@ public class StandbySpanStreamDataSendWorker implements Runnable {
             }
         }
 
-        logger.info("{} destorying completed.", this.getClass().getSimpleName());
+        logger.info("{} destroying completed.", this.getClass().getSimpleName());
     }
 
     boolean addStandbySpanStreamData(SpanStreamSendData standbySpanStreamData) {
@@ -97,9 +97,9 @@ public class StandbySpanStreamDataSendWorker implements Runnable {
         }
     }
 
-    SpanStreamSendData getStandbySpanStreamSendData(int avaiableCapacity) {
+    SpanStreamSendData getStandbySpanStreamSendData(int availableCapacity) {
         synchronized (lock) {
-            return standbySpanStreamDataStorage.getStandbySpanStreamSendData(avaiableCapacity);
+            return standbySpanStreamDataStorage.getStandbySpanStreamSendData(availableCapacity);
         }
     }
 

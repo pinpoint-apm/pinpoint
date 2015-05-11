@@ -45,7 +45,7 @@ public class ZookeeperProfilerClusterManager implements ChannelStateChangeEventH
 
     private static final Charset charset = Charset.forName("UTF-8");
 
-    private static final String PROFILER_SEPERATOR = "\r\n";
+    private static final String PROFILER_SEPARATOR = "\r\n";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -102,14 +102,14 @@ public class ZookeeperProfilerClusterManager implements ChannelStateChangeEventH
             return;
         }
 
-        logger.info("{} destorying started.", this.getClass().getSimpleName());
+        logger.info("{} destroying started.", this.getClass().getSimpleName());
 
         if (worker != null) {
             worker.stop();
         }
 
         this.workerState.changeStateStopped();
-        logger.info("{} destorying completed.", this.getClass().getSimpleName());
+        logger.info("{} destroying completed.", this.getClass().getSimpleName());
     }
 
     @Override
@@ -156,7 +156,7 @@ public class ZookeeperProfilerClusterManager implements ChannelStateChangeEventH
         List<String> result = new ArrayList<String>();
 
         String clusterData = new String(contents, charset);
-        String[] allClusterData = clusterData.split(PROFILER_SEPERATOR);
+        String[] allClusterData = clusterData.split(PROFILER_SEPARATOR);
         for (String eachClusterData : allClusterData) {
             if (!StringUtils.isBlank(eachClusterData)) {
                 result.add(eachClusterData);

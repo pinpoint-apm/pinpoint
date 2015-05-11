@@ -43,7 +43,7 @@ public class DefaultHttpMethodRetryHandlerModifier extends AbstractModifier {
     @Override
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
         if (logger.isInfoEnabled()) {
-            logger.info("Modifing. {}", javassistClassName);
+            logger.info("Modifying. {}", javassistClassName);
         }
 
         try {

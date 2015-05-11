@@ -52,7 +52,7 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorFo
 
         this.databaseInfoAccessor = databaseInfoAccessor;
         this.jdbcUrlParser = jdbcUrlParser;
-        // option for mysql loadbalance only. Destination is recored at lower implementations.
+        // option for mysql loadbalance only. Destination is recorded at lower implementations.
         this.recordConnection = recordConnection;
     }
 

@@ -72,7 +72,7 @@ public abstract class AbstractSpanStreamSendDataPlaner implements SendDataPlaner
         }
 
         int buffersLength = compositeSpanStreamData.getComponentsBufferCapacity();
-        if (currentSpanStreamSendData.isAvaiableBufferCapacity(buffersLength)) {
+        if (currentSpanStreamSendData.isAvailableBufferCapacity(buffersLength)) {
             currentSpanStreamSendData.addBuffer(compositeSpanStreamData.getByteBuffer(), serializer);
             
             spanStreamSendDataList.add(currentSpanStreamSendData);
@@ -125,7 +125,7 @@ public abstract class AbstractSpanStreamSendDataPlaner implements SendDataPlaner
     private FlushMode plan(SpanStreamSendData spanStreamSendData) {
         int buffersLength = compositeSpanStreamData.getComponentsBufferCapacity();
 
-        if (buffersLength < spanStreamSendData.getAvaiableBufferCapacity()) {
+        if (buffersLength < spanStreamSendData.getAvailableBufferCapacity()) {
             return FlushMode.NORMAL;
         } else if (buffersLength < spanStreamSendData.getMaxBufferCapacity()) {
             return FlushMode.FLUSH_FIRST;
@@ -164,22 +164,22 @@ public abstract class AbstractSpanStreamSendDataPlaner implements SendDataPlaner
     private int calculateWithUsingCurrentSendData(SpanStreamSendData spanStreamSendData) {
         int chunkCount = 1;
 
-        int avaiableBufferSize = spanStreamSendData.getAvaiableBufferCapacity();
+        int availableBufferSize = spanStreamSendData.getAvailableBufferCapacity();
 
         for (int i = 0; i < compositeSpanStreamData.getComponentsCount(); i++) {
             int currentComponentBufferLength = compositeSpanStreamData.getComponentBufferLength(i);
 
             if (compositeSpanStreamData.isLastComponentIndex(i)) {
-                if (currentComponentBufferLength > avaiableBufferSize) {
+                if (currentComponentBufferLength > availableBufferSize) {
                     chunkCount++;
                 }
             } else {
-                if (currentComponentBufferLength + getSpanChunkLength() < avaiableBufferSize) {
-                    avaiableBufferSize -= currentComponentBufferLength;
+                if (currentComponentBufferLength + getSpanChunkLength() < availableBufferSize) {
+                    availableBufferSize -= currentComponentBufferLength;
                 } else {
                     chunkCount++;
-                    avaiableBufferSize = spanStreamSendData.getMaxBufferCapacity();
-                    avaiableBufferSize -= currentComponentBufferLength;
+                    availableBufferSize = spanStreamSendData.getMaxBufferCapacity();
+                    availableBufferSize -= currentComponentBufferLength;
                 }
             }
         }
@@ -189,22 +189,22 @@ public abstract class AbstractSpanStreamSendDataPlaner implements SendDataPlaner
     private int calculateWithoutUsingCurrentSendData(SpanStreamSendData spanStreamSendData) {
         int chunkCount = 2;
 
-        int avaiableBufferSize = spanStreamSendData.getMaxBufferCapacity();
+        int availableBufferSize = spanStreamSendData.getMaxBufferCapacity();
 
         for (int i = 0; i < compositeSpanStreamData.getComponentsCount(); i++) {
             int currentComponentBufferLength = compositeSpanStreamData.getComponentBufferLength(i);
 
             if (compositeSpanStreamData.isLastComponentIndex(i)) {
-                if (currentComponentBufferLength > avaiableBufferSize) {
+                if (currentComponentBufferLength > availableBufferSize) {
                     chunkCount++;
                 }
             } else {
-                if (currentComponentBufferLength + getSpanChunkLength() < avaiableBufferSize) {
-                    avaiableBufferSize -= currentComponentBufferLength;
+                if (currentComponentBufferLength + getSpanChunkLength() < availableBufferSize) {
+                    availableBufferSize -= currentComponentBufferLength;
                 } else {
                     chunkCount++;
-                    avaiableBufferSize = spanStreamSendData.getMaxBufferCapacity();
-                    avaiableBufferSize -= currentComponentBufferLength;
+                    availableBufferSize = spanStreamSendData.getMaxBufferCapacity();
+                    availableBufferSize -= currentComponentBufferLength;
                 }
             }
         }
@@ -212,16 +212,16 @@ public abstract class AbstractSpanStreamSendDataPlaner implements SendDataPlaner
     }
 
     private boolean needFlush(SpanStreamSendData spanStreamSendData, int length, int delemeterBufferSize) {
-        if (!spanStreamSendData.isAvaiableBufferCapacity(length + delemeterBufferSize)) {
+        if (!spanStreamSendData.isAvailableBufferCapacity(length + delemeterBufferSize)) {
             return true;
         }
 
-        int avaiableComponentsCount = 1;
+        int availableComponentsCount = 1;
         if (delemeterBufferSize > 0) {
-            avaiableComponentsCount++;
+            availableComponentsCount++;
         }
 
-        if (!spanStreamSendData.isAvaiableComponentsCount(avaiableComponentsCount)) {
+        if (!spanStreamSendData.isAvailableComponentsCount(availableComponentsCount)) {
             return true;
         }
 

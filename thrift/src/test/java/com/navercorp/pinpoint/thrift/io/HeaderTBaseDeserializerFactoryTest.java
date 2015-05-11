@@ -28,18 +28,18 @@ public class HeaderTBaseDeserializerFactoryTest {
     public void optionTest1() {
 
         HeaderTBaseSerializerFactory factory = new HeaderTBaseSerializerFactory();
-        Assert.assertTrue(factory.isSafetyGuranteed());
+        Assert.assertTrue(factory.isSafetyGuaranteed());
     }
 
     @Test
     public void optionTest2() {
         HeaderTBaseSerializerFactory factory = new HeaderTBaseSerializerFactory(true, 1);
-        Assert.assertTrue(factory.isSafetyGuranteed());
+        Assert.assertTrue(factory.isSafetyGuaranteed());
     }
 
     @Test
     public void optionTest() {
         HeaderTBaseSerializerFactory factory = new HeaderTBaseSerializerFactory(false, 1);
-        Assert.assertFalse(factory.isSafetyGuranteed());
+        Assert.assertFalse(factory.isSafetyGuaranteed());
     }
 }

@@ -70,7 +70,7 @@ public class BusinessTransactionController {
     @Autowired
     private FilterBuilder filterBuilder;
     
-//    Temporarily disabled Becuase We need to slove authentication problem inter system.
+//    Temporarily disabled Because We need to solve authentication problem inter system.
 //    @Value("#{pinpointWebProps['log.enable'] ?: false}")
     private boolean logLinkEnable = false;
 

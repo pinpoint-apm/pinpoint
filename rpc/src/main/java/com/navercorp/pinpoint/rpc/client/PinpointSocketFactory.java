@@ -351,7 +351,7 @@ public class PinpointSocketFactory {
                          if (!pinpointSocket.isClosed()) {
 
                          /*
-                            // comment out because exception message can be taken at exceptionCought
+                            // comment out because exception message can be taken at exceptionCaught
                             if (logger.isWarnEnabled()) {
                                 Throwable cause = future.getCause();
                                 logger.warn("reconnect fail. {} Caused:{}", socketAddress, cause.getMessage());

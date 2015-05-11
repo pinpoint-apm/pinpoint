@@ -222,8 +222,8 @@ public class TraceMetadataLoader {
                 }
             });
 
-            for (Pair<AnnotationKey> annotaionKey : annotationKeys) {
-                logger.info(annotationKeyPairToString(annotaionKey));
+            for (Pair<AnnotationKey> annotationKey : annotationKeys) {
+                logger.info(annotationKeyPairToString(annotationKey));
             }
         }
     }

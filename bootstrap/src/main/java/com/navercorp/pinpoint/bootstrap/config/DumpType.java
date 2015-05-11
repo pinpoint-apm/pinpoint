@@ -20,7 +20,7 @@ package com.navercorp.pinpoint.bootstrap.config;
  * @author emeroad
  */
 public enum DumpType {
-//  NONE(-1),  comment out becasue of duplicated configuration. 
+//  NONE(-1),  comment out because of duplicated configuration.
     ALWAYS(0), EXCEPTION(1);
 
     private int code;

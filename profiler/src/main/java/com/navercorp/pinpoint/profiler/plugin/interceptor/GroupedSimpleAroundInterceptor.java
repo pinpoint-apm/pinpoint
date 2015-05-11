@@ -48,21 +48,21 @@ public class GroupedSimpleAroundInterceptor implements SimpleAroundInterceptor {
             delegate.before(target, args);
         } else {
             if (debugEnabled) {
-                logger.debug("tryBefore() returns false: interceptorGroupTransaction: {}, executionPonint: {}. Skip interceptor {}", new Object[] {transaction, point, delegate.getClass()} );
+                logger.debug("tryBefore() returns false: interceptorGroupTransaction: {}, executionPoint: {}. Skip interceptor {}", new Object[] {transaction, point, delegate.getClass()} );
             }
         }
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        InterceptorGroupInvocation transacton = group.getCurrentInvocation();
+        InterceptorGroupInvocation transaction = group.getCurrentInvocation();
         
-        if (transacton.canLeave(point)) {
+        if (transaction.canLeave(point)) {
             delegate.after(target, args, result, throwable);
-            transacton.leave(point);
+            transaction.leave(point);
         } else {
             if (debugEnabled) {
-                logger.debug("tryAfter() returns false: interceptorGroupTransaction: {}, executionPonint: {}. Skip interceptor {}", new Object[] {transacton, point, delegate.getClass()} );
+                logger.debug("tryAfter() returns false: interceptorGroupTransaction: {}, executionPoint: {}. Skip interceptor {}", new Object[] {transaction, point, delegate.getClass()} );
             }
         }
     }

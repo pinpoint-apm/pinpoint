@@ -40,9 +40,9 @@ public class JedisPipelineMethodNames {
                 "syncAndReturnAll"
             };
         
-        final Set<String> jedisMethoNames = JedisMethodNames.get();
-        jedisMethoNames.addAll(Arrays.asList(methodNames));
-        names = jedisMethoNames;
+        final Set<String> jedisMethodNames = JedisMethodNames.get();
+        jedisMethodNames.addAll(Arrays.asList(methodNames));
+        names = jedisMethodNames;
 
         return names;
     }

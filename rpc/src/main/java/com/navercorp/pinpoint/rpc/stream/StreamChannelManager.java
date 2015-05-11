@@ -98,7 +98,7 @@ public class StreamChannelManager {
         newStreamChannel.awaitOpen(3000);
 
         if (newStreamChannel.checkState(StreamChannelStateCode.RUN)) {
-            logger.info("Open streamChannel initialization completed. Channel:{}, StreamChnnelContext:{} ", channel, newStreamChannelContext);
+            logger.info("Open streamChannel initialization completed. Channel:{}, StreamChannelContext:{} ", channel, newStreamChannelContext);
             return newStreamChannelContext;
         } else {
             newStreamChannel.changeStateClose();
@@ -151,7 +151,7 @@ public class StreamChannelManager {
                 break;
             default:
                 clearResourceAndSendClose(streamChannelId, StreamClosePacket.PACKET_UNKNOWN);
-                logger.info("Unkown StreamPacket received Channel:{}, StreamId:{}, Packet;{}.", channel, streamChannelId, packet);
+                logger.info("Unknown StreamPacket received Channel:{}, StreamId:{}, Packet;{}.", channel, streamChannelId, packet);
         }
     }
 
@@ -180,7 +180,7 @@ public class StreamChannelManager {
                 break;
             default:
                 clearResourceAndSendClose(streamChannelId, StreamClosePacket.PACKET_UNKNOWN);
-                logger.info("Unkown StreamPacket received Channel:{}, StreamId:{}, Packet;{}.", channel, streamChannelId, packet);
+                logger.info("Unknown StreamPacket received Channel:{}, StreamId:{}, Packet;{}.", channel, streamChannelId, packet);
         }
     }
 

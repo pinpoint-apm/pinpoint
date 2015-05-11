@@ -59,7 +59,7 @@ public class MetadataInjector implements ClassRecipe {
         builder.append(name);
         
         if (strategy != null) {
-            builder.append(", intialize=");
+            builder.append(", initialize=");
             builder.append(strategy);
         }
         

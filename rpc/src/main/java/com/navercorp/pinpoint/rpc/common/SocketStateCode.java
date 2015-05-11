@@ -43,7 +43,7 @@ public enum SocketStateCode {
     CLOSED_BY_SERVER((byte) 32, NONE, BEING_CLOSE_BY_SERVER), 
     UNEXPECTED_CLOSE_BY_SERVER((byte) 36, NONE, CONNECTED, RUN_WITHOUT_HANDSHAKE, RUN_SIMPLEX, RUN_DUPLEX),
 
-    ERROR_UNKOWN((byte) 40), 
+    ERROR_UNKNOWN((byte) 40),
     ERROR_ILLEGAL_STATE_CHANGE((byte) 41),
     ERROR_SYNC_STATE_SESSION((byte) 42);
 
@@ -140,7 +140,7 @@ public enum SocketStateCode {
             case UNEXPECTED_CLOSE_BY_CLIENT:
             case CLOSED_BY_SERVER:
             case UNEXPECTED_CLOSE_BY_SERVER:
-            case ERROR_UNKOWN:
+            case ERROR_UNKNOWN:
             case ERROR_ILLEGAL_STATE_CHANGE:
                 return true;
             default:
@@ -151,7 +151,7 @@ public enum SocketStateCode {
     private boolean isError(SocketStateCode code) {
         switch (code) {
             case ERROR_ILLEGAL_STATE_CHANGE:
-            case ERROR_UNKOWN:
+            case ERROR_UNKNOWN:
                 return true;
             default:
                 return false;

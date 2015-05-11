@@ -261,7 +261,7 @@ public class DefaultAgent implements Agent {
         PLogger pLogger = binder.getLogger(binder.getClass().getName());
         pLogger.info("PLoggerFactory.initialize() bind:{} cl:{}", binderClassName, binder.getClass().getClassLoader());
         // Set binder to static LoggerFactory
-        // Should we unset binder at shutdonw hook or stop()?
+        // Should we unset binder at shutdown hook or stop()?
         PLoggerFactory.initialize(binder);
     }
 

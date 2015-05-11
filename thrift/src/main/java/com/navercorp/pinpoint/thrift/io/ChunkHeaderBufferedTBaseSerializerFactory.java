@@ -27,7 +27,7 @@ import java.io.ByteArrayOutputStream;
  */
 public final class ChunkHeaderBufferedTBaseSerializerFactory implements SerializerFactory<ChunkHeaderBufferedTBaseSerializer> {
 
-    private static final boolean DEFAULT_SAFE_GURANTEED = false;
+    private static final boolean DEFAULT_SAFE_GUARANTEED = false;
 
     private static final int DEFAULT_STREAM_SIZE = 1024 * 8;
     private static final boolean DEFAULT_AUTO_EXPAND = true;
@@ -35,30 +35,30 @@ public final class ChunkHeaderBufferedTBaseSerializerFactory implements Serializ
     private static final TBaseLocator DEFAULT_TBASE_LOCATOR = new DefaultTBaseLocator();
     private static final TProtocolFactory DEFAULT_PROTOCOL_FACTORY = new TCompactProtocol.Factory();
     
-    private final boolean safetyGuranteed;
+    private final boolean safetyGuaranteed;
     private final int outputStreamSize;
     private final boolean autoExpand;
     private final TProtocolFactory protocolFactory;
     private final TBaseLocator locator;
 
     public ChunkHeaderBufferedTBaseSerializerFactory() {
-        this(DEFAULT_SAFE_GURANTEED, DEFAULT_STREAM_SIZE, DEFAULT_PROTOCOL_FACTORY, DEFAULT_TBASE_LOCATOR);
+        this(DEFAULT_SAFE_GUARANTEED, DEFAULT_STREAM_SIZE, DEFAULT_PROTOCOL_FACTORY, DEFAULT_TBASE_LOCATOR);
     }
 
-    public ChunkHeaderBufferedTBaseSerializerFactory(boolean safetyGuranteed, int outputStreamSize, TProtocolFactory protocolFactory, TBaseLocator locator) {
-        this(safetyGuranteed, outputStreamSize, DEFAULT_AUTO_EXPAND, protocolFactory, locator);
+    public ChunkHeaderBufferedTBaseSerializerFactory(boolean safetyGuaranteed, int outputStreamSize, TProtocolFactory protocolFactory, TBaseLocator locator) {
+        this(safetyGuaranteed, outputStreamSize, DEFAULT_AUTO_EXPAND, protocolFactory, locator);
     }
     
-    public ChunkHeaderBufferedTBaseSerializerFactory(boolean safetyGuranteed, int outputStreamSize, boolean autoExpand, TProtocolFactory protocolFactory, TBaseLocator locator) {
-        this.safetyGuranteed = safetyGuranteed;
+    public ChunkHeaderBufferedTBaseSerializerFactory(boolean safetyGuaranteed, int outputStreamSize, boolean autoExpand, TProtocolFactory protocolFactory, TBaseLocator locator) {
+        this.safetyGuaranteed = safetyGuaranteed;
         this.outputStreamSize = outputStreamSize;
         this.autoExpand = autoExpand;
         this.protocolFactory = protocolFactory;
         this.locator = locator;
     }
 
-    public boolean isSafetyGuranteed() {
-        return safetyGuranteed;
+    public boolean isSafetyGuaranteed() {
+        return safetyGuaranteed;
     }
 
     public int getOutputStreamSize() {
@@ -76,7 +76,7 @@ public final class ChunkHeaderBufferedTBaseSerializerFactory implements Serializ
     @Override
     public ChunkHeaderBufferedTBaseSerializer createSerializer() {
         ByteArrayOutputStream baos = null;
-        if (safetyGuranteed) {
+        if (safetyGuaranteed) {
             baos = new PinpointByteArrayOutputStream(outputStreamSize, autoExpand);
         } else {
             baos = new UnsafeByteArrayOutputStream(outputStreamSize, autoExpand);

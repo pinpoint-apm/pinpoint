@@ -43,7 +43,7 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptor {
         if (scope == null) {
             throw new NullPointerException("scope must not be null");
         }
-        // option for mysql loadbalance only. Destination is recored at lower implementations.
+        // option for mysql loadbalance only. Destination is recorded at lower implementations.
         this.recordConnection = recordConnection;
         this.scope = scope;
     }

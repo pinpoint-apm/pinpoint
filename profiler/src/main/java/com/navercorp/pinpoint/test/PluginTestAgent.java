@@ -576,7 +576,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         try {
             ic = getByteCodeInstrumentor().getClass(clazz.getClassLoader(), clazz.getName(), null);
         } catch (InstrumentException e) {
-            throw new RuntimeException("Cannot get instruemntClass " + clazz.getName(), e);
+            throw new RuntimeException("Cannot get instrumentClass " + clazz.getName(), e);
         }
 
         MethodInfo methodInfo;

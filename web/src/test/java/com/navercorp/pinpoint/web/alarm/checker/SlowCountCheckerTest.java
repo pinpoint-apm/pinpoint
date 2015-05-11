@@ -117,7 +117,7 @@ public class SlowCountCheckerTest {
         
         AlarmRuleResource rule = new AlarmRuleResource();
         rule.setThresholdRule(10);
-        rule.setContinuosTime(36000000);
+        rule.setContinuousTime(36000000);
         filter.initialize(rule);
         
         DefaultAlarmEvent event = new DefaultAlarmEvent(System.currentTimeMillis(), hbaseMapResponseTimeDao);

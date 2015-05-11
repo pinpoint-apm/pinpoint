@@ -39,43 +39,43 @@ public class PinpointPluginTestRunListener extends RunListener implements Pinpoi
 
     @Override
     public void testRunStarted(Description description) throws Exception {
-        out.println(JUNIT_OUTPUT_DELIMETER + "testRunStarted");
+        out.println(JUNIT_OUTPUT_DELIMITER + "testRunStarted");
         out.flush();
     }
 
     @Override
     public void testRunFinished(Result result) throws Exception {
-        out.println(JUNIT_OUTPUT_DELIMETER + "testRunFinished");
+        out.println(JUNIT_OUTPUT_DELIMITER + "testRunFinished");
         out.flush();
     }
 
     @Override
     public void testStarted(Description description) throws Exception {
-        out.println(JUNIT_OUTPUT_DELIMETER + "testStarted" + JUNIT_OUTPUT_DELIMETER + description.getDisplayName());
+        out.println(JUNIT_OUTPUT_DELIMITER + "testStarted" + JUNIT_OUTPUT_DELIMITER + description.getDisplayName());
         out.flush();
     }
 
     @Override
     public void testFinished(Description description) throws Exception {
-        out.println(JUNIT_OUTPUT_DELIMETER + "testFinished" + JUNIT_OUTPUT_DELIMETER + description.getDisplayName());
+        out.println(JUNIT_OUTPUT_DELIMITER + "testFinished" + JUNIT_OUTPUT_DELIMITER + description.getDisplayName());
         out.flush();
     }
 
     @Override
     public void testFailure(Failure failure) throws Exception {
-        out.println(JUNIT_OUTPUT_DELIMETER + "testFailure" + JUNIT_OUTPUT_DELIMETER + failureToString(failure));
+        out.println(JUNIT_OUTPUT_DELIMITER + "testFailure" + JUNIT_OUTPUT_DELIMITER + failureToString(failure));
         out.flush();
     }
 
     @Override
     public void testAssumptionFailure(Failure failure) {
-        out.println(JUNIT_OUTPUT_DELIMETER + "testAssumptionFailure" + JUNIT_OUTPUT_DELIMETER + failureToString(failure));
+        out.println(JUNIT_OUTPUT_DELIMITER + "testAssumptionFailure" + JUNIT_OUTPUT_DELIMITER + failureToString(failure));
         out.flush();
     }
 
     @Override
     public void testIgnored(Description description) throws Exception {
-        out.println(JUNIT_OUTPUT_DELIMETER + "testIgnored" + JUNIT_OUTPUT_DELIMETER + description.getDisplayName());
+        out.println(JUNIT_OUTPUT_DELIMITER + "testIgnored" + JUNIT_OUTPUT_DELIMITER + description.getDisplayName());
         out.flush();
     }
 
@@ -83,11 +83,11 @@ public class PinpointPluginTestRunListener extends RunListener implements Pinpoi
         StringBuilder builder = new StringBuilder();
 
         builder.append(failure.getTestHeader());
-        builder.append(JUNIT_OUTPUT_DELIMETER);
+        builder.append(JUNIT_OUTPUT_DELIMITER);
         builder.append(failure.getException().getClass().getName());
-        builder.append(JUNIT_OUTPUT_DELIMETER);
+        builder.append(JUNIT_OUTPUT_DELIMITER);
         builder.append(failure.getMessage());
-        builder.append(JUNIT_OUTPUT_DELIMETER);
+        builder.append(JUNIT_OUTPUT_DELIMITER);
 
         for (StackTraceElement e : failure.getException().getStackTrace()) {
             builder.append(e.getClassName());
@@ -98,7 +98,7 @@ public class PinpointPluginTestRunListener extends RunListener implements Pinpoi
             builder.append(',');
             builder.append(e.getLineNumber());
 
-            builder.append(JUNIT_OUTPUT_DELIMETER);
+            builder.append(JUNIT_OUTPUT_DELIMITER);
         }
 
         return builder.toString();

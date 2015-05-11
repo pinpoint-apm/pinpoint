@@ -142,9 +142,9 @@ public class LoadFactor {
         /**
          * <pre>
          * timeseriesValueList :
-         * list[respoinse_slot_no + 0] = value<timestamp, call count>
-         * list[respoinse_slot_no + 1] = value<timestamp, call count>
-         * list[respoinse_slot_no + N] = value<timestamp, call count>
+         * list[response_slot_no + 0] = value<timestamp, call count>
+         * list[response_slot_no + 1] = value<timestamp, call count>
+         * list[response_slot_no + N] = value<timestamp, call count>
          * </pre>
          */
         for (int i = 0; i < timeseriesValueList.size(); i++) {

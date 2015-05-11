@@ -66,7 +66,7 @@ public class JobLaunchSupport implements InitializingBean {
         try {
             interfaces = NetworkInterface.getNetworkInterfaces();
         } catch (SocketException e) {
-            logger.error("not found network nterface", e);
+            logger.error("not found network interface", e);
             return false;
         }
 

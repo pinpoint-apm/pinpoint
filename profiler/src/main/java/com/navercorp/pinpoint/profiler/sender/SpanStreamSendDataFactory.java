@@ -26,7 +26,7 @@ public class SpanStreamSendDataFactory {
 
     public static final int DEFAULT_UDP_MAX_BUFFER_SIZE = 65507;
     // MAX - start - end
-    public static final int DEFUALT_UDP_MAX_GATHERING_COMPONENTS_COUNT = 16;
+    public static final int DEFAULT_UDP_MAX_GATHERING_COMPONENTS_COUNT = 16;
 
     
     private final int maxPacketSize;
@@ -35,7 +35,7 @@ public class SpanStreamSendDataFactory {
 
     
     public SpanStreamSendDataFactory(ObjectPool<HeaderTBaseSerializer> serializerPool) {
-        this(DEFAULT_UDP_MAX_BUFFER_SIZE, DEFUALT_UDP_MAX_GATHERING_COMPONENTS_COUNT, serializerPool);
+        this(DEFAULT_UDP_MAX_BUFFER_SIZE, DEFAULT_UDP_MAX_GATHERING_COMPONENTS_COUNT, serializerPool);
     }
     
     public SpanStreamSendDataFactory(int maxPacketSize, int maxGatheringComponentCount, ObjectPool<HeaderTBaseSerializer> serializerPool) { this.maxPacketSize = maxPacketSize;

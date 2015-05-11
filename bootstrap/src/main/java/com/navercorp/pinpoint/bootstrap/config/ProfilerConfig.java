@@ -616,7 +616,7 @@ public class ProfilerConfig {
 
     // for test
     void readPropertyValues() {
-        // TODO : use Properties's default value instead of using a temp variable.
+        // TODO : use Properties' default value instead of using a temp variable.
         final ValueResolver placeHolderResolver = new PlaceHolderResolver();
 
         this.profileEnable = readBoolean("profiler.enable", true);
@@ -784,9 +784,9 @@ public class ProfilerConfig {
         // profile package included in order to test "call stack view".
         // this config must not be used in service environment because the size of  profiling information will get heavy.
         // We may need to change this configuration to regular expression.
-        final String profileableClass = readString("profiler.include", "");
-        if (!profileableClass.isEmpty()) {
-            this.profilableClassFilter = new ProfilableClassFilter(profileableClass);
+        final String profilableClass = readString("profiler.include", "");
+        if (!profilableClass.isEmpty()) {
+            this.profilableClassFilter = new ProfilableClassFilter(profilableClass);
         }
 
         logger.info("configuration loaded successfully.");

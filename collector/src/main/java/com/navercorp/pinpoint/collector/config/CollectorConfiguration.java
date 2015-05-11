@@ -206,7 +206,7 @@ public class CollectorConfiguration implements InitializingBean {
         this.udpSpanWorkerQueueSize = readInt(properties, "collector.udpSpanWorkerQueueSize", 1024 * 5);
         this.udpSpanSocketReceiveBufferSize = readInt(properties, "collector.udpSpanSocketReceiveBufferSize", 1024 * 4096);
         
-        this.clusterEnable = readBoolen(properties, "cluster.enable");
+        this.clusterEnable = readBoolean(properties, "cluster.enable");
         this.clusterAddress = readString(properties, "cluster.zookeeper.address", "");
         this.clusterSessionTimeout = readInt(properties, "cluster.zookeeper.sessiontimeout", -1);
     }
@@ -229,7 +229,7 @@ public class CollectorConfiguration implements InitializingBean {
         return result;
     }
     
-    private boolean readBoolen(Properties properties, String propertyName) {
+    private boolean readBoolean(Properties properties, String propertyName) {
         final String value = properties.getProperty(propertyName);
         
         // if a default value will be needed afterwards, may match string value instead of Utils.

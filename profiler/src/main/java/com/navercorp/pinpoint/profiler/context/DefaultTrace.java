@@ -301,7 +301,7 @@ public final class DefaultTrace implements Trace {
             return;
         }
         final String drop = StringUtils.drop(th.getMessage(), 256);
-        // An exception that is an instance of a proxy class could make something wrong becuase the class name will vary.  
+        // An exception that is an instance of a proxy class could make something wrong because the class name will vary.
         final int exceptionId = traceContext.cacheString(th.getClass().getName());
         this.currentStackFrame.setExceptionInfo(exceptionId, drop);
 

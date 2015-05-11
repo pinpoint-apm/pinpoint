@@ -88,14 +88,14 @@ public class DefaultBindingLogFormatter implements BindLogFormatter {
     /**
      * Convert.
      *
-     * @param paramter the paramter
+     * @param parameter the parameter
      * @return the string
      */
-    private String convert(Object paramter) {
-        if (paramter instanceof String || paramter instanceof Date) {
-            return "'" + paramter + "'";
+    private String convert(Object parameter) {
+        if (parameter instanceof String || parameter instanceof Date) {
+            return "'" + parameter + "'";
         }
 
-        return String.valueOf(paramter);
+        return String.valueOf(parameter);
     }
 }

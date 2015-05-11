@@ -58,7 +58,7 @@ public class SpanEvent extends TSpanEvent {
         final int startElapsed = (int)(System.currentTimeMillis() - span.getStartTime());
         
         // If startElapsed is 0, logic without mark is useless. Don't do that.
-        // The first SpaneEvent of a Sapn could result in 0. Not likely afterwards.
+        // The first SpanEvent of a Span could result in 0. Not likely afterwards.
         this.setStartElapsed(startElapsed);
     }
 

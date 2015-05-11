@@ -28,9 +28,9 @@ import java.util.Map;
  */
 public class CollectorClusterInfoRepository {
 
-    private static final Charset charser = Charset.forName("UTF-8");
+    private static final Charset charset = Charset.forName("UTF-8");
 
-    private static final String PROFILER_SEPERATOR = "\r\n";
+    private static final String PROFILER_SEPARATOR = "\r\n";
 
     private final Map<String, Map<String, String>> repository = new HashMap<String, Map<String, String>>();
 
@@ -40,7 +40,7 @@ public class CollectorClusterInfoRepository {
         synchronized (lock) {
             Map<String, String> newMap = new HashMap<String, String>();
 
-            String[] profilerInfoList = new String(data, charser).split(PROFILER_SEPERATOR);
+            String[] profilerInfoList = new String(data, charset).split(PROFILER_SEPARATOR);
 
             for (String profilerInfo : profilerInfoList) {
                 if (profilerInfo == null || profilerInfo.trim().equals("")) {

@@ -219,7 +219,7 @@ public class SqlParserTest {
     }
 
     @Test
-    public void sepratorTest() {
+    public void separatorTest() {
 
         assertEqual("1234 456,7", "0# 1#,2#", "1234,456,7");
 
@@ -294,7 +294,7 @@ public class SqlParserTest {
         }
     }
 
-    private void assertEqual(String expected, String actual, String ouputExpected) {
+    private void assertEqual(String expected, String actual, String outputExpected) {
         ParsingResult parsingResult = sqlParser.normalizedSql(expected);
         String normalizedSql = parsingResult.getSql();
         String output = parsingResult.getOutput();
@@ -308,7 +308,7 @@ public class SqlParserTest {
             throw e;
         }
 
-        Assert.assertEquals("outputParam check", ouputExpected, parsingResult.getOutput());
+        Assert.assertEquals("outputParam check", outputExpected, parsingResult.getOutput());
     }
 
     private void assertEqualObject(String expected) {

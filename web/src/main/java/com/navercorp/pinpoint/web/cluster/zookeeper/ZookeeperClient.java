@@ -92,7 +92,7 @@ public class ZookeeperClient {
             return;
         }
 
-        logger.warn("Exeucte ZookeeperClient.reconnectWhenSessionExpired()(Expired session:0x{}).", Long.toHexString(zookeeper.getSessionId()));
+        logger.warn("Execute ZookeeperClient.reconnectWhenSessionExpired()(Expired session:0x{}).", Long.toHexString(zookeeper.getSessionId()));
 
         try {
             zookeeper.close();

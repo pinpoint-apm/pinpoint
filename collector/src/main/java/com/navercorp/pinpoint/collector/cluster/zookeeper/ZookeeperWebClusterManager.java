@@ -109,7 +109,7 @@ public class ZookeeperWebClusterManager implements Runnable {
             return;
         }
 
-        logger.info("{} destorying started.", this.getClass().getSimpleName());
+        logger.info("{} destroying started.", this.getClass().getSimpleName());
 
         final boolean stopOffer = queue.offer(stopTask);
         if (!stopOffer) {
@@ -127,7 +127,7 @@ public class ZookeeperWebClusterManager implements Runnable {
         }
 
         this.workerState.changeStateStopped();
-        logger.info("{} destorying completed.", this.getClass().getSimpleName());
+        logger.info("{} destroying completed.", this.getClass().getSimpleName());
     }
 
     public void handleAndRegisterWatcher(String path) {
@@ -138,7 +138,7 @@ public class ZookeeperWebClusterManager implements Runnable {
                     logger.info("Message Queue is Full.");
                 }
             } else {
-                logger.info("Invald Path {}.", path);
+                logger.info("Invalid Path {}.", path);
             }
         } else {
             WorkerState state = this.workerState.getCurrentState();
