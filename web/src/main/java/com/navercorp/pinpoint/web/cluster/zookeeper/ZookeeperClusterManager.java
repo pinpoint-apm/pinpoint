@@ -106,7 +106,8 @@ public class ZookeeperClusterManager implements ClusterManager, Watcher {
 
         return true;
     }
-
+    
+    @SuppressWarnings("deprecation")
     @Override
     public void process(WatchedEvent event) {
         synchronized (initializeLock) {

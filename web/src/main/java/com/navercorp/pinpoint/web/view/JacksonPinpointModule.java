@@ -37,6 +37,7 @@ public class JacksonPinpointModule extends Module {
     /* (non-Javadoc)
      * @see org.codehaus.jackson.map.Module#version()
      */
+    @SuppressWarnings("deprecation")
     @Override
     public Version version() {
         return new Version(1, 0, 4, null);

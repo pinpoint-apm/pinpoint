@@ -36,6 +36,7 @@ public final class ZookeeperUtils {
         return isConnectedEvent(state, eventType);
     }
 
+    @SuppressWarnings("deprecation")
     public static boolean isConnectedEvent(KeeperState state, EventType eventType) {
         if ((state == KeeperState.SyncConnected || state == KeeperState.NoSyncConnected) && eventType == EventType.None) {
             return true;
