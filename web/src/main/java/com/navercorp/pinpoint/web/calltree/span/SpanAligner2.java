@@ -233,6 +233,10 @@ public class SpanAligner2 {
 
     Map<Integer, List<SpanEventBo>> extractAsyncSpanEvent(final List<SpanEventBo> spanEventBoList) {
         final Map<Integer, List<SpanEventBo>> asyncSpanEventMap = new HashMap<Integer, List<SpanEventBo>>();
+        if(spanEventBoList == null) {
+            return asyncSpanEventMap;
+        }
+        
         for (SpanEventBo spanEvent : spanEventBoList) {
             if (!spanEvent.isAsync()) {
                 continue;
