@@ -21,7 +21,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', '$filter', '
 
                 // define private variables of methods;
                 var reset, showDetailInformation, renderLoad, renderResponseSummaryWithHistogram, renderAllChartWhichIsVisible,
-                    hide, show, renderResponseSummaryWithLink;
+                    hide, show, renderResponseSummaryWithLink, getUnknownLink;
 
                 // bootstrap
                 scope.linkSearch = '';
@@ -273,13 +273,23 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', '$filter', '
                         scope.$broadcast('loadChart.initAndRenderWithData.' + namespace, timeSeriesHistogram, w, h, useChartCursor);
                     }
                 };
+                getUnknownLink = function( key ) {
+                	var link = null;
+                	for( var i = 0 ; i < htLastLink.unknownLinkGroup.length ; i++ ) {
+                		if (htLastLink.unknownLinkGroup[i].key === key) {
+                			link = htLastLink.unknownLinkGroup[i];
+                			break;
+                		}
+                	}
+                	return link;
+                };
 
                 /**
                  * show link detail information of scope
                  * @param index
                  */
-                scope.showLinkDetailInformation = function (index) {
-                    htLastLink = htLastLink.unknownLinkGroup[index];
+                scope.showLinkDetailInformation = function (key) {
+                	htLastLink = getUnknownLink(key);
                     showDetailInformation(htLastLink);
                     scope.$emit('linkInfoDetail.showDetailInformationClicked', htQuery, htLastLink);
                 };
@@ -300,10 +310,10 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', '$filter', '
                  * @param applicationName
                  * @param index
                  */
-                scope.renderLinkResponseSummary = function (applicationName, index) {
+                scope.renderLinkResponseSummary = function (applicationName, key) {
                     if (angular.isUndefined(htUnknownResponseSummary[applicationName])) {
                         htUnknownResponseSummary[applicationName] = true;
-                        renderResponseSummaryWithLink(null, htLastLink.unknownLinkGroup[index], '360px', '180px');
+                        renderResponseSummaryWithLink(null, getUnknownLink(key), '360px', '180px');
                     }
                 };
 
@@ -312,10 +322,10 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', '$filter', '
                  * @param applicationName
                  * @param index
                  */
-                scope.renderLinkLoad = function (applicationName, index) {
+                scope.renderLinkLoad = function (applicationName, key) {
                     if (angular.isUndefined(htUnknownLoad[applicationName])) {
                         htUnknownLoad[applicationName] = true;
-                        renderLoad(null, applicationName, htLastLink.unknownLinkGroup[index].timeSeriesHistogram, '360px', '200px', true);
+                        renderLoad(null, applicationName, getUnknownLink(key).timeSeriesHistogram, '360px', '200px', true);
                     }
                 };
 
@@ -398,9 +408,9 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', '$filter', '
                  * passing transaction map from link info details
                  * @param index
                  */
-                scope.passingTransactionMapFromLinkInfoDetails = function (index) {
-                    var link = htLastLink.unknownLinkGroup[index],
-                        oServerMapFilterVo = new ServerMapFilterVo();
+                scope.passingTransactionMapFromLinkInfoDetails = function (key) {
+                	var link = getUnknownLink(key);
+                    var oServerMapFilterVo = new ServerMapFilterVo();
                     oServerMapFilterVo
                         .setMainApplication(link.filterApplicationName)
                         .setMainServiceTypeCode(link.filterApplicationServiceTypeCode)
@@ -421,8 +431,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', '$filter', '
                  * open filter wizard
                  * @param index
                  */
-                scope.openFilterWizard = function (index) {
-                    var link = htLastLink.unknownLinkGroup[index];
+                scope.openFilterWizard = function (key) {
+                	var link = getUnknownLink(key);
                     //scope.$broadcast('linkInfoDetails.openFilterWizard', link);
                     scope.$emit('linkInfoDetails.openFilterWizard', link);
                 };

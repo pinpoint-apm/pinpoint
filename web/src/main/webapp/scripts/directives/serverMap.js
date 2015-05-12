@@ -45,7 +45,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 // define private variables
                 var bUseNodeContextMenu, bUseLinkContextMenu, htLastQuery,
                     bUseBackgroundContextMenu, oServerMap, oAlert, oProgressBar, htLastMapData, htLastLink, htLastNode,
-                    sLastSelection, $fromAgentName, $toAgentName, bIsFilterWizardLoaded, htLastMergedMapData;
+                    sLastSelection, $fromAgentName, $toAgentName, bIsFilterWizardLoaded, htLastMergedMapData, $serverMapTime;
 
                 // define private variables of methods
                 var showServerMap, setNodeContextMenuPosition, reset, emitDataExisting,
@@ -81,6 +81,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 scope.searchNodeQuery = "";
                 scope.searchNodeIndex = 0;
                 scope.searchNodeList = [];
+                $serverMapTime = element.find(".serverMapTime");
                 $fromAgentName = element.find('.fromAgentName');
                 $toAgentName = element.find('.toAgentName');
                 $fromAgentName.select2();
@@ -790,9 +791,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 };
                 scope.moveThePast = function() {
                 	scope.$emit("navbar.moveThePast");
+                	$serverMapTime.effect("highlight", { color: "#FFFF00" }, 1000);
                 };
                 scope.moveTheFuture = function() {
                 	scope.$emit("navbar.moveTheFuture");
+                	$serverMapTime.effect("highlight", { color: "#FFFF00" }, 1000);
                 };
             }
         };
