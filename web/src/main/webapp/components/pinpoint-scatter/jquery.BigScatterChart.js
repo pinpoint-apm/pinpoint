@@ -786,7 +786,7 @@ var BigScatterChart = $.Class({
             nBubbleSize = this.option('nBubbleSize'),
             nHeight = this.option('nHeight');
         this._welDragGuide.css({
-        	"left": nX - htOffset.left + 35,
+        	"left": nX - htOffset.left,
         	"top": nY - htOffset.top - 30
         }).find('span').text("Drag me!");
         this._welXGuideNumber.css('left', nX - htOffset.left);

@@ -212,7 +212,8 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                             isMethod: val[index['isMethod']] ,
                             logLink : val[index['logPageUrl']],
                             logButtonName : val[index['logButtonName']],
-                            isFocused : val[index['isFocused']]
+                            isFocused : val[index['isFocused']],
+                            execMilli : val[index['executionMilliseconds']]
                         });
                     });
                     return result;
@@ -234,7 +235,6 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                         topPanelHeight: 30,
                         rowHeight: 25
                     };
-
                     dataView = new Slick.Data.DataView({ inlineFilters: true });
                     dataView.beginUpdate();
                     dataView.setItems(window.callStacks);
@@ -267,10 +267,11 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                     var columns = [
 	                    {id: "method", name: "Method", field: "method", width: 400, formatter: treeFormatter},
 	                    {id: "argument", name: "Argument", field: "argument", width: 300, formatter: argumentFormatter},
-	                    {id: "exec-time", name: "Exec Time", field: "execTime", width: 90, formatter: execTimeFormatter},
-	                    {id: "gap-ms", name: "Gap(ms)", field: "gapMs", width: 60, cssClass: "right-align"},
-	                    {id: "time-ms", name: "Time(ms)", field: "timeMs", width: 60, cssClass: "right-align"},
-	                    {id: "time-per", name: "Time(%)", field: "timePer", width: 100, formatter: progressBarFormatter},
+	                    {id: "exec-time", name: "Start Time", field: "execTime", width: 90, formatter: execTimeFormatter},
+	                    {id: "gap-ms", name: "Gap", field: "gapMs", width: 50, cssClass: "right-align"},
+	                    {id: "time-ms", name: "Exec", field: "timeMs", width: 50, cssClass: "right-align"},
+	                    {id: "time-per", name: "Exec(%)", field: "timePer", width: 100, formatter: progressBarFormatter},
+	                    {id: "exec-milli", name: "Elapsed", field: "execMilli", width: 55, cssClass: "right-align"},
 	                    {id: "class", name: "Class", field: "class", width: 120},
 	                    {id: "api-type", name: "Api Type", field: "apiType", width: 90},
 	                    {id: "agent", name: "Agent", field: "agent", width: 130},
