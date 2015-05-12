@@ -73,6 +73,10 @@ public abstract class AbstractSpanStreamSendDataPlaner implements SendDataPlaner
 
         int buffersLength = compositeSpanStreamData.getComponentsBufferCapacity();
         if (currentSpanStreamSendData.isAvailableBufferCapacity(buffersLength)) {
+            if (currentSpanStreamSendData.getAvailableGatheringComponentsCount() < 2) {
+                currentSpanStreamSendData.setFlushMode();
+            }
+            
             currentSpanStreamSendData.addBuffer(compositeSpanStreamData.getByteBuffer(), serializer);
             
             spanStreamSendDataList.add(currentSpanStreamSendData);

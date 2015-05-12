@@ -43,8 +43,10 @@ public class SpanStreamUdpSender extends AbstractDataSender {
 
     public static final int SOCKET_TIMEOUT = 1000 * 5;
     public static final int SEND_BUFFER_SIZE = 1024 * 64 * 16;
-
+    public static final int DEFAULT_BUFFER_SIZE = 1024 * 16;
+    
     public static final int UDP_MAX_PACKET_LENGTH = 65507;
+    
 
     private final SpanStreamSendDataFactory spanStreamSendDataFactory;
 
@@ -60,8 +62,12 @@ public class SpanStreamUdpSender extends AbstractDataSender {
     public SpanStreamUdpSender(String host, int port, String threadName, int queueSize) {
         this(host, port, threadName, queueSize, SOCKET_TIMEOUT, SEND_BUFFER_SIZE);
     }
-
+    
     public SpanStreamUdpSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize) {
+        this(host, port, threadName, queueSize, SOCKET_TIMEOUT, SEND_BUFFER_SIZE, DEFAULT_BUFFER_SIZE);
+    }
+
+    public SpanStreamUdpSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize, int dataBufferSize) {
         if (host == null) {
             throw new NullPointerException("host must not be null");
         }
@@ -82,12 +88,12 @@ public class SpanStreamUdpSender extends AbstractDataSender {
         logger.info("UdpDataSender initialized. host={}, port={}", host, port);
         this.udpChannel = createChannel(host, port, timeout, sendBufferSize);
 
-        HeaderTBaseSerializerPoolFactory headerTBaseSerializerPoolFactory = new HeaderTBaseSerializerPoolFactory(false, sendBufferSize, true);
+        HeaderTBaseSerializerPoolFactory headerTBaseSerializerPoolFactory = new HeaderTBaseSerializerPoolFactory(false, dataBufferSize, true);
         this.serializerPool = new ObjectPool<HeaderTBaseSerializer>(headerTBaseSerializerPoolFactory, 16);
 
         this.spanStreamSendDataSerializer = new SpanStreamSendDataSerializer();
 
-        this.spanStreamSendDataFactory = new SpanStreamSendDataFactory(sendBufferSize, 16, serializerPool);
+        this.spanStreamSendDataFactory = new SpanStreamSendDataFactory(dataBufferSize, 16, serializerPool);
 
         this.standbySpanStreamDataSendWorker = new StandbySpanStreamDataSendWorker(new FlushHandler(), new StandbySpanStreamDataStorage());
         this.standbySpanStreamDataSendWorker.start();
@@ -176,7 +182,7 @@ public class SpanStreamUdpSender extends AbstractDataSender {
             serializerPool.returnObject(serializer);
             return;
         }
-
+        
         doAddAndFlush(compositeSpanStreamData, serializer);
     }
 
@@ -205,9 +211,9 @@ public class SpanStreamUdpSender extends AbstractDataSender {
         }
 
         try {
-            if (!currentSpanStreamSendData.addBuffer(compositeSpanStreamData.getByteBuffer())) {
+            if (!currentSpanStreamSendData.addBuffer(compositeSpanStreamData.getByteBuffer())) {                
                 SendDataPlaner sendDataPlaner = new SpanChunkStreamSendDataPlaner(compositeSpanStreamData, spanStreamSendDataFactory);
-
+                
                 Iterator<SpanStreamSendData> sendDataIterator = sendDataPlaner.getSendDataIterator(currentSpanStreamSendData, serializer);
                 while (sendDataIterator.hasNext()) {
                     SpanStreamSendData sendData = sendDataIterator.next();
@@ -220,8 +226,9 @@ public class SpanStreamUdpSender extends AbstractDataSender {
                         }
                     }
                 }
+            } else {
+                boolean isAdded = standbySpanStreamDataSendWorker.addStandbySpanStreamData(currentSpanStreamSendData);
             }
-
         } catch (IOException e) {
             logger.warn("UDPChannel write fail.", e);
         }
@@ -236,6 +243,8 @@ public class SpanStreamUdpSender extends AbstractDataSender {
                 long sentBufferSize = udpChannel.write(byteBuffers);
                 if (remainingLength != sentBufferSize) {
                     logger.warn("sent buffer {}/{}.", sentBufferSize, remainingLength);
+                } else {
+                    logger.debug("Data sent. size:{}, {}", sentBufferSize);
                 }
             }
         } finally {
@@ -257,7 +266,9 @@ public class SpanStreamUdpSender extends AbstractDataSender {
                     long sentBufferSize = udpChannel.write(byteBuffers);
                     if (remainingLength != sentBufferSize) {
                         logger.warn("sent buffer {}/{}.", sentBufferSize, remainingLength);
+                    } else {
                     }
+                       
                 }
             } catch (IOException e) {
                 logger.warn("Failed to flush span stream data.", e);
