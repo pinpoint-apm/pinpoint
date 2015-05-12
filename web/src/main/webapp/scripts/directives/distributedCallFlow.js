@@ -394,6 +394,7 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                 scope.$on("distributedCallFlow.selectRow." + scope.namespace, function( event, rowId ) {
                 	var gridRow = rowId - 1;
                 	grid.setSelectedRows( [gridRow] );
+                	grid.setActiveCell( gridRow, 0 );
                 	grid.scrollRowToTop( gridRow );
             	});
             }
