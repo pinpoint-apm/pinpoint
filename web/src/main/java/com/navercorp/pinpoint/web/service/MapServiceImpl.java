@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.service;
 
 import java.util.*;
 
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
@@ -63,10 +62,6 @@ public class MapServiceImpl implements MapService {
     @Autowired(required=false)
     private MatcherGroup matcherGroup;
 
-    @Autowired()
-    private ServiceTypeRegistryService registry;
-
-
     /**
      * Used in the main UI - draws the server map by querying the timeslot by time.
      */
@@ -82,8 +77,8 @@ public class MapServiceImpl implements MapService {
 
         StopWatch watch = new StopWatch("ApplicationMap");
         watch.start("ApplicationMap Hbase Io Fetch(Caller,Callee) Time");
-//        LinkSelector linkSelector = new DFSLinkSelector(this.mapStatisticsCalleeDao, this.mapStatisticsCallerDao, hostApplicationMapDao);
-        LinkSelector linkSelector = new BFSLinkSelector(this.mapStatisticsCalleeDao, this.mapStatisticsCallerDao, hostApplicationMapDao);
+
+        LinkSelector linkSelector = new BFSLinkSelector(this.mapStatisticsCallerDao, this.mapStatisticsCalleeDao, hostApplicationMapDao);
         LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(sourceApplication, range, searchOption);
         watch.stop();
 
@@ -91,8 +86,9 @@ public class MapServiceImpl implements MapService {
         ApplicationMapBuilder builder = new ApplicationMapBuilder(range, matcherGroup);
         ApplicationMap map = builder.build(linkDataDuplexMap, agentInfoService, this.mapResponseDao);
         watch.stop();
-
-        logger.info("ApplicationMap BuildTime: {}", watch.prettyPrint());
+        if (logger.isInfoEnabled()) {
+            logger.info("ApplicationMap BuildTime: {}", watch.prettyPrint());
+        }
 
         return map;
     }
