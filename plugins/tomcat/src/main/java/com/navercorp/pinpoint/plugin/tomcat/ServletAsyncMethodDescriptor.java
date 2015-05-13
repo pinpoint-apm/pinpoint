@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
  */
 public class ServletAsyncMethodDescriptor implements MethodDescriptor {
     private int apiId = 0;
-    private int type = 500;
+    private int type = 200;
 
     @Override
     public String getMethodName() {

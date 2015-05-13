@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
  */
 public class ServletSyncMethodDescriptor implements MethodDescriptor {
     private int apiId = 0;
-    private int type = 200;
+    private int type = 100;
 
     @Override
     public String getMethodName() {
