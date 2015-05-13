@@ -430,78 +430,51 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                     final int parentSequence = parent.getValue().getId();
                     logger.debug("spanBoEventSequence:{}, parentSequence:{}", spanBoEventSequence, parentSequence);
 
+                    String title = "";
+                    String className = "";
+                    String apiDescriptor = "";
                     final AnnotationBo annotation = AnnotationUtils.findAnnotationBo(spanEventBo.getAnnotationBoList(), AnnotationKey.API_METADATA);
                     // final String method = AnnotationUtils.findApiAnnotation(spanEventBo.getAnnotationBoList());
                     if (annotation != null) {
                         ApiMetaDataBo apiMetaData = (ApiMetaDataBo) annotation.getValue();
-                        final String apiInfo = getApiInfo(apiMetaData);
-                        String title = apiInfo;
-                        String className = "";
+                        apiDescriptor = getApiInfo(apiMetaData);
+                        title = apiDescriptor;
                         if (apiMetaData.getType() == 0) {
-                            ApiDescription apiDescription = apiDescriptionParser.parse(apiInfo);
+                            ApiDescription apiDescription = apiDescriptionParser.parse(apiDescriptor);
                             title = apiDescription.getSimpleMethodDescription();
                             className = apiDescription.getSimpleClassName();
                         }
-                        String destinationId = spanEventBo.getDestinationId();
-
-                        long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
-                        long elapsed = spanEventBo.getEndElapsed();
-
-                        // use spanBo's applicationId instead of spanEventBo's destinationId to display the name of the calling application on the call stack.
-                        Record record = new Record(spanAlign.getDepth(), 
-                                spanBoEventSequence, 
-                                parentSequence, 
-                                true, 
-                                title, 
-                                argument, 
-                                begin, 
-                                elapsed, 
-                                spanAlign.getGap(), 
-                                spanEventBo.getAgentId(), 
-                                spanBo.getApplicationId(), 
-                                registry.findServiceType(spanEventBo.getServiceType()), 
-                                /* spanEventBo.getDestinationId(), spanEventBo.getServiceTypeCode(), */
-                                destinationId, 
-                                spanAlign.isHasChild(), 
-                                false, 
-                                spanBo.getTransactionId(), 
-                                spanBo.getSpanId(),
-                                spanAlign.getExecutionMilliseconds());
-                        record.setSimpleClassName(className);
-                        record.setFullApiDescription(apiInfo);
-
-                        recordList.add(record);
                     } else {
                         AnnotationKey apiMetaDataError = getApiMetaDataError(spanEventBo.getAnnotationBoList());
-                        String destinationId = spanEventBo.getDestinationId();
-
-                        long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
-                        long elapsed = spanEventBo.getEndElapsed();
-
-                        // use spanBo's applicationId instead of spanEventBo's destinationId to display the name of the calling application on the call stack.
-                        Record record = new Record(spanAlign.getDepth(), 
-                                spanBoEventSequence, 
-                                parentSequence, 
-                                true, 
-                                apiMetaDataError.getName(), 
-                                argument, 
-                                begin, 
-                                elapsed, 
-                                spanAlign.getGap(), 
-                                spanEventBo.getAgentId(), 
-                                spanBo.getApplicationId(),
-                                registry.findServiceType(spanEventBo.getServiceType()), 
-                                /* spanEventBo.getDestinationId(), spanEventBo.getServiceTypeCode(), */
-                                destinationId, 
-                                spanAlign.isHasChild(), 
-                                false, 
-                                spanBo.getTransactionId(), 
-                                spanBo.getSpanId(),
-                                spanAlign.getExecutionMilliseconds());
-                        record.setSimpleClassName("");
-                        record.setFullApiDescription("");
-                        recordList.add(record);
+                        title = apiMetaDataError.getName();
                     }
+                    String destinationId = spanEventBo.getDestinationId();
+                    long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
+                    long elapsed = spanEventBo.getEndElapsed();
+
+                    // use spanBo's applicationId instead of spanEventBo's destinationId to display the name of the calling application on the call stack.
+                    Record record = new Record(spanAlign.getDepth(), 
+                            spanBoEventSequence, 
+                            parentSequence, 
+                            true, 
+                            title, 
+                            argument, 
+                            begin, 
+                            elapsed, 
+                            spanAlign.getGap(), 
+                            spanEventBo.getAgentId(), 
+                            spanBo.getApplicationId(), 
+                            registry.findServiceType(spanEventBo.getServiceType()), 
+                            /* spanEventBo.getDestinationId(), spanEventBo.getServiceTypeCode(), */
+                            destinationId, 
+                            spanAlign.isHasChild(), 
+                            false, 
+                            spanBo.getTransactionId(), 
+                            spanBo.getSpanId(),
+                            spanAlign.getExecutionMilliseconds());
+                    record.setSimpleClassName(className);
+                    record.setFullApiDescription(apiDescriptor);
+                    recordList.add(record);
                     // add exception record
                     final Record exceptionRecord = getExceptionRecord(spanAlign.getDepth(), spanAlign, spanBoEventSequence);
                     if (exceptionRecord != null) {
