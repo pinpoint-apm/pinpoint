@@ -21,11 +21,8 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
@@ -34,88 +31,23 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author jaehong.kim
  * 
  */
-public class BasicFutureMethodInterceptor implements SimpleAroundInterceptor, HttpClient4Constants {
-
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private TraceContext traceContext;
-    private MethodDescriptor descriptor;
-    private MetadataAccessor asyncTraceIdAccessor;
+public class BasicFutureMethodInterceptor extends SpanAsyncEventSimpleAroundInterceptor implements HttpClient4Constants {
 
     public BasicFutureMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor) {
-        this.traceContext = traceContext;
-        this.asyncTraceIdAccessor = asyncTraceIdAccessor;
-
-        setMethodDescriptor(methodDescriptor);
+        super(traceContext, methodDescriptor, asyncTraceIdAccessor);
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-
-        if (!asyncTraceIdAccessor.isApplicable(target) || asyncTraceIdAccessor.get(target) == null) {
-            logger.debug("Not found asynchronous invocation metadata");
-            return;
-        }
-
-        final AsyncTraceId asyncTraceId = asyncTraceIdAccessor.get(target);
-        boolean async = false;
-        Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            trace = traceContext.continueAsyncTraceObject(asyncTraceId, asyncTraceId.getAsyncId(), asyncTraceId.getSpanStartTime());
-            if (trace == null) {
-                logger.warn("Failed to continue async trace. 'result is null'");
-                return;
-            }
-            async = true;
-            if (isDebug) {
-                logger.debug("Continue async trace {} [{}]", asyncTraceId, Thread.currentThread().getName());
-            }
-
-        }
-
-        logger.debug("TraceBlockBegin [{}]", Thread.currentThread().getName());
-        trace.traceBlockBegin();
+    protected void doInBeforeTrace(Trace trace, AsyncTraceId asyncTraceId, Object target, Object[] args) {
+        System.out.println("#################################");
         trace.markBeforeTime();
         trace.recordServiceType(HTTP_CLIENT4_INTERNAL);
-        if (async) {
-            trace.recordAttribute(AnnotationKey.ASYNC, "");
-        }
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args);
-        }
-
-        Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            logger.debug("Not found trace");
-            return;
-        }
-
-        try {
-            trace.recordApi(descriptor);
-            trace.recordException(throwable);
-            trace.markAfterTime();
-        } finally {
-            trace.traceBlockEnd();
-            if (trace.isAsync() && trace.isRootStack()) {
-                trace.traceRootBlockEnd();
-                traceContext.detachTraceObject();
-                if (isDebug) {
-                    logger.debug("End async trace {} [{}]", trace.getTraceId(), Thread.currentThread().getName());
-                }
-            }
-        }
-    }
-
-    public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.descriptor = descriptor;
-        traceContext.cacheApi(descriptor);
+    protected void doInAfterTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
+        trace.recordApi(methodDescriptor);
+        trace.recordException(throwable);
+        trace.markAfterTime();
     }
 }
