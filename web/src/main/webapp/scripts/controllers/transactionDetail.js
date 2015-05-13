@@ -10,7 +10,7 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
         var oAlert, oProgressBar, bShowCallStacksOnce;
 
         // define private variables of methods
-        var parseTransactionDetail, showCallStacks, parseCompleteStateToClass;
+        var parseTransactionDetail, showCallStacks, parseCompleteStateToClass, initSearchVar;
 
         // initialize
         bShowCallStacksOnce = false;
@@ -80,6 +80,21 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
                 $scope.$broadcast('distributedCallFlow.initialize.forTransactionDetail', $scope.transactionDetail);
             }
         };
+        initSearchVar = function() {
+        	$("#traceTabs li:nth-child(5)").hide();
+        	$scope.searchMinTime = 1000;
+        	$scope.searchIndex = 0;
+        	$scope.searchMessage = "";
+        };
+        $scope.searchIndex = 0;
+        $scope.searchMinTime = 1000; // ms
+        $scope.searchMessage = "";
+        $scope.searchCall = function() {
+        	$scope.$broadcast('distributedCallFlow.searchCall.forTransactionDetail', parseInt($scope.searchMinTime), parseInt($scope.searchIndex) );
+        };
+        $scope.$watch( "searchMinTime", function( newVal ) {
+        	$scope.searchIndex = 0;
+        });
 
         $scope.openInNewWindow = function () {
             $window.open($location.absUrl());
@@ -101,17 +116,36 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
         	$("#traceTabs li:nth-child(1) a").trigger("click");
         	$scope.$broadcast('distributedCallFlow.selectRow.forTransactionDetail', rowId);
         });
-
+        $scope.$on("transactionDetail.searchCallresult", function(event, message) {
+        	if ( message == "Loop" ) {
+        		$scope.searchIndex = 1;
+        	} else {
+        		$scope.searchMessage = message.replace("{time}", $scope.searchMinTime);
+        		if ( message == "" ) {
+            		$scope.searchIndex++;
+        		}
+        	}
+        });
+        
+        
+        $('#traceTabs li a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+        	if ( e.target.href.indexOf( "#CallStacks") != -1 ) {
+        		$at($at.CALLSTACK, $at.CLK_DISTRIBUTED_CALL_FLOW);
+        		$("#traceTabs li:nth-child(5)").show();
+        	}
+        });
         // events binding
         $("#traceTabs li a").bind("click", function (e) {
             e.preventDefault();
         });
         $("#traceTabs li:nth-child(2) a").bind("click", function (e) {
         	$at($at.CALLSTACK, $at.CLK_SERVER_MAP);
+        	initSearchVar();
             $scope.$broadcast('serverMap.initializeWithMapData', $scope.transactionDetail);
         });
         $("#traceTabs li:nth-child(3) a").bind("click", function (e) {
         	$at($at.CALLSTACK, $at.CLK_RPC_TIMELINE);
+        	initSearchVar();
             $scope.$broadcast('timeline.initialize', $scope.transactionDetail);
         });
 
