@@ -72,7 +72,7 @@ public class ServletSyncMethodDescriptor implements MethodDescriptor {
 
     @Override
     public String getApiDescriptor() {
-        return "Servlet Process";
+        return "Tomcat Servlet Process";
     }
 
     public int getType() {

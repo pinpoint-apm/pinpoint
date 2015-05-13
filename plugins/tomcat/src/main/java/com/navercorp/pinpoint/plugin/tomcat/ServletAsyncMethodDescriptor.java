@@ -72,7 +72,7 @@ public class ServletAsyncMethodDescriptor implements MethodDescriptor {
 
     @Override
     public String getApiDescriptor() {
-        return "Servlet Asynchronous Process";
+        return "Tomcat Servlet Asynchronous Process";
     }
 
     public int getType() {
