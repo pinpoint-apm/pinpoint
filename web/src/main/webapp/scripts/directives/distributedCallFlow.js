@@ -16,7 +16,7 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
 
                 // initialize variables of methods
                 var initialize, treeFormatter, treeFilter, parseData, execTimeFormatter,
-                    getColorByString, progressBarFormatter, argumentFormatter, linkFormatter, hasChildNode;
+                    getColorByString, progressBarFormatter, argumentFormatter, linkFormatter, hasChildNode, searchRowByTime, selectRow;
 
                 // bootstrap
                 window.callStacks = []; // Due to Slick.Data.DataView, must use window property to resolve scope-related problems.
@@ -398,6 +398,40 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                 	grid.setActiveCell( gridRow, 0 );
                 	grid.scrollRowToTop( gridRow );
             	});
+                scope.$on("distributedCallFlow.searchCall." + scope.namespace, function( event, time, index ) {
+                	var row = searchRowByTime(time, index);
+                	if ( row == -1 ) {
+                		if ( index > 0 ) {
+                			selectRow( searchRowByTime(time, 0) );
+                			scope.$emit("transactionDetail.searchCallresult", "Loop" );
+                		} else {
+                			scope.$emit("transactionDetail.searchCallresult", "No call took longer than {time}ms." );
+                		}
+                	} else {
+                		selectRow(row);
+                		scope.$emit("transactionDetail.searchCallresult", "" );
+                	}
+            	});
+                searchRowByTime = function( time, index ) {
+                	var count = 0;
+                	var row = -1;
+                	for( var i = 0 ; i < window.callStacks.length ; i++ ) {
+                		if ( parseInt( window.callStacks[i].execMilli.replace(/,/gi, "") ) >= time ) {
+                			if ( count == index ) {
+                				row = i;
+                				break;
+                			} else {
+                				count++;
+                			}
+                		}
+                	}
+                	return row;
+                };
+                selectRow = function(row) {
+                	grid.setSelectedRows( [row] );
+                	grid.setActiveCell( row, 0 );
+                	grid.scrollRowIntoView( row, true );
+                };
             }
         };
     }
