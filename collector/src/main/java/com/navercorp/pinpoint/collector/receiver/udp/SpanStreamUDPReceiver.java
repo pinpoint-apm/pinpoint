@@ -82,7 +82,7 @@ public class SpanStreamUDPReceiver extends AbstractUDPReceiver {
             }
 
             byte version = requestBuffer.get();
-            int chunkSize = 0xffff & requestBuffer.getShort();
+            int chunkSize = 0xff & requestBuffer.get();
 
             try {
                 for (int i = 0; i < chunkSize; i++) {
