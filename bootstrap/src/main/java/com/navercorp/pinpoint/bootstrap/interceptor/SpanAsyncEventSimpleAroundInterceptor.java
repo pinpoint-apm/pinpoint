@@ -136,7 +136,7 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
 
         @Override
         public int getLineNumber() {
-            return 0;
+            return -1;
         }
 
         @Override

@@ -52,7 +52,7 @@ public class ServletAsyncMethodDescriptor implements MethodDescriptor {
 
     @Override
     public int getLineNumber() {
-        return 0;
+        return -1;
     }
 
     @Override
