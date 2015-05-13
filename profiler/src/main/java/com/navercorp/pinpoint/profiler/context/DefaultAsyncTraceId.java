@@ -68,4 +68,17 @@ public class DefaultAsyncTraceId implements AsyncTraceId {
     public long getSpanStartTime() {
         return startTime;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("{traceId=");
+        builder.append(traceId);
+        builder.append(", asyncId=");
+        builder.append(asyncId);
+        builder.append(", startTime=");
+        builder.append(startTime);
+        builder.append("}");
+        return builder.toString();
+    }
 }
