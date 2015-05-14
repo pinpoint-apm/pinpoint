@@ -30,6 +30,14 @@
     <li><a href="#ServerMap" data-toggle="tab">Server Map</a></li>
     <li><a href="#Timeline" data-toggle="tab">RPC Timeline</a></li>
     <li><a href ng-click="openTransactionView();">Mixed View</a></li>
+    <li style="padding-left:10px;padding-top:1px;">
+    	<div class="input-group" style="width:220px">
+    		<span class="input-group-addon">Self >=</span>
+      		<input type="number" class="form-control" placeholder="1000(ms)" ng-model="searchMinTime" style="background-color:beige">
+      		<span class="input-group-btn"><button class="btn btn-default btn-info" type="button" ng-click="searchCall()"><span class="glyphicon glyphicon-search" aria-hidden="true"></span><span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span></button></span>
+    	</div>
+    </li>
+    <li style="padding-top:8px;padding-left:10px;color:#FF0000"><span>{{searchMessage}}</span></li>
     <li style="position: absolute; top: 6px; right: 10px;">
         <span class="label" ng-class="completeStateClass"><span class="glyphicon glyphicon-refresh"></span> {{transactionDetail.completeState}}</span>
         <button ng-click="openInNewWindow();$event.stopPropagation()" class="btn btn-default btn-xs" target="_blank" title="New Window" data-toggle="tooltip" data-placement="left"><span class="glyphicon glyphicon-share"></span></button>

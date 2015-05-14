@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
+ * Breadth-first link search
  * not thread safe
  * @author emeroad
  */
@@ -58,7 +59,7 @@ public class BFSLinkSelector implements LinkSelector {
 
     private final Queue nextQueue = new Queue();
 
-    public BFSLinkSelector(MapStatisticsCalleeDao mapStatisticsCalleeDao, MapStatisticsCallerDao mapStatisticsCallerDao, HostApplicationMapDao hostApplicationMapDao) {
+    public BFSLinkSelector(MapStatisticsCallerDao mapStatisticsCallerDao, MapStatisticsCalleeDao mapStatisticsCalleeDao, HostApplicationMapDao hostApplicationMapDao) {
         if (mapStatisticsCalleeDao == null) {
             throw new NullPointerException("mapStatisticsCalleeDao must not be null");
         }
@@ -74,7 +75,7 @@ public class BFSLinkSelector implements LinkSelector {
     }
 
     /**
-     * Queries for all applications(callee) called by the targetApplication
+     * Queries for all applications(caller&callee) called by the targetApplicationList
      *
      * @param targetApplicationList
      * @param range
