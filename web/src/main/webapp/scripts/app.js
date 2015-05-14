@@ -53,40 +53,6 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
     // Do not use in new projects.
 //    $sceProvider.enabled(false);
 }]);
-pinpointApp.factory("UserLocales", function( $window) {
-	var defaultLocale = "en";
-    // May not be the best way to get locale.
-    var localeCode = $window.navigator.userLanguage || $window.navigator.language;
-    if ($.type(localeCode) === "string" && localeCode.length >= 2) {
-        localeCode = localeCode.substring(0, 2);
-    } else {
-        localeCode = defaultLocale;
-    }
-    return {
-    	"userLocale" : localeCode, 
-    	"defaultLocale" : defaultLocale 
-    };
-});
-
-pinpointApp.factory('helpContent', [ '$window', '$injector', 'UserLocales', function($window, $injector, UserLocales) {
-//    var defaultLocale = "en";
-//    // May not be the best way to get locale.
-//    var localeCode = $window.navigator.userLanguage || $window.navigator.language;
-//    if ($.type(localeCode) === "string" && localeCode.length >= 2) {
-//        localeCode = localeCode.substring(0, 2);
-//    } else {
-//        localeCode = defaultLocale;
-//    }
-	var name = "helpContent-" + UserLocales.userLocale;
-	var defaultName = "helpContent-" + UserLocales.defaultLocale;
-//    var name = "helpContent-" + localeCode;
-//    var defaultName = "helpContent-" + defaultLocale;
-    if ($injector.has(name)) {
-      return $injector.get(name);
-    } else {
-      return $injector.get(defaultName);
-    }
-}]);
 
 pinpointApp.run([ '$rootScope', '$timeout', '$modal', '$location', '$cookies', '$interval',
     function ($rootScope, $timeout, $modal, $location, $cookies, $interval) {
