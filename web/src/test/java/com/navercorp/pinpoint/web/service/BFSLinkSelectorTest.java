@@ -75,7 +75,7 @@ public class BFSLinkSelectorTest {
 
         LinkDataDuplexMap select = bfsLinkSelector.select(APP_A, range, option);
 
-        Assert.assertEquals(select.size(), 1);
+        Assert.assertEquals(select.size(), 0);
 
 
     }
