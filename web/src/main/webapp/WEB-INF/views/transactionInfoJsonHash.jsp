@@ -56,6 +56,7 @@
 			"barWidth":"<c:if test="${record.method}"><fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/></c:if>",
 			"executionMilliseconds":"<c:if test="${record.method}"><fmt:formatNumber value="${record.executionMilliseconds}" type="number"/></c:if>",                 
 			"simpleClassName":"${record.simpleClassName}",
+			"methodType":"${record.methodType}",
 			"apiType":"${record.apiType}",
 			"agent":"${record.agent}",
                  	

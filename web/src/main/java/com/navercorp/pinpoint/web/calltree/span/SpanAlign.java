@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.web.calltree.span;
 
+import java.util.List;
+
+import com.navercorp.pinpoint.common.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
 
@@ -150,6 +153,72 @@ public class SpanAlign {
         }
     }
 
+    public String getAgentId() {
+        if (isSpan()) {
+            return spanBo.getAgentId();
+        }
+        return spanEventBo.getAgentId();
+    }
+
+    public String getApplicationId() {
+        return spanBo.getApplicationId();
+    }
+
+    public short getServiceType() {
+        if (isSpan()) {
+            return spanBo.getServiceType();
+        }
+        return spanEventBo.getServiceType();
+    }
+
+    public String getTransactionId() {
+        return spanBo.getTransactionId();
+    }
+    
+    public long getSpanId() {
+        if (isSpan()) {
+            return spanBo.getSpanId();
+        }
+        return spanEventBo.getSpanId();
+    }
+    
+    public boolean hasException() {
+        if(isSpan()) {
+            return spanBo.hasException();
+        }
+        return spanEventBo.hasException();
+    }
+    
+    public String getExceptionClass() {
+        if(isSpan()) {
+            return spanBo.getExceptionClass();
+        }
+        return spanEventBo.getExceptionClass();
+    }
+    
+    public String getExceptionMessage() {
+        if(isSpan()) {
+            return spanBo.getExceptionMessage();
+        }
+        
+        return spanEventBo.getExceptionMessage();
+    }
+    
+    public String getRemoteAddr() {
+        if(isSpan()) {
+            return spanBo.getRemoteAddr();
+        }
+        
+        return null;
+    }
+
+    public List<AnnotationBo> getAnnotationBoList() {
+        if(isSpan()) {
+            return spanBo.getAnnotationBoList();
+        }
+        return spanEventBo.getAnnotationBoList();
+    }
+    
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
