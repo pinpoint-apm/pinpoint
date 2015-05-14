@@ -11,6 +11,11 @@
     <name>pinpoint-collector</name>
     <packaging>war</packaging>
 
+    <properties>
+        <jdk.version>1.7</jdk.version>
+        <jdk.home>${env.JAVA_7_HOME}</jdk.home>
+    </properties>
+    
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>

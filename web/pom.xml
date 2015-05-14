@@ -15,6 +15,8 @@
         <buildTime>${maven.build.timestamp}</buildTime>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <spring-batch-version>2.2.7.RELEASE</spring-batch-version>
+        <jdk.version>1.7</jdk.version>
+        <jdk.home>${env.JAVA_7_HOME}</jdk.home>
     </properties>
 
     <dependencies>
