@@ -69,8 +69,8 @@ public class SpanCallTree implements CallTree {
             throw new IllegalArgumentException("invalid depth. depth=" + depth + ", cursor=" + cursor + ", align=" + spanAlign);
         }
 
-        if (hasMissing(spanAlign)) {
-            throw new MissingSpanEventException("missing event. depth=" + depth + ", cursor=" + cursor + ", align=" + spanAlign);
+        if (hasCorrupted(spanAlign)) {
+            throw new CorruptedSpanCallTreeNodeException("corrupted event. depth=" + depth + ", cursor=" + cursor + ", align=" + spanAlign);
         }
 
         if (depth == LEVEL_DEPTH || depth == cursor.getDepth()) {
@@ -114,7 +114,7 @@ public class SpanCallTree implements CallTree {
         cursor = node.getSibling();
     }
 
-    boolean hasMissing(final SpanAlign spanAlign) {
+    boolean hasCorrupted(final SpanAlign spanAlign) {
         if (spanAlign.isSpan()) {
             return false;
         }

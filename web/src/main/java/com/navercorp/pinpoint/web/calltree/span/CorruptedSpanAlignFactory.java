@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.MethodType;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
@@ -31,7 +32,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author jaehong.kim
  *
  */
-public class MissedSpanAlignFactory {
+public class CorruptedSpanAlignFactory {
     // private static final long DEFAULT_TIMEOUT_MILLISEC = 10 * 60 * 1000;
     private static final long DEFAULT_TIMEOUT_MILLISEC = 60 * 1000;
 
@@ -52,7 +53,7 @@ public class MissedSpanAlignFactory {
         ApiMetaDataBo apiMetaData = new ApiMetaDataBo();
         apiMetaData.setLineNumber(-1);
         apiMetaData.setApiInfo("...");
-        apiMetaData.setType(3);
+        apiMetaData.setType(MethodType.CORRUPTED);
 
         final AnnotationBo apiMetaDataAnnotation = new AnnotationBo();
         apiMetaDataAnnotation.setKey(AnnotationKey.API_METADATA.getCode());
@@ -62,9 +63,9 @@ public class MissedSpanAlignFactory {
         final AnnotationBo argumentAnnotation = new AnnotationBo();
         argumentAnnotation.setKey(AnnotationKey.getArgs(0).getCode());
         if (System.currentTimeMillis() - span.getStartTime() < timeoutMillisec) {
-            argumentAnnotation.setValue("WAITING FOR PACKET ");
+            argumentAnnotation.setValue("Corrupted(waiting for packet) ");
         } else {
-            argumentAnnotation.setValue("PACKET LOSS");
+            argumentAnnotation.setValue("Corrupted");
         }
         annotations.add(argumentAnnotation);
 

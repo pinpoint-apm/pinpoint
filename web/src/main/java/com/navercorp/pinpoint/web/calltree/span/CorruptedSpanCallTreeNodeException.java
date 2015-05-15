@@ -21,11 +21,11 @@ package com.navercorp.pinpoint.web.calltree.span;
  * @author jaehong.kim
  *
  */
-public class MissingSpanEventException extends RuntimeException {
+public class CorruptedSpanCallTreeNodeException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public MissingSpanEventException(String message) {
+    public CorruptedSpanCallTreeNodeException(String message) {
         super(message);
     }
 }
