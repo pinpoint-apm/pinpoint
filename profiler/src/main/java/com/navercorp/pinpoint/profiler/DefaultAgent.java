@@ -152,13 +152,16 @@ public class DefaultAgent implements Agent {
 
         final Instrumentation instrumentation = agentOption.getInstrumentation();
         RetransformService retransformService = new RetransformService(instrumentation);
+        
+
 
         this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(this, interceptorRegistryBinder, agentOption.getBootStrapJarPath(), retransformService);
         if (logger.isInfoEnabled()) {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
 
-        pluginClassLoaderFactory = new DefaultPluginClassLoaderFactory(agentOption.getPluginJars());
+        Class<? extends ClassLoader> classLoaderType = new ClassLoaderResolver().resolve(instrumentation);
+        pluginClassLoaderFactory = new DefaultPluginClassLoaderFactory(classLoaderType, agentOption.getPluginJars());
         pluginContexts = loadProfilerPlugins(agentOption.getPluginJars());
 
         this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, pluginContexts);

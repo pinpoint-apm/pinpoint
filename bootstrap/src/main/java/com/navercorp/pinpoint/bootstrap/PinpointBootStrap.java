@@ -19,7 +19,11 @@ package com.navercorp.pinpoint.bootstrap;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
@@ -133,7 +137,7 @@ public class PinpointBootStrap {
         }
         logger.info("load pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar :" + bootStrapCoreJar);
         instrumentation.appendToBootstrapClassLoaderSearch(bootStrapCoreJarFile);
-
+        
         if (!isValidId("pinpoint.agentId", PinpointConstants.AGENT_NAME_MAX_LEN)) {
             logPinpointAgentLoadFail();
             return;

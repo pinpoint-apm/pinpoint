@@ -18,76 +18,41 @@ package com.navercorp.pinpoint.profiler.plugin;
 
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.concurrent.locks.ReentrantLock;
+
+import com.navercorp.pinpoint.bootstrap.ClassLoaderLock;
 
 /**
  * @author Jongho Moon
  * @author emeroad
  */
 public class Java6PluginClassLoader extends URLClassLoader {
-
-    private final ReentrantLock lock = new ReentrantLock();
-
+    
     public Java6PluginClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
     }
 
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-        ClassLoader parent = getParent();
-        
-        while (!lock.tryLock()) {
-            try {
-                try {
-                    this.wait();
-                } catch (IllegalMonitorStateException e) {
-                    try {
-                        parent.wait();
-                    } catch (IllegalMonitorStateException e2) {
-                        // should sleep?
-                    }
-                }
-            } catch (InterruptedException e) {
-                throw new RuntimeException("Interrupted", e);
-            }
-        }
-        
-        Class<?> c = null;
+        ClassLoaderLock.lock(this);
 
         try {
-
-            synchronized (this) {
-                c = findLoadedClass(name);
+            Class<?> c = findLoadedClass(name);
+            if (c == null) {
+                try {
+                    c = getParent().loadClass(name);
+                } catch (ClassNotFoundException e) {
+                }
 
                 if (c == null) {
-                    try {
-                        c = parent.loadClass(name);
-                    } catch (ClassNotFoundException e) {
-
-                    }
-
-                    if (c == null) {
-                        c = findClass(name);
-                    }
-                }
-
-                if (resolve) {
-                    resolveClass(c);
+                    c = findClass(name);
                 }
             }
-            
-
+            if (resolve) {
+                resolveClass(c);
+            }
+            return c;
         } finally {
-            lock.unlock();
+            ClassLoaderLock.unlock(this);
         }
-
-        synchronized (this) {
-            this.notify();
-        }
-        
-        synchronized (parent) {
-            parent.notify();
-        }
-        return c;
     }
 }
