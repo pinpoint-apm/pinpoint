@@ -8,11 +8,9 @@ Pinpoint는 공식적으로는 Linux와 OS X를 지원한다. 하지만 Pinpoint
 ```cd pinpoint```를 하고  ```mvn install -Dmaven.test.skip=true```를 실행하여 maven으로 Pinpoint를 설치한다.
 
 ### 설치 및 HBase 시작하기
-**[Apache 다운로드 사이트](http://apache.mirror.cdnetworks.com/hbase/)에서 HBase 0.94.x 버전을 다운로드 받는다.
+**[Apache 다운로드 사이트](http://apache.mirror.cdnetworks.com/hbase/)에서 HBase 1.0.x 버전을 다운로드 받는다.
 
 **다운로드 받은 파일을 quickstart\hbase 디렉토리에 압축을 풀고 디렉토리 이름을 hbase로 변경하여 ```quickstart\hbase\hbase``` 로 만든다.
-
-**준비 - ```quickstart\bin\prepare-hbase-win.cmd```를 실행하여 quickstart\support\hbase-win에 있는 Windows용 HBase 명령어(.cmd) 파일들을 quickstart\hbase 디렉토리에 복사한다. 해당 HBase 명령어는 HBase 0.98.x 버전에 포함되어 있는 것들이다.
 
 **HBase 시작 - ```quickstart\bin\start-hbase.cmd``` 실행
 
