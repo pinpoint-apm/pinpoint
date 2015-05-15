@@ -104,6 +104,7 @@
                     <archive>
                         <manifestEntries>
                             <Premain-Class>com.navercorp.pinpoint.bootstrap.PinpointBootStrap</Premain-Class>
+                            <Can-Redefine-Classes>true</Can-Redefine-Classes>
                             <Can-Retransform-Classes>true</Can-Retransform-Classes>
                             <Pinpoint-Version>${project.version}</Pinpoint-Version>
                         </manifestEntries>
