@@ -169,9 +169,9 @@ public class SpanAligner2 {
             final SpanAlign spanEventAlign = new SpanAlign(span, spanEventBo);
             try {
                 tree.add(spanEventBo.getDepth(), spanEventAlign);
-            } catch (MissingSpanEventException e) {
-                logger.warn("Find missing span event. Add missing span align.", e);
-                MissedSpanAlignFactory factory = new MissedSpanAlignFactory();
+            } catch (CorruptedSpanCallTreeNodeException e) {
+                logger.warn("Find corrupted span event.", e);
+                CorruptedSpanAlignFactory factory = new CorruptedSpanAlignFactory();
                 final CallTree subTree = new SpanCallTree(factory.get(span, spanEventBo));
                 tree.add(subTree);
                 return tree;

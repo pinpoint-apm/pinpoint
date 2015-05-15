@@ -227,6 +227,8 @@ public class ServiceType {
 
     public static final ServiceType COLLECTOR = of(7, "COLLECTOR", NORMAL_SCHEMA);
     
+    public static final ServiceType ASYNC = of(100, "ASYNC", NORMAL_SCHEMA);
+    
     // Java applications, WAS
     public static final ServiceType STAND_ALONE = of(1000, "STAND_ALONE", NORMAL_SCHEMA, RECORD_STATISTICS);
     public static final ServiceType TEST_STAND_ALONE = of(1005, "TEST_STAND_ALONE", NORMAL_SCHEMA, RECORD_STATISTICS);

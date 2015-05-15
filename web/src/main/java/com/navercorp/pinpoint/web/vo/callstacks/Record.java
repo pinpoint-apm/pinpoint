@@ -54,10 +54,9 @@ public class Record {
     private boolean hasException;
     private String logPageUrl;
     private String logButtonName;
-    
-    
+    private int methodType;
 
-    public Record(int tab, int id, int parentId, boolean method, String title, String arguments, long begin, long elapsed, long gap, String agent, String applicationName, ServiceType serviceType, String destinationId, boolean hasChild, boolean hasException, String transactionId, long spanId, long executionMilliseconds) {
+    public Record(int tab, int id, int parentId, boolean method, String title, String arguments, long begin, long elapsed, long gap, String agent, String applicationName, ServiceType serviceType, String destinationId, boolean hasChild, boolean hasException, String transactionId, long spanId, long executionMilliseconds, int methodType) {
         this.tab = tab;
         this.id = id;
         this.parentId = parentId;
@@ -82,6 +81,7 @@ public class Record {
         this.spanId = spanId;
         
         this.executionMilliseconds = executionMilliseconds;
+        this.methodType = methodType;
     }
 
     public int getId() {
@@ -217,6 +217,10 @@ public class Record {
     public long getExecutionMilliseconds() {
         return executionMilliseconds;
     }
+    
+    public int getMethodType() {
+        return methodType;
+    }
 
     @Override
     public String toString() {
@@ -269,6 +273,8 @@ public class Record {
         builder.append(logPageUrl);
         builder.append(", logButtonName=");
         builder.append(logButtonName);
+        builder.append(", methodType=");
+        builder.append(methodType);
         builder.append("}");
         return builder.toString();
     }

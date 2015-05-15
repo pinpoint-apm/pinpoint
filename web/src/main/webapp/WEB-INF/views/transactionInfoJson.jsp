@@ -30,12 +30,13 @@
 		"barWidth":15,
 		"executionMilliseconds":16,		                 
 		"simpleClassName":17,
-		"apiType":18,
-		"agent":19,
-		"isFocused":20,
-		"hasException":21,
-		"logButtonName":22,
-		"logPageUrl":23
+		"methodType":18,
+		"apiType":19,
+		"agent":20,
+		"isFocused":21,
+		"hasException":22,
+		"logButtonName":23,
+		"logPageUrl":24
 	},
 	"callStack" : [
 <c:forEach items="${callstack}" var="record" varStatus="status">[
@@ -57,6 +58,7 @@ ${record.hasChild},
 "<c:if test="${record.method}"><fmt:formatNumber value="${((end - begin) * barRatio) + 0.9}" type="number" pattern="#"/></c:if>",
 "<c:if test="${record.method}"><fmt:formatNumber value="${record.executionMilliseconds}" type="number" /></c:if>",
 "${record.simpleClassName}",
+"${record.methodType}",
 "${record.apiType}",
 "${record.agent}",
 ${record.focused},

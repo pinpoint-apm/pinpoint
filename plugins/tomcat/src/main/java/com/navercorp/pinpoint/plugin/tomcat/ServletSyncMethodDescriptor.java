@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
  */
 public class ServletSyncMethodDescriptor implements MethodDescriptor {
     private int apiId = 0;
-    private int type = 200;
+    private int type = 100;
 
     @Override
     public String getMethodName() {
@@ -52,7 +52,7 @@ public class ServletSyncMethodDescriptor implements MethodDescriptor {
 
     @Override
     public int getLineNumber() {
-        return 0;
+        return -1;
     }
 
     @Override
@@ -72,7 +72,7 @@ public class ServletSyncMethodDescriptor implements MethodDescriptor {
 
     @Override
     public String getApiDescriptor() {
-        return "Servlet Process";
+        return "Tomcat Servlet Process";
     }
 
     public int getType() {

@@ -96,6 +96,14 @@ public class ApiMetaDataBo {
     public void setType(int type) {
         this.type = type;
     }
+    
+    public String getDescription() {
+        if (lineNumber != -1) {
+            return apiInfo + ":" + lineNumber;
+        }
+        
+        return apiInfo;
+    }
 
     public void readRowKey(byte[] bytes) {
         this.agentId = BytesUtils.safeTrim(BytesUtils.toString(bytes, 0, PinpointConstants.AGENT_NAME_MAX_LEN));
