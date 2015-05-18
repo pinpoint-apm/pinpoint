@@ -16,18 +16,17 @@
 
 package com.navercorp.pinpoint.common.buffer;
 
-import com.navercorp.pinpoint.common.util.BytesUtils;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.Charset;
-import java.util.Random;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 
 /**
  * @author emeroad
@@ -52,7 +51,6 @@ public class AutomaticBufferTest {
     public void testPadBytes() throws Exception {
         int TOTAL_LENGTH = 20;
         int TEST_SIZE = 10;
-        int PAD_SIZE = TOTAL_LENGTH - TEST_SIZE;
         Buffer buffer = new AutomaticBuffer(10);
         byte[] test = new byte[10];
 
@@ -62,9 +60,9 @@ public class AutomaticBufferTest {
 
         byte[] result = buffer.getBuffer();
         junit.framework.Assert.assertEquals(result.length, TOTAL_LENGTH);
-        junit.framework.Assert.assertTrue("check data", Bytes.equals(test, 0, TEST_SIZE, result, 0, TEST_SIZE));
+        junit.framework.Assert.assertTrue("check data", Arrays.equals(Arrays.copyOfRange(test, 0, TEST_SIZE), Arrays.copyOfRange(result, 0, TEST_SIZE)));
         byte[] padBytes = new byte[TOTAL_LENGTH - TEST_SIZE];
-        junit.framework.Assert.assertTrue("check pad", Bytes.equals(padBytes, 0, TEST_SIZE, result, TEST_SIZE, PAD_SIZE));
+        junit.framework.Assert.assertTrue("check pad", Arrays.equals(Arrays.copyOfRange(padBytes, 0, TEST_SIZE), Arrays.copyOfRange(result, TEST_SIZE, TOTAL_LENGTH)));
 
     }
 

@@ -16,21 +16,19 @@
 
 package com.navercorp.pinpoint.common.buffer;
 
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import com.navercorp.pinpoint.common.util.BytesUtils;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Random;
+import com.google.common.primitives.Ints;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 
 /**
  * @author emeroad
@@ -82,9 +80,9 @@ public class FixedBufferTest {
 
         byte[] result = buffer.getBuffer();
         Assert.assertEquals(result.length, TOTAL_LENGTH);
-        Assert.assertTrue("check data", Bytes.equals(test, 0, TEST_SIZE, result, 0, TEST_SIZE));
+        Assert.assertTrue("check data", Arrays.equals(Arrays.copyOfRange(test, 0, TEST_SIZE), Arrays.copyOfRange(result, 0, TEST_SIZE)));
         byte[] padBytes = new byte[TOTAL_LENGTH - TEST_SIZE];
-        Assert.assertTrue("check pad", Bytes.equals(padBytes, 0, TEST_SIZE, result, TEST_SIZE, PAD_SIZE));
+        Assert.assertTrue("check pad", Arrays.equals(Arrays.copyOfRange(padBytes, 0, TEST_SIZE), Arrays.copyOfRange(result, TEST_SIZE, TOTAL_LENGTH)));
 
     }
 
@@ -302,9 +300,9 @@ public class FixedBufferTest {
     @Test
     public void testRead4PrefixedString() throws Exception {
         String value = "test";
-        byte[] length = Bytes.toBytes(value.length());
-        byte[] string = Bytes.toBytes(value);
-        byte[] result = Bytes.add(length, string);
+        byte[] length = Ints.toByteArray(value.length());
+        byte[] string = value.getBytes();
+        byte[] result = BytesUtils.merge(length, string);
 
 
         Buffer buffer = new FixedBuffer(result);
@@ -315,7 +313,7 @@ public class FixedBufferTest {
 
     @Test
     public void testRead4PrefixedString_Null() throws Exception {
-        byte[] length = Bytes.toBytes(-1);
+        byte[] length = Ints.toByteArray(-1);
 
 
         Buffer buffer = new FixedBuffer(length);
