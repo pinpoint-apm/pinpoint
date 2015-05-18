@@ -15,6 +15,7 @@
 package com.navercorp.pinpoint.plugin.tomcat;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.common.trace.MethodType;
 
 /**
  * 
@@ -23,7 +24,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
  */
 public class ServletAsyncMethodDescriptor implements MethodDescriptor {
     private int apiId = 0;
-    private int type = 200;
+    private int type = MethodType.WEB_REQUEST;
 
     @Override
     public String getMethodName() {
