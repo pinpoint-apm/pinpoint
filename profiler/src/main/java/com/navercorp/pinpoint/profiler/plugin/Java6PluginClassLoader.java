@@ -29,6 +29,7 @@ public class Java6PluginClassLoader extends URLClassLoader {
     
     public Java6PluginClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
+        ClassLoaderLock.register(parent, this);
     }
 
     @Override
