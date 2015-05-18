@@ -41,8 +41,10 @@ public class ClassLoaderLock {
         
         while (!info.lock.tryLock()) {
             try {
-                if (Thread.holdsLock(loader)) {
-                        loader.wait(0, 1);
+                if (Thread.holdsLock(info.child)) {
+                    info.child.wait(0, 1);
+                } else if (Thread.holdsLock(info.parent)) {
+                    info.parent.wait(0, 1);
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException("Interrupted", e);
