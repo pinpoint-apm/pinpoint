@@ -20,6 +20,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.FilterBase;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -54,7 +55,7 @@ public class ApplicationTraceIndexResponseTimeFilter extends FilterBase {
         this.filterRow = true;
     }
 
-    @Override
+//    @Override
     public ReturnCode filterKeyValue(KeyValue kv) {
         final byte[] buffer = kv.getBuffer();
 
@@ -77,13 +78,18 @@ public class ApplicationTraceIndexResponseTimeFilter extends FilterBase {
         return filterRow;
     }
 
-    @Override
+//    @Override
     public void readFields(DataInput dataInput) throws IOException {
         this.value = Bytes.readByteArray(dataInput);
     }
 
-    @Override
+//    @Override
     public void write(DataOutput dataOutput) throws IOException {
         Bytes.writeByteArray(dataOutput, this.value);
+    }
+
+    @Override
+    public ReturnCode filterKeyValue(Cell v) throws IOException {
+        return null;
     }
 }

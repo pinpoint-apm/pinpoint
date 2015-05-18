@@ -39,6 +39,8 @@ public class HBaseAdminTemplate {
             throw new HbaseSystemException(e);
         } catch (ZooKeeperConnectionException e) {
             throw new HbaseSystemException(e);
+        } catch (IOException e) {
+            throw new HbaseSystemException(e);
         }
     }
 
