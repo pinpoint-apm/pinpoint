@@ -171,6 +171,7 @@
 	                 * @returns {string}
 	                 */
 	                progressBarFormatter = function (row, cell, value, columnDef, dataContext) {
+	                	console.log( row, cell, value, columnDef, dataContext );
 	                    if (value == null || value === "" || value == 0) {
 	                        return "";
 	                    }
@@ -182,7 +183,9 @@
 	                    } else {
 	                        color = "#5bc0de";
 	                    }
-	                    return "<span class='percent-complete-bar' style='background:" + color + ";width:" + value + "%'></span>";
+	                    //return "<span class='percent-complete-bar' style='background:" + color + ";width:" + value + "%'></span>";
+	                    //<span class="percent-complete-bar" style="background-color:red;width:40%;height:2px;float:left;margin-top:2px"></span>
+	                    return "<span class='percent-complete-bar' style='background:" + color + ";width:" + value + "%'><span class='percent-complete-bar' style='background-color:#4343C8;width:" + dataContext.execPer + "%;height:4px;float:left;margin-top:1px;'></span></span>";
 	                };
 	
 	                /**
@@ -214,7 +217,8 @@
 	                            logLink : val[index['logPageUrl']],
 	                            logButtonName : val[index['logButtonName']],
 	                            isFocused : val[index['isFocused']],
-	                            execMilli : val[index['executionMilliseconds']]
+	                            execMilli : val[index['executionMilliseconds']],
+	                            execPer : val[index['elapsedTime']] && val[index['executionMilliseconds']] ? ( parseInt( val[index['executionMilliseconds']].replace(/,/gi, "") ) / parseInt( val[index['elapsedTime']].replace(/,/gi, "") ) ) * 100 : 0
 	                        });
 	                    });
 	                    return result;
