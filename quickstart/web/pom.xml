@@ -22,6 +22,12 @@
 			<version>${project.version}</version>
 			<type>war</type>
 		</dependency>
+		<dependency>
+			<groupId>com.navercorp.pinpoint</groupId>
+			<artifactId>pinpoint-plugins</artifactId>
+            <version>${project.version}</version>
+			<type>pom</type>
+		</dependency>
 	</dependencies>
 
 	<build>
