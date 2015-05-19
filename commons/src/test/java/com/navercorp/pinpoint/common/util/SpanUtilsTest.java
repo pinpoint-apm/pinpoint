@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.common.util;
 
+import java.util.Arrays;
+
+import com.google.common.primitives.Longs;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 
 import org.junit.Assert;
-
-import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
 
 /**
@@ -75,10 +76,11 @@ public class SpanUtilsTest {
 
         byte[] traceIndexRowKey = SpanUtils.getAgentIdTraceIndexRowKey(span.getAgentId(), span.getStartTime());
 
-        String agentId = Bytes.toString(traceIndexRowKey, 0, PinpointConstants.AGENT_NAME_MAX_LEN).trim();
+        String agentId = BytesUtils.toString(traceIndexRowKey, 0, PinpointConstants.AGENT_NAME_MAX_LEN).trim();
         Assert.assertEquals(agentId0, agentId);
 
-        long time = TimeUtils.recoveryTimeMillis(Bytes.toLong(traceIndexRowKey, PinpointConstants.AGENT_NAME_MAX_LEN));
+        long time = Longs.fromByteArray(Arrays.copyOfRange(traceIndexRowKey, PinpointConstants.AGENT_NAME_MAX_LEN, PinpointConstants.AGENT_NAME_MAX_LEN + 8));
+        time = TimeUtils.recoveryTimeMillis(time);
         Assert.assertEquals(time, l1);
     }
 }

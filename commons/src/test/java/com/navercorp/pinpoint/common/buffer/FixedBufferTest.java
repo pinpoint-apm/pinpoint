@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.common.buffer;
 
+import com.google.common.primitives.Ints;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -72,7 +72,6 @@ public class FixedBufferTest {
     public void testPadBytes() throws Exception {
         int TOTAL_LENGTH = 20;
         int TEST_SIZE = 10;
-        int PAD_SIZE = TOTAL_LENGTH - TEST_SIZE;
         Buffer buffer = new FixedBuffer(32);
         byte[] test = new byte[10];
 
@@ -82,9 +81,9 @@ public class FixedBufferTest {
 
         byte[] result = buffer.getBuffer();
         Assert.assertEquals(result.length, TOTAL_LENGTH);
-        Assert.assertTrue("check data", Bytes.equals(test, 0, TEST_SIZE, result, 0, TEST_SIZE));
+        Assert.assertTrue("check data", Arrays.equals(Arrays.copyOfRange(test, 0, TEST_SIZE), Arrays.copyOfRange(result, 0, TEST_SIZE)));
         byte[] padBytes = new byte[TOTAL_LENGTH - TEST_SIZE];
-        Assert.assertTrue("check pad", Bytes.equals(padBytes, 0, TEST_SIZE, result, TEST_SIZE, PAD_SIZE));
+        Assert.assertTrue("check pad", Arrays.equals(Arrays.copyOfRange(padBytes, 0, TEST_SIZE), Arrays.copyOfRange(result, TEST_SIZE, TOTAL_LENGTH)));
 
     }
 
@@ -302,9 +301,9 @@ public class FixedBufferTest {
     @Test
     public void testRead4PrefixedString() throws Exception {
         String value = "test";
-        byte[] length = Bytes.toBytes(value.length());
-        byte[] string = Bytes.toBytes(value);
-        byte[] result = Bytes.add(length, string);
+        byte[] length = Ints.toByteArray(value.length());
+        byte[] string = value.getBytes();
+        byte[] result = BytesUtils.merge(length, string);
 
 
         Buffer buffer = new FixedBuffer(result);
@@ -315,7 +314,7 @@ public class FixedBufferTest {
 
     @Test
     public void testRead4PrefixedString_Null() throws Exception {
-        byte[] length = Bytes.toBytes(-1);
+        byte[] length = Ints.toByteArray(-1);
 
 
         Buffer buffer = new FixedBuffer(length);
@@ -400,7 +399,7 @@ public class FixedBufferTest {
                 int i = buffer.readVarInt();
             } catch (IllegalArgumentException e) {
                 logger.info(e.getMessage(), e);
-                String binaryString = Bytes.toStringBinary(bytes);
+                String binaryString = BytesUtils.toString(bytes);
                 logger.info(binaryString);;
                 for (byte aByte : bytes) {
                     String code = String.valueOf((int) aByte);
@@ -423,7 +422,7 @@ public class FixedBufferTest {
                 long i = buffer.readVarLong();
             } catch (IllegalArgumentException e) {
                 logger.info(e.getMessage(), e);
-                String binaryString = Bytes.toStringBinary(bytes);
+                String binaryString = BytesUtils.toString(bytes);
                 logger.info(binaryString);;
                 for (byte aByte : bytes) {
                     String code = String.valueOf((int) aByte);

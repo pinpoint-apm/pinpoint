@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.transport.TMemoryBuffer;
@@ -25,6 +24,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.primitives.Ints;
+
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 
@@ -75,10 +77,10 @@ public class BytesUtilsTest {
     }
 
     private void checkInt(int i) {
-        byte[] bytes = Bytes.toBytes(i);
+        byte[] bytes = Ints.toByteArray(i);
         int i2 = BytesUtils.bytesToInt(bytes, 0);
         Assert.assertEquals(i, i2);
-        int i3 = Bytes.toInt(bytes);
+        int i3 = Ints.fromByteArray(bytes);
         Assert.assertEquals(i, i3);
     }
 
@@ -86,7 +88,7 @@ public class BytesUtilsTest {
     @Test
     public void testAddStringLong() {
         byte[] testAgents = BytesUtils.add("testAgent", 11L);
-        byte[] buf = Bytes.add(Bytes.toBytes("testAgent"), Bytes.toBytes(11L));
+        byte[] buf = ByteBuffer.allocate(17).put("testAgent".getBytes()).putLong(11L).array();
         Assert.assertArrayEquals(testAgents, buf);
     }
 
