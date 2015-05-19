@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -41,10 +40,10 @@ public class ApplicationMapStatisticsUtilsTest {
     @Test
     public void testMakeColumnName() throws Exception {
         final byte[] columnNameBytes = ApplicationMapStatisticsUtils.makeColumnName("test", (short) 10);
-        short slotNumber = Bytes.toShort(columnNameBytes);
+        short slotNumber = BytesUtils.bytesToShort(columnNameBytes,0);
         Assert.assertEquals(slotNumber, 10);
 
-        String columnName = Bytes.toString(columnNameBytes, Bytes.SIZEOF_SHORT, columnNameBytes.length - Bytes.SIZEOF_SHORT);
+        String columnName = BytesUtils.toString(columnNameBytes, BytesUtils.SHORT_BYTE_LENGTH, columnNameBytes.length - BytesUtils.SHORT_BYTE_LENGTH);
         Assert.assertEquals(columnName, "test");
 
     }
