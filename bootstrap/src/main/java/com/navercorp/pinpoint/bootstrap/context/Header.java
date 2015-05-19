@@ -34,7 +34,8 @@ public enum Header {
     HTTP_SAMPLED("Pinpoint-Sampled"),
     HTTP_FLAGS("Pinpoint-Flags"),
     HTTP_PARENT_APPLICATION_NAME("Pinpoint-pAppName"),
-    HTTP_PARENT_APPLICATION_TYPE("Pinpoint-pAppType");
+    HTTP_PARENT_APPLICATION_TYPE("Pinpoint-pAppType"),
+    HTTP_HOST("Pinpoint-Host");
 
     private String name;
 
