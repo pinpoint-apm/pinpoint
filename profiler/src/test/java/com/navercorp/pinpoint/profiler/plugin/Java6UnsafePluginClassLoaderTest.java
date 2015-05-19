@@ -67,7 +67,6 @@ public class Java6UnsafePluginClassLoaderTest {
         @Override
         public void run() {
             for (int i = 0; i < count; i++) {
-                System.out.println(this + ": " + i);
                 synchronized(parent) {
                     try {
                         child.loadClass("no.such.Class");
@@ -91,7 +90,6 @@ public class Java6UnsafePluginClassLoaderTest {
         @Override
         public void run() {
             for (int i = 0; i < count; i++) {
-                System.out.println(this + ": " + i);
                 synchronized(child) {
                     try {
                         child.loadClass("no.such.Class");
