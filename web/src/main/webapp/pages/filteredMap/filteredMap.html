@@ -1,0 +1,18 @@
+<!-- Add your site or application content here -->
+<time-slider-directive></time-slider-directive>
+
+<!-- Add your site or application content here -->
+<div class="main-container" ng-class="getMainContainerClass()">
+    <div class="main">
+        <server-map-directive></server-map-directive>
+    </div>
+    <div class="sidebar" ng-class="sidebar" loading-directive="sidebarLoading" loading-message="Loading...">
+        <sidebar-title-directive namespace="forFilteredMap"></sidebar-title-directive>
+        <filter-information-directive namespace="forFilteredMap" ng-show="hasFilter"></filter-information-directive>
+        <scatter-directive ng-show="hasScatter"></scatter-directive>
+        <div class="info-details" ng-class="getInfoDetailsClass()">
+            <node-info-details-directive></node-info-details-directive>
+            <link-info-details-directive></link-info-details-directive>
+        </div>
+    </div>
+</div>

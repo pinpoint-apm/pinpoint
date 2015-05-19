@@ -36,17 +36,17 @@
 }
 .servermap .modal .form-group label {
 }
-.servermap .sidebar-title {
+.servermap .sidebar-title-directive {
     margin: 0;
 }
-.servermap .sidebar-title h3 {
+.servermap .sidebar-title-directive h3 {
     text-align: left;
     border: 0;
     background: none;
     -webkit-box-shadow:none;
     box-shadow: none;
 }
-.servermap .sidebar-title .tooltip {
+.servermap .sidebar-title-directive .tooltip {
     display: none !important;
 }
 

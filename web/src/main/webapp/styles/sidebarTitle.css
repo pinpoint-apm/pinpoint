@@ -1,8 +1,8 @@
-.sidebar-title {
+.sidebar-title-directive {
     height: 64px;
     padding-top: 10px;
 }
-.sidebar-title h3 {
+.sidebar-title-directive h3 {
     margin: 0;
     padding: 0 10px;
     height: 44px;

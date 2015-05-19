@@ -1,0 +1,16 @@
+<div class="agent-chart-group-directive" ng-show="showChartGroup">
+    <ul class="tabs">
+        <li><a href="#Heap_{{namespace}}">Heap</a></li>
+        <li><a href="#PermGen_{{namespace}}">PermGen</a></li>
+        <li><a href="#CpuLoad_{{namespace}}">CpuLoad</a></li>
+    </ul>
+    <div id="Heap_{{namespace}}" class="content">
+        <jvm-memory-chart-directive namespace="forHeap_{{namespace}}"></jvm-memory-chart-directive>
+    </div>
+    <div id="PermGen_{{namespace}}" class="content">
+        <jvm-memory-chart-directive namespace="forNonHeap_{{namespace}}"></jvm-memory-chart-directive>
+    </div>
+    <div id="CpuLoad_{{namespace}}" class="content">
+        <cpu-load-chart-directive namespace="forCpuLoad_{{namespace}}"></cpu-load-chart-directive>
+    </div>
+</div>

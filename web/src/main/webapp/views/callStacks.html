@@ -38,7 +38,7 @@
                 <td class="applicationName">{{stack[key.applicationName]}}</td>
                 <!--<td class="timeline" style="position:relative">-->
                     <!--<div ng-if="stack[key.isMethod] && !stack[key.excludeFromTimeline] && stack[key.service] !== ''"-->
-                         <!--style="width:{{stack | timelineWidth:key:timelineRatio}}px; background-color:#69B2E9;-->
+                         <!--style="width:{{stack | timelineWidthFilter:key:timelineRatio}}px; background-color:#69B2E9;-->
                          <!--margin-left:{{stack | timelineMarginLeft:key:timelineRatio:transactionDetail.callStackStart}}px;"-->
                          <!--title="{{stack | json}}">-->
                         <!--<div style="width:100%;padding:0;">({{stack[key.end] - stack[key.begin] | number}}ms)</div>-->
