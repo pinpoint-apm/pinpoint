@@ -99,6 +99,10 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
         TraceId nextId = trace.getTraceId().getNextTraceId();
         trace.recordNextSpanId(nextId.getSpanId());
 
+        final URL url = request.getURL();
+        final String host = url.getHost();
+        final int port = url.getPort();
+
         request.setRequestProperty(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
         request.setRequestProperty(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
         request.setRequestProperty(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
@@ -106,12 +110,11 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
         request.setRequestProperty(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
         request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
         request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
-        
-        trace.recordServiceType(SERVICE_TYPE);
+        if(host != null) {
+            request.setRequestProperty(Header.HTTP_HOST.toString(), host);
+        }
 
-        final URL url = request.getURL();
-        final String host = url.getHost();
-        final int port = url.getPort();
+        trace.recordServiceType(SERVICE_TYPE);
 
         // TODO How to represent protocol?
         String endpoint = getEndpoint(host, port);
