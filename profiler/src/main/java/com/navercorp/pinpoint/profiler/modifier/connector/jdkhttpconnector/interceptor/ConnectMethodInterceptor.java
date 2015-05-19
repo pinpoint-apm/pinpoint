@@ -75,6 +75,10 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
         TraceId nextId = trace.getTraceId().getNextTraceId();
         trace.recordNextSpanId(nextId.getSpanId());
 
+        final URL url = request.getURL();
+        final String host = url.getHost();
+        final int port = url.getPort();
+
         if (setRequestHeader) {
             request.setRequestProperty(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
             request.setRequestProperty(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
@@ -83,13 +87,12 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
             request.setRequestProperty(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
             request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
             request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
+            if(host != null) {
+                request.setRequestProperty(Header.HTTP_HOST.toString(), host);
+            }
         }
         
 //        trace.recordServiceType(ServiceType.JDK_HTTPURLCONNECTOR);
-
-        final URL url = request.getURL();
-        final String host = url.getHost();
-        final int port = url.getPort();
 
         // TODO How to represent protocol?
         String endpoint = getEndpoint(host, port);
