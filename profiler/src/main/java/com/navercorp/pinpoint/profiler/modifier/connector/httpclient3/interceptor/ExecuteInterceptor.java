@@ -69,7 +69,7 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
 
     private TraceContext traceContext;
     private MethodDescriptor descriptor;
-    
+
     protected boolean cookie;
     protected DumpType cookieDumpType;
     protected SimpleSampler cookieSampler;
@@ -77,8 +77,7 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
     protected boolean entity;
     protected DumpType entityDumpType;
     protected SimpleSampler entitySampler;
-    
-    
+
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
@@ -86,22 +85,22 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
         }
 
         final Trace trace = traceContext.currentRawTraceObject();
-        
+
         if (trace == null) {
             return;
         }
-        
+
         final HttpMethod httpMethod = getHttpMethod(args);
         final boolean sampling = trace.canSampled();
 
         if (!sampling) {
-            if(isDebug) {
+            if (isDebug) {
                 logger.debug("set Sampling flag=false");
             }
             if (httpMethod != null) {
                 httpMethod.setRequestHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
             }
-            
+
             return;
         }
 
@@ -110,7 +109,7 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
         TraceId nextId = trace.getTraceId().getNextTraceId();
         trace.recordNextSpanId(nextId.getSpanId());
         trace.recordServiceType(ServiceType.HTTP_CLIENT);
-        
+
         if (httpMethod != null) {
             httpMethod.setRequestHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
             httpMethod.setRequestHeader(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
@@ -118,7 +117,21 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
             httpMethod.setRequestHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
             httpMethod.setRequestHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
             httpMethod.setRequestHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
+            final String host = getHost(httpMethod);
+            if (host != null) {
+                httpMethod.setRequestHeader(Header.HTTP_HOST.toString(), host);
+            }
         }
+    }
+
+    private String getHost(HttpMethod httpMethod) {
+        try {
+            return httpMethod.getURI().getHost();
+        } catch (URIException e) {
+            logger.error("Fail get URI", e);
+        }
+        
+        return null;
     }
 
     @Override
@@ -132,10 +145,10 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
         if (trace == null) {
             return;
         }
-        
+
         try {
             HttpMethod httpMethod = getHttpMethod(args);
-            
+
             if (httpMethod != null) {
                 try {
                     final URI uri = httpMethod.getURI();
@@ -145,14 +158,14 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
                 } catch (URIException e) {
                     logger.error("Fail get URI", e);
                 }
-                
+
                 recordRequest(trace, httpMethod, throwable);
             }
-            
+
             if (result != null) {
                 trace.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, result);
             }
-            
+
             trace.recordApi(descriptor);
             trace.recordException(throwable);
             trace.markAfterTime();
@@ -160,21 +173,21 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
             trace.traceBlockEnd();
         }
     }
-    
+
     private void recordRequest(Trace trace, HttpMethod httpMethod, Throwable throwable) {
         final boolean isException = InterceptorUtils.isThrowable(throwable);
-        
+
         if (cookie) {
             if (DumpType.ALWAYS == cookieDumpType) {
                 recordCookie(httpMethod, trace);
-            } else if(DumpType.EXCEPTION == cookieDumpType && isException){
+            } else if (DumpType.EXCEPTION == cookieDumpType && isException) {
                 recordCookie(httpMethod, trace);
             }
         }
         if (entity) {
             if (DumpType.ALWAYS == entityDumpType) {
                 recordEntity(httpMethod, trace);
-            } else if(DumpType.EXCEPTION == entityDumpType && isException) {
+            } else if (DumpType.EXCEPTION == entityDumpType && isException) {
                 recordEntity(httpMethod, trace);
             }
         }
@@ -182,26 +195,26 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
 
     private void recordEntity(HttpMethod httpMethod, Trace trace) {
         if (httpMethod instanceof EntityEnclosingMethod) {
-            final EntityEnclosingMethod entityEnclosingMethod = (EntityEnclosingMethod)httpMethod;
+            final EntityEnclosingMethod entityEnclosingMethod = (EntityEnclosingMethod) httpMethod;
             final RequestEntity entity = entityEnclosingMethod.getRequestEntity();
-            
+
             if (entity != null && entity.isRepeatable() && entity.getContentLength() > 0) {
                 if (entitySampler.isSampling()) {
                     try {
                         String entityValue;
                         String charSet = entityEnclosingMethod.getRequestCharSet();
-                        
+
                         if (charSet == null || charSet.isEmpty()) {
                             charSet = HttpConstants.DEFAULT_CONTENT_CHARSET;
                         }
                         if (entity instanceof ByteArrayRequestEntity) {
-                            entityValue = readByteArray((ByteArrayRequestEntity)entity, charSet);
+                            entityValue = readByteArray((ByteArrayRequestEntity) entity, charSet);
                         } else if (entity instanceof StringRequestEntity) {
-                            entityValue = readString((StringRequestEntity)entity);
+                            entityValue = readString((StringRequestEntity) entity);
                         } else {
                             entityValue = entity.getClass() + " (ContentType:" + entity.getContentType() + ")";
                         }
-                        
+
                         trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, entityValue);
                     } catch (Exception e) {
                         logger.debug("HttpEntityEnclosingRequest entity record fail. Caused:{}", e.getMessage(), e);
@@ -209,7 +222,7 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
                 }
             }
         }
-        
+
     }
 
     private String readString(StringRequestEntity entity) {
@@ -220,26 +233,26 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
         if (entity.getContent() == null) {
             return "";
         }
-        
+
         final int length = entity.getContent().length > MAX_READ_SIZE ? MAX_READ_SIZE : entity.getContent().length;
-        
+
         if (length <= 0) {
             return "";
         }
-        
+
         return new String(entity.getContent(), 0, length, charSet);
-        
+
     }
 
     private void recordCookie(HttpMethod httpMethod, Trace trace) {
         org.apache.commons.httpclient.Header cookie = httpMethod.getRequestHeader("Cookie");
-        
-        if(cookie == null) {
+
+        if (cookie == null) {
             return;
         }
-        
+
         final String value = cookie.getValue();
-        
+
         if (value != null && !value.isEmpty()) {
             if (cookieSampler.isSampling()) {
                 trace.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, MAX_READ_SIZE));
@@ -260,18 +273,18 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
         sb.append(port);
         return sb.toString();
     }
-    
+
     private HttpMethod getHttpMethod(Object[] args) {
         Integer httpMethodIndex = httpMethod_Index.get(args.length);
-        
+
         if (httpMethodIndex == null) {
             return null;
         }
-        
+
         if (args[httpMethodIndex] != null && args[httpMethodIndex] instanceof HttpMethod) {
-            return (HttpMethod)args[httpMethodIndex];
+            return (HttpMethod) args[httpMethodIndex];
         }
-        
+
         return null;
     }
 
@@ -280,21 +293,21 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
         this.descriptor = descriptor;
         traceContext.cacheApi(descriptor);
     }
-    
+
     @Override
     public void setTraceContext(TraceContext traceContext) {
         this.traceContext = traceContext;
         final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
         this.cookie = profilerConfig.isApacheHttpClient3ProfileCookie();
         this.cookieDumpType = profilerConfig.getApacheHttpClient3ProfileCookieDumpType();
-        
-        if (cookie){
+
+        if (cookie) {
             this.cookieSampler = SimpleSamplerFactory.createSampler(cookie, profilerConfig.getApacheHttpClient3ProfileCookieSamplingRate());
         }
 
         this.entity = profilerConfig.isApacheHttpClient3ProfileEntity();
         this.entityDumpType = profilerConfig.getApacheHttpClient3ProfileEntityDumpType();
-        
+
         if (entity) {
             this.entitySampler = SimpleSamplerFactory.createSampler(entity, profilerConfig.getApacheHttpClient3ProfileEntitySamplingRate());
         }

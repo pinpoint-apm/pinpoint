@@ -129,6 +129,10 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
             httpRequest.setHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
             httpRequest.setHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
             httpRequest.setHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
+            final NameIntValuePair<String> host = getHost(target);
+            if (host != null) {
+                httpRequest.setHeader(Header.HTTP_HOST.toString(), host.getName());
+            }
         }
 
         try {
