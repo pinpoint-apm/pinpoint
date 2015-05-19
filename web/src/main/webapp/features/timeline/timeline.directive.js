@@ -5,7 +5,7 @@
 	    return {
 	        restrict: 'EA',
 	        replace: true,
-	        templateUrl: 'views/timeline.html',
+	        templateUrl: 'features/timeline/timeline.html',
 	        link: function postLink(scope, element, attrs) {
 	
 	            // define private variables of methods

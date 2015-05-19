@@ -12,7 +12,7 @@
 	    return {
 	        restrict: 'EA',
 	        replace: true,
-	        templateUrl: 'views/agentChartGroup.html',
+	        templateUrl: 'features/agentChartGroup/agentChartGroup.html',
 	        scope: {
 	            namespace: '@'
 	        },

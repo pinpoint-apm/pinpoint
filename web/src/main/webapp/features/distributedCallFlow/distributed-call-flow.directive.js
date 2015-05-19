@@ -6,7 +6,7 @@
 	        return {
 	            restrict: 'E',
 	            replace: true,
-	            templateUrl: 'views/distributedCallFlow.html',
+	            templateUrl: 'features/distributedCallFlow/distributedCallFlow.html',
 	            scope : {
 	                namespace : '@' // string value
 	            },

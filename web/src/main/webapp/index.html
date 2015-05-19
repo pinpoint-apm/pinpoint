@@ -30,8 +30,8 @@
     <link rel="stylesheet" href="components/jquery-timepicker-addon/jquery-ui-timepicker-addon.css?v=${buildTime}">
     <link rel="stylesheet" href="components/select2/select2.css?v=${buildTime}">
     <link rel="stylesheet" href="components/jquery.layout/dist/layout-default-latest.css?v=${buildTime}">
-    <link rel="stylesheet" href="components/pinpoint-scatter/jquery.dragToSelect.css?v=${buildTime}">
-    <link rel="stylesheet" href="components/pinpoint-scatter/jquery.BigScatterChart.css?v=${buildTime}">
+    <link rel="stylesheet" href="components/dragToSelect/jquery.dragToSelect.css?v=${buildTime}">
+    <link rel="stylesheet" href="styles/jquery.BigScatterChart.css?v=${buildTime}">
     <link rel="stylesheet" href="components/jquery.jslider/css/jslider.css?v=${buildTime}">
     <link rel="stylesheet" href="components/jquery.jslider/css/jslider.round.plastic.css?v=${buildTime}">
     <link rel="stylesheet" href="components/angular-slider/angular-slider.min.css?v=${buildTime}">
@@ -73,9 +73,8 @@
     <script src="components/select2/select2_locale_ko.js?v=${buildTime}"></script>
     <script src="components/jquery-class/jquery.Class.js?v=${buildTime}"></script>
     <script src="components/jquery.layout/dist/jquery.layout-latest.js?v=${buildTime}"></script>
-    <script src="components/pinpoint-scatter/jquery.dragToSelect.js?v=${buildTime}"></script>
-    <script src="components/pinpoint-scatter/jquery.BigScatterChart.js?v=${buildTime}"></script>
-    <script src="components/pinpoint-servermap/js/jquery.ServerMap2.js?v=${buildTime}"></script>
+    <script src="components/dragToSelect/jquery.dragToSelect.js?v=${buildTime}"></script>
+    <script src="features/scatter/jquery.BigScatterChart.js?v=${buildTime}"></script>
     <script src="components/jquery-timepicker-addon/jquery-ui-timepicker-addon.js?v=${buildTime}"></script>
     <script src="components/jquery.jslider/js/draggable-0.1.js?v=${buildTime}"></script>
     <script src="components/jquery.jslider/js/jshashtable-2.1_src.js?v=${buildTime}"></script>
@@ -97,6 +96,7 @@
     <script src="components/amcharts/serial.js?v=${buildTime}"></script>
     <script src="components/amcharts/themes/light.js?v=${buildTime}"></script>
     <script src="components/intro.js/intro.js?v=${buildTime}"></script>
+    <script src="features/serverMap/jquery.ServerMap2.js?v=${buildTime}"></script>
     <!-- endbuild -->
 
     <!-- build:js scripts/modules.js -->
@@ -255,63 +255,63 @@
 <!-- build:js({.tmp,app}) scripts/scripts.js -->
 <script src="scripts/app.js?v=${buildTime}"></script>
 <script src="scripts/extra/checkLoginSession.js"></script>
-<script src="scripts/controllers/main.controller.js?v=${buildTime}"></script>
-<script src="scripts/controllers/inspector.controller.js?v=${buildTime}"></script>
-<script src="scripts/directives/navbar.directive.js?v=${buildTime}"></script>
-<script src="scripts/directives/server-map.directive.js?v=${buildTime}"></script>
-<script src="scripts/directives/scatter.directive.js?v=${buildTime}"></script>
-<script src="scripts/directives/node-info-details.directive.js?v=${buildTime}"></script>
-<script src="scripts/directives/link-info-details.directive.js?v=${buildTime}"></script>
-<script src="scripts/directives/agent-list.directive.js?v=${buildTime}"></script>
-<script src="scripts/directives/agent-info.directive.js?v=${buildTime}"></script>
-<script src="scripts/filters/filter-to-string.filter.js?v=${buildTime}"></script>
-<script src="scripts/controllers/transaction-list.controller.js?v=${buildTime}"></script>
-<script src="scripts/controllers/transaction-detail.controller.js?v=${buildTime}"></script>
-<script src="scripts/directives/time-slider.directive.js?v=${buildTime}"></script>
-<script src="scripts/directives/transaction-table.directive.js?v=${buildTime}"></script>
-<script src="scripts/directives/call-stacks.directive.js?v=${buildTime}"></script>
-<script src="scripts/directives/timeline.directive.js?v=${buildTime}"></script>
-<script src="scripts/filters/timeline.filter.js?v=${buildTime}"></script>
-<script src="scripts/filters/timeline-width.filter.js?v=${buildTime}"></script>
-<script src="scripts/filters/timeline-margin-left.filter.js?v=${buildTime}"></script>
-<script src="scripts/filters/timeline-start-time.filter.js?v=${buildTime}"></script>
-<script src="scripts/controllers/filtered-map.controller.js?v=${buildTime}"></script>
-<script src="scripts/services/time-slider-vo.service.js?v=${buildTime}"></script>
-<script src="scripts/services/alerts.service.js?v=${buildTime}"></script>
-<script src="scripts/services/progress-bar.service.js?v=${buildTime}"></script>
-<script src="scripts/filters/datejs.filter.js?v=${buildTime}"></script>
-<script src="scripts/filters/icons.filter.js?v=${buildTime}"></script>
-<script src="scripts/services/navbar-vo.service.js?v=${buildTime}"></script>
-<script src="scripts/filters/encode-uri-component.filter.js?v=${buildTime}"></script>
-<script src="scripts/services/transaction-dao.service.js?v=${buildTime}"></script>
-<script src="scripts/services/location.service.js?v=${buildTime}"></script>
-<script src="scripts/services/server-map-dao.service.js?v=${buildTime}"></script>
-<script src="scripts/controllers/transaction-view.controller.js?v=${buildTime}"></script>
-<script src="scripts/services/agent-dao.service.js?v=${buildTime}"></script>
-<script src="scripts/directives/agent-chart-group.directive.js?v=${buildTime}"></script>
-<script src="scripts/controllers/scatter-full-screen-mode.controller.js?v=${buildTime}"></script>
-<script src="scripts/directives/sidebar-title.directive.js?v=${buildTime}"></script>
-<script src="scripts/services/sidebar-title-vo.service.js?v=${buildTime}"></script>
-<script src="scripts/services/filtered-map-util.service.js?v=${buildTime}"></script>
-<script src="scripts/services/filter.config.js?v=${buildTime}"></script>
-<script src="scripts/services/server-map-filter-vo.service.js?v=${buildTime}"></script>
-<script src="scripts/directives/filter-information.directive.js?v=${buildTime}"></script>
-<script src="scripts/directives/distributed-call-flow.directive.js?v=${buildTime}"></script>
-<script src="scripts/filters/base64.filter.js?v=${buildTime}"></script>
-<script src="scripts/filters/application-name-to-class-name.filter.js?v=${buildTime}"></script>
-<script src="scripts/filters/decode-uri-component.filter.js?v=${buildTime}"></script>
-<script src="scripts/filters/human-readable-number-format.filter.js?v=${buildTime}"></script>
-<script src="scripts/services/server-map-hint-vo.service.js?v=${buildTime}"></script>
-<script src="scripts/services/is-visible.service.js?v=${buildTime}"></script>
-<script src="scripts/services/user-locales.service.js?v=${buildTime}"></script>
-<script src="scripts/services/help-content.service.js?v=${buildTime}"></script>
-<script src="scripts/directives/response-time-chart.directive.js?v=${buildTime}"></script>
-<script src="scripts/directives/load-chart.directive.js?v=${buildTime}"></script>
-<script src="scripts/extra/help-content-en.js?v=${buildTime}"></script>
-<script src="scripts/extra/help-content-ko.js?v=${buildTime}"></script>
-<script src="scripts/directives/jvm-memory-chart.directive.js?v=${buildTime}"></script>
-<script src="scripts/directives/cpu-load-chart.directive.js?v=${buildTime}"></script>
-<script src="scripts/directives/loading.directive.js?v=${buildTime}"></script>
+<script src="pages/main/main.controller.js?v=${buildTime}"></script>
+<script src="pages/inspector/inspector.controller.js?v=${buildTime}"></script>
+<script src="features/navbar/navbar.directive.js?v=${buildTime}"></script>
+<script src="features/serverMap/server-map.directive.js?v=${buildTime}"></script>
+<script src="features/scatter/scatter.directive.js?v=${buildTime}"></script>
+<script src="features/nodeInfoDetails/node-info-details.directive.js?v=${buildTime}"></script>
+<script src="features/linkInfoDetails/link-info-details.directive.js?v=${buildTime}"></script>
+<script src="features/agentList/agent-list.directive.js?v=${buildTime}"></script>
+<script src="features/agentInfo/agent-info.directive.js?v=${buildTime}"></script>
+<script src="common/filters/filter-to-string.filter.js?v=${buildTime}"></script>
+<script src="pages/transactionList/transaction-list.controller.js?v=${buildTime}"></script>
+<script src="pages/transactionDetail/transaction-detail.controller.js?v=${buildTime}"></script>
+<script src="features/timeSlider/time-slider.directive.js?v=${buildTime}"></script>
+<script src="features/transactionTable/transaction-table.directive.js?v=${buildTime}"></script>
+<script src="features/callStacks/call-stacks.directive.js?v=${buildTime}"></script>
+<script src="features/timeline/timeline.directive.js?v=${buildTime}"></script>
+<script src="common/filters/timeline.filter.js?v=${buildTime}"></script>
+<script src="common/filters/timeline-width.filter.js?v=${buildTime}"></script>
+<script src="common/filters/timeline-margin-left.filter.js?v=${buildTime}"></script>
+<script src="common/filters/timeline-start-time.filter.js?v=${buildTime}"></script>
+<script src="pages/filteredMap/filtered-map.controller.js?v=${buildTime}"></script>
+<script src="common/services/time-slider-vo.service.js?v=${buildTime}"></script>
+<script src="common/services/alerts.service.js?v=${buildTime}"></script>
+<script src="common/services/progress-bar.service.js?v=${buildTime}"></script>
+<script src="common/filters/datejs.filter.js?v=${buildTime}"></script>
+<script src="common/filters/icons.filter.js?v=${buildTime}"></script>
+<script src="common/services/navbar-vo.service.js?v=${buildTime}"></script>
+<script src="common/filters/encode-uri-component.filter.js?v=${buildTime}"></script>
+<script src="common/services/transaction-dao.service.js?v=${buildTime}"></script>
+<script src="common/services/location.service.js?v=${buildTime}"></script>
+<script src="common/services/server-map-dao.service.js?v=${buildTime}"></script>
+<script src="pages/transactionView/transaction-view.controller.js?v=${buildTime}"></script>
+<script src="common/services/agent-dao.service.js?v=${buildTime}"></script>
+<script src="features/agentChartGroup/agent-chart-group.directive.js?v=${buildTime}"></script>
+<script src="pages/scatterFullScreenMode/scatter-full-screen-mode.controller.js?v=${buildTime}"></script>
+<script src="features/sidebar/title/sidebar-title.directive.js?v=${buildTime}"></script>
+<script src="common/services/sidebar-title-vo.service.js?v=${buildTime}"></script>
+<script src="common/services/filtered-map-util.service.js?v=${buildTime}"></script>
+<script src="common/services/filter.config.js?v=${buildTime}"></script>
+<script src="common/services/server-map-filter-vo.service.js?v=${buildTime}"></script>
+<script src="features/sidebar/filter/filter-information.directive.js?v=${buildTime}"></script>
+<script src="features/distributedCallFlow/distributed-call-flow.directive.js?v=${buildTime}"></script>
+<script src="common/filters/base64.filter.js?v=${buildTime}"></script>
+<script src="common/filters/application-name-to-class-name.filter.js?v=${buildTime}"></script>
+<script src="common/filters/decode-uri-component.filter.js?v=${buildTime}"></script>
+<script src="common/filters/human-readable-number-format.filter.js?v=${buildTime}"></script>
+<script src="common/services/server-map-hint-vo.service.js?v=${buildTime}"></script>
+<script src="common/services/is-visible.service.js?v=${buildTime}"></script>
+<script src="common/services/user-locales.service.js?v=${buildTime}"></script>
+<script src="common/services/help-content.service.js?v=${buildTime}"></script>
+<script src="features/responseTimeChart/response-time-chart.directive.js?v=${buildTime}"></script>
+<script src="features/loadChart/load-chart.directive.js?v=${buildTime}"></script>
+<script src="common/help/help-content-en.js?v=${buildTime}"></script>
+<script src="common/help/help-content-ko.js?v=${buildTime}"></script>
+<script src="features/jvmMemoryChart/jvm-memory-chart.directive.js?v=${buildTime}"></script>
+<script src="features/cpuLoadChart/cpu-load-chart.directive.js?v=${buildTime}"></script>
+<script src="features/loading/loading.directive.js?v=${buildTime}"></script>
 <!-- endbuild -->
 </body>
 </html>

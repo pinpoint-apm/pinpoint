@@ -5,7 +5,7 @@
 	    return {
 	        restrict: 'EA',
 	        replace: true,
-	        templateUrl: 'views/transactionTable.html',
+	        templateUrl: 'features/transactionTable/transactionTable.html',
 	        link: function postLink(scope, element, attrs) {
 	
 	            // define private variables of methods

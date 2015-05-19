@@ -6,40 +6,40 @@ var pinpointApp = angular.module('pinpointApp', [ 'ngRoute', 'ngResource', 'ngSa
 pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', function ($routeProvider, $locationProvider, $modalProvider) {
     $locationProvider.html5Mode(false).hashPrefix(''); // hashbang mode - could use other modes (html5 etc)
     $routeProvider.when('/main', {
-        templateUrl: 'views/ready.html',
+        templateUrl: 'pages/main/ready.html',
         controller: 'MainCtrl'
     }).when('/main/:application/:readablePeriod/:queryEndDateTime', {
-        templateUrl: 'views/main.html',
+        templateUrl: 'pages/main/main.html',
         controller: 'MainCtrl'
     }).when('/filteredMap/:application/:readablePeriod/:queryEndDateTime/:filter', {
-        templateUrl: 'views/filteredMap.html',
+        templateUrl: 'pages/filteredMap/filteredMap.html',
         controller: 'FilteredMapCtrl'
     }).when('/filteredMap/:application/:readablePeriod/:queryEndDateTime/:filter/:hint', {
-        templateUrl: 'views/filteredMap.html',
+        templateUrl: 'pages/filteredMap/filteredMap.html',
         controller: 'FilteredMapCtrl'
     }).when('/inspector/:application/:readablePeriod/:queryEndDateTime', {
-        templateUrl: 'views/inspector.html',
+        templateUrl: 'pages/inspector/inspector.html',
         controller: 'InspectorCtrl'
     }).when('/inspector/:application/:readablePeriod/:queryEndDateTime/:agentId', {
-        templateUrl: 'views/inspector.html',
+        templateUrl: 'pages/inspector/inspector.html',
         controller: 'InspectorCtrl'
     }).when('/transactionList/:application/:readablePeriod/:queryEndDateTime', {
-        templateUrl: 'views/transactionList.html',
+        templateUrl: 'pages/transactionList/transactionList.html',
         controller: 'TransactionListCtrl'
     }).when('/transactionDetail', {
-        templateUrl: 'views/readyForTransactionDetail.html',
+        templateUrl: 'pages/transactionDetail/readyForTransactionDetail.html',
         controller: 'TransactionDetailCtrl'
     }).when('/transactionDetail/:traceId/:focusTimestamp', {
-        templateUrl: 'views/transactionDetail.html',
+        templateUrl: 'pages/transactionDetail/transactionDetail.html',
         controller: 'TransactionDetailCtrl'
     }).when('/transactionView/:agentId/:traceId/:focusTimestamp', {
-        templateUrl: 'views/transactionView.html',
+        templateUrl: 'pages/transactionView/transactionView.html',
         controller: 'TransactionViewCtrl'
     }).when('/scatterFullScreenMode/:application/:readablePeriod/:queryEndDateTime', {
-        templateUrl: 'views/scatterFullScreenMode.html',
+        templateUrl: 'pages/scatterFullScreenMode/scatterFullScreenMode.html',
         controller: 'ScatterFullScreenModeCtrl'
     }).when('/scatterFullScreenMode/:application/:readablePeriod/:queryEndDateTime/:filter', {
-        templateUrl: 'views/scatterFullScreenMode.html',
+        templateUrl: 'pages/scatterFullScrrenMode/scatterFullScreenMode.html',
         controller: 'ScatterFullScreenModeCtrl'
     }).otherwise({
         redirectTo: '/main'

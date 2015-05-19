@@ -6,7 +6,7 @@
 	        return {
 	            restrict: 'EA',
 	            replace: true,
-	            templateUrl: 'views/filterInformation.html',
+	            templateUrl: 'features/sidebar/filter/filterInformation.html',
 	            scope : {
 	                namespace : '@' // string value
 	            },

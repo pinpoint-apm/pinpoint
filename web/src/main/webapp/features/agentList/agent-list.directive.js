@@ -9,7 +9,7 @@
 	    return {
 	        restrict: 'EA',
 	        replace: true,
-	        templateUrl: 'views/agentList.html',
+	        templateUrl: 'features/agentList/agentList.html',
 	        link: function postLink(scope, element, attrs) {
 	
 	            // define private variables of methods

@@ -12,7 +12,7 @@
 	        return {
 	            restrict: 'EA',
 	            replace: true,
-	            templateUrl: 'views/linkInfoDetails.html',
+	            templateUrl: 'features/linkInfoDetails/linkInfoDetails.html',
 	            scope: true,
 	            link: function postLink(scope, element, attrs) {
 	

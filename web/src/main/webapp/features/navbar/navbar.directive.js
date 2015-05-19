@@ -12,7 +12,7 @@
 	        return {
 	            restrict: 'EA',
 	            replace: true,
-	            templateUrl: 'views/navbar.html',
+	            templateUrl: 'features/navbar/navbar.html',
 	            link: function (scope, element) {
 	
 	            	var DEFAULT_RANGE = 2;

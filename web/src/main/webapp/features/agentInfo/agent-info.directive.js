@@ -10,7 +10,7 @@
 	        return {
 	            restrict: 'EA',
 	            replace: true,
-	            templateUrl: 'views/agentInfo.html',
+	            templateUrl: 'features/agentInfo/agentInfo.html',
 	            link: function postLink(scope, element, attrs) {
 	
 	                // define private variables
@@ -21,7 +21,7 @@
 	                broadcastToCpuLoadChart, resetServerMetaDataDiv;
 	
 	                // initialize
-	                scope.agentInfoTemplate = 'views/agentInfoReady.html';
+	                scope.agentInfoTemplate = 'features/agentInfo/agentInfoReady.html';
 	                oAlertService = new AlertsService();
 	                oProgressBarService = new ProgressBarService();
 	
@@ -29,7 +29,7 @@
 	                 * scope event of agentInfo.initialize
 	                 */
 	                scope.$on('agentInfoDirective.initialize', function (event, navbarVoService, agent) {
-	                    scope.agentInfoTemplate = 'views/agentInfoMain.html';
+	                    scope.agentInfoTemplate = 'features/agentInfo/agentInfoMain.html';
 	                    scope.agent = agent;
 	                    oNavbarVoService = navbarVoService;
 	                    scope.chartGroup = null;

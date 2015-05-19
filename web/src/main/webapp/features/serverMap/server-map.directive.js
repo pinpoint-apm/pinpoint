@@ -40,7 +40,7 @@
 	        return {
 	            restrict: 'EA',
 	            replace: true,
-	            templateUrl: 'views/serverMap.html',
+	            templateUrl: 'features/serverMap/serverMap.html',
 	            link: function postLink(scope, element, attrs) {
 	
 	                // define private variables

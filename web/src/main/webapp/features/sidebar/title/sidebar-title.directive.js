@@ -6,7 +6,7 @@
 	        return {
 	            restrict: 'E',
 	            replace: true,
-	            templateUrl: 'views/sidebarTitle.html',
+	            templateUrl: 'features/sidebar/title/sidebarTitle.html',
 	            scope: {
 	                namespace: '@'
 	            },
