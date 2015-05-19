@@ -39,7 +39,6 @@ public class BasicFutureMethodInterceptor extends SpanAsyncEventSimpleAroundInte
 
     @Override
     protected void doInBeforeTrace(Trace trace, AsyncTraceId asyncTraceId, Object target, Object[] args) {
-        System.out.println("#################################");
         trace.markBeforeTime();
         trace.recordServiceType(HTTP_CLIENT4_INTERNAL);
     }
