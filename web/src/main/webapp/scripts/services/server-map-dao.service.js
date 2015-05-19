@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.constant('serverMapDaoConfig', {
+	pinpointApp.constant('serverMapDaoServiceConfig', {
 	    serverMapDataUrl: '/getServerMapData.pinpoint',
 	    filteredServerMapDataUrl: '/getFilteredServerMapData.pinpoint',
 	    filtermapUrl: '/filtermap.pinpoint',
@@ -12,7 +12,7 @@
 	    FILTER_FETCH_LIMIT: 5000
 	});
 	
-	pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDao(cfg) {
+	pinpointApp.service('ServerMapDaoService', [ 'serverMapDaoServiceConfig', function ServerMapDao(cfg) {
 	
 	    var self = this;
 	

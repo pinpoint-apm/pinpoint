@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.factory('ServerMapHintVo', [function () {
+	pinpointApp.factory('ServerMapHintVoService', [function () {
 	    return function ServerMapHintVo(dataSet) {
 	        var self = this;
 	

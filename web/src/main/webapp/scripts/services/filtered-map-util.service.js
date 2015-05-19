@@ -1,8 +1,8 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.factory('filteredMapUtil', [ 'filterConfig', 'encodeURIComponentFilter', 'ServerMapFilterVo',
-	    function (cfg, encodeURIComponentFilter, ServerMapFilterVo) {
+	pinpointApp.factory('filteredMapUtilService', [ 'filterConfig', 'encodeURIComponentFilter', 'ServerMapFilterVoService',
+	    function (cfg, encodeURIComponentFilter, ServerMapFilterVoService) {
 	        // define private variables
 	        var self;
 	
@@ -10,44 +10,44 @@
 	
 	            /**
 	             * merge filters
-	             * @param oNavbarVo
-	             * @param oServerMapFilterVo
+	             * @param oNavbarVoService
+	             * @param oServerMapFilterVoService
 	             * @returns {Array}
 	             */
-	            mergeFilters: function (oNavbarVo, oServerMapFilterVo) {
+	            mergeFilters: function (oNavbarVoService, oServerMapFilterVoService) {
 	                var newFilter = [];
-	                if (oNavbarVo.getFilter()) {
-	                    var prevFilter = JSON.parse(oNavbarVo.getFilter());
+	                if (oNavbarVoService.getFilter()) {
+	                    var prevFilter = JSON.parse(oNavbarVoService.getFilter());
 	                    if (angular.isArray(prevFilter)) {
 	                        newFilter = prevFilter;
 	
 	                        var result = this.findFilterInNavbarVo(
-	                            oServerMapFilterVo.getFromApplication(),
-	                            oServerMapFilterVo.getFromServiceType(),
-	                            oServerMapFilterVo.getToApplication(),
-	                            oServerMapFilterVo.getToServiceType(),
-	                            oNavbarVo
+	                            oServerMapFilterVoService.getFromApplication(),
+	                            oServerMapFilterVoService.getFromServiceType(),
+	                            oServerMapFilterVoService.getToApplication(),
+	                            oServerMapFilterVoService.getToServiceType(),
+	                            oNavbarVoService
 	                        );
 	                        if (result) {
-	                            newFilter[result.index] = oServerMapFilterVo.toJson();
+	                            newFilter[result.index] = oServerMapFilterVoService.toJson();
 	                            return newFilter;
 	                        }
 	                    }
 	                }
-	                newFilter.push(oServerMapFilterVo.toJson());
+	                newFilter.push(oServerMapFilterVoService.toJson());
 	                return newFilter;
 	            },
 	
 	            /**
 	             * merge hints
-	             * @param oNavbarVo
-	             * @param oServerMapHintVo
+	             * @param oNavbarVoService
+	             * @param oServerMapHintVoService
 	             * @returns {{}}
 	             */
-	            mergeHints: function (oNavbarVo, oServerMapHintVo) {
+	            mergeHints: function (oNavbarVoService, oServerMapHintVoService) {
 	                var newHint = {},
-	                    prevHint = this.parseShortHintToLongHint(JSON.parse(oNavbarVo.getHint())),
-	                    nowHint = oServerMapHintVo.getHint();
+	                    prevHint = this.parseShortHintToLongHint(JSON.parse(oNavbarVoService.getHint())),
+	                    nowHint = oServerMapHintVoService.getHint();
 	                if (prevHint) {
 	                    if (nowHint) {
 	                        var nowHintKey = _.keys(nowHint)[0],
@@ -64,7 +64,7 @@
 	                        newHint = prevHint;
 	                    }
 	                } else {
-	                    newHint = oServerMapHintVo.getHint();
+	                    newHint = oServerMapHintVoService.getHint();
 	                }
 	                return newHint;
 	            },
@@ -149,18 +149,18 @@
 	
 	            /**
 	             * get filtered map url with filter vo
-	             * @param oNavbarVo
-	             * @param oServerMapFilterVo
-	             * @param oServerMapHintVo
+	             * @param oNavbarVoService
+	             * @param oServerMapFilterVoService
+	             * @param oServerMapHintVoService
 	             * @returns {string}
 	             */
-	            getFilteredMapUrlWithFilterVo: function (oNavbarVo, oServerMapFilterVo, oServerMapHintVo) {
-	                var newFilter = this.mergeFilters(oNavbarVo, oServerMapFilterVo),
-	                    mainApplication = oServerMapFilterVo.getMainApplication() + '@' + oServerMapFilterVo.getMainServiceTypeName(),
-	                    url = '#/filteredMap/' + mainApplication + '/' + oNavbarVo.getReadablePeriod() + '/' +
-	                        oNavbarVo.getQueryEndDateTime() + '/' + encodeURIComponentFilter(JSON.stringify(newFilter));
-	                if (oNavbarVo.getHint() || oServerMapHintVo.getHint()) {
-	                    var newLongHint = this.mergeHints(oNavbarVo, oServerMapHintVo),
+	            getFilteredMapUrlWithFilterVo: function (oNavbarVoService, oServerMapFilterVoService, oServerMapHintVoService) {
+	                var newFilter = this.mergeFilters(oNavbarVoService, oServerMapFilterVoService),
+	                    mainApplication = oServerMapFilterVoService.getMainApplication() + '@' + oServerMapFilterVoService.getMainServiceTypeName(),
+	                    url = '#/filteredMap/' + mainApplication + '/' + oNavbarVoService.getReadablePeriod() + '/' +
+	                        oNavbarVoService.getQueryEndDateTime() + '/' + encodeURIComponentFilter(JSON.stringify(newFilter));
+	                if (oNavbarVoService.getHint() || oServerMapHintVoService.getHint()) {
+	                    var newLongHint = this.mergeHints(oNavbarVoService, oServerMapHintVoService),
 	                        newShortHint = this.parseLongHintToShortHint(newLongHint);
 	                    url += '/' + encodeURIComponentFilter(JSON.stringify(newShortHint));
 	                }
@@ -173,24 +173,24 @@
 	             * @param fst
 	             * @param ta
 	             * @param tst
-	             * @param oNavbarVo
+	             * @param oNavbarVoService
 	             * @returns {boolean}
 	             */
-	            findFilterInNavbarVo: function (fa, fst, ta, tst, oNavbarVo) {
-	                var filters = JSON.parse(oNavbarVo.getFilter()),
+	            findFilterInNavbarVo: function (fa, fst, ta, tst, oNavbarVoService) {
+	                var filters = JSON.parse(oNavbarVoService.getFilter()),
 	                    result = false;
 	                if (fst === 'USER') {
 	                    fa = 'USER';
 	                }
 	                if (angular.isArray(filters)) {
 	                    angular.forEach(filters, function(filter, index) {
-	                        var oServerMapFilterVo = new ServerMapFilterVo(filter);
-	                        if (fa === oServerMapFilterVo.getFromApplication() &&
-	                            ta === oServerMapFilterVo.getToApplication() &&
-	                            fst === oServerMapFilterVo.getFromServiceType() &&
-	                            tst === oServerMapFilterVo.getToServiceType()) {
+	                        var oServerMapFilterVoService = new ServerMapFilterVo(filter);
+	                        if (fa === oServerMapFilterVoService.getFromApplication() &&
+	                            ta === oServerMapFilterVoService.getToApplication() &&
+	                            fst === oServerMapFilterVoService.getFromServiceType() &&
+	                            tst === oServerMapFilterVoService.getToServiceType()) {
 	                            result = {
-	                                oServerMapFilterVo : oServerMapFilterVo,
+	                                oServerMapFilterVoService : oServerMapFilterVoService,
 	                                index: index
 	                            };
 	                        }

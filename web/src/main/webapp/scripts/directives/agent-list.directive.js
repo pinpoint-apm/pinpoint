@@ -5,15 +5,12 @@
 	    agentGroupUrl: '/getAgentList.pinpoint'
 	});
 	
-	pinpointApp.directive('agentList', [ 'agentListConfig', '$rootScope', function (cfg, $rootScope) {
+	pinpointApp.directive('agentListDirective', [ 'agentListConfig', '$rootScope', function (cfg, $rootScope) {
 	    return {
 	        restrict: 'EA',
 	        replace: true,
 	        templateUrl: 'views/agentList.html',
 	        link: function postLink(scope, element, attrs) {
-	
-	            // define private variables
-	            var oNavbarVo;
 	
 	            // define private variables of methods
 	            var getAgentGroup, showAgentGroup, findAgentByAgentId;
@@ -80,15 +77,14 @@
 	             */
 	            scope.select = function (agent) {
 	                scope.currentAgent = agent;
-	                scope.$emit('agentList.agentChanged', agent);
+	                scope.$emit('agentListDirective.agentChanged', agent);
 	            };
 	
 	            /**
 	             * scope event on agentList.initialize
 	             */
-	            scope.$on('agentList.initialize', function (event, navbarVo) {
-	                oNavbarVo = navbarVo;
-	                showAgentGroup(oNavbarVo.getApplicationName(), oNavbarVo.getServiceTypeName(), oNavbarVo.getQueryStartTime(), oNavbarVo.getQueryEndTime(), oNavbarVo.getAgentId());
+	            scope.$on('agentListDirective.initialize', function (event, navbarVoService) {
+	                showAgentGroup(navbarVoService.getApplicationName(), navbarVoService.getServiceTypeName(), navbarVoService.getQueryStartTime(), navbarVoService.getQueryEndTime(), navbarVoService.getAgentId());
 	            });
 	        }
 	    };

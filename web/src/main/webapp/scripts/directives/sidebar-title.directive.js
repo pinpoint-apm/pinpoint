@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.directive('sidebarTitle', [ '$timeout',
+	pinpointApp.directive('sidebarTitleDirective', [ '$timeout',
 	    function ($timeout) {
 	        return {
 	            restrict: 'E',
@@ -24,15 +24,15 @@
 	
 	                /**
 	                 * initialize
-	                 * @param oSidebarTitleVo
+	                 * @param oSidebarTitleVoService
 	                 */
-	                initialize = function (oSidebarTitleVo) {
-	                    scope.stImage = oSidebarTitleVo.getImage();
-	                    scope.stImageShow = oSidebarTitleVo.getImage() ? true : false;
-	                    scope.stTitle = oSidebarTitleVo.getTitle();
-	                    scope.stImage2 = oSidebarTitleVo.getImage2();
-	                    scope.stImage2Show = oSidebarTitleVo.getImage2() ? true : false;
-	                    scope.stTitle2 = oSidebarTitleVo.getTitle2();
+	                initialize = function (oSidebarTitleVoService) {
+	                    scope.stImage = oSidebarTitleVoService.getImage();
+	                    scope.stImageShow = oSidebarTitleVoService.getImage() ? true : false;
+	                    scope.stTitle = oSidebarTitleVoService.getTitle();
+	                    scope.stImage2 = oSidebarTitleVoService.getImage2();
+	                    scope.stImage2Show = oSidebarTitleVoService.getImage2() ? true : false;
+	                    scope.stTitle2 = oSidebarTitleVoService.getTitle2();
 	                    $timeout(function () {
 	                        element.find('[data-toggle="tooltip"]').tooltip('destroy').tooltip();
 	                    });
@@ -53,14 +53,14 @@
 	                /**
 	                 * scope on sidebarTitle.initialize.namespace
 	                 */
-	                scope.$on('sidebarTitle.initialize.' + scope.namespace, function (event, oSidebarTitleVo) {
-	                    initialize(oSidebarTitleVo);
+	                scope.$on('sidebarTitleDirective.initialize.' + scope.namespace, function (event, oSidebarTitleVoService) {
+	                    initialize(oSidebarTitleVoService);
 	                });
 	
 	                /**
 	                 * scope on sidebarTitle.empty.namespace
 	                 */
-	                scope.$on('sidebarTitle.empty.' + scope.namespace, function (event) {
+	                scope.$on('sidebarTitleDirective.empty.' + scope.namespace, function (event) {
 	                    empty();
 	                });
 	            }

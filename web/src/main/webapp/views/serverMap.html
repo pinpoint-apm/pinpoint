@@ -13,8 +13,8 @@
     </div>
     <div class="servermap-status" ng-show="bShowServerMapStatus">
     	<button type="button" class="btn btn-default btn-info" style="margin-top:-4px" ng-click="moveThePast()"><span class="glyphicon glyphicon-chevron-left"></span></button><button type="button" class="btn btn-default btn-info" style="margin-top:-4px" ng-click="moveTheFuture()"><span class="glyphicon glyphicon-chevron-right"></span></button><div class="alert alert-info serverMapTime" style="min-height: 30px;display:inline-block;padding-bottom:9px;padding-top:10px">
-            <h6 ng-show="oNavbarVo.getQueryStartTime() && oNavbarVo.getQueryEndTime()">{{oNavbarVo.getQueryStartTime() |
-                date:'yyyy-MM-dd HH:mm:ss'}} ~ {{oNavbarVo.getQueryEndTime() | date:'yyyy-MM-dd HH:mm:ss'}}</h6>
+            <h6 ng-show="oNavbarVoService.getQueryStartTime() && oNavbarVoService.getQueryEndTime()">{{oNavbarVoService.getQueryStartTime() |
+                date:'yyyy-MM-dd HH:mm:ss'}} ~ {{oNavbarVoService.getQueryEndTime() | date:'yyyy-MM-dd HH:mm:ss'}}</h6>
         </div>
     </div>
     <div ng-include=" 'error' "></div>
@@ -29,7 +29,7 @@
         <li><a href tabindex="-1" ng-click="passingTransactionResponseToScatterChart()"><span
                 class="glyphicon glyphicon-list"></span> Transaction Scatter Chart</a></li>
         <li><a tabindex="-1"
-               ng-href="#/inspector/{{oNavbarVo.getApplication()}}/{{oNavbarVo.getPeriod()}}/{{oNavbarVo.getQueryEndTime()}}"
+               ng-href="#/inspector/{{oNavbarVoService.getApplication()}}/{{oNavbarVoService.getPeriod()}}/{{oNavbarVoService.getQueryEndTime()}}"
                target="_blank"><span class="glyphicon glyphicon-search"></span> Inspect Agents</a></li>
     </ul>
 
@@ -85,7 +85,7 @@
                     <form class="form-horizontal" role="form">
                         <div class="form-group" style="margin-bottom:0">
                             <label class="col-sm-2 control-label" style="padding-top:25px;">Path</label>
-                            <sidebar-title namespace="forServerMap"></sidebar-title>
+                            <sidebar-title-directive namespace="forServerMap"></sidebar-title-directive>
                         </div>
                         <div class="form-group" ng-show="sourceInfo.isWas || targetInfo.isWas">
                             <label class="col-sm-2 control-label" style="padding-top:4px;">Agent</label>
@@ -112,7 +112,7 @@
                         <!--<div class="form-group">-->
                             <!--<label for="urlPattern" class="col-sm-2 control-label">Period</label>-->
                             <!--<div class="col-sm-8">-->
-                                <!--<load-chart namespace="forFilterWizard"></load-chart>-->
+                                <!--<load-chart-directive namespace="forFilterWizard"></load-chart-directive>-->
                             <!--</div>-->
                         <!--</div>-->
                         <div class="form-group">

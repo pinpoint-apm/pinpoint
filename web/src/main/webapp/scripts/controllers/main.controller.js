@@ -1,11 +1,11 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$routeParams', 'location', 'NavbarVo', 'encodeURIComponentFilter', '$window', 'SidebarTitleVo', 'filteredMapUtil', '$rootElement', 'helpContent',
-	    function (cfg, $scope, $timeout, $routeParams, location, NavbarVo, encodeURIComponentFilter, $window, SidebarTitleVo, filteredMapUtil, $rootElement, helpContent) {
+	pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$routeParams', 'locationService', 'NavbarVoService', 'encodeURIComponentFilter', '$window', 'SidebarTitleVoService', 'filteredMapUtilService', '$rootElement', 'helpContentService',
+	    function (cfg, $scope, $timeout, $routeParams, locationService, NavbarVoService, encodeURIComponentFilter, $window, SidebarTitleVoService, filteredMapUtilService, $rootElement, helpContentService) {
 			$at($at.MAIN_PAGE);
 	        // define private variables
-	        var oNavbarVo, bNodeSelected, bNoData;
+	        var oNavbarVoService, bNodeSelected, bNoData;
 	
 	        // define private variables of methods
 	        var getFirstPathOfLocation, changeLocation, openFilteredMapWithFilterVo;
@@ -22,21 +22,21 @@
 	         * bootstrap
 	         */
 	        $timeout(function () {
-	            oNavbarVo = new NavbarVo();
+	            oNavbarVoService = new NavbarVoService();
 	            if ($routeParams.application) {
-	                oNavbarVo.setApplication($routeParams.application);
+	                oNavbarVoService.setApplication($routeParams.application);
 	            }
 	            if ($routeParams.readablePeriod) {
-	                oNavbarVo.setReadablePeriod($routeParams.readablePeriod);
+	                oNavbarVoService.setReadablePeriod($routeParams.readablePeriod);
 	            }
 	            if ($routeParams.queryEndDateTime) {
-	                oNavbarVo.setQueryEndDateTime($routeParams.queryEndDateTime);
+	                oNavbarVoService.setQueryEndDateTime($routeParams.queryEndDateTime);
 	            }
 	            $window.$routeParams = $routeParams;
-	            oNavbarVo.autoCalculateByQueryEndDateTimeAndReadablePeriod();
-	            $scope.$broadcast('navbar.initialize', oNavbarVo);
-	            $scope.$broadcast('scatter.initialize', oNavbarVo);
-	            $scope.$broadcast('serverMap.initialize', oNavbarVo);
+	            oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
+	            $scope.$broadcast('navbarDirective.initialize', oNavbarVoService);
+	            $scope.$broadcast('scatterDirective.initialize', oNavbarVoService);
+	            $scope.$broadcast('serverMapDirective.initialize', oNavbarVoService);
 	        }, 500);
 	
 	        /**
@@ -44,25 +44,25 @@
 	         * @returns {*|string}
 	         */
 	        getFirstPathOfLocation = function () {
-	            return location.path().split('/')[1] || 'main';
+	            return locationService.path().split('/')[1] || 'main';
 	        };
 	
 	        /**
 	         * change location
 	         */
 	        changeLocation = function () {
-	            var url = '/' + getFirstPathOfLocation() + '/' + oNavbarVo.getApplication() + '/' + oNavbarVo.getReadablePeriod() +
-	                '/' + oNavbarVo.getQueryEndDateTime();
-	            if (location.path() !== url) {
-	                if (location.path() === '/main') {
-	                    location.path(url).replace();
+	            var url = '/' + getFirstPathOfLocation() + '/' + oNavbarVoService.getApplication() + '/' + oNavbarVoService.getReadablePeriod() +
+	                '/' + oNavbarVoService.getQueryEndDateTime();
+	            if (locationService.path() !== url) {
+	                if (locationService.path() === '/main') {
+	                	locationService.path(url).replace();
 	                } else {
-	                    location.skipReload().path(url).replace();
+	                	locationService.skipReload().path(url).replace();
 	                }
 	                $window.$routeParams = {
-	                    application: oNavbarVo.getApplication(),
-	                    readablePeriod: (oNavbarVo.getReadablePeriod()).toString(),
-	                    queryEndDateTime: (oNavbarVo.getQueryEndDateTime()).toString()
+	                    application: oNavbarVoService.getApplication(),
+	                    readablePeriod: (oNavbarVoService.getReadablePeriod()).toString(),
+	                    queryEndDateTime: (oNavbarVoService.getQueryEndDateTime()).toString()
 	                };
 	                if (!$scope.$$phase) {
 	                    $scope.$apply();
@@ -72,11 +72,11 @@
 	
 	        /**
 	         * open filtered map with filter Vo
-	         * @param oServerMapFilterVo
-	         * @param oServerMapHintVo
+	         * @param oServerMapFilterVoService
+	         * @param oServerMapHintVoService
 	         */
-	        openFilteredMapWithFilterVo = function (oServerMapFilterVo, oServerMapHintVo) {
-	            var url = filteredMapUtil.getFilteredMapUrlWithFilterVo(oNavbarVo, oServerMapFilterVo, oServerMapHintVo);
+	        openFilteredMapWithFilterVo = function (oServerMapFilterVoService, oServerMapHintVoService) {
+	            var url = filteredMapUtilService.getFilteredMapUrlWithFilterVo(oNavbarVoService, oServerMapFilterVoService, oServerMapHintVoService);
 	            $window.open(url, "");
 	        };
 	
@@ -105,172 +105,172 @@
 	        };
 	
 	        /**
-	         * scope event on servermap.hasData
+	         * scope event on servermapDirective.hasData
 	         */
-	        $scope.$on('servermap.hasData', function (event) {
+	        $scope.$on('serverMapDirective.hasData', function (event) {
 	            bNoData = false;
 	            $scope.sidebarLoading = false;
 	        });
 	
 	        /**
-	         * scope event on servermap.hasNoData
+	         * scope event on servermapDirective.hasNoData
 	         */
-	        $scope.$on('servermap.hasNoData', function (event) {
+	        $scope.$on('serverMapDirective.hasNoData', function (event) {
 	            bNoData = true;
 	            $scope.sidebarLoading = false;
 	        });
 	
 	        /**
-	         * scope event on navbar.changed
+	         * scope event on navbarDirective.changed
 	         */
-	        $scope.$on('navbar.changed', function (event, navbarVo) {
-	            oNavbarVo = navbarVo;
-	            changeLocation(oNavbarVo);
+	        $scope.$on('navbarDirective.changed', function (event, navbarVo) {
+	            oNavbarVoService = navbarVo;
+	            changeLocation(oNavbarVoService);
 	            $window.htoScatter = {};
 	            $scope.hasScatter = false;
 	            $scope.sidebarLoading = true;
-	            $scope.$broadcast('sidebarTitle.empty.forMain');
-	            $scope.$broadcast('nodeInfoDetails.hide');
-	            $scope.$broadcast('linkInfoDetails.hide');
-	            $scope.$broadcast('scatter.initialize', oNavbarVo);
-	            $scope.$broadcast('serverMap.initialize', oNavbarVo);
-	            $scope.$broadcast('sidebarTitle.empty.forMain');
+	            $scope.$broadcast('sidebarTitleDirective.empty.forMain');
+	            $scope.$broadcast('nodeInfoDetailsDirective.hide');
+	            $scope.$broadcast('linkInfoDetailsDirective.hide');
+	            $scope.$broadcast('scatterDirective.initialize', oNavbarVoService);
+	            $scope.$broadcast('serverMapDirective.initialize', oNavbarVoService);
+	            $scope.$broadcast('sidebarTitleDirective.empty.forMain');
 	        });
 	
 	        /**
-	         * scope event on serverMap.passingTransactionResponseToScatterChart
+	         * scope event on serverMapDirective.passingTransactionResponseToScatterChart
 	         */
-	        $scope.$on('serverMap.passingTransactionResponseToScatterChart', function (event, node) {
-	            $scope.$broadcast('scatter.initializeWithNode', node);
+	        $scope.$on('serverMapDirective.passingTransactionResponseToScatterChart', function (event, node) {
+	            $scope.$broadcast('scatterDirective.initializeWithNode', node);
 	        });
 	
 	        /**
-	         * scope event on serverMap.nodeClicked
+	         * scope event on serverMapDirective.nodeClicked
 	         */
-	        $scope.$on('serverMap.nodeClicked', function (event, e, query, node, data, searchQuery) {
+	        $scope.$on('serverMapDirective.nodeClicked', function (event, e, query, node, data, searchQuery) {
 	            bNodeSelected = true;
-	            var oSidebarTitleVo = new SidebarTitleVo;
-	            oSidebarTitleVo.setImageType(node.serviceType);
+	            var oSidebarTitleVoService = new SidebarTitleVoService;
+	            oSidebarTitleVoService.setImageType(node.serviceType);
 	
 	            if (node.isWas === true) {
 	                $scope.hasScatter = true;
-	                oSidebarTitleVo.setTitle(node.applicationName);
-	                $scope.$broadcast('scatter.initializeWithNode', node);
+	                oSidebarTitleVoService.setTitle(node.applicationName);
+	                $scope.$broadcast('scatterDirective.initializeWithNode', node);
 	            } else if (node.unknownNodeGroup) {
-	                oSidebarTitleVo.setTitle( node.serviceType.replace( "_", " " ) );
+	                oSidebarTitleVoService.setTitle( node.serviceType.replace( "_", " " ) );
 	                $scope.hasScatter = false;
 	            } else {
-	                oSidebarTitleVo.setTitle(node.applicationName);
+	                oSidebarTitleVoService.setTitle(node.applicationName);
 	                $scope.hasScatter = false;
 	            }
 	            $scope.hasFilter = false;
-	            $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
-	            $scope.$broadcast('nodeInfoDetails.initialize', e, query, node, data, oNavbarVo, null, searchQuery);
-	            $scope.$broadcast('linkInfoDetails.hide');
+	            $scope.$broadcast('sidebarTitleDirective.initialize.forMain', oSidebarTitleVoService);
+	            $scope.$broadcast('nodeInfoDetailsDirective.initialize', e, query, node, data, oNavbarVoService, null, searchQuery);
+	            $scope.$broadcast('linkInfoDetailsDirective.hide');
 	
 	            $scope.refreshHelpIcons();
 	        });
 	
 	        /**
-	         * scope event on serverMap.linkClicked
+	         * scope event on serverMapDirective.linkClicked
 	         */
-	        $scope.$on('serverMap.linkClicked', function (event, e, query, link, data) {
+	        $scope.$on('serverMapDirective.linkClicked', function (event, e, query, link, data) {
 	            bNodeSelected = false;
-	            var oSidebarTitleVo = new SidebarTitleVo;
+	            var oSidebarTitleVoService = new SidebarTitleVoService;
 	            if (link.unknownLinkGroup) {
-	                oSidebarTitleVo
+	                oSidebarTitleVoService
 	                    .setImageType(link.sourceInfo.serviceType)
 	                    .setTitle('Unknown Group from ' + link.sourceInfo.applicationName);
 	            } else {
-	                oSidebarTitleVo
+	                oSidebarTitleVoService
 	                    .setImageType(link.sourceInfo.serviceType)
 	                    .setTitle(link.sourceInfo.applicationName)
 	                    .setImageType2(link.targetInfo.serviceType)
 	                    .setTitle2(link.targetInfo.applicationName);
 	            }
 	            $scope.hasScatter = false;
-	            var foundFilter = filteredMapUtil.findFilterInNavbarVo(
+	            var foundFilter = filteredMapUtilService.findFilterInNavbarVo(
 	                link.sourceInfo.applicationName,
 	                link.sourceInfo.serviceType,
 	                link.targetInfo.applicationName,
 	                link.targetInfo.serviceType,
-	                oNavbarVo
+	                oNavbarVoService
 	            );
 	            if (foundFilter) {
 	                $scope.hasFilter = true;
-	                $scope.$broadcast('filterInformation.initialize.forMain', foundFilter.oServerMapFilterVo);
+	                $scope.$broadcast('filterInformationDirective.initialize.forMain', foundFilter.oServerMapFilterVoService);
 	            } else {
 	                $scope.hasFilter = false;
 	            }
-	            $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
-	            $scope.$broadcast('nodeInfoDetails.hide');
-	            $scope.$broadcast('linkInfoDetails.initialize', e, query, link, data, oNavbarVo);
+	            $scope.$broadcast('sidebarTitleDirective.initialize.forMain', oSidebarTitleVoService);
+	            $scope.$broadcast('nodeInfoDetailsDirective.hide');
+	            $scope.$broadcast('linkInfoDetailsDirective.initialize', e, query, link, data, oNavbarVoService);
 	
 	            $scope.refreshHelpIcons();
 	        });
 	
 	        /**
-	         * scope event on serverMap.openFilteredMap
+	         * scope event on serverMapDirective.openFilteredMap
 	         */
-	        $scope.$on('serverMap.openFilteredMap', function (event, oServerMapFilterVo, oServerMapHintVo) {
-	            openFilteredMapWithFilterVo(oServerMapFilterVo, oServerMapHintVo);
+	        $scope.$on('serverMapDirective.openFilteredMap', function (event, oServerMapFilterVoService, oServerMapHintVoService) {
+	            openFilteredMapWithFilterVo(oServerMapFilterVoService, oServerMapHintVoService);
 	        });
 	
 	        /**
-	         * scope event on serverMap.openFilteredMap
+	         * scope event on serverMapDirective.openFilteredMap
 	         */
-	        $scope.$on('linkInfoDetails.openFilteredMap', function (event, oServerMapFilterVo, oServerMapHintVo) {
-	            openFilteredMapWithFilterVo(oServerMapFilterVo, oServerMapHintVo);
+	        $scope.$on('linkInfoDetailsDirective.openFilteredMap', function (event, oServerMapFilterVoService, oServerMapHintVoService) {
+	            openFilteredMapWithFilterVo(oServerMapFilterVoService, oServerMapHintVoService);
 	        });
 	
 	        /**
-	         * scope event on linkInfoDetails.openFilterWizard
+	         * scope event on linkInfoDetailsDirective.openFilterWizard
 	         */
-	        $scope.$on('linkInfoDetails.openFilterWizard', function (event, oServerMapFilterVo, oServerMapHintVo) {
-	            $scope.$broadcast('serverMap.openFilterWizard', oServerMapFilterVo, oServerMapHintVo);
+	        $scope.$on('linkInfoDetailsDirective.openFilterWizard', function (event, oServerMapFilterVoService, oServerMapHintVoService) {
+	            $scope.$broadcast('serverMapDirective.openFilterWizard', oServerMapFilterVoService, oServerMapHintVoService);
 	        });
 	
 	        /**
-	         * scope event on linkInfoDetails.ResponseSummary.barClicked
+	         * scope event on linkInfoDetailsDirective.ResponseSummary.barClicked
 	         */
-	        $scope.$on('linkInfoDetails.ResponseSummary.barClicked', function (event, link) {
+	        $scope.$on('linkInfoDetailsDirective.ResponseSummary.barClicked', function (event, link) {
 	            openFilteredMapWithFilterVo(link);
 	        });
 	
 	        /**
-	         * scope event on linkInfoDetail.showDetailInformationClicked
+	         * scope event on linkInfoDetailsDirective.showDetailInformationClicked
 	         */
-	        $scope.$on('linkInfoDetail.showDetailInformationClicked', function (event, query, link) {
+	        $scope.$on('linkInfoDetailsDirective.showDetailInformationClicked', function (event, query, link) {
 	            $scope.hasScatter = false;
-	            var oSidebarTitleVo = new SidebarTitleVo;
-	            oSidebarTitleVo
+	            var oSidebarTitleVoService = new SidebarTitleVoService;
+	            oSidebarTitleVoService
 	                .setImageType(link.sourceInfo.serviceType)
 	                .setTitle(link.sourceInfo.applicationName)
 	                .setImageType2(link.targetInfo.serviceType)
 	                .setTitle2(link.targetInfo.applicationName);
-	            $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
-	            $scope.$broadcast('nodeInfoDetails.hide');
+	            $scope.$broadcast('sidebarTitleDirective.initialize.forMain', oSidebarTitleVoService);
+	            $scope.$broadcast('nodeInfoDetailsDirective.hide');
 	        });
 	
 	        /**
-	         * scope event on nodeInfoDetail.showDetailInformationClicked
+	         * scope event on nodeInfoDetailDirective.showDetailInformationClicked
 	         */
-	        $scope.$on('nodeInfoDetail.showDetailInformationClicked', function (event, query, node) {
+	        $scope.$on('nodeInfoDetailDirective.showDetailInformationClicked', function (event, query, node) {
 	            $scope.hasScatter = false;
-	            var oSidebarTitleVo = new SidebarTitleVo;
+	            var oSidebarTitleVoService = new SidebarTitleVoService;
 	
-	            oSidebarTitleVo
+	            oSidebarTitleVoService
 	                .setImageType(node.serviceType);
 	            if (node.unknownNodeGroup) {
-	                oSidebarTitleVo.setTitle( node.serviceType.replace( "_", " " ) );
+	                oSidebarTitleVoService.setTitle( node.serviceType.replace( "_", " " ) );
 	                $scope.hasScatter = false;
 	            } else {
-	                oSidebarTitleVo.setTitle(node.applicationName);
+	                oSidebarTitleVoService.setTitle(node.applicationName);
 	                $scope.hasScatter = false;
 	            }
 	
-	            $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
-	            $scope.$broadcast('linkInfoDetails.hide');
+	            $scope.$broadcast('sidebarTitleDirective.initialize.forMain', oSidebarTitleVoService);
+	            $scope.$broadcast('linkInfoDetailsDirective.hide');
 	        });
 	
 	        /**
@@ -281,70 +281,70 @@
 	            steps:[
 	                {
 	                    element: '#navbar_application',
-	                    intro: helpContent.navbar.applicationSelector
+	                    intro: helpContentService.navbar.applicationSelector
 	                },
 	                {
 	                    element: '#navbar_period',
-	                    intro: helpContent.navbar.periodSelector
+	                    intro: helpContentService.navbar.periodSelector
 	                },
 	                {
 	                    element: '#servermap',
-	                    intro: helpContent.servermap.default,
+	                    intro: helpContentService.servermap.default,
 	                    position: 'right'
 	                },
 	                {
 	                    element: '#scatter',
-	                    intro: helpContent.scatter.default,
+	                    intro: helpContentService.scatter.default,
 	                    position: 'left'
 	                },
 	                {
 	                    element: '.nodeInfoDetails .response-summary',
-	                    intro: helpContent.nodeInfoDetails.responseSummary,
+	                    intro: helpContentService.nodeInfoDetails.responseSummary,
 	                    position: 'left'
 	                },
 	                {
 	                    element: '.nodeInfoDetails .load',
-	                    intro: helpContent.nodeInfoDetails.load,
+	                    intro: helpContentService.nodeInfoDetails.load,
 	                    position: 'left'
 	                },
 	                {
 	                    element: '.nodeInfoDetails .node-servers',
-	                    intro: helpContent.nodeInfoDetails.nodeServers,
+	                    intro: helpContentService.nodeInfoDetails.nodeServers,
 	                    position: 'top'
 	                },
 	                {
 	                    element: '.nodeInfoDetails .unknown-list',
-	                    intro: helpContent.nodeInfoDetails.unknownList,
+	                    intro: helpContentService.nodeInfoDetails.unknownList,
 	                    position: 'left'
 	                },
 	                {
 	                    element: '.nodeInfoDetails .search-n-order',
-	                    intro: helpContent.nodeInfoDetails.searchAndOrder,
+	                    intro: helpContentService.nodeInfoDetails.searchAndOrder,
 	                    position: 'left'
 	                },
 	                {
 	                    element: '.linkInfoDetails .response-summary',
-	                    intro: helpContent.linkInfoDetails.responseSummary,
+	                    intro: helpContentService.linkInfoDetails.responseSummary,
 	                    position: 'left'
 	                },
 	                {
 	                    element: '.linkInfoDetails .load',
-	                    intro: helpContent.linkInfoDetails.load,
+	                    intro: helpContentService.linkInfoDetails.load,
 	                    position: 'left'
 	                },
 	                {
 	                    element: '.linkInfoDetails .link-servers',
-	                    intro: helpContent.linkInfoDetails.linkServers,
+	                    intro: helpContentService.linkInfoDetails.linkServers,
 	                    position: 'top'
 	                },
 	                {
 	                    element: '.linkInfoDetails .unknown-list',
-	                    intro: helpContent.linkInfoDetails.unknownList,
+	                    intro: helpContentService.linkInfoDetails.unknownList,
 	                    position: 'left'
 	                },
 	                {
 	                    element: '.linkInfoDetails .search-n-order',
-	                    intro: helpContent.linkInfoDetails.searchAndOrder,
+	                    intro: helpContentService.linkInfoDetails.searchAndOrder,
 	                    position: 'left'
 	                }
 	            ]

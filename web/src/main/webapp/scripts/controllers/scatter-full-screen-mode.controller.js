@@ -1,11 +1,11 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.controller('ScatterFullScreenModeCtrl', [ '$scope', '$rootScope', '$routeParams', '$timeout', 'NavbarVo',
-	    function ($scope, $rootScope, $routeParams, $timeout, NavbarVo) {
+	pinpointApp.controller('ScatterFullScreenModeCtrl', [ '$scope', '$rootScope', '$routeParams', '$timeout', 'NavbarVoService',
+	    function ($scope, $rootScope, $routeParams, $timeout, NavbarVoService) {
 			$at($at.SCATTER_FULL_SCREEN_PAGE);
 	        // define private variables
-	        var oNavbarVo;
+	        var oNavbarVoService;
 	
 	        // initialize
 	        $rootScope.wrapperClass = 'no-navbar';
@@ -17,19 +17,19 @@
 	         * initialize
 	         */
 	        $timeout(function () {
-	            oNavbarVo = new NavbarVo();
+	            oNavbarVoService = new NavbarVoService();
 	            if ($routeParams.application) {
-	                oNavbarVo.setApplication($routeParams.application);
+	                oNavbarVoService.setApplication($routeParams.application);
 	            }
 	            if ($routeParams.readablePeriod) {
-	                oNavbarVo.setReadablePeriod($routeParams.readablePeriod);
+	                oNavbarVoService.setReadablePeriod($routeParams.readablePeriod);
 	            }
 	            if ($routeParams.queryEndDateTime) {
-	                oNavbarVo.setQueryEndDateTime($routeParams.queryEndDateTime);
+	                oNavbarVoService.setQueryEndDateTime($routeParams.queryEndDateTime);
 	            }
-	            oNavbarVo.autoCalculateByQueryEndDateTimeAndReadablePeriod();
-	            $scope.$emit('scatter.initialize', oNavbarVo);
-	            $scope.$emit('scatter.initializeWithNode', {applicationName: oNavbarVo.getApplicationName()}, 800, 600)
+	            oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
+	            $scope.$emit('scatterDirective.initialize', oNavbarVoService);
+	            $scope.$emit('scatterDirective.initializeWithNode', {applicationName: oNavbarVoService.getApplicationName()}, 800, 600)
 	        }, 500);
 	    }
 	]);

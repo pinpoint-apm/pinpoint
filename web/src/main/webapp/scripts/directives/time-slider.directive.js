@@ -1,11 +1,11 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.constant('timeSliderConfig', {
+	pinpointApp.constant('timeSliderDirectiveConfig', {
 	    scaleCount: 10
 	});
 	
-	pinpointApp.directive('timeSlider', [ 'timeSliderConfig', '$timeout', function (cfg, $timeout) {
+	pinpointApp.directive('timeSliderDirective', [ 'timeSliderDirectiveConfig', '$timeout', function (cfg, $timeout) {
 	    return {
 	        restrict: 'EA',
 	        replace: true,
@@ -21,26 +21,26 @@
 	            $elSlider = element.find('.timeslider_input');
 	
 	            // initialize scope variables
-	            scope.oTimeSliderVo = null;
+	            scope.oTimeSliderVoService = null;
 	            scope.disableMore = false;
 	            scope.done = false;
 	
 	            /**
 	             * init slider
-	             * @param timeSliderVo
+	             * @param timeSliderVoService
 	             */
-	            initSlider = function (timeSliderVo) {
-	                scope.oTimeSliderVo = timeSliderVo;
+	            initSlider = function (timeSliderVoService) {
+	                scope.oTimeSliderVoService = timeSliderVoService;
 	
-	                if (scope.oTimeSliderVo.getReady() === false) {
+	                if (scope.oTimeSliderVoService.getReady() === false) {
 	                    return;
 	                }
 	
 	                $timeout(function () {
 	                    $elSlider.jslider(
 	                        {
-	                            from: scope.oTimeSliderVo.getFrom(),
-	                            to: scope.oTimeSliderVo.getTo(),
+	                            from: scope.oTimeSliderVoService.getFrom(),
+	                            to: scope.oTimeSliderVoService.getTo(),
 	                            scale: parseScaleAsTimeFormat(getScale()),
 	                            skin: "round_plastic",
 	                            calculate: function (value) {
@@ -61,8 +61,8 @@
 	            };
 	
 	            checkDisableMore = function () {
-	                if (scope.oTimeSliderVo.getCount() && scope.oTimeSliderVo.getTotal()) {
-	                    if (scope.oTimeSliderVo.getCount() >= scope.oTimeSliderVo.getTotal()) {
+	                if (scope.oTimeSliderVoService.getCount() && scope.oTimeSliderVoService.getTotal()) {
+	                    if (scope.oTimeSliderVoService.getCount() >= scope.oTimeSliderVoService.getTotal()) {
 	                        scope.disableMore = true;
 	                    }
 	                }
@@ -74,8 +74,8 @@
 	             */
 	            getScale = function () {
 	                // assumes maximum gap is 3 days - show in hours:minutes
-	                var from =  scope.oTimeSliderVo.getFrom(),
-	                    to = scope.oTimeSliderVo.getTo(),
+	                var from =  scope.oTimeSliderVoService.getFrom(),
+	                    to = scope.oTimeSliderVoService.getTo(),
 	                    gap = to - from,
 	                    unit = gap / (cfg.scaleCount - 1),
 	                    tempScale = [];
@@ -122,51 +122,51 @@
 	             */
 	            scope.more = function () {
 	            	$at($at.CALLSTACK, $at.CLK_MORE);
-	                scope.$emit('timeSlider.moreClicked', scope.oTimeSliderVo);
+	                scope.$emit('timeSliderDirective.moreClicked', scope.oTimeSliderVoService);
 	            };
 	
 	            /**
-	             * scope event on timeSlider.initialize
+	             * scope event on timeSliderDirective.initialize
 	             */
-	            scope.$on('timeSlider.initialize', function (event, timeSliderVo) {
-	                initSlider(timeSliderVo);
+	            scope.$on('timeSliderDirective.initialize', function (event, timeSliderVoService) {
+	                initSlider(timeSliderVoService);
 	                checkDisableMore();
 	            });
 	
 	            /**
 	             * scope event on setInnerFromTo
 	             */
-	            scope.$on('timeSlider.setInnerFromTo', function (event, timeSliderVo) {
-	                scope.oTimeSliderVo = timeSliderVo;
-	                setInnerFromTo(timeSliderVo.getInnerFrom(), timeSliderVo.getInnerTo());
+	            scope.$on('timeSliderDirective.setInnerFromTo', function (event, timeSliderVoService) {
+	                scope.oTimeSliderVoService = timeSliderVoService;
+	                setInnerFromTo(timeSliderVoService.getInnerFrom(), timeSliderVoService.getInnerTo());
 	                checkDisableMore();
 	            });
 	
 	            /**
 	             * scope event on enable more
 	             */
-	            scope.$on('timeSlider.enableMore', function (event) {
+	            scope.$on('timeSliderDirective.enableMore', function (event) {
 	                scope.disableMore = false;
 	            });
 	
 	            /**
 	             * scope event on disable more
 	             */
-	            scope.$on('timeSlider.disableMore', function (event) {
+	            scope.$on('timeSliderDirective.disableMore', function (event) {
 	                scope.disableMore = true;
 	            });
 	
 	            /**
 	             * scope event on change more to done
 	             */
-	            scope.$on('timeSlider.changeMoreToDone', function (event) {
+	            scope.$on('timeSliderDirective.changeMoreToDone', function (event) {
 	                scope.done = true;
 	            });
 	
 	            /**
 	             * scope event on change done to more
 	             */
-	            scope.$on('timeSlider.changeDoneToMore', function (event) {
+	            scope.$on('timeSliderDirective.changeDoneToMore', function (event) {
 	                scope.done = false;
 	            });
 	        }

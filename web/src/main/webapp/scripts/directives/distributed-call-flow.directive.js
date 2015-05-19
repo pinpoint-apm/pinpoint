@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
+	pinpointApp.directive('distributedCallFlowDirective', [ '$filter', '$timeout',
 	    function ($filter, $timeout) {
 	        return {
 	            restrict: 'E',
@@ -171,7 +171,6 @@
 	                 * @returns {string}
 	                 */
 	                progressBarFormatter = function (row, cell, value, columnDef, dataContext) {
-	                	console.log( row, cell, value, columnDef, dataContext );
 	                    if (value == null || value === "" || value == 0) {
 	                        return "";
 	                    }
@@ -327,7 +326,7 @@
 	                    });
 	
 	                    grid.onActiveCellChanged.subscribe(function (e, args) {
-	                        scope.$emit('distributedCallFlow.rowSelected.' + scope.namespace, args.grid.getDataItem(args.row));
+	                        scope.$emit('distributedCallFlowDirective.rowSelected.' + scope.namespace, args.grid.getDataItem(args.row));
 	                    });
 	
 	                    hasChildNode = function (row) {
@@ -385,25 +384,25 @@
 	                };
 	
 	                /**
-	                 * scope event on distributedCallFlow.initialize
+	                 * scope event on distributedCallFlowDirective.initialize
 	                 */
-	                scope.$on('distributedCallFlow.initialize.' + scope.namespace, function (event, transactionDetail) {
+	                scope.$on('distributedCallFlowDirective.initialize.' + scope.namespace, function (event, transactionDetail) {
 	                    initialize(transactionDetail);
 	                });
 	
 	                /**
-	                 * scope event on distributedCallFlow.resize
+	                 * scope event on distributedCallFlowDirective.resize
 	                 */
-	                scope.$on('distributedCallFlow.resize.' + scope.namespace, function (event) {
+	                scope.$on('distributedCallFlowDirective.resize.' + scope.namespace, function (event) {
 	                    grid.resizeCanvas();
 	                });
-	                scope.$on("distributedCallFlow.selectRow." + scope.namespace, function( event, rowId ) {
+	                scope.$on("distributedCallFlowDirective.selectRow." + scope.namespace, function( event, rowId ) {
 	                	var gridRow = rowId - 1;
 	                	grid.setSelectedRows( [gridRow] );
 	                	grid.setActiveCell( gridRow, 0 );
 	                	grid.scrollRowToTop( gridRow );
 	            	});
-	                scope.$on("distributedCallFlow.searchCall." + scope.namespace, function( event, time, index ) {
+	                scope.$on("distributedCallFlowDirective.searchCall." + scope.namespace, function( event, time, index ) {
 	                	var row = searchRowByTime(time, index);
 	                	if ( row == -1 ) {
 	                		if ( index > 0 ) {

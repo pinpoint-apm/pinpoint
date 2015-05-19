@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.factory('helpContent', [ '$window', '$injector', 'UserLocales', function($window, $injector, UserLocales) {
+	pinpointApp.factory('helpContentService', [ '$window', '$injector', 'UserLocalesService', function($window, $injector, UserLocalesService) {
 	//  var defaultLocale = "en";
 	//  // May not be the best way to get locale.
 	//  var localeCode = $window.navigator.userLanguage || $window.navigator.language;
@@ -10,8 +10,8 @@
 	//  } else {
 	//      localeCode = defaultLocale;
 	//  }
-		var name = "helpContent-" + UserLocales.userLocale;
-		var defaultName = "helpContent-" + UserLocales.defaultLocale;
+		var name = "helpContent-" + UserLocalesService.userLocale;
+		var defaultName = "helpContent-" + UserLocalesService.defaultLocale;
 	//  var name = "helpContent-" + localeCode;
 	//  var defaultName = "helpContent-" + defaultLocale;
 	  if ($injector.has(name)) {

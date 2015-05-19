@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.factory('Alerts', ['$timeout', function ($timeout) {
+	pinpointApp.factory('AlertsService', ['$timeout', function ($timeout) {
 	
 	    return function (parent) {
 	        this.$parent = parent || null;

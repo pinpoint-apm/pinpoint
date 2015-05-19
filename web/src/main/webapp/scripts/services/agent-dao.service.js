@@ -1,12 +1,12 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.constant('agentDaoConfig', {
+	pinpointApp.constant('agentDaoServiceConfig', {
 	    agentStatUrl: '/getAgentStat.pinpoint'
 	});
 	
-	pinpointApp.service('AgentDao', [ 'agentDaoConfig',
-	    function AgentDao(cfg) {
+	pinpointApp.service('AgentDaoService', [ 'agentDaoServiceConfig',
+	    function AgentDaoService(cfg) {
 		
 	        this.getAgentStat = function (query, cb) {
 	            jQuery.ajax({

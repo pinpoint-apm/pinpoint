@@ -1,12 +1,12 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.constant('loadChartConfig', {
+	pinpointApp.constant('loadChartDirectiveConfig', {
 	    myColors: ["#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034"]
 	//    myColors: ["#c9e7a5", "#bbcdf0", "#fce0b5", "#f69124", "#f53034"]
 	});
 	
-	pinpointApp.directive('loadChart', ['loadChartConfig', '$timeout', function (cfg, $timeout) {
+	pinpointApp.directive('loadChartDirective', ['loadChartDirectiveConfig', '$timeout', function (cfg, $timeout) {
         return {
             template: '<div></div>',
             replace: true,
@@ -301,25 +301,25 @@
                 };
 
                 /**
-                 * scope event on loadChart.initAndRenderWithData.namespace
+                 * scope event on loadChartDirective.initAndRenderWithData.namespace
                  */
-                scope.$on('loadChart.initAndRenderWithData.' + scope.namespace, function (event, data, w, h, useChartCursor) {
+                scope.$on('loadChartDirective.initAndRenderWithData.' + scope.namespace, function (event, data, w, h, useChartCursor) {
                     setIdAutomatically();
                     setWidthHeight(w, h);
                     render(parseTimeSeriesHistogramForAmcharts(data), useChartCursor);
                 });
 
                 /**
-                 * scope event on loadChart.updateData.namespace
+                 * scope event on loadChartDirective.updateData.namespace
                  */
-                scope.$on('loadChart.updateData.' + scope.namespace, function (event, data) {
+                scope.$on('loadChartDirective.updateData.' + scope.namespace, function (event, data) {
                     updateData(parseTimeSeriesHistogramForAmcharts(data));
                 });
 
                 /**
-                 * scope event on loadChart.initAndSimpleRenderWithData.namespace
+                 * scope event on loadChartDirective.initAndSimpleRenderWithData.namespace
                  */
-                scope.$on('loadChart.initAndSimpleRenderWithData.' + scope.namespace, function (event, data, w, h, useChartCursor) {
+                scope.$on('loadChartDirective.initAndSimpleRenderWithData.' + scope.namespace, function (event, data, w, h, useChartCursor) {
                     setIdAutomatically();
                     setWidthHeight(w, h);
                     renderSimple(parseTimeSeriesHistogramForAmcharts(data), useChartCursor);

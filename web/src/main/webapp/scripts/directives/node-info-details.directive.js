@@ -1,14 +1,14 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.constant('nodeInfoDetailsConfig', {
+	pinpointApp.constant('nodeInfoDetailsDirectiveConfig', {
 	    applicationStatisticsUrl: '/applicationStatistics.pinpoint',
 	    myColors: ["#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034"],
 	    maxTimeToShowLoadAsDefaultForUnknown: 60 * 60 * 12 // 12h
 	});
 	
-	pinpointApp.directive('nodeInfoDetails', [ 'nodeInfoDetailsConfig', '$filter', '$timeout', 'isVisible', '$window',
-        function (cfg, $filter, $timeout, isVisible, $window) {
+	pinpointApp.directive('nodeInfoDetailsDirective', [ 'nodeInfoDetailsDirectiveConfig', '$filter', '$timeout', 'isVisibleService', '$window',
+        function (cfg, $filter, $timeout, isVisibleService, $window) {
             return {
                 restrict: 'EA',
                 replace: true,
@@ -91,7 +91,7 @@
                             renderResponseSummary('forNode', node.applicationName, node.histogram, '100%', '150px');
                             renderLoad('forNode', node.applicationName, node.timeSeriesHistogram, '100%', '220px', true);
                         } else if ( /_GROUP$/.test( node.serviceType ) ){
-                            scope.showNodeResponseSummaryForUnknown = (scope.oNavbarVo.getPeriod() <= cfg.maxTimeToShowLoadAsDefaultForUnknown) ? false : true;
+                            scope.showNodeResponseSummaryForUnknown = (scope.oNavbarVoService.getPeriod() <= cfg.maxTimeToShowLoadAsDefaultForUnknown) ? false : true;
                             renderAllChartWhichIsVisible(node);
 //                            scope.htLastUnknownNode = angular.copy(node);
                             scope.htLastUnknownNode = node;
@@ -124,7 +124,7 @@
 
                                 var elQuery = '.nodeInfoDetails .summaryCharts_' + className,
                                     el = angular.element(elQuery);
-                                var visible = isVisible(el.get(0), 1);
+                                var visible = isVisibleService(el.get(0), 1);
                                 if (!visible) return;
 
                                 if (scope.showNodeResponseSummaryForUnknown) {
@@ -149,7 +149,7 @@
                     renderResponseSummary = function (namespace, toApplicationName, histogram, w, h) {
                         var className = $filter('applicationNameToClassName')(toApplicationName),
                             namespace = namespace || 'forNode_' + className;
-                        scope.$broadcast('responseTimeChart.initAndRenderWithData.' + namespace, histogram, w, h, false, true);
+                        scope.$broadcast('responseTimeChartDirective.initAndRenderWithData.' + namespace, histogram, w, h, false, true);
                     };
 
                     /**
@@ -164,7 +164,7 @@
                     renderLoad = function (namespace, toApplicationName, timeSeriesHistogram, w, h, useChartCursor) {
                         var className = $filter('applicationNameToClassName')(toApplicationName),
                             namespace = namespace || 'forNode_' + className;
-                        scope.$broadcast('loadChart.initAndRenderWithData.' + namespace, timeSeriesHistogram, w, h, useChartCursor);
+                        scope.$broadcast('loadChartDirective.initAndRenderWithData.' + namespace, timeSeriesHistogram, w, h, useChartCursor);
                     };
 
                     /**
@@ -307,9 +307,9 @@
                     };
 
                     /**
-                     * scope event on nodeInfoDetails.initialize
+                     * scope event on nodeInfoDetailsDirective.initialize
                      */
-                    scope.$on('nodeInfoDetails.initialize', function (event, e, query, node, mapData, navbarVo, reloadOnly, searchQuery) {
+                    scope.$on('nodeInfoDetailsDirective.initialize', function (event, e, query, node, mapData, navbarVoService, reloadOnly, searchQuery) {
                         show();
                         // DISABLE node Cache
                         //if (angular.equals(sLastKey, node.key) && !reloadOnly) {
@@ -323,28 +323,28 @@
                         sLastKey = node.key;
                         htLastNode = node;
                         scope.htLastUnknownNode = false;
-                        scope.oNavbarVo = navbarVo;
+                        scope.oNavbarVoService = navbarVoService;
                         scope.nodeSearch = searchQuery || "";
                         htServermapData = mapData;
                         showDetailInformation(node);
                     });
 
                     /**
-                     * scope event on nodeInfoDetails.hide
+                     * scope event on nodeInfoDetailsDirective.hide
                      */
-                    scope.$on('nodeInfoDetails.hide', function (event) {
+                    scope.$on('nodeInfoDetailsDirective.hide', function (event) {
                         hide();
                     });
 
                     /**
-                     * scope event on nodeInfoDetails.lazyRendering
+                     * scope event on nodeInfoDetailsDirective.lazyRendering
                      */
-                    scope.$on('nodeInfoDetails.lazyRendering', function (event, e) {
+                    scope.$on('nodeInfoDetailsDirective.lazyRendering', function (event, e) {
                         renderAllChartWhichIsVisible(htLastNode);
                     });
 
-                    scope.$on('responseTimeChart.itemClicked.forNode', function (event, data) {
-//                        console.log('on responseTimeChart.itemClicked.forNode', data);
+                    scope.$on('responseTimeChartDirective.itemClicked.forNode', function (event, data) {
+//                        console.log('on responseTimeChartDirective.itemClicked.forNode', data);
                     });
 
                 }

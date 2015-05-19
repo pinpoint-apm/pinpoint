@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.directive('transactionTable', ['$window', function ($window) {
+	pinpointApp.directive('transactionTableDirective', ['$window', function ($window) {
 	    return {
 	        restrict: 'EA',
 	        replace: true,
@@ -59,7 +59,7 @@
 	            scope.traceByApplication = function (transaction) {
 	            	$at($at.CALLSTACK, $at.CLK_TRANSACTION);
 	                scope.currentTransaction = transaction;
-	                scope.$emit('transactionTable.applicationSelected', transaction);
+	                scope.$emit('transactionTableDirective.applicationSelected', transaction);
 	            };
 	
 	            /**
@@ -76,7 +76,7 @@
 	             */
 	            scope.traceBySequence = function (transaction) {
 	                scope.currentTransaction = transaction;
-	                scope.$emit('transactionTable.sequenceSelected', transaction);
+	                scope.$emit('transactionTableDirective.sequenceSelected', transaction);
 	            };
 	
 	            /**
@@ -94,16 +94,16 @@
 	            };
 	
 	            /**
-	             * scope event on transactionTable.appendTransactionList
+	             * scope event on transactionTableDirective.appendTransactionList
 	             */
-	            scope.$on('transactionTable.appendTransactionList', function (event, transactionList) {
+	            scope.$on('transactionTableDirective.appendTransactionList', function (event, transactionList) {
 	                appendTransactionList(transactionList);
 	            });
 	
 	            /**
-	             * scope event on transactionTable.clear
+	             * scope event on transactionTableDirective.clear
 	             */
-	            scope.$on('transactionTable.clear', function (event) {
+	            scope.$on('transactionTableDirective.clear', function (event) {
 	                clear();
 	            });
 	        }

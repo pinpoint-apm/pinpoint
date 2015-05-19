@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.directive('loading', ['$timeout', '$templateCache', '$compile', function ($timeout, $templateCache, $compile) {
+	pinpointApp.directive('loadingDirective', ['$timeout', '$templateCache', '$compile', function ($timeout, $templateCache, $compile) {
         return {
             restrict: 'A',
             scope: {

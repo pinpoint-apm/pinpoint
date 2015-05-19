@@ -29,11 +29,11 @@
                 <div class="panel-body summaryCharts_{{node.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
                     <div ng-show="showNodeResponseSummaryForUnknown" style="padding-top: 20px;">
                         <h6 style="position:absolute;top:5px;left:10px;margin:0;">Response Summary</h6>
-                        <response-time-chart namespace="forNode_{{node.applicationName | applicationNameToClassName}}"></response-time-chart>
+                        <response-time-chart-directive namespace="forNode_{{node.applicationName | applicationNameToClassName}}"></response-time-chart-directive>
                     </div>
                     <div ng-hide="showNodeResponseSummaryForUnknown">
                         <h6 style="position:absolute;top:5px;left:10px;margin:0;">Load</h6>
-                        <load-chart namespace="forNode_{{node.applicationName | applicationNameToClassName}}"></load-chart>
+                        <load-chart-directive namespace="forNode_{{node.applicationName | applicationNameToClassName}}"></load-chart-directive>
                     </div>
 
                     <a class="btn btn-default btn-xs" href title="Show Load" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;color:#8a6d3b"
@@ -62,12 +62,12 @@
 
         <div class='response-summary' ng-show="showNodeResponseSummary">
             <h5>Response Summary</h5>
-            <response-time-chart namespace="forNode"></response-time-chart>
+            <response-time-chart-directive namespace="forNode"></response-time-chart-directive>
         </div>
 
         <div class='load' ng-show="showNodeLoad">
             <h5>Load</h5>
-            <load-chart namespace="forNode"></load-chart>
+            <load-chart-directive namespace="forNode"></load-chart-directive>
         </div>
 
         <div class="node-servers" ng-show="showNodeServers">
@@ -81,7 +81,7 @@
                         <li ng-repeat="instance in server.instanceList" ng-init="instance.showChart=false">
                             <span class="glyphicon glyphicon-hdd"></span>
                             {{instance.name}}
-                            <a class="btn btn-default btn-xs" ng-show="instance.hasInspector" ng-href="#/inspector/{{node.applicationName}}@{{node.serviceType}}/{{oNavbarVo.getReadablePeriod()}}/{{oNavbarVo.getQueryEndDateTime()}}/{{instance.name}}" target="_blank" title="Inspect Agents" alt="Inspect Agents">Inspector</a>
+                            <a class="btn btn-default btn-xs" ng-show="instance.hasInspector" ng-href="#/inspector/{{node.applicationName}}@{{node.serviceType}}/{{oNavbarVoService.getReadablePeriod()}}/{{oNavbarVoService.getQueryEndDateTime()}}/{{instance.name}}" target="_blank" title="Inspect Agents" alt="Inspect Agents">Inspector</a>
                             <button type="button" class="btn btn-xs" ng-click="instance.showChart=!instance.showChart;renderNodeAgentCharts(instance.name);"
                                     ng-show="agentHistogram[instance.name]" ng-class="{true:'btn-danger', false:'btn-default'}[agentHistogram[instance.name].Error > 0]">
                                 <span class="glyphicon" ng-class="{true:'glyphicon-minus',false:'glyphicon-plus'}[instance.showChart==true]"></span>
@@ -89,11 +89,11 @@
                             <div ng-show="instance.showChart">
                                 <div class="agentHistogram_{{instance.name | applicationNameToClassName}}">
                                     <h6>Response Summary</h6>
-                                    <response-time-chart namespace="forNode_{{instance.name | applicationNameToClassName}}"></response-time-chart>
+                                    <response-time-chart-directive namespace="forNode_{{instance.name | applicationNameToClassName}}"></response-time-chart-directive>
                                 </div>
                                 <div class="agentTimeSeriesHistogram_{{instance.name | applicationNameToClassName}}">
                                     <h6>Load</h6>
-                                    <load-chart namespace="forNode_{{instance.name | applicationNameToClassName}}"></load-chart>
+                                    <load-chart-directive namespace="forNode_{{instance.name | applicationNameToClassName}}"></load-chart-directive>
                                 </div>
                             </div>
                         </li>

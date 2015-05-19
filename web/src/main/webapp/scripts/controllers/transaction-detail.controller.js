@@ -4,11 +4,11 @@
 	    applicationUrl: '/transactionInfo.pinpoint'
 	});
 	
-	pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$scope', '$rootScope', '$routeParams', '$timeout', '$rootElement', 'Alerts', 'ProgressBar', 'TransactionDao', '$window', '$location',
-	    function (cfg, $scope, $rootScope, $routeParams, $timeout, $rootElement, Alerts, ProgressBar, TransactionDao, $window, $location) {
+	pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$scope', '$rootScope', '$routeParams', '$timeout', '$rootElement', 'AlertsService', 'ProgressBarService', 'TransactionDaoService', '$window', '$location',
+	    function (cfg, $scope, $rootScope, $routeParams, $timeout, $rootElement, AlertsService, ProgressBarService, TransactionDaoService, $window, $location) {
 			$at($at.TRANSACTION_DETAIL_PAGE);
 	        // define private variables
-	        var oAlert, oProgressBar, bShowCallStacksOnce;
+	        var oAlertService, oProgressBarService, bShowCallStacksOnce;
 	
 	        // define private variables of methods
 	        var parseTransactionDetail, showCallStacks, parseCompleteStateToClass, initSearchVar;
@@ -19,27 +19,27 @@
 	        $rootScope.wrapperStyle = {
 	            'padding-top': '70px'
 	        };
-	        oAlert = new Alerts($rootElement);
-	        oProgressBar = new ProgressBar($rootElement);
+	        oAlertService = new AlertsService($rootElement);
+	        oProgressBarService = new ProgressBarService($rootElement);
 	
 	        /**
 	         * initialize
 	         */
 	        $timeout(function () {
 	            if ($routeParams.traceId && $routeParams.focusTimestamp) {
-	                oProgressBar.startLoading();
-	                oProgressBar.setLoading(30);
-	                TransactionDao.getTransactionDetail($routeParams.traceId, $routeParams.focusTimestamp, function (err, result) {
+	                oProgressBarService.startLoading();
+	                oProgressBarService.setLoading(30);
+	                TransactionDaoService.getTransactionDetail($routeParams.traceId, $routeParams.focusTimestamp, function (err, result) {
 	                    if (err) {
-	                        oProgressBar.stopLoading();
-	                        oAlert.showError('There is some error while downloading the data.');
+	                        oProgressBarService.stopLoading();
+	                        oAlertService.showError('There is some error while downloading the data.');
 	                    }
-	                    oProgressBar.setLoading(70);
+	                    oProgressBarService.setLoading(70);
 	                    parseTransactionDetail(result);
 	                    showCallStacks();
 	                    $timeout(function () {
-	                        oProgressBar.setLoading(100);
-	                        oProgressBar.stopLoading();
+	                        oProgressBarService.setLoading(100);
+	                        oProgressBarService.stopLoading();
 	                    }, 100);
 	                });
 	            }
@@ -78,7 +78,7 @@
 	            if (bShowCallStacksOnce === false) {
 	                bShowCallStacksOnce = true;
 	                //$scope.$broadcast('callStacks.initialize.forTransactionDetail', $scope.transactionDetail);
-	                $scope.$broadcast('distributedCallFlow.initialize.forTransactionDetail', $scope.transactionDetail);
+	                $scope.$broadcast('distributedCallFlowDirective.initialize.forTransactionDetail', $scope.transactionDetail);
 	            }
 	        };
 	        initSearchVar = function() {
@@ -91,7 +91,7 @@
 	        $scope.searchMinTime = 1000; // ms
 	        $scope.searchMessage = "";
 	        $scope.searchCall = function() {
-	        	$scope.$broadcast('distributedCallFlow.searchCall.forTransactionDetail', parseInt($scope.searchMinTime), parseInt($scope.searchIndex) );
+	        	$scope.$broadcast('distributedCallFlowDirective.searchCall.forTransactionDetail', parseInt($scope.searchMinTime), parseInt($scope.searchIndex) );
 	        };
 	        $scope.$watch( "searchMinTime", function( newVal ) {
 	        	$scope.searchIndex = 0;
@@ -102,7 +102,7 @@
 	        };
 	
 	        window.onresize = function (e) {
-	            $scope.$broadcast('distributedCallFlow.resize.forTransactionDetail');
+	            $scope.$broadcast('distributedCallFlowDirective.resize.forTransactionDetail');
 	        };
 	
 	        /**
@@ -115,7 +115,7 @@
 	        $scope.$on("transactionDetail.selectDistributedCallFlowRow", function( event, rowId ) {
 	        	$at($at.CALLSTACK, $at.CLK_DISTRIBUTED_CALL_FLOW);
 	        	$("#traceTabs li:nth-child(1) a").trigger("click");
-	        	$scope.$broadcast('distributedCallFlow.selectRow.forTransactionDetail', rowId);
+	        	$scope.$broadcast('distributedCallFlowDirective.selectRow.forTransactionDetail', rowId);
 	        });
 	        $scope.$on("transactionDetail.searchCallresult", function(event, message) {
 	        	if ( message == "Loop" ) {
@@ -142,12 +142,12 @@
 	        $("#traceTabs li:nth-child(2) a").bind("click", function (e) {
 	        	$at($at.CALLSTACK, $at.CLK_SERVER_MAP);
 	        	initSearchVar();
-	            $scope.$broadcast('serverMap.initializeWithMapData', $scope.transactionDetail);
+	            $scope.$broadcast('serverMapDirective.initializeWithMapData', $scope.transactionDetail);
 	        });
 	        $("#traceTabs li:nth-child(3) a").bind("click", function (e) {
 	        	$at($at.CALLSTACK, $at.CLK_RPC_TIMELINE);
 	        	initSearchVar();
-	            $scope.$broadcast('timeline.initialize', $scope.transactionDetail);
+	            $scope.$broadcast('timelineDirective.initialize', $scope.transactionDetail);
 	        });
 	
 	    }

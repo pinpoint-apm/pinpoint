@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.factory('isVisible', function () {
+	pinpointApp.factory('isVisibleService', function () {
 	
 	    /**
 	     * Checks if a DOM element is visible. Takes into

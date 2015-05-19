@@ -1,14 +1,14 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.constant('linkInfoDetailsConfig', {
+	pinpointApp.constant('linkInfoDetailsDirectiveConfig', {
 	    linkStatisticsUrl: '/linkStatistics.pinpoint',
 	    myColors: ["#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034"],
 	    maxTimeToShowLoadAsDefaultForUnknown:  60 * 60 * 12 // 12h
 	});
 	
-	pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', '$filter', 'ServerMapFilterVo',  'filteredMapUtil', 'humanReadableNumberFormatFilter', '$timeout', 'isVisible', 'ServerMapHintVo', '$window',
-	    function (cfg, $filter, ServerMapFilterVo, filteredMapUtil, humanReadableNumberFormatFilter, $timeout, isVisible, ServerMapHintVo, $window) {
+	pinpointApp.directive('linkInfoDetailsDirective', [ 'linkInfoDetailsDirectiveConfig', '$filter', 'ServerMapFilterVoService',  'filteredMapUtilService', 'humanReadableNumberFormatFilter', '$timeout', 'isVisibleService', 'ServerMapHintVoService', '$window',
+	    function (cfg, $filter, ServerMapFilterVoService, filteredMapUtilService, humanReadableNumberFormatFilter, $timeout, isVisibleService, ServerMapHintVoService, $window) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -82,7 +82,7 @@
 	                        scope.unknownLinkGroup = link.unknownLinkGroup;
 	                        scope.htLastUnknownLink = link;
 	
-	                        scope.showLinkResponseSummaryForUnknown = (scope.oNavbarVo.getPeriod() <= cfg.maxTimeToShowLoadAsDefaultForUnknown) ? false : true;
+	                        scope.showLinkResponseSummaryForUnknown = (scope.oNavbarVoService.getPeriod() <= cfg.maxTimeToShowLoadAsDefaultForUnknown) ? false : true;
 	
 	                        renderAllChartWhichIsVisible(link);
 	                        $timeout(function () {
@@ -120,7 +120,7 @@
 	
 	                            var elQuery = '.linkInfoDetails .summaryCharts_' + className,
 	                                el = angular.element(elQuery);
-	                            var visible = isVisible(el.get(0), 1);
+	                            var visible = isVisibleService(el.get(0), 1);
 	                            if (!visible) return;
 	
 	                            if (scope.showLinkResponseSummaryForUnknown) {
@@ -145,55 +145,54 @@
 	                renderResponseSummaryWithHistogram = function (namespace, toApplicationName, histogram, w, h) {
 	                    var className = $filter('applicationNameToClassName')(toApplicationName),
 	                        namespace = namespace || 'forLink_' + className;
-	
 	                    if (namespace === 'forLink' && bResponseSummaryForLinkRendered) {
-	                        scope.$broadcast('responseTimeChart.updateData.' + namespace, histogram);
+	                        scope.$broadcast('responseTimeChartDirective.updateData.' + namespace, histogram);
 	                    } else {
 	                        if (namespace === 'forLink') {
 	                            bResponseSummaryForLinkRendered = true;
 	                        }
-	                        scope.$broadcast('responseTimeChart.initAndRenderWithData.' + namespace, histogram, w, h, true, true);
-	                        scope.$on('responseTimeChart.itemClicked.' + namespace, function (event, data) {
+	                        scope.$broadcast('responseTimeChartDirective.initAndRenderWithData.' + namespace, histogram, w, h, true, true);
+	                        scope.$on('responseTimeChartDirective.itemClicked.' + namespace, function (event, data) {
 	                            var label = data.responseTime,
 	                                values = data.count;
-	                            var oServerMapFilterVo = new ServerMapFilterVo();
-	                            oServerMapFilterVo
+	                            var oServerMapFilterVoService = new ServerMapFilterVoService();
+	                            oServerMapFilterVoService
 	                                .setMainApplication(htLastLink.filterApplicationName)
 	                                .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode);
 	
 	                            if (htLastLink.sourceInfo.serviceType === 'USER') {
-	                                oServerMapFilterVo
+	                                oServerMapFilterVoService
 	                                    .setFromApplication('USER')
 	                                    .setFromServiceType('USER');
 	                            } else {
-	                                oServerMapFilterVo
+	                                oServerMapFilterVoService
 	                                    .setFromApplication(htLastLink.sourceInfo.applicationName)
 	                                    .setFromServiceType(htLastLink.sourceInfo.serviceType);
 	                            }
 	
-	                            oServerMapFilterVo
+	                            oServerMapFilterVoService
 	                                .setToApplication(htLastLink.targetInfo.applicationName)
 	                                .setToServiceType(htLastLink.targetInfo.serviceType);
 	
 	                            if (label.toLowerCase() === 'error') {
-	                                oServerMapFilterVo.setIncludeException(true);
+	                                oServerMapFilterVoService.setIncludeException(true);
 	                            } else if (label.toLowerCase() === 'slow') {
-	                                oServerMapFilterVo
-	                                    .setResponseFrom(filteredMapUtil.getStartValueForFilterByLabel(label, values) * 1000)
+	                                oServerMapFilterVoService
+	                                    .setResponseFrom(filteredMapUtilService.getStartValueForFilterByLabel(label, values) * 1000)
 	                                    .setIncludeException(false)
 	                                    .setResponseTo('max');
 	                            } else {
-	                                oServerMapFilterVo
-	                                    .setResponseFrom(filteredMapUtil.getStartValueForFilterByLabel(label, values) * 1000)
+	                                oServerMapFilterVoService
+	                                    .setResponseFrom(filteredMapUtilService.getStartValueForFilterByLabel(label, values) * 1000)
 	                                    .setIncludeException(false)
 	                                    .setResponseTo(parseInt(label, 10) * 1000);
 	                            }
 	
-	                            var oServerMapHintVo = new ServerMapHintVo();
+	                            var oServerMapHintVoService = new ServerMapHintVoService();
 	                            if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
-	                                oServerMapHintVo.setHint(htLastLink.targetInfo.applicationName, htLastLink.filterTargetRpcList)
+	                                oServerMapHintVoService.setHint(htLastLink.targetInfo.applicationName, htLastLink.filterTargetRpcList)
 	                            }
-	                            scope.$emit('linkInfoDetails.ResponseSummary.barClicked', oServerMapFilterVo, oServerMapHintVo);
+	                            scope.$emit('linkInfoDetailsDirective.ResponseSummary.barClicked', oServerMapFilterVoService, oServerMapHintVoService);
 	                        });
 	                    }
 	                };
@@ -203,53 +202,53 @@
 	                        namespace = namespace || 'forLink_' + className;
 	
 	                    if (namespace === 'forLink' && bResponseSummaryForLinkRendered) {
-	                        scope.$broadcast('responseTimeChart.updateData.' + namespace, link.histogram);
+	                        scope.$broadcast('responseTimeChartDirective.updateData.' + namespace, link.histogram);
 	                    } else {
 	                        if (namespace === 'forLink') {
 	                            bResponseSummaryForLinkRendered = true;
 	                        }
-	                        scope.$broadcast('responseTimeChart.initAndRenderWithData.' + namespace, link.histogram, w, h, true, true);
-	                        scope.$on('responseTimeChart.itemClicked.' + namespace, function (event, data) {
+	                        scope.$broadcast('responseTimeChartDirective.initAndRenderWithData.' + namespace, link.histogram, w, h, true, true);
+	                        scope.$on('responseTimeChartDirective.itemClicked.' + namespace, function (event, data) {
 	                            var label = data.responseTime,
 	                                values = data.count;
-	                            var oServerMapFilterVo = new ServerMapFilterVo();
-	                            oServerMapFilterVo
+	                            var oServerMapFilterVoService = new ServerMapFilterVoService();
+	                            oServerMapFilterVoService
 	                                .setMainApplication(link.filterApplicationName)
 	                                .setMainServiceTypeCode(link.filterApplicationServiceTypeCode);
 	
 	                            if (link.sourceInfo.serviceType === 'USER') {
-	                                oServerMapFilterVo
+	                                oServerMapFilterVoService
 	                                    .setFromApplication('USER')
 	                                    .setFromServiceType('USER');
 	                            } else {
-	                                oServerMapFilterVo
+	                                oServerMapFilterVoService
 	                                    .setFromApplication(link.sourceInfo.applicationName)
 	                                    .setFromServiceType(link.sourceInfo.serviceType);
 	                            }
 	
-	                            oServerMapFilterVo
+	                            oServerMapFilterVoService
 	                                .setToApplication(link.targetInfo.applicationName)
 	                                .setToServiceType(link.targetInfo.serviceType);
 	
 	                            if (label.toLowerCase() === 'error') {
-	                                oServerMapFilterVo.setIncludeException(true);
+	                                oServerMapFilterVoService.setIncludeException(true);
 	                            } else if (label.toLowerCase() === 'slow') {
-	                                oServerMapFilterVo
-	                                    .setResponseFrom(filteredMapUtil.getStartValueForFilterByLabel(label, values) * 1000)
+	                                oServerMapFilterVoService
+	                                    .setResponseFrom(filteredMapUtilService.getStartValueForFilterByLabel(label, values) * 1000)
 	                                    .setIncludeException(false)
 	                                    .setResponseTo('max');
 	                            } else {
-	                                oServerMapFilterVo
-	                                    .setResponseFrom(filteredMapUtil.getStartValueForFilterByLabel(label, values) * 1000)
+	                                oServerMapFilterVoService
+	                                    .setResponseFrom(filteredMapUtilService.getStartValueForFilterByLabel(label, values) * 1000)
 	                                    .setIncludeException(false)
 	                                    .setResponseTo(parseInt(label, 10) * 1000);
 	                            }
 	
-	                            var oServerMapHintVo = new ServerMapHintVo();
+	                            var oServerMapHintVoService = new ServerMapHintVoService();
 	                            if (link.sourceInfo.isWas && link.targetInfo.isWas) {
-	                                oServerMapHintVo.setHint(link.targetInfo.applicationName, link.filterTargetRpcList)
+	                                oServerMapHintVoService.setHint(link.targetInfo.applicationName, link.filterTargetRpcList)
 	                            }
-	                            scope.$emit('linkInfoDetails.ResponseSummary.barClicked', oServerMapFilterVo, oServerMapHintVo);
+	                            scope.$emit('linkInfoDetailsDirective.ResponseSummary.barClicked', oServerMapFilterVoService, oServerMapHintVoService);
 	                        });
 	                    }
 	                };
@@ -266,12 +265,12 @@
 	                    var className = $filter('applicationNameToClassName')(toApplicationName),
 	                        namespace = namespace || 'forLink_' + className;
 	                    if (namespace === 'forLink' && bLoadForLinkRendered) {
-	                        scope.$broadcast('loadChart.updateData.' + namespace, timeSeriesHistogram);
+	                        scope.$broadcast('loadChartDirective.updateData.' + namespace, timeSeriesHistogram);
 	                    } else {
 	                        if (namespace === 'forLink') {
 	                            bLoadForLinkRendered = true;
 	                        }
-	                        scope.$broadcast('loadChart.initAndRenderWithData.' + namespace, timeSeriesHistogram, w, h, useChartCursor);
+	                        scope.$broadcast('loadChartDirective.initAndRenderWithData.' + namespace, timeSeriesHistogram, w, h, useChartCursor);
 	                    }
 	                };
 	                getUnknownLink = function( key ) {
@@ -411,8 +410,8 @@
 	                 */
 	                scope.passingTransactionMapFromLinkInfoDetails = function (key) {
 	                	var link = getUnknownLink(key);
-	                    var oServerMapFilterVo = new ServerMapFilterVo();
-	                    oServerMapFilterVo
+	                    var oServerMapFilterVoService = new ServerMapFilterVoService();
+	                    oServerMapFilterVoService
 	                        .setMainApplication(link.filterApplicationName)
 	                        .setMainServiceTypeCode(link.filterApplicationServiceTypeCode)
 	                        .setFromApplication(link.sourceInfo.applicationName)
@@ -420,12 +419,12 @@
 	                        .setToApplication(link.targetInfo.applicationName)
 	                        .setToServiceType(link.targetInfo.serviceType);
 	
-	                    var oServerMapHintVo = new ServerMapHintVo();
+	                    var oServerMapHintVoService = new ServerMapHintVoService();
 	                    if (link.sourceInfo.isWas && link.targetInfo.isWas) {
-	                        oServerMapHintVo.setHint(link.toNode.applicationName, link.filterTargetRpcList)
+	                        oServerMapHintVoService.setHint(link.toNode.applicationName, link.filterTargetRpcList)
 	                    }
-	                    //scope.$broadcast('linkInfoDetails.openFilteredMap', oServerMapFilterVo, oServerMapHintVo);
-	                    scope.$emit('linkInfoDetails.openFilteredMap', oServerMapFilterVo, oServerMapHintVo);
+	                    //scope.$broadcast('linkInfoDetailsDirective.openFilteredMap', oServerMapFilterVoService, oServerMapHintVoService);
+	                    scope.$emit('linkInfoDetailsDirective.openFilteredMap', oServerMapFilterVoService, oServerMapHintVoService);
 	                };
 	
 	                /**
@@ -434,8 +433,8 @@
 	                 */
 	                scope.openFilterWizard = function (key) {
 	                	var link = getUnknownLink(key);
-	                    //scope.$broadcast('linkInfoDetails.openFilterWizard', link);
-	                    scope.$emit('linkInfoDetails.openFilterWizard', link);
+	                    //scope.$broadcast('linkInfoDetailsDirective.openFilterWizard', link);
+	                    scope.$emit('linkInfoDetailsDirective.openFilterWizard', link);
 	                };
 	
 	                /**
@@ -457,16 +456,16 @@
 	                };
 	
 	                /**
-	                 * scope event on linkInfoDetails.hide
+	                 * scope event on linkInfoDetailsDirective.hide
 	                 */
-	                scope.$on('linkInfoDetails.hide', function (event) {
+	                scope.$on('linkInfoDetailsDirective.hide', function (event) {
 	                    hide();
 	                });
 	
 	                /**
-	                 * scope event on linkInfoDetails.linkClicked
+	                 * scope event on linkInfoDetailsDirective.linkClicked
 	                 */
-	                scope.$on('linkInfoDetails.initialize', function (event, e, query, link, linkData, navbarVo, reloadOnly) {
+	                scope.$on('linkInfoDetailsDirective.initialize', function (event, e, query, link, linkData, navbarVoService, reloadOnly) {
 	                    show();
 	                    //if (angular.equals(sLastKey, link.key)) {
 	                    //    //if (htLastLink.targetRawData) {
@@ -479,14 +478,14 @@
 	                    sLastKey = link.key;
 	                    htLastLink = link;
 	                    scope.htLastUnknownLink = false;
-	                    scope.oNavbarVo = navbarVo;
+	                    scope.oNavbarVoService = navbarVoService;
 	                    showDetailInformation(link);
 	                });
 	
 	                /**
-	                 * scope event on linkInfoDetails.lazyRendering
+	                 * scope event on linkInfoDetailsDirective.lazyRendering
 	                 */
-	                scope.$on('linkInfoDetails.lazyRendering', function (event, e) {
+	                scope.$on('linkInfoDetailsDirective.lazyRendering', function (event, e) {
 	                    renderAllChartWhichIsVisible(htLastLink);
 	                });
 	            }

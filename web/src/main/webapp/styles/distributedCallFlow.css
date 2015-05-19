@@ -1,28 +1,28 @@
-.distributed-call-flow {
+.distributed-call-flow-directive {
     width: 100%;
     height: 100%;
     font-size: 11px;
 }
-.distributed-call-flow .slick-cell {
+.distributed-call-flow-directive .slick-cell {
     font-family: consolas;
     border-bottom: 0;
 }
-.distributed-call-flow div {
+.distributed-call-flow-directive div {
     -webkit-box-sizing: content-box;
     -moz-box-sizing: content-box;
     box-sizing: content-box;
 }
-.distributed-call-flow .popover {
+.distributed-call-flow-directive .popover {
     /*max-width: inherit;*/
     max-width: 500px;
 }
-.distributed-call-flow .has-exception {
+.distributed-call-flow-directive .has-exception {
     color:rgb(214, 39, 39);
 }
-.distributed-call-flow .not-method {
+.distributed-call-flow-directive .not-method {
     color:rgb(79, 79, 107);
 }
-.distributed-call-flow .right-align {
+.distributed-call-flow-directive .right-align {
     text-align: right;
 }
 .slick-header-columns {
@@ -138,17 +138,17 @@
     to { box-shadow: none; }
 }
 
-.distributed-call-flow .toggle {
+.distributed-call-flow-directive .toggle {
     height: 9px;
     width: 9px;
     display: inline-block;
 }
 
-.distributed-call-flow .toggle.expand {
+.distributed-call-flow-directive .toggle.expand {
     background: url(../components/slickgrid/images/expand.gif) no-repeat center center;
 }
 
-.distributed-call-flow .toggle.collapse {
+.distributed-call-flow-directive .toggle.collapse {
     background: url(../components/slickgrid/images/collapse.gif) no-repeat center center;
 }
 

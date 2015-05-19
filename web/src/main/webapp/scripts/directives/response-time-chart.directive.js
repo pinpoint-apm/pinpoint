@@ -1,11 +1,11 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.constant('responseTimeChartConfig', {
+	pinpointApp.constant('responseTimeChartDirectiveConfig', {
 	    myColors: ["#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034"]
 	});
 	
-	pinpointApp.directive('responseTimeChart', ['responseTimeChartConfig', '$timeout',
+	pinpointApp.directive('responseTimeChartDirective', ['responseTimeChartDirectiveConfig', '$timeout',
         function (cfg, $timeout) {
             return {
                 template: '<div></div>',
@@ -94,10 +94,10 @@
                             oChart.addListener('clickGraphItem', function(event) {
                             	$at($at.MAIN, $at.CLK_RESPONSE_GRAPH);
                             	if ( event.item.category == "Error" ) {
-                            		scope.$emit('responseTimeChart.errorClicked' );
+                            		scope.$emit('responseTimeChartDirective.errorClicked' );
                             	}
                             	if ( useFilterTransaction ) {
-                            		scope.$emit('responseTimeChart.itemClicked.' + scope.namespace, event.item.serialDataItem.dataContext);
+                            		scope.$emit('responseTimeChartDirective.itemClicked.' + scope.namespace, event.item.serialDataItem.dataContext);
                             	}
                             });
                             if (useFilterTransaction) {
@@ -114,7 +114,7 @@
                      * @param event
                      */
                     clickGraphItemListener = function (event) {
-                        scope.$emit('responseTimeChart.itemClicked.' + scope.namespace, event.item.serialDataItem.dataContext);
+                        scope.$emit('responseTimeChartDirective.itemClicked.' + scope.namespace, event.item.serialDataItem.dataContext);
                     };
 
                     /**
@@ -149,18 +149,18 @@
                     };
 
                     /**
-                     * scope event on responseTimeChart.initAndRenderWithData.namespace
+                     * scope event on responseTimeChartDirective.initAndRenderWithData.namespace
                      */
-                    scope.$on('responseTimeChart.initAndRenderWithData.' + scope.namespace, function (event, data, w, h, useFilterTransaction, useChartCursor) {
+                    scope.$on('responseTimeChartDirective.initAndRenderWithData.' + scope.namespace, function (event, data, w, h, useFilterTransaction, useChartCursor) {
                         setIdAutomatically();
                         setWidthHeight(w, h);
                         render(parseHistogramForAmcharts(data), useFilterTransaction, useChartCursor);
                     });
 
                     /**
-                     * scope event on responseTimeChart.updateData.namespace
+                     * scope event on responseTimeChartDirective.updateData.namespace
                      */
-                    scope.$on('responseTimeChart.updateData.' + scope.namespace, function (event, data) {
+                    scope.$on('responseTimeChartDirective.updateData.' + scope.namespace, function (event, data) {
                         updateData(parseHistogramForAmcharts(data));
                     });
 

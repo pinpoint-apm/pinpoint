@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	angular.module('pinpointApp').directive('cpuLoadChart', ['$timeout',
+	angular.module('pinpointApp').directive('cpuLoadChartDirective', ['$timeout',
         function ($timeout) {
             return {
                 template: '<div></div>',
@@ -120,7 +120,7 @@
                         $timeout(function () {
                             oChart = AmCharts.makeChart(sId, options);
                             oChart.chartCursor.addListener('changed', function (event) {
-                                scope.$emit('cpuLoadChart.cursorChanged.' + scope.namespace, event);
+                                scope.$emit('cpuLoadChartDirective.cursorChanged.' + scope.namespace, event);
                             });
                         });
                     };
@@ -151,25 +151,25 @@
                     };
 
                     /**
-                     * scope event on cpuLoadChart.initAndRenderWithData.namespace
+                     * scope event on cpuLoadChartDirective.initAndRenderWithData.namespace
                      */
-                    scope.$on('cpuLoadChart.initAndRenderWithData.' + scope.namespace, function (event, data, w, h) {
+                    scope.$on('cpuLoadChartDirective.initAndRenderWithData.' + scope.namespace, function (event, data, w, h) {
                         setIdAutomatically();
                         setWidthHeight(w, h);
                         render(data);
                     });
 
                     /**
-                     * scope event on cpuLoadChart.showCursorAt.namespace
+                     * scope event on cpuLoadChartDirective.showCursorAt.namespace
                      */
-                    scope.$on('cpuLoadChart.showCursorAt.' + scope.namespace, function (event, category) {
+                    scope.$on('cpuLoadChartDirective.showCursorAt.' + scope.namespace, function (event, category) {
                         showCursorAt(category)
                     });
 
                     /**
-                     * scope event on cpuLoadChart.resize.namespace
+                     * scope event on cpuLoadChartDirective.resize.namespace
                      */
-                    scope.$on('cpuLoadChart.resize.' + scope.namespace, function (event) {
+                    scope.$on('cpuLoadChartDirective.resize.' + scope.namespace, function (event) {
                         resize();
                     });
                 }

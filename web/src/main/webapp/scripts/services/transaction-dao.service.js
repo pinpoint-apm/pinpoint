@@ -1,12 +1,12 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.constant('TransactionDaoConfig', {
+	pinpointApp.constant('TransactionDaoServiceConfig', {
 	    transactionInfoUrl: '/transactionInfo.pinpoint'
 	});
 	
-	pinpointApp.service('TransactionDao', ['TransactionDaoConfig', '$timeout', '$window',
-	    function Transactiondao(cfg, $timeout, $window) {
+	pinpointApp.service('TransactionDaoService', ['TransactionDaoServiceConfig', '$timeout', '$window',
+	    function TransactionDaoService(cfg, $timeout, $window) {
 	
 	
 	        /**

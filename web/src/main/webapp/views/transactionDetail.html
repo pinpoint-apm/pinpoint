@@ -48,7 +48,7 @@
     <div class="tab-pane active" id="CallStacks">
         <!-- begin new call stack -->
         <!--<call-stacks namespace="forTransactionDetail"></call-stacks>-->
-        <distributed-call-flow namespace="forTransactionDetail"></distributed-call-flow>
+        <distributed-call-flow-directive namespace="forTransactionDetail"></distributed-call-flow-directive>
 
         <div ng-include=" 'error' "></div>
         <div ng-include=" 'warning' "></div>
@@ -58,11 +58,11 @@
 
     <div class="tab-pane" id="ServerMap">
     	<span class="label label-danger"><span class="glyphicon glyphicon-exclamation-sign"></span> Technical Preview</span>
-        <server-map></server-map>
+        <server-map-directive></server-map-directive>
     </div>
 
     <div class="tab-pane" id="Timeline">
-        <timeline></timeline>
+        <timeline-directive></timeline-directive>
     </div>
 
     <div class="tab-pane" id="Details">

@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.constant('scatterConfig', {
+	pinpointApp.constant('scatterDirectiveConfig', {
 	    get: {
 	        scatterData: '/getScatterData.pinpoint',
 	        lastScatterData: '/getLastScatterData.pinpoint'
@@ -61,8 +61,8 @@
 	// FIXME made global to allow access from the child window. Refactor later. 
 	//var selectdTracesBox = {};
 	
-	pinpointApp.directive('scatter', ['scatterConfig', '$rootScope', '$timeout', 'webStorage', 'TransactionDao', '$window',
-        function (cfg, $rootScope, $timeout, webStorage, oTransactionDao, $window) {
+	pinpointApp.directive('scatterDirective', ['scatterDirectiveConfig', '$rootScope', '$timeout', 'webStorage', 'TransactionDaoService', '$window',
+        function (cfg, $rootScope, $timeout, webStorage, oTransactionDaoService, $window) {
             return {
                 template: '<div id="scatter"></div>',
                 restrict: 'EA',
@@ -70,13 +70,13 @@
                 link: function (scope, element, attrs) {
 
                     // define private variables
-                    var oNavbarVo, htScatterSet, htLastNode;
+                    var oNavbarVoService, htScatterSet, htLastNode;
 
                     // define private variables of methods
                     var getDataSource, makeScatter, showScatter, showScatterBy, pauseScatterAll, makeScatterWithData;
 
                     // initialize
-                    oNavbarVo = null;
+                    oNavbarVoService = null;
                     htScatterSet = {};
                     htLastNode = {};
 
@@ -211,17 +211,17 @@
 //                            webStorage.session.add(token, transactions);
 //                            window[token] = transactions;
 //                            window.open("/selectedScatter.pinpoint", token);
-//                            oTransactionDao.addData(token, transactions);
+//                            oTransactionDaoService.addData(token, transactions);
 
                             var token = title + '|' + htXY.nXFrom + '|' + htXY.nXTo + '|' + htXY.nYFrom + '|' + htXY.nYTo;
-                            $window.open('#/transactionList/' + oNavbarVo.getApplication() + '/' +
-                                oNavbarVo.getReadablePeriod() + '/' + oNavbarVo.getQueryEndDateTime(), token);
+                            $window.open('#/transactionList/' + oNavbarVoService.getApplication() + '/' +
+                                oNavbarVoService.getReadablePeriod() + '/' + oNavbarVoService.getQueryEndDateTime(), token);
                         };
                         options.fFullScreenMode = function () {
                             var url = '#/scatterFullScreenMode/' + htLastNode.applicationName + '@' + htLastNode.serviceTypeCode + '/' +
-                                oNavbarVo.getReadablePeriod() + '/' + oNavbarVo.getQueryEndDateTime();
-                            if (oNavbarVo.getFilter()) {
-                                url += '/' + oNavbarVo.getFilter();
+                                oNavbarVoService.getReadablePeriod() + '/' + oNavbarVoService.getQueryEndDateTime();
+                            if (oNavbarVoService.getFilter()) {
+                                url += '/' + oNavbarVoService.getFilter();
                             }
                             $window.open(url, "width=900, height=700, resizable=yes");
                         };
@@ -318,8 +318,8 @@
                     /**
                      * scope event on scatter.initialize
                      */
-                    scope.$on('scatter.initialize', function (event, navbarVo) {
-                        oNavbarVo = navbarVo;
+                    scope.$on('scatterDirective.initialize', function (event, navbarVoService) {
+                        oNavbarVoService = navbarVoService;
                         htScatterSet = {};
                         element.empty();
                     });
@@ -327,31 +327,31 @@
                     /**
                      * scope event on scatter.initializeWithNode
                      */
-                    scope.$on('scatter.initializeWithNode', function (event, node, w, h) {
+                    scope.$on('scatterDirective.initializeWithNode', function (event, node, w, h) {
                         htLastNode = node;
-                        showScatter(node.applicationName, oNavbarVo.getQueryStartTime(),
-                            oNavbarVo.getQueryEndTime(), oNavbarVo.getQueryPeriod(), oNavbarVo.getFilter(), w, h);
+                        showScatter(node.applicationName, oNavbarVoService.getQueryStartTime(),
+                            oNavbarVoService.getQueryEndTime(), oNavbarVoService.getQueryPeriod(), oNavbarVoService.getFilter(), w, h);
                     });
 
                     /**
                      * scope event on scatter.initializeWithData
                      */
-                    scope.$on('scatter.initializeWithData', function (event, applicationName, data) {
+                    scope.$on('scatterDirective.initializeWithData', function (event, applicationName, data) {
                         htLastNode = {
                             applicationName: applicationName.split('^')[0]
                         };
-                        makeScatterWithData(applicationName, oNavbarVo.getQueryStartTime(),
-                            oNavbarVo.getQueryEndTime(), oNavbarVo.getQueryPeriod(), oNavbarVo.getFilter(), null, null, data);
+                        makeScatterWithData(applicationName, oNavbarVoService.getQueryStartTime(),
+                            oNavbarVoService.getQueryEndTime(), oNavbarVoService.getQueryPeriod(), oNavbarVoService.getFilter(), null, null, data);
                     });
 
                     /**
                      * scope event on scatter.showByNode
                      */
-                    scope.$on('scatter.showByNode', function (event, node) {
+                    scope.$on('scatterDirective.showByNode', function (event, node) {
                         htLastNode = node;
                         showScatterBy(node.key);
                     });
-                    scope.$on('responseTimeChart.errorClicked', function(event) {
+                    scope.$on('responseTimeChartDirective.errorClicked', function(event) {
                     	// max size of drag box
                     	var oParam = {
                 			animate: function() {},

@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.constant('callStacksConfig', {
+	pinpointApp.constant('callStacksDirectiveConfig', {
 	    agentDividerWarningTime : 500,
 	    agentDividerClasses : [
 	        'first',
@@ -13,7 +13,7 @@
 	    minCallStackLengthForSimpleMode : 999
 	});
 	
-	pinpointApp.directive('callStacks', [ 'callStacksConfig', function (cfg) {
+	pinpointApp.directive('callStacksDirective', [ 'callStacksDirectiveConfig', function (cfg) {
 	    return {
 	        restrict: 'EA',
 	        replace: true,
@@ -113,9 +113,9 @@
 	            };
 	
 	            /**
-	             * scope event on callStacks.initialize
+	             * scope event on callStacksDirective.initialize
 	             */
-	            scope.$on('callStacks.initialize.' + scope.namespace, function (event, transactionDetail) {
+	            scope.$on('callStacksDirective.initialize.' + scope.namespace, function (event, transactionDetail) {
 	                initialize(transactionDetail);
 	            });
 	        }

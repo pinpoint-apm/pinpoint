@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.factory('ProgressBar', [ '$timeout', '$window', '$location', 'UserLocales', function ($timeout, $window, $location, UserLocales) {
+	pinpointApp.factory('ProgressBarService', [ '$timeout', '$window', '$location', 'UserLocalesService', function ($timeout, $window, $location, UserLocalesService) {
 		var AVAILABLE_LOCALE = [ "ko", "en" ];
 		var TIP_MAX_COUNT = 5;
 		var STORAGE_NAME = "__HIDE_LOADING_TIP";
@@ -96,10 +96,10 @@
 	        	return num < 10 ? "0" + num : num + "";
 	        }.bind(this);
 	        this._getLocale = function() {
-	        	if ( AVAILABLE_LOCALE.indexOf( UserLocales.userLocale ) == -1 ) {
-	        		return UserLocales.defaultLocale;
+	        	if ( AVAILABLE_LOCALE.indexOf( UserLocalesService.userLocale ) == -1 ) {
+	        		return UserLocalesService.defaultLocale;
 	        	} else {
-	        		return UserLocales.userLocale;
+	        		return UserLocalesService.userLocale;
 	        	}
 	        }.bind(this);
 	        this.hideBackground = function() {

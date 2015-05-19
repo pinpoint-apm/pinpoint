@@ -1,8 +1,8 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.factory('ServerMapFilterVo', [  function () {
-	    return function ServerMapFilterVo(dataSet) {
+	pinpointApp.factory('ServerMapFilterVoService', [  function () {
+	    return function ServerMapFilterVoService(dataSet) {
 	        var self = this;
 	
 	        this._sMainApplication = null;

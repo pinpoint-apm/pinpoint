@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.factory('SidebarTitleVo', [ function () {
+	pinpointApp.factory('SidebarTitleVoService', [ function () {
 	    return function () {
 	        var self = this;
 	

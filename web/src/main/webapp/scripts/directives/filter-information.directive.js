@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.directive('filterInformation', [ '$filter', '$base64',
+	pinpointApp.directive('filterInformationDirective', [ '$filter', '$base64',
 	    function ($filter, $base64) {
 	        return {
 	            restrict: 'EA',
@@ -19,33 +19,33 @@
 	
 	                /**
 	                 * initialize
-	                 * @param oServerMapFilterVo
+	                 * @param oServerMapFilterVoService
 	                 */
-	                initialize = function (oServerMapFilterVo) {
+	                initialize = function (oServerMapFilterVoService) {
 	                    reset();
 	                    if (oServerMapFilterVo.getRequestUrlPattern()) {
-	                        scope.urlPattern = $base64.decode(oServerMapFilterVo.getRequestUrlPattern());
+	                        scope.urlPattern = $base64.decode(oServerMapFilterVoService.getRequestUrlPattern());
 	                    }
-	                    scope.includeException = oServerMapFilterVo.getIncludeException() ? 'Failed Only' : 'Success + Failed';
+	                    scope.includeException = v.getIncludeException() ? 'Failed Only' : 'Success + Failed';
 	
-	                    if (angular.isNumber(oServerMapFilterVo.getResponseFrom()) &&
+	                    if (angular.isNumber(oServerMapFilterVoService.getResponseFrom()) &&
 	                        oServerMapFilterVo.getResponseTo()) {
 	                        var responseTime = [];
-	                        responseTime.push($filter('number')(oServerMapFilterVo.getResponseFrom()));
+	                        responseTime.push($filter('number')(oServerMapFilterVoService.getResponseFrom()));
 	                        responseTime.push('ms');
 	                        responseTime.push('~');
-	                        if (oServerMapFilterVo.getResponseTo() === 'max') {
+	                        if (oServerMapFilterVoService.getResponseTo() === 'max') {
 	                            responseTime.push('30,000+');
 	                        } else {
-	                            responseTime.push($filter('number')(oServerMapFilterVo.getResponseTo()));
+	                            responseTime.push($filter('number')(oServerMapFilterVoService.getResponseTo()));
 	                        }
 	                        responseTime.push('ms');
 	
 	                        scope.responseTime = responseTime.join(' ');
 	                    }
 	
-	                    var fromAgentName = oServerMapFilterVo.getFromAgentName();
-	                    var toAgentName = oServerMapFilterVo.getToAgentName();
+	                    var fromAgentName = oServerMapFilterVoService.getFromAgentName();
+	                    var toAgentName = oServerMapFilterVoService.getToAgentName();
 	                    if (fromAgentName || toAgentName) {
 	                        scope.agentFilterInfo = (fromAgentName || 'all') + ' -> ' + (toAgentName || 'all');
 	                    } else {
@@ -64,10 +64,10 @@
 	                };
 	
 	                /**
-	                 * scope event on filterInformation.initialize.namespace
+	                 * scope event on filterInformationDirective.initialize.namespace
 	                 */
-	                scope.$on('filterInformation.initialize.' + scope.namespace, function (e, oServerMapFilterVo) {
-	                    initialize(oServerMapFilterVo);
+	                scope.$on('filterInformationDirective.initialize.' + scope.namespace, function (e, oServerMapFilterVoService) {
+	                    initialize(oServerMapFilterVoService);
 	                });
 	            }
 	        };

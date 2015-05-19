@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	angular.module('pinpointApp').directive('jvmMemoryChart', ['$timeout',
+	angular.module('pinpointApp').directive('jvmMemoryChartDirective', ['$timeout',
         function ($timeout) {
             return {
                 template: '<div></div>',
@@ -136,7 +136,7 @@
                         $timeout(function () {
                             oChart = AmCharts.makeChart(sId, options);
                             oChart.chartCursor.addListener('changed', function (event) {
-                                scope.$emit('jvmMemoryChart.cursorChanged.' + scope.namespace, event);
+                                scope.$emit('jvmMemoryChartDirective.cursorChanged.' + scope.namespace, event);
                             });
                         });
                     };
@@ -167,25 +167,25 @@
                     };
 
                     /**
-                     * scope event on jvmMemoryChart.initAndRenderWithData.namespace
+                     * scope event on jvmMemoryChartDirective.initAndRenderWithData.namespace
                      */
-                    scope.$on('jvmMemoryChart.initAndRenderWithData.' + scope.namespace, function (event, data, w, h) {
+                    scope.$on('jvmMemoryChartDirective.initAndRenderWithData.' + scope.namespace, function (event, data, w, h) {
                         setIdAutomatically();
                         setWidthHeight(w, h);
                         render(data);
                     });
 
                     /**
-                     * scope event on jvmMemoryChart.showCursorAt.namespace
+                     * scope event on jvmMemoryChartDirective.showCursorAt.namespace
                      */
-                    scope.$on('jvmMemoryChart.showCursorAt.' + scope.namespace, function (event, category) {
+                    scope.$on('jvmMemoryChartDirective.showCursorAt.' + scope.namespace, function (event, category) {
                         showCursorAt(category)
                     });
 
                     /**
-                     * scope event on jvmMemoryChart.resize.namespace
+                     * scope event on jvmMemoryChartDirective.resize.namespace
                      */
-                    scope.$on('jvmMemoryChart.resize.' + scope.namespace, function (event) {
+                    scope.$on('jvmMemoryChartDirective.resize.' + scope.namespace, function (event) {
                         resize();
                     });
                 }

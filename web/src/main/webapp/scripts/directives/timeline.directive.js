@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.directive('timeline', function () {
+	pinpointApp.directive('timelineDirective', function () {
 	    return {
 	        restrict: 'EA',
 	        replace: true,
@@ -39,9 +39,9 @@
 	            	return colorSet[ index >= colorSet.length ? 0 : index ];
 	            };
 	            /**
-	             * scope event on timeline.initialize
+	             * scope event on timelineDirective.initialize
 	             */
-	            scope.$on('timeline.initialize', function (event, transactionDetail) {
+	            scope.$on('timelineDirective.initialize', function (event, transactionDetail) {
 	                initialize(transactionDetail);
 	            });
 	            scope.moveCallFlow = function( item ) {
