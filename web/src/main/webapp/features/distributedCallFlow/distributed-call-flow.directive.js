@@ -80,6 +80,18 @@
 	                        html.push('<span class="glyphicon glyphicon-fire"></span>&nbsp;');
 	                    } else if (!item.isMethod) {
 	                        html.push('<span class="glyphicon glyphicon-info-sign"></span>&nbsp;');
+	                    } else {
+	                    	switch( item.methodType ) {
+	                    	case 100:
+	                    			html.push('<i class="xi-shipping"></i>&nbsp;');
+	                    			break;
+	                    	case 200:
+	                    			html.push('<span class="glyphicon glyphicon-transfer"></span>&nbsp;');
+	                    			break;
+	                    	case 900:
+	                    			html.push('<i class="xi-info-triangle" style="color:#FF6600"></i>&nbsp;');
+	                    			break;
+	                    	}
 	                    }
 	
 	                    html.push(value);
@@ -208,6 +220,7 @@
 	                            timeMs: val[index['elapsedTime']],
 	                            timePer: val[index['elapsedTime']] ? ((val[index['end']] - val[index['begin']]) * barRatio) + 0.9 : null,
 	                            class: val[index['simpleClassName']],
+	                            methodType: val[index['methodType']],
 	                            apiType: val[index['apiType']],
 	                            agent: val[index['agent']],
 	                            applicationName: val[index['applicationName']],
@@ -258,6 +271,9 @@
 	                    dataView.getItemMetadata = function( row ) {
 	                    	var item = dataView.getItemByIdx(row);
 	                    	var o = { cssClasses: "" };
+	                    	if ( item.hasException === true ) {
+	                    		o.cssClasses += " error-point";
+	                    	}
 	                    	if ( item.isFocused === true ) {
 	                    		o.cssClasses += " entry-point";
 	                    	}
