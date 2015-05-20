@@ -266,6 +266,7 @@ public final class DefaultTrace implements Trace {
     public TraceId getTraceId() {
         return this.traceId;
     }
+    
 
     public boolean canSampled() {
         return this.sampling;

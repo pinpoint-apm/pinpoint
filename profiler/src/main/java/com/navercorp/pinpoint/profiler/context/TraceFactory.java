@@ -37,6 +37,8 @@ public interface TraceFactory {
     Trace continueAsyncTraceObject(TraceId traceId, int asyncId, long startTime);
     
     Trace newTraceObject();
+    
+    Trace removeTraceObject();
 
     void attachTraceObject(Trace trace);
     void detachTraceObject();

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import com.navercorp.pinpoint.bootstrap.context.SpanId;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.util.TransactionId;
@@ -33,6 +35,7 @@ public class DefaultTraceId implements TraceId {
     private final long parentSpanId;
     private final long spanId;
     private final short flags;
+    private final AtomicInteger traceCount = new AtomicInteger(0);
 
     public DefaultTraceId(String agentId, long agentStartTime, long transactionId) {
         this(agentId, agentStartTime, transactionId, SpanId.NULL, SpanId.newSpanId(), (short) 0);
@@ -98,6 +101,17 @@ public class DefaultTraceId implements TraceId {
         return this.parentSpanId == SpanId.NULL;
     }
 
+    public int getTraceCount() {
+        return traceCount.get();
+    }
+
+    public int incrementTraceCount() {
+        return traceCount.incrementAndGet();
+    }
+
+    public int decrementTraceCount() {
+        return traceCount.decrementAndGet();
+    }
 
     @Override
     public String toString() {
@@ -111,4 +125,5 @@ public class DefaultTraceId implements TraceId {
         sb.append('}');
         return sb.toString();
     }
+
 }

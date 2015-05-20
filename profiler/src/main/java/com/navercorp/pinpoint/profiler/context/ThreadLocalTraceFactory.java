@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
+import com.navercorp.pinpoint.profiler.context.storage.StoragePool;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricRegistry;
 import com.navercorp.pinpoint.profiler.util.NamedThreadLocal;
 
@@ -46,6 +47,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     private final StorageFactory storageFactory;
     private final Sampler sampler;
 
+    private final StoragePool storagePool;
 
     // Unique id for tracing a internal stacktrace and calculating a slow time of activethreadcount
     // moved here in order to make codes simpler for now
@@ -68,6 +70,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         this.metricRegistry = metricRegistry;
         this.storageFactory = storageFactory;
         this.sampler = sampler;
+        this.storagePool = new StoragePool(storageFactory);
     }
 
 
@@ -122,7 +125,9 @@ public class ThreadLocalTraceFactory implements TraceFactory {
 
         // TODO need to modify how to bind a datasender
         final DefaultTrace trace = new DefaultTrace(traceContext, traceID);
-        final Storage storage = storageFactory.createStorage();
+        traceID.incrementTraceCount();
+        // final Storage storage = storageFactory.createStorage();
+        final Storage storage = storagePool.getStorage(traceID);
         trace.setStorage(storage);
 
         // always set true because the decision of sampling has been  made on previous nodes
@@ -150,8 +155,11 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         // TODO need to modify how to inject a datasender
         final boolean sampling = sampler.isSampling();
         if (sampling) {
-            final Storage storage = storageFactory.createStorage();
+            // final Storage storage = storageFactory.createStorage();
             final DefaultTrace trace = new DefaultTrace(traceContext, nextTransactionId());
+            final TraceId traceId = trace.getTraceId();
+            traceId.incrementTraceCount();
+            final Storage storage = storagePool.getStorage(traceId);
             trace.setStorage(storage);
             trace.setSampling(sampling);
             threadLocal.set(trace);
@@ -163,10 +171,24 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         }
     }
 
+    @Override
+    public Trace removeTraceObject() {
+        final Trace trace = currentRawTraceObject();
+        if(trace != null) {
+            final TraceId traceId = trace.getTraceId();
+            traceId.decrementTraceCount();
+            storagePool.returnStorage(traceId);
+        }
+
+        detachTraceObject();
+        return trace;
+    }
+
+    
     private Trace createMetricTrace() {
         return DisableTrace.INSTANCE;
-//        TODO STATDISABLE ,  disabled to store statistics for now
-//        return new MetricTrace(traceContext, nextTransactionId());
+        // TODO STATDISABLE ,  disabled to store statistics for now
+        // return new MetricTrace(traceContext, nextTransactionId());
     }
 
     private long nextTransactionId() {
@@ -186,11 +208,11 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     public Trace continueAsyncTraceObject(TraceId traceId, int asyncId, long startTime) {
         checkBeforeTraceObject();
         
-        final Storage storage = storageFactory.createStorage();
-        storage.setAsync(true);
-        
         final DefaultTrace trace = new DefaultTrace(traceContext, traceId);
         trace.getCallStack().getSpan().setStartTime(startTime);
+        traceId.incrementTraceCount();
+        final Storage storage = storagePool.getStorage(traceId);
+        // TODO
         trace.setStorage(storage);
         trace.setSampling(true);
         

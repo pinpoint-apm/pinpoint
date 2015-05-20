@@ -167,6 +167,11 @@ public class DefaultTraceContext implements TraceContext {
         return traceFactory.newTraceObject();
     }
 
+    @Override
+    public Trace removeTraceObject() {
+        return traceFactory.removeTraceObject();
+    }
+    
     public void attachTraceObject(Trace trace) {
         this.traceFactory.attachTraceObject(trace);
     }
@@ -361,4 +366,5 @@ public class DefaultTraceContext implements TraceContext {
         final int id = asyncId.incrementAndGet();
         return id == -1 ? asyncId.incrementAndGet() : id;
     }
+
 }
