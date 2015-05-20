@@ -64,6 +64,10 @@
     background: #DFF0D8;
     color: #1469EB;
 }
+.slick-row.error-point {
+    background: #f2dede;
+    color: #1469EB;
+}
 
 
 .slick-cell {
