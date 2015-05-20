@@ -48,12 +48,7 @@ public class LogStorageFactory implements StorageFactory {
         }
 
         @Override
-        public void setAsync(boolean async) {
-        }
-
-        @Override
-        public boolean isAsync() {
-            return false;
+        public void flush() {
         }
     }
 }

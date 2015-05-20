@@ -55,12 +55,6 @@ public final class SimpleSpanStorage implements Storage {
     }
 
     @Override
-    public void setAsync(boolean async) {
+    public void flush() {
     }
-
-    @Override
-    public boolean isAsync() {
-        return false;
-    }
-
 }

@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.profiler.context.storage.AsyncStorage;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StoragePool;
@@ -211,8 +212,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         trace.getCallStack().getSpan().setStartTime(startTime);
         traceId.incrementTraceCount();
         final Storage storage = storagePool.getStorage(traceId);
-        // TODO
-        trace.setStorage(storage);
+        trace.setStorage(new AsyncStorage(storage));
         trace.setSampling(true);
         
         final AsyncTrace asyncTrace = new AsyncTrace(trace);
@@ -222,5 +222,4 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         
         return asyncTrace;
     }
-
 }

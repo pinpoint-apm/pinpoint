@@ -36,10 +36,9 @@ public class BufferedStorage implements Storage {
 
     private final int bufferSize;
 
-    private List<SpanEvent> storage ;
+    private List<SpanEvent> storage;
     private final DataSender dataSender;
     private final SpanChunkFactory spanChunkFactory;
-    private boolean async;
 
     public BufferedStorage(DataSender dataSender, SpanChunkFactory spanChunkFactory) {
         this(dataSender, spanChunkFactory, DEFAULT_BUFFER_SIZE);
@@ -58,13 +57,11 @@ public class BufferedStorage implements Storage {
         this.storage = new ArrayList<SpanEvent>(bufferSize);
     }
 
-
     @Override
     public void store(SpanEvent spanEvent) {
-
         List<SpanEvent> flushData = null;
         synchronized (this) {
-            addSpanEvent(spanEvent);
+            storage.add(spanEvent);
             if (storage.size() >= bufferSize) {
                 // data copy
                 flushData = storage;
@@ -80,62 +77,42 @@ public class BufferedStorage implements Storage {
         }
     }
 
-    private void addSpanEvent(SpanEvent spanEvent) {
-        final List<SpanEvent> storage = this.storage;
-        if (storage == null) {
-            if (logger.isErrorEnabled()) {
-                logger.error("storage is null. discard spanEvent:{}", spanEvent);
-            }
-            
-            // Already flushed. This could happen with async processing.
-            return;
-        }
-        storage.add(spanEvent);
-    }
-
-
     @Override
     public void store(Span span) {
-        flushAll(span);
-    }
-
-    private void flushAll(Span span) {
         List<SpanEvent> spanEventList;
         synchronized (this) {
             spanEventList = storage;
             this.storage = null;
         }
-        
-        if(async) {
-            if(spanEventList != null && !spanEventList.isEmpty()) {
-                final SpanChunk spanChunk = spanChunkFactory.create(spanEventList);
-                dataSender.send(spanChunk);
-            }
-        } else {
-            if (spanEventList != null && !spanEventList.isEmpty()) {
-                span.setSpanEventList((List) spanEventList);
-            }
-            dataSender.send(span);
+
+        if (spanEventList != null && !spanEventList.isEmpty()) {
+            span.setSpanEventList((List) spanEventList);
         }
+        dataSender.send(span);
 
         if (isDebug) {
             logger.debug("flush span {}", span);
         }
     }
 
-    public boolean isAsync() {
-        return async;
-    }
+    public void flush() {
+        List<SpanEvent> spanEventList;
+        synchronized (this) {
+            spanEventList = storage;
+            this.storage = null;
+        }
 
-    public void setAsync(boolean async) {
-        this.async = async;
+        if (spanEventList != null && !spanEventList.isEmpty()) {
+            final SpanChunk spanChunk = spanChunkFactory.create(spanEventList);
+            dataSender.send(spanChunk);
+            if (isDebug) {
+                logger.debug("flush span chunk {}", spanChunk);
+            }
+        }
     }
 
     @Override
     public String toString() {
-        return "BufferedStorage{" +
-                "bufferSize=" + bufferSize +
-                ", dataSender=" + dataSender +
-                '}';
+        return "BufferedStorage{" + "bufferSize=" + bufferSize + ", dataSender=" + dataSender + '}';
     }
 }
