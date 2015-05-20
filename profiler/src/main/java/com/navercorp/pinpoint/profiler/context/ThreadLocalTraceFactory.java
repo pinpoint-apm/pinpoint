@@ -137,6 +137,15 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         threadLocal.set(trace);
         return trace;
     }
+    
+
+    @Override
+    public Trace continueTraceObject(Trace trace) {
+        checkBeforeTraceObject();
+        
+        threadLocal.set(trace);
+        return trace;
+    }
 
     private void checkBeforeTraceObject() {
         final Trace old = this.threadLocal.get();
@@ -180,7 +189,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
             storagePool.returnStorage(traceId);
         }
 
-        detachTraceObject();
+        this.threadLocal.remove();
         return trace;
     }
 
@@ -193,16 +202,6 @@ public class ThreadLocalTraceFactory implements TraceFactory {
 
     private long nextTransactionId() {
         return this.transactionId.getAndIncrement();
-    }
-
-
-    public void attachTraceObject(Trace trace) {
-        this.threadLocal.set(trace);
-    }
-    
-    @Override
-    public void detachTraceObject() {
-        this.threadLocal.remove();
     }
     
     public Trace continueAsyncTraceObject(TraceId traceId, int asyncId, long startTime) {
@@ -223,4 +222,5 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         
         return asyncTrace;
     }
+
 }

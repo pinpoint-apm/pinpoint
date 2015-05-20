@@ -89,7 +89,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
                 // change api
                 trace.recordApi(SERVLET_ASYNCHRONOUS_API_TAG);
                 // attach current thread local.
-                getTraceContext().attachTraceObject(trace);
+                getTraceContext().continueTraceObject(trace);
                 trace.traceBlockBegin();
                 
                 return trace;

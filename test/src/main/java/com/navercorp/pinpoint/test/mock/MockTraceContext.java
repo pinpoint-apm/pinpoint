@@ -61,11 +61,6 @@ public class MockTraceContext implements TraceContext {
     }
 
     @Override
-    public void detachTraceObject() {
-        trace = null;
-    }
-
-    @Override
     public String getAgentId() {
         return null;
     }
@@ -166,10 +161,6 @@ public class MockTraceContext implements TraceContext {
     }
 
     @Override
-    public void attachTraceObject(Trace trace) {
-    }
-
-    @Override
     public Trace continueAsyncTraceObject(TraceId traceId, int asyncId, long startTime) {
         return null;
     }
@@ -177,5 +168,15 @@ public class MockTraceContext implements TraceContext {
     @Override
     public int getAsyncId() {
         return 0;
+    }
+
+    @Override
+    public Trace continueTraceObject(Trace trace) {
+        return null;
+    }
+
+    @Override
+    public Trace removeTraceObject() {
+        return null;
     }
 }

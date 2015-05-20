@@ -98,7 +98,7 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
             if (async) {
                 traceFirstBlockEnd(trace);
                 trace.traceRootBlockEnd();
-                traceContext.detachTraceObject();
+                traceContext.removeTraceObject();
             }
         }
     }

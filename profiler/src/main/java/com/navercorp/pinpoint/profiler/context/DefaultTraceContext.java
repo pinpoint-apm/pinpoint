@@ -159,6 +159,11 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     @Override
+    public Trace continueTraceObject(Trace trace) {
+        return traceFactory.continueTraceObject(trace);
+    }
+    
+    @Override
     public Trace continueAsyncTraceObject(TraceId traceId, int asyncId, long startTime) {
         return traceFactory.continueAsyncTraceObject(traceId, asyncId, startTime);
     }
@@ -171,16 +176,6 @@ public class DefaultTraceContext implements TraceContext {
     public Trace removeTraceObject() {
         return traceFactory.removeTraceObject();
     }
-    
-    public void attachTraceObject(Trace trace) {
-        this.traceFactory.attachTraceObject(trace);
-    }
-    
-    @Override
-    public void detachTraceObject() {
-        this.traceFactory.detachTraceObject();
-    }
-
 
     //@Override
     public ActiveThreadCounter getActiveThreadCounter() {

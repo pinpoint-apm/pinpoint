@@ -153,8 +153,6 @@ public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCode
             return;
         }
         try {
-            traceContext.detachTraceObject();
-
             HttpServletRequest request = (HttpServletRequest) args[0];
             String parameters = getRequestParameter(request);
             if (parameters != null && parameters.length() > 0) {
@@ -168,6 +166,8 @@ public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCode
 
             trace.markAfterTime();
         } finally {
+            traceContext.removeTraceObject();
+            // TODO bug code - remove only !!!!
             trace.traceBlockEnd();
         }
     }

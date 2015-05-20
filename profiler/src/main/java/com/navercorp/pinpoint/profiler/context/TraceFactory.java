@@ -33,13 +33,12 @@ public interface TraceFactory {
 
     // picked as sampling target at remote
     Trace continueTraceObject(TraceId traceID);
+    
+    Trace continueTraceObject(Trace trace);
 
     Trace continueAsyncTraceObject(TraceId traceId, int asyncId, long startTime);
     
     Trace newTraceObject();
     
     Trace removeTraceObject();
-
-    void attachTraceObject(Trace trace);
-    void detachTraceObject();
 }

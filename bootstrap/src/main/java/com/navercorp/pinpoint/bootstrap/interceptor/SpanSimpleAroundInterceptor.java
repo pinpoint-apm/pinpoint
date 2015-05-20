@@ -77,9 +77,10 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
         if (trace == null) {
             return;
         }
-        traceContext.detachTraceObject();
+        
         // TODO STATDISABLE this logic was added to disable statistics tracing
         if (!trace.canSampled()) {
+            traceContext.removeTraceObject();
             return;
         }
         // ------------------------------------------------------
@@ -90,6 +91,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
                 logger.warn("after. Caused:{}", th.getMessage(), th);
             }
         } finally {
+            traceContext.removeTraceObject();
             deleteTrace(trace, target, args, result, throwable);
         }
     }

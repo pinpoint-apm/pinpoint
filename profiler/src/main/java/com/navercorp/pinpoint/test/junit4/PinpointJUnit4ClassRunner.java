@@ -112,7 +112,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
                     }
                 }
             } finally {
-                traceContext.detachTraceObject();
+                traceContext.removeTraceObject();
             }
         }
     }
