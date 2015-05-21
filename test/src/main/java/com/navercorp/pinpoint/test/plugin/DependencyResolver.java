@@ -270,6 +270,10 @@ public class DependencyResolver {
                 throw new IllegalArgumentException("Fail to resolve version of: " + representative);
             }
             
+            if (versions.isEmpty()) {
+                throw new IllegalArgumentException("No version in the given range: " + representative);
+            }
+            
             List<List<Artifact>> companionVersions = new ArrayList<List<Artifact>>(versions.size());
             
             for (Version version : versions) {
