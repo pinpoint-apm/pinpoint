@@ -27,6 +27,7 @@ BASE_DIR=`dirname "$bin"`
 
 CONF_DIR=$BASE_DIR/conf
 HBASE_DIR=$BASE_DIR/hbase
+DATA_DIR=$BASE_DIR/data
 
 function func_check_hbase_installation
 {
@@ -58,6 +59,13 @@ function func_download_hbase
     fi
 }
 
+function delete_data_directory
+{
+    if [ -d $DATA_DIR ]; then
+        rm -r $DATA_DIR
+    fi
+}
+
 function func_install_hbase
 {
     if [ ! -d $HBASE_DIR ]; then
@@ -71,8 +79,12 @@ function func_install_hbase
         echo "Exiting"
         exit 0
     fi
+    delete_data_directory
     tar xzf $HBASE_FILE
     rm $HBASE_FILE
+    if [ -h hbase ]; then
+        unlink hbase
+    fi
     ln -s $HBASE_VERSION hbase
     cp $CONF_DIR/hbase/hbase-site.xml $HBASE_DIR/$HBASE_VERSION/conf/
     chmod +x $HBASE_DIR/$HBASE_VERSION/bin/start-hbase.sh
