@@ -1,6 +1,6 @@
 {
   "name": "pinpoint",
-  "version": "0.0.1",
+  "version": "1.1.0",
   "dependencies": {
     "angular": "1.2.18",
     "json3": "~3.2.6",

@@ -18,7 +18,7 @@
          *
          * @constructor
          * @method $init
-         * @param {Hash Table} options
+         * @param {object}
          */
         $init: function (htOption, $location) {
         	this._query = "";
@@ -875,7 +875,7 @@
          * load
          *
          * @method load
-         * @param {Hash Table} str
+         * @param {object}
          */
         load: function (str) {
             this.nodeClickEventOnce = false;
@@ -967,8 +967,8 @@
          * highlight link by from, to objects
          *
          * @method highlightLinkByFromTo
-         * @param {String,Number} from
-         * @param {String,Number} to
+         * @param {String} from
+         * @param {String} to
          */
         highlightLinkByFromTo: function (from, to) {
             var htLink = this._getLinkObjectByFromTo(from, to);
@@ -982,8 +982,8 @@
          * get link by from, to objects
          *
          * @method _getLinkObjectByFromTo
-         * @param {String,Number} from
-         * @param {String,Number} to
+         * @param {String} from
+         * @param {String} to
          */
         _getLinkObjectByFromTo: function (from, to) {
             var aLink = this._oDiagram.model.linkDataArray;

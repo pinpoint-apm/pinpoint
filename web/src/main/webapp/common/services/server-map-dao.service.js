@@ -840,7 +840,7 @@
 	     * get node data by key
 	     * @param applicationMapData
 	     * @param key
-	     * @returns {boolean|hash table}
+	     * @returns {object}
 	     */
 	    this.getNodeDataByKey = function (applicationMapData, key) {
 	        var nodes = applicationMapData.nodeDataArray;
@@ -869,7 +869,7 @@
 	     * get link data by key
 	     * @param applicationMapData
 	     * @param key
-	     * @returns {boolean|hash table}
+	     * @returns {object}
 	     */
 	    this.getLinkDataByKey = function (applicationMapData, key) {
 	        var links = applicationMapData.linkDataArray;
