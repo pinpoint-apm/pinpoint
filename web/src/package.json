@@ -1,0 +1,36 @@
+{
+  "name": "pinpoint",
+  "version": "1.1.0",
+  "description": "",
+  "main": "Gruntfile.js",
+  "dependencies": {},
+  "devDependencies": {
+    "bower": "~0.3.2",
+    "grunt": "~0.4.5",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-copy": "^0.8.0",
+    "grunt-jsdoc": "^0.5.8",
+    "jasmine": "~2.2.1",
+    "jasmine-core": "~2.2.0",
+    "jsdoc": "^3.3.0",
+    "karma": "~0.12.31",
+    "karma-jasmine": "~0.3.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "pinpoint",
+    "apm"
+  ],
+  "author": "NAVER Corp",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/naver/pinpoint"
+  },
+  "bugs": {
+    "url": "https://github.com/naver/pinpoint/issues"
+  }
+}

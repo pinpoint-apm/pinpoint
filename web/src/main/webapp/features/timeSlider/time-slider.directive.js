@@ -102,7 +102,7 @@
 	            /**
 	             * parse timestamp to time format
 	             * @param timestamp
-	             * @returns {Time as String}
+	             * @returns {String}
 	             */
 	            parseTimestampToTimeFormat = function (timestamp) {
 	                return new Date(timestamp).toString('HH:mm');
