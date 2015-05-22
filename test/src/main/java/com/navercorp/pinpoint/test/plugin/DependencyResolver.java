@@ -280,7 +280,7 @@ public class DependencyResolver {
                 List<Artifact> companionVersion = new ArrayList<Artifact>(companion.size());
                 
                 for (Artifact artifact : companion) {
-                    companionVersion.add(new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "jar", version.toString()));
+                    companionVersion.add(new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), artifact.getClassifier(), artifact.getExtension(), version.toString()));
                 }
                 
                 companionVersions.add(companionVersion);
