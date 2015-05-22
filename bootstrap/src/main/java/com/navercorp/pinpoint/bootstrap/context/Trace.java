@@ -21,9 +21,5 @@ package com.navercorp.pinpoint.bootstrap.context;
  */
 public interface Trace extends RecordableTrace, StackOperation {
 
-
-
-
-
-
+    void close();
 }

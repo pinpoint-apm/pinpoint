@@ -41,7 +41,7 @@ public interface TraceContext {
 
     Trace newTraceObject();
     
-    Trace continueAsyncTraceObject(TraceId traceId, int asyncId, long startTime);
+    Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime);
 
     Trace removeTraceObject();
 

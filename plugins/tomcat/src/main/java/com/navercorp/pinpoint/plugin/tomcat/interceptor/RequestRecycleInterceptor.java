@@ -33,11 +33,13 @@ public class RequestRecycleInterceptor implements SimpleAroundInterceptor, Tomca
 
     private PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
+    private TraceContext traceContext;
     private MethodInfo targetMethod;
     private MetadataAccessor traceAccessor;
     private MetadataAccessor asyncAccessor;
 
     public RequestRecycleInterceptor(TraceContext context, MethodInfo targetMethod, @Name(METADATA_TRACE) MetadataAccessor traceAccessor, @Name(METADATA_ASYNC) MetadataAccessor asyncAccessor) {
+        this.traceContext = context;
         this.targetMethod = targetMethod;
         this.traceAccessor = traceAccessor;
         this.asyncAccessor = asyncAccessor;
@@ -57,7 +59,7 @@ public class RequestRecycleInterceptor implements SimpleAroundInterceptor, Tomca
                 if (trace != null && trace.canSampled()) {
                     // end of root span
                     trace.markAfterTime();
-                    trace.traceRootBlockEnd();
+                    trace.close();
                 }
                 // reset
                 traceAccessor.set(target, null);

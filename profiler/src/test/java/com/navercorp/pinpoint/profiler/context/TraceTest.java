@@ -76,7 +76,7 @@ public class TraceTest {
 
         // response to client
 
-        trace.traceRootBlockEnd();
+        trace.close();
 
         logger.info(String.valueOf(dataSender.event));
     }

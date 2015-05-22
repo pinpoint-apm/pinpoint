@@ -37,5 +37,8 @@ public interface Storage {
     void store(Span span);
 
     void flush();
+
+    void setCloseHandler(StorageCloseHandler closeHandler);
     
+    void close();
 }

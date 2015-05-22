@@ -99,7 +99,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
     protected abstract void doInAfterTrace(final RecordableTrace trace, final Object target, final Object[] args, final Object result, Throwable throwable);
 
     protected void deleteTrace(final Trace trace, final Object target, final Object[] args, final Object result, Throwable throwable) {
-        trace.traceRootBlockEnd();
+        trace.close();
     }
 
     @Override

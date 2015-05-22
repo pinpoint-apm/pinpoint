@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -126,7 +127,6 @@ public class ThreadLocalTraceFactory implements TraceFactory {
 
         // TODO need to modify how to bind a datasender
         final DefaultTrace trace = new DefaultTrace(traceContext, traceID);
-        traceID.incrementTraceCount();
         // final Storage storage = storageFactory.createStorage();
         final Storage storage = storagePool.getStorage(traceID);
         trace.setStorage(storage);
@@ -168,7 +168,6 @@ public class ThreadLocalTraceFactory implements TraceFactory {
             // final Storage storage = storageFactory.createStorage();
             final DefaultTrace trace = new DefaultTrace(traceContext, nextTransactionId());
             final TraceId traceId = trace.getTraceId();
-            traceId.incrementTraceCount();
             final Storage storage = storagePool.getStorage(traceId);
             trace.setStorage(storage);
             trace.setSampling(sampling);
@@ -184,13 +183,8 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     @Override
     public Trace removeTraceObject() {
         final Trace trace = currentRawTraceObject();
-        if(trace != null) {
-            final TraceId traceId = trace.getTraceId();
-            traceId.decrementTraceCount();
-            storagePool.returnStorage(traceId);
-        }
-
         this.threadLocal.remove();
+
         return trace;
     }
 
@@ -205,13 +199,13 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         return this.transactionId.getAndIncrement();
     }
     
-    public Trace continueAsyncTraceObject(TraceId traceId, int asyncId, long startTime) {
+    public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
         checkBeforeTraceObject();
         
-        final DefaultTrace trace = new DefaultTrace(traceContext, traceId);
+        final TraceId parentTraceId = traceId.getParentTraceId();
+        final DefaultTrace trace = new DefaultTrace(traceContext, parentTraceId);
         trace.getCallStack().getSpan().setStartTime(startTime);
-        traceId.incrementTraceCount();
-        final Storage storage = storagePool.getStorage(traceId);
+        final Storage storage = storagePool.getStorage(parentTraceId);
         trace.setStorage(new AsyncStorage(storage));
         trace.setSampling(true);
         

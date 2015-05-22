@@ -192,11 +192,6 @@ public class AsyncTrace implements Trace {
     }
 
     @Override
-    public void traceRootBlockEnd() {
-        trace.traceRootBlockEnd();
-    }
-
-    @Override
     public void traceBlockEnd() {
         trace.traceBlockEnd();
     }
@@ -224,5 +219,10 @@ public class AsyncTrace implements Trace {
     @Override
     public AsyncTraceId getAsyncTraceId() {
         return trace.getAsyncTraceId();
+    }
+
+    @Override
+    public void close() {
+        trace.close();
     }
 }

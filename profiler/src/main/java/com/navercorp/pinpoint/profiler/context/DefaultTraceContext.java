@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.Metric;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
@@ -164,7 +165,7 @@ public class DefaultTraceContext implements TraceContext {
     }
     
     @Override
-    public Trace continueAsyncTraceObject(TraceId traceId, int asyncId, long startTime) {
+    public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
         return traceFactory.continueAsyncTraceObject(traceId, asyncId, startTime);
     }
     

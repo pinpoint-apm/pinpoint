@@ -318,7 +318,8 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         final Request request = (Request) args[0];
         if (!isAsynchronousProcess(request)) {
             trace.markAfterTime();
-            trace.traceRootBlockEnd();
+            trace.close();
+            getTraceContext().removeTraceObject();
             // reset
             setTraceMetadata(request, null);
         }

@@ -39,6 +39,7 @@ public class BufferedStorage implements Storage {
     private List<SpanEvent> storage;
     private final DataSender dataSender;
     private final SpanChunkFactory spanChunkFactory;
+    private StorageCloseHandler closeHandler;
 
     public BufferedStorage(DataSender dataSender, SpanChunkFactory spanChunkFactory) {
         this(dataSender, spanChunkFactory, DEFAULT_BUFFER_SIZE);
@@ -82,7 +83,7 @@ public class BufferedStorage implements Storage {
         List<SpanEvent> spanEventList;
         synchronized (this) {
             spanEventList = storage;
-            this.storage = null;
+            this.storage = new ArrayList<SpanEvent>(bufferSize);
         }
 
         if (spanEventList != null && !spanEventList.isEmpty()) {
@@ -99,7 +100,7 @@ public class BufferedStorage implements Storage {
         List<SpanEvent> spanEventList;
         synchronized (this) {
             spanEventList = storage;
-            this.storage = null;
+            this.storage = new ArrayList<SpanEvent>(bufferSize);
         }
 
         if (spanEventList != null && !spanEventList.isEmpty()) {
@@ -111,8 +112,24 @@ public class BufferedStorage implements Storage {
         }
     }
 
+    public StorageCloseHandler getCloseHandler() {
+        return closeHandler;
+    }
+
+    public void setCloseHandler(StorageCloseHandler closeHandler) {
+        this.closeHandler = closeHandler;
+    }
+
+    @Override
+    public void close() {
+        if(closeHandler != null) {
+            closeHandler.handle();
+        }
+    }
+
     @Override
     public String toString() {
         return "BufferedStorage{" + "bufferSize=" + bufferSize + ", dataSender=" + dataSender + '}';
     }
+    
 }

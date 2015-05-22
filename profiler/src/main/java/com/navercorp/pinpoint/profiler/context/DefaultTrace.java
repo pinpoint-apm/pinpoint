@@ -59,6 +59,7 @@ public final class DefaultTrace implements Trace {
     // use for calculating depth of each Span.
     private int latestStackIndex = -1;
     private StackFrame currentStackFrame;
+    private boolean closed = false;
 
     public DefaultTrace(final TraceContext traceContext, long transactionId) {
         if (traceContext == null) {
@@ -66,7 +67,8 @@ public final class DefaultTrace implements Trace {
         }
         this.traceContext = traceContext;
         this.traceId = new DefaultTraceId(traceContext.getAgentId(), traceContext.getAgentStartTime(), transactionId);
-
+        this.traceId.incrementTraceCount();
+        
         final Span span = createSpan(traceId);
         this.callStack = new CallStack(span);
         this.latestStackIndex = this.callStack.push();
@@ -97,6 +99,7 @@ public final class DefaultTrace implements Trace {
         }
         this.traceContext = traceContext;
         this.traceId = continueTraceId;
+        this.traceId.incrementTraceCount();
         final Span span = createSpan(continueTraceId);
         this.callStack = new CallStack(span);
         latestStackIndex = this.callStack.push();
@@ -184,14 +187,23 @@ public final class DefaultTrace implements Trace {
     }
 
     @Override
-    public void traceRootBlockEnd() {
-//        TODO STATDISABLE remove stat code for now
-//        metricResponseTime();
-        pop(ROOT_STACKID);
-        callStack.popRoot();
+    public void close() {
+        // TODO STATDISABLE remove stat code for now
+        // metricResponseTime();
+        try {
+            pop(ROOT_STACKID);
+            callStack.popRoot();
+        } catch(Exception e) {
+            logger.warn("Failed to close", e);
+        }
         
         // If the stack is not handled properly, NullPointerException will be thrown after this. Is it OK?
         this.currentStackFrame = null;
+        if(this.storage != null) {
+            this.traceId.decrementTraceCount();
+            this.storage.close();
+            this.storage = null;
+        }
     }
 
     @Override
@@ -225,8 +237,6 @@ public final class DefaultTrace implements Trace {
             }
         }
     }
-
-
 
     @Override
     public void traceBlockEnd(int stackId) {

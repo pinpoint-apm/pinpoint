@@ -50,5 +50,13 @@ public class LogStorageFactory implements StorageFactory {
         @Override
         public void flush() {
         }
+
+        @Override
+        public void setCloseHandler(StorageCloseHandler closeHandler) {
+        }
+
+        @Override
+        public void close() {
+        }
     }
 }

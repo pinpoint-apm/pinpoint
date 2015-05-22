@@ -25,4 +25,14 @@ public class AsyncStorage implements Storage {
     public void flush() {
         storage.flush();
     }
+
+    @Override
+    public void setCloseHandler(StorageCloseHandler closeHandler) {
+        storage.setCloseHandler(closeHandler);
+    }
+
+    @Override
+    public void close() {
+        storage.close();
+    }
 }
