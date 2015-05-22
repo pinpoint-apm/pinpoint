@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
-import com.navercorp.pinpoint.bootstrap.plugin.PluginClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
@@ -38,6 +37,7 @@ import com.navercorp.pinpoint.profiler.util.NameValueList;
 
 public class DefaultProfilerPluginContext implements ProfilerPluginContext {
     private final DefaultAgent agent;
+    private final ProfilerPluginClassLoader classInjector;
     
     private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
     private final List<ClassFileTransformer> classTransformers = new ArrayList<ClassFileTransformer>();
@@ -53,8 +53,9 @@ public class DefaultProfilerPluginContext implements ProfilerPluginContext {
     private boolean initialized = false;
     
     
-    public DefaultProfilerPluginContext(DefaultAgent agent) {
+    public DefaultProfilerPluginContext(DefaultAgent agent, ProfilerPluginClassLoader classInjector) {
         this.agent = agent;
+        this.classInjector = classInjector;
     }
 
     @Override
@@ -152,10 +153,9 @@ public class DefaultProfilerPluginContext implements ProfilerPluginContext {
             serverTypeDetectors.add(detector);
         }
     }
-
-    @Override
-    public PluginClassLoaderFactory getClassLoaderFactory() {
-        return agent.getPluginClassLoaderFactory();
+    
+    public ProfilerPluginClassLoader getClassInjector() {
+        return classInjector;
     }
 
     public List<ClassFileTransformer> getClassEditors() {

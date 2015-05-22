@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.profiler;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -38,9 +36,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
-import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
@@ -53,8 +49,8 @@ import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
-import com.navercorp.pinpoint.profiler.plugin.DefaultPluginClassLoaderFactory;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
+import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginLoader;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.receiver.service.EchoService;
 import com.navercorp.pinpoint.profiler.receiver.service.ThreadDumpService;
@@ -106,7 +102,6 @@ public class DefaultAgent implements Agent {
     private final InterceptorRegistryBinder interceptorRegistryBinder;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
     
-    private final DefaultPluginClassLoaderFactory pluginClassLoaderFactory;
     private final List<DefaultProfilerPluginContext> pluginContexts;
     
 
@@ -160,9 +155,7 @@ public class DefaultAgent implements Agent {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
 
-        Class<? extends ClassLoader> classLoaderType = new ClassLoaderResolver().resolve(instrumentation);
-        pluginClassLoaderFactory = new DefaultPluginClassLoaderFactory(classLoaderType, agentOption.getPluginJars());
-        pluginContexts = loadProfilerPlugins(agentOption.getPluginJars());
+        pluginContexts = loadPlugins(agentOption);
 
         this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, pluginContexts);
         retransformService.setRetransformEventListener(classFileTransformer);
@@ -199,28 +192,16 @@ public class DefaultAgent implements Agent {
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime());
     }
 
+    protected List<DefaultProfilerPluginContext> loadPlugins(AgentOption agentOption) {
+        return new ProfilerPluginLoader(this).load(agentOption.getPluginJars());
+    }
+
 
     private CommandDispatcher createCommandDispatcher() {
         CommandDispatcher commandDispatcher = new CommandDispatcher();
         commandDispatcher.registerCommandService(new ThreadDumpService());
         commandDispatcher.registerCommandService(new EchoService());
         return commandDispatcher;
-    }
-
-    private List<DefaultProfilerPluginContext> loadProfilerPlugins(URL[] pluginJars) {
-        List<ProfilerPlugin> plugins = PluginLoader.load(ProfilerPlugin.class, pluginJars);
-        List<DefaultProfilerPluginContext> pluginContexts = new ArrayList<DefaultProfilerPluginContext>(plugins.size());
-        
-        for (ProfilerPlugin plugin : plugins) {
-            logger.info("Loading plugin: {}", plugin.getClass().getName());
-            
-            DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(this);
-            plugin.setup(context);
-            context.markInitialized();
-            pluginContexts.add(context);
-        }
-        
-        return pluginContexts;
     }
 
     public ByteCodeInstrumentor getByteCodeInstrumentor() {
@@ -383,10 +364,6 @@ public class DefaultAgent implements Agent {
         return serviceTypeRegistryService;
     }
     
-    public DefaultPluginClassLoaderFactory getPluginClassLoaderFactory() {
-        return pluginClassLoaderFactory;
-    }
-
     @Override
     public void start() {
         synchronized (this) {

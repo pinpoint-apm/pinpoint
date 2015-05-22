@@ -23,45 +23,34 @@ import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
-import com.navercorp.pinpoint.bootstrap.plugin.PluginClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 public class DedicatedClassFileTransformer implements PinpointClassFileTransformer {
     private final ByteCodeInstrumentor instrumentor;
-    private final PluginClassLoaderFactory classLoaderFactory;
 
     private final String targetClassName;
     private final ClassRecipe recipe;
     
     
-    public DedicatedClassFileTransformer(ByteCodeInstrumentor instrumentor, PluginClassLoaderFactory classLoaderFactory, String targetClassName, ClassRecipe recipe) {
+    public DedicatedClassFileTransformer(ByteCodeInstrumentor instrumentor, String targetClassName, ClassRecipe recipe) {
         this.instrumentor = instrumentor;
-        this.classLoaderFactory = classLoaderFactory;
-
         this.targetClassName = targetClassName;
         this.recipe = recipe;
     }
     
     @Override
     public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        ClassLoader forPlugin = classLoaderFactory.get(classLoader);
-        
-        ClassLoader old = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(forPlugin);
-        
         try {
             InstrumentClass target = instrumentor.getClass(classLoader, className, classfileBuffer);
-            recipe.edit(forPlugin, target);
+            recipe.edit(classLoader, target);
             return target.toBytecode();
         } catch (PinpointException e) {
             throw e;
         } catch (Throwable e) {
             String msg = "Fail to invoke plugin class recipe: " + toString();
             throw new PinpointException(msg, e);
-        } finally {
-            Thread.currentThread().setContextClassLoader(old);
         }
     }
 

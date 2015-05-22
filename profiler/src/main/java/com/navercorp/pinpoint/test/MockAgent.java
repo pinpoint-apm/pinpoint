@@ -19,25 +19,30 @@ package com.navercorp.pinpoint.test;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.thrift.TBase;
+
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation;
+import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-
-import org.apache.thrift.TBase;
-
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation;
+import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.interceptor.GlobalInterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
+import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginClassLoader;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
@@ -108,6 +113,25 @@ public class MockAgent extends DefaultAgent {
         return new ResettableServerMetaDataHolder(vmArgs);
     }
     
+    @Override
+    protected List<DefaultProfilerPluginContext> loadPlugins(AgentOption agentOption) {
+        List<DefaultProfilerPluginContext> pluginContexts = new ArrayList<DefaultProfilerPluginContext>();
+        ProfilerPluginClassLoader classInjector = new TestProfilerPluginClassLoader();
+
+        List<ProfilerPlugin> plugins = PluginLoader.load(ProfilerPlugin.class, ClassLoader.getSystemClassLoader());
+        
+        for (ProfilerPlugin plugin : plugins) {
+            DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(this, classInjector);
+            plugin.setup(context);
+            context.markInitialized();
+            pluginContexts.add(context);
+        }
+        
+        
+        return pluginContexts;
+
+    }
+
     public static String toString(Span span) {
         StringBuilder builder = new StringBuilder();
         builder.append('(');

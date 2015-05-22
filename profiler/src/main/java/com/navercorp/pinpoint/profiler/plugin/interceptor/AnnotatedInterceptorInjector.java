@@ -54,7 +54,7 @@ public class AnnotatedInterceptorInjector implements MethodRecipe {
     }
 
     int inject(ClassLoader targetClassLoader, InstrumentClass targetClass, MethodInfo targetMethod) throws Exception {
-        Class<? extends Interceptor> interceptorType = TypeUtils.loadClass(targetClassLoader, interceptorClassName);
+        Class<? extends Interceptor> interceptorType = pluginContext.getClassInjector().loadClass(targetClassLoader, interceptorClassName);
         InterceptorFactory factory = createInterceptorFactory(interceptorType);
         Interceptor interceptor = factory.getInterceptor(targetClassLoader, targetClass, targetMethod);
         

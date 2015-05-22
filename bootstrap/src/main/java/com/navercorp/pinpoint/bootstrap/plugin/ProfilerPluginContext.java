@@ -91,8 +91,6 @@ public interface ProfilerPluginContext {
     
     public InterceptorGroup getInterceptorGroup(String name);
     
-    public PluginClassLoaderFactory getClassLoaderFactory();
-    
     /**
      * Add a {@link ApplicationTypeDetector} to Pinpoint agent.
      * 
