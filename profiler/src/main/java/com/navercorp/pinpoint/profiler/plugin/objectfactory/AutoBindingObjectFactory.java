@@ -26,29 +26,30 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe.ByConstructor;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe.ByStaticFactoryMethod;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
+import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 
 /**
  * @author Jongho Moon
  *
  */
 public class AutoBindingObjectFactory {
+    private final DefaultProfilerPluginContext pluginContext;
     private final ClassLoader classLoader;
     private final PinpointTypeArgumentProvider pinpointResolver;
 
-    public AutoBindingObjectFactory(ProfilerPluginContext pluginContext, InstrumentClass targetClass, ClassLoader classLoader) {
+    public AutoBindingObjectFactory(DefaultProfilerPluginContext pluginContext, InstrumentClass targetClass, ClassLoader classLoader) {
         this(pluginContext, null, targetClass, null, classLoader);
     }
 
-    public AutoBindingObjectFactory(ProfilerPluginContext pluginContext, InterceptorGroup interceptorGroup, InstrumentClass targetClass, MethodInfo targetMethod, ClassLoader classLoader) {
+    public AutoBindingObjectFactory(DefaultProfilerPluginContext pluginContext, InterceptorGroup interceptorGroup, InstrumentClass targetClass, MethodInfo targetMethod, ClassLoader classLoader) {
+        this.pluginContext = pluginContext;
         this.classLoader = classLoader;
         this.pinpointResolver = new PinpointTypeArgumentProvider(pluginContext, interceptorGroup, targetClass, targetMethod);
     }
     
     public Object createInstance(ObjectRecipe recipe) {
-        Class<?> type = TypeUtils.loadClass(classLoader, recipe.getClassName());
+        Class<?> type = pluginContext.getClassInjector().loadClass(classLoader, recipe.getClassName());
         ArgumentsResolver argumentsResolver = getParameterResolvers(classLoader, recipe.getArguments());
         
         if (recipe instanceof ByConstructor) {

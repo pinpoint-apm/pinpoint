@@ -123,7 +123,7 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
     @Override
     public PinpointClassFileTransformer build() {
         ClassRecipe recipe = buildClassRecipe(); 
-        return new DedicatedClassFileTransformer(pluginContext.getByteCodeInstrumentor(), pluginContext.getClassLoaderFactory(), targetClassName, recipe);
+        return new DedicatedClassFileTransformer(pluginContext.getByteCodeInstrumentor(), targetClassName, recipe);
     }
 
     private ClassRecipe buildClassRecipe() {

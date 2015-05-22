@@ -37,6 +37,7 @@ import com.navercorp.pinpoint.profiler.plugin.TestInterceptors.TestInterceptor0;
 import com.navercorp.pinpoint.profiler.plugin.TestInterceptors.TestInterceptor1;
 import com.navercorp.pinpoint.profiler.plugin.TestInterceptors.TestInterceptor2;
 import com.navercorp.pinpoint.profiler.plugin.interceptor.AnnotatedInterceptorFactory;
+import com.navercorp.pinpoint.test.TestProfilerPluginClassLoader;
 
 public class DefaultInterceptorFactoryTest {
     private final DefaultProfilerPluginContext pluginContext = mock(DefaultProfilerPluginContext.class);
@@ -50,6 +51,7 @@ public class DefaultInterceptorFactoryTest {
     public void setUp() {
         reset(instrumentor, traceContext, aClass, aMethod);
         when(pluginContext.getTraceContext()).thenReturn(traceContext);
+        when(pluginContext.getClassInjector()).thenReturn(new TestProfilerPluginClassLoader());
         when(aMethod.getDescriptor()).thenReturn(descriptor);
     }
 

@@ -20,8 +20,6 @@ import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 import java.lang.instrument.ClassFileTransformer;
-import java.net.URL;
-import java.net.URLClassLoader;
 
 import org.junit.Test;
 
@@ -36,6 +34,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.plugin.transformer.DefaultClassFileTransformerBuilder;
+import com.navercorp.pinpoint.test.TestProfilerPluginClassLoader;
 
 public class DefaultClassEditorBuilderTest {
     public static final String SCOPE_NAME = "test";
@@ -47,11 +46,9 @@ public class DefaultClassEditorBuilderTest {
         InstrumentClass aClass = mock(InstrumentClass.class);
         MethodInfo aMethod = mock(MethodInfo.class);
         MethodDescriptor aDescriptor = mock(MethodDescriptor.class);
-        DefaultPluginClassLoaderFactory classLoaderFactory = mock(DefaultPluginClassLoaderFactory.class);
         DefaultAgent agent = mock(DefaultAgent.class);
         
         ClassLoader classLoader = getClass().getClassLoader();
-        ClassLoader childClassLoader = new URLClassLoader(new URL[0], classLoader);
         String className = "someClass";
         String methodName = "someMethod";
         byte[] classFileBuffer = new byte[0];
@@ -60,8 +57,6 @@ public class DefaultClassEditorBuilderTest {
         
         when(agent.getByteCodeInstrumentor()).thenReturn(instrumentor);
         when(agent.getTraceContext()).thenReturn(traceContext);
-        when(agent.getPluginClassLoaderFactory()).thenReturn(classLoaderFactory);
-        when(classLoaderFactory.get(classLoader)).thenReturn(childClassLoader);
         when(instrumentor.getClass(classLoader, className, classFileBuffer)).thenReturn(aClass);
         when(aClass.getDeclaredMethod(methodName, parameterTypeNames)).thenReturn(aMethod);
         when(aMethod.getName()).thenReturn(methodName);
@@ -69,7 +64,8 @@ public class DefaultClassEditorBuilderTest {
         when(aMethod.getDescriptor()).thenReturn(aDescriptor);
         when(aClass.addInterceptor(eq(methodName), eq(parameterTypeNames), isA(Interceptor.class))).thenReturn(0);
         
-        DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(agent);
+        DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(agent, new TestProfilerPluginClassLoader());
+        
         DefaultClassFileTransformerBuilder builder = new DefaultClassFileTransformerBuilder(context, "TargetClass");
         builder.injectMetadata("a", "java.util.HashMap");
         builder.injectFieldAccessor("someField");
