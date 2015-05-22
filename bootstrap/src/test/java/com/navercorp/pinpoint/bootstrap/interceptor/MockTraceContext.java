@@ -178,6 +178,8 @@ public class MockTraceContext implements TraceContext {
 
     @Override
     public Trace removeTraceObject() {
-        return null;
+        Trace old = trace;
+        trace = null;
+        return old;
     }
 }
