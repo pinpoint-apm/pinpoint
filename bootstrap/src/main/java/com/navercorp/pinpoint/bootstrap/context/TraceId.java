@@ -38,4 +38,10 @@ public interface TraceId {
     short getFlags();
 
     boolean isRoot();
+    
+    int getTraceCount();
+    
+    int incrementTraceCount();
+    
+    int decrementTraceCount();
 }

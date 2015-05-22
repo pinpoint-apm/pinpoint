@@ -66,11 +66,6 @@ public class DisableTrace  implements Trace {
     }
 
     @Override
-    public void traceRootBlockEnd() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void traceBlockEnd() {
         throw new UnsupportedOperationException();
     }
@@ -232,5 +227,9 @@ public class DisableTrace  implements Trace {
     @Override
     public AsyncTraceId getAsyncTraceId() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void close() {
     }
 }

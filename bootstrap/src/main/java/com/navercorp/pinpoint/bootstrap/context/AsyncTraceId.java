@@ -5,4 +5,6 @@ public interface AsyncTraceId extends TraceId {
     int getAsyncId();
     
     long getSpanStartTime();
+    
+    TraceId getParentTraceId();
 }

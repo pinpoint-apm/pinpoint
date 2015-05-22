@@ -108,11 +108,11 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
                     try {
                         trace.markAfterTime();
                     } finally {
-                        trace.traceRootBlockEnd();
+                        trace.close();
                     }
                 }
             } finally {
-                traceContext.detachTraceObject();
+                traceContext.removeTraceObject();
             }
         }
     }

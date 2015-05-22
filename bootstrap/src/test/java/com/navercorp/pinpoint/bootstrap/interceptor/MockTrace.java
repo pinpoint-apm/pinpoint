@@ -197,11 +197,6 @@ public class MockTrace implements Trace {
     }
 
     @Override
-    public void traceRootBlockEnd() {
-
-    }
-
-    @Override
     public void traceBlockEnd() {
 
     }
@@ -242,5 +237,9 @@ public class MockTrace implements Trace {
     @Override
     public AsyncTraceId getAsyncTraceId() {
         return null;
+    }
+
+    @Override
+    public void close() {
     }
 }

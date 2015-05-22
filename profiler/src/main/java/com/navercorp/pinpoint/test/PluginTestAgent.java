@@ -664,7 +664,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     @Override
     public void cleanUp(boolean detachTraceObject) {
         if (detachTraceObject) {
-            getTraceContext().detachTraceObject();
+            getTraceContext().removeTraceObject();
         }
 
         getRecorder().clear();

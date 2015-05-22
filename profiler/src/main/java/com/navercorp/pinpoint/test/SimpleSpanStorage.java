@@ -17,11 +17,13 @@
 package com.navercorp.pinpoint.test;
 
 import com.navercorp.pinpoint.profiler.sender.DataSender;
+
 import org.apache.thrift.TBase;
 
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
+import com.navercorp.pinpoint.profiler.context.storage.StorageCloseHandler;
 
 /**
  * @author hyungil.jeong
@@ -55,12 +57,14 @@ public final class SimpleSpanStorage implements Storage {
     }
 
     @Override
-    public void setAsync(boolean async) {
+    public void flush() {
     }
 
     @Override
-    public boolean isAsync() {
-        return false;
+    public void setCloseHandler(StorageCloseHandler closeHandler) {
     }
 
+    @Override
+    public void close() {
+    }
 }

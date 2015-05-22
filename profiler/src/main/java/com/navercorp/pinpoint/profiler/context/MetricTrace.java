@@ -164,7 +164,7 @@ public class MetricTrace implements Trace {
     }
 
     @Override
-    public void traceRootBlockEnd() {
+    public void close() {
         metricResponseTime();
         checkStackId(ROOT_STACKID);
         callStack.popRoot();
@@ -397,5 +397,6 @@ public class MetricTrace implements Trace {
     @Override
     public AsyncTraceId getAsyncTraceId() {
         throw new UnsupportedOperationException();
-    }    
+    }
+
 }

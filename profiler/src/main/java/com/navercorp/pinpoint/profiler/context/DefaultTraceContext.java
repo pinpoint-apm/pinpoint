@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.Metric;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
@@ -159,7 +160,12 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     @Override
-    public Trace continueAsyncTraceObject(TraceId traceId, int asyncId, long startTime) {
+    public Trace continueTraceObject(Trace trace) {
+        return traceFactory.continueTraceObject(trace);
+    }
+    
+    @Override
+    public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
         return traceFactory.continueAsyncTraceObject(traceId, asyncId, startTime);
     }
     
@@ -167,15 +173,10 @@ public class DefaultTraceContext implements TraceContext {
         return traceFactory.newTraceObject();
     }
 
-    public void attachTraceObject(Trace trace) {
-        this.traceFactory.attachTraceObject(trace);
-    }
-    
     @Override
-    public void detachTraceObject() {
-        this.traceFactory.detachTraceObject();
+    public Trace removeTraceObject() {
+        return traceFactory.removeTraceObject();
     }
-
 
     //@Override
     public ActiveThreadCounter getActiveThreadCounter() {
@@ -361,4 +362,5 @@ public class DefaultTraceContext implements TraceContext {
         final int id = asyncId.incrementAndGet();
         return id == -1 ? asyncId.incrementAndGet() : id;
     }
+
 }

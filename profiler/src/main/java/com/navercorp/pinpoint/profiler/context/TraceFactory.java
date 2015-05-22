@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 
@@ -33,11 +34,12 @@ public interface TraceFactory {
 
     // picked as sampling target at remote
     Trace continueTraceObject(TraceId traceID);
+    
+    Trace continueTraceObject(Trace trace);
 
-    Trace continueAsyncTraceObject(TraceId traceId, int asyncId, long startTime);
+    Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime);
     
     Trace newTraceObject();
-
-    void attachTraceObject(Trace trace);
-    void detachTraceObject();
+    
+    Trace removeTraceObject();
 }

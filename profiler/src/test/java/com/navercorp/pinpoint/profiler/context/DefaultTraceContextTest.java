@@ -61,7 +61,7 @@ public class DefaultTraceContextTest {
         Assert.assertNotNull(trace);
         Assert.assertFalse(trace.canSampled());
 
-        traceContext.detachTraceObject();
+        traceContext.removeTraceObject();
 
     }
 
@@ -76,7 +76,7 @@ public class DefaultTraceContextTest {
         Assert.assertNull(notExist);
 
         Assert.assertNotNull(traceContext1.currentRawTraceObject());
-        traceContext1.detachTraceObject();
+        traceContext1.removeTraceObject();
         Assert.assertNull(traceContext1.currentRawTraceObject());
 
 

@@ -65,7 +65,7 @@ public class DefaultTraceTest {
 
         Assert.assertEquals(0, trace.getCallStackDepth());
 
-        trace.traceRootBlockEnd();
+        trace.close();
 
     }
 }

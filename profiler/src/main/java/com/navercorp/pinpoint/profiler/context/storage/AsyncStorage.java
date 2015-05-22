@@ -20,26 +20,40 @@ import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 
 /**
- * @author emeroad
+ * 
  * @author jaehong.kim
+ *
  */
-public interface Storage {
+public class AsyncStorage implements Storage {
 
-    /**
-     *
-     * @param spanEvent
-     */
-    void store(SpanEvent spanEvent);
-
-    /**
-     *
-     * @param span
-     */
-    void store(Span span);
-
-    void flush();
-
-    void setCloseHandler(StorageCloseHandler closeHandler);
+    private Storage storage;
     
-    void close();
+    public AsyncStorage(final Storage storage) {
+        this.storage = storage;
+    }
+    
+    @Override
+    public void store(SpanEvent spanEvent) {
+        storage.store(spanEvent);
+    }
+
+    @Override
+    public void store(Span span) {
+        storage.flush();
+    }
+
+    @Override
+    public void flush() {
+        storage.flush();
+    }
+
+    @Override
+    public void setCloseHandler(StorageCloseHandler closeHandler) {
+        storage.setCloseHandler(closeHandler);
+    }
+
+    @Override
+    public void close() {
+        storage.close();
+    }
 }

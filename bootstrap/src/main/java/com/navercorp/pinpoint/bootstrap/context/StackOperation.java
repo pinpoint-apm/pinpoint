@@ -28,11 +28,6 @@ public interface StackOperation {
 
     void traceBlockBegin(int stackId);
 
-    // TODO consider to make a interface as below
-    // traceRootBlockBegin
-
-    void traceRootBlockEnd();
-
     void traceBlockEnd();
 
     void traceBlockEnd(int stackId);

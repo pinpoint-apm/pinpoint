@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.context;
+package com.navercorp.pinpoint.profiler.context.storage;
 
 /**
- * @author emeroad
+ * 
+ * @author jaehong.kim
+ *
  */
-public interface Trace extends RecordableTrace, StackOperation {
-
-    void close();
+public interface StorageCloseHandler {
+    void handle();
 }

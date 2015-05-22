@@ -63,11 +63,14 @@ public class SpanStorage implements Storage {
     }
 
     @Override
-    public void setAsync(boolean async) {
+    public void flush() {
     }
 
     @Override
-    public boolean isAsync() {
-        return false;
+    public void setCloseHandler(StorageCloseHandler closeHandler) {
+    }
+
+    @Override
+    public void close() {
     }
 }

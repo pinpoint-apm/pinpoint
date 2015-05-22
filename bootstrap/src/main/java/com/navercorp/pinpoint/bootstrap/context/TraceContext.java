@@ -36,14 +36,14 @@ public interface TraceContext {
     Trace currentRawTraceObject();
 
     Trace continueTraceObject(TraceId traceID);
+    
+    Trace continueTraceObject(Trace trace);
 
     Trace newTraceObject();
     
-    Trace continueAsyncTraceObject(TraceId traceId, int asyncId, long startTime);
+    Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime);
 
-    void attachTraceObject(Trace trace);
-    
-    void detachTraceObject();
+    Trace removeTraceObject();
 
 //    ActiveThreadCounter getActiveThreadCounter();
 
