@@ -16,6 +16,10 @@ package com.navercorp.pinpoint.test.plugin;
 
 import static org.junit.Assert.*;
 
+import java.util.List;
+import java.util.Map;
+
+import org.eclipse.aether.artifact.Artifact;
 import org.junit.Test;
 
 /**
@@ -28,6 +32,13 @@ public class DependencyResolverTest {
     public void test() {
         DependencyResolver resolver = DependencyResolver.get();
         resolver.resolveDependencySets("junit:junit:[4.12,4.13)");
+    }
+    
+    @Test
+    public void testClassifier() {
+        DependencyResolver resolver = DependencyResolver.get();
+        Map<String, List<Artifact>> sets = resolver.resolveDependencySets("net.sf.json-lib:json-lib:jar:jdk15:2.4");
+        assertFalse(sets.isEmpty());
     }
 
 }
