@@ -132,5 +132,4 @@ public class BufferedStorage implements Storage {
     public String toString() {
         return "BufferedStorage{" + "bufferSize=" + bufferSize + ", dataSender=" + dataSender + '}';
     }
-    
 }
