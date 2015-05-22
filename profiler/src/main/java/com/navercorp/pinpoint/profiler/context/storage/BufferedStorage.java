@@ -27,6 +27,7 @@ import java.util.List;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
 public class BufferedStorage implements Storage {
     private static final Logger logger = LoggerFactory.getLogger(BufferedStorage.class);

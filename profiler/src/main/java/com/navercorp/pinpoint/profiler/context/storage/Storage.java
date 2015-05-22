@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.profiler.context.SpanEvent;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
 public interface Storage {
 
