@@ -16,7 +16,7 @@ QuickStart supports Linux, OSX, and Windows.
 
 
 ## Starting 
-Download Pinpoint with `git clone https://github.com/naver/pinpoint.gi`` or [download](https://github.com/naver/pinpoint/archive/master.zip) the project as a zip file and unzip.
+Download Pinpoint with `git clone https://github.com/naver/pinpoint.git` or [download](https://github.com/naver/pinpoint/archive/master.zip) the project as a zip file and unzip.
 
 Install Pinpoint with maven by `cd pinpoint` and running `mvn install -Dmaven.test.skip=true`
 
@@ -38,11 +38,11 @@ The following script downloads HBase standalone from [Apache download site](http
 
 ### Start Pinpoint Daemons
 
-**Collector** - Run ```quickstart/bin/start-collector.sh```
+**Collector** - Run `quickstart/bin/start-collector.sh`
 
-**Web UI** - Run ```quickstart/bin/start-web.sh```
+**Web UI** - Run `quickstart/bin/start-web.sh`
 
-**TestApp** - Run ```quickstart/bin/start-testapp.sh```
+**TestApp** - Run `quickstart/bin/start-testapp.sh`
 
 Once the startup scripts are completed, the last 10 lines of the Tomcat log are tailed to the console:
 
@@ -63,10 +63,10 @@ You can feed trace data to Pinpoint using the TestApp UI, and check them using P
 
 ## Stopping
 
-**HBase** - Run ```quickstart/bin/stop-hbase.sh```
+**HBase** - Run `quickstart/bin/stop-hbase.sh`
 
-**Collector** - Run ```quickstart/bin/stop-collector.sh```
+**Collector** - Run `quickstart/bin/stop-collector.sh`
 
-**Web UI** - Run ```quickstart/bin/stop-web.sh```
+**Web UI** - Run `quickstart/bin/stop-web.sh`
 
-**TestApp** - Run ```quickstart/bin/stop-testapp.sh```
+**TestApp** - Run `quickstart/bin/stop-testapp.sh`
