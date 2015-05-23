@@ -76,7 +76,7 @@ We welcome any documentation contribution.
 ## Contribution
 We welcome any and all suggestions. Our development guide is currently WIP so check back often for any updates.
 
-For contributions, please make a pull-request against our ```master``` branch.
+For contributions, please make a pull-request against our `master` branch.
 
 We would love to see additional tracing support for libraries such as [Storm](https://storm.apache.org/), [HBase](http://hbase.apache.org/), as well as profiler support for additional languages (.NET, C++).
 

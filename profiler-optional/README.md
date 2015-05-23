@@ -6,9 +6,9 @@
 In order to build pinpoint-profiler-optional, the following requirements must be met:
 
 * JDK 7+ installed
-* ```JAVA_7_HOME``` environment variable set to JDK 7 home directory
+* `JAVA_7_HOME` environment variable set to JDK 7 home directory
 
-Once the ```JAVA_7_HOME``` environment is set, the *maven-compiler-plugin* invokes the JDK 7 compiler to compile the optional package:
+Once the `JAVA_7_HOME` environment is set, the *maven-compiler-plugin* invokes the JDK 7 compiler to compile the optional package:
 
 ```xml
 <plugin>
