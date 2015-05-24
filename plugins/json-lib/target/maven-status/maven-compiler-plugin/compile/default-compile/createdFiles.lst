@@ -1,0 +1,3 @@
+com/navercorp/pinpoint/plugin/json/lib/JsonLibPlugin.class
+com/navercorp/pinpoint/plugin/json/lib/JsonLibConstants.class
+com/navercorp/pinpoint/plugin/json/lib/JsonLibTypeProvider.class
