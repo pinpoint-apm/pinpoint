@@ -18,12 +18,7 @@
             <artifactId>pinpoint-bootstrap</artifactId>
     	</dependency>
 
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-profiler</artifactId>
-        </dependency>
-
-        <dependency>
+	<dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-test</artifactId>
             <scope>test</scope>

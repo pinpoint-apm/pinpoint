@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.json.lib;
+package com.navercorp.pinpoint.plugin.json_lib;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation.*;
 
@@ -41,41 +41,42 @@ import net.sf.json.JSON;
 @PinpointAgent("target/pinpoint-agent-1.5.0-SNAPSHOT")
 @Dependency({"log4j:log4j:1.2.17", "net.sf.json-lib:json-lib:jar:jdk15:2.3"})
 @JvmVersion({6,7})
-public class JsonLibJSONObjectIT {
+public class JsonLibJSONSerializerIT {
 
     @Test
-    public void fromObjecttest() throws Exception {
+    public void toJSONtest() throws Exception {
 
-    	String test = "{'string':'JSON'}";
+        String test = "{'string':'JSON'}";
 
-        JSONObject jsn = new JSONObject();
-	jsn.fromObject(test);
+        JSONSerializer jsn = new JSONSerializer();
+        jsn.toJSON(test);
         
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
         
-        Method targetMethod = JSONObject.class.getMethod("fromObject", Object.class);
+        Method targetMethod = JSONSerializer.class.getMethod("toJSON", Object.class);
 
-  	verifier.verifyApi("JsonLib", targetMethod);
+        verifier.verifyApi("JsonLib", targetMethod);
         verifier.verifyTraceBlockCount(0);
     }
 
     @Test
-    public void toBeantest() throws Exception {
+    public void toJAVAtest() throws Exception {
 
-	JSONObject test = new JSONObject();
-	test.put("string", "JSON");
-	
-	JSONObject.toBean(test);	
+        JSONObject test = new JSONObject();
+        test.put("string", "JSON");
+        
+        JSONSerializer jsn = new JSONSerializer();
+        jsn.toJava(test);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
         
-        Method targetMethod = JSONObject.class.getMethod("toBean", JSONObject.class);
+        Method targetMethod = JSONSerializer.class.getMethod("toJava", JSON.class);
 
-  	verifier.verifyApi("JsonLib", targetMethod);
-        verifier.verifyTraceBlockCount(0);
+        verifier.verifyApi("JsonLib", targetMethod);
+        verifier.verifyTraceBlockCount(1);
     }
 }

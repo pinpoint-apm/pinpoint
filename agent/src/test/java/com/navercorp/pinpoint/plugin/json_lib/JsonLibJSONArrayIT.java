@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.json.lib;
+package com.navercorp.pinpoint.plugin.json_lib;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation.*;
 
@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.test.plugin.JvmVersion;
 
 import net.sf.json.JSONSerializer;
 import net.sf.json.JSONObject;
+import net.sf.json.JSONArray;
 import net.sf.json.JSON;
 
 /**
@@ -41,42 +42,42 @@ import net.sf.json.JSON;
 @PinpointAgent("target/pinpoint-agent-1.5.0-SNAPSHOT")
 @Dependency({"log4j:log4j:1.2.17", "net.sf.json-lib:json-lib:jar:jdk15:2.3"})
 @JvmVersion({6,7})
-public class JsonLibJSONSerializerIT {
+public class JsonLibJSONArrayIT {
 
     @Test
-    public void toJSONtest() throws Exception {
+    public void fromObjecttest() throws Exception {
+        
+        String test = "[{'string':'JSON'}]";
 
-    	String test = "{'string':'JSON'}";
-
-        JSONSerializer jsn = new JSONSerializer();
-	jsn.toJSON(test);
+        JSONArray jsn = new JSONArray();
+        jsn.fromObject(test);
         
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
         
-        Method targetMethod = JSONSerializer.class.getMethod("toJSON", Object.class);
+        Method targetMethod = JSONArray.class.getMethod("fromObject", Object.class);
 
-  	verifier.verifyApi("JsonLib", targetMethod);
+        verifier.verifyApi("JsonLib", targetMethod);
         verifier.verifyTraceBlockCount(0);
     }
 
     @Test
-    public void toJAVAtest() throws Exception {
+    public void toArraytest() throws Exception {
 
-	JSONObject test = new JSONObject();
-	test.put("string", "JSON");
-        
-	JSONSerializer jsn = new JSONSerializer();
-	jsn.toJava(test);
+        JSONObject obj = new JSONObject(); 
+        JSONArray test = new JSONArray();
+        test.add(obj);
+	
+        JSONArray.toArray(test);	
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
         
-        Method targetMethod = JSONSerializer.class.getMethod("toJava", JSON.class);
+        Method targetMethod = JSONArray.class.getMethod("toArray", JSONArray.class);
 
-  	verifier.verifyApi("JsonLib", targetMethod);
+        verifier.verifyApi("JsonLib", targetMethod);
         verifier.verifyTraceBlockCount(1);
     }
 }
