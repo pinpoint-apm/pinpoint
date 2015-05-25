@@ -131,6 +131,10 @@ public class AnnotationKey {
     public static final AnnotationKey NIMM_PARAM = new AnnotationKey(72, "nimm.param");
     public static final AnnotationKey NIMM_CONNECT_OPTION = new AnnotationKey(73, "nimm.connect.options");
 
+    
+    // 9000 gson.json.length
+    // 9001 jackson.json.length
+    // 9002 json-lib.json.length
 
   
     public static final AnnotationKey ARGS0 = new AnnotationKey(-1, "args[0]");
