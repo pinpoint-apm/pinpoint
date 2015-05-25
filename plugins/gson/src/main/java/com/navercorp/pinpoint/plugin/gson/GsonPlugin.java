@@ -34,7 +34,7 @@ import com.navercorp.pinpoint.plugin.gson.filter.GsonMethodNames;
  */
 public class GsonPlugin implements ProfilerPlugin {
     public static final ServiceType GSON_SERVICE_TYPE = ServiceType.of(5010, "GSON", NORMAL_SCHEMA);
-    public static final AnnotationKey GSON_ANNOTATION_KEY_JSON_LENGTH = new AnnotationKey(9000, "JSON_LENGTH");
+    public static final AnnotationKey GSON_ANNOTATION_KEY_JSON_LENGTH = new AnnotationKey(9000, "gson.json.length");
     private static final String GSON_CLASS = "com.google.gson.Gson";
     private static final String GSON_METHODS_INTERCEPTOR = "com.navercorp.pinpoint.plugin.gson.interceptor.GsonMethodInterceptor";
     private static final String GSON_GROUP = "GSON_GROUP";
