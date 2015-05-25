@@ -40,7 +40,7 @@ import java.lang.reflect.Type;
  * @author ChaYoung You
  */
 @RunWith(PinpointPluginTestSuite.class)
-@Dependency({"com.google.code.gson:gson:2.3.1"})
+@Dependency({"com.google.code.gson:gson:[2.0.0,)"})
 public class GsonMethodFilterIT {
     @Test
     public void test() throws Exception {
