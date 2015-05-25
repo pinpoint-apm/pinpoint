@@ -24,5 +24,5 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  *
  */
 public interface JsonLibConstants {
-    public static final ServiceType SERVICE_TYPE = ServiceType.of(10000, "JsonLib", NORMAL_SCHEMA);
+    public static final ServiceType SERVICE_TYPE = ServiceType.of(5012, "JSON-LIB", NORMAL_SCHEMA);
 }

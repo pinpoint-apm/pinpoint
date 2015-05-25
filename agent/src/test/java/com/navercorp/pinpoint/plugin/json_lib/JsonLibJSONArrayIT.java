@@ -14,70 +14,43 @@
  */
 package com.navercorp.pinpoint.plugin.json_lib;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation.*;
-
 import java.lang.reflect.Method;
+
+import net.sf.json.JSONArray;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.BlockType;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import com.navercorp.pinpoint.test.plugin.JvmVersion;
-
-import net.sf.json.JSONSerializer;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONArray;
-import net.sf.json.JSON;
 
 /**
  *@author Sangyoon Lee
  */
 @RunWith(PinpointPluginTestSuite.class)
-@PinpointAgent("target/pinpoint-agent-1.5.0-SNAPSHOT")
-@Dependency({"log4j:log4j:1.2.17", "net.sf.json-lib:json-lib:jar:jdk15:2.3"})
-@JvmVersion({6,7})
+@Dependency({"net.sf.json-lib:json-lib:jar:jdk15:[1.0,)"})
 public class JsonLibJSONArrayIT {
 
     @Test
-    public void fromObjecttest() throws Exception {
+    public void jsonToArrayTest() throws Exception {
+        Method fromObject = JSONArray.class.getMethod("fromObject", Object.class);
+        Method toArray = JSONArray.class.getMethod("toArray", JSONArray.class);
         
         String test = "[{'string':'JSON'}]";
 
-        JSONArray jsn = new JSONArray();
-        jsn.fromObject(test);
+        JSONArray jsn = JSONArray.fromObject(test);
+        // JSONArray.toArray() of json-lib 2.0 and below have different return type. so we invoke it by reflection to avoid NoSuchMethodError
+        toArray.invoke(null, jsn);	
         
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
         
-        Method targetMethod = JSONArray.class.getMethod("fromObject", Object.class);
-
-        verifier.verifyApi("JsonLib", targetMethod);
+        verifier.verifyApi("JSON-LIB", fromObject);
+        verifier.verifyApi("JSON-LIB", toArray);
+        
         verifier.verifyTraceBlockCount(0);
-    }
-
-    @Test
-    public void toArraytest() throws Exception {
-
-        JSONObject obj = new JSONObject(); 
-        JSONArray test = new JSONArray();
-        test.add(obj);
-	
-        JSONArray.toArray(test);	
-
-        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache(System.out);
-        verifier.printBlocks(System.out);
-        
-        Method targetMethod = JSONArray.class.getMethod("toArray", JSONArray.class);
-
-        verifier.verifyApi("JsonLib", targetMethod);
-        verifier.verifyTraceBlockCount(1);
     }
 }
