@@ -7,8 +7,8 @@
 	    maxTimeToShowLoadAsDefaultForUnknown: 60 * 60 * 12 // 12h
 	});
 	
-	pinpointApp.directive('nodeInfoDetailsDirective', [ 'nodeInfoDetailsDirectiveConfig', '$filter', '$timeout', 'isVisibleService', '$window',
-        function (cfg, $filter, $timeout, isVisibleService, $window) {
+	pinpointApp.directive('nodeInfoDetailsDirective', [ 'nodeInfoDetailsDirectiveConfig', '$filter', '$timeout', 'isVisibleService', '$window', 'helpContentService',
+        function (cfg, $filter, $timeout, isVisibleService, $window, helpContentService) {
             return {
                 restrict: 'EA',
                 replace: true,
@@ -347,6 +347,27 @@
 //                        console.log('on responseTimeChartDirective.itemClicked.forNode', data);
                     });
 
+                    jQuery('.responseSummaryChartTooltip').tooltipster({
+                    	content: function() {
+                    		return helpContentService.nodeInfoDetails.responseSummary;
+                    	},
+                    	position: "left",
+                    	trigger: "click"
+                    });
+                    jQuery('.loadChartTooltip').tooltipster({
+                    	content: function() {
+                    		return helpContentService.nodeInfoDetails.load;
+                    	},
+                    	position: "left",
+                    	trigger: "click"
+                    });
+                    jQuery('.serverListTooltip').tooltipster({
+                    	content: function() {
+                    		return helpContentService.nodeInfoDetails.nodeServers;
+                    	},
+                    	position: "top",
+                    	trigger: "click"
+                    });
                 }
             };
 	    }

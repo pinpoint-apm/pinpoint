@@ -14,11 +14,13 @@
     <modules>
         <module>httpclient3</module>
         <module>httpclient4</module>
+        <module>gson</module>
         <module>jdbc-driver</module>
         <module>jdk-http</module>
         <module>redis</module>
         <module>servlet</module>
-        <module>tomcat</module>
+	<module>tomcat</module>
+	<module>json-lib</module>
     </modules>
 
     <dependencies>
@@ -30,6 +32,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-httpclient4-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-gson-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -55,6 +62,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-tomcat-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-json-lib-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

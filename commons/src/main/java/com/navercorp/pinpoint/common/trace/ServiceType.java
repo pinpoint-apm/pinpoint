@@ -255,6 +255,10 @@ public class ServiceType {
     // Internal method
     // FIXME it's not clear to put internal method here. but do that for now.
     public static final ServiceType INTERNAL_METHOD = of(5000, "INTERNAL_METHOD", NORMAL_SCHEMA);
+    
+    // 5010 gson
+    // 5011 jackson
+    // 5012 json-lib
 
     // Spring framework
     public static final ServiceType SPRING = of(5050, "SPRING", NORMAL_SCHEMA);
