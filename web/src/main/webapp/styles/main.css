@@ -16,6 +16,9 @@ canvas {outline:none}
 .glyphicon {
     top: 2px;
 }
+.glyphicon-question-sign {
+    color: gray;
+}
 
 #wrapper {
     padding: 40px 0 0 0; 
@@ -163,16 +166,22 @@ canvas {outline:none}
 
 #copyright {
     position: fixed;
-    left: 10px;
-    bottom: 10px;
+    right: 0px;
+    top: 0px;
     width: 250px;
     z-index: 9999999;
-    display: none;
+    display: block;
+    font-family: "Helvetica, Arial, sans-serif";
 }
 
 #copyright p {
-    padding: 10px;
+	color: #FFFFFF;
+	text-align: right;
+    padding: 3px;
     font-size: 12px;
+}
+#copyright a {
+	color: #FFFFFF;
 }
 
 

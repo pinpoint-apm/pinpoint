@@ -14,7 +14,7 @@
 	        $scope.hasScatter = false;
 	        $window.htoScatter = {};
 	        bNodeSelected = true;
-	        $scope.bShowHelpIcons = false;
+	        //$scope.bShowHelpIcons = false;
 	        bNoData = true;
 	        $scope.sidebarLoading = false;
 	
@@ -168,7 +168,7 @@
 	            $scope.$broadcast('nodeInfoDetailsDirective.initialize', e, query, node, data, oNavbarVoService, null, searchQuery);
 	            $scope.$broadcast('linkInfoDetailsDirective.hide');
 	
-	            $scope.refreshHelpIcons();
+//	            $scope.refreshHelpIcons();
 	        });
 	
 	        /**
@@ -206,7 +206,7 @@
 	            $scope.$broadcast('nodeInfoDetailsDirective.hide');
 	            $scope.$broadcast('linkInfoDetailsDirective.initialize', e, query, link, data, oNavbarVoService);
 	
-	            $scope.refreshHelpIcons();
+//	            $scope.refreshHelpIcons();
 	        });
 	
 	        /**
@@ -277,6 +277,7 @@
 	         * help
 	         * @type {{steps: Array}}
 	         */
+	        /*
 	        $scope.IntroPlusOptions = {
 	            steps:[
 	                {
@@ -349,21 +350,22 @@
 	                }
 	            ]
 	        };
+	        */
 	
 	        /**
 	         * on after overlay creation
 	         */
-	        $scope.onAfterOverlayCreation = function () {
-	        	$at($at.MAIN, $at.CLK_HELP);
-	            $rootElement.find('#copyright').show();
-	        };
+//	        $scope.onAfterOverlayCreation = function () {
+//	        	$at($at.MAIN, $at.CLK_HELP);
+//	            $rootElement.find('#copyright').show();
+//	        };
 	
 	        /**
 	         * on before overlay removal
 	         */
-	        $scope.onBeforeOverlayRemoval = function () {
-	            $rootElement.find('#copyright').hide();
-	        };
+//	        $scope.onBeforeOverlayRemoval = function () {
+//	            $rootElement.find('#copyright').hide();
+//	        };
 	        $scope.loadingOption = {
 	        	hideTip : "init"
 	        };

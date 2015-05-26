@@ -5,10 +5,18 @@
  * @since May 28, 2013
  * @author Denny Lim<hello@iamdenny.com, iamdenny@nhn.com>
  * @license MIT License
- * @copyright 2013 NHN Corp.
+ * @copyright 2013 Naver Corp.
  */
 var BigScatterChart = $.Class({
-    $init: function (htOption) {
+	/**
+	 * initialize BigScatterChart class
+	 * @ko BigScattterChart 초기화 함수
+	 * @constructor
+	 * @method BigScatterChart#$init
+	 * @param {Object} option option object
+	 * @param {Service} helpContentService angularjs service object
+	 */			
+    $init: function (htOption, helpContentService) {
         this.option({
             'sContainerId': '',
             'sPrefix': 'bigscatterchart-',
@@ -110,6 +118,23 @@ var BigScatterChart = $.Class({
         this._initEvents();
         this._drawXYAxis();
         this.updateXYAxis();
+        this._initTooltip( helpContentService );
+    },
+    /**
+	 * initialize tooltipster
+	 * @ko tooltipster 를 초기화
+	 * @constructor
+	 * @method BigScatterChart#_initTooltip
+	 * @param {Service} helpContentService angularjs service object
+	 */	
+    _initTooltip: function(helpContentService) {
+        this._welContainer.find(".scatterTooltip").tooltipster({
+        	content: function() {
+        		return helpContentService.scatter["default"];
+        	},
+        	position: "bottom",
+        	trigger: "click"
+        });
     },
 
     _initVariables: function (bIsRedrawing) {
@@ -187,6 +212,7 @@ var BigScatterChart = $.Class({
             'width': this.option('nWidth'),
             'height': this.option('nHeight')
         }).addClass('bigscatterchart');
+        this._welContainer.append( $('<div style="z-index:5;position:absolute;"><span class="glyphicon glyphicon-question-sign scatterTooltip" style="cursor:pointer;"></span></div>') );
 
         // guide
         this._welGuideCanvas = $('<canvas>')
@@ -424,7 +450,7 @@ var BigScatterChart = $.Class({
             });
         this._htwelTypeLi = {};
         this._htwelTypeSpan = {};
-        var htCheckBoxImage = this.option('htCheckBoxImage');
+        var htCheckBoxImage = this.option('htCheckBoxImage');        
         _.each(htType, function (sVal, sKey) {
             var style = {
                 'display': 'inline-block',
