@@ -58,6 +58,7 @@ pinpointApp
                     "</ul>" +
                     "[Usage]<br/>" +
                     "<ul>" +
+                    "<li><img src='/images/help/scatter_01.png' width='350px' height='205px'></li>" +
                     "<li><span class='glyphicon glyphicon-plus'></span> : Drag on the scatter chart to show detailed information on selected transactions.</li>" +
                     "<li><span class='glyphicon glyphicon-cog'></span> : Set the min/max value of the Y-axis (Response Time).</li>" +
                     "<li><span class='glyphicon glyphicon-download-alt'></span> : Download the chart as an image file.</li>" +

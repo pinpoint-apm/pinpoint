@@ -10,6 +10,7 @@
 	
 	            /**
 	             * merge filters
+	             * @method filteredMapUtilService#mergeFilters
 	             * @param oNavbarVoService
 	             * @param oServerMapFilterVoService
 	             * @returns {Array}
@@ -40,6 +41,7 @@
 	
 	            /**
 	             * merge hints
+	             * @method filteredMapUtilService#mergeHints
 	             * @param oNavbarVoService
 	             * @param oServerMapHintVoService
 	             * @returns {{}}
@@ -71,6 +73,7 @@
 	
 	            /**
 	             * unique hint value
+	             * @method filteredMapUtilService#uniqueHintValue
 	             * @param hintValue
 	             * @returns {array}
 	             */
@@ -88,6 +91,7 @@
 	
 	            /**
 	             * parse short hint to long hint
+	             * @method filteredMapUtilService#parseShortHintToLongHint
 	             * @param shortHint
 	             * @returns {*}
 	             */
@@ -108,6 +112,7 @@
 	
 	            /**
 	             * parse long hint to short hint
+	             * @method filteredMapUtilService#parseLongHintToShortHint
 	             * @param longHint
 	             * @returns {*}
 	             */
@@ -126,6 +131,7 @@
 	
 	            /**
 	             * get start value for filter by label
+	             * @method filteredMapUtilService#getStartValueForFilterByLabel
 	             * @param label
 	             * @param values
 	             * @returns {number}
@@ -149,6 +155,7 @@
 	
 	            /**
 	             * get filtered map url with filter vo
+	             * @method filteredMapUtilService#getFilteredMapUrlWithFilterVo
 	             * @param oNavbarVoService
 	             * @param oServerMapFilterVoService
 	             * @param oServerMapHintVoService
@@ -169,6 +176,7 @@
 	
 	            /**
 	             * find filter in navbar vo
+	             * @method filteredMapUtilService#findFilterInNavbarVo
 	             * @param fa
 	             * @param fst
 	             * @param ta
@@ -201,6 +209,7 @@
 	
 	            /**
 	             * do filters have unknown node
+	             * @method filteredMapUtilService#doFiltersHaveUnknownNode
 	             * @param filters
 	             * @returns {boolean}
 	             */

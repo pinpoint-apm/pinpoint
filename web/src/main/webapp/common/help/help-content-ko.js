@@ -61,6 +61,7 @@ pinpointApp
                     "</ul>" +
                     "[기능]<br/>" +
                     "<ul>" +
+                    "<li><img src='/images/help/scatter_01.png' width='350px' height='205px'></li>" +
                     "<li><span class='glyphicon glyphicon-plus'></span> : 마우스로 영역을 드래그하여 드래그 된 영역에 속한 트랜잭션의 상세정보를 조회할 수 있습니다.</li>" +
                     "<li><span class='glyphicon glyphicon-cog'></span> : 응답시간(Y축)의 최대 또는 최소값을 변경할 수 있습니다.</li>" +
                     "<li><span class='glyphicon glyphicon-download-alt'></span> : 차트를 이미지파일로 다운로드합니다.</li>" +
@@ -105,7 +106,6 @@ pinpointApp
                     "</ul>" +
                     "[기능]<br/>" +
                     "<ul>" +
-                    "<li><button type='button' class='btn btn-default btn-xs'>NSight</button> : nsight에서 물리서버 상태를 조회할 수 있습니다.</li>" +
                     "<li><button type='button' class='btn btn-default btn-xs'>Inspector</button> : Pinpoint가 설치된 WAS의 상세한 정보를 보여줍니다.</li>" +
                     "<li><button type='button' class='btn btn-default btn-xs'><span class='glyphicon glyphicon-plus'></span></button> : 해당 인스턴스에서 처리된 트랜잭션 통계를 조회할 수 있습니다.</li>" +
                     "<li><button type='button' class='btn btn-danger btn-xs'><span class='glyphicon glyphicon-plus'></span></button> : 에러를 발생시킨 트랜잭션이 포함되어있다는 의미입니다.</li>" +

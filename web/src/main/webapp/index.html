@@ -35,8 +35,7 @@
     <link rel="stylesheet" href="components/jquery.jslider/css/jslider.round.plastic.css?v=${buildTime}">
     <link rel="stylesheet" href="components/angular-slider/angular-slider.min.css?v=${buildTime}">
     <link rel="stylesheet" href="components/slickgrid/slick.grid.css?v=${buildTime}">
-    <link rel="stylesheet" href="components/intro.js/minified/introjs.min.css?v=${buildTime}">
-    <link rel="stylesheet" href="components/angular-intro-plus.js/build/angular-intro-plus.min.css?v=${buildTime}">
+    <link rel="stylesheet" href="components/tooltipster/css/tooltipster.css?v=${buildTime}">
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -97,6 +96,7 @@
     <script src="components/amcharts/serial.js?v=${buildTime}"></script>
     <script src="components/amcharts/themes/light.js?v=${buildTime}"></script>
     <script src="components/intro.js/intro.js?v=${buildTime}"></script>
+    <script src="components/tooltipster/js/jquery.tooltipster.min.js?v=${buildTime}"></script>
     <script src="features/serverMap/jquery.ServerMap2.js?v=${buildTime}"></script>
     <!-- endbuild -->
 
@@ -130,19 +130,7 @@
 <script src="bower_components/json3/lib/json3.min.js?v=${buildTime}"></script>
 <![endif]-->
 
-<div id="wrapper" ng-class="wrapperClass" ng-style="wrapperStyle" ng-view=""
-     ng-intro-plus-options="IntroPlusOptions" ng-intro-plus-show="showHelpIcons"
-     ng-intro-plus-on-after-overlay-creation="onAfterOverlayCreation"
-     ng-intro-plus-on-before-overlay-removal="onBeforeOverlayRemoval"
-     ng-intro-plus-refresh-help-icons="refreshHelpIcons">
-</div>
-
-<div id="copyright">
-    <p class="bg-info">
-        Copyright ⓒ NAVER Corp.<br>
-        <a href="https://github.com/naver/pinpoint" target="_blank">go to GitHub Repository</a>
-    </p>
-</div>
+<div id="wrapper" ng-class="wrapperClass" ng-style="wrapperStyle" ng-view=""></div>
 
 <!-- ng-template -->
 <script id="error" type="text/ng-template">

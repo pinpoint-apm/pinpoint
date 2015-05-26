@@ -35,8 +35,8 @@
 	    }
 	});
 	
-	pinpointApp.directive('serverMapDirective', [ 'serverMapDirectiveConfig', 'ServerMapDaoService', 'AlertsService', 'ProgressBarService', 'SidebarTitleVoService', '$filter', 'ServerMapFilterVoService', 'encodeURIComponentFilter', 'filteredMapUtilService', '$base64', 'ServerMapHintVoService', '$timeout', '$location',
-	    function (cfg, ServerMapDaoService, AlertsService, ProgressBarService, SidebarTitleVoService, $filter, ServerMapFilterVoService, encodeURIComponentFilter, filteredMapUtilService, $base64, ServerMapHintVoService, $timeout, $location) {
+	pinpointApp.directive('serverMapDirective', [ 'serverMapDirectiveConfig', 'ServerMapDaoService', 'AlertsService', 'ProgressBarService', 'SidebarTitleVoService', '$filter', 'ServerMapFilterVoService', 'encodeURIComponentFilter', 'filteredMapUtilService', '$base64', 'ServerMapHintVoService', '$timeout', '$location', 'helpContentService',
+	    function (cfg, ServerMapDaoService, AlertsService, ProgressBarService, SidebarTitleVoService, $filter, ServerMapFilterVoService, encodeURIComponentFilter, filteredMapUtilService, $base64, ServerMapHintVoService, $timeout, $location, helpContentService) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -798,6 +798,14 @@
 	                	scope.$emit("navbar.moveTheFuture");
 	                	$serverMapTime.effect("highlight", { color: "#FFFF00" }, 1000);
 	                };
+	                
+	                jQuery('.serverMapTooltip').tooltipster({
+                    	content: function() {
+                    		return helpContentService.servermap["default"];
+                    	},
+                    	position: "bottom",
+                    	trigger: "click"
+                    });
 	            }
 	        };
 	    }
