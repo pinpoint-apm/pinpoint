@@ -34,7 +34,13 @@ To try out a simple quickstart project, please refer to the [quick-start guide](
 ## HBase
 Pinpoint uses HBase as its storage backend for the Collector and the Web.
 
-To set up your own cluster, take a look at the [HBase website](http://hbase.apache.org) for instructions. Note that Pinpoint is currently using 0.94.x version of HBase, and have not yet tested against newer releases.
+To set up your own cluster, take a look at the [HBase website](http://hbase.apache.org) for instructions. The HBase compatibility table is given below:
+
+Pinpoint Version | HBase 0.94.x | HBase 0.96.x | HBase 0.98.x | HBase 1.0.x
+---------------- | ------------ | ------------ | ------------ | -----------
+1.0.x | yes | no | no | no 
+1.1.x | no | not tested | not tested | yes 
+1.5.x | no | not tested | not tested | yes
 
 Once you have HBase up and running, make sure the Collector and the Web are configured properly and are able to connect to HBase.
 
@@ -57,6 +63,14 @@ In order to build Pinpoint, the following **requirements** must be met:
 * JAVA_7_HOME environment variable set to JDK 7+ home directory.
 
 JDK 7+ and JAVA_7_HOME environment variable are required to build **profiler-optional**. For more information about the optional package, please take a look [here](../profiler-optional/README.md).
+
+Additionally, the required Java version to run each Pinpoint component is given below:
+
+Pinpoint Version | Agent | Collector | Web
+---------------- | ----- | --------- | ---
+1.0.x | 6+ | 6+ | 6+
+1.1.x | 6+ | 7+ | 7+
+1.5.x | 6+ | 7+ | 7+
 
 Once the above requirements are met, simply run the command below :
 
