@@ -135,11 +135,11 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         }
         if (profilerConfig.isApacheHttpClient3Profile()) {
             //apache http client 3
-            HttpClientModifier httpClientModifier = new HttpClientModifier(byteCodeInstrumentor, agent);
-            addModifier(httpClientModifier);
+//            HttpClientModifier httpClientModifier = new HttpClientModifier(byteCodeInstrumentor, agent);
+//            addModifier(httpClientModifier);
     
             //apache http client 3 retry
-            addModifier(new DefaultHttpMethodRetryHandlerModifier(byteCodeInstrumentor, agent));
+//            addModifier(new DefaultHttpMethodRetryHandlerModifier(byteCodeInstrumentor, agent));
         }
 
         // ning async http client
