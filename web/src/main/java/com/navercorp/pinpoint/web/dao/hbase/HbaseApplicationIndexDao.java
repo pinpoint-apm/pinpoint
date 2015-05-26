@@ -85,6 +85,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void deleteAgentId(String applicationName, String agentId) {
         if (StringUtils.isEmpty(applicationName)) {
             throw new IllegalArgumentException("applicationName cannot be empty");

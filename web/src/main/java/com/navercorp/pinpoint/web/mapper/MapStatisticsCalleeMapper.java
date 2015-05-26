@@ -61,6 +61,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public LinkDataMap mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return new LinkDataMap();

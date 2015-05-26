@@ -44,6 +44,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     private HbaseOperations2 hbaseTemplate;
 
     @Override
+    @SuppressWarnings("deprecation")
     public void insert(final TAgentInfo agentInfo) {
         if (agentInfo == null) {
             throw new NullPointerException("agentInfo must not be null");

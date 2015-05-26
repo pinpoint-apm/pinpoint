@@ -41,6 +41,7 @@ public class AnnotationMapper implements RowMapper<Map<Long, List<AnnotationBo>>
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
+    @SuppressWarnings("deprecation")
     public Map<Long, List<AnnotationBo>> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyMap();

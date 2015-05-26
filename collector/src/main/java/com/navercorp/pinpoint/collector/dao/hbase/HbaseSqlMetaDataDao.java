@@ -47,6 +47,7 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     @Override
+    @SuppressWarnings("deprecation")
     public void insert(TSqlMetaData sqlMetaData) {
         if (sqlMetaData == null) {
             throw new NullPointerException("sqlMetaData must not be null");

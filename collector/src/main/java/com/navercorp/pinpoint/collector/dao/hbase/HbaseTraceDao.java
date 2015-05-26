@@ -51,6 +51,7 @@ import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
  * @author emeroad
  */
 @Repository
+@SuppressWarnings("deprecation")
 public class HbaseTraceDao implements TracesDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

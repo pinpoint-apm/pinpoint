@@ -67,6 +67,7 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public LinkDataMap mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return new LinkDataMap();
@@ -140,6 +141,7 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
         return linkDataMap;
     }
 
+    @SuppressWarnings("deprecation")
     private long getValueToLong(KeyValue kv) {
         return Bytes.toLong(kv.getBuffer(), kv.getValueOffset());
     }

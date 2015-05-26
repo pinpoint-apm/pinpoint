@@ -42,6 +42,7 @@ public class ApplicationNameMapper implements RowMapper<List<Application>> {
     private ServiceTypeRegistryService registry;
 
     @Override
+    @SuppressWarnings("deprecation")
     public List<Application> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();

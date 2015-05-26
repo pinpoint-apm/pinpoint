@@ -52,6 +52,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     private AbstractRowKeyDistributor rowKeyDistributor;
 
     @Override
+    @SuppressWarnings("deprecation")
     public void insert(final TSpan span) {
         if (span == null) {
             throw new NullPointerException("span must not be null");

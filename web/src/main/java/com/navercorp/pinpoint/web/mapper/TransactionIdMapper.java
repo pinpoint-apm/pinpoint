@@ -44,6 +44,7 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
     // private AbstractRowKeyDistributor rowKeyDistributor;
 
     @Override
+    @SuppressWarnings("deprecation")
     public List<TransactionId> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();

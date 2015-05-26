@@ -48,6 +48,7 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     @Override
+    @SuppressWarnings("deprecation")
     public void insert(TApiMetaData apiMetaData) {
         if (logger.isDebugEnabled()) {
             logger.debug("insert:{}", apiMetaData);

@@ -55,6 +55,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     private ThriftBoMapper<ServerMetaDataBo, TServerMetaData> serverMetaDataBoMapper;
 
     @Override
+    @SuppressWarnings("deprecation")
     public void insert(TAgentInfo agentInfo) {
         if (agentInfo == null) {
             throw new NullPointerException("agentInfo must not be null");

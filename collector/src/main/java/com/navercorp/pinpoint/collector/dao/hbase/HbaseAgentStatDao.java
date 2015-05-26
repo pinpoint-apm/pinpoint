@@ -58,6 +58,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
     @Qualifier("agentStatRowKeyDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
 
+    @SuppressWarnings("deprecation")
     public void insert(final TAgentStat agentStat) {
         if (agentStat == null) {
             throw new NullPointerException("agentStat must not be null");

@@ -47,6 +47,7 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     @Override
+    @SuppressWarnings("deprecation")
     public List<ApiMetaDataBo> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();

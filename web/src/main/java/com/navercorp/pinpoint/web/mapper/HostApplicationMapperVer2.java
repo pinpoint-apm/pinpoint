@@ -49,6 +49,7 @@ public class HostApplicationMapperVer2 implements RowMapper<List<AcceptApplicati
     private ServiceTypeRegistryService registry;
 
     @Override
+    @SuppressWarnings("deprecation")
     public List<AcceptApplication> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();

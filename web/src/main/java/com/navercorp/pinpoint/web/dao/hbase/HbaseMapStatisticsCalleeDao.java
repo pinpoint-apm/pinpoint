@@ -103,6 +103,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
      * </pre>
      */
     @Override
+    @SuppressWarnings("deprecation")
     public List<LinkDataMap> selectCalleeStatistics(Application callerApplication, Application calleeApplication, Range range) {
         if (logger.isDebugEnabled()) {
             logger.debug("selectCalleeStatistics. {}, {}, {}", callerApplication, calleeApplication, range);

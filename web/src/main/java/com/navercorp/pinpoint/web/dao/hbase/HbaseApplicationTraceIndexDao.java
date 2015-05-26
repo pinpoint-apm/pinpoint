@@ -175,6 +175,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         private int lastTransactionElapsed = -1;
 
         @Override
+        @SuppressWarnings("deprecation")
         public void handleLastResult(Result lastResult) {
             if (lastResult == null) {
                 return;

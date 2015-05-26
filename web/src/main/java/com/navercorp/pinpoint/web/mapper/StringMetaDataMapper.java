@@ -42,6 +42,7 @@ public class StringMetaDataMapper implements RowMapper<List<StringMetaDataBo>> {
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     @Override
+    @SuppressWarnings("deprecation")
     public List<StringMetaDataBo> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();

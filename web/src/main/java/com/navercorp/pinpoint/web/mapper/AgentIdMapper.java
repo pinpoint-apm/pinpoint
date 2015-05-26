@@ -33,6 +33,7 @@ import java.util.List;
 public class AgentIdMapper implements RowMapper<List<String>> {
 
     @Override
+    @SuppressWarnings("deprecation")
     public List<String> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();

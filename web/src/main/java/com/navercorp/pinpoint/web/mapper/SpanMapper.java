@@ -51,6 +51,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public List<SpanBo> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();

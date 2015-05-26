@@ -43,6 +43,7 @@ public class SqlMetaDataMapper implements RowMapper<List<SqlMetaDataBo>> {
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     @Override
+    @SuppressWarnings("deprecation")
     public List<SqlMetaDataBo> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();

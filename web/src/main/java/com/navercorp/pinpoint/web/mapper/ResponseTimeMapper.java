@@ -40,6 +40,7 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
     private ServiceTypeRegistryService registry;
 
     @Override
+    @SuppressWarnings("deprecation")
     public ResponseTime mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return null;

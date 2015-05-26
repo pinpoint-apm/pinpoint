@@ -29,6 +29,7 @@ import net.spy.memcached.ops.Operation;
  * @author harebox
  * @author emeroad
  */
+@SuppressWarnings("deprecation")
 public class FutureSetOperationInterceptor implements SimpleAroundInterceptor, TargetClassLoader {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

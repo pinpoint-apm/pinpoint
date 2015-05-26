@@ -137,6 +137,7 @@ public class PreparedStatementParameterLogger implements PreparedStatement {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void setUnicodeStream(int parameterIndex, InputStream x, int length) throws SQLException {
         setColumn(x);
     }

@@ -24,6 +24,7 @@ import org.apache.hadoop.hbase.util.Bytes;
  */
 public class KeyValueUtils {
 
+	@SuppressWarnings("deprecation")
     public static boolean equalsFamily(KeyValue keyValue, byte[] familyName) {
         if (keyValue == null) {
             throw new NullPointerException("keyValue must not be null");

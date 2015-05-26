@@ -47,6 +47,7 @@ public class AgentInfoMapper implements RowMapper<List<AgentInfoBo>> {
     private ServiceTypeRegistryService registry;
 
     @Override
+    @SuppressWarnings("deprecation")
     public List<AgentInfoBo> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();
@@ -63,6 +64,7 @@ public class AgentInfoMapper implements RowMapper<List<AgentInfoBo>> {
         return agentInfoBoList;
     }
 
+    @SuppressWarnings("deprecation")
     private AgentInfoBo mappingAgentInfo(KeyValue keyValue) {
         byte[] rowKey = keyValue.getRow();
         String agentId = Bytes.toString(rowKey, 0, PinpointConstants.AGENT_NAME_MAX_LEN - 1).trim();

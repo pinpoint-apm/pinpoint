@@ -41,6 +41,7 @@ import org.springframework.stereotype.Component;
 public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
 
     @Override
+    @SuppressWarnings("deprecation")
     public List<Dot> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();
@@ -56,6 +57,7 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
         return list;
     }
 
+    @SuppressWarnings("deprecation")
     private Dot createDot(KeyValue kv) {
         final byte[] buffer = kv.getBuffer();
 
