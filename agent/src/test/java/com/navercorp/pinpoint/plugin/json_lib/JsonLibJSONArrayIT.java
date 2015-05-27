@@ -37,19 +37,28 @@ public class JsonLibJSONArrayIT {
     public void jsonToArrayTest() throws Exception {
         Method fromObject = JSONArray.class.getMethod("fromObject", Object.class);
         Method toArray = JSONArray.class.getMethod("toArray", JSONArray.class);
-        
+        Method toString = JSONArray.class.getMethod("toString");
+        Method toCollection = JSONArray.class.getMethod("toCollection", JSONArray.class);
+        Method toList = JSONArray.class.getMethod("toList", JSONArray.class);
+
         String test = "[{'string':'JSON'}]";
 
         JSONArray jsn = JSONArray.fromObject(test);
         // JSONArray.toArray() of json-lib 2.0 and below have different return type. so we invoke it by reflection to avoid NoSuchMethodError
         toArray.invoke(null, jsn);	
-        
+       	jsn.toString();
+        toCollection.invoke(null, jsn);
+        toList.invoke(null, jsn);
+
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
         
         verifier.verifyApi("JSON-LIB", fromObject);
         verifier.verifyApi("JSON-LIB", toArray);
+        verifier.verifyApi("JSON-LIB", toString);
+        verifier.verifyApi("JSON-LIB", toCollection);
+        verifier.verifyApi("JSON-LIB", toList);
         
         verifier.verifyTraceBlockCount(0);
     }
