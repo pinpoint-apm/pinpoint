@@ -50,8 +50,8 @@ public class AnnotationMapper implements RowMapper<Map<Long, List<AnnotationBo>>
         Map<Long, List<AnnotationBo>> annotationList = new HashMap<Long, List<AnnotationBo>>();
 
         for (Cell cell : rawCells) {
-            final byte[] bytes = cell.getRowArray();
-            Buffer buffer = new OffsetFixedBuffer(bytes, cell.getQualifierOffset());
+
+            Buffer buffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset());
             long spanId = buffer.readLong();
 
             if (CellUtil.matchingFamily(cell, HBaseTables.TRACES_CF_ANNOTATION)) {
