@@ -26,10 +26,11 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  *
  */
 public interface HttpClient3Constants {
-    public static final ServiceType HTTP_CLIENT3 = ServiceType.of(9054, "HTTP_CLIENT3", NORMAL_SCHEMA, RECORD_STATISTICS);
-    public static final ServiceType HTTP_CLIENT3_INTERNAL = ServiceType.of(9055, "HTTP_CLIENT3_INTERNAL", "HTTP_CLIENT", NORMAL_SCHEMA);
+    public static final ServiceType HTTP_CLIENT3 = ServiceType.of(9056, "HTTP_CLIENT3", NORMAL_SCHEMA, RECORD_STATISTICS);
+    public static final ServiceType HTTP_CLIENT3_INTERNAL = ServiceType.of(9057, "HTTP_CLIENT3_INTERNAL", "HTTP_CLIENT", NORMAL_SCHEMA);
 
     public static final String METADATA_END_POINT = "endPoint";
     public static final String METADATA_DESTINATION_ID = "destinationId";
     public static final String HTTP_CLIENT3_SCOPE = "HttpClient3Scope"; 
+    public static final String HTTP_CLIENT3_CONNECTION_SCOPE = "HttpClient3HttpConnection";
 }

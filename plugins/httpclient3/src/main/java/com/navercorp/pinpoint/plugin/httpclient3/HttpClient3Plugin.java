@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.plugin.httpclient3;
 
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -48,6 +50,9 @@ public class HttpClient3Plugin implements ProfilerPlugin, HttpClient3Constants {
 
             // apache http client 3 retry
             addDefaultHttpMethodRetryHandlerClass(context, config);
+            // 3.1.0
+            addHttpConnectionClass(context, config);
+            addHttpMethodBaseClass(context, config);
         }
     }
 
@@ -67,12 +72,33 @@ public class HttpClient3Plugin implements ProfilerPlugin, HttpClient3Constants {
         methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.ExecuteInterceptor");
     }
 
-
     private void addDefaultHttpMethodRetryHandlerClass(ProfilerPluginContext context, HttpClient3PluginConfig config) {
         final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.commons.httpclient.DefaultHttpMethodRetryHandler");
         MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethod("retryMethod", "org.apache.commons.httpclient.HttpMethod", "java.io.IOException", "int");
         methodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
         methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.RetryMethodInterceptor");
+
+        context.addClassFileTransformer(classEditorBuilder.build());
+    }
+    
+    private void addHttpConnectionClass(ProfilerPluginContext context, HttpClient3PluginConfig config) {
+        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.commons.httpclient.HttpConnection");
+        MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethod("open");
+        methodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
+        methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.HttpConnectionOpenMethodInterceptor");
+
+        context.addClassFileTransformer(classEditorBuilder.build());
+    }
+    
+    private void addHttpMethodBaseClass(ProfilerPluginContext context, HttpClient3PluginConfig config) {
+        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.commons.httpclient.HttpMethodBase");
+        MethodTransformerBuilder writeRequestMethodEditorBuilder = classEditorBuilder.editMethod("writeRequest", "org.apache.commons.httpclient.HttpState", "org.apache.commons.httpclient.HttpConnection");
+        writeRequestMethodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
+        writeRequestMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.HttpMethodBaseRequestAndResponseMethodInterceptor");
+        
+        MethodTransformerBuilder readResponseMethodEditorBuilder = classEditorBuilder.editMethod("readResponse", "org.apache.commons.httpclient.HttpState", "org.apache.commons.httpclient.HttpConnection");
+        readResponseMethodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
+        readResponseMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.HttpMethodBaseRequestAndResponseMethodInterceptor");
 
         context.addClassFileTransformer(classEditorBuilder.build());
     }
