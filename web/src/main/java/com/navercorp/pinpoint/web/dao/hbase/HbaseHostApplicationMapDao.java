@@ -53,7 +53,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private int scanCacheSize = 10;
 
     @Autowired

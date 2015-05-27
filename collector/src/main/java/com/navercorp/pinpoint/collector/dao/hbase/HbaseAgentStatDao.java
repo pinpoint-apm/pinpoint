@@ -68,10 +68,10 @@ public class HbaseAgentStatDao implements AgentStatDao {
         Put put = new Put(key);
 
         final AgentStatMemoryGcBo agentStatMemoryGcBo = this.agentStatMemoryGcBoMapper.map(agentStat);
-        put.add(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_MEMORY_GC, timestamp, agentStatMemoryGcBo.writeValue());
+        put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_MEMORY_GC, timestamp, agentStatMemoryGcBo.writeValue());
 
         final AgentStatCpuLoadBo agentStatCpuLoadBo = this.agentStatCpuLoadBoMapper.map(agentStat);
-        put.add(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_CPU_LOAD, timestamp, agentStatCpuLoadBo.writeValue());
+        put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_CPU_LOAD, timestamp, agentStatCpuLoadBo.writeValue());
 
         hbaseTemplate.put(AGENT_STAT, put);
     }

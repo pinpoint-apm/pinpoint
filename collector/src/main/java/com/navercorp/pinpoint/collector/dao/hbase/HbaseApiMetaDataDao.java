@@ -68,7 +68,7 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
             buffer.put(-1);
         }
         final byte[] apiMetaDataBytes = buffer.getBuffer();
-        put.add(HBaseTables.API_METADATA_CF_API, apiMetaDataBytes, null);
+        put.addColumn(HBaseTables.API_METADATA_CF_API, apiMetaDataBytes, null);
 
         hbaseTemplate.put(HBaseTables.API_METADATA, put);
     }

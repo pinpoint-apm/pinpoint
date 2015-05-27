@@ -53,7 +53,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         byte[] qualifier = Bytes.toBytes(agentInfo.getAgentId());
         byte[] value = Bytes.toBytes(agentInfo.getServiceType());
         
-        put.add(APPLICATION_INDEX_CF_AGENTS, qualifier, value);
+        put.addColumn(APPLICATION_INDEX_CF_AGENTS, qualifier, value);
         
         hbaseTemplate.put(APPLICATION_INDEX, put);
 

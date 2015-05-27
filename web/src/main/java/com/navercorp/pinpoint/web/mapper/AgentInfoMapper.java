@@ -21,7 +21,8 @@ import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -46,11 +47,11 @@ public class AgentInfoMapper implements RowMapper<List<AgentInfoBo>> {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
-        KeyValue[] raw = result.raw();
+        Cell[] rawCells = result.rawCells();
 
-        List<AgentInfoBo> agentInfoBoList = new ArrayList<AgentInfoBo>(raw.length);
-        for (KeyValue keyValue : raw) {
-            AgentInfoBo agentInfoBo = mappingAgentInfo(keyValue);
+        List<AgentInfoBo> agentInfoBoList = new ArrayList<AgentInfoBo>(rawCells.length);
+        for (Cell cell : rawCells) {
+            AgentInfoBo agentInfoBo = mappingAgentInfo(cell);
 
             agentInfoBoList.add(agentInfoBo);
         }
@@ -58,13 +59,13 @@ public class AgentInfoMapper implements RowMapper<List<AgentInfoBo>> {
         return agentInfoBoList;
     }
 
-    private AgentInfoBo mappingAgentInfo(KeyValue keyValue) {
-        byte[] rowKey = keyValue.getRow();
+    private AgentInfoBo mappingAgentInfo(Cell cell) {
+        byte[] rowKey = CellUtil.cloneRow(cell);
         String agentId = Bytes.toString(rowKey, 0, PinpointConstants.AGENT_NAME_MAX_LEN - 1).trim();
         long reverseStartTime = BytesUtils.bytesToLong(rowKey, PinpointConstants.AGENT_NAME_MAX_LEN);
         long startTime = TimeUtils.recoveryTimeMillis(reverseStartTime);
 
-        final AgentInfoBo.Builder builder = new AgentInfoBo.Builder(keyValue.getValue());
+        final AgentInfoBo.Builder builder = new AgentInfoBo.Builder(CellUtil.cloneValue(cell));
         builder.agentId(agentId);
         builder.startTime(startTime);
         AgentInfoBo agentInfoBo = builder.build();
