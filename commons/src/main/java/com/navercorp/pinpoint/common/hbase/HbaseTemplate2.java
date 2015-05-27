@@ -307,9 +307,9 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
                 Put put = new Put(rowName);
                 if (familyName != null) {
                     if (timestamp == null) {
-                        put.add(familyName, qualifier, value);
+                        put.addColumn(familyName, qualifier, value);
                     } else {
-                        put.add(familyName, qualifier, timestamp, value);
+                        put.addColumn(familyName, qualifier, timestamp, value);
                     }
                 }
                 htable.put(put);

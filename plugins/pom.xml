@@ -10,7 +10,7 @@
     <artifactId>pinpoint-plugins</artifactId>
     <name>pinpoint-plugins</name>
     <packaging>pom</packaging>
-    
+
     <modules>
         <module>httpclient3</module>
         <module>httpclient4</module>
@@ -19,8 +19,8 @@
         <module>jdk-http</module>
         <module>redis</module>
         <module>servlet</module>
-	<module>tomcat</module>
-	<module>json-lib</module>
+        <module>tomcat</module>
+        <module>json-lib</module>
     </modules>
 
     <dependencies>
@@ -70,7 +70,7 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
