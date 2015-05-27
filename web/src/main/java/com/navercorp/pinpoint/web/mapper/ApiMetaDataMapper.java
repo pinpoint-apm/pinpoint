@@ -55,10 +55,10 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
         final byte[] rowKey = getOriginalKey(result.getRow());
 
         List<ApiMetaDataBo> apiMetaDataList = new ArrayList<ApiMetaDataBo>();
-        Cell[] rawCells = result.rawCells();
         for (Cell cell : result.rawCells()) {
             ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo();
             apiMetaDataBo.readRowKey(rowKey);
+
             byte[] qualifier = CellUtil.cloneQualifier(cell);
             Buffer buffer = new FixedBuffer(qualifier);
             String apiInfo = buffer.readPrefixedString();

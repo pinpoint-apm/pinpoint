@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.hadoop.hbase.RowMapper;
@@ -50,8 +49,8 @@ public class AnnotationMapper implements RowMapper<Map<Long, List<AnnotationBo>>
         Map<Long, List<AnnotationBo>> annotationList = new HashMap<Long, List<AnnotationBo>>();
 
         for (Cell cell : rawCells) {
-            final byte[] bytes = cell.getRowArray();
-            Buffer buffer = new OffsetFixedBuffer(bytes, cell.getQualifierOffset());
+
+            Buffer buffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset());
             long spanId = buffer.readLong();
 
             if (CellUtil.matchingFamily(cell, HBaseTables.TRACES_CF_ANNOTATION)) {

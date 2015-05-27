@@ -17,11 +17,10 @@
 package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.web.service.map.AcceptApplication;
 
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +50,7 @@ public class HostApplicationMapperVer2 implements RowMapper<List<AcceptApplicati
 
         final List<AcceptApplication> acceptApplicationList = new ArrayList<AcceptApplication>(result.size());
         for (Cell cell : result.rawCells()) {
-            AcceptApplication acceptedApplication = createAcceptedApplication(CellUtil.cloneQualifier(cell));
+            AcceptApplication acceptedApplication = createAcceptedApplication(cell);
             acceptApplicationList.add(acceptedApplication);
         }
         return acceptApplicationList;
@@ -68,8 +67,8 @@ public class HostApplicationMapperVer2 implements RowMapper<List<AcceptApplicati
 //        }
 //    }
 
-    private AcceptApplication createAcceptedApplication(byte[] qualifier) {
-        Buffer reader = new FixedBuffer(qualifier);
+    private AcceptApplication createAcceptedApplication(Cell cell) {
+        Buffer reader = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset());
         String host = reader.readPrefixedString();
         String bindApplicationName = reader.readPrefixedString();
         short bindServiceType = reader.readShort();
