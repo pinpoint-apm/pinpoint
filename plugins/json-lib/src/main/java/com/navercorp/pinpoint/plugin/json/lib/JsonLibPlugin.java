@@ -42,9 +42,9 @@ public class JsonLibPlugin implements ProfilerPlugin {
     
     private void addJSONSerializerInterceptor(ProfilerPluginContext context) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("net.sf.json.JSONSerializer");
-        builder.editMethod("toJSON", "java.lang.Object").injectInterceptor("com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor", JsonLibConstants.SERVICE_TYPE).group(GROUP);
+        builder.editMethod("toJSON", "java.lang.Object").injectInterceptor("com.navercorp.pinpoint.plugin.json.lib.interceptor.JsonLibMethodInterceptor", JsonLibConstants.SERVICE_TYPE).group(GROUP);
         
-        builder.editMethod("toJava", "net.sf.json.JSON").injectInterceptor("com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor", JsonLibConstants.SERVICE_TYPE).group(GROUP);
+        builder.editMethod("toJava", "net.sf.json.JSON").injectInterceptor("com.navercorp.pinpoint.plugin.json.lib.interceptor.JsonLibMethodInterceptor", JsonLibConstants.SERVICE_TYPE).group(GROUP);
         ClassFileTransformer transformer = builder.build();
         context.addClassFileTransformer(transformer);
     }
@@ -52,11 +52,11 @@ public class JsonLibPlugin implements ProfilerPlugin {
     private void addJSONObjectInterceptor(ProfilerPluginContext context) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("net.sf.json.JSONObject");
         
-        builder.editMethod("fromObject", "java.lang.Object").injectInterceptor("com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor", JsonLibConstants.SERVICE_TYPE).group(GROUP);
+        builder.editMethod("fromObject", "java.lang.Object").injectInterceptor("com.navercorp.pinpoint.plugin.json.lib.interceptor.JsonLibMethodInterceptor", JsonLibConstants.SERVICE_TYPE).group(GROUP);
         
-        builder.editMethod("toBean", "net.sf.json.JSONObject").injectInterceptor("com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor", JsonLibConstants.SERVICE_TYPE).group(GROUP);
+        builder.editMethod("toBean", "net.sf.json.JSONObject").injectInterceptor("com.navercorp.pinpoint.plugin.json.lib.interceptor.JsonLibMethodInterceptor", JsonLibConstants.SERVICE_TYPE).group(GROUP);
         
-        builder.editMethod("toString").injectInterceptor("com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor", JsonLibConstants.SERVICE_TYPE).group(GROUP);
+        builder.editMethod("toString").injectInterceptor("com.navercorp.pinpoint.plugin.json.lib.interceptor.JsonLibMethodInterceptor", JsonLibConstants.SERVICE_TYPE).group(GROUP);
         
         ClassFileTransformer transformer = builder.build();
         context.addClassFileTransformer(transformer);
@@ -64,15 +64,15 @@ public class JsonLibPlugin implements ProfilerPlugin {
 
     private void addJSONArrayInterceptor(ProfilerPluginContext context) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("net.sf.json.JSONArray");
-        builder.editMethod("fromObject", "java.lang.Object").injectInterceptor("com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor", JsonLibConstants.SERVICE_TYPE).group(GROUP);
+        builder.editMethod("fromObject", "java.lang.Object").injectInterceptor("com.navercorp.pinpoint.plugin.json.lib.interceptor.JsonLibMethodInterceptor", JsonLibConstants.SERVICE_TYPE).group(GROUP);
         
-        builder.editMethod("toArray", "net.sf.json.JSONArray").injectInterceptor("com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor", JsonLibConstants.SERVICE_TYPE).group(GROUP);	
+        builder.editMethod("toArray", "net.sf.json.JSONArray").injectInterceptor("com.navercorp.pinpoint.plugin.json.lib.interceptor.JsonLibMethodInterceptor", JsonLibConstants.SERVICE_TYPE).group(GROUP);	
         
-        builder.editMethod("toString").injectInterceptor("com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor", JsonLibConstants.SERVICE_TYPE).group(GROUP);
+        builder.editMethod("toString").injectInterceptor("com.navercorp.pinpoint.plugin.json.lib.interceptor.JsonLibMethodInterceptor", JsonLibConstants.SERVICE_TYPE).group(GROUP);
         
-        builder.editMethod("toCollection", "net.sf.json.JSONArray").injectInterceptor("com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor", JsonLibConstants.SERVICE_TYPE).group(GROUP);
+        builder.editMethod("toCollection", "net.sf.json.JSONArray").injectInterceptor("com.navercorp.pinpoint.plugin.json.lib.interceptor.JsonLibMethodInterceptor", JsonLibConstants.SERVICE_TYPE).group(GROUP);
  
-        builder.editMethod("toList", "net.sf.json.JSONArray").injectInterceptor("com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor", JsonLibConstants.SERVICE_TYPE).group(GROUP);
+        builder.editMethod("toList", "net.sf.json.JSONArray").injectInterceptor("com.navercorp.pinpoint.plugin.json.lib.interceptor.JsonLibMethodInterceptor", JsonLibConstants.SERVICE_TYPE).group(GROUP);
                       
         ClassFileTransformer transformer = builder.build();
         context.addClassFileTransformer(transformer);
