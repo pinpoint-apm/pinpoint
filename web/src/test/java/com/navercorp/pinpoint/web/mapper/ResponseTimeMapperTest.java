@@ -26,6 +26,10 @@ import com.navercorp.pinpoint.web.vo.ResponseTime;
 
 import junit.framework.Assert;
 
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
+import org.apache.hadoop.hbase.HConstants;
+import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
 
@@ -36,16 +40,20 @@ public class ResponseTimeMapperTest {
 
     @Test
     public void testResponseTimeMapperTest() throws Exception {
-        ResponseTimeMapper responseTimeMapper = new ResponseTimeMapper();
-        ResponseTime responseTime = new ResponseTime("applicaionName", ServiceType.TOMCAT.getCode(), System.currentTimeMillis());
 
         Buffer buffer = new AutomaticBuffer();
         HistogramSlot histogramSlot = ServiceType.TOMCAT.getHistogramSchema().findHistogramSlot(1000);
         short histogramSlotTime = histogramSlot.getSlotTime();
         buffer.put(histogramSlotTime);
         buffer.put(Bytes.toBytes("agent"));
+        byte[] bufferArray = buffer.getBuffer();
+        byte[] valueArray = Bytes.toBytes(1L);
 
-        responseTimeMapper.recordColumn(responseTime, buffer.getBuffer(), Bytes.toBytes(1L), 0);
+        Cell mockCell = CellUtil.createCell(HConstants.EMPTY_BYTE_ARRAY, HConstants.EMPTY_BYTE_ARRAY, bufferArray, HConstants.LATEST_TIMESTAMP, KeyValue.Type.Maximum.getCode(), valueArray);
+
+        ResponseTimeMapper responseTimeMapper = new ResponseTimeMapper();
+        ResponseTime responseTime = new ResponseTime("applicationName", ServiceType.TOMCAT.getCode(), System.currentTimeMillis());
+        responseTimeMapper.recordColumn(responseTime, mockCell);
 
         Histogram agentHistogram = responseTime.findHistogram("agent");
         long fastCount = agentHistogram.getFastCount();
