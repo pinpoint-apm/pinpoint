@@ -81,7 +81,8 @@
 	                    } else if (!item.isMethod) {
 	                        html.push('<span class="glyphicon glyphicon-info-sign"></span>&nbsp;');
 	                    } else {
-	                    	switch( item.methodType ) {
+	                    	var itemMethodType = parseInt( item.methodType );
+	                    	switch( itemMethodType ) {
 	                    	case 100:
 	                    			html.push('<i class="xi-shipping"></i>&nbsp;');
 	                    			break;
