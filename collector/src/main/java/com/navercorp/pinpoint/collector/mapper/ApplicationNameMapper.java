@@ -18,7 +18,8 @@ package com.navercorp.pinpoint.collector.mapper;
 
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
@@ -31,17 +32,17 @@ public class ApplicationNameMapper implements RowMapper<String> {
         if (result.isEmpty()) {
             return null;
         }
-        KeyValue[] raw = result.raw();
+        Cell[] rawCells = result.rawCells();
 
-        if (raw.length == 0) {
+        if (rawCells.length == 0) {
             return null;
         }
 
-        String[] ret = new String[raw.length];
+        String[] ret = new String[rawCells.length];
         int index = 0;
 
-        for (KeyValue kv : raw) {
-            ret[index++] = BytesUtils.toString(kv.getQualifier());
+        for (Cell cell : rawCells) {
+            ret[index++] = BytesUtils.toString(CellUtil.cloneQualifier(cell));
         }
 
         return ret[0];

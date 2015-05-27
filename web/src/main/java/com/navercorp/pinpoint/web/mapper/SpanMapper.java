@@ -22,7 +22,8 @@ import com.navercorp.pinpoint.common.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.web.vo.TransactionId;
 
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -59,49 +60,48 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
         byte[] rowKey = result.getRow();
         final TransactionId transactionId = new TransactionId(rowKey, TransactionId.DISTRIBUTE_HASH_SIZE);
 
-        KeyValue[] keyList = result.raw();
+        final Cell[] rawCells = result.rawCells();
         List<SpanBo> spanList = new ArrayList<SpanBo>();
         Map<Long, SpanBo> spanMap = new HashMap<Long, SpanBo>();
         List<SpanEventBo> spanEventBoList = new ArrayList<SpanEventBo>();
-        for (KeyValue kv : keyList) {
+        for (Cell cell : rawCells) {
             // only if family name is "span"
-            byte[] family = kv.getFamily();
-            if (Bytes.equals(family, HBaseTables.TRACES_CF_SPAN)) {
+            if (CellUtil.matchingFamily(cell, HBaseTables.TRACES_CF_SPAN)) {
 
                 SpanBo spanBo = new SpanBo();
                 spanBo.setTraceAgentId(transactionId.getAgentId());
                 spanBo.setTraceAgentStartTime(transactionId.getAgentStartTime());
                 spanBo.setTraceTransactionSequence(transactionId.getTransactionSequence());
-                spanBo.setCollectorAcceptTime(kv.getTimestamp());
+                spanBo.setCollectorAcceptTime(cell.getTimestamp());
 
-                spanBo.setSpanID(Bytes.toLong(kv.getBuffer(), kv.getQualifierOffset()));
-                spanBo.readValue(kv.getBuffer(), kv.getValueOffset());
+                spanBo.setSpanID(Bytes.toLong(cell.getQualifierArray(), cell.getQualifierOffset()));
+                spanBo.readValue(cell.getValueArray(), cell.getValueOffset());
                 if (logger.isDebugEnabled()) {
                     logger.debug("read span :{}", spanBo);
                 }
                 spanList.add(spanBo);
                 spanMap.put(spanBo.getSpanId(), spanBo);
-            } else if (Bytes.equals(family, HBaseTables.TRACES_CF_TERMINALSPAN)) {
+            } else if (CellUtil.matchingFamily(cell, HBaseTables.TRACES_CF_TERMINALSPAN)) {
                 SpanEventBo spanEventBo = new SpanEventBo();
                 spanEventBo.setTraceAgentId(transactionId.getAgentId());
                 spanEventBo.setTraceAgentStartTime(transactionId.getAgentStartTime());
                 spanEventBo.setTraceTransactionSequence(transactionId.getTransactionSequence());
 
                 // qualifier : spanId(long) + sequence(short) + asyncId(int)
-                long spanId = Bytes.toLong(kv.getBuffer(), kv.getQualifierOffset());
+                long spanId = Bytes.toLong(cell.getQualifierArray(), cell.getQualifierOffset());
 
                 // because above spanId type is "long", so offset is 8
                 final int spanIdOffset = 8;
-                short sequence = Bytes.toShort(kv.getBuffer(), kv.getQualifierOffset() + Bytes.SIZEOF_LONG);
+                short sequence = Bytes.toShort(cell.getQualifierArray(), cell.getQualifierOffset() + Bytes.SIZEOF_LONG);
                 int asyncId = -1;
-                if(kv.getQualifierLength() > Bytes.SIZEOF_LONG + Bytes.SIZEOF_SHORT) {
-                    asyncId = Bytes.toInt(kv.getBuffer(), kv.getQualifierOffset() + Bytes.SIZEOF_LONG + Bytes.SIZEOF_SHORT);
+                if (cell.getQualifierLength() > Bytes.SIZEOF_LONG + Bytes.SIZEOF_SHORT) {
+                    asyncId = Bytes.toInt(cell.getQualifierArray(), cell.getQualifierOffset() + Bytes.SIZEOF_LONG + Bytes.SIZEOF_SHORT);
                 }
                 spanEventBo.setSpanId(spanId);
                 spanEventBo.setSequence(sequence);
                 spanEventBo.setAsyncId(asyncId);
                 
-                spanEventBo.readValue(kv.getBuffer(), kv.getValueOffset(), kv.getValueLength());
+                spanEventBo.readValue(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
                 if (logger.isDebugEnabled()) {
                     logger.debug("read spanEvent :{}", spanEventBo);
                 }
