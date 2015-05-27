@@ -22,7 +22,8 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -45,20 +46,21 @@ public class AnnotationMapper implements RowMapper<Map<Long, List<AnnotationBo>>
         if (result.isEmpty()) {
             return Collections.emptyMap();
         }
-        KeyValue[] keyList = result.raw();
+        Cell[] rawCells = result.rawCells();
         Map<Long, List<AnnotationBo>> annotationList = new HashMap<Long, List<AnnotationBo>>();
 
-        for (KeyValue kv : keyList) {
-            final byte[] bytes = kv.getBuffer();
-            Buffer buffer = new OffsetFixedBuffer(bytes, kv.getQualifierOffset());
+        for (Cell cell : rawCells) {
+            final byte[] bytes = cell.getRowArray();
+            Buffer buffer = new OffsetFixedBuffer(bytes, cell.getQualifierOffset());
             long spanId = buffer.readLong();
-            if (Bytes.equals(kv.getFamily(), HBaseTables.TRACES_CF_ANNOTATION)) {
-                int valueLength = kv.getValueLength();
+
+            if (CellUtil.matchingFamily(cell, HBaseTables.TRACES_CF_ANNOTATION)) {
+                int valueLength = cell.getValueLength();
                 if (valueLength == 0) {
                     continue;
                 }
 
-                buffer.setOffset(kv.getValueOffset());
+                buffer.setOffset(cell.getValueOffset());
                 AnnotationBoList annotationBoList = new AnnotationBoList();
                 annotationBoList.readValue(buffer);
                 if (annotationBoList.size() > 0 ) {

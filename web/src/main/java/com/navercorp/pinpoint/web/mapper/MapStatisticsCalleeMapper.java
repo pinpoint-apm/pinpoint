@@ -23,7 +23,8 @@ import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
 
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -67,15 +68,15 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
 
 
         final LinkDataMap linkDataMap = new LinkDataMap();
-        for (KeyValue kv : result.raw()) {
+        for (Cell cell : result.rawCells()) {
 
-            final byte[] qualifier = kv.getQualifier();
+            final byte[] qualifier = CellUtil.cloneQualifier(cell);
             final Application callerApplication = readCallerApplication(qualifier);
             if (filter.filter(callerApplication)) {
                 continue;
             }
 
-            long requestCount = Bytes.toLong(kv.getBuffer(), kv.getValueOffset());
+            long requestCount = Bytes.toLong(cell.getValueArray(), cell.getValueOffset());
             short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
 
             String callerHost = ApplicationMapStatisticsUtils.getHost(qualifier);

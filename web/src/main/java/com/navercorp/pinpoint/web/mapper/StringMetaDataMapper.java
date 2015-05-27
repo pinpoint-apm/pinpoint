@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.mapper;
 import com.navercorp.pinpoint.common.bo.StringMetaDataBo;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,11 +49,11 @@ public class StringMetaDataMapper implements RowMapper<List<StringMetaDataBo>> {
         final byte[] rowKey = getOriginalKey(result.getRow());
 
         List<StringMetaDataBo> stringMetaDataList = new ArrayList<StringMetaDataBo>();
-        KeyValue[] keyList = result.raw();
-        for (KeyValue keyValue : keyList) {
+        Cell[] rawCells = result.rawCells();
+        for (Cell cell : rawCells) {
             StringMetaDataBo sqlMetaDataBo = new StringMetaDataBo();
             sqlMetaDataBo.readRowKey(rowKey);
-            String stringValue = Bytes.toString(keyValue.getBuffer(), keyValue.getQualifierOffset(), keyValue.getQualifierLength());
+            String stringValue = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
             sqlMetaDataBo.setStringValue(stringValue);
             stringMetaDataList.add(sqlMetaDataBo);
         }

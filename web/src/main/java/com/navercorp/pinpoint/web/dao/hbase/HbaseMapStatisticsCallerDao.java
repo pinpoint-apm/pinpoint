@@ -45,7 +45,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private int scanCacheSize = 40;
 
     @Autowired

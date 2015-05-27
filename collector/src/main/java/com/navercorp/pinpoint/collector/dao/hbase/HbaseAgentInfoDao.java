@@ -72,12 +72,12 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         // should add additional agent informations. for now added only starttime for sqlMetaData
         AgentInfoBo agentInfoBo = this.agentInfoBoMapper.map(agentInfo);
         byte[] agentInfoBoValue = agentInfoBo.writeValue();
-        put.add(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER, agentInfoBoValue);
+        put.addColumn(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER, agentInfoBoValue);
 
         if (agentInfo.isSetServerMetaData()) {
             ServerMetaDataBo serverMetaDataBo = this.serverMetaDataBoMapper.map(agentInfo.getServerMetaData());
             byte[] serverMetaDataBoValue = serverMetaDataBo.writeValue();
-            put.add(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_SERVER_META_DATA, serverMetaDataBoValue);
+            put.addColumn(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_SERVER_META_DATA, serverMetaDataBoValue);
         }
 
         hbaseTemplate.put(HBaseTables.AGENTINFO, put);

@@ -19,10 +19,12 @@ package com.navercorp.pinpoint.web.mapper;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.data.hadoop.hbase.RowMapper;
@@ -41,13 +43,13 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
         final byte[] rowKey = result.getRow();
         ResponseTime responseTime = createResponseTime(rowKey);
 
-        for (KeyValue keyValue : result.raw()) {
-            if (!Bytes.equals(keyValue.getFamily(), HBaseTables.MAP_STATISTICS_SELF_CF_COUNTER)) {
+        for (Cell cell : result.rawCells()) {
+            if (!CellUtil.matchingFamily(cell, HBaseTables.MAP_STATISTICS_SELF_CF_COUNTER)) {
                 continue;
             }
-            byte[] qualifier = keyValue.getQualifier();
+            byte[] qualifier = CellUtil.cloneQualifier(cell);
 
-            recordColumn(responseTime, qualifier, keyValue.getBuffer(), keyValue.getValueOffset());
+            recordColumn(responseTime, qualifier, cell.getValueArray(), cell.getValueOffset());
         }
         return responseTime;
     }
@@ -57,7 +59,7 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
     void recordColumn(ResponseTime responseTime, byte[] qualifier, byte[] value, int valueOffset) {
         short slotNumber = Bytes.toShort(qualifier);
         // agentId should be added as data.
-        String agentId = Bytes.toString(qualifier, 2, qualifier.length - 2);
+        String agentId = Bytes.toString(qualifier, BytesUtils.SHORT_BYTE_LENGTH, qualifier.length - BytesUtils.SHORT_BYTE_LENGTH);
         long count = Bytes.toLong(value, valueOffset);
         responseTime.addResponseTime(agentId, slotNumber, count);
     }
