@@ -45,8 +45,8 @@ public class JsonLibJSONArrayIT {
 
         JSONArray jsn = JSONArray.fromObject(test);
         // JSONArray.toArray() of json-lib 2.0 and below have different return type. so we invoke it by reflection to avoid NoSuchMethodError
-        toArray.invoke(null, jsn);	
-       	jsn.toString();
+        toArray.invoke(null, jsn);
+        jsn.toString();
         toCollection.invoke(null, jsn);
         toList.invoke(null, jsn);
 

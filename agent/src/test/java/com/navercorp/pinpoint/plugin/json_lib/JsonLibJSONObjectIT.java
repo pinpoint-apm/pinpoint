@@ -39,7 +39,7 @@ public class JsonLibJSONObjectIT {
 
         JSONObject jsn = JSONObject.fromObject(test);
         JSONObject.toBean(jsn);	
-	jsn.toString();
+        jsn.toString();
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache(System.out);
