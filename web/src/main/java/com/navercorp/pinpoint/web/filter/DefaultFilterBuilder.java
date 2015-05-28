@@ -149,7 +149,7 @@ public class DefaultFilterBuilder implements FilterBuilder {
         Long fromResponseTime = descriptor.getResponseFrom();
         Long toResponseTime = descriptor.getResponseTo();
         Boolean includeFailed = descriptor.getIncludeException();
-        return new FromToResponseFilter(fromServiceType, fromApplicationName, fromAgentName, toServiceType, toApplicationName, toAgentName,fromResponseTime, toResponseTime, includeFailed, hint);
+        return new FromToResponseFilter(fromServiceType, fromApplicationName, fromAgentName, toServiceType, toApplicationName, toAgentName,fromResponseTime, toResponseTime, includeFailed, hint, this.registry);
     }
 
     private FromToFilter createFromToFilter(FilterDescriptor descriptor) {
