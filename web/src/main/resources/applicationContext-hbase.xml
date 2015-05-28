@@ -19,13 +19,33 @@
             <props>
                 <prop key="hbase.zookeeper.quorum">${hbase.client.host}</prop>
                 <prop key="hbase.zookeeper.property.clientPort">${hbase.client.port}</prop>
-                <prop key="hbase.htable.threads.max">${hbase.htable.threads.max}</prop>
+
+                <!-- hbase default:true -->
+                <prop key="hbase.ipc.client.tcpnodelay">${hbase.ipc.client.tcpnodelay}</prop>
+                <!-- hbase default:60000 -->
+                <prop key="hbase.rpc.timeout">${hbase.rpc.timeout}</prop>
+                <!-- hbase default:Integer.MAX_VALUE -->
+                <prop key="hbase.client.operation.timeout">${hbase.client.operation.timeout}</prop>
+
+                <!-- hbase socket read timeout. default: 200000-->
+                <prop key="hbase.ipc.client.socket.timeout.read">${hbase.ipc.client.socket.timeout.read}</prop>
+                <!-- socket write timeout. hbase default: 600000-->
+                <prop key="hbase.ipc.client.socket.timeout.write">${hbase.ipc.client.socket.timeout.write}</prop>
             </props>
         </property>
+        <property name="deleteConnection" value="false"/>
+    </bean>
+
+    <bean id="connectionFactory" class="com.navercorp.pinpoint.common.hbase.PooledHTableFactory">
+        <constructor-arg ref="hbaseConfiguration"/>
+        <constructor-arg value="${hbase.client.thread.max}"/>
+        <constructor-arg value="${hbase.client.threadPool.queueSize}"/>
+        <constructor-arg value="${hbase.client.threadPool.prestart}"/>
     </bean>
 
     <bean id="hbaseTemplate" class="com.navercorp.pinpoint.common.hbase.HbaseTemplate2">
-        <property name="configuration" ref="hbaseConfiguration"></property>
+        <property name="configuration" ref="hbaseConfiguration"/>
+        <property name="tableFactory" ref="connectionFactory"/>
     </bean>
 
     <bean class="org.apache.hadoop.util.ShutdownHookManagerProxy"/>
