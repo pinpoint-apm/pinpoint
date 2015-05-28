@@ -46,6 +46,10 @@ public class FilterHint extends HashMap<String, List<Object>> {
         if (!containApplicationHint(applicationName)) {
             return false;
         }
+        
+        if (endPoint == null) {
+            return false;
+        }
 
         List<Object> list = get(applicationName);
 
