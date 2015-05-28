@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 
@@ -43,8 +44,10 @@ public class FromToResponseFilter implements Filter {
     private final Boolean includeFailed;
 
     private final FilterHint hint;
+    
+    private final ServiceTypeRegistryService registry;
 
-    public FromToResponseFilter(List<ServiceType> fromServiceList, String fromApplicationName, String fromAgentName, List<ServiceType> toServiceList, String toApplicationName, String toAgentName, Long fromResponseTime, Long toResponseTime, Boolean includeFailed, FilterHint hint) {
+    public FromToResponseFilter(List<ServiceType> fromServiceList, String fromApplicationName, String fromAgentName, List<ServiceType> toServiceList, String toApplicationName, String toAgentName, Long fromResponseTime, Long toResponseTime, Boolean includeFailed, FilterHint hint, ServiceTypeRegistryService registry) {
 
         if (fromServiceList == null) {
             throw new NullPointerException("fromServiceList must not be null");
@@ -61,6 +64,9 @@ public class FromToResponseFilter implements Filter {
         if (hint == null) {
             throw new NullPointerException("hint must not be null");
         }
+        if (registry == null) {
+            throw new NullPointerException("registry must not be null");
+        }
 
         this.fromServiceCode = fromServiceList;
         this.fromApplicationName = fromApplicationName;
@@ -74,8 +80,9 @@ public class FromToResponseFilter implements Filter {
         this.toResponseTime = toResponseTime;
         this.includeFailed = includeFailed;
 
-
         this.hint = hint;
+        
+        this.registry = registry;
     }
 
     private boolean checkResponseCondition(long elapsed, boolean hasError) {
@@ -211,8 +218,12 @@ public class FromToResponseFilter implements Filter {
         return false;
     }
 
-    private boolean isRpcClient(short serviceType) {
-        return ServiceTypeCategory.RPC.contains(serviceType);
+    private boolean isRpcClient(short serviceTypeCode) {
+        if (ServiceTypeCategory.RPC.contains(serviceTypeCode)) {
+            ServiceType serviceType = this.registry.findServiceType(serviceTypeCode);
+            return serviceType.isRecordStatistics();
+        }
+        return false;
     }
 
 
