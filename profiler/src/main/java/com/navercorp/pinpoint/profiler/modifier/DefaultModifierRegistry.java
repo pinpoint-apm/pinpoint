@@ -28,8 +28,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.MultiClassNameMatcher
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.profiler.modifier.arcus.*;
 import com.navercorp.pinpoint.profiler.modifier.connector.asynchttpclient.AsyncHttpClientModifier;
-import com.navercorp.pinpoint.profiler.modifier.connector.httpclient3.DefaultHttpMethodRetryHandlerModifier;
-import com.navercorp.pinpoint.profiler.modifier.connector.httpclient3.HttpClientModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridConnectionModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridDriverModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridPreparedStatementModifier;
