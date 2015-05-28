@@ -26,10 +26,6 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  *
  */
 public interface HttpClient4Constants {
-
-    public static final ServiceType HTTP_CLIENT4 = ServiceType.of(9052, "HTTP_CLIENT4", NORMAL_SCHEMA, RECORD_STATISTICS);
-    public static final ServiceType HTTP_CLIENT4_INTERNAL = ServiceType.of(9053, "HTTP_CLIENT4_INTERNAL", "HTTP_CLIENT", NORMAL_SCHEMA);
-
     public static final String METADATA_END_POINT = "endPoint";
     public static final String METADATA_DESTINATION_ID = "destinationId";
     public static final String METADATA_ASYNC_TRACE_ID = "asyncTraceId";

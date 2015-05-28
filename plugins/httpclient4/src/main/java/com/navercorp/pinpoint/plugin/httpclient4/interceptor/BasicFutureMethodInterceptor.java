@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
@@ -40,7 +41,7 @@ public class BasicFutureMethodInterceptor extends SpanAsyncEventSimpleAroundInte
     @Override
     protected void doInBeforeTrace(Trace trace, AsyncTraceId asyncTraceId, Object target, Object[] args) {
         trace.markBeforeTime();
-        trace.recordServiceType(HTTP_CLIENT4_INTERNAL);
+        trace.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
     }
 
     @Override

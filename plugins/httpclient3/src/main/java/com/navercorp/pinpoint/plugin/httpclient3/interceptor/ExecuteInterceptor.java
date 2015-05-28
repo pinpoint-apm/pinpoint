@@ -131,7 +131,7 @@ public class ExecuteInterceptor implements SimpleAroundInterceptor, HttpClient3C
 
         TraceId nextId = trace.getTraceId().getNextTraceId();
         trace.recordNextSpanId(nextId.getSpanId());
-        trace.recordServiceType(HTTP_CLIENT3);
+        trace.recordServiceType(ServiceType.HTTP_CLIENT);
 
         if (httpMethod != null) {
             httpMethod.setRequestHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());

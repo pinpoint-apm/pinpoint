@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 
 /**
@@ -70,7 +71,7 @@ public class HttpConnectionOpenMethodInterceptor implements SimpleAroundIntercep
         }
 
         try {
-            trace.recordServiceType(HTTP_CLIENT3_INTERNAL);
+            trace.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
             trace.recordApi(methodDescriptor);
             trace.recordException(throwable);
             trace.markAfterTime();

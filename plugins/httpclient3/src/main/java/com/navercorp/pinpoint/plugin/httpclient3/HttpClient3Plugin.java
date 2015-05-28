@@ -15,18 +15,12 @@
  */
 package com.navercorp.pinpoint.plugin.httpclient3;
 
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.BaseClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassConditions;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerSetup;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty;
 
@@ -38,7 +32,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProp
  *
  */
 public class HttpClient3Plugin implements ProfilerPlugin, HttpClient3Constants {
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     @Override
     public void setup(ProfilerPluginContext context) {

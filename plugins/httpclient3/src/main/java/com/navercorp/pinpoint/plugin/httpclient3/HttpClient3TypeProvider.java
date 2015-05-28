@@ -27,7 +27,5 @@ public class HttpClient3TypeProvider implements TraceMetadataProvider, HttpClien
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(HTTP_CLIENT3);
-        context.addServiceType(HTTP_CLIENT3_INTERNAL);
     }
 }

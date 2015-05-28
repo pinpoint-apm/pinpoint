@@ -20,11 +20,8 @@ import java.io.IOException;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -62,7 +59,7 @@ public class RetryMethodInterceptor implements SimpleAroundInterceptor, HttpClie
         trace.traceBlockBegin();
         trace.markBeforeTime();
 
-        trace.recordServiceType(HTTP_CLIENT3_INTERNAL);
+        trace.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
     }
 
     @Override
