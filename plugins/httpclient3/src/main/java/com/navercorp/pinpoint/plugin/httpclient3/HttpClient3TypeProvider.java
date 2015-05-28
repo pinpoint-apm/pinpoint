@@ -13,12 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.navercorp.pinpoint.plugin.httpclient3;
 
-package com.navercorp.pinpoint.profiler.modifier.connector.httpclient3;
+import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
+import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
 /**
- * @author Minwoo Jung
+ * 
+ * @author jaehong.kim
+ *
  */
-public class HttpClient3Scope {
-    public static final String SCOPE = "HTTPClient3Scope";
+public class HttpClient3TypeProvider implements TraceMetadataProvider, HttpClient3Constants{
+
+    @Override
+    public void setup(TraceMetadataSetupContext context) {
+    }
 }

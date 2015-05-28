@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor;
+package com.navercorp.pinpoint.plugin.httpclient3;
 
 /**
- * @author emeroad
+ * 
+ * @author jaehong.kim
+ *
  */
-public class HttpClient4Scope {
-    public static final String SCOPE = "HTTPClient4Scope";
+public interface HttpClient3Constants {
+    public static final String HTTP_CLIENT3_SCOPE = "HttpClient3Scope"; 
+    public static final String HTTP_CLIENT3_CONNECTION_SCOPE = "HttpClient3HttpConnection";
 }

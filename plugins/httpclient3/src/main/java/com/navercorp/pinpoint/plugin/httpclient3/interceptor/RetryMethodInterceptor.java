@@ -14,32 +14,36 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor;
+package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
+
+import java.io.IOException;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 
 /**
  * @author Minwoo Jung
  */
-public class RetryRequestInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
+public class RetryMethodInterceptor implements SimpleAroundInterceptor, HttpClient3Constants {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
-    private ServiceType serviceType = ServiceType.HTTP_CLIENT_INTERNAL;
 
+    public RetryMethodInterceptor(TraceContext context, MethodDescriptor methodDescriptor) {
+        this.traceContext = context;
+        this.descriptor = methodDescriptor;
+    }
+    
 
     @Override
     public void before(Object target, Object[] args) {
@@ -48,7 +52,6 @@ public class RetryRequestInterceptor implements SimpleAroundInterceptor, ByteCod
         }
 
         Trace trace = traceContext.currentTraceObject();
-        
         if (trace == null) {
             return;
         }
@@ -56,7 +59,7 @@ public class RetryRequestInterceptor implements SimpleAroundInterceptor, ByteCod
         trace.traceBlockBegin();
         trace.markBeforeTime();
 
-        trace.recordServiceType(serviceType);
+        trace.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
     }
 
     @Override
@@ -66,6 +69,7 @@ public class RetryRequestInterceptor implements SimpleAroundInterceptor, ByteCod
         }
 
         Trace trace = traceContext.currentTraceObject();
+        
         if (trace == null) {
             return;
         }
@@ -74,8 +78,8 @@ public class RetryRequestInterceptor implements SimpleAroundInterceptor, ByteCod
             trace.recordApi(descriptor);
             trace.recordException(throwable);
             
-            if (args.length >=1 && (args[0] instanceof Exception)) {
-                trace.recordAttribute(AnnotationKey.HTTP_CALL_RETRY_COUNT, args[0].getClass().getName());
+            if (args.length >= 2 && (args[1] instanceof IOException)) {
+                trace.recordAttribute(AnnotationKey.HTTP_CALL_RETRY_COUNT, args[1].getClass().getName());
             }
             if (result != null) {
                 trace.recordAttribute(AnnotationKey.RETURN_DATA, result);
@@ -85,16 +89,5 @@ public class RetryRequestInterceptor implements SimpleAroundInterceptor, ByteCod
         } finally {
             trace.traceBlockEnd();
         }
-    }
-
-    @Override
-    public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.descriptor = descriptor;
-        this.traceContext.cacheApi(descriptor);
-    }
-
-    @Override
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
     }
 }

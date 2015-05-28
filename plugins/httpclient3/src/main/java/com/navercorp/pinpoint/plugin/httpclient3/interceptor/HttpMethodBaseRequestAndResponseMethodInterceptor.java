@@ -14,90 +14,68 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.connector.httpclient3.interceptor;
-
-import java.io.IOException;
+package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 
 /**
- * @author Minwoo Jung
+ * @author jaehong.kim
  */
-public class RetryMethodInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
+public class HttpMethodBaseRequestAndResponseMethodInterceptor implements SimpleAroundInterceptor, HttpClient3Constants {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private MethodDescriptor descriptor;
     private TraceContext traceContext;
-    private ServiceType serviceType = ServiceType.HTTP_CLIENT_INTERNAL;
+    private MethodDescriptor methodDescriptor;
 
 
+    public HttpMethodBaseRequestAndResponseMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+        this.traceContext = traceContext;
+        this.methodDescriptor = methodDescriptor;
+    }
+    
+    
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
-            logger.beforeInterceptor(target, args);
+            logger.beforeInterceptor(target, methodDescriptor.getClassName(), methodDescriptor.getMethodName(), "", args);
         }
 
-        Trace trace = traceContext.currentTraceObject();
-        
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
 
         trace.traceBlockBegin();
         trace.markBeforeTime();
-
-        trace.recordServiceType(serviceType);
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
-            logger.afterInterceptor(target, args);
+            logger.afterInterceptor(target, methodDescriptor.getClassName(), methodDescriptor.getMethodName(), "", args, result, throwable);
         }
 
-        Trace trace = traceContext.currentTraceObject();
-        
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
 
         try {
-            trace.recordApi(descriptor);
+            trace.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
+            trace.recordApi(methodDescriptor);
             trace.recordException(throwable);
-            
-            if (args.length >= 2 && (args[1] instanceof IOException)) {
-                trace.recordAttribute(AnnotationKey.HTTP_CALL_RETRY_COUNT, args[1].getClass().getName());
-            }
-            if (result != null) {
-                trace.recordAttribute(AnnotationKey.RETURN_DATA, result);
-            }
-
             trace.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }
-    }
-
-    @Override
-    public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.descriptor = descriptor;
-        this.traceContext.cacheApi(descriptor);
-    }
-
-    @Override
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
     }
 }

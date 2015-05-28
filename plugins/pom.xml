@@ -12,6 +12,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>httpclient3</module>
         <module>httpclient4</module>
         <module>gson</module>
         <module>jdbc-driver</module>
@@ -23,6 +24,11 @@
     </modules>
 
     <dependencies>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-httpclient3-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-httpclient4-plugin</artifactId>

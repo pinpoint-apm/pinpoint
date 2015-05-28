@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.connector.httpclient3.interceptor;
+package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
@@ -43,6 +43,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
@@ -50,11 +51,13 @@ import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 
 /**
  * @author Minwoo Jung
  */
-public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDescriptorSupport, SimpleAroundInterceptor, TargetClassLoader {
+@Group(HttpClient3Constants.HTTP_CLIENT3_SCOPE)
+public class ExecuteInterceptor implements SimpleAroundInterceptor, HttpClient3Constants {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -78,6 +81,27 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
     protected DumpType entityDumpType;
     protected SimpleSampler entitySampler;
 
+    public ExecuteInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+        this.traceContext = traceContext;
+        this.descriptor = methodDescriptor;
+        
+        final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
+        this.cookie = profilerConfig.isApacheHttpClient3ProfileCookie();
+        this.cookieDumpType = profilerConfig.getApacheHttpClient3ProfileCookieDumpType();
+
+        if (cookie) {
+            this.cookieSampler = SimpleSamplerFactory.createSampler(cookie, profilerConfig.getApacheHttpClient3ProfileCookieSamplingRate());
+        }
+
+        this.entity = profilerConfig.isApacheHttpClient3ProfileEntity();
+        this.entityDumpType = profilerConfig.getApacheHttpClient3ProfileEntityDumpType();
+
+        if (entity) {
+            this.entitySampler = SimpleSamplerFactory.createSampler(entity, profilerConfig.getApacheHttpClient3ProfileEntitySamplingRate());
+        }
+    }
+    
+    
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
@@ -85,14 +109,12 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
         }
 
         final Trace trace = traceContext.currentRawTraceObject();
-
         if (trace == null) {
             return;
         }
 
         final HttpMethod httpMethod = getHttpMethod(args);
         final boolean sampling = trace.canSampled();
-
         if (!sampling) {
             if (isDebug) {
                 logger.debug("set Sampling flag=false");
@@ -106,6 +128,7 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
 
         trace.traceBlockBegin();
         trace.markBeforeTime();
+
         TraceId nextId = trace.getTraceId().getNextTraceId();
         trace.recordNextSpanId(nextId.getSpanId());
         trace.recordServiceType(ServiceType.HTTP_CLIENT);
@@ -141,14 +164,12 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
         }
 
         final Trace trace = traceContext.currentTraceObject();
-
         if (trace == null) {
             return;
         }
 
         try {
             HttpMethod httpMethod = getHttpMethod(args);
-
             if (httpMethod != null) {
                 try {
                     final URI uri = httpMethod.getURI();
@@ -246,7 +267,6 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
 
     private void recordCookie(HttpMethod httpMethod, Trace trace) {
         org.apache.commons.httpclient.Header cookie = httpMethod.getRequestHeader("Cookie");
-
         if (cookie == null) {
             return;
         }
@@ -286,30 +306,5 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
         }
 
         return null;
-    }
-
-    @Override
-    public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.descriptor = descriptor;
-        traceContext.cacheApi(descriptor);
-    }
-
-    @Override
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
-        final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
-        this.cookie = profilerConfig.isApacheHttpClient3ProfileCookie();
-        this.cookieDumpType = profilerConfig.getApacheHttpClient3ProfileCookieDumpType();
-
-        if (cookie) {
-            this.cookieSampler = SimpleSamplerFactory.createSampler(cookie, profilerConfig.getApacheHttpClient3ProfileCookieSamplingRate());
-        }
-
-        this.entity = profilerConfig.isApacheHttpClient3ProfileEntity();
-        this.entityDumpType = profilerConfig.getApacheHttpClient3ProfileEntityDumpType();
-
-        if (entity) {
-            this.entitySampler = SimpleSamplerFactory.createSampler(entity, profilerConfig.getApacheHttpClient3ProfileEntitySamplingRate());
-        }
     }
 }

@@ -14,101 +14,69 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor;
+package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 
 /**
- * 
- * suitable method
- * <pre>
- * org.apache.http.concurrent.BasicFuture.failed(Exception)
- * </pre>
- *
- * original code of method
- * <code>
- * <pre>
- *     public boolean failed(final Exception exception) {
- *         synchronized (this) {
- *             if (this.completed) {
- *                 return false;
- *             }
- *             this.completed = true;
- *             this.ex = exception;
- *             notifyAll();
- *         }
- *         if (this.callback != null) {
- *             this.callback.failed(exception);
- *         }
- *         return true;
- *     }
- * </pre>
- * </code>
- * 
- * @author netspider
- * 
+ * @author jaehong.kim
  */
-public class BasicFutureFailedInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
+@Group(HttpClient3Constants.HTTP_CLIENT3_CONNECTION_SCOPE)
+public class HttpConnectionOpenMethodInterceptor implements SimpleAroundInterceptor, HttpClient3Constants {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private TraceContext traceContext;
-    private MethodDescriptor descriptor;
+    private MethodDescriptor methodDescriptor;
 
+
+    public HttpConnectionOpenMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+        this.traceContext = traceContext;
+        this.methodDescriptor = methodDescriptor;
+    }
+    
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
-            logger.beforeInterceptor(target, args);
+            logger.beforeInterceptor(target, methodDescriptor.getClassName(), methodDescriptor.getMethodName(), "", args);
         }
 
-        Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
 
         trace.traceBlockBegin();
         trace.markBeforeTime();
-        trace.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
-            logger.afterInterceptor(target, args);
+            logger.afterInterceptor(target, methodDescriptor.getClassName(), methodDescriptor.getMethodName(), "", args, result, throwable);
         }
 
-        Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
 
         try {
-            trace.recordApi(descriptor);
+            trace.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
+            trace.recordApi(methodDescriptor);
             trace.recordException(throwable);
             trace.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }
-    }
-
-    @Override
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
-    }
-
-    @Override
-    public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.descriptor = descriptor;
-        traceContext.cacheApi(descriptor);
     }
 }
