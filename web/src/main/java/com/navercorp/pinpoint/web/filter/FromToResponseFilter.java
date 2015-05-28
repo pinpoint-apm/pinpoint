@@ -147,8 +147,10 @@ public class FromToResponseFilter implements Filter {
 
                     for (SpanEventBo event : eventBoList) {
                         // check only whether a client exists or not.
-                        if (event.getServiceType().isRpcClient() && toApplicationName.equals(event.getDestinationId())) {
-                            return checkResponseCondition(event.getEndElapsed(), event.hasException());
+                        if (event.getServiceType().isRpcClient() && event.getServiceType().isRecordStatistics()) {
+                            if (toApplicationName.equals(event.getDestinationId())) {
+                                return checkResponseCondition(event.getEndElapsed(), event.hasException());
+                            }
                         }
                     }
                 }
@@ -167,6 +169,10 @@ public class FromToResponseFilter implements Filter {
                     }
                     for (SpanEventBo event : eventBoList) {
                         if (!event.getServiceType().isRpcClient()) {
+                            continue;
+                        }
+                        
+                        if (!event.getServiceType().isRecordStatistics()) {
                             continue;
                         }
 
