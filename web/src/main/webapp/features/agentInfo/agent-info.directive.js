@@ -5,8 +5,8 @@
 	    agentStatUrl: '/getAgentStat.pinpoint'
 	});
 	
-	pinpointApp.directive('agentInfoDirective', [ 'agentInfoConfig', '$timeout', 'AlertsService', 'ProgressBarService', 'AgentDaoService', 'helpContentService',
-	    function (cfg, $timeout, AlertsService, ProgressBarService, AgentDaoService, helpContentService) {
+	pinpointApp.directive('agentInfoDirective', [ 'agentInfoConfig', '$timeout', 'AlertsService', 'ProgressBarService', 'AgentDaoService', 'helpContentTemplate', 'helpContentService',
+	    function (cfg, $timeout, AlertsService, ProgressBarService, AgentDaoService, helpContentTemplate, helpContentService) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -30,21 +30,21 @@
 	                	if ( bInitTooltip === false ) {
 	                		jQuery('.heapTooltip').tooltipster({
 			                	content: function() {
-			                		return helpContentService.inspector.heap;
+			                		return helpContentTemplate(helpContentService.inspector.heap);
 			                	},
 			                	position: "top",
 			                	trigger: "click"
 			                });
 			                jQuery('.permGenTooltip').tooltipster({
 			                	content: function() {
-			                		return helpContentService.inspector.permGen;
+			                		return helpContentTemplate(helpContentService.inspector.permGen);
 			                	},
 			                	position: "top",
 			                	trigger: "click"
 			                });
 			                jQuery('.cpuUsageTooltip').tooltipster({
 			                	content: function() {
-			                		return helpContentService.inspector.cpuUsage;
+			                		return helpContentTemplate(helpContentService.inspector.cpuUsage);
 			                	},
 			                	position: "top",
 			                	trigger: "click"
