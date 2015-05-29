@@ -3,8 +3,8 @@
 	
 	pinpointApp.factory('helpContentService', [ '$window', '$injector', 'UserLocalesService', function($window, $injector, UserLocalesService) {
 
-		var name = "helpContent-" + "en";//UserLocalesService.userLocale;
-		var defaultName = "helpContent-" + "en";//UserLocalesService.defaultLocale;
+		var name = "helpContent-" + UserLocalesService.userLocale;
+		var defaultName = "helpContent-" + UserLocalesService.defaultLocale;
 		if ($injector.has(name)) {
 			return $injector.get(name);
 		} else {
