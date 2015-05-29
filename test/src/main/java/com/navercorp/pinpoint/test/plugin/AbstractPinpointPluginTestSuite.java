@@ -41,16 +41,7 @@ import com.navercorp.pinpoint.common.util.SystemProperty;
 import com.navercorp.pinpoint.exception.PinpointException;
 
 public abstract class AbstractPinpointPluginTestSuite extends Suite {
-    private static final int[] DEFAULT_JVM_VERSIONS;
-    
-    static {
-        String version = System.getProperty("java.version");
-        String[] split = version.split("\\.");
-        int v = Integer.valueOf(split[1]);
-        
-        DEFAULT_JVM_VERSIONS = new int[] { v }; 
-    }
-    
+    private static final int NO_JVM_VERSION = -1;
     
     private static final String[] REQUIRED_CLASS_PATHS = new String[] {
         "junit", // JUnit
@@ -81,18 +72,18 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
         this.jvmArguments = jvmArgument == null ? new String[0] : jvmArgument.value();
 
         JvmVersion jvmVersion = testClass.getAnnotation(JvmVersion.class);
-        this.jvmVersions = jvmVersion == null ? DEFAULT_JVM_VERSIONS : jvmVersion.value();
+        this.jvmVersions = jvmVersion == null ? new int[] { NO_JVM_VERSION } : jvmVersion.value();
 
         this.requiredLibraries = resolveRequiredLibraries();
         this.testClassLocation = resolveTestClassLocation(testClass);
         this.debug = isDebugMode();
     }
     
-    protected String getJavaExecutable(Integer version) {
+    protected String getJavaExecutable(int version) {
         StringBuilder builder = new StringBuilder();
         
         String javaHome;
-        if (version == null) {
+        if (version == NO_JVM_VERSION) {
             javaHome = SystemProperty.INSTANCE.getProperty("java.home");
         } else {
             String envName = "JAVA_" + version + "_HOME";  
@@ -242,6 +233,10 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
         } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new RuntimeException("Fail to create test runners", e);
+        }
+        
+        if (runners.isEmpty()) {
+            throw new RuntimeException("No test");
         }
         
         return runners;

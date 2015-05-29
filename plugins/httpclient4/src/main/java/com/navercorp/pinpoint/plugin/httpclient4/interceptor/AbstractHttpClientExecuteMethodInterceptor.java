@@ -53,6 +53,7 @@ import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
@@ -122,7 +123,7 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Simp
 
         TraceId nextId = trace.getTraceId().getNextTraceId();
         trace.recordNextSpanId(nextId.getSpanId());
-        trace.recordServiceType(HTTP_CLIENT4);
+        trace.recordServiceType(ServiceType.HTTP_CLIENT);
 
         if (httpRequest != null) {
             httpRequest.setHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());

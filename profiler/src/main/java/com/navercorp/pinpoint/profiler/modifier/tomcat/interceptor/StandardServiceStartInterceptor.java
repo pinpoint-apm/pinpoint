@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
  * @author emeroad
  * @author hyungil.jeong
  */
+@SuppressWarnings("deprecation")
 public class StandardServiceStartInterceptor implements SimpleAroundInterceptor, TraceContextSupport, TargetClassLoader {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
  * @author cowboy93, netspider
  * @author hyungil.jeong
  */
+@SuppressWarnings("deprecation")
 public class StandardServiceModifier extends AbstractModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

@@ -129,6 +129,7 @@ public class DefaultFilterBuilder implements FilterBuilder {
         return chain.get();
     }
 
+    @SuppressWarnings("deprecation")
     private FromToResponseFilter createFromToResponseFilter(FilterDescriptor descriptor, FilterHint hint) {
         if (descriptor == null) {
             throw new NullPointerException("methodDescriptor must not be null");
@@ -149,9 +150,10 @@ public class DefaultFilterBuilder implements FilterBuilder {
         Long fromResponseTime = descriptor.getResponseFrom();
         Long toResponseTime = descriptor.getResponseTo();
         Boolean includeFailed = descriptor.getIncludeException();
-        return new FromToResponseFilter(fromServiceType, fromApplicationName, fromAgentName, toServiceType, toApplicationName, toAgentName,fromResponseTime, toResponseTime, includeFailed, hint);
+        return new FromToResponseFilter(fromServiceType, fromApplicationName, fromAgentName, toServiceType, toApplicationName, toAgentName,fromResponseTime, toResponseTime, includeFailed, hint, this.registry);
     }
 
+    @SuppressWarnings("deprecation")
     private FromToFilter createFromToFilter(FilterDescriptor descriptor) {
 
         final List<ServiceType> fromServiceTypeList = registry.findDesc(descriptor.getFromServiceType());

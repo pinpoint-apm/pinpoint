@@ -27,7 +27,5 @@ public class HttpClient4TypeProvider implements TraceMetadataProvider, HttpClien
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(HTTP_CLIENT4);
-        context.addServiceType(HTTP_CLIENT4_INTERNAL);
     }
 }

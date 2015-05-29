@@ -27,6 +27,7 @@ import net.sf.ehcache.Element;
 /**
  * @author harebox
  */
+@SuppressWarnings("deprecation")
 public class FrontCacheGetFutureConstructInterceptor implements SimpleAroundInterceptor, TargetClassLoader {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

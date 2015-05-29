@@ -35,8 +35,8 @@
 	    }
 	});
 	
-	pinpointApp.directive('serverMapDirective', [ 'serverMapDirectiveConfig', 'ServerMapDaoService', 'AlertsService', 'ProgressBarService', 'SidebarTitleVoService', '$filter', 'ServerMapFilterVoService', 'encodeURIComponentFilter', 'filteredMapUtilService', '$base64', 'ServerMapHintVoService', '$timeout', '$location', 'helpContentService',
-	    function (cfg, ServerMapDaoService, AlertsService, ProgressBarService, SidebarTitleVoService, $filter, ServerMapFilterVoService, encodeURIComponentFilter, filteredMapUtilService, $base64, ServerMapHintVoService, $timeout, $location, helpContentService) {
+	pinpointApp.directive('serverMapDirective', [ 'serverMapDirectiveConfig', 'ServerMapDaoService', 'AlertsService', 'ProgressBarService', 'SidebarTitleVoService', '$filter', 'ServerMapFilterVoService', 'encodeURIComponentFilter', 'filteredMapUtilService', '$base64', 'ServerMapHintVoService', '$timeout', '$location', 'helpContentTemplate', 'helpContentService',
+	    function (cfg, ServerMapDaoService, AlertsService, ProgressBarService, SidebarTitleVoService, $filter, ServerMapFilterVoService, encodeURIComponentFilter, filteredMapUtilService, $base64, ServerMapHintVoService, $timeout, $location, helpContentTemplate, helpContentService) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -801,9 +801,9 @@
 	                
 	                jQuery('.serverMapTooltip').tooltipster({
                     	content: function() {
-                    		return helpContentService.servermap["default"];
+                    		return helpContentTemplate(helpContentService.servermap["default"]);
                     	},
-                    	position: "bottom",
+                    	position: "bottom-right",
                     	trigger: "click"
                     });
 	            }

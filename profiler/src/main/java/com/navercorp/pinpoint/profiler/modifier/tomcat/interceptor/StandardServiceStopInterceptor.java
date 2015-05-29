@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 /**
  * @author emeroad
  */
+@SuppressWarnings("deprecation")
 public class StandardServiceStopInterceptor implements SimpleAroundInterceptor, TargetClassLoader {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
