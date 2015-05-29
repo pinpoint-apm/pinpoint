@@ -5,7 +5,7 @@
 	    '<div class="pinpoint-tooltip" style="{{mainStyle}}">',
 	    	'<dl>',
 	    		'<dt>{{{title}}}</dt>',
-	    		'<dd>{{desc}}</dd>',
+	    		'<dd>{{{desc}}}</dd>',
 	    	'</dl>',
 	    	'{{#if category}}<hr/>{{/if}}',
 	    	'{{#each category}}',
@@ -479,7 +479,7 @@
 			}
 		},
 		transactionTable: {
-			log: ""
+			log: {}
 		}
 	};
 	pinpointApp.constant('helpContent-en', {
