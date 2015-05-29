@@ -2,7 +2,7 @@
 .servermap .servermap-status {
     position: absolute;
     top: 8px;
-    right: 11px;
+    right: 45px;
     z-index: 9;
     font-size: 12px;
 }

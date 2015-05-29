@@ -803,7 +803,7 @@
                     	content: function() {
                     		return helpContentService.servermap["default"];
                     	},
-                    	position: "bottom",
+                    	position: "bottom-right",
                     	trigger: "click"
                     });
 	            }

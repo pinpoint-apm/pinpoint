@@ -5,8 +5,8 @@
 	    agentStatUrl: '/getAgentStat.pinpoint'
 	});
 	
-	pinpointApp.directive('agentInfoDirective', [ 'agentInfoConfig', '$timeout', 'AlertsService', 'ProgressBarService', 'AgentDaoService',
-	    function (cfg, $timeout, AlertsService, ProgressBarService, AgentDaoService) {
+	pinpointApp.directive('agentInfoDirective', [ 'agentInfoConfig', '$timeout', 'AlertsService', 'ProgressBarService', 'AgentDaoService', 'helpContentService',
+	    function (cfg, $timeout, AlertsService, ProgressBarService, AgentDaoService, helpContentService) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -14,16 +14,43 @@
 	            link: function postLink(scope, element, attrs) {
 	
 	                // define private variables
-	                var oNavbarVoService, oAlertService, oProgressBarService;
+	                var oNavbarVoService, oAlertService, oProgressBarService, bInitTooltip = false;
 	
 	                // define private variables of methods
 	                var getAgentStat, getLink, initServiceInfo, showCharts, parseMemoryChartDataForAmcharts, parseCpuLoadChartDataForAmcharts,
-	                broadcastToCpuLoadChart, resetServerMetaDataDiv;
+	                broadcastToCpuLoadChart, resetServerMetaDataDiv, initTooltip;
 	
 	                // initialize
 	                scope.agentInfoTemplate = 'features/agentInfo/agentInfoReady.html';
 	                oAlertService = new AlertsService();
 	                oProgressBarService = new ProgressBarService();
+	                
+
+	                initTooltip = function() {
+	                	if ( bInitTooltip === false ) {
+	                		jQuery('.heapTooltip').tooltipster({
+			                	content: function() {
+			                		return helpContentService.inspector.heap;
+			                	},
+			                	position: "top",
+			                	trigger: "click"
+			                });
+			                jQuery('.permGenTooltip').tooltipster({
+			                	content: function() {
+			                		return helpContentService.inspector.permGen;
+			                	},
+			                	position: "top",
+			                	trigger: "click"
+			                });
+			                jQuery('.cpuUsageTooltip').tooltipster({
+			                	content: function() {
+			                		return helpContentService.inspector.cpuUsage;
+			                	},
+			                	position: "top",
+			                	trigger: "click"
+			                });
+	                	}
+	                };
 	
 	                /**
 	                 * scope event of agentInfo.initialize
@@ -132,6 +159,8 @@
 	                            oProgressBarService.stopLoading();
 	                        }, 700);
 	                        scope.$digest();
+	                        
+	                        initTooltip();
 	                    });
 	                };
 	                
