@@ -16,7 +16,7 @@ var BigScatterChart = $.Class({
 	 * @param {Object} option option object
 	 * @param {Service} helpContentService angularjs service object
 	 */			
-    $init: function (htOption, helpContentService) {
+    $init: function (htOption, helpContentTemplate, helpContentService) {
         this.option({
             'sContainerId': '',
             'sPrefix': 'bigscatterchart-',
@@ -118,7 +118,7 @@ var BigScatterChart = $.Class({
         this._initEvents();
         this._drawXYAxis();
         this.updateXYAxis();
-        this._initTooltip( helpContentService );
+        this._initTooltip( helpContentTemplate, helpContentService );
     },
     /**
 	 * initialize tooltipster
@@ -127,10 +127,10 @@ var BigScatterChart = $.Class({
 	 * @method BigScatterChart#_initTooltip
 	 * @param {Service} helpContentService angularjs service object
 	 */	
-    _initTooltip: function(helpContentService) {
+    _initTooltip: function(helpContentTemplate, helpContentService) {
         this._welContainer.find(".scatterTooltip").tooltipster({
         	content: function() {
-        		return helpContentService.scatter["default"];
+        		return helpContentTemplate(helpContentService.scatter["default"]);
         	},
         	position: "top-right",
         	trigger: "click"
