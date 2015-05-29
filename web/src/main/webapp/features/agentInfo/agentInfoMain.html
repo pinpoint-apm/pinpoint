@@ -60,11 +60,11 @@
         <h3>Memory & Garbage Collection</h3>
         <div class="row">
             <div class="col-md-6">
-                <h5>{{memoryGroup[0].title}}</h5>
+                <h5><span class="glyphicon glyphicon-question-sign heapTooltip" style="cursor:pointer;float:right;"></span> {{memoryGroup[0].title}}</h5>
                 <jvm-memory-chart-directive namespace="forHeap"></jvm-memory-chart-directive>
             </div>
             <div class="col-md-6">
-                <h5>{{memoryGroup[1].title}}</h5>
+                <h5><span class="glyphicon glyphicon-question-sign permGenTooltip" style="cursor:pointer;float:right;"></span> {{memoryGroup[1].title}}</h5>
                 <jvm-memory-chart-directive namespace="forNonHeap"></jvm-memory-chart-directive>
             </div>
         </div>
@@ -73,7 +73,7 @@
         <h3>Cpu Usage</h3>
         <div class="row">
             <div class="col-md-6">
-                <h5>{{cpuLoadChart.title}}</h5>
+                <h5><span class="glyphicon glyphicon-question-sign cpuUsageTooltip" style="cursor:pointer;float:right;"></span> {{cpuLoadChart.title}}</h5>
                 <cpu-load-chart-directive namespace="forCpuLoad"></cpu-load-chart-directive>
             </div>
         </div>

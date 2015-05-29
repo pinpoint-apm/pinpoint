@@ -5,7 +5,7 @@
 	    agentGroupUrl: '/getAgentList.pinpoint'
 	});
 	
-	pinpointApp.directive('agentListDirective', [ 'agentListConfig', '$rootScope', function (cfg, $rootScope) {
+	pinpointApp.directive('agentListDirective', [ 'agentListConfig', '$rootScope', 'helpContentService', function (cfg, $rootScope, helpContentService) {
 	    return {
 	        restrict: 'EA',
 	        replace: true,
@@ -86,6 +86,13 @@
 	            scope.$on('agentListDirective.initialize', function (event, navbarVoService) {
 	                showAgentGroup(navbarVoService.getApplicationName(), navbarVoService.getServiceTypeName(), navbarVoService.getQueryStartTime(), navbarVoService.getQueryEndTime(), navbarVoService.getAgentId());
 	            });
+	            jQuery('.agentListTooltip').tooltipster({
+                	content: function() {
+                		return helpContentService.inspector.list;
+                	},
+                	position: "bottom",
+                	trigger: "click"
+                });
 	        }
 	    };
 	}]);

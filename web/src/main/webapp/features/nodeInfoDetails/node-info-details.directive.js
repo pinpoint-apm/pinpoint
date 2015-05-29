@@ -351,14 +351,14 @@
                     	content: function() {
                     		return helpContentService.nodeInfoDetails.responseSummary;
                     	},
-                    	position: "left",
+                    	position: "top",
                     	trigger: "click"
                     });
                     jQuery('.loadChartTooltip').tooltipster({
                     	content: function() {
                     		return helpContentService.nodeInfoDetails.load;
                     	},
-                    	position: "left",
+                    	position: "top",
                     	trigger: "click"
                     });
                     jQuery('.serverListTooltip').tooltipster({

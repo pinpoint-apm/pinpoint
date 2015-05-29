@@ -91,16 +91,9 @@
 	                    return false;
 	                });
 	                
-	                jQuery('.applicationSelectorTooltip').tooltipster({
+	                jQuery('.navbarTooltip').tooltipster({
                     	content: function() {
-                    		return helpContentService.navbar.applicationSelector;
-                    	},
-                    	position: "bottom",
-                    	trigger: "click"
-                    });
-	                jQuery('.periodSelectorTooltip').tooltipster({
-                    	content: function() {
-                    		return helpContentService.navbar.periodSelector;
+                    		return helpContentService.navbar.applicationSelector + helpContentService.navbar.depth + helpContentService.navbar.periodSelector;
                     	},
                     	position: "bottom",
                     	trigger: "click"

@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.directive('transactionTableDirective', ['$window', function ($window) {
+	pinpointApp.directive('transactionTableDirective', ['$window', 'helpContentService', function ($window, helpContentService) {
 	    return {
 	        restrict: 'EA',
 	        replace: true,
@@ -106,6 +106,17 @@
 	            scope.$on('transactionTableDirective.clear', function (event) {
 	                clear();
 	            });
+
+	            scope.initTooltipster = function() {
+		            jQuery('.neloTooltip').tooltipster({
+	                	content: function() {
+	                		return helpContentService.transactionTable.log;
+	                	},
+	                	position: "bottom",
+	                	trigger: "click",
+	                	interactive: true
+	                });	
+	            };
 	        }
 	    };
 	}]);
