@@ -4,8 +4,8 @@
 	    applicationUrl: '/transactionInfo.pinpoint'
 	});
 	
-	pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$scope', '$rootScope', '$routeParams', '$timeout', '$rootElement', 'AlertsService', 'ProgressBarService', 'TransactionDaoService', '$window', '$location', 'helpContentService',
-	    function (cfg, $scope, $rootScope, $routeParams, $timeout, $rootElement, AlertsService, ProgressBarService, TransactionDaoService, $window, $location, helpContentService) {
+	pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$scope', '$rootScope', '$routeParams', '$timeout', '$rootElement', 'AlertsService', 'ProgressBarService', 'TransactionDaoService', '$window', '$location', 'helpContentTemplate', 'helpContentService',
+	    function (cfg, $scope, $rootScope, $routeParams, $timeout, $rootElement, AlertsService, ProgressBarService, TransactionDaoService, $window, $location, helpContentTemplate, helpContentService) {
 			$at($at.TRANSACTION_DETAIL_PAGE);
 	        // define private variables
 	        var oAlertService, oProgressBarService, bShowCallStacksOnce;
@@ -152,7 +152,7 @@
 	        
             jQuery('.callTreeTooltip').tooltipster({
             	content: function() {
-            		return helpContentService.callTree.column;
+            		return helpContentTemplate(helpContentService.callTree.column);
             	},
             	position: "bottom",
             	trigger: "click"

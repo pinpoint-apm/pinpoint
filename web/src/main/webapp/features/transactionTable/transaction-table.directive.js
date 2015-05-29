@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.directive('transactionTableDirective', ['$window', 'helpContentService', function ($window, helpContentService) {
+	pinpointApp.directive('transactionTableDirective', ['$window', 'helpContentTemplate', 'helpContentService', function ($window, helpContentTemplate, helpContentService) {
 	    return {
 	        restrict: 'EA',
 	        replace: true,
@@ -110,7 +110,7 @@
 	            scope.initTooltipster = function() {
 		            jQuery('.neloTooltip').tooltipster({
 	                	content: function() {
-	                		return helpContentService.transactionTable.log;
+	                		return helpContentTemplate(helpContentService.transactionTable.log);
 	                	},
 	                	position: "bottom",
 	                	trigger: "click",

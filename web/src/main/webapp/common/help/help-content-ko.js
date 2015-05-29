@@ -1,39 +1,6 @@
 (function(){ 
 	'use strict';
-
-
-	var template = [
-	    '<div class="pinpoint-tooltip" style="{{mainStyle}}">',
-	    	'<dl>',
-	    		'<dt>{{{title}}}</dt>',
-	    		'<dd>{{{desc}}}</dd>',
-	    	'</dl>',
-	    	'{{#if category}}<hr/>{{/if}}',
-	    	'{{#each category}}',
-	            '<p>{{title}}</p>',
-	            '{{#if image}}<p style="text-align:center">{{{image}}}</p>{{/if}}',
-	            '{{#if items}}',
-		            '<table>',
-		            	'{{#each items}}',
-			            	'<tr>',
-			            		'<td>{{{name}}}</td>',
-			            		'<td>{{{desc}}}</td>',
-			            	'</tr>',
-		            	'{{/each}}',
-		            '</table>',
-		         '{{/if}}',
-		         '{{#if list}}',
-		         	'<ul>',
-		         	'{{#each list}}',
-		         		'<li>{{{this}}}</li>',
-		         	'{{/each}}',
-		         	'</ul>',
-		         '{{/if}}',
-	        '{{/each}}',
-	    '</div>'
-	].join("");
 	
-	var compiledTemplate = Handlebars.compile( template );
 	var oHelp = {
 		navbar : {
 			applicationSelector: {
@@ -502,45 +469,5 @@
 			log: {}
 		}
 	};
-
-	pinpointApp.constant('helpContent-ko', {
-        "navbar": {
-        	"applicationSelector": compiledTemplate( oHelp.navbar.applicationSelector ),
-        	"depth": compiledTemplate( oHelp.navbar.depth ),
-	        "periodSelector": compiledTemplate( oHelp.navbar.periodSelector )
-        },
-        "servermap": {
-            "default": compiledTemplate( oHelp.servermap["default"] )
-        },
-        "scatter": {
-            "default": compiledTemplate( oHelp.scatter["default"] )
-        },
-        "nodeInfoDetails": {
-            "responseSummary": compiledTemplate( oHelp.nodeInfoDetails.responseSummary ),
-            "load": compiledTemplate( oHelp.nodeInfoDetails.load ),
-            "nodeServers": compiledTemplate( oHelp.nodeInfoDetails.nodeServers ),
-            "unknownList": compiledTemplate( oHelp.nodeInfoDetails.unknownList ),
-            "searchAndOrder": compiledTemplate( oHelp.nodeInfoDetails.searchAndOrder )
-        },
-        "linkInfoDetails": {
-            "responseSummary": compiledTemplate( oHelp.linkInfoDetails.responseSummary ),
-            "load": compiledTemplate( oHelp.linkInfoDetails.load ),
-            "linkServers": compiledTemplate( oHelp.linkInfoDetails.linkServers ),
-            "unknownList": compiledTemplate( oHelp.linkInfoDetails.unknownList ),
-            "searchAndOrder": compiledTemplate( oHelp.linkInfoDetails.searchAndOrder )
-        },
-        "inspector": {
-        	"list": compiledTemplate( oHelp.inspector.list ),
-        	"heap": compiledTemplate( oHelp.inspector.heap ),
-        	"permGen": compiledTemplate( oHelp.inspector.permGen ),
-        	"cpuUsage": compiledTemplate( oHelp.inspector.cpuUsage )
-        },
-        "callTree" : {
-        	"column": compiledTemplate( oHelp.callTree.column )
-        },
-        "transactionTable" : {
-        	"log":  compiledTemplate( oHelp.transactionTable.log )
-        }
-	});
-
+	pinpointApp.constant('helpContent-ko', oHelp );
 })();

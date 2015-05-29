@@ -5,7 +5,7 @@
 	    agentGroupUrl: '/getAgentList.pinpoint'
 	});
 	
-	pinpointApp.directive('agentListDirective', [ 'agentListConfig', '$rootScope', 'helpContentService', function (cfg, $rootScope, helpContentService) {
+	pinpointApp.directive('agentListDirective', [ 'agentListConfig', '$rootScope', 'helpContentTemplate', 'helpContentService', function (cfg, $rootScope, helpContentTemplate, helpContentService) {
 	    return {
 	        restrict: 'EA',
 	        replace: true,
@@ -88,7 +88,7 @@
 	            });
 	            jQuery('.agentListTooltip').tooltipster({
                 	content: function() {
-                		return helpContentService.inspector.list;
+                		return helpContentTemplate(helpContentService.inspector.list);
                 	},
                 	position: "bottom",
                 	trigger: "click"
