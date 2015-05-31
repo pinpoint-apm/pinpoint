@@ -38,7 +38,11 @@ public class JsonLibJSONArrayIT {
         Method fromObject = JSONArray.class.getMethod("fromObject", Object.class);
         Method toArray = JSONArray.class.getMethod("toArray", JSONArray.class);
         Method toString = JSONArray.class.getMethod("toString");
-        Method toCollection = JSONArray.class.getMethod("toCollection", JSONArray.class);
+	// JSONArray.toCollection() is added in json-lib 2.2. so check toCollection in JSONArray 
+	Method toCollection = null;
+        try{
+	        toCollection = JSONArray.class.getMethod("toCollection", JSONArray.class);
+	} catch (NoSuchMethodException e) {}
         Method toList = JSONArray.class.getMethod("toList", JSONArray.class);
 
         String test = "[{'string':'JSON'}]";
@@ -47,7 +51,9 @@ public class JsonLibJSONArrayIT {
         // JSONArray.toArray() of json-lib 2.0 and below have different return type. so we invoke it by reflection to avoid NoSuchMethodError
         toArray.invoke(null, jsn);
         jsn.toString();
-        toCollection.invoke(null, jsn);
+        if (toCollection != null){
+            toCollection.invoke(null, jsn);
+        }
         toList.invoke(null, jsn);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
@@ -57,7 +63,9 @@ public class JsonLibJSONArrayIT {
         verifier.verifyApi("JSON-LIB", fromObject);
         verifier.verifyApi("JSON-LIB", toArray);
         verifier.verifyApi("JSON-LIB", toString);
-        verifier.verifyApi("JSON-LIB", toCollection);
+	if (toCollection != null){
+            verifier.verifyApi("JSON-LIB", toCollection);
+        }
         verifier.verifyApi("JSON-LIB", toList);
         
         verifier.verifyTraceBlockCount(0);

@@ -14,6 +14,8 @@
  */
 package com.navercorp.pinpoint.plugin.json_lib;
 
+import static com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation.*;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
@@ -55,7 +57,6 @@ public class JsonLibJSONSerializerIT {
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
         
-
         verifier.verifyApi("JSON-LIB", toJSON);
         verifier.verifyApi("JSON-LIB", toJava);
         verifier.verifyTraceBlockCount(0);
