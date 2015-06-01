@@ -28,12 +28,12 @@ import com.navercorp.pinpoint.plugin.gson.GsonPlugin;
  *
  * @author ChaYoung You
  */
-public class ToJsonInterceptor implements SimpleAroundInterceptor {
+public class FromJsonInterceptor implements SimpleAroundInterceptor {
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
 
-    public ToJsonInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public FromJsonInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
     }
@@ -69,8 +69,8 @@ public class ToJsonInterceptor implements SimpleAroundInterceptor {
             trace.recordApi(descriptor);
             trace.recordException(throwable);
 
-            if (result != null && result instanceof String) {
-                trace.recordAttribute(GsonPlugin.GSON_ANNOTATION_KEY_JSON_LENGTH, ((String) result).length());
+            if (args.length >= 1 && args[0] instanceof String) {
+                trace.recordAttribute(GsonPlugin.GSON_ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
             }
 
             trace.markAfterTime();
