@@ -100,7 +100,7 @@ These files are located under `WEB-INF/classes/` inside the war file.
 You may take a look at the default configuration files here: [pinpoint-collector.properties](../collector/src/main/resources/pinpoint-collector.properties), [hbase.properties](../collector/src/main/resources/hbase.properties)
 
 ## Pinpoint Web
-Download the [**latest release**](https://github.com/naver/pinpoint/releases/latest) of Pinpoint Web from GitHub or **build pinpoint-web** manually from the Git clone using `mvn package`. Either way, you should end up with the following **war** file that can be deployed to a web container.
+Download the [**latest release**](https://github.com/naver/pinpoint/releases/latest) of Pinpoint Web from GitHub or **build pinpoint-web** manually from the Git clone using `mvn package`. Either way, you should end up with the following **war** file that can be deployed to a web container. $PINPOINT/web/target/pinpoint-web-$VERSION.war
 
 *pinpoint-web-$VERSION.war*
 
