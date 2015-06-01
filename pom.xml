@@ -787,7 +787,7 @@
                 <configuration>
                     <includesTestSourceRoots>true</includesTestSourceRoots>
                     <licenseLocation>clover.license</licenseLocation>
-                    <encoding>UTF-8</encoding>
+                    <encoding>${encoding}</encoding>
                     <jdk>1.6</jdk>
                 </configuration>
             </plugin>
