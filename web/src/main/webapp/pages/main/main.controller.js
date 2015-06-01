@@ -15,8 +15,8 @@
 	        $window.htoScatter = {};
 	        bNodeSelected = true;
 	        //$scope.bShowHelpIcons = false;
-	        bNoData = true;
-	        $scope.sidebarLoading = false;
+	        bNoData = false;
+	        $scope.sidebarLoading = true;
 	
 	        /**
 	         * bootstrap
@@ -84,7 +84,7 @@
 	         * get main container class
 	         */
 	        $scope.getMainContainerClass = function () {
-	            return bNoData ? 'no-data' : '';
+	        	return bNoData ? 'no-data' : '';
 	        };
 	
 	        /**
@@ -124,6 +124,7 @@
 	         * scope event on navbarDirective.changed
 	         */
 	        $scope.$on('navbarDirective.changed', function (event, navbarVo) {
+	        	bNoData = false;
 	            oNavbarVoService = navbarVo;
 	            changeLocation(oNavbarVoService);
 	            $window.htoScatter = {};
