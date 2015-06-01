@@ -54,8 +54,8 @@ public abstract class AsyncEchoTestServer<T extends AbstractNonblockingServer> e
                 "THRIFT_SERVER", // ServiceType,
                 "Thrift Server Invocation", // Method
                 "com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo", // rpc
-                null, // endPoint (could be SERVER_IP:SERVER_PORT, but SERVER_IP is may be resolved as 0.0.0.0 or 127.0.0.1)
-                SERVER_IP, // remoteAddress
+                SERVER_ADDRESS.getHostName() + ":" + SERVER_ADDRESS.getPort(), // endPoint
+                SERVER_ADDRESS.getHostName(), // remoteAddress
                 null // destinationId
         );
     }

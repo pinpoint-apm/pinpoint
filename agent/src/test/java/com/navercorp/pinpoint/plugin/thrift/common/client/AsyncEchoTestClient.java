@@ -105,7 +105,7 @@ public class AsyncEchoTestClient implements EchoTestClient {
                 null, // rpc
                 null, // endPoint
                 null, // remoteAddress
-                SERVER_IP + ":" + SERVER_PORT, // destinationId
+                SERVER_ADDRESS.getHostName() + ":" + SERVER_ADDRESS.getPort(), // destinationId
                 thriftUrl // Annotation("thrift.url")
         );
         
