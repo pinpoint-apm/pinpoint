@@ -25,7 +25,8 @@ public class JsonLibTypeProvider implements TraceMetadataProvider {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(JsonLibConstants.SERVICE_TYPE); 
+        context.addServiceType(JsonLibConstants.SERVICE_TYPE);
+        context.addAnnotationKey(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH);	
     }
 
 }

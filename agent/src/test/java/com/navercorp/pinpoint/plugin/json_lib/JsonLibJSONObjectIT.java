@@ -39,17 +39,20 @@ public class JsonLibJSONObjectIT {
 
         JSONObject jsn = JSONObject.fromObject(test);
         JSONObject.toBean(jsn);	
-        
+        jsn.toString();
+
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
         
         Method fromObject = JSONObject.class.getMethod("fromObject", Object.class);
         Method toBean = JSONObject.class.getMethod("toBean", JSONObject.class);
+        Method toString  = JSONObject.class.getMethod("toString");
 
         verifier.verifyApi("JSON-LIB", fromObject);
         verifier.verifyApi("JSON-LIB", toBean);
-        
+        verifier.verifyApi("JSON-LIB", toString);
+
         verifier.verifyTraceBlockCount(0);
     }
 }
