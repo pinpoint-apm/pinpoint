@@ -36,11 +36,11 @@ Pinpoint uses HBase as its storage backend for the Collector and the Web.
 
 To set up your own cluster, take a look at the [HBase website](http://hbase.apache.org) for instructions. The HBase compatibility table is given below:
 
-Pinpoint Version | HBase 0.94.x | HBase 0.96.x | HBase 0.98.x | HBase 1.0.x
----------------- | ------------ | ------------ | ------------ | -----------
+Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.1.x
+---------------- | ------------ | ------------ | ----------- | -----------
 1.0.x | yes | no | no | no 
-1.1.x | no | not tested | not tested | yes 
-1.5.x | no | not tested | not tested | yes
+1.1.x | no | not tested | yes | not tested
+1.5.x | no | not tested | yes | not tested
 
 Once you have HBase up and running, make sure the Collector and the Web are configured properly and are able to connect to HBase.
 
