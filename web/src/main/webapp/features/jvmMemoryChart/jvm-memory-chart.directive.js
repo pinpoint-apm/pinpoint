@@ -129,7 +129,8 @@
                                 "startOnAxis": true,
                                 "gridPosition": "start",
                                 "labelFunction": function (valueText, serialDataItem, categoryAxis) {
-                                    return new Date(valueText).toString('HH:mm:ss');
+                                	return valueText.substring( valueText.indexOf( " " ) + 1 );
+                                    //return new Date(valueText).toString('HH:mm:ss');
                                 }
                             }
                         };
