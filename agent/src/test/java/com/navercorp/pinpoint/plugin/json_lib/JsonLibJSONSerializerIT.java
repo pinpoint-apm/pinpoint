@@ -37,6 +37,13 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 @Dependency({"net.sf.json-lib:json-lib:jar:jdk15:[1.0,)"})
 public class JsonLibJSONSerializerIT {
 
+    private static final String test = "{'string':'JSON'}";
+    private static final String json = JSONSerializer.toJSON(test).toString();
+    private static final String serviceType = "JSON-LIB";
+    private static final String annotationKeyName = "json-lib.json.length";
+    // "Pinpoint"
+    private static final PluginTestVerifier.ExpectedAnnotation toJSONAnnotation = annotation(annotationKeyName, json.length());
+
     @Test
     public void test() throws Exception {
         Method toJSON = JSONSerializer.class.getMethod("toJSON", Object.class);
@@ -57,8 +64,8 @@ public class JsonLibJSONSerializerIT {
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
         
-        verifier.verifyApi("JSON-LIB", toJSON);
-        verifier.verifyApi("JSON-LIB", toJava);
+        verifier.verifyTraceBlock(PluginTestVerifier.BlockType.EVENT, serviceType, toJSON, null, null, null, null, toJSONAnnotation);
+	verifier.verifyApi("JSON-LIB", toJava);
         verifier.verifyTraceBlockCount(0);
     }
 }

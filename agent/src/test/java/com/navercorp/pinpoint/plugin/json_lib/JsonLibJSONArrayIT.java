@@ -14,6 +14,8 @@
  */
 package com.navercorp.pinpoint.plugin.json_lib;
 
+import static com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation.*;
+
 import java.lang.reflect.Method;
 
 import net.sf.json.JSONArray;
@@ -32,6 +34,15 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 @RunWith(PinpointPluginTestSuite.class)
 @Dependency({"net.sf.json-lib:json-lib:jar:jdk15:[1.0,)"})
 public class JsonLibJSONArrayIT {
+
+    private static final String test = "[{'string':'JSON'}]";
+    private static final String json = JSONArray.fromObject(test).toString();
+    private static final String serviceType = "JSON-LIB";
+    private static final String annotationKeyName = "json-lib.json.length";
+    // "Pinpoint"
+    private static final PluginTestVerifier.ExpectedAnnotation fromObjectAnnotation = annotation(annotationKeyName, json.length());
+    // "Pinpoint"
+    private static final PluginTestVerifier.ExpectedAnnotation toStringAnnotation = annotation(annotationKeyName, json.length());
 
     @Test
     public void jsonToArrayTest() throws Exception {
@@ -59,11 +70,11 @@ public class JsonLibJSONArrayIT {
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
-        
-        verifier.verifyApi("JSON-LIB", fromObject);
+
+	verifier.verifyTraceBlock(PluginTestVerifier.BlockType.EVENT, serviceType, fromObject, null, null, null, null, fromObjectAnnotation);
         verifier.verifyApi("JSON-LIB", toArray);
-        verifier.verifyApi("JSON-LIB", toString);
-	if (toCollection != null){
+        verifier.verifyTraceBlock(PluginTestVerifier.BlockType.EVENT, serviceType, toString, null, null, null, null, toStringAnnotation);
+        if (toCollection != null){
             verifier.verifyApi("JSON-LIB", toCollection);
         }
         verifier.verifyApi("JSON-LIB", toList);
