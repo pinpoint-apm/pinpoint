@@ -95,8 +95,8 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
     }
 
     @Override
-    public MethodTransformerBuilder editMethods(MethodFilter filter) {
-        DefaultMethodEditorBuilder builder = new DefaultMethodEditorBuilder(filter);
+    public MethodTransformerBuilder editMethods(MethodFilter... filters) {
+        DefaultMethodEditorBuilder builder = new DefaultMethodEditorBuilder(filters);
         recipeBuilders.add(builder);
         return builder;
     }
@@ -215,7 +215,7 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
     public class DefaultMethodEditorBuilder implements MethodTransformerBuilder, ConstructorTransformerBuilder, RecipeBuilder<ClassRecipe> {
         private final String methodName;
         private final String[] parameterTypeNames;
-        private final MethodFilter filter;
+        private final MethodFilter[] filters;
         private final List<RecipeBuilder<MethodRecipe>> recipeBuilders = new ArrayList<RecipeBuilder<MethodRecipe>>();
         private final EnumSet<MethodTransformerProperty> properties = EnumSet.noneOf(MethodTransformerProperty.class);
         private MethodTransformerExceptionHandler exceptionHandler;
@@ -223,19 +223,19 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
         private DefaultMethodEditorBuilder(String... parameterTypeNames) {
             this.methodName = null;
             this.parameterTypeNames = parameterTypeNames;
-            this.filter = null;
+            this.filters = null;
         }
         
         private DefaultMethodEditorBuilder(String methodName, String... parameterTypeNames) {
             this.methodName = methodName;
             this.parameterTypeNames = parameterTypeNames;
-            this.filter = null;
+            this.filters = null;
         }
 
-        private DefaultMethodEditorBuilder(MethodFilter filter) {
+        private DefaultMethodEditorBuilder(MethodFilter[] filters) {
             this.methodName = null;
             this.parameterTypeNames = null;
-            this.filter = filter;
+            this.filters = filters;
         }
         
         @Override
@@ -265,8 +265,8 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
 
         private MethodTransformer buildMethodEditor(List<MethodRecipe> recipes) {
             MethodTransformer transformer;
-            if (filter != null) {
-                transformer = new FilteringMethodTransformer(filter, recipes, exceptionHandler);
+            if (filters != null && filters.length > 0) {
+                transformer = new FilteringMethodTransformer(filters, recipes, exceptionHandler);
             } else if (methodName != null) {
                 transformer = new DedicatedMethodTransformer(methodName, parameterTypeNames, recipes, exceptionHandler, properties.contains(MethodTransformerProperty.IGNORE_IF_NOT_EXIST));
             } else {
