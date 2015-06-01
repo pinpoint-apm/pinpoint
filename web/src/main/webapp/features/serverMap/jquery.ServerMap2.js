@@ -178,6 +178,7 @@
                     allowDelete: false
                 }
             );
+            this._oDiagram.animationManager.isEnabled = false;
         },
 
         /**
