@@ -58,7 +58,7 @@ public abstract class SyncEchoTestClient implements EchoTestClient {
         Method sendBase = TServiceClient.class.getDeclaredMethod("sendBase", String.class, TBase.class);
         // refer to com.navercorp.pinpoint.plugin.thrift.ThriftUtils#getClientServiceName
         ExpectedAnnotation thriftUrl = ExpectedAnnotation.annotation("thrift.url",
-                SERVER_IP + ":" + SERVER_PORT + "/com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo");
+                SERVER_ADDRESS.getHostName() + ":" + SERVER_ADDRESS.getPort() + "/com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo");
         ExpectedAnnotation thriftArgs = ExpectedAnnotation.annotation("thrift.args", "echo_args(message:" + expectedMessage + ")");
         verifier.verifyTraceBlock(
                 BlockType.EVENT, // BlockType
