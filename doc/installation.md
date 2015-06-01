@@ -54,32 +54,44 @@ To run these scripts, feed them into the HBase shell like below:
 See [here](../scripts/) for a complete list of scripts.
 
 ## Building Pinpoint
-In order to build Pinpoint, the following **requirements** must be met:
 
-* JDK 6 installed
-* JDK 7+ installed
-* Maven 3.2.x+ installed
-* JAVA_6_HOME environment variable set to JDK 6 home directory.
-* JAVA_7_HOME environment variable set to JDK 7+ home directory.
+There are two ways to build Pinpoint:
 
-JDK 7+ and JAVA_7_HOME environment variable are required to build **profiler-optional**. For more information about the optional package, please take a look [here](../profiler-optional/README.md).
+1. Download (and unzip) the build results from our [**latest release**](https://github.com/naver/pinpoint/releases/latest).
 
-Additionally, the required Java version to run each Pinpoint component is given below:
+2. Build Pinpoint manually from the Git clone. In order to do so, the following **requirements** must be met:
 
-Pinpoint Version | Agent | Collector | Web
----------------- | ----- | --------- | ---
-1.0.x | 6+ | 6+ | 6+
-1.1.x | 6+ | 7+ | 7+
-1.5.x | 6+ | 7+ | 7+
+	* JDK 6 installed
+	* JDK 7+ installed
+	* Maven 3.2.x+ installed
+	* JAVA_6_HOME environment variable set to JDK 6 home directory.
+	* JAVA_7_HOME environment variable set to JDK 7+ home directory.
 
-Once the above requirements are met, simply run the command below :
+	JDK 7+ and JAVA_7_HOME environment variable are required to build **profiler-optional**. For more information about the optional package, please take a look [here](../profiler-optional/README.md).
 
-`mvn install -Dmaven.test.skip=true`
+	Additionally, the required Java version to run each Pinpoint component is given below:
+
+	Pinpoint Version | Agent | Collector | Web
+	---------------- | ----- | --------- | ---
+	1.0.x | 6+ | 6+ | 6+
+	1.1.x | 6+ | 7+ | 7+
+	1.5.x | 6+ | 7+ | 7+
+
+	Once the above requirements are met, simply run the command below :
+
+	`mvn install -Dmaven.test.skip=true`
+	
+	The guide will refer to the full path of the pinpoint home directory as `$PINPOINT_PATH`.
+
+	
+Regardless of your method, you should end up with the files and directories mentioned in the following sections.
 
 ## Pinpoint Collector
-Download the [**latest release**](https://github.com/naver/pinpoint/releases/latest) of Pinpoint Collector from GitHub or **build pinpoint-collector** manually from the Git clone using `mvn package`. Either way, you should end up with the following **war** file that can be deployed to a web container.
+You should have the following **war** file that can be deployed to a web container. 
 
 *pinpoint-collector-$VERSION.war*
+
+The path to this file should look like *$PINPOINT_PATH/collector/target/pinpoint-collector-$VERSION.war* if you built it manually. 
 
 ### Installation
 Since Pinpoint Collector is packaged as a deployable war file, you may deploy them to a web container as you would any other web applications.
@@ -100,9 +112,11 @@ These files are located under `WEB-INF/classes/` inside the war file.
 You may take a look at the default configuration files here: [pinpoint-collector.properties](../collector/src/main/resources/pinpoint-collector.properties), [hbase.properties](../collector/src/main/resources/hbase.properties)
 
 ## Pinpoint Web
-Download the [**latest release**](https://github.com/naver/pinpoint/releases/latest) of Pinpoint Web from GitHub or **build pinpoint-web** manually from the Git clone using `mvn package`. Either way, you should end up with the following **war** file that can be deployed to a web container.
+You should have the following **war** file that can be deployed to a web container.
 
 *pinpoint-web-$VERSION.war*
+
+The path to this file should look like *$PINPOINT_PATH/web/target/pinpoint-web-$VERSION.war* if you built it manually.
 
 ### Installation
 Since Pinpoint Web is packaged as a deployable war file, you may deploy them to a web container as you would any other web applications.
@@ -121,7 +135,7 @@ These files are located under `WEB-INF/classes/` inside the war file.
 You may take a look at the default configuration files here: [pinpoint-web.properties](../web/src/main/resources/pinpoint-web.properties), [hbase.properties](../web/src/main/resources/hbase.properties)
 
 ## Pinpoint Agent
-Download and unzip the [**latest release**](https://github.com/naver/pinpoint/releases/latest) of Pinpoint Agent from GitHub or **build pinpoint-agent** manually from the GitHub clone using `mvn package`. Either way, you should end up with **pinpoint-agent** directory with the layout below :
+You should have a **pinpoint-agent** directory with the layout below :
 
 ```
 pinpoint-agent
@@ -136,6 +150,7 @@ pinpoint-agent
 |-- pinpoint-bootstrap-$VERSION.jar
 |-- pinpoint.config
 ```
+The path to this directory should look like *$PINPOINT_PATH/agent/target/pinpoint-agent* if you built it manually.
 
 You may move/extract the contents of **pinpoint-agent** directory to any location of your choice. The guide will refer to the full path of this directory as `$AGENT_PATH`.
 
