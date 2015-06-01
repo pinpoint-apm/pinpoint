@@ -28,12 +28,12 @@ import com.navercorp.pinpoint.plugin.json_lib.JsonLibConstants;
  *
  * @author Sangyoon Lee
  */
-public class ParsingInterceptor implements SimpleAroundInterceptor {
+public class ToStringInterceptor implements SimpleAroundInterceptor {
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
 
-    public ParsingInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public ToStringInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
     }
@@ -68,11 +68,7 @@ public class ParsingInterceptor implements SimpleAroundInterceptor {
             trace.recordServiceType(JsonLibConstants.SERVICE_TYPE);
             trace.recordApi(descriptor);
             trace.recordException(throwable);
-            
-            if (args.length > 0 && args[0] instanceof String) {
-                trace.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
-            }
-            
+            trace.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) result).length());
             trace.markAfterTime();
         } finally {
             trace.traceBlockEnd();

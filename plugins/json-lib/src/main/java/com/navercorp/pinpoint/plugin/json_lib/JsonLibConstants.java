@@ -12,12 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.json.lib;
+package com.navercorp.pinpoint.plugin.json_lib;
 
 import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
 
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
