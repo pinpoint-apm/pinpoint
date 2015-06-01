@@ -97,7 +97,7 @@ public class AsyncEchoTestClient implements EchoTestClient {
         // SpanEvent - TAsyncMethodCall.doWritingRequestBody
         Method doWritingRequestBody = TAsyncMethodCall.class.getDeclaredMethod("doWritingRequestBody", SelectionKey.class);
         ExpectedAnnotation thriftUrl = ExpectedAnnotation.annotation(
-                "thrift.url", SERVER_IP + ":" + SERVER_PORT + "/com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo_call");
+                "thrift.url", SERVER_ADDRESS.getHostName() + ":" + SERVER_ADDRESS.getPort() + "/com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo_call");
         verifier.verifyTraceBlock(
                 BlockType.EVENT, // BlockType
                 "THRIFT_CLIENT", // ServiceType
