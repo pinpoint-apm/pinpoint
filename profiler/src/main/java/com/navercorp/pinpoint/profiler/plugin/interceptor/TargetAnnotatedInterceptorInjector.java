@@ -139,7 +139,7 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
         MethodFilter filter = (MethodFilter)filterFactory.createInstance(ObjectRecipe.byConstructor(type, (Object[])annotation.constructorArguments()));
         MethodRecipe recipe = annotation.singleton() ? new SharedAnnotatedInterceptorInjector(injector) : injector;
         
-        return new FilteringMethodTransformer(filter, Arrays.<MethodRecipe>asList(recipe), null);
+        return new FilteringMethodTransformer(new MethodFilter[] { filter }, Arrays.<MethodRecipe>asList(recipe), null);
     }
 
     @Override

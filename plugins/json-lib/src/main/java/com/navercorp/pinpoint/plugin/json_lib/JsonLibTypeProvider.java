@@ -12,19 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.json.lib;
+package com.navercorp.pinpoint.plugin.json_lib;
 
-import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
-
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
+import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
 /**
  * @author Sangyoon Lee
  *
  */
-public interface JsonLibConstants {
-    public static final ServiceType SERVICE_TYPE = ServiceType.of(5012, "JSON-LIB", NORMAL_SCHEMA);
-    public static final AnnotationKey JSON_LIB_ANNOTATION_KEY_JSON_LENGTH = new AnnotationKey(9002, "json-lib.json.length");
+public class JsonLibTypeProvider implements TraceMetadataProvider {
+
+    @Override
+    public void setup(TraceMetadataSetupContext context) {
+        context.addServiceType(JsonLibConstants.SERVICE_TYPE);
+        context.addAnnotationKey(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH);	
+    }
+
 }

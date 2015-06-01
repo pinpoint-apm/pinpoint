@@ -17,6 +17,8 @@ package com.navercorp.pinpoint.plugin.json_lib;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation.*;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.sf.json.JSONObject;
 
@@ -32,25 +34,18 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  *@author Sangyoon Lee
  */
 @RunWith(PinpointPluginTestSuite.class)
-@Dependency({"net.sf.json-lib:json-lib:jar:jdk15:[1.0,)"})
+@Dependency({"net.sf.json-lib:json-lib:jar:jdk15:(,)"})
 public class JsonLibJSONObjectIT {
 
-    private static final String test = "{'string':'JSON'}";
-    private static final String json = JSONObject.fromObject(test).toString();
-    private static final String serviceType = "JSON-LIB";
-    private static final String annotationKeyName = "json-lib.json.length";
-    // "Pinpoint"
-    private static final PluginTestVerifier.ExpectedAnnotation fromObjectAnnotation = annotation(annotationKeyName, json.length());
-    // "Pinpoint"
-    private static final PluginTestVerifier.ExpectedAnnotation toStringAnnotation = annotation(annotationKeyName, json.length());
+    private static final String SERVICE_TYPE = "JSON-LIB";
+    private static final String ANNOTATION_KEY = "json-lib.json.length";
 
     @Test
     public void jsonToBeanTest() throws Exception {
-        String test = "{'string':'JSON'}";
+        String json = "{'string':'JSON'}";
 
-        JSONObject jsn = JSONObject.fromObject(test);
-        JSONObject.toBean(jsn);	
-        jsn.toString();
+        JSONObject jsonObject = JSONObject.fromObject(json);
+        JSONObject.toBean(jsonObject);	
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache(System.out);
@@ -58,11 +53,33 @@ public class JsonLibJSONObjectIT {
         
         Method fromObject = JSONObject.class.getMethod("fromObject", Object.class);
         Method toBean = JSONObject.class.getMethod("toBean", JSONObject.class);
+
+        verifier.verifyTraceBlock(PluginTestVerifier.BlockType.EVENT, SERVICE_TYPE, fromObject, null, null, null, null, annotation(ANNOTATION_KEY, json.length()));
+        verifier.verifyApi("JSON-LIB", toBean);
+
+        verifier.verifyTraceBlockCount(0);
+    }
+    
+    
+    @Test
+    public void mapToJsonTest() throws Exception {
+        Map<String, Object> map = new HashMap<String, Object>();
+        
+        map.put("name", "pinpoint");
+        map.put("lib", "json-lib");
+
+        JSONObject jsonObject = JSONObject.fromObject(map);
+        String json = jsonObject.toString();
+
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printCache(System.out);
+        verifier.printBlocks(System.out);
+        
+        Method fromObject = JSONObject.class.getMethod("fromObject", Object.class);
         Method toString  = JSONObject.class.getMethod("toString");
 
-        verifier.verifyTraceBlock(PluginTestVerifier.BlockType.EVENT, serviceType, fromObject, null, null, null, null, fromObjectAnnotation);
-        verifier.verifyApi("JSON-LIB", toBean);
-        verifier.verifyTraceBlock(PluginTestVerifier.BlockType.EVENT, serviceType, toString, null, null, null, null, toStringAnnotation);
+        verifier.verifyApi(SERVICE_TYPE, fromObject);
+        verifier.verifyTraceBlock(PluginTestVerifier.BlockType.EVENT, SERVICE_TYPE, toString, null, null, null, null, annotation(ANNOTATION_KEY, json.length()));
 
         verifier.verifyTraceBlockCount(0);
     }

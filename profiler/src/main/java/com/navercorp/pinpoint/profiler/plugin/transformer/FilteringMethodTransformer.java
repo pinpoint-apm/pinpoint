@@ -34,8 +34,8 @@ public class FilteringMethodTransformer implements MethodTransformer {
     private final List<MethodRecipe> recipes;
     private final MethodTransformerExceptionHandler exceptionHandler; 
 
-    public FilteringMethodTransformer(MethodFilter filter, List<MethodRecipe> recipes, MethodTransformerExceptionHandler handler) {
-        this.filter = filter;
+    public FilteringMethodTransformer(MethodFilter[] filters, List<MethodRecipe> recipes, MethodTransformerExceptionHandler handler) {
+        this.filter = filters.length == 1 ? filters[0] : new AndFilter(filters);
         this.recipes = recipes;
         this.exceptionHandler = handler;
     }
@@ -73,5 +73,24 @@ public class FilteringMethodTransformer implements MethodTransformer {
         
         builder.append(']');
         return builder.toString();
+    }
+    
+    private static final class AndFilter implements MethodFilter {
+        private final MethodFilter[] filters;
+
+        public AndFilter(MethodFilter[] filters) {
+            this.filters = filters;
+        }
+
+        @Override
+        public boolean filter(MethodInfo method) {
+            for (MethodFilter filter : filters) {
+                if (filter.filter(method)) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
     }
 }

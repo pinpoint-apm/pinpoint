@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.json.lib.interceptor;
+package com.navercorp.pinpoint.plugin.json_lib.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -21,21 +21,19 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.plugin.json.lib.JsonLibConstants;
-
-import java.lang.reflect.Type;
+import com.navercorp.pinpoint.plugin.json_lib.JsonLibConstants;
 
 /**
  * JsonLib method interceptor
  *
  * @author Sangyoon Lee
  */
-public class JsonLibMethodInterceptor implements SimpleAroundInterceptor {
+public class ParsingInterceptor implements SimpleAroundInterceptor {
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
 
-    public JsonLibMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public ParsingInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
     }
@@ -70,20 +68,11 @@ public class JsonLibMethodInterceptor implements SimpleAroundInterceptor {
             trace.recordServiceType(JsonLibConstants.SERVICE_TYPE);
             trace.recordApi(descriptor);
             trace.recordException(throwable);
-            if (descriptor.getMethodName().equals("toString")){
-		    
-               trace.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) result).length());
-	    } else if (descriptor.getMethodName().equals("fromObject")) {
-                
-                if (args.length == 1 && args[0] instanceof String) {
-                    trace.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
-                }
-            } else if (descriptor.getMethodName().equals("toJSON")) {
-                
-                if (args.length == 1 && args[0] instanceof String) {
-                    trace.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
-                }
+            
+            if (args.length > 0 && args[0] instanceof String) {
+                trace.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
             }
+            
             trace.markAfterTime();
         } finally {
             trace.traceBlockEnd();
