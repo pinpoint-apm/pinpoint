@@ -14,6 +14,8 @@
  */
 package com.navercorp.pinpoint.plugin.json_lib;
 
+import static com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation.*;
+
 import java.lang.reflect.Method;
 
 import net.sf.json.JSONObject;
@@ -33,6 +35,15 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 @Dependency({"net.sf.json-lib:json-lib:jar:jdk15:[1.0,)"})
 public class JsonLibJSONObjectIT {
 
+    private static final String test = "{'string':'JSON'}";
+    private static final String json = JSONObject.fromObject(test).toString();
+    private static final String serviceType = "JSON-LIB";
+    private static final String annotationKeyName = "json-lib.json.length";
+    // "Pinpoint"
+    private static final PluginTestVerifier.ExpectedAnnotation fromObjectAnnotation = annotation(annotationKeyName, json.length());
+    // "Pinpoint"
+    private static final PluginTestVerifier.ExpectedAnnotation toStringAnnotation = annotation(annotationKeyName, json.length());
+
     @Test
     public void jsonToBeanTest() throws Exception {
         String test = "{'string':'JSON'}";
@@ -49,9 +60,9 @@ public class JsonLibJSONObjectIT {
         Method toBean = JSONObject.class.getMethod("toBean", JSONObject.class);
         Method toString  = JSONObject.class.getMethod("toString");
 
-        verifier.verifyApi("JSON-LIB", fromObject);
+        verifier.verifyTraceBlock(PluginTestVerifier.BlockType.EVENT, serviceType, fromObject, null, null, null, null, fromObjectAnnotation);
         verifier.verifyApi("JSON-LIB", toBean);
-        verifier.verifyApi("JSON-LIB", toString);
+        verifier.verifyTraceBlock(PluginTestVerifier.BlockType.EVENT, serviceType, toString, null, null, null, null, toStringAnnotation);
 
         verifier.verifyTraceBlockCount(0);
     }

@@ -25,8 +25,6 @@ import com.navercorp.pinpoint.plugin.json.lib.JsonLibConstants;
 
 import java.lang.reflect.Type;
 
-import net.sf.json.JSON;
-
 /**
  * JsonLib method interceptor
  *
@@ -72,6 +70,20 @@ public class JsonLibMethodInterceptor implements SimpleAroundInterceptor {
             trace.recordServiceType(JsonLibConstants.SERVICE_TYPE);
             trace.recordApi(descriptor);
             trace.recordException(throwable);
+            if (descriptor.getMethodName().equals("toString")){
+		    
+               trace.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) result).length());
+	    } else if (descriptor.getMethodName().equals("fromObject")) {
+                
+                if (args.length == 1 && args[0] instanceof String) {
+                    trace.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
+                }
+            } else if (descriptor.getMethodName().equals("toJSON")) {
+                
+                if (args.length == 1 && args[0] instanceof String) {
+                    trace.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
+                }
+            }
             trace.markAfterTime();
         } finally {
             trace.traceBlockEnd();
