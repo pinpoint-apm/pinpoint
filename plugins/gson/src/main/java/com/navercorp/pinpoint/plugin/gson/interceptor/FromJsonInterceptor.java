@@ -22,21 +22,18 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.gson.GsonPlugin;
-import com.navercorp.pinpoint.plugin.gson.filter.GsonMethodNames;
-
-import java.lang.reflect.Type;
 
 /**
  * Gson method interceptor
  *
  * @author ChaYoung You
  */
-public class GsonMethodInterceptor implements SimpleAroundInterceptor {
+public class FromJsonInterceptor implements SimpleAroundInterceptor {
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
 
-    public GsonMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public FromJsonInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
     }
@@ -71,15 +68,11 @@ public class GsonMethodInterceptor implements SimpleAroundInterceptor {
             trace.recordServiceType(GsonPlugin.GSON_SERVICE_TYPE);
             trace.recordApi(descriptor);
             trace.recordException(throwable);
-            if (descriptor.getMethodName().equals(GsonMethodNames.FROM_JSON)) {
-                if (args.length >= 1 && args[0] instanceof String) {
-                    trace.recordAttribute(GsonPlugin.GSON_ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
-                }
-            } else if (descriptor.getMethodName().equals(GsonMethodNames.TO_JSON)) {
-                if (args.length == 1 || args.length == 2 && args[1] instanceof Type) {
-                    trace.recordAttribute(GsonPlugin.GSON_ANNOTATION_KEY_JSON_LENGTH, ((String) result).length());
-                }
+
+            if (args.length >= 1 && args[0] instanceof String) {
+                trace.recordAttribute(GsonPlugin.GSON_ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
             }
+
             trace.markAfterTime();
         } finally {
             trace.traceBlockEnd();

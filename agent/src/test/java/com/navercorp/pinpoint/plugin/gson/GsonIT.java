@@ -42,7 +42,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @Dependency({"com.google.code.gson:gson:(,1.7),(1.7,)"})
-public class GsonMethodFilterIT {
+public class GsonIT {
     private static final boolean v1_2;
     private static final boolean v1_6;
     
@@ -70,10 +70,7 @@ public class GsonMethodFilterIT {
     private static final String annotationKeyName = "gson.json.length";
     private static final JsonElement jsonElement = new JsonParser().parse(json);
 
-    // Pinpoint
-    private static final PluginTestVerifier.ExpectedAnnotation fromJsonAnnotation = annotation(annotationKeyName, json.length());
-    // "Pinpoint"
-    private static final PluginTestVerifier.ExpectedAnnotation toJsonAnnotation = annotation(annotationKeyName, json.length());
+    private static final PluginTestVerifier.ExpectedAnnotation expectedAnnotation = annotation(annotationKeyName, json.length());
 
     @Test
     public void test() throws Exception {
@@ -103,11 +100,11 @@ public class GsonMethodFilterIT {
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
 
-        verifyTraceBlockAnnotation(verifier, serviceType, fromJson1, fromJsonAnnotation);
-        verifyTraceBlockAnnotation(verifier, serviceType, fromJson2, fromJsonAnnotation);
+        verifyTraceBlockAnnotation(verifier, serviceType, fromJson1, expectedAnnotation);
+        verifyTraceBlockAnnotation(verifier, serviceType, fromJson2, expectedAnnotation);
 
-        verifyTraceBlockAnnotation(verifier, serviceType, toJson1, toJsonAnnotation);
-        verifyTraceBlockAnnotation(verifier, serviceType, toJson2, toJsonAnnotation);
+        verifyTraceBlockAnnotation(verifier, serviceType, toJson1, expectedAnnotation);
+        verifyTraceBlockAnnotation(verifier, serviceType, toJson2, expectedAnnotation);
 
         // No more traces
         verifier.verifyTraceBlockCount(0);
@@ -127,7 +124,7 @@ public class GsonMethodFilterIT {
          * @see Gson#fromJson(JsonElement, Class)
          * @see Gson#fromJson(JsonElement, Type)
          */
-        gson.fromJson(new StringReader(json), (Class) String.class);
+        gson.fromJson(new StringReader(json), (Class<?>) String.class);
         gson.fromJson(new StringReader(json), (Type) String.class);
         gson.fromJson(jsonElement, String.class);
         gson.fromJson(jsonElement, (Type) String.class);
@@ -164,7 +161,7 @@ public class GsonMethodFilterIT {
 
         verifier.verifyApi(serviceType, toJson3);
         verifier.verifyApi(serviceType, toJson4);
-        verifyTraceBlockAnnotation(verifier, serviceType, toJson6, toJsonAnnotation);
+        verifyTraceBlockAnnotation(verifier, serviceType, toJson6, expectedAnnotation);
         verifier.verifyApi(serviceType, toJson7);
 
         // No more traces

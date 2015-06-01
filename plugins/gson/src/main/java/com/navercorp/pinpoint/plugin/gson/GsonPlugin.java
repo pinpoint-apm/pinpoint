@@ -17,17 +17,12 @@ package com.navercorp.pinpoint.plugin.gson;
 
 import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerExceptionHandler;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.plugin.gson.filter.GsonMethodFilter;
-import com.navercorp.pinpoint.plugin.gson.filter.GsonMethodNames;
 
 /**
  * @author ChaYoung You
@@ -35,25 +30,16 @@ import com.navercorp.pinpoint.plugin.gson.filter.GsonMethodNames;
 public class GsonPlugin implements ProfilerPlugin {
     public static final ServiceType GSON_SERVICE_TYPE = ServiceType.of(5010, "GSON", NORMAL_SCHEMA);
     public static final AnnotationKey GSON_ANNOTATION_KEY_JSON_LENGTH = new AnnotationKey(9000, "gson.json.length");
-    private static final String GSON_CLASS = "com.google.gson.Gson";
-    private static final String GSON_METHODS_INTERCEPTOR = "com.navercorp.pinpoint.plugin.gson.interceptor.GsonMethodInterceptor";
-    private static final String GSON_GROUP = "GSON_GROUP";
 
-    private final PLogger logger = PLoggerFactory.getLogger(getClass());
+    private static final String GSON_GROUP = "GSON_GROUP";
 
     @Override
     public void setup(ProfilerPluginContext context) {
-        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder(GSON_CLASS);
-        final MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethods(new GsonMethodFilter(GsonMethodNames.get()));
-        methodEditorBuilder.exceptionHandler(new MethodTransformerExceptionHandler() {
-            @Override
-            public void handle(String targetClassName, String targetMethodName, String[] targetMethodParameterTypes, Throwable exception) throws Throwable {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("Unsupported method " + targetClassName + "." + targetMethodName, exception);
-                }
-            }
-        });
-        methodEditorBuilder.injectInterceptor(GSON_METHODS_INTERCEPTOR).group(GSON_GROUP);
+        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("com.google.gson.Gson");
+        
+        classEditorBuilder.editMethods(MethodFilters.name("fromJson")).injectInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.FromJsonInterceptor").group(GSON_GROUP);
+        classEditorBuilder.editMethods(MethodFilters.name("toJson")).injectInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.ToJsonInterceptor").group(GSON_GROUP);
+        
         context.addClassFileTransformer(classEditorBuilder.build());
     }
 }
