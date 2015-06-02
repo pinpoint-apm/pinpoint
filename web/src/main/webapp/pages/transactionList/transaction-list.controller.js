@@ -34,17 +34,15 @@
 	            $scope.sidebarLoading = true;
 	
 	            if(!validateParentWindow()) {
-	                if (confirm('Scatter data of parent window had been changed.\r\nso can\'t scan the data any more.\r\nDo you want to close this window?')) {
-	                    $window.close();
-	                }
+	                alert('Scatter data of parent window had been changed.\r\nso can\'t scan the data any more.');
+	                $window.location.replace( $window.location.href.replace( "transactionList", "main" ) );
 	            }
 	
 	            htTransactionInfo = parseWindowName($window.name);
 	
 	            if(!hasScatterByApplicationName(htTransactionInfo.applicationName)) {
-	                if (confirm('There is no ' + htTransactionInfo.applicationName + ' scatter data in parent window.\r\nDo you want to close this window?')) {
-	                    $window.close();
-	                }
+	                alert('There is no ' + htTransactionInfo.applicationName + ' scatter data in parent window.');
+	                $window.location.replace( $window.location.href.replace( "transactionList", "main" ) );
 	            }
 	
 	            htTransactionData = getDataByTransactionInfo(htTransactionInfo);
@@ -70,6 +68,7 @@
 	         * @returns {*}
 	         */
 	        validateParentWindow = function () {
+	        	if ( $window.opener == null ) return false;
 	            var $parentParams = $window.opener.$routeParams;
 	            return angular.isDefined($routeParams) &&
 	                angular.isDefined($parentParams) &&
