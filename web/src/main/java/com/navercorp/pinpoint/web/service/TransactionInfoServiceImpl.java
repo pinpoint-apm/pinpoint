@@ -342,6 +342,10 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             // annotation id has nothing to do with spanAlign's seq and thus may be incremented as long as they don't overlap.
             while (callTreeIterator.hasNext()) {
                 final CallTreeNode node = callTreeIterator.next();
+                if (node == null) {
+                    logger.warn("Corrupt CallTree found : {}", callTreeIterator.toString());
+                    throw new IllegalStateException("CallTree corrupted");
+                }
                 final SpanAlign align = node.getValue();
                 final String argument = getArgument(align);
                 final Record record = factory.get(node, argument);

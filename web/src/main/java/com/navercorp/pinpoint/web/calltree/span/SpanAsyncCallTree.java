@@ -45,7 +45,11 @@ public class SpanAsyncCallTree implements CallTree {
 
     @Override
     public boolean isEmpty() {
-        return getRoot() == null || getRoot().getValue() == null;
+        CallTreeNode root = getRoot();
+        if (root == null) {
+            return true;
+        }
+        return root.getValue() == null;
     }
 
     @Override
