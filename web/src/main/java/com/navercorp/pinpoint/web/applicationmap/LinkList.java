@@ -70,7 +70,7 @@ public class LinkList {
      */
     public List<Link> findFromLink(Application fromApplication) {
         if (fromApplication == null) {
-            throw new NullPointerException("toApplication must not be null");
+            throw new NullPointerException("fromApplication must not be null");
         }
 
         List<Link> findList = new ArrayList<Link>();

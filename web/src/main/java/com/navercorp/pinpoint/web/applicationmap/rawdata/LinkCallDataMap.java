@@ -43,15 +43,13 @@ public class LinkCallDataMap {
         addLinkDataMap(copyLinkCallDataMap);
     }
 
-    public void addCallData(String sourceAgentId, short sourceServiceType, String targetId, short targetServiceType, long timestamp, short slot, long count) {
-        addCallData(sourceAgentId, ServiceType.findServiceType(sourceServiceType), targetId, ServiceType.findServiceType(targetServiceType), timestamp, slot, count);
-    }
 
-    public void addCallData(String sourceAgentId, short sourceServiceType, String targetId, short targetServiceType, Collection<TimeHistogram> timeHistogramList) {
-        LinkKey linkKey = createLinkKey(sourceAgentId, ServiceType.findServiceType(sourceServiceType), targetId, ServiceType.findServiceType(targetServiceType));
+    public void addCallData(String sourceAgentId, ServiceType sourceServiceType, String targetId, ServiceType targetServiceType, Collection<TimeHistogram> timeHistogramList) {
+        LinkKey linkKey = createLinkKey(sourceAgentId, sourceServiceType, targetId, targetServiceType);
         LinkCallData linkCallData = getLinkCallData(linkKey);
         linkCallData.addCallData(timeHistogramList);
     }
+
 
     public void addCallData(String sourceAgentId, ServiceType sourceServiceType, String targetId, ServiceType targetServiceType, long timestamp, short slot, long count) {
         LinkKey linkKey = createLinkKey(sourceAgentId, sourceServiceType, targetId, targetServiceType);
