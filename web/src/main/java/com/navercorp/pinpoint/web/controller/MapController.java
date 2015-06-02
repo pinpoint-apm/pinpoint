@@ -152,8 +152,8 @@ public class MapController {
                                         @RequestParam("applicationName") String applicationName,
                                         @RequestParam("serviceTypeCode") short serviceTypeCode,
                                         @RequestParam("period") long period,
-                                        @RequestParam(value = "callerRange", defaultValue = "64") int callerRange,
-                                        @RequestParam(value = "calleeRange", defaultValue = "64") int calleeRange) {
+                                        @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
+                                        @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange) {
 
         long to = TimeUtils.getDelayLastTime();
         long from = to - period;
@@ -174,8 +174,8 @@ public class MapController {
                                         @RequestParam("applicationName") String applicationName,
                                         @RequestParam("serviceTypeName") String serviceTypeName,
                                         @RequestParam("period") long period,
-                                        @RequestParam(value = "callerRange", defaultValue = "64") int callerRange,
-                                        @RequestParam(value = "calleeRange", defaultValue = "64") int calleeRange) {
+                                        @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
+                                        @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange) {
 
         long to = TimeUtils.getDelayLastTime();
         long from = to - period;
