@@ -108,7 +108,7 @@ public class MapController {
         final Range range = new Range(from, to);
         this.dateLimit.limit(from, to);
 
-        SearchOption searchOption = new SearchOption(callerRange, callerRange);
+        SearchOption searchOption = new SearchOption(callerRange, calleeRange);
         assertSearchOption(searchOption);
 
         logger.info("getServerMap() applicationName:{} range:{} searchOption:{}", applicationName, TimeUnit.MILLISECONDS.toMinutes(range.getRange()), searchOption);
