@@ -76,7 +76,7 @@ public class ErrorRateToCalleCheckerTest {
                         timeHistogramList.add(timeHistogram);
                     }
                     
-                    linkCallDataMap.addCallData(fromApplication.getName(), fromApplication.getServiceType().getCode(), toApplication.getName(), toApplication.getServiceType().getCode(), timeHistogramList);
+                    linkCallDataMap.addCallData(fromApplication.getName(), fromApplication.getServiceType(), toApplication.getName(), toApplication.getServiceType(), timeHistogramList);
                     LinkData linkData = new LinkData(fromApplication, toApplication, linkCallDataMap);
                     linkDataMap.addLinkData(linkData);
                 }

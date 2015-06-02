@@ -62,12 +62,11 @@ public class MapServiceImpl implements MapService {
     @Autowired(required=false)
     private MatcherGroup matcherGroup;
 
-
     /**
      * Used in the main UI - draws the server map by querying the timeslot by time.
      */
     @Override
-    public ApplicationMap selectApplicationMap(Application sourceApplication, Range range) {
+    public ApplicationMap selectApplicationMap(Application sourceApplication, Range range, SearchOption searchOption) {
         if (sourceApplication == null) {
             throw new NullPointerException("sourceApplication must not be null");
         }
@@ -76,16 +75,20 @@ public class MapServiceImpl implements MapService {
         }
         logger.debug("SelectApplicationMap");
 
-        StopWatch watch = new StopWatch("applicationMapWatch");
-        watch.start();
-        LinkDataSelector linkDataSelector = new LinkDataSelector(this.mapStatisticsCalleeDao, this.mapStatisticsCallerDao, hostApplicationMapDao);
-        LinkDataDuplexMap linkDataDuplexMap = linkDataSelector.select(sourceApplication, range);
+        StopWatch watch = new StopWatch("ApplicationMap");
+        watch.start("ApplicationMap Hbase Io Fetch(Caller,Callee) Time");
 
+        LinkSelector linkSelector = new BFSLinkSelector(this.mapStatisticsCallerDao, this.mapStatisticsCalleeDao, hostApplicationMapDao);
+        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(sourceApplication, range, searchOption);
+        watch.stop();
+
+        watch.start("ApplicationMap MapBuilding(Response) Time");
         ApplicationMapBuilder builder = new ApplicationMapBuilder(range, matcherGroup);
         ApplicationMap map = builder.build(linkDataDuplexMap, agentInfoService, this.mapResponseDao);
-
         watch.stop();
-        logger.info("Fetch applicationmap elapsed. {}ms", watch.getLastTaskTimeMillis());
+        if (logger.isInfoEnabled()) {
+            logger.info("ApplicationMap BuildTime: {}", watch.prettyPrint());
+        }
 
         return map;
     }
