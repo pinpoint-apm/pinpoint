@@ -55,11 +55,13 @@ See [here](../scripts/) for a complete list of scripts.
 
 ## Building Pinpoint
 
-There are two ways to build Pinpoint:
+There are two options:
 
-1. Download (and unzip) the build results from our [**latest release**](https://github.com/naver/pinpoint/releases/latest).
+1. Download the build results from our [**latest release**](https://github.com/naver/pinpoint/releases/latest) and skip the building. **Recommended.**
 
-2. Build Pinpoint manually from the Git clone. In order to do so, the following **requirements** must be met:
+2. Build Pinpoint manually from the Git clone.
+	
+	In order to do so, the following **requirements** must be met:
 
 	* JDK 6 installed
 	* JDK 7+ installed
@@ -135,7 +137,7 @@ These files are located under `WEB-INF/classes/` inside the war file.
 You may take a look at the default configuration files here: [pinpoint-web.properties](../web/src/main/resources/pinpoint-web.properties), [hbase.properties](../web/src/main/resources/hbase.properties)
 
 ## Pinpoint Agent
-You should have a **pinpoint-agent** directory with the layout below :
+If downloaded, unzip the Pinpint Agent file. You should have a **pinpoint-agent** directory with the layout below :
 
 ```
 pinpoint-agent
