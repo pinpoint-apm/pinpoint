@@ -48,6 +48,8 @@
 	$at.CLK_PERM_GEN = "ClickPermGen";
 	$at.CLK_CPU_LOAD = "ClickCpuLoad";
 	$at.CLK_REFRESH = "ClickRefresh";
+	$at.CLK_CALLEE_RANGE = "ClickCalleeRange";
+	$at.CLK_CALLER_RANGE = "ClickCallerRange";
 
 	$at.TG_DATE = "ToggleDate";
 	$at.TG_UPDATE_ON = "ToggleUpdateOn";

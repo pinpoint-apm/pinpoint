@@ -1,7 +1,12 @@
-<div class="timeline" style="background-color:#E8E8E8;width:100%;height:100%;overflow:auto;font-size:11px;">
-    <div ng-repeat="stack in timeline.callStack | timeline:key">
-        <div style="cursor:pointer;width:{{stack | timelineWidth:key:barRatio}}px; background-color:#69B2E9; margin-left:{{stack | timelineMarginLeft:key:barRatio:timeline.callStackStart}}px; margin-top:3px;" title="{{stack | json}}" ng-click="moveCallFlow( stack )">
-            <div style="width:200px;">{{stack[key.applicationName]}}/{{stack[key.apiType]}} ({{stack[key.end] - stack[key.begin]}}ms)</div>
+<div class="timeline" style="width:100%;height:100%;overflow:auto;font-size:11px;padding-top:2px;">
+    <div ng-repeat="stack in timeline.callStack | timeline:key" style="border-bottom:1px solid #D3D3D3;font-family:Verdana">
+        <div style="cursor:pointer;width:{{stack | timelineWidth:key:barRatio}}px; background-color:{{getColorByString(stack[key.applicationName])}}; margin-left:{{stack | timelineMarginLeft:key:barRatio:timeline.callStackStart}}px; margin-top:1px;margin-bottom:1px;padding-top:2px;padding-bottom:2px;border-radius:4px" title="{{stack | json}}" ng-click="moveCallFlow( stack )">
+        	<div style="width:100%;padding-left:4px;overflow-x:visible" ng-mouseenter="mouseEnterCallFlow($event)" ng-mouseleave="mouseLeaveCallFlow($event)">
+        		<span style="position:relative;white-space:nowrap;top:0px">
+        			<span style="position:absolute;text-align:right;white-space:nowrap;left:-70px;"><span class="glyphicon glyphicon-resize-horizontal" aria-hidden="true"></span> {{stack | timelineStartTime:key:timeline.callStackStart}}ms</span>
+					{{stack[key.applicationName]}}/{{stack[key.apiType]}}({{stack[key.end] - stack[key.begin]}}ms)
+        		</span>
+        	</div>
         </div>
     </div>
 </div>
