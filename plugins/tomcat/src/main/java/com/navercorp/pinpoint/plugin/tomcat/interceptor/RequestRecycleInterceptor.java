@@ -16,7 +16,6 @@ package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -33,14 +32,11 @@ public class RequestRecycleInterceptor implements SimpleAroundInterceptor, Tomca
 
     private PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    @SuppressWarnings("unused")
-	private TraceContext traceContext;
     private MethodInfo targetMethod;
     private MetadataAccessor traceAccessor;
     private MetadataAccessor asyncAccessor;
 
-    public RequestRecycleInterceptor(TraceContext context, MethodInfo targetMethod, @Name(METADATA_TRACE) MetadataAccessor traceAccessor, @Name(METADATA_ASYNC) MetadataAccessor asyncAccessor) {
-        this.traceContext = context;
+    public RequestRecycleInterceptor(MethodInfo targetMethod, @Name(METADATA_TRACE) MetadataAccessor traceAccessor, @Name(METADATA_ASYNC) MetadataAccessor asyncAccessor) {
         this.targetMethod = targetMethod;
         this.traceAccessor = traceAccessor;
         this.asyncAccessor = asyncAccessor;
