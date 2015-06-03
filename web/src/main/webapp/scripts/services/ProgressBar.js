@@ -80,15 +80,15 @@ pinpointApp.factory('ProgressBar', [ '$timeout', '$window', '$location', 'UserLo
             }
         }.bind(this);
         this.showBackground = function() {
-        	if ( this.$parent ) {
-        		$('.progress-back', this.$parent).show();
-        	}
+//        	if ( this.$parent ) {
+//        		$('.progress-back', this.$parent).show();
+//        	}
         }.bind(this);
         this.showTip = function() {
-        	if ( this.$parent ) {
-        		$('.progress-tip img', this.$parent).attr( "src", "/images/tip/tip" + this._getRandomNum() + "_" + this._getLocale() + ".png");
-        		$('.progress-tip', this.$parent).show();
-        	}
+//        	if ( this.$parent ) {
+//        		$('.progress-tip img', this.$parent).attr( "src", "/images/tip/tip" + this._getRandomNum() + "_" + this._getLocale() + ".png");
+//        		$('.progress-tip', this.$parent).show();
+//        	}
         }.bind(this);
         this._getRandomNum = function() {
         	var num = parseInt( Math.random() * (TIP_MAX_COUNT+1) );
