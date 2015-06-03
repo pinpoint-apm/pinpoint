@@ -21,7 +21,8 @@ package com.navercorp.pinpoint.bootstrap.interceptor;
  */
 public final class InterceptorRegistry {
 
-    private static final LoggingInterceptor LOGGING_INTERCEPTOR = new LoggingInterceptor("com.navercorp.pinpoint.profiler.interceptor.LOGGING_INTERCEPTOR");
+    @SuppressWarnings("unused")
+	private static final LoggingInterceptor LOGGING_INTERCEPTOR = new LoggingInterceptor("com.navercorp.pinpoint.profiler.interceptor.LOGGING_INTERCEPTOR");
 
     private static final Locker LOCK = new DefaultLocker();
 

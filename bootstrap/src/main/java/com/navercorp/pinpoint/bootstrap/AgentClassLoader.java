@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -24,8 +23,6 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.concurrent.Callable;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 
 /**
  * @author emeroad

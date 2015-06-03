@@ -33,7 +33,8 @@ public class RequestRecycleInterceptor implements SimpleAroundInterceptor, Tomca
 
     private PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    private TraceContext traceContext;
+    @SuppressWarnings("unused")
+	private TraceContext traceContext;
     private MethodInfo targetMethod;
     private MetadataAccessor traceAccessor;
     private MetadataAccessor asyncAccessor;

@@ -25,7 +25,8 @@ public class AtomicMaxUpdater {
 
     private static final AtomicIntegerFieldUpdater<AtomicMaxUpdater> UPDATER = AtomicIntegerFieldUpdater.newUpdater(AtomicMaxUpdater.class, "maxIndex");
 
-    private volatile int maxIndex = 0;
+    @SuppressWarnings("unused")
+	private volatile int maxIndex = 0;
 
     public boolean update(int max) {
         while (true) {
