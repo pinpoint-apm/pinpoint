@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.bootstrap.resolver.condition;
 
 import java.util.jar.JarFile;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.SystemProperty;
 import com.navercorp.pinpoint.common.util.SystemPropertyKey;
@@ -30,10 +30,10 @@ import com.navercorp.pinpoint.common.util.SystemPropertyKey;
  */
 public class MainClassCondition implements Condition<String>, ConditionValue<String> {
 
-    private final Logger logger = Logger.getLogger(MainClassCondition.class.getName()); 
-
     private static final String MANIFEST_MAIN_CLASS_KEY = "Main-Class";
     private static final String NOT_FOUND = null;
+
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass().getName()); 
 
     private final String applicationMainClassName;
 
@@ -60,8 +60,13 @@ public class MainClassCondition implements Condition<String>, ConditionValue<Str
     public boolean check(String condition) {
         if (this.applicationMainClassName == NOT_FOUND) {
             return false;
+        }
+        if (this.applicationMainClassName.equals(condition)) {
+            logger.debug("Main class match - [{}]", this.applicationMainClassName, condition);
+            return true;
         } else {
-            return this.applicationMainClassName.equals(condition);
+            logger.debug("Main class does not match - found : [{}], expected : [{}]", this.applicationMainClassName, condition);
+            return false;
         }
     }
     
@@ -81,7 +86,7 @@ public class MainClassCondition implements Condition<String>, ConditionValue<Str
     private String getMainClassName(SimpleProperty property) {
         String javaCommand = property.getProperty(SystemPropertyKey.SUN_JAVA_COMMAND.getKey(), "").split(" ")[0];
         if (javaCommand.isEmpty()) {
-            logger.log(Level.WARNING, "Error retrieving main class from " + property.getClass().getName());
+            logger.warn("Error retrieving main class from [{}]", property.getClass().getName());
             return NOT_FOUND;
         } else if (javaCommand.endsWith(".jar")) {
             return extractMainClassFromJar(javaCommand);
@@ -95,7 +100,7 @@ public class MainClassCondition implements Condition<String>, ConditionValue<Str
             JarFile bootstrapJar = new JarFile(jarName);
             return bootstrapJar.getManifest().getMainAttributes().getValue(MANIFEST_MAIN_CLASS_KEY);
         } catch (Throwable t) {
-            logger.log(Level.WARNING, "Error retrieving main class from jar file : " + jarName, t);
+            logger.warn("Error retrieveing main class from jar file : [{}]", jarName, t);
             return NOT_FOUND;
         }
     }

@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.bootstrap.resolver;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  */
 public class ApplicationServerTypePluginResolver {
 
-    private final Logger logger = Logger.getLogger(ApplicationServerTypePluginResolver.class.getName());
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     private final List<ApplicationTypeDetector> applicationTypeDetectors;
     
@@ -58,15 +58,16 @@ public class ApplicationServerTypePluginResolver {
 
     public ServiceType resolve() {
         for (ApplicationTypeDetector currentDetector : this.applicationTypeDetectors) {
-            logger.log(Level.INFO, "Attempting to resolve using " + currentDetector.getClass());
+            String currentDetectorName = currentDetector.getClass().getName();
+            logger.info("Attempting to resolve using [{}]", currentDetectorName);
             if (currentDetector.detect(this.conditionProvider)) {
-                logger.log(Level.INFO, "Match found using " + currentDetector.getClass().getSimpleName());
+                logger.info("Match found using [{}]", currentDetectorName);
                 return currentDetector.getServerType();
             } else {
-                logger.log(Level.INFO, "No match found using " + currentDetector.getClass());
+                logger.info("No match found using [{}]", currentDetectorName);
             }
         }
-        logger.log(Level.INFO, "Server type not resolved. Defaulting to " + DEFAULT_SERVER_TYPE.getName());
+        logger.debug("Server type not resolved. Defaulting to {}", DEFAULT_SERVER_TYPE.getName());
         return DEFAULT_SERVER_TYPE;
     }
 }
