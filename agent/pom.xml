@@ -63,6 +63,12 @@
             <classifier>jdk15</classifier>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.5.0</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

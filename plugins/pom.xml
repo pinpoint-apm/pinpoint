@@ -22,6 +22,7 @@
 		<module>tomcat</module>
 		<module>json-lib</module>
         <module>thrift</module>
+        <module>jackson</module>
     </modules>
 
     <dependencies>
@@ -73,6 +74,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-thrift-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-jackson-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
