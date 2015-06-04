@@ -32,6 +32,8 @@ import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
+import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 
 /**
  * @see JacksonPlugin#intercept_ObjectMapper(com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext)
@@ -51,9 +53,12 @@ public class ObjectMapperIT {
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
 
+        Constructor<?> omConstructor = ObjectMapper.class.getConstructor(JsonFactory.class, DefaultSerializerProvider.class, DefaultDeserializationContext.class);
         Constructor<?> omConstructor1 = ObjectMapper.class.getConstructor();
         Constructor<?> omConstructor2 = ObjectMapper.class.getConstructor(JsonFactory.class);
+        verifier.verifyApi("JACKSON", omConstructor);
         verifier.verifyApi("JACKSON", omConstructor1);
+        verifier.verifyApi("JACKSON", omConstructor);
         verifier.verifyApi("JACKSON", omConstructor2);
 
         verifier.verifyTraceBlockCount(0);
@@ -74,12 +79,14 @@ public class ObjectMapperIT {
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
 
-        Constructor<?> omConstructor = ObjectMapper.class.getConstructor();
+        Constructor<?> omConstructor = ObjectMapper.class.getConstructor(JsonFactory.class, DefaultSerializerProvider.class, DefaultDeserializationContext.class);
+        Constructor<?> omConstructor1 = ObjectMapper.class.getConstructor();
         Method writeval1 = ObjectMapper.class.getMethod("writeValueAsString", Object.class);
         Method writeval2 = ObjectMapper.class.getMethod("writeValueAsBytes", Object.class);
-        ExpectedAnnotation length = annotation("LengthValue", 18);
+        ExpectedAnnotation length = annotation("jackson.json.length", 18);
 
         verifier.verifyApi("JACKSON", omConstructor);
+        verifier.verifyApi("JACKSON", omConstructor1);
         verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", writeval1, null, null, null, null, length);
         verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", writeval2, null, null, null, null, length);
 
@@ -99,12 +106,14 @@ public class ObjectMapperIT {
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
 
-        Constructor<?> omConstructor = ObjectMapper.class.getConstructor();
+        Constructor<?> omConstructor = ObjectMapper.class.getConstructor(JsonFactory.class, DefaultSerializerProvider.class, DefaultDeserializationContext.class);
+        Constructor<?> omConstructor1 = ObjectMapper.class.getConstructor();
         Method readval1 = ObjectMapper.class.getMethod("readValue", String.class, Class.class);
         Method readval2 = ObjectMapper.class.getMethod("readValue", byte[].class, Class.class);
-        ExpectedAnnotation length = annotation("LengthValue", 20);
+        ExpectedAnnotation length = annotation("jackson.json.length", 20);
 
         verifier.verifyApi("JACKSON", omConstructor);
+        verifier.verifyApi("JACKSON", omConstructor1);
         verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", readval1, null, null, null, null, length);
         verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", readval2, null, null, null, null, length);
 

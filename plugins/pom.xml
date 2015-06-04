@@ -19,15 +19,10 @@
         <module>jdk-http</module>
         <module>redis</module>
         <module>servlet</module>
-<<<<<<< HEAD
-        <module>jackson</module>
-	<module>tomcat</module>
-	<module>json-lib</module>
-=======
 		<module>tomcat</module>
 		<module>json-lib</module>
         <module>thrift</module>
->>>>>>> b622926846fa6d3e4ed1d2be3e9452bac52860b8
+        <module>jackson</module>
     </modules>
 
     <dependencies>
@@ -76,8 +71,6 @@
             <artifactId>pinpoint-json-lib-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-thrift-plugin</artifactId>
