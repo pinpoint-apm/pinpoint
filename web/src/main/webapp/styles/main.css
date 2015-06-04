@@ -16,6 +16,9 @@ canvas {outline:none}
 .glyphicon {
     top: 2px;
 }
+.glyphicon-question-sign {
+    color: gray;
+}
 
 #wrapper {
     padding: 40px 0 0 0; 
@@ -163,16 +166,63 @@ canvas {outline:none}
 
 #copyright {
     position: fixed;
-    left: 10px;
-    bottom: 10px;
-    width: 250px;
+    right: 0px;
+    top: 0px;
+    width: 140px;
     z-index: 9999999;
-    display: none;
+    display: block;
+    font-family: "Helvetica, Arial, sans-serif";
 }
 
 #copyright p {
-    padding: 10px;
+	color: #FFFFFF;
+	text-align: right;
+    padding: 3px;
     font-size: 12px;
+}
+#copyright a {
+	color: #FFFFFF;
+}
+
+.pinpoint-tooltip {
+	width: 400px;
+}
+.pinpoint-tooltip dt { 
+	color: yellow;
+	font-size: 16px;
+}
+.pinpoint-tooltip table {
+	width:100%;
+	padding-bottom: 6px;
+	line-height:20px;
+}
+.pinpoint-tooltip tr {
+	padding-bottom: 10px;
+}
+.pinpoint-tooltip tr td {
+	padding-top: 2px;
+	padding-bottom: 6px;
+}
+
+.pinpoint-tooltip tr td:first-child {
+	width: 70px;
+	vertical-align:middle;
+	text-align: center;
+	color: #79E479;
+	font-weight:bold;
+}
+.pinpoint-tooltip p {
+	padding-bottom:4px;
+}
+.pinpoint-tooltip ul {
+	padding-left: 4px;
+}
+.pinpoint-tooltip li {
+	list-style: none;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	background: url("/images/circle.png") no-repeat left center;
+	padding-left: 20px;
 }
 
 

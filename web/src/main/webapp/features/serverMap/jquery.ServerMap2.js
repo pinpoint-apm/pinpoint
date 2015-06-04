@@ -17,7 +17,7 @@
          * constructor
          *
          * @constructor
-         * @method $init
+         * @method ServerMap#$init
          * @param {object}
          */
         $init: function (htOption, $location) {
@@ -164,7 +164,7 @@
         /**
          * initialize variables
          *
-         * @method _initVariables
+         * @method ServerMap#_initVariables
          */
         _initVariables: function () {
             this.$ = go.GraphObject.make;
@@ -178,12 +178,13 @@
                     allowDelete: false
                 }
             );
+            this._oDiagram.animationManager.isEnabled = false;
         },
 
         /**
          * initialize node templates
          *
-         * @method _initNodeTemplates
+         * @method ServerMap#_initNodeTemplates
          */
         _initNodeTemplates: function () {
             var self = this,
@@ -645,7 +646,7 @@
         /**
          * initialize link templates
          *
-         * @method _initLinkTemplates
+         * @method ServerMap#_initLinkTemplates
          */
         _initLinkTemplates: function () {
             var self = this,
@@ -777,7 +778,7 @@
         /**
          * initialize diagrams
          *
-         * @method _initDiagramEnvironment
+         * @method ServerMap#_initDiagramEnvironment
          */
         _initDiagramEnvironment: function () {
             var htPadding = this.option('htPadding');
@@ -854,7 +855,7 @@
         /**
          * initialize Overview
          *
-         * @method _initOverview
+         * @method ServerMap#_initOverview
          */
         _initOverview: function ( $location ) {
         	
@@ -874,7 +875,7 @@
         /**
          * load
          *
-         * @method load
+         * @method ServerMap#load
          * @param {object}
          */
         load: function (str) {
@@ -887,7 +888,7 @@
         /**
          * clear diagram
          *
-         * @method clear
+         * @method ServerMap#clear
          */
         clear: function () {
             this._oDiagram.model = go.Model.fromJson({});
@@ -896,7 +897,7 @@
         /**
          * reset highlights
          *
-         * @method _resetHighlights
+         * @method ServerMap#_resetHighlights
          */
         _resetHighlights: function () {
         	var allNodes = this._oDiagram.nodes;
@@ -912,7 +913,7 @@
         /**
          * update highlights
          *
-         * @method _updateHighlights
+         * @method ServerMap#_updateHighlights
          * @param {go.Node} selection
          */
         _updateHightlights: function (selection) {
@@ -951,7 +952,7 @@
         /**
          * highlight node by node key
          *
-         * @method highlightNodeByKey
+         * @method ServerMap#highlightNodeByKey
          * @param {String} sKey node key
          */
         highlightNodeByKey: function (sKey) {
@@ -966,7 +967,7 @@
         /**
          * highlight link by from, to objects
          *
-         * @method highlightLinkByFromTo
+         * @method ServerMap#highlightLinkByFromTo
          * @param {String} from
          * @param {String} to
          */
@@ -981,7 +982,7 @@
         /**
          * get link by from, to objects
          *
-         * @method _getLinkObjectByFromTo
+         * @method ServerMap#_getLinkObjectByFromTo
          * @param {String} from
          * @param {String} to
          */
@@ -998,6 +999,7 @@
 
         /**
          * highlight node
+         * ServerMap#_highlightNode
          * @param nodeShape
          * @param nodeText
          * @param theme
@@ -1053,6 +1055,7 @@
 
         /**
          * highlight link
+         * @method ServerMap#_highlightLink
          * @param shape
          * @param theme
          * @private
@@ -1086,7 +1089,7 @@
         /**
          * if the link connects to this node, highlight it
          *
-         * @method _linksTo
+         * @method ServerMap#_linksTo
          * @param {go.Node} x
          * @param {Number} i
          */
@@ -1102,7 +1105,7 @@
         /**
          * if the link comes from this node, highlight it
          *
-         * @method _linksFrom
+         * @method ServerMap#_linksFrom
          * @param {go.Node} x
          * @param {Number} i
          */
@@ -1119,7 +1122,7 @@
          * if selected object is a link, highlight its fromNode, otherwise,
          * highlight the fromNode of each link coming into the selected node
          *
-         * @method _nodesTo
+         * @method ServerMap#_nodesTo
          * @param {go.Node} x
          * @param {Number} i
          * @return a List of the keys of the nodes
@@ -1142,7 +1145,7 @@
         /**
          * same as nodesTo, but from instead of to
          *
-         * @method _nodesFrom
+         * @method ServerMap#_nodesFrom
          * @param {go.Node} x
          * @param {Number} i
          */
@@ -1163,7 +1166,7 @@
         /**
          * event of merge group node click 
          *
-         * @method _onNodeSubGroupClicked
+         * @method ServerMap#_onNodeSubGroupClicked
          * @param {Event} e
          * @param {ojb} ojb
          * @param {String} unknownKey
@@ -1180,7 +1183,7 @@
         /**
          * event of node click
          *
-         * @method _onNodeClicked
+         * @method ServerMap#_onNodeClicked
          * @param {Event} e
          * @param {ojb} ojb
          * @param {String} unknownKey
@@ -1197,7 +1200,7 @@
         /**
          * event of node doubleclick
          *
-         * @method _onNodeDoubleClicked
+         * @method ServerMap#_onNodeDoubleClicked
          * @param {Event} e
          * @param {ojb} ojb
          */
@@ -1213,7 +1216,7 @@
         /**
          * event of node context click
          *
-         * @method _onNodeContextClick
+         * @method ServerMap#_onNodeContextClick
          * @param {Event} e
          * @param {ojb} ojb
          */
@@ -1229,7 +1232,7 @@
         /**
          * event of link click
          *
-         * @method _onLinkClicked
+         * @method ServerMap#_onLinkClicked
          * @param {Event} e
          * @param {ojb} ojb
          */
@@ -1248,7 +1251,7 @@
         /**
          * event of link context click
          *
-         * @method _onLinkContextClicked
+         * @method ServerMap#_onLinkContextClicked
          * @param {Event} e
          * @param {ojb} ojb
          */
@@ -1263,9 +1266,6 @@
             }
         },
 
-        /**
-         * refresh
-         */
         refresh: function () {
 //            while (this._oDiagram.undoManager.canUndo()) {
 //                this._oDiagram.undoManager.undo();
@@ -1273,10 +1273,6 @@
 //            this._oDiagram.zoomToFit();
             this.load(this._sLastModelData);
         },
-
-        /**
-         * zoom to fit
-         */
         zoomToFit: function () {
             this._oDiagram.zoomToFit();
             this._oDiagram.contentAlignment = go.Spot.Center;
@@ -1285,9 +1281,6 @@
         clearQuery: function() {
         	this._query = "";
         },
-        /**
-         * search node
-         */
         searchNode: function( query, nodeServiceType ) {
         	this._query = query;
         	var allNodes = this._oDiagram.nodes,

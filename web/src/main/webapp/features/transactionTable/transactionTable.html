@@ -10,12 +10,12 @@
                             ng-class="{true: 'glyphicon-arrow-down', false: 'glyphicon-arrow-up'}[transactionReverse]"></span></div>
                 </th>
                 <th>
-                    <div class="th-inner" ng-click="transactionOrder('startTime')" style="cursor:pointer">Time <span
+                    <div class="th-inner" ng-click="transactionOrder('startTime')" style="cursor:pointer">Start Time <span
                             ng-show="transactionOrderBy == 'startTime'" class="glyphicon"
                             ng-class="{true: 'glyphicon-arrow-down', false: 'glyphicon-arrow-up'}[transactionReverse]"></span></div>
                 </th>
                 <th>
-                    <div class="th-inner" ng-click="transactionOrder('application')" style="cursor:pointer">Application
+                    <div class="th-inner" ng-click="transactionOrder('application')" style="cursor:pointer">Path
                         <span ng-show="transactionOrderBy == 'application'"  class="glyphicon"
                            ng-class="{true: 'glyphicon-arrow-down', false: 'glyphicon-arrow-up'}[transactionReverse]"></span></div>
                 </th>
@@ -30,20 +30,25 @@
                             ng-class="{true: 'glyphicon-arrow-down', false: 'glyphicon-arrow-up'}[transactionReverse]"></span></div>
                 </th>
                 <th>
-                    <div class="th-inner" ng-click="transactionOrder('agentId')" style="cursor:pointer">AgentId <span
+                    <div class="th-inner" ng-click="transactionOrder('agentId')" style="cursor:pointer">Agent <span
                             ng-show="transactionOrderBy == 'agentId'" class="glyphicon"
                             ng-class="{true: 'glyphicon-arrow-down', false: 'glyphicon-arrow-up'}[transactionReverse]"></span></div>
                 </th>
                 <th>
-                    <div class="th-inner" ng-click="transactionOrder('remoteAddr')" style="cursor:pointer">ClientIP <span
+                    <div class="th-inner" ng-click="transactionOrder('remoteAddr')" style="cursor:pointer">Client IP <span
                             ng-show="transactionOrderBy == 'remoteAddr'" class="glyphicon"
                             ng-class="{true: 'glyphicon-arrow-down', false: 'glyphicon-arrow-up'}[transactionReverse]"></span></div>
                 </th>
                 <th>
                     <div class="th-inner" ng-click="transactionOrder('transactionSequence')" style="cursor:pointer">
-                        TransactionId <span ng-show="transactionOrderBy == 'transactionSequence'" class="glyphicon"
+                        Transaction <span ng-show="transactionOrderBy == 'transactionSequence'" class="glyphicon"
                                    ng-class="{true: 'glyphicon-arrow-down', false: 'glyphicon-arrow-up'}[transactionReverse]"></span>
                     </div>
+                </th>
+                <th ng-if="transactionList[0].logPageUrl">
+                	<div class="th-inner" style="cursor:pointer">
+                		<span class="glyphicon glyphicon-question-sign neloTooltip" ng-init="initTooltipster()" style="cursor:pointer;font-size:17px;padding-top:5px"></span>
+                	</div>
                 </th>
             </tr>
             </thead>
@@ -66,7 +71,8 @@
                     <td ng-click="traceByApplication(transaction)" style="cursor:pointer;text-align:center;;vertical-align: middle"><span class="glyphicon glyphicon-fire" ng-show="transaction.exception == 1"></span></td>
                     <td ng-click="traceByApplication(transaction)" style="cursor:pointer;vertical-align: middle">{{transaction.agentId}}</td>
                     <td ng-click="traceByApplication(transaction)" style="cursor:pointer;vertical-align: middle">{{transaction.remoteAddr}}</td>
-                    <td ng-click="traceByApplication(transaction)" style="cursor:pointer;vertical-align: middle">{{transaction.traceId}} <a ng-if="transaction.logPageUrl" class="btn btn-default btn-xs" href="{{transaction.logPageUrl}}" target="_blank">{{transaction.logButtonName}}</a> </td>
+                    <td ng-click="traceByApplication(transaction)" style="cursor:pointer;vertical-align: middle">{{transaction.traceId}}</td>
+                    <td ng-if="transaction.logPageUrl"><a class="btn btn-default btn-xs" href="{{transaction.logPageUrl}}" target="_blank">{{transaction.logButtonName}}</a></td>
                 </tr>
             </tbody>
         </table>

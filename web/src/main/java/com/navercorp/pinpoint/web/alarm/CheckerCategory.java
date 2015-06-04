@@ -142,8 +142,7 @@ public enum CheckerCategory {
                 return category;
             }
         }
-        
-        return null;
+        throw new IllegalArgumentException("Unknown CheckerCategory : " + value);
     }
 
     public static List<String> getNames() {

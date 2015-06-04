@@ -10,20 +10,32 @@
     <artifactId>pinpoint-plugins</artifactId>
     <name>pinpoint-plugins</name>
     <packaging>pom</packaging>
-    
+
     <modules>
+        <module>httpclient3</module>
         <module>httpclient4</module>
         <module>gson</module>
         <module>jdbc-driver</module>
         <module>jdk-http</module>
         <module>redis</module>
         <module>servlet</module>
+<<<<<<< HEAD
         <module>jackson</module>
 	<module>tomcat</module>
 	<module>json-lib</module>
+=======
+		<module>tomcat</module>
+		<module>json-lib</module>
+        <module>thrift</module>
+>>>>>>> b622926846fa6d3e4ed1d2be3e9452bac52860b8
     </modules>
 
     <dependencies>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-httpclient3-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-httpclient4-plugin</artifactId>
@@ -66,11 +78,18 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-thrift-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-jackson-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>

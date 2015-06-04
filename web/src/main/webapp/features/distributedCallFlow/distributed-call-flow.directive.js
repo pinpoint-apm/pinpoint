@@ -81,7 +81,8 @@
 	                    } else if (!item.isMethod) {
 	                        html.push('<span class="glyphicon glyphicon-info-sign"></span>&nbsp;');
 	                    } else {
-	                    	switch( item.methodType ) {
+	                    	var itemMethodType = parseInt( item.methodType );
+	                    	switch( itemMethodType ) {
 	                    	case 100:
 	                    			html.push('<i class="xi-shipping"></i>&nbsp;');
 	                    			break;
@@ -287,15 +288,15 @@
 	                    var columns = [
 		                    {id: "method", name: "Method", field: "method", width: 400, formatter: treeFormatter},
 		                    {id: "argument", name: "Argument", field: "argument", width: 300, formatter: argumentFormatter},
-		                    {id: "exec-time", name: "Start", field: "execTime", width: 90, formatter: execTimeFormatter},
-		                    {id: "gap-ms", name: "Gap", field: "gapMs", width: 50, cssClass: "right-align"},
-		                    {id: "time-ms", name: "Exec", field: "timeMs", width: 50, cssClass: "right-align"},
+		                    {id: "exec-time", name: "Start Time", field: "execTime", width: 90, formatter: execTimeFormatter},
+		                    {id: "gap-ms", name: "Gap(ms)", field: "gapMs", width: 70, cssClass: "right-align"},
+		                    {id: "time-ms", name: "Exec(ms)", field: "timeMs", width: 70, cssClass: "right-align"},
 		                    {id: "time-per", name: "Exec(%)", field: "timePer", width: 100, formatter: progressBarFormatter},
-		                    {id: "exec-milli", name: "Self", field: "execMilli", width: 55, cssClass: "right-align"},
+		                    {id: "exec-milli", name: "Self(ms)", field: "execMilli", width: 75, cssClass: "right-align"},
 		                    {id: "class", name: "Class", field: "class", width: 120},
-		                    {id: "api-type", name: "Api Type", field: "apiType", width: 90},
+		                    {id: "api-type", name: "API", field: "apiType", width: 90},
 		                    {id: "agent", name: "Agent", field: "agent", width: 130},
-		                    {id: "application-name", name: "Application Name", field: "applicationName", width: 150}
+		                    {id: "application-name", name: "Application", field: "applicationName", width: 150}
 	                    ];
 	                  
 	                    if (t.logLinkEnable) {

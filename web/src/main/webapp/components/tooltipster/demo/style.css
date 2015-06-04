@@ -1,0 +1,28 @@
+/* Main */
+
+body {
+	background-color: #dcdcdc;
+	color: #0b0b0b;
+	font-size: 16px;
+	line-height: 22px;
+}
+
+.container, #container {
+	width: 978px;
+	margin: 10px auto;
+	padding: 60px;
+	box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+	background: #fff;
+	text-align: left;
+	display: block;
+	overflow: hidden;
+}
+
+.item {
+	width: 200px;
+	float: left;
+	padding: 10px;
+	margin: 10px;
+	background: #000;
+	color: #fff;
+}

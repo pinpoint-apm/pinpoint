@@ -4,8 +4,8 @@
 	    applicationUrl: '/transactionInfo.pinpoint'
 	});
 	
-	pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$scope', '$rootScope', '$routeParams', '$timeout', '$rootElement', 'AlertsService', 'ProgressBarService', 'TransactionDaoService', '$window', '$location',
-	    function (cfg, $scope, $rootScope, $routeParams, $timeout, $rootElement, AlertsService, ProgressBarService, TransactionDaoService, $window, $location) {
+	pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$scope', '$rootScope', '$routeParams', '$timeout', '$rootElement', 'AlertsService', 'ProgressBarService', 'TransactionDaoService', '$window', '$location', 'helpContentTemplate', 'helpContentService',
+	    function (cfg, $scope, $rootScope, $routeParams, $timeout, $rootElement, AlertsService, ProgressBarService, TransactionDaoService, $window, $location, helpContentTemplate, helpContentService) {
 			$at($at.TRANSACTION_DETAIL_PAGE);
 	        // define private variables
 	        var oAlertService, oProgressBarService, bShowCallStacksOnce;
@@ -30,10 +30,14 @@
 	                oProgressBarService.startLoading();
 	                oProgressBarService.setLoading(30);
 	                TransactionDaoService.getTransactionDetail($routeParams.traceId, $routeParams.focusTimestamp, function (err, result) {
-	                    if (err) {
-	                        oProgressBarService.stopLoading();
-	                        oAlertService.showError('There is some error while downloading the data.');
-	                    }
+	                    if (err || result.exception ) {
+                            oProgressBarService.stopLoading();
+                            if ( err ) {
+                            	oAlertService.showError('There is some error while downloading the data.');
+                            } else {
+                            	oAlertService.showError(result.exception);
+                            }
+                        }
 	                    oProgressBarService.setLoading(70);
 	                    parseTransactionDetail(result);
 	                    showCallStacks();
@@ -149,7 +153,14 @@
 	        	initSearchVar();
 	            $scope.$broadcast('timelineDirective.initialize', $scope.transactionDetail);
 	        });
-	
+	        
+            jQuery('.callTreeTooltip').tooltipster({
+            	content: function() {
+            		return helpContentTemplate(helpContentService.callTree.column);
+            	},
+            	position: "bottom",
+            	trigger: "click"
+            });	
 	    }
 	]);
 })();

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
@@ -56,7 +57,7 @@ public class HttpAsyncClientExecuteMethodInterceptor implements SimpleAroundInte
 
         trace.traceBlockBegin();
         trace.markBeforeTime();
-        trace.recordServiceType(HTTP_CLIENT4_INTERNAL);
+        trace.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
     }
 
     @Override

@@ -32,7 +32,7 @@ public interface BaseClassFileTransformerBuilder {
 
     public void weave(String aspectClassName);
 
-    public MethodTransformerBuilder editMethods(MethodFilter filter);
+    public MethodTransformerBuilder editMethods(MethodFilter... filter);
 
     public MethodTransformerBuilder editMethod(String name, String... parameterTypeNames);
 

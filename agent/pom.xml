@@ -36,6 +36,11 @@
 
         <!-- for tests -->
         <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
@@ -52,6 +57,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>net.sf.json-lib</groupId>
+            <artifactId>json-lib</artifactId>
+            <version>2.3</version>
+            <classifier>jdk15</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.5.0</version>
@@ -61,11 +73,7 @@
             <artifactId>jackson-core</artifactId>
             <version>2.5.0</version>
         </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-test</artifactId>
-            <scope>test</scope>
-        </dependency>
+
     </dependencies>
 
     <build>
@@ -105,7 +113,8 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <!-- AbstractPinpointPluginTestSuite needs this to resolve path of required jars -->
+                    <!-- AbstractPinpointPluginTestSuite needs this to resolve 
+                        path of required jars -->
                     <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
             </plugin>

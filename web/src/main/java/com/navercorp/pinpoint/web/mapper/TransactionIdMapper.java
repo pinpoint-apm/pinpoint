@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.web.vo.TransactionId;
 
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,13 +48,13 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
-        KeyValue[] raw = result.raw();
-        List<TransactionId> traceIdList = new ArrayList<TransactionId>(raw.length);
-        for (KeyValue kv : raw) {
-            byte[] buffer = kv.getBuffer();
-            int qualifierOffset = kv.getQualifierOffset();
+        Cell[] rawCells = result.rawCells();
+        List<TransactionId> traceIdList = new ArrayList<TransactionId>(rawCells.length);
+        for (Cell cell : rawCells) {
+            byte[] qualifierArray = cell.getQualifierArray();
+            int qualifierOffset = cell.getQualifierOffset();
             // increment by value of key
-            TransactionId traceId = parseVarTransactionId(buffer, qualifierOffset);
+            TransactionId traceId = parseVarTransactionId(qualifierArray, qualifierOffset);
             traceIdList.add(traceId);
 
             logger.debug("found traceId {}", traceId);

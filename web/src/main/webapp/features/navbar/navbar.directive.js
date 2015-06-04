@@ -7,8 +7,8 @@
 	    periodTypePrefix: '.navbar.periodType'
 	});
 	
-	pinpointApp.directive('navbarDirective', [ 'cfg', '$rootScope', '$http','$document', '$timeout', '$window',  'webStorage',
-	    function (cfg, $rootScope, $http, $document, $timeout, $window, webStorage) {
+	pinpointApp.directive('navbarDirective', [ 'cfg', '$rootScope', '$http','$document', '$timeout', '$window',  'webStorage', 'helpContentTemplate', 'helpContentService',
+	    function (cfg, $rootScope, $http, $document, $timeout, $window, webStorage, helpContentTemplate, helpContentService) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -90,6 +90,14 @@
 	                element.bind('selectstart', function (e) {
 	                    return false;
 	                });
+	                
+	                jQuery('.navbarTooltip').tooltipster({
+                    	content: function() {
+                    		return helpContentTemplate(helpContentService.navbar.applicationSelector) + helpContentTemplate(helpContentService.navbar.depth) + helpContentTemplate(helpContentService.navbar.periodSelector);
+                    	},
+                    	position: "bottom",
+                    	trigger: "click"
+                    });
 	
 	                /**
 	                 * initialize

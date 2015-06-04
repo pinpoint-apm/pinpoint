@@ -5,8 +5,8 @@
 	    agentStatUrl: '/getAgentStat.pinpoint'
 	});
 	
-	pinpointApp.directive('agentInfoDirective', [ 'agentInfoConfig', '$timeout', 'AlertsService', 'ProgressBarService', 'AgentDaoService',
-	    function (cfg, $timeout, AlertsService, ProgressBarService, AgentDaoService) {
+	pinpointApp.directive('agentInfoDirective', [ 'agentInfoConfig', '$timeout', 'AlertsService', 'ProgressBarService', 'AgentDaoService', 'helpContentTemplate', 'helpContentService',
+	    function (cfg, $timeout, AlertsService, ProgressBarService, AgentDaoService, helpContentTemplate, helpContentService) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -14,16 +14,43 @@
 	            link: function postLink(scope, element, attrs) {
 	
 	                // define private variables
-	                var oNavbarVoService, oAlertService, oProgressBarService;
+	                var oNavbarVoService, oAlertService, oProgressBarService, bInitTooltip = false;
 	
 	                // define private variables of methods
 	                var getAgentStat, getLink, initServiceInfo, showCharts, parseMemoryChartDataForAmcharts, parseCpuLoadChartDataForAmcharts,
-	                broadcastToCpuLoadChart, resetServerMetaDataDiv;
+	                broadcastToCpuLoadChart, resetServerMetaDataDiv, initTooltip;
 	
 	                // initialize
 	                scope.agentInfoTemplate = 'features/agentInfo/agentInfoReady.html';
 	                oAlertService = new AlertsService();
 	                oProgressBarService = new ProgressBarService();
+	                
+
+	                initTooltip = function() {
+	                	if ( bInitTooltip === false ) {
+	                		jQuery('.heapTooltip').tooltipster({
+			                	content: function() {
+			                		return helpContentTemplate(helpContentService.inspector.heap);
+			                	},
+			                	position: "top",
+			                	trigger: "click"
+			                });
+			                jQuery('.permGenTooltip').tooltipster({
+			                	content: function() {
+			                		return helpContentTemplate(helpContentService.inspector.permGen);
+			                	},
+			                	position: "top",
+			                	trigger: "click"
+			                });
+			                jQuery('.cpuUsageTooltip').tooltipster({
+			                	content: function() {
+			                		return helpContentTemplate(helpContentService.inspector.cpuUsage);
+			                	},
+			                	position: "top",
+			                	trigger: "click"
+			                });
+	                	}
+	                };
 	
 	                /**
 	                 * scope event of agentInfo.initialize
@@ -116,11 +143,16 @@
 	                    };
 	                    oProgressBarService.setLoading(40);
 	                    AgentDaoService.getAgentStat(query, function (err, result) {
-	                        if (err) {
-	                            oProgressBarService.stopLoading();
-	                            oAlertService.showError('There is some error.');
-	                            return;
-	                        }
+	                        if (err || result.exception ) {
+                                oProgressBarService.stopLoading();
+                                if ( err ) {
+                                	oAlertService.showError('There is some error.');
+                                } else {
+                                	oAlertService.showError(result.exception);
+                                }
+                                return;
+                            }
+	                        
 	                        scope.agentStat = result;
 	                        if (angular.isDefined(result.type) && result.type) {
 	                            scope.info['jvmGcType'] =  result.type;
@@ -132,6 +164,8 @@
 	                            oProgressBarService.stopLoading();
 	                        }, 700);
 	                        scope.$digest();
+	                        
+	                        initTooltip();
 	                    });
 	                };
 	                

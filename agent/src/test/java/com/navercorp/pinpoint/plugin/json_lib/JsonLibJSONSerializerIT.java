@@ -17,66 +17,52 @@ package com.navercorp.pinpoint.plugin.json_lib;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation.*;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+
+import net.sf.json.JSON;
+import net.sf.json.JSONSerializer;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.BlockType;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import com.navercorp.pinpoint.test.plugin.JvmVersion;
-
-import net.sf.json.JSONSerializer;
-import net.sf.json.JSONObject;
-import net.sf.json.JSON;
 
 /**
- *@author Sangyoon Lee
+ * @author Sangyoon Lee
  */
 @RunWith(PinpointPluginTestSuite.class)
-@PinpointAgent("target/pinpoint-agent-1.5.0-SNAPSHOT")
-@Dependency({"log4j:log4j:1.2.17", "net.sf.json-lib:json-lib:jar:jdk15:2.3"})
-@JvmVersion({6,7})
+@Dependency({ "net.sf.json-lib:json-lib:jar:jdk15:(,)" })
 public class JsonLibJSONSerializerIT {
 
+    private static final String SERVICE_TYPE = "JSON-LIB";
+    private static final String ANNOTATION_KEY = "json-lib.json.length";
+
     @Test
-    public void toJSONtest() throws Exception {
+    public void test() throws Exception {
+        Method toJSON = JSONSerializer.class.getMethod("toJSON", Object.class);
+        Method toJava = JSONSerializer.class.getMethod("toJava", JSON.class);
 
         String test = "{'string':'JSON'}";
 
-        JSONSerializer jsn = new JSONSerializer();
-        jsn.toJSON(test);
-        
+        JSON json = JSONSerializer.toJSON(test);
+
+        if (Modifier.isStatic(toJava.getModifiers())) {
+            toJava.invoke(null, json);
+        } else {
+            // JSONSerializer.toJava(JSON) of json-lib 2.0 and below is instance method.
+            toJava.invoke(new JSONSerializer(), json);
+        }
+
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
-        
-        Method targetMethod = JSONSerializer.class.getMethod("toJSON", Object.class);
 
-        verifier.verifyApi("JsonLib", targetMethod);
+        verifier.verifyTraceBlock(PluginTestVerifier.BlockType.EVENT, SERVICE_TYPE, toJSON, null, null, null, null, annotation(ANNOTATION_KEY, test.length()));
+        verifier.verifyApi("JSON-LIB", toJava);
+        
         verifier.verifyTraceBlockCount(0);
-    }
-
-    @Test
-    public void toJAVAtest() throws Exception {
-
-        JSONObject test = new JSONObject();
-        test.put("string", "JSON");
-        
-        JSONSerializer jsn = new JSONSerializer();
-        jsn.toJava(test);
-
-        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache(System.out);
-        verifier.printBlocks(System.out);
-        
-        Method targetMethod = JSONSerializer.class.getMethod("toJava", JSON.class);
-
-        verifier.verifyApi("JsonLib", targetMethod);
-        verifier.verifyTraceBlockCount(1);
     }
 }

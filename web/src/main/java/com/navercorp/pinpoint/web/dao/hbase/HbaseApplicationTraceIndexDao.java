@@ -19,7 +19,8 @@ package com.navercorp.pinpoint.web.dao.hbase;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
@@ -179,14 +180,15 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             if (lastResult == null) {
                 return;
             }
-            KeyValue[] keyValueArray = lastResult.raw();
-            KeyValue last = keyValueArray[keyValueArray.length - 1];
-            byte[] row = last.getRow();
+
+            Cell[] rawCells = lastResult.rawCells();
+            Cell last = rawCells[rawCells.length - 1];
+            byte[] row = CellUtil.cloneRow(last);
             byte[] originalRow = traceIdRowKeyDistributor.getOriginalKey(row);
             long reverseStartTime = BytesUtils.bytesToLong(originalRow, PinpointConstants.APPLICATION_NAME_MAX_LEN);
             this.lastRowTimestamp = TimeUtils.recoveryTimeMillis(reverseStartTime);
             
-            byte[] qualifier = last.getQualifier();
+            byte[] qualifier = CellUtil.cloneQualifier(last);
             this.lastTransactionId = TransactionIdMapper.parseVarTransactionId(qualifier, 0);
             this.lastTransactionElapsed = BytesUtils.bytesToInt(qualifier, 0);
             

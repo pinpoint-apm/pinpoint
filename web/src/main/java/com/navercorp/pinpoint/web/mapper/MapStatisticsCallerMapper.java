@@ -30,7 +30,8 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -79,16 +80,15 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
 
         // key is destApplicationName.
         final LinkDataMap linkDataMap = new LinkDataMap();
-        for (KeyValue kv :  result.raw()) {
-            final byte[] family = kv.getFamily();
-            if (Bytes.equals(family, HBaseTables.MAP_STATISTICS_CALLEE_CF_COUNTER)) {
-                final byte[] qualifier = kv.getQualifier();
+        for (Cell cell :  result.rawCells()) {
+            if (CellUtil.matchingFamily(cell, HBaseTables.MAP_STATISTICS_CALLEE_CF_COUNTER)) {
+                final byte[] qualifier = CellUtil.cloneQualifier(cell);
                 final Application callee = readCalleeApplication(qualifier);
                 if (filter.filter(callee)) {
                     continue;
                 }
 
-                long requestCount = getValueToLong(kv);
+                long requestCount = getValueToLong(cell);
 
                 short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
                 boolean isError = histogramSlot == (short) -1;
@@ -106,9 +106,9 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
                 linkDataMap.addLinkData(caller, caller.getName(), callee, calleeHost, timestamp, slotTime, requestCount);
 
 
-            } else if (Bytes.equals(family, HBaseTables.MAP_STATISTICS_CALLEE_CF_VER2_COUNTER)) {
+            } else if (CellUtil.matchingFamily(cell, HBaseTables.MAP_STATISTICS_CALLEE_CF_VER2_COUNTER)) {
 
-                final Buffer buffer = new OffsetFixedBuffer(kv.getBuffer(), kv.getQualifierOffset());
+                final Buffer buffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset());
                 final Application callee = readCalleeApplication(buffer);
                 if (filter.filter(callee)) {
                     continue;
@@ -121,7 +121,7 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
 
                 String callerAgentId = buffer.readPrefixedString();
 
-                long requestCount = getValueToLong(kv);
+                long requestCount = getValueToLong(cell);
                 if (logger.isDebugEnabled()) {
                     logger.debug("    Fetched Caller.(New) {} {} -> {} (slot:{}/{}) calleeHost:{}", caller, callerAgentId, callee, histogramSlot, requestCount, calleeHost);
                 }
@@ -132,7 +132,7 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
                 }
                 linkDataMap.addLinkData(caller, callerAgentId, callee, calleeHost, timestamp, slotTime, requestCount);
             } else {
-                throw new IllegalArgumentException("unknown ColumnFamily :" + Arrays.toString(family));
+                throw new IllegalArgumentException("unknown ColumnFamily :" + Arrays.toString(CellUtil.cloneFamily(cell)));
             }
 
         }
@@ -140,8 +140,8 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
         return linkDataMap;
     }
 
-    private long getValueToLong(KeyValue kv) {
-        return Bytes.toLong(kv.getBuffer(), kv.getValueOffset());
+    private long getValueToLong(Cell cell) {
+        return Bytes.toLong(cell.getValueArray(), cell.getValueOffset());
     }
 
 

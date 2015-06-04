@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Tooltipster - The jQuery Tooltip Plugin</title>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+	<meta name="description" content="Tooltipster is a powerful, flexible jQuery plugin enabling you to easily create clean, HTML5 validated tooltips." />
+	<meta property="og:title" content="Tooltipster" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="index.html" />
+	<meta property="og:image" content="images/social.jpg" />
+	<meta property="og:site_name" content="Tooltipster - The jQuery Tooltip Plugin" />
+	<meta property="og:description" content="Tooltipster is a powerful, flexible jQuery plugin enabling you to easily create clean, HTML5 validated tooltips." />
+	<html itemscope itemtype="http://schema.org/CreativeWork">
+	<meta itemprop="name" content="Tooltipster - The jQuery Tooltip Plugin">
+	<meta itemprop="description" content="Tooltipster is a powerful, flexible jQuery plugin enabling you to easily create clean, HTML5 validated tooltips.">
+	<meta itemprop="image" content="images/social.jpg">
+	<link rel="icon" type="image/png" href="images/favicon.png" />
+	<link rel="image_src" href="images/social.jpg" / >
+	
+	<link rel="stylesheet" type="text/css" href="doc/css/reset.css" />
+	<link rel="stylesheet" type="text/css" href="doc/css/prettify.css" />
+	<link rel="stylesheet" type="text/css" href="doc/css/style.css" />
+	<link rel="stylesheet" type="text/css" href="css/tooltipster.css" />
+	<link rel="stylesheet" type="text/css" href="css/themes/tooltipster-light.css" />
+	<link rel="stylesheet" type="text/css" href="css/themes/tooltipster-noir.css" />
+	<link rel="stylesheet" type="text/css" href="css/themes/tooltipster-punk.css" />
+	<link rel="stylesheet" type="text/css" href="css/themes/tooltipster-shadow.css" />
+	
+	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+	<script type="text/javascript" src="doc/js/jquery.jgfeed.js"></script>
+	<script type="text/javascript" src="doc/js/prettify.js"></script>
+	<script type="text/javascript" src="doc/js/lang-css.js"></script>
+	<script type="text/javascript" src="doc/js/scripts.js"></script>
+	<script type="text/javascript" src="js/jquery.tooltipster.js"></script>
+	
+	<!--[if lt IE 9]>
+		<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+</head>
+<body>
+	<div id="background">
+		<img src="doc/images/large-background.jpg" />
+	</div>
+	<div id="wrapper">
+		<header>
+			<div id="social">
+				<div id="github">
+					<iframe src="http://ghbtns.com/github-btn.html?user=iamceege&repo=tooltipster&type=watch&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="100" height="20"></iframe>
+				</div>
+				<div id="tweet">
+					<a href="https://twitter.com/share" class="twitter-share-button" data-text="Tooltipster - A powerful &amp; degradable jQuery tooltip plugin" data-via="iamceege" data-related="iamceege">Tweet</a>
+					<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+				</div>
+				<div id="gplus">
+					<g:plusone href="http://calebjacob.com/tooltipster"></g:plusone>
+				</div>
+			</div>
+			<nav>
+				<ul>
+					<li><a href="https://github.com/iamceege/tooltipster/archive/master.zip">Download</a></li>
+					<li><a href="#demos">Demos</a></li>
+					<li><a href="#getting-started">Get Started</a></li>
+					<li><a href="#options">Options</a></li>
+					<li><a href="#advanced">Advanced</a></li>
+					<li><a href="#themes">Themes</a></li>
+					<li><a href="#talk">Talk</a></li>
+				</ul>
+			</nav>
+			<select>
+				<option selected="selected" disabled="disabled">Menu...</option>
+				<option value="demos">Demos</option>
+				<option value="getting-started">Get Started</option>
+				<option value="options">Options</option>
+				<option value="themes">Themes</option>
+				<option value="talk">Talk</option>
+			</select>
+		</header>
+		<section id="welcome">
+			<img src="doc/images/tooltipster.svg" alt="Tooltipster" id="tooltipster" />
+			<h1>A powerful, flexible jQuery plugin enabling you to easily create semantic, modern tooltips enhanced with the power of CSS.</h1>
+			<ul id="browser-support">
+				<li>
+					<img src="doc/images/browser-chrome.png" alt="Chrome" class="tooltip" title="Chrome Support" />
+				</li>
+				<li>
+					<img src="doc/images/browser-safari.png" alt="Safari" class="tooltip" title="Safari Support" />
+				</li>
+				<li>
+					<img src="doc/images/browser-opera.png" alt="Opera" class="tooltip" title="Opera Support" />
+				</li>
+				<li>
+					<img src="doc/images/browser-firefox.png" alt="FireFox" class="tooltip" title="FireFox Support" />
+				</li>
+				<li>
+					<img src="doc/images/browser-ie.png" alt="Internet Explorer" class="tooltip" title="IE10, IE9, &amp; IE8 Support + Graceful Degradation" />
+				</li>
+			</ul>
+			<div id="download">
+				<a href="https://github.com/iamceege/tooltipster/archive/master.zip" class="button alt">Download</a> <span style="padding-right: 0.5em;">&amp;</span> <a href="#demos" class="white">get started &rsaquo;</a>
+			</div>
+		</section>
+		
+		<section id="demos">
+			<h2>Demos</h2>
+			<ul>
+				<li>
+					<span id="demo-default" title="Hi! This is a tooltip.">Hover</span> Default settings
+				</li>
+				<li>
+					<span id="demo-html">Hover</span> Fixed width, position, &amp; HTML
+				</li>
+				<li>
+					<span id="demo-events" title="Press any key on your keyboard or click anywhere in the page to close this">Click</span> Custom show / hide triggers
+				</li>
+				<li>
+					<span id="demo-touch" title="I would have never been born on a touch device :'(">Hover</span> Disable touch devices
+				</li>
+				<li>
+					<span id="demo-theme" title="Build custom themes and CSS powered animations!">Hover</span> Custom themes &amp; animations
+				</li>
+				<li>
+					<span id="demo-callback" title="This will be populated by AJAX.">Hover</span> Custom callbacks (AJAX <3)
+				</li>
+				<li>
+					<span id="demo-interact" title="Try clicking &lt;a href='http://google.com/' target='_blank'&gt;this link&lt;/a&gt;">Hover</span> Interaction with tooltips
+				</li>
+				<li>
+					<span id="demo-icon" title="Use separate icons to launch your tooltips on either desktops or touch devices - or both!"></span> Attach tooltips to icons
+				</li>
+				<li>
+					<span id="demo-multiple">Hover</span> Multiple tooltips on a single element
+				</li>
+				<li>...&amp; more!</li>
+			</ul>
+		</section>
+		
+		<section id="getting-started">
+			<h2>Getting Started</h2>
+			<h3>1. Load jQuery and include Tooltipster's plugin files</h3>
+			<p>After you <a href="https://github.com/iamceege/tooltipster/archive/master.zip">download Tooltipster</a>, move tooltipster.css and jquery.tooltipster.min.js to your root's CSS and JavaScript directories. Next, load jQuery and include Tooltipster's CSS and JavaScript files inside of your  tags:</p>
+<pre class="prettyprint">
+&lt;head&#62;
+...
+
+    &lt;link rel="stylesheet" type="text/css" href="css/tooltipster.css" /&#62;
+
+    &lt;script type="text/javascript" src="http://code.jquery.com/jquery-1.7.0.min.js"&#62;&lt;/script&#62;
+    &lt;script type="text/javascript" src="js/jquery.tooltipster.min.js"&#62;&lt;/script&#62;
+
+...
+&lt;/head&#62;
+</pre>
+			<h3>2. Set up your HTML</h3>
+			<p>In order for Tooltipster to work, we first need to add the <strong>.tooltip</strong> class (or whatever class / means of selection you'd like to use) to whatever element we wish to have a tooltip. Next, we'll set the <strong>title attribute</strong> to whatever we'd like our tooltip to say. Here are a few examples:</p>
+			<h4>Adding a tooltip to an image:</h4>
+			<pre class="prettyprint">
+&lt;img src="my-image.png" class="tooltip" title="This is my image's tooltip message!" /&#62;</pre>
+			<h4>Adding a tooltip to a link that already has a class:</h4>
+			<pre class="prettyprint">
+&lt;a href="http://calebjacob.com" class="ketchup tooltip" title="This is my link's tooltip message!"&#62;Link&lt;/a&#62;</pre>
+			<h4>Adding a tooltip to a div:</h4>
+			<pre class="prettyprint">
+&lt;div class="tooltip" title="This is my div's tooltip message!"&#62; 
+    This div has a tooltip when you hover over it!
+&lt;/div&#62;</pre>
+			
+			<h3>3. Activate Tooltipster</h3>
+			<p>The last thing we have to do is activate the plugin. To do this, add the following script right before your closing &lt;/head&#62; tag (using whatever selector you'd like - in this case we're using the <strong>.tooltip</strong> class):</p>
+			<pre class="prettyprint">
+&lt;head&#62;
+
+    ...
+
+    &lt;script&#62;
+        $(document).ready(function() {
+            $('.tooltip').tooltipster();
+        });
+    &lt;/script&#62;
+&lt;/head&#62;</pre>
+			
+			<h3><a name="further">4. Taking It a Step Further</a></h3>
+			<h4>Using HTML tags inside your tooltips</h4>
+			<p>Tooltipster allows you to use any HTML markup you can think of inside your tooltips. This means you can insert things like images and text formatting tags. To achieve this, the recommended method is a little different : provide your content as a jQuery object in the script rather than in the title attribute :</p>
+			<pre class="prettyprint">
+&lt;head&#62;
+
+    ...
+
+    &lt;script&#62;
+        $(document).ready(function() {
+            $('#my-tooltip').tooltipster({
+                content: $('&lt;span&gt;&lt;img src="my-image.png" /&gt; &lt;strong&gt;This text is in bold case !&lt;/strong&gt;&lt;/span&gt;')
+            });
+        });
+    &lt;/script&#62;
+&lt;/head&#62;
+&lt;body&#62;
+    
+    &lt;div id="my-tooltip"&#62; 
+        This div has a tooltip with HTML when you hover over it!
+    &lt;/div&#62;
+	
+&lt;/body&#62;</pre>
+
+			<p>Another (less recommended) way of achieving this is to put encoded HTML markup directly in your title attribute and set the 'contentAsHTML' option to 'true'. In all cases, make sure you have tight control over the content you wish to display in the tooltip, as unwanted &lt;script&gt; or &lt;iframe&gt; tags for example would be a serious security issue for your website.</p>
+
+			<pre class="prettyprint">
+&lt;head&#62;
+
+    ...
+
+    &lt;script&#62;
+        $(document).ready(function() {
+            $('.tooltip').tooltipster({
+                contentAsHTML: true
+            });
+        });
+    &lt;/script&#62;
+&lt;/head&#62;
+&lt;body&#62;
+    
+    &lt;div class="tooltip" title="&amp;lt;img src=&amp;quot;my-image.png&amp;quot; /&amp;gt; &amp;lt;strong&amp;gt; This text is in bold case !&amp;lt;/strong&amp;gt;"&gt; 
+        This div has a tooltip with HTML when you hover over it!
+    &lt;/div&#62;
+	
+&lt;/body&#62;</pre>
+			
+			<h4>Customizing Your Tooltipster's Style</h4>
+			<p>The style of your Tooltipsters can be easily changed by editing/overriding the default Tooltipster theme, located in the <strong>css/tooltipster.css</strong> file.</p>
+			<p>Tooltipster is also packaged with 4 alternative themes to choose from. They are demonstrated at the bottom of this page. To use a theme, just include its css file (located in the css/themes folder) in your page and specify its name in Tooltipster's settings :</p>
+			<pre class="prettyprint">
+$('.tooltip').tooltipster({
+    theme: 'tooltipster-noir'
+});</pre>
+			<p>And of course, you also have the option to create a brand new theme to suit your needs. To do this, start with the example below and add your flair. When you are done, include and specify your theme just like you would for one of Tooltipster's existing themes.</p>
+			<pre class="prettyprint lang-css">
+/* This is how you would create a theme called "my-custom-theme": */
+
+.my-custom-theme {
+	border-radius: 5px; 
+	border: 2px solid #000;
+	background: #4c4c4c;
+	color: #fff;
+}
+/* Use this next selector to style things like font-size and line-height: */
+.my-custom-theme .tooltipster-content {
+	font-family: Arial, sans-serif;
+	font-size: 14px;
+	line-height: 16px;
+	padding: 8px 10px;
+}</pre>
+			
+			<h4>Customizing Tooltipster's Functionality</h4>
+			<p>Tooltipster's options gives you a wide range of variables to tweak your tooltip to your heart's content. To learn more about all of the options, <a href="#options">read the Options section</a>. Here's just a few of the things you can play with:</p>
+			<pre class="prettyprint">
+$('.tooltip').tooltipster({
+   animation: 'fade',
+   delay: 200,
+   theme: 'tooltipster-default',
+   touchDevices: false,
+   trigger: 'hover'
+});</pre>
+		</section>
+		
+		<section id="options">
+			<h2>Options</h2>
+			<table border="0" cellpadding="0" cellspacing="0">
+				<tr>
+					<td><h4>animation</h4></td>
+					<td>fade, grow, swing, slide, fall</td>
+					<td>Determines how the tooltip will animate in and out. Feel free to modify or create custom transitions in the tooltipster.css file. In IE9 and 8, all animations default to a JavaScript generated, fade animation. <strong>Default: 'fade'</strong></td>
+				</tr>
+				<tr>
+					<td><h4>arrow</h4></td>
+					<td>boolean</td>
+					<td>Adds the "speech bubble arrow" to the tooltip. <strong>Default: true</strong></td>
+				</tr>
+				<tr>
+					<td><h4>arrowColor</h4></td>
+					<td>hex code / rgb</td>
+					<td>Select a specific color for the "speech bubble arrow". <strong>Default: will inherit the tooltip's background color</strong></td>
+				</tr>
+				<tr>
+					<td><h4>autoClose</h4></td>
+					<td>boolean</td>
+					<td>If autoClose is set to false, the tooltip will never close unless you call the 'hide' method yourself. <strong>Default: true</strong></td>
+				</tr>
+				<tr>
+					<td><h4>content</h4></td>
+					<td>string, jQuery object</td>
+					<td>If set, this will override the content of the tooltip. <strong>Default: null</strong></td>
+				</tr>
+				<tr>
+					<td><h4>contentAsHTML</h4></td>
+					<td>boolean</td>
+					<td>If the content of the tooltip is provided as a string, it is displayed as plain text by default. If this content should actually be interpreted as HTML, set this option to true. <strong>Default: false</strong></td>
+				</tr>
+				<tr>
+					<td><h4>contentCloning</h4></td>
+					<td>boolean</td>
+					<td>If you provide a jQuery object to the 'content' option, this sets if it is a clone of this object that should actually be used. <strong>Default: true</strong></td>
+				</tr>
+				<tr>
+					<td><h4>debug</h4></td>
+					<td>boolean</td>
+					<td>Tooltipster logs notices into the console when you're doing something you ideally shouldn't be doing. Set to false to disable logging. <strong>Default: true</strong></td>
+				</tr>
+				<tr>
+					<td><h4>delay</h4></td>
+					<td>integer</td>
+					<td>Delay how long it takes (in milliseconds) for the tooltip to start animating in. <strong>Default: 200</strong></td>
+				</tr>
+				<tr>
+					<td><h4>minWidth</h4></td>
+					<td>integer</td>
+					<td>Set a minimum width for the tooltip. <strong>Default: 0 (auto width)</strong></td>
+				</tr>
+				<tr>
+					<td><h4>maxWidth</h4></td>
+					<td>integer</td>
+					<td>Set a maximum width for the tooltip. <strong>Default: null (no max width)</strong></td>
+				</tr>
+				<tr>
+					<td><h4>functionInit</h4></td>
+					<td>function</td>
+					<td>Create a custom function to be fired only once at instantiation. If the function returns a value, this value will become the content of the tooltip. See the <a href="#advanced">advanced section</a> to learn more. <strong>Default: function(origin, content) {}</strong></td>
+				</tr>
+				<tr>
+					<td><h4>functionBefore</h4></td>
+					<td>function</td>
+					<td>Create a custom function to be fired before the tooltip opens. This function may prevent or hold off the opening. See the <a href="#advanced">advanced section</a> to learn more. <strong>Default: function(origin, continueTooltip) { continueTooltip(); }</strong></td>
+				</tr>
+				<tr>
+					<td><h4>functionReady</h4></td>
+					<td>function</td>
+					<td>Create a custom function to be fired when the tooltip and its contents have been added to the DOM. <strong>Default: function(origin, tooltip) {}</strong></td>
+				</tr>
+				<tr>
+					<td><h4>functionAfter</h4></td>
+					<td>function</td>
+					<td>Create a custom function to be fired once the tooltip has been closed and removed from the DOM. <strong>Default: function(origin) {}</strong></td>
+				</tr>
+				<tr>
+					<td><h4>hideOnClick</h4></td>
+					<td>boolean</td>
+					<td>If true, the tooltip will close if its origin is clicked. This option only applies when 'trigger' is 'hover' and 'autoClose' is false. <strong>Default: false</strong></td>
+				</tr>
+				<tr>
+					<td><h4>icon</h4></td>
+					<td>string, jQuery object</td>
+					<td>If using the iconDesktop or iconTouch options, this sets the content for your icon. <strong>Default: '(?)'</strong></td>
+				</tr>
+				<tr>
+					<td><h4>iconCloning</h4></td>
+					<td>boolean</td>
+					<td>If you provide a jQuery object to the 'icon' option, this sets if it is a clone of this object that should actually be used. <strong>Default: true</strong></td>
+				</tr>
+				<tr>
+					<td><h4>iconDesktop</h4></td>
+					<td>boolean</td>
+					<td>Generate an icon next to your content that is responsible for activating the tooltip on non-touch devices. <strong>Default: false</strong></td>
+				</tr>
+				<tr>
+					<td><h4>iconTheme</h4></td>
+					<td>CSS class</td>
+					<td>If using the iconDesktop or iconTouch options, this sets the class on the icon (used to style the icon). <strong>Default: 'tooltipster-icon'</strong></td>
+				</tr>
+				<tr>
+					<td><h4>iconTouch</h4></td>
+					<td>boolean</td>
+					<td>Generate an icon next to your content that is responsible for activating the tooltip on touch devices (tablets, phones, etc). <strong>Default: false</strong></td>
+				</tr>
+				<tr>
+					<td><h4>interactive</h4></td>
+					<td>boolean</td>
+					<td>Give users the possibility to interact with the tooltip. Unless autoClose is set to false, the tooltip will still close if the user moves away from or clicks out of the tooltip. <strong>Default: false</strong></td>
+				</tr>
+				<tr>
+					<td><h4>interactiveTolerance</h4></td>
+					<td>integer</td>
+					<td>If the tooltip is interactive and activated by a hover event, set the amount of time (milliseconds) allowed for a user to hover off of the tooltip activator (origin) on to the tooltip itself - keeping the tooltip from closing. <strong>Default: 350</strong></td>
+				</tr>
+				<tr>
+					<td><h4>multiple</h4></td>
+					<td>boolean</td>
+					<td>Allows you to put multiple tooltips on a single element. Read further instructions down this page. <strong>Default: false</strong></td>
+				</tr>
+				<tr>
+					<td><h4>offsetX</h4></td>
+					<td>integer</td>
+					<td>Offsets the tooltip (in pixels) farther left/right from the origin. <strong>Default: 0</strong></td>
+				</tr>
+				<tr>
+					<td><h4>offsetY</h4></td>
+					<td>integer</td>
+					<td>Offsets the tooltip (in pixels) farther up/down from the origin. <strong>Default: 0</strong></td>
+				</tr>
+				<tr>
+					<td><h4>onlyOne</h4></td>
+					<td>boolean</td>
+					<td>If true, only one tooltip will be allowed to be active at a time. Non-autoclosing tooltips will not be closed though. <strong>Default: false</strong></td>
+				</tr>
+				<tr>
+					<td><h4>position</h4></td>
+					<td>right, left, top, top-right, top-left, bottom, bottom-right, bottom-left</td>
+					<td>Set the position of the tooltip. <strong>Default: 'top'</strong></td>
+				</tr>
+				<tr>
+					<td><h4>positionTracker</h4></td>
+					<td>boolean</td>
+					<td>Will reposition the tooltip if the origin moves. As this option may have an impact on performance, we suggest you enable it only if you need to. <strong>Default: false</strong></td>
+				</tr>
+				<tr>
+					<td><h4>positionTrackerCallback</h4></td>
+					<td>function</td>
+					<td>Called after the tooltip has been repositioned by the position tracker (if enabled). <strong>Default:</strong> A function that will close the tooltip if the trigger is 'hover' and autoClose is false.</td>
+				</tr>
+				<tr>
+					<td><h4>restoration</h4></td>
+					<td>'none', 'previous' or 'current'</td>
+					<td>Specify if a TITLE attribute should be restored on the HTML element after a call to the 'destroy' method. This attribute may be omitted, or be restored with the value that existed before Tooltipster was initialized, or be restored with the stringified value of the current content. Note: in case of multiple tooltips on a single element, only the last destroyed tooltip may trigger a restoration. <strong>Default: 'current'</strong></td>
+				</tr>
+				<tr>
+					<td><h4>speed</h4></td>
+					<td>integer</td>
+					<td>Set the speed of the animation. <strong>Default: 350</strong></td>
+				</tr>
+				<tr>
+					<td><h4>timer</h4></td>
+					<td>integer</td>
+					<td>How long the tooltip should be allowed to live before closing. <strong>Default: 0 (disabled)</strong></td>
+				</tr>
+				<tr>
+					<td><h4>theme</h4></td>
+					<td>CSS class</td>
+					<td>Set the theme used for your tooltip. <strong>Default: 'tooltipster-default'</strong></td>
+				</tr>
+				<tr>
+					<td><h4>touchDevices</h4></td>
+					<td>boolean</td>
+					<td>If set to false, tooltips will not show on pure-touch devices, unless you open them yourself with the 'show' method. Touch gestures on devices which also have a mouse will still open the tooltips though. <strong>Default: true</strong></td>
+				</tr>
+				<tr>
+					<td><h4>trigger</h4></td>
+					<td>hover, click, custom</td>
+					<td>Set how tooltips should be activated and closed. See the <a href="#advanced">advanced section</a> to learn how to build custom triggers. <strong>Default: 'hover'</strong></td>
+				</tr>
+				<tr>
+					<td><h4>updateAnimation</h4></td>
+					<td>boolean</td>
+					<td>If a tooltip is open while its content is updated, play a subtle animation when the content changes. <strong>Default: true</strong></td>
+				</tr>
+			</table>
+		</section>
+		
+		<section id="advanced">
+			<h2>Advanced</h2>
+			
+			<a name="api"></a>
+			<h3>The awesomesauce Tooltipster API</h3>
+			<p>The Tooltipster API was created to be as flexible and easy to use as possible (thanks to <a href="https://github.com/glebtv">glebtv</a> for the inspiration). The API allows you to create custom triggers, update tooltip content on the fly (whether the tooltip is currently open or not), destroy Tooltipster functionality if needed, and reposition tooltips for unique use cases.</p>
+			<p>Here is a quick look at all of the API methods:</p>
+			<pre class="prettyprint">
+// set default options for all future tooltip instantiations
+$.fn.tooltipster('setDefaults', {
+  position: 'bottom'
+});
+
+// show a tooltip (the 'callback' argument is optional)
+$(...).tooltipster('show', callback);
+
+// hide a tooltip (the 'callback' argument is optional)
+$(...).tooltipster('hide', callback);
+
+// temporarily disable a tooltip from being able to open
+$(...).tooltipster('disable');
+
+// if a tooltip was disabled from opening, reenable its previous functionality
+$(...).tooltipster('enable');
+
+// hide and destroy tooltip functionality
+$(...).tooltipster('destroy');
+
+// return a tooltip's current content (if selector contains multiple origins, only the value of the first will be returned)
+$(...).tooltipster('content');
+
+// update tooltip content
+$(...).tooltipster('content', myNewContent);
+
+// get the value of an option
+$(...).tooltipster('option', optionName);
+
+// set the value of an option (use at your own risk, we do not provide support for issues you may encounter when using this method)
+$(...).tooltipster('option', optionName, optionValue);
+
+// reposition and resize the tooltip
+$(...).tooltipster('reposition');
+
+// return the HTML root element of the tooltip
+$(...).tooltipster('elementTooltip');
+
+// return the HTML root element of the icon if there is one, 'undefined' otherwise
+$(...).tooltipster('elementIcon');</pre>
+			
+			<a name="ajax"></a>
+			<h3>Using AJAX to generate your tooltip content</h3>
+			<p>Tooltipster gives you the ability to fire a custom synchronous or asynchronous function everytime before the tooltip launches (<a href="#functionBeforeExample">functionBefore</a>) or just once upon instantiation (<a href="#functionInitExample">functionInit</a>). One great use for this is to grab dynamic content for your tooltips via AJAX.</p>
+			<p id="functionBeforeExample">Here is an example of using functionBefore() asynchronously to replace a loading notification with our AJAX call. Once the content has been retrieved and updated, we'll take advantage of setting $.data() to keep our content cached for the next time the tooltip is opened:</p>
+			<pre class="prettyprint">
+$('.tooltip').tooltipster({
+    content: 'Loading...',
+    functionBefore: function(origin, continueTooltip) {
+
+        // we'll make this function asynchronous and allow the tooltip to go ahead and show the loading notification while fetching our data
+        continueTooltip();
+        
+        // next, we want to check if our data has already been cached
+        if (origin.data('ajax') !== 'cached') {
+            $.ajax({
+                type: 'POST',
+                url: 'example.php',
+                success: function(data) {
+                    // update our tooltip content with our returned data and cache it
+                    origin.tooltipster('content', data).data('ajax', 'cached');
+                }
+            });
+        }
+    }
+});</pre>
+			<p id="functionInitExample">However, maybe you just need to make one call and only need it to fire once instead of everytime the tooltip opens. This is where you could use functionInit(). This function will fire only once - right at the beginning of the instantiation process. You'll have the ability to do things like check the current content and set new content. Since the fancy API methods for returning and setting the value aren't instantiated yet, the way we go about this is a little different than functionBefore():
+			<pre class="prettyprint">
+$('.tooltip').tooltipster({
+    functionInit: function(origin, content) {
+		
+        if (content === 'This is bad content') {
+            
+            // when the request has finished loading, we will change the tooltip's content
+            $.ajax({
+                type: 'POST',
+                url: 'example.php',
+                success: function(data) {
+                    origin.tooltipster('content', 'New content has been loaded : ' + data);
+                }
+            });
+			
+            // this returned string will overwrite the content of the tooltip for the time being
+            return 'Wait while we load new content...';
+        }
+        else {
+            // return nothing : the initialization continues normally with its content unchanged.
+        }
+    }
+});</pre>
+			
+			<a name="apishow"></a>
+			<h3>Manually show and hide a tooltip</h3>
+			<p>By default and according to the 'trigger' option, Tooltipster automatically shows tooltips upon users' mouse clicks or mouse hovering (or their touch-gesture equivalents). In addition to this, you may also manually open or close a tooltip at anytime with a simple javascript command.</p>
+			<p>To achieve this, Tooltipster has the 'show' and 'hide' methods. Both of them may receive an optional 'callback' parameter, which represents a function you'd like to call when the tooltip is done animating.</p>
+			<p>Here's an example of how you could launch a specific tooltip on page load and close it when any key on your keyboard is pressed. This will still preserve the default hover trigger.</p>
+			<pre class="prettyprint">
+&lt;span class="tooltip" id="example" title="My tooltip content"&#62;Example&lt;/span&#62;
+</pre>
+			<pre class="prettyprint">
+$(document).ready(function() {
+   
+   // first on page load, initiate the Tooltipster plugin
+   $('.tooltip').tooltipster();
+   
+   // then immediately show the tooltip
+   $('#example').tooltipster('show');
+   
+   // as soon as a key is pressed on the keyboard, hide the tooltip.
+   $(window).keypress(function() {
+      $('#example').tooltipster('hide');
+   });
+});
+</pre>
+			<p>You may also provide a function as the callback parameter of the show/hide methods. The callback functions are called in the context of the tooltipstered element. If the tooltip is already in the state you are asking for (open/closed), the callback is executed immediately. Please note that if the show/hide action is somehow cancelled before it has completed its animation, the callback function will never be called.</p>
+			<pre class="prettyprint">
+$(document).ready(function() {
+   
+   $('.tooltip').tooltipster();
+   
+   $('#example').tooltipster('show', function() {
+       alert('The tooltip is now fully open. The content is: ' + this.tooltipster('content'));
+   });
+   
+   $(window).keypress(function() {
+      $('#example').tooltipster('hide', function() {
+         alert('The tooltip is now fully closed');
+      });
+   });
+});
+</pre>
+			
+			<a name="apicontent"></a>
+			<h3>Updating a tooltip's content</h3>
+			<p>It's easy as pie to update a tooltip's content - whether it's open or closed. Depending on your selector, you can update multiple tooltips at once or just one:</p>
+			<pre class="prettyprint">
+$('#my-special-element').tooltipster('content', 'My new content');</pre>
+			<p>By default, Tooltipster will play a subtle animation when the content changes. To tweak the animation, check out the '.tooltipster-content-changing' class in your tooltipster.css file. It's important to note that only CSS transforms will be animated. To disable this animation, set updateAnimation to false.</p>
+			
+			<a name="multiple"></a>
+			<h3>Using several tooltips on a single element</h3>
+			<p>Several independant tooltips can be set on a single element, each one having its own triggers and options. Just set the 'multiple' option to true when you initialize your tooltip. This will only change two things that you might want to be aware of.</p>
+			<p>Firstly, the instantiation call will now return an array of Tooltipster objects generated by the call, instead of the tooltipped jQuery-wrapped elements.</p>
+			<p>Secondly, you will have to use the Tooltipster object of a tooltip to make any API method calls on it. All methods documented on this page remain available, only the way to call them changes.</p>
+			
+			<pre class="prettyprint">
+// create a first tooltip as usual. The multiple option is actually optional for the first tooltip
+$('#my-element').tooltipster({
+	content: 'My first tooltip',
+	position: 'top'
+});
+
+// instantiate a second tooltip and keep the returned Tooltipster objects array for later use of the API
+var tooltipsterObjects = $('#my-element').tooltipster({
+	// don't forget to provide content here as the 1st tooltip will have deleted the original title attribute of the element
+	content: 'My second tooltip',
+	multiple: true,
+	position: 'bottom'
+});
+
+// since the jQuery selector matches only one element, the array will contain only one Tooltipster object.
+// Otherwise the array would contain one object for each matched element, in the same order as them
+var tooltip2 = tooltipsterObjects[0];
+
+// use this Tooltipster object to make any API method call on the tooltip
+tooltip2.content('New content for my second tooltip').show();
+// all documented methods can be called that way
+var element = tooltip2.elementTooltip();
+
+// calling the API methods in the usual way only affects the first tooltip that was created on the element
+$('#my-element').tooltipster('content', 'New content for my first tooltip')
+</pre>
+
+<pre class="prettyprint">
+// You may use the 'multiple' option on the first tooltip as well, it will return an array of objects too
+var tooltipsterObjects = $('#my-element').tooltipster({
+	content: 'My first tooltip',
+	multiple: true
+});
+
+// this is also a way to call API methods on the first tooltip
+var tooltip1 = tooltipsterObjects[0];
+tooltip1.content('New content for my first tooltip').show();</pre>
+
+<p>Note : if you have multiple tooltips and destroy them, only the last destroyed tooltip will transfer its content back to the title attribute of the tooltipped element.</p>
+	
+			<a name="accessibility"></a>
+			<h3>Make tooltips accessible to persons with disabilities</h3>
+			<p>The W3C issued a recommendation to make websites more accessible to persons with disabilities. This recommendation is known as WAI-ARIA (or simply ARIA), which stands for Web Accessibility Initiative - Accessible Rich Internet Applications.</p>
+			<p>Accessible tooltips can be powered by Tooltipster. To do this, one solution is to actually manipulate in parallel two tooltips which will share the same content :<br />
+				- the ARIA tooltip, which is invisible on the screen but readable by ARIA-compatible software<br />
+				- the Tooltipster tooltip, which is visible on the screen but does not appear as an ARIA-compatible element
+			</p>
+			<p>A basic example : imagine that we want to put a tooltip on a text input field. As for the HTML part, you would write :</p>
+			<pre class="prettyprint">
+&lt;input id="myfield" type="text" aria-describedby="myfield_description" /&gt;
+&lt;span id="myfield_description" role="tooltip"&gt;Please insert your name here&lt;/span&gt;
+</pre>
+			<p>As for the CSS part, write this :</p>
+			<pre class="prettyprint">
+#myfield_description {
+	display: none;
+}
+</pre>
+			<p>And finally, you could initiate Tooltipster like this :</p>
+			<pre class="prettyprint">
+$('#myfield').tooltipster({
+    functionInit: function(){
+        return $('#myfield_description').html();
+    },
+    functionReady: function(){
+        $('#myfield_description').attr('aria-hidden', false);
+    },
+    functionAfter: function(){
+        $('#myfield_description').attr('aria-hidden', true);
+    }
+});
+
+// if in addition you want the tooltip to be displayed when the field gets focus, add these custom triggers :
+$('#myfield')
+    .focus(function(){
+        $(this).tooltipster('show');
+    })
+    .blur(function(){
+        $(this).tooltipster('hide');
+    });
+</pre>
+			
+			<h3>Community submitted use cases</h3>
+			<p><a href="http://stackoverflow.com/questions/14741688/how-to-display-messages-from-jquery-validate-plugin-inside-of-tooltipster-toolti">Using Tooltipster alongside jQuery Validate</a> by <a href="https://github.com/sparky672">sparky672</a></p>
+			<p>Did you do something awesome with Tooltipster? <a href="#talk">Tell me</a> and I'll post it up here!</p>
+		</section>
+		
+		<section id="themes">
+			<h2>Themes</h2>
+			<p>Tired of the same old? Four other rocking themes are available for your tooltips, and you can always create yours ! Share them with us on GitHub !</p>
+			<div class="themes">
+				<span class="tooltipster-default-preview tooltip" title="The default theme" target="_blank">Default</span>
+				<span class="tooltipster-light-preview" title="Light and frisky!" target="_blank">Light</span>
+				<span class="tooltipster-punk-preview" title="I will not conform to your old fart ways!" target="_blank">Punk</span>
+				<span class="tooltipster-noir-preview" title="Hipsterific!" target="_blank">Noir</span>
+				<span class="tooltipster-shadow-preview" title="Check out my shadow" target="_blank">Shadow</span>
+			</div>
+		</section>
+				
+		<section id="talk">
+			<h2>Talk</h2>
+			<h3>Share thoughts, questions, &amp; bugs!</h3>
+			<p>Head on over to Tooltipster's issue tracker on GitHub: <a href="https://github.com/iamceege/tooltipster/issues">https://github.com/iamceege/tooltipster/issues</a></p>
+			<p>Before opening a new issue, please be sure to search through the backlog to see if your question or bug has been / is being resolved. Thank you! :)</p>
+		</section>
+		
+		<footer>
+			Developed and maintained by <a href="https://plus.google.com/116532683962309427991?rel=author" class="white">Caleb Jacob</a> and <a href="https://github.com/louisameline" class="white">Louis Ameline</a> under the <a href="http://opensource.org/licenses/MIT" class="white">MIT license</a>
+		</footer>
+	</div>
+	
+	<div id="fb-root"></div>
+	<script type="text/javascript">
+	  (function() {
+	    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+	    po.src = '//apis.google.com/js/plusone.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+	  })();
+  	</script>
+</body>
+</html>

@@ -37,7 +37,7 @@ public class DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor impleme
 
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
-    private ServiceType serviceType = HTTP_CLIENT4_INTERNAL;
+    private ServiceType serviceType = ServiceType.HTTP_CLIENT_INTERNAL;
 
     public DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor(TraceContext context, MethodDescriptor methodDescriptor) {
         setTraceContext(context);

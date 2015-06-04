@@ -86,7 +86,7 @@
 //                                    return category;
 //                                },
                                 "labelFunction": function (valueText, serialDataItem, categoryAxis) {
-                                    return new Date(valueText).toString('HH:mm');
+                                	return valueText.substring( valueText.indexOf( " " ) + 1 );
                                 }
                             },
                             "balloon": {

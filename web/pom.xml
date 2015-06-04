@@ -16,7 +16,6 @@
         <jdk.home>${env.JAVA_7_HOME}</jdk.home>
         <buildTime>${maven.build.timestamp}</buildTime>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
-        <spring-batch-version>2.2.7.RELEASE</spring-batch-version>
     </properties>
 
     <dependencies>
@@ -521,7 +520,7 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.tomcat.maven</groupId>
-                        <artifactId>tomcat6-maven-plugin</artifactId>
+                        <artifactId>tomcat7-maven-plugin</artifactId>
                         <version>2.2</version>
                         <configuration>
                             <path>/</path>

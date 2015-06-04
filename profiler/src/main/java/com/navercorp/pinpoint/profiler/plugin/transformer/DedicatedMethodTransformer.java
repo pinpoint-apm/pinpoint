@@ -57,6 +57,7 @@ public class DedicatedMethodTransformer implements MethodTransformer {
                 if (exceptionHandler != null) {
                     exceptionHandler.handle(target.getName(), targetMethodName, targetMethodParameterTypes, e);
                     logger.info("Cannot find target method" + targetMethodName + "(" + Arrays.deepToString(targetMethodParameterTypes) + ") but MethodTransformerExceptionHandler handled it.");
+                    return;
                 } else {
                     throw new InstrumentException("Fail to edit method", e);
                 }

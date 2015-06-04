@@ -5,10 +5,18 @@
  * @since May 28, 2013
  * @author Denny Lim<hello@iamdenny.com, iamdenny@nhn.com>
  * @license MIT License
- * @copyright 2013 NHN Corp.
+ * @copyright 2013 Naver Corp.
  */
 var BigScatterChart = $.Class({
-    $init: function (htOption) {
+	/**
+	 * initialize BigScatterChart class
+	 * @ko BigScattterChart 초기화 함수
+	 * @constructor
+	 * @method BigScatterChart#$init
+	 * @param {Object} option option object
+	 * @param {Service} helpContentService angularjs service object
+	 */			
+    $init: function (htOption, helpContentTemplate, helpContentService) {
         this.option({
             'sContainerId': '',
             'sPrefix': 'bigscatterchart-',
@@ -110,6 +118,23 @@ var BigScatterChart = $.Class({
         this._initEvents();
         this._drawXYAxis();
         this.updateXYAxis();
+        this._initTooltip( helpContentTemplate, helpContentService );
+    },
+    /**
+	 * initialize tooltipster
+	 * @ko tooltipster 를 초기화
+	 * @constructor
+	 * @method BigScatterChart#_initTooltip
+	 * @param {Service} helpContentService angularjs service object
+	 */	
+    _initTooltip: function(helpContentTemplate, helpContentService) {
+        this._welContainer.find(".scatterTooltip").tooltipster({
+        	content: function() {
+        		return helpContentTemplate(helpContentService.scatter["default"]);
+        	},
+        	position: "top-right",
+        	trigger: "click"
+        });
     },
 
     _initVariables: function (bIsRedrawing) {
@@ -187,6 +212,7 @@ var BigScatterChart = $.Class({
             'width': this.option('nWidth'),
             'height': this.option('nHeight')
         }).addClass('bigscatterchart');
+        this._welContainer.append( $('<div style="z-index:5;position:absolute;"><span class="glyphicon glyphicon-question-sign scatterTooltip" style="cursor:pointer;"></span></div>') );
 
         // guide
         this._welGuideCanvas = $('<canvas>')
@@ -332,25 +358,6 @@ var BigScatterChart = $.Class({
         }
         this._welOverlay.append(this._awelXNumber);
         this._welOverlay.append(this._awelYNumber);
-
-        this._welDragGuide = $('<div>')
-        	.css({
-        		'z-index':10000,
-                'position': 'absolute',
-                'width': '56px',
-                'height': '22px',
-                'line-height': '22px',
-                'margin-left': '-28px',
-                'text-align': 'center',
-                'color': 'black',
-                'background': 'yellow',
-                'border': '1px solid #ccc',
-                'border-radius': '5px',
-                'font-weight': 'bold',
-                'display': 'none'
-            })
-            .css(htLabelStyle)
-            .append($('<span></span>'));
         
         this._welXGuideNumber = $('<div>')
             .css({
@@ -393,7 +400,6 @@ var BigScatterChart = $.Class({
             .css(htLabelStyle)
             .append($('<span></span>'))
             .append($('<div style="position:absolute;border-top:1px solid red;width:10px;right:-10px;top:9px;"></div>'));
-        this._welOverlay.append(this._welDragGuide);
         this._welOverlay.append(this._welXGuideNumber);
         this._welOverlay.append(this._welYGuideNumber);
 
@@ -424,7 +430,7 @@ var BigScatterChart = $.Class({
             });
         this._htwelTypeLi = {};
         this._htwelTypeSpan = {};
-        var htCheckBoxImage = this.option('htCheckBoxImage');
+        var htCheckBoxImage = this.option('htCheckBoxImage');        
         _.each(htType, function (sVal, sKey) {
             var style = {
                 'display': 'inline-block',
@@ -773,7 +779,6 @@ var BigScatterChart = $.Class({
     },
 
     _showGuideLine: function () {
-    	this._welDragGuide.show();
         this._welXGuideNumber.show();
         this._welYGuideNumber.show();
     },
@@ -785,10 +790,6 @@ var BigScatterChart = $.Class({
             nPaddingLeft = this.option('nPaddingLeft'),
             nBubbleSize = this.option('nBubbleSize'),
             nHeight = this.option('nHeight');
-        this._welDragGuide.css({
-        	"left": nX - htOffset.left,
-        	"top": nY - htOffset.top - 30
-        }).find('span').text("Drag me!");
         this._welXGuideNumber.css('left', nX - htOffset.left);
         this._welXGuideNumber.find('span').text(new Date(this._parseMouseXToXData(nX - htOffset.left - nPaddingLeft - nBubbleSize)).toString("HH:mm:ss"));
         this._welYGuideNumber.css('top', nY - htOffset.top);
@@ -796,7 +797,6 @@ var BigScatterChart = $.Class({
     },
 
     _hideGuideLine: function () {
-    	this._welDragGuide.hide();
         this._welXGuideNumber.hide();
         this._welYGuideNumber.hide();
     },

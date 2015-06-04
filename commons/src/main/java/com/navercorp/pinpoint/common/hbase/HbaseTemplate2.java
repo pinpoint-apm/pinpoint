@@ -41,10 +41,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private PooledHTableFactory pooledHTableFactory;
-    private int poolSize = PooledHTableFactory.DEFAULT_POOL_SIZE;
-
-    private ExecutorService executor = newCachedThreadPool();
+    private final ExecutorService executor = newCachedThreadPool();
 
     public HbaseTemplate2() {
     }
@@ -65,35 +62,21 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
 
     public HbaseTemplate2(Configuration configuration) {
         Assert.notNull(configuration);
+        setConfiguration(configuration);
     }
 
-    public HbaseTemplate2(Configuration configuration, int poolSize) {
-        Assert.notNull(configuration);
-        this.poolSize = poolSize;
-    }
 
-    public int getPoolSize() {
-        return poolSize;
-    }
-
-    public void setPoolSize(int hTablePoolSize) {
-        this.poolSize = hTablePoolSize;
-    }
 
     @Override
     public void afterPropertiesSet() {
         Configuration configuration = getConfiguration();
         Assert.notNull(configuration, "configuration is required");
-        this.pooledHTableFactory = new PooledHTableFactory(configuration, poolSize);
-        this.setTableFactory(pooledHTableFactory);
+        Assert.notNull(getTableFactory(), "tableFactory is required");
     }
 
     @Override
     public void destroy() throws Exception {
-        if (pooledHTableFactory != null) {
-            this.pooledHTableFactory.destroy();
-        }
-
+        logger.info("HbaseTemplate2.destroy()");
         final ExecutorService executor = this.executor;
         if (executor != null) {
             executor.shutdown();
@@ -307,9 +290,9 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
                 Put put = new Put(rowName);
                 if (familyName != null) {
                     if (timestamp == null) {
-                        put.add(familyName, qualifier, value);
+                        put.addColumn(familyName, qualifier, value);
                     } else {
-                        put.add(familyName, qualifier, timestamp, value);
+                        put.addColumn(familyName, qualifier, timestamp, value);
                     }
                 }
                 htable.put(put);

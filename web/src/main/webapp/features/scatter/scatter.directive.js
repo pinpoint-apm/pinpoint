@@ -61,8 +61,8 @@
 	// FIXME made global to allow access from the child window. Refactor later. 
 	//var selectdTracesBox = {};
 	
-	pinpointApp.directive('scatterDirective', ['scatterDirectiveConfig', '$rootScope', '$timeout', 'webStorage', 'TransactionDaoService', '$window',
-        function (cfg, $rootScope, $timeout, webStorage, oTransactionDaoService, $window) {
+	pinpointApp.directive('scatterDirective', ['scatterDirectiveConfig', '$rootScope', '$timeout', 'webStorage', 'TransactionDaoService', '$window', 'helpContentTemplate', 'helpContentService',
+        function (cfg, $rootScope, $timeout, webStorage, oTransactionDaoService, $window, helpContentTemplate, helpContentService) {
             return {
                 template: '<div id="scatter"></div>',
                 restrict: 'EA',
@@ -227,7 +227,7 @@
                         };
 
                         var oScatterChart = null;
-                        oScatterChart = new BigScatterChart(options);
+                        oScatterChart = new BigScatterChart(options, helpContentTemplate, helpContentService);
                         $timeout(function () {
                             if (angular.isUndefined(scatterData)) {
                                 oScatterChart.drawWithDataSource(getDataSource(title, start, end, filter));

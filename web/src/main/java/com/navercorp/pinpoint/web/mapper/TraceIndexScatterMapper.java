@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.vo.TransactionId;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
@@ -46,34 +46,32 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
             return Collections.emptyList();
         }
 
-        KeyValue[] raw = result.raw();
-        List<Dot> list = new ArrayList<Dot>(raw.length);
-        for (KeyValue kv : raw) {
-            final Dot dot = createDot(kv);
+        Cell[] rawCells = result.rawCells();
+        List<Dot> list = new ArrayList<Dot>(rawCells.length);
+        for (Cell cell : rawCells) {
+            final Dot dot = createDot(cell);
             list.add(dot);
         }
 
         return list;
     }
 
-    private Dot createDot(KeyValue kv) {
-        final byte[] buffer = kv.getBuffer();
-
-        final int valueOffset = kv.getValueOffset();
-        final Buffer valueBuffer = new OffsetFixedBuffer(buffer, valueOffset);
+    private Dot createDot(Cell cell) {
+        final int valueOffset = cell.getValueOffset();
+        final Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), valueOffset);
         int elapsed = valueBuffer.readVarInt();
         int exceptionCode = valueBuffer.readSVarInt();
         String agentId = valueBuffer.readPrefixedString();
 
-        long reverseAcceptedTime = BytesUtils.bytesToLong(buffer, kv.getRowOffset() + HBaseTables.APPLICATION_NAME_MAX_LEN + HBaseTables.APPLICATION_TRACE_INDEX_ROW_DISTRIBUTE_SIZE);
+        long reverseAcceptedTime = BytesUtils.bytesToLong(cell.getRowArray(), cell.getRowOffset() + HBaseTables.APPLICATION_NAME_MAX_LEN + HBaseTables.APPLICATION_TRACE_INDEX_ROW_DISTRIBUTE_SIZE);
         long acceptedTime = TimeUtils.recoveryTimeMillis(reverseAcceptedTime);
 
-        final int qualifierOffset = kv.getQualifierOffset();
+        final int qualifierOffset = cell.getQualifierOffset();
 
         // TransactionId transactionId = new TransactionId(buffer, qualifierOffset);
 
         // for temporary, used TransactionIdMapper
-        TransactionId transactionId = TransactionIdMapper.parseVarTransactionId(buffer, qualifierOffset);
+        TransactionId transactionId = TransactionIdMapper.parseVarTransactionId(cell.getQualifierArray(), qualifierOffset);
         
         return new Dot(transactionId, acceptedTime, elapsed, exceptionCode, agentId);
     }

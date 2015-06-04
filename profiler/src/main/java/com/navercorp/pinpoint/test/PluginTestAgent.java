@@ -477,6 +477,11 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
     private void verifySpan(Expected expected) {
         Object obj = popSpan();
+        
+        if (obj == null) {
+            throw new AssertionError("Expected a " + expected.type.getSimpleName() + " but there is no trace");
+        }
+        
         Facade span = wrap(obj);
         
         if (!expected.type.isInstance(obj)) {

@@ -31,7 +31,7 @@
                     <li class="divider-vertical"></li>
                     <li class="for-datetimepicker" id="navbar_period">
                         <div ng-show="periodType != 'range'">
-                            <div class="btn-group btn-group-sm" style="margin-top:0px;width:425px;float:left;">
+                            <div class="btn-group btn-group-sm" style="margin-top:0px;width:360px;float:left;">
                                 <button type="button" class="btn btn-success" ng-click="togglePeriod('range')"><span class="glyphicon glyphicon-th-list"></span></button>
                                 <button type="button" class="btn btn-default" ng-class="getPeriodClass('5m')" ng-click="setPeriod('5m')" ng-disabled="periodDelay">Last 5m</button>
                                 <button type="button" class="btn btn-default" ng-class="getPeriodClass('20m')" ng-click="setPeriod('20m')" ng-disabled="periodDelay">20m</button>
@@ -42,7 +42,6 @@
                                 <button type="button" class="btn btn-default" ng-class="getPeriodClass('1d')" ng-click="setPeriod('1d')" ng-disabled="periodDelay">1d</button>
                                 <button type="button" class="btn btn-default" ng-class="getPeriodClass('2d')" ng-click="setPeriod('2d')" ng-disabled="periodDelay">2d</button>
                             </div>
-
                             <div class="btn-group btn-group-sm input-group input-group-sm" style="margin-top:0px;width:146px;" ng-show="showUpdate()">
                                 <span class="input-group-addon">
                                     <label style="margin:0;">
@@ -75,10 +74,21 @@
                                     <span class="glyphicon glyphicon-search"></span>
                                 </button>
                             </span>
+                            
                         </div>
                     </li>
                 </ul>
             </form>
         </div>
     </div>
+    <div style="position:fixed;right:150px;top:10px;">
+    	<span class="glyphicon glyphicon-question-sign navbarTooltip" style="cursor:pointer;font-size:17px;color:#FFFFFF;"></span>
+    </div>
+    <div id="copyright">
+	    <p>
+	        <a href="http://www.naver.com" target="_blank">Copyright ⓒ NAVER Corp.</a><br>
+	        <a href="https://github.com/naver/pinpoint" target="_blank">GitHub</a>
+	    </p>
+	</div>
 </div>
+

@@ -25,7 +25,8 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,16 +55,16 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
         final byte[] rowKey = getOriginalKey(result.getRow());
 
         List<ApiMetaDataBo> apiMetaDataList = new ArrayList<ApiMetaDataBo>();
-        KeyValue[] keyList = result.raw();
-        for (KeyValue keyValue : keyList) {
+        for (Cell cell : result.rawCells()) {
             ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo();
             apiMetaDataBo.readRowKey(rowKey);
-            byte[] qualifier = keyValue.getQualifier();
+
+            byte[] qualifier = CellUtil.cloneQualifier(cell);
             Buffer buffer = new FixedBuffer(qualifier);
             String apiInfo = buffer.readPrefixedString();
             int lineNumber = buffer.readInt();
             int type = 0;
-            if(buffer.limit() > 0) {
+            if (buffer.limit() > 0) {
                 type = buffer.readInt();
             }
             apiMetaDataBo.setApiInfo(apiInfo);

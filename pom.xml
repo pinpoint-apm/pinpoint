@@ -54,6 +54,7 @@
         <httpcomponents.version>4.3</httpcomponents.version>
         <jedis.version>2.4.2</jedis.version>
         <cloverLicenseLocation>${basedir}/clover.license</cloverLicenseLocation>
+        <spring-batch-version>2.2.7.RELEASE</spring-batch-version>
     </properties>
 
     <dependencies>
@@ -786,7 +787,7 @@
                 <configuration>
                     <includesTestSourceRoots>true</includesTestSourceRoots>
                     <licenseLocation>clover.license</licenseLocation>
-                    <encoding>UTF-8</encoding>
+                    <encoding>${encoding}</encoding>
                     <jdk>1.6</jdk>
                 </configuration>
             </plugin>

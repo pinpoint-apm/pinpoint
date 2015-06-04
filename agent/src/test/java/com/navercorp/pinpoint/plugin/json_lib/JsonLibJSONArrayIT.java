@@ -18,66 +18,82 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.Ex
 
 import java.lang.reflect.Method;
 
+import net.sf.json.JSONArray;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.BlockType;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import com.navercorp.pinpoint.test.plugin.JvmVersion;
-
-import net.sf.json.JSONSerializer;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONArray;
-import net.sf.json.JSON;
 
 /**
- *@author Sangyoon Lee
+ * @author Sangyoon Lee
  */
 @RunWith(PinpointPluginTestSuite.class)
-@PinpointAgent("target/pinpoint-agent-1.5.0-SNAPSHOT")
-@Dependency({"log4j:log4j:1.2.17", "net.sf.json-lib:json-lib:jar:jdk15:2.3"})
-@JvmVersion({6,7})
+@Dependency({ "net.sf.json-lib:json-lib:jar:jdk15:(,)" })
 public class JsonLibJSONArrayIT {
 
-    @Test
-    public void fromObjecttest() throws Exception {
-        
-        String test = "[{'string':'JSON'}]";
+    private static final String SERVICE_TYPE = "JSON-LIB";
+    private static final String ANNOTATION_KEY = "json-lib.json.length";
 
-        JSONArray jsn = new JSONArray();
-        jsn.fromObject(test);
-        
+    @SuppressWarnings("deprecation")
+    @Test
+    public void jsonToArrayTest() throws Exception {
+        Method fromObject = JSONArray.class.getMethod("fromObject", Object.class);
+        Method toArray = JSONArray.class.getMethod("toArray", JSONArray.class);
+        Method toList = JSONArray.class.getMethod("toList", JSONArray.class);
+
+        // JSONArray.toCollection() is added in json-lib 2.2. so check toCollection in JSONArray
+        Method toCollection = null;
+        try {
+            toCollection = JSONArray.class.getMethod("toCollection", JSONArray.class);
+        } catch (NoSuchMethodException e) {
+        }
+
+        String json = "[{'string':'JSON'}]";
+
+        JSONArray jsonArray = JSONArray.fromObject(json);
+
+        // JSONArray.toArray() of json-lib 2.0 and below have different return type. so we invoke it by reflection to avoid NoSuchMethodError
+        toArray.invoke(null, jsonArray);
+
+        JSONArray.toList(jsonArray);
+
+        if (toCollection != null) {
+            JSONArray.toCollection(jsonArray);
+        }
+
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
-        
-        Method targetMethod = JSONArray.class.getMethod("fromObject", Object.class);
 
-        verifier.verifyApi("JsonLib", targetMethod);
+        verifier.verifyTraceBlock(PluginTestVerifier.BlockType.EVENT, SERVICE_TYPE, fromObject, null, null, null, null, annotation(ANNOTATION_KEY, json.length()));
+        verifier.verifyApi("JSON-LIB", toArray);
+        verifier.verifyApi("JSON-LIB", toList);
+        if (toCollection != null) {
+            verifier.verifyApi("JSON-LIB", toCollection);
+        }
+
         verifier.verifyTraceBlockCount(0);
     }
 
     @Test
-    public void toArraytest() throws Exception {
+    public void arrayToJsonTest() throws Exception {
+        Method fromObject = JSONArray.class.getMethod("fromObject", Object.class);
+        Method toString = JSONArray.class.getMethod("toString");
 
-        JSONObject obj = new JSONObject(); 
-        JSONArray test = new JSONArray();
-        test.add(obj);
-	
-        JSONArray.toArray(test);	
+        JSONArray jsonArray = JSONArray.fromObject(new Object[] { "pinpoint", "json-lib" });
+        String json = jsonArray.toString();
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
-        
-        Method targetMethod = JSONArray.class.getMethod("toArray", JSONArray.class);
 
-        verifier.verifyApi("JsonLib", targetMethod);
-        verifier.verifyTraceBlockCount(1);
+        verifier.verifyApi(SERVICE_TYPE, fromObject);
+        verifier.verifyTraceBlock(PluginTestVerifier.BlockType.EVENT, SERVICE_TYPE, toString, null, null, null, null, annotation(ANNOTATION_KEY, json.length()));
+
+        verifier.verifyTraceBlockCount(0);
     }
 }

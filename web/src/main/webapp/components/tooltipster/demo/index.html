@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title></title>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+	<link rel="stylesheet" type="text/css" href="reset.css" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<link rel="stylesheet" type="text/css" href="../css/tooltipster.css" />
+	
+	<script type="text/javascript" src="//code.jquery.com/jquery-1.7.0.min.js"></script>
+	<script type="text/javascript" src="../js/jquery.tooltipster.js"></script>
+	
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('.tooltip').tooltipster();
+		});
+	</script>
+</head>
+<body>
+
+	<section class="container tooltip" title="Parent container">
+		<a href="http://google.com" class="tooltip" title="Get your Google on">Google</a>
+	</section>
+	
+	<div id="hi" style="width: 100px; height: 100px; margin: 0 0 0 500px; background: #f00; position: fixed; top: 100px; right: 100px;" class="tooltip" title="This is the tooltip"></div>
+	
+	<section class="container">
+		<img src="map.png" usemap="#map" />
+		<map name="map">
+			<area shape="circle" coords="396,220,102" href="#" class="tooltip" title="Hello thar, mate!" />
+		</map>
+	</section>
+</body>
+</html>

@@ -47,7 +47,7 @@ Once the components are running, you should be able to visit http://localhost:28
 For details, please refer to the [quick-start guide](quickstart/README.md "Pinpoint quick-start guide").
 
 ## Installation
-**Requirements**
+**Build Requirements**
 
 * JDK 6 installed
 * JDK 7+ installed
@@ -55,9 +55,29 @@ For details, please refer to the [quick-start guide](quickstart/README.md "Pinpo
 * JAVA_6_HOME environment variable set to JDK 6 home directory.
 * JAVA_7_HOME environment variable set to JDK 7+ home directory.
 
+**Prerequisites**
+
+Java version required to run Pinpoint:
+
+Pinpoint Version | Agent | Collector | Web
+---------------- | ----- | --------- | ---
+1.0.x | 6+ | 6+ | 6+
+1.1.x | 6+ | 7+ | 7+
+1.5.x | 6+ | 7+ | 7+
+
+HBase compatibility table:
+
+Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.1.x
+---------------- | ------------ | ------------ | ----------- | -----------
+1.0.x | yes | no | no | no 
+1.1.x | no | not tested | yes | not tested
+1.5.x | no | not tested | yes | not tested
+
+
 **Installation**
 
-To set up your very own Pinpoint instance, take a look at our [installation guide](doc/installation.md).
+To set up your very own Pinpoint instance you can either **download the build results** from our [**latest release**](https://github.com/naver/pinpoint/releases/latest), or manually build from your Git clone.
+Take a look at our [installation guide](doc/installation.md) for further instructions.
 
 ## Issues
 For feature requests and bug reports, feel free to post them [here](https://github.com/naver/pinpoint/issues).

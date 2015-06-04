@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.util.MetaObject;
  * @author netspider
  * @author emeroad
  */
+@SuppressWarnings("deprecation")
 public class CacheManagerConstructInterceptor implements SimpleAroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

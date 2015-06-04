@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author emeroad

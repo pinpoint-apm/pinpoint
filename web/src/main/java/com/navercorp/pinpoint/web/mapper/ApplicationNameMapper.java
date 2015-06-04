@@ -22,7 +22,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,9 +50,9 @@ public class ApplicationNameMapper implements RowMapper<List<Application>> {
         Set<Short> uniqueTypeCodes = new HashSet<Short>();
         String applicationName = Bytes.toString(result.getRow());
         
-        List<KeyValue> list = result.list();
-        for(KeyValue value :list) {
-            short serviceTypeCode = Bytes.toShort(value.getValue());
+        Cell[] rawCells = result.rawCells();
+        for (Cell cell : rawCells) {
+            short serviceTypeCode = Bytes.toShort(CellUtil.cloneValue(cell));
             uniqueTypeCodes.add(serviceTypeCode);
         }
         List<Application> applications = new ArrayList<Application>();

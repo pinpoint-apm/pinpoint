@@ -22,7 +22,7 @@ import java.util.List;
 
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,11 +50,11 @@ public class SqlMetaDataMapper implements RowMapper<List<SqlMetaDataBo>> {
         final byte[] rowKey = getOriginalKey(result.getRow());
 
         List<SqlMetaDataBo> sqlMetaDataList = new ArrayList<SqlMetaDataBo>();
-        KeyValue[] keyList = result.raw();
-        for (KeyValue keyValue : keyList) {
+        Cell[] rawCell = result.rawCells();
+        for (Cell cell : rawCell) {
             SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo();
             sqlMetaDataBo.readRowKey(rowKey);
-            String sql = Bytes.toString(keyValue.getBuffer(), keyValue.getQualifierOffset(), keyValue.getQualifierLength());
+            String sql = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
             sqlMetaDataBo.setSql(sql);
             sqlMetaDataList.add(sqlMetaDataBo);
         }

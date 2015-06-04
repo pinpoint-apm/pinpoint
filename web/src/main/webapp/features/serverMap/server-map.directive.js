@@ -35,8 +35,8 @@
 	    }
 	});
 	
-	pinpointApp.directive('serverMapDirective', [ 'serverMapDirectiveConfig', 'ServerMapDaoService', 'AlertsService', 'ProgressBarService', 'SidebarTitleVoService', '$filter', 'ServerMapFilterVoService', 'encodeURIComponentFilter', 'filteredMapUtilService', '$base64', 'ServerMapHintVoService', '$timeout', '$location',
-	    function (cfg, ServerMapDaoService, AlertsService, ProgressBarService, SidebarTitleVoService, $filter, ServerMapFilterVoService, encodeURIComponentFilter, filteredMapUtilService, $base64, ServerMapHintVoService, $timeout, $location) {
+	pinpointApp.directive('serverMapDirective', [ 'serverMapDirectiveConfig', 'ServerMapDaoService', 'AlertsService', 'ProgressBarService', 'SidebarTitleVoService', '$filter', 'ServerMapFilterVoService', 'encodeURIComponentFilter', 'filteredMapUtilService', '$base64', 'ServerMapHintVoService', '$timeout', '$location', 'helpContentTemplate', 'helpContentService',
+	    function (cfg, ServerMapDaoService, AlertsService, ProgressBarService, SidebarTitleVoService, $filter, ServerMapFilterVoService, encodeURIComponentFilter, filteredMapUtilService, $base64, ServerMapHintVoService, $timeout, $location, helpContentTemplate, helpContentService) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -191,9 +191,13 @@
 	                        });
 	                    } else {
 	                        ServerMapDaoService.getServerMapData(htLastQuery, function (err, query, mapData) {
-	                            if (err) {
+	                            if (err || mapData.exception ) {
 	                                oProgressBarService.stopLoading();
-	                                oAlertService.showError('There is some error.');
+	                                if ( err ) {
+	                                	oAlertService.showError('There is some error.');
+	                                } else {
+	                                	oAlertService.showError(mapData.exception);
+	                                }
 	                                scope.$emit('serverMapDirective.hasNoData');
 	                                return false;
 	                            }
@@ -722,7 +726,11 @@
 	                        sLastSelection = false;
 	                    }
 	                    scope.oNavbarVoService = navbarVoService;
-	                    scope.bShowServerMapStatus = true;
+	                    if ( scope.oNavbarVoService.getQueryEndTime() === false || scope.oNavbarVoService.getQueryStartTime() === false ) {
+	                    	scope.bShowServerMapStatus = false;
+	                    } else {
+	                    	scope.bShowServerMapStatus = true;
+	                    }
 	                    bUseLinkContextMenu = bUseBackgroundContextMenu = true;
 	                    bUseNodeContextMenu = false;
 	                    showServerMap(navbarVoService.getApplicationName(), navbarVoService.getServiceTypeName(), navbarVoService.getQueryEndTime(), navbarVoService.getQueryPeriod(), navbarVoService.getFilter(), navbarVoService.getHint(), scope.linkRouting, scope.linkCurve);
@@ -798,6 +806,14 @@
 	                	scope.$emit("navbar.moveTheFuture");
 	                	$serverMapTime.effect("highlight", { color: "#FFFF00" }, 1000);
 	                };
+	                
+	                jQuery('.serverMapTooltip').tooltipster({
+                    	content: function() {
+                    		return helpContentTemplate(helpContentService.servermap["default"]);
+                    	},
+                    	position: "bottom-right",
+                    	trigger: "click"
+                    });
 	            }
 	        };
 	    }
