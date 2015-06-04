@@ -21,6 +21,7 @@
         <module>servlet</module>
         <module>tomcat</module>
         <module>json-lib</module>
+        <module>user</module>
     </modules>
 
     <dependencies>
@@ -67,6 +68,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-json-lib-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-user-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
