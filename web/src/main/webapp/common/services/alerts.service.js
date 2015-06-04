@@ -18,7 +18,7 @@
 	        this.showError = function (vResult) {
 	            $timeout(function () {
 	            	this.getElement('.error').show();
-	            	if ( typeof msg == "string" ) {
+	            	if ( typeof vResult == "string" ) {
 	            		this.getElement('.error .msg').text(vResult);
 	            	} else {
 	            		this.getElement('.error .msg').text(vResult.message);
