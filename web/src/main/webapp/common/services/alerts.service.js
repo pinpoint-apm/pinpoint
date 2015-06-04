@@ -15,10 +15,19 @@
 	            return this.$parent;
 	        }.bind(this);
 	
-	        this.showError = function (msg) {
+	        this.showError = function (vResult) {
 	            $timeout(function () {
-	                this.getElement('.error').show();
-	                this.getElement('.error .msg').text(msg);
+	            	this.getElement('.error').show();
+	            	if ( typeof msg == "string" ) {
+	            		this.getElement('.error .msg').text(vResult);
+	            	} else {
+	            		this.getElement('.error .msg').text(vResult.message);
+	            		this.getElement('.error .method').text(vResult.request.method);
+	            		this.getElement('.error .header').html(this._transTableFormat(vResult.request.heads));
+	            		this.getElement('.error .parameters').html(this._transTableFormat(vResult.request.parameters));
+	            		this.getElement('.error .url').text(vResult.request.url);
+	            		this.getElement('.error .stacktrace').text(vResult.stacktrace);
+	            	}
 	            }.bind(this), 300);
 	        }.bind(this);
 	        this.hideError = function () {
@@ -54,6 +63,16 @@
 	        this.getElement = function (selector) {
 	            return this.$parent ? $(selector, this.$parent) : $(selector);
 	        }.bind(this);
+	        this._transTableFormat = function( obj ) {
+	        	var str = [ "<table>"];
+	        	for( var p in obj ) {
+	        		str.push("<tr>");
+	        		str.push("<td>" + p + "</td><td style='padding-left:20px'>" + obj[p] + "</td>");
+	        		str.push("</tr>");
+	        	}
+	        	str.push("</table>");
+	        	return str.join("");
+	        }
 	    };
 	}]);
 })();
