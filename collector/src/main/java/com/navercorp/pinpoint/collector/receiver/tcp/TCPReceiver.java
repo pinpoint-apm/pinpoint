@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.receiver.tcp;
 
-import java.net.InetAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;

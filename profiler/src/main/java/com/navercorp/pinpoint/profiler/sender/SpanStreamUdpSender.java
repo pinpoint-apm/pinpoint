@@ -155,14 +155,14 @@ public class SpanStreamUdpSender extends AbstractDataSender {
         logger.info("sendPacket message:{}", message);
 
         if (message instanceof TBase) {
-            final TBase dto = (TBase) message;
+            final TBase<?, ?> dto = (TBase<?, ?>) message;
 
             if (dto instanceof Span) {
                 handleSpan((Span) message);
             } else if (dto instanceof SpanChunk) {
                 handleSpanChunk((SpanChunk) message);
             } else {
-                logger.warn("sendPacket fail. invalid type:{}", message != null ? message.getClass() : null);
+                logger.warn("sendPacket fail. invalid type:{}", message.getClass());
                 return;
             }
         } else {
@@ -227,7 +227,7 @@ public class SpanStreamUdpSender extends AbstractDataSender {
                     }
                 }
             } else {
-                boolean isAdded = standbySpanStreamDataSendWorker.addStandbySpanStreamData(currentSpanStreamSendData);
+                standbySpanStreamDataSendWorker.addStandbySpanStreamData(currentSpanStreamSendData);
             }
         } catch (IOException e) {
             logger.warn("UDPChannel write fail.", e);

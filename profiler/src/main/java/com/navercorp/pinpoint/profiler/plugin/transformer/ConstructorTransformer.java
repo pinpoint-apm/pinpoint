@@ -54,6 +54,7 @@ public class ConstructorTransformer implements MethodTransformer {
                 if (exceptionHandler != null) {
                     exceptionHandler.handle(target.getName(), "init", targetParameterTypes, e);
                     logger.info("Cannot find target constructor with parameter types (" + Arrays.deepToString(targetParameterTypes) + ") but MethodTransformerExceptionHandler handled it.");
+                    return;
                 } else {
                     throw new InstrumentException("Fail to edit constructor", e);
                 }

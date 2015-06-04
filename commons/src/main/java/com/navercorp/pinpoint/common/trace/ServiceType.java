@@ -149,6 +149,16 @@ public class ServiceType {
     public String toString() {
         return desc;
     }
+
+    @Override
+    public int hashCode() {
+        // ServiceType's hashCode method is not used as they are put into IntHashMap (see ServiceTypeRegistry)
+        // which uses ServiceType code as key. It shouldn't really matter what this method returns.
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + code;
+        return result;
+    }
     
     @Override
     public boolean equals(Object obj) {

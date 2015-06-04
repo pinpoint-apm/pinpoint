@@ -103,15 +103,18 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite imp
 
 
     private List<PinpointPluginTestInstance> createCasesWithLibraryPath(PinpointPluginTestContext context) {
-        List<PinpointPluginTestInstance> cases = new ArrayList<PinpointPluginTestInstance>();
-        
         File file = new File(libraryPath);
         
         if (!file.isDirectory()) {
             throw new RuntimeException("value of @TestRoot is not a directory: " + libraryPath);
         }
+        File[] children = file.listFiles();
+        if (children == null) {
+            return Collections.emptyList();
+        }
         
-        for (File child : file.listFiles()) {
+        List<PinpointPluginTestInstance> cases = new ArrayList<PinpointPluginTestInstance>();
+        for (File child : children) {
             if (!child.isDirectory()) {
                 continue;
             }
@@ -145,8 +148,11 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite imp
         if (!libDir.isDirectory()) {
             return;
         }
-        
-        for (File f : libDir.listFiles()) {
+        File[] children = libDir.listFiles();
+        if (children == null) {
+            return;
+        }
+        for (File f : children) {
             if (f.getName().endsWith(".jar")) {
                 libraries.add(f.getAbsolutePath());
             }

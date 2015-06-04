@@ -86,6 +86,9 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         }
 
         CallTreeNode prev = getPrev();
+        if (prev == null) {
+            throw new IllegalStateException("A non-root CallTreeNode must have a previous node");
+        }
         final SpanAlign prevAlign = prev.getValue();
         if (!currentAlign.isAsync() && !prevAlign.isSpan() && prevAlign.isAsync()) {
             // skip sub(async) call tree.

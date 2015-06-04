@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.bootstrap.resolver.condition;
 
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+
 /**
  * @author HyunGil Jeong
  * 
@@ -23,6 +26,8 @@ package com.navercorp.pinpoint.bootstrap.resolver.condition;
 public class ClassResourceCondition implements Condition<String> {
 
     private static final String CLASS_EXTENSION = ".class";
+
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass().getName()); 
 
     private String getClassNameAsResource(String className) {
         String classNameAsResource = className.replace('.', '/');
@@ -42,7 +47,13 @@ public class ClassResourceCondition implements Condition<String> {
             return false;
         }
         String classNameAsResource = getClassNameAsResource(requiredClass);
-        return (ClassLoader.getSystemResource(classNameAsResource) != null);
+        if (ClassLoader.getSystemResource(classNameAsResource) != null) {
+            logger.debug("Resource found - [{}]", classNameAsResource);
+            return true;
+        } else {
+            logger.debug("Resource not found - [{}]", classNameAsResource);
+            return false;
+        }
     }
 
 }
