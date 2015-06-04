@@ -16,7 +16,6 @@ package com.navercorp.pinpoint.plugin.jackson;
 
 import java.lang.instrument.ClassFileTransformer;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;

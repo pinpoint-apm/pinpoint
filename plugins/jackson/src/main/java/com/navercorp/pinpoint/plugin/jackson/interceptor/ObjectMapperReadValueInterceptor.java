@@ -73,7 +73,7 @@ public class ObjectMapperReadValueInterceptor implements SimpleAroundInterceptor
                 trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((String) args[0]).length());
             }
             else if (args[0] instanceof byte[]) {
-                trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, (new String((byte []) args[0])).length());
+                trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte []) args[0]).length);
             }
             else if (args[0] instanceof File) {
                 trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((File) args[0]).length());

@@ -19,11 +19,18 @@
         <module>jdk-http</module>
         <module>redis</module>
         <module>servlet</module>
+<<<<<<< Upstream, based on github/master
         <module>jackson</module>
+=======
+>>>>>>> 602087b fixed jackson plugin errors
 		<module>tomcat</module>
 		<module>json-lib</module>
         <module>thrift</module>
+<<<<<<< Upstream, based on github/master
         <module>user</module>
+=======
+        <module>jackson</module>
+>>>>>>> 602087b fixed jackson plugin errors
     </modules>
 
     <dependencies>
@@ -72,11 +79,14 @@
             <artifactId>pinpoint-json-lib-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+<<<<<<< Upstream, based on github/master
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-jackson-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+=======
+>>>>>>> 602087b fixed jackson plugin errors
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-thrift-plugin</artifactId>
