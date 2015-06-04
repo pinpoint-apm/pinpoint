@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  *   *
  *    */
 public interface JacksonConstants {
-    public static final ServiceType SERVICE_TYPE = ServiceType.of(3599, "JACKSON", NORMAL_SCHEMA);
+    public static final ServiceType SERVICE_TYPE = ServiceType.of(5011, "JACKSON", NORMAL_SCHEMA);
 
-    public static final AnnotationKey ANNOTATION_KEY_LENGTH_VALUE = new AnnotationKey(8654, "LengthValue");
+    public static final AnnotationKey ANNOTATION_KEY_LENGTH_VALUE = new AnnotationKey(9001, "jackson.json.length");
 }

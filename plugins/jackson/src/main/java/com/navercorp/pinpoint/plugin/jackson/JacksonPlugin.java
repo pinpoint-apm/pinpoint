@@ -40,7 +40,7 @@ public class JacksonPlugin implements ProfilerPlugin, JacksonConstants {
         /* constructor */
         builder.editConstructor().injectInterceptor("com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor", SERVICE_TYPE).group(JACKSON_OBJECTMAPPER_GROUP);
         builder.editConstructor("com.fasterxml.jackson.core.JsonFactory").injectInterceptor("com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor", SERVICE_TYPE).group(JACKSON_OBJECTMAPPER_GROUP);
-        builder.editConstructor("com.fasterxml.jackson.core.JsonFactory", "com.fasterxml.jackson.databind.ser.DefaultSerializerProvider", "com.fasterxml.jackson.databind.deser.DefaultDeserializationContext").injectInterceptor("com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor", SERVICE_TYPE).group(JACKSON_OBJECTMAPPER_GROUP, ExecutionPolicy.INTERNAL);
+        builder.editConstructor("com.fasterxml.jackson.core.JsonFactory", "com.fasterxml.jackson.databind.ser.DefaultSerializerProvider", "com.fasterxml.jackson.databind.deser.DefaultDeserializationContext").injectInterceptor("com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor", SERVICE_TYPE).group(JACKSON_OBJECTMAPPER_GROUP);
 
         /* serialization */
         builder.editMethod("writeValueAsString", "java.lang.Object").injectInterceptor("com.navercorp.pinpoint.plugin.jackson.interceptor.ObjectMapperWriteValueInterceptor");

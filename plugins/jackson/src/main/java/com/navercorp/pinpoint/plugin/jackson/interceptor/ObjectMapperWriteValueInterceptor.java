@@ -73,7 +73,7 @@ public class ObjectMapperWriteValueInterceptor implements SimpleAroundIntercepto
                 trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((String) result).length());
             }
             else if (descriptor.getMethodName().equals("writeValueAsBytes")) {
-                trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, (new String((byte []) result)).length());
+                trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte []) result).length);
             }
             else if (args[0] instanceof File) {
                 trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((File) args[0]).length());
