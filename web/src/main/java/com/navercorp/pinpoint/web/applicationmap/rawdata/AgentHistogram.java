@@ -90,6 +90,15 @@ public class AgentHistogram {
         return timeHistogramMap.values();
     }
 
+    @JsonIgnore
+    public long getTotalCount() {
+        long totalCount = 0;
+        for (TimeHistogram timeHistogram : getTimeHistogram()) {
+            totalCount += timeHistogram.getTotalCount();
+        }
+        return totalCount;
+    }
+
     public void addTimeHistogram(TimeHistogram timeHistogram) {
         TimeHistogram find = this.timeHistogramMap.get(timeHistogram.getTimeStamp());
         if (find == null) {
