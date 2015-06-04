@@ -191,9 +191,13 @@
 	                        });
 	                    } else {
 	                        ServerMapDaoService.getServerMapData(htLastQuery, function (err, query, mapData) {
-	                            if (err) {
+	                            if (err || mapData.exception ) {
 	                                oProgressBarService.stopLoading();
-	                                oAlertService.showError('There is some error.');
+	                                if ( err ) {
+	                                	oAlertService.showError('There is some error.');
+	                                } else {
+	                                	oAlertService.showError(mapData.exception);
+	                                }
 	                                scope.$emit('serverMapDirective.hasNoData');
 	                                return false;
 	                            }
