@@ -90,7 +90,7 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
 
         try {
             trace.recordApi(descriptor);
-            trace.recordServiceType(ServiceType.STAND_ALONE);
+            trace.recordServiceType(ServiceType.USER_INCLUDE);
             trace.recordException(throwable);
             trace.markAfterTime();
         } finally {
