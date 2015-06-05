@@ -116,6 +116,15 @@ public class LinkData {
         this.linkCallDataMap.addLinkDataMap(target);
     }
 
+    // test api
+    public long getTotalCount() {
+        long totalCount = 0;
+        for (LinkCallData linkCallData : linkCallDataMap.getLinkDataList()) {
+            totalCount += linkCallData.getTotalCount();
+        }
+        return totalCount;
+    }
+
     @Override
     public String toString() {
         return "LinkData{" +
