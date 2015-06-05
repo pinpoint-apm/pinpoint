@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContext;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
-import com.navercorp.pinpoint.plugin.thrift.ThriftHeader.ThriftHeaderKey;
+import com.navercorp.pinpoint.plugin.thrift.ThriftHeader;
 
 /**
  * This interceptor checks each {@link org.apache.thrift.protocol.TField TField} received if it is a Pinpoint trace data.
@@ -111,7 +111,7 @@ public class TProtocolReadFieldBeginInterceptor implements SimpleAroundIntercept
     }
 
     private void handleClientRequest(TField field, ThriftClientCallContext clientCallContext) {
-        ThriftHeaderKey traceHeaderKey = ThriftHeaderKey.findThriftHeaderKeyById(field.id);
+        ThriftHeader traceHeaderKey = ThriftHeader.findThriftHeaderKeyById(field.id);
         // check if field is pinpoint header field
         if (traceHeaderKey == null || field.type != traceHeaderKey.getType()) {
             clientCallContext.setTraceHeaderToBeRead(NONE);

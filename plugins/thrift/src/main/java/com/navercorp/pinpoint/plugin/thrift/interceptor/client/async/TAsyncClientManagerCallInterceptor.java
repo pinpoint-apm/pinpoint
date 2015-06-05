@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
-import com.navercorp.pinpoint.plugin.thrift.ThriftHeader;
+import com.navercorp.pinpoint.plugin.thrift.ThriftRequestProperty;
 import com.navercorp.pinpoint.plugin.thrift.ThriftUtils;
 
 /**
@@ -88,7 +88,7 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
         }
 
         try {
-            ThriftHeader parentTraceInfo = new ThriftHeader();
+            ThriftRequestProperty parentTraceInfo = new ThriftRequestProperty();
             final boolean shouldSample = trace.canSampled();
             if (!shouldSample) {
                 if (isDebug) {
