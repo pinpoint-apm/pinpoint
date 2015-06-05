@@ -23,10 +23,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.DeserializerProvider;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.SerializerProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,7 +41,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  * @author Sungkook Kim
  */
 @RunWith(PinpointPluginTestSuite.class)
-@Dependency({"org.codehaus.jackson:jackson-mapper-asl:(,)"})
+@Dependency({"org.codehaus.jackson:jackson-mapper-asl:[1.0.0,)"})
 public class ObjectMapper_1_x_IT {
     private final ObjectMapper mapper = new ObjectMapper();
     
@@ -53,21 +51,50 @@ public class ObjectMapper_1_x_IT {
         ObjectMapper mapper1 = new ObjectMapper();
         ObjectMapper mapper2 = new ObjectMapper(new JsonFactory());
 
+        
+        
+        
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
-        
-
+                
         Constructor<?> omConstructor1 = ObjectMapper.class.getConstructor();
         Constructor<?> omConstructor2 = ObjectMapper.class.getConstructor(JsonFactory.class);
         Constructor<?> omConstructor3 = ObjectMapper.class.getConstructor(JsonFactory.class, SerializerProvider.class, DeserializerProvider.class);
-        Constructor<?> omConstructor4 = ObjectMapper.class.getConstructor(JsonFactory.class, SerializerProvider.class, DeserializerProvider.class, SerializationConfig.class, DeserializationConfig.class);
         
-        verifier.verifyApi("JACKSON", omConstructor4);
+        
+        Class<?> serializationConfig = null;
+        Class<?> deserializationConfig = null;
+        
+        try {
+            serializationConfig = Class.forName("org.codehaus.jackson.map.SerializationConfig"); 
+            deserializationConfig = Class.forName("org.codehaus.jackson.map.DeserializationConfig");
+        } catch (ClassNotFoundException e) {
+            
+        }
+        
+        Constructor<?> omConstructor4 = null;
+        
+        if (serializationConfig != null && deserializationConfig != null) {
+            omConstructor4 = ObjectMapper.class.getConstructor(JsonFactory.class, SerializerProvider.class, DeserializerProvider.class, serializationConfig, deserializationConfig);
+        }
+        
+        
+        
+        
+        
+        
+        if (omConstructor4 != null) {
+            verifier.verifyApi("JACKSON", omConstructor4);
+        }
+        
         verifier.verifyApi("JACKSON", omConstructor3);
         verifier.verifyApi("JACKSON", omConstructor1);
         
-        verifier.verifyApi("JACKSON", omConstructor4);
+        if (omConstructor4 != null) {
+            verifier.verifyApi("JACKSON", omConstructor4);
+        }
+        
         verifier.verifyApi("JACKSON", omConstructor3);
         verifier.verifyApi("JACKSON", omConstructor2);
 

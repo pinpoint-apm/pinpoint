@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConstructorTransformerBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty;
 
 /**
  * @author Sungkook Kim
@@ -59,15 +61,21 @@ public class JacksonPlugin implements ProfilerPlugin, JacksonConstants {
         /* constructor */
         builder.editConstructor().injectInterceptor(BASIC_METHOD_INTERCEPTOR, SERVICE_TYPE).group(GROUP);
         builder.editConstructor("org.codehaus.jackson.JsonFactory").injectInterceptor(BASIC_METHOD_INTERCEPTOR, SERVICE_TYPE).group(GROUP);
-        builder.editConstructor("org.codehaus.jackson.map.SerializerFactory").injectInterceptor(BASIC_METHOD_INTERCEPTOR, SERVICE_TYPE).group(GROUP);
         builder.editConstructor("org.codehaus.jackson.JsonFactory", "org.codehaus.jackson.map.SerializerProvider", "org.codehaus.jackson.map.DeserializerProvider").injectInterceptor(BASIC_METHOD_INTERCEPTOR, SERVICE_TYPE).group(GROUP);
-        builder.editConstructor("org.codehaus.jackson.JsonFactory", "org.codehaus.jackson.map.SerializerProvider", "org.codehaus.jackson.map.DeserializerProvider", "org.codehaus.jackson.map.SerializationConfig", "org.codehaus.jackson.map.DeserializationConfig").injectInterceptor(BASIC_METHOD_INTERCEPTOR, SERVICE_TYPE).group(GROUP);
+
+        ConstructorTransformerBuilder cb0 = builder.editConstructor("org.codehaus.jackson.map.SerializerFactory");
+        cb0.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
+        cb0.injectInterceptor(BASIC_METHOD_INTERCEPTOR, SERVICE_TYPE).group(GROUP);
+        
+        ConstructorTransformerBuilder cb1 = builder.editConstructor("org.codehaus.jackson.JsonFactory", "org.codehaus.jackson.map.SerializerProvider", "org.codehaus.jackson.map.DeserializerProvider", "org.codehaus.jackson.map.SerializationConfig", "org.codehaus.jackson.map.DeserializationConfig");
+        cb1.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
+        cb1.injectInterceptor(BASIC_METHOD_INTERCEPTOR, SERVICE_TYPE).group(GROUP);
 
         /* serialization */
-        builder.editMethods(MethodFilters.name("writeValue", "writeValueAsString", "writeValueAsBytes")).injectInterceptor("com.navercorp.pinpoint.plugin.jackson.interceptor.ObjectMapperWriteValueInterceptor");
+        builder.editMethods(MethodFilters.name("writeValue", "writeValueAsString", "writeValueAsBytes")).injectInterceptor("com.navercorp.pinpoint.plugin.jackson.interceptor.ObjectMapperWriteValueInterceptor").group(GROUP);
 
         /* deserialization */
-        builder.editMethods(MethodFilters.name("readValue")).injectInterceptor("com.navercorp.pinpoint.plugin.jackson.interceptor.ObjectMapperReadValueInterceptor");
+        builder.editMethods(MethodFilters.name("readValue")).injectInterceptor("com.navercorp.pinpoint.plugin.jackson.interceptor.ObjectMapperReadValueInterceptor").group(GROUP);
 
         ClassFileTransformer transformer = builder.build();
         context.addClassFileTransformer(transformer);
