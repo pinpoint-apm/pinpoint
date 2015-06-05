@@ -78,6 +78,15 @@ public class LinkDataMap {
         return findLink;
     }
 
+    // test api
+    public long getTotalCount() {
+        long totalCount = 0;
+        for (LinkData linkData : linkDataMap.values()) {
+            totalCount += linkData.getTotalCount();
+        }
+        return totalCount;
+    }
+
     public int size() {
         return linkDataMap.size();
     }
