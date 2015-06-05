@@ -136,14 +136,6 @@ public class AgentHistogramList {
         return agentHistogramMap.values();
     }
 
-    public long getTotalCount() {
-        long totalCount = 0;
-        for (AgentHistogram agentHistogram : getAgentHistogramList()) {
-            totalCount += agentHistogram.getTotalCount();
-        }
-        return totalCount;
-    }
-
     @Override
     public String toString() {
         return "AgentHistogramList{"
