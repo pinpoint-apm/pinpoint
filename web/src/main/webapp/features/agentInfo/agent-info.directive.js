@@ -143,11 +143,16 @@
 	                    };
 	                    oProgressBarService.setLoading(40);
 	                    AgentDaoService.getAgentStat(query, function (err, result) {
-	                        if (err) {
-	                            oProgressBarService.stopLoading();
-	                            oAlertService.showError('There is some error.');
-	                            return;
-	                        }
+	                        if (err || result.exception ) {
+                                oProgressBarService.stopLoading();
+                                if ( err ) {
+                                	oAlertService.showError('There is some error.');
+                                } else {
+                                	oAlertService.showError(result.exception);
+                                }
+                                return;
+                            }
+	                        
 	                        scope.agentStat = result;
 	                        if (angular.isDefined(result.type) && result.type) {
 	                            scope.info['jvmGcType'] =  result.type;

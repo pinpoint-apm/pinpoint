@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * 
  * @author netspider
  * @author emeroad
+ * @author jaehong.kim
  * 
  */
 public final class Application {
@@ -32,10 +33,10 @@ public final class Application {
 
     public Application(String name, ServiceType serviceType) {
         if (name == null) {
-            throw new NullPointerException("name must not be null");
+            throw new NullPointerException("name must not be null. serviceType=" + serviceType);
         }
         if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null");
+            throw new NullPointerException("serviceType must not be null. name=" + name);
         }
         this.name = name;
         this.serviceType = serviceType;

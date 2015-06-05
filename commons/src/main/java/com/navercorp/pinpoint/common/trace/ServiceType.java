@@ -284,6 +284,9 @@ public class ServiceType {
     // DBCP
     public static final ServiceType DBCP = of(6050, "DBCP", NORMAL_SCHEMA);
 
+    // USER INCLUDE
+    public static final ServiceType USER_INCLUDE = of(7010, "USER_INCLUDE", NORMAL_SCHEMA);
+
     public static final ServiceType MEMCACHED = of(8050, "MEMCACHED", FAST_SCHEMA, TERMINAL, RECORD_STATISTICS);
     public static final ServiceType MEMCACHED_FUTURE_GET = of(8051, "MEMCACHED_FUTURE_GET", "MEMCACHED", FAST_SCHEMA, TERMINAL);
 
@@ -296,6 +299,7 @@ public class ServiceType {
 //    public static final ServiceType JDK_HTTPURLCONNECTOR = of(9055, "JDK_HTTPURLCONNECTOR", "JDK_HTTPCONNECTOR", NORMAL_SCHEMA);
     public static final ServiceType NPC_CLIENT = of(9060, "NPC_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
     public static final ServiceType NIMM_CLIENT = of(9070, "NIMM_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
+    
 
 
     public static boolean isWas(final short code) {

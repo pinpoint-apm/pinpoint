@@ -30,10 +30,14 @@
 	                oProgressBarService.startLoading();
 	                oProgressBarService.setLoading(30);
 	                TransactionDaoService.getTransactionDetail($routeParams.traceId, $routeParams.focusTimestamp, function (err, result) {
-	                    if (err) {
-	                        oProgressBarService.stopLoading();
-	                        oAlertService.showError('There is some error while downloading the data.');
-	                    }
+	                    if (err || result.exception ) {
+                            oProgressBarService.stopLoading();
+                            if ( err ) {
+                            	oAlertService.showError('There is some error while downloading the data.');
+                            } else {
+                            	oAlertService.showError(result.exception);
+                            }
+                        }
 	                    oProgressBarService.setLoading(70);
 	                    parseTransactionDetail(result);
 	                    showCallStacks();

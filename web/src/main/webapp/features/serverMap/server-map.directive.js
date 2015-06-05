@@ -726,7 +726,11 @@
 	                        sLastSelection = false;
 	                    }
 	                    scope.oNavbarVoService = navbarVoService;
-	                    scope.bShowServerMapStatus = true;
+	                    if ( scope.oNavbarVoService.getQueryEndTime() === false || scope.oNavbarVoService.getQueryStartTime() === false ) {
+	                    	scope.bShowServerMapStatus = false;
+	                    } else {
+	                    	scope.bShowServerMapStatus = true;
+	                    }
 	                    bUseLinkContextMenu = bUseBackgroundContextMenu = true;
 	                    bUseNodeContextMenu = false;
 	                    showServerMap(navbarVoService.getApplicationName(), navbarVoService.getServiceTypeName(), navbarVoService.getQueryEndTime(), navbarVoService.getQueryPeriod(), navbarVoService.getFilter(), navbarVoService.getHint(), scope.linkRouting, scope.linkCurve);
