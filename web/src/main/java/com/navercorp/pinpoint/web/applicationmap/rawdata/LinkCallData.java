@@ -130,6 +130,14 @@ public class LinkCallData {
         return histogram;
     }
 
+    public long getTotalCount() {
+        long totalCount = 0;
+        for (TimeHistogram timeHistogram : targetHistogramTimeMap.values()) {
+            totalCount += timeHistogram.getTotalCount();
+        }
+        return totalCount;
+    }
+
     @Override
     public String toString() {
         return "LinkCallData{" +
