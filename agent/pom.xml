@@ -63,7 +63,16 @@
             <classifier>jdk15</classifier>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -103,8 +112,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <!-- AbstractPinpointPluginTestSuite needs this to resolve 
-                        path of required jars -->
+                    <!-- AbstractPinpointPluginTestSuite needs this to resolve path of required jars -->
                     <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
             </plugin>
