@@ -228,7 +228,7 @@ public class PinpointBootStrap {
                 map.put(token.substring(0, assign), token.substring(assign + 1));
             }
         }
-
+        scanner.close();
         return Collections.unmodifiableMap(map);
     }
 

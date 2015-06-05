@@ -7,8 +7,8 @@
 	    maxTimeToShowLoadAsDefaultForUnknown: 60 * 60 * 12 // 12h
 	});
 	
-	pinpointApp.directive('nodeInfoDetailsDirective', [ 'nodeInfoDetailsDirectiveConfig', '$filter', '$timeout', 'isVisibleService', '$window', 'helpContentService',
-        function (cfg, $filter, $timeout, isVisibleService, $window, helpContentService) {
+	pinpointApp.directive('nodeInfoDetailsDirective', [ 'nodeInfoDetailsDirectiveConfig', '$filter', '$timeout', 'isVisibleService', '$window', 'helpContentTemplate', 'helpContentService',
+        function (cfg, $filter, $timeout, isVisibleService, $window, helpContentTemplate, helpContentService) {
             return {
                 restrict: 'EA',
                 replace: true,
@@ -349,21 +349,21 @@
 
                     jQuery('.responseSummaryChartTooltip').tooltipster({
                     	content: function() {
-                    		return helpContentService.nodeInfoDetails.responseSummary;
+                    		return helpContentTemplate(helpContentService.nodeInfoDetails.responseSummary);
                     	},
-                    	position: "left",
+                    	position: "top",
                     	trigger: "click"
                     });
                     jQuery('.loadChartTooltip').tooltipster({
                     	content: function() {
-                    		return helpContentService.nodeInfoDetails.load;
+                    		return helpContentTemplate(helpContentService.nodeInfoDetails.load);
                     	},
-                    	position: "left",
+                    	position: "top",
                     	trigger: "click"
                     });
                     jQuery('.serverListTooltip').tooltipster({
                     	content: function() {
-                    		return helpContentService.nodeInfoDetails.nodeServers;
+                    		return helpContentTemplate(helpContentService.nodeInfoDetails.nodeServers);
                     	},
                     	position: "top",
                     	trigger: "click"

@@ -1,164 +1,454 @@
-'use strict';
-
-pinpointApp
-  .constant('helpContent-en', {
-        "navbar": {
-            "applicationSelector": "<div style='width:400px;'><strong>Application List</strong><br/>Shows the list of applications with Pinpoint installed.<br/><br/>" +
-                    "[Legend]<br/>" +
-                    "<ul>" +
-                    "<li>Icon : Application Type</li>" +
-                    "<li>Text : Application Name. The value set using <code>-Dpinpoint.applicationName</code> when launching Pinpoint agent.</li>" +
-                    "</ul>" +
-                    "</div>",
-            "periodSelector": "<strong>Period Selector</strong><br/>Selects the time period for querying data.<br/><br/>" +
-                    "[Usage]<br/>" +
-                    "<ul>" +
-                    "<li><button type='button' class='btn btn-success btn-xs'><span class='glyphicon glyphicon-th-list'></span></button> : Query for data traced during the most recent selected time-period.<br/>Auto-refresh is supported for 5m, 10m, 3h time-period.</li>" +
-                    "<li><button type='button' class='btn btn-success btn-xs'><span class='glyphicon glyphicon-calendar'></span></button> : Query for data traced between the two selected times for a maximum of 48 hours.</li>" +
-                    "</ul>"
-        },
-        "servermap": {
-            "default": "<div style='width:300px;'><strong>Server Map</strong><br/>Displays a topological view of the distributed server map.<br/><br/>" +
-                    "[Node]<br/>" +
-                    "<ul>" +
-                    "<li>Each node is a logical unit of application.</li>" +
-                    "<li>The value on the top-right corner represents the number of server instances assigned to that application. (Not shown when there is only one such instance)</li>" +
-                    "<li>An alarm icon is displayed on the top-left corner if an error/exception is detected in one of the server instances.</li>" +
-                    "<li>Clicking a node shows information on all incoming transactions on the right-hand side of the screen.</li>" +
-                    "</ul>" +
-                    "[Arrow]<br/>" +
-                    "<ul>" +
-                    "<li>Each arrow represents a transaction flow.</li>" +
-                    "<li>The number shows the transaction count and is displayed in red for transactions with error.</li>" +
-                    "<li><span class='glyphicon glyphicon-filter'></span> is shown when a filter is applied.</li>" +
-                    "<li>Clicking an arrow shows information on all transactions passing through the selected section on the right-hand side of the screen.</li>" +
-                    "</ul>" +
-                    "[Applying Filter]<br/>" +
-                    "<ul>" +
-                    "<li>Right-clicking on an arrow displays a filter menu.</li>" +
-                    "<li>'Filter' filters the server map to only show transactions that has passed through the selected section.</li>" +
-                    "<li>'Filter Wizard' allows additional filter configurations.</li>" +
-                    "</ul>" +
-                    "[Chart Configuration]<br/>" +
-                    "<ul>" +
-                    "<li>Right-clicking on an empty area displays a chart configuration menu.</li>" +
-                    "<li>Node Setting / Merge Unknown : Groups all agent-less applications into a single node.</li>" +
-                    "<li>Double-clicking on an empty resets the zoom level of the server map.</li>" +
-                    "</ul>" +
-                    "</div>"
-        },
-        "scatter": {
-            "default": "<div style='width:400px'><strong>Response Time Scatter Chart</strong><br/><br/>" +
-                    "[Legend]<br/>" +
-                    "<ul>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#2ca02c'></span> : Successful Transaction</li>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#f53034'></span> : Failed Transaction</li>" +
-                    "<li>X-axis : Transaction Timestamp (hh:mm)</li>" +
-                    "<li>Y-axis : Response Time (ms)</li>" +
-                    "</ul>" +
-                    "[Usage]<br/>" +
-                    "<ul>" +
-                    "<li><img src='/images/help/scatter_01.png' width='350px' height='205px'></li>" +
-                    "<li><span class='glyphicon glyphicon-plus'></span> : Drag on the scatter chart to show detailed information on selected transactions.</li>" +
-                    "<li><span class='glyphicon glyphicon-cog'></span> : Set the min/max value of the Y-axis (Response Time).</li>" +
-                    "<li><span class='glyphicon glyphicon-download-alt'></span> : Download the chart as an image file.</li>" +
-                    "<li><span class='glyphicon glyphicon-fullscreen'></span> : Open the chart in a new window.</li>" +
-                    "</ul></div>"
-        },
-        "nodeInfoDetails": {
-            "responseSummary": "<div style='width:400px'><strong>Response Summary Chart</strong><br/><br/>" +
-                    "[Legend]<br/>" +
-                    "<ul>" +
-                    "<li>X-Axis : Response Time</li>" +
-                    "<li>Y-Axis : Transaction Count</li>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#2ca02c'></span> : No. of Successful transactions (less than 1 second)</li>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#3c81fa'></span> : No. of Successful transactions (1 ~ 3 seconds)</li>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#f8c731'></span> : No. of Successful transactions (3 ~ 5 seconds)</li>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#f69124'></span> : No. of Successful transactions (greater than 5 seconds)</li>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#f53034'></span> : No. of Failed transactions regardless of response time</li>" +
-                    "</ul>" +
-                    "</div>",
-            "load": "<div style='width:400px'><strong>Load Chart</strong><br/><br/>" +
-                    "[Legend]<br/>" +
-                    "<ul>" +
-                    "<li>X-Axis : Transaction Timestamp (in minutes)</li>" +
-                    "<li>Y-Axis : Transaction Count</li>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#2ca02c'></span> : No. of Successful transactions (less than 1 second)</li>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#3c81fa'></span> : No. of Successful transactions (1 ~ 3 seconds)</li>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#f8c731'></span> : No. of Successful transactions (3 ~ 5 seconds)</li>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#f69124'></span> : No. of Successful transactions (greater than 5 seconds)</li>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#f53034'></span> : No. of Failed transactions regardless of response time</li>" +
-                    "</ul>" +
-                    "[Usage]<br/>" +
-                    "<ul>" +
-                    "<li>Clicking on a legend item shows/hides all transactions within the selected group.</li>" +
-                    "<li>Dragging on the chart zooms in to the dragged area.</li>" +
-                    "</ul>" +
-                    "</div>",
-            "nodeServers": "<div style='width:350px'><strong>Server Instances</strong><br/>List of physical servers and their server instances.<br/><br/>" +
-                    "[Legend]<br/>" +
-                    "<ul>" +
-                    "<li><span class='glyphicon glyphicon-home'></span> : Hostname of the physical server</li>" +
-                    "<li><span class='glyphicon glyphicon-hdd'></span> : AgentId of the Pinpoint agent installed on the server instance running on the physical server</li>" +
-                    "</ul>" +
-                    "[Usage]<br/>" +
-                    "<ul>" +
-                    "<li><button type='button' class='btn btn-default btn-xs'>Inspector</button> : Open a new window with detailed information on the WAS with Pinpoint installed.</li>" +
-                    "<li><button type='button' class='btn btn-default btn-xs'><span class='glyphicon glyphicon-plus'></span></button> : Display statistics on transactions carried out by the server instance.</li>" +
-                    "<li><button type='button' class='btn btn-danger btn-xs'><span class='glyphicon glyphicon-plus'></span></button> : Display statistics on transactions (with error) carried out by the server instance.</li>" +
-                    "</ul>" +
-                    "</div>",
-            "unknownList": "<div style='width:400px'>From the chart's top-right icon,<br/>1st : Toggle between Response Summary Chart / Load Chart<br/>2nd : Show Node Details</div>",
-            "searchAndOrder": "<div style='width:400px'>Filter by server name or total count.<br/>Clicking Name or Count sorts the list in ascending/descending order.</div>",
-        },
-        "linkInfoDetails": {
-            "responseSummary": "<div style='width:400px'><strong>Response Summary Chart</strong><br/><br/>" +
-                    "[Legend]<br/>" +
-                    "<ul>" +
-                    "<li>X-Axis : Response Time</li>" +
-                    "<li>Y-Axis : Transaction Count</li>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#2ca02c'></span> : No. of Successful transactions (less than 1 second)</li>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#3c81fa'></span> : No. of Successful transactions (1 ~ 3 seconds)</li>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#f8c731'></span> : No. of Successful transactions (3 ~ 5 seconds)</li>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#f69124'></span> : No. of Successful transactions (greater than 5 seconds)</li>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#f53034'></span> : No. of Failed transactions regardless of response time</li>" +
-                    "</ul>" +
-                    "[Usage]<br/>" +
-                    "<ul>" +
-                    "<li>Click on the bar to query for transactions within the selected response time.</li>" +
-                    "</ul>" +
-                    "</div>",
-            "load": "<div style='width:400px'><strong>Load Chart</strong><br/><br/>" +
-                    "[Legend]<br/>" +
-                    "<ul>" +
-                    "<li>X-Axis : Transaction Timestamp (in minutes)</li>" +
-                    "<li>Y-Axis : Transaction Count</li>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#2ca02c'></span> : No. of Successful transactions (less than 1 second)</li>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#3c81fa'></span> : No. of Successful transactions (1 ~ 3 seconds)</li>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#f8c731'></span> : No. of Successful transactions (3 ~ 5 seconds)</li>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#f69124'></span> : No. of Successful transactions (greater than 5 seconds)</li>" +
-                    "<li><span class='glyphicon glyphicon-stop' style='color:#f53034'></span> : No. of Failed transactions regardless of response time</li>" +
-                    "</ul>" +
-                    "[Usage]<br/>" +
-                    "<ul>" +
-                    "<li>Clicking on a legend item shows/hides all transactions within the selected group.</li>" +
-                    "<li>Dragging on the chart zooms in to the dragged area.</li>" +
-                    "</ul>" +
-                    "</div>",
-            "linkServers": "<div style='width:400px'><strong>Server Instances</strong><br/>List of physical servers and their server instances.<br/><br/>" +
-                    "[Legend]<br/>" +
-                    "<ul>" +
-                    "<li><span class='glyphicon glyphicon-home'></span> : Hostname of the physical server</li>" +
-                    "<li><span class='glyphicon glyphicon-hdd'></span> : AgentId of the Pinpoint agent installed on the server instance running on the physical server</li>" +
-                    "</ul>" +
-                    "[Usage]<br/>" +
-                    "<ul>" +
-                    "<li><button type='button' class='btn btn-default btn-xs'>Inspector</button> : Open a new window with detailed information on the WAS with Pinpoint installed.</li>" +
-                    "<li><button type='button' class='btn btn-default btn-xs'><span class='glyphicon glyphicon-plus'></span></button> : Display statistics on transactions carried out by the server instance.</li>" +
-                    "<li><button type='button' class='btn btn-danger btn-xs'><span class='glyphicon glyphicon-plus'></span></button> : Display statistics on transactions (with error) carried out by the server instance.</li>" +
-                    "</ul>" +
-                    "</div>",
-            "unknownList": "<div style='width:400px'>From the chart's top-right icon,<br/>1st : Toggle between Response Summary Chart / Load Chart<br/>2nd : Show Node Details</div>",
-            "searchAndOrder": "<div style='width:400px'>Filter by server name or total count.<br/>Clicking Name or Count sorts the list in ascending/descending order.</div>",
-        }
-});
+(function() {
+	'use strict';
+	
+	var oHelp = {
+		navbar : {
+			applicationSelector: {
+				mainStyle: "",
+				title: "Application List",
+				desc: "Shows the list of applications with Pinpoint installed.",
+				category : [{
+					title: "[Legend]",
+					items: [{
+						name: "Icon",
+						desc: "Application Type"
+					}, {
+						name: "Text",
+						desc: "Application Name. The value set using <code>-Dpinpoint.applicationName</code> when launching Pinpoint agent."
+					}]
+				}]
+			},
+			depth : {
+				mainStyle: "",
+				title: "<span class='glyphicon glyphicon-map-marker' aria-hidden='true'></span> Depth",
+				desc: "Search-depth of server map"
+			},
+			periodSelector: {
+				mainStyle: "",
+				title: "Period Selector",
+				desc: "Selects the time period for querying data.",
+				category: [{
+					title: "[Usage]",
+					items: [{
+						name: "<button type='button' class='btn btn-success btn-xs'><span class='glyphicon glyphicon-th-list'></span></button>",
+						desc: "Query for data traced during the most recent selected time-period.<br/>Auto-refresh is supported for 5m, 10m, 3h time-period."
+					},{
+						name: "<button type='button' class='btn btn-success btn-xs'><span class='glyphicon glyphicon-calendar'></span></button>",
+						desc: "Query for data traced between the two selected times for a maximum of 48 hours."
+					}]
+				}]
+			}
+		},
+		servermap : {
+			"default": {
+				mainStyle: "width:450px;",
+				title: "Server Map",
+				desc: "Displays a topological view of the distributed server map.",
+				category: [{
+					title: "[Node]",
+					list: [
+				       "Each node is a logical unit of application.",
+				       "The value on the top-right corner represents the number of server instances assigned to that application. (Not shown when there is only one such instance)",
+				       "An alarm icon is displayed on the top-left corner if an error/exception is detected in one of the server instances.",
+				       "Clicking a node shows information on all incoming transactions on the right-hand side of the screen."
+					]
+				},{
+					title: "[Arrow]",
+					list: [
+						"Each arrow represents a transaction flow.",
+						"The number shows the transaction count and is displayed in red for transactions with error.",
+						"<span class='glyphicon glyphicon-filter' style='color:green;'></span> is shown when a filter is applied.",
+						"Clicking an arrow shows information on all transactions passing through the selected section on the right-hand side of the screen."
+				    ]
+				},{
+					title: "[Applying Filter]",
+					list: [
+				        "Right-clicking on an arrow displays a filter menu.",
+				        "'Filter' filters the server map to only show transactions that has passed through the selected section.",
+				        "'Filter Wizard' allows additional filter configurations."
+					]
+				},{
+					title: "[Chart Configuration]",
+					list: [
+				        "Right-clicking on an empty area displays a chart configuration menu.",
+				        "Node Setting / Merge Unknown : Groups all agent-less applications into a single node.",
+				        "Double-clicking on an empty resets the zoom level of the server map."
+					]
+				}]
+			} 
+		},
+		scatter : {
+			"default": {
+				mainStyle: "",
+				title: "Response Time Scatter Chart",
+				desc: "",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "<span class='glyphicon glyphicon-stop' style='color:#2ca02c'></span>",
+						desc: "Successful Transaction"
+					},{
+						name: "<span class='glyphicon glyphicon-stop' style='color:#f53034'></span>",
+						desc: "Failed Transaction"
+					},{
+						name: "X-axis",
+						desc: "Transaction Timestamp (hh:mm)"
+					},{
+						name: "Y-axis",
+						desc: "Response Time (ms)"
+					}]
+				},{
+					title: "[Usage]",
+					image: "<img src='/images/help/scatter_01.png' width='350px' height='205px'>",
+					items: [{
+						name: "<span class='glyphicon glyphicon-plus'></span>",
+						desc: "Drag on the scatter chart to show detailed information on selected transactions."
+					},{
+						name: "<span class='glyphicon glyphicon-cog'></span>",
+						desc: "Set the min/max value of the Y-axis (Response Time)."
+					},{
+						name: "<span class='glyphicon glyphicon-download-alt'></span>",
+						desc: "Download the chart as an image file."
+					},{
+						name: "<span class='glyphicon glyphicon-fullscreen'></span>",
+						desc: "Open the chart in a new window."
+					}]
+				}]
+			}
+		},
+		nodeInfoDetails: {
+			responseSummary: {
+				mainStyle: "",
+				title: "Response Summary Chart",
+				desc: "",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "X-Axis",
+						desc: "Response Time"
+					},{
+						name: "Y-Axis",
+						desc: "Transaction Count"
+					},{
+						name: "<spanstyle='color:#2ca02c'>1s</span>",
+						desc: "No. of Successful transactions (less than 1 second)"
+					},{
+						name: "<span style='color:#3c81fa'>3s</span>",
+						desc: "No. of Successful transactions (1 ~ 3 seconds)"
+					},{
+						name: "<span style='color:#f8c731'>5s</span>",
+						desc: "No. of Successful transactions (3 ~ 5 seconds)"
+					},{
+						name: "<span style='color:#f69124'>Slow</span>",
+						desc: "No. of Successful transactions (greater than 5 seconds)"
+					},{
+						name: "<span style='color:#f53034'>Error</span>",
+						desc: "No. of Failed transactions regardless of response time"
+					}]
+				}]
+			},
+			load: {
+				mainStyle: "",
+				title: "Load Chart",
+				desc: "",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "X-Axis",
+						desc: "Transaction Timestamp (in minutes)"
+					},{
+						name: "Y-Axis",
+						desc: "Transaction Count"
+					},{
+						name: "<spanstyle='color:#2ca02c'>1s</span>",
+						desc: "No. of Successful transactions (less than 1 second)"
+					},{
+						name: "<span style='color:#3c81fa'>3s</span>",
+						desc: "No. of Successful transactions (1 ~ 3 seconds)"
+					},{
+						name: "<span style='color:#f8c731'>5s</span>",
+						desc: "No. of Successful transactions (3 ~ 5 seconds)"
+					},{
+						name: "<span style='color:#f69124'>Slow</span>",
+						desc: "No. of Successful transactions (greater than 5 seconds)"
+					},{
+						name: "<span style='color:#f53034'>Error</span>",
+						desc: "No. of Failed transactions regardless of response time"
+					}]
+				},{
+					title: "[Usage]",
+					list: [
+				       "Clicking on a legend item shows/hides all transactions within the selected group.",
+				       "Dragging on the chart zooms in to the dragged area."
+					]
+				}]
+			},
+			nodeServers: {
+				mainStyle: "width:350px;",
+				title: "Server Instances",
+				desc: "List of physical servers and their server instances.",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "<span class='glyphicon glyphicon-home'></span>",
+						desc: "Hostname of the physical server"
+					},{
+						name: "<span class='glyphicon glyphicon-hdd'></span>",
+						desc: "AgentId of the Pinpoint agent installed on the server instance running on the physical server"
+					}]
+				},{
+					title: "[Usage]",
+					items: [{
+						name: "<button type='button' class='btn btn-default btn-xs'>Inspector</button>",
+						desc: "Open a new window with detailed information on the WAS with Pinpoint installed."
+					},{
+						name: "<button type='button' class='btn btn-default btn-xs'><span class='glyphicon glyphicon-plus'></span></button>",
+						desc: "Display statistics on transactions carried out by the server instance."
+					},{
+						name: "<button type='button' class='btn btn-danger btn-xs'><span class='glyphicon glyphicon-plus'></span></button>",
+						desc: "Display statistics on transactions (with error) carried out by the server instance."
+					}]
+				}]
+			},
+			unknownList: {
+				mainStyle: "",
+				title: "UnknownList",
+				desc: "From the chart's top-right icon",
+				category: [{
+					title: "[Usage]",
+					items: [{
+						name: "1st",
+						desc: "Toggle between Response Summary Chart / Load Chart"
+					},{
+						name: "2nd",
+						desc: "Show Node Details"
+					}]
+				}]
+			},
+			searchAndOrder: {
+				mainStyle: "",
+				title: "Search and Fliter",
+				desc: "Filter by server name or total count.Clicking Name or Count sorts the list in ascending/descending order."
+			}			
+		},
+		linkInfoDetails: {
+			responseSummary: {
+				mainStyle: "",
+				title: "Response Summary Chart",
+				desc: "",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "X-Axis",
+						desc: "Response Time"
+					},{
+						name: "Y-Axis",
+						desc: "Transaction Count"
+					},{
+						name: "<spanstyle='color:#2ca02c'>1s</span>",
+						desc: "No. of Successful transactions (less than 1 second)"
+					},{
+						name: "<span style='color:#3c81fa'>3s</span>",
+						desc: "No. of Successful transactions (1 ~ 3 seconds)"
+					},{
+						name: "<span style='color:#f8c731'>5s</span>",
+						desc: "No. of Successful transactions (3 ~ 5 seconds)"
+					},{
+						name: "<span style='color:#f69124'>Slow</span>",
+						desc: "No. of Successful transactions (greater than 5 seconds)"
+					},{
+						name: "<span style='color:#f53034'>Error</span>",
+						desc: "No. of Failed transactions regardless of response time"
+					}]
+				},{
+					title: "[Usage]",
+					list: ["Click on the bar to query for transactions within the selected response time."]
+				}]
+			},
+			load: {
+				mainStyle: "",
+				title: "Load Chart",
+				desc: "",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "X-Axis",
+						desc: "Transaction Timestamp (in minutes)"
+					},{
+						name: "Y-Axis",
+						desc: "Transaction Count"
+					},{
+						name: "<spanstyle='color:#2ca02c'>1s</span>",
+						desc: "No. of Successful transactions (less than 1 second)"
+					},{
+						name: "<span style='color:#3c81fa'>3s</span>",
+						desc: "No. of Successful transactions (1 ~ 3 seconds)"
+					},{
+						name: "<span style='color:#f8c731'>5s</span>",
+						desc: "No. of Successful transactions (3 ~ 5 seconds)"
+					},{
+						name: "<span style='color:#f69124'>Slow</span>",
+						desc: "No. of Successful transactions (greater than 5 seconds)"
+					},{
+						name: "<span style='color:#f53034'>Error</span>",
+						desc: "No. of Failed transactions regardless of response time"
+					}]
+				},{
+					title: "[Usage]",
+					list: [
+				       "Clicking on a legend item shows/hides all transactions within the selected group.",
+				       "Dragging on the chart zooms in to the dragged area."
+					]
+				}]
+			},
+			linkServers: {
+				mainStyle: "width:350px;",
+				title: "Server Instance",
+				desc: "List of physical servers and their server instances.",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "<span class='glyphicon glyphicon-home'></span>",
+						desc: "Hostname of the physical server"
+					},{
+						name: "<span class='glyphicon glyphicon-hdd'></span>",
+						desc: "AgentId of the Pinpoint agent installed on the server instance running on the physical server"
+					}]
+				},{
+					title: "[Usage]",
+					items: [{
+						name: "<button type='button' class='btn btn-default btn-xs'>Inspector</button>",
+						desc: "Open a new window with detailed information on the WAS with Pinpoint installed."
+					},{
+						name: "<button type='button' class='btn btn-default btn-xs'><span class='glyphicon glyphicon-plus'></span></button>",
+						desc: "Display statistics on transactions carried out by the server instance."
+					},{
+						name: "<button type='button' class='btn btn-danger btn-xs'><span class='glyphicon glyphicon-plus'></span></button>",
+						desc: "Display statistics on transactions (with error) carried out by the server instance."
+					}]
+				}]
+			},
+			unknownList: {
+				mainStyle: "",
+				title: "UnknownList",
+				desc: "From the chart's top-right icon,",
+				category: [{
+					title: "[Usage]",
+					items: [{
+						name: "1st",
+						desc: "Toggle between Response Summary Chart"
+					},{
+						name: "2dn",
+						desc: "Show Node Details"
+					}]
+				}]
+			},
+			searchAndOrder: {
+				mainStyle: "",
+				title: "Search and Filter",
+				desc: "Filter by server name or total count.<br/>Clicking Name or Count sorts the list in ascending/descending order."
+			}
+		},
+		inspector: {
+			list: {
+				mainStyle: "",
+				title: "Agent list",
+				desc: "List of agents registered under the current Application Name",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "<span class='glyphicon glyphicon-home'></span>",
+						desc: "Hostname of the agent's machine"
+					},{
+						name: "<span class='glyphicon glyphicon-hdd'></span>",
+						desc: "Agent-id of the installed agent"
+					}]
+				}]
+			},
+			heap: {
+				mainStyle: "",
+				title: "Heap",
+				desc: "JVM's heap information and full garbage collection times(if any)",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "Max",
+						desc: "Maximum heap size"
+					},{
+						name: "Used",
+						desc: "Heap currently in use"
+					},{
+						name: "FCG",
+						desc: "Full garbage collection duration (number of FGCs in parenthesis if it occurred more than once)"
+					}]
+				}]
+			},
+			permGen: {
+				mainStyle: "",
+				title: "PermGen",
+				desc: "JVM's PermGen information and full garbage collection times(if any)",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "Max",
+						desc: "Maximum heap size"
+					},{
+						name: "Used",
+						desc: "Heap currently in use"
+					},{
+						name: "FCG",
+						desc: "Full garbage collection duration (number of FGCs in parenthesis if it occurred more than once)"
+					}]
+				}]
+			},
+			cpuUsage: {
+				mainStyle: "",
+				title: "Cpu Usage",
+				desc: "JVM/System's CPU Usage - For multi-core CPUs, displays the average CPU usage of all the cores",
+				category: [{
+					title: "[Legend]",
+					items: [{
+						name: "Java 1.6",
+						desc: "Only the JVM's CPU usage is collected"
+					},{
+						name: "Java 1.7+",
+						desc: "Both the JVM's and the system's CPU usage are collected"
+					}]
+				}]
+			}
+		},
+		callTree: {
+			column: {
+				mainStyle: "",
+				title: "Call Tree",
+				desc: "",
+				category: [{
+					title: "[Column]",
+					items: [{
+						name: "Gap",
+						desc: "Time elapsed between the start of the previous method and entry of this method"
+					},{
+						name: "Exec",
+						desc: "The overall duration of the method call from method entry until method exit"
+					},{
+						name: "Exec(%)",
+						desc: "<img src='/images/help/callTree_01.png'/>"
+					},{
+						name: "",
+						desc: "<span style='background-color:#FFFFFF;color:#5bc0de'>Light blue</span> The execution time of the method call as a percentage of the total execution time of the transaction"
+					},{
+						name: "",
+						desc: "<span style='background-color:#FFFFFF;color:#4343C8'>Dark blue</span> A percentage of the self execution time"
+					},{
+						name: "Self",
+						desc: "The time that was used for execution of this method only, excluding time consumed in nested methods call"
+					}]
+				}]
+			}
+		},
+		transactionTable: {
+			log: {}
+		}
+	};
+	pinpointApp.constant('helpContent-en', oHelp );
+})();

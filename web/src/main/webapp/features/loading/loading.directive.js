@@ -5,14 +5,14 @@
         return {
             restrict: 'A',
             scope: {
-                showLoading: '=loading',
+                showLoading: '=loadingDirective',
                 loadingMessage: '@'
             },
             link: function postLink(scope, element, attrs) {
                 if (!scope.loadingMessage) {
                     scope.loadingMessage = 'Please Wait...';
                 }
-                var loadingHtml = $templateCache.get('loading.html');
+                var loadingHtml = $templateCache.get('sidebarLoading');
                 $timeout(function () {
                     if (element.css('position') === 'static') {
                         element.css('position', 'relative');

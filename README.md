@@ -67,16 +67,17 @@ Pinpoint Version | Agent | Collector | Web
 
 HBase compatibility table:
 
-Pinpoint Version | HBase 0.94.x | HBase 0.96.x | HBase 0.98.x | HBase 1.0.x
----------------- | ------------ | ------------ | ------------ | -----------
+Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.1.x
+---------------- | ------------ | ------------ | ----------- | -----------
 1.0.x | yes | no | no | no 
-1.1.x | no | not tested | not tested | yes 
-1.5.x | no | not tested | not tested | yes 
+1.1.x | no | not tested | yes | not tested
+1.5.x | no | not tested | yes | not tested
 
 
 **Installation**
 
-To set up your very own Pinpoint instance, take a look at our [installation guide](doc/installation.md).
+To set up your very own Pinpoint instance you can either **download the build results** from our [**latest release**](https://github.com/naver/pinpoint/releases/latest), or manually build from your Git clone.
+Take a look at our [installation guide](doc/installation.md) for further instructions.
 
 ## Issues
 For feature requests and bug reports, feel free to post them [here](https://github.com/naver/pinpoint/issues).

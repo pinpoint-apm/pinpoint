@@ -57,8 +57,6 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
     }
 
     private Dot createDot(Cell cell) {
-
-
         final int valueOffset = cell.getValueOffset();
         final Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), valueOffset);
         int elapsed = valueBuffer.readVarInt();

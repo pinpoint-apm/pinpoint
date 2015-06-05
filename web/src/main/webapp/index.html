@@ -96,6 +96,7 @@
     <script src="components/amcharts/serial.js?v=${buildTime}"></script>
     <script src="components/amcharts/themes/light.js?v=${buildTime}"></script>
     <script src="components/tooltipster/js/jquery.tooltipster.min.js?v=${buildTime}"></script>
+    <script src="components/handlebars/handlebars.min.js?v=${buildTime}"></script>
     <script src="features/serverMap/jquery.ServerMap2.js?v=${buildTime}"></script>
     <!-- endbuild -->
 
@@ -109,7 +110,6 @@
     <script src="components/angular-route/angular-route.js?v=${buildTime}"></script>
     <script src="components/angular-sanitize/angular-sanitize.min.js?v=${buildTime}"></script>
     <script src="components/angular-timer/dist/angular-timer.min.js?v=${buildTime}"></script>
-    <script src="components/angular-intro-plus.js/build/angular-intro-plus.min.js?v=${buildTime}"></script>
     <!-- endbuild -->
 	
 	<!-- analytics -->
@@ -133,12 +133,37 @@
 
 <!-- ng-template -->
 <script id="error" type="text/ng-template">
-    <div class="error" style="position:absolute;top:38%;width:90%;margin-left:5%;display:none;z-index:10">
+    <div class="error" style="position:absolute;top:10%;width:90%;margin-left:5%;display:none;z-index:10">
         <div class="alert alert-danger">
             <button type="button" class="close" data-dismiss="alert">&times;</button>
-            <h4>Error!</h4>
-
-            <div class="msg"></div>
+            <h2>Error!</h2>
+            <h4 class="msg" style="color:red"></h4>
+			<button class="openDetail" onclick="jQuery('#detailErrorResult').toggle()">+</button>
+			<div class="detail" style="display:none"  id="detailErrorResult">
+				<hr>
+				<table style="width:100%">
+					<tr>
+						<td style="padding-bottom:5px">Method</td>
+						<td class="method" style="padding:0px 0px 5px 20px;color:black"></td>
+					</tr>
+					<tr>
+						<td style="padding-bottom:5px">Header</td>
+						<td class="header" style="padding:0px 0px 5px 20px;color:black"></td>
+					</tr>
+					<tr>
+						<td style="padding-bottom:5px">Parameters</td>
+						<td class="parameters" style="padding:0px 0px 5px 20px;color:black"></td>
+					</tr>
+					<tr>
+						<td style="padding-bottom:5px">URL</td>
+						<td class="url" style="padding:0px 0px 5px 20px;color:black"></td>
+					</tr>
+					<tr>
+						<td style="padding-bottom:5px">Stacktrace</td>
+						<td style="padding:0px 0px 5px 20px;color:black"><textarea class="stacktrace" disabled style="width:100%;height:340px"></textarea></td>
+					</tr>
+				</table>
+			</div>
         </div>
     </div>
 </script>
@@ -178,7 +203,7 @@
     	</div>
 	</div>
 </script>
-<script id="loading.html" type="text/ng-template">
+<script id="sidebarLoading" type="text/ng-template">
     <div class="cg-busy cg-busy-animation ng-hide" ng-show="!!showLoading">
         <div class="cg-busy cg-busy-backdrop"></div>
         <div class="cg-busy-default-wrapper" style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px;">
@@ -297,6 +322,7 @@
 <script src="features/loadChart/load-chart.directive.js?v=${buildTime}"></script>
 <script src="common/help/help-content-en.js?v=${buildTime}"></script>
 <script src="common/help/help-content-ko.js?v=${buildTime}"></script>
+<script src="common/help/help-content-template.js?v=${buildTime}"></script>
 <script src="features/jvmMemoryChart/jvm-memory-chart.directive.js?v=${buildTime}"></script>
 <script src="features/cpuLoadChart/cpu-load-chart.directive.js?v=${buildTime}"></script>
 <script src="features/loading/loading.directive.js?v=${buildTime}"></script>

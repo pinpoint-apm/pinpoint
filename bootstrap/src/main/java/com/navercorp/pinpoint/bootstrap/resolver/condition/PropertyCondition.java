@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.resolver.condition;
 
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.SystemProperty;
 
@@ -24,6 +26,8 @@ import com.navercorp.pinpoint.common.util.SystemProperty;
  * 
  */
 public class PropertyCondition implements Condition<String>, ConditionValue<SimpleProperty> {
+
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass().getName()); 
 
     private final SimpleProperty property;
     
@@ -47,7 +51,13 @@ public class PropertyCondition implements Condition<String>, ConditionValue<Simp
         if (requiredKey == null || requiredKey.isEmpty()) {
             return false;
         }
-        return (this.property.getProperty(requiredKey) != null);
+        if (this.property.getProperty(requiredKey) != null) {
+            logger.debug("Property '{}' found in [{}]", requiredKey, this.property.getClass().getSimpleName());
+            return true;
+        } else {
+            logger.debug("Property '{}' not found in [{}]", requiredKey, this.property.getClass().getSimpleName());
+            return false;
+        }
     }
     
     /**

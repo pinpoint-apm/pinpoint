@@ -1,8 +1,8 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$routeParams', 'locationService', 'NavbarVoService', 'encodeURIComponentFilter', '$window', 'SidebarTitleVoService', 'filteredMapUtilService', '$rootElement', 'helpContentService',
-	    function (cfg, $scope, $timeout, $routeParams, locationService, NavbarVoService, encodeURIComponentFilter, $window, SidebarTitleVoService, filteredMapUtilService, $rootElement, helpContentService) {
+	pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$routeParams', 'locationService', 'NavbarVoService', 'encodeURIComponentFilter', '$window', 'SidebarTitleVoService', 'filteredMapUtilService', '$rootElement',
+	    function (cfg, $scope, $timeout, $routeParams, locationService, NavbarVoService, encodeURIComponentFilter, $window, SidebarTitleVoService, filteredMapUtilService, $rootElement) {
 			$at($at.MAIN_PAGE);
 	        // define private variables
 	        var oNavbarVoService, bNodeSelected, bNoData;
@@ -15,8 +15,8 @@
 	        $window.htoScatter = {};
 	        bNodeSelected = true;
 	        //$scope.bShowHelpIcons = false;
-	        bNoData = true;
-	        $scope.sidebarLoading = false;
+	        bNoData = false;
+	        $scope.sidebarLoading = true;
 	
 	        /**
 	         * bootstrap
@@ -84,7 +84,7 @@
 	         * get main container class
 	         */
 	        $scope.getMainContainerClass = function () {
-	            return bNoData ? 'no-data' : '';
+	        	return bNoData ? 'no-data' : '';
 	        };
 	
 	        /**
@@ -124,6 +124,7 @@
 	         * scope event on navbarDirective.changed
 	         */
 	        $scope.$on('navbarDirective.changed', function (event, navbarVo) {
+	        	bNoData = false;
 	            oNavbarVoService = navbarVo;
 	            changeLocation(oNavbarVoService);
 	            $window.htoScatter = {};
@@ -273,99 +274,6 @@
 	            $scope.$broadcast('linkInfoDetailsDirective.hide');
 	        });
 	
-	        /**
-	         * help
-	         * @type {{steps: Array}}
-	         */
-	        /*
-	        $scope.IntroPlusOptions = {
-	            steps:[
-	                {
-	                    element: '#navbar_application',
-	                    intro: helpContentService.navbar.applicationSelector
-	                },
-	                {
-	                    element: '#navbar_period',
-	                    intro: helpContentService.navbar.periodSelector
-	                },
-	                {
-	                    element: '#servermap',
-	                    intro: helpContentService.servermap.default,
-	                    position: 'right'
-	                },
-	                {
-	                    element: '#scatter',
-	                    intro: helpContentService.scatter.default,
-	                    position: 'left'
-	                },
-	                {
-	                    element: '.nodeInfoDetails .response-summary',
-	                    intro: helpContentService.nodeInfoDetails.responseSummary,
-	                    position: 'left'
-	                },
-	                {
-	                    element: '.nodeInfoDetails .load',
-	                    intro: helpContentService.nodeInfoDetails.load,
-	                    position: 'left'
-	                },
-	                {
-	                    element: '.nodeInfoDetails .node-servers',
-	                    intro: helpContentService.nodeInfoDetails.nodeServers,
-	                    position: 'top'
-	                },
-	                {
-	                    element: '.nodeInfoDetails .unknown-list',
-	                    intro: helpContentService.nodeInfoDetails.unknownList,
-	                    position: 'left'
-	                },
-	                {
-	                    element: '.nodeInfoDetails .search-n-order',
-	                    intro: helpContentService.nodeInfoDetails.searchAndOrder,
-	                    position: 'left'
-	                },
-	                {
-	                    element: '.linkInfoDetails .response-summary',
-	                    intro: helpContentService.linkInfoDetails.responseSummary,
-	                    position: 'left'
-	                },
-	                {
-	                    element: '.linkInfoDetails .load',
-	                    intro: helpContentService.linkInfoDetails.load,
-	                    position: 'left'
-	                },
-	                {
-	                    element: '.linkInfoDetails .link-servers',
-	                    intro: helpContentService.linkInfoDetails.linkServers,
-	                    position: 'top'
-	                },
-	                {
-	                    element: '.linkInfoDetails .unknown-list',
-	                    intro: helpContentService.linkInfoDetails.unknownList,
-	                    position: 'left'
-	                },
-	                {
-	                    element: '.linkInfoDetails .search-n-order',
-	                    intro: helpContentService.linkInfoDetails.searchAndOrder,
-	                    position: 'left'
-	                }
-	            ]
-	        };
-	        */
-	
-	        /**
-	         * on after overlay creation
-	         */
-//	        $scope.onAfterOverlayCreation = function () {
-//	        	$at($at.MAIN, $at.CLK_HELP);
-//	            $rootElement.find('#copyright').show();
-//	        };
-	
-	        /**
-	         * on before overlay removal
-	         */
-//	        $scope.onBeforeOverlayRemoval = function () {
-//	            $rootElement.find('#copyright').hide();
-//	        };
 	        $scope.loadingOption = {
 	        	hideTip : "init"
 	        };
