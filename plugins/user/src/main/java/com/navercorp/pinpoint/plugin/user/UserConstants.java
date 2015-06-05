@@ -21,6 +21,4 @@ package com.navercorp.pinpoint.plugin.user;
  *
  */
 public interface UserConstants {
-    public static final String HTTP_CLIENT3_SCOPE = "HttpClient3Scope"; 
-    public static final String HTTP_CLIENT3_CONNECTION_SCOPE = "HttpClient3HttpConnection";
 }
