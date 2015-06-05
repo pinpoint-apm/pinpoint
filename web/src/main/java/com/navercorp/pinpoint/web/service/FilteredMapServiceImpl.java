@@ -342,7 +342,11 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                 }
             }
 
-            final String dest = spanEvent.getDestinationId();
+            String dest = spanEvent.getDestinationId();
+            if(dest == null) {
+                dest = "Unknown";
+            }
+            
             final Application destApplication = new Application(dest, destServiceType);
 
             final short slotTime = getHistogramSlotTime(spanEvent, destServiceType);
