@@ -37,7 +37,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContext;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
-import com.navercorp.pinpoint.plugin.thrift.ThriftHeader;
+import com.navercorp.pinpoint.plugin.thrift.ThriftRequestProperty;
 import com.navercorp.pinpoint.plugin.thrift.descriptor.ThriftServerEntryMethodDescriptor;
 
 /**
@@ -105,7 +105,7 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
         if (attachment instanceof ThriftClientCallContext) {
             ThriftClientCallContext clientCallContext = (ThriftClientCallContext)attachment;
             String methodName = clientCallContext.getMethodName();
-            ThriftHeader parentTraceInfo = clientCallContext.getTraceHeader();
+            ThriftRequestProperty parentTraceInfo = clientCallContext.getTraceHeader();
             try {
                 this.logger.debug("parentTraceInfo : {}", parentTraceInfo);
                 recordTrace(parentTraceInfo, methodName);
@@ -126,7 +126,7 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
         return false;
     }
 
-    private void recordTrace(ThriftHeader parentTraceInfo, String methodName) {
+    private void recordTrace(ThriftRequestProperty parentTraceInfo, String methodName) {
         final Trace trace = createTrace(parentTraceInfo, methodName);
         if (trace == null) {
             return;
@@ -138,7 +138,7 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
         trace.recordServiceType(THRIFT_SERVER_INTERNAL);
     }
 
-    private Trace createTrace(ThriftHeader parentTraceInfo, String methodName) {
+    private Trace createTrace(ThriftRequestProperty parentTraceInfo, String methodName) {
         // Check if parent trace info is set.
         // If it is, then make a continued trace object (from parent application)
         // If not, make a new trace object (from user cloud)
@@ -187,7 +187,7 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
         }
     }
     
-    private void recordRootSpan(final Trace trace, final ThriftHeader parentTraceInfo) {
+    private void recordRootSpan(final Trace trace, final ThriftRequestProperty parentTraceInfo) {
         // begin root span
         trace.markBeforeTime();
         trace.recordServiceType(THRIFT_SERVER);
@@ -199,7 +199,7 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
         trace.traceBlockBegin();
     }
 
-    private boolean checkSamplingFlag(ThriftHeader parentTraceInfo) {
+    private boolean checkSamplingFlag(ThriftRequestProperty parentTraceInfo) {
         // parent trace info not given, should start a new trace and thus be sampled
         if (parentTraceInfo == null) {
             return true;
@@ -215,7 +215,7 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
         return samplingFlag;
     }
 
-    private TraceId populateTraceIdThriftHeader(ThriftHeader parentTraceInfo) {
+    private TraceId populateTraceIdThriftHeader(ThriftRequestProperty parentTraceInfo) {
         if (parentTraceInfo == null) {
             return null;
         }
@@ -227,7 +227,7 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
         return this.traceContext.createTraceId(transactionId, parentSpanId, spanId, flags);
     }
     
-    private void recordParentInfo(RecordableTrace trace, ThriftHeader parentTraceInfo) {
+    private void recordParentInfo(RecordableTrace trace, ThriftRequestProperty parentTraceInfo) {
         if (parentTraceInfo == null) {
             return;
         }

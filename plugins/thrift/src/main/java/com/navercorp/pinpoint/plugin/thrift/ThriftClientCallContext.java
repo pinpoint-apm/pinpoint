@@ -16,20 +16,19 @@
 
 package com.navercorp.pinpoint.plugin.thrift;
 
-import com.navercorp.pinpoint.plugin.thrift.ThriftHeader.ThriftHeaderKey;
 
 /**
  * @author HyunGil Jeong
  */
 public class ThriftClientCallContext {
     
-    public static final ThriftHeaderKey NONE = null;
+    public static final ThriftHeader NONE = null;
     
     private final String methodName;
     
-    private ThriftHeaderKey traceHeaderToBeRead;
+    private ThriftHeader traceHeaderToBeRead;
     
-    private ThriftHeader traceHeader;
+    private ThriftRequestProperty traceHeader;
     
     public ThriftClientCallContext(String methodName) {
         this.methodName = methodName;
@@ -39,19 +38,19 @@ public class ThriftClientCallContext {
         return methodName;
     }
     
-    public ThriftHeaderKey getTraceHeaderToBeRead() {
+    public ThriftHeader getTraceHeaderToBeRead() {
         return traceHeaderToBeRead;
     }
 
-    public void setTraceHeaderToBeRead(ThriftHeaderKey traceHeaderToBeRead) {
+    public void setTraceHeaderToBeRead(ThriftHeader traceHeaderToBeRead) {
         this.traceHeaderToBeRead = traceHeaderToBeRead;
     }
 
-    public ThriftHeader getTraceHeader() {
+    public ThriftRequestProperty getTraceHeader() {
         return traceHeader;
     }
 
-    public void setTraceHeader(ThriftHeader traceHeader) {
+    public void setTraceHeader(ThriftRequestProperty traceHeader) {
         this.traceHeader = traceHeader;
     }
 

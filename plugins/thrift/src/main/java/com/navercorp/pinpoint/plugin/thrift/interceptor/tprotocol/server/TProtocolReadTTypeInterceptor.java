@@ -32,8 +32,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContext;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
+import com.navercorp.pinpoint.plugin.thrift.ThriftRequestProperty;
 import com.navercorp.pinpoint.plugin.thrift.ThriftHeader;
-import com.navercorp.pinpoint.plugin.thrift.ThriftHeader.ThriftHeaderKey;
 
 /**
  * This interceptor reads a data field and if applicable, populates the corresponding parent trace data as marked by the previous interceptor.
@@ -92,13 +92,13 @@ public class TProtocolReadTTypeInterceptor implements SimpleAroundInterceptor, T
         Object attachment = currentTransaction.getAttachment();
         if (attachment instanceof ThriftClientCallContext) {
             ThriftClientCallContext clientCallContext = (ThriftClientCallContext)attachment;
-            ThriftHeaderKey headerKeyToBeRead = clientCallContext.getTraceHeaderToBeRead();
+            ThriftHeader headerKeyToBeRead = clientCallContext.getTraceHeaderToBeRead();
             if (headerKeyToBeRead == NONE) {
                 return;
             }
-            ThriftHeader parentTraceInfo = clientCallContext.getTraceHeader();
+            ThriftRequestProperty parentTraceInfo = clientCallContext.getTraceHeader();
             if (parentTraceInfo == null) {
-                parentTraceInfo = new ThriftHeader();
+                parentTraceInfo = new ThriftRequestProperty();
                 clientCallContext.setTraceHeader(parentTraceInfo);
             }
             try {

@@ -30,8 +30,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
+import com.navercorp.pinpoint.plugin.thrift.ThriftRequestProperty;
 import com.navercorp.pinpoint.plugin.thrift.ThriftHeader;
-import com.navercorp.pinpoint.plugin.thrift.ThriftHeader.ThriftHeaderKey;
 
 /**
  * This interceptor writes the trace data directly on the wire to allow remote tracing.
@@ -80,22 +80,22 @@ public class TProtocolWriteFieldStopInterceptor implements SimpleAroundIntercept
     
     private void appendParentTraceInfo(TProtocol oprot) throws TException {
         InterceptorGroupInvocation currentTransaction = this.group.getCurrentInvocation();
-        ThriftHeader parentTraceInfo = (ThriftHeader)currentTransaction.getAttachment();
+        ThriftRequestProperty parentTraceInfo = (ThriftRequestProperty)currentTransaction.getAttachment();
         if (parentTraceInfo == null) {
             return;
         }
         boolean shouldSample = parentTraceInfo.shouldSample(true);
         if (!shouldSample) {
-            parentTraceInfo.writeTraceHeader(ThriftHeaderKey.SAMPLED, oprot);
+            parentTraceInfo.writeTraceHeader(ThriftHeader.THRFIT_SAMPLED, oprot);
             return;
         }
-        parentTraceInfo.writeTraceHeader(ThriftHeaderKey.TRACE_ID, oprot);
-        parentTraceInfo.writeTraceHeader(ThriftHeaderKey.SPAN_ID, oprot);
-        parentTraceInfo.writeTraceHeader(ThriftHeaderKey.PARENT_SPAN_ID, oprot);
-        parentTraceInfo.writeTraceHeader(ThriftHeaderKey.FLAGS, oprot);
-        parentTraceInfo.writeTraceHeader(ThriftHeaderKey.PARENT_APPLICATION_NAME, oprot);
-        parentTraceInfo.writeTraceHeader(ThriftHeaderKey.PARENT_APPLICATION_TYPE, oprot);
-        parentTraceInfo.writeTraceHeader(ThriftHeaderKey.ACCEPTOR_HOST, oprot);
+        parentTraceInfo.writeTraceHeader(ThriftHeader.THRIFT_TRACE_ID, oprot);
+        parentTraceInfo.writeTraceHeader(ThriftHeader.THRIFT_SPAN_ID, oprot);
+        parentTraceInfo.writeTraceHeader(ThriftHeader.THRIFT_PARENT_SPAN_ID, oprot);
+        parentTraceInfo.writeTraceHeader(ThriftHeader.THRIFT_FLAGS, oprot);
+        parentTraceInfo.writeTraceHeader(ThriftHeader.THRIFT_PARENT_APPLICATION_NAME, oprot);
+        parentTraceInfo.writeTraceHeader(ThriftHeader.THRIFT_PARENT_APPLICATION_TYPE, oprot);
+        parentTraceInfo.writeTraceHeader(ThriftHeader.THRIFT_HOST, oprot);
     }
 
 }

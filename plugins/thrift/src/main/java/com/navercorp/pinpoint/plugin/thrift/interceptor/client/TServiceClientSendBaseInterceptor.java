@@ -39,7 +39,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
-import com.navercorp.pinpoint.plugin.thrift.ThriftHeader;
+import com.navercorp.pinpoint.plugin.thrift.ThriftRequestProperty;
 import com.navercorp.pinpoint.plugin.thrift.ThriftUtils;
 
 /**
@@ -94,7 +94,7 @@ public class TServiceClientSendBaseInterceptor implements SimpleAroundIntercepto
             if (trace == null) {
                 return;
             }
-            ThriftHeader parentTraceInfo = new ThriftHeader();
+            ThriftRequestProperty parentTraceInfo = new ThriftRequestProperty();
             final boolean shouldSample = trace.canSampled();
             if (!shouldSample) {
                 if (isDebug) {
