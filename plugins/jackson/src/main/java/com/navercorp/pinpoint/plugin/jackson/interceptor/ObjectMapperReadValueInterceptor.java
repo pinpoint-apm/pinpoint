@@ -39,12 +39,13 @@ public class ObjectMapperReadValueInterceptor implements SimpleAroundInterceptor
         this.descriptor = descriptor;
         this.traceContext = traceContext;
     }
-    
+
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
+        
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -61,6 +62,7 @@ public class ObjectMapperReadValueInterceptor implements SimpleAroundInterceptor
         if (isDebug) {
             logger.afterInterceptor(target, args);
         }
+        
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -71,11 +73,9 @@ public class ObjectMapperReadValueInterceptor implements SimpleAroundInterceptor
             trace.recordException(throwable);
             if (args[0] instanceof String) {
                 trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((String) args[0]).length());
-            }
-            else if (args[0] instanceof byte[]) {
-                trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte []) args[0]).length);
-            }
-            else if (args[0] instanceof File) {
+            } else if (args[0] instanceof byte[]) {
+                trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte[]) args[0]).length);
+            } else if (args[0] instanceof File) {
                 trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((File) args[0]).length());
             }
 

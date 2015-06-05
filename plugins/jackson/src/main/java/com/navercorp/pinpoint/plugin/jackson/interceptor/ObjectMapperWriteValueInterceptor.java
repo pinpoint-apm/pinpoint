@@ -14,8 +14,6 @@
  */
 package com.navercorp.pinpoint.plugin.jackson.interceptor;
 
-import java.io.File;
-
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -23,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.jackson.JacksonConstants;
+import com.navercorp.pinpoint.plugin.jackson.JacksonPlugin;
 
 /**
  * @see JacksonPlugin#intercept_ObjectMapper(com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext)
@@ -74,9 +73,6 @@ public class ObjectMapperWriteValueInterceptor implements SimpleAroundIntercepto
             }
             else if (descriptor.getMethodName().equals("writeValueAsBytes")) {
                 trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte []) result).length);
-            }
-            else if (args[0] instanceof File) {
-                trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((File) args[0]).length());
             }
 
             trace.markAfterTime();
