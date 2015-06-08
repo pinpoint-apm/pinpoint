@@ -32,6 +32,7 @@
         <module>bootstrap</module>
         <module>collector</module>
         <module>commons</module>
+        <module>commons-hbase</module>
         <module>plugins</module>
         <module>profiler</module>
         <module>profiler-optional</module>
@@ -80,6 +81,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-commons</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-commons-hbase</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
