@@ -35,7 +35,6 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
 
     private TraceContext traceContext;
     private MethodDescriptor descriptor;
-    private boolean span = false;
 
     public UserIncludeMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
@@ -53,7 +52,6 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             trace = traceContext.newTraceObject();
-            span = true;
             if (!trace.canSampled()) {
                 if(isDebug) {
                     logger.debug("New trace and can't sampled {}", trace);
@@ -95,7 +93,7 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
             trace.markAfterTime();
         } finally {
             trace.traceBlockEnd();
-            if(span) {
+            if(trace.isRootStack()) {
                 trace.markAfterTime();
                 trace.close();
                 traceContext.removeTraceObject();
