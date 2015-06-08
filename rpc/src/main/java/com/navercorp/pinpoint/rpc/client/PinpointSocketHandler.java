@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.rpc.client;
 
 import java.net.SocketAddress;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -186,7 +187,10 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         
         registerPing();
 
-        Map<String, Object> handshakeData = this.pinpointSocketFactory.getProperties();
+        Map<String, Object> handshakeData = new HashMap<String, Object>();
+        handshakeData.putAll(pinpointSocketFactory.getProperties());
+        handshakeData.put("socketId", socketId);
+        
         handshaker.handshakeStart(channel, handshakeData);
         
         connectFuture.setResult(Result.SUCCESS);
