@@ -52,14 +52,6 @@
                     <artifactId>jersey-json</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>com.sun.jersey</groupId>
-                    <artifactId>jersey-server</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>javax.xml.bind</groupId>
-                    <artifactId>jaxb-api</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
                 </exclusion>
@@ -78,6 +70,10 @@
                 <exclusion>
                     <groupId>jdk.tools</groupId>
                     <artifactId>jdk.tools</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.java.dev.jets3t</groupId>
+                    <artifactId>jets3t</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>commons-httpclient</groupId>
@@ -112,10 +108,6 @@
                     <artifactId>gson</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>com.jamesmurty.utils</groupId>
-                    <artifactId>java-xmlbuilder</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>org.apache.commons</groupId>
                     <artifactId>commons-compress</artifactId>
                 </exclusion>
@@ -138,6 +130,10 @@
                 <exclusion>
                     <groupId>org.eclipse.jdt</groupId>
                     <artifactId>core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>hsqldb</artifactId>
+                    <groupId>hsqldb</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -264,6 +260,28 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <!--jackson jsonMapper. hbase need that for now -->
+        <!--<dependency>-->
+            <!--<groupId>org.codehaus.jackson</groupId>-->
+            <!--<artifactId>jackson-core-asl</artifactId>-->
+            <!--<optional>true</optional>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.codehaus.jackson</groupId>-->
+            <!--<artifactId>jackson-mapper-asl</artifactId>-->
+            <!--<optional>true</optional>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.codehaus.jackson</groupId>-->
+            <!--<artifactId>jackson-xc</artifactId>-->
+            <!--<optional>true</optional>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.codehaus.jackson</groupId>-->
+            <!--<artifactId>jackson-jaxrs</artifactId>-->
+            <!--<optional>true</optional>-->
+        <!--</dependency>-->
 
 
         <!-- Logging dependencies -->
