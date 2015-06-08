@@ -218,6 +218,19 @@
                     new go.Binding('text', 'v')
                 )
             );
+            var calcuResponseSummaryCircleSize = function( sum, value ) {
+            	var size = 0;
+            	if ( value == 0 ) return 0;
+    			var percentage = ( 100 * value ) /sum;
+    			if ( percentage < calcuResponseSummaryCircleSize.minPercentage ) {
+    				size = parseInt((calcuResponseSummaryCircleSize.maxSize * calcuResponseSummaryCircleSize.minPercentage) / 100);
+    			} else {
+    				size = parseInt((calcuResponseSummaryCircleSize.maxSize * percentage) / 100); 
+    			}
+    			return size;
+            };
+            calcuResponseSummaryCircleSize.maxSize = 360;
+            calcuResponseSummaryCircleSize.minPercentage = 5;
 
             var getNodeTemplate = function (sImageName) {
                 return self.$(
@@ -275,6 +288,105 @@
                         new go.Binding("key", "key")
                     ),
                     self.$(
+                    	go.Shape, {
+                    		stroke: "red",
+                    		strokeWidth: 4,
+                    		opacity: 0.8,
+                    		margin : new go.Margin( -28, 0, 0, 0 ),
+                    		visible: true
+                    	},
+                    	new go.Binding("visible", "isWas"),
+                    	new go.Binding("geometry", "histogram", function(histogram) {
+                    		return go.Geometry.parse("M30 0 B270 360 30 30 30 30");
+                    	})
+                    ),
+                    self.$(
+                    	go.Shape, {
+                    		stroke: "orange",
+                    		strokeWidth: 4,
+                    		margin : new go.Margin( -28, 0, 0, 0 ),
+                    		visible: true
+                    	},
+                    	new go.Binding("visible", "isWas"),
+                    	new go.Binding("geometry", "histogram", function(histogram) {
+                    		if ( histogram["Slow"] == 0 ) return go.Geometry.parse("M30 0 B270 0 30 30 30 30");
+                    		var sum = 0;
+                    		jQuery.each( histogram, function( key, value ) {
+                				sum += value;
+                			});
+                    		return go.Geometry.parse("M30 0 B270 " + (calcuResponseSummaryCircleSize.maxSize - calcuResponseSummaryCircleSize(sum, histogram["Error"])) + " 30 30 30 30");
+                    	})
+                    ),
+                    self.$(
+                    	go.Shape, {
+                    		stroke : self.$(go.Brush, go.Brush.Linear, { "0.0": "lightgreen", "1.0": "green"}),
+//                    		stroke: "green",
+                    		strokeWidth: 4,
+                    		margin : new go.Margin( -28, 0, 0, 0 ),
+                    		visible: true
+                    	},
+                    	new go.Binding("visible", "isWas"),
+                    	new go.Binding("geometry", "histogram", function(histogram) {
+                    		var sum = 0;
+                    		jQuery.each( histogram, function( key, value ) {
+                				sum += value;
+                			});
+                    		var size = calcuResponseSummaryCircleSize.maxSize - calcuResponseSummaryCircleSize(sum, histogram["Slow"]) - calcuResponseSummaryCircleSize(sum, histogram["Error"]);
+                    		return go.Geometry.parse("M30 0 B270 " + size + " 30 30 30 30");
+                    	})
+                    ),
+                    
+                    //Vertical Bar
+//                    self.$(
+//                    	go.Shape, {
+//                    		alignment: go.Spot.BottomLeft,
+//                            alignmentFocus: go.Spot.BottomLeft,
+//                            figure: "RoundedRectangle",
+//                    		stroke : "red",
+//                    		strokeWidth: 4,
+//                    		width: 4,
+//                    		margin : new go.Margin( 2, 0, 10, 4 ),
+//                    		visible: true
+//                    	},
+//                    	new go.Binding("visible", "isWas"),
+//                    	new go.Binding("height", "histogram", function(histogram) {
+//                    		return 75;
+//                    	})
+//                    ),
+//                    self.$(
+//                    	go.Shape, {
+//                    		alignment: go.Spot.BottomLeft,
+//                            alignmentFocus: go.Spot.BottomLeft,
+//                            figure: "RoundedRectangle",
+//                    		stroke : "orange",
+//                    		strokeWidth: 4,
+//                    		width: 4,
+//                    		margin : new go.Margin( 2, 0, 10, 4 ),
+//                    		visible: true
+//                    	},
+//                    	new go.Binding("visible", "isWas"),
+//                    	new go.Binding("height", "histogram", function(histogram) {
+//                    		return 65;
+//                    	})
+//                    ),
+//                    self.$(
+//                    	go.Shape, {
+//                    		alignment: go.Spot.BottomLeft,
+//                            alignmentFocus: go.Spot.BottomLeft,
+//                            figure: "RoundedRectangle",
+//                    		stroke : "green",
+//                    		strokeWidth: 4,
+//                    		width: 4,
+//                    		margin : new go.Margin( 2, 0, 10, 4 ),
+//                    		visible: true
+//                    	},
+//                    	new go.Binding("visible", "isWas"),
+//                    	new go.Binding("height", "histogram", function(histogram) {
+//                    		return 55;
+//                    	})
+//                    ),
+                    
+                    self.$(
                         go.Panel,
                         go.Panel.Spot,
                         {
@@ -303,9 +415,12 @@
                                 go.TextBlock,
                                 new go.Binding("text", "applicationName").makeTwoWay(),
                                 {
-                                    alignment: go.Spot.Center,
+                                    alignment: go.Spot.BottomCenter,
+                                    alignmentFocus: go.Spot.BottomCenter,
                                     name: "NODE_TEXT",
                                     margin: 6,
+//                                    margin: new go.Margin(6,16, -10, 16),
+//                                    margin: new go.Margin(16,6, -6, 6),
                                     font: self.option('sBigFont'),
 //                                    wrap: go.TextBlock.WrapFit,
 //                                    width: 130,

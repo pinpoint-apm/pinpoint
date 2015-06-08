@@ -15,12 +15,13 @@
         <module>httpclient3</module>
         <module>httpclient4</module>
         <module>gson</module>
+        <module>jackson</module>
         <module>jdbc-driver</module>
         <module>jdk-http</module>
+		<module>json-lib</module>
         <module>redis</module>
         <module>servlet</module>
 		<module>tomcat</module>
-		<module>json-lib</module>
         <module>thrift</module>
         <module>user</module>
     </modules>
@@ -69,6 +70,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-json-lib-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-jackson-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
