@@ -919,7 +919,7 @@
 	     * @returns {*}
 	     */
 	    this.extractDataFromApplicationMapData = function (applicationMapData) {
-	        var nodeProperty = ['applicationName', 'category', 'errorCount', 'hasAlert', 'instanceCount', 'isWas', 'key', 'slowCount', 'serviceType', 'totalCount'],
+	        var nodeProperty = ['applicationName', 'category', 'errorCount', 'hasAlert', 'instanceCount', 'isWas', 'key', 'slowCount', 'serviceType', 'totalCount', 'histogram'],
 	            linkProperty = ['errorCount', 'from', 'hasAlert', 'key', 'sourceInfo', 'slowCount', 'to', 'targetInfo', 'totalCount'];
 	        var serverMapData = {
 	            nodeDataArray: [],
