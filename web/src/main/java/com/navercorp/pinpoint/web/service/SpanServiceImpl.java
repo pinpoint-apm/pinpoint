@@ -429,11 +429,7 @@ public class SpanServiceImpl implements SpanService {
             return agentStartTime;
         }
     }
-    
-    public void setApiMetaDataDao(ApiMetaDataDao apiMetaDataDao) {
-        this.apiMetaDataDao = apiMetaDataDao;
-    }
-    
+
     public void setSqlMetaDataDao(SqlMetaDataDao sqlMetaDataDao) {
         this.sqlMetaDataDao = sqlMetaDataDao;
     }
