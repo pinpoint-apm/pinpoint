@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.hbase;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
+
 import org.apache.hadoop.hbase.util.Bytes;
 
 /**
@@ -60,6 +61,9 @@ public final class HBaseTables {
 
     public static final String SQL_METADATA = "SqlMetaData";
     public static final byte[] SQL_METADATA_CF_SQL = Bytes.toBytes("Sql");
+    
+    public static final String SQL_METADATA_VER2 = "SqlMetaData_Ver2";
+    public static final byte[] SQL_METADATA_VER2_CF_SQL = Bytes.toBytes("Sql");
 
     public static final String STRING_METADATA = "StringMetaData";
     public static final byte[] STRING_METADATA_CF_STR = Bytes.toBytes("Str");
