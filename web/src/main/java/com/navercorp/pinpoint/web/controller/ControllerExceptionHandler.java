@@ -107,7 +107,7 @@ public class ControllerExceptionHandler {
     private Map<String, List<String>> getRequestHeaders(HttpServletRequest request) {
         Enumeration keys = request.getHeaderNames();
         if (keys == null) {
-            Collections.emptyMap();
+            return Collections.emptyMap();
         }
         
         Map<String, List<String>> result = new HashMap<String, List<String>>();
@@ -126,7 +126,7 @@ public class ControllerExceptionHandler {
     private List<String> getRequestHeaderValueList(HttpServletRequest request, String key) {
         Enumeration headerValues = request.getHeaders(key);
         if (headerValues == null) {
-            Collections.emptyList();
+            return Collections.emptyList();
         }
         
         List<String> headerValueList = new ArrayList<String>();
@@ -145,7 +145,7 @@ public class ControllerExceptionHandler {
     private Map<String, List<String>> getRequestParameters(HttpServletRequest request) {
         Enumeration keys = request.getParameterNames();
         if (keys == null) {
-            Collections.emptyMap();
+            return Collections.emptyMap();
         }
         
         Map<String, List<String>> result = new HashMap<String, List<String>>();
