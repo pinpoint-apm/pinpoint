@@ -3,8 +3,10 @@ major_compact 'AgentStat'
 major_compact 'ApplicationIndex'
 
 major_compact 'StringMetaData'
-major_compact 'SqlMetaData'
 major_compact 'ApiMetaData'
+
+major_compact 'SqlMetaData'
+major_compact 'SqlMetaData_Ver2'
 
 major_compact 'ApplicationTraceIndex'
 major_compact 'Traces'

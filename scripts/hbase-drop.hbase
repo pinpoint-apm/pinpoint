@@ -3,8 +3,10 @@ disable 'AgentStat'
 disable 'ApplicationIndex'
 
 disable 'StringMetaData'
-disable 'SqlMetaData'
 disable 'ApiMetaData'
+
+disable 'SqlMetaData'
+disable 'SqlMetaData_Ver2'
 
 disable 'ApplicationTraceIndex'
 disable 'Traces'
@@ -22,8 +24,10 @@ drop 'AgentStat'
 drop 'ApplicationIndex'
 
 drop 'StringMetaData'
-drop 'SqlMetaData'
 drop 'ApiMetaData'
+
+drop 'SqlMetaData'
+drop 'SqlMetaData_Ver2'
 
 drop 'ApplicationTraceIndex'
 drop 'Traces'
