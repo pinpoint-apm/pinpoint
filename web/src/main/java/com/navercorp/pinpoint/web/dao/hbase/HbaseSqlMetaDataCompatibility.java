@@ -40,7 +40,7 @@ public class HbaseSqlMetaDataCompatibility implements SqlMetaDataDao {
             logger.warn("SqlMetaData table exists. Recommend that only use SqlMetaData_Ver2 table.");
         }
         
-        if(hBaseAdminTemplate.tableExists(HBaseTables.SQL_METADATA) == false && SQL_METADATA_VER2_EXISTED == false) {
+        if(SQL_METADATA_EXISTED == false && SQL_METADATA_VER2_EXISTED == false) {
             throw new RuntimeException("Please check for sqlMetaData_ver2 table in HBase. Need to create 'SqlMetaData_Ver2' table.");
         }
     }
