@@ -84,7 +84,6 @@
                                 <filter>
                                     <artifact>com.navercorp.pinpoint:pinpoint-commons</artifact>
                                     <excludes>
-                                        <exclude>com/navercorp/pinpoint/common/hbase/**</exclude>
                                         <exclude>com/navercorp/pinpoint/common/bo/**</exclude>
                                     </excludes>
                                 </filter>
