@@ -41,7 +41,7 @@ import org.springframework.stereotype.Service;
 /**
  * @author emeroad
  */
-@Service
+//@Service
 public class SpanServiceImpl implements SpanService {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -49,7 +49,7 @@ public class SpanServiceImpl implements SpanService {
     @Autowired
     private TraceDao traceDao;
 
-    @Autowired
+//    @Autowired
     private SqlMetaDataDao sqlMetaDataDao;
 
     @Autowired
@@ -414,6 +414,10 @@ public class SpanServiceImpl implements SpanService {
         private long getAgentStartTime() {
             return agentStartTime;
         }
+    }
+    
+    public void setSqlMetaDataDao(SqlMetaDataDao sqlMetaDataDao) {
+        this.sqlMetaDataDao = sqlMetaDataDao;
     }
 }
 

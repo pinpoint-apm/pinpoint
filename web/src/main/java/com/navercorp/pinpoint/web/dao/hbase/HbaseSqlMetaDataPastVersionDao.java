@@ -32,11 +32,10 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.web.dao.SqlMetaDataDao;
 
 /**
- * @author emeroad
  * @author minwoo.jung
  */
 //@Repository
-public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
+public class HbaseSqlMetaDataPastVersionDao implements SqlMetaDataDao {
 
     @Autowired
     private HbaseOperations2 hbaseOperations2;
@@ -46,7 +45,7 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
     private RowMapper<List<SqlMetaDataBo>> sqlMetaDataMapper;
 
     @Autowired
-    @Qualifier("metadataRowKeyDistributor2")
+    @Qualifier("metadataRowKeyDistributor")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     @Override
@@ -59,9 +58,9 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
         byte[] sqlId = getDistributedKey(sqlMetaData.toRowKey());
 
         Get get = new Get(sqlId);
-        get.addFamily(HBaseTables.SQL_METADATA_VER2_CF_SQL);
+        get.addFamily(HBaseTables.SQL_METADATA_CF_SQL);
 
-        return hbaseOperations2.get(HBaseTables.SQL_METADATA_VER2, get, sqlMetaDataMapper);
+        return hbaseOperations2.get(HBaseTables.SQL_METADATA, get, sqlMetaDataMapper);
     }
 
     private byte[] getDistributedKey(byte[] rowKey) {
