@@ -4,8 +4,10 @@ flush 'AgentStat'
 flush 'ApplicationIndex'
 
 flush 'StringMetaData'
-flush 'SqlMetaData'
 flush 'ApiMetaData'
+
+flush 'SqlMetaData'
+flush 'SqlMetaData_Ver2'
 
 flush 'ApplicationMapStatisticsCaller'
 flush 'ApplicationMapStatisticsCallee'

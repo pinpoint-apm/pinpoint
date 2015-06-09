@@ -28,12 +28,13 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author emeroad
+ * @author minwoo.jung
  */
-@Service
+//@Service
 public class SqlMetaDataHandler implements RequestResponseHandler {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired
+//    @Autowired
     private SqlMetaDataDao sqlMetaDataDao;
 
     @Override
@@ -59,5 +60,9 @@ public class SqlMetaDataHandler implements RequestResponseHandler {
             return result;
         }
         return new TResult(true);
+    }
+    
+    public void setSqlMetaDataDao(SqlMetaDataDao sqlMetaDataDao) {
+        this.sqlMetaDataDao = sqlMetaDataDao;
     }
 }
