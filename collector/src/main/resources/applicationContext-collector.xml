@@ -134,4 +134,15 @@
         <constructor-arg ref="typeLoaderService"/>
     </bean>
     
+    <bean id="sqlMetaDataHandler" class="com.navercorp.pinpoint.collector.handler.SqlMetaDataHandler">
+        <property name="sqlMetaDataDao" ref="hbaseSqlMetaDataCompatibility"/>
+    </bean>
+    
+    <bean id="hbaseSqlMetaDataCompatibility" class="com.navercorp.pinpoint.collector.dao.hbase.HbaseSqlMetaDataCompatibility">
+        <property name="hbaseSqlMetaDataDao" ref="hbaseSqlMetaDataDao"/>
+        <property name="hbaseSqlMetaDataPastVersionDao" ref="hbaseSqlMetaDataPastVersionDao"/>
+    </bean>
+    
+    <bean id="hbaseSqlMetaDataPastVersionDao" class="com.navercorp.pinpoint.collector.dao.hbase.HbaseSqlMetaDataPastVersionDao"/>
+    <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.collector.dao.hbase.HbaseSqlMetaDataDao"/>
 </beans>
