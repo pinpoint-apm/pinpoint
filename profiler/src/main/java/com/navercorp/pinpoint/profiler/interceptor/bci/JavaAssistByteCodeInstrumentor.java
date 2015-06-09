@@ -86,10 +86,6 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         this.retransformEventTrigger = null;
     }
 
-    public JavaAssistByteCodeInstrumentor(Agent agent, InterceptorRegistryBinder interceptorRegistryBinder) {
-        this(agent, interceptorRegistryBinder, null, null);
-    }
-
     public JavaAssistByteCodeInstrumentor(Agent agent, InterceptorRegistryBinder interceptorRegistryBinder, final String bootStrapJar, RetransformEventTrigger retransformEventTrigger) {
         if (interceptorRegistryBinder == null) {
             throw new NullPointerException("interceptorRegistryBinder must not be null");

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
@@ -103,12 +104,13 @@ public class SpanStreamUdpSender extends AbstractDataSender {
 
     private DatagramChannel createChannel(String host, int port, int timeout, int sendBufferSize) {
         try {
-            DatagramChannel datagramChannel = DatagramChannel.open();
-            datagramChannel.socket().setSoTimeout(timeout);
-            datagramChannel.socket().setSendBufferSize(sendBufferSize);
+            final DatagramChannel datagramChannel = DatagramChannel.open();
+            final DatagramSocket socket = datagramChannel.socket();
+            socket.setSoTimeout(timeout);
+            socket.setSendBufferSize(sendBufferSize);
 
             if (logger.isWarnEnabled()) {
-                final int checkSendBufferSize = datagramChannel.socket().getSendBufferSize();
+                final int checkSendBufferSize = socket.getSendBufferSize();
                 if (sendBufferSize != checkSendBufferSize) {
                     logger.warn("DatagramChannel.setSendBufferSize() error. {}!={}", sendBufferSize, checkSendBufferSize);
                 }
@@ -267,6 +269,7 @@ public class SpanStreamUdpSender extends AbstractDataSender {
                     if (remainingLength != sentBufferSize) {
                         logger.warn("sent buffer {}/{}.", sentBufferSize, remainingLength);
                     } else {
+                        // TODO need check ????
                     }
                        
                 }
