@@ -36,6 +36,7 @@ public class HbaseSqlMetaDataCompatibility implements SqlMetaDataDao {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
     private final boolean SQL_METADATA_VER2_EXISTED;
+    private final boolean SQL_METADATA_EXISTED;
 
     @Autowired
     private SqlMetaDataDao hbaseSqlMetaDataPastVersionDao;
@@ -51,8 +52,14 @@ public class HbaseSqlMetaDataCompatibility implements SqlMetaDataDao {
             logger.warn("Please create 'SqlMetaData_Ver2' table.");
         }
         
-        if(hBaseAdminTemplate.tableExists(HBaseTables.SQL_METADATA) == false && SQL_METADATA_VER2_EXISTED == false) {
-            throw new RuntimeException("Please check for sqlMetaData_ver2 table in HBase. Need to create 'SqlMetaData_Ver2' table.");
+        SQL_METADATA_EXISTED = hBaseAdminTemplate.tableExists(HBaseTables.SQL_METADATA);
+        
+        if (SQL_METADATA_EXISTED == true) {
+            logger.warn("SqlMetaData table exists. Recommend that only use SqlMetaData_Ver2 table.");
+        }
+        
+        if(SQL_METADATA_VER2_EXISTED == false && SQL_METADATA_VER2_EXISTED == false) {
+            throw new RuntimeException("Please check for sqlMetaData_ver2 table in HBase. You Should create 'SqlMetaData_Ver2' table.");
         }
     }
     
@@ -60,7 +67,10 @@ public class HbaseSqlMetaDataCompatibility implements SqlMetaDataDao {
     public void insert(TSqlMetaData sqlMetaData) {
         if (SQL_METADATA_VER2_EXISTED) {
             hbaseSqlMetaDataDao.insert(sqlMetaData);
-        } else {
+            return;
+        } 
+        
+        if (SQL_METADATA_EXISTED) {
             hbaseSqlMetaDataPastVersionDao.insert(sqlMetaData);
         }
     }
