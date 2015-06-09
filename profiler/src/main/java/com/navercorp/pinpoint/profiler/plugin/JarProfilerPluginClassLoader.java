@@ -71,11 +71,16 @@ public class JarProfilerPluginClassLoader implements ProfilerPluginClassLoader {
     }
     
     private final URL pluginJarURL;
+    private final String pluginJarURLExternalForm;
     private final JarFile pluginJar;
     
     
     private JarProfilerPluginClassLoader(URL pluginJarURL, JarFile pluginJar) {
+        if (pluginJarURL == null) {
+            throw new NullPointerException("pluginJarURL must not be null");
+        }
         this.pluginJarURL = pluginJarURL;
+        this.pluginJarURLExternalForm = pluginJarURL.toExternalForm();
         this.pluginJar = pluginJar;
     }
 
@@ -97,18 +102,23 @@ public class JarProfilerPluginClassLoader implements ProfilerPluginClassLoader {
     }
     
     private Class<?> loadFromURLClassLoader(URLClassLoader classLoader, String className) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
-        URL[] urls = classLoader.getURLs();
-        
-        boolean hasPluginJar = false;
-        for (URL url : urls) {
-            if (url.equals(pluginJarURL)) {
-                hasPluginJar = true;
-                break;
+        final URL[] urls = classLoader.getURLs();
+        if (urls != null) {
+
+            boolean hasPluginJar = false;
+            for (URL url : urls) {
+                // if (url.equals(pluginJarURL)) { fix very slow
+                // http://michaelscharf.blogspot.com/2006/11/javaneturlequals-and-hashcode-make.html
+                final String externalForm = url.toExternalForm();
+                if (pluginJarURLExternalForm.equals(externalForm)) {
+                    hasPluginJar = true;
+                    break;
+                }
             }
-        }
-        
-        if (!hasPluginJar) {
-            ADD_URL.invoke(classLoader, pluginJarURL);
+
+            if (!hasPluginJar) {
+                ADD_URL.invoke(classLoader, pluginJarURL);
+            }
         }
         
         return classLoader.loadClass(className);
@@ -128,7 +138,7 @@ public class JarProfilerPluginClassLoader implements ProfilerPluginClassLoader {
         
         try {
             c = classLoader.loadClass(className);
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException ignore) {
             
         }
         
