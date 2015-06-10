@@ -61,7 +61,6 @@ public class TAsyncMethodCallStartInterceptor extends TAsyncMethodCallInternalMe
                 logger.warn("Failed to continue async trace. 'result is null'");
                 return;
             }
-            trace.traceBlockBegin();
             trace.markBeforeTime();
             trace.recordServiceType(ServiceType.ASYNC);
             trace.recordApi(this.thriftAsyncClientMethodDescriptor);

@@ -45,7 +45,7 @@ public class TAsyncMethodCallOnErrorInterceptor extends TAsyncMethodCallInternal
             return;
         }
         trace.markAfterTime();
-        trace.traceBlockEnd();
+        //trace.traceBlockEnd();
         trace.close();
         super.traceContext.removeTraceObject();
     }

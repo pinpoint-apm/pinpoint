@@ -55,7 +55,7 @@ public class TAsyncMethodCallDoReadingResponseBodyInterceptor extends TAsyncMeth
                 return;
             }
             trace.markAfterTime();
-            trace.traceBlockEnd();
+//            trace.traceBlockEnd();
             trace.close();
             super.traceContext.removeTraceObject();
         }
