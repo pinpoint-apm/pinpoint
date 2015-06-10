@@ -40,7 +40,7 @@ public class StreamRedirector implements Runnable {
             while ((read = in.read(buffer)) > 0) {
                 out.write(buffer, 0, read);
             }
-        } catch (IOException e) {
+        } catch (IOException ignore) {
             // do nothing
         }
     }

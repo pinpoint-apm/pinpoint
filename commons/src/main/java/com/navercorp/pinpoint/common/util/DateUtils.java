@@ -26,7 +26,9 @@ import java.util.Date;
 public final class DateUtils {
 
     private static final ThreadLocal<DateFormat> CACHE = new ThreadLocal<DateFormat>() {
+        @SuppressWarnings("unused")
         private final String name = DateUtils.class.getName();
+
         @Override
         protected DateFormat initialValue() {
             return new SimpleDateFormat(FORMAT);

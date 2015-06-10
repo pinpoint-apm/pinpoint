@@ -19,8 +19,9 @@
     <context:component-scan
             base-package="com.navercorp.pinpoint.collector.dao.hbase,
                         com.navercorp.pinpoint.collector.handler,
-                        com.navercorp.pinpoint.collector.mapper
-                        com.navercorp.pinpoint.collector.util
+                         com.navercorp.pinpoint.collector.manage,
+                        com.navercorp.pinpoint.collector.mapper,
+                        com.navercorp.pinpoint.collector.util,
                         com.navercorp.pinpoint.collector.config" />
 
     <bean id="propertyConfigurer"
@@ -62,6 +63,10 @@
     </bean>
 
     <bean id="collectorMetric" class="com.navercorp.pinpoint.collector.monitor.CollectorMetric">
+    </bean>
+
+	<!-- Manager-related Beans -->    
+    <bean id="pinpointCollectorManager" class="com.navercorp.pinpoint.collector.manage.PinpointCollectorManager">
     </bean>
 
     <!-- Cluster-related Beans -->
@@ -134,4 +139,15 @@
         <constructor-arg ref="typeLoaderService"/>
     </bean>
     
+    <bean id="sqlMetaDataHandler" class="com.navercorp.pinpoint.collector.handler.SqlMetaDataHandler">
+        <property name="sqlMetaDataDao" ref="hbaseSqlMetaDataCompatibility"/>
+    </bean>
+    
+    <bean id="hbaseSqlMetaDataCompatibility" class="com.navercorp.pinpoint.collector.dao.hbase.HbaseSqlMetaDataCompatibility">
+        <property name="hbaseSqlMetaDataDao" ref="hbaseSqlMetaDataDao"/>
+        <property name="hbaseSqlMetaDataPastVersionDao" ref="hbaseSqlMetaDataPastVersionDao"/>
+    </bean>
+    
+    <bean id="hbaseSqlMetaDataPastVersionDao" class="com.navercorp.pinpoint.collector.dao.hbase.HbaseSqlMetaDataPastVersionDao"/>
+    <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.collector.dao.hbase.HbaseSqlMetaDataDao"/>
 </beans>

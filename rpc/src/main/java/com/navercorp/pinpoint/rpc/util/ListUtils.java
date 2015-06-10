@@ -84,7 +84,7 @@ public final class ListUtils {
     public static <V> V get(List<V> list, int index, V defaultValue) {
         try {
             return list.get(index);
-        } catch (Exception e) {
+        } catch (Exception ignore) {
         }
 
         return defaultValue;

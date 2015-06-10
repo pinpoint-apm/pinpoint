@@ -102,7 +102,11 @@ public class Slf4jPLoggerAdapter implements PLogger {
         sb.append("after ");
         logMethod(sb, target, className, methodName, parameterDescription, args);
         logResult(sb, result, throwable);
-
+        if (throwable == null) {
+            logger.debug(sb.toString());
+        } else {
+            logger.debug(sb.toString(), throwable);
+        }
     }
 
 
