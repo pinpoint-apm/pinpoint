@@ -16,13 +16,16 @@
 
 package com.navercorp.pinpoint.collector.receiver.udp;
 
-import com.codahale.metrics.Timer;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
 import com.navercorp.pinpoint.thrift.io.*;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 import java.io.IOException;
 import java.net.*;
@@ -33,36 +36,44 @@ import java.util.List;
  * 
  * @author jaehong.kim
  */
-public class ChunkedUDPReceiver extends AbstractUDPReceiver {
+public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements PacketHandlerFactory<T>, InitializingBean {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final DeserializerFactory<ChunkHeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<ChunkHeaderTBaseDeserializer>(new ChunkHeaderTBaseDeserializerFactory());
 
-    
-    public ChunkedUDPReceiver(String receiverName, DispatchHandler dispatchHandler, String bindAddress, int port, int receiverBufferSize, int workerThreadSize, int workerThreadQueueSize) {
-        super(receiverName, dispatchHandler, bindAddress, port, receiverBufferSize, workerThreadSize, workerThreadQueueSize);
+    private UDPReceiver receiver;
+    private final DispatchHandler dispatchHandler;
+
+    public ChunkedUDPPacketHandlerFactory(DispatchHandler dispatchHandler) {
+        if (dispatchHandler == null) {
+            throw new NullPointerException("dispatchHandler must not be null");
+        }
+        this.dispatchHandler = dispatchHandler;
     }
-    
+
+    public void setReceiver(UDPReceiver receiver) {
+        this.receiver = receiver;
+    }
+
+
     @Override
-    Runnable getPacketDispatcher(AbstractUDPReceiver receiver, DatagramPacket packet) {
-        return new DispatchPacket(receiver, packet);
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(this.receiver, "receiver must not be null");
     }
 
-    private class DispatchPacket implements Runnable {
-        private final AbstractUDPReceiver receiver;
-        private final DatagramPacket packet;
+    @Override
+    public PacketHandler<T> createPacketHandler() {
+        return new DispatchPacket();
+    }
 
-        private DispatchPacket(AbstractUDPReceiver receiver, DatagramPacket packet) {
-            if (packet == null) {
-                throw new NullPointerException("packet must not be null");
-            }
-            this.receiver = receiver;
-            this.packet = packet;
+    private class DispatchPacket implements PacketHandler<T> {
+
+        private DispatchPacket() {
         }
 
         @Override
-        public void run() {
-            Timer.Context time = receiver.getTimer().time();
-
+        public void receive(T packet) {
             final ChunkHeaderTBaseDeserializer deserializer = deserializerFactory.createDeserializer();
             try {
                 List<TBase<?, ?>> list = deserializer.deserialize(packet.getData(), packet.getOffset(), packet.getLength());
@@ -73,8 +84,8 @@ public class ChunkedUDPReceiver extends AbstractUDPReceiver {
                 for (TBase<?, ?> tBase : list) {
                     if (tBase instanceof L4Packet) {
                         if (logger.isDebugEnabled()) {
-                            L4Packet packet = (L4Packet) tBase;
-                            logger.debug("udp l4 packet {}", packet.getHeader());
+                            L4Packet l4Packet = (L4Packet) tBase;
+                            logger.debug("udp l4 packet {}", l4Packet.getHeader());
                         }
                         continue;
                     }
@@ -83,11 +94,11 @@ public class ChunkedUDPReceiver extends AbstractUDPReceiver {
                         if (logger.isDebugEnabled()) {
                             logger.debug("received udp network availability check packet.");
                         }
-                        responseOK();
+                        responseOK(packet);
                         continue;
                     }
                     // dispatch signifies business logic execution
-                    receiver.getDispatchHandler().dispatchSendMessage(tBase);
+                    dispatchHandler.dispatchSendMessage(tBase);
                 }
             } catch (TException e) {
                 if (logger.isWarnEnabled()) {
@@ -103,13 +114,10 @@ public class ChunkedUDPReceiver extends AbstractUDPReceiver {
                 if (logger.isDebugEnabled()) {
                     logger.debug("packet dump hex:{}", PacketUtils.dumpDatagramPacket(packet));
                 }
-            } finally {
-                receiver.getDatagramPacketPool().returnObject(packet);
-                time.stop();
             }
         }
 
-        private void responseOK() {
+        private void responseOK(DatagramPacket packet) {
             try {
                 byte[] okBytes = NetworkAvailabilityCheckPacket.DATA_OK;
                 DatagramPacket pongPacket = new DatagramPacket(okBytes, okBytes.length, packet.getSocketAddress());

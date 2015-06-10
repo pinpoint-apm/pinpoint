@@ -16,11 +16,22 @@
 
 package com.navercorp.pinpoint.collector.util;
 
+import java.nio.ByteBuffer;
+
 /**
  * @author emeroad
  */
-public interface ObjectPool<T> {
-    PooledObject<T> getObject();
+public class ByteBufferFactory implements ObjectPoolFactory<ByteBuffer> {
 
-//    void returnObject(PooledObject<T> t);
+    private static final int AcceptedSize = 65507;
+
+    @Override
+    public ByteBuffer create() {
+        return ByteBuffer.allocate(AcceptedSize);
+    }
+
+    @Override
+    public void beforeReturn(ByteBuffer packet) {
+        packet.clear();
+    }
 }
