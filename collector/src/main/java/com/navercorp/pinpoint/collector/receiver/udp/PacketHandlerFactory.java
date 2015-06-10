@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.util;
+package com.navercorp.pinpoint.collector.receiver.udp;
 
 /**
  * @author emeroad
  */
-public interface ObjectPool<T> {
-    PooledObject<T> getObject();
-
-//    void returnObject(PooledObject<T> t);
+public interface PacketHandlerFactory<T> {
+    PacketHandler<T> createPacketHandler();
 }

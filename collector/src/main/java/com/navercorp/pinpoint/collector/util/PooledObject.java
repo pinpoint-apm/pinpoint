@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.collector.util;
 /**
  * @author emeroad
  */
-public interface ObjectPool<T> {
-    PooledObject<T> getObject();
+public interface PooledObject<T> {
+    T getObject();
 
-//    void returnObject(PooledObject<T> t);
+    void returnObject();
 }
