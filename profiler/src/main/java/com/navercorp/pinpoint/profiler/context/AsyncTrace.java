@@ -9,16 +9,16 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ParsingResult;
 
 public class AsyncTrace implements Trace {
-
+    private static final int BEGIN_STACKID = 1;
+    
     private final Trace trace;
     private int asyncId;
+ 
 
-    public AsyncTrace(final Trace trace) {
+    public AsyncTrace(final Trace trace, final int asyncId) {
         this.trace = trace;
-    }
-
-    public void setAsyncId(final int asyncId) {
         this.asyncId = asyncId;
+        traceBlockBegin(BEGIN_STACKID);
     }
 
     public int getAsyncId() {
@@ -189,6 +189,7 @@ public class AsyncTrace implements Trace {
     @Override
     public void traceBlockBegin(int stackId) {
         trace.traceBlockBegin(stackId);
+        trace.recordAsyncId(asyncId);
     }
 
     @Override
@@ -213,7 +214,7 @@ public class AsyncTrace implements Trace {
 
     @Override
     public boolean isRootStack() {
-        return trace.isRootStack();
+        return getStackFrameId() == BEGIN_STACKID;
     }
 
     @Override
@@ -223,6 +224,7 @@ public class AsyncTrace implements Trace {
 
     @Override
     public void close() {
+        traceBlockEnd(BEGIN_STACKID);
         trace.close();
     }
 }
