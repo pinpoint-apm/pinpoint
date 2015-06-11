@@ -15,7 +15,7 @@
                         <div ng-show="showStaticApplication" class="btn btn-sm disabled" style="margin-top:5px;background-color:#f5f5f5;opacity:1;filter:alpha(opacity=100);">{{applicationName}}</div>
                     </li>
                     <li class="divider-vertical"></li>
-                    <li id="navbar_depth">
+                    <li id="navbar_depth" ng-hide="showStaticApplication">
                     	<div class="btn-group btn-group-sm input-group input-group-sm" style="margin-top:0px;width:30px;">
                     		<button type="button" class="btn btn-default dropdown-toggle ng-binding" data-toggle="dropdown">
 								{{range}} <span class="caret"></span>
@@ -28,7 +28,7 @@
 	                        </ul>
                         </div>
                     </li>	
-                    <li class="divider-vertical"></li>
+                    <li class="divider-vertical" ng-hide="showStaticApplication"></li>
                     <li class="for-datetimepicker" id="navbar_period">
                         <div ng-show="periodType != 'range'">
                             <div class="btn-group btn-group-sm" style="margin-top:0px;width:360px;float:left;">
