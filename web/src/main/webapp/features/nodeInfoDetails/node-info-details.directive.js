@@ -375,13 +375,6 @@
                     	position: "top",
                     	trigger: "click"
                     });
-                    jQuery('.serverListTooltip').tooltipster({
-                    	content: function() {
-                    		return helpContentTemplate(helpContentService.nodeInfoDetails.nodeServers);
-                    	},
-                    	position: "top",
-                    	trigger: "click"
-                    });
                 }
             };
 	    }

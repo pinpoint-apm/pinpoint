@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.directive('serverListDirective', [ '$timeout', '$window', '$filter', function ($timeout, $window, $filter) {
+	pinpointApp.directive('serverListDirective', [ '$timeout', '$window', '$filter', 'helpContentTemplate', 'helpContentService', function ($timeout, $window, $filter, helpContentTemplate, helpContentService) {
             return {
                 restrict: 'A',
                 link: function postLink(scope, element) {
@@ -93,6 +93,13 @@
                 		bInitialized = true;
                     });
 
+                    $element.find('.serverListTooltip').tooltipster({
+                    	content: function() {
+                    		return helpContentTemplate(helpContentService.nodeInfoDetails.nodeServers);
+                    	},
+                    	position: "bottom",
+                    	trigger: "click"
+                    });	
                 }
             };
 	    }

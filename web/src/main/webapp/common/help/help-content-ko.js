@@ -204,10 +204,10 @@
 						name: "<button type='button' class='btn btn-default btn-xs'>Inspector</button>",
 						desc: "Pinpoint가 설치된 WAS의 상세한 정보를 보여줍니다."
 					},{
-						name: "<button type='button' class='btn btn-default btn-xs'><span class='glyphicon glyphicon-plus'></span></button>",
+						name: "<span class='glyphicon glyphicon-record' style='color:#3B99FC'></span>",
 						desc: "해당 인스턴스에서 처리된 트랜잭션 통계를 조회할 수 있습니다."
 					},{
-						name: "<button type='button' class='btn btn-danger btn-xs'><span class='glyphicon glyphicon-plus'></span></button>",
+						name: "<span class='glyphicon glyphicon-hdd' style='color:red'></span>",
 						desc: "에러를 발생시킨 트랜잭션이 포함되어있다는 의미입니다."
 					}]
 				}]

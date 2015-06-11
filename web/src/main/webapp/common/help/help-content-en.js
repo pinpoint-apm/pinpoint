@@ -202,10 +202,10 @@
 						name: "<button type='button' class='btn btn-default btn-xs'>Inspector</button>",
 						desc: "Open a new window with detailed information on the WAS with Pinpoint installed."
 					},{
-						name: "<button type='button' class='btn btn-default btn-xs'><span class='glyphicon glyphicon-plus'></span></button>",
+						name: "<span class='glyphicon glyphicon-record' style='color:#3B99FC'></span>",
 						desc: "Display statistics on transactions carried out by the server instance."
 					},{
-						name: "<button type='button' class='btn btn-danger btn-xs'><span class='glyphicon glyphicon-plus'></span></button>",
+						name: "<span class='glyphicon glyphicon-hdd' style='color:red'></span>",
 						desc: "Display statistics on transactions (with error) carried out by the server instance."
 					}]
 				}]
