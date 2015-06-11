@@ -142,7 +142,7 @@ public class UDPReceiver implements DataReceiver {
             if (pooledPacket == null) {
                 continue;
             }
-            DatagramPacket packet = pooledPacket.getObject();
+            final DatagramPacket packet = pooledPacket.getObject();
             if (packet.getLength() == 0) {
                 if (debugEnabled) {
                     logger.debug("length is 0 ip:{}, port:{}", packet.getAddress(), packet.getPort());
@@ -156,16 +156,20 @@ public class UDPReceiver implements DataReceiver {
                 Runnable dispatchTask = wrapDispatchTask(pooledPacket);
                 worker.execute(dispatchTask);
             } catch (RejectedExecutionException ree) {
-                rejectedCounter.inc();
-                final int error = rejectedExecutionCount.incrementAndGet();
-                final int mod = 100;
-                if ((error % mod) == 0) {
-                    logger.warn("RejectedExecutionCount={}", error);
-                }
+                handleRejectedExecutionException(ree);
             }
         }
         if (logger.isInfoEnabled()) {
             logger.info("stop ioThread localAddress:{}, IoThread:{}", localSocketAddress, Thread.currentThread().getName());
+        }
+    }
+
+    private void handleRejectedExecutionException(RejectedExecutionException ree) {
+        rejectedCounter.inc();
+        final int error = rejectedExecutionCount.incrementAndGet();
+        final int mod = 100;
+        if ((error % mod) == 0) {
+            logger.warn("RejectedExecutionCount={}", error);
         }
     }
 

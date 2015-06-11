@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
-import java.io.IOException;
 import java.net.*;
 
 /**
@@ -43,6 +42,8 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
     private UDPReceiver receiver;
     private final DispatchHandler dispatchHandler;
 
+    private TBaseFilter filter = TBaseFilter.CONTINUE_FILTER;
+
     public BaseUDPHandlerFactory(DispatchHandler dispatchHandler) {
         if (dispatchHandler == null) {
             throw new NullPointerException("dispatchHandler must not be null");
@@ -52,6 +53,13 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
 
     public void setReceiver(UDPReceiver receiver) {
         this.receiver = receiver;
+    }
+
+    public void setFilter(TBaseFilter filter) {
+        if (filter == null) {
+            throw new NullPointerException("filter must not be null");
+        }
+        this.filter = filter;
     }
 
     @Override
@@ -75,19 +83,7 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
             TBase<?, ?> tBase = null;
             try {
                 tBase = deserializer.deserialize(packet.getData());
-                if (tBase instanceof L4Packet) {
-                    if (logger.isDebugEnabled()) {
-                        L4Packet l4Packet = (L4Packet) tBase;
-                        logger.debug("udp l4 packet {}", l4Packet.getHeader());
-                    }
-                    return;
-                }
-                // Network port availability check packet
-                if (tBase instanceof NetworkAvailabilityCheckPacket) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("received udp network availability check packet.");
-                    }
-                    responseOK(packet);
+                if (filter.filter(tBase, packet) == TBaseFilter.BREAK) {
                     return;
                 }
                 // dispatch signifies business logic execution
@@ -103,21 +99,6 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
                 // there are cases where invalid headers are received
                 if (logger.isWarnEnabled()) {
                     logger.warn("Unexpected error. SendSocketAddress:{} Cause:{} tBase:{}", packet.getSocketAddress(), e.getMessage(), tBase, e);
-                }
-                if (logger.isDebugEnabled()) {
-                    logger.debug("packet dump hex:{}", PacketUtils.dumpDatagramPacket(packet));
-                }
-            }
-        }
-
-        private void responseOK(DatagramPacket packet) {
-            try {
-                byte[] okBytes = NetworkAvailabilityCheckPacket.DATA_OK;
-                DatagramPacket pongPacket = new DatagramPacket(okBytes, okBytes.length, packet.getSocketAddress());
-                receiver.getSocket().send(pongPacket);
-            } catch (IOException e) {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("pong error. SendSocketAddress:{} Cause:{}", packet.getSocketAddress(), e.getMessage(), e);
                 }
                 if (logger.isDebugEnabled()) {
                     logger.debug("packet dump hex:{}", PacketUtils.dumpDatagramPacket(packet));
