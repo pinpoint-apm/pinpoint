@@ -63,8 +63,7 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
         String sql = sqlMetaData.getSql();
         byte[] sqlBytes = Bytes.toBytes(sql);
 
-        // added sqlBytes into qualifier intentionally not to conflict hashcode
-        put.addColumn(HBaseTables.SQL_METADATA_VER2_CF_SQL, sqlBytes, null);
+        put.addColumn(HBaseTables.SQL_METADATA_VER2_CF_SQL, HBaseTables.SQL_METADATA_VER2_CF_SQL_QUALI_SQLSTATEMENT, sqlBytes);
 
         hbaseTemplate.put(HBaseTables.SQL_METADATA_VER2, put);
     }
