@@ -31,7 +31,6 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
         if (isDebug) {
             logger.beforeInterceptor(target, methodDescriptor.getClassName(), methodDescriptor.getMethodName(), "", args);
         }
-        System.out.println("Before " + methodDescriptor.getClassName() + "." + methodDescriptor.getMethodName());
 
         if (!asyncTraceIdAccessor.isApplicable(target) || asyncTraceIdAccessor.get(target) == null) {
             logger.debug("Not found asynchronous invocation metadata");
@@ -65,7 +64,6 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
 
     private void traceFirstBlockBegin(final Trace trace) {
         // first block
-//        trace.traceBlockBegin();
         trace.markBeforeTime();
         trace.recordServiceType(ServiceType.ASYNC);
         trace.recordApi(asyncMethodDescriptor);
@@ -74,7 +72,6 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
     private void traceFirstBlockEnd(final Trace trace) {
         // first block
         trace.markAfterTime();
-//        trace.traceBlockEnd();
     }
 
     protected abstract void doInBeforeTrace(Trace trace, AsyncTraceId asyncTraceId, Object target, Object[] args);
@@ -83,9 +80,7 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, methodDescriptor.getClassName(), methodDescriptor.getMethodName(), "", args, result, throwable);
-            System.out.println("DEBUG AFTER " + methodDescriptor.getClassName() + "." + methodDescriptor.getMethodName());
         }
-        System.out.println("AFTER " + methodDescriptor.getClassName() + "." + methodDescriptor.getMethodName());
 
         if (!asyncTraceIdAccessor.isApplicable(target) || asyncTraceIdAccessor.get(target) == null) {
             logger.debug("Not found asynchronous invocation metadata");
@@ -105,7 +100,6 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
             }
         } finally {
             trace.traceBlockEnd();
-            //if (trace.isAsync() && trace.getServiceType() == ServiceType.ASYNC.getCode()) {
             if (trace.isAsync() && trace.isRootStack()) {
                 if(isDebug) {
                     logger.debug("Close async trace. {}");
