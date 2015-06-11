@@ -42,14 +42,14 @@ public final class NumberUtils {
         }
     }
 
-    public static short parseShort(String str, short defaultInt) {
+    public static short parseShort(String str, short defaultShort) {
         if (str == null) {
-            return defaultInt;
+            return defaultShort;
         }
         try {
             return Short.parseShort(str);
         } catch (NumberFormatException e) {
-            return defaultInt;
+            return defaultShort;
         }
     }
 
