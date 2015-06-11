@@ -55,7 +55,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 
     <div class="known-node" ng-hide="node.serviceType.indexOf( '_GROUP' ) != -1">
@@ -70,38 +69,19 @@
             <load-chart-directive namespace="forNode"></load-chart-directive>
         </div>
 
-        <div class="node-servers" ng-show="showNodeServers">
-            <h5><span class="glyphicon glyphicon-question-sign serverListTooltip" style="cursor:pointer;float:right"></span> Servers</h5>
-            <ul class="server-list list-unstyled">
-                <li ng-repeat="(key, server) in serverList">
-                    <span class="glyphicon glyphicon-home"></span>
-                    {{server.name.split(':')[0]}}
-                    <a ng-if="server.linkName" class="btn btn-default btn-xs" href="{{server.linkURL}}" target="_blank" title="System resource monitoring site">{{server.linkName}}</a>
-                    <ul style="padding-left: 15px;padding-top:5px;">
-                        <li ng-repeat="instance in server.instanceList" ng-init="instance.showChart=false">
-                            <span class="glyphicon glyphicon-hdd"></span>
-                            {{instance.name}}
-                            <a class="btn btn-default btn-xs" ng-show="instance.hasInspector" ng-href="#/inspector/{{node.applicationName}}@{{node.serviceType}}/{{oNavbarVoService.getReadablePeriod()}}/{{oNavbarVoService.getQueryEndDateTime()}}/{{instance.name}}" target="_blank" title="Inspect Agents" alt="Inspect Agents">Inspector</a>
-                            <button type="button" class="btn btn-xs" ng-click="instance.showChart=!instance.showChart;renderNodeAgentCharts(instance.name);"
-                                    ng-show="agentHistogram[instance.name]" ng-class="{true:'btn-danger', false:'btn-default'}[agentHistogram[instance.name].Error > 0]">
-                                <span class="glyphicon" ng-class="{true:'glyphicon-minus',false:'glyphicon-plus'}[instance.showChart==true]"></span>
-                            </button>
-                            <div ng-show="instance.showChart">
-                                <div class="agentHistogram_{{instance.name | applicationNameToClassName}}">
-                                    <h6>Response Summary</h6>
-                                    <response-time-chart-directive namespace="forNode_{{instance.name | applicationNameToClassName}}"></response-time-chart-directive>
-                                </div>
-                                <div class="agentTimeSeriesHistogram_{{instance.name | applicationNameToClassName}}">
-                                    <h6>Load</h6>
-                                    <load-chart-directive namespace="forNode_{{instance.name | applicationNameToClassName}}"></load-chart-directive>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-
+		<div class="node-servers" ng-show="showNodeServers" style="font-size:18px">
+			<div class="btn-group">
+				<button type="button" class="btn btn-xs btn-default" ng-click="showServerList()" style="font-size:16px;">
+	                   <span class="glyphicon glyphicon-chevron-left"></span>
+	            </button>
+	            <button type="button" class="btn btn-xs btn-default btn-primary" ng-click="showServerList()" style="font-size:16px;">
+	                   Servers
+	            </button>
+			</div>
+			<span class="glyphicon glyphicon-question-sign serverListTooltip" style="cursor:pointer;float:right"></span>
+			<span class="label label-default">Total</span><span class="label label-info">{{serverCount}}</span>
+			<span class="label label-default">Error</span><span class="label label-danger">{{errorServerCount}}</span>
+		</div>
         <div ng-show="htLastUnknownNode.serviceType.indexOf( '_GROUP' ) != -1 && htLastUnknownNode">
             <button type="button" class="btn btn-default btn-xs" ng-click="goBackToUnknownNode()"><span class="glyphicon glyphicon-arrow-left"></span> Go back to Group</button>
         </div>

@@ -76,33 +76,19 @@
             <load-chart-directive namespace="forLink"></load-chart-directive>
         </div>
 
-        <div class="link-servers" ng-show="showLinkServers">
-            <h5>{{sourceApplicationName}}'s Instances</h5>
-            <ul class="server-list list-unstyled" ng-init="linkInstanceShow={}">
-                <li ng-repeat="(name, histogram) in sourceHistogram" ng-init="linkInstanceShow[name]=false">
-                    <span class="glyphicon glyphicon-hdd"></span>
-                    {{name}}
-                    <a class="btn btn-default btn-xs" ng-show-debug="instance.hasInspector" ng-href="#/inspector/{{fromNode.applicationName}}@{{fromNode.serviceType}}/{{oNavbarVoService.getReadablePeriod()}}/{{oNavbarVoService.getQueryEndDateTime()}}/{{name}}" link="_blank" title="Inspect Agents" alt="Inspect Agents">Inspector</a>
-                    <button type="button" class="btn btn-xs" ng-click="linkInstanceShow[name]=!linkInstanceShow[name];renderLinkAgentCharts(name);"
-                            ng-class="{true:'btn-danger', false:'btn-default'}[histogram.Error > 0]">
-                        <span class="glyphicon" ng-class="{true:'glyphicon-minus',false:'glyphicon-plus'}[linkInstanceShow[name]==true]"></span>
-                    </button>
-                    <div ng-show="linkInstanceShow[name]" style="padding-left: 15px;">
-                        <div class="agentHistogram_{{name | applicationNameToClassName}}">
-                            <h6>Response Summary</h6>
-                            <response-time-chart-directive namespace="forLink_{{name | applicationNameToClassName}}"></response-time-chart-directive>
-                        </div>
-                        <div class="agentTimeSeriesHistogram_{{name | applicationNameToClassName}}">
-                            <h6>Load</h6>
-                            <load-chart-directive namespace="forLink_{{name | applicationNameToClassName}}"></load-chart-directive>
-                        </div>
-                    </div>
-
-                </li>
-            </ul>
-        </div>
-
-
+		<div class="link-servers" ng-show="showLinkServers" style="font-size:18px">
+			<div class="btn-group">
+				<button type="button" class="btn btn-xs btn-default" ng-click="showServerList()" style="font-size:16px;">
+	                   <span class="glyphicon glyphicon-chevron-left"></span>
+	            </button>
+	            <button type="button" class="btn btn-xs btn-default btn-primary" ng-click="showServerList()" style="font-size:16px;">
+	                   Servers
+	            </button>
+			</div>
+			<span class="glyphicon glyphicon-question-sign serverListTooltip" style="cursor:pointer;float:right"></span>
+			<span class="label label-default">Total</span><span class="label label-info">{{serverCount}}</span>
+			<span class="label label-default">Error</span><span class="label label-danger">{{errorServerCount}}</span>
+		</div>
         <div ng-show="link.targetInfo.serviceType=='UNKNOWN' && htLastUnknownLink">
             <button type="button" class="btn btn-default btn-xs" ng-click="goBackToUnknownLink()"><span class="glyphicon glyphicon-arrow-left"></span> Go back to Unknown Group</button>
         </div>
