@@ -41,12 +41,12 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
     @Autowired
     private HbaseOperations2 hbaseOperations2;
 
-    @Autowired
-    @Qualifier("sqlMetaDataMapper")
+//    @Autowired
+//    @Qualifier("sqlMetaDataMapper")
     private RowMapper<List<SqlMetaDataBo>> sqlMetaDataMapper;
 
-    @Autowired
-    @Qualifier("metadataRowKeyDistributor2")
+//    @Autowired
+//    @Qualifier("metadataRowKeyDistributor2")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     @Override
@@ -66,5 +66,13 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
 
     private byte[] getDistributedKey(byte[] rowKey) {
         return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
+    }
+    
+    public void setSqlMetaDataMapper(RowMapper<List<SqlMetaDataBo>> sqlMetaDataMapper) {
+        this.sqlMetaDataMapper = sqlMetaDataMapper;
+    }
+    
+    public void setRowKeyDistributorByHashPrefix(RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+        this.rowKeyDistributorByHashPrefix = rowKeyDistributorByHashPrefix;
     }
 }
