@@ -21,9 +21,14 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import org.apache.thrift.TBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.common.hbase.exception.HBaseAccessDeniedException;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
@@ -32,10 +37,6 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.SpanStreamConstants;
 import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
 
 /**
  * @author Taejin Koo
@@ -112,6 +113,8 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
                     }
                     dispatchHandler.dispatchRequestMessage(tBase);
                 }
+            } catch (HBaseAccessDeniedException e) {
+                logger.debug(e.getMessage());
             } catch (Exception e) {
                 logger.warn("Failed to handle receive packet.", e);
             }

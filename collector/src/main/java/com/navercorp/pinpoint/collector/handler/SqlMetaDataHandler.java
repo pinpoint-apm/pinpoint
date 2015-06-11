@@ -16,16 +16,14 @@
 
 package com.navercorp.pinpoint.collector.handler;
 
-import com.navercorp.pinpoint.collector.dao.SqlMetaDataDao;
-import com.navercorp.pinpoint.thrift.dto.TResult;
-import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
-
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
+
+import com.navercorp.pinpoint.collector.dao.SqlMetaDataDao;
+import com.navercorp.pinpoint.common.hbase.exception.HBaseAccessDeniedException;
+import com.navercorp.pinpoint.thrift.dto.TResult;
+import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
 
 /**
  * @author emeroad
@@ -53,11 +51,12 @@ public class SqlMetaDataHandler implements RequestResponseHandler {
 
         try {
             sqlMetaDataDao.insert(sqlMetaData);
+        } catch (HBaseAccessDeniedException e) {
+            logger.debug(e.getMessage());
+            return HandlerUtils.createFailResult(e);
         } catch (Exception e) {
             logger.warn("{} handler error. Caused:{}", this.getClass(), e.getMessage(), e);
-            TResult result = new TResult(false);
-            result.setMessage(e.getMessage());
-            return result;
+            return HandlerUtils.createFailResult(e);
         }
         return new TResult(true);
     }

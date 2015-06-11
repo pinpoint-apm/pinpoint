@@ -24,6 +24,9 @@ import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.navercorp.pinpoint.common.hbase.AccessControlOperations;
 
 /**
  * @author Taejin Koo
@@ -35,6 +38,9 @@ public class PinpointCollectorManager {
     private final PinpointMBeanServer pinpointMBeanServer;
     private final List<PinpointCollectorMBean> pinpointMBeanList = new ArrayList<PinpointCollectorMBean>();
     
+    @Autowired
+    private AccessControlOperations hbaseTemplate;
+
     public PinpointCollectorManager() {
         this.pinpointMBeanServer = new PinpointMBeanServer();
     }
@@ -43,6 +49,10 @@ public class PinpointCollectorManager {
     public void setUp() {
         logger.info("PinpointCollectorManager initialization started.");
         
+        if (hbaseTemplate != null) {
+            pinpointMBeanList.add(new DBAccessControl(hbaseTemplate));
+        }
+
         for (PinpointCollectorMBean pinpontMBean : pinpointMBeanList) {
             try {
                 pinpointMBeanServer.registerMBean(pinpontMBean);
@@ -72,6 +82,5 @@ public class PinpointCollectorManager {
     public PinpointCollectorMBean getMBean(String name) {
         return pinpointMBeanServer.getPinpointMBean(name);
     }
-    
 
 }

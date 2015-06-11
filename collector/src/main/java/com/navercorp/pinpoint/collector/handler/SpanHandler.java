@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.handler;
 
 import java.util.List;
 
+import com.navercorp.pinpoint.common.hbase.exception.HBaseAccessDeniedException;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
@@ -79,6 +80,8 @@ public class SpanHandler implements SimpleHandler {
             insertAcceptorHost(span);
             insertSpanStat(span);
             insertSpanEventStat(span);
+        } catch (HBaseAccessDeniedException e) {
+            logger.debug(e.getMessage());
         } catch (Exception e) {
             logger.warn("Span handle error. Caused:{}. Span:{}",e.getMessage(), tbase, e);
         }

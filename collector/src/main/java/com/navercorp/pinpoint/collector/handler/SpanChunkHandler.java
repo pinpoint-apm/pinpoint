@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.handler;
 
 import java.util.List;
 
+import com.navercorp.pinpoint.common.hbase.exception.HBaseAccessDeniedException;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
@@ -92,6 +93,8 @@ public class SpanChunkHandler implements SimpleHandler {
                     statisticsHandler.updateCallee(spanEvent.getDestinationId(), spanEventType, spanChunk.getApplicationName(), applicationServiceType, spanChunk.getEndPoint(), elapsed, hasException);
                 }
             }
+        } catch (HBaseAccessDeniedException e) {
+            logger.debug(e.getMessage());
         } catch (Exception e) {
             logger.warn("SpanChunk handle error Caused:{}", e.getMessage(), e);
         }

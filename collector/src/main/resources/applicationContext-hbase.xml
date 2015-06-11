@@ -43,9 +43,13 @@
         <constructor-arg value="${hbase.client.threadPool.prestart}"/>
     </bean>
 
-    <bean id="hbaseTemplate" class="com.navercorp.pinpoint.common.hbase.HbaseTemplate2">
+    <bean id="defaultHbaseTemplate" class="com.navercorp.pinpoint.common.hbase.HbaseTemplate2">
         <property name="configuration" ref="hbaseConfiguration"/>
         <property name="tableFactory" ref="connectionFactory"/>
+    </bean>
+    
+    <bean id="hbaseTemplate" class="com.navercorp.pinpoint.common.hbase.AccessControlHBaseTemplate">
+        <constructor-arg ref="defaultHbaseTemplate"/>
     </bean>
     
     <bean id="hBaseAdminTemplate" class="com.navercorp.pinpoint.common.hbase.HBaseAdminTemplate" destroy-method="close">

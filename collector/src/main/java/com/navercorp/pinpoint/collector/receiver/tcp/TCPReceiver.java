@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Value;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
+import com.navercorp.pinpoint.common.hbase.exception.HBaseAccessDeniedException;
 import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
@@ -213,6 +214,8 @@ public class TCPReceiver {
             try {
                 TBase<?, ?> tBase = SerializationUtils.deserialize(bytes, deserializerFactory);
                 dispatchHandler.dispatchSendMessage(tBase);
+            } catch (HBaseAccessDeniedException e) {
+                logger.debug(e.getMessage());
             } catch (TException e) {
                 if (logger.isWarnEnabled()) {
                     logger.warn("packet serialize error. SendSocketAddress:{} Cause:{}", remoteAddress, e.getMessage(), e);
@@ -264,6 +267,8 @@ public class TCPReceiver {
                     byte[] resultBytes = SerializationUtils.serialize(result, serializerFactory);
                     pinpointServer.response(requestPacket, resultBytes);
                 }
+            } catch (HBaseAccessDeniedException e) {
+                logger.debug(e.getMessage());
             } catch (TException e) {
                 if (logger.isWarnEnabled()) {
                     logger.warn("packet serialize error. SendSocketAddress:{} Cause:{}", remoteAddress, e.getMessage(), e);

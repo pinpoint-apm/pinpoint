@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.handler;
 
 import com.navercorp.pinpoint.collector.dao.ApiMetaDataDao;
+import com.navercorp.pinpoint.common.hbase.exception.HBaseAccessDeniedException;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 
@@ -53,11 +54,12 @@ public class ApiMetaDataHandler implements RequestResponseHandler {
 
         try {
             sqlMetaDataDao.insert(apiMetaData);
+        } catch (HBaseAccessDeniedException e) {
+            logger.debug(e.getMessage());
+            return HandlerUtils.createFailResult(e);
         } catch (Exception e) {
             logger.warn("{} handler error. Caused:{}", this.getClass(), e.getMessage(), e);
-            TResult result = new TResult(false);
-            result.setMessage(e.getMessage());
-            return result;
+            return HandlerUtils.createFailResult(e);
         }
         return new TResult(true);
     }

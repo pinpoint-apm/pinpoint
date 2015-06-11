@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
 import com.navercorp.pinpoint.collector.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.common.hbase.exception.HBaseAccessDeniedException;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 
@@ -70,11 +71,12 @@ public class AgentInfoHandler implements SimpleHandler, RequestResponseHandler {
 
             // for querying applicationname using agentid
 //            agentIdApplicationIndexDao.insert(agentInfo.getAgentId(), agentInfo.getApplicationName());
+        } catch (HBaseAccessDeniedException e) {
+            logger.debug(e.getMessage());
+            return HandlerUtils.createFailResult(e);
         } catch (Exception e) {
             logger.warn("AgentInfo handle error. Caused:{}", e.getMessage(), e);
-            TResult result = new TResult(false);
-            result.setMessage(e.getMessage());
-            return result;
+            return HandlerUtils.createFailResult(e);
         }
     }
 

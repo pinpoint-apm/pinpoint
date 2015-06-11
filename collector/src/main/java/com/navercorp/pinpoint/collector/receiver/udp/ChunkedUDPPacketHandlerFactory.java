@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.udp;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
+import com.navercorp.pinpoint.common.hbase.exception.HBaseAccessDeniedException;
 import com.navercorp.pinpoint.thrift.io.*;
 
 import org.apache.thrift.TBase;
@@ -100,6 +101,8 @@ public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements
                     // dispatch signifies business logic execution
                     dispatchHandler.dispatchSendMessage(tBase);
                 }
+            } catch (HBaseAccessDeniedException e) {
+                logger.debug(e.getMessage());
             } catch (TException e) {
                 if (logger.isWarnEnabled()) {
                     logger.warn("packet serialize error. SendSocketAddress:{} Cause:{}", packet.getSocketAddress(), e.getMessage(), e);
