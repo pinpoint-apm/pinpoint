@@ -133,6 +133,7 @@
 		<div class="modal-content">
 			<div class="modal-header" style="background-color:#B0B0B0;color:#FFFFFF">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<span class="glyphicon glyphicon-question-sign serverListTooltip" style="cursor:pointer;float:right;color:white;margin-right:20px;"></span>
 				<h4 class="modal-title" ng-show="showNodeServer"><img ng-src="{{node.serviceType | iconUrl}}"> <span style="font-size:24px;font-weight:bold">{{node.applicationName}}</span> <span style="font-size:12px;padding-left:10px;">Server List</span></h4>
 				<h4 class="modal-title" ng-show="showLinkServer"><span style="font-size:24px;font-weight:bold"><img ng-src="{{node.fromNode.serviceType | iconUrl}}"> {{node.fromNode.applicationName}} <span class="glyphicon glyphicon-arrow-right"></span> <img ng-src="{{node.fromNode.serviceType | iconUrl}}"> {{node.toNode.applicationName}}</span> <span style="font-size:12px;padding-left:10px">Server List</span></h4>
 			</div>
