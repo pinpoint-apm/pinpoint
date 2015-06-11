@@ -39,14 +39,14 @@ public class DefaultObjectPool<T> implements ObjectPool<T> {
 
     private void fill(int size) {
         for (int i = 0; i < size; i++) {
-            PooledObjectWrapper<T> wrapper = createObject();
+            PooledObjectWrapper wrapper = createObject();
             queue.offer(wrapper);
         }
     }
 
-    private PooledObjectWrapper<T> createObject() {
+    private PooledObjectWrapper createObject() {
         T t = this.factory.create();
-        return new PooledObjectWrapper<T>(t);
+        return new PooledObjectWrapper(t);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class DefaultObjectPool<T> implements ObjectPool<T> {
     }
 
 
-    public void returnObject(PooledObject<T> t) {
+    private void returnObject(PooledObject<T> t) {
         if (t == null) {
             return;
         }
@@ -68,10 +68,14 @@ public class DefaultObjectPool<T> implements ObjectPool<T> {
         queue.offer(t);
     }
 
-    private class PooledObjectWrapper<V extends T > implements PooledObject<T> {
-        private final V value;
+    public int size() {
+        return queue.size();
+    }
 
-        public PooledObjectWrapper(V value) {
+    private class PooledObjectWrapper implements PooledObject<T> {
+        private final T value;
+
+        public PooledObjectWrapper(T value) {
             if (value == null) {
                 throw new NullPointerException("value must not be null");
             }
@@ -79,7 +83,7 @@ public class DefaultObjectPool<T> implements ObjectPool<T> {
         }
 
         @Override
-        public V getObject() {
+        public T getObject() {
             return value;
         }
 
