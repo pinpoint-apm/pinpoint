@@ -68,6 +68,10 @@
 	<!-- Manager-related Beans -->    
     <bean id="pinpointCollectorManager" class="com.navercorp.pinpoint.collector.manage.PinpointCollectorManager">
     </bean>
+	
+    <bean id="collectorHandlerManager" class="com.navercorp.pinpoint.collector.manage.HandlerManager">
+    </bean>
+
 
     <!-- Cluster-related Beans -->
     <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory">
