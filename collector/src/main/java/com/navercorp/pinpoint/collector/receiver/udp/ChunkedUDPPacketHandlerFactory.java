@@ -44,6 +44,7 @@ public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements
 
     private UDPReceiver receiver;
     private final DispatchHandler dispatchHandler;
+    private TBaseFilter filter = TBaseFilter.CONTINUE_FILTER;
 
     public ChunkedUDPPacketHandlerFactory(DispatchHandler dispatchHandler) {
         if (dispatchHandler == null) {
@@ -56,6 +57,12 @@ public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements
         this.receiver = receiver;
     }
 
+    public void setFilter(TBaseFilter filter) {
+        if (filter == null) {
+            throw new NullPointerException("filter must not be null");
+        }
+        this.filter = filter;
+    }
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -82,20 +89,8 @@ public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements
                 }
 
                 for (TBase<?, ?> tBase : list) {
-                    if (tBase instanceof L4Packet) {
-                        if (logger.isDebugEnabled()) {
-                            L4Packet l4Packet = (L4Packet) tBase;
-                            logger.debug("udp l4 packet {}", l4Packet.getHeader());
-                        }
-                        continue;
-                    }
-                    // Network port availability check packet
-                    if (tBase instanceof NetworkAvailabilityCheckPacket) {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("received udp network availability check packet.");
-                        }
-                        responseOK(packet);
-                        continue;
+                    if (filter.filter(tBase, packet) == TBaseFilter.BREAK) {
+                        return;
                     }
                     // dispatch signifies business logic execution
                     dispatchHandler.dispatchSendMessage(tBase);
