@@ -24,6 +24,7 @@ import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Taejin Koo
@@ -34,6 +35,9 @@ public class PinpointCollectorManager {
 
     private final PinpointMBeanServer pinpointMBeanServer;
     private final List<PinpointCollectorMBean> pinpointMBeanList = new ArrayList<PinpointCollectorMBean>();
+
+    @Autowired
+    private HandlerManager collectorHandlerManager;
     
     public PinpointCollectorManager() {
         this.pinpointMBeanServer = new PinpointMBeanServer();
@@ -42,6 +46,8 @@ public class PinpointCollectorManager {
     @PostConstruct
     public void setUp() {
         logger.info("PinpointCollectorManager initialization started.");
+        
+        pinpointMBeanList.add(collectorHandlerManager);
         
         for (PinpointCollectorMBean pinpontMBean : pinpointMBeanList) {
             try {
