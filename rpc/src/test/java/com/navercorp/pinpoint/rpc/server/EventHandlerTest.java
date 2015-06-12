@@ -65,7 +65,7 @@ public class EventHandlerTest {
         EventHandler eventHandler = new EventHandler();
 
         PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
-        serverAcceptor.setStateChangeEventHandler(eventHandler);
+        serverAcceptor.addStateChangeEventHandler(eventHandler);
         serverAcceptor.setMessageListener(new SimpleListener());
         serverAcceptor.bind("127.0.0.1", bindPort);
 
@@ -93,7 +93,7 @@ public class EventHandlerTest {
         ThrowExceptionEventHandler eventHandler = new ThrowExceptionEventHandler();
 
         PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
-        serverAcceptor.setStateChangeEventHandler(eventHandler);
+        serverAcceptor.addStateChangeEventHandler(eventHandler);
         serverAcceptor.setMessageListener(new SimpleListener());
         serverAcceptor.bind("127.0.0.1", bindPort);
 

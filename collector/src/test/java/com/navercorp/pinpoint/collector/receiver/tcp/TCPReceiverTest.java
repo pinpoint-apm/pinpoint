@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.collector.receiver.tcp;
 
+import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.receiver.UdpDispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.tcp.TCPReceiver;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,7 @@ public class TCPReceiverTest {
 
     @Test
     public void server() throws InterruptedException {
-        TCPReceiver tcpReceiver = new TCPReceiver(new UdpDispatchHandler(), "0.0.0.0", 9099);
+        TCPReceiver tcpReceiver = new TCPReceiver(createConfiguration(), new UdpDispatchHandler());
         tcpReceiver.start();
         Thread.sleep(1000);
         tcpReceiver.stop();
@@ -58,5 +58,14 @@ public class TCPReceiverTest {
         String[] splitEmpty = twoEmpty.split(",");
         Assert.assertEquals(splitEmpty.length, 1);
 
+    }
+    
+    private CollectorConfiguration createConfiguration() {
+        CollectorConfiguration configuration = new CollectorConfiguration();
+        configuration.setTcpListenIp("0.0.0.0");
+        configuration.setTcpListenPort(9099);
+        configuration.setTcpWorkerThread(8);
+        configuration.setTcpWorkerQueueSize(1024);
+        return configuration;
     }
 }
