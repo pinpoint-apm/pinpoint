@@ -819,7 +819,9 @@
 	                		});
 	                	} else {
 	                		$toolbar.animate({ top: -1 }, "fast", function() {
-	                			$toolbar.find(".search-result").show();
+	                			if ( scope.searchNodeList.length > 0 ) {
+	                				$toolbar.find(".search-result").show();
+	                			}
 	                			$toolbarHandleSpan.addClass("glyphicon-chevron-up").removeClass("glyphicon-chevron-down");
 	                		});
 	                	}
