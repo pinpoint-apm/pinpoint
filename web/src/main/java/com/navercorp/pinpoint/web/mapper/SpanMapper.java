@@ -87,19 +87,27 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
                 spanEventBo.setTraceAgentStartTime(transactionId.getAgentStartTime());
                 spanEventBo.setTraceTransactionSequence(transactionId.getTransactionSequence());
 
+                int offset = 0;
                 // qualifier : spanId(long) + sequence(short) + asyncId(int)
                 long spanId = Bytes.toLong(cell.getQualifierArray(), cell.getQualifierOffset());
 
                 // because above spanId type is "long", so offset is 8
-                final int spanIdOffset = 8;
-                short sequence = Bytes.toShort(cell.getQualifierArray(), cell.getQualifierOffset() + Bytes.SIZEOF_LONG);
+                offset += Bytes.SIZEOF_LONG;
+                short sequence = Bytes.toShort(cell.getQualifierArray(), cell.getQualifierOffset() + offset);
                 int asyncId = -1;
-                if (cell.getQualifierLength() > Bytes.SIZEOF_LONG + Bytes.SIZEOF_SHORT) {
-                    asyncId = Bytes.toInt(cell.getQualifierArray(), cell.getQualifierOffset() + Bytes.SIZEOF_LONG + Bytes.SIZEOF_SHORT);
+                offset += Bytes.SIZEOF_SHORT;
+                if (cell.getQualifierLength() > offset) {
+                    asyncId = Bytes.toInt(cell.getQualifierArray(), cell.getQualifierOffset() + offset);
+                }
+                short asyncSequence = -1;
+                offset += Bytes.SIZEOF_INT;
+                if(cell.getQualifierLength() > offset) {
+                    asyncSequence = Bytes.toShort(cell.getQualifierArray(), cell.getQualifierOffset() + offset);
                 }
                 spanEventBo.setSpanId(spanId);
                 spanEventBo.setSequence(sequence);
                 spanEventBo.setAsyncId(asyncId);
+                spanEventBo.setAsyncSequence(asyncSequence);
                 
                 spanEventBo.readValue(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
                 if (logger.isDebugEnabled()) {

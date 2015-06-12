@@ -13,11 +13,12 @@ public class AsyncTrace implements Trace {
     
     private final Trace trace;
     private int asyncId;
- 
+    private short asyncSequence;
 
-    public AsyncTrace(final Trace trace, final int asyncId) {
+    public AsyncTrace(final Trace trace, final int asyncId, final short asyncSequence) {
         this.trace = trace;
         this.asyncId = asyncId;
+        this.asyncSequence = asyncSequence;
         traceBlockBegin(BEGIN_STACKID);
     }
 
@@ -184,12 +185,14 @@ public class AsyncTrace implements Trace {
     public void traceBlockBegin() {
         trace.traceBlockBegin();
         trace.recordAsyncId(asyncId);
+        trace.recordAsyncSequence(asyncSequence);
     }
 
     @Override
     public void traceBlockBegin(int stackId) {
         trace.traceBlockBegin(stackId);
         trace.recordAsyncId(asyncId);
+        trace.recordAsyncSequence(asyncSequence);
     }
 
     @Override
@@ -226,5 +229,10 @@ public class AsyncTrace implements Trace {
     public void close() {
         traceBlockEnd(BEGIN_STACKID);
         trace.close();
+    }
+
+    @Override
+    public void recordAsyncSequence(short sequence) {
+        trace.recordAsyncSequence(sequence);
     }
 }

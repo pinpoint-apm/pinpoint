@@ -8,6 +8,7 @@ public class DefaultAsyncTraceId implements AsyncTraceId {
     private final TraceId traceId;
     private final int asyncId;
     private final long startTime;
+    private short asyncSequence = 0;
     
     public DefaultAsyncTraceId(final TraceId traceId, final int asyncId, final long startTime) {
         this.traceId = traceId;
@@ -19,6 +20,11 @@ public class DefaultAsyncTraceId implements AsyncTraceId {
         return asyncId;
     }
 
+    public synchronized short nextAsyncSequence() {
+        this.asyncSequence += 1;
+        return this.asyncSequence;
+    }
+    
     @Override
     public TraceId getNextTraceId() {
         return traceId.getNextTraceId();

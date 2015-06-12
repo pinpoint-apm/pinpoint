@@ -50,6 +50,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
   private static final org.apache.thrift.protocol.TField EXCEPTION_INFO_FIELD_DESC = new org.apache.thrift.protocol.TField("exceptionInfo", org.apache.thrift.protocol.TType.STRUCT, (short)26);
   private static final org.apache.thrift.protocol.TField ASYNC_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("asyncId", org.apache.thrift.protocol.TType.I32, (short)30);
   private static final org.apache.thrift.protocol.TField NEXT_ASYNC_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("nextAsyncId", org.apache.thrift.protocol.TType.I32, (short)31);
+  private static final org.apache.thrift.protocol.TField ASYNC_SEQUENCE_FIELD_DESC = new org.apache.thrift.protocol.TField("asyncSequence", org.apache.thrift.protocol.TType.I16, (short)32);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -72,6 +73,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
   private TIntStringValue exceptionInfo; // optional
   private int asyncId; // optional
   private int nextAsyncId; // optional
+  private short asyncSequence; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -89,7 +91,8 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     API_ID((short)25, "apiId"),
     EXCEPTION_INFO((short)26, "exceptionInfo"),
     ASYNC_ID((short)30, "asyncId"),
-    NEXT_ASYNC_ID((short)31, "nextAsyncId");
+    NEXT_ASYNC_ID((short)31, "nextAsyncId"),
+    ASYNC_SEQUENCE((short)32, "asyncSequence");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -134,6 +137,8 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
           return ASYNC_ID;
         case 31: // NEXT_ASYNC_ID
           return NEXT_ASYNC_ID;
+        case 32: // ASYNC_SEQUENCE
+          return ASYNC_SEQUENCE;
         default:
           return null;
       }
@@ -184,8 +189,9 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
   private static final int __APIID_ISSET_ID = 7;
   private static final int __ASYNCID_ISSET_ID = 8;
   private static final int __NEXTASYNCID_ISSET_ID = 9;
+  private static final int __ASYNCSEQUENCE_ISSET_ID = 10;
   private short __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.SPAN_ID,_Fields.END_ELAPSED,_Fields.RPC,_Fields.END_POINT,_Fields.ANNOTATIONS,_Fields.DEPTH,_Fields.NEXT_SPAN_ID,_Fields.DESTINATION_ID,_Fields.API_ID,_Fields.EXCEPTION_INFO,_Fields.ASYNC_ID,_Fields.NEXT_ASYNC_ID};
+  private _Fields optionals[] = {_Fields.SPAN_ID,_Fields.END_ELAPSED,_Fields.RPC,_Fields.END_POINT,_Fields.ANNOTATIONS,_Fields.DEPTH,_Fields.NEXT_SPAN_ID,_Fields.DESTINATION_ID,_Fields.API_ID,_Fields.EXCEPTION_INFO,_Fields.ASYNC_ID,_Fields.NEXT_ASYNC_ID,_Fields.ASYNC_SEQUENCE};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -220,6 +226,8 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.NEXT_ASYNC_ID, new org.apache.thrift.meta_data.FieldMetaData("nextAsyncId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.ASYNC_SEQUENCE, new org.apache.thrift.meta_data.FieldMetaData("asyncSequence", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TSpanEvent.class, metaDataMap);
   }
@@ -281,6 +289,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     }
     this.asyncId = other.asyncId;
     this.nextAsyncId = other.nextAsyncId;
+    this.asyncSequence = other.asyncSequence;
   }
 
   public TSpanEvent deepCopy() {
@@ -314,6 +323,8 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     this.asyncId = 0;
     setNextAsyncIdIsSet(false);
     this.nextAsyncId = 0;
+    setAsyncSequenceIsSet(false);
+    this.asyncSequence = 0;
   }
 
   public long getSpanId() {
@@ -666,6 +677,28 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __NEXTASYNCID_ISSET_ID, value);
   }
 
+  public short getAsyncSequence() {
+    return this.asyncSequence;
+  }
+
+  public void setAsyncSequence(short asyncSequence) {
+    this.asyncSequence = asyncSequence;
+    setAsyncSequenceIsSet(true);
+  }
+
+  public void unsetAsyncSequence() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __ASYNCSEQUENCE_ISSET_ID);
+  }
+
+  /** Returns true if field asyncSequence is set (has been assigned a value) and false otherwise */
+  public boolean isSetAsyncSequence() {
+    return EncodingUtils.testBit(__isset_bitfield, __ASYNCSEQUENCE_ISSET_ID);
+  }
+
+  public void setAsyncSequenceIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ASYNCSEQUENCE_ISSET_ID, value);
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case SPAN_ID:
@@ -788,6 +821,14 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
       }
       break;
 
+    case ASYNC_SEQUENCE:
+      if (value == null) {
+        unsetAsyncSequence();
+      } else {
+        setAsyncSequence((Short)value);
+      }
+      break;
+
     }
   }
 
@@ -838,6 +879,9 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     case NEXT_ASYNC_ID:
       return Integer.valueOf(getNextAsyncId());
 
+    case ASYNC_SEQUENCE:
+      return Short.valueOf(getAsyncSequence());
+
     }
     throw new IllegalStateException();
   }
@@ -879,6 +923,8 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
       return isSetAsyncId();
     case NEXT_ASYNC_ID:
       return isSetNextAsyncId();
+    case ASYNC_SEQUENCE:
+      return isSetAsyncSequence();
     }
     throw new IllegalStateException();
   }
@@ -1028,6 +1074,15 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
       if (!(this_present_nextAsyncId && that_present_nextAsyncId))
         return false;
       if (this.nextAsyncId != that.nextAsyncId)
+        return false;
+    }
+
+    boolean this_present_asyncSequence = true && this.isSetAsyncSequence();
+    boolean that_present_asyncSequence = true && that.isSetAsyncSequence();
+    if (this_present_asyncSequence || that_present_asyncSequence) {
+      if (!(this_present_asyncSequence && that_present_asyncSequence))
+        return false;
+      if (this.asyncSequence != that.asyncSequence)
         return false;
     }
 
@@ -1197,6 +1252,16 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetAsyncSequence()).compareTo(other.isSetAsyncSequence());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetAsyncSequence()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.asyncSequence, other.asyncSequence);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -1318,6 +1383,12 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
       if (!first) sb.append(", ");
       sb.append("nextAsyncId:");
       sb.append(this.nextAsyncId);
+      first = false;
+    }
+    if (isSetAsyncSequence()) {
+      if (!first) sb.append(", ");
+      sb.append("asyncSequence:");
+      sb.append(this.asyncSequence);
       first = false;
     }
     sb.append(")");
@@ -1500,6 +1571,14 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 32: // ASYNC_SEQUENCE
+            if (schemeField.type == org.apache.thrift.protocol.TType.I16) {
+              struct.asyncSequence = iprot.readI16();
+              struct.setAsyncSequenceIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -1599,6 +1678,11 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
         oprot.writeI32(struct.nextAsyncId);
         oprot.writeFieldEnd();
       }
+      if (struct.isSetAsyncSequence()) {
+        oprot.writeFieldBegin(ASYNC_SEQUENCE_FIELD_DESC);
+        oprot.writeI16(struct.asyncSequence);
+        oprot.writeFieldEnd();
+      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -1662,7 +1746,10 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
       if (struct.isSetNextAsyncId()) {
         optionals.set(14);
       }
-      oprot.writeBitSet(optionals, 15);
+      if (struct.isSetAsyncSequence()) {
+        optionals.set(15);
+      }
+      oprot.writeBitSet(optionals, 16);
       if (struct.isSetSpanId()) {
         oprot.writeI64(struct.spanId);
       }
@@ -1714,12 +1801,15 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
       if (struct.isSetNextAsyncId()) {
         oprot.writeI32(struct.nextAsyncId);
       }
+      if (struct.isSetAsyncSequence()) {
+        oprot.writeI16(struct.asyncSequence);
+      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, TSpanEvent struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(15);
+      BitSet incoming = iprot.readBitSet(16);
       if (incoming.get(0)) {
         struct.spanId = iprot.readI64();
         struct.setSpanIdIsSet(true);
@@ -1790,6 +1880,10 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
       if (incoming.get(14)) {
         struct.nextAsyncId = iprot.readI32();
         struct.setNextAsyncIdIsSet(true);
+      }
+      if (incoming.get(15)) {
+        struct.asyncSequence = iprot.readI16();
+        struct.setAsyncSequenceIsSet(true);
       }
     }
   }

@@ -209,7 +209,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         trace.setStorage(new AsyncStorage(storage));
         trace.setSampling(true);
         
-        final AsyncTrace asyncTrace = new AsyncTrace(trace, asyncId);
+        final AsyncTrace asyncTrace = new AsyncTrace(trace, asyncId, traceId.nextAsyncSequence());
         threadLocal.set(asyncTrace);
         
         return asyncTrace;

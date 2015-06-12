@@ -232,4 +232,9 @@ public class DisableTrace  implements Trace {
     @Override
     public void close() {
     }
+
+    @Override
+    public void recordAsyncSequence(short sequence) {
+        throw new UnsupportedOperationException();
+    }
 }

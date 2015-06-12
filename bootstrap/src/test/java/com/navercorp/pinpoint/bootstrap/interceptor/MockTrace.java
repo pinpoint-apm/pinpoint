@@ -242,4 +242,8 @@ public class MockTrace implements Trace {
     @Override
     public void close() {
     }
+
+    @Override
+    public void recordAsyncSequence(short sequence) {
+    }
 }

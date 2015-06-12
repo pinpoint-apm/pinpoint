@@ -601,4 +601,14 @@ public final class DefaultTrace implements Trace {
     public AsyncTraceId getAsyncTraceId() {
         return new DefaultAsyncTraceId(traceId, traceContext.getAsyncId(), getTraceStartTime());
     }
+
+    @Override
+    public void recordAsyncSequence(short asyncSequence) {
+        StackFrame currentStackFrame = this.currentStackFrame;
+        if(currentStackFrame instanceof SpanEventStackFrame) {
+            ((SpanEventStackFrame) currentStackFrame).setAsyncSequence(asyncSequence);
+        } else {
+            throw new PinpointException("not SpanEventStackFrame");
+        }
+    }
 }

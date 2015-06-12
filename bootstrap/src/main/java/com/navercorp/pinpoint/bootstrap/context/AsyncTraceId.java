@@ -7,4 +7,6 @@ public interface AsyncTraceId extends TraceId {
     long getSpanStartTime();
     
     TraceId getParentTraceId();
+    
+    short nextAsyncSequence();
 }
