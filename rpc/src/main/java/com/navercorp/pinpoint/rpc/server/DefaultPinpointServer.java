@@ -53,6 +53,7 @@ import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.packet.ServerClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
 import com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler;
+import com.navercorp.pinpoint.rpc.server.handler.DoNothingChannelStateEventHandler;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
@@ -104,14 +105,17 @@ public class DefaultPinpointServer implements PinpointServer {
         StreamChannelManager streamChannelManager = new StreamChannelManager(channel, IDGenerator.createEvenIdGenerator(), serverConfig.getStreamMessageListener());
         this.streamChannelManager = streamChannelManager;
 
-        if (stateChangeEventListeners == null) {
-            this.stateChangeEventListeners = new ArrayList<ChannelStateChangeEventHandler>(1);
-        } else {
-            this.stateChangeEventListeners = new ArrayList<ChannelStateChangeEventHandler>(Array.getLength(stateChangeEventListeners) + 1);
+        this.stateChangeEventListeners = new ArrayList<ChannelStateChangeEventHandler>();
+        List<ChannelStateChangeEventHandler> configuredStateChangeEventHandlers = serverConfig.getStateChangeEventHandlers();
+        if (configuredStateChangeEventHandlers != null) {
+            for (ChannelStateChangeEventHandler configuredStateChangeEventHandler : configuredStateChangeEventHandlers) {
+                ListUtils.addIfValueNotNull(this.stateChangeEventListeners, configuredStateChangeEventHandler);
+            }
         }
-        
-        ListUtils.addIfValueNotNull(this.stateChangeEventListeners, serverConfig.getStateChangeEventHandler());
         ListUtils.addAllExceptNullValue(this.stateChangeEventListeners, stateChangeEventListeners);
+        if (this.stateChangeEventListeners.isEmpty()) {
+            this.stateChangeEventListeners.add(DoNothingChannelStateEventHandler.INSTANCE);
+        }
 
         RequestManager requestManager = new RequestManager(serverConfig.getRequestManagerTimer(), serverConfig.getDefaultRequestTimeout());
         this.requestManager = requestManager;

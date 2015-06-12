@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
+import java.util.List;
+
 import org.jboss.netty.util.Timer;
 
 import com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler;
@@ -32,7 +34,7 @@ public interface PinpointServerConfig {
     Timer getRequestManagerTimer();
 
     ServerMessageListener getMessageListener();
-    ChannelStateChangeEventHandler getStateChangeEventHandler();
+    List<ChannelStateChangeEventHandler> getStateChangeEventHandlers();
 
     ServerStreamChannelMessageListener getStreamMessageListener();
 
