@@ -1,32 +1,35 @@
-<div class="servermap" style="width:100%;height:100%;position: relative;">
+<div class="servermap">
     <div id="servermap" style="width:100%;height:100%;position: relative;"></div>
     <div id="servermapOverview"></div>
-    <div style="position:absolute;right:20px;top:15px">
-    	<span class="glyphicon glyphicon-question-sign serverMapTooltip" style="cursor:pointer;font-size:17px;z-index:9"></span>
+    <div class="servermap-toolbar">
+    	<span class="glyphicon glyphicon-question-sign serverMapTooltip"></span>
+	    <div class="servermap-status" ng-show="bShowServerMapStatus" style="right:420px">
+	    	<form class="form-inline">
+		    	<input type="text" class="form-control" ng-keydown="searchNodeByEnter($event)" ng-model="searchNodeQuery" placeholder="Enter node name"/>
+		    	<button class="btn btn-info" style="margin-left:-10px" ng-click="searchNode()"><span class="glyphicon glyphicon-search"></span></button>
+		    	<button class="btn btn-info" ng-click="clearSearchNode()"><span class="glyphicon glyphicon-trash"></span></button>
+		    </form>
+	    </div>
+	    <div class="servermap-status" ng-show="bShowServerMapStatus">
+	    	<button type="button" class="btn btn-default btn-info" style="margin-top:-4px" ng-click="moveThePast()"><span class="glyphicon glyphicon-chevron-left"></span></button><button type="button" class="btn btn-default btn-info" style="margin-top:-4px" ng-click="moveTheFuture()"><span class="glyphicon glyphicon-chevron-right"></span></button><div class="alert alert-info serverMapTime" style="min-height: 30px;display:inline-block;padding-bottom:9px;padding-top:10px">
+	            <h6 ng-show="oNavbarVoService.getQueryStartTime() && oNavbarVoService.getQueryEndTime()">{{oNavbarVoService.getQueryStartTime() |
+	                date:'yyyy-MM-dd HH:mm:ss'}} ~ {{oNavbarVoService.getQueryEndTime() | date:'yyyy-MM-dd HH:mm:ss'}}</h6>
+	        </div>
+	    </div>
+	    <div class="servermap-status search-result">
+	    	<span style="inline-block" class="label label-{{ searchNodeIndex == $index ? 'success' : 'info'}}" ng-repeat="sNode in searchNodeList" ng-click="searchNodeWithCategory($index)">{{sNode.applicationName}}({{sNode.serviceType}})</span>
+	    	<div class="count">Result : 0</div>
+	    </div>
     </div>
-    <div class="servermap-status" ng-show="bShowServerMapStatus" style="right:540px">
-    	<span class="label label-{{ searchNodeIndex == $index ? 'success' : 'info'}}" ng-repeat="sNode in searchNodeList" ng-click="searchNodeWithCategory($index)">{{sNode.applicationName}}({{sNode.serviceType}})</span>
-    </div>
-    <div class="servermap-status" ng-show="bShowServerMapStatus" style="right:420px">
-    	<form class="form-inline">
-	    	<input type="text" class="form-control" ng-keydown="searchNodeByEnter($event)" ng-model="searchNodeQuery" placeholder="Enter node name"/>
-	    	<button class="btn btn-info" style="margin-left:-10px" ng-click="searchNode()"><span class="glyphicon glyphicon-search"></span></button>
-	    	<button class="btn btn-info" ng-click="clearSearchNode()"><span class="glyphicon glyphicon-trash"></span></button>
-	    </form>
-    </div>
-    <div class="servermap-status" ng-show="bShowServerMapStatus">
-    	<button type="button" class="btn btn-default btn-info" style="margin-top:-4px" ng-click="moveThePast()"><span class="glyphicon glyphicon-chevron-left"></span></button><button type="button" class="btn btn-default btn-info" style="margin-top:-4px" ng-click="moveTheFuture()"><span class="glyphicon glyphicon-chevron-right"></span></button><div class="alert alert-info serverMapTime" style="min-height: 30px;display:inline-block;padding-bottom:9px;padding-top:10px">
-            <h6 ng-show="oNavbarVoService.getQueryStartTime() && oNavbarVoService.getQueryEndTime()">{{oNavbarVoService.getQueryStartTime() |
-                date:'yyyy-MM-dd HH:mm:ss'}} ~ {{oNavbarVoService.getQueryEndTime() | date:'yyyy-MM-dd HH:mm:ss'}}</h6>
-        </div>
-    </div>
+    <div class="servermap-toolbar-handle">
+    	<button type="button" class="btn btn-xs btn-default btn-warning" ng-click="toggleToolbar()" style="height:54px"><span class="glyphicon glyphicon-chevron-up"></span></button>
+    </div>   
     <div ng-include=" 'error' "></div>
     <div ng-include=" 'warning' "></div>
     <div ng-include=" 'info' "></div>
     <div ng-include=" 'loading' "></div>
 
-    <ul ng-style="nodeContextMenuStyle" class="nodeContextMenu dropdown-menu" role="menu" aria-labelledby="dropdownMenu"
-        style="z-index:10">
+    <ul ng-style="nodeContextMenuStyle" class="nodeContextMenu dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="z-index:10">
         <!--<li><a href tabindex="-1" ng-click="passingTransactionList()"><i class="icon-map-marker"></i> Passing Transaction List</a></li>-->
         <!--<li class="divider"></li>-->
         <li><a href tabindex="-1" ng-click="passingTransactionResponseToScatterChart()"><span
