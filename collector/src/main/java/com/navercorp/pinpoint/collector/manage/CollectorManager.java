@@ -19,22 +19,8 @@ package com.navercorp.pinpoint.collector.manage;
 /**
  * @author Taejin Koo
  */
-public abstract class AbstractPinpointCollectorMBean implements PinpointCollectorMBean {
+public interface CollectorManager {
 
-    @Override
-    public String getName() {
-        return simpleClassName();
-    }
-
-    private String simpleClassName() {
-        Class clazz = this.getClass();
-
-        Package pkg = clazz.getPackage();
-        if (pkg != null) {
-            return clazz.getName().substring(pkg.getName().length() + 1);
-        } else {
-            return clazz.getName();
-        }
-    }
+    String getName();
 
 }

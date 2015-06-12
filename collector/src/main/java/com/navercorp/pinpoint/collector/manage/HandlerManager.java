@@ -22,12 +22,12 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Taejin Koo
  */
-public class HandlerManager extends AbstractPinpointCollectorMBean implements HandlerManagerMBean {
-    
+public class HandlerManager extends AbstractCollectorManager implements HandlerManagerMBean {
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     private volatile boolean enable = true;
-    
+
     @Override
     public void enableAccess() {
         logger.warn("Enable access to manager.");

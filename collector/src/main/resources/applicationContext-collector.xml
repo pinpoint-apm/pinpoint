@@ -66,11 +66,16 @@
     </bean>
 
 	<!-- Manager-related Beans -->    
-    <bean id="pinpointCollectorManager" class="com.navercorp.pinpoint.collector.manage.PinpointCollectorManager">
+    <bean id="jmxCollectorManager" class="com.navercorp.pinpoint.collector.manage.jmx.JMXCollectorManager">
+    </bean>
+
+    <bean id="jmxCollectorManagerList" class="com.navercorp.pinpoint.collector.manage.jmx.JMXCollectorManagerList">
     </bean>
 	
-    <bean id="collectorHandlerManager" class="com.navercorp.pinpoint.collector.manage.HandlerManager">
+    <bean id="handlerManager" class="com.navercorp.pinpoint.collector.manage.HandlerManager">
     </bean>
+    
+    
 
 
     <!-- Cluster-related Beans -->
