@@ -86,7 +86,10 @@
 //                                    return category;
 //                                },
                                 "labelFunction": function (valueText, serialDataItem, categoryAxis) {
-                                	return valueText.substring( valueText.indexOf( " " ) + 1 );
+                                	//return valueText.substring( valueText.indexOf( " " ) + 1 );
+                                	var dashIndex = valueText.indexOf("-");
+                                	var spaceIndex = valueText.indexOf(" ");
+                                	return valueText.substring( dashIndex + 1, spaceIndex ) + "\n" + valueText.substring( spaceIndex + 1 );
                                 }
                             },
                             "balloon": {

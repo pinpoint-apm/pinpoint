@@ -14,27 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.manage;
+package com.navercorp.pinpoint.collector.receiver.udp;
 
 /**
- * @author Taejin Koo
+ * @author emeroad
  */
-public abstract class AbstractPinpointCollectorMBean implements PinpointCollectorMBean {
-
-    @Override
-    public String getName() {
-        return simpleClassName();
-    }
-
-    private String simpleClassName() {
-        Class clazz = this.getClass();
-
-        Package pkg = clazz.getPackage();
-        if (pkg != null) {
-            return clazz.getName().substring(pkg.getName().length() + 1);
-        } else {
-            return clazz.getName();
-        }
-    }
-
+public interface PacketHandlerFactory<T> {
+    PacketHandler<T> createPacketHandler();
 }

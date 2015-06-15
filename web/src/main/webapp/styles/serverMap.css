@@ -1,4 +1,58 @@
 /* servermap */
+.servermap {
+	width: 100%;
+	height: 100%;
+	position: relative;
+}
+.servermap .servermap-toolbar {
+	position: absolute;
+	border: 1px solid #e8e8e8;
+	top: -1px;
+	right: 22px;
+	width: 680px;
+	height: 54px;
+	z-index: 8;
+	background-color: white;
+}
+.servermap .servermap-toolbar .serverMapTooltip {
+	cursor: pointer;
+	font-size: 17px;
+	z-index: 9;
+	float: right;
+	margin-right: 10px;
+	padding-top: 15px;
+}
+.servermap .servermap-toolbar .search-result {
+	top: 53px;
+	right: -1px;
+	width: 680px;
+	height: 90px;
+	border: 1px solid #DDDDDD;
+	background-color: #F5F5F5;
+	overflow-y: auto;
+	display: none;
+	border-bottom-right-radius: 10px;
+	border-bottom-left-radius: 10px;
+}
+.servermap .servermap-toolbar .search-result .count {
+	position: absolute;
+	left: 0px;
+	bottom: -1px;
+	border: 1px solid #DDDDDD;
+	border-bottom-left-radius: 10px;
+	border-top-right-radius: 10px;
+	padding: 2px 6px 2px 6px;
+	font-weight: bold;
+	color: #FFFFFF;
+	font-size: 12px;
+	background-color: #f0ad4e;
+}
+.servermap .servermap-toolbar-handle {
+	position: absolute;
+	right: -1px;
+	top: -1px;
+	z-index: 8;
+}
 .servermap .servermap-status {
     position: absolute;
     top: 8px;
@@ -18,7 +72,7 @@
     margin: 0;
 }
 .servermap .servermap-status span.label {
-	float:right;
+	display:inline-block;
 	margin:3px;
 	cursor:pointer;
 }

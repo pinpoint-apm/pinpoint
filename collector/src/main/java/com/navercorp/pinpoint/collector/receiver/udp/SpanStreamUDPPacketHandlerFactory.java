@@ -21,10 +21,9 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import org.apache.thrift.TBase;
 
-import com.codahale.metrics.Timer;
-import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
@@ -33,41 +32,46 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.SpanStreamConstants;
 import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 /**
  * @author Taejin Koo
  */
-public class SpanStreamUDPReceiver extends AbstractUDPReceiver {
+public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> implements PacketHandlerFactory<T>, InitializingBean {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<HeaderTBaseDeserializer>(new HeaderTBaseDeserializerFactory());
+    private final DispatchHandler dispatchHandler;
 
-    public SpanStreamUDPReceiver(String receiverName, DispatchHandler dispatchHandler, String bindAddress, int port, int receiverBufferSize,
-            int workerThreadSize, int workerThreadQueueSize) {
-        super(receiverName, dispatchHandler, bindAddress, port, receiverBufferSize, workerThreadSize, workerThreadQueueSize);
+    public SpanStreamUDPPacketHandlerFactory(DispatchHandler dispatchHandler) {
+        if (dispatchHandler == null) {
+            throw new NullPointerException("dispatchHandler must not be null");
+        }
+        this.dispatchHandler = dispatchHandler;
     }
 
     @Override
-    Runnable getPacketDispatcher(AbstractUDPReceiver receiver, DatagramPacket packet) {
-        return new DispatchPacket(receiver, packet);
+    public void afterPropertiesSet() throws Exception {
+        Assert.notNull(this.dispatchHandler, "dispatchHandler must not be null");
     }
 
-    private class DispatchPacket implements Runnable {
-        private final AbstractUDPReceiver receiver;
-        private final DatagramPacket packet;
+    @Override
+    public PacketHandler<T> createPacketHandler() {
+        return new DispatchPacket();
+    }
 
-        private DispatchPacket(AbstractUDPReceiver receiver, DatagramPacket packet) {
-            if (packet == null) {
-                throw new NullPointerException("packet must not be null");
-            }
-            this.receiver = receiver;
-            this.packet = packet;
+    private class DispatchPacket implements PacketHandler<T> {
+
+        private DispatchPacket() {
         }
 
         @Override
-        public void run() {
-            Timer.Context time = receiver.getTimer().time();
-
-            final HeaderTBaseDeserializer deserializer = (HeaderTBaseDeserializer) deserializerFactory.createDeserializer();
+        public void receive(DatagramPacket packet) {
+            final HeaderTBaseDeserializer deserializer = deserializerFactory.createDeserializer();
 
             ByteBuffer requestBuffer = ByteBuffer.wrap(packet.getData());
             if (requestBuffer.remaining() < SpanStreamConstants.START_PROTOCOL_BUFFER_SIZE) {
@@ -106,14 +110,10 @@ public class SpanStreamUDPReceiver extends AbstractUDPReceiver {
                     } else if (tBase instanceof TSpanChunk) {
                         ((TSpanChunk) tBase).setSpanEventList(spanEventList);
                     }
-                    receiver.getDispatchHandler().dispatchRequestMessage(tBase);
+                    dispatchHandler.dispatchRequestMessage(tBase);
                 }
             } catch (Exception e) {
                 logger.warn("Failed to handle receive packet.", e);
-            } finally {
-                receiver.getDatagramPacketPool().returnObject(packet);
-                // what should we do when an exception is thrown?
-                time.stop();
             }
         }
     }

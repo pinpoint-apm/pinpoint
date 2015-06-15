@@ -19,8 +19,12 @@ package com.navercorp.pinpoint.collector.manage;
 /**
  * @author Taejin Koo
  */
-public interface PinpointCollectorMBean {
+public interface HandlerManagerMBean {
 
-    String getName();
+    void enableAccess();
+
+    void disableAccess();
+
+    boolean isEnable();
 
 }

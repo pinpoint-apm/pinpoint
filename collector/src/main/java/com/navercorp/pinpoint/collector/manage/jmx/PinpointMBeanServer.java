@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.manage;
+package com.navercorp.pinpoint.collector.manage.jmx;
 
 import java.lang.management.ManagementFactory;
 import java.util.HashMap;
@@ -27,6 +27,9 @@ import javax.management.ObjectName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.navercorp.pinpoint.collector.manage.CollectorManager;
+
+
 /**
  * @author Taejin Koo
  */
@@ -35,14 +38,14 @@ public final class PinpointMBeanServer {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
     private final MBeanServer mBeanServer;
-    private final Map<String, PinpointCollectorMBean> pinpointMBeanHolder;
+    private final Map<String, CollectorManager> pinpointMBeanHolder;
 
     PinpointMBeanServer() {
         this.mBeanServer = ManagementFactory.getPlatformMBeanServer();
-        this.pinpointMBeanHolder = new HashMap<String, PinpointCollectorMBean>();
+        this.pinpointMBeanHolder = new HashMap<String, CollectorManager>();
     }
 
-    public void registerMBean(PinpointCollectorMBean pinpointMBean) {
+    public void registerMBean(CollectorManager pinpointMBean) {
         if (pinpointMBean == null) {
             return;
         }
@@ -50,7 +53,7 @@ public final class PinpointMBeanServer {
         registerMBean(pinpointMBean.getName(), pinpointMBean);
     }
     
-    public void registerMBean(String name, PinpointCollectorMBean pinpointMBean) {
+    public void registerMBean(String name, CollectorManager pinpointMBean) {
         logger.info("registerMBean {}", name);
 
         if (isRegistered(pinpointMBean)) {
@@ -66,7 +69,7 @@ public final class PinpointMBeanServer {
         }
     }
 
-    public void unregisterMBean(PinpointCollectorMBean pinpointMBean) {
+    public void unregisterMBean(CollectorManager pinpointMBean) {
         if (pinpointMBean == null) {
             return;
         }
@@ -90,7 +93,7 @@ public final class PinpointMBeanServer {
         }
     }
 
-    public boolean isRegistered(PinpointCollectorMBean pinpointMBean) {
+    public boolean isRegistered(CollectorManager pinpointMBean) {
         if (pinpointMBean == null) {
             return false;
         }
@@ -108,7 +111,7 @@ public final class PinpointMBeanServer {
         }
     }
     
-    public PinpointCollectorMBean getPinpointMBean(String name) {
+    public CollectorManager getPinpointMBean(String name) {
         return pinpointMBeanHolder.get(name);
     }
 

@@ -84,7 +84,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
     private ServerMessageListener messageListener = SimpleLoggingServerMessageListener.LISTENER;
     private ServerStreamChannelMessageListener serverStreamChannelMessageListener = DisabledServerStreamChannelMessageListener.INSTANCE;
-    private ChannelStateChangeEventHandler stateChangeEventHandler = DoNothingChannelStateEventHandler.INSTANCE;
+    private List<ChannelStateChangeEventHandler> stateChangeEventHandler = new ArrayList<ChannelStateChangeEventHandler>();
 
     private final Timer healthCheckTimer;
     private final Timer requestManagerTimer;
@@ -203,14 +203,14 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     @Override
-    public ChannelStateChangeEventHandler getStateChangeEventHandler() {
+    public List<ChannelStateChangeEventHandler> getStateChangeEventHandlers() {
         return stateChangeEventHandler;
     }
 
-    public void setStateChangeEventHandler(ChannelStateChangeEventHandler stateChangeEventHandler) {
+    public void addStateChangeEventHandler(ChannelStateChangeEventHandler stateChangeEventHandler) {
         AssertUtils.assertNotNull(stateChangeEventHandler, "stateChangeEventHandler must not be null");
 
-        this.stateChangeEventHandler = stateChangeEventHandler;
+        this.stateChangeEventHandler.add(stateChangeEventHandler);
     }
 
     @Override

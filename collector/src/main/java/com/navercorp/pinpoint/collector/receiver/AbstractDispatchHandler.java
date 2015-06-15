@@ -16,15 +16,17 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
-import com.navercorp.pinpoint.collector.handler.Handler;
-import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
-import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.collector.util.AcceptedTimeService;
-
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.navercorp.pinpoint.collector.handler.Handler;
+import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
+import com.navercorp.pinpoint.collector.handler.SimpleHandler;
+import com.navercorp.pinpoint.collector.manage.HandlerManager;
+import com.navercorp.pinpoint.collector.util.AcceptedTimeService;
+import com.navercorp.pinpoint.thrift.dto.TResult;
 
 /**
  * @author emeroad
@@ -37,6 +39,9 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
     @Autowired
     private AcceptedTimeService acceptedTimeService;
 
+    @Autowired
+    private HandlerManager handlerManager;
+    
     public AbstractDispatchHandler() {
     }
 
@@ -46,6 +51,12 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
 
         // mark accepted time
         acceptedTimeService.accept();
+        
+        if (!handlerManager.isEnable()) {
+            logger.debug("Handler is disabled. Skipping send message {}.", tBase);
+            return;
+        }
+        
         // TODO consider to change dispatch table automatically
         SimpleHandler simpleHandler = getSimpleHandler(tBase);
         if (simpleHandler != null) {
@@ -71,6 +82,13 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
     public TBase dispatchRequestMessage(TBase<?,?> tBase) {
         // mark accepted time
         acceptedTimeService.accept();
+
+        if (!handlerManager.isEnable()) {
+            logger.debug("Handler is disabled. Skipping request message {}.", tBase);
+            TResult result = new TResult(false);
+            result.setMessage("Handler is disabled. Skipping request message.");
+            return result;
+        }
 
         RequestResponseHandler requestResponseHandler = getRequestResponseHandler(tBase);
         if (requestResponseHandler != null) {
