@@ -24,10 +24,7 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
 
-import java.io.IOException;
 import java.net.*;
 import java.util.List;
 
@@ -36,44 +33,31 @@ import java.util.List;
  * 
  * @author jaehong.kim
  */
-public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements PacketHandlerFactory<T>, InitializingBean {
+public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements PacketHandlerFactory<T> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final DeserializerFactory<ChunkHeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<ChunkHeaderTBaseDeserializer>(new ChunkHeaderTBaseDeserializerFactory());
 
-    private UDPReceiver receiver;
     private final DispatchHandler dispatchHandler;
-    private TBaseFilter filter = TBaseFilter.CONTINUE_FILTER;
+    private final TBaseFilter filter;
 
-    public ChunkedUDPPacketHandlerFactory(DispatchHandler dispatchHandler) {
+    private final PacketHandler<T> dispatchPacket = new DispatchPacket();
+
+    public ChunkedUDPPacketHandlerFactory(DispatchHandler dispatchHandler, TBaseFilter<T> filter) {
         if (dispatchHandler == null) {
             throw new NullPointerException("dispatchHandler must not be null");
         }
         this.dispatchHandler = dispatchHandler;
-    }
-
-    public void setReceiver(UDPReceiver receiver) {
-        this.receiver = receiver;
-    }
-
-    public void setFilter(TBaseFilter filter) {
-        if (filter == null) {
-            throw new NullPointerException("filter must not be null");
-        }
         this.filter = filter;
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.receiver, "receiver must not be null");
-    }
-
-    @Override
     public PacketHandler<T> createPacketHandler() {
-        return new DispatchPacket();
+        return this.dispatchPacket;
     }
 
+    // stateless
     private class DispatchPacket implements PacketHandler<T> {
 
         private DispatchPacket() {
@@ -89,7 +73,7 @@ public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements
                 }
 
                 for (TBase<?, ?> tBase : list) {
-                    if (filter.filter(tBase, packet) == TBaseFilter.BREAK) {
+                    if (filter.filter(tBase, packet.getSocketAddress()) == TBaseFilter.BREAK) {
                         return;
                     }
                     // dispatch signifies business logic execution
@@ -105,21 +89,6 @@ public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements
             } catch (Exception e) {
                 if (logger.isWarnEnabled()) {
                     logger.warn("Unexpected error. SendSocketAddress:{} Cause:{} ", packet.getSocketAddress(), e.getMessage(), e);
-                }
-                if (logger.isDebugEnabled()) {
-                    logger.debug("packet dump hex:{}", PacketUtils.dumpDatagramPacket(packet));
-                }
-            }
-        }
-
-        private void responseOK(DatagramPacket packet) {
-            try {
-                byte[] okBytes = NetworkAvailabilityCheckPacket.DATA_OK;
-                DatagramPacket pongPacket = new DatagramPacket(okBytes, okBytes.length, packet.getSocketAddress());
-                receiver.getSocket().send(pongPacket);
-            } catch (IOException e) {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("pong error. SendSocketAddress:{} Cause:{}", packet.getSocketAddress(), e.getMessage(), e);
                 }
                 if (logger.isDebugEnabled()) {
                     logger.debug("packet dump hex:{}", PacketUtils.dumpDatagramPacket(packet));

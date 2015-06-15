@@ -16,54 +16,53 @@
 
 package com.navercorp.pinpoint.collector.receiver.udp;
 
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
+import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
+import com.navercorp.pinpoint.thrift.io.*;
+import org.apache.thrift.TBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.DatagramPacket;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import org.apache.thrift.TBase;
-
-import com.navercorp.pinpoint.thrift.dto.TSpan;
-import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
-import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
-import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.SpanStreamConstants;
-import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
-
 /**
  * @author Taejin Koo
  */
-public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> implements PacketHandlerFactory<T>, InitializingBean {
+public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> implements PacketHandlerFactory<T> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<HeaderTBaseDeserializer>(new HeaderTBaseDeserializerFactory());
+    private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<HeaderTBaseDeserializer>(new HeaderTBaseDeserializerFactory());
     private final DispatchHandler dispatchHandler;
 
-    public SpanStreamUDPPacketHandlerFactory(DispatchHandler dispatchHandler) {
+    @SuppressWarnings("unused")
+    private final TBaseFilter<SocketAddress>  filter;
+    private final PacketHandler<T> dispatchPacket = new DispatchPacket();
+
+    public SpanStreamUDPPacketHandlerFactory(DispatchHandler dispatchHandler, TBaseFilter<SocketAddress>  filter) {
         if (dispatchHandler == null) {
             throw new NullPointerException("dispatchHandler must not be null");
         }
+        if (filter == null) {
+            throw new NullPointerException("filter must not be null");
+        }
         this.dispatchHandler = dispatchHandler;
+        this.filter = filter;
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.dispatchHandler, "dispatchHandler must not be null");
-    }
 
     @Override
     public PacketHandler<T> createPacketHandler() {
-        return new DispatchPacket();
+        return this.dispatchPacket;
     }
 
+    // stateless
     private class DispatchPacket implements PacketHandler<T> {
 
         private DispatchPacket() {
@@ -110,6 +109,11 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
                     } else if (tBase instanceof TSpanChunk) {
                         ((TSpanChunk) tBase).setSpanEventList(spanEventList);
                     }
+//                    TODO
+//                    if (filter.filter(tBase, packet.getSocketAddress()) == TBaseFilter.BREAK) {
+//                        continue;
+//                    };
+
                     dispatchHandler.dispatchRequestMessage(tBase);
                 }
             } catch (Exception e) {

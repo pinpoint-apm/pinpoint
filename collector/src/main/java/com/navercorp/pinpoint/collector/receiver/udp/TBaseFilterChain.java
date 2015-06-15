@@ -18,28 +18,28 @@ package com.navercorp.pinpoint.collector.receiver.udp;
 
 import org.apache.thrift.TBase;
 
-import java.net.DatagramPacket;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author emeroad
  */
-public class TBaseFilterChain implements TBaseFilter {
+public class TBaseFilterChain<T extends SocketAddress> implements TBaseFilter<T> {
 
-    private final List<TBaseFilter> filterChain = new ArrayList<TBaseFilter>();
+    private final List<TBaseFilter<T>> filterChain;
 
-    public void addTBaseFilter(TBaseFilter tBaseFilter) {
+    public TBaseFilterChain(List<TBaseFilter<T>> tBaseFilter) {
         if (tBaseFilter == null) {
             throw new NullPointerException("tBaseFilter must not be null");
         }
-        this.filterChain.add(tBaseFilter);
+        this.filterChain = new ArrayList<TBaseFilter<T>>(tBaseFilter);
     }
 
     @Override
-    public boolean filter(TBase<?, ?> tBase, DatagramPacket packet) {
+    public boolean filter(TBase<?, ?> tBase, T remoteHostAddress) {
         for (TBaseFilter tBaseFilter : filterChain) {
-            if (tBaseFilter.filter(tBase, packet) == TBaseFilter.BREAK) {
+            if (tBaseFilter.filter(tBase, remoteHostAddress) == TBaseFilter.BREAK) {
                 return BREAK;
             }
         }

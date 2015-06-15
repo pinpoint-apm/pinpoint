@@ -21,16 +21,15 @@ import com.navercorp.pinpoint.thrift.io.NetworkAvailabilityCheckPacket;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.SocketException;
+import java.net.*;
 
 /**
  * @author emeroad
  */
-public class NetworkAvailabilityCheckPacketFilter implements TBaseFilter {
+public class NetworkAvailabilityCheckPacketFilter<T extends SocketAddress> implements TBaseFilter<T>, DisposableBean {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final DatagramSocket socket;
@@ -38,35 +37,45 @@ public class NetworkAvailabilityCheckPacketFilter implements TBaseFilter {
     public NetworkAvailabilityCheckPacketFilter() {
         try {
             this.socket = new DatagramSocket();
+            logger.info("port:{}", this.socket.getLocalAddress());
         } catch (SocketException ex) {
             throw new RuntimeException("socket create fail. error:" + ex.getMessage(), ex);
         }
     }
 
     @Override
-    public boolean filter(TBase<?, ?> tBase, DatagramPacket packet) {
+    public boolean filter(TBase<?, ?> tBase, T remoteHostAddress) {
         // Network port availability check packet
         if (tBase instanceof NetworkAvailabilityCheckPacket) {
             if (logger.isInfoEnabled()) {
-                logger.info("received udp network availability check packet.");
+                logger.info("received udp network availability check packet. remoteAddress:{}", remoteHostAddress);
             }
-            responseOK(packet);
+            responseOK(remoteHostAddress);
             return BREAK;
         }
         return CONTINUE;
     }
 
-    private void responseOK(DatagramPacket packet) {
+    private void responseOK(T remoteHostAddress) {
         try {
             byte[] okBytes = NetworkAvailabilityCheckPacket.DATA_OK;
-            DatagramPacket pongPacket = new DatagramPacket(okBytes, okBytes.length, packet.getSocketAddress());
+            DatagramPacket pongPacket = new DatagramPacket(okBytes, okBytes.length, remoteHostAddress);
             socket.send(pongPacket);
         } catch (IOException e) {
             if (logger.isWarnEnabled()) {
-                logger.warn("pong error. SendSocketAddress:{} Cause:{}", packet.getSocketAddress(), e.getMessage(), e);
+                logger.warn("pong error. SendSocketAddress:{} Cause:{}", remoteHostAddress, e.getMessage(), e);
             }
-            if (logger.isDebugEnabled()) {
-                logger.debug("packet dump hex:{}", PacketUtils.dumpDatagramPacket(packet));
+        }
+    }
+
+
+    @Override
+    public void destroy() throws Exception {
+        if (socket!= null) {
+            try {
+                socket.close();
+            } catch (Exception e) {
+                logger.warn("socket.close() error:" + e.getMessage(), e);
             }
         }
     }

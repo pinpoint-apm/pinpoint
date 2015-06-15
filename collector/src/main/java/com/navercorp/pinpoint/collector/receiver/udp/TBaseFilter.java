@@ -19,20 +19,22 @@ package com.navercorp.pinpoint.collector.receiver.udp;
 import org.apache.thrift.TBase;
 
 import java.net.DatagramPacket;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * @author emeroad
  */
-public interface TBaseFilter {
+public interface TBaseFilter<T> {
     boolean CONTINUE = true;
     boolean BREAK = false;
 
-    boolean filter(TBase<?, ?> tBase, DatagramPacket packet);
+    boolean filter(TBase<?, ?> tBase, T remoteHostAddress);
 
-
-    public static final TBaseFilter CONTINUE_FILTER = new TBaseFilter() {
+    // TODO fix generic type
+    public static final TBaseFilter CONTINUE_FILTER = new TBaseFilter<SocketAddress>() {
         @Override
-        public boolean filter(TBase<?, ?> tBase, DatagramPacket packet) {
+        public boolean filter(TBase<?, ?> tBase, SocketAddress remoteHostAddress) {
             return CONTINUE;
         }
     };
