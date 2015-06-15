@@ -41,7 +41,7 @@
 		},
 		servermap : {
 			"default": {
-				mainStyle: "width:450px;",
+				mainStyle: "width:560px;",
 				title: "Server Map",
 				desc: "Displays a topological view of the distributed server map.",
 				category: [{
@@ -99,7 +99,7 @@
 					}]
 				},{
 					title: "[Usage]",
-					image: "<img src='/images/help/scatter_01.png' width='350px' height='205px'>",
+					image: "<img src='/images/help/scatter_01.png' width='200px' height='125px'>",
 					items: [{
 						name: "<span class='glyphicon glyphicon-plus'></span>",
 						desc: "Drag on the scatter chart to show detailed information on selected transactions."
@@ -184,7 +184,7 @@
 				}]
 			},
 			nodeServers: {
-				mainStyle: "width:350px;",
+				mainStyle: "width:400px;",
 				title: "Server Instances",
 				desc: "List of physical servers and their server instances.",
 				category: [{
