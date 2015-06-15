@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
+import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
@@ -71,7 +72,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
         for (Cell cell : result.rawCells()) {
 
             final byte[] qualifier = CellUtil.cloneQualifier(cell);
-            final Application callerApplication = readCallerApplication(qualifier);
+            final Application callerApplication = readCallerApplication(qualifier, calleeApplication.getServiceType());
             if (filter.filter(callerApplication)) {
                 continue;
             }
@@ -98,9 +99,15 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
         return linkDataMap;
     }
 
-    private Application readCallerApplication(byte[] qualifier) {
-        String callerApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
-        short callerServiceType = ApplicationMapStatisticsUtils.getDestServiceTypeFromColumnName(qualifier);
+    private Application readCallerApplication(byte[] qualifier, ServiceType calleeServiceType) {
+        short callerServiceType = ApplicationMapStatisticsUtils.getDestServiceTypeFromColumnName(qualifier);// Caller may be a user node, and user nodes may call nodes with the same application name but different service type.
+        // To distinguish between these user nodes, append callee's service type to the application name.
+        String callerApplicationName;
+        if (ServiceType.findServiceType(callerServiceType).isUser()) {
+            callerApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnNameForUser(qualifier, calleeServiceType);
+        } else {
+            callerApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
+        }
         return new Application(callerApplicationName, callerServiceType);
     }
 

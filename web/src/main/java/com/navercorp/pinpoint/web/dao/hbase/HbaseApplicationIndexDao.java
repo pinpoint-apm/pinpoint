@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.dao.hbase;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -45,7 +46,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 
     @Autowired
     @Qualifier("applicationNameMapper")
-    private RowMapper<Application> applicationNameMapper;
+    private RowMapper<List<Application>> applicationNameMapper;
 
     @Autowired
     @Qualifier("agentIdMapper")
@@ -55,7 +56,12 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     public List<Application> selectAllApplicationNames() {
         Scan scan = new Scan();
         scan.setCaching(30);
-        return hbaseOperations2.find(HBaseTables.APPLICATION_INDEX, scan, applicationNameMapper);
+        List<List<Application>> results = hbaseOperations2.find(HBaseTables.APPLICATION_INDEX, scan, applicationNameMapper);
+        List<Application> applications = new ArrayList<Application>();
+        for (List<Application> result : results) {
+            applications.addAll(result);
+        }
+        return applications;
     }
 
     @Override
