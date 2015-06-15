@@ -14,28 +14,30 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.manage;
-
-import java.util.ArrayList;
-import java.util.List;
+package com.navercorp.pinpoint.collector.manage.jmx;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.navercorp.pinpoint.collector.manage.CollectorManager;
 
 /**
  * @author Taejin Koo
  */
-public class PinpointCollectorManager {
+public class JMXCollectorManager {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final PinpointMBeanServer pinpointMBeanServer;
-    private final List<PinpointCollectorMBean> pinpointMBeanList = new ArrayList<PinpointCollectorMBean>();
+
+    @Autowired
+    private JMXCollectorManagerList jmxCollectorManagerList;
     
-    public PinpointCollectorManager() {
+    public JMXCollectorManager() {
         this.pinpointMBeanServer = new PinpointMBeanServer();
     }
 
@@ -43,11 +45,11 @@ public class PinpointCollectorManager {
     public void setUp() {
         logger.info("PinpointCollectorManager initialization started.");
         
-        for (PinpointCollectorMBean pinpontMBean : pinpointMBeanList) {
+        for (CollectorManager collectorManager : jmxCollectorManagerList.getSupportList()) {
             try {
-                pinpointMBeanServer.registerMBean(pinpontMBean);
+                pinpointMBeanServer.registerMBean(collectorManager);
             } catch (Exception e) {
-                logger.warn("Failed to register {} MBean.", pinpontMBean);
+                logger.warn("Failed to register {} MBean.", collectorManager, e);
             }
         }
 
@@ -58,18 +60,18 @@ public class PinpointCollectorManager {
     public void tearDown() {
         logger.info("PinpointCollectorManager finalization started.");
 
-        for (PinpointCollectorMBean pinpontMBean : pinpointMBeanList) {
+        for (CollectorManager collectorManager : jmxCollectorManagerList.getSupportList()) {
             try {
-                pinpointMBeanServer.unregisterMBean(pinpontMBean);
+                pinpointMBeanServer.unregisterMBean(collectorManager);
             } catch (Exception e) {
-                logger.warn("Failed to unregister {} MBean.", pinpontMBean);
+                logger.warn("Failed to unregister {} MBean.", collectorManager, e);
             }
         }
 
         logger.info("PinpointCollectorManager finalization completed.");
     }
     
-    public PinpointCollectorMBean getMBean(String name) {
+    public CollectorManager getMBean(String name) {
         return pinpointMBeanServer.getPinpointMBean(name);
     }
     

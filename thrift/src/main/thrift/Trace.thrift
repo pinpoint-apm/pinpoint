@@ -58,6 +58,7 @@ struct TSpanEvent {
   
   30: optional i32 asyncId;
   31: optional i32 nextAsyncId;
+  32: optional i16 asyncSequence;
 }
 
 struct TSpan {

@@ -66,8 +66,17 @@
     </bean>
 
 	<!-- Manager-related Beans -->    
-    <bean id="pinpointCollectorManager" class="com.navercorp.pinpoint.collector.manage.PinpointCollectorManager">
+    <bean id="jmxCollectorManager" class="com.navercorp.pinpoint.collector.manage.jmx.JMXCollectorManager">
     </bean>
+
+    <bean id="jmxCollectorManagerList" class="com.navercorp.pinpoint.collector.manage.jmx.JMXCollectorManagerList">
+    </bean>
+	
+    <bean id="handlerManager" class="com.navercorp.pinpoint.collector.manage.HandlerManager">
+    </bean>
+    
+    
+
 
     <!-- Cluster-related Beans -->
     <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory">
@@ -84,14 +93,21 @@
         <constructor-arg ref="collectorConfiguration"/>
         <constructor-arg ref="clusterPointRouter"/>
     </bean>
+    
+    <!-- TCPReceiver related Beans -->
+    <bean id="serverAcceptor" class="com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor"/>
+    
+    <util:list id="channelStateChangeEventHandlers" value-type="com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler">
+    </util:list>
 
     <bean id="tcpReceiver" class="com.navercorp.pinpoint.collector.receiver.tcp.TCPReceiver">
         <constructor-arg type="com.navercorp.pinpoint.collector.receiver.DispatchHandler" ref="tcpDispatchHandler"/>
-        <constructor-arg value="#{collectorConfiguration.tcpListenIp}"/>
-        <constructor-arg value="#{collectorConfiguration.tcpListenPort}"/>
+        <constructor-arg type="com.navercorp.pinpoint.collector.config.CollectorConfiguration" ref="collectorConfiguration"/>
+        <constructor-arg type="com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor" ref="serverAcceptor"/>
         <constructor-arg type="com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService" ref="clusterService"/>
     </bean>
 
+    <!-- UDPSpanReceiver related Beans -->
     <bean id="udpSpanBasePacketHandler" class="com.navercorp.pinpoint.collector.receiver.udp.BaseUDPHandlerFactory">
         <constructor-arg index="0" ref="udpSpanDispatchHandler"/>
         <constructor-arg index="1" ref="tBaseFilterChain"/>
@@ -122,7 +138,7 @@
 
     </bean>
 
-
+    <!-- UDPStatReceiver related Beans -->
     <bean id="udpStatBasePacketHandler" class="com.navercorp.pinpoint.collector.receiver.udp.BaseUDPHandlerFactory">
         <constructor-arg index="0" ref="udpDispatchHandler"/>
         <constructor-arg index="1" ref="tBaseFilterChain"/>

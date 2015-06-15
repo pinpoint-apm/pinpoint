@@ -100,6 +100,8 @@ public interface RecordableTrace {
     
     void recordNextAsyncId(int asyncId);
     
+    void recordAsyncSequence(short sequence);
+    
     boolean isAsync();
     
     long getTraceStartTime(); 

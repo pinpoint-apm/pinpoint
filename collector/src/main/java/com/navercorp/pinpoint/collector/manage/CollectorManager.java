@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.collector.manage;
 /**
  * @author Taejin Koo
  */
-public interface PinpointCollectorMBean {
+public interface CollectorManager {
 
     String getName();
 

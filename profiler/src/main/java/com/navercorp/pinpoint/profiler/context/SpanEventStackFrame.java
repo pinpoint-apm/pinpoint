@@ -144,4 +144,8 @@ public class SpanEventStackFrame implements StackFrame {
     public void setNextAsyncId(int asyncId) {
         this.spanEvent.setNextAsyncId(asyncId);
     }
+    
+    public void setAsyncSequence(short asyncSequence) {
+        this.spanEvent.setAsyncSequence(asyncSequence);
+    }
 }

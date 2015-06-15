@@ -297,6 +297,13 @@ public final class BytesUtils {
         writeShort(postfix, buf, preFix.length);
         return buf;
     }
+    
+    public static byte[] add(final byte[] preFix, final int postfix) {
+        byte[] buf = new byte[preFix.length + INT_BYTE_LENGTH];
+        System.arraycopy(preFix, 0, buf, 0, preFix.length);
+        writeInt(postfix, buf, preFix.length);
+        return buf;
+    }
 
     public static byte[] add(final int preFix, final short postFix) {
         byte[] buf = new byte[INT_BYTE_LENGTH + SHORT_BYTE_LENGTH];
@@ -313,11 +320,16 @@ public final class BytesUtils {
         return buf;
     }
     
-    public static byte[] add(final long preFix, final short postFix, final int append) {
-        byte[] buf = new byte[LONG_BYTE_LENGTH + SHORT_BYTE_LENGTH + INT_BYTE_LENGTH];
-        writeLong(preFix, buf, 0);
-        writeShort(postFix, buf, LONG_BYTE_LENGTH);
-        writeInt(append, buf, LONG_BYTE_LENGTH + SHORT_BYTE_LENGTH);
+    public static byte[] add(final long preFix, final short postFix, final int intArg, final short shortArg) {
+        byte[] buf = new byte[LONG_BYTE_LENGTH + SHORT_BYTE_LENGTH + INT_BYTE_LENGTH + SHORT_BYTE_LENGTH];
+        int offset = 0;
+        writeLong(preFix, buf, offset);
+        offset += LONG_BYTE_LENGTH;
+        writeShort(postFix, buf, offset);
+        offset += SHORT_BYTE_LENGTH;
+        writeInt(intArg, buf, offset);
+        offset += INT_BYTE_LENGTH;
+        writeShort(shortArg, buf, offset);
         return buf;
     }
     

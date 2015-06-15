@@ -83,6 +83,17 @@
                         scope.serverList = node.serverList;
                         scope.showNodeServers = _.isEmpty(scope.serverList) ? false : true;
                         scope.agentHistogram = node.agentHistogram;
+                        scope.serverCount = 0;
+                        scope.errorServerCount = 0;
+                        for( var p in scope.serverList ) {
+                        	var instanceList = scope.serverList[p].instanceList;
+                        	for( var p2 in instanceList ) {
+                        		scope.serverCount++;
+                        		if ( scope.agentHistogram[instanceList[p2].name].Error > 0 ) {
+                        			scope.errorServerCount++;
+                        		}
+                        	}
+                        }
 
                         if ( /_GROUP$/.test( node.serviceType ) === false ) {
                             scope.showNodeResponseSummary = true;
@@ -305,6 +316,9 @@
                             return true;
                         }
                     };
+                    scope.showServerList = function() {
+                    	scope.$emit("serverListDirective.show", true, htLastNode, scope.oNavbarVoService);
+                    };
 
                     /**
                      * scope event on nodeInfoDetailsDirective.initialize
@@ -357,13 +371,6 @@
                     jQuery('.loadChartTooltip').tooltipster({
                     	content: function() {
                     		return helpContentTemplate(helpContentService.nodeInfoDetails.load);
-                    	},
-                    	position: "top",
-                    	trigger: "click"
-                    });
-                    jQuery('.serverListTooltip').tooltipster({
-                    	content: function() {
-                    		return helpContentTemplate(helpContentService.nodeInfoDetails.nodeServers);
                     	},
                     	position: "top",
                     	trigger: "click"

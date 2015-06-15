@@ -72,7 +72,8 @@ public class SpanEventBo implements Span {
 
     private int asyncId = -1;
     private int nextAsyncId = -1;
-
+    private short asyncSequence = -1;
+    
     public SpanEventBo() {
     }
 
@@ -135,6 +136,10 @@ public class SpanEventBo implements Span {
         if(tSpanEvent.isSetNextAsyncId()) {
             this.nextAsyncId = tSpanEvent.getNextAsyncId();
         }
+        
+        if(tSpanEvent.isSetAsyncSequence()) {
+            this.asyncSequence = tSpanEvent.getAsyncSequence();
+        }
     }
 
     public SpanEventBo(TSpanChunk spanChunk, TSpanEvent spanEvent) {
@@ -194,6 +199,10 @@ public class SpanEventBo implements Span {
         
         if(spanEvent.isSetNextAsyncId()) {
             this.nextAsyncId = spanEvent.getNextAsyncId();
+        }
+        
+        if(spanEvent.isSetAsyncSequence()) {
+            this.asyncSequence = spanEvent.getAsyncSequence();
         }
     }
 
@@ -396,6 +405,14 @@ public class SpanEventBo implements Span {
 
     public void setNextAsyncId(int nextAsyncId) {
         this.nextAsyncId = nextAsyncId;
+    }
+    
+    public short getAsyncSequence() {
+        return asyncSequence;
+    }
+
+    public void setAsyncSequence(short asyncSequence) {
+        this.asyncSequence = asyncSequence;
     }
 
     public byte[] writeValue() {

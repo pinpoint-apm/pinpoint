@@ -61,9 +61,11 @@ public final class HBaseTables {
 
     public static final String SQL_METADATA = "SqlMetaData";
     public static final byte[] SQL_METADATA_CF_SQL = Bytes.toBytes("Sql");
+    public static final byte[] SQL_METADATA_CF_SQL_QUALI_SQLSTATEMENT = Bytes.toBytes("P_sql_statement");
     
     public static final String SQL_METADATA_VER2 = "SqlMetaData_Ver2";
     public static final byte[] SQL_METADATA_VER2_CF_SQL = Bytes.toBytes("Sql");
+    public static final byte[] SQL_METADATA_VER2_CF_SQL_QUALI_SQLSTATEMENT = Bytes.toBytes("P_sql_statement");
 
     public static final String STRING_METADATA = "StringMetaData";
     public static final byte[] STRING_METADATA_CF_STR = Bytes.toBytes("Str");

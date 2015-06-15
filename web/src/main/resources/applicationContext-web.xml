@@ -104,8 +104,21 @@
         <property name="hbaseSqlMetaDataPastVersionDao" ref="hbaseSqlMetaDataPastVersionDao"/>
     </bean>
     
-    <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlMetaDataDao"/>
-    <bean id="hbaseSqlMetaDataPastVersionDao" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlMetaDataPastVersionDao"/>
+    <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlMetaDataDao">
+        <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor2"></property>
+        <property name="sqlMetaDataMapper" ref="sqlMetaDataMapper2"></property>
+    </bean>
+    <bean id="hbaseSqlMetaDataPastVersionDao" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlMetaDataPastVersionDao">
+        <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor"></property>
+        <property name="sqlMetaDataMapper" ref="sqlMetaDataMapper"></property>
+    </bean>
     
+    <bean id="sqlMetaDataMapper" class="com.navercorp.pinpoint.web.mapper.SqlMetaDataMapper">
+        <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor"></property>
+    </bean>
+    
+    <bean id="sqlMetaDataMapper2" class="com.navercorp.pinpoint.web.mapper.SqlMetaDataMapper">
+        <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor2"></property>
+    </bean>
 
 </beans>

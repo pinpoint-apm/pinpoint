@@ -20,8 +20,10 @@ import java.net.InetAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -29,15 +31,16 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
+import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
 import com.navercorp.pinpoint.common.util.ExecutorFactory;
@@ -49,6 +52,7 @@ import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
+import com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
@@ -69,49 +73,46 @@ public class TCPReceiver {
 
     private final Logger logger = LoggerFactory.getLogger(TCPReceiver.class);
 
-    private final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("Pinpoint-TCP-Worker");
-    private final PinpointServerAcceptor serverAcceptor;
+    private final ThreadFactory tcpWorkerThreadFactory = new PinpointThreadFactory("Pinpoint-TCP-Worker");
     private final DispatchHandler dispatchHandler;
+    private final PinpointServerAcceptor serverAcceptor;
+    
     private final String bindAddress;
     private final int port;
+    private final List<String> l4ipList;
 
-    private int threadSize = 256;
-    private int workerQueueSize = 1024 * 5;
-
-    @Value("#{(pinpoint_collector_properties['collector.l4.ip']).split(',')}")
-    private List<String> l4ipList;
-
-    private final ThreadPoolExecutor worker = ExecutorFactory.newFixedThreadPool(threadSize, workerQueueSize, THREAD_FACTORY);
+    private final ThreadPoolExecutor worker;
 
     private final SerializerFactory<HeaderTBaseSerializer> serializerFactory = new ThreadLocalHeaderTBaseSerializerFactory<HeaderTBaseSerializer>(new HeaderTBaseSerializerFactory(true, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE));
-
     private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<HeaderTBaseDeserializer>(new HeaderTBaseDeserializerFactory());
+    
+    @Resource(name="channelStateChangeEventHandlers")
+    private List<ChannelStateChangeEventHandler> channelStateChangeEventHandlers = Collections.emptyList();
 
-
-    public TCPReceiver(DispatchHandler dispatchHandler, String bindAddress, int port) {
-        this(dispatchHandler, bindAddress, port, null);
+    public TCPReceiver(CollectorConfiguration configuration, DispatchHandler dispatchHandler) {
+        this(configuration, dispatchHandler, new PinpointServerAcceptor(), null);
     }
 
-    public TCPReceiver(DispatchHandler dispatchHandler, String bindAddress, int port, ZookeeperClusterService service) {
+    public TCPReceiver(CollectorConfiguration configuration, DispatchHandler dispatchHandler, PinpointServerAcceptor serverAcceptor, ZookeeperClusterService service) {
+        if (configuration == null) {
+            throw new NullPointerException("collector configuration must not be null");
+        }
         if (dispatchHandler == null) {
             throw new NullPointerException("dispatchHandler must not be null");
         }
-        if (bindAddress == null) {
-            throw new NullPointerException("bindAddress must not be null");
-        }
-        
-        if (service == null || !service.isEnable()) {
-            this.serverAcceptor = new PinpointServerAcceptor();
-        } else {
-            this.serverAcceptor = new PinpointServerAcceptor();
-            this.serverAcceptor.setStateChangeEventHandler(service.getChannelStateChangeEventHandler());
-        }
         
         this.dispatchHandler = dispatchHandler;
-        this.bindAddress = bindAddress;
-        this.port = port;
-    }
+        this.bindAddress = configuration.getTcpListenIp();
+        this.port = configuration.getTcpListenPort();
+        this.l4ipList = configuration.getL4IpList();
+        this.worker = ExecutorFactory.newFixedThreadPool(configuration.getTcpWorkerThread(), configuration.getTcpWorkerQueueSize(), tcpWorkerThreadFactory);
 
+        this.serverAcceptor = serverAcceptor;
+        if (service != null && service.isEnable()) {
+            this.serverAcceptor.addStateChangeEventHandler(service.getChannelStateChangeEventHandler());
+        }
+    }
+    
     private void setL4TcpChannel(PinpointServerAcceptor serverFactory) {
         if (l4ipList == null) {
             return;
@@ -139,6 +140,10 @@ public class TCPReceiver {
 
     @PostConstruct
     public void start() {
+        for (ChannelStateChangeEventHandler channelStateChangeEventHandler : this.channelStateChangeEventHandlers) {
+            serverAcceptor.addStateChangeEventHandler(channelStateChangeEventHandler);
+        }
+        
         setL4TcpChannel(serverAcceptor);
         // take care when attaching message handlers as events are generated from the IO thread.
         // pass them to a separate queue and handle them in a different thread.
@@ -174,7 +179,6 @@ public class TCPReceiver {
         });
         this.serverAcceptor.bind(bindAddress, port);
 
-
     }
 
     private void receive(SendPacket sendPacket, PinpointServer pinpointServer) {
@@ -198,7 +202,6 @@ public class TCPReceiver {
     private class Dispatch implements Runnable {
         private final byte[] bytes;
         private final SocketAddress remoteAddress;
-
 
         private Dispatch(byte[] bytes, SocketAddress remoteAddress) {
             if (bytes == null) {
@@ -287,9 +290,16 @@ public class TCPReceiver {
     public void stop() {
         logger.info("Pinpoint-TCP-Server stop");
         serverAcceptor.close();
-        worker.shutdown();
+        shutdownExecutor(worker);
+    }
+    
+    private void shutdownExecutor(ExecutorService executor) {
+        if (executor == null) {
+            return;
+        }
+        executor.shutdown();
         try {
-            worker.awaitTermination(10, TimeUnit.SECONDS);
+            executor.awaitTermination(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
