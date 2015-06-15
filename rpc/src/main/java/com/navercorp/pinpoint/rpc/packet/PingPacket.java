@@ -30,7 +30,7 @@ public class PingPacket extends BasicPacket {
     public static final PingPacket PING_PACKET = new PingPacket();
     
     // optional
-    private final int socketId;
+    private final int pingId;
     
     private final byte stateVersion;
     private final byte stateCode;
@@ -47,12 +47,12 @@ public class PingPacket extends BasicPacket {
         this(-1);
     }
 
-    public PingPacket(int socketId) {
-        this(socketId, (byte)-1, (byte)-1);
+    public PingPacket(int pingId) {
+        this(pingId, (byte)-1, (byte)-1);
     }
 
-    public PingPacket(int socketId, byte stateVersion, byte stateCode) {
-        this.socketId = socketId;
+    public PingPacket(int pingId, byte stateVersion, byte stateCode) {
+        this.pingId = pingId;
         
         this.stateVersion = stateVersion;
         this.stateCode = stateCode;
@@ -65,13 +65,13 @@ public class PingPacket extends BasicPacket {
 
     @Override
     public ChannelBuffer toBuffer() {
-        if (socketId == -1) {
+        if (pingId == -1) {
             return ChannelBuffers.wrappedBuffer(PING_BYTE);
         } else {
             // 2 + 4 + 1 + 1
             ChannelBuffer buffer = ChannelBuffers.buffer(8);
             buffer.writeShort(PacketType.CONTROL_PING);
-            buffer.writeInt(socketId);
+            buffer.writeInt(pingId);
             buffer.writeByte(stateVersion);
             buffer.writeByte(stateCode);
             return buffer;
@@ -82,18 +82,18 @@ public class PingPacket extends BasicPacket {
         assert packetType == PacketType.CONTROL_PING;
 
         if (buffer.readableBytes() == 6) {
-            int socketId = buffer.readInt();
+            int pingId = buffer.readInt();
             byte stateVersion = buffer.readByte();
             byte stateCode = buffer.readByte();
             
-            return new PingPacket(socketId, stateVersion, stateCode);
+            return new PingPacket(pingId, stateVersion, stateCode);
         } else {
             return PING_PACKET;
         }
     }
 
-    public int getSocketId() {
-        return socketId;
+    public int getPingId() {
+        return pingId;
     }
 
     public byte getStateVersion() {
@@ -106,16 +106,16 @@ public class PingPacket extends BasicPacket {
 
     @Override
     public String toString() {
-        if (socketId == -1) {
+        if (pingId == -1) {
             return "PingPacket";
         }
         
         StringBuilder sb = new StringBuilder(32);
         sb.append("PingPacket");
         
-        if (socketId != -1) {
-            sb.append("{socketId:");
-            sb.append(socketId);
+        if (pingId != -1) {
+            sb.append("{pingId:");
+            sb.append(pingId);
             sb.append("(");
             sb.append(SocketStateCode.getStateCode(stateCode));
             sb.append(")");

@@ -20,6 +20,7 @@ import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -81,10 +82,11 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final int socketId;
+    private final AtomicInteger pingIdGenerator;
     private final PinpointSocketHandlerState state;
 
     private volatile Channel channel;
-
+    
     private long timeoutMillis = DEFAULT_TIMEOUTMILLIS;
     private long pingDelay = DEFAULT_PING_DELAY;
     
@@ -138,6 +140,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         this.handshaker = new PinpointClientSocketHandshaker(channelTimer, (int) handshakeRetryInterval, maxHandshakeCount);
         
         this.socketId = pinpointSocketFactory.issueNewSocketId();
+        this.pingIdGenerator = new AtomicInteger(0);
         this.state = new PinpointSocketHandlerState(this.objectUniqName);
     }
 
@@ -249,7 +252,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         }
         logger.debug("{} writePing() started. channel:{}", objectUniqName, channel);
         
-        PingPacket pingPacket = new PingPacket(socketId, (byte) 0, state.getCurrentStateCode().getId());
+        PingPacket pingPacket = new PingPacket(pingIdGenerator.incrementAndGet(), (byte) 0, state.getCurrentStateCode().getId());
         write0(pingPacket, pingWriteFailFutureListener);
     }
 
@@ -258,8 +261,9 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
             return;
         }
         logger.debug("{} sendPing() started.", objectUniqName);
-        
-        ChannelFuture future = write0(PingPacket.PING_PACKET);
+
+        PingPacket pingPacket = new PingPacket(pingIdGenerator.incrementAndGet(), (byte) 0, state.getCurrentStateCode().getId());
+        ChannelFuture future = write0(pingPacket);
         future.awaitUninterruptibly();
         if (!future.isSuccess()) {
             Throwable cause = future.getCause();
