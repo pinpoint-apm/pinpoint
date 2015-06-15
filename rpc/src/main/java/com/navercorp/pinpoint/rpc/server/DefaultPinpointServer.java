@@ -368,9 +368,9 @@ public class DefaultPinpointServer implements PinpointServer {
         if (isFirst) {
             if (HandshakeResponseCode.DUPLEX_COMMUNICATION == responseCode) {
                 state.toRunDuplex();
-            } else if (HandshakeResponseCode.SIMPLEX_COMMUNICATION == responseCode) {
+            } else if (HandshakeResponseCode.SIMPLEX_COMMUNICATION == responseCode || HandshakeResponseCode.SUCCESS == responseCode) {
                 state.toRunSimplex();
-            }
+            } 
         }
 
         logger.info("{} handleHandshake(). ResponseCode:{}", objectUniqName, responseCode);
