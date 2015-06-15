@@ -399,4 +399,7 @@ public class MetricTrace implements Trace {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void recordAsyncSequence(short sequence) {
+    }
 }
