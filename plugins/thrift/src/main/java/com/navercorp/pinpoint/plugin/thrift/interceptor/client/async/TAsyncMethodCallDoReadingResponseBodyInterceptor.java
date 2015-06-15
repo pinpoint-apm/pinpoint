@@ -54,10 +54,12 @@ public class TAsyncMethodCallDoReadingResponseBodyInterceptor extends TAsyncMeth
             if (trace == null) {
                 return;
             }
-            trace.markAfterTime();
-//            trace.traceBlockEnd();
-            trace.close();
-            super.traceContext.removeTraceObject();
+            
+            if(trace.isAsync() && trace.isRootStack()) {
+                trace.markAfterTime();
+                trace.close();
+                super.traceContext.removeTraceObject();
+            }
         }
     }
 
