@@ -84,7 +84,7 @@ public final class RuntimeMXBeanUtils {
 
     private static long getVmStartTime0() {
         try {
-            return  RUNTIME_MBEAN.getStartTime();
+            return RUNTIME_MBEAN.getStartTime();
         } catch (UnsupportedOperationException e) {
             final Logger logger = getLogger();
             logger.log(Level.WARNING, "RuntimeMXBean.getStartTime() unsupported. Caused:" + e.getMessage(), e);

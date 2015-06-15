@@ -23,6 +23,7 @@ import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
+import com.navercorp.pinpoint.collector.util.LoggerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,11 +48,26 @@ public class CollectorMetric {
 
     private ScheduledReporter reporter;
 
+    private final boolean isEnable = isEnable0(REPORTER_LOGGER_NAME);
+
 
     @PostConstruct
     public void start() {
         initRegistry();
         initReporters();
+    }
+
+    public boolean isEnable() {
+        return isEnable;
+    }
+
+    private boolean isEnable0(String loggerName) {
+        final Logger logger = LoggerFactory.getLogger(loggerName);
+        final int loggerLevel = LoggerUtils.getLoggerLevel(logger);
+        if (loggerLevel >= LoggerUtils.WARN_LEVEL) {
+            return false;
+        }
+        return true;
     }
 
     private void initRegistry() {

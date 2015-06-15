@@ -40,16 +40,21 @@ public class UDPReceiverTest {
     @Test
     @Ignore
     public void startStop() {
+        DataReceiver receiver = null;
         try {
-            DataReceiver receiver = new UDPReceiver("test", new PacketHandlerFactory() {
+            receiver = new UDPReceiver("test", new PacketHandlerFactory() {
                 @Override
                 public PacketHandler createPacketHandler() {
                     return null;
                 }
-            }, "127.0.0.1", 10999, 1024, 1, 10);
+            }, "127.0.0.1", 10999, 1024, 1, 10, true);
         } catch (Exception e) {
             e.printStackTrace();
             Assert.fail(e.getMessage());
+        } finally {
+            if (receiver!= null) {
+                receiver.shutdown();
+            }
         }
     }
 

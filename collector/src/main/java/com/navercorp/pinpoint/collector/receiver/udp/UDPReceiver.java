@@ -48,20 +48,22 @@ public class UDPReceiver implements DataReceiver {
 
     private final Logger logger;
 
-    private String bindAddress;
-    private int port;
-    private int receiverBufferSize;
+    private final String bindAddress;
+    private final int port;
 
-    private String receiverName = this.getClass().getSimpleName();
+    private final String receiverName;
 
     @Autowired
     private MetricRegistry metricRegistry;
+
+
+    private final boolean enableCollectorMetric;
 
     private Timer timer;
     private Counter rejectedCounter;
 
     // increasing ioThread size wasn't very effective
-    private int ioThreadSize = CpuUtils.cpuCount();
+    private final int ioThreadSize = CpuUtils.cpuCount();
     private ThreadPoolExecutor io;
 
     // modify thread pool size appropriately when modifying queue capacity 
@@ -75,20 +77,16 @@ public class UDPReceiver implements DataReceiver {
     private ObjectPool<DatagramPacket> datagramPacketPool;
 
 
-    private volatile DatagramSocket socket = null;
+    private final DatagramSocket socket;
 
-    private PacketHandlerFactory<DatagramPacket> packetHandlerFactory;
+    private final PacketHandlerFactory<DatagramPacket> packetHandlerFactory;
 
-    private AtomicInteger rejectedExecutionCount = new AtomicInteger(0);
+    private final AtomicInteger rejectedExecutionCount = new AtomicInteger(0);
 
-    private AtomicBoolean state = new AtomicBoolean(true);
+    private final AtomicBoolean state = new AtomicBoolean(true);
 
 
-    public UDPReceiver() {
-        this.logger = LoggerFactory.getLogger(this.getClass());
-    }
-
-    public UDPReceiver(String receiverName, PacketHandlerFactory<DatagramPacket> packetHandlerFactory, String bindAddress, int port, int receiverBufferSize, int workerThreadSize, int workerThreadQueueSize) {
+    public UDPReceiver(String receiverName, PacketHandlerFactory<DatagramPacket> packetHandlerFactory, String bindAddress, int port, int receiverBufferSize, int workerThreadSize, int workerThreadQueueSize,  boolean enableCollectorMetric) {
         if (receiverName != null) {
             this.logger = LoggerFactory.getLogger(receiverName);
         } else {
@@ -105,19 +103,18 @@ public class UDPReceiver implements DataReceiver {
         this.receiverName = receiverName;
         this.bindAddress = bindAddress;
         this.port = port;
-        this.receiverBufferSize = receiverBufferSize;
+        this.socket = createSocket(receiverBufferSize);
 
         this.workerThreadSize = workerThreadSize;
         this.workerThreadQueueSize = workerThreadQueueSize;
         this.packetHandlerFactory = packetHandlerFactory;
+        this.enableCollectorMetric = enableCollectorMetric;
     }
 
 
     public void afterPropertiesSet() {
         Assert.notNull(metricRegistry, "metricRegistry must not be null");
         Assert.notNull(packetHandlerFactory, "packetHandlerFactory must not be null");
-
-        this.socket = createSocket(bindAddress, port, receiverBufferSize);
 
         final int packetPoolSize = getPacketPoolSize(workerThreadSize, workerThreadQueueSize);
         this.datagramPacketPool = new DefaultObjectPool<DatagramPacket>(new DatagramPacketFactory(), packetPoolSize);
@@ -129,16 +126,16 @@ public class UDPReceiver implements DataReceiver {
     }
 
 
-    private void receive() {
+    private void receive(final DatagramSocket socket) {
         if (logger.isInfoEnabled()) {
-            logger.info("start ioThread localAddress:{}, IoThread:{}", socket.getLocalAddress(), Thread.currentThread().getName());
+            logger.info("start ioThread localAddress:{}, IoThread:{}", this.socket.getLocalAddress(), Thread.currentThread().getName());
         }
         final SocketAddress localSocketAddress = socket.getLocalSocketAddress();
         final boolean debugEnabled = logger.isDebugEnabled();
 
         // need shutdown logic
         while (state.get()) {
-            PooledObject<DatagramPacket> pooledPacket = read0();
+            PooledObject<DatagramPacket> pooledPacket = read0(socket);
             if (pooledPacket == null) {
                 continue;
             }
@@ -173,13 +170,24 @@ public class UDPReceiver implements DataReceiver {
         }
     }
 
-    private Runnable wrapDispatchTask(PooledObject<DatagramPacket> pooledPacket) {
-        PacketHandler<DatagramPacket> dispatchPacket = packetHandlerFactory.createPacketHandler();
-        PooledPacketWrap pooledPacketWrap = new PooledPacketWrap(dispatchPacket, pooledPacket);
-        return new TimingWrap(this.timer, pooledPacketWrap);
+    private Runnable wrapDispatchTask(final PooledObject<DatagramPacket> pooledPacket) {
+        final Runnable lazyExecution = new Runnable() {
+            @Override
+            public void run() {
+                PacketHandler<DatagramPacket> dispatchPacket = packetHandlerFactory.createPacketHandler();
+                PooledPacketWrap pooledPacketWrap = new PooledPacketWrap(dispatchPacket, pooledPacket);
+                Runnable execution = pooledPacketWrap;
+                if (enableCollectorMetric) {
+                    execution = new TimingWrap(timer, execution);
+                }
+                execution.run();
+            }
+        };
+        return lazyExecution;
     }
 
-    private PooledObject<DatagramPacket> read0() {
+
+    private PooledObject<DatagramPacket> read0(final DatagramSocket socket) {
         boolean success = false;
         PooledObject<DatagramPacket> pooledObject = datagramPacketPool.getObject();
         if (pooledObject == null) {
@@ -216,22 +224,32 @@ public class UDPReceiver implements DataReceiver {
         return pooledObject;
     }
 
-    private DatagramSocket createSocket(String bindAddress, int port, int receiveBufferSize) {
+    private DatagramSocket createSocket(int receiveBufferSize) {
         try {
-            DatagramSocket so = new DatagramSocket(null);
-            so.setReceiveBufferSize(receiveBufferSize);
+            DatagramSocket socket = new DatagramSocket(null);
+            socket.setReceiveBufferSize(receiveBufferSize);
             if (logger.isWarnEnabled()) {
-                final int checkReceiveBufferSize = so.getReceiveBufferSize();
+                final int checkReceiveBufferSize = socket.getReceiveBufferSize();
                 if (receiveBufferSize != checkReceiveBufferSize) {
                     logger.warn("DatagramSocket.setReceiveBufferSize() error. {}!={}", receiveBufferSize, checkReceiveBufferSize);
                 }
             }
-            so.setSoTimeout(1000 * 5);
-            // bind timing feels a bit early
-            so.bind(new InetSocketAddress(bindAddress, port));
-            return so;
+            socket.setSoTimeout(1000 * 5);
+            return socket;
         } catch (SocketException ex) {
-            throw new RuntimeException("Socket create Fail. port:" + port + " Caused:" + ex.getMessage(), ex);
+            throw new RuntimeException("Socket create Fail. Caused:" + ex.getMessage(), ex);
+        }
+    }
+
+    private void bindSocket(DatagramSocket socket, String bindAddress, int port) {
+        if (socket == null) {
+            throw new NullPointerException("socket must not be null");
+        }
+        try {
+            logger.info("DatagramSocket.bind() {}/{}", bindAddress, port);
+            socket.bind(new InetSocketAddress(bindAddress, port));
+        } catch (SocketException ex) {
+            throw new IllegalStateException("Socket bind Fail. port:" + port + " Caused:" + ex.getMessage(), ex);
         }
     }
 
@@ -244,16 +262,18 @@ public class UDPReceiver implements DataReceiver {
     public void start() {
         logger.info("{} start.", receiverName);
         afterPropertiesSet();
+        final DatagramSocket socket = this.socket;
         if (socket == null) {
-            throw new RuntimeException("socket create fail");
+            throw new IllegalStateException("socket is null.");
         }
+        bindSocket(socket, bindAddress, port);
 
         logger.info("UDP Packet reader:{} started.", ioThreadSize);
         for (int i = 0; i < ioThreadSize; i++) {
             io.execute(new Runnable() {
                 @Override
                 public void run() {
-                    receive();
+                    receive(socket);
                 }
             });
         }
@@ -266,12 +286,15 @@ public class UDPReceiver implements DataReceiver {
         logger.info("{} shutdown.", this.receiverName);
         state.set(false);
         // is it okay to just close here?
-        socket.close();
+        if (socket != null) {
+            socket.close();
+        }
         shutdownExecutor(io, "IoExecutor");
         shutdownExecutor(worker, "WorkerExecutor");
     }
 
     private void shutdownExecutor(ExecutorService executor, String executorName) {
+        logger.info("{] shutdown.", executorName);
         executor.shutdown();
         try {
             executor.awaitTermination(1000*10, TimeUnit.MILLISECONDS);
@@ -279,9 +302,5 @@ public class UDPReceiver implements DataReceiver {
             logger.info("{}.shutdown() Interrupted", executorName, e);
             Thread.currentThread().interrupt();
         }
-    }
-
-    public DatagramSocket getSocket() {
-        return socket;
     }
 }

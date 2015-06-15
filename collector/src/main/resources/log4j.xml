@@ -40,8 +40,10 @@
     </logger>
 
     <logger name="com.navercorp.pinpoint.collector.StateReport" additivity="false">
-        <level value="WARN"/>
+        <!-- disable : WARN -->
+        <level value="INFO"/>
         <appender-ref ref="stat-appender"/>
+        <!--<appender-ref ref="console"/>-->
     </logger>
 
     <root>

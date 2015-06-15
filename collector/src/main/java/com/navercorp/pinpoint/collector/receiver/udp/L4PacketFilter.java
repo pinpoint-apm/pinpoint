@@ -21,21 +21,19 @@ import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.DatagramPacket;
-
 /**
  * @author emeroad
  */
-public class L4PacketFilter implements TBaseFilter {
+public class L4PacketFilter<T> implements TBaseFilter<T> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public boolean filter(TBase<?, ?> tBase, DatagramPacket packet) {
+    public boolean filter(TBase<?, ?> tBase, T remoteAddress) {
         if (tBase instanceof L4Packet) {
             if (logger.isDebugEnabled()) {
                 L4Packet l4Packet = (L4Packet) tBase;
-                logger.debug("udp l4 packet {}", l4Packet.getHeader());
+                logger.debug("udp l4 packet {} {}", l4Packet.getHeader(), remoteAddress);
             }
             return BREAK;
         }
