@@ -43,11 +43,6 @@
 
     <import resource="classpath:applicationContext-hbase.xml"/>
 
-    <bean id="tcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.TcpDispatchHandler"/>
-    <bean id="udpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.UdpDispatchHandler"/>
-    <bean id="udpSpanDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.UdpSpanDispatchHandler"/>
-
-
     <bean id="daoAutoFlusher" class="com.navercorp.pinpoint.collector.dao.AutoFlusher" init-method="initialize" destroy-method="shutdown">
     	<beans:property name="cachedStatisticsDaoList">
     		<beans:list>
@@ -74,9 +69,22 @@
 	
     <bean id="handlerManager" class="com.navercorp.pinpoint.collector.manage.HandlerManager">
     </bean>
-    
-    
 
+	<!-- DispatchHandler-related Beans -->
+    <bean id="tcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.TcpDispatchHandler"/>
+    <bean id="tcpDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
+    	<constructor-arg ref="tcpDispatchHandler"/>
+    </bean>
+    
+    <bean id="udpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.UdpDispatchHandler"/>
+    <bean id="udpDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
+    	<constructor-arg ref="udpDispatchHandler"/>
+    </bean>
+
+    <bean id="udpSpanDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.UdpSpanDispatchHandler"/>
+    <bean id="udpSpanDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
+    	<constructor-arg ref="udpSpanDispatchHandler"/>
+    </bean>
 
     <!-- Cluster-related Beans -->
     <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory">
@@ -101,7 +109,7 @@
     </util:list>
 
     <bean id="tcpReceiver" class="com.navercorp.pinpoint.collector.receiver.tcp.TCPReceiver">
-        <constructor-arg type="com.navercorp.pinpoint.collector.receiver.DispatchHandler" ref="tcpDispatchHandler"/>
+        <constructor-arg type="com.navercorp.pinpoint.collector.receiver.DispatchHandler" ref="tcpDispatchHandlerWrapper"/>
         <constructor-arg type="com.navercorp.pinpoint.collector.config.CollectorConfiguration" ref="collectorConfiguration"/>
         <constructor-arg type="com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor" ref="serverAcceptor"/>
         <constructor-arg type="com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService" ref="clusterService"/>
@@ -109,7 +117,7 @@
 
     <!-- UDPSpanReceiver related Beans -->
     <bean id="udpSpanBasePacketHandler" class="com.navercorp.pinpoint.collector.receiver.udp.BaseUDPHandlerFactory">
-        <constructor-arg index="0" ref="udpSpanDispatchHandler"/>
+        <constructor-arg index="0" ref="udpSpanDispatchHandlerWrapper"/>
         <constructor-arg index="1" ref="tBaseFilterChain"/>
     </bean>
 
@@ -140,7 +148,7 @@
 
     <!-- UDPStatReceiver related Beans -->
     <bean id="udpStatBasePacketHandler" class="com.navercorp.pinpoint.collector.receiver.udp.BaseUDPHandlerFactory">
-        <constructor-arg index="0" ref="udpDispatchHandler"/>
+        <constructor-arg index="0" ref="udpDispatchHandlerWrapper"/>
         <constructor-arg index="1" ref="tBaseFilterChain"/>
     </bean>
 
