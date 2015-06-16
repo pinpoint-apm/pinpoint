@@ -242,6 +242,10 @@
                     <artifactId>ehcache-core</artifactId>
                     <groupId>net.sf.ehcache</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>zookeeper</artifactId>
+                    <groupId>org.apache.zookeeper</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         
@@ -255,6 +259,12 @@
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-pool2</artifactId>
+                    <groupId>org.apache.commons</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Logging depedencies -->
