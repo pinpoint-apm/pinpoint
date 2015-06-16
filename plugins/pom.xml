@@ -24,6 +24,7 @@
 		<module>tomcat</module>
         <module>thrift</module>
         <module>user</module>
+        <module>arcus</module>
     </modules>
 
     <dependencies>
@@ -85,6 +86,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-user-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-arcus-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
