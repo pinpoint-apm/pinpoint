@@ -186,10 +186,18 @@ canvas {outline:none}
 
 .pinpoint-tooltip {
 	width: 400px;
+	font-size:12px;
+}
+.pinpoint-tooltip dl {
+	margin-bottom:10px;
 }
 .pinpoint-tooltip dt { 
 	color: yellow;
 	font-size: 16px;
+}
+.pinpoint-tooltip hr {
+	margin-top:10px;
+	margin-bottom:10px;
 }
 .pinpoint-tooltip table {
 	width:100%;
@@ -197,11 +205,11 @@ canvas {outline:none}
 	line-height:20px;
 }
 .pinpoint-tooltip tr {
-	padding-bottom: 10px;
+	padding-bottom: 6px;
 }
 .pinpoint-tooltip tr td {
 	padding-top: 2px;
-	padding-bottom: 6px;
+	padding-bottom: 2px;
 }
 
 .pinpoint-tooltip tr td:first-child {

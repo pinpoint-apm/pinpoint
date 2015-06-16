@@ -801,11 +801,11 @@
 	                	scope.showAntStyleHint = !scope.showAntStyleHint; 
 	                };
 	                scope.moveThePast = function() {
-	                	scope.$emit("navbar.moveThePast");
+	                	scope.$emit("navbarDirective.moveThePast");
 	                	$serverMapTime.effect("highlight", { color: "#FFFF00" }, 1000);
 	                };
 	                scope.moveTheFuture = function() {
-	                	scope.$emit("navbar.moveTheFuture");
+	                	scope.$emit("navbarDirective.moveTheFuture");
 	                	$serverMapTime.effect("highlight", { color: "#FFFF00" }, 1000);
 	                };
 	                scope.toggleToolbar = function() {

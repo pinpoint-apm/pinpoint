@@ -133,7 +133,7 @@ var BigScatterChart = $.Class({
         	content: function() {
         		return helpContentTemplate(helpContentService.scatter["default"]);
         	},
-        	position: "top-right",
+        	position: "bottom",
         	trigger: "click"
         });
     },
