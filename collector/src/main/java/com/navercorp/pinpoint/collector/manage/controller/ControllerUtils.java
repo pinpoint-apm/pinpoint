@@ -23,18 +23,18 @@ import org.springframework.web.servlet.ModelAndView;
  */
 public final class ControllerUtils {
 
-    public static final ModelAndView createJsonView() {
+    public static ModelAndView createJsonView() {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("jsonView");
         
         return mv;
     }
     
-    public static final ModelAndView createJsonView(boolean success) {
+    public static ModelAndView createJsonView(boolean success) {
         return createJsonView(success, null);
     }
     
-    public static final ModelAndView createJsonView(boolean success, Object message) {
+    public static ModelAndView createJsonView(boolean success, Object message) {
         ModelAndView mv = createJsonView();
 
         if (success) {
