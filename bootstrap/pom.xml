@@ -18,16 +18,8 @@
             <artifactId>pinpoint-commons</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>org.apache.hadoop</groupId>
-                    <artifactId>hadoop-core</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>org.apache.thrift</groupId>
                     <artifactId>libthrift</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.hbase</groupId>
-                    <artifactId>hbase-client</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -104,6 +96,7 @@
                     <archive>
                         <manifestEntries>
                             <Premain-Class>com.navercorp.pinpoint.bootstrap.PinpointBootStrap</Premain-Class>
+                            <Can-Redefine-Classes>true</Can-Redefine-Classes>
                             <Can-Retransform-Classes>true</Can-Retransform-Classes>
                             <Pinpoint-Version>${project.version}</Pinpoint-Version>
                         </manifestEntries>
