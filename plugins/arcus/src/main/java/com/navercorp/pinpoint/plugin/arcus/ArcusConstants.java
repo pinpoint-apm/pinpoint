@@ -1,6 +1,20 @@
+/**
+ * Copyright 2014 NAVER Corp.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.plugin.arcus;
 
-import static com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher.*;
 import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
@@ -13,7 +27,6 @@ public interface ArcusConstants {
     public static final ServiceType ARCUS_FUTURE_GET = ServiceType.of(8101, "ARCUS_FUTURE_GET", "ARCUS", FAST_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
     public static final ServiceType ARCUS_EHCACHE_FUTURE_GET = ServiceType.of(8102, "ARCUS_EHCACHE_FUTURE_GET", "ARCUS-EHCACHE", FAST_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
     public static final ServiceType ARCUS_INTERNAL = ServiceType.of(8103, "ARCUS_INTERNAL", "ARCUS", FAST_SCHEMA);
-
     
     public static final String ARCUS_SCOPE = "ArcusScope";
     public static final String ARCUS_FUTURE_SCOPE = "ArcusFutureScope";

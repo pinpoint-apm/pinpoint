@@ -8,8 +8,6 @@ public class BaseOperationTransitionStateInterceptorTest {
 
     @Test
     public void testComplete() throws Exception {
-        // 타입비교를 Arcus의 경우 TIMEDOUT state가 별도로 추가되어 정적 타입비교를 할수 있는 상황이 아님.
-        // toString()을 호출하여, 문자열 비교를 해야 함.
         String complete = OperationState.COMPLETE.toString();
         Assert.assertEquals("COMPLETE", complete);
     }
