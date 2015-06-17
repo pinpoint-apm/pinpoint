@@ -1,13 +1,9 @@
-package com.navercorp.pinpoint.test;
-
-import static org.junit.Assert.*;
+package com.navercorp.pinpoint.profiler.util;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.profiler.util.ArrayUtils;
-
-public class TestArrayUtil {
+public class ArrayUtilsTest {
 
 	@Test
 	public void testDropToString() {
