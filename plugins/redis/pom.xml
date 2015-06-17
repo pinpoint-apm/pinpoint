@@ -16,6 +16,7 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-bootstrap</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
