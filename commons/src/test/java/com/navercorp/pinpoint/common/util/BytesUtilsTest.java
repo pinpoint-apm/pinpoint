@@ -16,6 +16,11 @@
 
 package com.navercorp.pinpoint.common.util;
 
+import static org.junit.Assert.*;
+
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.transport.TMemoryBuffer;
@@ -26,13 +31,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.primitives.Ints;
 
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-
-
 public class BytesUtilsTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
 
     @Test
     public void testStringLongLongToBytes() {
@@ -68,7 +68,6 @@ public class BytesUtilsTest {
 
     }
 
-
     @Test
     public void testInt() {
         int i = Integer.MAX_VALUE - 5;
@@ -83,7 +82,6 @@ public class BytesUtilsTest {
         int i3 = Ints.fromByteArray(bytes);
         Assert.assertEquals(i, i3);
     }
-
 
     @Test
     public void testAddStringLong() {
@@ -126,12 +124,12 @@ public class BytesUtilsTest {
 
     @Test
     public void testMerge() {
-        byte[] b1 = new byte[]{1, 2};
-        byte[] b2 = new byte[]{3, 4};
+        byte[] b1 = new byte[] { 1, 2 };
+        byte[] b2 = new byte[] { 3, 4 };
 
         byte[] b3 = BytesUtils.merge(b1, b2);
 
-        Assert.assertTrue(Arrays.equals(new byte[]{1, 2, 3, 4}, b3));
+        Assert.assertTrue(Arrays.equals(new byte[] { 1, 2, 3, 4 }, b3));
     }
 
     @Test
@@ -142,13 +140,11 @@ public class BytesUtilsTest {
         testEncodingDecodingZigZag(3);
     }
 
-
     private void testEncodingDecodingZigZag(int value) {
         int encode = BytesUtils.intToZigZag(value);
         int decode = BytesUtils.zigzagToInt(encode);
         Assert.assertEquals(value, decode);
     }
-
 
     @Test
     public void compactProtocolVint() throws TException {
@@ -170,7 +166,7 @@ public class BytesUtilsTest {
     @Test
     public void testWriteBytes1() {
         byte[] buffer = new byte[10];
-        byte[] write = new byte[]{1, 2, 3, 4};
+        byte[] write = new byte[] { 1, 2, 3, 4 };
 
         Assert.assertEquals(BytesUtils.writeBytes(buffer, 0, write), write.length);
         Assert.assertArrayEquals(Arrays.copyOf(buffer, write.length), write);
@@ -179,9 +175,126 @@ public class BytesUtilsTest {
     @Test
     public void testWriteBytes2() {
         byte[] buffer = new byte[10];
-        byte[] write = new byte[]{1, 2, 3, 4};
+        byte[] write = new byte[] { 1, 2, 3, 4 };
         int startOffset = 1;
         Assert.assertEquals(BytesUtils.writeBytes(buffer, startOffset, write), write.length + startOffset);
         Assert.assertArrayEquals(Arrays.copyOfRange(buffer, startOffset, write.length + startOffset), write);
+    }
+
+    @Test
+    public void testAppropriateWriteBytes() {
+        byte[] dst = new byte[10];
+        byte[] src = new byte[5];
+        src[0] = 1;
+        src[1] = 2;
+        src[2] = 3;
+        src[3] = 4;
+        src[4] = 5;
+        // proper return?
+        Assert.assertEquals(3, BytesUtils.writeBytes(dst, 1, src, 2, 2));
+        // successful write?
+        Assert.assertEquals(3, dst[1]);
+        Assert.assertEquals(4, dst[2]);
+    }
+
+    @Test
+    public void testOverflowDestinationWriteBytes() {
+        byte[] dst = new byte[5];
+        byte[] src = new byte[10];
+        for (int i = 0; i < 10; i++) {
+            src[i] = (byte) (i + 1);
+        }
+        try {
+            // overflow!
+            BytesUtils.writeBytes(dst, 0, src);
+            // if it does not catch any errors, it means memory leak!
+            fail("invalid memory access");
+        } catch (Exception e) {
+            // nice
+        }
+    }
+
+    @Test
+    public void testAppropriateBytesToLong() {
+        byte[] such_long = new byte[12];
+        int i;
+        for (i = 0; i < 12; i++) {
+            such_long[i] = (byte) ((i << 4) + i);
+        }
+        Assert.assertEquals(0x33445566778899AAl, BytesUtils.bytesToLong(such_long, 3));
+    }
+
+    @Test
+    public void testOverflowBytesToLong() {
+        byte[] such_long = new byte[12];
+        int i;
+        for (i = 0; i < 12; i++) {
+            such_long[i] = (byte) ((i << 4) + i);
+        }
+        try {
+            // overflow!
+            BytesUtils.bytesToLong(such_long, 9);
+            // if it does not catch any errors, it means memory leak!
+            fail("invalid memory access");
+        } catch (Exception e) {
+            // nice
+        }
+    }
+
+    @Test
+    public void testWriteLong() {
+        try {
+            BytesUtils.writeLong(1234, null, 0);
+            fail("null pointer accessed");
+        } catch (Exception e) {
+
+        }
+        byte[] such_long = new byte[13];
+        try {
+            BytesUtils.writeLong(1234, such_long, -1);
+            fail("negative offset did not catched");
+        } catch (Exception e) {
+
+        }
+        try {
+            BytesUtils.writeLong(2222, such_long, 9);
+            fail("index out of range exception did not catched");
+        } catch (Exception e) {
+
+        }
+        BytesUtils.writeLong(-1l, such_long, 2);
+        for (int i = 2; i < 10; i++) {
+            Assert.assertEquals((byte) 0xFF, such_long[i]);
+        }
+    }
+
+    @Test
+    public void testTrimRight() {
+        String testStr = new String();
+        // no space
+        testStr = "Shout-out! EE!";
+        Assert.assertEquals("Shout-out! EE!", BytesUtils.trimRight(testStr));
+        // right spaced
+        testStr = "Shout-out! YeeYee!       ";
+        Assert.assertEquals("Shout-out! YeeYee!", BytesUtils.trimRight(testStr));
+    }
+
+    @Test
+    public void testByteTrimRight() {
+        String testStr = new String();
+        // no space
+        testStr = "Shout-out! EE!";
+        byte[] testByte1 = new byte[testStr.length()];
+        for (int i = 0; i < testByte1.length; i++) {
+            testByte1[i] = (byte) testStr.charAt(i);
+        }
+        Assert.assertEquals("out-out!", BytesUtils.toStringAndRightTrim(testByte1, 2, 9));
+        // right spaced
+        testStr = "Shout-out! YeeYee!       ";
+        byte[] testByte2 = new byte[testStr.length()];
+        for (int i = 0; i < testByte2.length; i++) {
+            testByte2[i] = (byte) testStr.charAt(i);
+        }
+        Assert.assertEquals(" YeeYee!", BytesUtils.toStringAndRightTrim(testByte2, 10, 10));
     }
 }
