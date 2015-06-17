@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.plugin.thrift;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.thrift.TBaseAsyncProcessor;
 import org.apache.thrift.TBaseProcessor;
 import org.apache.thrift.TServiceClient;
@@ -29,8 +29,17 @@ import org.apache.thrift.async.TAsyncMethodCall;
  * @author HyunGil Jeong
  */
 public class ThriftUtils implements ThriftConstants {
+    
+    private static final Pattern DOT_PATTERN = Pattern.compile("\\.");
 
     private ThriftUtils() {}
+    
+    private static String convertDotPathToUriPath(String dotPath) {
+        if (dotPath == null) {
+            return "";
+        }
+        return DOT_PATTERN.matcher(dotPath).replaceAll("/");
+    }
     
     /**
      * Returns the name of the specified {@link org.apache.thrift.TBaseProcessor TBaseProcessor}
@@ -38,7 +47,7 @@ public class ThriftUtils implements ThriftConstants {
      */
     public static String getProcessorNameAsUri(TBaseProcessor<?> processor) {
         String actualProcessorName = processor.getClass().getName();
-        return StringUtils.replace(PROCESSOR_PATTERN.matcher(actualProcessorName).replaceAll("."), ".", "/"); 
+        return convertDotPathToUriPath(PROCESSOR_PATTERN.matcher(actualProcessorName).replaceAll("."));
     }
     
     /**
@@ -47,7 +56,7 @@ public class ThriftUtils implements ThriftConstants {
      */
     public static String getAsyncProcessorNameAsUri(TBaseAsyncProcessor<?> asyncProcessor) {
         String actualAsyncProcessorName = asyncProcessor.getClass().getName();
-        return StringUtils.replace(ASYNC_PROCESSOR_PATTERN.matcher(actualAsyncProcessorName).replaceAll("."), ".", "/");
+        return convertDotPathToUriPath(ASYNC_PROCESSOR_PATTERN.matcher(actualAsyncProcessorName).replaceAll("."));
     }
     
     /**
@@ -56,7 +65,7 @@ public class ThriftUtils implements ThriftConstants {
      */
     public static String getClientServiceName(TServiceClient client) {
         String clientClassName = client.getClass().getName();
-        return StringUtils.replace(CLIENT_PATTERN.split(clientClassName)[0], ".", "/");
+        return convertDotPathToUriPath(CLIENT_PATTERN.split(clientClassName)[0]);
     }
     
     /**
@@ -65,7 +74,7 @@ public class ThriftUtils implements ThriftConstants {
      */
     public static String getAsyncMethodCallName(TAsyncMethodCall<?> asyncMethodCall) {
         String asyncMethodCallClassName = asyncMethodCall.getClass().getName();
-        return StringUtils.replace(ASYNC_METHOD_CALL_PATTERN.matcher(asyncMethodCallClassName).replaceAll("."), ".", "/");
+        return convertDotPathToUriPath(ASYNC_METHOD_CALL_PATTERN.matcher(asyncMethodCallClassName).replaceAll("."));
     }
 
     /**

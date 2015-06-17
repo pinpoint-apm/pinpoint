@@ -24,11 +24,6 @@
             <artifactId>libthrift</artifactId>
             <scope>provided</scope>
         </dependency>
-        
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
 
         <!-- Logging depedencies -->
         <dependency>
@@ -50,7 +45,6 @@
             <artifactId>log4j</artifactId>
             <scope>compile</scope>
         </dependency>
-        
     </dependencies>
 
 </project>

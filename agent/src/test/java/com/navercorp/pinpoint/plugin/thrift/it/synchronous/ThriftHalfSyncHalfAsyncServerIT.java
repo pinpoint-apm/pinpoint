@@ -40,7 +40,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent("agent/target/pinpoint-agent-" + Version.VERSION)
-@Dependency({ "org.apache.thrift:libthrift:[0.9.2,)", "org.apache.commons:commons-lang3:3.3.2", "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.5.8" })
+@Dependency({ "org.apache.thrift:libthrift:[0.9.2,)", "log4j:log4j:1.2.16", "org.slf4j:slf4j-log4j12:1.5.8" })
 public class ThriftHalfSyncHalfAsyncServerIT extends EchoTestRunner<THsHaServer> {
 
     @Override
