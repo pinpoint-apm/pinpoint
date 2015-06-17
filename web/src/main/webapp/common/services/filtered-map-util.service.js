@@ -1,8 +1,8 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.factory('filteredMapUtilService', [ 'filterConfig', 'encodeURIComponentFilter', 'ServerMapFilterVoService',
-	    function (cfg, encodeURIComponentFilter, ServerMapFilterVoService) {
+	pinpointApp.factory('filteredMapUtilService', [ 'filterConfig', 'ServerMapFilterVoService', '$window',
+	    function (cfg, ServerMapFilterVoService, $window) {
 	        // define private variables
 	        var self;
 	
@@ -165,11 +165,11 @@
 	                var newFilter = this.mergeFilters(oNavbarVoService, oServerMapFilterVoService),
 	                    mainApplication = oServerMapFilterVoService.getMainApplication() + '@' + oServerMapFilterVoService.getMainServiceTypeName(),
 	                    url = '#/filteredMap/' + mainApplication + '/' + oNavbarVoService.getReadablePeriod() + '/' +
-	                        oNavbarVoService.getQueryEndDateTime() + '/' + encodeURIComponentFilter(JSON.stringify(newFilter));
+	                        oNavbarVoService.getQueryEndDateTime() + '/' + $window.encodeURIComponent(JSON.stringify(newFilter));
 	                if (oNavbarVoService.getHint() || oServerMapHintVoService.getHint()) {
 	                    var newLongHint = this.mergeHints(oNavbarVoService, oServerMapHintVoService),
 	                        newShortHint = this.parseLongHintToShortHint(newLongHint);
-	                    url += '/' + encodeURIComponentFilter(JSON.stringify(newShortHint));
+	                    url += '/' + $window.encodeURIComponent(JSON.stringify(newShortHint));
 	                }
 	                return url;
 	            },

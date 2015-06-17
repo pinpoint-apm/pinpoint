@@ -56,10 +56,15 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
 
 pinpointApp.run([ '$rootScope', '$timeout', '$modal', '$location', '$cookies', '$interval',
     function ($rootScope, $timeout, $modal, $location, $cookies, $interval) {
-        if (Modernizr.canvas === false) {
+        if (!isCanvasSupported()) {
             $timeout(function () {
                 $('#supported-browsers').modal();
             }, 500);
         }
     }
 ]);
+
+function isCanvasSupported(){
+  var elem = document.createElement('canvas');
+  return !!(elem.getContext && elem.getContext('2d'));
+}

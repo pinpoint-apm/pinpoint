@@ -35,8 +35,8 @@
 	    }
 	});
 	
-	pinpointApp.directive('serverMapDirective', [ 'serverMapDirectiveConfig', 'ServerMapDaoService', 'AlertsService', 'ProgressBarService', 'SidebarTitleVoService', '$filter', 'ServerMapFilterVoService', 'encodeURIComponentFilter', 'filteredMapUtilService', '$base64', 'ServerMapHintVoService', '$timeout', '$location', 'helpContentTemplate', 'helpContentService',
-	    function (cfg, ServerMapDaoService, AlertsService, ProgressBarService, SidebarTitleVoService, $filter, ServerMapFilterVoService, encodeURIComponentFilter, filteredMapUtilService, $base64, ServerMapHintVoService, $timeout, $location, helpContentTemplate, helpContentService) {
+	pinpointApp.directive('serverMapDirective', [ 'serverMapDirectiveConfig', 'ServerMapDaoService', 'AlertsService', 'ProgressBarService', 'SidebarTitleVoService', '$filter', 'ServerMapFilterVoService', 'filteredMapUtilService', '$base64', 'ServerMapHintVoService', '$timeout', '$location', '$window', 'helpContentTemplate', 'helpContentService',
+	    function (cfg, ServerMapDaoService, AlertsService, ProgressBarService, SidebarTitleVoService, $filter, ServerMapFilterVoService, filteredMapUtilService, $base64, ServerMapHintVoService, $timeout, $location, $window, helpContentTemplate, helpContentService) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -158,8 +158,8 @@
 	                        callerRange: scope.oNavbarVoService.getCallerRange(),
 	                        calleeRange: scope.oNavbarVoService.getCalleeRange(),
 	                        period: period,
-	                        filter: encodeURIComponentFilter(filterText),
-	                        hint: hintText ? encodeURIComponentFilter(hintText) : false
+	                        filter: $window.encodeURIComponent(filterText),
+	                        hint: hintText ? $window.encodeURIComponent(hintText) : false
 	                    };
 	
 	                    if (filterText) {

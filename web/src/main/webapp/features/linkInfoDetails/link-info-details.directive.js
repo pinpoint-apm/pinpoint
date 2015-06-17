@@ -7,8 +7,8 @@
 	    maxTimeToShowLoadAsDefaultForUnknown:  60 * 60 * 12 // 12h
 	});
 	
-	pinpointApp.directive('linkInfoDetailsDirective', [ 'linkInfoDetailsDirectiveConfig', '$filter', 'ServerMapFilterVoService',  'filteredMapUtilService', 'humanReadableNumberFormatFilter', '$timeout', 'isVisibleService', 'ServerMapHintVoService', '$window',
-	    function (cfg, $filter, ServerMapFilterVoService, filteredMapUtilService, humanReadableNumberFormatFilter, $timeout, isVisibleService, ServerMapHintVoService, $window) {
+	pinpointApp.directive('linkInfoDetailsDirective', [ 'linkInfoDetailsDirectiveConfig', '$filter', 'ServerMapFilterVoService',  'filteredMapUtilService', '$timeout', 'isVisibleService', 'ServerMapHintVoService', '$window',
+	    function (cfg, $filter, ServerMapFilterVoService, filteredMapUtilService, $timeout, isVisibleService, ServerMapHintVoService, $window) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,

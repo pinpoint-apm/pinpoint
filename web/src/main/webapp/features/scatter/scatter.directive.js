@@ -168,9 +168,9 @@
                      * @param scatterData
                      */
                     makeScatter = function (target, title, start, end, period, filter, w, h, scatterData) {
-                        if (!Modernizr.canvas) {
-                            alert("Can't draw scatter. Not supported browser.");
-                        }
+//                        if (!Modernizr.canvas) {
+//                            alert("Can't draw scatter. Not supported browser.");
+//                        }
 
                         var options = angular.copy(cfg.options);
                         options.sContainerId = target;
