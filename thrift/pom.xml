@@ -55,6 +55,11 @@
             <artifactId>log4j</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <artifactId>commons-lang3</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <scope>test</scope>
+        </dependency>
 
 
     </dependencies>
