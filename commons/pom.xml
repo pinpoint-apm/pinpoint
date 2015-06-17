@@ -72,7 +72,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <optional>true</optional>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
