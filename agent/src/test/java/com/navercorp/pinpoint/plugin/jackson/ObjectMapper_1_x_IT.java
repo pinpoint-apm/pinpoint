@@ -41,7 +41,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  * @author Sungkook Kim
  */
 @RunWith(PinpointPluginTestSuite.class)
-@Dependency({"org.codehaus.jackson:jackson-mapper-asl:[1.0.0,)"})
+@Dependency({"org.codehaus.jackson:jackson-mapper-asl:[1.0.1],[1.1.2],[1.2.1],[1.3.5],[1.4.5],[1.5.8],[1.6.9],[1.7.9],[1.8.11],[1.9.13]"})
 public class ObjectMapper_1_x_IT {
     private final ObjectMapper mapper = new ObjectMapper();
     
