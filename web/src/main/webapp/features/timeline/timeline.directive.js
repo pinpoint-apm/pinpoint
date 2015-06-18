@@ -16,8 +16,18 @@
 	            
 	
 	        	// define private variables of methods
-	            var initialize, getColorByString;
+	            var initialize, getColorByString, filterCallStacks;
 	
+	            filterCallStacks = function() {
+	            	var newCallStacks = [];
+	    	        angular.forEach(scope.timeline.callStack, function (val) {
+	    	            if (val[scope.key.isMethod] && !val[scope.key.excludeFromTimeline] && val[scope.key.service] !== '') {
+	    	                newCallStacks.push(val);
+	    	            }
+	    	        });
+	    	        return newCallStacks;
+	            };
+	            
 	            /**
 	             * initialize
 	             * @param transactionDetail
@@ -26,8 +36,8 @@
 	                scope.timeline = transactionDetail;
 	                scope.key = transactionDetail.callStackIndex;
 	                scope.barRatio = 1000 / (transactionDetail.callStack[0][scope.key.end] - transactionDetail.callStack[0][scope.key.begin]);
+	                scope.newCallStacks = filterCallStacks();
 	                scope.$digest();
-	                $('.timeline').tooltip();
 	            };
 	
 	            scope.getColorByString = function(str) {
@@ -61,6 +71,15 @@
 	            		"box-shadow":"none",
 	            		"font-weight":"normal"
 	            	});
+	            };
+	            scope.getMarginLeft = function( stack ) {
+	            	return ((stack[scope.key.begin] - scope.timeline.callStackStart) * scope.barRatio) + 0.9;
+	            };
+	            scope.getWidth = function( stack ) {
+	            	  return ((stack[scope.key.end] - stack[scope.key.begin]) * scope.barRatio) + 0.9;
+	            };
+	            scope.getStartTime = function( stack ) {
+	            	return (stack[scope.key.begin] - scope.timeline.callStackStart);
 	            };
 	        }
 	    };

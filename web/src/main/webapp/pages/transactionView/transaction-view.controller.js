@@ -143,7 +143,7 @@
 	            if (item.execTime) {
 	                var coeff = 1000 * 5;   // round to nearest multiple of 5 seconds
 	                var execTime = new Date(item.execTime);
-	                category = new Date(Math.floor(execTime.getTime() / coeff) * coeff).toString('yyyy-MM-dd HH:mm:ss');
+	                category = moment(Math.floor(execTime.getTime() / coeff) * coeff).format('YYYY-MM-DD HH:mm:ss');
 	            } else {
 	                category = false;
 	            }

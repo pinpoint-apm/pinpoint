@@ -1,5 +1,5 @@
 /**
- * Copyright 2014 NAVER Corp.
+z * Copyright 2014 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  * @author ChaYoung You
  */
 @RunWith(PinpointPluginTestSuite.class)
-@Dependency({"com.google.code.gson:gson:(,1.7),(1.7,)"})
+@Dependency({"com.google.code.gson:gson:[1.1],[1.4],[1.5],[1.6],[1.7.2],[2.0],[2.1],[2.2.4],[2.3.1,)"})
 public class GsonIT {
     private static final boolean v1_2;
     private static final boolean v1_6;
