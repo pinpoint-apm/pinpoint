@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.bo.AnnotationBo;
@@ -37,7 +38,6 @@ import com.navercorp.pinpoint.web.vo.TransactionId;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -533,7 +533,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         if (displayArgument == null) {
             return "";
         }
-        return ObjectUtils.toString(displayArgument.getValue());
+        return Objects.toString(displayArgument.getValue(), "");
     }
 
     private static String getDisplayArgument(SpanEventBo spanEventBo) {
@@ -541,7 +541,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         if (displayArgument == null) {
             return "";
         }
-        return ObjectUtils.toString(displayArgument.getValue());
+        return Objects.toString(displayArgument.getValue(), "");
     }
 
     private static String getRpcArgument(SpanBo spanBo) {
