@@ -113,8 +113,7 @@
                                 "startOnAxis": true,
                                 "gridPosition": "start",
                                 "labelFunction": function (valueText, serialDataItem, categoryAxis) {
-                                	return valueText.substring( valueText.indexOf( " " ) + 1 );
-                                    //return new Date(valueText).toString('HH:mm:ss');
+                                	return moment(valueText).format("HH:mm:ss");
                                 }
                             }
                         };

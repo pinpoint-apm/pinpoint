@@ -77,8 +77,7 @@ var BigScatterChart = $.Class({
             },
             'fXAxisFormat': function (nXStep, i) {
                 var nMilliseconds = (nXStep * i + this._nXMin);
-                var d = new Date(nMilliseconds);
-                return d.toString("MM-dd") + "<br>" + d.toString("HH:mm:ss");
+                return moment(nMilliseconds).format("MM-DD") + "<br>" + moment(nMilliseconds).format("HH:mm:ss");
             },
             'fYAxisFormat': function (nYStep, i) {
                 return this._addComma((this._nYMax + this._nYMin) - ((nYStep * i) + this._nYMin));
@@ -626,7 +625,7 @@ var BigScatterChart = $.Class({
 //            document.location.href = sImageUrl.replace("image/png", "image/octet-stream");
             $(this).attr({
                 'href': sImageUrl,
-                'download': sTitle + '__' + new Date(self.option('nXMin')).toString("yyyyMMdd_HHmm") + '~' + new Date(self.option('nXMax')).toString("yyyyMMdd_HHmm") + '__response_scatter'
+                'download': sTitle + '__' + moment(self.option('nXMin')).format("YYYYMMDD_HHmm") + '~' + moment(self.option('nXMax')).format("YYYYMMDD_HHmm") + '__response_scatter'
             });
 //            if (e) e.preventDefault();
         };
@@ -792,7 +791,7 @@ var BigScatterChart = $.Class({
             nBubbleSize = this.option('nBubbleSize'),
             nHeight = this.option('nHeight');
         this._welXGuideNumber.css('left', nX - htOffset.left);
-        this._welXGuideNumber.find('span').text(new Date(this._parseMouseXToXData(nX - htOffset.left - nPaddingLeft - nBubbleSize)).toString("HH:mm:ss"));
+        this._welXGuideNumber.find('span').text(moment(this._parseMouseXToXData(nX - htOffset.left - nPaddingLeft - nBubbleSize)).format("HH:mm:ss"));
         this._welYGuideNumber.css('top', nY - htOffset.top);
         this._welYGuideNumber.find('span').text(this._addComma(this._parseMouseYToYData(nHeight - nPaddingBottom - nBubbleSize - (nY - htOffset.top))));
     },

@@ -59,7 +59,7 @@
 	
 	            for (var i = 0; i < pointsCount.length; ++i) {
 	                var thisData = {
-	                    time: new Date(pointsTime[i].timestamp).toString('yyyy-MM-dd HH:mm:ss')
+	                    time: moment(pointsTime[i].timestamp).format('YYYY-MM-dd HH:mm:ss')
 	                };
 	                for (var k in info.line) {
 	                    if (info.line[k].isFgc) {
@@ -137,7 +137,7 @@
 	                	return;
 	                }
 	                var thisData = {
-	                    time: new Date(pointsJvmCpuLoad[i].timestamp).toString('yyyy-MM-dd HH:mm:ss'),
+	                    time: moment(pointsJvmCpuLoad[i].timestamp).toString('YYYY-MM-dd HH:mm:ss'),
 	                    maxCpuLoad: 100
 	                };
 	                var jvmCpuLoad = agentStat.charts['CPU_LOAD_JVM'].points[i].maxVal.toFixed(2);

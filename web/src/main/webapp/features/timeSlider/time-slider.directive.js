@@ -105,7 +105,7 @@
 	             * @returns {String}
 	             */
 	            parseTimestampToTimeFormat = function (timestamp) {
-	                return new Date(timestamp).toString('HH:mm');
+	                return moment(timestamp).format('HH:mm');
 	            };
 	
 	            /**

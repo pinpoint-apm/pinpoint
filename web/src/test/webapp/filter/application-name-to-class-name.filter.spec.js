@@ -6,16 +6,16 @@ describe("ApplicationNameToClassNameFilter Test", function() {
 		filterInstance = $filter("applicationNameToClassName");
 	}));
 	
-	it("Convert to _ from .", function() {
+	it("should convert to _ from .", function() {
 		expect( filterInstance("pinpoint.navercorp.com") ).toEqual("pinpoint_navercorp_com");
 	});
-	it("Convert to _ from ^", function() {
+	it("should convert to _ from ^", function() {
 		expect( filterInstance("pinpoint^navercorp^com") ).toEqual("pinpoint_navercorp_com");
 	});
-	it("Convert to _ from :", function() {
+	it("should convert to _ from :", function() {
 		expect( filterInstance("pinpoint:navercorp:com") ).toEqual("pinpoint_navercorp_com");
 	});
-	it("Convert to _ from . ^ :", function() {
+	it("should convert to _ from . ^ :", function() {
 		expect( filterInstance("pinpoint.navercorp.com:8080^TOMCAT") ).toEqual("pinpoint_navercorp_com_8080_TOMCAT");
 	});
 });

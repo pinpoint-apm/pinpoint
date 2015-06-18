@@ -8,7 +8,7 @@ describe("Loading Directive Test", function() {
 		$compile = _$compile_;
 	}));
 	
-	it("- Check loaindg message", function() {
+	it("should has same loaindg message", function() {
 		var elem = $compile("<div loading-directive='sidebarLoading' loading-message='Loading... Wait!'></div>")($rootScope);
 		$rootScope.$digest();
 		//expect( elem.html() ).toContain("Loading... Wait!");
