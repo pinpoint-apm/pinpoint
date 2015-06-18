@@ -664,6 +664,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         
         getRecorder().clear();
         getTestTcpDataSender().clear();
+        ignoredServiceTypes.clear();
     }
 
     @Override
@@ -674,5 +675,6 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
 
         getRecorder().clear();
         getTestTcpDataSender().clear();
+        ignoredServiceTypes.clear();
     }
 }
