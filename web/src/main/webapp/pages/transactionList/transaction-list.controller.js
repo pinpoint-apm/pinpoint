@@ -12,8 +12,8 @@
 	    }
 	});
 	
-	pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$routeParams', '$rootScope', '$timeout', '$window', '$http', 'webStorage', 'TimeSliderVoService', 'encodeURIComponentFilter', 'TransactionDaoService',
-	    function (cfg, $scope, $routeParams, $rootScope, $timeout, $window, $http, webStorage, TimeSliderVoService, encodeURIComponentFilter, oTransactionDaoService) {
+	pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$routeParams', '$rootScope', '$timeout', '$window', '$http', 'webStorage', 'TimeSliderVoService', 'TransactionDaoService',
+	    function (cfg, $scope, $routeParams, $rootScope, $timeout, $window, $http, webStorage, TimeSliderVoService, oTransactionDaoService) {
 			$at($at.TRANSACTION_LIST_PAGE);
 	        // define private variables
 	        var nFetchCount, nLastFetchedIndex, htTransactionInfo, htTransactionData, oTimeSliderVoService;
@@ -232,7 +232,7 @@
 	        changeTransactionDetail = function (transaction) {
 	            var transactionDetailUrl = 'index.html#/transactionDetail'; // the filename should be existing, if not it's doesn't work on ie and firefox
 	            if (transaction.traceId && transaction.collectorAcceptTime) {
-	                transactionDetailUrl += '/' + encodeURIComponentFilter(transaction.traceId) + '/' + transaction.collectorAcceptTime;
+	                transactionDetailUrl += '/' + $window.encodeURIComponent(transaction.traceId) + '/' + transaction.collectorAcceptTime;
 	                $scope.transactionDetailUrl = transactionDetailUrl;
 	            }
 	

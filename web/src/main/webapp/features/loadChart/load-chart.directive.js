@@ -191,7 +191,7 @@
                                 "startOnAxis": true,
                                 "gridPosition": "start",
                                 "labelFunction": function (valueText, serialDataItem, categoryAxis) {
-                                    return new Date(valueText).toString('HH:mm');
+                                    return moment(valueText).format("HH:mm");
                                 }
                             },
                             "chartScrollbar": {
@@ -275,7 +275,7 @@
                 parseTimeSeriesHistogramForAmcharts = function (data) {
                     function getKeyFromNewDataByTime (time) {
                         for (var key in newData) {
-                            if (new Date(time).toString('yyyy-MM-dd HH:mm') === newData[key].time) {
+                            if (moment(time).format("YYYY-MM-DD HH:mm") === newData[key].time) {
                                 return key;
                             }
                         }
@@ -293,7 +293,7 @@
                                 newData[a][data[key].key] = data[key].values[innerKey][1];
                             } else {
                                 var b = {
-                                    time: new Date(data[key].values[innerKey][0]).toString('yyyy-MM-dd HH:mm')
+                                    time: moment(data[key].values[innerKey][0]).format('YYYY-MM-DD HH:mm')
                                 };
                                 b[data[key].key] = data[key].values[innerKey][1];
                                 newData.push(b);

@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.filter('iconUrl', function () {
+	angular.module('pinpointApp').filter('iconUrl', function () {
 		return function(name) {
 			var imageUrl = "/images/icons/";
 			if (angular.isString(name)) {

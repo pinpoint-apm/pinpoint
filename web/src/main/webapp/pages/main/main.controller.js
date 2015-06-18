@@ -1,8 +1,8 @@
 (function() {
 	'use strict';
 	
-	pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$routeParams', 'locationService', 'NavbarVoService', 'encodeURIComponentFilter', '$window', 'SidebarTitleVoService', 'filteredMapUtilService', '$rootElement',
-	    function (cfg, $scope, $timeout, $routeParams, locationService, NavbarVoService, encodeURIComponentFilter, $window, SidebarTitleVoService, filteredMapUtilService, $rootElement) {
+	pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$routeParams', 'locationService', 'NavbarVoService', '$window', 'SidebarTitleVoService', 'filteredMapUtilService', '$rootElement',
+	    function (cfg, $scope, $timeout, $routeParams, locationService, NavbarVoService, $window, SidebarTitleVoService, filteredMapUtilService, $rootElement) {
 			$at($at.MAIN_PAGE);
 	        // define private variables
 	        var oNavbarVoService, bNodeSelected, bNoData;
