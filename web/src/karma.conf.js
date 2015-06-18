@@ -24,6 +24,7 @@ module.exports = function(config) {
 		  'main/webapp/components/jquery-class/jquery.Class.js',
 		  'main/webapp/components/gojs/go.js',
 		  'main/webapp/components/underscore/underscore.js',
+		  'main/webapp/scripts/extra/event-analytics.js',
 		  'main/webapp/scripts/app.js',
 		  'main/webapp/common/**/*.js',
 		  'main/webapp/features/**/*.js',
@@ -32,7 +33,6 @@ module.exports = function(config) {
 		],
 		// list of files to exclude
 		exclude: [
-		  'main/webapp/scripts/extra/event-analytics.js',
 		  'main/webapp/common/help/*.js'
 		],
 		
