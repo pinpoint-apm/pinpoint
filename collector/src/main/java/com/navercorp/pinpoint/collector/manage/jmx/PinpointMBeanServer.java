@@ -80,7 +80,7 @@ public final class PinpointMBeanServer {
     public void unregisterMBean(String name) {
         logger.info("unregisterMBean {}", name);
 
-        if (isRegistered(name)) {
+        if (!isRegistered(name)) {
             return;
         }
 
