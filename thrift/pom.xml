@@ -68,7 +68,7 @@
         <profile>
             <id>with-thrift</id>
             <properties>
-                <thrift.executable>${your.thrift.executable}</thrift.executable>
+                <thrift.executable>${thrift.executable.path}</thrift.executable>
             </properties>
             <build>
                 <plugins>

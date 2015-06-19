@@ -1,4 +1,4 @@
-mvn clean package dependency:copy-dependencies install -P with-thrift -Dmaven.test.skip -Dthrift.executable=./src/compiler/linux/thrift-0.9.1
+mvn generate-sources -P with-thrift -Dmaven.test.skip -Dthrift.executable.path=./src/compiler/linux/thrift-0.9.2
 
 rc=$?
 if [[ $rc != 0 ]] ; then
