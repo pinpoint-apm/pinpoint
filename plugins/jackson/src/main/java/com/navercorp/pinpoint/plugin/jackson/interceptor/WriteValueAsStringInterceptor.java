@@ -27,14 +27,14 @@ import com.navercorp.pinpoint.plugin.jackson.JacksonPlugin;
  * @see JacksonPlugin#intercept_ObjectMapper(com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext)
  * @author Sungkook Kim
  */
-public class ObjectMapperWriteValueInterceptor implements SimpleAroundInterceptor, JacksonConstants {
+public class WriteValueAsStringInterceptor implements SimpleAroundInterceptor, JacksonConstants {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final MethodDescriptor descriptor;
     private final TraceContext traceContext;
 
-    public ObjectMapperWriteValueInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public WriteValueAsStringInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.descriptor = descriptor;
         this.traceContext = traceContext;
     }
@@ -68,13 +68,7 @@ public class ObjectMapperWriteValueInterceptor implements SimpleAroundIntercepto
         try {
             trace.recordApi(descriptor);
             trace.recordException(throwable);
-            if (descriptor.getMethodName().equals("writeValueAsString")) {
-                trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((String) result).length());
-            }
-            else if (descriptor.getMethodName().equals("writeValueAsBytes")) {
-                trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte []) result).length);
-            }
-
+            trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((String) result).length());
             trace.markAfterTime();
         } finally {
             trace.traceBlockEnd();

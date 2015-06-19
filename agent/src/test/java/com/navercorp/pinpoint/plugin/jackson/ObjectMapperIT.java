@@ -24,11 +24,12 @@ import org.junit.runner.RunWith;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.BlockType;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
@@ -70,17 +71,28 @@ public class ObjectMapperIT {
 
         String jsonStr = mapper.writeValueAsString(pojo);
         byte[] jsonByte = mapper.writeValueAsBytes(pojo);
+        
+        ObjectWriter writer = mapper.writer();
+
+        writer.writeValueAsString(pojo);
+        writer.writeValueAsBytes(pojo);
+
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
 
-        Method writeval1 = ObjectMapper.class.getMethod("writeValueAsString", Object.class);
-        Method writeval2 = ObjectMapper.class.getMethod("writeValueAsBytes", Object.class);
-        ExpectedAnnotation length = annotation("jackson.json.length", 18);
+        Method mapperWriteValueAsString = ObjectMapper.class.getMethod("writeValueAsString", Object.class);
+        Method mapperWriteValueAsBytes = ObjectMapper.class.getMethod("writeValueAsBytes", Object.class);
+        Method writerWriteValueAsString = ObjectWriter.class.getMethod("writeValueAsString", Object.class);
+        Method writerWriteValueAsBytes = ObjectWriter.class.getMethod("writeValueAsBytes", Object.class);
 
-        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", writeval1, null, null, null, null, length);
-        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", writeval2, null, null, null, null, length);
+
+        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", mapperWriteValueAsString, null, null, null, null, annotation("jackson.json.length", jsonStr.length()));
+        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", mapperWriteValueAsBytes, null, null, null, null, annotation("jackson.json.length", jsonByte.length));
+
+        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", writerWriteValueAsString, null, null, null, null, annotation("jackson.json.length", jsonStr.length()));
+        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", writerWriteValueAsBytes, null, null, null, null, annotation("jackson.json.length", jsonByte.length));
 
         verifier.verifyTraceBlockCount(0);
     }
@@ -89,20 +101,30 @@ public class ObjectMapperIT {
     public void testReadValue() throws Exception {
         String json_str = "{\"name\" : \"Jackson\"}";
         byte[] json_b = json_str.getBytes("UTF-8");
-        __POJO pojo = mapper.readValue(json_str, __POJO.class);
-        pojo = mapper.readValue(json_b, __POJO.class);
+    
+        mapper.readValue(json_str, __POJO.class);
+        mapper.readValue(json_b, __POJO.class);
+        
+        ObjectReader reader = mapper.reader(__POJO.class);
+        
+        reader.readValue(json_str);
+        reader.readValue(json_b);
 
+        
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
 
-        Method readval1 = ObjectMapper.class.getMethod("readValue", String.class, Class.class);
-        Method readval2 = ObjectMapper.class.getMethod("readValue", byte[].class, Class.class);
-        ExpectedAnnotation length = annotation("jackson.json.length", 20);
+        Method mapperReadValueString = ObjectMapper.class.getMethod("readValue", String.class, Class.class);
+        Method mapperReadValueBytes = ObjectMapper.class.getMethod("readValue", byte[].class, Class.class);
+        Method readerReadValueString = ObjectReader.class.getMethod("readValue", String.class);
+        Method readerReadValueBytes = ObjectReader.class.getMethod("readValue", byte[].class);
 
-        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", readval1, null, null, null, null, length);
-        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", readval2, null, null, null, null, length);
-
+        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", mapperReadValueString, null, null, null, null, annotation("jackson.json.length", json_str.length()));
+        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", mapperReadValueBytes, null, null, null, null, annotation("jackson.json.length", json_b.length));
+        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", readerReadValueString, null, null, null, null, annotation("jackson.json.length", json_str.length()));
+        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", readerReadValueBytes, null, null, null, null, annotation("jackson.json.length", json_b.length));
+        
         verifier.verifyTraceBlockCount(0);
     }
     

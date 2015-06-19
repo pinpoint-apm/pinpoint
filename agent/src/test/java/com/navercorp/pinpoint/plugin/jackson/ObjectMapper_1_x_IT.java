@@ -57,7 +57,7 @@ public class ObjectMapper_1_x_IT {
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
-                
+
         Constructor<?> omConstructor1 = ObjectMapper.class.getConstructor();
         Constructor<?> omConstructor2 = ObjectMapper.class.getConstructor(JsonFactory.class);
         Constructor<?> omConstructor3 = ObjectMapper.class.getConstructor(JsonFactory.class, SerializerProvider.class, DeserializerProvider.class);
@@ -100,56 +100,43 @@ public class ObjectMapper_1_x_IT {
 
         verifier.verifyTraceBlockCount(0);
     }
+    
+    private Method getMethod(Class<?> targetClass, String name, Class<?>... paramTypes) {
+        try {
+            return targetClass.getMethod(name, paramTypes);
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
+    }
 
     @Test()
     public void testWriteValue() throws Exception {
         __POJO pojo = new __POJO();
         pojo.setName("Jackson");
 
-        Method writeValueAsString = null;
-        try {
-            writeValueAsString = ObjectMapper.class.getMethod("writeValueAsString", Object.class);
-        } catch (NoSuchMethodException e) {
-            
-        }
-        
-        Method writeValueAsBytes = null;
-        try {
-            writeValueAsBytes = ObjectMapper.class.getMethod("writeValueAsBytes", Object.class);
-        } catch (NoSuchMethodException e) {
-            
-        }
-        
-        Method writeValue = ObjectMapper.class.getMethod("writeValue", Writer.class, Object.class);
-
+        Method mapperWriteValueAsString = getMethod(ObjectMapper.class, "writeValueAsString", Object.class);
+        Method mapperWriteValueAsBytes = getMethod(ObjectMapper.class, "writeValueAsBytes", Object.class);
+        Method mapperWriteValue = getMethod(ObjectMapper.class, "writeValue", Writer.class, Object.class);
         
         
         mapper.writeValue(new OutputStreamWriter(new ByteArrayOutputStream()), pojo);
-        
-        if (writeValueAsString != null) {
-            writeValueAsString.invoke(mapper, pojo);
-        }
-        
-        if (writeValueAsBytes != null) {
-            writeValueAsBytes.invoke(mapper, pojo);
-        }
+        String jsonString = mapperWriteValueAsString == null ? null : (String)mapperWriteValueAsString.invoke(mapper, pojo);
+        byte[] jsonBytes = mapperWriteValueAsBytes == null ? null : (byte[])mapperWriteValueAsBytes.invoke(mapper, pojo);
         
         
-
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache(System.out);
         verifier.printBlocks(System.out);
 
-        ExpectedAnnotation length = annotation("jackson.json.length", 18);
 
-        verifier.verifyApi("JACKSON", writeValue);
+        verifier.verifyApi("JACKSON", mapperWriteValue);
         
-        if (writeValueAsString != null) {
-            verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", writeValueAsString, null, null, null, null, length);
+        if (mapperWriteValueAsString != null) {
+            verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", mapperWriteValueAsString, null, null, null, null, annotation("jackson.json.length", jsonString.length()));
         }
         
-        if (writeValueAsBytes != null) {
-            verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", writeValueAsBytes, null, null, null, null, length);
+        if (mapperWriteValueAsBytes != null) {
+            verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", mapperWriteValueAsBytes, null, null, null, null, annotation("jackson.json.length", jsonBytes.length));
         }
 
         verifier.verifyTraceBlockCount(0);
@@ -157,24 +144,39 @@ public class ObjectMapper_1_x_IT {
 
     @Test
     public void testReadValue() throws Exception {
-        String json_str = "{\"name\" : \"Jackson\"}";
-        byte[] json_b = json_str.getBytes("UTF-8");
+        String jsonString = "{\"name\" : \"Jackson\"}";
+        byte[] jsonBytes = jsonString.getBytes("UTF-8");
         
-        Method readValueString = ObjectMapper.class.getMethod("readValue", String.class, Class.class);
-        Method readValueBytes = null;
+        Method mapperReadValueString = getMethod(ObjectMapper.class, "readValue", String.class, Class.class);
+        Method mapperReadValueBytes = getMethod(ObjectMapper.class, "readValue", byte[].class, Class.class);
+        
+        Method mapperReader = getMethod(ObjectMapper.class, "reader", Class.class);
+        
+        Class<?> readerClass = null; 
+        Method readerReadValueString = null;
+        Method readerReadValueBytes = null;
+        
+        
         try {
-            readValueBytes = ObjectMapper.class.getMethod("readValue", byte[].class, Class.class);
-        } catch (NoSuchMethodException e) {
+            readerClass = Class.forName("org.codehaus.jackson.map.ObjectReader");
+            readerReadValueString = getMethod(readerClass, "readValue", String.class);
+            readerReadValueBytes = getMethod(readerClass, "readValue", byte[].class);
+        } catch (ClassNotFoundException e) {
             
         }
-                
         
         
         
-        __POJO pojo = mapper.readValue(json_str, __POJO.class);
         
-        if (readValueBytes != null) {
-            readValueBytes.invoke(mapper, json_b, __POJO.class);
+        
+        Object foo = mapper.readValue(jsonString, __POJO.class);
+        foo = mapperReadValueBytes == null ? null : mapperReadValueBytes.invoke(mapper, jsonBytes, __POJO.class);
+        
+        if (mapperReader != null) {
+            Object reader = mapperReader.invoke(mapper, __POJO.class);
+            
+            foo = readerReadValueString == null ? null : readerReadValueString.invoke(reader, jsonString);
+            foo = readerReadValueBytes == null ? null : readerReadValueBytes.invoke(reader, jsonBytes);
         }
 
         
@@ -185,12 +187,21 @@ public class ObjectMapper_1_x_IT {
 
         ExpectedAnnotation length = annotation("jackson.json.length", 20);
 
-        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", readValueString, null, null, null, null, length);
+        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", mapperReadValueString, null, null, null, null, annotation("jackson.json.length", jsonString.length()));
         
-        if (readValueBytes != null) {
-            verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", readValueBytes, null, null, null, null, length);
+        if (mapperReadValueBytes != null) {
+            verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", mapperReadValueBytes, null, null, null, null, annotation("jackson.json.length", jsonBytes.length));
         }
 
+        if (readerReadValueString != null) {
+            verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", readerReadValueString, null, null, null, null, annotation("jackson.json.length", jsonString.length()));
+        }
+        
+        if (readerReadValueBytes != null) {
+            verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", readerReadValueBytes, null, null, null, null, annotation("jackson.json.length", jsonBytes.length));
+        }
+
+        
         verifier.verifyTraceBlockCount(0);
     }
 
