@@ -12,13 +12,13 @@
                 if (!scope.loadingMessage) {
                     scope.loadingMessage = 'Please Wait...';
                 }
-                var loadingHtml = $templateCache.get('sidebarLoading');
-                $timeout(function () {
+                var loadingHtml = $templateCache.get(attrs.loadingDirective);
+                //$timeout(function () {
                     if (element.css('position') === 'static') {
                         element.css('position', 'relative');
                     }
                     element.append($compile(loadingHtml)(scope));
-                });
+                //}); 
             }
         };
 	}]);
