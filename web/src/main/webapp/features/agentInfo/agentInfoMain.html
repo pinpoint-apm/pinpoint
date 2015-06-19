@@ -103,7 +103,7 @@
                                     <td class="text-left">
                                         <div class="pre-scrollable" style="max-height:200px;" ng-show="info.serverMetaData.vmArgs.length">
 	                                        <ul class="list-unstyled">
-	                                            <li ng-repeat="vmArg in info.serverMetaData.vmArgs">{{vmArg}}</li>
+	                                            <li ng-repeat="vmArg in info.serverMetaData.vmArgs track by $index">{{vmArg}}</li>
 	                                        </ul>
                                         </div>
                                         <span ng-hide="info.serverMetaData.vmArgs.length">N/A</span>
