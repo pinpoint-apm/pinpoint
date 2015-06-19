@@ -49,21 +49,39 @@ public class ThriftThreadedSelectorServerAsyncIT extends EchoTestRunner<TThreade
     }
     
     @Test
-    public void testSynchronousRpcCall() throws Exception {
+    public void testSynchronousRpcCall_verifyServerTraces() throws Exception {
         // Given
         final String expectedMessage = "TEST_MESSAGE";
         // When
-        final String result = super.invokeEcho(expectedMessage);
+        final String result = super.invokeEcho(TraceVerificationTarget.SERVER, expectedMessage);
+        // Then
+        assertEquals(expectedMessage, result);
+    }
+    
+    @Test
+    public void testSynchronousRpcCall_verifyClientTraces() throws Exception {
+        // Given
+        final String expectedMessage = "TEST_MESSAGE";
+        // When
+        final String result = super.invokeEcho(TraceVerificationTarget.CLIENT, expectedMessage);
         // Then
         assertEquals(expectedMessage, result);
     }
 
-    @Test
-    public void testAsynchronousRpcCall() throws Exception {
+    public void testAsynchronousRpcCall_verifyServerTraces() throws Exception {
         // Given
         final String expectedMessage = "TEST_MESSAGE";
         // When
-        final String result = super.invokeEchoAsync(expectedMessage);
+        final String result = super.invokeEchoAsync(TraceVerificationTarget.SERVER, expectedMessage);
+        // Then
+        assertEquals(expectedMessage, result);
+    }
+
+    public void testAsynchronousRpcCall_verifyClientTraces() throws Exception {
+        // Given
+        final String expectedMessage = "TEST_MESSAGE";
+        // When
+        final String result = super.invokeEchoAsync(TraceVerificationTarget.CLIENT, expectedMessage);
         // Then
         assertEquals(expectedMessage, result);
     }

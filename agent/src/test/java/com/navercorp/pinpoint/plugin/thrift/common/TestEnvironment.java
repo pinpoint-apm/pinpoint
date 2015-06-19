@@ -31,5 +31,10 @@ public interface TestEnvironment {
     public static final InetSocketAddress SERVER_ADDRESS = new InetSocketAddress(SERVER_IP, SERVER_PORT);
 
     public static final TProtocolFactory PROTOCOL_FACTORY = new TBinaryProtocol.Factory();
+    
+    public static enum TraceVerificationTarget {
+        SERVER,
+        CLIENT;
+    }
 
 }

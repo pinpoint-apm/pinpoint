@@ -86,9 +86,7 @@ public abstract class EchoTestServer<T extends TServer> implements TestEnvironme
     }
     
     public void verifyTraces(PluginTestVerifier verifier) throws Exception {
-        verifier.verifyTraceBlockCount(2);
         this.verifyServerTraces(verifier);
-        verifier.verifyTraceBlockCount(0);
     }
     
     protected abstract void verifyServerTraces(PluginTestVerifier verifier) throws Exception;

@@ -74,7 +74,7 @@ public class AsyncEchoTestClient implements EchoTestClient {
 
     @Override
     public void verifyTraces(PluginTestVerifier verifier, String expectedMessage) throws Exception {
-        verifier.verifyTraceBlockCount(12);
+        verifier.verifyTraceBlockCount(10);
         // SpanEvent - TAsyncClientManager.call
         Method call = TAsyncClientManager.class.getDeclaredMethod("call", TAsyncMethodCall.class);
         verifier.verifyApi("THRIFT_CLIENT_INTERNAL", call);
@@ -134,6 +134,7 @@ public class AsyncEchoTestClient implements EchoTestClient {
                 null, // destinationId
                 thriftResult // Annotation("thrift.result")
         );
+        verifier.verifyTraceBlockCount(0);
     }
     
     private static class AsyncEchoResultHolder {
