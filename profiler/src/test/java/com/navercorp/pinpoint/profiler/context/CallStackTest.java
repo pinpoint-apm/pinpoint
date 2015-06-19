@@ -149,4 +149,25 @@ public class CallStackTest {
         } catch (Exception e) {
         }
     }
+
+    @Test
+    public void testCopyStack() {
+        Span span = new Span();
+        CallStack callStack = new CallStack(span);
+
+        callStack.push();
+        callStack.setStackFrame(createSpanEventStackFrame(span));
+        callStack.push();
+        callStack.setStackFrame(createSpanEventStackFrame(span));
+
+        StackFrame[] stackFrames = callStack.copyStackFrame();
+        int lastIndex = 0;
+        for (; lastIndex < stackFrames.length; lastIndex++) {
+            if (stackFrames[lastIndex] == null) {
+                break;
+            }
+        }
+        Assert.assertEquals(lastIndex, 2);
+    }
+
 }
