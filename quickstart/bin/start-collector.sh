@@ -130,7 +130,7 @@ function func_check_running_pinpoint_collector
                 process_udp_port_num=`netstat -anp 2>/dev/null | grep $pid/java | grep udp | wc -l `
         fi
 	
-        if [[ $main_port_num -eq 1 && $process_tcp_port_num -ge 2 && $process_udp_port_num -eq 2 ]]; then
+        if [[ $main_port_num -eq 1 && $process_tcp_port_num -ge 2 && $process_udp_port_num -ge 2 ]]; then
                 echo "true"
         else
                 echo "false"
