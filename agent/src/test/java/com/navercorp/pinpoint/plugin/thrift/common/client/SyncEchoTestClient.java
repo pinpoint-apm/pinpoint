@@ -53,7 +53,7 @@ public abstract class SyncEchoTestClient implements EchoTestClient {
     
     @Override
     public void verifyTraces(PluginTestVerifier verifier, String expectedMessage) throws Exception {
-        verifier.verifyTraceBlockCount(4);
+        verifier.verifyTraceBlockCount(2);
         // SpanEvent - TServiceClient.sendBase
         Method sendBase = TServiceClient.class.getDeclaredMethod("sendBase", String.class, TBase.class);
         // refer to com.navercorp.pinpoint.plugin.thrift.ThriftUtils#getClientServiceName

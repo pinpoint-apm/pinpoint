@@ -49,6 +49,7 @@ public abstract class SyncEchoTestServer<T extends TServer> extends EchoTestServ
     
     @Override
     public void verifyServerTraces(PluginTestVerifier verifier) throws Exception {
+        verifier.verifyTraceBlockCount(2);
         Method process = TBaseProcessor.class.getDeclaredMethod("process", TProtocol.class, TProtocol.class);
         // SpanEvent - TBaseProcessor.process
         verifier.verifyTraceBlock(BlockType.EVENT, "THRIFT_SERVER_INTERNAL", process, null, null, null, null);
@@ -62,6 +63,7 @@ public abstract class SyncEchoTestServer<T extends TServer> extends EchoTestServ
                 SERVER_ADDRESS.getHostName(), // remoteAddress
                 null // destinationId
         );
+        verifier.verifyTraceBlockCount(0);
     }
     
     public static class SyncEchoTestServerFactory {
