@@ -14,8 +14,6 @@
  */
 package com.navercorp.pinpoint.plugin.jackson.interceptor;
 
-import java.io.File;
-
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -23,29 +21,29 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.jackson.JacksonConstants;
+import com.navercorp.pinpoint.plugin.jackson.JacksonPlugin;
 
 /**
  * @see JacksonPlugin#intercept_ObjectMapper(com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext)
  * @author Sungkook Kim
  */
-public class ObjectMapperReadValueInterceptor implements SimpleAroundInterceptor, JacksonConstants {
+public class WriteValueAsBytesInterceptor implements SimpleAroundInterceptor, JacksonConstants {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final MethodDescriptor descriptor;
     private final TraceContext traceContext;
 
-    public ObjectMapperReadValueInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public WriteValueAsBytesInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.descriptor = descriptor;
         this.traceContext = traceContext;
     }
-
+    
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
-        
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -62,7 +60,6 @@ public class ObjectMapperReadValueInterceptor implements SimpleAroundInterceptor
         if (isDebug) {
             logger.afterInterceptor(target, args);
         }
-        
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
@@ -71,14 +68,7 @@ public class ObjectMapperReadValueInterceptor implements SimpleAroundInterceptor
         try {
             trace.recordApi(descriptor);
             trace.recordException(throwable);
-            if (args[0] instanceof String) {
-                trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((String) args[0]).length());
-            } else if (args[0] instanceof byte[]) {
-                trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte[]) args[0]).length);
-            } else if (args[0] instanceof File) {
-                trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((File) args[0]).length());
-            }
-
+            trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte []) result).length);
             trace.markAfterTime();
         } finally {
             trace.traceBlockEnd();

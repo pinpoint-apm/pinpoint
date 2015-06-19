@@ -14,6 +14,8 @@
  */
 package com.navercorp.pinpoint.bootstrap.instrument;
 
+import java.util.Arrays;
+
 /**
  * @author Jongho Moon
  *
@@ -36,6 +38,14 @@ public class MethodFilters {
     
     public static MethodFilter modifier(int required, int rejected) {
         return new ModifierFilter(required, rejected);
+    }
+    
+    public static MethodFilter argAt(int index, String type) {
+        return new ArgAtFilter(index, type);
+    }
+    
+    public static MethodFilter args(String... types) {
+        return new ArgsFilter(types);
     }
     
     
@@ -71,6 +81,41 @@ public class MethodFilters {
         public boolean filter(MethodInfo method) {
             int modifier = method.getModifiers();
             return ((required & modifier) != required) || ((rejected & modifier) != 0);
+        }
+    }
+    
+    private static final class ArgAtFilter implements MethodFilter {
+        private final int index;
+        private final String type;
+        
+        public ArgAtFilter(int index, String type) {
+            this.index = index;
+            this.type = type;
+        }
+
+        @Override
+        public boolean filter(MethodInfo method) {
+            String[] paramTypes = method.getParameterTypes();
+            
+            if (paramTypes.length < index + 1) {
+                return true;
+            }
+            
+            return !type.equals(paramTypes[index]);
+        }
+    }
+    
+    private static final class ArgsFilter implements MethodFilter {
+        private final String[] types;
+
+        public ArgsFilter(String[] types) {
+            this.types = types;
+        }
+
+        @Override
+        public boolean filter(MethodInfo method) {
+            String[] paramTypes = method.getParameterTypes();
+            return !Arrays.equals(paramTypes, types);
         }
     }
 }
