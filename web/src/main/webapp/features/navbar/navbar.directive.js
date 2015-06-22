@@ -169,7 +169,7 @@
 	                            }
 	                        }
 	                    });
-	                    setDateTime($fromPicker, oNavbarVoService.getQueryStartTime() || new Date().addMinutes(-20));
+	                    setDateTime($fromPicker, oNavbarVoService.getQueryStartTime() || moment().subtract(20, "minute").valueOf());
 	
 	                    $toPicker = element.find('#to-picker');
 	                    $toPicker.datetimepicker({
