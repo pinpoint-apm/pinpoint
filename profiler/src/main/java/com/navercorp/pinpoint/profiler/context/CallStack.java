@@ -32,11 +32,9 @@ public class CallStack {
     private static final Logger logger = LoggerFactory.getLogger(CallStack.class);
 
     private static final int STACK_SIZE = 8;
-    private static final int STACK_INCREASE_SIZE = 8;
 
     private final Span span;
     
-    // We have to find some way to copy call stack in concurrent situation. 
     private StackFrame[] stack = new StackFrame[STACK_SIZE];
 
 
@@ -53,34 +51,30 @@ public class CallStack {
         return span;
     }
 
-    // without synchronization for the present.
-//    public synchronized int getIndex() {
     public int getIndex() {
        return index;
     }
 
-    
-    // We could handle synchronization more precisely.
-    // Maybe synchonizing push, pop, copy would be enough.
-    public synchronized StackFrame getCurrentStackFrame() {
+
+    public StackFrame getCurrentStackFrame() {
         return stack[index];
     }
 
-    public synchronized StackFrame getParentStackFrame() {
+    public StackFrame getParentStackFrame() {
         if (index > 0) {
             return stack[index - 1];
         }
         return null;
     }
 
-    public synchronized void setStackFrame(StackFrame stackFrame) {
+    public void setStackFrame(StackFrame stackFrame) {
         if (stackFrame == null) {
             throw new NullPointerException("stackFrame must not be null");
         }
         stack[index] = stackFrame;
     }
 
-    public synchronized int push() {
+    public int push() {
         checkExtend(index + 1);
         return ++index;
     }
@@ -88,18 +82,18 @@ public class CallStack {
     private void checkExtend(final int index) {
         final StackFrame[] originalStack = this.stack;
         if (index >= originalStack.length) {
-            final int copyStackSize = originalStack.length + STACK_INCREASE_SIZE;
+            final int copyStackSize = originalStack.length << 1;
             final StackFrame[] copyStack = new StackFrame[copyStackSize];
             System.arraycopy(originalStack, 0, copyStack, 0, originalStack.length);
             this.stack = copyStack;
         }
     }
 
-    public synchronized int getStackFrameIndex() {
+    public int getStackFrameIndex() {
         return index;
     }
 
-    public synchronized void popRoot() {
+    public void popRoot() {
         pop("popRoot");
         // check empty root index
         if (index != -1) {
@@ -108,7 +102,7 @@ public class CallStack {
         }
     }
 
-    public synchronized StackFrame pop() {
+    public StackFrame pop() {
         pop("pop");
         if (index == -1) {
             return null;
@@ -117,7 +111,7 @@ public class CallStack {
         }
     }
 
-    private synchronized void pop(String stackApiPoint) {
+    private void pop(String stackApiPoint) {
         final int currentIndex = this.index;
         final StackFrame[] currentStack = this.stack;
         if (currentIndex >= 0) {
@@ -140,25 +134,21 @@ public class CallStack {
     }
 
 
-    public synchronized void currentStackFrameClear() {
+    public void currentStackFrameClear() {
         stack[index] = null;
     }
 
     public StackFrame[] copyStackFrame() {
-        int currentIndex;
-        StackFrame[] currentStack;
-        synchronized (this) {
-            // copy reference
-            currentIndex = this.index;
-            currentStack = this.stack;
-        }
-        StackFrame[] copy = new StackFrame[currentIndex];
-        System.arraycopy(currentStack, 0, copy, 0, currentIndex);
-        return copy;
+        // without synchronization arraycopy, last index is null reference
+        final StackFrame[] currentStack = this.stack;
+        final StackFrame[] copyStack = new StackFrame[currentStack.length];
+        System.arraycopy(currentStack, 0, copyStack, 0, currentStack.length);
+        return copyStack;
     }
 
     @Override
     public String toString() {
+        final StackFrame[] stack = this.stack;
         return "CallStack{" +
                 "stack=" + (stack == null ? null : Arrays.toString(stack)) +
                 ", index=" + index +
