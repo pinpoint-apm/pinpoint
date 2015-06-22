@@ -75,6 +75,9 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     @Autowired
     private ServiceTypeRegistryService registry;
 
+    @Autowired
+    private ApplicationFactory applicationFactory;
+
     private static final Object V = new Object();
 
     @Override
@@ -234,7 +237,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
         final LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
 
-        final DotExtractor dotExtractor = new DotExtractor(scanRange, registry);
+        final DotExtractor dotExtractor = new DotExtractor(scanRange, applicationFactory);
         final ResponseHistogramBuilder mapHistogramSummary = new ResponseHistogramBuilder(range);
         /**
          * Convert to statistical data
@@ -244,7 +247,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
             for (SpanBo span : transaction) {
                 final Application parentApplication = createParentApplication(span, transactionSpanMap);
-                final Application spanApplication = new Application(span.getApplicationId(), registry.findServiceType(span.getApplicationServiceType()));
+                final Application spanApplication = this.applicationFactory.createApplication(span.getApplicationId(), span.getApplicationServiceType());
 
                 // records the Span's response time statistics
                 recordSpanResponseTime(spanApplication, span, mapHistogramSummary, span.getCollectorAcceptTime());
@@ -323,7 +326,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         if (CollectionUtils.isEmpty(spanEventBoList)) {
             return;
         }
-        final Application srcApplication = new Application(span.getApplicationId(), registry.findServiceType(span.getApplicationServiceType()));
+        final Application srcApplication = applicationFactory.createApplication(span.getApplicationId(), span.getApplicationServiceType());
 
         LinkDataMap sourceLinkDataMap = linkDataDuplexMap.getSourceLinkDataMap();
         for (SpanEventBo spanEvent : spanEventBoList) {
@@ -343,11 +346,11 @@ public class FilteredMapServiceImpl implements FilteredMapService {
             }
 
             String dest = spanEvent.getDestinationId();
-            if(dest == null) {
+            if (dest == null) {
                 dest = "Unknown";
             }
             
-            final Application destApplication = new Application(dest, destServiceType);
+            final Application destApplication = this.applicationFactory.createApplication(dest, destServiceType);
 
             final short slotTime = getHistogramSlotTime(spanEvent, destServiceType);
 
@@ -367,12 +370,11 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         if (span.isRoot() || parentSpan == null) {
             String applicationName = span.getApplicationId();
             ServiceType serviceType = ServiceType.USER;
-            return new Application(applicationName, serviceType);
+            return this.applicationFactory.createApplication(applicationName, serviceType);
         } else {
             String parentApplicationName = parentSpan.getApplicationId();
-
-            ServiceType serviceType = registry.findServiceType(parentSpan.getApplicationServiceType());
-            return new Application(parentApplicationName, serviceType);
+            short parentServiceType = parentSpan.getApplicationServiceType();
+            return this.applicationFactory.createApplication(parentApplicationName, parentServiceType);
         }
     }
 

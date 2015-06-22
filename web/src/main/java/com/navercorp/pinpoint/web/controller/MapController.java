@@ -17,11 +17,11 @@
 package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.MapWrap;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
+import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.MapService;
 import com.navercorp.pinpoint.web.util.Limiter;
 import com.navercorp.pinpoint.web.util.TimeUtils;
@@ -35,11 +35,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
 import java.util.List;
@@ -64,11 +64,14 @@ public class MapController {
     @Autowired
     private ServiceTypeRegistryService registry;
 
+    @Autowired
+    private ApplicationFactory applicationFactory;
+
     private static final String DEFAULT_SEARCH_DEPTH = "8";
     private static final int DEFAULT_MAX_SEARCH_DEPTH = 8;
 
     /**
-   * Server map data query within from ~ to timeframe
+     * Server map data query within from ~ to timeframe
      *
      * @param applicationName
      * @param serviceTypeCode
@@ -85,12 +88,21 @@ public class MapController {
                                     @RequestParam("to") long to,
                                     @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
                                     @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange) {
-        ServiceType serviceType = registry.findServiceType(serviceTypeCode);
-        return getServerMapData(applicationName, serviceType.getName(), from, to, callerRange, calleeRange);
+        final Range range = new Range(from, to);
+        this.dateLimit.limit(range);
+
+        SearchOption searchOption = new SearchOption(callerRange, calleeRange);
+        assertSearchOption(searchOption);
+
+        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+
+        return selectApplicationMap(application, range, searchOption);
     }
 
+
+
     /**
-   * Server map data query within from ~ to timeframe
+     * Server map data query within from ~ to timeframe
      *
      * @param applicationName
      * @param serviceTypeName
@@ -108,16 +120,28 @@ public class MapController {
                                     @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
                                     @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange) {
         final Range range = new Range(from, to);
-        this.dateLimit.limit(from, to);
+        this.dateLimit.limit(range);
 
         SearchOption searchOption = new SearchOption(callerRange, calleeRange);
         assertSearchOption(searchOption);
 
-        logger.info("getServerMap() applicationName:{} range:{} searchOption:{}", applicationName, TimeUnit.MILLISECONDS.toMinutes(range.getRange()), searchOption);
+        Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
 
+        return selectApplicationMap(application, range, searchOption);
+    }
 
-        ServiceType serviceType = registry.findServiceTypeByName(serviceTypeName);
-        Application application = new Application(applicationName, serviceType);
+    private MapWrap selectApplicationMap(Application application, Range range, SearchOption searchOption) {
+        if (application == null) {
+            throw new NullPointerException("application must not be null");
+        }
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
+        if (searchOption == null) {
+            throw new NullPointerException("searchOption must not be null");
+        }
+
+        logger.info("getServerMap() application:{} range:{} searchOption:{}", application, range, searchOption);
 
         ApplicationMap map = mapService.selectApplicationMap(application, range, searchOption);
 
@@ -142,7 +166,7 @@ public class MapController {
     }
 
     /**
-   * Server map data query for the last "Period" timeframe
+     * Server map data query for the last "Period" timeframe
      *
      * @param applicationName
      * @param serviceTypeCode
@@ -160,11 +184,20 @@ public class MapController {
 
         long to = TimeUtils.getDelayLastTime();
         long from = to - period;
-        return getServerMapData(applicationName, serviceTypeCode, from, to, callerRange, calleeRange);
+
+        final Range range = new Range(from, to);
+        this.dateLimit.limit(range);
+
+        SearchOption searchOption = new SearchOption(callerRange, calleeRange);
+        assertSearchOption(searchOption);
+
+        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+
+        return selectApplicationMap(application, range, searchOption);
     }
 
     /**
-   * Server map data query for the last "Period" timeframe
+     * Server map data query for the last "Period" timeframe
      *
      * @param applicationName
      * @param serviceTypeName
@@ -182,14 +215,21 @@ public class MapController {
 
         long to = TimeUtils.getDelayLastTime();
         long from = to - period;
-        return getServerMapData(applicationName, serviceTypeName, from, to, callerRange, calleeRange);
+
+        final Range range = new Range(from, to);
+        this.dateLimit.limit(range);
+
+        SearchOption searchOption = new SearchOption(callerRange, calleeRange);
+        assertSearchOption(searchOption);
+
+        Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+        return selectApplicationMap(application, range, searchOption);
     }
 
     /**
      * Possible deprecation expected when UI change push forward to pick a map first from UI
      * Unfiltered server map request data query
      *
-     * @param model
      * @param from
      * @param to
      * @param sourceApplicationName
@@ -200,23 +240,22 @@ public class MapController {
      */
     @Deprecated
     @RequestMapping(value = "/linkStatistics", method = RequestMethod.GET, params={"sourceServiceType", "targetServiceType"})
-    public String getLinkStatistics(Model model,
-                                    @RequestParam("from") long from,
+    public ModelAndView getLinkStatistics(@RequestParam("from") long from,
                                     @RequestParam("to") long to,
                                     @RequestParam("sourceApplicationName") String sourceApplicationName,
                                     @RequestParam("sourceServiceType") short sourceServiceType,
                                     @RequestParam("targetApplicationName") String targetApplicationName,
                                     @RequestParam("targetServiceType") short targetServiceType) {
-        String sourceServiceTypeName = registry.findServiceType(sourceServiceType).getName();
-        String targetServiceTypeName = registry.findServiceType(targetServiceType).getName();
-        return getLinkStatistics(model, from, to, sourceApplicationName, sourceServiceTypeName, targetApplicationName, targetServiceTypeName);
+        final Application sourceApplication = this.applicationFactory.createApplication(sourceApplicationName, sourceServiceType);
+        final Application destinationApplication = this.applicationFactory.createApplication(targetApplicationName, targetServiceType);
+        final Range range = new Range(from, to);
+        return getLinkStatistics(sourceApplication, destinationApplication, range);
     }
 
     /**
      * Possible deprecation expected when UI change push forward to pick a map first from UI
      * Unfiltered server map request data query
      *
-     * @param model
      * @param from
      * @param to
      * @param sourceApplicationName
@@ -227,46 +266,49 @@ public class MapController {
      */
     @Deprecated
     @RequestMapping(value = "/linkStatistics", method = RequestMethod.GET, params={"sourceServiceTypeName", "targetServiceTypeName"})
-    public String getLinkStatistics(Model model,
-                                    @RequestParam("from") long from,
+    public ModelAndView getLinkStatistics(@RequestParam("from") long from,
                                     @RequestParam("to") long to,
                                     @RequestParam("sourceApplicationName") String sourceApplicationName,
                                     @RequestParam("sourceServiceTypeName") String sourceServiceTypeName,
                                     @RequestParam("targetApplicationName") String targetApplicationName,
                                     @RequestParam("targetServiceTypeName") String targetServiceTypeName) {
 
-    final Application sourceApplication = new Application(sourceApplicationName, registry.findServiceTypeByName(sourceServiceTypeName));
-    final Application destinationApplication = new Application(targetApplicationName, registry.findServiceTypeByName(targetServiceTypeName));
-    final Range range = new Range(from, to);
-
-    NodeHistogram nodeHistogram = mapService.linkStatistics(sourceApplication, destinationApplication, range);
-
-        model.addAttribute("range", range);
-
-    model.addAttribute("sourceApplication", sourceApplication);
-
-    model.addAttribute("targetApplication", destinationApplication);
-
-    Histogram applicationHistogram = nodeHistogram.getApplicationHistogram();
-        model.addAttribute("linkStatistics", applicationHistogram);
-
-
-    List<ResponseTimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram();
-    String applicationTimeSeriesHistogramJson = null;
-    try {
-        applicationTimeSeriesHistogramJson = MAPPER.writeValueAsString(applicationTimeSeriesHistogram);
-    } catch (IOException e) {
-        throw new RuntimeException(e.getMessage(), e);
-    }
-    model.addAttribute("timeSeriesHistogram", applicationTimeSeriesHistogramJson);
-
-    // looks like we need to specify "from, to" to the result. but data got passed thru as it is.
-        model.addAttribute("resultFrom", from);
-        model.addAttribute("resultTo", to);
-
-
-        return "linkStatistics";
+        final Application sourceApplication = this.applicationFactory.createApplicationByTypeName(sourceApplicationName, sourceServiceTypeName);
+        final Application destinationApplication = this.applicationFactory.createApplicationByTypeName(targetApplicationName, targetServiceTypeName);
+        final Range range = new Range(from, to);
+        return getLinkStatistics(sourceApplication, destinationApplication, range);
     }
 
+    private ModelAndView getLinkStatistics(Application sourceApplication, Application destinationApplication, Range range) {
+
+        NodeHistogram nodeHistogram = mapService.linkStatistics(sourceApplication, destinationApplication, range);
+
+        final ModelAndView mav = new ModelAndView("linkStatistics");
+        mav.addObject("range", range);
+
+        mav.addObject("sourceApplication", sourceApplication);
+
+        mav.addObject("targetApplication", destinationApplication);
+
+        Histogram applicationHistogram = nodeHistogram.getApplicationHistogram();
+        mav.addObject("linkStatistics", applicationHistogram);
+
+
+        List<ResponseTimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram();
+        String applicationTimeSeriesHistogramJson = null;
+        try {
+            applicationTimeSeriesHistogramJson = MAPPER.writeValueAsString(applicationTimeSeriesHistogram);
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+        mav.addObject("timeSeriesHistogram", applicationTimeSeriesHistogramJson);
+
+        // looks like we need to specify "from, to" to the result. but data got passed thru as it is.
+        mav.addObject("resultFrom", range.getFrom());
+        mav.addObject("resultTo", range.getTo());
+
+        return mav;
+    }
+    @Deprecated
     private final static ObjectMapper MAPPER = new ObjectMapper();
 }

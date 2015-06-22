@@ -21,6 +21,7 @@ import java.util.Arrays;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
+import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -43,7 +44,7 @@ public class HostApplicationMapper implements RowMapper<Application> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private ServiceTypeRegistryService registry;
+    private ApplicationFactory applicationFactory;
 
     @Override
     public Application mapRow(Result result, int rowNum) throws Exception {
@@ -58,7 +59,6 @@ public class HostApplicationMapper implements RowMapper<Application> {
 
         String applicationName = Bytes.toString(value, 0, HBaseTables.APPLICATION_NAME_MAX_LEN - 1).trim();
         short serviceTypeCode = Bytes.toShort(value, HBaseTables.APPLICATION_NAME_MAX_LEN);
-        ServiceType serviceType = registry.findServiceType(serviceTypeCode);
-        return new Application(applicationName, serviceType);
+        return this.applicationFactory.createApplication(applicationName, serviceTypeCode);
     }
 }

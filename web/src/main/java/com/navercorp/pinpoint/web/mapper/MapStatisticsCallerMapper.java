@@ -23,10 +23,10 @@ import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import org.apache.commons.lang3.StringUtils;
@@ -55,6 +55,9 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
 
     @Autowired
     private ServiceTypeRegistryService registry;
+
+    @Autowired
+    private ApplicationFactory applicationFactory;
 
     public MapStatisticsCallerMapper() {
         this(SkipLinkFilter.FILTER);
@@ -148,24 +151,20 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
     private Application readCalleeApplication(byte[] qualifier) {
         String calleeApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
         short calleeServiceType = ApplicationMapStatisticsUtils.getDestServiceTypeFromColumnName(qualifier);
-        return createApplication(calleeApplicationName, calleeServiceType);
+        return applicationFactory.createApplication(calleeApplicationName, calleeServiceType);
     }
 
 
     private Application readCalleeApplication(Buffer buffer) {
         short calleeServiceType = buffer.readShort();
         String calleeApplicationName = buffer.readPrefixedString();
-        return createApplication(calleeApplicationName, calleeServiceType);
+        return applicationFactory.createApplication(calleeApplicationName, calleeServiceType);
     }
 
     private Application readCallerApplication(Buffer row) {
         String callerApplicationName = row.read2PrefixedString();
         short callerServiceType = row.readShort();
-        return createApplication(callerApplicationName, callerServiceType);
+        return this.applicationFactory.createApplication(callerApplicationName, callerServiceType);
     }
 
-    private Application createApplication(String applicationName, short serviceTypeCode) {
-        ServiceType serviceType = registry.findServiceType(serviceTypeCode);
-        return new Application(applicationName, serviceType);
-    }
 }

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import org.apache.hadoop.hbase.Cell;
@@ -49,6 +50,9 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
 
     @Autowired
     private ServiceTypeRegistryService registry;
+
+    @Autowired
+    private ApplicationFactory applicationFactory;
 
     public MapStatisticsCalleeMapper() {
         this(SkipLinkFilter.FILTER);
@@ -114,17 +118,14 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
         } else {
             callerApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
         }
-        return createApplication(callerApplicationName, callerServiceType);
+        return this.applicationFactory.createApplication(callerApplicationName, callerServiceType);
     }
 
     private Application readCalleeApplication(Buffer row) {
         String calleeApplicationName = row.read2PrefixedString();
         short calleeServiceType = row.readShort();
-        return createApplication(calleeApplicationName, calleeServiceType);
+
+        return this.applicationFactory.createApplication(calleeApplicationName, calleeServiceType);
     }
 
-    private Application createApplication(String applicationName, short serviceTypeCode) {
-        ServiceType serviceType = registry.findServiceType(serviceTypeCode);
-        return new Application(applicationName, serviceType);
-    }
 }
