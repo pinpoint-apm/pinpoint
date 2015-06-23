@@ -34,6 +34,7 @@ import org.springframework.stereotype.Repository;
 
 /**
  * @author emeroad
+ * @author minwoo.jung
  */
 @Repository
 public class HbaseApiMetaDataDao implements ApiMetaDataDao {
@@ -74,7 +75,7 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
         }
         
         final byte[] apiMetaDataBytes = buffer.getBuffer();
-        put.addColumn(HBaseTables.API_METADATA_CF_API, apiMetaDataBytes, null);
+        put.addColumn(HBaseTables.API_METADATA_CF_API, HBaseTables.API_METADATA_CF_API_QUALI_SIGNATURE, apiMetaDataBytes);
 
         hbaseTemplate.put(HBaseTables.API_METADATA, put);
     }

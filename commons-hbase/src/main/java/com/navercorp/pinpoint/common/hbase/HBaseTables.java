@@ -69,9 +69,11 @@ public final class HBaseTables {
 
     public static final String STRING_METADATA = "StringMetaData";
     public static final byte[] STRING_METADATA_CF_STR = Bytes.toBytes("Str");
+    public static final byte[] STRING_METADATA_CF_STR_QUALI_STRING = Bytes.toBytes("P_string");
 
     public static final String API_METADATA = "ApiMetaData";
     public static final byte[] API_METADATA_CF_API = Bytes.toBytes("Api");
+    public static final byte[] API_METADATA_CF_API_QUALI_SIGNATURE = Bytes.toBytes("P_api_signature");
 
     public static final String MAP_STATISTICS_CALLER = "ApplicationMapStatisticsCaller";
     public static final byte[] MAP_STATISTICS_CALLER_CF_COUNTER = Bytes.toBytes("C");

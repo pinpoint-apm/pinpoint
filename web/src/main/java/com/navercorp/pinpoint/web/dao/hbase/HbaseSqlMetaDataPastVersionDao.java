@@ -35,6 +35,7 @@ import com.navercorp.pinpoint.web.dao.SqlMetaDataDao;
  * @author minwoo.jung
  */
 //@Repository
+@Deprecated
 public class HbaseSqlMetaDataPastVersionDao implements SqlMetaDataDao {
 
     @Autowired
