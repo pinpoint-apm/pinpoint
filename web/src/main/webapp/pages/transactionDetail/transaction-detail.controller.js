@@ -8,7 +8,7 @@
 	    function (cfg, $scope, $rootScope, $routeParams, $timeout, $rootElement, AlertsService, ProgressBarService, TransactionDaoService, $window, $location, helpContentTemplate, helpContentService) {
 			$at($at.TRANSACTION_DETAIL_PAGE);
 	        // define private variables
-	        var oAlertService, oProgressBarService, bShowCallStacksOnce;
+	        var oAlertService, oProgressBarService, bShowCallStacksOnce, bIsFirstTimelineView = true;
 	
 	        // define private variables of methods
 	        var parseTransactionDetail, showCallStacks, parseCompleteStateToClass, initSearchVar;
@@ -148,10 +148,14 @@
 	        	initSearchVar();
 	            $scope.$broadcast('serverMapDirective.initializeWithMapData', $scope.transactionDetail);
 	        });
+	        var testCount = 0;
 	        $("#traceTabs li:nth-child(3) a").bind("click", function (e) {
 	        	$at($at.CALLSTACK, $at.CLK_RPC_TIMELINE);
 	        	initSearchVar();
-	            $scope.$broadcast('timelineDirective.initialize', $scope.transactionDetail);
+	        	if (bIsFirstTimelineView){
+	            	$scope.$broadcast('timelineDirective.initialize', $scope.transactionDetail);
+	            	bIsFirstTimelineView = false;
+	        	}
 	        });
 	        
             jQuery('.callTreeTooltip').tooltipster({

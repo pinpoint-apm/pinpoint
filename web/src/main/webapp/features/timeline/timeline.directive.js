@@ -13,10 +13,11 @@
 	                "#66CCFF", "#FFCCFF", "#66CC00", "#FFCC33", "#669999", "#FF9999", "#6666FF", "#FF6633", "#66FFCC", "#006666",
 	                "#FFFF00", "#66CCCC", "#FFCCCC", "#6699FF", "#FF99FF", "#669900", "#FF9933", "#66FFFF", "#996600", "#66FF00" 
 	            ], colorSetIndex = [];
+	            scope.countPerPage = 50;
 	            
 	
 	        	// define private variables of methods
-	            var initialize, getColorByString, filterCallStacks;
+	            var initialize, getColorByString, filterCallStacks, addRenderData;
 	
 	            filterCallStacks = function() {
 	            	var newCallStacks = [];
@@ -37,8 +38,20 @@
 	                scope.key = transactionDetail.callStackIndex;
 	                scope.barRatio = 1000 / (transactionDetail.callStack[0][scope.key.end] - transactionDetail.callStack[0][scope.key.begin]);
 	                scope.newCallStacks = filterCallStacks();
+	                scope.currentPage = 1;
+	                scope.tempCallStacks = [];
+	                scope.renderedCount = 0;
+	                var nextCount = scope.newCallStacks.length > scope.countPerPage ? scope.countPerPage : scope.newCallStacks.length;
+	                addRenderData( nextCount );
 	                scope.$digest();
 	            };
+	            addRenderData = function( nextCount ) {
+	            	for( var i = scope.renderedCount; i < nextCount ; i++ ) {
+	            		scope.tempCallStacks[i] = scope.newCallStacks[i];
+	            	}
+	            	scope.renderedCount = nextCount;
+	            	scope.renderedAll = scope.newCallStacks.length == scope.renderedCount;
+	            }
 	
 	            scope.getColorByString = function(str) {
 	            	var index = colorSetIndex.indexOf( str );
@@ -80,6 +93,12 @@
 	            };
 	            scope.getStartTime = function( stack ) {
 	            	return (stack[scope.key.begin] - scope.timeline.callStackStart);
+	            };
+	            scope.more = function() {
+	            	var nextCount = scope.countPerPage * (scope.currentPage + 1);
+	            	nextCount = nextCount > scope.newCallStacks.length ? scope.newCallStacks.length : nextCount;
+	            	addRenderData( nextCount );
+	            	scope.currentPage++;
 	            };
 	        }
 	    };
