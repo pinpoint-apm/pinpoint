@@ -18,15 +18,15 @@ package com.navercorp.pinpoint.profiler.modifier.connector.jdkhttpconnector;
 
 import java.security.ProtectionDomain;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.jdkhttpconnector.interceptor.ConnectMethodInterceptor;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * TODO Fix class loader issue.
@@ -54,16 +54,25 @@ public class HttpURLConnectionModifier extends AbstractModifier {
         try {
             InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
             
-            ConnectMethodInterceptor connectMethodInterceptor = new ConnectMethodInterceptor();
+            aClass.addGetter("__isConnected", "connected", "boolean");
+            
+            boolean hasConnecting;
+            try {
+                aClass.addGetter("__isConnecting", "connecting", "boolean");
+                hasConnecting = true;
+            } catch (InstrumentException e) {
+                hasConnecting = false;
+            }
+
+            ConnectMethodInterceptor connectMethodInterceptor = new ConnectMethodInterceptor(hasConnecting);
             aClass.addScopeInterceptor("connect", null, connectMethodInterceptor, SCOPE);
             
-            ConnectMethodInterceptor getInputStreamInterceptor = new ConnectMethodInterceptor();
+            ConnectMethodInterceptor getInputStreamInterceptor = new ConnectMethodInterceptor(hasConnecting);
             aClass.addScopeInterceptor("getInputStream", null, getInputStreamInterceptor, SCOPE);
             
-            ConnectMethodInterceptor getOutputStreamInterceptor = new ConnectMethodInterceptor();
+            ConnectMethodInterceptor getOutputStreamInterceptor = new ConnectMethodInterceptor(hasConnecting);
             aClass.addScopeInterceptor("getOutputStream", null, getOutputStreamInterceptor, SCOPE);
             
-            aClass.addGetter("__isConnected", "connected", "boolean");
             
             return aClass.toBytecode();
         } catch (InstrumentException e) {

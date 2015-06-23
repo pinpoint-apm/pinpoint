@@ -40,12 +40,18 @@ import com.navercorp.pinpoint.common.ServiceType;
  */
 public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
     private final MetaObject<Boolean> isConnected = new MetaObject<Boolean>("__isConnected");
+    private final MetaObject<Boolean> isConnecting = new MetaObject<Boolean>("__isConnecting");
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
+    private final boolean hasConnecting;
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
+    
+    public ConnectMethodInterceptor(boolean hasConnecting) {
+        this.hasConnecting = hasConnecting;
+    }
 
     @Override
     public void before(Object target, Object[] args) {
@@ -58,7 +64,7 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
         }
 
         HttpURLConnection request = (HttpURLConnection) target;
-        final boolean setRequestHeader = !isConnected.invoke(target);
+        final boolean setRequestHeader = !isConnected.invoke(target) && (!hasConnecting || !isConnecting.invoke(target));
         
         final boolean sampling = trace.canSampled();
         if (!sampling) {
