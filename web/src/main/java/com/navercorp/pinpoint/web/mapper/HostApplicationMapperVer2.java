@@ -18,8 +18,7 @@ package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.map.AcceptApplication;
 import com.navercorp.pinpoint.web.vo.Application;
 
@@ -47,7 +46,7 @@ public class HostApplicationMapperVer2 implements RowMapper<List<AcceptApplicati
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private ServiceTypeRegistryService registry;
+    private ApplicationFactory applicationFactory;
 
     @Override
     public List<AcceptApplication> mapRow(Result result, int rowNum) throws Exception {
@@ -81,8 +80,7 @@ public class HostApplicationMapperVer2 implements RowMapper<List<AcceptApplicati
         String bindApplicationName = reader.readPrefixedString();
         short bindServiceTypeCode = reader.readShort();
 
-        ServiceType bindServiceType = registry.findServiceType(bindServiceTypeCode);
-        Application bindApplication = new Application(bindApplicationName, bindServiceType);
+        final Application bindApplication = applicationFactory.createApplication(bindApplicationName, bindServiceTypeCode);
         return new AcceptApplication(host, bindApplication);
     }
 }

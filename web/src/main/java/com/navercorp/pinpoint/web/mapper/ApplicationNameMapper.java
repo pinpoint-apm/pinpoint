@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
@@ -40,7 +41,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 public class ApplicationNameMapper implements RowMapper<List<Application>> {
 
     @Autowired
-    private ServiceTypeRegistryService registry;
+    private ApplicationFactory applicationFactory;
 
     @Override
     public List<Application> mapRow(Result result, int rowNum) throws Exception {
@@ -55,10 +56,11 @@ public class ApplicationNameMapper implements RowMapper<List<Application>> {
             short serviceTypeCode = Bytes.toShort(CellUtil.cloneValue(cell));
             uniqueTypeCodes.add(serviceTypeCode);
         }
-        List<Application> applications = new ArrayList<Application>();
+        List<Application> applicationList = new ArrayList<Application>();
         for (short serviceTypeCode : uniqueTypeCodes) {
-            applications.add(new Application(applicationName, registry.findServiceType(serviceTypeCode)));
+            final Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+            applicationList.add(application);
         }
-        return applications;
+        return applicationList;
     }
 }

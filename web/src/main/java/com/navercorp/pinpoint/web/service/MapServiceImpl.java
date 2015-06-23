@@ -59,6 +59,9 @@ public class MapServiceImpl implements MapService {
     @Autowired
     private HostApplicationMapDao hostApplicationMapDao;
 
+    @Autowired
+    private ApplicationFactory applicationFactory;
+
     @Autowired(required=false)
     private MatcherGroup matcherGroup;
 
@@ -116,7 +119,7 @@ public class MapServiceImpl implements MapService {
                     for (TimeHistogram timeHistogram : histogram.getTimeHistogram()) {
                         Application toApplication = linkData.getToApplication();
                         if (toApplication.getServiceType().isRpcClient()) {
-                            toApplication = new Application(toApplication.getName(), ServiceType.UNKNOWN);
+                            toApplication = this.applicationFactory.createApplication(toApplication.getName(), ServiceType.UNKNOWN);
                         }
                         responseHistogramSummary.addLinkHistogram(toApplication, histogram.getId(), timeHistogram);
                     }

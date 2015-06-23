@@ -38,20 +38,20 @@ public class DotExtractor {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Range range;
-    private final ServiceTypeRegistryService registry;
+    private final ApplicationFactory applicationFactory;
 
     private Map<Application, List<Dot>> dotMap = new HashMap<Application, List<Dot>>();
 
 
-    public DotExtractor(Range range, ServiceTypeRegistryService registry) {
+    public DotExtractor(Range range, ApplicationFactory applicationFactory) {
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
-        if (registry == null) {
-            throw new NullPointerException("registry must not be null");
+        if (applicationFactory == null) {
+            throw new NullPointerException("applicationFactory must not be null");
         }
         this.range = range;
-        this.registry = registry;
+        this.applicationFactory = applicationFactory;
     }
 
     public void addDot(SpanBo span) {
@@ -59,7 +59,7 @@ public class DotExtractor {
             throw new NullPointerException("span must not be null");
         }
 
-        Application spanApplication = new Application(span.getApplicationId(), registry.findServiceType(span.getApplicationServiceType()));
+        Application spanApplication = this.applicationFactory.createApplication(span.getApplicationId(), span.getApplicationServiceType());
         final List<Dot> dotList = getDotList(spanApplication);
 
         final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
@@ -86,19 +86,5 @@ public class DotExtractor {
             applicationScatterScanResult.add(new ApplicationScatterScanResult(application, scatterScanResult));
         }
         return applicationScatterScanResult;
-    }
-
-    public static class Key {
-        private String applicationId;
-        private short serviceType;
-
-        public Key(String applicationId, short serviceType) {
-            if (applicationId == null) {
-                throw new NullPointerException("applicationId must not be null");
-            }
-            this.applicationId = applicationId;
-            this.serviceType = serviceType;
-        }
-
     }
 }
