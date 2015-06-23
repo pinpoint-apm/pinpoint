@@ -33,6 +33,7 @@ import org.springframework.stereotype.Repository;
 
 /**
  * @author emeroad
+ * @author minwoo.jung
  */
 //@Repository
 public class HbaseSqlMetaDataDao implements SqlMetaDataDao {

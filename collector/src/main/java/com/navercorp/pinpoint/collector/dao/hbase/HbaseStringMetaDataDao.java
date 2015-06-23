@@ -33,6 +33,7 @@ import org.springframework.stereotype.Repository;
 
 /**
  * @author emeroad
+ * @author minwoo.jung
  */
 @Repository
 public class HbaseStringMetaDataDao implements StringMetaDataDao {
@@ -62,8 +63,7 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
         Put put = new Put(rowKey);
         String stringValue = stringMetaData.getStringValue();
         byte[] sqlBytes = Bytes.toBytes(stringValue);
-        // added sqlBytes into qualifier intentionally not to conflict hashcode
-        put.addColumn(HBaseTables.STRING_METADATA_CF_STR, sqlBytes, null);
+        put.addColumn(HBaseTables.STRING_METADATA_CF_STR, HBaseTables.STRING_METADATA_CF_STR_QUALI_STRING, sqlBytes);
 
         hbaseTemplate.put(HBaseTables.STRING_METADATA, put);
     }
