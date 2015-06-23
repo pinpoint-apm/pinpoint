@@ -38,10 +38,10 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DefaultInterceptorGroupDefinition;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InterceptorGroupDefinition;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.InterceptorGroupDefinition;
 import com.navercorp.pinpoint.bootstrap.instrument.Type;
 import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
@@ -55,9 +55,9 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvoca
 import com.navercorp.pinpoint.profiler.interceptor.DebugGroupDelegateSimpleInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.DebugGroupDelegateStaticInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
-import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.GroupDelegateSimpleInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.GroupDelegateStaticInterceptor;
+import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.ApiUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
@@ -927,7 +927,7 @@ public class JavaAssistClass implements InstrumentClass {
    @Override
     public boolean hasField(String name, String type) {
         try {
-            ctClass.getField(name, type);
+            ctClass.getField(name, JavaAssistUtils.toJvmSignature(type));
         } catch (NotFoundException e) {
             return false;
         }

@@ -105,9 +105,7 @@ public final class JavaAssistUtils {
 
     }
 
-
-    //for test
-    static String toJvmSignature(String javaType) {
+    public static String toJvmSignature(String javaType) {
         if (javaType == null) {
             throw new NullPointerException("javaType must not be null");
         }

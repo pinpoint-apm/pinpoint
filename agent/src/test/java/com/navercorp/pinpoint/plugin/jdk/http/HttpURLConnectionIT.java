@@ -16,12 +16,15 @@ package com.navercorp.pinpoint.plugin.jdk.http;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation.*;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.UnknownHostException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.asm.tree.FieldNode;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.BlockType;
@@ -72,4 +75,46 @@ public class HttpURLConnectionIT {
         verifier.verifyTraceBlock(BlockType.EVENT, "JDK_HTTPURLCONNECTOR", connect, null, null, null, "www.naver.com", annotation("http.url", "http://www.naver.com"));
     }
     
+    @Test
+    public void testConnecting() throws Exception {
+        URL url = new URL("http://no.such.url");
+        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+        
+        try {
+            connection.connect();
+        } catch (UnknownHostException e) {
+            // ignore
+        }
+        
+        try {
+            connection.connect();
+        } catch (UnknownHostException e) {
+            // ignore
+        }
+        
+        Field field = null;
+        try {
+            field = connection.getClass().getDeclaredField("connecting");
+        } catch (NoSuchFieldException e) {
+            
+        }
+        
+         
+        
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printCache(System.out);
+        verifier.printBlocks(System.out);
+        
+        Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
+        Method getInputStream = targetClass.getMethod("connect");
+        
+        verifier.verifyTraceBlock(BlockType.EVENT, "JDK_HTTPURLCONNECTOR", getInputStream, null, null, null, "no.such.url", annotation("http.url", "http://no.such.url"));
+        
+        if (field == null) {
+            // JDK 6, 7
+            verifier.verifyTraceBlock(BlockType.EVENT, "JDK_HTTPURLCONNECTOR", getInputStream, null, null, null, "no.such.url", annotation("http.url", "http://no.such.url"));
+        }
+        
+        verifier.verifyTraceBlockCount(0);
+    }
 }
