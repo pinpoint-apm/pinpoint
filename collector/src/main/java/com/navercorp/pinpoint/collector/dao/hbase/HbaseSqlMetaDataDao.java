@@ -32,7 +32,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 /**
- * @author 
+ * @author minwoo.jung
  */
 //@Repository
 public class HbaseSqlMetaDataDao implements SqlMetaDataDao {

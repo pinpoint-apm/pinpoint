@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
  * @author minwoo.jung
  */
 //@Repository
+@Deprecated
 public class HbaseSqlMetaDataCompatibility implements SqlMetaDataDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
