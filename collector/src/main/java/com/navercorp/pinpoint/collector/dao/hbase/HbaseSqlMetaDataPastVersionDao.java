@@ -33,8 +33,10 @@ import org.springframework.stereotype.Repository;
 
 /**
  * @author emeroad
+ * @author minwoo.jung
  */
 //@Repository
+@Deprecated
 public class HbaseSqlMetaDataPastVersionDao implements SqlMetaDataDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

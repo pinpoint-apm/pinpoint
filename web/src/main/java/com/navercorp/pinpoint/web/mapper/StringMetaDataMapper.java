@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.bo.StringMetaDataBo;
+import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 
 import org.apache.hadoop.hbase.Cell;
@@ -40,7 +41,9 @@ public class StringMetaDataMapper implements RowMapper<List<StringMetaDataBo>> {
     @Autowired
     @Qualifier("metadataRowKeyDistributor")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
-
+    
+    private final static String STRING_METADATA_CF_STR_QUALI_STRING = Bytes.toString(HBaseTables.STRING_METADATA_CF_STR_QUALI_STRING);
+    
     @Override
     public List<StringMetaDataBo> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
@@ -54,6 +57,11 @@ public class StringMetaDataMapper implements RowMapper<List<StringMetaDataBo>> {
             StringMetaDataBo sqlMetaDataBo = new StringMetaDataBo();
             sqlMetaDataBo.readRowKey(rowKey);
             String stringValue = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
+            
+            if (STRING_METADATA_CF_STR_QUALI_STRING.equals(stringValue)) {
+                stringValue = Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+            }
+            
             sqlMetaDataBo.setStringValue(stringValue);
             stringMetaDataList.add(sqlMetaDataBo);
         }
