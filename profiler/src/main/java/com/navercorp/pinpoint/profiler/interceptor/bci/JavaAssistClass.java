@@ -927,7 +927,8 @@ public class JavaAssistClass implements InstrumentClass {
    @Override
     public boolean hasField(String name, String type) {
         try {
-            ctClass.getField(name, JavaAssistUtils.toJvmSignature(type));
+            String vmType = type == null ? null : JavaAssistUtils.toJvmSignature(type);
+            ctClass.getField(name, vmType);
         } catch (NotFoundException e) {
             return false;
         }
