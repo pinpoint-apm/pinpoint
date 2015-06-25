@@ -77,7 +77,7 @@ public class JedisClientConstructorInterceptor implements SimpleAroundIntercepto
         }
 
         if (!(args[0] instanceof String)) {
-            logger.debug("Invalid arguments. Expectations String but args[0]({}).", args[0]);
+            logger.debug("Invalid arguments. Expect String but args[0]({}).", args[0]);
             return false;
         }
 

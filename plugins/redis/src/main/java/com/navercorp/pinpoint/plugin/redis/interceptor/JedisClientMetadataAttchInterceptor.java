@@ -68,7 +68,7 @@ public abstract class JedisClientMetadataAttchInterceptor implements SimpleAroun
         }
 
         if (!(args[0] instanceof Client)) {
-            logger.debug("Invalid arguments. Expectations Client but args[0]({}).", args[0]);
+            logger.debug("Invalid arguments. Expect Client but args[0]({}).", args[0]);
             return false;
         }
 
