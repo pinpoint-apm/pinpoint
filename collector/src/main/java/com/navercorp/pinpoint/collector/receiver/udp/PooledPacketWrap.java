@@ -43,7 +43,7 @@ public class PooledPacketWrap implements Runnable {
         final DatagramPacket packet = pooledObject.getObject();
         try {
             packetHandler.receive(packet);
-        } catch (Exception e) {
+        } finally {
             pooledObject.returnObject();
         }
     }
