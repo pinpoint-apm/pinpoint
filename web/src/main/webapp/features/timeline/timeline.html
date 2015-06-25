@@ -1,12 +1,3 @@
-<div class="timeline" style="width:100%;height:100%;overflow:auto;font-size:11px;padding-top:2px;">
-    <div ng-repeat="stack in newCallStacks" style="border-bottom:1px solid #D3D3D3;font-family:Verdana">
-        <div style="cursor:pointer;width:{{getWidth(stack)}}px; background-color:{{getColorByString(stack[key.applicationName])}}; margin-left:{{getMarginLeft(stack)}}px; margin-top:1px;margin-bottom:1px;padding-top:2px;padding-bottom:2px;border-radius:4px" ng-click="moveCallFlow( stack )">
-        	<div style="width:100%;padding-left:4px;overflow-x:visible" ng-mouseenter="mouseEnterCallFlow($event)" ng-mouseleave="mouseLeaveCallFlow($event)">
-        		<span style="position:relative;white-space:nowrap;top:0px">
-        			<span style="position:absolute;text-align:right;white-space:nowrap;left:-70px;"><span class="glyphicon glyphicon-resize-horizontal" aria-hidden="true"></span> {{getStartTime(stack)}}ms</span>
-					{{stack[key.applicationName]}}/{{stack[key.apiType]}}({{stack[key.end] - stack[key.begin]}}ms)
-        		</span>
-        	</div>
-        </div>
-    </div>
+<div class="timeline">
+	<div style="width:100%;height:{{maxHeight}}px;position:relative"></div>
 </div>
