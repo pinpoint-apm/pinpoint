@@ -107,6 +107,7 @@
 	
 	        window.onresize = function (e) {
 	            $scope.$broadcast('distributedCallFlowDirective.resize.forTransactionDetail');
+	            $scope.$broadcast('timelineDirective.resize');
 	        };
 	
 	        /**
