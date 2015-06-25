@@ -14,7 +14,7 @@
  */
 package com.navercorp.pinpoint.plugin.jackson;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation.*;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 
 import java.lang.reflect.Method;
 
@@ -24,8 +24,8 @@ import org.junit.runner.RunWith;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.BlockType;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
@@ -51,16 +51,15 @@ public class ObjectReaderIT {
         byte[] jsonByte = writer.writeValueAsBytes(pojo);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache(System.out);
-        verifier.printBlocks(System.out);
+        verifier.printCache();
 
         Method writeval1 = ObjectWriter.class.getMethod("writeValueAsString", Object.class);
         Method writeval2 = ObjectWriter.class.getMethod("writeValueAsBytes", Object.class);
 
-        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", writeval1, null, null, null, null, annotation("jackson.json.length", jsonStr.length()));
-        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", writeval2, null, null, null, null, annotation("jackson.json.length", jsonByte.length));
+        verifier.verifyTrace(event("JACKSON", writeval1, annotation("jackson.json.length", jsonStr.length())));
+        verifier.verifyTrace(event("JACKSON", writeval2, annotation("jackson.json.length", jsonByte.length)));
 
-        verifier.verifyTraceBlockCount(0);
+        verifier.verifyTraceCount(0);
     }
 
     @Test
@@ -74,16 +73,15 @@ public class ObjectReaderIT {
         pojo = reader.readValue(json_b);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache(System.out);
-        verifier.printBlocks(System.out);
+        verifier.printCache();
 
         Method readval1 = ObjectReader.class.getMethod("readValue", String.class);
         Method readval2 = ObjectReader.class.getMethod("readValue", byte[].class);
 
-        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", readval1, null, null, null, null, annotation("jackson.json.length", json_str.length()));
-        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", readval2, null, null, null, null, annotation("jackson.json.length", json_b.length));
+        verifier.verifyTrace(event("JACKSON", readval1, Expectations.annotation("jackson.json.length", json_str.length())));
+        verifier.verifyTrace(event("JACKSON", readval2, Expectations.annotation("jackson.json.length", json_b.length)));
 
-        verifier.verifyTraceBlockCount(0);
+        verifier.verifyTraceCount(0);
     }
     
     private static class __POJO {

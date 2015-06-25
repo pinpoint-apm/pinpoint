@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.thrift.common.client;
 
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
+
 import java.lang.reflect.Method;
 
 import org.apache.thrift.TBase;
@@ -27,9 +29,9 @@ import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 
+import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
+import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.BlockType;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation;
 import com.navercorp.pinpoint.plugin.thrift.dto.EchoService;
 
 /**
@@ -53,38 +55,31 @@ public abstract class SyncEchoTestClient implements EchoTestClient {
     
     @Override
     public void verifyTraces(PluginTestVerifier verifier, String expectedMessage) throws Exception {
-        verifier.verifyTraceBlockCount(2);
+        verifier.verifyTraceCount(2);
         // SpanEvent - TServiceClient.sendBase
         Method sendBase = TServiceClient.class.getDeclaredMethod("sendBase", String.class, TBase.class);
         // refer to com.navercorp.pinpoint.plugin.thrift.ThriftUtils#getClientServiceName
-        ExpectedAnnotation thriftUrl = ExpectedAnnotation.annotation("thrift.url",
+        ExpectedAnnotation thriftUrl = Expectations.annotation("thrift.url",
                 SERVER_ADDRESS.getHostName() + ":" + SERVER_ADDRESS.getPort() + "/com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo");
-        ExpectedAnnotation thriftArgs = ExpectedAnnotation.annotation("thrift.args", "echo_args(message:" + expectedMessage + ")");
-        verifier.verifyTraceBlock(
-                BlockType.EVENT, // BlockType
+        ExpectedAnnotation thriftArgs = Expectations.annotation("thrift.args", "echo_args(message:" + expectedMessage + ")");
+        verifier.verifyTrace(event(
                 "THRIFT_CLIENT", // ServiceType
                 sendBase, // Method
                 null, // rpc
                 null, // endPoint
-                null, // remoteAddress
                 SERVER_ADDRESS.getHostName() + ":" + SERVER_ADDRESS.getPort(), // destinationId
                 thriftUrl, // Annotation("thrift.url")
                 thriftArgs // Annotation("thrift.args")
-        );
+        ));
 
         // SpanEvent - TServiceClient.receiveBase
         Method receiveBase = TServiceClient.class.getDeclaredMethod("receiveBase", TBase.class, String.class);
-        ExpectedAnnotation thriftResult = ExpectedAnnotation.annotation("thrift.result", "echo_result(success:" + expectedMessage + ")");
-        verifier.verifyTraceBlock(
-                BlockType.EVENT, // BlockType
+        ExpectedAnnotation thriftResult = Expectations.annotation("thrift.result", "echo_result(success:" + expectedMessage + ")");
+        verifier.verifyTrace(event(
                 "THRIFT_CLIENT_INTERNAL", // ServiceType
                 receiveBase, // Method
-                null, // rpc
-                null, // endPoint
-                null, // remoteAddress
-                null, // destinationId
                 thriftResult // Annotation("thrift.result")
-        );
+        ));
     }
     
     @Override

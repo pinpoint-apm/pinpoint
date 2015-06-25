@@ -14,7 +14,7 @@
  */
 package com.navercorp.pinpoint.plugin.json_lib;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation.*;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -48,16 +48,15 @@ public class JsonLibJSONObjectIT {
         JSONObject.toBean(jsonObject);	
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache(System.out);
-        verifier.printBlocks(System.out);
+        verifier.printCache();
         
         Method fromObject = JSONObject.class.getMethod("fromObject", Object.class);
         Method toBean = JSONObject.class.getMethod("toBean", JSONObject.class);
 
-        verifier.verifyTraceBlock(PluginTestVerifier.BlockType.EVENT, SERVICE_TYPE, fromObject, null, null, null, null, annotation(ANNOTATION_KEY, json.length()));
-        verifier.verifyApi("JSON-LIB", toBean);
+        verifier.verifyTrace(event(SERVICE_TYPE, fromObject, annotation(ANNOTATION_KEY, json.length())));
+        verifier.verifyTrace(event(SERVICE_TYPE, toBean));
 
-        verifier.verifyTraceBlockCount(0);
+        verifier.verifyTraceCount(0);
     }
     
     
@@ -72,15 +71,14 @@ public class JsonLibJSONObjectIT {
         String json = jsonObject.toString();
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache(System.out);
-        verifier.printBlocks(System.out);
+        verifier.printCache();
         
         Method fromObject = JSONObject.class.getMethod("fromObject", Object.class);
         Method toString  = JSONObject.class.getMethod("toString");
 
-        verifier.verifyApi(SERVICE_TYPE, fromObject);
-        verifier.verifyTraceBlock(PluginTestVerifier.BlockType.EVENT, SERVICE_TYPE, toString, null, null, null, null, annotation(ANNOTATION_KEY, json.length()));
+        verifier.verifyTrace(event(SERVICE_TYPE, fromObject));
+        verifier.verifyTrace(event(SERVICE_TYPE, toString, annotation(ANNOTATION_KEY, json.length())));
 
-        verifier.verifyTraceBlockCount(0);
+        verifier.verifyTraceCount(0);
     }
 }
