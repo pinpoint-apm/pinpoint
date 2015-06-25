@@ -14,7 +14,7 @@
  */
 package com.navercorp.pinpoint.plugin.json_lib;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation.*;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -57,12 +57,11 @@ public class JsonLibJSONSerializerIT {
         }
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache(System.out);
-        verifier.printBlocks(System.out);
+        verifier.printCache();
 
-        verifier.verifyTraceBlock(PluginTestVerifier.BlockType.EVENT, SERVICE_TYPE, toJSON, null, null, null, null, annotation(ANNOTATION_KEY, test.length()));
-        verifier.verifyApi("JSON-LIB", toJava);
+        verifier.verifyTrace(event(SERVICE_TYPE, toJSON, annotation(ANNOTATION_KEY, test.length())));
+        verifier.verifyTrace(event("JSON-LIB", toJava));
         
-        verifier.verifyTraceBlockCount(0);
+        verifier.verifyTraceCount(0);
     }
 }
