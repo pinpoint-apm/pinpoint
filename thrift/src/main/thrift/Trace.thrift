@@ -101,6 +101,7 @@ struct TSpan {
   26: optional TIntStringValue exceptionInfo;
   
   30: optional i16 applicationServiceType;
+  31: optional i16 loggingTransactionInfo;
 }
 
 struct TSpanChunk {

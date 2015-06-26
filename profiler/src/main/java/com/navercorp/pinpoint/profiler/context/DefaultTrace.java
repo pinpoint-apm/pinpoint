@@ -611,4 +611,13 @@ public final class DefaultTrace implements Trace {
             throw new PinpointException("not SpanEventStackFrame");
         }
     }
+
+    @Override
+    public void recordLogging(boolean isLogging) {
+        final Span span = getCallStack().getSpan();
+        
+        if (span.isSetLoggingTransactionInfo()) {
+            span.setLoggingTransactionInfo((short)(isLogging ? 1 : 0)); 
+        }
+    }
 }

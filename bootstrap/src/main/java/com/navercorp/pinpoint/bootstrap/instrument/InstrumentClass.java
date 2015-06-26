@@ -120,4 +120,6 @@ public interface InstrumentClass {
     void addGetter(String getterName, String fieldName, String fieldType) throws InstrumentException;
     
     void addGetter(Class<?> interfaceType, String fieldName) throws InstrumentException;
+
+    void addDelegatorMethod(String methodName, String[] args) throws InstrumentException;
 }

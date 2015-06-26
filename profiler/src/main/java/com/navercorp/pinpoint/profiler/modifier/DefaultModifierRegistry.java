@@ -53,6 +53,8 @@ import com.navercorp.pinpoint.profiler.modifier.db.oracle.OracleStatementModifie
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.PhysicalConnectionModifier;
 import com.navercorp.pinpoint.profiler.modifier.log.log4j.LoggingEventOfLog4jModifier;
 import com.navercorp.pinpoint.profiler.modifier.log.logback.LoggingEventOfLogbackModifier;
+import com.navercorp.pinpoint.profiler.modifier.log.nelo.Nelo2AsyncAppenderModifier;
+import com.navercorp.pinpoint.profiler.modifier.log.nelo.NeloAppenderModifier;
 import com.navercorp.pinpoint.profiler.modifier.method.MethodModifier;
 import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.SqlMapModifier;
 import com.navercorp.pinpoint.profiler.modifier.orm.mybatis.MyBatisModifier;
@@ -367,6 +369,8 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     public void addLog4jModifier() {
         if (profilerConfig.isLog4jLoggingTransactionInfo()) {
             addModifier(new LoggingEventOfLog4jModifier(byteCodeInstrumentor, agent));
+            addModifier(new Nelo2AsyncAppenderModifier(byteCodeInstrumentor, agent));
+            addModifier(new NeloAppenderModifier(byteCodeInstrumentor, agent));
         }
     }
 
