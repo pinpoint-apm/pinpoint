@@ -86,19 +86,26 @@
 	            }
 	        };
 	        initSearchVar = function() {
-	        	$("#traceTabs li:nth-child(5)").hide();
+//	        	$("#traceTabs li:nth-child(5)").hide();
 	        	$scope.searchMinTime = 1000;
-	        	$scope.searchIndex = 0;
+	        	$scope.timelineSearchIndex = 0;
+	        	$scope.calltreeSearchIndex = 0;
 	        	$scope.searchMessage = "";
 	        };
-	        $scope.searchIndex = 0;
+	        $scope.calltreeSearchIndex = 0;
+	        $scope.timelineSearchIndex = 0;
 	        $scope.searchMinTime = 1000; // ms
 	        $scope.searchMessage = "";
 	        $scope.searchCall = function() {
-	        	$scope.$broadcast('distributedCallFlowDirective.searchCall.forTransactionDetail', parseInt($scope.searchMinTime), parseInt($scope.searchIndex) );
+	        	if ( $("#CallStacks").is(":visible") ) {
+	        		$scope.$broadcast('distributedCallFlowDirective.searchCall.forTransactionDetail', parseInt($scope.searchMinTime), parseInt($scope.calltreeSearchIndex) );
+	        	} else {
+	        		$scope.$broadcast('timelineDirective.searchCall', parseInt($scope.searchMinTime), parseInt($scope.timelineSearchIndex) );
+	        	}
 	        };
 	        $scope.$watch( "searchMinTime", function( newVal ) {
-	        	$scope.searchIndex = 0;
+	        	$scope.calltreeSearchIndex = 0;
+	        	$scope.timelineSearchIndex = 0;
 	        });
 	
 	        $scope.openInNewWindow = function () {
@@ -122,13 +129,23 @@
 	        	$("#traceTabs li:nth-child(1) a").trigger("click");
 	        	$scope.$broadcast('distributedCallFlowDirective.selectRow.forTransactionDetail', rowId);
 	        });
-	        $scope.$on("transactionDetail.searchCallresult", function(event, message) {
+	        $scope.$on("transactionDetail.calltreeSearchCallResult", function(event, message) {
 	        	if ( message == "Loop" ) {
-	        		$scope.searchIndex = 1;
+	        		$scope.calltreeSearchIndex = 1;
 	        	} else {
 	        		$scope.searchMessage = message.replace("{time}", $scope.searchMinTime);
 	        		if ( message == "" ) {
-	            		$scope.searchIndex++;
+	            		$scope.calltreeSearchIndex++;
+	        		}
+	        	}
+	        });
+	        $scope.$on("transactionDetail.timelineSearchCallResult", function(event, message) {
+	        	if ( message == "Loop" ) {
+	        		$scope.timelineSearchIndex = 1;
+	        	} else {
+	        		$scope.searchMessage = message.replace("{time}", $scope.searchMinTime);
+	        		if ( message == "" ) {
+	            		$scope.timelineSearchIndex++;
 	        		}
 	        	}
 	        });
@@ -137,7 +154,7 @@
 	        $('#traceTabs li a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
 	        	if ( e.target.href.indexOf( "#CallStacks") != -1 ) {
 	        		$at($at.CALLSTACK, $at.CLK_DISTRIBUTED_CALL_FLOW);
-	        		$("#traceTabs li:nth-child(5)").show();
+//	        		$("#traceTabs li:nth-child(5)").show();
 	        	}
 	        });
 	        // events binding
