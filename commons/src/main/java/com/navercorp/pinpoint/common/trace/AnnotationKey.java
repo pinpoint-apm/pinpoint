@@ -122,9 +122,9 @@ public class AnnotationKey {
 
     // ARCUS_COMMAND(50, "arcus.command");
     
-    public static final AnnotationKey NPC_URL = new AnnotationKey(60, "npc.url");
-    public static final AnnotationKey NPC_PARAM = new AnnotationKey(61, "npc.param");
-    public static final AnnotationKey NPC_CONNECT_OPTION = new AnnotationKey(62, "npc.connect.options");
+//    public static final AnnotationKey NPC_URL = new AnnotationKey(60, "npc.url");
+//    public static final AnnotationKey NPC_PARAM = new AnnotationKey(61, "npc.param");
+//    public static final AnnotationKey NPC_CONNECT_OPTION = new AnnotationKey(62, "npc.connect.options");
 
     public static final AnnotationKey NIMM_OBJECT_NAME = new AnnotationKey(70, "nimm.objectName");
     public static final AnnotationKey NIMM_METHOD_NAME = new AnnotationKey(71, "nimm.methodName");
