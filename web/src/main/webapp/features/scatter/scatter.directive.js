@@ -173,6 +173,7 @@
 //                        }
 
                         var options = angular.copy(cfg.options);
+                        options.sPrefix = "bigscatterchart-" + parseInt( Math.random() * 100000 ) + "-";
                         options.sContainerId = target;
                         options.nWidth = w ? w : 400;
                         options.nHeight = h ? h : 250;
