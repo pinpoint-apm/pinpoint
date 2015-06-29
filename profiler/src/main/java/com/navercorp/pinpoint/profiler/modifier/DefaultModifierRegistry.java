@@ -150,7 +150,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         }
 
         // JDK HTTPUrlConnector
-        if (profilerConfig.isJDKHttpURLConnectionProfile()) {
+        if (profilerConfig.isJdkHttpURLConnectionProfile()) {
             HttpURLConnectionModifier httpURLConnectionModifier = new HttpURLConnectionModifier(byteCodeInstrumentor, agent);
             addModifier(httpURLConnectionModifier);
         }

@@ -507,7 +507,7 @@ public class ProfilerConfig {
         return apacheNIOHttpClient4Profile;
     }
 
-    public boolean isJDKHttpURLConnectionProfile() {
+    public boolean isJdkHttpURLConnectionProfile() {
         return jdkHttpURLConnectionProfile;
     }
 
