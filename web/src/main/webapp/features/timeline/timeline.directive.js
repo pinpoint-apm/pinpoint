@@ -96,7 +96,7 @@
 	            
 	            $(element).on("click", ".clickable-bar", function() {
 	            	$at($at.CALLSTACK, $at.CLK_CALL);
-	            	scope.$emit( "transactionDetail.selectDistributedCallFlowRow", scope.newCallStacks[parseInt($(this).attr("data-index"))][6] );
+	            	scope.$emit( "transactionDetail.selectDistributedCallFlowRow", scope.newCallStacks[parseInt($(this).parent().attr("data-index"))][6] );
                 });
 	            $(element).on("mouseenter", ".timeline-bar-frame", function(event) {
 	            	$(this).parent().css({

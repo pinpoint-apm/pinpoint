@@ -62,12 +62,11 @@
 			var top = $targetElement.scrollTop();
 			var mTime = new Date().valueOf();
 			if ( top == this._previousTop ) return;
-//			if ( this._previousTime != -1 && ( mTime - this._previousTime ) < 16 ) return;
 			
 			var bIsDown = top - this._previousTop > 0;
-			if ( bIsDown ) { 	// 아래로 스크롤 - top 값은 커진다. 
+			if ( bIsDown ) { 	// scroll down 
 				this._scrollDown(top, this._getTopByIndex(this._elementArrayStartIndex));
-			} else {			// 위로 스크롤 - top 값은 작아진다.
+			} else {			// scroll up
 				this._scrollUp(top, this._getTopByIndex(this._elementArrayEndIndex));
 			}		
 			this._previousTop = top;
@@ -85,12 +84,14 @@
 					if ( sourceIndex >= this._source.length ) {
 						break;
 					}
-					this._renderElement(this._elementArray[nextIndex], sourceIndex);
+					if ( nextIndexStep - i <= this._elementArraySize * 2 ) {
+						this._renderElement(this._elementArray[nextIndex], sourceIndex);						
+					}
 					nextIndex = this._getNextArrayIndex(nextIndex);
 				}
 				this._elementArrayStartIndex = nextIndex;
 				this._elementArrayEndIndex = this._getPreviousArrayIndex(nextIndex);
-			}	
+			}
 		},
 		_scrollUp: function( top, lastElementTop ) {
 			var exceededDistance = lastElementTop + this.option("elementHeight") - top - this._viewAreaHeight - this._threshold;
@@ -104,12 +105,14 @@
 					if ( sourceIndex < 0 ) {
 						break;
 					}
-					this._renderElement(this._elementArray[previousIndex], sourceIndex);
+					if ( previousIndexStep - i <= this._elementArraySize * 2 ) {	
+						this._renderElement(this._elementArray[previousIndex], sourceIndex);
+					}
 					previousIndex = this._getPreviousArrayIndex(previousIndex);
 				}
 				this._elementArrayEndIndex = previousIndex;
 				this._elementArrayStartIndex = this._getNextArrayIndex(previousIndex);
-			}	
+			}
 		},
 		setSource: function( source ) {
 			this._source= source;
@@ -149,7 +152,7 @@
 		},
 		searchRow: function( from, to, func) {
 			var resultRow = -1;
-			to = to == -1 ? this._source.length : to;
+			to = (to == -1 ? this._source.length : to);
 			for( var i = from ; i < to ; i++ ) {
 				if ( func(this._source[i]) ) {
 					resultRow = i;
