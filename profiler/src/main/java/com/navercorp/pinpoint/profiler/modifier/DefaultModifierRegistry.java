@@ -150,8 +150,10 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         }
 
         // JDK HTTPUrlConnector
-        HttpURLConnectionModifier httpURLConnectionModifier = new HttpURLConnectionModifier(byteCodeInstrumentor, agent);
-        addModifier(httpURLConnectionModifier);
+        if (profilerConfig.isJDKHttpURLConnectionProfile()) {
+            HttpURLConnectionModifier httpURLConnectionModifier = new HttpURLConnectionModifier(byteCodeInstrumentor, agent);
+            addModifier(httpURLConnectionModifier);
+        }
 
         // ning async http client
         addModifier(new AsyncHttpClientModifier(byteCodeInstrumentor, agent));

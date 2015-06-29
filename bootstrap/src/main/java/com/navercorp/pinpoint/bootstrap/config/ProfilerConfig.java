@@ -172,6 +172,11 @@ public class ProfilerConfig {
     private boolean apacheNIOHttpClient4Profile = true;
 
     /**
+     * jdk httpclient : sun.net.www.protocol.http.HttpURLConnection
+     */
+    private boolean jdkHttpURLConnectionProfile = true;
+
+    /**
      * ning async http client
      */
     private boolean ningAsyncHttpClientProfile = true;
@@ -502,6 +507,10 @@ public class ProfilerConfig {
         return apacheNIOHttpClient4Profile;
     }
 
+    public boolean isJDKHttpURLConnectionProfile() {
+        return jdkHttpURLConnectionProfile;
+    }
+
     //-----------------------------------------
     // com/ning/http/client/AsyncHttpClient
     public boolean isNingAsyncHttpClientProfile() {
@@ -703,6 +712,11 @@ public class ProfilerConfig {
          * apache nio http client
          */
         this.apacheNIOHttpClient4Profile = readBoolean("profiler.apache.nio.httpclient4", true);
+
+        /**
+         * jdk httpclient
+         */
+        this.jdkHttpURLConnectionProfile = readBoolean("profiler.jdk.httpurlconnection", true);
 
         /**
          * ning.async http client
@@ -917,6 +931,13 @@ public class ProfilerConfig {
         sb.append(", mybatis=").append(mybatis);
         sb.append(", redis=").append(redis);
         sb.append(", redisPipeline=").append(redisPipeline);
+        sb.append(", apacheHttpClient3Profile=").append(apacheHttpClient3Profile);
+        sb.append(", apacheHttpClient3ProfileCookie=").append(apacheHttpClient3ProfileCookie);
+        sb.append(", apacheHttpClient3ProfileCookieDumpType=").append(apacheHttpClient3ProfileCookieDumpType);
+        sb.append(", apacheHttpClient3ProfileCookieSamplingRate=").append(apacheHttpClient3ProfileCookieSamplingRate);
+        sb.append(", apacheHttpClient3ProfileEntity=").append(apacheHttpClient3ProfileEntity);
+        sb.append(", apacheHttpClient3ProfileEntityDumpType=").append(apacheHttpClient3ProfileEntityDumpType);
+        sb.append(", apacheHttpClient3ProfileEntitySamplingRate=").append(apacheHttpClient3ProfileEntitySamplingRate);
         sb.append(", apacheHttpClient4Profile=").append(apacheHttpClient4Profile);
         sb.append(", apacheHttpClient4ProfileCookie=").append(apacheHttpClient4ProfileCookie);
         sb.append(", apacheHttpClient4ProfileCookieDumpType=").append(apacheHttpClient4ProfileCookieDumpType);
@@ -924,7 +945,9 @@ public class ProfilerConfig {
         sb.append(", apacheHttpClient4ProfileEntity=").append(apacheHttpClient4ProfileEntity);
         sb.append(", apacheHttpClient4ProfileEntityDumpType=").append(apacheHttpClient4ProfileEntityDumpType);
         sb.append(", apacheHttpClient4ProfileEntitySamplingRate=").append(apacheHttpClient4ProfileEntitySamplingRate);
+        sb.append(", apacheHttpClient4ProfileStatusCode=").append(apacheHttpClient4ProfileStatusCode);
         sb.append(", apacheNIOHttpClient4Profile=").append(apacheNIOHttpClient4Profile);
+        sb.append(", jdkHttpURLConnectionProfile=").append(jdkHttpURLConnectionProfile);
         sb.append(", ningAsyncHttpClientProfile=").append(ningAsyncHttpClientProfile);
         sb.append(", ningAsyncHttpClientProfileCookie=").append(ningAsyncHttpClientProfileCookie);
         sb.append(", ningAsyncHttpClientProfileCookieDumpType=").append(ningAsyncHttpClientProfileCookieDumpType);
