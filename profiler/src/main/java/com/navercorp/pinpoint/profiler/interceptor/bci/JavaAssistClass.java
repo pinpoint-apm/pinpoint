@@ -64,6 +64,7 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 /**
  * @author emeroad
  * @author netspider
+ * @author minwoo.jung
  */
 public class JavaAssistClass implements InstrumentClass {
 
@@ -1034,7 +1035,7 @@ public class JavaAssistClass implements InstrumentClass {
     }
     
     
-    private CtMethod getMethod(CtClass ctClass, String methodName, String[] args) {
+    private static CtMethod getMethod(CtClass ctClass, String methodName, String[] args) {
         final String jvmSignature = JavaAssistUtils.javaTypeToJvmSignature(args);
         
         for (CtMethod method : ctClass.getDeclaredMethods()) {
@@ -1049,40 +1050,17 @@ public class JavaAssistClass implements InstrumentClass {
         
         return null;
     }
-    /**
-     * You should check that class already have method.
-     * If class already have method, this method throw exception. 
-     */
+    
     @Override
     public void addDelegatorMethod(String methodName, String[] args) throws InstrumentException {
-        final String jvmSignature = JavaAssistUtils.javaTypeToJvmSignature(args);
-
-        for (CtMethod method : ctClass.getDeclaredMethods()) {
-            if (!method.getName().equals(methodName)) {
-                continue;
-            }
-            final String descriptor = method.getMethodInfo2().getDescriptor();
-            if (descriptor.startsWith(jvmSignature)) {
-                // skip return type check                
-                throw new InstrumentException(getName() + "already have method(" + methodName  +").");
-            }
+        if (getMethod(ctClass, methodName, args) != null) {
+            throw new InstrumentException(getName() + "already have method(" + methodName  +").");
         }
         
         try {
             final CtClass superClass = ctClass.getSuperclass();
-            CtMethod superMethod = null;
+            CtMethod superMethod = getMethod(superClass, methodName, args);
             
-            for (CtMethod method : superClass.getDeclaredMethods()) {
-                if (!method.getName().equals(methodName)) {
-                    continue;
-                }
-                final String descriptor = method.getMethodInfo2().getDescriptor();
-                // skip return type check
-                if (descriptor.startsWith(jvmSignature)) {
-                    superMethod = method;
-                    break;
-                }
-            }
             if (superMethod == null) {
                 throw new NotFoundInstrumentException(methodName + Arrays.toString(args) + " is not found in " + superClass.getName());
             }

@@ -30,12 +30,16 @@ public class Nelo2AsyncAppenderModifier extends AbstractModifier {
         }
         
         try {
-            InstrumentClass loggingEvent = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
-            loggingEvent.addDelegatorMethod("append", new String[]{"org.apache.log4j.spi.LoggingEvent"});
-            Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.log.nelo.interceptor.AppenderInterceptor");
-            loggingEvent.addInterceptor("append", new String[]{"org.apache.log4j.spi.LoggingEvent"}, interceptor);
+            InstrumentClass nelo2AsyncAppender = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
             
-            return loggingEvent.toBytecode();
+            if (!nelo2AsyncAppender.hasDeclaredMethod("append", new String[]{"org.apache.log4j.spi.LoggingEvent"})) {
+                nelo2AsyncAppender.addDelegatorMethod("append", new String[]{"org.apache.log4j.spi.LoggingEvent"});
+            }
+            
+            Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.log.nelo.interceptor.AppenderInterceptor");
+            nelo2AsyncAppender.addInterceptor("append", new String[]{"org.apache.log4j.spi.LoggingEvent"}, interceptor);
+            
+            return nelo2AsyncAppender.toBytecode();
         } catch (InstrumentException e) {
             logger.warn("modify fail. Cause:" + e.getMessage(), e);
             return null;
