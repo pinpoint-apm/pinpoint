@@ -32,22 +32,27 @@ public class JdkHttpPlugin implements ProfilerPlugin {
 
     @Override
     public void setup(ProfilerPluginContext context) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("sun.net.www.protocol.http.HttpURLConnection");
-    
-        builder.injectFieldAccessor("connected");
-        builder.injectInterceptor("com.navercorp.pinpoint.plugin.jdk.http.interceptor.HttpURLConnectionInterceptor");
-        
-        // JDK 8
-        builder.conditional(hasField("connecting", "boolean"), 
-                new ConditionalClassFileTransformerSetup() {
-                    @Override
-                    public void setup(ConditionalClassFileTransformerBuilder conditional) {
-                        conditional.injectFieldAccessor("connecting");
+
+        JdkHttpPluginConfig jdkHttpPluginConfig = new JdkHttpPluginConfig(context.getConfig());
+
+        if (jdkHttpPluginConfig.isJdkHttpURLConnectionProfile()) {
+            ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("sun.net.www.protocol.http.HttpURLConnection");
+
+            builder.injectFieldAccessor("connected");
+            builder.injectInterceptor("com.navercorp.pinpoint.plugin.jdk.http.interceptor.HttpURLConnectionInterceptor");
+
+            // JDK 8
+            builder.conditional(hasField("connecting", "boolean"),
+                    new ConditionalClassFileTransformerSetup() {
+                        @Override
+                        public void setup(ConditionalClassFileTransformerBuilder conditional) {
+                            conditional.injectFieldAccessor("connecting");
+                        }
                     }
-                }
-        );
-        
-        context.addClassFileTransformer(builder.build());
+            );
+
+            context.addClassFileTransformer(builder.build());
+        }
     }
 
 }
