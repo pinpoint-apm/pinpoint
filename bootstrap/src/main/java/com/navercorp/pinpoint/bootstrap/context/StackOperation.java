@@ -32,4 +32,6 @@ public interface StackOperation {
 
     void traceBlockEnd(int stackId);
     boolean isRootStack();
+    int getStackFrameId();
+
 }

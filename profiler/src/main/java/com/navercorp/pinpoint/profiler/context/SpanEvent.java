@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 public class SpanEvent extends TSpanEvent {
 
     private final Span span;
+    private int stackId;
 
     public SpanEvent(Span span) {
         if (span == null) {
@@ -83,5 +84,11 @@ public class SpanEvent extends TSpanEvent {
         return span.getStartTime() + getStartElapsed() + getEndElapsed();
     }
 
+    public int getStackId() {
+        return stackId;
+    }
 
+    public void setStackId(int stackId) {
+        this.stackId = stackId;
+    }
 }
