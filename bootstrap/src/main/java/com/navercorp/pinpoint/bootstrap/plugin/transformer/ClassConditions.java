@@ -47,7 +47,6 @@ public class ClassConditions {
     public static ClassCondition hasClass(String name) {
         return new HasClass(name);
     }
-    
 
     public static ClassCondition hasNotDeclaredMethod(String name, String... paramTypes) {
         return new HasNotDeclaredMethod(name, paramTypes);

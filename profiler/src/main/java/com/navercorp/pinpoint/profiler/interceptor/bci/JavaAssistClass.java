@@ -1034,7 +1034,6 @@ public class JavaAssistClass implements InstrumentClass {
         throw new IllegalArgumentException(primitiveType);
     }
     
-    
     private static CtMethod getMethod(CtClass ctClass, String methodName, String[] args) {
         final String jvmSignature = JavaAssistUtils.javaTypeToJvmSignature(args);
         
