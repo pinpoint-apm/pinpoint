@@ -1,5 +1,7 @@
 disable 'AgentInfo'
 disable 'AgentStat'
+disable 'AgentLifeCycle'
+disable 'AgentEvent'
 disable 'ApplicationIndex'
 
 disable 'StringMetaData'
@@ -21,6 +23,8 @@ disable 'HostApplicationMap_Ver2'
 
 drop 'AgentInfo'
 drop 'AgentStat'
+drop 'AgentLifeCycle'
+drop 'AgentEvent'
 drop 'ApplicationIndex'
 
 drop 'StringMetaData'
