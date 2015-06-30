@@ -48,6 +48,10 @@ public class ClassConditions {
         return new HasClass(name);
     }
 
+    public static ClassCondition hasNotDeclaredMethod(String name, String... paramTypes) {
+        return new HasNotDeclaredMethod(name, paramTypes);
+    }
+
     private static class HasField implements ClassCondition {
         private final String name;
         private final String type;
@@ -137,6 +141,18 @@ public class ClassConditions {
             return builder.toString();
         }
     }
+    
+    private static class HasNotDeclaredMethod extends HasDeclaredMethod {
+        
+        public HasNotDeclaredMethod(String name, String[] paramTypes) {
+            super(name, paramTypes);
+        }
+
+        @Override
+        public boolean check(ProfilerPluginContext context, ClassLoader classLoader, InstrumentClass target) {
+            return !super.check(context, classLoader, target);
+        }
+    }
 
     private static class HasConstructor implements ClassCondition {
         private final String[] paramTypes;
@@ -191,4 +207,5 @@ public class ClassConditions {
             return builder.toString();
         }
     }
+
 }

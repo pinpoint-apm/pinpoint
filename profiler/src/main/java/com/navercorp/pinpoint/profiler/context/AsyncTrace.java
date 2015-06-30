@@ -235,4 +235,9 @@ public class AsyncTrace implements Trace {
     public void recordAsyncSequence(short sequence) {
         trace.recordAsyncSequence(sequence);
     }
+    
+    @Override
+    public void recordLogging(boolean isLogging) {
+        trace.recordLogging(isLogging);
+    }
 }

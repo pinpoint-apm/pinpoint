@@ -64,6 +64,7 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 /**
  * @author emeroad
  * @author netspider
+ * @author minwoo.jung
  */
 public class JavaAssistClass implements InstrumentClass {
 
@@ -1031,5 +1032,44 @@ public class JavaAssistClass implements InstrumentClass {
         }
 
         throw new IllegalArgumentException(primitiveType);
+    }
+    
+    private static CtMethod getMethod(CtClass ctClass, String methodName, String[] args) {
+        final String jvmSignature = JavaAssistUtils.javaTypeToJvmSignature(args);
+        
+        for (CtMethod method : ctClass.getDeclaredMethods()) {
+            if (!method.getName().equals(methodName)) {
+                continue;
+            }
+            final String descriptor = method.getMethodInfo2().getDescriptor();
+            if (descriptor.startsWith(jvmSignature)) {
+                return method;
+            }
+        }
+        
+        return null;
+    }
+    
+    @Override
+    public void addDelegatorMethod(String methodName, String[] args) throws InstrumentException {
+        if (getMethod(ctClass, methodName, args) != null) {
+            throw new InstrumentException(getName() + "already have method(" + methodName  +").");
+        }
+        
+        try {
+            final CtClass superClass = ctClass.getSuperclass();
+            CtMethod superMethod = getMethod(superClass, methodName, args);
+            
+            if (superMethod == null) {
+                throw new NotFoundInstrumentException(methodName + Arrays.toString(args) + " is not found in " + superClass.getName());
+            }
+            
+            CtMethod delegatorMethod = CtNewMethod.delegator(superMethod, ctClass);
+            ctClass.addMethod(delegatorMethod);
+        } catch (NotFoundException ex) {
+            throw new InstrumentException(getName() + "don't have super class(" + getSuperClass()  +"). Cause:" + ex.getMessage(), ex);
+        } catch (CannotCompileException ex) {
+            throw new InstrumentException(methodName + " addDelegatorMethod fail. Cause:" + ex.getMessage(), ex);
+        }
     }
 }

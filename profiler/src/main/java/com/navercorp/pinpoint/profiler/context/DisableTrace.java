@@ -237,4 +237,9 @@ public class DisableTrace  implements Trace {
     public void recordAsyncSequence(short sequence) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void recordLogging(boolean isLogging) {
+        throw new UnsupportedOperationException();
+    }
 }
