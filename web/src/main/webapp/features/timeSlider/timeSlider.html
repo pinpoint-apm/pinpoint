@@ -2,7 +2,7 @@
     <div class="nav-container">
         <a href="/" class="navbar-brand"><img class="brand" src="/images/logo2.png" width="116" height="18"><div class="beta">beta</div></a>
         <div class="timeslider_more" ng-show="oTimeSliderVoService.getInnerFrom() && oTimeSliderVoService.getInnerTo()">
-            <button type="button" ng-click="more()" class="btn btn-info btn-sm" ng-disabled="disableMore" ng-class="{true:'wait',false:'active tada'}[disableMore]">{{{true: 'Done', false: 'More'}[done]}}<span ng-show="oTimeSliderVoService.getCount() && oTimeSliderVoService.getTotal()"> ({{oTimeSliderVoService.getCount() | number}}/{{oTimeSliderVoService.getTotal() | number}})</span></button>
+            <button type="button" ng-click="more()" class="btn btn-info btn-sm" ng-disabled="disableMore" ng-class="{true:{true:'', false:'wait'}[done],false:'active tada'}[disableMore]">{{{true: 'Done', false: 'More'}[done]}}<span ng-show="oTimeSliderVoService.getCount() && oTimeSliderVoService.getTotal()"> ({{oTimeSliderVoService.getCount() | number}}/{{oTimeSliderVoService.getTotal() | number}})</span></button>
         </div>
         <div class="timeslider_wrapper" ng-show="oTimeSliderVoService.getInnerFrom() && oTimeSliderVoService.getInnerTo()">
             <input class="timeslider_input" type="slider" name="price" value="{{oTimeSliderVoService.getInnerFrom()}};{{oTimeSliderVoService.getInnerTo()}}" />
