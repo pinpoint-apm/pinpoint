@@ -31,8 +31,11 @@ public interface Trace extends StackOperation {
 
     boolean isAsync();
     
-    long getTraceStartTime(); 
-
+    long getTraceStartTime();
+    
+    SpanRecorder getSpanRecorder();
+    
+    SpanEventRecorder getSpanEventRecorder();
     
     void close();
 }

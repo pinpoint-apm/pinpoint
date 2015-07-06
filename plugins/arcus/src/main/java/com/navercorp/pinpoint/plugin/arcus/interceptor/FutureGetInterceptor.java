@@ -22,13 +22,10 @@ import net.spy.memcached.ops.Operation;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -53,12 +50,12 @@ public class FutureGetInterceptor extends SpanAsyncEventSimpleAroundInterceptor 
     }
 
     @Override
-    protected void doInBeforeTrace(Trace trace, AsyncTraceId asyncTraceId, Object target, Object[] args) {
-        trace.markBeforeTime();
+    protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncTraceId asyncTraceId, Object target, Object[] args) {
+        recorder.markBeforeTime();
     }
 
     @Override
-    protected void doInAfterTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         // find the target node
         final Operation op = operationAccessor.get(target);
         if (op != null) {
@@ -67,7 +64,7 @@ public class FutureGetInterceptor extends SpanAsyncEventSimpleAroundInterceptor 
                 SocketAddress socketAddress = handlingNode.getSocketAddress();
                 if (socketAddress instanceof InetSocketAddress) {
                     InetSocketAddress address = (InetSocketAddress) socketAddress;
-                    trace.recordEndPoint(address.getHostName() + ":" + address.getPort());
+                    recorder.recordEndPoint(address.getHostName() + ":" + address.getPort());
                 }
             } else {
                 logger.info("no handling node");
@@ -79,17 +76,17 @@ public class FutureGetInterceptor extends SpanAsyncEventSimpleAroundInterceptor 
         // determine the service type
         String serviceCode = serviceCodeAccessor.get(op);
         if (serviceCode != null) {
-            trace.recordDestinationId(serviceCode);
-            trace.recordServiceType(ARCUS_FUTURE_GET);
+            recorder.recordDestinationId(serviceCode);
+            recorder.recordServiceType(ARCUS_FUTURE_GET);
         } else {
-            trace.recordDestinationId("MEMCACHED");
-            trace.recordServiceType(ServiceType.MEMCACHED_FUTURE_GET);
+            recorder.recordDestinationId("MEMCACHED");
+            recorder.recordServiceType(ServiceType.MEMCACHED_FUTURE_GET);
         }
 
         if (op != null) {
-            trace.recordException(op.getException());
+            recorder.recordException(op.getException());
         }
-        trace.recordApi(methodDescriptor);
-        trace.markAfterTime();
+        recorder.recordApi(methodDescriptor);
+        recorder.markAfterTime();
     }
 }

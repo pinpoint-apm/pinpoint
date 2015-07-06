@@ -1,11 +1,14 @@
-package com.navercorp.pinpoint.profiler.context;
+package com.navercorp.pinpoint.bootstrap.context;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.ParsingResult;
 
-public interface SpanEventRecorder {
+public interface SpanRecorder {
+
+    boolean canSampled();
+
+    boolean isRoot();
 
     void markBeforeTime();
 
@@ -23,12 +26,6 @@ public interface SpanEventRecorder {
 
     void recordApiCachedString(MethodDescriptor methodDescriptor, String args, int index);
 
-    ParsingResult recordSqlInfo(String sql);
-
-    void recordSqlParsingResult(ParsingResult parsingResult);
-
-    void recordSqlParsingResult(ParsingResult parsingResult, String bindValue);
-
     void recordAttribute(AnnotationKey key, String value);
 
     void recordAttribute(AnnotationKey key, int value);
@@ -39,15 +36,11 @@ public interface SpanEventRecorder {
 
     void recordRpcName(String rpc);
 
-    void recordDestinationId(String destinationId);
-
+    void recordRemoteAddress(String remoteAddress);
+    
     void recordEndPoint(String endPoint);
 
-    void recordNextSpanId(long spanId);
+    void recordParentApplication(String parentApplicationName, short parentApplicationType);
 
-    void recordAsyncId(int asyncId);
-    
-    void recordNextAsyncId(int asyncId);
-    
-    void recordAsyncSequence(short sequence);
+    void recordAcceptorHost(String host);
 }

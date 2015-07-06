@@ -3,19 +3,28 @@ package com.navercorp.pinpoint.profiler.context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
-public class SpanRecorderWrapper extends AbstractRecorderWrapper implements SpanRecorder {
+public class WrappedSpanRecorder extends AbstractRecorder implements SpanRecorder {
     private final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
     
     private Span span;
     
-    public SpanRecorderWrapper(final TraceContext traceContext) {
+    public WrappedSpanRecorder(final TraceContext traceContext) {
         super(traceContext);
     }
 
+    public void setSpan(final Span span) {
+        this.span = span;
+    }
+    
+    public Span getSpan() {
+        return span;
+    }
+    
     @Override
     public void markBeforeTime() {
         span.markBeforeTime();

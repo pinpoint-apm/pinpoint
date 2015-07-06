@@ -20,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -56,7 +58,8 @@ public final class DefaultTrace implements Trace {
     private final TraceContext traceContext;
 
     // use for calculating depth of each Span.
-    private int latestStackIndex = -1;
+    private int latestStackIndex = 0;
+    private WrappedRecorderHolder recorderHolder = new WrappedRecorderHolder();
 
     public DefaultTrace(final TraceContext traceContext, long transactionId) {
         if (traceContext == null) {
@@ -120,18 +123,20 @@ public final class DefaultTrace implements Trace {
     // }
 
     @Override
-    public void traceBlockBegin() {
-        traceBlockBegin(DEFAULT_STACKID);
+    public SpanEventRecorder traceBlockBegin() {
+        return traceBlockBegin(DEFAULT_STACKID);
     }
 
     @Override
-    public void traceBlockBegin(final int stackId) {
+    public SpanEventRecorder traceBlockBegin(final int stackId) {
         final SpanEvent spanEvent = createSpanEvent(stackId);
         final int currentStackIndex = callStack.push(spanEvent);
         if (latestStackIndex != currentStackIndex) {
             latestStackIndex = currentStackIndex;
             spanEvent.setDepth(latestStackIndex);
         }
+        
+        return recorderHolder.getSpanEventRecorder(traceContext, spanEvent);
     }
 
     private SpanEvent createSpanEvent(int stackId) {
@@ -258,5 +263,20 @@ public final class DefaultTrace implements Trace {
     @Override
     public AsyncTraceId getAsyncTraceId() {
         return new DefaultAsyncTraceId(traceId, traceContext.getAsyncId(), getTraceStartTime());
+    }
+
+    @Override
+    public SpanRecorder getSpanRecorder() {
+        return recorderHolder.getSpanRecorder(traceContext, callStack.getSpan());
+    }
+
+    @Override
+    public SpanEventRecorder getSpanEventRecorder() {
+        final SpanEvent spanEvent = callStack.peek();
+        if(spanEvent == null) {
+            throw new PinpointException("not found SpanEvent stack");
+        }
+        
+        return recorderHolder.getSpanEventRecorder(traceContext, spanEvent);
     }
 }

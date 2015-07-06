@@ -67,7 +67,6 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
  * @author hyungil.jeong
  * @author Minwoo Jung
  * @author jaehong.kim
- *  - add redis
  */
 public class DefaultModifierRegistry implements ModifierRegistry {
 
@@ -123,101 +122,13 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     }
 
     public void addConnectorModifier() {
-        if (profilerConfig.isApacheHttpClient4Profile()) {
-            //apache http client 4
-//            HttpClient4Modifier httpClient4Modifier = new HttpClient4Modifier(byteCodeInstrumentor, agent);
-//            addModifier(httpClient4Modifier);
-            
-            //apache http client 4 retry
-//            addModifier(new DefaultHttpRequestRetryHandlerModifier(byteCodeInstrumentor, agent));
-        }
-        if (profilerConfig.isApacheHttpClient3Profile()) {
-            //apache http client 3
-//            HttpClientModifier httpClientModifier = new HttpClientModifier(byteCodeInstrumentor, agent);
-//            addModifier(httpClientModifier);
-    
-            //apache http client 3 retry
-//            addModifier(new DefaultHttpMethodRetryHandlerModifier(byteCodeInstrumentor, agent));
-        }
-
         // ning async http client
         addModifier(new AsyncHttpClientModifier(byteCodeInstrumentor, agent));
-
-        // apache nio http client
-        // addModifier(new InternalHttpAsyncClientModifier(byteCodeInstrumentor, agent));
-//        addModifier(new ClosableHttpAsyncClientModifier(byteCodeInstrumentor, agent));
-//        addModifier(new ClosableHttpClientModifier(byteCodeInstrumentor, agent));
-//        addModifier(new BasicFutureModifier(byteCodeInstrumentor, agent));
-    }
-
-    public void addArcusModifier() {
-        final boolean arcus = profilerConfig.isArucs();
-        boolean memcached;
-        if (arcus) {
-            // memcached is true if arcus is true.
-            memcached = true;
-        } else {
-            memcached = profilerConfig.isMemcached();
-        }
-
-        if (memcached) {
-            BaseOperationModifier baseOperationModifier = new BaseOperationModifier(byteCodeInstrumentor, agent);
-            addModifier(baseOperationModifier);
-
-            MemcachedClientModifier memcachedClientModifier = new MemcachedClientModifier(byteCodeInstrumentor, agent);
-            addModifier(memcachedClientModifier);
-
-//            Not working properly. commented out for now.
-//            FrontCacheMemcachedClientModifier frontCacheMemcachedClientModifier = new FrontCacheMemcachedClientModifier(byteCodeInstrumentor, agent);
-//            addModifier(frontCacheMemcachedClientModifier);
-
-            if (arcus) {
-                ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor, agent);
-                addModifier(arcusClientModifier);
-                // Future of Arcus
-//                CollectionFutureModifier collectionFutureModifier = new CollectionFutureModifier(byteCodeInstrumentor, agent);
-//                addModifier(collectionFutureModifier);
-            }
-
-            // future modifier start ---------------------------------------------------
-            // unsupport CollectionFutureModifier
-            FutureModifier getFutureModifier = new FutureModifier(byteCodeInstrumentor, agent);
-            addModifier(getFutureModifier);
-
-//            Not working properly. commented out for now.
-            FrontCacheGetFutureModifier frontCacheGetFutureModifier = new FrontCacheGetFutureModifier(byteCodeInstrumentor, agent);
-            addModifier(frontCacheGetFutureModifier);
-
-            // future modifier end ---------------------------------------------------
-
-            CacheManagerModifier cacheManagerModifier = new CacheManagerModifier(byteCodeInstrumentor, agent);
-            addModifier(cacheManagerModifier);
-        }
     }
 
     public void addTomcatModifier() {
-//        StandardHostValveInvokeModifier standardHostValveInvokeModifier = new StandardHostValveInvokeModifier(byteCodeInstrumentor, agent);
-//        addModifier(standardHostValveInvokeModifier);
-
-//        HttpServletModifier httpServletModifier = new HttpServletModifier(byteCodeInstrumentor, agent);
-//        addModifier(httpServletModifier);
-
         SpringFrameworkServletModifier springServletModifier = new SpringFrameworkServletModifier(byteCodeInstrumentor, agent);
         addModifier(springServletModifier);
-
-//        AbstractModifier tomcatStandardServiceModifier = new StandardServiceModifier(byteCodeInstrumentor, agent);
-//        addModifier(tomcatStandardServiceModifier);
-//
-//        AbstractModifier tomcatConnectorModifier = new TomcatConnectorModifier(byteCodeInstrumentor, agent);
-//        addModifier(tomcatConnectorModifier);
-//        
-//        AbstractModifier tomcatWebappLoaderModifier = new WebappLoaderModifier(byteCodeInstrumentor, agent);
-//        addModifier(tomcatWebappLoaderModifier);
-//
-//        if (profilerConfig.isTomcatHidePinpointHeader()) {
-//            AbstractModifier requestFacadeModifier = new RequestFacadeModifier(byteCodeInstrumentor, agent);
-//            addModifier(requestFacadeModifier);
-//        }
     }
 
     public void addJdbcModifier() {

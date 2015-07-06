@@ -33,7 +33,7 @@ public class CallStack {
     private static final Logger logger = LoggerFactory.getLogger(CallStack.class);
 
     private static final int STACK_SIZE = 8;
-    private static final int DEFAULT_INDEX = -1;
+    private static final int DEFAULT_INDEX = 0;
 
     private final Span span;
 
@@ -58,7 +58,7 @@ public class CallStack {
 
     public int push(final SpanEvent spanEvent) {
         checkExtend(index + 1);
-        stack[++index] = spanEvent;
+        stack[index++] = spanEvent;
 
         return index;
     }
@@ -76,8 +76,8 @@ public class CallStack {
     public SpanEvent pop() {
         final SpanEvent spanEvent = peek();
         if (spanEvent != null) {
-            stack[index] = null;
-            --index;
+            stack[index - 1] = null;
+            index--;
         }
 
         return spanEvent;
@@ -88,7 +88,7 @@ public class CallStack {
             return null;
         }
 
-        return stack[index];
+        return stack[index - 1];
     }
 
     public boolean empty() {

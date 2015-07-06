@@ -3,24 +3,29 @@ package com.navercorp.pinpoint.profiler.context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ParsingResult;
 import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
 
-public class SpanEventRecorderWrapper extends AbstractRecorderWrapper implements SpanEventRecorder {
+public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEventRecorder {
     private final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
-    private final boolean isTrace = logger.isTraceEnabled();
 
-    private Span span;
     private SpanEvent spanEvent;
 
-    public SpanEventRecorderWrapper(final TraceContext traceContext) {
+    public WrappedSpanEventRecorder(final TraceContext traceContext) {
         super(traceContext);
+    }
+
+    public void setSpanEvent(final SpanEvent spanEvent) {
+        this.spanEvent = spanEvent;
+    }
+
+    public SpanEvent getSpanEvent() {
+        return spanEvent;
     }
 
     @Override
@@ -112,11 +117,11 @@ public class SpanEventRecorderWrapper extends AbstractRecorderWrapper implements
     @Override
     void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
         spanEvent.setExceptionInfo(exceptionClassId, exceptionMessage);
-        if (!span.isSetErrCode()) {
-            span.setErrCode(1);
+        if (!spanEvent.getSpan().isSetErrCode()) {
+            spanEvent.getSpan().setErrCode(1);
         }
     }
-    
+
     void recordApiId(final int apiId) {
         spanEvent.setApiId(apiId);
     }
@@ -124,7 +129,7 @@ public class SpanEventRecorderWrapper extends AbstractRecorderWrapper implements
     void addAnnotation(Annotation annotation) {
         spanEvent.addAnnotation(annotation);
     }
-    
+
     @Override
     public void recordServiceType(ServiceType serviceType) {
         spanEvent.setServiceType(serviceType.getCode());
@@ -134,7 +139,6 @@ public class SpanEventRecorderWrapper extends AbstractRecorderWrapper implements
     public void recordRpcName(String rpc) {
         spanEvent.setRpc(rpc);
     }
-
 
     @Override
     public void recordEndPoint(String endPoint) {

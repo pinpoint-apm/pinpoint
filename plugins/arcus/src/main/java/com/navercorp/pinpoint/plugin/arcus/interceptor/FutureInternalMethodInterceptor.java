@@ -16,7 +16,7 @@ package com.navercorp.pinpoint.plugin.arcus.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
@@ -36,15 +36,15 @@ public class FutureInternalMethodInterceptor extends SpanAsyncEventSimpleAroundI
     }
 
     @Override
-    protected void doInBeforeTrace(Trace trace, AsyncTraceId asyncTraceId, Object target, Object[] args) {
-        trace.markBeforeTime();
+    protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncTraceId asyncTraceId, Object target, Object[] args) {
+        recorder.markBeforeTime();
     }
 
     @Override
-    protected void doInAfterTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
-        trace.recordServiceType(ARCUS_INTERNAL);
-        trace.recordException(throwable);
-        trace.recordApi(methodDescriptor);
-        trace.markAfterTime();
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordServiceType(ARCUS_INTERNAL);
+        recorder.recordException(throwable);
+        recorder.recordApi(methodDescriptor);
+        recorder.markAfterTime();
     }
 }

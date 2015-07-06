@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 
 import java.io.IOException;
 
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -56,10 +57,9 @@ public class RetryMethodInterceptor implements SimpleAroundInterceptor, HttpClie
             return;
         }
 
-        trace.traceBlockBegin();
-        trace.markBeforeTime();
-
-        trace.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
+        final SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.markBeforeTime();
+        recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
     }
 
     @Override
@@ -69,23 +69,23 @@ public class RetryMethodInterceptor implements SimpleAroundInterceptor, HttpClie
         }
 
         Trace trace = traceContext.currentTraceObject();
-        
         if (trace == null) {
             return;
         }
 
         try {
-            trace.recordApi(descriptor);
-            trace.recordException(throwable);
+            final SpanEventRecorder recorder = trace.getSpanEventRecorder();
+            recorder.recordApi(descriptor);
+            recorder.recordException(throwable);
             
             if (args.length >= 2 && (args[1] instanceof IOException)) {
-                trace.recordAttribute(AnnotationKey.HTTP_CALL_RETRY_COUNT, args[1].getClass().getName());
+                recorder.recordAttribute(AnnotationKey.HTTP_CALL_RETRY_COUNT, args[1].getClass().getName());
             }
             if (result != null) {
-                trace.recordAttribute(AnnotationKey.RETURN_DATA, result);
+                recorder.recordAttribute(AnnotationKey.RETURN_DATA, result);
             }
 
-            trace.markAfterTime();
+            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }
