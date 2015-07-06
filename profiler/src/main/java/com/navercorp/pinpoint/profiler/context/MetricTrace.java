@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.context.TraceType;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -410,5 +411,10 @@ public class MetricTrace implements Trace {
         if (span.isSetLoggingTransactionInfo()) {
             span.setLoggingTransactionInfo((short)(isLogging ? 1 : 0)); 
         }
+    }
+
+    @Override
+    public TraceType getTraceType() {
+        return TraceType.METRIC;
     }
 }
