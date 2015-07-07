@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.user.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceType;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -51,7 +52,7 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
 
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
-            trace = traceContext.newTraceObject();
+            trace = traceContext.newTraceObject(TraceType.USER);
             if (!trace.canSampled()) {
                 if(isDebug) {
                     logger.debug("New trace and can't sampled {}", trace);
@@ -93,7 +94,7 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
             trace.markAfterTime();
         } finally {
             trace.traceBlockEnd();
-            if(trace.isRootStack()) {
+            if(trace.getTraceType() == TraceType.USER && trace.isRootStack()) {
                 trace.markAfterTime();
                 trace.close();
                 traceContext.removeTraceObject();

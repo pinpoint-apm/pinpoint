@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.context.TraceType;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -60,6 +61,7 @@ public final class DefaultTrace implements Trace {
     private int latestStackIndex = -1;
     private StackFrame currentStackFrame;
     private boolean closed = false;
+    private TraceType traceType = TraceType.DEFAULT;
 
     public DefaultTrace(final TraceContext traceContext, long transactionId) {
         if (traceContext == null) {
@@ -619,5 +621,14 @@ public final class DefaultTrace implements Trace {
         if (span.isSetLoggingTransactionInfo()) {
             span.setLoggingTransactionInfo((short)(isLogging ? 1 : 0)); 
         }
+    }
+
+    @Override
+    public TraceType getTraceType() {
+        return TraceType.DEFAULT;
+    }
+    
+    public void setTraceType(TraceType traceType) {
+        this.traceType = traceType;
     }
 }

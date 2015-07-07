@@ -44,6 +44,7 @@ public interface RecordableTrace {
     
     short getServiceType();
 
+    TraceType getTraceType();
 
     void recordException(Throwable throwable);
 

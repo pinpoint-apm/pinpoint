@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.context.TraceType;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -239,5 +240,10 @@ public class AsyncTrace implements Trace {
     @Override
     public void recordLogging(boolean isLogging) {
         trace.recordLogging(isLogging);
+    }
+
+    @Override
+    public TraceType getTraceType() {
+        return TraceType.ASYNC;
     }
 }

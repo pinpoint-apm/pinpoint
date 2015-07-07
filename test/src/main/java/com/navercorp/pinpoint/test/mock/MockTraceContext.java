@@ -61,6 +61,11 @@ public class MockTraceContext implements TraceContext {
     }
 
     @Override
+    public Trace newTraceObject(TraceType traceType) {
+        return trace;
+    }
+
+    @Override
     public String getAgentId() {
         return null;
     }
@@ -179,4 +184,5 @@ public class MockTraceContext implements TraceContext {
     public Trace removeTraceObject() {
         return null;
     }
+
 }
