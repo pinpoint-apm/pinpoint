@@ -6,6 +6,8 @@
 * Minimal impact on performance (approximately 3% increase in resource usage)
 
 ## Latest Release (2015/5/18)
+
+[![Join the chat at https://gitter.im/naver/pinpoint](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/naver/pinpoint?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 We're happy to announce the release of Pinpoint **v1.0.5**. <br/>
 Please check release note at (https://github.com/naver/pinpoint/releases/tag/1.0.5)
 
