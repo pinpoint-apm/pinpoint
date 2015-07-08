@@ -154,10 +154,16 @@
 	                    $fromPicker.datetimepicker({
 	                        dateFormat: "yy-mm-dd",
 	                        timeFormat: "HH:mm",
+	                        controlType: "select",
 	                        onSelect: function () {
-	                            if (getDate($fromPicker).isBefore(getDate($toPicker).add(-2).days()) || getDate($fromPicker).isAfter(getDate($toPicker))) {
-	                                setDateTime($toPicker, getDate($fromPicker).add(2).days());
-	                            }
+	                        	var momentFrom = moment(getDate($fromPicker));
+	                        	var momentTo = moment(getDate($toPicker));
+	                        	if ( momentFrom.isBefore(momentTo.subtract(2, "days")) || momentFrom.isAfter(momentTo) ) {
+	                        		setDateTime($toPicker, momentFrom.add(2, "days").format());
+	                        	}
+//	                            if (getDate($fromPicker).isBefore(getDate($toPicker).add(-2).days()) || getDate($fromPicker).isAfter(getDate($toPicker))) {
+//	                                setDateTime($toPicker, getDate($fromPicker).add(2).days());
+//	                            }
 	                        },
 	                        onClose: function (currentTime, oTime) {
 	                            if ($toPicker.val() !== '') {
@@ -175,10 +181,16 @@
 	                    $toPicker.datetimepicker({
 	                        dateFormat: "yy-mm-dd",
 	                        timeFormat: "HH:mm",
+	                        controlType: "select",
 	                        onSelect: function () {
-	                            if (getDate($fromPicker).isBefore(getDate($toPicker).add(-2).days()) || getDate($fromPicker).isAfter(getDate($toPicker))) {
-	                                setDateTime($fromPicker, getDate($toPicker).add(-2).days());
-	                            }
+	                        	var momentFrom = moment(getDate($fromPicker));
+	                        	var momentTo = moment(getDate($toPicker));
+	                        	if ( momentFrom.isBefore(momentTo.subtract(2, "days")) || momentFrom.isAfter(momentTo) ) {
+	                        		setDateTime($fromPicker, momentTo.subtract(2, "days").format());
+	                        	}
+//	                            if (getDate($fromPicker).isBefore(getDate($toPicker).add(-2).days()) || getDate($fromPicker).isAfter(getDate($toPicker))) {
+//	                                setDateTime($fromPicker, getDate($toPicker).add(-2).days());
+//	                            }
 	                        },
 	                        onClose: function (currentTime, oTime) {
 	                            if ($fromPicker.val() !== '') {
