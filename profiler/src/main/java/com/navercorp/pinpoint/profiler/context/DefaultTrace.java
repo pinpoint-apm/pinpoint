@@ -618,7 +618,7 @@ public final class DefaultTrace implements Trace {
     public void recordLogging(boolean isLogging) {
         final Span span = getCallStack().getSpan();
         
-        if (span.isSetLoggingTransactionInfo()) {
+        if (!span.isSetLoggingTransactionInfo()) {
             span.setLoggingTransactionInfo((short)(isLogging ? 1 : 0)); 
         }
     }

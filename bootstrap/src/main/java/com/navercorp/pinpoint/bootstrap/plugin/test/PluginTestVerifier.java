@@ -36,4 +36,5 @@ public interface PluginTestVerifier {
     public void printCache();
     public void initialize(boolean initializeTraceObject);
     public void cleanUp(boolean detachTraceObject);
+    public void verifyIsLoggingTransactionInfo(boolean isLoggingTransactionInfo);
 }

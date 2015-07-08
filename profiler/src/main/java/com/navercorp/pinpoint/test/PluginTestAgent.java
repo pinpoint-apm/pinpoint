@@ -751,4 +751,27 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         getTestTcpDataSender().clear();
         ignoredServiceTypes.clear();
     }
+
+    @Override
+    public void verifyIsLoggingTransactionInfo(boolean isLoggingTransactionInfo) {
+        Object actual = popSpan();
+        Span span = null;
+
+        if (actual instanceof Span) {
+            span = (Span)actual;
+        } else if (actual instanceof SpanEvent) {
+            span = ((SpanEvent)actual).getSpan();
+        } else {
+            throw new IllegalArgumentException("Unexpected type: " + actual.getClass());
+        }
+        
+        boolean actualValue = span.getLoggingTransactionInfo() == 1 ? true : false; 
+        
+        if (isLoggingTransactionInfo != actualValue) {
+            throw new AssertionError("Expected a Span isLoggingTransactionInfo value with [" + isLoggingTransactionInfo + "] but was [" + !isLoggingTransactionInfo + "]. expected: " + isLoggingTransactionInfo + ", was: " + !isLoggingTransactionInfo);
+        }
+        
+        
+    }
+
 }
