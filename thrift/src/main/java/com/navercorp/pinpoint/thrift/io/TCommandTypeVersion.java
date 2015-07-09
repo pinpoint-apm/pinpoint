@@ -37,7 +37,7 @@ public enum TCommandTypeVersion {
     V_1_0_5("1.0.5", V_1_0_5_SNAPSHOT),
     V_1_1_0_SNAPSHOT("1.1.0-SNAPSHOT", V_1_0_5),
     V_1_1_0("1.1.0", V_1_1_0_SNAPSHOT),
-    
+    V_1_1_1_SNAPSHOT("1.1.1-SNAPSHOT", V_1_1_0),
     
     UNKNOWN("UNKNOWN");
 
