@@ -446,6 +446,8 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
         } else {
             buffer.put(false);
         }
+        
+        buffer.put(loggingTransactionInfo);
 
         return buffer.getBuffer();
     }
@@ -492,6 +494,8 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
                 this.applicationServiceType = buffer.readShort();
             }
         }
+        
+        this.loggingTransactionInfo = buffer.readBoolean();
 
         return buffer.getOffset();
     }

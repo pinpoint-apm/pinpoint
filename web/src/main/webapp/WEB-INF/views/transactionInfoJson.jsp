@@ -13,7 +13,7 @@
     "logLinkEnable" : ${logLinkEnable},
     "loggingTransactionInfo" : ${loggingTransactionInfo},
     "logButtonName": "${logButtonName}",
-    "logPageUrl", "${logPageUrl}",
+    "logPageUrl" : "${logPageUrl}",
 	"callStackIndex" : {
 		"depth":0,
 		"begin":1,
