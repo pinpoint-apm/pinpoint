@@ -146,6 +146,8 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         // find the endTime to use as reference
         long endTime = getEndTime(spanAlignList);
         recordSet.setEndTime(endTime);
+        
+        recordSet.setLoggingTransactionInfo(focusTimeSpanBo.isLoggingTransactionInfo());
 
         final SpanAlignPopulate spanAlignPopulate = new SpanAlignPopulate();
         List<Record> recordList = spanAlignPopulate.populateSpanRecord(callTreeIterator);

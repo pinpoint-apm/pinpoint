@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -70,9 +71,15 @@ public class BusinessTransactionController {
     @Autowired
     private FilterBuilder filterBuilder;
     
-//    Temporarily disabled Because We need to solve authentication problem inter system.
-//    @Value("#{pinpointWebProps['log.enable'] ?: false}")
-    private boolean logLinkEnable = false;
+    @Value("#{pinpointWebProps['log.enable'] ?: false}")
+    private boolean logLinkEnable;
+    
+    @Value("#{pinpointWebProps['log.button.name'] ?: ''}")
+    private String logButtonName;
+    
+    @Value("#{pinpointWebProps['log.page.url'] ?: ''}")
+    private String logPageUrl;
+    
 
     /**
      * executed URLs in applicationname query within from ~ to timeframe
@@ -169,7 +176,6 @@ public class BusinessTransactionController {
         ApplicationMap map = filteredMapService.selectApplicationMap(traceId);
         mv.addObject("nodes", map.getNodes());
         mv.addObject("links", map.getLinks());
-        mv.addObject("logLinkEnable", logLinkEnable);
 
         // call stacks
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp);
@@ -181,7 +187,14 @@ public class BusinessTransactionController {
         mv.addObject("callstackStart", recordSet.getStartTime());
         mv.addObject("callstackEnd", recordSet.getEndTime());
         mv.addObject("completeState", spanResult.getCompleteTypeString());
+        
+        mv.addObject("logLinkEnable", logLinkEnable);
 
+        if (logLinkEnable) {
+            mv.addObject("loggingTransactionInfo", recordSet.isLoggingTransactionInfo());
+            mv.addObject("logButtonName", logButtonName);
+            mv.addObject("logPageUrl", logPageUrl);
+        }
 
         if (viewVersion == 2) {
             mv.setViewName("transactionInfoJsonHash");

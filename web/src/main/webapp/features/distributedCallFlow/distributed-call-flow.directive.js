@@ -298,10 +298,6 @@
 		                    {id: "agent", name: "Agent", field: "agent", width: 130},
 		                    {id: "application-name", name: "Application", field: "applicationName", width: 150}
 	                    ];
-	                  
-	                    if (t.logLinkEnable) {
-	                    	columns.push({id: "Loglink", name: "log", field: "logLink", width: 50, formatter:linkFormatter});
-	                    }
 	                    
 	                    grid = new Slick.Grid(element.get(0), dataView, columns, options);
 	                    grid.setSelectionModel(new Slick.RowSelectionModel());
