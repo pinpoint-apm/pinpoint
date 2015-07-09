@@ -237,7 +237,7 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public TraceType getTraceType() {
-        return traceType;
+        return this.traceType;
     }
 
     public void setTraceType(TraceType traceType) {
