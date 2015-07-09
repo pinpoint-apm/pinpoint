@@ -120,4 +120,10 @@ public interface InstrumentClass {
     void addGetter(String getterName, String fieldName, String fieldType) throws InstrumentException;
     
     void addGetter(Class<?> interfaceType, String fieldName) throws InstrumentException;
+
+    /**
+     * You should check that class already have Declared method.
+     * If class already have method, this method throw exception. 
+     */
+    void addDelegatorMethod(String methodName, String[] args) throws InstrumentException;
 }

@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.RootCallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceType;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -98,7 +99,7 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
             recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
-            if(trace.isRootStack()) {
+            if(trace.getTraceType() == TraceType.USER && trace.isRootStack()) {
                 RootCallStackFrame recorder = trace.rootCallStackFrame();
                 recorder.markAfterTime();
                 trace.close();

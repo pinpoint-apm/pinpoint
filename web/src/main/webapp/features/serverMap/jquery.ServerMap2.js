@@ -335,57 +335,6 @@
                     		return go.Geometry.parse("M30 0 B270 " + size + " 30 30 30 30");
                     	})
                     ),
-                    
-                    //Vertical Bar
-//                    self.$(
-//                    	go.Shape, {
-//                    		alignment: go.Spot.BottomLeft,
-//                            alignmentFocus: go.Spot.BottomLeft,
-//                            figure: "RoundedRectangle",
-//                    		stroke : "red",
-//                    		strokeWidth: 4,
-//                    		width: 4,
-//                    		margin : new go.Margin( 2, 0, 10, 4 ),
-//                    		visible: true
-//                    	},
-//                    	new go.Binding("visible", "isWas"),
-//                    	new go.Binding("height", "histogram", function(histogram) {
-//                    		return 75;
-//                    	})
-//                    ),
-//                    self.$(
-//                    	go.Shape, {
-//                    		alignment: go.Spot.BottomLeft,
-//                            alignmentFocus: go.Spot.BottomLeft,
-//                            figure: "RoundedRectangle",
-//                    		stroke : "orange",
-//                    		strokeWidth: 4,
-//                    		width: 4,
-//                    		margin : new go.Margin( 2, 0, 10, 4 ),
-//                    		visible: true
-//                    	},
-//                    	new go.Binding("visible", "isWas"),
-//                    	new go.Binding("height", "histogram", function(histogram) {
-//                    		return 65;
-//                    	})
-//                    ),
-//                    self.$(
-//                    	go.Shape, {
-//                    		alignment: go.Spot.BottomLeft,
-//                            alignmentFocus: go.Spot.BottomLeft,
-//                            figure: "RoundedRectangle",
-//                    		stroke : "green",
-//                    		strokeWidth: 4,
-//                    		width: 4,
-//                    		margin : new go.Margin( 2, 0, 10, 4 ),
-//                    		visible: true
-//                    	},
-//                    	new go.Binding("visible", "isWas"),
-//                    	new go.Binding("height", "histogram", function(histogram) {
-//                    		return 55;
-//                    	})
-//                    ),
-                    
                     self.$(
                         go.Panel,
                         go.Panel.Spot,

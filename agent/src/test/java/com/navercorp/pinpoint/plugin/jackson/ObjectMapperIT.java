@@ -14,7 +14,7 @@
  */
 package com.navercorp.pinpoint.plugin.jackson;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation.*;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -29,7 +29,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.BlockType;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
@@ -42,6 +41,14 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 @Dependency({"com.fasterxml.jackson.core:jackson-databind:[2.0.6],[2.1.5],[2.2.4],[2.3.4],[2.4.6.1],[2.5.4,)"})
 public class ObjectMapperIT {
     
+    /**
+     * 
+     */
+    private static final String ANNOTATION_KEY = "jackson.json.length";
+    /**
+     * 
+     */
+    private static final String SERVICE_TYPE = "JACKSON";
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
@@ -50,18 +57,17 @@ public class ObjectMapperIT {
         ObjectMapper mapper2 = new ObjectMapper(new JsonFactory());
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache(System.out);
-        verifier.printBlocks(System.out);
+        verifier.printCache();
 
         Constructor<?> omConstructor = ObjectMapper.class.getConstructor(JsonFactory.class, DefaultSerializerProvider.class, DefaultDeserializationContext.class);
         Constructor<?> omConstructor1 = ObjectMapper.class.getConstructor();
         Constructor<?> omConstructor2 = ObjectMapper.class.getConstructor(JsonFactory.class);
-        verifier.verifyApi("JACKSON", omConstructor);
-        verifier.verifyApi("JACKSON", omConstructor1);
-        verifier.verifyApi("JACKSON", omConstructor);
-        verifier.verifyApi("JACKSON", omConstructor2);
+        verifier.verifyTrace(event(SERVICE_TYPE, omConstructor));
+        verifier.verifyTrace(event(SERVICE_TYPE, omConstructor1));
+        verifier.verifyTrace(event(SERVICE_TYPE, omConstructor));
+        verifier.verifyTrace(event(SERVICE_TYPE, omConstructor2));
 
-        verifier.verifyTraceBlockCount(0);
+        verifier.verifyTraceCount(0);
     }
 
     @Test
@@ -79,8 +85,7 @@ public class ObjectMapperIT {
 
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache(System.out);
-        verifier.printBlocks(System.out);
+        verifier.printCache();
 
         Method mapperWriteValueAsString = ObjectMapper.class.getMethod("writeValueAsString", Object.class);
         Method mapperWriteValueAsBytes = ObjectMapper.class.getMethod("writeValueAsBytes", Object.class);
@@ -88,13 +93,13 @@ public class ObjectMapperIT {
         Method writerWriteValueAsBytes = ObjectWriter.class.getMethod("writeValueAsBytes", Object.class);
 
 
-        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", mapperWriteValueAsString, null, null, null, null, annotation("jackson.json.length", jsonStr.length()));
-        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", mapperWriteValueAsBytes, null, null, null, null, annotation("jackson.json.length", jsonByte.length));
+        verifier.verifyTrace(event(SERVICE_TYPE, mapperWriteValueAsString, annotation(ANNOTATION_KEY, jsonStr.length())));
+        verifier.verifyTrace(event(SERVICE_TYPE, mapperWriteValueAsBytes, annotation(ANNOTATION_KEY, jsonByte.length)));
 
-        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", writerWriteValueAsString, null, null, null, null, annotation("jackson.json.length", jsonStr.length()));
-        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", writerWriteValueAsBytes, null, null, null, null, annotation("jackson.json.length", jsonByte.length));
+        verifier.verifyTrace(event(SERVICE_TYPE, writerWriteValueAsString, annotation(ANNOTATION_KEY, jsonStr.length())));
+        verifier.verifyTrace(event(SERVICE_TYPE, writerWriteValueAsBytes, annotation(ANNOTATION_KEY, jsonByte.length)));
 
-        verifier.verifyTraceBlockCount(0);
+        verifier.verifyTraceCount(0);
     }
 
     @Test
@@ -112,20 +117,19 @@ public class ObjectMapperIT {
 
         
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache(System.out);
-        verifier.printBlocks(System.out);
+        verifier.printCache();
 
         Method mapperReadValueString = ObjectMapper.class.getMethod("readValue", String.class, Class.class);
         Method mapperReadValueBytes = ObjectMapper.class.getMethod("readValue", byte[].class, Class.class);
         Method readerReadValueString = ObjectReader.class.getMethod("readValue", String.class);
         Method readerReadValueBytes = ObjectReader.class.getMethod("readValue", byte[].class);
 
-        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", mapperReadValueString, null, null, null, null, annotation("jackson.json.length", json_str.length()));
-        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", mapperReadValueBytes, null, null, null, null, annotation("jackson.json.length", json_b.length));
-        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", readerReadValueString, null, null, null, null, annotation("jackson.json.length", json_str.length()));
-        verifier.verifyTraceBlock(BlockType.EVENT, "JACKSON", readerReadValueBytes, null, null, null, null, annotation("jackson.json.length", json_b.length));
+        verifier.verifyTrace(event(SERVICE_TYPE, mapperReadValueString, annotation(ANNOTATION_KEY, json_str.length())));
+        verifier.verifyTrace(event(SERVICE_TYPE, mapperReadValueBytes, annotation(ANNOTATION_KEY, json_b.length)));
+        verifier.verifyTrace(event(SERVICE_TYPE, readerReadValueString, annotation(ANNOTATION_KEY, json_str.length())));
+        verifier.verifyTrace(event(SERVICE_TYPE, readerReadValueBytes, annotation(ANNOTATION_KEY, json_b.length)));
         
-        verifier.verifyTraceBlockCount(0);
+        verifier.verifyTraceCount(0);
     }
     
     private static class __POJO {

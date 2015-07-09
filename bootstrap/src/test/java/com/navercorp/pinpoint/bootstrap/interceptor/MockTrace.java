@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.RootCallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.context.TraceType;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Clock;
@@ -115,5 +116,14 @@ public class MockTrace implements Trace {
     @Override
     public int getCallStackFrameId() {
         return 0;
+    }
+
+//    @Override
+//    public void recordLogging(boolean isLogging) {
+//    }
+
+    @Override
+    public TraceType getTraceType() {
+        return TraceType.MOCK;
     }
 }

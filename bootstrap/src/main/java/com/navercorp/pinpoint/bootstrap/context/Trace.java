@@ -37,4 +37,6 @@ public interface Trace extends StackOperation {
     CallStackFrame currentCallStackFrame();
     
     void close();
+    
+    TraceType getTraceType();
 }

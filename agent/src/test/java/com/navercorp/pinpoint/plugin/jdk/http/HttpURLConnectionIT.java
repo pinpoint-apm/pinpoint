@@ -14,7 +14,7 @@
  */
 package com.navercorp.pinpoint.plugin.jdk.http;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation.*;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -24,10 +24,9 @@ import java.net.UnknownHostException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.asm.tree.FieldNode;
 
+import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.BlockType;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
@@ -47,14 +46,13 @@ public class HttpURLConnectionIT {
         connection.getHeaderFields();
         
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache(System.out);
-        verifier.printBlocks(System.out);
+        verifier.printCache();
         
         Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
         Method getInputStream = targetClass.getMethod("getInputStream");
         
-        verifier.verifyTraceBlockCount(1);
-        verifier.verifyTraceBlock(BlockType.EVENT, "JDK_HTTPURLCONNECTOR", getInputStream, null, null, null, "www.naver.com", annotation("http.url", "http://www.naver.com"));
+        verifier.verifyTraceCount(1);
+        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, "www.naver.com", annotation("http.url", "http://www.naver.com")));
     }
     
     @Test
@@ -66,13 +64,13 @@ public class HttpURLConnectionIT {
         connection.getInputStream();
         
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printBlocks(System.out);
+        verifier.printCache();
         
         Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
         Method connect = targetClass.getMethod("connect");
         
-        verifier.verifyTraceBlockCount(1);
-        verifier.verifyTraceBlock(BlockType.EVENT, "JDK_HTTPURLCONNECTOR", connect, null, null, null, "www.naver.com", annotation("http.url", "http://www.naver.com"));
+        verifier.verifyTraceCount(1);
+        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", connect, null, null, "www.naver.com", annotation("http.url", "http://www.naver.com")));
     }
     
     @Test
@@ -102,19 +100,18 @@ public class HttpURLConnectionIT {
          
         
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache(System.out);
-        verifier.printBlocks(System.out);
+        verifier.printCache();
         
         Class<?> targetClass = Class.forName("sun.net.www.protocol.http.HttpURLConnection");
         Method getInputStream = targetClass.getMethod("connect");
         
-        verifier.verifyTraceBlock(BlockType.EVENT, "JDK_HTTPURLCONNECTOR", getInputStream, null, null, null, "no.such.url", annotation("http.url", "http://no.such.url"));
+        verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, "no.such.url", annotation("http.url", "http://no.such.url")));
         
         if (field == null) {
             // JDK 6, 7
-            verifier.verifyTraceBlock(BlockType.EVENT, "JDK_HTTPURLCONNECTOR", getInputStream, null, null, null, "no.such.url", annotation("http.url", "http://no.such.url"));
+            verifier.verifyTrace(event("JDK_HTTPURLCONNECTOR", getInputStream, null, null, "no.such.url", annotation("http.url", "http://no.such.url")));
         }
         
-        verifier.verifyTraceBlockCount(0);
+        verifier.verifyTraceCount(0);
     }
 }

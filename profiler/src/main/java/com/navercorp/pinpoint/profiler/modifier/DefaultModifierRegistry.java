@@ -24,9 +24,8 @@ import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.ClassNameMatcher;
-import com.navercorp.pinpoint.bootstrap.instrument.matcher.MultiClassNameMatcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
-import com.navercorp.pinpoint.profiler.modifier.arcus.*;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.MultiClassNameMatcher;
 import com.navercorp.pinpoint.profiler.modifier.connector.asynchttpclient.AsyncHttpClientModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridConnectionModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridDriverModifier;
@@ -278,6 +277,8 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     public void addLog4jModifier() {
         if (profilerConfig.isLog4jLoggingTransactionInfo()) {
             addModifier(new LoggingEventOfLog4jModifier(byteCodeInstrumentor, agent));
+//            addModifier(new Nelo2AsyncAppenderModifier(byteCodeInstrumentor, agent));
+//            addModifier(new NeloAppenderModifier(byteCodeInstrumentor, agent));
         }
     }
 

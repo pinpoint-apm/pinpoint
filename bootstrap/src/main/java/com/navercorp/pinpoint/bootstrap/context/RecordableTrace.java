@@ -44,6 +44,7 @@ public interface RecordableTrace {
     
     short getServiceType();
 
+    TraceType getTraceType();
 
     void recordException(Throwable throwable);
 
@@ -82,6 +83,8 @@ public interface RecordableTrace {
     void recordNextSpanId(long spanId);
 
     void recordParentApplication(String parentApplicationName, short parentApplicationType);
+    
+    void recordLogging(boolean isLogging);
 
     /**
      * 

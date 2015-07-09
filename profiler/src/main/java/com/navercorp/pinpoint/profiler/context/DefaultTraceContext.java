@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.context.TraceType;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
@@ -171,6 +172,10 @@ public class DefaultTraceContext implements TraceContext {
     
     public Trace newTraceObject() {
         return traceFactory.newTraceObject();
+    }
+
+    public Trace newTraceObject(TraceType traceType) {
+        return traceFactory.newTraceObject(traceType);
     }
 
     @Override

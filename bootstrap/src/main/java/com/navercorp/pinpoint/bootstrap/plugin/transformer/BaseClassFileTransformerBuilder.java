@@ -37,5 +37,7 @@ public interface BaseClassFileTransformerBuilder {
     public MethodTransformerBuilder editMethod(String name, String... parameterTypeNames);
 
     public ConstructorTransformerBuilder editConstructor(String... parameterTypeNames);
+    
+    public void overrideMethodToDelegate(String name, String... paramTypes);
 
 }

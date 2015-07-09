@@ -424,13 +424,13 @@
 	                	if ( row == -1 ) {
 	                		if ( index > 0 ) {
 	                			selectRow( searchRowByTime(time, 0) );
-	                			scope.$emit("transactionDetail.searchCallresult", "Loop" );
+	                			scope.$emit("transactionDetail.calltreeSearchCallResult", "Loop" );
 	                		} else {
-	                			scope.$emit("transactionDetail.searchCallresult", "No call took longer than {time}ms." );
+	                			scope.$emit("transactionDetail.calltreeSearchCallResult", "No call took longer than {time}ms." );
 	                		}
 	                	} else {
 	                		selectRow(row);
-	                		scope.$emit("transactionDetail.searchCallresult", "" );
+	                		scope.$emit("transactionDetail.calltreeSearchCallResult", "" );
 	                	}
 	            	});
 	                searchRowByTime = function( time, index ) {

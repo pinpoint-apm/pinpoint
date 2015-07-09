@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.thrift.common.server;
 
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
+
 import java.io.IOException;
 import java.lang.reflect.Method;
 
@@ -30,7 +32,6 @@ import org.apache.thrift.transport.TNonblockingServerSocket;
 import org.apache.thrift.transport.TTransportException;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.BlockType;
 import com.navercorp.pinpoint.plugin.thrift.common.client.AsyncEchoTestClient;
 import com.navercorp.pinpoint.plugin.thrift.common.client.SyncEchoTestClient;
 import com.navercorp.pinpoint.plugin.thrift.dto.EchoService;
@@ -46,20 +47,19 @@ public abstract class AsyncEchoTestServer<T extends AbstractNonblockingServer> e
     
     @Override
     public void verifyServerTraces(PluginTestVerifier verifier) throws Exception {
-        verifier.verifyTraceBlockCount(2);
+        verifier.verifyTraceCount(2);
         Method process = TBaseAsyncProcessor.class.getDeclaredMethod("process", AsyncFrameBuffer.class);
         // SpanEvent - TBaseAsyncProcessor.process
-        verifier.verifyTraceBlock(BlockType.EVENT, "THRIFT_SERVER_INTERNAL", process, null, null, null, null);
+        verifier.verifyTrace(event("THRIFT_SERVER_INTERNAL", process));
         // RootSpan
-        verifier.verifyTraceBlock(BlockType.ROOT, // BlockType,
+        verifier.verifyTrace(root(
                 "THRIFT_SERVER", // ServiceType,
                 "Thrift Server Invocation", // Method
                 "com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo", // rpc
                 null, // endPoint
-                null, // remoteAddress
-                null // destinationId
-        );
-        verifier.verifyTraceBlockCount(0);
+                null // remoteAddress
+        ));
+        verifier.verifyTraceCount(0);
     }
 
     public static class AsyncEchoTestServerFactory {

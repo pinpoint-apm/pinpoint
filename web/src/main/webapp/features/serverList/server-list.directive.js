@@ -13,7 +13,14 @@
                 	};
                 	$element.on('show.bs.modal', function() {
                 		var $$window = jQuery($window);
-                		$element.css("left", -(( $$window.width() / 2 ) - ( $element.find(".modal-dialog").width() / 2 ) - 20 ) * 2 + "px" );
+                		var sidebarWidth = 422;
+                		var windowWidth = $$window.width();
+                		var modalWidth = $element.find(".modal-dialog").width();
+                		var mainWidth = windowWidth - sidebarWidth;
+                		var sideWidth = (windowWidth - modalWidth) / 2;
+                		if ( mainWidth >= modalWidth ) {
+                			$element.css("left", -( sidebarWidth - sideWidth + (mainWidth - modalWidth) / 2) * 2 + "px" );
+                		}
                 		$element.find(".modal-body").css("height", $$window.height() * 0.7 );
                 		$element.find(".server-wrapper").css("height", $$window.height() * 0.7 - 70 );
                 	});

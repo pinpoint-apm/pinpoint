@@ -39,6 +39,7 @@ import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.FieldAccessorInjector;
 import com.navercorp.pinpoint.profiler.plugin.MetadataInitializationStrategy.ByConstructor;
 import com.navercorp.pinpoint.profiler.plugin.MetadataInjector;
+import com.navercorp.pinpoint.profiler.plugin.overrideMethodInjector;
 import com.navercorp.pinpoint.profiler.plugin.interceptor.AnnotatedInterceptorInjector;
 import com.navercorp.pinpoint.profiler.plugin.interceptor.TargetAnnotatedInterceptorInjector;
 
@@ -85,6 +86,11 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
     public void injectMetadata(String name, String initialValueType) {
         MetadataAccessor accessor = pluginContext.getMetadataAccessor(name);
         recipes.add(new MetadataInjector(name, accessor, new ByConstructor(initialValueType)));
+    }
+    
+    @Override
+    public void overrideMethodToDelegate(String name, String... paramTypes) {
+        recipes.add(new overrideMethodInjector(name, paramTypes));
     }
     
     @Override

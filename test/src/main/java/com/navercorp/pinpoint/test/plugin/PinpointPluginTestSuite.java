@@ -47,7 +47,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite imp
 
         OnClassLoader onClassLoader = testClass.getAnnotation(OnClassLoader.class);
         this.testOnChildClassLoader = onClassLoader == null ? true : onClassLoader.child();
-        this.testOnSystemClassLoader = onClassLoader == null ? true : onClassLoader.system();
+        this.testOnSystemClassLoader = onClassLoader == null ? false : onClassLoader.system();
 
         Dependency deps = testClass.getAnnotation(Dependency.class);
         this.dependencies = deps == null ? null : deps.value();

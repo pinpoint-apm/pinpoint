@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.thrift.common.server;
 
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
+
 import java.io.IOException;
 import java.lang.reflect.Method;
 
@@ -33,7 +35,6 @@ import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TTransportException;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.BlockType;
 import com.navercorp.pinpoint.plugin.thrift.common.client.AsyncEchoTestClient;
 import com.navercorp.pinpoint.plugin.thrift.common.client.SyncEchoTestClient;
 import com.navercorp.pinpoint.plugin.thrift.dto.EchoService;
@@ -49,21 +50,19 @@ public abstract class SyncEchoTestServer<T extends TServer> extends EchoTestServ
     
     @Override
     public void verifyServerTraces(PluginTestVerifier verifier) throws Exception {
-        verifier.verifyTraceBlockCount(2);
+        verifier.verifyTraceCount(2);
         Method process = TBaseProcessor.class.getDeclaredMethod("process", TProtocol.class, TProtocol.class);
         // SpanEvent - TBaseProcessor.process
-        verifier.verifyTraceBlock(BlockType.EVENT, "THRIFT_SERVER_INTERNAL", process, null, null, null, null);
+        verifier.verifyTrace(event("THRIFT_SERVER_INTERNAL", process));
         // RootSpan - Thrift Server Invocation
-        verifier.verifyTraceBlock(
-                BlockType.ROOT, // BlockType,
+        verifier.verifyTrace(root(
                 "THRIFT_SERVER", // ServiceType,
                 "Thrift Server Invocation", // Method
                 "com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo", // rpc
                 SERVER_ADDRESS.getHostName() + ":" + SERVER_ADDRESS.getPort(), // endPoint
-                SERVER_ADDRESS.getHostName(), // remoteAddress
-                null // destinationId
-        );
-        verifier.verifyTraceBlockCount(0);
+                SERVER_ADDRESS.getHostName() // remoteAddress
+        ));
+        verifier.verifyTraceCount(0);
     }
     
     public static class SyncEchoTestServerFactory {

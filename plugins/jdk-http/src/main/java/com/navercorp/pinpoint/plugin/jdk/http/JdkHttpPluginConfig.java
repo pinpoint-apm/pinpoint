@@ -14,16 +14,23 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.test.plugin;
+package com.navercorp.pinpoint.plugin.jdk.http;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface OnClassLoader {
-    boolean system() default false;
-    boolean child() default true;
+/**
+ * @author emeroad
+ */
+public class JdkHttpPluginConfig {
+
+    private boolean jdkHttpURLConnectionProfile;
+
+    public JdkHttpPluginConfig(ProfilerConfig src) {
+        this.jdkHttpURLConnectionProfile = src.readBoolean("profiler.jdk.httpurlconnection", true);
+    }
+
+
+    public boolean isJdkHttpURLConnectionProfile() {
+        return jdkHttpURLConnectionProfile;
+    }
 }

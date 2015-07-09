@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation;
+import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;

@@ -15,12 +15,11 @@ z * Copyright 2014 NAVER Corp.
  */
 package com.navercorp.pinpoint.plugin.gson;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier.ExpectedAnnotation.*;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
@@ -32,6 +31,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.test.plugin.Dependency;
@@ -70,7 +70,7 @@ public class GsonIT {
     private static final String annotationKeyName = "gson.json.length";
     private static final JsonElement jsonElement = new JsonParser().parse(json);
 
-    private static final PluginTestVerifier.ExpectedAnnotation expectedAnnotation = annotation(annotationKeyName, json.length());
+    private static final ExpectedAnnotation expectedAnnotation = annotation(annotationKeyName, json.length());
 
     @Test
     public void test() throws Exception {
@@ -97,17 +97,16 @@ public class GsonIT {
         Method toJson2 = Gson.class.getDeclaredMethod("toJson", Object.class, Type.class);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache(System.out);
-        verifier.printBlocks(System.out);
+        verifier.printCache();
 
-        verifyTraceBlockAnnotation(verifier, serviceType, fromJson1, expectedAnnotation);
-        verifyTraceBlockAnnotation(verifier, serviceType, fromJson2, expectedAnnotation);
+        verifier.verifyTrace(event(serviceType, fromJson1, expectedAnnotation),
+                event(serviceType, fromJson2, expectedAnnotation));
 
-        verifyTraceBlockAnnotation(verifier, serviceType, toJson1, expectedAnnotation);
-        verifyTraceBlockAnnotation(verifier, serviceType, toJson2, expectedAnnotation);
+        verifier.verifyTrace(event(serviceType, toJson1, expectedAnnotation),
+                event(serviceType, toJson2, expectedAnnotation));
 
         // No more traces
-        verifier.verifyTraceBlockCount(0);
+        verifier.verifyTraceCount(0);
     }
     
     @Test
@@ -151,21 +150,20 @@ public class GsonIT {
         Method toJson7 = Gson.class.getDeclaredMethod("toJson", JsonElement.class, Appendable.class);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache(System.out);
-        verifier.printBlocks(System.out);
+        verifier.printCache();
 
-        verifier.verifyApi(serviceType, fromJson3);
-        verifier.verifyApi(serviceType, fromJson4);
-        verifier.verifyApi(serviceType, fromJson6);
-        verifier.verifyApi(serviceType, fromJson7);
-
-        verifier.verifyApi(serviceType, toJson3);
-        verifier.verifyApi(serviceType, toJson4);
-        verifyTraceBlockAnnotation(verifier, serviceType, toJson6, expectedAnnotation);
-        verifier.verifyApi(serviceType, toJson7);
+        verifier.verifyTrace(event(serviceType, fromJson3),
+                event(serviceType, fromJson4),
+                event(serviceType, fromJson6),
+                event(serviceType, fromJson7));
+        
+        verifier.verifyTrace(event(serviceType, toJson3),
+                event(serviceType, toJson4),
+                event(serviceType, toJson6, expectedAnnotation),
+                event(serviceType, toJson7));
 
         // No more traces
-        verifier.verifyTraceBlockCount(0);
+        verifier.verifyTraceCount(0);
     }
 
     
@@ -195,19 +193,14 @@ public class GsonIT {
         Method toJson8 = Gson.class.getDeclaredMethod("toJson", JsonElement.class, JsonWriter.class);
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-        verifier.printCache(System.out);
-        verifier.printBlocks(System.out);
-
-        verifier.verifyApi(serviceType, fromJson5);
-
-        verifier.verifyApi(serviceType, toJson5);
-        verifier.verifyApi(serviceType, toJson8);
+        verifier.printCache();
+        
+        verifier.verifyTrace(event(serviceType, fromJson5));
+        
+        verifier.verifyTrace(event(serviceType, toJson5),
+                event(serviceType, toJson8));
 
         // No more traces
-        verifier.verifyTraceBlockCount(0);
-    }
-
-    private void verifyTraceBlockAnnotation(PluginTestVerifier verifier, String serviceType, Member api, PluginTestVerifier.ExpectedAnnotation annotation) {
-        verifier.verifyTraceBlock(PluginTestVerifier.BlockType.EVENT, serviceType, api, null, null, null, null, annotation);
+        verifier.verifyTraceCount(0);
     }
 }

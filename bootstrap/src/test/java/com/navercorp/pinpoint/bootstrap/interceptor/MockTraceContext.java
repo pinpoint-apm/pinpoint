@@ -59,7 +59,11 @@ public class MockTraceContext implements TraceContext {
     public Trace newTraceObject() {
         return trace;
     }
-
+    
+    @Override
+    public Trace newTraceObject(TraceType traceType) {
+        return trace;
+    }
 
     @Override
     public String getAgentId() {

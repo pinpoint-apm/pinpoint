@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.test;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -64,7 +65,16 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener, Itera
                 } else if (this.spanId > o.spanId) {
                     return 1;
                 } else {
-                    return this.sequence < o.sequence ? -1 : (this.sequence > o.sequence ? 1 : 0);
+                    if (this.sequence < o.sequence) {
+                        return -1;
+                    } else if (this.sequence > o.sequence) {
+                        return 1;
+                    } else {
+                        int h1 = System.identityHashCode(this.value);
+                        int h2 = System.identityHashCode(o.value);
+                        
+                        return h1 < h2 ? -1 : (h1 > h2 ? 1 : 0);
+                    }
                 }
             }
         }
@@ -92,7 +102,7 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener, Itera
     };
     
     @Override
-    public boolean handleSend(TBase<?, ?> data) {
+    public synchronized boolean handleSend(TBase<?, ?> data) {
         if (data instanceof TSpan) {
             insertSpan((TSpan)data);
             return true;
@@ -160,7 +170,7 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener, Itera
         events.add(index, event);
     }
     
-    public TBase<?, ?> pop() {
+    public synchronized TBase<?, ?> pop() {
         handleDanglingEvents();
         
         if (list.isEmpty()) {
@@ -170,6 +180,16 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener, Itera
         return list.remove(0).value;
     }
     
+    public synchronized void print(PrintStream out) {
+        handleDanglingEvents();
+        
+        out.println("TRACES(" + list.size() + "):");
+        
+        for (TBase<?, ?> obj : this) {
+            out.println(obj);
+        }
+    }
+        
     private void handleDanglingEvents() {
         for (List<TSpanEvent> events : waitingEventTable.values()) {
             for (TSpanEvent event : events) {
@@ -180,41 +200,54 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener, Itera
         waitingEventTable.clear();
     }
     
-    public void clear() {
+    public synchronized void clear() {
         list.clear();
         waitingEventTable.clear();
         spanStartTimeTable.clear();
     }
     
-    public int size() {
+    public synchronized int size() {
         handleDanglingEvents();
         return list.size();
     }
 
     @Override
-    public Iterator<TBase<?, ?>> iterator() {
+    public synchronized Iterator<TBase<?, ?>> iterator() {
         handleDanglingEvents();
         return new RecorderIterator();
     }
 
     private final class RecorderIterator implements Iterator<TBase<?, ?>> {
-        private int pos;
+        private int current = -1;
+        private int index = 0;
 
         @Override
         public boolean hasNext() {
-            return pos < list.size(); 
+            synchronized (OrderedSpanRecorder.this) {
+                return index < list.size();
+            }
         }
 
         @Override
         public TBase<?, ?> next() {
-            return list.get(pos++).value;
+            synchronized (OrderedSpanRecorder.this) {
+                current = index;
+                index++;
+                return list.get(current).value;
+            }
         }
 
         @Override
         public void remove() {
-            throw new UnsupportedOperationException();
+            synchronized (OrderedSpanRecorder.this) {
+                if (current == -1) {
+                    throw new IllegalStateException();
+                }
+                
+                list.remove(current);
+                current = -1;
+                index--;
+            }
         }
-        
     }
-    
 }
