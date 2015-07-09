@@ -26,7 +26,7 @@ import org.apache.thrift.server.AbstractNonblockingServer.AsyncFrameBuffer;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
-import com.navercorp.pinpoint.bootstrap.context.RootCallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.TraceHeader;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -156,18 +156,18 @@ public class TBaseAsyncProcessorProcessInterceptor implements SimpleAroundInterc
         try {
             // TODO Might need a way to collect and record method arguments
             // trace.recordAttribute(...);
-            CallStackFrame recorder = trace.currentCallStackFrame();
+            CallStackFrame recorder = trace.peekCallStackFrame();
             recorder.recordException(throwable);
             recorder.recordApi(this.descriptor);
             recorder.markAfterTime();
         } catch (Throwable t) {
             logger.warn("Error processing trace object. Cause:{}", t.getMessage(), t);
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
         }
         
         // end root span
-        RootCallStackFrame recorder = trace.rootCallStackFrame();
+        TraceHeader recorder = trace.getTraceHeader();
         String methodUri = getMethodUri(target);
         recorder.recordRpcName(methodUri);
         // retrieve connection information

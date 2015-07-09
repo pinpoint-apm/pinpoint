@@ -57,7 +57,7 @@ public class DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor impleme
             return;
         }
 
-        CallStackFrame recorder = trace.traceBlockBegin();
+        CallStackFrame recorder = trace.pushCallStackFrame();
         recorder.markBeforeTime();
 
         recorder.recordServiceType(serviceType);
@@ -75,7 +75,7 @@ public class DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor impleme
         }
 
         try {
-            CallStackFrame recorder = trace.currentCallStackFrame();
+            CallStackFrame recorder = trace.peekCallStackFrame();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
             
@@ -87,7 +87,7 @@ public class DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor impleme
             }
             recorder.markAfterTime();
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
         }
     }
 

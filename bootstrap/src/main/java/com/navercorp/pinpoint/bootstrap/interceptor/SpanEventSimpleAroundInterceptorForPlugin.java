@@ -52,7 +52,7 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Simpl
         }
         
         try {
-            final CallStackFrame recorder = trace.traceBlockBegin();
+            final CallStackFrame recorder = trace.pushCallStackFrame();
             doInBeforeTrace(recorder, target, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -84,14 +84,14 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Simpl
             return;
         }
         try {
-            final CallStackFrame recorder = trace.currentCallStackFrame();
+            final CallStackFrame recorder = trace.peekCallStackFrame();
             doInAfterTrace(recorder, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("after error. Caused:{}", th.getMessage(), th);
             }
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
         }
     }
 

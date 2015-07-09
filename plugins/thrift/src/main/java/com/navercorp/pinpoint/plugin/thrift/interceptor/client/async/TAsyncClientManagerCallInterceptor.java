@@ -97,7 +97,7 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
                 }
                 parentTraceInfo.setShouldSample(shouldSample);
             } else {
-                CallStackFrame recorder = trace.traceBlockBegin();
+                CallStackFrame recorder = trace.pushCallStackFrame();
                 recorder.markBeforeTime();
                 
                 Object asyncMethodCallObj = args[0];
@@ -145,7 +145,7 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
         }
         
         try {
-            CallStackFrame recorder = trace.currentCallStackFrame();
+            CallStackFrame recorder = trace.peekCallStackFrame();
             recorder.recordApi(this.descriptor);
             recorder.recordException(throwable);
             recorder.markAfterTime();
@@ -153,7 +153,7 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
         } catch (Throwable t) {
             logger.warn("after error. Caused:{}", t.getMessage(), t);
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
         }
     }
 
@@ -196,7 +196,7 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
     
     private AsyncTraceId injectAsyncTraceId(final Object asyncMethodCallObj, final Trace trace) {
         final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-        CallStackFrame recorder = trace.currentCallStackFrame();
+        CallStackFrame recorder = trace.peekCallStackFrame();
         recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
         this.asyncTraceIdAccessor.set(asyncMethodCallObj, asyncTraceId);
         if (isDebug) {

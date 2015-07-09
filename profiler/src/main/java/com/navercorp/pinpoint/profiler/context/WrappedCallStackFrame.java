@@ -10,7 +10,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ParsingResult;
 import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
 
-public class WrappedCallStackFrame extends AbstractRecorder implements CallStackFrame {
+public class WrappedCallStackFrame extends AbstractTraceRecorder implements CallStackFrame {
     private final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -20,12 +20,8 @@ public class WrappedCallStackFrame extends AbstractRecorder implements CallStack
         super(traceContext);
     }
 
-    public void setSpanEvent(final SpanEvent spanEvent) {
+    public void setWrapped(final SpanEvent spanEvent) {
         this.spanEvent = spanEvent;
-    }
-
-    public SpanEvent getSpanEvent() {
-        return spanEvent;
     }
 
     @Override

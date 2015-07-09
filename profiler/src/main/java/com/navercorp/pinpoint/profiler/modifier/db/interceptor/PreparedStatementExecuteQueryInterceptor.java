@@ -59,7 +59,7 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
             return;
         }
 
-        CallStackFrame recorder = trace.traceBlockBegin();
+        CallStackFrame recorder = trace.pushCallStackFrame();
         recorder.markBeforeTime();
         try {
             DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(target, UnKnownDatabaseInfo.INSTANCE);
@@ -132,12 +132,12 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
         }
 
         try {
-            CallStackFrame recorder = trace.currentCallStackFrame();
+            CallStackFrame recorder = trace.peekCallStackFrame();
             // TODO Test if it's success. if failed terminate. else calculate resultset fetch too. we'd better make resultset fetch optional.
             recorder.recordException(throwable);
             recorder.markAfterTime();
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
         }
     }
 

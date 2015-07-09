@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
-import com.navercorp.pinpoint.bootstrap.context.RootCallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.TraceHeader;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.TraceType;
@@ -20,10 +20,10 @@ public class AsyncTrace implements Trace {
 
     public AsyncTrace(final Trace trace, final int asyncId, final short asyncSequence, final long startTime) {
         this.trace = trace;
-        this.trace.rootCallStackFrame().recordStartTime(startTime);
+        this.trace.getTraceHeader().recordStartTime(startTime);
         this.asyncId = asyncId;
         this.asyncSequence = asyncSequence;
-        traceBlockBegin(BEGIN_STACKID);
+        pushCallStackFrame(BEGIN_STACKID);
     }
 
     public int getAsyncId() {
@@ -46,8 +46,8 @@ public class AsyncTrace implements Trace {
     }
 
     @Override
-    public CallStackFrame traceBlockBegin() {
-        final CallStackFrame recorder = trace.traceBlockBegin();
+    public CallStackFrame pushCallStackFrame() {
+        final CallStackFrame recorder = trace.pushCallStackFrame();
         recorder.recordAsyncId(asyncId);
         recorder.recordAsyncSequence(asyncSequence);
         
@@ -55,8 +55,8 @@ public class AsyncTrace implements Trace {
     }
 
     @Override
-    public CallStackFrame traceBlockBegin(int stackId) {
-        final CallStackFrame recorder = trace.traceBlockBegin(stackId);
+    public CallStackFrame pushCallStackFrame(int stackId) {
+        final CallStackFrame recorder = trace.pushCallStackFrame(stackId);
         recorder.recordAsyncId(asyncId);
         recorder.recordAsyncSequence(asyncSequence);
         
@@ -64,13 +64,13 @@ public class AsyncTrace implements Trace {
     }
 
     @Override
-    public void traceBlockEnd() {
-        trace.traceBlockEnd();
+    public void popCallStackFrame() {
+        trace.popCallStackFrame();
     }
 
     @Override
-    public void traceBlockEnd(int stackId) {
-        trace.traceBlockEnd(stackId);
+    public void popCallStackFrame(int stackId) {
+        trace.popCallStackFrame(stackId);
     }
 
     @Override
@@ -91,18 +91,18 @@ public class AsyncTrace implements Trace {
 
     @Override
     public void close() {
-        traceBlockEnd(BEGIN_STACKID);
+        popCallStackFrame(BEGIN_STACKID);
         trace.close();
     }
 
     @Override
-    public RootCallStackFrame rootCallStackFrame() {
-        return trace.rootCallStackFrame();
+    public TraceHeader getTraceHeader() {
+        return trace.getTraceHeader();
     }
 
     @Override
-    public CallStackFrame currentCallStackFrame() {
-        return trace.currentCallStackFrame();
+    public CallStackFrame peekCallStackFrame() {
+        return trace.peekCallStackFrame();
     }
 
     @Override

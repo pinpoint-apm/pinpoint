@@ -114,7 +114,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
             return;
         }
 
-        CallStackFrame recorder = trace.traceBlockBegin();
+        CallStackFrame recorder = trace.pushCallStackFrame();
         recorder.markBeforeTime();
 
         // set remote trace
@@ -196,7 +196,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
         }
 
         try {
-            CallStackFrame recorder = trace.currentCallStackFrame();
+            CallStackFrame recorder = trace.peekCallStackFrame();
             final HttpRequest httpRequest = getHttpRequest(target);
             if (httpRequest != null) {
                 // Accessing httpRequest here not before() because it can cause side effect.
@@ -213,7 +213,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
             recorder.recordException(throwable);
             recorder.markAfterTime();
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
         }
     }
 

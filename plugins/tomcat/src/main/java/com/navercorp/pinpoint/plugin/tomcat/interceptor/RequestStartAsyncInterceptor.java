@@ -59,8 +59,8 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
         if (trace == null) {
             return;
         }
-        trace.traceBlockBegin();
-        CallStackFrame recorder = trace.currentCallStackFrame();
+        trace.pushCallStackFrame();
+        CallStackFrame recorder = trace.peekCallStackFrame();
         recorder.markBeforeTime();
     }
 
@@ -76,7 +76,7 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
         }
 
         try {
-            CallStackFrame recorder = trace.currentCallStackFrame();
+            CallStackFrame recorder = trace.peekCallStackFrame();
             if (validate(target, result, throwable)) {
                 asyncAccessor.set(target, Boolean.TRUE);
 
@@ -97,7 +97,7 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
         } catch (Throwable t) {
             logger.warn("Failed to after process. {}", t.getMessage(), t);
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
         }
     }
 

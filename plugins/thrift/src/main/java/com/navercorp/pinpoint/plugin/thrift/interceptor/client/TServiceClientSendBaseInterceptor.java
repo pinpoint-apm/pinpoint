@@ -103,7 +103,7 @@ public class TServiceClientSendBaseInterceptor implements SimpleAroundIntercepto
                 }
                 parentTraceInfo.setShouldSample(shouldSample);
             } else {
-                CallStackFrame recorder = trace.traceBlockBegin();
+                CallStackFrame recorder = trace.pushCallStackFrame();
                 recorder.markBeforeTime();
                 
                 recorder.recordServiceType(THRIFT_CLIENT);
@@ -162,7 +162,7 @@ public class TServiceClientSendBaseInterceptor implements SimpleAroundIntercepto
         }
         
         try {
-            CallStackFrame recorder = trace.currentCallStackFrame();
+            CallStackFrame recorder = trace.peekCallStackFrame();
             if (this.traceServiceArgs) {
                 if (args.length == 2 && (args[1] instanceof TBase)) {
                     recorder.recordAttribute(THRIFT_ARGS, getMethodArgs((TBase<?, ?>)args[1]));
@@ -172,7 +172,7 @@ public class TServiceClientSendBaseInterceptor implements SimpleAroundIntercepto
             recorder.recordException(throwable);
             recorder.markAfterTime();
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
         }
     }
 

@@ -107,8 +107,8 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
             return;
         }
 
-        trace.traceBlockBegin();
-        CallStackFrame recorder = trace.currentCallStackFrame();
+        trace.pushCallStackFrame();
+        CallStackFrame recorder = trace.peekCallStackFrame();
         recorder.markBeforeTime();
 
         TraceId nextId = trace.getTraceId().getNextTraceId();
@@ -153,7 +153,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
         }
 
         try {
-            CallStackFrame recorder = trace.currentCallStackFrame();
+            CallStackFrame recorder = trace.peekCallStackFrame();
             final com.ning.http.client.Request httpRequest = (com.ning.http.client.Request) args[0];
             if (httpRequest != null) {
                 // Accessing httpRequest here not before() because it can cause side effect.
@@ -169,7 +169,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
             recorder.recordException(throwable);
             recorder.markAfterTime();
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
         }
     }
 

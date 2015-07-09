@@ -47,14 +47,14 @@ public class TraceTest {
         DefaultTraceContext defaultTraceContext = getDefaultTraceContext();
         DefaultTrace trace = new DefaultTrace(defaultTraceContext , traceID, true);
         trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
-        trace.traceBlockBegin();
+        trace.pushCallStackFrame();
 
         // get data form db
         getDataFromDB(trace);
 
         // response to client
 
-        trace.traceBlockEnd();
+        trace.popCallStackFrame();
     }
 
 
@@ -120,10 +120,10 @@ public class TraceTest {
     }
 
     private void getDataFromDB(Trace trace) {
-        trace.traceBlockBegin();
+        trace.pushCallStackFrame();
 
         // db server request
         // get a db response
-        trace.traceBlockEnd();
+        trace.popCallStackFrame();
     }
 }

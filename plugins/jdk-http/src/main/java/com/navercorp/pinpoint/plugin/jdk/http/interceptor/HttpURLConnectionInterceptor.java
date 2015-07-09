@@ -94,7 +94,7 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
 
         group.getCurrentInvocation().setAttachment(TRACE_BLOCK_BEGIN_MARKER);
         
-        CallStackFrame recorder = trace.traceBlockBegin();
+        CallStackFrame recorder = trace.pushCallStackFrame();
         recorder.markBeforeTime();
 
         TraceId nextId = trace.getTraceId().getNextTraceId();
@@ -155,13 +155,13 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
         }
 
         try {
-            CallStackFrame recorder = trace.currentCallStackFrame();
+            CallStackFrame recorder = trace.peekCallStackFrame();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
 
             recorder.markAfterTime();
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
         }
     }
 }

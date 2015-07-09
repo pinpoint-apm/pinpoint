@@ -3,31 +3,37 @@ package com.navercorp.pinpoint.profiler.context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.context.RootCallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.TraceHeader;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
-public class WrappedRootCallStackFrame extends AbstractRecorder implements RootCallStackFrame {
+public class DefaultTraceHeader extends AbstractTraceRecorder implements TraceHeader {
     private final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
     
-    private Span span;
+    private final Span span;
     private TraceId traceId;
     private boolean sampling;
     
-    public WrappedRootCallStackFrame(final TraceContext traceContext) {
+    public DefaultTraceHeader(final TraceContext traceContext) {
         super(traceContext);
+
+        span = new Span();
+        span.setAgentId(traceContext.getAgentId());
+        span.setApplicationName(traceContext.getApplicationName());
+        span.setAgentStartTime(traceContext.getAgentStartTime());
+        span.setApplicationServiceType(traceContext.getServerTypeCode());
     }
 
-    public void setSpan(final Span span) {
-        this.span = span;
+    public Span getSpan() {
+        return span;
     }
     
-    public void setTraceId(TraceId traceId) {
-        this.traceId = traceId;
+    public void recordTraceId(TraceId traceId) {
+        span.recordTraceId(traceId);
     }
-
+    
     public void setSampling(boolean sampling) {
         this.sampling = sampling;
     }
@@ -110,5 +116,12 @@ public class WrappedRootCallStackFrame extends AbstractRecorder implements RootC
     @Override
     public boolean isRoot() {
         return traceId.isRoot();
+    }
+    
+    @Override
+    public void recordLogging(boolean isLogging) {
+        if (!span.isSetLoggingTransactionInfo()) {
+            span.setLoggingTransactionInfo((short)(isLogging ? 1 : 0)); 
+        }
     }
 }

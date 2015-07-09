@@ -25,7 +25,7 @@ import org.apache.thrift.protocol.TProtocol;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
-import com.navercorp.pinpoint.bootstrap.context.RootCallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.TraceHeader;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -123,7 +123,7 @@ public class TBaseProcessorProcessInterceptor implements SimpleAroundInterceptor
     private void processTraceObject(final Trace trace, Object target, Object[] args, Throwable throwable) {
         // end spanEvent
         try {
-            CallStackFrame recorder = trace.currentCallStackFrame();
+            CallStackFrame recorder = trace.peekCallStackFrame();
             // TODO Might need a way to collect and record method arguments
             // trace.recordAttribute(...);
             recorder.recordException(throwable);
@@ -132,11 +132,11 @@ public class TBaseProcessorProcessInterceptor implements SimpleAroundInterceptor
         } catch (Throwable t) {
             logger.warn("Error processing trace object. Cause:{}", t.getMessage(), t);
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
         }
         
         // end root span
-        RootCallStackFrame recorder = trace.rootCallStackFrame();
+        TraceHeader recorder = trace.getTraceHeader();
         String methodUri = getMethodUri(target);
         recorder.recordRpcName(methodUri);
         // retrieve connection information

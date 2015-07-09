@@ -58,7 +58,7 @@ public class BasicMethodInterceptor implements SimpleAroundInterceptor {
             return;
         }
 
-        final CallStackFrame recorder = trace.traceBlockBegin();
+        final CallStackFrame recorder = trace.pushCallStackFrame();
         recorder.markBeforeTime();
         recorder.recordServiceType(serviceType);
     }
@@ -75,12 +75,12 @@ public class BasicMethodInterceptor implements SimpleAroundInterceptor {
         }
 
         try {
-            final CallStackFrame recorder = trace.currentCallStackFrame();
+            final CallStackFrame recorder = trace.peekCallStackFrame();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
             recorder.markAfterTime();
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
         }
     }
 }

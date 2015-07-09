@@ -69,7 +69,7 @@ public class MySQLConnectionCreateInterceptor implements SimpleAroundInterceptor
             return;
         }
 
-        CallStackFrame recorder = trace.currentCallStackFrame();
+        CallStackFrame recorder = trace.peekCallStackFrame();
         // We must do this if current transaction is being recorded.
         if (databaseInfo != null) {
             recorder.recordServiceType(databaseInfo.getExecuteQueryType());

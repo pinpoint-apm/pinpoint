@@ -54,7 +54,7 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
         }
 
         try {
-            final CallStackFrame recorder = trace.traceBlockBegin();
+            final CallStackFrame recorder = trace.pushCallStackFrame();
             doInBeforeTrace(recorder, asyncTraceId, target, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -65,7 +65,7 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
 
     private void traceFirstBlockBegin(final Trace trace) {
         // first block
-        final CallStackFrame recorder = trace.currentCallStackFrame();
+        final CallStackFrame recorder = trace.peekCallStackFrame();
         recorder.markBeforeTime();
         recorder.recordServiceType(ServiceType.ASYNC);
         recorder.recordApi(asyncMethodDescriptor);
@@ -91,14 +91,14 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
         }
 
         try {
-            final CallStackFrame recorder = trace.currentCallStackFrame();
+            final CallStackFrame recorder = trace.peekCallStackFrame();
             doInAfterTrace(recorder, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("after error. Caused:{}", th.getMessage(), th);
             }
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
             if (trace.isAsync() && trace.isRootStack()) {
                 if(isDebug) {
                     logger.debug("Close async trace. {}");
@@ -113,7 +113,7 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
 
     private void traceFirstBlockEnd(final Trace trace) {
         // first block
-        final CallStackFrame recorder = trace.currentCallStackFrame();
+        final CallStackFrame recorder = trace.peekCallStackFrame();
         recorder.markAfterTime();
     }
 

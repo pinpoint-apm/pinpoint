@@ -56,7 +56,7 @@ public class HttpConnectionOpenMethodInterceptor implements SimpleAroundIntercep
             return;
         }
 
-        final CallStackFrame recorder = trace.traceBlockBegin();
+        final CallStackFrame recorder = trace.pushCallStackFrame();
         recorder.markBeforeTime();
     }
 
@@ -72,13 +72,13 @@ public class HttpConnectionOpenMethodInterceptor implements SimpleAroundIntercep
         }
 
         try {
-            final CallStackFrame recorder = trace.currentCallStackFrame();
+            final CallStackFrame recorder = trace.peekCallStackFrame();
             recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
             recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);
             recorder.markAfterTime();
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
         }
     }
 }

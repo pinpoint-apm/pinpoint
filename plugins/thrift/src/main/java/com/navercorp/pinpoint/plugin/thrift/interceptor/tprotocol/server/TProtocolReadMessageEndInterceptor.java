@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
 import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.SpanId;
-import com.navercorp.pinpoint.bootstrap.context.RootCallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.TraceHeader;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -136,7 +136,7 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
         if (!trace.canSampled()) {
             return;
         }
-        RootCallStackFrame recorder = trace.rootCallStackFrame();
+        TraceHeader recorder = trace.getTraceHeader();
         recorder.markBeforeTime();
         recorder.recordServiceType(THRIFT_SERVER_INTERNAL);
     }
@@ -192,7 +192,7 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
     
     private void recordRootSpan(final Trace trace, final ThriftRequestProperty parentTraceInfo) {
         // begin root span
-        RootCallStackFrame recorder = trace.rootCallStackFrame();
+        TraceHeader recorder = trace.getTraceHeader();
         recorder.markBeforeTime();
         recorder.recordServiceType(THRIFT_SERVER);
         recorder.recordApi(this.thriftServerEntryMethodDescriptor);
@@ -200,7 +200,7 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
             recordParentInfo(recorder, parentTraceInfo);
         }
         // start spanEvent
-        trace.traceBlockBegin();
+        trace.pushCallStackFrame();
     }
 
     private boolean checkSamplingFlag(ThriftRequestProperty parentTraceInfo) {
@@ -231,7 +231,7 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
         return this.traceContext.createTraceId(transactionId, parentSpanId, spanId, flags);
     }
     
-    private void recordParentInfo(RootCallStackFrame recorder, ThriftRequestProperty parentTraceInfo) {
+    private void recordParentInfo(TraceHeader recorder, ThriftRequestProperty parentTraceInfo) {
         if (parentTraceInfo == null) {
             return;
         }

@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.plugin.user.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
-import com.navercorp.pinpoint.bootstrap.context.RootCallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.TraceHeader;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceType;
@@ -64,16 +64,16 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
             if(isDebug) {
                 logger.debug("New trace and sampled {}", trace);
             }
-            RootCallStackFrame recorder = trace.rootCallStackFrame();
+            TraceHeader recorder = trace.getTraceHeader();
             recordRootSpan(recorder);
         }
 
-        trace.traceBlockBegin();
-        CallStackFrame recorder = trace.currentCallStackFrame();
+        trace.pushCallStackFrame();
+        CallStackFrame recorder = trace.peekCallStackFrame();
         recorder.markBeforeTime();
     }
 
-    private void recordRootSpan(final RootCallStackFrame recorder) {
+    private void recordRootSpan(final TraceHeader recorder) {
         // root
         recorder.markBeforeTime();
         recorder.recordServiceType(ServiceType.STAND_ALONE);
@@ -92,15 +92,15 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
         }
 
         try {
-            CallStackFrame recorder = trace.currentCallStackFrame();
+            CallStackFrame recorder = trace.peekCallStackFrame();
             recorder.recordApi(descriptor);
             recorder.recordServiceType(ServiceType.USER_INCLUDE);
             recorder.recordException(throwable);
             recorder.markAfterTime();
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
             if(trace.getTraceType() == TraceType.USER && trace.isRootStack()) {
-                RootCallStackFrame recorder = trace.rootCallStackFrame();
+                TraceHeader recorder = trace.getTraceHeader();
                 recorder.markAfterTime();
                 trace.close();
                 traceContext.removeTraceObject();

@@ -57,7 +57,7 @@ public class RetryMethodInterceptor implements SimpleAroundInterceptor, HttpClie
             return;
         }
 
-        final CallStackFrame recorder = trace.traceBlockBegin();
+        final CallStackFrame recorder = trace.pushCallStackFrame();
         recorder.markBeforeTime();
         recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
     }
@@ -74,7 +74,7 @@ public class RetryMethodInterceptor implements SimpleAroundInterceptor, HttpClie
         }
 
         try {
-            final CallStackFrame recorder = trace.currentCallStackFrame();
+            final CallStackFrame recorder = trace.peekCallStackFrame();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
             
@@ -87,7 +87,7 @@ public class RetryMethodInterceptor implements SimpleAroundInterceptor, HttpClie
 
             recorder.markAfterTime();
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
         }
     }
 }

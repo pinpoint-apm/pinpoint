@@ -64,8 +64,8 @@ public class TAsyncMethodCallInternalMethodInterceptor implements SimpleAroundIn
             return;
         }
         try {
-            trace.traceBlockBegin();
-            CallStackFrame recorder = trace.currentCallStackFrame();
+            trace.pushCallStackFrame();
+            CallStackFrame recorder = trace.peekCallStackFrame();
             doInBeforeTrace(recorder, target, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -95,14 +95,14 @@ public class TAsyncMethodCallInternalMethodInterceptor implements SimpleAroundIn
         }
 
         try {
-            CallStackFrame recorder = trace.currentCallStackFrame();
+            CallStackFrame recorder = trace.peekCallStackFrame();
             doInAfterTrace(recorder, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("after error. Caused:{}", th.getMessage(), th);
             }
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
         }
     }
     

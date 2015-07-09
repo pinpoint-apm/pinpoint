@@ -127,7 +127,7 @@ public class ExecuteInterceptor implements SimpleAroundInterceptor, HttpClient3C
             return;
         }
 
-        final CallStackFrame recorder = trace.traceBlockBegin();
+        final CallStackFrame recorder = trace.pushCallStackFrame();
         recorder.markBeforeTime();
 
         TraceId nextId = trace.getTraceId().getNextTraceId();
@@ -170,7 +170,7 @@ public class ExecuteInterceptor implements SimpleAroundInterceptor, HttpClient3C
         }
 
         try {
-            final CallStackFrame recorder = trace.currentCallStackFrame();
+            final CallStackFrame recorder = trace.peekCallStackFrame();
             HttpMethod httpMethod = getHttpMethod(args);
             if (httpMethod != null) {
                 try {
@@ -193,7 +193,7 @@ public class ExecuteInterceptor implements SimpleAroundInterceptor, HttpClient3C
             recorder.recordException(throwable);
             recorder.markAfterTime();
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
         }
     }
 
@@ -238,7 +238,7 @@ public class ExecuteInterceptor implements SimpleAroundInterceptor, HttpClient3C
                             entityValue = entity.getClass() + " (ContentType:" + entity.getContentType() + ")";
                         }
 
-                        final CallStackFrame recorder = trace.currentCallStackFrame();                       
+                        final CallStackFrame recorder = trace.peekCallStackFrame();                       
                         recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, entityValue);
                     } catch (Exception e) {
                         logger.debug("HttpEntityEnclosingRequest entity record fail. Caused:{}", e.getMessage(), e);
@@ -278,7 +278,7 @@ public class ExecuteInterceptor implements SimpleAroundInterceptor, HttpClient3C
 
         if (value != null && !value.isEmpty()) {
             if (cookieSampler.isSampling()) {
-                final CallStackFrame recorder = trace.currentCallStackFrame();
+                final CallStackFrame recorder = trace.peekCallStackFrame();
                 recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, MAX_READ_SIZE));
             }
         }

@@ -56,8 +56,8 @@ public class FrontCacheGetFutureGetInterceptor implements SimpleAroundIntercepto
             return;
         }
         
-        trace.traceBlockBegin();
-        final CallStackFrame frame = trace.currentCallStackFrame();
+        trace.pushCallStackFrame();
+        final CallStackFrame frame = trace.peekCallStackFrame();
         frame.markBeforeTime();
     }
 
@@ -73,7 +73,7 @@ public class FrontCacheGetFutureGetInterceptor implements SimpleAroundIntercepto
         }
 
         try {
-            final CallStackFrame recorder = trace.currentCallStackFrame();
+            final CallStackFrame recorder = trace.peekCallStackFrame();
             recorder.recordApi(methodDescriptor);
             String cacheName = cacheNameAccessor.get(target);
             if (cacheName != null) {
@@ -83,7 +83,7 @@ public class FrontCacheGetFutureGetInterceptor implements SimpleAroundIntercepto
             recorder.recordServiceType(ARCUS_EHCACHE_FUTURE_GET);
             recorder.markAfterTime();
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
         }
     }
 }

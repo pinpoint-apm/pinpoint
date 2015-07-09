@@ -94,8 +94,8 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
         }
 
         try {
-            trace.traceBlockBegin();
-            CallStackFrame frame = trace.currentCallStackFrame();
+            trace.pushCallStackFrame();
+            CallStackFrame frame = trace.peekCallStackFrame();
             frame.markBeforeTime();
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -115,7 +115,7 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
             return;
         }
         try {
-            final CallStackFrame frame = trace.currentCallStackFrame();
+            final CallStackFrame frame = trace.peekCallStackFrame();
             if (traceKey) {
                 final Object recordObject = args[keyIndex];
                 frame.recordApi(methodDescriptor, recordObject, keyIndex);
@@ -177,7 +177,7 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
                 logger.warn("after error. Caused:{}", th.getMessage(), th);
             }
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
         }
     }
 

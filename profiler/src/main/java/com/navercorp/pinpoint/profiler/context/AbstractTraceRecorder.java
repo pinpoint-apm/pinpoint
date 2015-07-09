@@ -5,11 +5,11 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 
-public abstract class AbstractRecorder {
+public abstract class AbstractTraceRecorder {
 
     protected final TraceContext traceContext;
     
-    public AbstractRecorder(final TraceContext traceContext) {
+    public AbstractTraceRecorder(final TraceContext traceContext) {
         this.traceContext = traceContext;
     }
     

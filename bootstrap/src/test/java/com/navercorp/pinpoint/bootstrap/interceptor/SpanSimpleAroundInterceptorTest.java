@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
-import com.navercorp.pinpoint.bootstrap.context.RootCallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.TraceHeader;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanSimpleAroundInterceptor;
 
@@ -55,7 +55,7 @@ public class SpanSimpleAroundInterceptorTest {
 
         TestSpanSimpleAroundInterceptor interceptor = new TestSpanSimpleAroundInterceptor() {
             @Override
-            protected void doInBeforeTrace(RootCallStackFrame trace, Object target, Object[] args) {
+            protected void doInBeforeTrace(TraceHeader trace, Object target, Object[] args) {
                 touchBefore();
                 throw new RuntimeException();
             }
@@ -74,7 +74,7 @@ public class SpanSimpleAroundInterceptorTest {
 
         TestSpanSimpleAroundInterceptor interceptor = new TestSpanSimpleAroundInterceptor() {
             @Override
-            protected void doInAfterTrace(RootCallStackFrame trace, Object target, Object[] args, Object result, Throwable throwable) {
+            protected void doInAfterTrace(TraceHeader trace, Object target, Object[] args, Object result, Throwable throwable) {
                 touchAfter();
                 throw new RuntimeException();
             }
@@ -93,13 +93,13 @@ public class SpanSimpleAroundInterceptorTest {
 
         TestSpanSimpleAroundInterceptor interceptor = new TestSpanSimpleAroundInterceptor() {
             @Override
-            protected void doInBeforeTrace(RootCallStackFrame recorder, Object target, Object[] args) {
+            protected void doInBeforeTrace(TraceHeader recorder, Object target, Object[] args) {
                 touchBefore();
                 throw new RuntimeException();
             }
 
             @Override
-            protected void doInAfterTrace(RootCallStackFrame recorder, Object target, Object[] args, Object result, Throwable throwable) {
+            protected void doInAfterTrace(TraceHeader recorder, Object target, Object[] args, Object result, Throwable throwable) {
                 touchAfter();
                 throw new RuntimeException();
             }
@@ -175,7 +175,7 @@ public class SpanSimpleAroundInterceptorTest {
         }
 
         @Override
-        protected void doInBeforeTrace(RootCallStackFrame recorder, Object target, Object[] args) {
+        protected void doInBeforeTrace(TraceHeader recorder, Object target, Object[] args) {
             touchBefore();
         }
 
@@ -188,7 +188,7 @@ public class SpanSimpleAroundInterceptorTest {
         }
 
         @Override
-        protected void doInAfterTrace(RootCallStackFrame recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        protected void doInAfterTrace(TraceHeader recorder, Object target, Object[] args, Object result, Throwable throwable) {
             touchAfter();
         }
 
