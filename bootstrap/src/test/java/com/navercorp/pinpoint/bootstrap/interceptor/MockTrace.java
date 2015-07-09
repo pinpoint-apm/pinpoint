@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.bootstrap.interceptor;
 
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.RootCallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -43,26 +45,6 @@ public class MockTrace implements Trace {
     }
 
     @Override
-    public void markBeforeTime() {
-        beforeTime = clock.getTime();
-    }
-
-    @Override
-    public long getBeforeTime() {
-        return beforeTime;
-    }
-
-    @Override
-    public void markAfterTime() {
-        afterTime = clock.getTime();
-    }
-
-    @Override
-    public long getAfterTime() {
-        return afterTime;
-    }
-
-    @Override
     public TraceId getTraceId() {
         return null;
     }
@@ -82,118 +64,13 @@ public class MockTrace implements Trace {
     }
 
     @Override
-    public void recordException(Throwable throwable) {
-
-    }
-
-    @Override
-    public void recordApi(MethodDescriptor methodDescriptor) {
-
-    }
-
-    @Override
-    public void recordApi(MethodDescriptor methodDescriptor, Object[] args) {
-
-    }
-
-    @Override
-    public void recordApi(MethodDescriptor methodDescriptor, Object args, int index) {
-
-    }
-
-    @Override
-    public void recordApi(MethodDescriptor methodDescriptor, Object[] args, int start, int end) {
-
-    }
-
-    @Override
-    public void recordApiCachedString(MethodDescriptor methodDescriptor, String args, int index) {
-
-    }
-
-    @Override
-    public ParsingResult recordSqlInfo(String sql) {
+    public CallStackFrame traceBlockBegin() {
         return null;
     }
 
     @Override
-    public void recordSqlParsingResult(ParsingResult parsingResult) {
-
-    }
-
-    @Override
-    public void recordSqlParsingResult(ParsingResult parsingResult, String bindValue) {
-
-    }
-
-    @Override
-    public void recordAttribute(AnnotationKey key, String value) {
-
-    }
-
-    @Override
-    public void recordAttribute(AnnotationKey key, int value) {
-
-    }
-
-    @Override
-    public void recordAttribute(AnnotationKey key, Object value) {
-
-    }
-
-    @Override
-    public void recordServiceType(ServiceType serviceType) {
-
-    }
-
-    @Override
-    public void recordRpcName(String rpc) {
-
-    }
-
-    @Override
-    public void recordDestinationId(String destinationId) {
-
-    }
-
-    @Override
-    public void recordEndPoint(String endPoint) {
-
-    }
-
-    @Override
-    public void recordRemoteAddress(String remoteAddress) {
-
-    }
-
-    @Override
-    public void recordNextSpanId(long spanId) {
-
-    }
-
-    @Override
-    public void recordParentApplication(String parentApplicationName, short parentApplicationType) {
-
-    }
-
-    @Override
-    public void recordAcceptorHost(String host) {
-
-    }
-
-    @Override
-    public int getStackFrameId() {
-        return 0;
-    }
-
-    @Override
-    public void traceBlockBegin() {
-
-    }
-
-    @Override
-    public void traceBlockBegin(int stackId) {
-
+    public CallStackFrame traceBlockBegin(int stackId) {
+        return null;
     }
 
     @Override
@@ -207,26 +84,8 @@ public class MockTrace implements Trace {
     }
     
     @Override
-    public short getServiceType() {
-        return ServiceType.UNDEFINED.getCode();
-    }
-
-    @Override
-    public void recordAsyncId(int asyncId) {
-    }
-
-    @Override
-    public void recordNextAsyncId(int asyncId) {
-    }
-
-    @Override
     public boolean isAsync() {
         return false;
-    }
-
-    @Override
-    public long getTraceStartTime() {
-        return 0;
     }
 
     @Override
@@ -244,6 +103,17 @@ public class MockTrace implements Trace {
     }
 
     @Override
-    public void recordAsyncSequence(short sequence) {
+    public RootCallStackFrame rootCallStackFrame() {
+        return null;
+    }
+
+    @Override
+    public CallStackFrame currentCallStackFrame() {
+        return null;
+    }
+
+    @Override
+    public int getCallStackFrameId() {
+        return 0;
     }
 }

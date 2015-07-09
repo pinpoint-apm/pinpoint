@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
@@ -33,12 +34,12 @@ public class DataSourceCloseInterceptor extends SpanEventSimpleAroundInterceptor
     }
 
     @Override
-    public void doInBeforeTrace(RecordableTrace trace, final Object target, Object[] args) {
-        trace.markBeforeTime();
+    public void doInBeforeTrace(CallStackFrame recorder, final Object target, Object[] args) {
+        recorder.markBeforeTime();
     }
 
     @Override
-    public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(CallStackFrame trace, Object target, Object[] args, Object result, Throwable throwable) {
         trace.recordServiceType(ServiceType.DBCP);
         trace.recordApi(getMethodDescriptor());
         trace.recordException(throwable);

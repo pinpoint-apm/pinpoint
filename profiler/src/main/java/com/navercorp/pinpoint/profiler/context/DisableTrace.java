@@ -17,12 +17,10 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.RootCallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.ParsingResult;
 
 
 /**
@@ -36,32 +34,12 @@ public class DisableTrace  implements Trace {
     }
 
     @Override
-    public void traceBlockBegin() {
+    public CallStackFrame traceBlockBegin() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void markBeforeTime() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getBeforeTime() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void markAfterTime() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getAfterTime() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void traceBlockBegin(int stackId) {
+    public CallStackFrame traceBlockBegin(int stackId) {
         throw new UnsupportedOperationException();
     }
 
@@ -92,131 +70,8 @@ public class DisableTrace  implements Trace {
     }
 
     @Override
-    public void recordException(Throwable throwable) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void recordApi(MethodDescriptor methodDescriptor) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void recordApi(MethodDescriptor methodDescriptor, Object[] args) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void recordApi(MethodDescriptor methodDescriptor, Object args, int index) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void recordApi(MethodDescriptor methodDescriptor, Object[] args, int start, int end) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void recordApiCachedString(MethodDescriptor methodDescriptor, String args, int index) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public ParsingResult recordSqlInfo(String sql) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void recordSqlParsingResult(ParsingResult parsingResult) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void recordSqlParsingResult(ParsingResult parsingResult, String bindValue) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void recordAttribute(AnnotationKey key, String value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void recordAttribute(AnnotationKey key, int value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void recordAttribute(AnnotationKey key, Object value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void recordServiceType(ServiceType serviceType) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void recordRpcName(String rpc) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void recordDestinationId(String destinationId) {
-        throw new UnsupportedOperationException();
-    }
-
-
-    @Override
-    public void recordEndPoint(String endPoint) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void recordRemoteAddress(String remoteAddress) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void recordNextSpanId(long spanId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void recordParentApplication(String parentApplicationName, short parentApplicationType) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void recordAcceptorHost(String host) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getStackFrameId() {
-        throw new UnsupportedOperationException();
-    }
-    
-    @Override
-    public short getServiceType() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void recordAsyncId(int asyncId) {
-    }
-
-    @Override
-    public void recordNextAsyncId(int asyncId) {
-    }
-
-    @Override
     public boolean isAsync() {
         return false;
-    }
-
-    @Override
-    public long getTraceStartTime() {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -234,7 +89,17 @@ public class DisableTrace  implements Trace {
     }
 
     @Override
-    public void recordAsyncSequence(short sequence) {
-        throw new UnsupportedOperationException();
+    public int getCallStackFrameId() {
+        return 0;
+    }
+
+    @Override
+    public RootCallStackFrame rootCallStackFrame() {
+        return null;
+    }
+
+    @Override
+    public CallStackFrame currentCallStackFrame() {
+        return null;
     }
 }

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
@@ -39,13 +39,13 @@ public class BasicFutureMethodInterceptor extends SpanAsyncEventSimpleAroundInte
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncTraceId asyncTraceId, Object target, Object[] args) {
+    protected void doInBeforeTrace(CallStackFrame recorder, AsyncTraceId asyncTraceId, Object target, Object[] args) {
         recorder.markBeforeTime();
         recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    protected void doInAfterTrace(CallStackFrame recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
         recorder.markAfterTime();

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
@@ -36,13 +37,13 @@ public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInt
     }
 
     @Override
-    public void doInBeforeTrace(RecordableTrace trace, Object target, Object[] args)  {
-        trace.markBeforeTime();
+    public void doInBeforeTrace(CallStackFrame recorder, Object target, Object[] args)  {
+        recorder.markBeforeTime();
 
         final DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(target, UnKnownDatabaseInfo.INSTANCE);
-        trace.recordServiceType(databaseInfo.getType());
-        trace.recordEndPoint(databaseInfo.getMultipleHost());
-        trace.recordDestinationId(databaseInfo.getDatabaseId());
+        recorder.recordServiceType(databaseInfo.getType());
+        recorder.recordEndPoint(databaseInfo.getMultipleHost());
+        recorder.recordDestinationId(databaseInfo.getDatabaseId());
     }
 
     @Override
@@ -75,7 +76,7 @@ public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInt
     }
 
     @Override
-    public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(CallStackFrame trace, Object target, Object[] args, Object result, Throwable throwable) {
         if (result instanceof ParsingResultTraceValue) {
             ParsingResult parsingResult = ((ParsingResultTraceValue) result)._$PINPOINT$_getTraceParsingResult();
             trace.recordSqlParsingResult(parsingResult);
@@ -85,6 +86,4 @@ public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInt
 
         trace.markAfterTime();
     }
-
-
 }

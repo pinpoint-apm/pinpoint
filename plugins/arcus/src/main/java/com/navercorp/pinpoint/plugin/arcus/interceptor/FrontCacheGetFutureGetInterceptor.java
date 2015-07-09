@@ -15,7 +15,7 @@
 package com.navercorp.pinpoint.plugin.arcus.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -56,8 +56,9 @@ public class FrontCacheGetFutureGetInterceptor implements SimpleAroundIntercepto
             return;
         }
         
-        final SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.markBeforeTime();
+        trace.traceBlockBegin();
+        final CallStackFrame frame = trace.currentCallStackFrame();
+        frame.markBeforeTime();
     }
 
     @Override
@@ -72,7 +73,7 @@ public class FrontCacheGetFutureGetInterceptor implements SimpleAroundIntercepto
         }
 
         try {
-            final SpanEventRecorder recorder = trace.getSpanEventRecorder();
+            final CallStackFrame recorder = trace.currentCallStackFrame();
             recorder.recordApi(methodDescriptor);
             String cacheName = cacheNameAccessor.get(target);
             if (cacheName != null) {

@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
@@ -58,14 +59,14 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
             return;
         }
 
-        trace.traceBlockBegin();
-        trace.markBeforeTime();
+        CallStackFrame recorder = trace.traceBlockBegin();
+        recorder.markBeforeTime();
         try {
             DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(target, UnKnownDatabaseInfo.INSTANCE);
-            trace.recordServiceType(databaseInfo.getExecuteQueryType());
+            recorder.recordServiceType(databaseInfo.getExecuteQueryType());
 
-            trace.recordEndPoint(databaseInfo.getMultipleHost());
-            trace.recordDestinationId(databaseInfo.getDatabaseId());
+            recorder.recordEndPoint(databaseInfo.getMultipleHost());
+            recorder.recordDestinationId(databaseInfo.getDatabaseId());
 
             ParsingResult parsingResult = null;
             if (target instanceof ParsingResultTraceValue) {
@@ -77,12 +78,12 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
             }
             if (bindValue != null) {
                 String bindString = toBindVariable(bindValue);
-                trace.recordSqlParsingResult(parsingResult, bindString);
+                recorder.recordSqlParsingResult(parsingResult, bindString);
             } else {
-                trace.recordSqlParsingResult(parsingResult);
+                recorder.recordSqlParsingResult(parsingResult);
             }
 
-            trace.recordApi(descriptor);
+            recorder.recordApi(descriptor);
 //            trace.recordApi(apiId);
             
             // Need to change where to invoke clean().
@@ -131,9 +132,10 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
         }
 
         try {
+            CallStackFrame recorder = trace.currentCallStackFrame();
             // TODO Test if it's success. if failed terminate. else calculate resultset fetch too. we'd better make resultset fetch optional.
-            trace.recordException(throwable);
-            trace.markAfterTime();
+            recorder.recordException(throwable);
+            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

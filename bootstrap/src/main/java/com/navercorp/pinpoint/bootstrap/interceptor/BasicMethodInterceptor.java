@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -58,7 +58,7 @@ public class BasicMethodInterceptor implements SimpleAroundInterceptor {
             return;
         }
 
-        final SpanEventRecorder recorder = trace.traceBlockBegin();
+        final CallStackFrame recorder = trace.traceBlockBegin();
         recorder.markBeforeTime();
         recorder.recordServiceType(serviceType);
     }
@@ -75,7 +75,7 @@ public class BasicMethodInterceptor implements SimpleAroundInterceptor {
         }
 
         try {
-            final SpanEventRecorder recorder = trace.getSpanEventRecorder();
+            final CallStackFrame recorder = trace.currentCallStackFrame();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
             recorder.markAfterTime();

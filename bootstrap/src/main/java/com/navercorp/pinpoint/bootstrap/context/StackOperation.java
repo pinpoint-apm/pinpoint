@@ -24,9 +24,9 @@ public interface StackOperation {
 
     public static final int ROOT_STACKID = 0;
 
-    SpanEventRecorder traceBlockBegin();
+    CallStackFrame traceBlockBegin();
 
-    SpanEventRecorder traceBlockBegin(int stackId);
+    CallStackFrame traceBlockBegin(int stackId);
 
     void traceBlockEnd();
 
@@ -34,5 +34,5 @@ public interface StackOperation {
 
     boolean isRootStack();
     
-    int getStackFrameId();
+    int getCallStackFrameId();
 }

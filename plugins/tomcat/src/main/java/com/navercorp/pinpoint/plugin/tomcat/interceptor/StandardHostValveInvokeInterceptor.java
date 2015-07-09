@@ -25,8 +25,8 @@ import org.apache.catalina.connector.Request;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.Header;
-import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
 import com.navercorp.pinpoint.bootstrap.context.SpanId;
+import com.navercorp.pinpoint.bootstrap.context.RootCallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -73,9 +73,9 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     }
 
     @Override
-    protected void doInBeforeTrace(RecordableTrace trace, Object target, Object[] args) {
-        trace.markBeforeTime();
-        trace.recordServiceType(TOMCAT_METHOD);
+    protected void doInBeforeTrace(RootCallStackFrame recorder, Object target, Object[] args) {
+        recorder.markBeforeTime();
+        recorder.recordServiceType(TOMCAT_METHOD);
     }
 
     @Override
@@ -87,7 +87,8 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
             final Trace trace = getTraceMetadata(request);
             if (trace != null) {
                 // change api
-                trace.recordApi(SERVLET_ASYNCHRONOUS_API_TAG);
+                RootCallStackFrame recorder = trace.rootCallStackFrame();
+                recorder.recordApi(SERVLET_ASYNCHRONOUS_API_TAG);
                 // attach current thread local.
                 getTraceContext().continueTraceObject(trace);
                 trace.traceBlockBegin();
@@ -123,7 +124,9 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
             final TraceContext traceContext = getTraceContext();
             final Trace trace = traceContext.continueTraceObject(traceId);
             if (trace.canSampled()) {
-                recordRootSpan(trace, request);
+                RootCallStackFrame recorder = trace.rootCallStackFrame();
+                recordRootSpan(recorder, request);
+                trace.traceBlockBegin();
                 setTraceMetadata(request, trace);
                 if (isDebug) {
                     logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[] { traceId, request.getRequestURI(), request.getRemoteAddr() });
@@ -138,7 +141,8 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
             final TraceContext traceContext = getTraceContext();
             final Trace trace = traceContext.newTraceObject();
             if (trace.canSampled()) {
-                recordRootSpan(trace, request);
+                RootCallStackFrame recorder = trace.rootCallStackFrame();
+                recordRootSpan(recorder, request);
                 setTraceMetadata(request, trace);
                 if (isDebug) {
                     logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
@@ -172,12 +176,6 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         }
     }
 
-    private void setAsyncMetadata(final Request request, final Boolean async) {
-        if(asyncAccessor.isApplicable(request)) {
-            asyncAccessor.set(request, async);
-        }
-    }
-
     private boolean getAsyncMetadata(final Request request) {
         if (!asyncAccessor.isApplicable(request) || asyncAccessor.get(request) == null) {
             return false;
@@ -200,57 +198,55 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         return getAsyncMetadata(request);
     }
 
-    private void recordRootSpan(final Trace trace, final HttpServletRequest request) {
+    private void recordRootSpan(final RootCallStackFrame recorder, final HttpServletRequest request) {
         // root
-        trace.markBeforeTime();
-        trace.recordServiceType(TomcatConstants.TOMCAT);
+        recorder.markBeforeTime();
+        recorder.recordServiceType(TomcatConstants.TOMCAT);
 
         final String requestURL = request.getRequestURI();
-        trace.recordRpcName(requestURL);
+        recorder.recordRpcName(requestURL);
 
         final int port = request.getServerPort();
         final String endPoint = request.getServerName() + ":" + port;
-        trace.recordEndPoint(endPoint);
+        recorder.recordEndPoint(endPoint);
 
         final String remoteAddr = request.getRemoteAddr();
-        trace.recordRemoteAddress(remoteAddr);
+        recorder.recordRemoteAddress(remoteAddr);
 
-        if (!trace.isRoot()) {
-            recordParentInfo(trace, request);
+        if (!recorder.isRoot()) {
+            recordParentInfo(recorder, request);
         }
-        trace.recordApi(SERVLET_SYNCHRONOUS_API_TAG);
-        // begin
-        trace.traceBlockBegin();
+        recorder.recordApi(SERVLET_SYNCHRONOUS_API_TAG);
     }
 
-    private void recordParentInfo(RecordableTrace trace, HttpServletRequest request) {
+    private void recordParentInfo(RootCallStackFrame recorder, HttpServletRequest request) {
         String parentApplicationName = request.getHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString());
         if (parentApplicationName != null) {
             final String host = request.getHeader(Header.HTTP_HOST.toString());
             if(host != null) {
-                trace.recordAcceptorHost(host);
+                recorder.recordAcceptorHost(host);
             } else {
-                trace.recordAcceptorHost(NetworkUtils.getHostFromURL(request.getRequestURL().toString()));
+                recorder.recordAcceptorHost(NetworkUtils.getHostFromURL(request.getRequestURL().toString()));
             }
             final String type = request.getHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString());
             final short parentApplicationType = NumberUtils.parseShort(type, ServiceType.UNDEFINED.getCode());
-            trace.recordParentApplication(parentApplicationName, parentApplicationType);
+            recorder.recordParentApplication(parentApplicationName, parentApplicationType);
         }
     }
 
     @Override
-    protected void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
-        if (trace.canSampled()) {
+    protected void doInAfterTrace(RootCallStackFrame recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        if (recorder.canSampled()) {
             final HttpServletRequest request = (HttpServletRequest) args[0];
             final String parameters = getRequestParameter(request, 64, 512);
             if (parameters != null && parameters.length() > 0) {
-                trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+                recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
             }
 
-            trace.recordApi(getMethodDescriptor());
+            recorder.recordApi(getMethodDescriptor());
         }
-        trace.recordException(throwable);
-        trace.markAfterTime();
+        recorder.recordException(throwable);
+        recorder.markAfterTime();
     }
 
     /**
@@ -317,7 +313,8 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         
         final Request request = (Request) args[0];
         if (!isAsynchronousProcess(request)) {
-            trace.markAfterTime();
+            RootCallStackFrame recorder = trace.rootCallStackFrame();
+            recorder.markAfterTime();
             trace.close();
             getTraceContext().removeTraceObject();
             // reset

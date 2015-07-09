@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
@@ -33,23 +34,23 @@ public class DataSourceGetConnectionInterceptor extends SpanEventSimpleAroundInt
     }
 
     @Override
-    public void doInBeforeTrace(RecordableTrace trace, final Object target, Object[] args) {
-        trace.markBeforeTime();
+    public void doInBeforeTrace(CallStackFrame recorder, final Object target, Object[] args) {
+        recorder.markBeforeTime();
     }
 
     @Override
-    public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
-        trace.recordServiceType(ServiceType.DBCP);
+    public void doInAfterTrace(CallStackFrame recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordServiceType(ServiceType.DBCP);
         if (args == null) {
 //          getConnection() without any arguments
-            trace.recordApi(getMethodDescriptor());
+            recorder.recordApi(getMethodDescriptor());
         } else if(args.length == 2) {
 //          skip args[1] because it's a password.
-            trace.recordApi(getMethodDescriptor(), args[0], 0);
+            recorder.recordApi(getMethodDescriptor(), args[0], 0);
         }
-        trace.recordException(throwable);
+        recorder.recordException(throwable);
 
-        trace.markAfterTime();
+        recorder.markAfterTime();
     }
 
 

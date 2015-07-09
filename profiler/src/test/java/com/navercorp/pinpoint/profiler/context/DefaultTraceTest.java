@@ -44,28 +44,14 @@ public class DefaultTraceTest {
     @Test
     public void testPushPop() {
         DefaultTraceContext defaultTraceContext = new DefaultTraceContext(new TestAgentInformation());
-        DefaultTrace trace = new DefaultTrace(defaultTraceContext, 1);
+        DefaultTrace trace = new DefaultTrace(defaultTraceContext, 1, true);
 
         trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
 
-        Assert.assertEquals(0, trace.getCallStackDepth());
-
         trace.traceBlockBegin();
-
-        Assert.assertEquals(1, trace.getCallStackDepth());
-
         trace.traceBlockBegin();
-        Assert.assertEquals(2, trace.getCallStackDepth());
-
         trace.traceBlockEnd();
-
-        Assert.assertEquals(1, trace.getCallStackDepth());
-
         trace.traceBlockEnd();
-
-        Assert.assertEquals(0, trace.getCallStackDepth());
-
         trace.close();
-
     }
 }

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -56,10 +57,10 @@ public class DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor impleme
             return;
         }
 
-        trace.traceBlockBegin();
-        trace.markBeforeTime();
+        CallStackFrame recorder = trace.traceBlockBegin();
+        recorder.markBeforeTime();
 
-        trace.recordServiceType(serviceType);
+        recorder.recordServiceType(serviceType);
     }
 
     @Override
@@ -74,17 +75,17 @@ public class DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor impleme
         }
 
         try {
-            trace.recordApi(descriptor);
-            trace.recordException(throwable);
+            CallStackFrame recorder = trace.currentCallStackFrame();
+            recorder.recordApi(descriptor);
+            recorder.recordException(throwable);
             
             if (args.length >=1 && (args[0] instanceof Exception)) {
-                trace.recordAttribute(AnnotationKey.HTTP_CALL_RETRY_COUNT, args[0].getClass().getName());
+                recorder.recordAttribute(AnnotationKey.HTTP_CALL_RETRY_COUNT, args[0].getClass().getName());
             }
             if (result != null) {
-                trace.recordAttribute(AnnotationKey.RETURN_DATA, result);
+                recorder.recordAttribute(AnnotationKey.RETURN_DATA, result);
             }
-
-            trace.markAfterTime();
+            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

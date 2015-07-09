@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.thrift.interceptor.client.async;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -61,9 +62,11 @@ public class TAsyncMethodCallStartInterceptor extends TAsyncMethodCallInternalMe
                 logger.warn("Failed to continue async trace. 'result is null'");
                 return;
             }
-            trace.markBeforeTime();
-            trace.recordServiceType(ServiceType.ASYNC);
-            trace.recordApi(this.thriftAsyncClientMethodDescriptor);
+            CallStackFrame recorder = trace.currentCallStackFrame();
+            recorder.markBeforeTime();
+            
+            recorder.recordServiceType(ServiceType.ASYNC);
+            recorder.recordApi(this.thriftAsyncClientMethodDescriptor);
             super.asyncMarkerAccessor.set(target, Boolean.TRUE);
         }
         super.before(target, args);

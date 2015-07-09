@@ -20,8 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.RootCallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -38,20 +38,22 @@ import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
 /**
  * @author netspider
  * @author emeroad
+ * @author jaehong.kim
  */
 public final class DefaultTrace implements Trace {
-
     private static final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
     private static final boolean isDebug = logger.isDebugEnabled();
     private static final boolean isTrace = logger.isTraceEnabled();
 
     private short sequence;
 
-    private boolean sampling = true;
+    private final boolean sampling;
 
     private final TraceId traceId;
 
-    private CallStack callStack;
+    private final Span span = new Span();
+    
+    private final CallStack callStack = new CallStack();
 
     private Storage storage;
 
@@ -59,18 +61,20 @@ public final class DefaultTrace implements Trace {
 
     // use for calculating depth of each Span.
     private int latestStackIndex = 0;
-    private WrappedRecorderHolder recorderHolder = new WrappedRecorderHolder();
+    private WrappedCallStackFrameHolder recorderHolder = new WrappedCallStackFrameHolder();
 
-    public DefaultTrace(final TraceContext traceContext, long transactionId) {
+    public DefaultTrace(final TraceContext traceContext, long transactionId, boolean sampling) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
         }
         this.traceContext = traceContext;
         this.traceId = new DefaultTraceId(traceContext.getAgentId(), traceContext.getAgentStartTime(), transactionId);
-        createTrace();
+        this.sampling = sampling;
+
+        init();
     }
 
-    public DefaultTrace(TraceContext traceContext, TraceId continueTraceId) {
+    public DefaultTrace(TraceContext traceContext, TraceId continueTraceId, boolean sampling) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
         }
@@ -79,31 +83,22 @@ public final class DefaultTrace implements Trace {
         }
         this.traceContext = traceContext;
         this.traceId = continueTraceId;
-        createTrace();
+
+        this.sampling = sampling;
+
+        init();
     }
 
-    private void createTrace() {
-        this.traceId.incrementTraceCount();
-        final Span span = createSpan(traceId);
-        this.callStack = new CallStack(span);
-    }
+    private void init() {
+        traceId.incrementTraceCount();
 
-    private Span createSpan(final TraceId traceId) {
-        final Span span = new Span();
         span.setAgentId(traceContext.getAgentId());
         span.setApplicationName(traceContext.getApplicationName());
         span.setAgentStartTime(traceContext.getAgentStartTime());
         span.setApplicationServiceType(traceContext.getServerTypeCode());
-
         // have to recode traceId latter.
         span.recordTraceId(traceId);
-        return span;
     }
-
-    // TODO getSpan() ?
-    // public CallStack getCallStack() {
-    // return callStack;
-    // }
 
     public void setStorage(Storage storage) {
         this.storage = storage;
@@ -113,22 +108,21 @@ public final class DefaultTrace implements Trace {
         return this.storage;
     }
 
+    public Span getSpan() {
+        return span;
+    }
+    
     private short nextSequence() {
         return sequence++;
     }
 
-    // TODO only test, remove ?
-    // public int getCallStackDepth() {
-    // return this.callStack.getIndex();
-    // }
-
     @Override
-    public SpanEventRecorder traceBlockBegin() {
+    public CallStackFrame traceBlockBegin() {
         return traceBlockBegin(DEFAULT_STACKID);
     }
 
     @Override
-    public SpanEventRecorder traceBlockBegin(final int stackId) {
+    public CallStackFrame traceBlockBegin(final int stackId) {
         final SpanEvent spanEvent = createSpanEvent(stackId);
         final int currentStackIndex = callStack.push(spanEvent);
         if (latestStackIndex != currentStackIndex) {
@@ -136,11 +130,11 @@ public final class DefaultTrace implements Trace {
             spanEvent.setDepth(latestStackIndex);
         }
         
-        return recorderHolder.getSpanEventRecorder(traceContext, spanEvent);
+        return recorderHolder.get(traceContext, spanEvent);
     }
 
     private SpanEvent createSpanEvent(int stackId) {
-        final SpanEvent spanEvent = new SpanEvent(callStack.getSpan());
+        final SpanEvent spanEvent = new SpanEvent(span);
         // Set properties for the case when stackFrame is not used as part of Span.
         spanEvent.setStackId(stackId);
         spanEvent.setSequence(nextSequence());
@@ -186,8 +180,6 @@ public final class DefaultTrace implements Trace {
             PinpointException exception = new PinpointException("Corrupted CallStack found");
             logger.warn("Corrupted CallStack found. stack is not empty.", exception);
         }
-
-        final Span span = callStack.getSpan();
         logSpan(span);
 
         // If the stack is not handled properly, NullPointerException will be thrown after this. Is it OK?
@@ -198,10 +190,6 @@ public final class DefaultTrace implements Trace {
         }
     }
 
-    // public StackFrame getCurrentStackFrame() {
-    // return callStack.getCurrentStackFrame();
-    // }
-
     /**
      * Get current TraceID. If it was not set this will return null.
      *
@@ -211,17 +199,13 @@ public final class DefaultTrace implements Trace {
     public TraceId getTraceId() {
         return this.traceId;
     }
-
+    
     public boolean canSampled() {
         return this.sampling;
     }
 
     public boolean isRoot() {
         return getTraceId().isRoot();
-    }
-
-    public void setSampling(boolean sampling) {
-        this.sampling = sampling;
     }
 
     private void logSpan(SpanEvent spanEvent) {
@@ -240,19 +224,9 @@ public final class DefaultTrace implements Trace {
         this.storage.store(span);
     }
 
-    // @Override
-    // public int getStackFrameId() {
-    // return this.getCurrentStackFrame().getStackFrameId();
-    // }
-
     @Override
     public boolean isAsync() {
         return false;
-    }
-
-    @Override
-    public long getTraceStartTime() {
-        return callStack.getSpan().getStartTime();
     }
 
     @Override
@@ -262,21 +236,31 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public AsyncTraceId getAsyncTraceId() {
-        return new DefaultAsyncTraceId(traceId, traceContext.getAsyncId(), getTraceStartTime());
+        return new DefaultAsyncTraceId(traceId, traceContext.getAsyncId(), span.getStartTime());
     }
 
     @Override
-    public SpanRecorder getSpanRecorder() {
-        return recorderHolder.getSpanRecorder(traceContext, callStack.getSpan());
+    public RootCallStackFrame rootCallStackFrame() {
+        return recorderHolder.get(traceContext, span, traceId, sampling);
     }
 
     @Override
-    public SpanEventRecorder getSpanEventRecorder() {
+    public CallStackFrame currentCallStackFrame() {
         final SpanEvent spanEvent = callStack.peek();
         if(spanEvent == null) {
             throw new PinpointException("not found SpanEvent stack");
         }
         
-        return recorderHolder.getSpanEventRecorder(traceContext, spanEvent);
+        return recorderHolder.get(traceContext, spanEvent);
+    }
+
+    @Override
+    public int getCallStackFrameId() {
+        if(callStack.empty()) {
+            return ROOT_STACKID;
+        }
+        
+        final SpanEvent spanEvent = callStack.peek();
+        return spanEvent.getStackId();
     }
 }

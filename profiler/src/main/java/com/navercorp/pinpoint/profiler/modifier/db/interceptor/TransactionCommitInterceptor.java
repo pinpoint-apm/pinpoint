@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
 
@@ -32,22 +33,22 @@ public class TransactionCommitInterceptor extends SpanEventSimpleAroundIntercept
     }
 
     @Override
-    protected void doInBeforeTrace(RecordableTrace trace, Object target, Object[] args) {
-        trace.markBeforeTime();
+    protected void doInBeforeTrace(CallStackFrame recorder, Object target, Object[] args) {
+        recorder.markBeforeTime();
     }
 
 
     @Override
-    public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(CallStackFrame recorder, Object target, Object[] args, Object result, Throwable throwable) {
         DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(target, UnKnownDatabaseInfo.INSTANCE);
 
-        trace.recordServiceType(databaseInfo.getType());
-        trace.recordEndPoint(databaseInfo.getMultipleHost());
-        trace.recordDestinationId(databaseInfo.getDatabaseId());
+        recorder.recordServiceType(databaseInfo.getType());
+        recorder.recordEndPoint(databaseInfo.getMultipleHost());
+        recorder.recordDestinationId(databaseInfo.getDatabaseId());
 
-        trace.recordApi(getMethodDescriptor());
-        trace.recordException(throwable);
+        recorder.recordApi(getMethodDescriptor());
+        recorder.recordException(throwable);
 
-        trace.markAfterTime();
+        recorder.markAfterTime();
     }
 }

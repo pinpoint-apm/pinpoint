@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.modifier.method.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
@@ -58,10 +59,10 @@ public class MethodInterceptor implements SimpleAroundInterceptor, ServiceTypeSu
             return;
         }
 
-        trace.traceBlockBegin();
-        trace.markBeforeTime();
+        CallStackFrame recorder = trace.traceBlockBegin();
+        recorder.markBeforeTime();
 
-        trace.recordServiceType(serviceType);
+        recorder.recordServiceType(serviceType);
     }
 
     @Override
@@ -76,10 +77,11 @@ public class MethodInterceptor implements SimpleAroundInterceptor, ServiceTypeSu
         }
 
         try {
-            trace.recordApi(descriptor);
-            trace.recordException(throwable);
+            CallStackFrame recorder = trace.currentCallStackFrame();
+            recorder.recordApi(descriptor);
+            recorder.recordException(throwable);
 
-            trace.markAfterTime();
+            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

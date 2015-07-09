@@ -16,42 +16,23 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.exception.PinpointException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Arrays;
-import java.util.Stack;
+
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 
 /**
  * @author netspider
  * @author emeroad
+ * @author jaehong.kim
  */
 public class CallStack {
-
-    private static final Logger logger = LoggerFactory.getLogger(CallStack.class);
-
     private static final int STACK_SIZE = 8;
     private static final int DEFAULT_INDEX = 0;
-
-    private final Span span;
 
     private SpanEvent[] stack = new SpanEvent[STACK_SIZE];
 
     private int index = DEFAULT_INDEX;
-
-    public CallStack(Span span) {
-        if (span == null) {
-            throw new NullPointerException("span  must not be null");
-        }
-        this.span = span;
-    }
-
-    public Span getSpan() {
-        return span;
-    }
-
+    
     public int getIndex() {
         return index;
     }
@@ -98,9 +79,7 @@ public class CallStack {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("{span=");
-        builder.append(span);
-        builder.append(", stack=");
+        builder.append("{stack=");
         builder.append(Arrays.toString(stack));
         builder.append(", index=");
         builder.append(index);

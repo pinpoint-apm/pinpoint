@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.thrift.interceptor.client.async;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -46,7 +47,8 @@ public class TAsyncMethodCallOnErrorInterceptor extends TAsyncMethodCallInternal
         }
         
         if(trace.isAsync() && trace.isRootStack()) {
-            trace.markAfterTime();
+            CallStackFrame recorder = trace.currentCallStackFrame();
+            recorder.markAfterTime();
             trace.close();
             super.traceContext.removeTraceObject();
         }

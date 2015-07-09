@@ -3,17 +3,20 @@ package com.navercorp.pinpoint.profiler.context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.RootCallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
-public class WrappedSpanRecorder extends AbstractRecorder implements SpanRecorder {
+public class WrappedRootCallStackFrame extends AbstractRecorder implements RootCallStackFrame {
     private final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
     
     private Span span;
+    private TraceId traceId;
+    private boolean sampling;
     
-    public WrappedSpanRecorder(final TraceContext traceContext) {
+    public WrappedRootCallStackFrame(final TraceContext traceContext) {
         super(traceContext);
     }
 
@@ -21,10 +24,19 @@ public class WrappedSpanRecorder extends AbstractRecorder implements SpanRecorde
         this.span = span;
     }
     
-    public Span getSpan() {
-        return span;
+    public void setTraceId(TraceId traceId) {
+        this.traceId = traceId;
     }
-    
+
+    public void setSampling(boolean sampling) {
+        this.sampling = sampling;
+    }
+
+    @Override
+    public void recordStartTime(long startTime) {
+        span.setStartTime(startTime);
+    }
+
     @Override
     public void markBeforeTime() {
         span.markBeforeTime();
@@ -88,5 +100,15 @@ public class WrappedSpanRecorder extends AbstractRecorder implements SpanRecorde
         if (isDebug) {
             logger.debug("Acceptor host received. host={}", host);
         }
+    }
+
+    @Override
+    public boolean canSampled() {
+        return sampling;
+    }
+
+    @Override
+    public boolean isRoot() {
+        return traceId.isRoot();
     }
 }

@@ -22,6 +22,7 @@ import java.util.*;
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -107,11 +108,12 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
         }
 
         trace.traceBlockBegin();
-        trace.markBeforeTime();
+        CallStackFrame recorder = trace.currentCallStackFrame();
+        recorder.markBeforeTime();
 
         TraceId nextId = trace.getTraceId().getNextTraceId();
-        trace.recordNextSpanId(nextId.getSpanId());
-        trace.recordServiceType(ServiceType.HTTP_CLIENT);
+        recorder.recordNextSpanId(nextId.getSpanId());
+        recorder.recordServiceType(ServiceType.HTTP_CLIENT);
 
         if (httpRequest != null) {
             final FluentCaseInsensitiveStringsMap httpRequestHeaders = httpRequest.getHeaders();
@@ -151,21 +153,21 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
         }
 
         try {
+            CallStackFrame recorder = trace.currentCallStackFrame();
             final com.ning.http.client.Request httpRequest = (com.ning.http.client.Request) args[0];
-
             if (httpRequest != null) {
                 // Accessing httpRequest here not before() because it can cause side effect.
-                trace.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getUrl());
+                recorder.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getUrl());
 
                 String endpoint = getEndpoint(httpRequest.getURI().getHost(), httpRequest.getURI().getPort());
-                trace.recordDestinationId(endpoint);
+                recorder.recordDestinationId(endpoint);
 
-                recordHttpRequest(trace, httpRequest, throwable);
+                recordHttpRequest(recorder, httpRequest, throwable);
             }
 
-            trace.recordApi(descriptor);
-            trace.recordException(throwable);
-            trace.markAfterTime();
+            recorder.recordApi(descriptor);
+            recorder.recordException(throwable);
+            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }
@@ -185,32 +187,32 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
         return sb.toString();
     }
 
-    private void recordHttpRequest(Trace trace, com.ning.http.client.Request httpRequest, Throwable throwable) {
+    private void recordHttpRequest(CallStackFrame recorder, com.ning.http.client.Request httpRequest, Throwable throwable) {
         final boolean isException = InterceptorUtils.isThrowable(throwable);
         if (dumpCookie) {
             if (DumpType.ALWAYS == cookieDumpType) {
-                recordCookie(httpRequest, trace);
+                recordCookie(httpRequest, recorder);
             } else if (DumpType.EXCEPTION == cookieDumpType && isException) {
-                recordCookie(httpRequest, trace);
+                recordCookie(httpRequest, recorder);
             }
         }
         if (dumpEntity) {
             if (DumpType.ALWAYS == entityDumpType) {
-                recordEntity(httpRequest, trace);
+                recordEntity(httpRequest, recorder);
             } else if (DumpType.EXCEPTION == entityDumpType && isException) {
-                recordEntity(httpRequest, trace);
+                recordEntity(httpRequest, recorder);
             }
         }
         if (dumpParam) {
             if (DumpType.ALWAYS == paramDumpType) {
-                recordParam(httpRequest, trace);
+                recordParam(httpRequest, recorder);
             } else if (DumpType.EXCEPTION == paramDumpType && isException) {
-                recordParam(httpRequest, trace);
+                recordParam(httpRequest, recorder);
             }
         }
     }
 
-    protected void recordCookie(com.ning.http.client.Request httpRequest, Trace trace) {
+    protected void recordCookie(com.ning.http.client.Request httpRequest, CallStackFrame recorder) {
         if (cookieSampler.isSampling()) {
             Collection<Cookie> cookies = httpRequest.getCookies();
 
@@ -227,14 +229,14 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
                     sb.append(",");
                 }
             }
-            trace.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(sb.toString(), cookieDumpSize));
+            recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(sb.toString(), cookieDumpSize));
         }
     }
 
-    protected void recordEntity(final com.ning.http.client.Request httpRequest, final Trace trace) {
+    protected void recordEntity(final com.ning.http.client.Request httpRequest, final CallStackFrame recorder) {
         if (entitySampler.isSampling()) {
-            recordNonMultipartData(httpRequest, trace);
-            recordMultipartData(httpRequest, trace);
+            recordNonMultipartData(httpRequest, recorder);
+            recordMultipartData(httpRequest, recorder);
         }
     }
 
@@ -245,30 +247,30 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
      * </pre>
      *
      * @param httpRequest
-     * @param trace
+     * @param recorder
      */
-    protected void recordNonMultipartData(final com.ning.http.client.Request httpRequest, final Trace trace) {
+    protected void recordNonMultipartData(final com.ning.http.client.Request httpRequest, final CallStackFrame recorder) {
         final String stringData = httpRequest.getStringData();
         if (stringData != null) {
-            trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(stringData, entityDumpSize));
+            recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(stringData, entityDumpSize));
             return;
         }
 
         final byte[] byteData = httpRequest.getByteData();
         if (byteData != null) {
-            trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, "BYTE_DATA");
+            recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, "BYTE_DATA");
             return;
         }
 
         final InputStream streamData = httpRequest.getStreamData();
         if (streamData != null) {
-            trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, "STREAM_DATA");
+            recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, "STREAM_DATA");
             return;
         }
 
         final EntityWriter entityWriter = httpRequest.getEntityWriter();
         if (entityWriter != null) {
-            trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, "STREAM_DATA");
+            recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, "STREAM_DATA");
             return;
         }
     }
@@ -277,9 +279,9 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
      * record http multipart data
      *
      * @param httpRequest
-     * @param trace
+     * @param recorder
      */
-    protected void recordMultipartData(final com.ning.http.client.Request httpRequest, final Trace trace) {
+    protected void recordMultipartData(final com.ning.http.client.Request httpRequest, final CallStackFrame recorder) {
         List<Part> parts = httpRequest.getParts();
         if (parts != null && parts.isEmpty()) {
             StringBuilder sb = new StringBuilder(entityDumpSize * 2);
@@ -321,7 +323,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
                     sb.append(",");
                 }
             }
-            trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(sb.toString(), entityDumpSize));
+            recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(sb.toString(), entityDumpSize));
         }
     }
 
@@ -329,14 +331,14 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
      * record http request parameter
      *
      * @param httpRequest
-     * @param trace
+     * @param recorder
      */
-    protected void recordParam(final com.ning.http.client.Request httpRequest, final Trace trace) {
+    protected void recordParam(final com.ning.http.client.Request httpRequest, final CallStackFrame recorder) {
         if (paramSampler.isSampling()) {
             FluentStringsMap requestParams = httpRequest.getParams();
             if (requestParams != null) {
                 String params = paramsToString(requestParams, paramDumpSize);
-                trace.recordAttribute(AnnotationKey.HTTP_PARAM, StringUtils.drop(params, paramDumpSize));
+                recorder.recordAttribute(AnnotationKey.HTTP_PARAM, StringUtils.drop(params, paramDumpSize));
             }
         }
     }

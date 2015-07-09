@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -59,7 +60,8 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
             return;
         }
         trace.traceBlockBegin();
-        trace.markBeforeTime();
+        CallStackFrame recorder = trace.currentCallStackFrame();
+        recorder.markBeforeTime();
     }
 
     @Override
@@ -74,12 +76,13 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
         }
 
         try {
+            CallStackFrame recorder = trace.currentCallStackFrame();
             if (validate(target, result, throwable)) {
                 asyncAccessor.set(target, Boolean.TRUE);
 
                 // make asynchronous trace-id
                 final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-                trace.recordNextAsyncId(asyncTraceId.getAsyncId());
+                recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
                 // result is BasicFuture
                 asyncTraceIdAccessor.set(result, asyncTraceId);
                 if(isDebug) {
@@ -87,10 +90,10 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
                 }
             }
             
-            trace.recordServiceType(TOMCAT_METHOD);
-            trace.recordApi(descriptor);
-            trace.recordException(throwable);
-            trace.markAfterTime();
+            recorder.recordServiceType(TOMCAT_METHOD);
+            recorder.recordApi(descriptor);
+            recorder.recordException(throwable);
+            recorder.markAfterTime();
         } catch (Throwable t) {
             logger.warn("Failed to after process. {}", t.getMessage(), t);
         } finally {

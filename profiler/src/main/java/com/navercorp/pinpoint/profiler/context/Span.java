@@ -103,6 +103,4 @@ public class Span extends TSpan {
     public void setErrCode(int exception) {
         super.setErr(exception);
     }
-
-
 }

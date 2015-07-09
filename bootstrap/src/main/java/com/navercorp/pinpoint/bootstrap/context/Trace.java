@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.bootstrap.context;
 
+
 /**
  * @author emeroad
  */
 public interface Trace extends StackOperation {
-
+    
     TraceId getTraceId();
     
     AsyncTraceId getAsyncTraceId();
@@ -31,11 +32,9 @@ public interface Trace extends StackOperation {
 
     boolean isAsync();
     
-    long getTraceStartTime();
+    RootCallStackFrame rootCallStackFrame();
     
-    SpanRecorder getSpanRecorder();
-    
-    SpanEventRecorder getSpanEventRecorder();
+    CallStackFrame currentCallStackFrame();
     
     void close();
 }

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.user.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.RootCallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -61,18 +63,20 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
             if(isDebug) {
                 logger.debug("New trace and sampled {}", trace);
             }
-            recordRootSpan(trace);
+            RootCallStackFrame recorder = trace.rootCallStackFrame();
+            recordRootSpan(recorder);
         }
 
         trace.traceBlockBegin();
-        trace.markBeforeTime();
+        CallStackFrame recorder = trace.currentCallStackFrame();
+        recorder.markBeforeTime();
     }
 
-    private void recordRootSpan(final Trace trace) {
+    private void recordRootSpan(final RootCallStackFrame recorder) {
         // root
-        trace.markBeforeTime();
-        trace.recordServiceType(ServiceType.STAND_ALONE);
-        trace.recordApi(USER_INCLUDE_METHOD_DESCRIPTOR);
+        recorder.markBeforeTime();
+        recorder.recordServiceType(ServiceType.STAND_ALONE);
+        recorder.recordApi(USER_INCLUDE_METHOD_DESCRIPTOR);
     }
 
     @Override
@@ -87,14 +91,16 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
         }
 
         try {
-            trace.recordApi(descriptor);
-            trace.recordServiceType(ServiceType.USER_INCLUDE);
-            trace.recordException(throwable);
-            trace.markAfterTime();
+            CallStackFrame recorder = trace.currentCallStackFrame();
+            recorder.recordApi(descriptor);
+            recorder.recordServiceType(ServiceType.USER_INCLUDE);
+            recorder.recordException(throwable);
+            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
             if(trace.isRootStack()) {
-                trace.markAfterTime();
+                RootCallStackFrame recorder = trace.rootCallStackFrame();
+                recorder.markAfterTime();
                 trace.close();
                 traceContext.removeTraceObject();
             }

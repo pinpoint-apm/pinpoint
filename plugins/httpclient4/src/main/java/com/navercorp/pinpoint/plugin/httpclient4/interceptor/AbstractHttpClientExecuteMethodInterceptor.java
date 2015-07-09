@@ -35,7 +35,7 @@ import org.apache.http.protocol.HTTP;
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Header;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -119,7 +119,7 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Simp
             return;
         }
 
-        final SpanEventRecorder recorder = trace.traceBlockBegin();
+        final CallStackFrame recorder = trace.traceBlockBegin();
         recorder.markBeforeTime();
 
         TraceId nextId = trace.getTraceId().getNextTraceId();
@@ -155,7 +155,7 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Simp
         }
 
         try {
-            final SpanEventRecorder recorder = trace.getSpanEventRecorder();
+            final CallStackFrame recorder = trace.currentCallStackFrame();
             final HttpRequest httpRequest = getHttpRequest(args);
             if (httpRequest != null) {
                 // Accessing httpRequest here not before() becuase it can cause side effect.
@@ -260,7 +260,7 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Simp
             final String value = header.getValue();
             if (value != null && !value.isEmpty()) {
                 if (cookieSampler.isSampling()) {
-                    final SpanEventRecorder recorder = trace.getSpanEventRecorder();
+                    final CallStackFrame recorder = trace.currentCallStackFrame();
                     recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, 1024));
                 }
 
@@ -279,7 +279,7 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Simp
                 if (entity != null && entity.isRepeatable() && entity.getContentLength() > 0) {
                     if (entitySampler.isSampling()) {
                         final String entityString = entityUtilsToString(entity, "UTF8", 1024);
-                        final SpanEventRecorder recorder = trace.getSpanEventRecorder();
+                        final CallStackFrame recorder = trace.currentCallStackFrame();
                         recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(entityString, 1024));
                     }
                 }

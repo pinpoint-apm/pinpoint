@@ -126,15 +126,13 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         checkBeforeTraceObject();
 
         // TODO need to modify how to bind a datasender
-        final DefaultTrace trace = new DefaultTrace(traceContext, traceID);
+        // always set true because the decision of sampling has been  made on previous nodes
+        // TODO need to consider as a target to sample in case Trace object has a sampling flag (true) marked on previous node.
+        final boolean sampling = true;
+        final DefaultTrace trace = new DefaultTrace(traceContext, traceID, sampling);
         // final Storage storage = storageFactory.createStorage();
         final Storage storage = storagePool.getStorage(traceID);
         trace.setStorage(storage);
-
-        // always set true because the decision of sampling has been  made on previous nodes
-        // TODO need to consider as a target to sample in case Trace object has a sampling flag (true) marked on previous node.
-        trace.setSampling(true);
-
         threadLocal.set(trace);
         return trace;
     }
@@ -166,11 +164,10 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         final boolean sampling = sampler.isSampling();
         if (sampling) {
             // final Storage storage = storageFactory.createStorage();
-            final DefaultTrace trace = new DefaultTrace(traceContext, nextTransactionId());
+            final DefaultTrace trace = new DefaultTrace(traceContext, nextTransactionId(), sampling);
             final TraceId traceId = trace.getTraceId();
             final Storage storage = storagePool.getStorage(traceId);
             trace.setStorage(storage);
-            trace.setSampling(sampling);
             threadLocal.set(trace);
             return trace;
         } else {
@@ -203,13 +200,12 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         checkBeforeTraceObject();
         
         final TraceId parentTraceId = traceId.getParentTraceId();
-        final DefaultTrace trace = new DefaultTrace(traceContext, parentTraceId);
-        trace.getCallStack().getSpan().setStartTime(startTime);
+        final boolean sampling = true;
+        final DefaultTrace trace = new DefaultTrace(traceContext, parentTraceId, sampling);
         final Storage storage = storagePool.getStorage(parentTraceId);
         trace.setStorage(new AsyncStorage(storage));
-        trace.setSampling(true);
         
-        final AsyncTrace asyncTrace = new AsyncTrace(trace, asyncId, traceId.nextAsyncSequence());
+        final AsyncTrace asyncTrace = new AsyncTrace(trace, asyncId, traceId.nextAsyncSequence(), startTime);
         threadLocal.set(asyncTrace);
         
         return asyncTrace;

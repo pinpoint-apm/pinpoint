@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 
 
 
+
 import org.junit.internal.runners.model.EachTestNotifier;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -30,6 +31,7 @@ import org.junit.runners.model.TestClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.navercorp.pinpoint.bootstrap.context.RootCallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -68,8 +70,6 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         return testContext.createTestClass(testClass);
     }
 
-
-
     @Override
     protected void runChild(FrameworkMethod method, RunNotifier notifier) {
         beginTracing(method);
@@ -88,8 +88,10 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         if (shouldCreateNewTraceObject(method)) {
             TraceContext traceContext = this.testContext.getMockAgent().getTraceContext();
             Trace trace = traceContext.newTraceObject();
-            trace.markBeforeTime();
-            trace.recordServiceType(ServiceType.TEST);
+            RootCallStackFrame frame = trace.rootCallStackFrame();
+            
+            frame.markBeforeTime();
+            frame.recordServiceType(ServiceType.TEST);
         }
     }
 
@@ -106,7 +108,8 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
                     testMethodNotifier.addFailure(new IllegalStateException(traceObjectAlreadyDetachedMessage));
                 } else {
                     try {
-                        trace.markAfterTime();
+                        RootCallStackFrame frame = trace.rootCallStackFrame();
+                        frame.markAfterTime();
                     } finally {
                         trace.close();
                     }
@@ -167,13 +170,10 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         });
     }
 
-
     public void beforeClass() throws Throwable {
         logger.debug("beforeClass");
         // TODO MockAgent.start();
     }
-
-
 
     @Override
     protected Statement withAfterClasses(Statement statement) {
@@ -190,5 +190,4 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         logger.debug("afterClass");
         // TODO MockAgent.close()
     }
-
 }

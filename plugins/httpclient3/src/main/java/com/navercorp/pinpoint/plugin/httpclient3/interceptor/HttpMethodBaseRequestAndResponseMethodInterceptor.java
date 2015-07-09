@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -55,7 +55,7 @@ public class HttpMethodBaseRequestAndResponseMethodInterceptor implements Simple
             return;
         }
 
-        final SpanEventRecorder recorder = trace.traceBlockBegin();
+        final CallStackFrame recorder = trace.traceBlockBegin();
         recorder.markBeforeTime();
     }
 
@@ -71,7 +71,7 @@ public class HttpMethodBaseRequestAndResponseMethodInterceptor implements Simple
         }
 
         try {
-            final SpanEventRecorder recorder = trace.getSpanEventRecorder();
+            final CallStackFrame recorder = trace.currentCallStackFrame();
             recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
             recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);

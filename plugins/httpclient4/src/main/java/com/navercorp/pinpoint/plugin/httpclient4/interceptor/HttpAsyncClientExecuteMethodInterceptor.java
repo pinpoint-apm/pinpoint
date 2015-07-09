@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -55,9 +56,9 @@ public class HttpAsyncClientExecuteMethodInterceptor implements SimpleAroundInte
             return;
         }
 
-        trace.traceBlockBegin();
-        trace.markBeforeTime();
-        trace.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
+        CallStackFrame recorder = trace.traceBlockBegin();
+        recorder.markBeforeTime();
+        recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
     }
 
     @Override
@@ -72,9 +73,10 @@ public class HttpAsyncClientExecuteMethodInterceptor implements SimpleAroundInte
         }
 
         try {
-            trace.recordApi(descriptor);
-            trace.recordException(throwable);
-            trace.markAfterTime();
+            CallStackFrame recorder = trace.currentCallStackFrame();
+            recorder.recordApi(descriptor);
+            recorder.recordException(throwable);
+            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

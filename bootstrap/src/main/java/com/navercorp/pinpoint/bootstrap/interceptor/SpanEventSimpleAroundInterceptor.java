@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -53,7 +53,7 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
         }
         
         try {
-            final SpanEventRecorder recorder = trace.traceBlockBegin();
+            final CallStackFrame recorder = trace.traceBlockBegin();
             doInBeforeTrace(recorder, target, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -70,7 +70,7 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
 
     }
 
-    protected abstract void doInBeforeTrace(final SpanEventRecorder recorder, final Object target, final Object[] args);
+    protected abstract void doInBeforeTrace(final CallStackFrame recorder, final Object target, final Object[] args);
 
 
     @Override
@@ -87,7 +87,7 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
         }
         
         try {
-            final SpanEventRecorder recorder = trace.getSpanEventRecorder();
+            final CallStackFrame recorder = trace.currentCallStackFrame();
             doInAfterTrace(recorder, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -105,7 +105,7 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
     protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {
     }
 
-    protected abstract void doInAfterTrace(final SpanEventRecorder recorder, final Object target, final Object[] args, final Object result, Throwable throwable);
+    protected abstract void doInAfterTrace(final CallStackFrame recorder, final Object target, final Object[] args, final Object result, Throwable throwable);
 
 
     @Override

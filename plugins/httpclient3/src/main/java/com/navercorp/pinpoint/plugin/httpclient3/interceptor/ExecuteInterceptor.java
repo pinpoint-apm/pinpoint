@@ -32,7 +32,7 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Header;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -127,7 +127,7 @@ public class ExecuteInterceptor implements SimpleAroundInterceptor, HttpClient3C
             return;
         }
 
-        final SpanEventRecorder recorder = trace.traceBlockBegin();
+        final CallStackFrame recorder = trace.traceBlockBegin();
         recorder.markBeforeTime();
 
         TraceId nextId = trace.getTraceId().getNextTraceId();
@@ -170,7 +170,7 @@ public class ExecuteInterceptor implements SimpleAroundInterceptor, HttpClient3C
         }
 
         try {
-            final SpanEventRecorder recorder = trace.getSpanEventRecorder();
+            final CallStackFrame recorder = trace.currentCallStackFrame();
             HttpMethod httpMethod = getHttpMethod(args);
             if (httpMethod != null) {
                 try {
@@ -238,7 +238,7 @@ public class ExecuteInterceptor implements SimpleAroundInterceptor, HttpClient3C
                             entityValue = entity.getClass() + " (ContentType:" + entity.getContentType() + ")";
                         }
 
-                        final SpanEventRecorder recorder = trace.getSpanEventRecorder();                       
+                        final CallStackFrame recorder = trace.currentCallStackFrame();                       
                         recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, entityValue);
                     } catch (Exception e) {
                         logger.debug("HttpEntityEnclosingRequest entity record fail. Caused:{}", e.getMessage(), e);
@@ -278,7 +278,7 @@ public class ExecuteInterceptor implements SimpleAroundInterceptor, HttpClient3C
 
         if (value != null && !value.isEmpty()) {
             if (cookieSampler.isSampling()) {
-                final SpanEventRecorder recorder = trace.getSpanEventRecorder();
+                final CallStackFrame recorder = trace.currentCallStackFrame();
                 recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, MAX_READ_SIZE));
             }
         }
