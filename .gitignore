@@ -5,3 +5,5 @@
 /deploy
 /target
 /build/
+**/node_modules
+**/jsdoc
