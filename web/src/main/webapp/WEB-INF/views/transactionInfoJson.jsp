@@ -11,6 +11,9 @@
 	"callStackEnd" : ${callstackEnd},
     "completeState" : "${completeState}",
     "logLinkEnable" : ${logLinkEnable},
+    "loggingTransactionInfo" : ${loggingTransactionInfo},
+    "logButtonName": "${logButtonName}",
+    "logPageUrl", "${logPageUrl}",
 	"callStackIndex" : {
 		"depth":0,
 		"begin":1,

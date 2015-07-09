@@ -33,6 +33,8 @@ public class RecordSet {
 
     private String agentId;
     private String applicationId;
+    
+    private boolean loggingTransactionInfo;
 
     public RecordSet() {
     }
@@ -100,5 +102,13 @@ public class RecordSet {
 
     public void setApplicationId(String applicationId) {
         this.applicationId = applicationId;
+    }
+    
+    public boolean isLoggingTransactionInfo() {
+        return loggingTransactionInfo;
+    }
+
+    public void setLoggingTransactionInfo(boolean loggingTransactionInfo) {
+        this.loggingTransactionInfo = loggingTransactionInfo;
     }
 }

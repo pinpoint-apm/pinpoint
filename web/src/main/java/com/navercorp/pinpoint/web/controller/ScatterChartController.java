@@ -65,16 +65,6 @@ public class ScatterChartController {
 
     @Autowired
     private FilterBuilder filterBuilder;
-    
-
-    @Value("#{pinpointWebProps['log.enable'] ?: false}")
-    private boolean logLinkEnable;
-    
-    @Value("#{pinpointWebProps['log.button.name'] ?: ''}")
-    private String logButtonName;
-    
-    @Value("#{pinpointWebProps['log.page.url'] ?: ''}")
-    private String logPageUrl;
 
     private static final String PREFIX_TRANSACTION_ID = "I";
     private static final String PREFIX_TIME = "T";
@@ -234,10 +224,6 @@ public class ScatterChartController {
             model.addAttribute("metadata", metadata);
         }
         
-        if (logLinkEnable) {
-            model.addAttribute("logButtonName", logButtonName);
-            model.addAttribute("logPageUrl", logPageUrl);
-        }
         
         return "transactionmetadata";
     }

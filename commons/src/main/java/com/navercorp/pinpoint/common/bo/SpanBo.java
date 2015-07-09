@@ -77,6 +77,8 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
     
     private String remoteAddr; // optional
 
+    private boolean loggingTransactionInfo; //optional
+
     public SpanBo(TSpan span) {
         if (span == null) {
             throw new NullPointerException("span must not be null");
@@ -109,6 +111,8 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
         this.errCode = span.getErr();
         
         this.remoteAddr = span.getRemoteAddr();
+        
+        this.loggingTransactionInfo = span.getLoggingTransactionInfo() == 1 ? true : false;
         
         // FIXME (2015.03) Legacy - applicationServiceType added in v1.1.0
         // applicationServiceType is not saved for older versions where applicationServiceType does not exist.
@@ -379,6 +383,14 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
         } else {
             return this.serviceType;
         }
+    }
+    
+    public boolean isLoggingTransactionInfo() {
+        return loggingTransactionInfo;
+    }
+
+    public void setLoggingTransactionInfo(boolean loggingTransactionInfo) {
+        this.loggingTransactionInfo = loggingTransactionInfo;
     }
 
     // Variable encoding has been added in case of write io operation. The data size can be reduced by about 10%.
