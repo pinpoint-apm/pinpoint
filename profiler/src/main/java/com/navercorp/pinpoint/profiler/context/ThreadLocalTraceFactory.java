@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.context.TraceType;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.storage.AsyncStorage;
@@ -159,6 +160,11 @@ public class ThreadLocalTraceFactory implements TraceFactory {
 
     @Override
     public Trace newTraceObject() {
+        return newTraceObject(TraceType.DEFAULT);
+    }
+    
+    @Override
+    public Trace newTraceObject(TraceType traceType) {
         checkBeforeTraceObject();
         // TODO need to modify how to inject a datasender
         final boolean sampling = sampler.isSampling();
@@ -168,6 +174,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
             final TraceId traceId = trace.getTraceId();
             final Storage storage = storagePool.getStorage(traceId);
             trace.setStorage(storage);
+            trace.setTraceType(traceType);
             threadLocal.set(trace);
             return trace;
         } else {

@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.context.RootCallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.context.TraceType;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -62,6 +63,7 @@ public final class DefaultTrace implements Trace {
     // use for calculating depth of each Span.
     private int latestStackIndex = 0;
     private WrappedCallStackFrameHolder recorderHolder = new WrappedCallStackFrameHolder();
+    private TraceType traceType = TraceType.DEFAULT;
 
     public DefaultTrace(final TraceContext traceContext, long transactionId, boolean sampling) {
         if (traceContext == null) {
@@ -262,5 +264,14 @@ public final class DefaultTrace implements Trace {
         
         final SpanEvent spanEvent = callStack.peek();
         return spanEvent.getStackId();
+    }
+    
+    @Override
+    public TraceType getTraceType() {
+        return traceType;
+    }
+    
+    public void setTraceType(TraceType traceType) {
+        this.traceType = traceType;
     }
 }

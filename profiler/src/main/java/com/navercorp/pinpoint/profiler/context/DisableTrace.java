@@ -21,10 +21,12 @@ import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.RootCallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.context.TraceType;
 
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
 public class DisableTrace  implements Trace {
 
@@ -101,5 +103,10 @@ public class DisableTrace  implements Trace {
     @Override
     public CallStackFrame currentCallStackFrame() {
         return null;
+    }
+
+    @Override
+    public TraceType getTraceType() {
+        return TraceType.DISABLE;
     }
 }
