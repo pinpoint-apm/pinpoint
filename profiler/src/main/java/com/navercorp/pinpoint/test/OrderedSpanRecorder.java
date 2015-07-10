@@ -27,8 +27,8 @@ import java.util.Map;
 
 import org.apache.thrift.TBase;
 
-import com.navercorp.pinpoint.thrift.dto.TSpan;
-import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
+import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.SpanEvent;
 
 /**
  * @author Jongho Moon
@@ -36,25 +36,46 @@ import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 public class OrderedSpanRecorder implements ListenableDataSender.Listener, Iterable<TBase<?, ?>> {
     private final List<Item> list = new ArrayList<Item>();
     
-    private final Map<Long, List<TSpanEvent>> waitingEventTable = new HashMap<Long, List<TSpanEvent>>();
+    private final Map<Long, List<SpanEvent>> waitingEventTable = new HashMap<Long, List<SpanEvent>>();
+    private final Map<Long, List<SpanEvent>> waitingAsyncEventTable = new HashMap<Long, List<SpanEvent>>();
     private final Map<Long, Long> spanStartTimeTable = new HashMap<Long, Long>();
     
-    
     private static final class Item implements Comparable<Item> {
+        
+        private static final int ASYNC_ID_NOT_SET = 0;
+
         private final TBase<?, ?> value;
         private final long time;
         private final long spanId;
         private final int sequence;
-
+        private final int asyncId;
+        
         public Item(TBase<?, ?> value, long time, long spanId, int sequence) {
+            this(value, time, spanId, sequence, ASYNC_ID_NOT_SET);
+        }
+
+        public Item(TBase<?, ?> value, long time, long spanId, int sequence, int asyncId) {
             this.value = value;
             this.time = time;
             this.spanId = spanId;
             this.sequence = sequence;
+            this.asyncId = asyncId;
         }
 
         @Override
         public int compareTo(Item o) {
+            // shift async events to the back, and only compare against other async events
+            if (o.asyncId != ASYNC_ID_NOT_SET) {
+                if (this.asyncId != ASYNC_ID_NOT_SET) {
+                    if (this.asyncId < o.asyncId) {
+                        return -1;
+                    } else if (this.asyncId > o.asyncId) {
+                        return 1;
+                    } // if both async events have the same asyncId, do normal event comparison
+                } else {
+                    return -1;
+                }
+            }
             if (this.time < o.time) {
                 return -1;
             } else if (this.time > o.time) {
@@ -80,10 +101,28 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener, Itera
         }
     }
     
-    private static final Comparator<TSpanEvent> SPAN_EVENT_COMPARATOR = new Comparator<TSpanEvent>() {
+    private static final Comparator<SpanEvent> ASYNC_SPAN_EVENT_COMPARATOR = new Comparator<SpanEvent>() {
 
         @Override
-        public int compare(TSpanEvent o1, TSpanEvent o2) {
+        public int compare(SpanEvent o1, SpanEvent o2) {
+            int asyncId1 = o1.getAsyncId();
+            int asyncId2 = o2.getAsyncId();
+            
+            if (asyncId1 < asyncId2) {
+                return -1;
+            } else if (asyncId1 > asyncId2) {
+                return 1;
+            } else {
+                return SPAN_EVENT_COMPARATOR.compare(o1, o2);
+            }
+        }
+        
+    };
+    
+    private static final Comparator<SpanEvent> SPAN_EVENT_COMPARATOR = new Comparator<SpanEvent>() {
+
+        @Override
+        public int compare(SpanEvent o1, SpanEvent o2) {
             int t1 = o1.getStartElapsed();
             int t2 = o2.getStartElapsed();
             
@@ -103,18 +142,23 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener, Itera
     
     @Override
     public synchronized boolean handleSend(TBase<?, ?> data) {
-        if (data instanceof TSpan) {
-            insertSpan((TSpan)data);
+        if (data instanceof Span) {
+            insertSpan((Span)data);
             return true;
-        } else if (data instanceof TSpanEvent) {
-            insertSpanEvent((TSpanEvent)data);
+        } else if (data instanceof SpanEvent) {
+            SpanEvent event = (SpanEvent)data;
+            if (event.isSetAsyncId()) {
+                handleAsyncSpanEvent(event);
+            } else {
+                handleSpanEvent(event);
+            }
             return true;
         }
         
         return false;
     }
     
-    private void insertSpan(TSpan span) {
+    private void insertSpan(Span span) {
         long startTime = span.getStartTime();
         long spanId = span.getSpanId();
 
@@ -122,11 +166,11 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener, Itera
 
         insertItem(new Item(span, startTime, spanId, -1));
 
-        List<TSpanEvent> events = waitingEventTable.remove(span.getSpanId());
+        List<SpanEvent> events = waitingEventTable.remove(span.getSpanId());
         
         if (events != null) {
             
-            for (TSpanEvent event : events) {
+            for (SpanEvent event : events) {
                 insertItem(new Item(event, startTime + event.getStartElapsed(), spanId, event.getSequence()));
             }
         }
@@ -142,25 +186,9 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener, Itera
         int index = -(pos + 1);
         list.add(index, item);
     }
-
-    private void insertSpanEvent(TSpanEvent event) {
-        long spanId = event.getSpanId();
-        Long spanStartTime = spanStartTimeTable.get(spanId);
-        
-        if (spanStartTime != null) {
-            insertItem(new Item(event, spanStartTime + event.getStartElapsed(), spanId, event.getSequence()));
-            return;
-        }
-        
-        List<TSpanEvent> events = waitingEventTable.get(spanId);
-        
-        if (events == null) {
-            events = new ArrayList<TSpanEvent>();
-            waitingEventTable.put(spanId, events);
-        }
-        
-        
-        int pos = Collections.binarySearch(events, event, SPAN_EVENT_COMPARATOR);
+    
+    private void insertSpanEvent(List<SpanEvent> events, SpanEvent event, Comparator<SpanEvent> comparator) {
+        int pos = Collections.binarySearch(events, event, comparator);
         
         if (pos >= 0) {
             throw new IllegalArgumentException("Duplicated?? list: " + events + ", item: " + event);
@@ -168,6 +196,37 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener, Itera
         
         int index = -(pos + 1);
         events.add(index, event);
+    }
+    
+    private void handleAsyncSpanEvent(SpanEvent asyncEvent) {
+        long spanId = asyncEvent.getSpan().getSpanId();
+        List<SpanEvent> asyncEvents = waitingAsyncEventTable.get(spanId);
+        if (asyncEvents == null) {
+            asyncEvents = new ArrayList<SpanEvent>();
+            asyncEvents.add(asyncEvent);
+            waitingAsyncEventTable.put(spanId, asyncEvents);
+        } else {
+            insertSpanEvent(asyncEvents, asyncEvent, ASYNC_SPAN_EVENT_COMPARATOR);
+        }
+    }
+
+    private void handleSpanEvent(SpanEvent event) {
+        long spanId = event.getSpan().getSpanId();
+        Long spanStartTime = spanStartTimeTable.get(spanId);
+        
+        if (spanStartTime != null) {
+            insertItem(new Item(event, spanStartTime + event.getStartElapsed(), spanId, event.getSequence()));
+            return;
+        }
+        
+        List<SpanEvent> events = waitingEventTable.get(spanId);
+        
+        if (events == null) {
+            events = new ArrayList<SpanEvent>();
+            waitingEventTable.put(spanId, events);
+        }
+        
+        insertSpanEvent(events, event, SPAN_EVENT_COMPARATOR);
     }
     
     public synchronized TBase<?, ?> pop() {
@@ -191,18 +250,26 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener, Itera
     }
         
     private void handleDanglingEvents() {
-        for (List<TSpanEvent> events : waitingEventTable.values()) {
-            for (TSpanEvent event : events) {
-                insertItem(new Item(event, event.getStartElapsed(), event.getSpanId(), event.getSequence()));
+        for (List<SpanEvent> events : waitingEventTable.values()) {
+            for (SpanEvent event : events) {
+                Span span = event.getSpan();
+                insertItem(new Item(event, span.getStartTime() + event.getStartElapsed(), span.getSpanId(), event.getSequence()));
             }
         }
-        
+        for (List<SpanEvent> asyncEvents : waitingAsyncEventTable.values()) {
+            for (SpanEvent asyncEvent : asyncEvents) {
+                Span span = asyncEvent.getSpan();
+                insertItem(new Item(asyncEvent, span.getStartTime() + asyncEvent.getStartElapsed(), span.getSpanId(), asyncEvent.getSequence(), asyncEvent.getAsyncId()));
+            }
+        }
         waitingEventTable.clear();
+        waitingAsyncEventTable.clear();
     }
     
     public synchronized void clear() {
         list.clear();
         waitingEventTable.clear();
+        waitingAsyncEventTable.clear();
         spanStartTimeTable.clear();
     }
     
