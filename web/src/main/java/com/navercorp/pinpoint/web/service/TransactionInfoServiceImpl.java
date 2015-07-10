@@ -147,7 +147,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         long endTime = getEndTime(spanAlignList);
         recordSet.setEndTime(endTime);
         
-        recordSet.setLoggingTransactionInfo(focusTimeSpanBo.isLoggingTransactionInfo());
+        recordSet.setLoggingTransactionInfo(findIsLoggingTransactionInfo(spanAlignList));
 
         final SpanAlignPopulate spanAlignPopulate = new SpanAlignPopulate();
         List<Record> recordList = spanAlignPopulate.populateSpanRecord(callTreeIterator);
@@ -162,11 +162,19 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
         recordSet.setRecordList(recordList);
 
-        // if (logLinkEnable) {
-        // addlogLink(recordSet);
-        // }
-
         return recordSet;
+    }
+
+    private boolean findIsLoggingTransactionInfo(List<SpanAlign> spanAlignList) {
+        for (SpanAlign spanAlign : spanAlignList) {
+            if (spanAlign.isSpan()) {
+                if (spanAlign.getSpanBo().isLoggingTransactionInfo()) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
 
     private void markFocusRecord(List<Record> recordList, long beginTimeStamp) {
