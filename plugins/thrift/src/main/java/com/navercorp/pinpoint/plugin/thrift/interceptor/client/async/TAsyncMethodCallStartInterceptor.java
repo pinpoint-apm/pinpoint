@@ -62,7 +62,7 @@ public class TAsyncMethodCallStartInterceptor extends TAsyncMethodCallInternalMe
                 logger.warn("Failed to continue async trace. 'result is null'");
                 return;
             }
-            CallStackFrame recorder = trace.peekCallStackFrame();
+            CallStackFrame recorder = trace.currentCallStackFrame();
             recorder.markBeforeTime();
             
             recorder.recordServiceType(ServiceType.ASYNC);

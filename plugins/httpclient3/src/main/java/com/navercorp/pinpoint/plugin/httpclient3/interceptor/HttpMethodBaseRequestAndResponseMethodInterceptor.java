@@ -71,7 +71,7 @@ public class HttpMethodBaseRequestAndResponseMethodInterceptor implements Simple
         }
 
         try {
-            final CallStackFrame recorder = trace.peekCallStackFrame();
+            final CallStackFrame recorder = trace.currentCallStackFrame();
             recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
             recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);

@@ -60,7 +60,7 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
             return;
         }
         trace.pushCallStackFrame();
-        CallStackFrame recorder = trace.peekCallStackFrame();
+        CallStackFrame recorder = trace.currentCallStackFrame();
         recorder.markBeforeTime();
     }
 
@@ -76,7 +76,7 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
         }
 
         try {
-            CallStackFrame recorder = trace.peekCallStackFrame();
+            CallStackFrame recorder = trace.currentCallStackFrame();
             if (validate(target, result, throwable)) {
                 asyncAccessor.set(target, Boolean.TRUE);
 

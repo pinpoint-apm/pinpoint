@@ -69,7 +69,7 @@ public class ReadValueInterceptor implements SimpleAroundInterceptor, JacksonCon
         }
 
         try {
-            CallStackFrame frame = trace.peekCallStackFrame();
+            CallStackFrame frame = trace.currentCallStackFrame();
             frame.recordApi(descriptor);
             frame.recordException(throwable);
             if (args[0] instanceof String) {

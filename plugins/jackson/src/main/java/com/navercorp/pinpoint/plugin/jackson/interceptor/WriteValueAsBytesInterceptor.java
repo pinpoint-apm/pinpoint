@@ -67,7 +67,7 @@ public class WriteValueAsBytesInterceptor implements SimpleAroundInterceptor, Ja
         }
 
         try {
-            CallStackFrame frame = trace.peekCallStackFrame();
+            CallStackFrame frame = trace.currentCallStackFrame();
             frame.recordApi(descriptor);
             frame.recordException(throwable);
             frame.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte []) result).length);

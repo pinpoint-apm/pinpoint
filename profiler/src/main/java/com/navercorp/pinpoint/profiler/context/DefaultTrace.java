@@ -215,7 +215,7 @@ public final class DefaultTrace implements Trace {
     }
 
     @Override
-    public CallStackFrame peekCallStackFrame() {
+    public CallStackFrame currentCallStackFrame() {
         final SpanEvent spanEvent = callStack.peek();
         if (spanEvent == null) {
             throw new PinpointException("not found SpanEvent stack");

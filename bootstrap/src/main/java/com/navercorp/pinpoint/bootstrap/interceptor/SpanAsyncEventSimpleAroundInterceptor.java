@@ -65,7 +65,7 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
 
     private void traceFirstBlockBegin(final Trace trace) {
         // first block
-        final CallStackFrame recorder = trace.peekCallStackFrame();
+        final CallStackFrame recorder = trace.currentCallStackFrame();
         recorder.markBeforeTime();
         recorder.recordServiceType(ServiceType.ASYNC);
         recorder.recordApi(asyncMethodDescriptor);
@@ -91,7 +91,7 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
         }
 
         try {
-            final CallStackFrame recorder = trace.peekCallStackFrame();
+            final CallStackFrame recorder = trace.currentCallStackFrame();
             doInAfterTrace(recorder, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -113,7 +113,7 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
 
     private void traceFirstBlockEnd(final Trace trace) {
         // first block
-        final CallStackFrame recorder = trace.peekCallStackFrame();
+        final CallStackFrame recorder = trace.currentCallStackFrame();
         recorder.markAfterTime();
     }
 

@@ -77,7 +77,7 @@ public class MethodInterceptor implements SimpleAroundInterceptor, ServiceTypeSu
         }
 
         try {
-            CallStackFrame recorder = trace.peekCallStackFrame();
+            CallStackFrame recorder = trace.currentCallStackFrame();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
 

@@ -101,8 +101,8 @@ public class AsyncTrace implements Trace {
     }
 
     @Override
-    public CallStackFrame peekCallStackFrame() {
-        return trace.peekCallStackFrame();
+    public CallStackFrame currentCallStackFrame() {
+        return trace.currentCallStackFrame();
     }
 
     @Override
@@ -110,11 +110,6 @@ public class AsyncTrace implements Trace {
         return trace.getCallStackFrameId();
     }
     
-//    @Override
-//    public void recordLogging(boolean isLogging) {
-//        trace.recordLogging(isLogging);
-//    }
-
     @Override
     public TraceType getTraceType() {
         return TraceType.ASYNC;

@@ -273,7 +273,7 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
         }
         // ------------------------------------------------------
         try {
-            CallStackFrame frame = trace.peekCallStackFrame();
+            CallStackFrame frame = trace.currentCallStackFrame();
             final HttpServletRequest request = (HttpServletRequest) args[0];
             final String parameters = getRequestParameter(request, 64, 512);
             if (parameters != null && parameters.length() > 0) {

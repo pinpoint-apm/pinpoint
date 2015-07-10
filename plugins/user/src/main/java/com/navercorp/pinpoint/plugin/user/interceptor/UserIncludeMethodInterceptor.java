@@ -69,7 +69,7 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
         }
 
         trace.pushCallStackFrame();
-        CallStackFrame recorder = trace.peekCallStackFrame();
+        CallStackFrame recorder = trace.currentCallStackFrame();
         recorder.markBeforeTime();
     }
 
@@ -92,7 +92,7 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
         }
 
         try {
-            CallStackFrame recorder = trace.peekCallStackFrame();
+            CallStackFrame recorder = trace.currentCallStackFrame();
             recorder.recordApi(descriptor);
             recorder.recordServiceType(ServiceType.USER_INCLUDE);
             recorder.recordException(throwable);

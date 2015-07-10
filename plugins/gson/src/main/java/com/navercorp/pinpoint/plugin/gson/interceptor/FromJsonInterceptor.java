@@ -66,7 +66,7 @@ public class FromJsonInterceptor implements SimpleAroundInterceptor {
         }
 
         try {
-            CallStackFrame frame = trace.peekCallStackFrame();
+            CallStackFrame frame = trace.currentCallStackFrame();
             frame.recordServiceType(GsonPlugin.GSON_SERVICE_TYPE);
             frame.recordApi(descriptor);
             frame.recordException(throwable);

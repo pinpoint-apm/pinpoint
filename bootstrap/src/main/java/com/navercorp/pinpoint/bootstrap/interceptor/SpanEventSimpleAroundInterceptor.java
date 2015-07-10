@@ -87,7 +87,7 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
         }
         
         try {
-            final CallStackFrame recorder = trace.peekCallStackFrame();
+            final CallStackFrame recorder = trace.currentCallStackFrame();
             doInAfterTrace(recorder, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {

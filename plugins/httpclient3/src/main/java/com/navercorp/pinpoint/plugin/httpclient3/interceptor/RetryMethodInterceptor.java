@@ -74,7 +74,7 @@ public class RetryMethodInterceptor implements SimpleAroundInterceptor, HttpClie
         }
 
         try {
-            final CallStackFrame recorder = trace.peekCallStackFrame();
+            final CallStackFrame recorder = trace.currentCallStackFrame();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
             

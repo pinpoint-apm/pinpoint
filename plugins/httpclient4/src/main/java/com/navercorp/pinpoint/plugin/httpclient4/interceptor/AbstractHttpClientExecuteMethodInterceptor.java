@@ -155,7 +155,7 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Simp
         }
 
         try {
-            final CallStackFrame recorder = trace.peekCallStackFrame();
+            final CallStackFrame recorder = trace.currentCallStackFrame();
             final HttpRequest httpRequest = getHttpRequest(args);
             if (httpRequest != null) {
                 // Accessing httpRequest here not before() becuase it can cause side effect.
@@ -260,7 +260,7 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Simp
             final String value = header.getValue();
             if (value != null && !value.isEmpty()) {
                 if (cookieSampler.isSampling()) {
-                    final CallStackFrame recorder = trace.peekCallStackFrame();
+                    final CallStackFrame recorder = trace.currentCallStackFrame();
                     recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, 1024));
                 }
 
@@ -279,7 +279,7 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Simp
                 if (entity != null && entity.isRepeatable() && entity.getContentLength() > 0) {
                     if (entitySampler.isSampling()) {
                         final String entityString = entityUtilsToString(entity, "UTF8", 1024);
-                        final CallStackFrame recorder = trace.peekCallStackFrame();
+                        final CallStackFrame recorder = trace.currentCallStackFrame();
                         recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(entityString, 1024));
                     }
                 }

@@ -109,7 +109,7 @@ public class MockTrace implements Trace {
     }
 
     @Override
-    public CallStackFrame peekCallStackFrame() {
+    public CallStackFrame currentCallStackFrame() {
         return null;
     }
 

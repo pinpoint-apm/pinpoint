@@ -123,7 +123,7 @@ public class TBaseProcessorProcessInterceptor implements SimpleAroundInterceptor
     private void processTraceObject(final Trace trace, Object target, Object[] args, Throwable throwable) {
         // end spanEvent
         try {
-            CallStackFrame recorder = trace.peekCallStackFrame();
+            CallStackFrame recorder = trace.currentCallStackFrame();
             // TODO Might need a way to collect and record method arguments
             // trace.recordAttribute(...);
             recorder.recordException(throwable);

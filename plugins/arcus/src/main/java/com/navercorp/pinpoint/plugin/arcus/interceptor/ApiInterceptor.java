@@ -95,7 +95,7 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
 
         try {
             trace.pushCallStackFrame();
-            CallStackFrame frame = trace.peekCallStackFrame();
+            CallStackFrame frame = trace.currentCallStackFrame();
             frame.markBeforeTime();
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -115,7 +115,7 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
             return;
         }
         try {
-            final CallStackFrame frame = trace.peekCallStackFrame();
+            final CallStackFrame frame = trace.currentCallStackFrame();
             if (traceKey) {
                 final Object recordObject = args[keyIndex];
                 frame.recordApi(methodDescriptor, recordObject, keyIndex);

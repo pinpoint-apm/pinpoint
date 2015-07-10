@@ -34,7 +34,7 @@ public interface Trace extends StackOperation {
     
     TraceHeader getTraceHeader();
     
-    CallStackFrame peekCallStackFrame();
+    CallStackFrame currentCallStackFrame();
     
     void close();
     

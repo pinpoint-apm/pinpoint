@@ -66,7 +66,7 @@ public class ParsingInterceptor implements SimpleAroundInterceptor {
         }
 
         try {
-            CallStackFrame frame = trace.peekCallStackFrame();
+            CallStackFrame frame = trace.currentCallStackFrame();
             frame.recordServiceType(JsonLibConstants.SERVICE_TYPE);
             frame.recordApi(descriptor);
             frame.recordException(throwable);

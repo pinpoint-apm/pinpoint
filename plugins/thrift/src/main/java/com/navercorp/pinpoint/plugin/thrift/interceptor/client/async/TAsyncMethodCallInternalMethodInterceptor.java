@@ -65,7 +65,7 @@ public class TAsyncMethodCallInternalMethodInterceptor implements SimpleAroundIn
         }
         try {
             trace.pushCallStackFrame();
-            CallStackFrame recorder = trace.peekCallStackFrame();
+            CallStackFrame recorder = trace.currentCallStackFrame();
             doInBeforeTrace(recorder, target, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -95,7 +95,7 @@ public class TAsyncMethodCallInternalMethodInterceptor implements SimpleAroundIn
         }
 
         try {
-            CallStackFrame recorder = trace.peekCallStackFrame();
+            CallStackFrame recorder = trace.currentCallStackFrame();
             doInAfterTrace(recorder, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {

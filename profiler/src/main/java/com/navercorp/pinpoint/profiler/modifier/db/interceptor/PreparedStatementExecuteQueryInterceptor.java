@@ -132,7 +132,7 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
         }
 
         try {
-            CallStackFrame recorder = trace.peekCallStackFrame();
+            CallStackFrame recorder = trace.currentCallStackFrame();
             // TODO Test if it's success. if failed terminate. else calculate resultset fetch too. we'd better make resultset fetch optional.
             recorder.recordException(throwable);
             recorder.markAfterTime();

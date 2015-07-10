@@ -196,7 +196,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
         }
 
         try {
-            CallStackFrame recorder = trace.peekCallStackFrame();
+            CallStackFrame recorder = trace.currentCallStackFrame();
             final HttpRequest httpRequest = getHttpRequest(target);
             if (httpRequest != null) {
                 // Accessing httpRequest here not before() because it can cause side effect.

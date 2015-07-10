@@ -57,7 +57,7 @@ public class FrontCacheGetFutureGetInterceptor implements SimpleAroundIntercepto
         }
         
         trace.pushCallStackFrame();
-        final CallStackFrame frame = trace.peekCallStackFrame();
+        final CallStackFrame frame = trace.currentCallStackFrame();
         frame.markBeforeTime();
     }
 
@@ -73,7 +73,7 @@ public class FrontCacheGetFutureGetInterceptor implements SimpleAroundIntercepto
         }
 
         try {
-            final CallStackFrame recorder = trace.peekCallStackFrame();
+            final CallStackFrame recorder = trace.currentCallStackFrame();
             recorder.recordApi(methodDescriptor);
             String cacheName = cacheNameAccessor.get(target);
             if (cacheName != null) {

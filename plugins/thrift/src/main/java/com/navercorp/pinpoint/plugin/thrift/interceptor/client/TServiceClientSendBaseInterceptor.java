@@ -162,7 +162,7 @@ public class TServiceClientSendBaseInterceptor implements SimpleAroundIntercepto
         }
         
         try {
-            CallStackFrame recorder = trace.peekCallStackFrame();
+            CallStackFrame recorder = trace.currentCallStackFrame();
             if (this.traceServiceArgs) {
                 if (args.length == 2 && (args[1] instanceof TBase)) {
                     recorder.recordAttribute(THRIFT_ARGS, getMethodArgs((TBase<?, ?>)args[1]));

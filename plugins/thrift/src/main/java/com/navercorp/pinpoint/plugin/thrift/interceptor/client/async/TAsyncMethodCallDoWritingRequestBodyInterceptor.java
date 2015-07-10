@@ -83,7 +83,7 @@ public class TAsyncMethodCallDoWritingRequestBodyInterceptor extends TAsyncMetho
             }
             
             if(trace.isAsync() && trace.isRootStack()) {
-                CallStackFrame recorder = trace.peekCallStackFrame();
+                CallStackFrame recorder = trace.currentCallStackFrame();
                 recorder.markAfterTime();
                 trace.close();
                 super.traceContext.removeTraceObject();

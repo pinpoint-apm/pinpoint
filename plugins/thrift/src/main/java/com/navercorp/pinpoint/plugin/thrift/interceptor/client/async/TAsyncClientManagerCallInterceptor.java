@@ -145,7 +145,7 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
         }
         
         try {
-            CallStackFrame recorder = trace.peekCallStackFrame();
+            CallStackFrame recorder = trace.currentCallStackFrame();
             recorder.recordApi(this.descriptor);
             recorder.recordException(throwable);
             recorder.markAfterTime();
@@ -196,7 +196,7 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
     
     private AsyncTraceId injectAsyncTraceId(final Object asyncMethodCallObj, final Trace trace) {
         final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-        CallStackFrame recorder = trace.peekCallStackFrame();
+        CallStackFrame recorder = trace.currentCallStackFrame();
         recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
         this.asyncTraceIdAccessor.set(asyncMethodCallObj, asyncTraceId);
         if (isDebug) {

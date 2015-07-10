@@ -47,7 +47,7 @@ public class TAsyncMethodCallOnErrorInterceptor extends TAsyncMethodCallInternal
         }
         
         if(trace.isAsync() && trace.isRootStack()) {
-            CallStackFrame recorder = trace.peekCallStackFrame();
+            CallStackFrame recorder = trace.currentCallStackFrame();
             recorder.markAfterTime();
             trace.close();
             super.traceContext.removeTraceObject();

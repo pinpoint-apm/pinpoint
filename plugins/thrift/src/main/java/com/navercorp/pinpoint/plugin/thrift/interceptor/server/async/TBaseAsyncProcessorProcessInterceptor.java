@@ -156,7 +156,7 @@ public class TBaseAsyncProcessorProcessInterceptor implements SimpleAroundInterc
         try {
             // TODO Might need a way to collect and record method arguments
             // trace.recordAttribute(...);
-            CallStackFrame recorder = trace.peekCallStackFrame();
+            CallStackFrame recorder = trace.currentCallStackFrame();
             recorder.recordException(throwable);
             recorder.recordApi(this.descriptor);
             recorder.markAfterTime();
