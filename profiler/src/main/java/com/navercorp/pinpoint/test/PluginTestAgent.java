@@ -599,7 +599,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         
         List<TAnnotation> actualAnnotations = actual.getAnnotations();
         
-        int len = expected.annotations.length;
+        int len = expected.annotations == null ? 0 : expected.annotations.length;
         int actualLen = actualAnnotations == null ? 0 : actualAnnotations.size();
         
         if (actualLen != len) {
