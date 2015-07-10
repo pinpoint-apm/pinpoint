@@ -13,7 +13,17 @@
     "logLinkEnable" : ${logLinkEnable},
     "loggingTransactionInfo" : ${loggingTransactionInfo},
     "logButtonName": "${logButtonName}",
-    "logPageUrl" : "${logPageUrl}",
+    "logPageUrl" : 
+	    <c:choose>
+		<c:when test="${not empty logPageUrl}">
+			<c:url value="${logPageUrl}" var="comBindedlogPageUrl">
+				<c:param name="transactionId" value="${${traceId.formatString}}" />
+				<c:param name="time" value="${callstackStart}" />
+			</c:url>
+			"${comBindedlogPageUrl}"
+		</c:when>
+		<c:otherwise>""</c:otherwise>
+		</c:choose>,
     "disableButtonMessage" : "${disableButtonMessage}",
 	"callStackIndex" : {
 		"depth":0,

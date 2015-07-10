@@ -80,9 +80,6 @@ public class BusinessTransactionController {
     @Value("#{pinpointWebProps['log.page.url'] ?: ''}")
     private String logPageUrl;
     
-    @Value("#{pinpointWebProps['log.button.disable.message'] ?: ''}")
-    private String disableButtonMessage;
-    
 
     /**
      * executed URLs in applicationname query within from ~ to timeframe
@@ -197,7 +194,6 @@ public class BusinessTransactionController {
             mv.addObject("loggingTransactionInfo", recordSet.isLoggingTransactionInfo());
             mv.addObject("logButtonName", logButtonName);
             mv.addObject("logPageUrl", logPageUrl);
-            mv.addObject("disableButtonMessage", disableButtonMessage);
         }
 
         if (viewVersion == 2) {
