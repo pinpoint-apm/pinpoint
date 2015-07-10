@@ -39,5 +39,5 @@ public @interface Group {
     /**
      * specify when this interceptor have to be invoked.
      */
-    public ExecutionPolicy executionPoint() default ExecutionPolicy.BOUNDARY;
+    public ExecutionPolicy executionPolicy() default ExecutionPolicy.BOUNDARY;
 }

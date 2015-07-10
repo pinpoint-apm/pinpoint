@@ -19,31 +19,57 @@ package com.navercorp.pinpoint.profiler.plugin.interceptor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.objectfactory.AutoBindingObjectFactory;
+import com.navercorp.pinpoint.profiler.plugin.objectfactory.InterceptorArgumentProvider;
 
 public class AnnotatedInterceptorFactory implements InterceptorFactory {
     private final DefaultProfilerPluginContext pluginContext;
-    private final InterceptorGroup group;
     
-    private final Class<? extends Interceptor> interceptorType;
-    private final Object[] providedValues;
-    
-    
-    public AnnotatedInterceptorFactory(DefaultProfilerPluginContext pluginContext, InterceptorGroup group, Class<? extends Interceptor> interceptorType, Object[] providedArguments) {
+    public AnnotatedInterceptorFactory(DefaultProfilerPluginContext pluginContext) {
         this.pluginContext = pluginContext;
-        this.group = group;
-        this.interceptorType = interceptorType;
-        this.providedValues = providedArguments;
     }
 
     @Override
-    public Interceptor getInterceptor(ClassLoader classLoader, InstrumentClass target, MethodInfo targetMethod) {
-        AutoBindingObjectFactory factory = new AutoBindingObjectFactory(pluginContext, group, target, targetMethod, classLoader);
-        ObjectRecipe recipe = ObjectRecipe.byConstructor(interceptorType.getName(), providedValues);
+    public Interceptor getInterceptor(ClassLoader classLoader, String interceptorClassName, Object[] providedArguments, InterceptorGroup group, ExecutionPolicy policy, InstrumentClass target, MethodInfo targetMethod) {
+        Class<? extends Interceptor> interceptorType = pluginContext.getClassInjector().loadClass(classLoader, interceptorClassName);
         
-        return (Interceptor)factory.createInstance(recipe);
+        if (group == null) {
+            Group interceptorGroup = interceptorType.getAnnotation(Group.class);
+            
+            if (interceptorGroup != null) {
+                String groupName = interceptorGroup.value();
+                group = pluginContext.getInterceptorGroup(groupName);
+                policy = interceptorGroup.executionPolicy();
+            }
+        }
+        
+        AutoBindingObjectFactory factory = new AutoBindingObjectFactory(pluginContext, classLoader);
+        ObjectRecipe recipe = ObjectRecipe.byConstructor(interceptorClassName, providedArguments);
+        InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(pluginContext.getTraceContext(), group, target, targetMethod);
+        
+        Interceptor interceptor = (Interceptor)factory.createInstance(recipe, interceptorArgumentProvider);
+        
+        if (group != null) {
+            interceptor = wrapByGroup(interceptor, group, policy);
+        }
+        
+        return interceptor;
+    }
+    
+    private Interceptor wrapByGroup(Interceptor interceptor, InterceptorGroup group, ExecutionPolicy policy) {
+        if (interceptor instanceof SimpleAroundInterceptor) {
+            return new GroupedSimpleAroundInterceptor((SimpleAroundInterceptor)interceptor, group, policy);
+        }  else if (interceptor instanceof StaticAroundInterceptor) {
+            return new GroupedStaticAroundInterceptor((StaticAroundInterceptor)interceptor, group, policy);
+        }
+        
+        throw new IllegalArgumentException("Unexpected interceptor type: " + interceptor.getClass());
     }
 }

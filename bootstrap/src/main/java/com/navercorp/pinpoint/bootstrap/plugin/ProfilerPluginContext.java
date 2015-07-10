@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
 
@@ -81,13 +82,8 @@ public interface ProfilerPluginContext {
      * @return {@link ProfilerConfig}
      */
     public ProfilerConfig getConfig();
-
-    /**
-     * Get {@link ByteCodeInstrumentor}
-     * 
-     * @return {@link ByteCodeInstrumentor}
-     */
-    public ByteCodeInstrumentor getByteCodeInstrumentor();
+    
+    public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classFileBuffer);
     
     public InterceptorGroup getInterceptorGroup(String name);
     
@@ -98,13 +94,29 @@ public interface ProfilerPluginContext {
      */
     public void addApplicationTypeDetector(ApplicationTypeDetector... detectors);
 
+    public void addClassFileTransformer(String targetClassName, ClassFileTransformer transformer);
+    
+    public void retransform(Class<?> target, ClassFileTransformer classEditor);
+    
+    
+    
+    
     /**
      * Add a {@link ClassEditor} to Pinpoint agent.
      * 
      * @param classEditor
      */
-    public void addClassFileTransformer(ClassFileTransformer transformer);
+    @Deprecated
 
+    public void addClassFileTransformer(ClassFileTransformer transformer);
+    /**
+     * Get {@link ByteCodeInstrumentor}
+     * 
+     * @return {@link ByteCodeInstrumentor}
+     */
+    @Deprecated
+    public ByteCodeInstrumentor getByteCodeInstrumentor();
+    
     /**
      * Get a {@link ClassFileTransformerBuilder}.
      * 
@@ -114,5 +126,6 @@ public interface ProfilerPluginContext {
      * @param targetClassName target class name
      * @return {@link ClassFileTransformerBuilder}
      */
+    @Deprecated
     public ClassFileTransformerBuilder getClassFileTransformerBuilder(String targetClassName);
 }

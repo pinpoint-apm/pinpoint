@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.bootstrap.instrument;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 
 /**
  * @author emeroad
@@ -31,4 +33,12 @@ public interface MethodInfo {
     boolean isConstructor();
     
     MethodDescriptor getDescriptor();
+    
+    int addInterceptor(String interceptorClassName, Object... constructorArgs) throws InstrumentException;
+    
+    int addInterceptor(String interceptorClassName, InterceptorGroup group, Object... constructorArgs) throws InstrumentException;
+
+    int addInterceptor(String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException;
+    
+    void addInterceptor(int interceptorId) throws InstrumentException;
 }

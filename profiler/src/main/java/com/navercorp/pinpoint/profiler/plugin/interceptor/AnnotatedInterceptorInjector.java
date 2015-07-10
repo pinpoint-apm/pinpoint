@@ -20,10 +20,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
-import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
 import com.navercorp.pinpoint.profiler.plugin.transformer.MethodRecipe;
 
 /**
@@ -54,9 +51,8 @@ public class AnnotatedInterceptorInjector implements MethodRecipe {
     }
 
     int inject(ClassLoader targetClassLoader, InstrumentClass targetClass, MethodInfo targetMethod) throws Exception {
-        Class<? extends Interceptor> interceptorType = pluginContext.getClassInjector().loadClass(targetClassLoader, interceptorClassName);
-        InterceptorFactory factory = createInterceptorFactory(interceptorType);
-        Interceptor interceptor = factory.getInterceptor(targetClassLoader, targetClass, targetMethod);
+        InterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext);
+        Interceptor interceptor = factory.getInterceptor(targetClassLoader, interceptorClassName, providedArguments, null, null, targetClass, targetMethod);
         
         if (targetMethod.isConstructor()) {
             return targetClass.addConstructorInterceptor(targetMethod.getParameterTypes(), interceptor);
@@ -65,29 +61,6 @@ public class AnnotatedInterceptorInjector implements MethodRecipe {
         }
     }
     
-    protected InterceptorFactory createInterceptorFactory(Class<? extends Interceptor> interceptorType) {
-        String groupName = this.groupName;
-        ExecutionPolicy executionPoint = this.executionPoint;
-
-        if (groupName == null) {
-            Group interceptorGroup = interceptorType.getAnnotation(Group.class);
-            
-            if (interceptorGroup != null) {
-                groupName = interceptorGroup.value();
-                executionPoint = interceptorGroup.executionPoint();
-            }
-        }
-        
-        InterceptorGroup group = groupName == null ? null : pluginContext.getInterceptorGroup(groupName);
-        InterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext, group, interceptorType, providedArguments);
-        
-        if (group != null) {
-            factory = new GroupedInterceptorFactory(factory, group, executionPoint);
-        } 
-        
-        return factory;
-    }
-
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

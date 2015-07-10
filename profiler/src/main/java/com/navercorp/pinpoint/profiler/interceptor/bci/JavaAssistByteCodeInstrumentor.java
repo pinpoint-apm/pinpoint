@@ -39,6 +39,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.DefaultInterceptorGroupDefini
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InterceptorGroupDefinition;
+import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventTrigger;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
@@ -46,6 +47,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvoca
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.interceptor.GlobalInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.util.ScopePool;
 import com.navercorp.pinpoint.profiler.util.ThreadLocalScopePool;
 
@@ -135,17 +137,22 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     }
 
     @Override
-    public InstrumentClass getClass(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) throws InstrumentException {
+    public InstrumentClass getClass(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) throws NotFoundInstrumentException {
         CtClass cc = getClass(classLoader, javassistClassName);
-        return new JavaAssistClass(this, cc, interceptorRegistryBinder);
+        return new JavaAssistClass(null, this, interceptorRegistryBinder, classLoader, cc);
     }
     
-    public CtClass getClass(ClassLoader classLoader, String className) throws InstrumentException {
+    public InstrumentClass getClass(DefaultProfilerPluginContext pluginContext, ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) throws NotFoundInstrumentException {
+        CtClass cc = getClass(classLoader, javassistClassName);
+        return new JavaAssistClass(pluginContext, this, interceptorRegistryBinder, classLoader, cc);
+    }
+    
+    public CtClass getClass(ClassLoader classLoader, String className) throws NotFoundInstrumentException {
         final NamedClassPool classPool = getClassPool(classLoader);
         try {
             return classPool.get(className);
         } catch (NotFoundException e) {
-            throw new InstrumentException(className + " class not found. Cause:" + e.getMessage(), e);
+            throw new NotFoundInstrumentException(className + " class not found. Cause:" + e.getMessage(), e);
         }
     }
 

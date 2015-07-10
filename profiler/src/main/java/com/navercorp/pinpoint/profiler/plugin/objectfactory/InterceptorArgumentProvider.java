@@ -16,16 +16,11 @@ package com.navercorp.pinpoint.profiler.plugin.objectfactory;
 
 import java.lang.annotation.Annotation;
 
-import com.navercorp.pinpoint.bootstrap.FieldAccessor;
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.NoCache;
 import com.navercorp.pinpoint.exception.PinpointException;
@@ -35,14 +30,18 @@ import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
  * @author Jongho Moon
  *
  */
-public class PinpointTypeArgumentProvider implements ArgumentProvider {
-    private final ProfilerPluginContext pluginContext;
+public class InterceptorArgumentProvider implements ArgumentProvider {
+    private final TraceContext traceContext;
     private final InterceptorGroup interceptorGroup;
     private final InstrumentClass targetClass;
     private final MethodInfo targetMethod;
 
-    public PinpointTypeArgumentProvider(ProfilerPluginContext pluginContext, InterceptorGroup interceptorGroup, InstrumentClass targetClass, MethodInfo targetMethod) {
-        this.pluginContext = pluginContext;
+    public InterceptorArgumentProvider(TraceContext traceContext, InstrumentClass targetClass) {
+        this(traceContext, null, targetClass, null);
+    }
+    
+    public InterceptorArgumentProvider(TraceContext traceContext, InterceptorGroup interceptorGroup, InstrumentClass targetClass, MethodInfo targetMethod) {
+        this.traceContext = traceContext;
         this.interceptorGroup = interceptorGroup;
         this.targetClass = targetClass;
         this.targetMethod = targetMethod;
@@ -50,15 +49,7 @@ public class PinpointTypeArgumentProvider implements ArgumentProvider {
 
     @Override
     public Option get(int index, Class<?> type, Annotation[] annotations) {
-        if (type == Trace.class) {
-            return Option.withValue(pluginContext.getTraceContext().currentTraceObject());
-        } else if (type == TraceContext.class) {
-            return Option.withValue(pluginContext.getTraceContext());
-        } else if (type == ProfilerPluginContext.class) {
-            return Option.withValue(pluginContext);
-        } else if (type == ByteCodeInstrumentor.class) {
-            return Option.withValue(pluginContext.getByteCodeInstrumentor());
-        } else if (type == InstrumentClass.class) {
+        if (type == InstrumentClass.class) {
             return Option.withValue(targetClass);
         } else if (type == MethodDescriptor.class) {
             MethodDescriptor descriptor = targetMethod.getDescriptor();
@@ -69,34 +60,6 @@ public class PinpointTypeArgumentProvider implements ArgumentProvider {
             cacheApiIfAnnotationNotPresent(annotations, targetMethod.getDescriptor());
 
             return Option.withValue(targetMethod);
-        } else if (type == MetadataAccessor.class) {
-            Name annotation = TypeUtils.findAnnotation(annotations, Name.class);
-            
-            if (annotation == null) {
-                throw new PinpointException("MetadataAccessor parameter must be annotated with @Name");
-            }
-            
-            MetadataAccessor accessor = pluginContext.getMetadataAccessor(annotation.value());
-            
-            if (accessor == null) {
-                throw new PinpointException("No such MetadataAccessor: " + annotation.value());
-            }
-            
-            return Option.withValue(accessor);
-        } else if (type == FieldAccessor.class) {
-            Name annotation = TypeUtils.findAnnotation(annotations, Name.class);
-            
-            if (annotation == null) {
-                throw new PinpointException("FieldAccessor parameter must be annotated with @Name");
-            }
-            
-            FieldAccessor accessor = pluginContext.getFieldAccessor(annotation.value());
-            
-            if (accessor == null) {
-                throw new PinpointException("No such FieldAccessor: " + annotation.value());
-            }
-            
-            return Option.withValue(accessor);
         } else if (type == InterceptorGroup.class) {
             Name annotation = TypeUtils.findAnnotation(annotations, Name.class);
             
@@ -106,15 +69,9 @@ public class PinpointTypeArgumentProvider implements ArgumentProvider {
                 } else {
                     return Option.withValue(interceptorGroup);
                 }
+            } else {
+                return Option.empty();
             }
-            
-            InterceptorGroup group = pluginContext.getInterceptorGroup(annotation.value());
-            
-            if (group == null) {
-                throw new PinpointException("No such Group: " + annotation.value());
-            }
-            
-            return Option.withValue(group);
         }
         
         return Option.empty();
@@ -123,7 +80,7 @@ public class PinpointTypeArgumentProvider implements ArgumentProvider {
     private void cacheApiIfAnnotationNotPresent(Annotation[] annotations, MethodDescriptor descriptor) {
         Annotation annotation = TypeUtils.findAnnotation(annotations, NoCache.class);
         if (annotation == null) {
-            pluginContext.getTraceContext().cacheApi(descriptor);
+            traceContext.cacheApi(descriptor);
         }
     }
 }

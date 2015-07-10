@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.IllegalClassFormatException;
+import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,12 +29,19 @@ import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
+import com.navercorp.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.navercorp.pinpoint.profiler.plugin.transformer.DefaultClassFileTransformerBuilder;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.profiler.util.NameValueList;
 
 public class DefaultProfilerPluginContext implements ProfilerPluginContext {
@@ -154,6 +163,41 @@ public class DefaultProfilerPluginContext implements ProfilerPluginContext {
         }
     }
     
+    @Override
+    public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classFileBuffer) {
+        try {
+            return ((JavaAssistByteCodeInstrumentor)agent.getByteCodeInstrumentor()).getClass(this, classLoader, className, classFileBuffer);
+        } catch (NotFoundInstrumentException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public void addClassFileTransformer(final String targetClassName, final ClassFileTransformer transformer) {
+        if (initialized) {
+            throw new IllegalStateException("Context already initialized");
+        }
+
+        classTransformers.add(new PinpointClassFileTransformer() {
+            private final Matcher matcher = Matchers.newClassNameMatcher(JavaAssistUtils.javaNameToJvmName(targetClassName));
+            
+            @Override
+            public Matcher getMatcher() {
+                return matcher;
+            }
+            
+            @Override
+            public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+                return transformer.transform(loader, targetClassName, classBeingRedefined, protectionDomain, classfileBuffer);
+            }
+        });
+    }
+
+    @Override
+    public void retransform(Class<?> target, ClassFileTransformer classEditor) {
+        agent.getByteCodeInstrumentor().retransform(target, classEditor);
+    }
+
     public ProfilerPluginClassLoader getClassInjector() {
         return classInjector;
     }

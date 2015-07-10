@@ -42,7 +42,7 @@ import com.navercorp.pinpoint.plugin.thrift.ThriftUtils;
 /**
  * @author HyunGil Jeong
  */
-@Group(value=THRIFT_CLIENT_SCOPE, executionPoint=ExecutionPolicy.BOUNDARY)
+@Group(value=THRIFT_CLIENT_SCOPE, executionPolicy=ExecutionPolicy.BOUNDARY)
 public class TAsyncClientManagerCallInterceptor implements SimpleAroundInterceptor, ThriftConstants {
    
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

@@ -48,7 +48,7 @@ import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor
  */
-@Group(value=THRIFT_SERVER_SCOPE, executionPoint=ExecutionPolicy.INTERNAL)
+@Group(value=THRIFT_SERVER_SCOPE, executionPolicy=ExecutionPolicy.INTERNAL)
 public class TProtocolReadMessageBeginInterceptor implements SimpleAroundInterceptor, ThriftConstants {
     
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

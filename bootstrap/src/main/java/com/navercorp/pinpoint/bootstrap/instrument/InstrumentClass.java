@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-
 import java.util.List;
+
+import com.navercorp.pinpoint.bootstrap.FieldAccessor;
+import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 
 /**
  * @author emeroad
@@ -33,97 +35,143 @@ public interface InstrumentClass {
     String getSuperClass();
 
     String[] getInterfaces();
-
-    @Deprecated
-    boolean insertCodeBeforeMethod(String methodName, String[] args, String code);
-
-    @Deprecated
-    boolean insertCodeAfterMethod(String methodName, String[] args, String code);
-
-    @Deprecated
-    int addAllConstructorInterceptor(Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
-
-    @Deprecated
-    int addAllConstructorInterceptor(Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
-
-    int addConstructorInterceptor(String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
-
-    int addConstructorInterceptor(String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
-
-    int reuseInterceptor(String methodName, String[] args, int interceptorId) throws InstrumentException, NotFoundInstrumentException;
-
-    int reuseInterceptor(String methodName, String[] args, int interceptorId, Type type) throws InstrumentException, NotFoundInstrumentException;
-
-
-    int addInterceptor(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
-
-    int addGroupInterceptor(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException, NotFoundInstrumentException;
-
-    int addGroupInterceptor(String methodName, String[] args, Interceptor interceptor, InterceptorGroupDefinition scopeDefinition) throws InstrumentException;
-
-    int addGroupInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException;
-
-    int addGroupInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, InterceptorGroupDefinition scopeDefinition) throws InstrumentException;
-
-    int addInterceptor(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
-
-    void weave(String adviceClassName, ClassLoader classLoader) throws InstrumentException;
-
-    boolean addDebugLogBeforeAfterMethod();
-
-    boolean addDebugLogBeforeAfterConstructor();
-
-    byte[] toBytecode() throws InstrumentException;
-
-    Class<?> toClass() throws InstrumentException;
-
-    /**
-     * Use addTraceValue instead of this method.
-     */
-    @Deprecated
-    void addTraceVariable(String variableName, String setterName, String getterName, String variableType, String initValue) throws InstrumentException;
-
-    /**
-     * Use addTraceValue instead of this method.
-     */
-    @Deprecated
-    void addTraceVariable(String variableName, String setterName, String getterName, String variableType) throws InstrumentException;
-
-    void addTraceValue(Class<?> traceValue, String initValue) throws InstrumentException;
-
-    void addTraceValue(Class<?> traceValue) throws InstrumentException;
-
-    boolean insertCodeAfterConstructor(String[] args, String code);
-
-    boolean insertCodeBeforeConstructor(String[] args, String code);
+    
+    MethodInfo getConstructor(String[] parameterTypes);
 
     List<MethodInfo> getDeclaredMethods();
 
-    List<MethodInfo> getDeclaredMethods(MethodFilter methodFilter);
+    List<MethodInfo> getDeclaredMethods(MethodFilter filter);
 
     MethodInfo getDeclaredMethod(String name, String[] parameterTypes);
+    
+    ClassLoader getClassLoader();
 
-    MethodInfo getConstructor(String[] parameterTypes);
 
     public boolean isInterceptable();
-
-    boolean hasDeclaredMethod(String methodName, String[] args);
     
-    boolean hasConstructor(String[] parameterTypeArray);
+    boolean hasConstructor(String[] parameterTypes);
 
-    boolean hasMethod(String methodName, String[] parameterTypeArray, String returnType);
+    boolean hasDeclaredMethod(String methodName, String[] parameterTypes, String returnType);
+    
+    boolean hasDeclaredMethod(String methodName, String[] parameterTypes);
+    
+    boolean hasMethod(String methodName, String[] parameterTypes, String returnType);
+    
+    boolean hasMethod(String methodName, String[] parameterTypes);
     
     boolean hasField(String name, String type);
-
-    InstrumentClass getNestedClass(String className);
-
-    void addGetter(String getterName, String fieldName, String fieldType) throws InstrumentException;
     
-    void addGetter(Class<?> interfaceType, String fieldName) throws InstrumentException;
+    boolean hasField(String name);
 
+    
+
+    int addConstructorInterceptor(String[] parameterTypes, int interceptorId) throws InstrumentException, NotFoundInstrumentException;
+
+    int addConstructorInterceptor(String[] parameterTypes, int interceptorId, Type type) throws InstrumentException, NotFoundInstrumentException;
+
+    int addInterceptor(String methodName, String[] parameterTypes, int interceptorId) throws InstrumentException, NotFoundInstrumentException;
+    
+    int addInterceptor(String methodName, String[] parameterTypes, int interceptorId, Type type) throws InstrumentException, NotFoundInstrumentException;
+
+    
+
+    void weave(String adviceClassName, ClassLoader classLoader) throws InstrumentException;
+
+    
+    void addMetadata(MetadataAccessor metadata, String initialValue) throws InstrumentException;
+    
+    void addMetadata(MetadataAccessor metadata) throws InstrumentException;
+    
+    void addGetter(FieldAccessor getter, String fieldName) throws InstrumentException;
+    
     /**
      * You should check that class already have Declared method.
      * If class already have method, this method throw exception. 
      */
     void addDelegatorMethod(String methodName, String[] args) throws InstrumentException;
+    
+    byte[] toBytecode() throws InstrumentException;
+    
+    
+    
+
+    @Deprecated
+    void addTraceValue(Class<?> accessorType, String initialValue) throws InstrumentException;
+    
+    @Deprecated
+    void addTraceValue(Class<?> accessorType) throws InstrumentException;
+
+    @Deprecated
+    void addGetter(String getterName, String fieldName, String fieldType) throws InstrumentException;
+    
+    @Deprecated
+    void addGetter(Class<?> interfaceType, String fieldName) throws InstrumentException;
+    
+    
+    @Deprecated
+    int addConstructorInterceptor(String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
+
+    @Deprecated
+    int addConstructorInterceptor(String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
+
+    @Deprecated
+    int addInterceptor(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
+    
+    @Deprecated
+    int addInterceptor(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
+
+    @Deprecated
+    int reuseInterceptor(String methodName, String[] args, int interceptorId) throws InstrumentException, NotFoundInstrumentException;
+
+    @Deprecated
+    int reuseInterceptor(String methodName, String[] args, int interceptorId, Type type) throws InstrumentException, NotFoundInstrumentException;
+    
+    
+    @Deprecated
+    int addGroupInterceptor(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException, NotFoundInstrumentException;
+    
+    @Deprecated
+    int addGroupInterceptor(String methodName, String[] args, Interceptor interceptor, InterceptorGroupDefinition scopeDefinition) throws InstrumentException;
+    
+    @Deprecated
+    int addGroupInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException;
+    
+    @Deprecated
+    int addGroupInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, InterceptorGroupDefinition scopeDefinition) throws InstrumentException;
+    
+    @Deprecated
+    InstrumentClass getNestedClass(String className);
+
+    @Deprecated
+    boolean addDebugLogBeforeAfterMethod();
+
+    @Deprecated
+    boolean addDebugLogBeforeAfterConstructor();
+
+    @Deprecated
+    Class<?> toClass() throws InstrumentException;
+    
+    @Deprecated
+    boolean insertCodeAfterConstructor(String[] args, String code);
+    
+    @Deprecated
+    boolean insertCodeBeforeConstructor(String[] args, String code);
+    
+    @Deprecated
+    boolean insertCodeBeforeMethod(String methodName, String[] args, String code);
+    
+    @Deprecated
+    boolean insertCodeAfterMethod(String methodName, String[] args, String code);
+    
+    @Deprecated
+    void addTraceVariable(String variableName, String setterName, String getterName, String variableType, String initValue) throws InstrumentException;
+
+    @Deprecated
+    void addTraceVariable(String variableName, String setterName, String getterName, String variableType) throws InstrumentException;
+    
+    @Deprecated
+    public int addAllConstructorInterceptor(Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
+    
+    @Deprecated
+    public int addAllConstructorInterceptor(Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
 }

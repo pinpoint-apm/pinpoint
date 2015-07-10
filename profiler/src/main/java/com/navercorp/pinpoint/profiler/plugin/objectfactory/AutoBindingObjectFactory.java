@@ -20,9 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe.ByConstructor;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe.ByStaticFactoryMethod;
@@ -36,21 +33,18 @@ import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 public class AutoBindingObjectFactory {
     private final DefaultProfilerPluginContext pluginContext;
     private final ClassLoader classLoader;
-    private final PinpointTypeArgumentProvider pinpointResolver;
-
-    public AutoBindingObjectFactory(DefaultProfilerPluginContext pluginContext, InstrumentClass targetClass, ClassLoader classLoader) {
-        this(pluginContext, null, targetClass, null, classLoader);
-    }
-
-    public AutoBindingObjectFactory(DefaultProfilerPluginContext pluginContext, InterceptorGroup interceptorGroup, InstrumentClass targetClass, MethodInfo targetMethod, ClassLoader classLoader) {
+    private final List<ArgumentProvider> commonProviders;
+    
+    public AutoBindingObjectFactory(DefaultProfilerPluginContext pluginContext, ClassLoader classLoader, ArgumentProvider... argumentProviders) {
         this.pluginContext = pluginContext;
         this.classLoader = classLoader;
-        this.pinpointResolver = new PinpointTypeArgumentProvider(pluginContext, interceptorGroup, targetClass, targetMethod);
+        this.commonProviders = new ArrayList<ArgumentProvider>(Arrays.asList(argumentProviders));
+        this.commonProviders.add(new ProfilerPluginArgumentProvider(pluginContext));
     }
     
-    public Object createInstance(ObjectRecipe recipe) {
+    public Object createInstance(ObjectRecipe recipe, ArgumentProvider... providers) {
         Class<?> type = pluginContext.getClassInjector().loadClass(classLoader, recipe.getClassName());
-        ArgumentsResolver argumentsResolver = getParameterResolvers(classLoader, recipe.getArguments());
+        ArgumentsResolver argumentsResolver = getArgumentResolver(recipe, providers);
         
         if (recipe instanceof ByConstructor) {
             return byConstructor(type, (ByConstructor)recipe, argumentsResolver);
@@ -61,8 +55,8 @@ public class AutoBindingObjectFactory {
         throw new IllegalArgumentException("Unknown recipe type: " + recipe);
     }
     
-    private Object byConstructor(Class<?> type, ByConstructor recipe, ArgumentsResolver argumentsResolvers) {
-        ConstructorResolver resolver = new ConstructorResolver(type, argumentsResolvers);
+    private Object byConstructor(Class<?> type, ByConstructor recipe, ArgumentsResolver argumentsResolver) {
+        ConstructorResolver resolver = new ConstructorResolver(type, argumentsResolver);
         
         if (!resolver.resolve()) {
             throw new PinpointException("Cannot find suitable constructor for " + type.getName());
@@ -95,16 +89,15 @@ public class AutoBindingObjectFactory {
         }
 
     }
-
-    private ArgumentsResolver getParameterResolvers(ClassLoader classLoader, Object[] providedValues) {
-        List<ArgumentProvider> suppliers = new ArrayList<ArgumentProvider>();
+    
+    private ArgumentsResolver getArgumentResolver(ObjectRecipe recipe, ArgumentProvider[] providers) {
+        List<ArgumentProvider> merged = new ArrayList<ArgumentProvider>(commonProviders);
+        merged.addAll(Arrays.asList(providers));
         
-        suppliers.add(pinpointResolver);
-        
-        if (providedValues != null) { 
-            suppliers.add(new OrderedValueProvider(this, providedValues));
+        if (recipe.getArguments() != null) { 
+            merged.add(new OrderedValueProvider(this, recipe.getArguments()));
         }
         
-        return new ArgumentsResolver(suppliers);
+        return new ArgumentsResolver(merged);
     }
 }

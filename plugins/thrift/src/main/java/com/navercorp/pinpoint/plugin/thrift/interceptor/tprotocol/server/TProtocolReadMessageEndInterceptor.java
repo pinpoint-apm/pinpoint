@@ -65,7 +65,7 @@ import com.navercorp.pinpoint.plugin.thrift.descriptor.ThriftServerEntryMethodDe
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadFieldBeginInterceptor TProtocolReadFieldBeginInterceptor
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor
  */
-@Group(value=THRIFT_SERVER_SCOPE, executionPoint=ExecutionPolicy.INTERNAL)
+@Group(value=THRIFT_SERVER_SCOPE, executionPolicy=ExecutionPolicy.INTERNAL)
 public class TProtocolReadMessageEndInterceptor implements SimpleAroundInterceptor, ThriftConstants {
     
     private final ThriftServerEntryMethodDescriptor thriftServerEntryMethodDescriptor = new ThriftServerEntryMethodDescriptor();

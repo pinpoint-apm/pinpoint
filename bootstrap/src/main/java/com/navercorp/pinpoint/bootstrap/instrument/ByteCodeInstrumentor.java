@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvoca
  */
 public interface ByteCodeInstrumentor {
 
-    InstrumentClass getClass(ClassLoader classLoader, String jvmClassName, byte[] classFileBuffer) throws InstrumentException;
+    InstrumentClass getClass(ClassLoader classLoader, String jvmClassName, byte[] classFileBuffer) throws NotFoundInstrumentException;
     
     boolean findClass(ClassLoader classLoader, String javassistClassName);
 

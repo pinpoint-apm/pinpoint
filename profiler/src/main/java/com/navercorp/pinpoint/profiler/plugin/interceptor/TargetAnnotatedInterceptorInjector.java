@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.annotation.Targets;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.objectfactory.AutoBindingObjectFactory;
+import com.navercorp.pinpoint.profiler.plugin.objectfactory.InterceptorArgumentProvider;
 import com.navercorp.pinpoint.profiler.plugin.transformer.ClassCookBook;
 import com.navercorp.pinpoint.profiler.plugin.transformer.ClassRecipe;
 import com.navercorp.pinpoint.profiler.plugin.transformer.ConstructorTransformer;
@@ -135,7 +136,7 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
             throw new PinpointException("type of @TargetFilter is null: " + interceptorClassName);
         }
         
-        AutoBindingObjectFactory filterFactory = new AutoBindingObjectFactory(pluginContext, targetClass, classLoader);
+        AutoBindingObjectFactory filterFactory = new AutoBindingObjectFactory(pluginContext, classLoader, new InterceptorArgumentProvider(pluginContext.getTraceContext(), targetClass));
         MethodFilter filter = (MethodFilter)filterFactory.createInstance(ObjectRecipe.byConstructor(type, (Object[])annotation.constructorArguments()));
         MethodRecipe recipe = annotation.singleton() ? new SharedAnnotatedInterceptorInjector(injector) : injector;
         
