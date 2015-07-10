@@ -107,10 +107,12 @@
 	        		$scope.$broadcast('timelineDirective.searchCall', parseInt($scope.searchMinTime), parseInt($scope.timelineSearchIndex) );
 	        	}
 	        };
-	        $scope.viewLog = function() {
+	        $scope.viewLog = function( url ) {
 	        	if ( $scope.loggingTransactionInfo == false ) {
 	        		$("#customLogPopup").find("div.modal-body").html( $scope.logDisableMessage ).end().modal("show");
 	        		return false;
+	        	} else {
+	        		window.open(url);
 	        	}
 	        };
 	        $scope.$watch( "searchMinTime", function( newVal ) {
