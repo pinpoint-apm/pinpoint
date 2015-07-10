@@ -55,6 +55,10 @@
 	         */
 	        parseTransactionDetail = function (result) {
 	            $scope.transactionDetail = result;
+	            $scope.logLinkEnable = result.logLinkEnable || false;
+	            $scope.loggingTransactionInfo = result.loggingTransactionInfo || false;
+	            $scope.logButtonName = result.logButtonName || "";
+	            $scope.logPageUrl = result.logPageUrl || "";
 	            $scope.completeStateClass = parseCompleteStateToClass(result.completeState);
 	            $scope.$digest();
 	            $rootElement.find('[data-toggle="tooltip"]').tooltip('destroy').tooltip();
@@ -86,7 +90,6 @@
 	            }
 	        };
 	        initSearchVar = function() {
-//	        	$("#traceTabs li:nth-child(5)").hide();
 	        	$scope.searchMinTime = 1000;
 	        	$scope.timelineSearchIndex = 0;
 	        	$scope.calltreeSearchIndex = 0;
@@ -101,6 +104,12 @@
 	        		$scope.$broadcast('distributedCallFlowDirective.searchCall.forTransactionDetail', parseInt($scope.searchMinTime), parseInt($scope.calltreeSearchIndex) );
 	        	} else {
 	        		$scope.$broadcast('timelineDirective.searchCall', parseInt($scope.searchMinTime), parseInt($scope.timelineSearchIndex) );
+	        	}
+	        };
+	        $scope.viewLog = function() {
+	        	if ( $scope.loggingTransactionInfo == false ) {
+	        		$("#customLogPopup").modal("show");
+	        		return false;
 	        	}
 	        };
 	        $scope.$watch( "searchMinTime", function( newVal ) {
