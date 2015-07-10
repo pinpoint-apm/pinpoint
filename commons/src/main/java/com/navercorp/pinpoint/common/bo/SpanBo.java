@@ -495,7 +495,9 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
             }
         }
         
-        this.loggingTransactionInfo = buffer.readBoolean();
+        if (buffer.limit() > 0) {
+            this.loggingTransactionInfo = buffer.readBoolean();
+        }
 
         return buffer.getOffset();
     }
