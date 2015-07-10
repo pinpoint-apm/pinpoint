@@ -13,10 +13,10 @@ public class DefaultTraceHeader extends AbstractTraceRecorder implements TraceHe
     private final boolean isDebug = logger.isDebugEnabled();
     
     private final Span span;
-    private TraceId traceId;
-    private boolean sampling;
+    private final TraceId traceId;
+    private final boolean sampling;
     
-    public DefaultTraceHeader(final TraceContext traceContext) {
+    public DefaultTraceHeader(final TraceContext traceContext, final TraceId traceId, final boolean sampling) {
         super(traceContext);
 
         span = new Span();
@@ -24,6 +24,9 @@ public class DefaultTraceHeader extends AbstractTraceRecorder implements TraceHe
         span.setApplicationName(traceContext.getApplicationName());
         span.setAgentStartTime(traceContext.getAgentStartTime());
         span.setApplicationServiceType(traceContext.getServerTypeCode());
+        
+        this.traceId = traceId;
+        this.sampling = sampling;
     }
 
     public Span getSpan() {
@@ -32,10 +35,6 @@ public class DefaultTraceHeader extends AbstractTraceRecorder implements TraceHe
     
     public void recordTraceId(TraceId traceId) {
         span.recordTraceId(traceId);
-    }
-    
-    public void setSampling(boolean sampling) {
-        this.sampling = sampling;
     }
 
     @Override

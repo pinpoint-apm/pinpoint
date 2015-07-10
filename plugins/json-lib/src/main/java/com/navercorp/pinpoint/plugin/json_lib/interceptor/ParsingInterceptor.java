@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.plugin.json_lib.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -49,8 +50,8 @@ public class ParsingInterceptor implements SimpleAroundInterceptor {
             return;
         }
 
-        trace.traceBlockBegin();
-        trace.markBeforeTime();
+        CallStackFrame frame = trace.pushCallStackFrame();
+        frame.markBeforeTime();
     }
 
     @Override
@@ -65,17 +66,18 @@ public class ParsingInterceptor implements SimpleAroundInterceptor {
         }
 
         try {
-            trace.recordServiceType(JsonLibConstants.SERVICE_TYPE);
-            trace.recordApi(descriptor);
-            trace.recordException(throwable);
+            CallStackFrame frame = trace.peekCallStackFrame();
+            frame.recordServiceType(JsonLibConstants.SERVICE_TYPE);
+            frame.recordApi(descriptor);
+            frame.recordException(throwable);
             
             if (args.length > 0 && args[0] instanceof String) {
-                trace.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
+                frame.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
             }
             
-            trace.markAfterTime();
+            frame.markAfterTime();
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
         }
     }
 }

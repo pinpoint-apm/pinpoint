@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.plugin.jackson.interceptor;
 
 import java.io.File;
 
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -51,10 +52,9 @@ public class ReadValueInterceptor implements SimpleAroundInterceptor, JacksonCon
             return;
         }
 
-        trace.traceBlockBegin();
-        trace.markBeforeTime();
-
-        trace.recordServiceType(SERVICE_TYPE);
+        CallStackFrame frame = trace.pushCallStackFrame();
+        frame.markBeforeTime();
+        frame.recordServiceType(SERVICE_TYPE);
     }
 
     @Override
@@ -69,19 +69,20 @@ public class ReadValueInterceptor implements SimpleAroundInterceptor, JacksonCon
         }
 
         try {
-            trace.recordApi(descriptor);
-            trace.recordException(throwable);
+            CallStackFrame frame = trace.peekCallStackFrame();
+            frame.recordApi(descriptor);
+            frame.recordException(throwable);
             if (args[0] instanceof String) {
-                trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((String) args[0]).length());
+                frame.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((String) args[0]).length());
             } else if (args[0] instanceof byte[]) {
-                trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte[]) args[0]).length);
+                frame.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte[]) args[0]).length);
             } else if (args[0] instanceof File) {
-                trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((File) args[0]).length());
+                frame.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((File) args[0]).length());
             }
 
-            trace.markAfterTime();
+            frame.markAfterTime();
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
         }
     }
 }

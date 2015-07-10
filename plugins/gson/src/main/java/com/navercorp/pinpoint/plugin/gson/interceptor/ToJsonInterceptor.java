@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.plugin.gson.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -49,8 +50,8 @@ public class ToJsonInterceptor implements SimpleAroundInterceptor {
             return;
         }
 
-        trace.traceBlockBegin();
-        trace.markBeforeTime();
+        CallStackFrame frame = trace.pushCallStackFrame();
+        frame.markBeforeTime();
     }
 
     @Override
@@ -65,17 +66,18 @@ public class ToJsonInterceptor implements SimpleAroundInterceptor {
         }
 
         try {
-            trace.recordServiceType(GsonPlugin.GSON_SERVICE_TYPE);
-            trace.recordApi(descriptor);
-            trace.recordException(throwable);
+            CallStackFrame frame = trace.peekCallStackFrame();
+            frame.recordServiceType(GsonPlugin.GSON_SERVICE_TYPE);
+            frame.recordApi(descriptor);
+            frame.recordException(throwable);
 
             if (result != null && result instanceof String) {
-                trace.recordAttribute(GsonPlugin.GSON_ANNOTATION_KEY_JSON_LENGTH, ((String) result).length());
+                frame.recordAttribute(GsonPlugin.GSON_ANNOTATION_KEY_JSON_LENGTH, ((String) result).length());
             }
 
-            trace.markAfterTime();
+            frame.markAfterTime();
         } finally {
-            trace.traceBlockEnd();
+            trace.popCallStackFrame();
         }
     }
 }

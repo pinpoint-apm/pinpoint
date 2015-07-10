@@ -66,7 +66,7 @@ public final class DefaultTrace implements Trace {
         this.sampling = sampling;
 
         this.traceId.incrementTraceCount();
-        this.traceHeader = new DefaultTraceHeader(traceContext);
+        this.traceHeader = new DefaultTraceHeader(traceContext, traceId, sampling);
         this.traceHeader.recordTraceId(traceId);
         this.callStackFrame = new WrappedCallStackFrame(traceContext);
     }
@@ -83,7 +83,7 @@ public final class DefaultTrace implements Trace {
         this.sampling = sampling;
 
         this.traceId.incrementTraceCount();
-        this.traceHeader = new DefaultTraceHeader(traceContext);
+        this.traceHeader = new DefaultTraceHeader(traceContext, traceId, sampling);
         this.traceHeader.recordTraceId(traceId);
         this.callStackFrame = new WrappedCallStackFrame(traceContext);
     }
