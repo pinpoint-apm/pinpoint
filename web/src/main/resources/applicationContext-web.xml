@@ -40,7 +40,10 @@
         </property>
     </bean>
     
-    <util:properties id="pinpointWebProps" location="classpath:pinpoint-web.properties"/>
+    <bean id="pinpointWebProps" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="location" value="classpath:pinpoint-web.properties"/>
+        <property name="fileEncoding" value="UTF-8"/>
+    </bean>
     
     <!-- 
     <util:properties id="dataProps" location="classpath:data.properties"/>
