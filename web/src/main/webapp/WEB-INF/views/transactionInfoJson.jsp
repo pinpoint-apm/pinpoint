@@ -17,7 +17,7 @@
 	    <c:choose>
 		<c:when test="${not empty logPageUrl}">
 			<c:url value="${logPageUrl}" var="comBindedlogPageUrl">
-				<c:param name="transactionId" value="${${traceId.formatString}}" />
+				<c:param name="transactionId" value="${traceId.formatString}" />
 				<c:param name="time" value="${callstackStart}" />
 			</c:url>
 			"${comBindedlogPageUrl}"
