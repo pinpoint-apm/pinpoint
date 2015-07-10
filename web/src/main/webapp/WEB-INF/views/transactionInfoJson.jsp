@@ -14,6 +14,7 @@
     "loggingTransactionInfo" : ${loggingTransactionInfo},
     "logButtonName": "${logButtonName}",
     "logPageUrl" : "${logPageUrl}",
+    "disableButtonMessage" : "${disableButtonMessage}",
 	"callStackIndex" : {
 		"depth":0,
 		"begin":1,
