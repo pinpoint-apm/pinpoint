@@ -32,9 +32,4 @@ public interface TestEnvironment {
 
     public static final TProtocolFactory PROTOCOL_FACTORY = new TBinaryProtocol.Factory();
     
-    public static enum TraceVerificationTarget {
-        SERVER,
-        CLIENT;
-    }
-
 }

@@ -35,6 +35,7 @@ import org.apache.thrift.transport.TNonblockingTransport;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
+import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.plugin.thrift.dto.EchoService;
 import com.navercorp.pinpoint.plugin.thrift.dto.EchoService.AsyncClient.echo_call;
@@ -76,62 +77,70 @@ public class AsyncEchoTestClient implements EchoTestClient {
 
     @Override
     public void verifyTraces(PluginTestVerifier verifier, String expectedMessage) throws Exception {
-        verifier.verifyTraceCount(10);
-        // SpanEvent - TAsyncClientManager.call
-        Method call = TAsyncClientManager.class.getDeclaredMethod("call", TAsyncMethodCall.class);
-        verifier.verifyTrace(event("THRIFT_CLIENT_INTERNAL", call));
         
+        // ********** Asynchronous Traces
         // SpanEvent - Thrift Asynchronous Client Invocation
-        verifier.verifyTrace(event("ASYNC", "Thrift Asynchronous Client Invocation"));
+        ExpectedTrace asyncClientInvocationTrace = event("ASYNC", "Thrift Asynchronous Client Invocation");
         
         // SpanEvent - TAsyncMethodCall.start
         Method start = TAsyncMethodCall.class.getDeclaredMethod("start", Selector.class);
-        verifier.verifyTrace(event("THRIFT_CLIENT_INTERNAL", start));
+        ExpectedTrace startTrace = event("THRIFT_CLIENT_INTERNAL", start);
         
         // SpanEvent - TAsyncMethodCall.doConnecting
         Method doConnecting = TAsyncMethodCall.class.getDeclaredMethod("doConnecting", SelectionKey.class);
-        verifier.verifyTrace(event("THRIFT_CLIENT_INTERNAL", doConnecting));
+        ExpectedTrace doConnectingTrace = event("THRIFT_CLIENT_INTERNAL", doConnecting);
         
         // SpanEvent - TAsyncMethodCall.doWritingRequestSize
         Method doWritingRequestSize = TAsyncMethodCall.class.getDeclaredMethod("doWritingRequestSize");
-        verifier.verifyTrace(event("THRIFT_CLIENT_INTERNAL", doWritingRequestSize));
+        ExpectedTrace doWritingRequestSizeTrace = event("THRIFT_CLIENT_INTERNAL", doWritingRequestSize);
         
         // SpanEvent - TAsyncMethodCall.doWritingRequestBody
         Method doWritingRequestBody = TAsyncMethodCall.class.getDeclaredMethod("doWritingRequestBody", SelectionKey.class);
         ExpectedAnnotation thriftUrl = Expectations.annotation(
                 "thrift.url", SERVER_ADDRESS.getHostName() + ":" + SERVER_ADDRESS.getPort() + "/com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo_call");
-        verifier.verifyTrace(event(
+        ExpectedTrace doWritingRequestBodyTrace = event(
                 "THRIFT_CLIENT", // ServiceType
                 doWritingRequestBody, // Method
                 null, // rpc
                 null, // endPoint
                 SERVER_ADDRESS.getHostName() + ":" + SERVER_ADDRESS.getPort(), // destinationId
                 thriftUrl // Annotation("thrift.url")
-        ));
+        );
         
         // SpanEvent - TAsyncMethodCall.doReadingResponseSize
         Method doReadingResponseSize = TAsyncMethodCall.class.getDeclaredMethod("doReadingResponseSize");
-        verifier.verifyTrace(event("THRIFT_CLIENT_INTERNAL", doReadingResponseSize));
+        ExpectedTrace doReadingResponseSizeTrace = event("THRIFT_CLIENT_INTERNAL", doReadingResponseSize);
         
         // SpanEvent - TAsyncMethodCall.doReadingResponseBody
         Method doReadingResponseBody = TAsyncMethodCall.class.getDeclaredMethod("doReadingResponseBody", SelectionKey.class);
-        verifier.verifyTrace(event("THRIFT_CLIENT_INTERNAL", doReadingResponseBody));
+        ExpectedTrace doReadingResponseBodyTrace = event("THRIFT_CLIENT_INTERNAL", doReadingResponseBody);
         
         // SpanEvent - TAsyncMethodCall.cleanUpAndFireCallback
         Method cleanUpAndFireCallback = TAsyncMethodCall.class.getDeclaredMethod("cleanUpAndFireCallback", SelectionKey.class);
-        verifier.verifyTrace(event("THRIFT_CLIENT_INTERNAL", cleanUpAndFireCallback));
+        ExpectedTrace cleanUpAndFireCallbackTrace = event("THRIFT_CLIENT_INTERNAL", cleanUpAndFireCallback);
         
         // SpanEvent - TServiceClient.receiveBase
         Method receiveBase = TServiceClient.class.getDeclaredMethod("receiveBase", TBase.class, String.class);
         ExpectedAnnotation thriftResult = Expectations.annotation("thrift.result", "echo_result(success:" + expectedMessage + ")");
-        verifier.verifyTrace(event(
+        ExpectedTrace receiveBaseTrace = event(
                 "THRIFT_CLIENT_INTERNAL", // ServiceType
                 receiveBase, // Method
-                null, // rpc
-                null, // endPoint
                 thriftResult // Annotation("thrift.result")
-        ));
-        verifier.verifyTraceCount(0);
+        );
+        
+        // ********** Root trace for Asynchronous traces
+        // SpanEvent - TAsyncClientManager.call
+        Method call = TAsyncClientManager.class.getDeclaredMethod("call", TAsyncMethodCall.class);
+        verifier.verifyTrace(async("THRIFT_CLIENT_INTERNAL", call, null,
+                                        asyncClientInvocationTrace,
+                                        startTrace,
+                                        doConnectingTrace,
+                                        doWritingRequestSizeTrace,
+                                        doWritingRequestBodyTrace,
+                                        doReadingResponseSizeTrace,
+                                        doReadingResponseBodyTrace,
+                                        cleanUpAndFireCallbackTrace,
+                                        receiveBaseTrace));
     }
     
     private static class AsyncEchoResultHolder {

@@ -49,39 +49,21 @@ public class ThriftHalfSyncHalfAsyncServerIT extends EchoTestRunner<THsHaServer>
     }
     
     @Test
-    public void testSynchronousRpcCall_verifyServerTraces() throws Exception {
+    public void testSynchronousRpcCall() throws Exception {
         // Given
         final String expectedMessage = "TEST_MESSAGE";
         // When
-        final String result = super.invokeEcho(TraceVerificationTarget.SERVER, expectedMessage);
+        final String result = super.invokeEcho(expectedMessage);
         // Then
         assertEquals(expectedMessage, result);
     }
     
     @Test
-    public void testSynchronousRpcCall_verifyClientTraces() throws Exception {
+    public void testAsynchronousRpcCall() throws Exception {
         // Given
         final String expectedMessage = "TEST_MESSAGE";
         // When
-        final String result = super.invokeEcho(TraceVerificationTarget.CLIENT, expectedMessage);
-        // Then
-        assertEquals(expectedMessage, result);
-    }
-
-    public void testAsynchronousRpcCall_verifyServerTraces() throws Exception {
-        // Given
-        final String expectedMessage = "TEST_MESSAGE";
-        // When
-        final String result = super.invokeEchoAsync(TraceVerificationTarget.SERVER, expectedMessage);
-        // Then
-        assertEquals(expectedMessage, result);
-    }
-
-    public void testAsynchronousRpcCall_verifyClientTraces() throws Exception {
-        // Given
-        final String expectedMessage = "TEST_MESSAGE";
-        // When
-        final String result = super.invokeEchoAsync(TraceVerificationTarget.CLIENT, expectedMessage);
+        final String result = super.invokeEchoAsync(expectedMessage);
         // Then
         assertEquals(expectedMessage, result);
     }
