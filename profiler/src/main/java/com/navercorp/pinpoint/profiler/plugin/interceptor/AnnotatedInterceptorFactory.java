@@ -57,7 +57,7 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
         Interceptor interceptor = (Interceptor)factory.createInstance(recipe, interceptorArgumentProvider);
         
         if (group != null) {
-            interceptor = wrapByGroup(interceptor, group, policy);
+            interceptor = wrapByGroup(interceptor, group, policy == null ? ExecutionPolicy.BOUNDARY : policy);
         }
         
         return interceptor;
