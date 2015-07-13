@@ -16,7 +16,7 @@ var BigScatterChart = $.Class({
 	 * @param {Object} option option object
 	 * @param {Service} helpContentService angularjs service object
 	 */			
-    $init: function (htOption, helpContentTemplate, helpContentService) {
+    $init: function (htOption, helpContentTemplate, helpContentService, webStorage) {
         this.option({
             'sContainerId': '',
             'sPrefix': 'bigscatterchart-',
@@ -111,6 +111,7 @@ var BigScatterChart = $.Class({
             'fFullScreenMode' : function () {
             }
         });
+        this.webStorage = webStorage;
         this.option(htOption);
 
         this._initVariables();
@@ -119,15 +120,6 @@ var BigScatterChart = $.Class({
         this._drawXYAxis();
         this.updateXYAxis();
         this._initTooltip( helpContentTemplate, helpContentService );
-    },
-    _localStorage: function( name, value ) {
-    	if ( window.localStorage ) {
-	    	if ( arguments.length == 1 ) {
-	    		return parseInt( window.localStorage.getItem( name ), 10 );
-	    	} else {
-	    		window.localStorage.setItem( name, value );
-	    	}
-    	}
     },
     /**
 	 * initialize tooltipster
@@ -172,8 +164,8 @@ var BigScatterChart = $.Class({
         this._nXMax = this.option('nXMax');
         this._nXMin = this.option('nXMin');
 
-        this._nYMax = this._localStorage("scatter-y-max") || this.option('nYMax');
-        this._nYMin = this._localStorage("scatter-y-min") || this.option('nYMin');
+        this._nYMax = this.webStorage.get("scatter-y-max") || this.option('nYMax');
+        this._nYMin = this.webStorage.get("scatter-y-min") || this.option('nYMin');
 
         this._nZMax = this.option('nZMax');
         this._nZMin = this.option('nZMin');
@@ -619,8 +611,8 @@ var BigScatterChart = $.Class({
                 alert('Min of Y axis is should be smaller than ' + nYMax);
                 return;
             }
-            self._localStorage( "scatter-y-min", nYMin );
-            self._localStorage( "scatter-y-max", nYMax );
+            self.webStorage.add( "scatter-y-min", nYMin );
+            self.webStorage.add( "scatter-y-max", nYMax );
 
             self.option('nYMin', nYMin);
             self.option('nYMax', nYMax);
