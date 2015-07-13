@@ -16,20 +16,6 @@
             <groupId>org.apache.thrift</groupId>
             <artifactId>libthrift</artifactId>
             <optional>true</optional>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.httpcomponents</groupId>
-                    <artifactId>httpclient</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.httpcomponents</groupId>
-                    <artifactId>httpcore</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
 
@@ -68,7 +54,7 @@
         <profile>
             <id>with-thrift</id>
             <properties>
-                <thrift.executable>${your.thrift.executable}</thrift.executable>
+                <thrift.executable>${thrift.executable.path}</thrift.executable>
             </properties>
             <build>
                 <plugins>
