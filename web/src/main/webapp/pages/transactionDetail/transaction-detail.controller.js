@@ -59,6 +59,7 @@
 	            $scope.loggingTransactionInfo = result.loggingTransactionInfo || false;
 	            $scope.logButtonName = result.logButtonName || "";
 	            $scope.logPageUrl = result.logPageUrl || "";
+	            $scope.logDisableMessage = result.disableButtonMessage || "";
 	            $scope.completeStateClass = parseCompleteStateToClass(result.completeState);
 	            $scope.$digest();
 	            $rootElement.find('[data-toggle="tooltip"]').tooltip('destroy').tooltip();
@@ -106,10 +107,12 @@
 	        		$scope.$broadcast('timelineDirective.searchCall', parseInt($scope.searchMinTime), parseInt($scope.timelineSearchIndex) );
 	        	}
 	        };
-	        $scope.viewLog = function() {
+	        $scope.viewLog = function( url ) {
 	        	if ( $scope.loggingTransactionInfo == false ) {
-	        		$("#customLogPopup").modal("show");
+	        		$("#customLogPopup").find("div.modal-body").html( $scope.logDisableMessage ).end().modal("show");
 	        		return false;
+	        	} else {
+	        		window.open(url);
 	        	}
 	        };
 	        $scope.$watch( "searchMinTime", function( newVal ) {

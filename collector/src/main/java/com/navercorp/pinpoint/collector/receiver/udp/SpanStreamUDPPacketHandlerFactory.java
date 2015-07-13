@@ -148,7 +148,7 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
         int spanEventListSize = tbaseList.size() - 1;
         List<TSpanEvent> spanEventList = new ArrayList<TSpanEvent>(spanEventListSize);
         for (int i = 0; i < spanEventListSize; i++) {
-            TBase<?, ?> tBase = spanEventList.get(i);
+            TBase<?, ?> tBase = tbaseList.get(i);
             if (tBase instanceof TSpanEvent) {
                 spanEventList.add((TSpanEvent) tBase);
             }
