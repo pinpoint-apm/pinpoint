@@ -228,7 +228,7 @@
                         };
 
                         var oScatterChart = null;
-                        oScatterChart = new BigScatterChart(options, helpContentTemplate, helpContentService);
+                        oScatterChart = new BigScatterChart(options, helpContentTemplate, helpContentService, webStorage);
                         $timeout(function () {
                             if (angular.isUndefined(scatterData)) {
                                 oScatterChart.drawWithDataSource(getDataSource(title, start, end, filter));
