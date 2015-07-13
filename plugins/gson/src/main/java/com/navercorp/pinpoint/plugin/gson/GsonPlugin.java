@@ -17,10 +17,16 @@ package com.navercorp.pinpoint.plugin.gson;
 
 import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
 
+import java.security.ProtectionDomain;
+
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.BaseClassFileTransformer;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
@@ -35,11 +41,23 @@ public class GsonPlugin implements ProfilerPlugin {
 
     @Override
     public void setup(ProfilerPluginContext context) {
-        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("com.google.gson.Gson");
-        
-        classEditorBuilder.editMethods(MethodFilters.name("fromJson")).injectInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.FromJsonInterceptor").group(GSON_GROUP);
-        classEditorBuilder.editMethods(MethodFilters.name("toJson")).injectInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.ToJsonInterceptor").group(GSON_GROUP);
-        
-        context.addClassFileTransformer(classEditorBuilder.build());
+        context.addClassFileTransformer("com.google.gson.Gson", new BaseClassFileTransformer(context) {
+            
+            @Override
+            protected byte[] transform(ProfilerPluginContext pluginContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = pluginContext.getInstrumentClass(loader, className, classfileBuffer);
+                InterceptorGroup group = pluginContext.getInterceptorGroup(GSON_GROUP); 
+                
+                for (MethodInfo m : target.getDeclaredMethods(MethodFilters.name("fromJson"))) {
+                    m.addInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.FromJsonInterceptor", group);
+                }
+                
+                for (MethodInfo m : target.getDeclaredMethods(MethodFilters.name("toJson"))) {
+                    m.addInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.ToJsonInterceptor", group);
+                }
+                
+                return target.toBytecode();
+            }
+        });
     }
 }
