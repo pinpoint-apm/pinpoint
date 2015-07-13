@@ -52,8 +52,6 @@ public abstract class SyncEchoTestServer<T extends TServer> extends EchoTestServ
     public void verifyServerTraces(PluginTestVerifier verifier) throws Exception {
         verifier.verifyTraceCount(2);
         Method process = TBaseProcessor.class.getDeclaredMethod("process", TProtocol.class, TProtocol.class);
-        // SpanEvent - TBaseProcessor.process
-        verifier.verifyTrace(event("THRIFT_SERVER_INTERNAL", process));
         // RootSpan - Thrift Server Invocation
         verifier.verifyTrace(root(
                 "THRIFT_SERVER", // ServiceType,
@@ -62,6 +60,8 @@ public abstract class SyncEchoTestServer<T extends TServer> extends EchoTestServ
                 SERVER_ADDRESS.getHostName() + ":" + SERVER_ADDRESS.getPort(), // endPoint
                 SERVER_ADDRESS.getHostName() // remoteAddress
         ));
+        // SpanEvent - TBaseProcessor.process
+        verifier.verifyTrace(event("THRIFT_SERVER_INTERNAL", process));
         verifier.verifyTraceCount(0);
     }
     
