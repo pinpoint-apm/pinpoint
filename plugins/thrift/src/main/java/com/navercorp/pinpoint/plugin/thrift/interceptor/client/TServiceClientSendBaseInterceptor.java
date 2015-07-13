@@ -25,6 +25,7 @@ import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TProtocol;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -102,10 +103,10 @@ public class TServiceClientSendBaseInterceptor implements SimpleAroundIntercepto
                 }
                 parentTraceInfo.setShouldSample(shouldSample);
             } else {
-                trace.traceBlockBegin();
-                trace.markBeforeTime();
+                SpanEventRecorder recorder = trace.traceBlockBegin();
+                recorder.markBeforeTime();
                 
-                trace.recordServiceType(THRIFT_CLIENT);
+                recorder.recordServiceType(THRIFT_CLIENT);
                 
                 // retrieve connection information
                 String remoteAddress = UNKNOWN_ADDRESS;
@@ -115,7 +116,7 @@ public class TServiceClientSendBaseInterceptor implements SimpleAroundIntercepto
                         remoteAddress = ThriftUtils.getHostPort(socket.getRemoteSocketAddress());
                     }
                 }
-                trace.recordDestinationId(remoteAddress);
+                recorder.recordDestinationId(remoteAddress);
                 
                 String methodName = UNKNOWN_METHOD_NAME;
                 if (args[0] instanceof String) {
@@ -124,10 +125,10 @@ public class TServiceClientSendBaseInterceptor implements SimpleAroundIntercepto
                 String serviceName = ThriftUtils.getClientServiceName(client);
                 
                 String thriftUrl = getServiceUrl(remoteAddress, serviceName, methodName);
-                trace.recordAttribute(THRIFT_URL, thriftUrl);
+                recorder.recordAttribute(THRIFT_URL, thriftUrl);
                 
                 TraceId nextId = trace.getTraceId().getNextTraceId();
-                trace.recordNextSpanId(nextId.getSpanId());
+                recorder.recordNextSpanId(nextId.getSpanId());
                 
                 parentTraceInfo.setTraceId(nextId.getTransactionId());
                 parentTraceInfo.setSpanId(nextId.getSpanId());
@@ -161,14 +162,15 @@ public class TServiceClientSendBaseInterceptor implements SimpleAroundIntercepto
         }
         
         try {
+            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             if (this.traceServiceArgs) {
                 if (args.length == 2 && (args[1] instanceof TBase)) {
-                    trace.recordAttribute(THRIFT_ARGS, getMethodArgs((TBase<?, ?>)args[1]));
+                    recorder.recordAttribute(THRIFT_ARGS, getMethodArgs((TBase<?, ?>)args[1]));
                 }
             }
-            trace.recordApi(descriptor);
-            trace.recordException(throwable);
-            trace.markAfterTime();
+            recorder.recordApi(descriptor);
+            recorder.recordException(throwable);
+            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

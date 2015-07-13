@@ -45,16 +45,9 @@ public class TraceTest {
     public void trace() {
         DefaultTraceId traceID = new DefaultTraceId("agent", 0, 1);
         DefaultTraceContext defaultTraceContext = getDefaultTraceContext();
-        DefaultTrace trace = new DefaultTrace(defaultTraceContext , traceID);
+        DefaultTrace trace = new DefaultTrace(defaultTraceContext , traceID, true);
         trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
         trace.traceBlockBegin();
-
-        // http server receive
-        trace.recordServiceType(ServiceType.UNKNOWN);
-        trace.recordRpcName("http://");
-
-        trace.recordEndPoint("http:localhost:8080");
-        trace.recordAttribute(AnnotationKey.API, "VALUE");
 
         // get data form db
         getDataFromDB(trace);
@@ -69,13 +62,9 @@ public class TraceTest {
     public void popEventTest() {
         DefaultTraceId traceID = new DefaultTraceId("agent", 0, 1);
         DefaultTraceContext defaultTraceContext = getDefaultTraceContext();
-        DefaultTrace trace = new DefaultTrace(defaultTraceContext, traceID);
+        DefaultTrace trace = new DefaultTrace(defaultTraceContext, traceID, true);
         TestDataSender dataSender = new TestDataSender();
         trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
-//        trace.traceBlockBegin();
-
-        // response to client
-
         trace.close();
 
         logger.info(String.valueOf(dataSender.event));
@@ -134,15 +123,7 @@ public class TraceTest {
         trace.traceBlockBegin();
 
         // db server request
-        trace.recordServiceType(ServiceType.MYSQL);
-        trace.recordRpcName("rpc");
-
-        trace.recordAttribute(AnnotationKey.SQL, "SELECT * FROM TABLE");
-
         // get a db response
-
         trace.traceBlockEnd();
-
-
     }
 }

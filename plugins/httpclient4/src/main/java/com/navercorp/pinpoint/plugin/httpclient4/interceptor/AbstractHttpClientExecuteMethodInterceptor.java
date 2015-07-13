@@ -35,6 +35,7 @@ import org.apache.http.protocol.HTTP;
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -118,12 +119,12 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Simp
             return;
         }
 
-        trace.traceBlockBegin();
-        trace.markBeforeTime();
+        final SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.markBeforeTime();
 
         TraceId nextId = trace.getTraceId().getNextTraceId();
-        trace.recordNextSpanId(nextId.getSpanId());
-        trace.recordServiceType(ServiceType.HTTP_CLIENT);
+        recorder.recordNextSpanId(nextId.getSpanId());
+        recorder.recordServiceType(ServiceType.HTTP_CLIENT);
 
         if (httpRequest != null) {
             httpRequest.setHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
@@ -154,15 +155,16 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Simp
         }
 
         try {
+            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             final HttpRequest httpRequest = getHttpRequest(args);
             if (httpRequest != null) {
                 // Accessing httpRequest here not before() becuase it can cause side effect.
-                trace.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getRequestLine().getUri());
+                recorder.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getRequestLine().getUri());
                 final NameIntValuePair<String> host = getHost(args);
                 if (host != null) {
                     int port = host.getValue();
                     String endpoint = getEndpoint(host.getName(), port);
-                    trace.recordDestinationId(endpoint);
+                    recorder.recordDestinationId(endpoint);
                 }
 
                 recordHttpRequest(trace, httpRequest, throwable);
@@ -171,14 +173,13 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Simp
             if (statusCode) {
                 final Integer statusCodeValue = getStatusCode(result);
                 if (statusCodeValue != null) {
-                    trace.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, statusCodeValue);
+                    recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, statusCodeValue);
                 }
             }
 
-            trace.recordApi(descriptor);
-            trace.recordException(throwable);
-
-            trace.markAfterTime();
+            recorder.recordApi(descriptor);
+            recorder.recordException(throwable);
+            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }
@@ -259,7 +260,8 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Simp
             final String value = header.getValue();
             if (value != null && !value.isEmpty()) {
                 if (cookieSampler.isSampling()) {
-                    trace.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, 1024));
+                    final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+                    recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, 1024));
                 }
 
                 // Can a cookie have 2 or more values?
@@ -277,7 +279,8 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Simp
                 if (entity != null && entity.isRepeatable() && entity.getContentLength() > 0) {
                     if (entitySampler.isSampling()) {
                         final String entityString = entityUtilsToString(entity, "UTF8", 1024);
-                        trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(entityString, 1024));
+                        final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+                        recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(entityString, 1024));
                     }
                 }
             } catch (IOException e) {
@@ -387,5 +390,4 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Simp
         this.descriptor = descriptor;
         traceContext.cacheApi(descriptor);
     }
-
 }

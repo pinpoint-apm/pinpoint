@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.redis.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
@@ -40,22 +41,22 @@ public class JedisPipelineMethodInterceptor extends SpanEventSimpleAroundInterce
     }
 
     @Override
-    public void doInBeforeTrace(RecordableTrace trace, Object target, Object[] args) {
-        trace.markBeforeTime();
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.markBeforeTime();
     }
 
     @Override
-    public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         String endPoint = null;
         if (endPointAccessor.isApplicable(target)) {
             endPoint = endPointAccessor.get(target);
         }
 
-        trace.recordApi(getMethodDescriptor());
-        trace.recordEndPoint(endPoint != null ? endPoint : "Unknown");
-        trace.recordDestinationId(REDIS.getName());
-        trace.recordServiceType(REDIS);
-        trace.recordException(throwable);
-        trace.markAfterTime();
+        recorder.recordApi(getMethodDescriptor());
+        recorder.recordEndPoint(endPoint != null ? endPoint : "Unknown");
+        recorder.recordDestinationId(REDIS.getName());
+        recorder.recordServiceType(REDIS);
+        recorder.recordException(throwable);
+        recorder.markAfterTime();
     }
 }

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.jdbc.common.interceptor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
@@ -63,8 +64,8 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorFo
     }
 
     @Override
-    protected void doInBeforeTrace(RecordableTrace trace, Object target, Object[] args) {
-        trace.markBeforeTime();
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.markBeforeTime();
     }
 
 
@@ -87,21 +88,21 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorFo
     }
 
     @Override
-    protected void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
 
         if (recordConnection) {
             final DatabaseInfo databaseInfo = databaseInfoAccessor.get(result, UnKnownDatabaseInfo.INSTANCE);
             // Count database connect too because it's very heavy operation
-            trace.recordServiceType(databaseInfo.getType());
-            trace.recordEndPoint(databaseInfo.getMultipleHost());
-            trace.recordDestinationId(databaseInfo.getDatabaseId());
+            recorder.recordServiceType(databaseInfo.getType());
+            recorder.recordEndPoint(databaseInfo.getMultipleHost());
+            recorder.recordDestinationId(databaseInfo.getDatabaseId());
         }
         final String driverUrl = (String) args[0];
         // Invoking databaseInfo.getRealUrl() here is dangerous. It doesn't return real URL if it's a loadbalance connection.  
-        trace.recordApiCachedString(methodDescriptor, driverUrl, 0);
+        recorder.recordApiCachedString(methodDescriptor, driverUrl, 0);
 
-        trace.recordException(throwable);
-        trace.markAfterTime();
+        recorder.recordException(throwable);
+        recorder.markAfterTime();
     }
 
     private DatabaseInfo createDatabaseInfo(String url) {

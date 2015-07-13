@@ -20,16 +20,19 @@ package com.navercorp.pinpoint.bootstrap.context;
  * @author emeroad
  */
 public interface StackOperation {
-
     public static final int DEFAULT_STACKID = -1;
+
     public static final int ROOT_STACKID = 0;
 
-    void traceBlockBegin();
+    SpanEventRecorder traceBlockBegin();
 
-    void traceBlockBegin(int stackId);
+    SpanEventRecorder traceBlockBegin(int stackId);
 
     void traceBlockEnd();
 
     void traceBlockEnd(int stackId);
+
     boolean isRootStack();
+    
+    int getCallStackFrameId();
 }

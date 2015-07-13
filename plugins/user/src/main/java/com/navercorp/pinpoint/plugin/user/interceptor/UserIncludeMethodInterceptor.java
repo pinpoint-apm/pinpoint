@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.user.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceType;
@@ -52,7 +54,7 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
 
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
-            trace = traceContext.newTraceObject(TraceType.USER);
+            trace = traceContext.newTraceObject();
             if (!trace.canSampled()) {
                 if(isDebug) {
                     logger.debug("New trace and can't sampled {}", trace);
@@ -62,18 +64,19 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
             if(isDebug) {
                 logger.debug("New trace and sampled {}", trace);
             }
-            recordRootSpan(trace);
+            SpanRecorder recorder = trace.getSpanRecorder();
+            recordRootSpan(recorder);
         }
 
-        trace.traceBlockBegin();
-        trace.markBeforeTime();
+        SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.markBeforeTime();
     }
 
-    private void recordRootSpan(final Trace trace) {
+    private void recordRootSpan(final SpanRecorder recorder) {
         // root
-        trace.markBeforeTime();
-        trace.recordServiceType(ServiceType.STAND_ALONE);
-        trace.recordApi(USER_INCLUDE_METHOD_DESCRIPTOR);
+        recorder.markBeforeTime();
+        recorder.recordServiceType(ServiceType.STAND_ALONE);
+        recorder.recordApi(USER_INCLUDE_METHOD_DESCRIPTOR);
     }
 
     @Override
@@ -88,14 +91,16 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
         }
 
         try {
-            trace.recordApi(descriptor);
-            trace.recordServiceType(ServiceType.USER_INCLUDE);
-            trace.recordException(throwable);
-            trace.markAfterTime();
+            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            recorder.recordApi(descriptor);
+            recorder.recordServiceType(ServiceType.USER_INCLUDE);
+            recorder.recordException(throwable);
+            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
             if(trace.getTraceType() == TraceType.USER && trace.isRootStack()) {
-                trace.markAfterTime();
+                SpanRecorder recorder = trace.getSpanRecorder();
+                recorder.markAfterTime();
                 trace.close();
                 traceContext.removeTraceObject();
             }

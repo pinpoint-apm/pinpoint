@@ -38,6 +38,7 @@ import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -113,13 +114,13 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
             return;
         }
 
-        trace.traceBlockBegin();
-        trace.markBeforeTime();
+        SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.markBeforeTime();
 
         // set remote trace
         final TraceId nextId = trace.getTraceId().getNextTraceId();
-        trace.recordNextSpanId(nextId.getSpanId());
-        trace.recordServiceType(ServiceType.HTTP_CLIENT);
+        recorder.recordNextSpanId(nextId.getSpanId());
+        recorder.recordServiceType(ServiceType.HTTP_CLIENT);
 
         if (httpRequest != null) {
             httpRequest.setHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
@@ -140,7 +141,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
             if (isAsynchronousInvocation(target, args)) {
                 // set asynchronous trace
                 final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-                trace.recordNextAsyncId(asyncTraceId.getAsyncId());
+                recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
                 asyncTraceIdAccessor.set(resultFutureAccessor.get(target), asyncTraceId);
                 if (isDebug) {
                     logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
@@ -195,21 +196,22 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
         }
 
         try {
+            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             final HttpRequest httpRequest = getHttpRequest(target);
             if (httpRequest != null) {
                 // Accessing httpRequest here not before() because it can cause side effect.
-                trace.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getRequestLine().getUri());
+                recorder.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getRequestLine().getUri());
                 final NameIntValuePair<String> host = getHost(target);
                 if (host != null) {
                     int port = host.getValue();
                     String endpoint = getEndpoint(host.getName(), port);
-                    trace.recordDestinationId(endpoint);
+                    recorder.recordDestinationId(endpoint);
                 }
-                recordHttpRequest(trace, httpRequest, throwable);
+                recordHttpRequest(recorder, httpRequest, throwable);
             }
-            trace.recordApi(methodDescriptor);
-            trace.recordException(throwable);
-            trace.markAfterTime();
+            recorder.recordApi(methodDescriptor);
+            recorder.recordException(throwable);
+            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }
@@ -240,31 +242,31 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
         return sb.toString();
     }
 
-    private void recordHttpRequest(Trace trace, HttpRequest httpRequest, Throwable throwable) {
+    private void recordHttpRequest(SpanEventRecorder recorder, HttpRequest httpRequest, Throwable throwable) {
         final boolean isException = InterceptorUtils.isThrowable(throwable);
         if (cookie) {
             if (DumpType.ALWAYS == cookieDumpType) {
-                recordCookie(httpRequest, trace);
+                recordCookie(httpRequest, recorder);
             } else if (DumpType.EXCEPTION == cookieDumpType && isException) {
-                recordCookie(httpRequest, trace);
+                recordCookie(httpRequest, recorder);
             }
         }
         if (entity) {
             if (DumpType.ALWAYS == entityDumpType) {
-                recordEntity(httpRequest, trace);
+                recordEntity(httpRequest, recorder);
             } else if (DumpType.EXCEPTION == entityDumpType && isException) {
-                recordEntity(httpRequest, trace);
+                recordEntity(httpRequest, recorder);
             }
         }
     }
 
-    protected void recordCookie(HttpMessage httpMessage, Trace trace) {
+    protected void recordCookie(HttpMessage httpMessage, SpanEventRecorder recorder) {
         org.apache.http.Header[] cookies = httpMessage.getHeaders("Cookie");
         for (org.apache.http.Header header : cookies) {
             final String value = header.getValue();
             if (value != null && !value.isEmpty()) {
                 if (cookieSampler.isSampling()) {
-                    trace.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, 1024));
+                    recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, 1024));
                 }
 
                 // Can a cookie have 2 or more values?
@@ -274,7 +276,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
         }
     }
 
-    protected void recordEntity(HttpMessage httpMessage, Trace trace) {
+    protected void recordEntity(HttpMessage httpMessage, SpanEventRecorder recorder) {
         if (httpMessage instanceof HttpEntityEnclosingRequest) {
             final HttpEntityEnclosingRequest entityRequest = (HttpEntityEnclosingRequest) httpMessage;
             try {
@@ -282,7 +284,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
                 if (entity != null && entity.isRepeatable() && entity.getContentLength() > 0) {
                     if (entitySampler.isSampling()) {
                         final String entityString = entityUtilsToString(entity, "UTF8", 1024);
-                        trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(entityString, 1024));
+                        recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(entityString, 1024));
                     }
                 }
             } catch (IOException e) {

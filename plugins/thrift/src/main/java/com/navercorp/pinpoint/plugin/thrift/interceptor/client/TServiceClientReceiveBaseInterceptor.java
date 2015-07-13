@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.thrift.interceptor.client;
 import org.apache.thrift.TBase;
 
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
@@ -41,27 +42,26 @@ public class TServiceClientReceiveBaseInterceptor extends SpanEventSimpleAroundI
     }
     
     @Override
-    protected void doInBeforeTrace(RecordableTrace trace, Object target, Object[] args) {
-        trace.markBeforeTime();
-        trace.recordServiceType(THRIFT_CLIENT_INTERNAL);
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.markBeforeTime();
+        recorder.recordServiceType(THRIFT_CLIENT_INTERNAL);
     }
     
     @Override
-    protected void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
-        trace.recordApi(getMethodDescriptor());
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordApi(getMethodDescriptor());
         if (throwable == null && this.traceServiceResult) {
             if (args.length == 2 && (args[0] instanceof TBase)) {
                 String resultString = getResult((TBase<?, ?>)args[0]);
-                trace.recordAttribute(THRIFT_RESULT, resultString);
+                recorder.recordAttribute(THRIFT_RESULT, resultString);
             }
         } else {
-            trace.recordException(throwable);
+            recorder.recordException(throwable);
         }
-        trace.markAfterTime();
+        recorder.markAfterTime();
     }
 
     private String getResult(TBase<?, ?> args) {
         return StringUtils.drop(args.toString(), 256);
     }
-
 }
