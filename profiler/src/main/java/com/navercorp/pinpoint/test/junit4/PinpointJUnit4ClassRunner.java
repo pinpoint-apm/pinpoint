@@ -31,7 +31,7 @@ import org.junit.runners.model.TestClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceHeader;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -88,7 +88,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         if (shouldCreateNewTraceObject(method)) {
             TraceContext traceContext = this.testContext.getMockAgent().getTraceContext();
             Trace trace = traceContext.newTraceObject();
-            TraceHeader frame = trace.getTraceHeader();
+            SpanRecorder frame = trace.getSpanRecorder();
             
             frame.markBeforeTime();
             frame.recordServiceType(ServiceType.TEST);
@@ -108,7 +108,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
                     testMethodNotifier.addFailure(new IllegalStateException(traceObjectAlreadyDetachedMessage));
                 } else {
                     try {
-                        TraceHeader frame = trace.getTraceHeader();
+                        SpanRecorder frame = trace.getSpanRecorder();
                         frame.markAfterTime();
                     } finally {
                         trace.close();

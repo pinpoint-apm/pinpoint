@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 
 import java.io.IOException;
 
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -57,7 +57,7 @@ public class RetryMethodInterceptor implements SimpleAroundInterceptor, HttpClie
             return;
         }
 
-        final CallStackFrame recorder = trace.pushCallStackFrame();
+        final SpanEventRecorder recorder = trace.traceBlockBegin();
         recorder.markBeforeTime();
         recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
     }
@@ -74,7 +74,7 @@ public class RetryMethodInterceptor implements SimpleAroundInterceptor, HttpClie
         }
 
         try {
-            final CallStackFrame recorder = trace.currentCallStackFrame();
+            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
             
@@ -87,7 +87,7 @@ public class RetryMethodInterceptor implements SimpleAroundInterceptor, HttpClie
 
             recorder.markAfterTime();
         } finally {
-            trace.popCallStackFrame();
+            trace.traceBlockEnd();
         }
     }
 }

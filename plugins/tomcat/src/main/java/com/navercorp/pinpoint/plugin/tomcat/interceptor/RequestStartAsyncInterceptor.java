@@ -16,7 +16,7 @@ package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -59,8 +59,7 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
         if (trace == null) {
             return;
         }
-        trace.pushCallStackFrame();
-        CallStackFrame recorder = trace.currentCallStackFrame();
+        SpanEventRecorder recorder = trace.traceBlockBegin();
         recorder.markBeforeTime();
     }
 
@@ -76,7 +75,7 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
         }
 
         try {
-            CallStackFrame recorder = trace.currentCallStackFrame();
+            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             if (validate(target, result, throwable)) {
                 asyncAccessor.set(target, Boolean.TRUE);
 
@@ -97,7 +96,7 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
         } catch (Throwable t) {
             logger.warn("Failed to after process. {}", t.getMessage(), t);
         } finally {
-            trace.popCallStackFrame();
+            trace.traceBlockEnd();
         }
     }
 

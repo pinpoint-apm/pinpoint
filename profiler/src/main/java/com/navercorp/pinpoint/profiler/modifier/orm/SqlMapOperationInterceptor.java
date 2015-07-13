@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.modifier.orm;
 
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
@@ -35,12 +35,12 @@ public abstract class SqlMapOperationInterceptor extends SpanEventSimpleAroundIn
     }
 
     @Override
-    public final void doInBeforeTrace(CallStackFrame recorder, final Object target, Object[] args) {
+    public final void doInBeforeTrace(SpanEventRecorder recorder, final Object target, Object[] args) {
         recorder.markBeforeTime();
     }
 
     @Override
-    public final void doInAfterTrace(CallStackFrame recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public final void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordServiceType(this.serviceType);
         recorder.recordException(throwable);
         if (args != null && args.length > 0) {

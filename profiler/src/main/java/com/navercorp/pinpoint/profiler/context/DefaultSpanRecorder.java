@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceHeader;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author jaehong.kim
  *
  */
-public class DefaultTraceHeader extends AbstractTraceRecorder implements TraceHeader {
+public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorder {
     private final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
     
@@ -36,7 +36,7 @@ public class DefaultTraceHeader extends AbstractTraceRecorder implements TraceHe
     private final TraceId traceId;
     private final boolean sampling;
     
-    public DefaultTraceHeader(final TraceContext traceContext, final TraceId traceId, final boolean sampling) {
+    public DefaultSpanRecorder(final TraceContext traceContext, final TraceId traceId, final boolean sampling) {
         super(traceContext);
 
         span = new Span();

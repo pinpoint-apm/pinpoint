@@ -21,7 +21,7 @@ import java.net.URL;
 
 import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.context.Header;
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -94,7 +94,7 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
 
         group.getCurrentInvocation().setAttachment(TRACE_BLOCK_BEGIN_MARKER);
         
-        CallStackFrame recorder = trace.pushCallStackFrame();
+        SpanEventRecorder recorder = trace.traceBlockBegin();
         recorder.markBeforeTime();
 
         TraceId nextId = trace.getTraceId().getNextTraceId();
@@ -155,13 +155,13 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
         }
 
         try {
-            CallStackFrame recorder = trace.currentCallStackFrame();
+            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
 
             recorder.markAfterTime();
         } finally {
-            trace.popCallStackFrame();
+            trace.traceBlockEnd();
         }
     }
 }

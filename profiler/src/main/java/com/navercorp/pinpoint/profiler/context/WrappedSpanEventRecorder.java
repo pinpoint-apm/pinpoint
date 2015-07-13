@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -30,13 +30,13 @@ import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
  * @author jaehong.kim
  *
  */
-public class WrappedCallStackFrame extends AbstractTraceRecorder implements CallStackFrame {
+public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEventRecorder {
     private final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private SpanEvent spanEvent;
 
-    public WrappedCallStackFrame(final TraceContext traceContext) {
+    public WrappedSpanEventRecorder(final TraceContext traceContext) {
         super(traceContext);
     }
 

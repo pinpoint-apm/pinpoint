@@ -48,10 +48,10 @@ public class DefaultTraceTest {
 
         trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
 
-        trace.pushCallStackFrame();
-        trace.pushCallStackFrame();
-        trace.popCallStackFrame();
-        trace.popCallStackFrame();
+        trace.traceBlockBegin();
+        trace.traceBlockBegin();
+        trace.traceBlockEnd();
+        trace.traceBlockEnd();
         trace.close();
     }
 }

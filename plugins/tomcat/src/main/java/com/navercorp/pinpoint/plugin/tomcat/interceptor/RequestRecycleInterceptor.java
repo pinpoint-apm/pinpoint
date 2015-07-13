@@ -15,7 +15,7 @@
 package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
-import com.navercorp.pinpoint.bootstrap.context.TraceHeader;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
@@ -56,7 +56,7 @@ public class RequestRecycleInterceptor implements SimpleAroundInterceptor, Tomca
                 final Trace trace = traceAccessor.get(target);
                 if (trace != null && trace.canSampled()) {
                     // end of root span
-                    TraceHeader recorder = trace.getTraceHeader();
+                    SpanRecorder recorder = trace.getSpanRecorder();
                     recorder.markAfterTime();
                     trace.close();
                 }

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -52,7 +52,7 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Simpl
         }
         
         try {
-            final CallStackFrame recorder = trace.pushCallStackFrame();
+            final SpanEventRecorder recorder = trace.traceBlockBegin();
             doInBeforeTrace(recorder, target, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -69,7 +69,7 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Simpl
 
     }
 
-    protected abstract void doInBeforeTrace(final CallStackFrame recorder, final Object target, final Object[] args);
+    protected abstract void doInBeforeTrace(final SpanEventRecorder recorder, final Object target, final Object[] args);
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
@@ -84,14 +84,14 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Simpl
             return;
         }
         try {
-            final CallStackFrame recorder = trace.currentCallStackFrame();
+            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             doInAfterTrace(recorder, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("after error. Caused:{}", th.getMessage(), th);
             }
         } finally {
-            trace.popCallStackFrame();
+            trace.traceBlockEnd();
         }
     }
 
@@ -102,7 +102,7 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Simpl
     protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {
     }
 
-    protected abstract void doInAfterTrace(final CallStackFrame recorder, final Object target, final Object[] args, final Object result, Throwable throwable);
+    protected abstract void doInAfterTrace(final SpanEventRecorder recorder, final Object target, final Object[] args, final Object result, Throwable throwable);
 
     protected MethodDescriptor getMethodDescriptor() {
         return methodDescriptor;

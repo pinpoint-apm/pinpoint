@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.user.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
-import com.navercorp.pinpoint.bootstrap.context.TraceHeader;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceType;
@@ -64,16 +64,15 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
             if(isDebug) {
                 logger.debug("New trace and sampled {}", trace);
             }
-            TraceHeader recorder = trace.getTraceHeader();
+            SpanRecorder recorder = trace.getSpanRecorder();
             recordRootSpan(recorder);
         }
 
-        trace.pushCallStackFrame();
-        CallStackFrame recorder = trace.currentCallStackFrame();
+        SpanEventRecorder recorder = trace.traceBlockBegin();
         recorder.markBeforeTime();
     }
 
-    private void recordRootSpan(final TraceHeader recorder) {
+    private void recordRootSpan(final SpanRecorder recorder) {
         // root
         recorder.markBeforeTime();
         recorder.recordServiceType(ServiceType.STAND_ALONE);
@@ -92,15 +91,15 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
         }
 
         try {
-            CallStackFrame recorder = trace.currentCallStackFrame();
+            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
             recorder.recordServiceType(ServiceType.USER_INCLUDE);
             recorder.recordException(throwable);
             recorder.markAfterTime();
         } finally {
-            trace.popCallStackFrame();
+            trace.traceBlockEnd();
             if(trace.getTraceType() == TraceType.USER && trace.isRootStack()) {
-                TraceHeader recorder = trace.getTraceHeader();
+                SpanRecorder recorder = trace.getSpanRecorder();
                 recorder.markAfterTime();
                 trace.close();
                 traceContext.removeTraceObject();

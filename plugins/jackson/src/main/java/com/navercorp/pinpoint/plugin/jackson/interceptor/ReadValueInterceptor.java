@@ -16,7 +16,7 @@ package com.navercorp.pinpoint.plugin.jackson.interceptor;
 
 import java.io.File;
 
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -52,7 +52,7 @@ public class ReadValueInterceptor implements SimpleAroundInterceptor, JacksonCon
             return;
         }
 
-        CallStackFrame frame = trace.pushCallStackFrame();
+        SpanEventRecorder frame = trace.traceBlockBegin();
         frame.markBeforeTime();
         frame.recordServiceType(SERVICE_TYPE);
     }
@@ -69,20 +69,20 @@ public class ReadValueInterceptor implements SimpleAroundInterceptor, JacksonCon
         }
 
         try {
-            CallStackFrame frame = trace.currentCallStackFrame();
-            frame.recordApi(descriptor);
-            frame.recordException(throwable);
+            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            recorder.recordApi(descriptor);
+            recorder.recordException(throwable);
             if (args[0] instanceof String) {
-                frame.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((String) args[0]).length());
+                recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((String) args[0]).length());
             } else if (args[0] instanceof byte[]) {
-                frame.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte[]) args[0]).length);
+                recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte[]) args[0]).length);
             } else if (args[0] instanceof File) {
-                frame.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((File) args[0]).length());
+                recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((File) args[0]).length());
             }
 
-            frame.markAfterTime();
+            recorder.markAfterTime();
         } finally {
-            trace.popCallStackFrame();
+            trace.traceBlockEnd();
         }
     }
 }

@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
-import com.navercorp.pinpoint.bootstrap.context.TraceHeader;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.TraceType;
@@ -36,22 +36,22 @@ public class DisableTrace  implements Trace {
     }
 
     @Override
-    public CallStackFrame pushCallStackFrame() {
+    public SpanEventRecorder traceBlockBegin() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public CallStackFrame pushCallStackFrame(int stackId) {
+    public SpanEventRecorder traceBlockBegin(int stackId) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void popCallStackFrame() {
+    public void traceBlockEnd() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void popCallStackFrame(int stackId) {
+    public void traceBlockEnd(int stackId) {
         throw new UnsupportedOperationException();
     }
 
@@ -96,12 +96,12 @@ public class DisableTrace  implements Trace {
     }
 
     @Override
-    public TraceHeader getTraceHeader() {
+    public SpanRecorder getSpanRecorder() {
         return null;
     }
 
     @Override
-    public CallStackFrame currentCallStackFrame() {
+    public SpanEventRecorder currentSpanEventRecorder() {
         return null;
     }
 

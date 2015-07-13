@@ -25,11 +25,11 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
  * @author jaehong.kim
  *
  */
-public abstract class AbstractTraceRecorder {
+public abstract class AbstractRecorder {
 
     protected final TraceContext traceContext;
     
-    public AbstractTraceRecorder(final TraceContext traceContext) {
+    public AbstractRecorder(final TraceContext traceContext) {
         this.traceContext = traceContext;
     }
     

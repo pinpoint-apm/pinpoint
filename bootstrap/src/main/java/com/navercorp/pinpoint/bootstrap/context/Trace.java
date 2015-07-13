@@ -32,9 +32,9 @@ public interface Trace extends StackOperation {
 
     boolean isAsync();
     
-    TraceHeader getTraceHeader();
+    SpanRecorder getSpanRecorder();
     
-    CallStackFrame currentCallStackFrame();
+    SpanEventRecorder currentSpanEventRecorder();
     
     void close();
     

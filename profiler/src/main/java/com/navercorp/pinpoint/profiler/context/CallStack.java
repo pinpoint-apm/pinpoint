@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.profiler.context;
 
 import java.util.Arrays;
 
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
-
 /**
  * @author netspider
  * @author emeroad

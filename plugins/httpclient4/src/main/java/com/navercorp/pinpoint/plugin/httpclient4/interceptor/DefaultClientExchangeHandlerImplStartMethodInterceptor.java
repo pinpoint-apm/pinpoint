@@ -38,7 +38,7 @@ import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Header;
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -114,7 +114,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
             return;
         }
 
-        CallStackFrame recorder = trace.pushCallStackFrame();
+        SpanEventRecorder recorder = trace.traceBlockBegin();
         recorder.markBeforeTime();
 
         // set remote trace
@@ -196,7 +196,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
         }
 
         try {
-            CallStackFrame recorder = trace.currentCallStackFrame();
+            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             final HttpRequest httpRequest = getHttpRequest(target);
             if (httpRequest != null) {
                 // Accessing httpRequest here not before() because it can cause side effect.
@@ -213,7 +213,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
             recorder.recordException(throwable);
             recorder.markAfterTime();
         } finally {
-            trace.popCallStackFrame();
+            trace.traceBlockEnd();
         }
     }
 
@@ -242,7 +242,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
         return sb.toString();
     }
 
-    private void recordHttpRequest(CallStackFrame recorder, HttpRequest httpRequest, Throwable throwable) {
+    private void recordHttpRequest(SpanEventRecorder recorder, HttpRequest httpRequest, Throwable throwable) {
         final boolean isException = InterceptorUtils.isThrowable(throwable);
         if (cookie) {
             if (DumpType.ALWAYS == cookieDumpType) {
@@ -260,7 +260,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
         }
     }
 
-    protected void recordCookie(HttpMessage httpMessage, CallStackFrame recorder) {
+    protected void recordCookie(HttpMessage httpMessage, SpanEventRecorder recorder) {
         org.apache.http.Header[] cookies = httpMessage.getHeaders("Cookie");
         for (org.apache.http.Header header : cookies) {
             final String value = header.getValue();
@@ -276,7 +276,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
         }
     }
 
-    protected void recordEntity(HttpMessage httpMessage, CallStackFrame recorder) {
+    protected void recordEntity(HttpMessage httpMessage, SpanEventRecorder recorder) {
         if (httpMessage instanceof HttpEntityEnclosingRequest) {
             final HttpEntityEnclosingRequest entityRequest = (HttpEntityEnclosingRequest) httpMessage;
             try {

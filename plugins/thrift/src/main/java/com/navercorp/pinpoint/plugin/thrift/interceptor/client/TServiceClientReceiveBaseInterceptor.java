@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.plugin.thrift.interceptor.client;
 import org.apache.thrift.TBase;
 
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
@@ -42,13 +42,13 @@ public class TServiceClientReceiveBaseInterceptor extends SpanEventSimpleAroundI
     }
     
     @Override
-    protected void doInBeforeTrace(CallStackFrame recorder, Object target, Object[] args) {
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         recorder.markBeforeTime();
         recorder.recordServiceType(THRIFT_CLIENT_INTERNAL);
     }
     
     @Override
-    protected void doInAfterTrace(CallStackFrame recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(getMethodDescriptor());
         if (throwable == null && this.traceServiceResult) {
             if (args.length == 2 && (args[0] instanceof TBase)) {

@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.plugin.jdbc.common.interceptor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
@@ -41,12 +41,12 @@ public class TransactionSetAutoCommitInterceptor extends SpanEventSimpleAroundIn
     }
 
     @Override
-    public void doInBeforeTrace(CallStackFrame recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         recorder.markBeforeTime();
     }
 
     @Override
-    protected void doInAfterTrace(CallStackFrame recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         DatabaseInfo databaseInfo = databaseInfoAccessor.get(target, UnKnownDatabaseInfo.INSTANCE);
 
         recorder.recordServiceType(databaseInfo.getType());

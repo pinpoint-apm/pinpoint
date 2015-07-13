@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.bootstrap.interceptor;
 
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
-import com.navercorp.pinpoint.bootstrap.context.TraceHeader;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.TraceType;
@@ -65,22 +65,22 @@ public class MockTrace implements Trace {
     }
 
     @Override
-    public CallStackFrame pushCallStackFrame() {
+    public SpanEventRecorder traceBlockBegin() {
         return null;
     }
 
     @Override
-    public CallStackFrame pushCallStackFrame(int stackId) {
+    public SpanEventRecorder traceBlockBegin(int stackId) {
         return null;
     }
 
     @Override
-    public void popCallStackFrame() {
+    public void traceBlockEnd() {
 
     }
 
     @Override
-    public void popCallStackFrame(int stackId) {
+    public void traceBlockEnd(int stackId) {
 
     }
     
@@ -104,12 +104,12 @@ public class MockTrace implements Trace {
     }
 
     @Override
-    public TraceHeader getTraceHeader() {
+    public SpanRecorder getSpanRecorder() {
         return null;
     }
 
     @Override
-    public CallStackFrame currentCallStackFrame() {
+    public SpanEventRecorder currentSpanEventRecorder() {
         return null;
     }
 

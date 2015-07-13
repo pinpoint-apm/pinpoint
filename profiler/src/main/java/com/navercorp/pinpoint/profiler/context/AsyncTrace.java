@@ -1,15 +1,11 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
-import com.navercorp.pinpoint.bootstrap.context.TraceHeader;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.TraceType;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.ParsingResult;
 
 public class AsyncTrace implements Trace {
     private static final int BEGIN_STACKID = 1;
@@ -20,10 +16,10 @@ public class AsyncTrace implements Trace {
 
     public AsyncTrace(final Trace trace, final int asyncId, final short asyncSequence, final long startTime) {
         this.trace = trace;
-        this.trace.getTraceHeader().recordStartTime(startTime);
+        this.trace.getSpanRecorder().recordStartTime(startTime);
         this.asyncId = asyncId;
         this.asyncSequence = asyncSequence;
-        pushCallStackFrame(BEGIN_STACKID);
+        traceBlockBegin(BEGIN_STACKID);
     }
 
     public int getAsyncId() {
@@ -46,8 +42,8 @@ public class AsyncTrace implements Trace {
     }
 
     @Override
-    public CallStackFrame pushCallStackFrame() {
-        final CallStackFrame recorder = trace.pushCallStackFrame();
+    public SpanEventRecorder traceBlockBegin() {
+        final SpanEventRecorder recorder = trace.traceBlockBegin();
         recorder.recordAsyncId(asyncId);
         recorder.recordAsyncSequence(asyncSequence);
         
@@ -55,8 +51,8 @@ public class AsyncTrace implements Trace {
     }
 
     @Override
-    public CallStackFrame pushCallStackFrame(int stackId) {
-        final CallStackFrame recorder = trace.pushCallStackFrame(stackId);
+    public SpanEventRecorder traceBlockBegin(int stackId) {
+        final SpanEventRecorder recorder = trace.traceBlockBegin(stackId);
         recorder.recordAsyncId(asyncId);
         recorder.recordAsyncSequence(asyncSequence);
         
@@ -64,13 +60,13 @@ public class AsyncTrace implements Trace {
     }
 
     @Override
-    public void popCallStackFrame() {
-        trace.popCallStackFrame();
+    public void traceBlockEnd() {
+        trace.traceBlockEnd();
     }
 
     @Override
-    public void popCallStackFrame(int stackId) {
-        trace.popCallStackFrame(stackId);
+    public void traceBlockEnd(int stackId) {
+        trace.traceBlockEnd(stackId);
     }
 
     @Override
@@ -80,7 +76,6 @@ public class AsyncTrace implements Trace {
 
     @Override
     public boolean isRootStack() {
-        // TODO fix me
         return trace.getCallStackFrameId() == BEGIN_STACKID;
     }
 
@@ -91,18 +86,18 @@ public class AsyncTrace implements Trace {
 
     @Override
     public void close() {
-        popCallStackFrame(BEGIN_STACKID);
+        traceBlockEnd(BEGIN_STACKID);
         trace.close();
     }
 
     @Override
-    public TraceHeader getTraceHeader() {
-        return trace.getTraceHeader();
+    public SpanRecorder getSpanRecorder() {
+        return trace.getSpanRecorder();
     }
 
     @Override
-    public CallStackFrame currentCallStackFrame() {
-        return trace.currentCallStackFrame();
+    public SpanEventRecorder currentSpanEventRecorder() {
+        return trace.currentSpanEventRecorder();
     }
 
     @Override

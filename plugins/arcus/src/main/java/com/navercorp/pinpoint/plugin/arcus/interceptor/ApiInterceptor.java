@@ -23,7 +23,7 @@ import net.spy.memcached.ops.Operation;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
@@ -94,9 +94,8 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
         }
 
         try {
-            trace.pushCallStackFrame();
-            CallStackFrame frame = trace.currentCallStackFrame();
-            frame.markBeforeTime();
+            SpanEventRecorder recorder = trace.traceBlockBegin();
+            recorder.markBeforeTime();
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("before. Caused:{}", th.getMessage(), th);
@@ -115,14 +114,14 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
             return;
         }
         try {
-            final CallStackFrame frame = trace.currentCallStackFrame();
+            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             if (traceKey) {
                 final Object recordObject = args[keyIndex];
-                frame.recordApi(methodDescriptor, recordObject, keyIndex);
+                recorder.recordApi(methodDescriptor, recordObject, keyIndex);
             } else {
-                frame.recordApi(methodDescriptor);
+                recorder.recordApi(methodDescriptor);
             }
-            frame.recordException(throwable);
+            recorder.recordException(throwable);
 
             // find the target node
             if (result instanceof Future && operationAccessor.isApplicable(result)) {
@@ -134,7 +133,7 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
 
                     if (socketAddress instanceof InetSocketAddress) {
                         InetSocketAddress address = (InetSocketAddress) socketAddress;
-                        frame.recordEndPoint(address.getHostName() + ":" + address.getPort());
+                        recorder.recordEndPoint(address.getHostName() + ":" + address.getPort());
                     }
                 } else {
                     logger.info("operation not found");
@@ -145,15 +144,15 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
                 // determine the service type
                 String serviceCode = serviceCodeAccessor.get(target);
                 if (serviceCode != null) {
-                    frame.recordDestinationId(serviceCode);
-                    frame.recordServiceType(ARCUS);
+                    recorder.recordDestinationId(serviceCode);
+                    recorder.recordServiceType(ARCUS);
                 } else {
-                    frame.recordDestinationId("MEMCACHED");
-                    frame.recordServiceType(ServiceType.MEMCACHED);
+                    recorder.recordDestinationId("MEMCACHED");
+                    recorder.recordServiceType(ServiceType.MEMCACHED);
                 }
             } else {
-                frame.recordDestinationId("MEMCACHED");
-                frame.recordServiceType(ServiceType.MEMCACHED);
+                recorder.recordDestinationId("MEMCACHED");
+                recorder.recordServiceType(ServiceType.MEMCACHED);
             }
 
             try {
@@ -161,7 +160,7 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
                     // set asynchronous trace
                     this.traceContext.getAsyncId();
                     final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-                    frame.recordNextAsyncId(asyncTraceId.getAsyncId());
+                    recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
                     asyncTraceIdAccessor.set(result, asyncTraceId);
                     if (isDebug) {
                         logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
@@ -171,13 +170,13 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
                 logger.warn("Failed to before process. {}", t.getMessage(), t);
             }
 
-            frame.markAfterTime();
+            recorder.markAfterTime();
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("after error. Caused:{}", th.getMessage(), th);
             }
         } finally {
-            trace.popCallStackFrame();
+            trace.traceBlockEnd();
         }
     }
 

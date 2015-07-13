@@ -16,7 +16,7 @@ package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -38,13 +38,13 @@ public class AsyncContextImplDispatchMethodInterceptor extends SpanAsyncEventSim
     }
 
     @Override
-    protected void doInBeforeTrace(CallStackFrame recorder, AsyncTraceId asyncTraceId, Object target, Object[] args) {
+    protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncTraceId asyncTraceId, Object target, Object[] args) {
         recorder.markBeforeTime();
         recorder.recordServiceType(TOMCAT_METHOD);
     }
 
     @Override
-    protected void doInAfterTrace(CallStackFrame recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
         recorder.markAfterTime();

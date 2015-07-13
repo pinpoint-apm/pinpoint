@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
 
@@ -35,7 +35,7 @@ public class StatementExecuteQueryInterceptor extends SpanEventSimpleAroundInter
     }
 
     @Override
-    public void doInBeforeTrace(CallStackFrame recorder, final Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, final Object target, Object[] args) {
         recorder.markBeforeTime();
         /**
          * If method was not called by request handler, we skip tagging.
@@ -50,7 +50,7 @@ public class StatementExecuteQueryInterceptor extends SpanEventSimpleAroundInter
 
 
     @Override
-    public void doInAfterTrace(CallStackFrame recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
 
         recorder.recordApi(getMethodDescriptor());
         if (args.length > 0) {

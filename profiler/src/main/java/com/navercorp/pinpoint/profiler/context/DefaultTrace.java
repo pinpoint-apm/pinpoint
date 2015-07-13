@@ -20,8 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
-import com.navercorp.pinpoint.bootstrap.context.TraceHeader;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -36,7 +36,6 @@ import com.navercorp.pinpoint.profiler.context.storage.Storage;
  */
 public final class DefaultTrace implements Trace {
     private static final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
-    private static final boolean isDebug = logger.isDebugEnabled();
     private static final boolean isTrace = logger.isTraceEnabled();
 
     private short sequence;
@@ -54,8 +53,8 @@ public final class DefaultTrace implements Trace {
     // use for calculating depth of each Span.
     private int latestStackIndex = 0;
     private TraceType traceType = TraceType.DEFAULT;
-    private final WrappedCallStackFrame callStackFrame;
-    private final DefaultTraceHeader traceHeader;
+    private final WrappedSpanEventRecorder callStackFrame;
+    private final DefaultSpanRecorder traceHeader;
 
     public DefaultTrace(final TraceContext traceContext, long transactionId, boolean sampling) {
         if (traceContext == null) {
@@ -66,9 +65,9 @@ public final class DefaultTrace implements Trace {
         this.sampling = sampling;
 
         this.traceId.incrementTraceCount();
-        this.traceHeader = new DefaultTraceHeader(traceContext, traceId, sampling);
+        this.traceHeader = new DefaultSpanRecorder(traceContext, traceId, sampling);
         this.traceHeader.recordTraceId(traceId);
-        this.callStackFrame = new WrappedCallStackFrame(traceContext);
+        this.callStackFrame = new WrappedSpanEventRecorder(traceContext);
     }
 
     public DefaultTrace(TraceContext traceContext, TraceId continueTraceId, boolean sampling) {
@@ -83,9 +82,9 @@ public final class DefaultTrace implements Trace {
         this.sampling = sampling;
 
         this.traceId.incrementTraceCount();
-        this.traceHeader = new DefaultTraceHeader(traceContext, traceId, sampling);
+        this.traceHeader = new DefaultSpanRecorder(traceContext, traceId, sampling);
         this.traceHeader.recordTraceId(traceId);
-        this.callStackFrame = new WrappedCallStackFrame(traceContext);
+        this.callStackFrame = new WrappedSpanEventRecorder(traceContext);
     }
 
     public void setStorage(Storage storage) {
@@ -97,12 +96,12 @@ public final class DefaultTrace implements Trace {
     }
 
     @Override
-    public CallStackFrame pushCallStackFrame() {
-        return pushCallStackFrame(DEFAULT_STACKID);
+    public SpanEventRecorder traceBlockBegin() {
+        return traceBlockBegin(DEFAULT_STACKID);
     }
 
     @Override
-    public CallStackFrame pushCallStackFrame(final int stackId) {
+    public SpanEventRecorder traceBlockBegin(final int stackId) {
         final SpanEvent spanEvent = new SpanEvent(traceHeader.getSpan());
         // Set properties for the case when stackFrame is not used as part of Span.
         spanEvent.setStackId(stackId);
@@ -118,12 +117,12 @@ public final class DefaultTrace implements Trace {
     }
 
     @Override
-    public void popCallStackFrame() {
-        popCallStackFrame(DEFAULT_STACKID);
+    public void traceBlockEnd() {
+        traceBlockEnd(DEFAULT_STACKID);
     }
 
     @Override
-    public void popCallStackFrame(int stackId) {
+    public void traceBlockEnd(int stackId) {
         final SpanEvent spanEvent = callStack.pop();
         if (spanEvent == null) {
             if (logger.isWarnEnabled()) {
@@ -210,12 +209,12 @@ public final class DefaultTrace implements Trace {
     }
 
     @Override
-    public TraceHeader getTraceHeader() {
+    public SpanRecorder getSpanRecorder() {
         return traceHeader;
     }
 
     @Override
-    public CallStackFrame currentCallStackFrame() {
+    public SpanEventRecorder currentSpanEventRecorder() {
         final SpanEvent spanEvent = callStack.peek();
         if (spanEvent == null) {
             throw new PinpointException("not found SpanEvent stack");

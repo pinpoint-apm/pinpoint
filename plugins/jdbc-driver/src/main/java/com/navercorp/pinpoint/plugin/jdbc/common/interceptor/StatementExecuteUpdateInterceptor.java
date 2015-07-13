@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.plugin.jdbc.common.interceptor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
@@ -50,7 +50,7 @@ public class StatementExecuteUpdateInterceptor extends SpanEventSimpleAroundInte
     }
 
     @Override
-    public void doInBeforeTrace(CallStackFrame recorder, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
 
         recorder.markBeforeTime();
 
@@ -71,7 +71,7 @@ public class StatementExecuteUpdateInterceptor extends SpanEventSimpleAroundInte
 
 
     @Override
-    public void doInAfterTrace(CallStackFrame recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordException(throwable);
 
         // TODO need to find result, execution time

@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.plugin.gson.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -50,8 +50,8 @@ public class FromJsonInterceptor implements SimpleAroundInterceptor {
             return;
         }
 
-        CallStackFrame frame = trace.pushCallStackFrame();
-        frame.markBeforeTime();
+        SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.markBeforeTime();
     }
 
     @Override
@@ -66,18 +66,18 @@ public class FromJsonInterceptor implements SimpleAroundInterceptor {
         }
 
         try {
-            CallStackFrame frame = trace.currentCallStackFrame();
-            frame.recordServiceType(GsonPlugin.GSON_SERVICE_TYPE);
-            frame.recordApi(descriptor);
-            frame.recordException(throwable);
+            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            recorder.recordServiceType(GsonPlugin.GSON_SERVICE_TYPE);
+            recorder.recordApi(descriptor);
+            recorder.recordException(throwable);
 
             if (args.length >= 1 && args[0] instanceof String) {
-                frame.recordAttribute(GsonPlugin.GSON_ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
+                recorder.recordAttribute(GsonPlugin.GSON_ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
             }
 
-            frame.markAfterTime();
+            recorder.markAfterTime();
         } finally {
-            trace.popCallStackFrame();
+            trace.traceBlockEnd();
         }
     }
 }

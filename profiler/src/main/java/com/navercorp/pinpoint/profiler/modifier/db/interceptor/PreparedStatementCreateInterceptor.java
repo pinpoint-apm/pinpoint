@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
@@ -37,7 +37,7 @@ public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInt
     }
 
     @Override
-    public void doInBeforeTrace(CallStackFrame recorder, Object target, Object[] args)  {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args)  {
         recorder.markBeforeTime();
 
         final DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(target, UnKnownDatabaseInfo.INSTANCE);
@@ -76,7 +76,7 @@ public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInt
     }
 
     @Override
-    public void doInAfterTrace(CallStackFrame trace, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder trace, Object target, Object[] args, Object result, Throwable throwable) {
         if (result instanceof ParsingResultTraceValue) {
             ParsingResult parsingResult = ((ParsingResultTraceValue) result)._$PINPOINT$_getTraceParsingResult();
             trace.recordSqlParsingResult(parsingResult);

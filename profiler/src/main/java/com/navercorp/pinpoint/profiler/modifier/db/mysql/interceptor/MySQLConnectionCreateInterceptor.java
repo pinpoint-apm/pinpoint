@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.modifier.db.mysql.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
@@ -69,7 +69,7 @@ public class MySQLConnectionCreateInterceptor implements SimpleAroundInterceptor
             return;
         }
 
-        CallStackFrame recorder = trace.currentCallStackFrame();
+        SpanEventRecorder recorder = trace.currentSpanEventRecorder();
         // We must do this if current transaction is being recorded.
         if (databaseInfo != null) {
             recorder.recordServiceType(databaseInfo.getExecuteQueryType());

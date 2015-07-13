@@ -24,13 +24,13 @@ public interface StackOperation {
 
     public static final int ROOT_STACKID = 0;
 
-    CallStackFrame pushCallStackFrame();
+    SpanEventRecorder traceBlockBegin();
 
-    CallStackFrame pushCallStackFrame(int stackId);
+    SpanEventRecorder traceBlockBegin(int stackId);
 
-    void popCallStackFrame();
+    void traceBlockEnd();
 
-    void popCallStackFrame(int stackId);
+    void traceBlockEnd(int stackId);
 
     boolean isRootStack();
     

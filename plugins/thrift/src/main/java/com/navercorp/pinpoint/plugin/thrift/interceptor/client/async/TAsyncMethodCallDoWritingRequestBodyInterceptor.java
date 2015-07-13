@@ -20,7 +20,7 @@ import org.apache.thrift.async.TAsyncMethodCall;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -51,7 +51,7 @@ public class TAsyncMethodCallDoWritingRequestBodyInterceptor extends TAsyncMetho
     }
 
     @Override
-    protected void doInBeforeTrace(CallStackFrame recorder, Object target, Object[] args) {
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         super.doInBeforeTrace(recorder, target, args);
         
         Long nextSpanId = this.asyncNextSpanIdAccessor.get(target);
@@ -83,7 +83,7 @@ public class TAsyncMethodCallDoWritingRequestBodyInterceptor extends TAsyncMetho
             }
             
             if(trace.isAsync() && trace.isRootStack()) {
-                CallStackFrame recorder = trace.currentCallStackFrame();
+                SpanEventRecorder recorder = trace.currentSpanEventRecorder();
                 recorder.markAfterTime();
                 trace.close();
                 super.traceContext.removeTraceObject();

@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.plugin.json_lib.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -50,8 +50,8 @@ public class ToStringInterceptor implements SimpleAroundInterceptor {
             return;
         }
 
-        CallStackFrame frame = trace.pushCallStackFrame();
-        frame.markBeforeTime();
+        SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.markBeforeTime();
     }
 
     @Override
@@ -66,14 +66,14 @@ public class ToStringInterceptor implements SimpleAroundInterceptor {
         }
 
         try {
-            CallStackFrame frame = trace.currentCallStackFrame();
-            frame.recordServiceType(JsonLibConstants.SERVICE_TYPE);
-            frame.recordApi(descriptor);
-            frame.recordException(throwable);
-            frame.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) result).length());
-            frame.markAfterTime();
+            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            recorder.recordServiceType(JsonLibConstants.SERVICE_TYPE);
+            recorder.recordApi(descriptor);
+            recorder.recordException(throwable);
+            recorder.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) result).length());
+            recorder.markAfterTime();
         } finally {
-            trace.popCallStackFrame();
+            trace.traceBlockEnd();
         }
     }
 }

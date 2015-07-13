@@ -14,7 +14,7 @@
  */
 package com.navercorp.pinpoint.plugin.jackson.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.CallStackFrame;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -50,10 +50,10 @@ public class WriteValueAsStringInterceptor implements SimpleAroundInterceptor, J
             return;
         }
 
-        CallStackFrame frame = trace.pushCallStackFrame();
-        frame.markBeforeTime();
+        SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.markBeforeTime();
 
-        frame.recordServiceType(SERVICE_TYPE);
+        recorder.recordServiceType(SERVICE_TYPE);
     }
 
     @Override
@@ -67,13 +67,13 @@ public class WriteValueAsStringInterceptor implements SimpleAroundInterceptor, J
         }
 
         try {
-            CallStackFrame frame = trace.pushCallStackFrame();
-            frame.recordApi(descriptor);
-            frame.recordException(throwable);
-            frame.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((String) result).length());
-            frame.markAfterTime();
+            SpanEventRecorder recorder = trace.traceBlockBegin();
+            recorder.recordApi(descriptor);
+            recorder.recordException(throwable);
+            recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((String) result).length());
+            recorder.markAfterTime();
         } finally {
-            trace.popCallStackFrame();
+            trace.traceBlockEnd();
         }
     }
 }
