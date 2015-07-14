@@ -17,8 +17,8 @@
 	        this._sReadablePeriod = false;
 	        this._sQueryEndDateTime = false;
 	        
-	        this._nCallerRange = false;
-	        this._nCalleeRange = false;
+	        this._nCallerRange = 2;
+	        this._nCalleeRange = 2;
 	        
 	        this._sHint = false;
 	

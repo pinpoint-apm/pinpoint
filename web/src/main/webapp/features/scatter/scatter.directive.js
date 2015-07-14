@@ -94,7 +94,7 @@
                             sUrl: function (nFetchIndex) {
                                 return cfg.get.scatterData;
                             },
-                            htParam: function (nFetchIndex, htLastFetchParam, htLastFetchedData) {
+                            htParam: function (nFetchIndex, htLastFetchedData) {
                                 // calculate parameter
                                 var htData;
                                 if (nFetchIndex === 0) {
@@ -122,7 +122,7 @@
 
                                 return htData;
                             },
-                            nFetch: function (htLastFetchParam, htLastFetchedData) {
+                            nFetch: function (htLastFetchedData) {
                                 // -1 : stop, n = 0 : immediately, n > 0 : interval
                                 if (htLastFetchedData.resultFrom - 1 > from) {
                                     if (cfg.useIntervalForFetching) {
