@@ -47,24 +47,15 @@ public class ThriftSimpleServerIT extends EchoTestRunner<TSimpleServer> {
     protected EchoTestServer<TSimpleServer> createEchoServer() throws TTransportException {
         return SyncEchoTestServerFactory.simpleServer();
     }
-
+    
     @Test
-    public void testSynchronousRpcCall_verifyServerTraces() throws Exception {
+    public void testSynchronousRpcCall() throws Exception {
         // Given
         final String expectedMessage = "TEST_MESSAGE";
         // When
-        final String result = super.invokeEcho(TraceVerificationTarget.SERVER, expectedMessage);
+        final String result = super.invokeEcho(expectedMessage);
         // Then
         assertEquals(expectedMessage, result);
     }
 
-    @Test
-    public void testSynchronousRpcCall_verifyClientTraces() throws Exception {
-        // Given
-        final String expectedMessage = "TEST_MESSAGE";
-        // When
-        final String result = super.invokeEcho(TraceVerificationTarget.CLIENT, expectedMessage);
-        // Then
-        assertEquals(expectedMessage, result);
-    }
 }

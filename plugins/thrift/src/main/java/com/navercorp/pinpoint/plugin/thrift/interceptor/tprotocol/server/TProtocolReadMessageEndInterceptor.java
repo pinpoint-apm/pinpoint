@@ -198,8 +198,6 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
         if (!trace.isRoot()) {
             recordParentInfo(recorder, parentTraceInfo);
         }
-        // start spanEvent
-        trace.traceBlockBegin();
     }
 
     private boolean checkSamplingFlag(ThriftRequestProperty parentTraceInfo) {

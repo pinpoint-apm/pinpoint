@@ -67,49 +67,33 @@ public abstract class EchoTestRunner<T extends TServer> implements TestEnvironme
         SERVER_EXECUTOR.shutdown();
     }
     
-    protected String invokeEcho(TraceVerificationTarget verificationTarget, String message) throws Exception {
+    protected String invokeEcho(String message) throws Exception {
         final EchoTestClient echoClient = this.echoServer.getSynchronousClient();
-        String echo = invoke(echoClient, message);
-        verifyTraces(verificationTarget, false, echoClient, message);
-        return echo;
+        return invokeAndVerify(echoClient, message);
     }
     
-    protected String invokeEchoAsync(TraceVerificationTarget verificationTarget, String message) throws Exception {
+    protected String invokeEchoAsync(String message) throws Exception {
         final EchoTestClient echoClient = this.echoServer.getAsynchronousClient();
-        String echo = invoke(echoClient, message);
-        verifyTraces(verificationTarget, true, echoClient, message);
-        return echo;
+        return invokeAndVerify(echoClient, message);
     }
     
-    private String invoke(EchoTestClient echoClient, String message) throws Exception {
+    private String invokeAndVerify(EchoTestClient echoClient, String message) throws Exception {
         try {
             return echoClient.echo(message);
         } finally {
             echoClient.close();
             // give a chance to flush out span data
             Thread.sleep(500L);
-        }
-    }
-    
-    private void verifyTraces(TraceVerificationTarget verificationTarget, boolean isAsyncCall, EchoTestClient echoClient, String message) throws Exception {
-        switch (verificationTarget) {
-            case SERVER : 
-                this.verifier.ignoreServiceType("THRIFT_CLIENT");
-                this.verifier.ignoreServiceType("THRIFT_CLIENT_INTERNAL");
-                if (isAsyncCall) {
-                    this.verifier.ignoreServiceType("ASYNC");
-                }
-                this.echoServer.verifyTraces(this.verifier);
-                break;
-            case CLIENT : 
-                this.verifier.ignoreServiceType("THRIFT_SERVER");
-                this.verifier.ignoreServiceType("THRIFT_SERVER_INTERNAL");
-                echoClient.verifyTraces(this.verifier, message);
-                break;
-            default : throw new IllegalArgumentException("Invalid verificationTarget [" + verificationTarget + "]");
+            this.verifyTraces(echoClient, message);
         }
     }
     
     protected abstract EchoTestServer<T> createEchoServer() throws TTransportException;
+    
+    private void verifyTraces(EchoTestClient echoClient, String expectedMessage) throws Exception {
+        this.verifier.printCache(System.out);
+        echoClient.verifyTraces(this.verifier, expectedMessage);
+        this.echoServer.verifyTraces(this.verifier);
+    }
     
 }
