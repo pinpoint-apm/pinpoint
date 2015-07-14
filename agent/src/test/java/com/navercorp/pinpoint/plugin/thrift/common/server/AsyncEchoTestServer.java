@@ -47,10 +47,9 @@ public abstract class AsyncEchoTestServer<T extends AbstractNonblockingServer> e
     
     @Override
     public void verifyServerTraces(PluginTestVerifier verifier) throws Exception {
+        verifier.printCache();
         verifier.verifyTraceCount(2);
         Method process = TBaseAsyncProcessor.class.getDeclaredMethod("process", AsyncFrameBuffer.class);
-        // SpanEvent - TBaseAsyncProcessor.process
-        verifier.verifyTrace(event("THRIFT_SERVER_INTERNAL", process));
         // RootSpan
         verifier.verifyTrace(root(
                 "THRIFT_SERVER", // ServiceType,
@@ -59,6 +58,8 @@ public abstract class AsyncEchoTestServer<T extends AbstractNonblockingServer> e
                 null, // endPoint
                 null // remoteAddress
         ));
+        // SpanEvent - TBaseAsyncProcessor.process
+        verifier.verifyTrace(event("THRIFT_SERVER_INTERNAL", process));
         verifier.verifyTraceCount(0);
     }
 

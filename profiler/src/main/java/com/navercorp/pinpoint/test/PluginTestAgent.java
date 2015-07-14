@@ -33,6 +33,7 @@ import com.google.common.base.Objects;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
@@ -599,7 +600,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         
         List<TAnnotation> actualAnnotations = actual.getAnnotations();
         
-        int len = expected.annotations.length;
+        int len = expected.annotations == null ? 0 : expected.annotations.length;
         int actualLen = actualAnnotations == null ? 0 : actualAnnotations.size();
         
         if (actualLen != len) {
@@ -733,7 +734,8 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     @Override
     public void initialize(boolean createTraceObject) {
         if (createTraceObject) {
-            getTraceContext().newTraceObject();
+            Trace trace = getTraceContext().newTraceObject();
+            trace.getSpanRecorder().markBeforeTime();
         }
         
         getRecorder().clear();
@@ -744,6 +746,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     @Override
     public void cleanUp(boolean detachTraceObject) {
         if (detachTraceObject) {
+            getTraceContext().currentTraceObject().getSpanRecorder().markAfterTime();
             getTraceContext().removeTraceObject();
         }
 

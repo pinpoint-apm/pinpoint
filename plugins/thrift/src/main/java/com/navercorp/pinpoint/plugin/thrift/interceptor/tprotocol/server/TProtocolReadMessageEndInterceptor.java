@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server;
 
-import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.THRIFT_SERVER_SCOPE;
+import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.*;
 
 import org.apache.thrift.protocol.TProtocol;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
-import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanId;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
@@ -136,7 +135,7 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
         if (!trace.canSampled()) {
             return;
         }
-        SpanRecorder recorder = trace.getSpanRecorder();
+        SpanEventRecorder recorder = trace.traceBlockBegin();
         recorder.markBeforeTime();
         recorder.recordServiceType(THRIFT_SERVER_INTERNAL);
     }

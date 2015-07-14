@@ -38,7 +38,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  * @author Sungkook Kim
  */
 @RunWith(PinpointPluginTestSuite.class)
-@Dependency({"com.fasterxml.jackson.core:jackson-databind:[2.0.6],[2.1.5],[2.2.4],[2.3.4],[2.4.6.1],[2.5.4,)"})
+@Dependency({"com.fasterxml.jackson.core:jackson-databind:[2.0.6],[2.1.5],[2.2.4],[2.3.4],[2.4.6],[2.5.4,)"})
 public class ObjectMapperIT {
     
     /**
