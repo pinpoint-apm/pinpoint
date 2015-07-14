@@ -16,8 +16,7 @@ package com.navercorp.pinpoint.plugin.tomcat;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty.*;
 
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
@@ -133,13 +132,7 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
     private void addAsyncContextImpl(ProfilerPluginContext context) {
         ClassFileTransformerBuilder classBuilder = context.getClassFileTransformerBuilder("org.apache.catalina.core.AsyncContextImpl");
         classBuilder.injectMetadata(METADATA_ASYNC_TRACE_ID);
-        MethodTransformerBuilder startEditor = classBuilder.editMethods(new MethodFilter() {
-            @Override
-            public boolean filter(MethodInfo method) {
-                final String name = method.getName();
-                return !(name.equals("dispatch"));
-            }
-        });
+        MethodTransformerBuilder startEditor = classBuilder.editMethods(MethodFilters.name("dispatch"));
         startEditor.property(IGNORE_IF_NOT_EXIST);
         startEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.AsyncContextImplDispatchMethodInterceptor");
         context.addClassFileTransformer(classBuilder.build());

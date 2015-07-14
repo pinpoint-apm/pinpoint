@@ -16,8 +16,7 @@ package com.navercorp.pinpoint.plugin.arcus;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassConditions.*;
 
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -180,13 +179,7 @@ public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
         setOperationMethodBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureSetOperationInterceptor");
 
         // cancel, get, set
-        final MethodTransformerBuilder methodBuilder = builder.editMethods(new MethodFilter() {
-            @Override
-            public boolean filter(MethodInfo method) {
-                final String name = method.getName();
-                return !(name.equals("cancel") || name.equals("get") || name.equals("set") || name.equals("signalComplete"));
-            }
-        });
+        final MethodTransformerBuilder methodBuilder = builder.editMethods(MethodFilters.name("cancel", "get", "set", "signalComplete"));
         methodBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
         methodBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureGetInterceptor");
     }
@@ -245,13 +238,8 @@ public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
         builder.injectMetadata(ArcusConstants.METADATA_ASYNC_TRACE_ID);
 
         // cancel, get
-        final MethodTransformerBuilder methodBuilder = builder.editMethods(new MethodFilter() {
-            @Override
-            public boolean filter(MethodInfo method) {
-                final String name = method.getName();
-                return !(name.equals("cancel") || name.equals("get"));
-            }
-        });
+        final MethodTransformerBuilder methodBuilder = builder.editMethods(MethodFilters.name("cancel", "get"));
+
         methodBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
         methodBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureInternalMethodInterceptor");
     }
