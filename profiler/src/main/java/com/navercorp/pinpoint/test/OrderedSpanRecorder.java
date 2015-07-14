@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.profiler.context.SpanEvent;
  * @author Jongho Moon
  */
 public class OrderedSpanRecorder implements ListenableDataSender.Listener, Iterable<TBase<?, ?>> {
+    private static final int ROOT_SEQUENCE = -1;
     private static final int ASYNC_ID_NOT_SET = -1;
 
     private final List<Item> list = new ArrayList<Item>();
@@ -121,7 +122,7 @@ public class OrderedSpanRecorder implements ListenableDataSender.Listener, Itera
         long startTime = span.getStartTime();
         long spanId = span.getSpanId();
 
-        insertItem(new Item(span, startTime, spanId, -1));
+        insertItem(new Item(span, startTime, spanId, ROOT_SEQUENCE));
     }
     
     private void insertItem(Item item) {
