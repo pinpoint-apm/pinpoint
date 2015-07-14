@@ -46,14 +46,14 @@ public class BeanMethodModifier implements Modifier {
                 AccessFlag.PROTECTED | AccessFlag.SYNTHETIC | AccessFlag.STATIC;
 
         @Override
-        public boolean filter(MethodInfo ctMethod) {
+        public boolean accept(MethodInfo ctMethod) {
             if (ctMethod.isConstructor()) {
-                return false;
+                return REJECT;
             }
 
             int access = ctMethod.getModifiers();
 
-            return ((access & REQUIRED_ACCESS_FLAG) == 0) || ((access & REJECTED_ACCESS_FLAG) != 0);
+            return ((access & REQUIRED_ACCESS_FLAG) == REQUIRED_ACCESS_FLAG) && ((access & REJECTED_ACCESS_FLAG) == 0);
         }
     };
 

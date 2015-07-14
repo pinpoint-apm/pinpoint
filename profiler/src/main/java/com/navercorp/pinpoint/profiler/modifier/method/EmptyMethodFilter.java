@@ -26,7 +26,7 @@ public class EmptyMethodFilter implements MethodFilter {
     public static final MethodFilter FILTER = new EmptyMethodFilter();
 
     @Override
-    public boolean filter(MethodInfo ctMethod) {
-        return false;//ctMethod.isEmpty();
+    public boolean accept(MethodInfo ctMethod) {
+        return ACCEPT;//ctMethod.isEmpty();
     }
 }

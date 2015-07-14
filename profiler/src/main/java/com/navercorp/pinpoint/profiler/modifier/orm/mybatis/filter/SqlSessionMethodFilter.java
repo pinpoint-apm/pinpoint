@@ -27,10 +27,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
  * @author Hyun Jeong
  */
 public class SqlSessionMethodFilter implements MethodFilter {
-
-    private static final boolean TRACK = false;
-    private static final boolean DO_NOT_TRACK = true;
-
     private static final Set<String> WHITE_LIST_API = createWhiteListApi();
 
     private static Set<String> createWhiteListApi() {
@@ -53,11 +49,11 @@ public class SqlSessionMethodFilter implements MethodFilter {
     }
 
     @Override
-    public boolean filter(MethodInfo ctMethod) {
+    public boolean accept(MethodInfo ctMethod) {
         if (WHITE_LIST_API.contains(ctMethod.getName())) {
-            return TRACK;
+            return ACCEPT;
         }
-        return DO_NOT_TRACK;
+        return REJECT;
     }
 
 }
