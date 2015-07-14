@@ -70,7 +70,11 @@ public class WriteValueAsStringInterceptor implements SimpleAroundInterceptor, J
             SpanEventRecorder recorder = trace.traceBlockBegin();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
-            recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((String) result).length());
+            
+            if (result != null) {
+                recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((String) result).length());
+            }
+            
             recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();

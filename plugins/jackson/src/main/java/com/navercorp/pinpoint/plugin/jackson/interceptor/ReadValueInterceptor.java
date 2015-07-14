@@ -72,12 +72,17 @@ public class ReadValueInterceptor implements SimpleAroundInterceptor, JacksonCon
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
-            if (args[0] instanceof String) {
-                recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((String) args[0]).length());
-            } else if (args[0] instanceof byte[]) {
-                recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte[]) args[0]).length);
-            } else if (args[0] instanceof File) {
-                recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((File) args[0]).length());
+            
+            Object arg = args[0];
+            
+            if (arg != null) {
+                if (arg instanceof String) {
+                    recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((String) arg).length());
+                } else if (arg instanceof byte[]) {
+                    recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte[]) arg).length);
+                } else if (arg instanceof File) {
+                    recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((File) arg).length());
+                }
             }
 
             recorder.markAfterTime();
