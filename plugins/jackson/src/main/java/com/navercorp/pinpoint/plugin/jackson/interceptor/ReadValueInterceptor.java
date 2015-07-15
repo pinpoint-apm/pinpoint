@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.plugin.jackson.interceptor;
 
 import java.io.File;
 
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -51,10 +52,9 @@ public class ReadValueInterceptor implements SimpleAroundInterceptor, JacksonCon
             return;
         }
 
-        trace.traceBlockBegin();
-        trace.markBeforeTime();
-
-        trace.recordServiceType(SERVICE_TYPE);
+        SpanEventRecorder frame = trace.traceBlockBegin();
+        frame.markBeforeTime();
+        frame.recordServiceType(SERVICE_TYPE);
     }
 
     @Override
@@ -69,17 +69,23 @@ public class ReadValueInterceptor implements SimpleAroundInterceptor, JacksonCon
         }
 
         try {
-            trace.recordApi(descriptor);
-            trace.recordException(throwable);
-            if (args[0] instanceof String) {
-                trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((String) args[0]).length());
-            } else if (args[0] instanceof byte[]) {
-                trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte[]) args[0]).length);
-            } else if (args[0] instanceof File) {
-                trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((File) args[0]).length());
+            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            recorder.recordApi(descriptor);
+            recorder.recordException(throwable);
+            
+            Object arg = args[0];
+            
+            if (arg != null) {
+                if (arg instanceof String) {
+                    recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((String) arg).length());
+                } else if (arg instanceof byte[]) {
+                    recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte[]) arg).length);
+                } else if (arg instanceof File) {
+                    recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((File) arg).length());
+                }
             }
 
-            trace.markAfterTime();
+            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

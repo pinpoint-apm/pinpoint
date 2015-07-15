@@ -24,6 +24,8 @@ import org.apache.thrift.TBaseProcessor;
 import org.apache.thrift.protocol.TProtocol;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -121,11 +123,12 @@ public class TBaseProcessorProcessInterceptor implements SimpleAroundInterceptor
     private void processTraceObject(final Trace trace, Object target, Object[] args, Throwable throwable) {
         // end spanEvent
         try {
+            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             // TODO Might need a way to collect and record method arguments
             // trace.recordAttribute(...);
-            trace.recordException(throwable);
-            trace.recordApi(this.descriptor);
-            trace.markAfterTime();
+            recorder.recordException(throwable);
+            recorder.recordApi(this.descriptor);
+            recorder.markAfterTime();
         } catch (Throwable t) {
             logger.warn("Error processing trace object. Cause:{}", t.getMessage(), t);
         } finally {
@@ -133,8 +136,9 @@ public class TBaseProcessorProcessInterceptor implements SimpleAroundInterceptor
         }
         
         // end root span
+        SpanRecorder recorder = trace.getSpanRecorder();
         String methodUri = getMethodUri(target);
-        trace.recordRpcName(methodUri);
+        recorder.recordRpcName(methodUri);
         // retrieve connection information
         String localIpPort = UNKNOWN_ADDRESS;
         String remoteAddress = UNKNOWN_ADDRESS;
@@ -149,12 +153,12 @@ public class TBaseProcessorProcessInterceptor implements SimpleAroundInterceptor
             }
         }
         if (localIpPort != UNKNOWN_ADDRESS) {
-            trace.recordEndPoint(localIpPort);
+            recorder.recordEndPoint(localIpPort);
         }
         if (remoteAddress != UNKNOWN_ADDRESS) {
-            trace.recordRemoteAddress(remoteAddress);
+            recorder.recordRemoteAddress(remoteAddress);
         }
-        trace.markAfterTime();
+        recorder.markAfterTime();
     }
     
     private String getMethodUri(Object target) {

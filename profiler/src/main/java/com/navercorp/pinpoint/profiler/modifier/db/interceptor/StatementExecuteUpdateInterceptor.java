@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
 
@@ -34,32 +35,32 @@ public class StatementExecuteUpdateInterceptor extends SpanEventSimpleAroundInte
     }
 
     @Override
-    public void doInBeforeTrace(RecordableTrace trace, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
 
-        trace.markBeforeTime();
+        recorder.markBeforeTime();
 
         DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(target, UnKnownDatabaseInfo.INSTANCE);
 
-        trace.recordServiceType(databaseInfo.getExecuteQueryType());
-        trace.recordEndPoint(databaseInfo.getMultipleHost());
-        trace.recordDestinationId(databaseInfo.getDatabaseId());
+        recorder.recordServiceType(databaseInfo.getExecuteQueryType());
+        recorder.recordEndPoint(databaseInfo.getMultipleHost());
+        recorder.recordDestinationId(databaseInfo.getDatabaseId());
 
-        trace.recordApi(getMethodDescriptor());
+        recorder.recordApi(getMethodDescriptor());
         if (args != null && args.length > 0) {
             Object arg = args[0];
             if (arg instanceof String) {
-                trace.recordSqlInfo((String) arg);
+                recorder.recordSqlInfo((String) arg);
             }
         }
     }
 
 
     @Override
-    public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
-        trace.recordException(throwable);
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordException(throwable);
 
         // TODO need to find result, execution time
-        trace.markAfterTime();
+        recorder.markAfterTime();
     }
 
 }

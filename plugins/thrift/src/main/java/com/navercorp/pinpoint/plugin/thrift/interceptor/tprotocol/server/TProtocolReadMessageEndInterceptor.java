@@ -16,13 +16,14 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server;
 
-import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.THRIFT_SERVER_SCOPE;
+import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.*;
 
 import org.apache.thrift.protocol.TProtocol;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
-import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanId;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -134,8 +135,9 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
         if (!trace.canSampled()) {
             return;
         }
-        trace.markBeforeTime();
-        trace.recordServiceType(THRIFT_SERVER_INTERNAL);
+        SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.markBeforeTime();
+        recorder.recordServiceType(THRIFT_SERVER_INTERNAL);
     }
 
     private Trace createTrace(ThriftRequestProperty parentTraceInfo, String methodName) {
@@ -189,14 +191,13 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
     
     private void recordRootSpan(final Trace trace, final ThriftRequestProperty parentTraceInfo) {
         // begin root span
-        trace.markBeforeTime();
-        trace.recordServiceType(THRIFT_SERVER);
-        trace.recordApi(this.thriftServerEntryMethodDescriptor);
+        SpanRecorder recorder = trace.getSpanRecorder();
+        recorder.markBeforeTime();
+        recorder.recordServiceType(THRIFT_SERVER);
+        recorder.recordApi(this.thriftServerEntryMethodDescriptor);
         if (!trace.isRoot()) {
-            recordParentInfo(trace, parentTraceInfo);
+            recordParentInfo(recorder, parentTraceInfo);
         }
-        // start spanEvent
-        trace.traceBlockBegin();
     }
 
     private boolean checkSamplingFlag(ThriftRequestProperty parentTraceInfo) {
@@ -227,15 +228,15 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
         return this.traceContext.createTraceId(transactionId, parentSpanId, spanId, flags);
     }
     
-    private void recordParentInfo(RecordableTrace trace, ThriftRequestProperty parentTraceInfo) {
+    private void recordParentInfo(SpanRecorder recorder, ThriftRequestProperty parentTraceInfo) {
         if (parentTraceInfo == null) {
             return;
         }
         final String parentApplicationName = parentTraceInfo.getParentApplicationName();
         final short parentApplicationType = parentTraceInfo.getParentApplicationType(ServiceType.UNDEFINED.getCode());
         final String acceptorHost = parentTraceInfo.getAcceptorHost();
-        trace.recordParentApplication(parentApplicationName, parentApplicationType);
-        trace.recordAcceptorHost(acceptorHost);
+        recorder.recordParentApplication(parentApplicationName, parentApplicationType);
+        recorder.recordAcceptorHost(acceptorHost);
     }
     
 }

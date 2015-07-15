@@ -42,6 +42,14 @@
             <artifactId>pinpoint-plugins</artifactId>
             <type>pom</type>
         </dependency>
+        
+        <!-- for test -->        
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-profiler</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>

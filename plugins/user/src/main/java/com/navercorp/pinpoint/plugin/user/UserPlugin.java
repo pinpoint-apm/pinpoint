@@ -15,8 +15,7 @@
  */
 package com.navercorp.pinpoint.plugin.user;
 
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -53,13 +52,7 @@ public class UserPlugin implements ProfilerPlugin, UserConstants {
         final String className = toClassName(fullQualifiedMethodName);
         final String methodName = toMethodName(fullQualifiedMethodName);
         final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder(className);
-        MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethods(new MethodFilter() {
-            @Override
-            public boolean filter(MethodInfo method) {
-                final String name = method.getName();
-                return !name.equals(methodName);
-            }
-        });
+        MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethods(MethodFilters.name(methodName));
         methodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
         methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.user.interceptor.UserIncludeMethodInterceptor");
         context.addClassFileTransformer(classEditorBuilder.build());

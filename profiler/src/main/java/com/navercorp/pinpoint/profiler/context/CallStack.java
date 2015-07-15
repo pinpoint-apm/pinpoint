@@ -16,142 +16,80 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.exception.PinpointException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Arrays;
 
 /**
  * @author netspider
  * @author emeroad
+ * @author jaehong.kim
  */
 public class CallStack {
-
-    private static final Logger logger = LoggerFactory.getLogger(CallStack.class);
-
     private static final int STACK_SIZE = 8;
+    private static final int DEFAULT_INDEX = 0;
 
-    private final Span span;
+    private SpanEvent[] stack = new SpanEvent[STACK_SIZE];
+
+    private int index = DEFAULT_INDEX;
     
-    private StackFrame[] stack = new StackFrame[STACK_SIZE];
-
-
-    private int index = -1;
-
-    public CallStack(Span span) {
-        if (span == null) {
-            throw new NullPointerException("span  must not be null");
-        }
-        this.span = span;
-    }
-
-    public Span getSpan() {
-        return span;
-    }
-
     public int getIndex() {
-       return index;
+        return index;
     }
 
-
-    public StackFrame getCurrentStackFrame() {
-        return stack[index];
-    }
-
-    public StackFrame getParentStackFrame() {
-        if (index > 0) {
-            return stack[index - 1];
-        }
-        return null;
-    }
-
-    public void setStackFrame(StackFrame stackFrame) {
-        if (stackFrame == null) {
-            throw new NullPointerException("stackFrame must not be null");
-        }
-        stack[index] = stackFrame;
-    }
-
-    public int push() {
+    public int push(final SpanEvent spanEvent) {
         checkExtend(index + 1);
-        return ++index;
+        stack[index++] = spanEvent;
+
+        return index;
     }
 
-    private void checkExtend(final int index) {
-        final StackFrame[] originalStack = this.stack;
-        if (index >= originalStack.length) {
+    private void checkExtend(final int size) {
+        final SpanEvent[] originalStack = this.stack;
+        if (size >= originalStack.length) {
             final int copyStackSize = originalStack.length << 1;
-            final StackFrame[] copyStack = new StackFrame[copyStackSize];
+            final SpanEvent[] copyStack = new SpanEvent[copyStackSize];
             System.arraycopy(originalStack, 0, copyStack, 0, originalStack.length);
             this.stack = copyStack;
         }
     }
 
-    public int getStackFrameIndex() {
-        return index;
-    }
-
-    public void popRoot() {
-        pop("popRoot");
-        // check empty root index
-        if (index != -1) {
-            PinpointException ex = createStackException("invalid root stack found", this.index);
-            throw ex;
+    public SpanEvent pop() {
+        final SpanEvent spanEvent = peek();
+        if (spanEvent != null) {
+            stack[index - 1] = null;
+            index--;
         }
+
+        return spanEvent;
     }
 
-    public StackFrame pop() {
-        pop("pop");
-        if (index == -1) {
+    public SpanEvent peek() {
+        if (index == DEFAULT_INDEX) {
             return null;
-        } else {
-            return getCurrentStackFrame();
         }
+
+        return stack[index - 1];
     }
 
-    private void pop(String stackApiPoint) {
-        final int currentIndex = this.index;
-        final StackFrame[] currentStack = this.stack;
-        if (currentIndex >= 0) {
-            currentStack[currentIndex] = null;
-            this.index = currentIndex - 1;
-        } else {
-            PinpointException ex = createStackException(stackApiPoint, this.index);
-            throw ex;
-        }
+    public boolean empty() {
+        return index == DEFAULT_INDEX;
     }
-
-
-    private PinpointException createStackException(String stackApiPoint, final int index) {
-        final PinpointException ex = new PinpointException("Profiler CallStack check. index:" + index + " stackApiPoint:" + stackApiPoint);
-        if (logger.isWarnEnabled()) {
-            // need to dump stack.
-            logger.warn("invalid callStack found stack dump:{}", this, ex);
-        }
-        return ex;
-    }
-
-
-    public void currentStackFrameClear() {
-        stack[index] = null;
-    }
-
-    public StackFrame[] copyStackFrame() {
+    
+    public SpanEvent[] copyStackFrame() {
         // without synchronization arraycopy, last index is null reference
-        final StackFrame[] currentStack = this.stack;
-        final StackFrame[] copyStack = new StackFrame[currentStack.length];
+        final SpanEvent[] currentStack = this.stack;
+        final SpanEvent[] copyStack = new SpanEvent[currentStack.length];
         System.arraycopy(currentStack, 0, copyStack, 0, currentStack.length);
         return copyStack;
     }
 
     @Override
     public String toString() {
-        final StackFrame[] stack = this.stack;
-        return "CallStack{" +
-                "stack=" + (stack == null ? null : Arrays.toString(stack)) +
-                ", index=" + index +
-                '}';
+        StringBuilder builder = new StringBuilder();
+        builder.append("{stack=");
+        builder.append(Arrays.toString(stack));
+        builder.append(", index=");
+        builder.append(index);
+        builder.append("}");
+        return builder.toString();
     }
 }

@@ -16,10 +16,27 @@
 
 package com.navercorp.pinpoint.bootstrap.context;
 
+
 /**
  * @author emeroad
  */
-public interface Trace extends RecordableTrace, StackOperation {
+public interface Trace extends StackOperation {
+    
+    TraceId getTraceId();
+    
+    AsyncTraceId getAsyncTraceId();
 
+    boolean canSampled();
+
+    boolean isRoot();
+
+    boolean isAsync();
+    
+    SpanRecorder getSpanRecorder();
+    
+    SpanEventRecorder currentSpanEventRecorder();
+    
     void close();
+    
+    TraceType getTraceType();
 }

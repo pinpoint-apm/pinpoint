@@ -22,6 +22,7 @@ import java.net.SocketAddress;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -96,14 +97,14 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
                 }
                 parentTraceInfo.setShouldSample(shouldSample);
             } else {
-                trace.traceBlockBegin();
-                trace.markBeforeTime();
+                SpanEventRecorder recorder = trace.traceBlockBegin();
+                recorder.markBeforeTime();
                 
                 Object asyncMethodCallObj = args[0];
                 // inject async trace info to AsyncMethodCall object
                 final AsyncTraceId asyncTraceId = injectAsyncTraceId(asyncMethodCallObj, trace);
                 
-                trace.recordServiceType(THRIFT_CLIENT_INTERNAL);
+                recorder.recordServiceType(THRIFT_CLIENT_INTERNAL);
                 
                 // retrieve connection information
                 String remoteAddress = getRemoteAddress(asyncMethodCallObj);
@@ -144,9 +145,10 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
         }
         
         try {
-            trace.recordApi(this.descriptor);
-            trace.recordException(throwable);
-            trace.markAfterTime();
+            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            recorder.recordApi(this.descriptor);
+            recorder.recordException(throwable);
+            recorder.markAfterTime();
             
         } catch (Throwable t) {
             logger.warn("after error. Caused:{}", t.getMessage(), t);
@@ -194,7 +196,8 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
     
     private AsyncTraceId injectAsyncTraceId(final Object asyncMethodCallObj, final Trace trace) {
         final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-        trace.recordNextAsyncId(asyncTraceId.getAsyncId());
+        SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+        recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
         this.asyncTraceIdAccessor.set(asyncMethodCallObj, asyncTraceId);
         if (isDebug) {
             logger.debug("Set asyncTraceId metadata {}", asyncTraceId);

@@ -83,14 +83,14 @@ public class FilteringMethodTransformer implements MethodTransformer {
         }
 
         @Override
-        public boolean filter(MethodInfo method) {
+        public boolean accept(MethodInfo method) {
             for (MethodFilter filter : filters) {
-                if (filter.filter(method)) {
-                    return true;
+                if (!filter.accept(method)) {
+                    return REJECT;
                 }
             }
             
-            return false;
+            return ACCEPT;
         }
     }
 }

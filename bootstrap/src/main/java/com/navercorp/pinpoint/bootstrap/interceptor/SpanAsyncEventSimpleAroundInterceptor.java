@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.bootstrap.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
@@ -48,13 +49,13 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
             if(isDebug) {
                 logger.debug("Continue async trace. {}", asyncTraceId);
             }
-            
+
             traceFirstBlockBegin(trace);
         }
 
         try {
-            trace.traceBlockBegin();
-            doInBeforeTrace(trace, asyncTraceId, target, args);
+            final SpanEventRecorder recorder = trace.traceBlockBegin();
+            doInBeforeTrace(recorder, asyncTraceId, target, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("before. Caused:{}", th.getMessage(), th);
@@ -64,17 +65,14 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
 
     private void traceFirstBlockBegin(final Trace trace) {
         // first block
-        trace.markBeforeTime();
-        trace.recordServiceType(ServiceType.ASYNC);
-        trace.recordApi(asyncMethodDescriptor);
+        final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+        recorder.markBeforeTime();
+        recorder.recordServiceType(ServiceType.ASYNC);
+        recorder.recordApi(asyncMethodDescriptor);
     }
     
-    private void traceFirstBlockEnd(final Trace trace) {
-        // first block
-        trace.markAfterTime();
-    }
 
-    protected abstract void doInBeforeTrace(Trace trace, AsyncTraceId asyncTraceId, Object target, Object[] args);
+    protected abstract void doInBeforeTrace(SpanEventRecorder recorder, AsyncTraceId asyncTraceId, Object target, Object[] args);
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
@@ -93,7 +91,8 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
         }
 
         try {
-            doInAfterTrace(trace, target, args, result, throwable);
+            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            doInAfterTrace(recorder, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("after error. Caused:{}", th.getMessage(), th);
@@ -112,7 +111,13 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
         }
     }
 
-    protected abstract void doInAfterTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable);
+    private void traceFirstBlockEnd(final Trace trace) {
+        // first block
+        final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+        recorder.markAfterTime();
+    }
+
+    protected abstract void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable);
 
     public class AsyncMethodDescriptor implements MethodDescriptor {
 

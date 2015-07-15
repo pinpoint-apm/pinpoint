@@ -21,6 +21,7 @@ import java.net.URL;
 
 import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -93,11 +94,11 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
 
         group.getCurrentInvocation().setAttachment(TRACE_BLOCK_BEGIN_MARKER);
         
-        trace.traceBlockBegin();
-        trace.markBeforeTime();
+        SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.markBeforeTime();
 
         TraceId nextId = trace.getTraceId().getNextTraceId();
-        trace.recordNextSpanId(nextId.getSpanId());
+        recorder.recordNextSpanId(nextId.getSpanId());
 
         final URL url = request.getURL();
         final String host = url.getHost();
@@ -114,14 +115,14 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
             request.setRequestProperty(Header.HTTP_HOST.toString(), host);
         }
 
-        trace.recordServiceType(SERVICE_TYPE);
+        recorder.recordServiceType(SERVICE_TYPE);
 
         // TODO How to represent protocol?
         String endpoint = getEndpoint(host, port);
         
         // Don't record end point because it's same with destination id.
-        trace.recordDestinationId(endpoint);
-        trace.recordAttribute(AnnotationKey.HTTP_URL, url.toString());
+        recorder.recordDestinationId(endpoint);
+        recorder.recordAttribute(AnnotationKey.HTTP_URL, url.toString());
     }
 
     private String getEndpoint(String host, int port) {
@@ -154,10 +155,11 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
         }
 
         try {
-            trace.recordApi(descriptor);
-            trace.recordException(throwable);
+            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            recorder.recordApi(descriptor);
+            recorder.recordException(throwable);
 
-            trace.markAfterTime();
+            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

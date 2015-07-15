@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import com.navercorp.pinpoint.thrift.io.*;
+
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +87,8 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
 
             byte version = requestBuffer.get();
             int chunkSize = 0xff & requestBuffer.get();
-
+            SocketAddress socketAddress = packet.getSocketAddress();
+            
             try {
                 for (int i = 0; i < chunkSize; i++) {
                     byte[] componentData = getComponentData(requestBuffer, deserializer);
@@ -100,6 +102,12 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
                     if (tbaseList == null || tbaseList.size() == 0) {
                         continue;
                     }
+                    
+                    if (tbaseList.size() == 1) {
+                        if (filter.filter(tbaseList.get(0), socketAddress) == TBaseFilter.BREAK) {
+                            continue;
+                        }
+                    }
 
                     List<TSpanEvent> spanEventList = getSpanEventList(tbaseList);
 
@@ -109,10 +117,6 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
                     } else if (tBase instanceof TSpanChunk) {
                         ((TSpanChunk) tBase).setSpanEventList(spanEventList);
                     }
-//                    TODO
-//                    if (filter.filter(tBase, packet.getSocketAddress()) == TBaseFilter.BREAK) {
-//                        continue;
-//                    };
 
                     dispatchHandler.dispatchRequestMessage(tBase);
                 }
@@ -148,7 +152,7 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
         int spanEventListSize = tbaseList.size() - 1;
         List<TSpanEvent> spanEventList = new ArrayList<TSpanEvent>(spanEventListSize);
         for (int i = 0; i < spanEventListSize; i++) {
-            TBase<?, ?> tBase = spanEventList.get(i);
+            TBase<?, ?> tBase = tbaseList.get(i);
             if (tBase instanceof TSpanEvent) {
                 spanEventList.add((TSpanEvent) tBase);
             }

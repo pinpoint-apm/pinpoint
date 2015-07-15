@@ -57,20 +57,20 @@ public class PreparedStatementBindingMethodFilter implements MethodFilter {
     
 
     @Override
-    public boolean filter(MethodInfo method) {
+    public boolean accept(MethodInfo method) {
         List<String[]> paramTypes = targets.get(method.getName());
         
         if (paramTypes == null) {
-            return true;
+            return REJECT;
         }
         
         for (String[] types : paramTypes) {
             if (Arrays.deepEquals(types, method.getParameterTypes())) {
-                return false;
+                return ACCEPT;
             }
         }
 
-        return true;
+        return REJECT;
     }
 
 }

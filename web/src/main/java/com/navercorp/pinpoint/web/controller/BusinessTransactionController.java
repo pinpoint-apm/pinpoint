@@ -192,13 +192,10 @@ public class BusinessTransactionController {
         mv.addObject("completeState", spanResult.getCompleteTypeString());
         
         mv.addObject("logLinkEnable", logLinkEnable);
-
-        if (logLinkEnable) {
-            mv.addObject("loggingTransactionInfo", recordSet.isLoggingTransactionInfo());
-            mv.addObject("logButtonName", logButtonName);
-            mv.addObject("logPageUrl", logPageUrl);
-            mv.addObject("disableButtonMessage", disableButtonMessage);
-        }
+        mv.addObject("loggingTransactionInfo", recordSet.isLoggingTransactionInfo());
+        mv.addObject("logButtonName", logButtonName);
+        mv.addObject("logPageUrl", logPageUrl);
+        mv.addObject("disableButtonMessage", disableButtonMessage);
 
         if (viewVersion == 2) {
             mv.setViewName("transactionInfoJsonHash");

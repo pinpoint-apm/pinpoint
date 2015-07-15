@@ -26,7 +26,7 @@ public class SkipMethodFilter implements MethodFilter {
     public static final MethodFilter FILTER = new SkipMethodFilter();
 
     @Override
-    public boolean filter(MethodInfo ctMethod) {
-        return false;
+    public boolean accept(MethodInfo ctMethod) {
+        return ACCEPT;
     }
 }

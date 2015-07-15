@@ -47,7 +47,6 @@ public class DefaultTraceId implements TraceId {
         }
         final TransactionId parseId = TransactionIdUtils.parseTransactionId(transactionId);
         return new DefaultTraceId(parseId.getAgentId(), parseId.getAgentStartTime(), parseId.getTransactionSequence(), parentSpanID, spanID, flags);
-
     }
 
     public TraceId getNextTraceId() {

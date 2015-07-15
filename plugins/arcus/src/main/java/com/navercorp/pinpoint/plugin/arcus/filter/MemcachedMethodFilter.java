@@ -67,14 +67,14 @@ public class MemcachedMethodFilter implements MethodFilter {
     }
 
     @Override
-    public boolean filter(MethodInfo ctMethod) {
+    public boolean accept(MethodInfo ctMethod) {
         final int modifiers = ctMethod.getModifiers();
         if (!Modifier.isPublic(modifiers) || Modifier.isStatic(modifiers) || Modifier.isAbstract(modifiers) || Modifier.isNative(modifiers)) {
-            return true;
+            return REJECT;
         }
         if (WHITE_LIST_API.get(ctMethod.getName()) == FIND) {
-            return false;
+            return ACCEPT;
         }
-        return true;
+        return REJECT;
     }
 }

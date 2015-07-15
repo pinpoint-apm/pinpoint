@@ -14,6 +14,7 @@
  */
 package com.navercorp.pinpoint.plugin.jackson.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -49,10 +50,10 @@ public class WriteValueAsBytesInterceptor implements SimpleAroundInterceptor, Ja
             return;
         }
 
-        trace.traceBlockBegin();
-        trace.markBeforeTime();
+        SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.markBeforeTime();
 
-        trace.recordServiceType(SERVICE_TYPE);
+        recorder.recordServiceType(SERVICE_TYPE);
     }
 
     @Override
@@ -66,10 +67,11 @@ public class WriteValueAsBytesInterceptor implements SimpleAroundInterceptor, Ja
         }
 
         try {
-            trace.recordApi(descriptor);
-            trace.recordException(throwable);
-            trace.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte []) result).length);
-            trace.markAfterTime();
+            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            recorder.recordApi(descriptor);
+            recorder.recordException(throwable);
+            recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte []) result).length);
+            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

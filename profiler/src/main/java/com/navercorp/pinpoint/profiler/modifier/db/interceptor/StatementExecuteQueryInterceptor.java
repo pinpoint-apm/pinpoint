@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
 
@@ -34,33 +35,33 @@ public class StatementExecuteQueryInterceptor extends SpanEventSimpleAroundInter
     }
 
     @Override
-    public void doInBeforeTrace(RecordableTrace trace, final Object target, Object[] args) {
-        trace.markBeforeTime();
+    public void doInBeforeTrace(SpanEventRecorder recorder, final Object target, Object[] args) {
+        recorder.markBeforeTime();
         /**
          * If method was not called by request handler, we skip tagging.
          */
         DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(target, UnKnownDatabaseInfo.INSTANCE);
 
-        trace.recordServiceType(databaseInfo.getExecuteQueryType());
-        trace.recordEndPoint(databaseInfo.getMultipleHost());
-        trace.recordDestinationId(databaseInfo.getDatabaseId());
+        recorder.recordServiceType(databaseInfo.getExecuteQueryType());
+        recorder.recordEndPoint(databaseInfo.getMultipleHost());
+        recorder.recordDestinationId(databaseInfo.getDatabaseId());
 
     }
 
 
     @Override
-    public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
 
-        trace.recordApi(getMethodDescriptor());
+        recorder.recordApi(getMethodDescriptor());
         if (args.length > 0) {
             Object arg = args[0];
             if (arg instanceof String) {
-                trace.recordSqlInfo((String) arg);
+                recorder.recordSqlInfo((String) arg);
                 // TODO more parsing result processing
             }
         }
-        trace.recordException(throwable);
-        trace.markAfterTime();
+        recorder.recordException(throwable);
+        recorder.markAfterTime();
 
     }
 

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -55,7 +55,8 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
                 return;
             }
             // ------------------------------------------------------
-            doInBeforeTrace(trace, target, args);
+            final SpanRecorder recorder = trace.getSpanRecorder();
+            doInBeforeTrace(recorder, target, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("before. Caused:{}", th.getMessage(), th);
@@ -63,7 +64,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
         }
     }
 
-    protected abstract void doInBeforeTrace(final RecordableTrace trace, Object target, final Object[] args);
+    protected abstract void doInBeforeTrace(final SpanRecorder recorder, Object target, final Object[] args);
 
     protected abstract Trace createTrace(final Object target, final Object[] args);
 
@@ -85,7 +86,8 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
         }
         // ------------------------------------------------------
         try {
-            doInAfterTrace(trace, target, args, result, throwable);
+            final SpanRecorder recorder = trace.getSpanRecorder();
+            doInAfterTrace(recorder, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("after. Caused:{}", th.getMessage(), th);
@@ -96,7 +98,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
         }
     }
 
-    protected abstract void doInAfterTrace(final RecordableTrace trace, final Object target, final Object[] args, final Object result, Throwable throwable);
+    protected abstract void doInAfterTrace(final SpanRecorder recorder, final Object target, final Object[] args, final Object result, Throwable throwable);
 
     protected void deleteTrace(final Trace trace, final Object target, final Object[] args, final Object result, Throwable throwable) {
         trace.close();

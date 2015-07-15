@@ -16,12 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.thrift;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassConditions;
@@ -363,13 +358,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
             readFieldBeginMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadFieldBeginInterceptor");
             
             // TProtocol.readBool, TProtocol.readBinary, TProtocol.readI16, TProtocol.readI64
-            final Set<String> targetMethodNames = new HashSet<String>(Arrays.asList("readBool", "readBinary", "readI16", "readI64"));
-            final MethodTransformerBuilder readTTypeMethodTransformerBuilder = classTransformerBuilder.editMethods(new MethodFilter() {
-                @Override
-                public boolean filter(MethodInfo method) {
-                    return !targetMethodNames.contains(method.getName());
-                }
-            });
+            final MethodTransformerBuilder readTTypeMethodTransformerBuilder = classTransformerBuilder.editMethods(MethodFilters.name("readBool", "readBinary", "readI16", "readI64"));
             readTTypeMethodTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
             readTTypeMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor");
             

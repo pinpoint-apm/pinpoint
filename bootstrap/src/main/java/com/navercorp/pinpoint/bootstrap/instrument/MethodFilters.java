@@ -57,14 +57,14 @@ public class MethodFilters {
         }
 
         @Override
-        public boolean filter(MethodInfo method) {
+        public boolean accept(MethodInfo method) {
             for (String name : names) {
                 if (name.equals(method.getName())) {
-                    return false;
+                    return ACCEPT;
                 }
             }
 
-            return true;
+            return REJECT;
         }
     }
     
@@ -78,9 +78,9 @@ public class MethodFilters {
         }
 
         @Override
-        public boolean filter(MethodInfo method) {
+        public boolean accept(MethodInfo method) {
             int modifier = method.getModifiers();
-            return ((required & modifier) != required) || ((rejected & modifier) != 0);
+            return ((required & modifier) == required) && ((rejected & modifier) == 0);
         }
     }
     
@@ -94,14 +94,14 @@ public class MethodFilters {
         }
 
         @Override
-        public boolean filter(MethodInfo method) {
+        public boolean accept(MethodInfo method) {
             String[] paramTypes = method.getParameterTypes();
             
             if (paramTypes.length < index + 1) {
-                return true;
+                return REJECT;
             }
             
-            return !type.equals(paramTypes[index]);
+            return type.equals(paramTypes[index]);
         }
     }
     
@@ -113,9 +113,9 @@ public class MethodFilters {
         }
 
         @Override
-        public boolean filter(MethodInfo method) {
+        public boolean accept(MethodInfo method) {
             String[] paramTypes = method.getParameterTypes();
-            return !Arrays.equals(paramTypes, types);
+            return Arrays.equals(paramTypes, types);
         }
     }
 }

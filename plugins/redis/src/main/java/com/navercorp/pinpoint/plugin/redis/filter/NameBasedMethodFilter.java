@@ -37,18 +37,18 @@ public class NameBasedMethodFilter implements MethodFilter {
     }
 
     @Override
-    public boolean filter(MethodInfo ctMethod) {
+    public boolean accept(MethodInfo ctMethod) {
         final int modifiers = ctMethod.getModifiers();
 
         if (isSynthetic(modifiers) || !Modifier.isPublic(modifiers) || Modifier.isStatic(modifiers) || Modifier.isAbstract(modifiers) || Modifier.isNative(modifiers)) {
-            return true;
+            return REJECT;
         }
 
         if (methodNames.contains(ctMethod.getName())) {
-            return false;
+            return ACCEPT;
         }
 
-        return true;
+        return REJECT;
     }
 
     private boolean isSynthetic(int mod) {

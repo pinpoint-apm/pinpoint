@@ -49,16 +49,16 @@ public abstract class AsyncEchoTestServer<T extends AbstractNonblockingServer> e
     public void verifyServerTraces(PluginTestVerifier verifier) throws Exception {
         verifier.verifyTraceCount(2);
         Method process = TBaseAsyncProcessor.class.getDeclaredMethod("process", AsyncFrameBuffer.class);
-        // SpanEvent - TBaseAsyncProcessor.process
-        verifier.verifyTrace(event("THRIFT_SERVER_INTERNAL", process));
         // RootSpan
         verifier.verifyTrace(root(
                 "THRIFT_SERVER", // ServiceType,
                 "Thrift Server Invocation", // Method
                 "com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo", // rpc
-                null, // endPoint
-                null // remoteAddress
+                SERVER_ADDRESS.getHostName() + ":" + SERVER_ADDRESS.getPort(), // endPoint
+                SERVER_ADDRESS.getHostName() // remoteAddress
         ));
+        // SpanEvent - TBaseAsyncProcessor.process
+        verifier.verifyTrace(event("THRIFT_SERVER_INTERNAL", process));
         verifier.verifyTraceCount(0);
     }
 

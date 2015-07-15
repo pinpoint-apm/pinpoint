@@ -32,6 +32,7 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -126,12 +127,12 @@ public class ExecuteInterceptor implements SimpleAroundInterceptor, HttpClient3C
             return;
         }
 
-        trace.traceBlockBegin();
-        trace.markBeforeTime();
+        final SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.markBeforeTime();
 
         TraceId nextId = trace.getTraceId().getNextTraceId();
-        trace.recordNextSpanId(nextId.getSpanId());
-        trace.recordServiceType(ServiceType.HTTP_CLIENT);
+        recorder.recordNextSpanId(nextId.getSpanId());
+        recorder.recordServiceType(ServiceType.HTTP_CLIENT);
 
         if (httpMethod != null) {
             httpMethod.setRequestHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
@@ -169,13 +170,14 @@ public class ExecuteInterceptor implements SimpleAroundInterceptor, HttpClient3C
         }
 
         try {
+            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             HttpMethod httpMethod = getHttpMethod(args);
             if (httpMethod != null) {
                 try {
                     final URI uri = httpMethod.getURI();
                     String uriString = uri.getURI();
-                    trace.recordAttribute(AnnotationKey.HTTP_URL, uriString);
-                    trace.recordDestinationId(getEndpoint(uri.getHost(), uri.getPort()));
+                    recorder.recordAttribute(AnnotationKey.HTTP_URL, uriString);
+                    recorder.recordDestinationId(getEndpoint(uri.getHost(), uri.getPort()));
                 } catch (URIException e) {
                     logger.error("Fail get URI", e);
                 }
@@ -184,12 +186,12 @@ public class ExecuteInterceptor implements SimpleAroundInterceptor, HttpClient3C
             }
 
             if (result != null) {
-                trace.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, result);
+                recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, result);
             }
 
-            trace.recordApi(descriptor);
-            trace.recordException(throwable);
-            trace.markAfterTime();
+            recorder.recordApi(descriptor);
+            recorder.recordException(throwable);
+            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }
@@ -236,7 +238,8 @@ public class ExecuteInterceptor implements SimpleAroundInterceptor, HttpClient3C
                             entityValue = entity.getClass() + " (ContentType:" + entity.getContentType() + ")";
                         }
 
-                        trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, entityValue);
+                        final SpanEventRecorder recorder = trace.currentSpanEventRecorder();                       
+                        recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, entityValue);
                     } catch (Exception e) {
                         logger.debug("HttpEntityEnclosingRequest entity record fail. Caused:{}", e.getMessage(), e);
                     }
@@ -275,7 +278,8 @@ public class ExecuteInterceptor implements SimpleAroundInterceptor, HttpClient3C
 
         if (value != null && !value.isEmpty()) {
             if (cookieSampler.isSampling()) {
-                trace.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, MAX_READ_SIZE));
+                final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+                recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, MAX_READ_SIZE));
             }
         }
     }

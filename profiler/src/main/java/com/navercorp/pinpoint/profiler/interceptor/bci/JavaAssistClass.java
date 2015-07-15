@@ -849,11 +849,9 @@ public class JavaAssistClass implements InstrumentClass {
         final List<MethodInfo> candidateList = new ArrayList<MethodInfo>(declaredMethod.length);
         for (CtMethod ctMethod : declaredMethod) {
             final MethodInfo method = new JavassistMethodInfo(ctMethod);
-            if (methodFilter.filter(method)) {
-                continue;
+            if (methodFilter.accept(method)) {
+                candidateList.add(method);
             }
-
-            candidateList.add(method);
         }
         
         return candidateList;

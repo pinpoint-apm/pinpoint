@@ -103,9 +103,11 @@ public class SpanStreamUdpSender extends AbstractDataSender {
     }
 
     private DatagramChannel createChannel(String host, int port, int timeout, int sendBufferSize) {
+        DatagramChannel datagramChannel = null;
+        DatagramSocket socket = null;
         try {
-            final DatagramChannel datagramChannel = DatagramChannel.open();
-            final DatagramSocket socket = datagramChannel.socket();
+            datagramChannel = DatagramChannel.open();
+            socket = datagramChannel.socket();
             socket.setSoTimeout(timeout);
             socket.setSendBufferSize(sendBufferSize);
 
@@ -121,6 +123,17 @@ public class SpanStreamUdpSender extends AbstractDataSender {
 
             return datagramChannel;
         } catch (IOException e) {
+            if (socket != null) {
+                socket.close();
+            }
+
+            if (datagramChannel != null) {
+                try {
+                    datagramChannel.close();
+                } catch (IOException e1) {
+                }
+            }
+            
             throw new IllegalStateException("DatagramChannel create fail. Cause" + e.getMessage(), e);
         }
     }
@@ -147,6 +160,7 @@ public class SpanStreamUdpSender extends AbstractDataSender {
         executor.stop();
     }
 
+    // Interface will be discarded.
     @Override
     public boolean isNetworkAvailable() {
         return false;
@@ -237,6 +251,10 @@ public class SpanStreamUdpSender extends AbstractDataSender {
     }
 
     private void flush(SpanStreamSendData spanStreamSendData) throws IOException {
+        if (spanStreamSendData == null) {
+            return;
+        }
+        
         ByteBuffer[] byteBuffers = spanStreamSendData.getSendBuffers();
         int remainingLength = ByteBufferUtils.getRemaining(byteBuffers);
 
@@ -250,9 +268,7 @@ public class SpanStreamUdpSender extends AbstractDataSender {
                 }
             }
         } finally {
-            if (spanStreamSendData != null) {
-                spanStreamSendData.done();
-            }
+            spanStreamSendData.done();
         }
     }
 
@@ -260,6 +276,10 @@ public class SpanStreamUdpSender extends AbstractDataSender {
 
         @Override
         public void handleFlush(SpanStreamSendData spanStreamSendData) {
+            if (spanStreamSendData == null) {
+                return;
+            }
+
             try {
                 ByteBuffer[] byteBuffers = spanStreamSendData.getSendBuffers();
                 int remainingLength = ByteBufferUtils.getRemaining(byteBuffers);
@@ -276,9 +296,7 @@ public class SpanStreamUdpSender extends AbstractDataSender {
             } catch (IOException e) {
                 logger.warn("Failed to flush span stream data.", e);
             } finally {
-                if (spanStreamSendData != null) {
-                    spanStreamSendData.done();
-                }
+                spanStreamSendData.done();
             }
         }
 

@@ -96,9 +96,10 @@ public class HttpClientExecuteMethodInternalInterceptor implements SimpleAroundI
             return false;
         }
 
-        if (trace.getServiceType() != ServiceType.HTTP_CLIENT.getCode()) {
-            return false;
-        }
+        // TODO fix me.
+//        if (trace.getServiceType() != ServiceType.HTTP_CLIENT.getCode()) {
+//            return false;
+//        }
 
         InterceptorGroupInvocation transaction = interceptorGroup.getCurrentInvocation();
         if (transaction.getAttachment() != null) {

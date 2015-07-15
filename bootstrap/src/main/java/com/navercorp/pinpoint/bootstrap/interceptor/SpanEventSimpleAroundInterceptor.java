@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
 public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
     protected final PLogger logger;
@@ -50,9 +51,10 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
         if (trace == null) {
             return;
         }
+        
         try {
-            trace.traceBlockBegin();
-            doInBeforeTrace(trace, target, args);
+            final SpanEventRecorder recorder = trace.traceBlockBegin();
+            doInBeforeTrace(recorder, target, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("before. Caused:{}", th.getMessage(), th);
@@ -68,7 +70,7 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
 
     }
 
-    protected abstract void doInBeforeTrace(final RecordableTrace trace, final Object target, final Object[] args);
+    protected abstract void doInBeforeTrace(final SpanEventRecorder recorder, final Object target, final Object[] args);
 
 
     @Override
@@ -83,8 +85,10 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
         if (trace == null) {
             return;
         }
+        
         try {
-            doInAfterTrace(trace, target, args, result, throwable);
+            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            doInAfterTrace(recorder, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("after error. Caused:{}", th.getMessage(), th);
@@ -99,10 +103,9 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
     }
 
     protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {
-
     }
 
-    protected abstract void doInAfterTrace(final RecordableTrace trace, final Object target, final Object[] args, final Object result, Throwable throwable);
+    protected abstract void doInAfterTrace(final SpanEventRecorder recorder, final Object target, final Object[] args, final Object result, Throwable throwable);
 
 
     @Override

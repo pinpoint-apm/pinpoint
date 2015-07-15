@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.plugin.json_lib.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -49,8 +50,8 @@ public class ToStringInterceptor implements SimpleAroundInterceptor {
             return;
         }
 
-        trace.traceBlockBegin();
-        trace.markBeforeTime();
+        SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.markBeforeTime();
     }
 
     @Override
@@ -65,11 +66,12 @@ public class ToStringInterceptor implements SimpleAroundInterceptor {
         }
 
         try {
-            trace.recordServiceType(JsonLibConstants.SERVICE_TYPE);
-            trace.recordApi(descriptor);
-            trace.recordException(throwable);
-            trace.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) result).length());
-            trace.markAfterTime();
+            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            recorder.recordServiceType(JsonLibConstants.SERVICE_TYPE);
+            recorder.recordApi(descriptor);
+            recorder.recordException(throwable);
+            recorder.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) result).length());
+            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

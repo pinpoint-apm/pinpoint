@@ -103,7 +103,6 @@ public class InvokeMethodInterceptorTest {
 
         TraceContext traceContext = new MockTraceContext();
         StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>(), MetadataAccessor.get(0), MetadataAccessor.get(1));
-        interceptor.setTraceContext(traceContext);
         interceptor.before("target",  new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
 
@@ -126,7 +125,6 @@ public class InvokeMethodInterceptorTest {
 
         TraceContext traceContext = new MockTraceContext();
         StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>(), MetadataAccessor.get(0), MetadataAccessor.get(1));
-        interceptor.setTraceContext(traceContext);
 
         interceptor.before("target", new Object[]{request, response});
         interceptor.after("target", new Object[]{request, response}, new Object(), null);
