@@ -44,6 +44,7 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
         span.setApplicationName(traceContext.getApplicationName());
         span.setAgentStartTime(traceContext.getAgentStartTime());
         span.setApplicationServiceType(traceContext.getServerTypeCode());
+        span.markBeforeTime();
         
         this.traceId = traceId;
         this.sampling = sampling;
@@ -60,16 +61,6 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     @Override
     public void recordStartTime(long startTime) {
         span.setStartTime(startTime);
-    }
-
-    @Override
-    public void markBeforeTime() {
-        span.markBeforeTime();
-    }
-
-    @Override
-    public void markAfterTime() {
-        span.markAfterTime();
     }
 
     @Override
@@ -141,6 +132,17 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     public void recordLogging(boolean isLogging) {
         if (!span.isSetLoggingTransactionInfo()) {
             span.setLoggingTransactionInfo((short)(isLogging ? 1 : 0)); 
+        }
+    }
+    
+    @Override
+    public void recordTime(boolean time) {
+        span.setTimeRecording(time);
+        if(!time) {
+            span.setElapsed(0);
+            span.setElapsedIsSet(false);
+            span.setStartTime(0);
+            span.setStartTimeIsSet(false);
         }
     }
 }

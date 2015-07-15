@@ -103,8 +103,9 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public SpanEventRecorder traceBlockBegin(final int stackId) {
-        final SpanEvent spanEvent = new SpanEvent(spanReocrder.getSpan());
         // Set properties for the case when stackFrame is not used as part of Span.
+        final SpanEvent spanEvent = new SpanEvent(spanReocrder.getSpan());
+        spanEvent.markStartTime();
         spanEvent.setStackId(stackId);
         spanEvent.setSequence(nextSequence());
         final int currentStackIndex = callStack.push(spanEvent);
@@ -141,6 +142,7 @@ public final class DefaultTrace implements Trace {
             }
         }
 
+        spanEvent.markAfterTime();
         logSpan(spanEvent);
     }
 
@@ -156,7 +158,9 @@ public final class DefaultTrace implements Trace {
             PinpointException exception = new PinpointException("Corrupted CallStack found");
             logger.warn("Corrupted CallStack found. stack is not empty.", exception);
         } else {
-            logSpan(spanReocrder.getSpan());
+            Span span = spanReocrder.getSpan();
+            span.markAfterTime();
+            logSpan(span);
         }
 
         // If the stack is not handled properly, NullPointerException will be thrown after this. Is it OK?

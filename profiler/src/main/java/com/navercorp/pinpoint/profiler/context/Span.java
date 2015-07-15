@@ -29,6 +29,8 @@ import com.navercorp.pinpoint.thrift.dto.TSpan;
  * @author emeroad
  */
 public class Span extends TSpan {
+    private boolean timeRecording = true;
+    
     public Span() {
     }
 
@@ -102,5 +104,13 @@ public class Span extends TSpan {
 
     public void setErrCode(int exception) {
         super.setErr(exception);
+    }
+
+    public boolean isTimeRecording() {
+        return timeRecording;
+    }
+
+    public void setTimeRecording(boolean timeRecording) {
+        this.timeRecording = timeRecording;
     }
 }

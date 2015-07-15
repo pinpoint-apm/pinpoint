@@ -7,10 +7,8 @@ import com.navercorp.pinpoint.common.util.ParsingResult;
 
 public interface SpanEventRecorder {
 
-    void markBeforeTime();
-
-    void markAfterTime();
-
+    void recordTime(boolean time);
+    
     void recordException(Throwable throwable);
 
     void recordApi(MethodDescriptor methodDescriptor);
