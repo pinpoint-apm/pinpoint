@@ -54,7 +54,7 @@ public final class DefaultTrace implements Trace {
     private int latestStackIndex = 0;
     private TraceType traceType = TraceType.DEFAULT;
     private final WrappedSpanEventRecorder spanEventRecorder;
-    private final DefaultSpanRecorder spanReocrder;
+    private final DefaultSpanRecorder spanRecorder;
     private boolean closed = false;
 
     public DefaultTrace(final TraceContext traceContext, long transactionId, boolean sampling) {
@@ -66,8 +66,8 @@ public final class DefaultTrace implements Trace {
         this.sampling = sampling;
 
         this.traceId.incrementTraceCount();
-        this.spanReocrder = new DefaultSpanRecorder(traceContext, traceId, sampling);
-        this.spanReocrder.recordTraceId(traceId);
+        this.spanRecorder = new DefaultSpanRecorder(traceContext, traceId, sampling);
+        this.spanRecorder.recordTraceId(traceId);
         this.spanEventRecorder = new WrappedSpanEventRecorder(traceContext);
     }
 
@@ -83,8 +83,8 @@ public final class DefaultTrace implements Trace {
         this.sampling = sampling;
 
         this.traceId.incrementTraceCount();
-        this.spanReocrder = new DefaultSpanRecorder(traceContext, traceId, sampling);
-        this.spanReocrder.recordTraceId(traceId);
+        this.spanRecorder = new DefaultSpanRecorder(traceContext, traceId, sampling);
+        this.spanRecorder.recordTraceId(traceId);
         this.spanEventRecorder = new WrappedSpanEventRecorder(traceContext);
     }
 
@@ -104,7 +104,7 @@ public final class DefaultTrace implements Trace {
     @Override
     public SpanEventRecorder traceBlockBegin(final int stackId) {
         // Set properties for the case when stackFrame is not used as part of Span.
-        final SpanEvent spanEvent = new SpanEvent(spanReocrder.getSpan());
+        final SpanEvent spanEvent = new SpanEvent(spanRecorder.getSpan());
         spanEvent.markStartTime();
         spanEvent.setStackId(stackId);
         spanEvent.setSequence(nextSequence());
@@ -158,7 +158,7 @@ public final class DefaultTrace implements Trace {
             PinpointException exception = new PinpointException("Corrupted CallStack found");
             logger.warn("Corrupted CallStack found. stack is not empty.", exception);
         } else {
-            Span span = spanReocrder.getSpan();
+            Span span = spanRecorder.getSpan();
             span.markAfterTime();
             logSpan(span);
         }
@@ -217,12 +217,12 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public AsyncTraceId getAsyncTraceId() {
-        return new DefaultAsyncTraceId(traceId, traceContext.getAsyncId(), spanReocrder.getSpan().getStartTime());
+        return new DefaultAsyncTraceId(traceId, traceContext.getAsyncId(), spanRecorder.getSpan().getStartTime());
     }
 
     @Override
     public SpanRecorder getSpanRecorder() {
-        return spanReocrder;
+        return spanRecorder;
     }
 
     @Override
