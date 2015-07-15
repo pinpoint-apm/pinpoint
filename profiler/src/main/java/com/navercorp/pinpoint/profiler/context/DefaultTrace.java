@@ -147,7 +147,7 @@ public final class DefaultTrace implements Trace {
     @Override
     public void close() {
         if (closed) {
-            logger.warn("Alreaed closed trace.");
+            logger.warn("Already closed trace.");
             return;
         }
         closed = true;
