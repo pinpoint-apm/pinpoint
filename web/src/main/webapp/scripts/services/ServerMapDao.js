@@ -25,8 +25,8 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
             applicationName: query.applicationName,
             from: query.from,
             to: query.to,
-            callerRange: query.callerRange || 7,
-            calleeRange: query.calleeRange || 7
+            callerRange: query.callerRange || 2,
+            calleeRange: query.calleeRange || 2
         };
     	if ( isNaN( parseInt( query.serviceTypeName ) ) ) {
     		data.serviceTypeName = query.serviceTypeName; 
