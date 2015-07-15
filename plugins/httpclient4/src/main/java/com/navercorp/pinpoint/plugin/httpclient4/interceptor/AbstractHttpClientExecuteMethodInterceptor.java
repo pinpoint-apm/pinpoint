@@ -120,8 +120,6 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Simp
         }
 
         final SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.markBeforeTime();
-
         TraceId nextId = trace.getTraceId().getNextTraceId();
         recorder.recordNextSpanId(nextId.getSpanId());
         recorder.recordServiceType(ServiceType.HTTP_CLIENT);
@@ -179,7 +177,6 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Simp
 
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
-            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.plugin.jdbc.common.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -65,7 +64,6 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorFo
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        recorder.markBeforeTime();
     }
 
 
@@ -102,7 +100,6 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorFo
         recorder.recordApiCachedString(methodDescriptor, driverUrl, 0);
 
         recorder.recordException(throwable);
-        recorder.markAfterTime();
     }
 
     private DatabaseInfo createDatabaseInfo(String url) {

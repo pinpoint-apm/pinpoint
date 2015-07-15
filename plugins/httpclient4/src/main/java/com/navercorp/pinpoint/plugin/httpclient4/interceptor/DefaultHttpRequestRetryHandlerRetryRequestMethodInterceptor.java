@@ -58,8 +58,6 @@ public class DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor impleme
         }
 
         SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.markBeforeTime();
-
         recorder.recordServiceType(serviceType);
     }
 
@@ -85,7 +83,6 @@ public class DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor impleme
             if (result != null) {
                 recorder.recordAttribute(AnnotationKey.RETURN_DATA, result);
             }
-            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

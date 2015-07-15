@@ -128,7 +128,6 @@ public class TBaseProcessorProcessInterceptor implements SimpleAroundInterceptor
             // trace.recordAttribute(...);
             recorder.recordException(throwable);
             recorder.recordApi(this.descriptor);
-            recorder.markAfterTime();
         } catch (Throwable t) {
             logger.warn("Error processing trace object. Cause:{}", t.getMessage(), t);
         } finally {
@@ -158,7 +157,6 @@ public class TBaseProcessorProcessInterceptor implements SimpleAroundInterceptor
         if (remoteAddress != UNKNOWN_ADDRESS) {
             recorder.recordRemoteAddress(remoteAddress);
         }
-        recorder.markAfterTime();
     }
     
     private String getMethodUri(Object target) {

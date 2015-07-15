@@ -84,7 +84,6 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
         }
 
         SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.markBeforeTime();
         try {
             DatabaseInfo databaseInfo = databaseInfoAccessor.get(target, UnKnownDatabaseInfo.INSTANCE);
             recorder.recordServiceType(databaseInfo.getExecuteQueryType());
@@ -160,7 +159,6 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             // TODO Test if it's success. if failed terminate. else calculate resultset fetch too. we'd better make resultset fetch optional.
             recorder.recordException(throwable);
-            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

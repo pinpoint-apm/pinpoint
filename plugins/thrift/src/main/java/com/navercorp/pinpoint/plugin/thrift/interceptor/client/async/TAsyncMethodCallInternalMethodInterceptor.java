@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.plugin.thrift.interceptor.client.async;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
-import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -75,7 +74,6 @@ public class TAsyncMethodCallInternalMethodInterceptor implements SimpleAroundIn
     }
     
     protected void doInBeforeTrace(SpanEventRecorder recorder, final Object target, final Object[] args) {
-        recorder.markBeforeTime();
         recorder.recordServiceType(getServiceType());
     }
 
@@ -109,7 +107,6 @@ public class TAsyncMethodCallInternalMethodInterceptor implements SimpleAroundIn
     protected void doInAfterTrace(SpanEventRecorder recorder, final Object target, final Object[] args, final Object result, Throwable throwable) {
         recorder.recordApi(this.methodDescriptor);
         recorder.recordException(throwable);
-        recorder.markAfterTime();
     }
     
     protected boolean validate(Object target) {

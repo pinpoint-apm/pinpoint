@@ -57,7 +57,6 @@ public class HttpAsyncClientExecuteMethodInterceptor implements SimpleAroundInte
         }
 
         SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.markBeforeTime();
         recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
     }
 
@@ -76,7 +75,6 @@ public class HttpAsyncClientExecuteMethodInterceptor implements SimpleAroundInte
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
-            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

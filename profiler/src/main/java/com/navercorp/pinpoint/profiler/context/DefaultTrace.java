@@ -142,7 +142,9 @@ public final class DefaultTrace implements Trace {
             }
         }
 
-        spanEvent.markAfterTime();
+        if(spanEvent.isTimeRecording()) {
+            spanEvent.markAfterTime();
+        }
         logSpan(spanEvent);
     }
 
@@ -159,7 +161,9 @@ public final class DefaultTrace implements Trace {
             logger.warn("Corrupted CallStack found. stack is not empty.", exception);
         } else {
             Span span = spanRecorder.getSpan();
-            span.markAfterTime();
+            if(span.isTimeRecording()) {
+                span.markAfterTime();
+            }
             logSpan(span);
         }
 

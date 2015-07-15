@@ -59,7 +59,6 @@ public class BasicMethodInterceptor implements SimpleAroundInterceptor {
         }
 
         final SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.markBeforeTime();
         recorder.recordServiceType(serviceType);
     }
 
@@ -78,7 +77,6 @@ public class BasicMethodInterceptor implements SimpleAroundInterceptor {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
-            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

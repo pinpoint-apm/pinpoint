@@ -36,9 +36,6 @@ public class StatementExecuteUpdateInterceptor extends SpanEventSimpleAroundInte
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-
-        recorder.markBeforeTime();
-
         DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(target, UnKnownDatabaseInfo.INSTANCE);
 
         recorder.recordServiceType(databaseInfo.getExecuteQueryType());
@@ -58,9 +55,5 @@ public class StatementExecuteUpdateInterceptor extends SpanEventSimpleAroundInte
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordException(throwable);
-
-        // TODO need to find result, execution time
-        recorder.markAfterTime();
     }
-
 }

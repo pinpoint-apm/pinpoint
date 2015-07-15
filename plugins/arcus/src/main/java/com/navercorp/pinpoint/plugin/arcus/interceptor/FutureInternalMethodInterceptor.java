@@ -37,7 +37,6 @@ public class FutureInternalMethodInterceptor extends SpanAsyncEventSimpleAroundI
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncTraceId asyncTraceId, Object target, Object[] args) {
-        recorder.markBeforeTime();
     }
 
     @Override
@@ -45,6 +44,5 @@ public class FutureInternalMethodInterceptor extends SpanAsyncEventSimpleAroundI
         recorder.recordServiceType(ARCUS_INTERNAL);
         recorder.recordException(throwable);
         recorder.recordApi(methodDescriptor);
-        recorder.markAfterTime();
     }
 }

@@ -136,7 +136,6 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
             return;
         }
         SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.markBeforeTime();
         recorder.recordServiceType(THRIFT_SERVER_INTERNAL);
     }
 
@@ -192,7 +191,6 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
     private void recordRootSpan(final Trace trace, final ThriftRequestProperty parentTraceInfo) {
         // begin root span
         SpanRecorder recorder = trace.getSpanRecorder();
-        recorder.markBeforeTime();
         recorder.recordServiceType(THRIFT_SERVER);
         recorder.recordApi(this.thriftServerEntryMethodDescriptor);
         if (!trace.isRoot()) {

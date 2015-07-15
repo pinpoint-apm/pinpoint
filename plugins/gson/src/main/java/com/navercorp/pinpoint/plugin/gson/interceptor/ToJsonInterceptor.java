@@ -50,8 +50,7 @@ public class ToJsonInterceptor implements SimpleAroundInterceptor {
             return;
         }
 
-        SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.markBeforeTime();
+        trace.traceBlockBegin();
     }
 
     @Override
@@ -74,8 +73,6 @@ public class ToJsonInterceptor implements SimpleAroundInterceptor {
             if (result != null && result instanceof String) {
                 recorder.recordAttribute(GsonPlugin.GSON_ANNOTATION_KEY_JSON_LENGTH, ((String) result).length());
             }
-
-            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

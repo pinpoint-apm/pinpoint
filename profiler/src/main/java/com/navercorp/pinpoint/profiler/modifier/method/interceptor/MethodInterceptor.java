@@ -60,8 +60,6 @@ public class MethodInterceptor implements SimpleAroundInterceptor, ServiceTypeSu
         }
 
         SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.markBeforeTime();
-
         recorder.recordServiceType(serviceType);
     }
 
@@ -80,8 +78,6 @@ public class MethodInterceptor implements SimpleAroundInterceptor, ServiceTypeSu
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
-
-            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

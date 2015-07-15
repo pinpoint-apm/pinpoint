@@ -68,13 +68,11 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
             recordRootSpan(recorder);
         }
 
-        SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.markBeforeTime();
+        trace.traceBlockBegin();
     }
 
     private void recordRootSpan(final SpanRecorder recorder) {
         // root
-        recorder.markBeforeTime();
         recorder.recordServiceType(ServiceType.STAND_ALONE);
         recorder.recordApi(USER_INCLUDE_METHOD_DESCRIPTOR);
     }
@@ -95,12 +93,9 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
             recorder.recordApi(descriptor);
             recorder.recordServiceType(ServiceType.USER_INCLUDE);
             recorder.recordException(throwable);
-            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
             if(trace.getTraceType() == TraceType.USER && trace.isRootStack()) {
-                SpanRecorder recorder = trace.getSpanRecorder();
-                recorder.markAfterTime();
                 trace.close();
                 traceContext.removeTraceObject();
             }

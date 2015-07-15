@@ -55,8 +55,7 @@ public class HttpMethodBaseRequestAndResponseMethodInterceptor implements Simple
             return;
         }
 
-        final SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.markBeforeTime();
+        trace.traceBlockBegin();
     }
 
     @Override
@@ -75,7 +74,6 @@ public class HttpMethodBaseRequestAndResponseMethodInterceptor implements Simple
             recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
             recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);
-            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

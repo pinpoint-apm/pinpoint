@@ -33,7 +33,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
@@ -96,7 +95,6 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
             }
             // ------------------------------------------------------
             SpanEventRecorder recorder = trace.traceBlockBegin();
-            recorder.markBeforeTime();
             recorder.recordServiceType(TOMCAT_METHOD);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -221,7 +219,6 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
 
     private void recordRootSpan(final SpanRecorder recorder, final HttpServletRequest request) {
         // root
-        recorder.markBeforeTime();
         recorder.recordServiceType(TomcatConstants.TOMCAT);
 
         final String requestURL = request.getRequestURI();
@@ -282,7 +279,6 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
 
             recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);
-            recorder.markAfterTime();
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("after. Caused:{}", th.getMessage(), th);
@@ -356,8 +352,6 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
 
         final Request request = (Request) args[0];
         if (!isAsynchronousProcess(request)) {
-            SpanRecorder recorder = trace.getSpanRecorder();
-            recorder.markAfterTime();
             trace.close();
             // reset
             setTraceMetadata(request, null);

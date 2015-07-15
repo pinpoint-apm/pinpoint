@@ -39,7 +39,6 @@ public class AsyncContextImplDispatchMethodInterceptor extends SpanAsyncEventSim
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncTraceId asyncTraceId, Object target, Object[] args) {
-        recorder.markBeforeTime();
         recorder.recordServiceType(TOMCAT_METHOD);
     }
 
@@ -47,6 +46,5 @@ public class AsyncContextImplDispatchMethodInterceptor extends SpanAsyncEventSim
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
-        recorder.markAfterTime();
     }
 }

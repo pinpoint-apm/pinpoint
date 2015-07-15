@@ -51,8 +51,6 @@ public class WriteValueAsBytesInterceptor implements SimpleAroundInterceptor, Ja
         }
 
         SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.markBeforeTime();
-
         recorder.recordServiceType(SERVICE_TYPE);
     }
 
@@ -71,7 +69,6 @@ public class WriteValueAsBytesInterceptor implements SimpleAroundInterceptor, Ja
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
             recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte []) result).length);
-            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.plugin.jdbc.common.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -42,9 +41,7 @@ public class TransactionRollbackInterceptor extends SpanEventSimpleAroundInterce
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        recorder.markBeforeTime();
     }
-
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
@@ -57,7 +54,5 @@ public class TransactionRollbackInterceptor extends SpanEventSimpleAroundInterce
 
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
-        recorder.markAfterTime();
     }
-
 }

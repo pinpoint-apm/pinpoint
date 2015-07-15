@@ -88,10 +88,8 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         if (shouldCreateNewTraceObject(method)) {
             TraceContext traceContext = this.testContext.getMockAgent().getTraceContext();
             Trace trace = traceContext.newTraceObject();
-            SpanRecorder frame = trace.getSpanRecorder();
-            
-            frame.markBeforeTime();
-            frame.recordServiceType(ServiceType.TEST);
+            SpanRecorder recorder = trace.getSpanRecorder();
+            recorder.recordServiceType(ServiceType.TEST);
         }
     }
 
@@ -107,12 +105,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
                     String traceObjectAlreadyDetachedMessage = "Trace object already detached. If you're testing a trace root, please add @IsRootSpan to the test method";
                     testMethodNotifier.addFailure(new IllegalStateException(traceObjectAlreadyDetachedMessage));
                 } else {
-                    try {
-                        SpanRecorder frame = trace.getSpanRecorder();
-                        frame.markAfterTime();
-                    } finally {
-                        trace.close();
-                    }
+                    trace.close();
                 }
             } finally {
                 traceContext.removeTraceObject();

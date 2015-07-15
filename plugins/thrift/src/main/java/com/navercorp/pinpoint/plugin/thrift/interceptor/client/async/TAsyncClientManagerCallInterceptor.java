@@ -98,8 +98,6 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
                 parentTraceInfo.setShouldSample(shouldSample);
             } else {
                 SpanEventRecorder recorder = trace.traceBlockBegin();
-                recorder.markBeforeTime();
-                
                 Object asyncMethodCallObj = args[0];
                 // inject async trace info to AsyncMethodCall object
                 final AsyncTraceId asyncTraceId = injectAsyncTraceId(asyncMethodCallObj, trace);
@@ -148,8 +146,6 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(this.descriptor);
             recorder.recordException(throwable);
-            recorder.markAfterTime();
-            
         } catch (Throwable t) {
             logger.warn("after error. Caused:{}", t.getMessage(), t);
         } finally {
