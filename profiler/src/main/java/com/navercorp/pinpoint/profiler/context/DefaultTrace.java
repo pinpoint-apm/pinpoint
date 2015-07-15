@@ -155,8 +155,9 @@ public final class DefaultTrace implements Trace {
         if (!callStack.empty()) {
             PinpointException exception = new PinpointException("Corrupted CallStack found");
             logger.warn("Corrupted CallStack found. stack is not empty.", exception);
+        } else {
+            logSpan(spanReocrder.getSpan());
         }
-        logSpan(spanReocrder.getSpan());
 
         // If the stack is not handled properly, NullPointerException will be thrown after this. Is it OK?
         if (this.storage != null) {
