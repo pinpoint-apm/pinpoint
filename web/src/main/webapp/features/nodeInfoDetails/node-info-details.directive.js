@@ -18,7 +18,7 @@
 
                     // define private variables
                     var htServermapData, htLastNode, htUnknownResponseSummary, htUnknownLoad, htQuery,
-                        htAgentChartRendered, bShown, sLastKey;
+                        htAgentChartRendered, bShown, sLastKey, getUnknownNode;
 
                     // define private variables of methods
                     var reset, showDetailInformation, renderAllChartWhichIsVisible, hide, show, renderResponseSummary,
@@ -177,6 +177,17 @@
                             namespace = namespace || 'forNode_' + className;
                         scope.$broadcast('loadChartDirective.initAndRenderWithData.' + namespace, timeSeriesHistogram, w, h, useChartCursor);
                     };
+                    
+                    getUnknownNode = function( key ) {
+	                	var node = null;
+	                	for( var i = 0 ; i < htLastNode.unknownNodeGroup.length ; i++ ) {
+	                		if (htLastNode.unknownNodeGroup[i].key === key) {
+	                			node = htLastNode.unknownNodeGroup[i];
+	                			break;
+	                		}
+	                	}
+	                	return node;
+	                };
 
                     /**
                      * hide
@@ -198,8 +209,8 @@
                      * show node detail information of scope
                      * @param index
                      */
-                    scope.showNodeDetailInformation = function (index) {
-                        htLastNode = htLastNode.unknownNodeGroup[index];
+                    scope.showNodeDetailInformation = function (key) {
+                        htLastNode = getUnknownNode(key);//htLastNode.unknownNodeGroup[index];
                         showDetailInformation(htLastNode);
                         scope.$emit('nodeInfoDetail.showDetailInformationClicked', htQuery, htLastNode);
                     };
@@ -220,10 +231,10 @@
                      * @param applicationName
                      * @param index
                      */
-                    scope.renderNodeResponseSummary = function (applicationName, index) {
+                    scope.renderNodeResponseSummary = function (applicationName, key) {
                         if (angular.isUndefined(htUnknownResponseSummary[applicationName])) {
                             htUnknownResponseSummary[applicationName] = true;
-                            renderResponseSummary(null, applicationName, htLastNode.unknownNodeGroup[index].histogram, '360px', '180px');
+                            renderResponseSummary(null, applicationName, getUnknownNode(key).histogram, '360px', '180px');
                         }
                     };
 
@@ -232,10 +243,10 @@
                      * @param applicationName
                      * @param index
                      */
-                    scope.renderNodeLoad = function (applicationName, index) {
+                    scope.renderNodeLoad = function (applicationName, key) { 
                         if (angular.isUndefined(htUnknownLoad[applicationName])) {
                             htUnknownLoad[applicationName] = true;
-                            renderLoad(null, applicationName, htLastNode.unknownNodeGroup[index].timeSeriesHistogram, '360px', '200px', true);
+                            renderLoad(null, applicationName, getUnknownNode(key).timeSeriesHistogram, '360px', '200px', true);
                         }
                     };
 
