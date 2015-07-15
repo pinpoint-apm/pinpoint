@@ -160,6 +160,7 @@ public class SpanStreamUdpSender extends AbstractDataSender {
         executor.stop();
     }
 
+    // Interface will be discarded.
     @Override
     public boolean isNetworkAvailable() {
         return false;
