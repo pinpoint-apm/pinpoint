@@ -111,10 +111,6 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <!-- AbstractPinpointPluginTestSuite needs this to resolve path of required jars -->
-                    <useSystemClassLoader>false</useSystemClassLoader>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
