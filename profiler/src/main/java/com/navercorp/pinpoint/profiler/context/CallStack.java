@@ -73,6 +73,14 @@ public class CallStack {
     public boolean empty() {
         return index == DEFAULT_INDEX;
     }
+    
+    public SpanEvent[] copyStackFrame() {
+        // without synchronization arraycopy, last index is null reference
+        final SpanEvent[] currentStack = this.stack;
+        final SpanEvent[] copyStack = new SpanEvent[currentStack.length];
+        System.arraycopy(currentStack, 0, copyStack, 0, currentStack.length);
+        return copyStack;
+    }
 
     @Override
     public String toString() {
