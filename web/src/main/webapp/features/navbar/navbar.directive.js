@@ -30,7 +30,7 @@
 	                 * getRangeFromStorage
 	                 */
 	                getRangeFromStorage = function(app) {
-                		return webStorage.get( app + "_RANGE" ) || DEFAULT_RANGE;
+                		return webStorage.get( app ) || DEFAULT_RANGE;
 	                };
 	                /**
 	                 * setRangeToStorage
