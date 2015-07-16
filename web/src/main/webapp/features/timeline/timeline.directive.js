@@ -33,7 +33,7 @@
 			            '</div>'
 				    ].join("")
 	            });
-	            icscroller.setRenderFunc(function( $element, index, elementData ) {
+	            icscroller.renderFunc(function( $element, index, elementData ) {
                 	var marginLeft = getMarginLeft(elementData);
                 	$element[ index == this._selectedRow ? "addClass" : "removeClass" ]("timeline-bar-selected")
                 	.find("div.clickable-bar").css({
@@ -66,11 +66,11 @@
 	                scope.key = transactionDetail.callStackIndex;
 	                scope.barRatio = 1000 / (transactionDetail.callStack[0][scope.key.end] - transactionDetail.callStack[0][scope.key.begin]);
 	                scope.newCallStacks = filterCallStacks();
-	                icscroller.setSource( scope.newCallStacks )
-	                	.setViewAreaHeight( $(element).parentsUntil("div.wrapper").height() - 70 ) // 70 is header area height
-	                	.setSelectedRow(-1, angular.noop)
+	                icscroller.source( scope.newCallStacks )
+	                	.viewAreaHeight( $(element).parentsUntil("div.wrapper").height() - 70 ) // 70 is header area height
+	                	.selectedRow(-1, angular.noop)
 	                	.reset(); 
-	                scope.maxHeight = icscroller.getContentsAreaHeight();
+	                scope.maxHeight = icscroller.contentsAreaHeight();
 	                searchStartIndex = 0;
 	                
 	                scope.$digest();
@@ -148,7 +148,7 @@
 	            	});
 	            };
 	            searchSuccess = function(resultIndex, message) {
-	            	icscroller.setSelectedRow( resultIndex, function(newIndex) {
+	            	icscroller.selectedRow( resultIndex, function(newIndex) {
             			this.$wrapper.find("div[data-index=" + this._selectedRow + "]").removeClass("timeline-bar-selected");
             			this.$wrapper.find("div[data-index=" + newIndex + "]").addClass("timeline-bar-selected");
             		}).moveByRow( resultIndex );
