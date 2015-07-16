@@ -178,6 +178,7 @@ public class BusinessTransactionController {
 
 
         if (viewVersion == 2) {
+            // TODO remove hashformat
             mv.setViewName("transactionInfoJsonHash");
         } else {
             mv.setViewName("transactionInfoJson");
