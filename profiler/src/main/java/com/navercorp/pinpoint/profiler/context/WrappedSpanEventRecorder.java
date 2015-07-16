@@ -154,7 +154,11 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     @Override
     public void recordTime(boolean time) {
         spanEvent.setTimeRecording(time);
-        if(!time) {
+        if(time) {
+            if(!spanEvent.isSetStartElapsed()) {
+                spanEvent.markStartTime();
+            }
+        } else {
             spanEvent.setEndElapsed(0);
             spanEvent.setEndElapsedIsSet(false);
             spanEvent.setStartElapsed(0);
