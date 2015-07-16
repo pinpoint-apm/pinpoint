@@ -56,8 +56,7 @@ public class FrontCacheGetFutureGetInterceptor implements SimpleAroundIntercepto
             return;
         }
         
-        final SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.markBeforeTime();
+        trace.traceBlockBegin();
     }
 
     @Override
@@ -80,7 +79,6 @@ public class FrontCacheGetFutureGetInterceptor implements SimpleAroundIntercepto
             }
 
             recorder.recordServiceType(ARCUS_EHCACHE_FUTURE_GET);
-            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

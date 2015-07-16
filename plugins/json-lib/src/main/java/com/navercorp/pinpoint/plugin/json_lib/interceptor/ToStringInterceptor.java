@@ -50,8 +50,7 @@ public class ToStringInterceptor implements SimpleAroundInterceptor {
             return;
         }
 
-        SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.markBeforeTime();
+        trace.traceBlockBegin();
     }
 
     @Override
@@ -71,7 +70,6 @@ public class ToStringInterceptor implements SimpleAroundInterceptor {
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
             recorder.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) result).length());
-            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

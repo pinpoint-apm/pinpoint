@@ -94,8 +94,7 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
         }
 
         try {
-            SpanEventRecorder recorder = trace.traceBlockBegin();
-            recorder.markBeforeTime();
+            trace.traceBlockBegin();
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("before. Caused:{}", th.getMessage(), th);
@@ -169,8 +168,6 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
             } catch (Throwable t) {
                 logger.warn("Failed to before process. {}", t.getMessage(), t);
             }
-
-            recorder.markAfterTime();
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("after error. Caused:{}", th.getMessage(), th);

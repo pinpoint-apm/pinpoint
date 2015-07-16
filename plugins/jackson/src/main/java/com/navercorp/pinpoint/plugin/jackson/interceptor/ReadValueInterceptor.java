@@ -52,9 +52,8 @@ public class ReadValueInterceptor implements SimpleAroundInterceptor, JacksonCon
             return;
         }
 
-        SpanEventRecorder frame = trace.traceBlockBegin();
-        frame.markBeforeTime();
-        frame.recordServiceType(SERVICE_TYPE);
+        SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.recordServiceType(SERVICE_TYPE);
     }
 
     @Override
@@ -84,8 +83,6 @@ public class ReadValueInterceptor implements SimpleAroundInterceptor, JacksonCon
                     recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((File) arg).length());
                 }
             }
-
-            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

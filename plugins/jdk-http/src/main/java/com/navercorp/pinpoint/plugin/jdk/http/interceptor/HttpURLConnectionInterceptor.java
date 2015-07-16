@@ -95,8 +95,6 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
         group.getCurrentInvocation().setAttachment(TRACE_BLOCK_BEGIN_MARKER);
         
         SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.markBeforeTime();
-
         TraceId nextId = trace.getTraceId().getNextTraceId();
         recorder.recordNextSpanId(nextId.getSpanId());
 
@@ -158,8 +156,6 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
-
-            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

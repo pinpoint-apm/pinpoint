@@ -40,7 +40,6 @@ public class BasicFutureMethodInterceptor extends SpanAsyncEventSimpleAroundInte
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncTraceId asyncTraceId, Object target, Object[] args) {
-        recorder.markBeforeTime();
         recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
     }
 
@@ -48,6 +47,5 @@ public class BasicFutureMethodInterceptor extends SpanAsyncEventSimpleAroundInte
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
-        recorder.markAfterTime();
     }
 }

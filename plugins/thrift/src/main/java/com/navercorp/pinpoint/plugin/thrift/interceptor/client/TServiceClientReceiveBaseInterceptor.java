@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.plugin.thrift.interceptor.client;
 
 import org.apache.thrift.TBase;
 
-import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
@@ -43,7 +42,6 @@ public class TServiceClientReceiveBaseInterceptor extends SpanEventSimpleAroundI
     
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        recorder.markBeforeTime();
         recorder.recordServiceType(THRIFT_CLIENT_INTERNAL);
     }
     
@@ -58,7 +56,6 @@ public class TServiceClientReceiveBaseInterceptor extends SpanEventSimpleAroundI
         } else {
             recorder.recordException(throwable);
         }
-        recorder.markAfterTime();
     }
 
     private String getResult(TBase<?, ?> args) {

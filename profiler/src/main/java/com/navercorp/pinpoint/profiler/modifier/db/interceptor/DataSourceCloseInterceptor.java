@@ -35,7 +35,6 @@ public class DataSourceCloseInterceptor extends SpanEventSimpleAroundInterceptor
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, final Object target, Object[] args) {
-        recorder.markBeforeTime();
     }
 
     @Override
@@ -43,7 +42,5 @@ public class DataSourceCloseInterceptor extends SpanEventSimpleAroundInterceptor
         trace.recordServiceType(ServiceType.DBCP);
         trace.recordApi(getMethodDescriptor());
         trace.recordException(throwable);
-
-        trace.markAfterTime();
     }
 }

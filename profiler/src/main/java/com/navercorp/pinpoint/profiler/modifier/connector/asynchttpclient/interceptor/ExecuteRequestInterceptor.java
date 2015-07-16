@@ -109,8 +109,6 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 
         trace.traceBlockBegin();
         SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-        recorder.markBeforeTime();
-
         TraceId nextId = trace.getTraceId().getNextTraceId();
         recorder.recordNextSpanId(nextId.getSpanId());
         recorder.recordServiceType(ServiceType.HTTP_CLIENT);
@@ -167,7 +165,6 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
-            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

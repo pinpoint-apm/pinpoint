@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.plugin.jdbc.common.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -54,8 +53,6 @@ public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInt
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args)  {
-        recorder.markBeforeTime();
-
         final DatabaseInfo databaseInfo = databaseInfoAccessor.get(target, UnKnownDatabaseInfo.INSTANCE);
         
         recorder.recordServiceType(databaseInfo.getType());
@@ -100,9 +97,5 @@ public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInt
         }
         recorder.recordException(throwable);
         recorder.recordApi(methodDescriptor);
-
-        recorder.markAfterTime();
     }
-
-
 }

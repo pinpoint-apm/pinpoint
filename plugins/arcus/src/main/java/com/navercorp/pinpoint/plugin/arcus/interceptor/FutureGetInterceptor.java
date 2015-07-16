@@ -51,7 +51,6 @@ public class FutureGetInterceptor extends SpanAsyncEventSimpleAroundInterceptor 
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncTraceId asyncTraceId, Object target, Object[] args) {
-        recorder.markBeforeTime();
     }
 
     @Override
@@ -87,6 +86,5 @@ public class FutureGetInterceptor extends SpanAsyncEventSimpleAroundInterceptor 
             recorder.recordException(op.getException());
         }
         recorder.recordApi(methodDescriptor);
-        recorder.markAfterTime();
     }
 }

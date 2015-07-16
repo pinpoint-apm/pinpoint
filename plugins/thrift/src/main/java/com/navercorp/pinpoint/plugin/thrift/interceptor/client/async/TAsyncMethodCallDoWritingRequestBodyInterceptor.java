@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.plugin.thrift.interceptor.client.async;
 import org.apache.thrift.async.TAsyncMethodCall;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
-import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -83,8 +82,6 @@ public class TAsyncMethodCallDoWritingRequestBodyInterceptor extends TAsyncMetho
             }
             
             if(trace.isAsync() && trace.isRootStack()) {
-                SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-                recorder.markAfterTime();
                 trace.close();
                 super.traceContext.removeTraceObject();
             }
@@ -133,5 +130,4 @@ public class TAsyncMethodCallDoWritingRequestBodyInterceptor extends TAsyncMetho
     protected ServiceType getServiceType() {
         return THRIFT_CLIENT;
     }
-
 }

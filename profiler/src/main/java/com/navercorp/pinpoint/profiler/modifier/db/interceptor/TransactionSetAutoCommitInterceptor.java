@@ -35,7 +35,6 @@ public class TransactionSetAutoCommitInterceptor extends SpanEventSimpleAroundIn
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        recorder.markBeforeTime();
     }
 
     @Override
@@ -49,8 +48,5 @@ public class TransactionSetAutoCommitInterceptor extends SpanEventSimpleAroundIn
 
         recorder.recordApi(getMethodDescriptor(), args);
         recorder.recordException(throwable);
-
-        recorder.markAfterTime();
     }
-
 }

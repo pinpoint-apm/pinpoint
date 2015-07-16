@@ -63,8 +63,6 @@ public class TAsyncMethodCallStartInterceptor extends TAsyncMethodCallInternalMe
                 return;
             }
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.markBeforeTime();
-            
             recorder.recordServiceType(ServiceType.ASYNC);
             recorder.recordApi(this.thriftAsyncClientMethodDescriptor);
             super.asyncMarkerAccessor.set(target, Boolean.TRUE);

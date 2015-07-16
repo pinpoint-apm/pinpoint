@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -35,7 +34,6 @@ public class DataSourceGetConnectionInterceptor extends SpanEventSimpleAroundInt
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, final Object target, Object[] args) {
-        recorder.markBeforeTime();
     }
 
     @Override
@@ -49,9 +47,5 @@ public class DataSourceGetConnectionInterceptor extends SpanEventSimpleAroundInt
             recorder.recordApi(getMethodDescriptor(), args[0], 0);
         }
         recorder.recordException(throwable);
-
-        recorder.markAfterTime();
     }
-
-
 }

@@ -66,7 +66,6 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
     private void traceFirstBlockBegin(final Trace trace) {
         // first block
         final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-        recorder.markBeforeTime();
         recorder.recordServiceType(ServiceType.ASYNC);
         recorder.recordApi(asyncMethodDescriptor);
     }
@@ -112,9 +111,6 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
     }
 
     private void traceFirstBlockEnd(final Trace trace) {
-        // first block
-        final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-        recorder.markAfterTime();
     }
 
     protected abstract void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable);

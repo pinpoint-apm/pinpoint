@@ -115,7 +115,6 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
         }
 
         SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.markBeforeTime();
 
         // set remote trace
         final TraceId nextId = trace.getTraceId().getNextTraceId();
@@ -211,7 +210,6 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
             }
             recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);
-            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

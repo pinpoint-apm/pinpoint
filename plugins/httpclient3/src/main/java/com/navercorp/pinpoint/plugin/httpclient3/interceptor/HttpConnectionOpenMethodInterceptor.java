@@ -56,8 +56,7 @@ public class HttpConnectionOpenMethodInterceptor implements SimpleAroundIntercep
             return;
         }
 
-        final SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.markBeforeTime();
+        trace.traceBlockBegin();
     }
 
     @Override
@@ -76,7 +75,6 @@ public class HttpConnectionOpenMethodInterceptor implements SimpleAroundIntercep
             recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
             recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);
-            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

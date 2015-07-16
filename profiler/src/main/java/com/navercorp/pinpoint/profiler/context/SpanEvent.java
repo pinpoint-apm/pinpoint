@@ -29,6 +29,7 @@ public class SpanEvent extends TSpanEvent {
 
     private final Span span;
     private int stackId;
+    private boolean timeRecording = true;
 
     public SpanEvent(Span span) {
         if (span == null) {
@@ -90,5 +91,13 @@ public class SpanEvent extends TSpanEvent {
 
     public void setStackId(int stackId) {
         this.stackId = stackId;
+    }
+
+    public boolean isTimeRecording() {
+        return timeRecording;
+    }
+
+    public void setTimeRecording(boolean timeRecording) {
+        this.timeRecording = timeRecording;
     }
 }

@@ -735,7 +735,6 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     public void initialize(boolean createTraceObject) {
         if (createTraceObject) {
             Trace trace = getTraceContext().newTraceObject();
-            trace.getSpanRecorder().markBeforeTime();
         }
         
         getRecorder().clear();
@@ -746,7 +745,6 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     @Override
     public void cleanUp(boolean detachTraceObject) {
         if (detachTraceObject) {
-            getTraceContext().currentTraceObject().getSpanRecorder().markAfterTime();
             getTraceContext().removeTraceObject();
         }
 

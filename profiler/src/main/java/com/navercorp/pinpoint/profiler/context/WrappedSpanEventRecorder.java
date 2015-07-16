@@ -121,16 +121,6 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     }
 
     @Override
-    public void markBeforeTime() {
-        spanEvent.markStartTime();
-    }
-
-    @Override
-    public void markAfterTime() {
-        spanEvent.markAfterTime();
-    }
-
-    @Override
     void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
         spanEvent.setExceptionInfo(exceptionClassId, exceptionMessage);
         if (!spanEvent.getSpan().isSetErrCode()) {
@@ -159,5 +149,20 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     @Override
     public void recordEndPoint(String endPoint) {
         spanEvent.setEndPoint(endPoint);
+    }
+
+    @Override
+    public void recordTime(boolean time) {
+        spanEvent.setTimeRecording(time);
+        if(time) {
+            if(!spanEvent.isSetStartElapsed()) {
+                spanEvent.markStartTime();
+            }
+        } else {
+            spanEvent.setEndElapsed(0);
+            spanEvent.setEndElapsedIsSet(false);
+            spanEvent.setStartElapsed(0);
+            spanEvent.setStartElapsedIsSet(false);
+        }
     }
 }

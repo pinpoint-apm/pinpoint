@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.plugin.thrift.interceptor.client.async;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -58,8 +56,6 @@ public class TAsyncMethodCallDoReadingResponseBodyInterceptor extends TAsyncMeth
             }
             
             if(trace.isAsync() && trace.isRootStack()) {
-                SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-                recorder.markAfterTime();
                 trace.close();
                 super.traceContext.removeTraceObject();
             }

@@ -11,10 +11,8 @@ public interface SpanRecorder {
     boolean isRoot();
 
     void recordStartTime(long startTime);
-    
-    void markBeforeTime();
 
-    void markAfterTime();
+    void recordTime(boolean time);
 
     void recordException(Throwable throwable);
 

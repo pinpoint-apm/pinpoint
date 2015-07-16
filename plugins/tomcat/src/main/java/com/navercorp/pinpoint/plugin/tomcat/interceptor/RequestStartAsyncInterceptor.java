@@ -59,8 +59,7 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
         if (trace == null) {
             return;
         }
-        SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.markBeforeTime();
+        trace.traceBlockBegin();
     }
 
     @Override
@@ -92,7 +91,6 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
             recorder.recordServiceType(TOMCAT_METHOD);
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
-            recorder.markAfterTime();
         } catch (Throwable t) {
             logger.warn("Failed to after process. {}", t.getMessage(), t);
         } finally {

@@ -104,8 +104,6 @@ public class TServiceClientSendBaseInterceptor implements SimpleAroundIntercepto
                 parentTraceInfo.setShouldSample(shouldSample);
             } else {
                 SpanEventRecorder recorder = trace.traceBlockBegin();
-                recorder.markBeforeTime();
-                
                 recorder.recordServiceType(THRIFT_CLIENT);
                 
                 // retrieve connection information
@@ -170,7 +168,6 @@ public class TServiceClientSendBaseInterceptor implements SimpleAroundIntercepto
             }
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
-            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

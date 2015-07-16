@@ -38,8 +38,6 @@ public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInt
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args)  {
-        recorder.markBeforeTime();
-
         final DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(target, UnKnownDatabaseInfo.INSTANCE);
         recorder.recordServiceType(databaseInfo.getType());
         recorder.recordEndPoint(databaseInfo.getMultipleHost());
@@ -83,7 +81,5 @@ public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInt
         }
         trace.recordException(throwable);
         trace.recordApi(getMethodDescriptor());
-
-        trace.markAfterTime();
     }
 }

@@ -58,7 +58,6 @@ public class RetryMethodInterceptor implements SimpleAroundInterceptor, HttpClie
         }
 
         final SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.markBeforeTime();
         recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
     }
 
@@ -84,8 +83,6 @@ public class RetryMethodInterceptor implements SimpleAroundInterceptor, HttpClie
             if (result != null) {
                 recorder.recordAttribute(AnnotationKey.RETURN_DATA, result);
             }
-
-            recorder.markAfterTime();
         } finally {
             trace.traceBlockEnd();
         }

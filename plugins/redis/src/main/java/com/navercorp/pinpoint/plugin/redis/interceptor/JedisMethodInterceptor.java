@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.plugin.redis.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
-import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -43,7 +42,6 @@ public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptorForP
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        recorder.markBeforeTime();
     }
 
     @Override
@@ -59,6 +57,5 @@ public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptorForP
         recorder.recordDestinationId(REDIS.getName());
         recorder.recordServiceType(REDIS);
         recorder.recordException(throwable);
-        recorder.markAfterTime();
     }
 }
