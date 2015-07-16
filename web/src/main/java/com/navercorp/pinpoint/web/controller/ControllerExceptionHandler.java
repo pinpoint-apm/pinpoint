@@ -26,6 +26,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
@@ -40,8 +42,12 @@ public class ControllerExceptionHandler {
 
     private static final String UNKNOWN = "UNKNOWN";
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+
     @ExceptionHandler(value = Exception.class)
     public ModelAndView defaultErrorHandler(HttpServletRequest request, Exception exception) throws Exception {
+        logger.warn("Error:{}", exception.getMessage(), exception);
         ModelAndView mav = new ModelAndView();
         mav.addObject("exception", createExceptionResource(request, exception));
         mav.setViewName(DEFAULT_ERROR_VIEW);
@@ -72,10 +78,12 @@ public class ControllerExceptionHandler {
         }
         
         StringBuilder stackTrace = new StringBuilder(128);
-        stackTrace.append(throwable.toString()).append("\r\n");
+        stackTrace.append(throwable.toString());
+        stackTrace.append("\r\n");
         
         for (StackTraceElement traceElement : throwable.getStackTrace()) {
-            stackTrace.append("\tat " + traceElement.toString()).append("\r\n");
+            stackTrace.append("\tat " + traceElement.toString());
+            stackTrace.append("\r\n");
         }
 
         return stackTrace.toString();

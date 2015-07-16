@@ -43,8 +43,8 @@ public class Node {
     public static final String NODE_DELIMITER = "^";
 
     private final Application application;
-
-    private ServerInstanceList serverInstanceList;
+    // avoid NPE
+    private ServerInstanceList serverInstanceList = new ServerInstanceList();
 
     private NodeHistogram nodeHistogram;
 
@@ -74,8 +74,11 @@ public class Node {
         }
     }
 
-
+    // TODO remove setter
     public void setServerInstanceList(ServerInstanceList serverInstanceList) {
+        if (serverInstanceList == null) {
+            throw new NullPointerException("serverInstanceList must not be null");
+        }
         this.serverInstanceList = serverInstanceList;
     }
 
