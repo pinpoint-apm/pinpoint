@@ -133,7 +133,7 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
         final String[] temp = new String[bindValue.size()];
         for (Map.Entry<Integer, String> entry : bindValue.entrySet()) {
             Integer key = entry.getKey() - 1;
-            if (temp.length < key) {
+            if (temp.length <= key) {
                 continue;
             }
             temp[key] = entry.getValue();
