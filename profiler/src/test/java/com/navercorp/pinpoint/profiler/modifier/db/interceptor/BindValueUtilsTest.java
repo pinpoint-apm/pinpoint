@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 
-import com.navercorp.pinpoint.profiler.modifier.db.interceptor.BindValueUtils;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BindValueUtilsTest {
 
@@ -85,7 +85,7 @@ public class BindValueUtilsTest {
 
     @Test
     public void testBindValueToString_null() throws Exception {
-        String result = BindValueUtils.bindValueToString(null, 10);
+        String result = BindValueUtils.bindValueToString((String[])null, 10);
         Assert.assertEquals("", result);
     }
 
@@ -109,4 +109,56 @@ public class BindValueUtilsTest {
         String result = BindValueUtils.bindValueToString(bindValue, 5);
         Assert.assertEquals("12345...(6), ...(2)", result);
     }
+
+    // #737 https://github.com/naver/pinpoint/issues/737
+    @Test
+    public void test_734_bug_regression() throws Exception {
+        Map<Integer, String> bindValue = new HashMap<Integer, String>();
+        bindValue.put(1, "1");
+        bindValue.put(2, "2");
+        // skip 3
+        bindValue.put(4, "4");
+
+        String bindValueToString = BindValueUtils.bindValueToString(bindValue, 100);
+        Assert.assertEquals("1, 2, , 4", bindValueToString);
+    }
+
+    @Test
+    public void test_index_error_zero() throws Exception {
+        Map<Integer, String> bindValue = new HashMap<Integer, String>();
+        bindValue.put(0, "0");
+
+        String bindValueToString = BindValueUtils.bindValueToString(bindValue, 100);
+        Assert.assertEquals("", bindValueToString);
+    }
+
+    @Test
+    public void test_index_error_negative() throws Exception {
+        Map<Integer, String> bindValue = new HashMap<Integer, String>();
+        bindValue.put(-2, "-2");
+
+        String bindValueToString = BindValueUtils.bindValueToString(bindValue, 100);
+        Assert.assertEquals("", bindValueToString);
+    }
+
+    @Test
+    public void test_index_error_complex() throws Exception {
+        Map<Integer, String> bindValue = new HashMap<Integer, String>();
+        bindValue.put(-2, "-2");
+        bindValue.put(0, "0");
+        bindValue.put(1, "1");
+        bindValue.put(3, "3");
+
+        String bindValueToString = BindValueUtils.bindValueToString(bindValue, 100);
+        Assert.assertEquals("1, , 3", bindValueToString);
+    }
+
+    @Test
+    public void test_NullElement() throws Exception {
+        String[] temp = {"1", null, "3"};
+        String bindValueToString = BindValueUtils.bindValueToString(temp, 100);
+        Assert.assertEquals("1, , 3", bindValueToString);
+    }
+
+
 }
