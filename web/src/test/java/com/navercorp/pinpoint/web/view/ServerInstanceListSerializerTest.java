@@ -18,17 +18,16 @@ package com.navercorp.pinpoint.web.view;
 
 import java.util.HashSet;
 
+import com.navercorp.pinpoint.web.applicationmap.ServerInstanceListTest;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.GenericXmlApplicationContext;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
+
 
 /**
  * @author emeroad
@@ -42,26 +41,19 @@ public class ServerInstanceListSerializerTest {
         PinpointObjectMapper mapper = new PinpointObjectMapper();
         mapper.afterPropertiesSet();
 
-        
-        AgentInfoBo.Builder agentInfoBuilder = new AgentInfoBo.Builder();
-        agentInfoBuilder.setAgentId("agentId");
 
-        agentInfoBuilder.setServiceTypeCode(ServiceType.TEST_STAND_ALONE.getCode());
-        // TODO FIX api
-        agentInfoBuilder.setServiceType(ServiceType.TEST_STAND_ALONE);
+        AgentInfoBo agentInfoBo = ServerInstanceListTest.createAgentInfo("agentId1", "testHost");
 
-        agentInfoBuilder.setHostName("testcomputer");
+        HashSet<AgentInfoBo> agentInfoBoSet = new HashSet<AgentInfoBo>();
+        agentInfoBoSet.add(agentInfoBo);
 
-        AgentInfoBo agentInfoBo = agentInfoBuilder.build();
+        ServerBuilder builder = new ServerBuilder();
+        builder.addAgentInfo(agentInfoBoSet);
 
-        HashSet<AgentInfoBo> set = new HashSet<AgentInfoBo>();
-        set.add(agentInfoBo);
-
-        ServerBuilder builder = new ServerBuilder(null);
-        builder.addAgentInfo(set);
         ServerInstanceList serverInstanceList = builder.build();
         ObjectWriter objectWriter = mapper.writerWithDefaultPrettyPrinter();
         String json = objectWriter.writeValueAsString(serverInstanceList);
         logger.debug(json);
     }
+
 }
