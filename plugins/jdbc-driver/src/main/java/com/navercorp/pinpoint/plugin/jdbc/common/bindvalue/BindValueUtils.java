@@ -18,12 +18,49 @@ package com.navercorp.pinpoint.plugin.jdbc.common.bindvalue;
 
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 
+import java.util.Map;
+
 /**
+ * duplicate : com.navercorp.pinpoint.profiler.modifier.db.interceptor.BindValueUtils
  * @author emeroad
  */
-public class BindValueUtils {
+public final class BindValueUtils {
 
     private BindValueUtils() {
+    }
+
+    public static String bindValueToString(final Map<Integer, String> bindValueMap, int limit) {
+        if (bindValueMap == null) {
+            return "";
+        }
+        if (bindValueMap.isEmpty()) {
+            return "";
+        }
+        final int maxParameterIndex = getMaxParameterIndex(bindValueMap);
+        if (maxParameterIndex <= 0) {
+            return "";
+        }
+        final String[] temp = new String[maxParameterIndex];
+        for (Map.Entry<Integer, String> entry : bindValueMap.entrySet()) {
+            final int parameterIndex = entry.getKey() - 1;
+            if (parameterIndex < 0) {
+                // invalid index. PreparedStatement first parameterIndex is 1
+                continue;
+            }
+            if (temp.length <= parameterIndex) {
+                continue;
+            }
+            temp[parameterIndex] = entry.getValue();
+        }
+        return bindValueToString(temp, limit);
+    }
+
+    private static int getMaxParameterIndex(Map<Integer, String> bindValueMap) {
+        int maxIndex = 0;
+        for (Integer idx : bindValueMap.keySet()) {
+            maxIndex = Math.max(maxIndex, idx);
+        }
+        return maxIndex;
     }
 
     public static String bindValueToString(String[] bindValueArray, int limit) {
@@ -39,7 +76,8 @@ public class BindValueUtils {
                 appendLength(sb, length);
                 break;
             }
-            StringUtils.appendDrop(sb, bindValueArray[i], limit);
+            final String bindValue = StringUtils.defaultString(bindValueArray[i], "");
+            StringUtils.appendDrop(sb, bindValue, limit);
             if (i < end) {
                 sb.append(", ");
             }

@@ -106,17 +106,7 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
     }
 
     private String toBindVariable(Map<Integer, String> bindValue) {
-        final String[] temp = new String[bindValue.size()];
-        for (Map.Entry<Integer, String> entry : bindValue.entrySet()) {
-            Integer key = entry.getKey() - 1;
-            if (temp.length < key) {
-                continue;
-            }
-            temp[key] = entry.getValue();
-        }
-
-        return BindValueUtils.bindValueToString(temp, maxSqlBindValueLength);
-
+        return BindValueUtils.bindValueToString(bindValue, maxSqlBindValueLength);
     }
 
     @Override
