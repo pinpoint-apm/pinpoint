@@ -654,7 +654,10 @@ public class ProfilerConfig {
         this.tcpDataSenderCommandAcceptEnable = readBoolean("profiler.tcpdatasender.command.accept.enable", false);
 
         // CallStck
-        this.callStackMaxDepth = readInt("profiler.callstack.max.depth", 512);
+        this.callStackMaxDepth = readInt("profiler.callstack.max.depth", 64);
+        if(this.callStackMaxDepth < 2) {
+            this.callStackMaxDepth = 2;
+        }
         
         // JDBC
         this.jdbcProfile = readBoolean("profiler.jdbc", true);

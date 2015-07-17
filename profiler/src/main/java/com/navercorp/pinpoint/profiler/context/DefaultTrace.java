@@ -38,20 +38,15 @@ public final class DefaultTrace implements Trace {
     private static final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
     private static final boolean isTrace = logger.isTraceEnabled();
 
-    private short sequence;
-
     private final boolean sampling;
 
     private final TraceId traceId;
 
-    private final CallStack callStack = new CallStack();
+    private final CallStack callStack;
 
     private Storage storage;
 
     private final TraceContext traceContext;
-
-    // use for calculating depth of each Span.
-    private int latestStackIndex = 0;
     private TraceType traceType = TraceType.DEFAULT;
     private final WrappedSpanEventRecorder spanEventRecorder;
     private final DefaultSpanRecorder spanRecorder;
@@ -66,9 +61,16 @@ public final class DefaultTrace implements Trace {
         this.sampling = sampling;
 
         this.traceId.incrementTraceCount();
-        this.spanRecorder = new DefaultSpanRecorder(traceContext, traceId, sampling);
+        Span span = createSpan();
+        this.spanRecorder = new DefaultSpanRecorder(traceContext, span, traceId, sampling);
         this.spanRecorder.recordTraceId(traceId);
         this.spanEventRecorder = new WrappedSpanEventRecorder(traceContext);
+        if(traceContext.getProfilerConfig() != null) {
+            final int maxCallStackDepth = traceContext.getProfilerConfig().getCallStackMaxDepth();
+            this.callStack = new CallStack(span, maxCallStackDepth);
+        } else {
+            this.callStack = new CallStack(span);
+        }
     }
 
     public DefaultTrace(TraceContext traceContext, TraceId continueTraceId, boolean sampling) {
@@ -83,17 +85,31 @@ public final class DefaultTrace implements Trace {
         this.sampling = sampling;
 
         this.traceId.incrementTraceCount();
-        this.spanRecorder = new DefaultSpanRecorder(traceContext, traceId, sampling);
+        Span span = createSpan();
+        this.spanRecorder = new DefaultSpanRecorder(traceContext, span, traceId, sampling);
         this.spanRecorder.recordTraceId(traceId);
         this.spanEventRecorder = new WrappedSpanEventRecorder(traceContext);
+        if(traceContext.getProfilerConfig() != null) {
+            final int maxCallStackDepth = traceContext.getProfilerConfig().getCallStackMaxDepth();
+            this.callStack = new CallStack(span, maxCallStackDepth);
+        } else {
+            this.callStack = new CallStack(span);
+        }
     }
 
+    private Span createSpan() {
+        Span span = new Span();
+        span.setAgentId(traceContext.getAgentId());
+        span.setApplicationName(traceContext.getApplicationName());
+        span.setAgentStartTime(traceContext.getAgentStartTime());
+        span.setApplicationServiceType(traceContext.getServerTypeCode());
+        span.markBeforeTime();
+        
+        return span;
+    }
+    
     public void setStorage(Storage storage) {
         this.storage = storage;
-    }
-
-    private short nextSequence() {
-        return sequence++;
     }
 
     @Override
@@ -107,12 +123,7 @@ public final class DefaultTrace implements Trace {
         final SpanEvent spanEvent = new SpanEvent(spanRecorder.getSpan());
         spanEvent.markStartTime();
         spanEvent.setStackId(stackId);
-        spanEvent.setSequence(nextSequence());
-        final int currentStackIndex = callStack.push(spanEvent);
-        if (latestStackIndex != currentStackIndex) {
-            latestStackIndex = currentStackIndex;
-            spanEvent.setDepth(latestStackIndex);
-        }
+        callStack.push(spanEvent);
 
         spanEventRecorder.setWrapped(spanEvent);
         return spanEventRecorder;
