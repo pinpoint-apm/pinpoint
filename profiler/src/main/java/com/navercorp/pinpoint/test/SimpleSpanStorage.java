@@ -23,7 +23,6 @@ import org.apache.thrift.TBase;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
-import com.navercorp.pinpoint.profiler.context.storage.StorageCloseHandler;
 
 /**
  * @author hyungil.jeong
