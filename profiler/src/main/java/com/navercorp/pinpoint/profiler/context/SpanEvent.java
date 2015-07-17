@@ -69,9 +69,6 @@ public class SpanEvent extends TSpanEvent {
     }
 
     public void markAfterTime() {
-        if (!isSetStartElapsed()) {
-            throw new PinpointTraceException("startTime is not set");
-        }
         final int endElapsed = (int)(System.currentTimeMillis() - getStartTime());
         if (endElapsed != 0) {
             this.setEndElapsed(endElapsed);
@@ -79,9 +76,6 @@ public class SpanEvent extends TSpanEvent {
     }
 
     public long getAfterTime() {
-        if (!isSetStartElapsed()) {
-            throw new PinpointTraceException("startTime is not set");
-        }
         return span.getStartTime() + getStartElapsed() + getEndElapsed();
     }
 

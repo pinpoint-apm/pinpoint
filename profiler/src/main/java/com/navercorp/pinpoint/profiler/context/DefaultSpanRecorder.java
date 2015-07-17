@@ -36,16 +36,10 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     private final TraceId traceId;
     private final boolean sampling;
     
-    public DefaultSpanRecorder(final TraceContext traceContext, final TraceId traceId, final boolean sampling) {
+    public DefaultSpanRecorder(final TraceContext traceContext, final Span span, final TraceId traceId, final boolean sampling) {
         super(traceContext);
 
-        span = new Span();
-        span.setAgentId(traceContext.getAgentId());
-        span.setApplicationName(traceContext.getApplicationName());
-        span.setAgentStartTime(traceContext.getAgentStartTime());
-        span.setApplicationServiceType(traceContext.getServerTypeCode());
-        span.markBeforeTime();
-        
+        this.span = span;
         this.traceId = traceId;
         this.sampling = sampling;
     }

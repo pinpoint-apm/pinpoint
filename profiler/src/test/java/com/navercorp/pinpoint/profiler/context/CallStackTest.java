@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.navercorp.pinpoint.profiler.context.CallStack;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 
@@ -41,14 +40,6 @@ public class CallStackTest {
         spanEvent = new SpanEvent(span);
     }
 
-    public Span createSpan() {
-        DefaultTraceId traceId = new DefaultTraceId("test", 0, 1);
-        Span span = new Span();
-        span.setAgentId("agentId");
-        span.recordTraceId(traceId);
-        return span;
-    }
-
     private SpanEvent createSpanEventStackFrame(Span span) {
         SpanEvent spanEvent = new SpanEvent(span);
         return spanEvent;
@@ -56,7 +47,7 @@ public class CallStackTest {
 
     @Test
     public void testPush() throws Exception {
-        CallStack callStack = new CallStack();
+        CallStack callStack = new CallStack(span);
         int initialIndex = callStack.getIndex();
         assertEquals("initial index", initialIndex, 0);
         SpanEvent spanEvent = createSpanEventStackFrame(span);
@@ -67,7 +58,7 @@ public class CallStackTest {
 
     @Test
     public void testLargePush() {
-        CallStack callStack = new CallStack();
+        CallStack callStack = new CallStack(span);
         int initialIndex = callStack.getIndex();
         Assert.assertEquals("initial index", initialIndex, 0);
 
@@ -86,7 +77,7 @@ public class CallStackTest {
 
     @Test
     public void testPushPop1() {
-        CallStack callStack = new CallStack();
+        CallStack callStack = new CallStack(span);
 
         callStack.push(spanEvent);
         callStack.pop();
@@ -94,7 +85,7 @@ public class CallStackTest {
 
     @Test
     public void testPushPop2() {
-        CallStack callStack = new CallStack();
+        CallStack callStack = new CallStack(span);
 
         callStack.push(spanEvent);
         callStack.push(spanEvent);
@@ -105,7 +96,7 @@ public class CallStackTest {
 
     @Test
     public void testPop_Fail() {
-        CallStack callStack = new CallStack();
+        CallStack callStack = new CallStack(span);
 
         callStack.push(spanEvent);
         callStack.push(spanEvent);
@@ -113,5 +104,39 @@ public class CallStackTest {
         callStack.pop();
         callStack.pop();
         assertNull(callStack.pop());
+    }
+    
+    @Test
+    public void overflow() {
+        final int maxDepth = 3;
+        
+        CallStack callStack = new CallStack(span, maxDepth);
+        assertEquals(maxDepth, callStack.getMaxDepth());
+        
+        for(int i = 0; i < maxDepth; i++) {
+            assertEquals(i + 1, callStack.push(spanEvent));
+        }
+        // overflow
+        int overflowIndex = callStack.push(spanEvent);
+        assertEquals(maxDepth + 1, overflowIndex);
+        assertEquals(maxDepth + 1, callStack.getIndex());
+        assertTrue(callStack.isOverflow());
+        assertNotNull(callStack.peek());
+        // check inner index value.
+        System.out.println(callStack);
+
+        assertNotNull(callStack.pop());
+        assertEquals(maxDepth, callStack.getIndex());
+        
+        // normal
+        for(int i = maxDepth; i > 0; i--) {
+            assertNotNull(callStack.peek());
+            assertNotNull(callStack.pop());
+            assertEquals(i - 1, callStack.getIndex());
+        }
+        
+        // low overflow
+        assertNull(callStack.pop());
+        assertNull(callStack.peek());
     }
 }
