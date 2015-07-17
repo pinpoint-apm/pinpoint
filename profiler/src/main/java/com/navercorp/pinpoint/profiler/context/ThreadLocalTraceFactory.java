@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.storage.AsyncStorage;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
-import com.navercorp.pinpoint.profiler.context.storage.StoragePool;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricRegistry;
 import com.navercorp.pinpoint.profiler.util.NamedThreadLocal;
 
@@ -50,8 +49,6 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     private final StorageFactory storageFactory;
     private final Sampler sampler;
 
-    private final StoragePool storagePool;
-
     // Unique id for tracing a internal stacktrace and calculating a slow time of activethreadcount
     // moved here in order to make codes simpler for now
     private final AtomicLong transactionId = new AtomicLong(0);
@@ -73,7 +70,6 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         this.metricRegistry = metricRegistry;
         this.storageFactory = storageFactory;
         this.sampler = sampler;
-        this.storagePool = new StoragePool(storageFactory);
     }
 
 
@@ -132,7 +128,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         final boolean sampling = true;
         final DefaultTrace trace = new DefaultTrace(traceContext, traceID, sampling);
         // final Storage storage = storageFactory.createStorage();
-        final Storage storage = storagePool.getStorage(traceID);
+        final Storage storage = storageFactory.createStorage();
         trace.setStorage(storage);
         threadLocal.set(trace);
         return trace;
@@ -172,7 +168,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
             // final Storage storage = storageFactory.createStorage();
             final DefaultTrace trace = new DefaultTrace(traceContext, nextTransactionId(), sampling);
             final TraceId traceId = trace.getTraceId();
-            final Storage storage = storagePool.getStorage(traceId);
+            final Storage storage = storageFactory.createStorage();
             trace.setStorage(storage);
             trace.setTraceType(traceType);
             threadLocal.set(trace);
@@ -209,7 +205,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         final TraceId parentTraceId = traceId.getParentTraceId();
         final boolean sampling = true;
         final DefaultTrace trace = new DefaultTrace(traceContext, parentTraceId, sampling);
-        final Storage storage = storagePool.getStorage(parentTraceId);
+        final Storage storage = storageFactory.createStorage();
         trace.setStorage(new AsyncStorage(storage));
         
         final AsyncTrace asyncTrace = new AsyncTrace(trace, asyncId, traceId.nextAsyncSequence(), startTime);

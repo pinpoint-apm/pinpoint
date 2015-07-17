@@ -48,11 +48,6 @@ public class AsyncStorage implements Storage {
     }
 
     @Override
-    public void setCloseHandler(StorageCloseHandler closeHandler) {
-        storage.setCloseHandler(closeHandler);
-    }
-
-    @Override
     public void close() {
         storage.close();
     }

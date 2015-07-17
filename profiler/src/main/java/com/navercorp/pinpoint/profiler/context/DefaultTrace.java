@@ -60,7 +60,6 @@ public final class DefaultTrace implements Trace {
         this.traceId = new DefaultTraceId(traceContext.getAgentId(), traceContext.getAgentStartTime(), transactionId);
         this.sampling = sampling;
 
-        this.traceId.incrementTraceCount();
         Span span = createSpan();
         this.spanRecorder = new DefaultSpanRecorder(traceContext, span, traceId, sampling);
         this.spanRecorder.recordTraceId(traceId);
@@ -84,7 +83,6 @@ public final class DefaultTrace implements Trace {
         this.traceId = continueTraceId;
         this.sampling = sampling;
 
-        this.traceId.incrementTraceCount();
         Span span = createSpan();
         this.spanRecorder = new DefaultSpanRecorder(traceContext, span, traceId, sampling);
         this.spanRecorder.recordTraceId(traceId);
@@ -180,7 +178,6 @@ public final class DefaultTrace implements Trace {
 
         // If the stack is not handled properly, NullPointerException will be thrown after this. Is it OK?
         if (this.storage != null) {
-            this.traceId.decrementTraceCount();
             this.storage.close();
             this.storage = null;
         }

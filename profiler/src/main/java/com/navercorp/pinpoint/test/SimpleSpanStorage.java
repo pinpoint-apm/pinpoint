@@ -61,10 +61,6 @@ public final class SimpleSpanStorage implements Storage {
     }
 
     @Override
-    public void setCloseHandler(StorageCloseHandler closeHandler) {
-    }
-
-    @Override
     public void close() {
     }
 }

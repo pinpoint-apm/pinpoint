@@ -75,22 +75,6 @@ public class DefaultAsyncTraceId implements AsyncTraceId {
         return startTime;
     }
 
-
-    @Override
-    public int getTraceCount() {
-        return traceId.getTraceCount();
-    }
-
-    @Override
-    public int incrementTraceCount() {
-        return traceId.incrementTraceCount();
-    }
-
-    @Override
-    public int decrementTraceCount() {
-        return traceId.decrementTraceCount();
-    }
-
     @Override
     public TraceId getParentTraceId() {
         return traceId;
@@ -108,5 +92,4 @@ public class DefaultAsyncTraceId implements AsyncTraceId {
         builder.append("}");
         return builder.toString();
     }
-
 }
