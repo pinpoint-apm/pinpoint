@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.ServiceType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -54,14 +54,12 @@ public class ServerInstanceListTest {
 
     public static AgentInfoBo createAgentInfo(String agentId, String hostName) {
         AgentInfoBo.Builder agentInfoBuilder = new AgentInfoBo.Builder();
-        agentInfoBuilder.setAgentId(agentId);
+        agentInfoBuilder.agentId(agentId);
 
         ServiceType serviceType = ServiceType.TEST_STAND_ALONE;
-        agentInfoBuilder.setServiceTypeCode(serviceType.getCode());
-        // TODO FIX api
-        agentInfoBuilder.setServiceType(serviceType);
+        agentInfoBuilder.serviceType(serviceType);
 
-        agentInfoBuilder.setHostName(hostName);
+        agentInfoBuilder.hostName(hostName);
 
         return agentInfoBuilder.build();
     }
