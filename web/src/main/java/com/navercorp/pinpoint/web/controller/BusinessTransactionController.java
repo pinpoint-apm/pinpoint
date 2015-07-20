@@ -198,6 +198,7 @@ public class BusinessTransactionController {
         mv.addObject("disableButtonMessage", disableButtonMessage);
 
         if (viewVersion == 2) {
+            // TODO remove hashformat
             mv.setViewName("transactionInfoJsonHash");
         } else {
             mv.setViewName("transactionInfoJson");
