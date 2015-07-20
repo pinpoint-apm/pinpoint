@@ -23,7 +23,6 @@ import org.apache.thrift.TBase;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
-import com.navercorp.pinpoint.profiler.context.storage.StorageCloseHandler;
 
 /**
  * @author hyungil.jeong
@@ -58,10 +57,6 @@ public final class SimpleSpanStorage implements Storage {
 
     @Override
     public void flush() {
-    }
-
-    @Override
-    public void setCloseHandler(StorageCloseHandler closeHandler) {
     }
 
     @Override

@@ -67,10 +67,6 @@ public class SpanStorage implements Storage {
     }
 
     @Override
-    public void setCloseHandler(StorageCloseHandler closeHandler) {
-    }
-
-    @Override
     public void close() {
     }
 }

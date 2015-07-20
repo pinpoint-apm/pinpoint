@@ -40,7 +40,6 @@ public class BufferedStorage implements Storage {
     private List<SpanEvent> storage;
     private final DataSender dataSender;
     private final SpanChunkFactory spanChunkFactory;
-    private StorageCloseHandler closeHandler;
 
     public BufferedStorage(DataSender dataSender, SpanChunkFactory spanChunkFactory) {
         this(dataSender, spanChunkFactory, DEFAULT_BUFFER_SIZE);
@@ -62,18 +61,17 @@ public class BufferedStorage implements Storage {
     @Override
     public void store(SpanEvent spanEvent) {
         List<SpanEvent> flushData = null;
-        synchronized (this) {
-            storage.add(spanEvent);
-            if (storage.size() >= bufferSize) {
-                // data copy
-                flushData = storage;
-                storage = new ArrayList<SpanEvent>(bufferSize);
-            }
+        storage.add(spanEvent);
+        if (storage.size() >= bufferSize) {
+            // data copy
+            flushData = storage;
+            storage = new ArrayList<SpanEvent>(bufferSize);
         }
+
         if (flushData != null) {
             final SpanChunk spanChunk = spanChunkFactory.create(flushData);
             if (isDebug) {
-                logger.debug("flush SpanChunk {}", spanChunk);
+                logger.debug("[BufferedStorage] Flush span-chunk {}", spanChunk);
             }
             dataSender.send(spanChunk);
         }
@@ -82,10 +80,8 @@ public class BufferedStorage implements Storage {
     @Override
     public void store(Span span) {
         List<SpanEvent> spanEventList;
-        synchronized (this) {
-            spanEventList = storage;
-            this.storage = new ArrayList<SpanEvent>(bufferSize);
-        }
+        spanEventList = storage;
+        this.storage = new ArrayList<SpanEvent>(bufferSize);
 
         if (spanEventList != null && !spanEventList.isEmpty()) {
             span.setSpanEventList((List) spanEventList);
@@ -93,16 +89,14 @@ public class BufferedStorage implements Storage {
         dataSender.send(span);
 
         if (isDebug) {
-            logger.debug("flush span {}", span);
+            logger.debug("[BufferedStorage] Flush span {}", span);
         }
     }
 
     public void flush() {
         List<SpanEvent> spanEventList;
-        synchronized (this) {
-            spanEventList = storage;
-            this.storage = new ArrayList<SpanEvent>(bufferSize);
-        }
+        spanEventList = storage;
+        this.storage = new ArrayList<SpanEvent>(bufferSize);
 
         if (spanEventList != null && !spanEventList.isEmpty()) {
             final SpanChunk spanChunk = spanChunkFactory.create(spanEventList);
@@ -113,19 +107,8 @@ public class BufferedStorage implements Storage {
         }
     }
 
-    public StorageCloseHandler getCloseHandler() {
-        return closeHandler;
-    }
-
-    public void setCloseHandler(StorageCloseHandler closeHandler) {
-        this.closeHandler = closeHandler;
-    }
-
     @Override
     public void close() {
-        if(closeHandler != null) {
-            closeHandler.handle();
-        }
     }
 
     @Override

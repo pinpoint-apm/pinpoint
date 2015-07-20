@@ -39,7 +39,5 @@ public interface Storage {
 
     void flush();
 
-    void setCloseHandler(StorageCloseHandler closeHandler);
-    
     void close();
 }
