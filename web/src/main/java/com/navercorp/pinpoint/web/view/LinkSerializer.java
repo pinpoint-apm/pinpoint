@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.view;
 
 import com.navercorp.pinpoint.web.applicationmap.Link;
 import com.navercorp.pinpoint.web.applicationmap.Node;
+import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
@@ -45,6 +46,9 @@ public class LinkSerializer extends JsonSerializer<Link> {
         jgen.writeStringField("from", link.getFrom().getNodeName());  // necessary for go.js
         jgen.writeStringField("to", link.getTo().getNodeName()); // necessary for go.js
 
+        // for FilterWizard. from, to agent mapping data
+        writeAgentId("fromAgent", link.getFrom(), jgen);
+        writeAgentId("toAgent", link.getTo(), jgen);
 
         writeSimpleNode("sourceInfo", link.getFrom(), jgen);
         writeSimpleNode("targetInfo", link.getTo(), jgen);
@@ -77,6 +81,20 @@ public class LinkSerializer extends JsonSerializer<Link> {
         jgen.writeBooleanField("hasAlert", link.getLinkAlert()); // for go.js
 
         jgen.writeEndObject();
+    }
+
+    private void writeAgentId(String fieldName, Node node, JsonGenerator jgen) throws IOException {
+        if (node.getServiceType().isWas()) {
+            jgen.writeFieldName(fieldName);
+            jgen.writeStartArray();
+            ServerInstanceList serverInstanceList = node.getServerInstanceList();
+            if (serverInstanceList!= null) {
+                for (String agentId : serverInstanceList.getAgentIdList()) {
+                    jgen.writeObject(agentId);
+                }
+            }
+            jgen.writeEndArray();
+        }
     }
 
     private void writeWasToWasTargetRpcList(Link link, JsonGenerator jgen) throws IOException {

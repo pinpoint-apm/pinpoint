@@ -384,6 +384,9 @@ public class ApplicationMapBuilder {
         } else if (nodeServiceType.isWas()) {
             Set<AgentInfoBo> agentList = agentInfoService.selectAgent(node.getApplication().getName(), range);
             if (agentList.isEmpty()) {
+                logger.warn("agentInfo not found. applicationName:{}", node.getApplication());
+                // avoid NPE
+                node.setServerInstanceList(new ServerInstanceList());
                 return;
             }
             logger.debug("add agentInfo. {}, {}", node.getApplication(), agentList);

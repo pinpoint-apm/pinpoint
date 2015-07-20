@@ -37,11 +37,17 @@ public class ServerBuilder {
 
     private final AgentHistogramList agentHistogramList;
     private final Set<AgentInfoBo> agentSet;
-    private MatcherGroup matcherGroup = null;
+    private final MatcherGroup matcherGroup;
+
+    public ServerBuilder() {
+        // TODO FIX
+        this(null);
+    }
 
     public ServerBuilder(MatcherGroup matcherGroup) {
         this.agentHistogramList = new AgentHistogramList();
         this.agentSet = new HashSet<AgentInfoBo>();
+        // TODO avoid null
         this.matcherGroup = matcherGroup;
     }
 
