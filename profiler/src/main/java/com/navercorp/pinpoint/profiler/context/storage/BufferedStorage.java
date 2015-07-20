@@ -71,7 +71,7 @@ public class BufferedStorage implements Storage {
         if (flushData != null) {
             final SpanChunk spanChunk = spanChunkFactory.create(flushData);
             if (isDebug) {
-                logger.debug("flush SpanChunk {}", spanChunk);
+                logger.debug("[BufferedStorage] Flush span-chunk {}", spanChunk);
             }
             dataSender.send(spanChunk);
         }
@@ -80,10 +80,8 @@ public class BufferedStorage implements Storage {
     @Override
     public void store(Span span) {
         List<SpanEvent> spanEventList;
-        synchronized (this) {
-            spanEventList = storage;
-            this.storage = new ArrayList<SpanEvent>(bufferSize);
-        }
+        spanEventList = storage;
+        this.storage = new ArrayList<SpanEvent>(bufferSize);
 
         if (spanEventList != null && !spanEventList.isEmpty()) {
             span.setSpanEventList((List) spanEventList);
@@ -91,7 +89,7 @@ public class BufferedStorage implements Storage {
         dataSender.send(span);
 
         if (isDebug) {
-            logger.debug("flush span {}", span);
+            logger.debug("[BufferedStorage] Flush span {}", span);
         }
     }
 
