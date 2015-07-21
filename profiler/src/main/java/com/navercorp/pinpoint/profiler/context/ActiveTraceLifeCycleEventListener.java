@@ -16,22 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.context.TraceType;
 
 /**
  * @author Taejin Koo
  */
-public interface TraceFactory {
+public interface ActiveTraceLifeCycleEventListener {
 
-    Trace createDefaultTrace(long transactionId, TraceType traceType, boolean sampling);
+    void onCreate(ActiveTraceInfo activeTraceInfo);
 
-    Trace createDefaultTrace(TraceId continueTraceId, boolean sampling);
-
-    Trace createAsyncTrace(AsyncTraceId traceId, int asyncId, long startTime, boolean sampling);
-
-    Trace createMetricTrace();
+    void onClose(ActiveTraceInfo activeTraceInfo);
 
 }

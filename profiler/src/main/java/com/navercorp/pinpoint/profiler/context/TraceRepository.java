@@ -22,16 +22,34 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.TraceType;
 
 /**
+ * @author emeroad
  * @author Taejin Koo
  */
-public interface TraceFactory {
+public interface TraceRepository {
+    
+    Trace currentTraceObject();
 
-    Trace createDefaultTrace(long transactionId, TraceType traceType, boolean sampling);
+    Trace currentRpcTraceObject();
 
-    Trace createDefaultTrace(TraceId continueTraceId, boolean sampling);
+    Trace currentRawTraceObject();
 
-    Trace createAsyncTrace(AsyncTraceId traceId, int asyncId, long startTime, boolean sampling);
+    Trace disableSampling();
 
-    Trace createMetricTrace();
+    // picked as sampling target at remote
+    Trace continueTraceObject(TraceId traceID);
+    
+    Trace continueTraceObject(Trace trace);
+
+    Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime);
+    
+    Trace newTraceObject();
+    
+    Trace newTraceObject(TraceType traceType);
+    
+    Trace removeTraceObject();
+
+    void enableActiveTraceTracking();
+
+    void disableActiveTraceTracking();
 
 }

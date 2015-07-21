@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.util.ParsingResult;
 /**
  * @author emeroad
  * @author hyungil.jeong
+ * @author Taejin Koo
  */
 public interface TraceContext {
 
@@ -91,4 +92,9 @@ public interface TraceContext {
     ServerMetaDataHolder getServerMetaDataHolder();
 
     int getAsyncId();
+
+    void enableActiveTraceTracking();
+
+    void disableActiveTraceTracking();
+
 }
