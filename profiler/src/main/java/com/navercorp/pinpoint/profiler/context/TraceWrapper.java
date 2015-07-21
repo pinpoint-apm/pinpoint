@@ -14,31 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.context;
+package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 
 /**
  * @author emeroad
  */
-public interface Trace extends StackOperation {
-
-    long getId();
-
-    TraceId getTraceId();
-
-    AsyncTraceId getAsyncTraceId();
-
-    boolean canSampled();
-
-    boolean isRoot();
-
-    boolean isAsync();
-    
-    SpanRecorder getSpanRecorder();
-    
-    SpanEventRecorder currentSpanEventRecorder();
-    
-    void close();
-    
-    TraceType getTraceType();
+public interface TraceWrapper<T> {
+    Trace unwrap();
 }

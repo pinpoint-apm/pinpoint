@@ -213,6 +213,11 @@ public final class DefaultTrace implements Trace {
         return this.traceId;
     }
 
+    @Override
+    public long getId() {
+        return traceId.getTransactionSequence();
+    }
+
     public boolean canSampled() {
         return this.sampling;
     }

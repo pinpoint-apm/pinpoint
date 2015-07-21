@@ -21,23 +21,19 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.TraceType;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
  * @author Taejin Koo
  * @author emeroad
  */
-public class ActiveTraceFactory implements TraceFactory {
-
-    // memory leak defense threshold
-    private static final int THREAD_LEAK_LIMIT = 1024 * 10;
+public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
 
     private final TraceFactory delegate;
     private final ActiveTraceRepository activeTraceRepository = new ActiveTraceRepository();
 
     private volatile boolean activeTraceTracking = false;
-
-
 
     private ActiveTraceFactory(TraceFactory delegate) {
         if (delegate == null) {
@@ -48,6 +44,14 @@ public class ActiveTraceFactory implements TraceFactory {
 
     public static TraceFactory wrap(TraceFactory traceFactory) {
         return new ActiveTraceFactory(traceFactory);
+    }
+
+    @Override
+    public TraceFactory unwrap() {
+        if (delegate instanceof TraceFactoryWrapper) {
+            return ((TraceFactoryWrapper) delegate).unwrap();
+        }
+        return delegate;
     }
 
     @Override
@@ -68,8 +72,7 @@ public class ActiveTraceFactory implements TraceFactory {
     @Override
     public Trace disableSampling() {
         final Trace trace = this.delegate.disableSampling();
-//      todo need dummy trace
-//        attachTrace(trace);
+        attachTrace(trace);
         return trace;
     }
 
@@ -109,18 +112,6 @@ public class ActiveTraceFactory implements TraceFactory {
         return trace;
     }
 
-    private void attachTrace(Trace trace) {
-        // TODO Fix
-        if (!trace.canSampled()) {
-            return;
-        }
-        if (activeTraceTracking) {
-            final long spanId = trace.getTraceId().getSpanId();
-            // fix startTime, find Key;
-            final ActiveTraceInfo activeTraceInfo = new ActiveTraceInfo(spanId, System.currentTimeMillis());
-            this.activeTraceRepository.addActiveTrace(spanId, activeTraceInfo);
-        }
-    }
 
     @Override
     public Trace removeTraceObject() {
@@ -129,15 +120,27 @@ public class ActiveTraceFactory implements TraceFactory {
         return trace;
     }
 
-    private void detachTrace(Trace trace) {
-        if (!trace.canSampled()) {
-            // TODO fix
+
+    private void attachTrace(Trace trace) {
+        if (trace == null) {
             return;
         }
 //        if (activeTraceTracking) {
-            //  TODO incomplete state checking.
+        //  TODO incomplete state checking.
 //        }
-        long spanId = trace.getTraceId().getSpanId();
+
+        final long traceObjectId = trace.getId();
+        // TODO Trace instead of ActiveTraceInfo;
+        final ActiveTraceInfo activeTraceInfo = new ActiveTraceInfo(traceObjectId, System.currentTimeMillis());
+        this.activeTraceRepository.addActiveTrace(traceObjectId, activeTraceInfo);
+
+    }
+
+    private void detachTrace(Trace trace) {
+        if (trace == null) {
+            return;
+        }
+        long spanId = trace.getId();
         this.activeTraceRepository.removeActiveTrace(spanId);
     }
 
@@ -151,6 +154,9 @@ public class ActiveTraceFactory implements TraceFactory {
     }
 
     public List<ActiveTraceInfo> collect() {
+        if (!activeTraceTracking) {
+            return Collections.emptyList();
+        }
         return this.activeTraceRepository.collect();
     }
 

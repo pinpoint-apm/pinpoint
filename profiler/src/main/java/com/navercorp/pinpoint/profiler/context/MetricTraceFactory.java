@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.MetricRegistry;
 /**
  * @author emeroad
  */
-public class MetricTraceFactory implements TraceFactory {
+public class MetricTraceFactory implements TraceFactory, TraceFactoryWrapper {
     private final TraceFactory delegate;
     private final MetricRegistry metricRegistry;
 
@@ -42,6 +42,14 @@ public class MetricTraceFactory implements TraceFactory {
 
     public static TraceFactory wrap(TraceFactory traceFactory, ServiceType serviceType) {
         return new MetricTraceFactory(traceFactory, serviceType);
+    }
+
+    @Override
+    public TraceFactory unwrap() {
+        if (delegate instanceof TraceFactoryWrapper) {
+            return ((TraceFactoryWrapper) delegate).unwrap();
+        }
+        return delegate;
     }
 
     @Override

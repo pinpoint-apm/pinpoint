@@ -66,10 +66,6 @@ public class DefaultTraceContext implements TraceContext {
 
     private final TraceFactory traceFactory;
 
-    private final ActiveThreadCounter activeThreadCounter = new ActiveThreadCounter();
-
-//    private GlobalCallTrace globalCallTrace = new GlobalCallTrace();
-
     private AgentInformation agentInformation;
 
     private EnhancedDataSender priorityDataSender;
@@ -116,7 +112,7 @@ public class DefaultTraceContext implements TraceContext {
         // TODO extract chain TraceFactory??
         final TraceFactory threadLocalThreadFactory = new ThreadLocalTraceFactory(this, storageFactory, sampler);
 //        TODO
-//        TraceFactory metircTraceFactory =  MetricTraceFactory.wrap(threadLocalThreadFactory, this.agentInformation.getServerType());
+//        TraceFactory metricTraceFactory =  MetricTraceFactory.wrap(threadLocalThreadFactory, this.agentInformation.getServerType());
 //        final TraceFactory activeTraceFactory = ActiveTraceFactory.wrap(metircTraceFactory);
         return ActiveTraceFactory.wrap(threadLocalThreadFactory);
     }
@@ -186,11 +182,6 @@ public class DefaultTraceContext implements TraceContext {
     @Override
     public Trace removeTraceObject() {
         return traceFactory.removeTraceObject();
-    }
-
-    //@Override
-    public ActiveThreadCounter getActiveThreadCounter() {
-        return activeThreadCounter;
     }
 
     public AgentInformation getAgentInformation() {

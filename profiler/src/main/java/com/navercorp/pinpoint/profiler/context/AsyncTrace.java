@@ -27,6 +27,11 @@ public class AsyncTrace implements Trace {
     }
 
     @Override
+    public long getId() {
+        return -1;
+    }
+
+    @Override
     public TraceId getTraceId() {
         return trace.getTraceId();
     }
