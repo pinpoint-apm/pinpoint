@@ -1,5 +1,11 @@
 (function(){ 
 	'use strict';
+	/**
+	 * (en) Template code for tooltip 
+	 * @ko Tooltip을 위한 Template code
+	 * @group Config
+	 * @name pinpointApp#helpContentTemplate
+	 */
 	var template = [
 	    '<div class="pinpoint-tooltip" style="{{mainStyle}}">',
 	    	'<dl>',

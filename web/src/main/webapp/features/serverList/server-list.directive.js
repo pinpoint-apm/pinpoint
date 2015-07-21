@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)serverListDirective 
+	 * @ko serverListDirective
+	 * @group Directive
+	 * @name serverListDirective
+	 * @class
+	 */
 	pinpointApp.directive('serverListDirective', [ '$timeout', '$window', '$filter', 'helpContentTemplate', 'helpContentService', function ($timeout, $window, $filter, helpContentTemplate, helpContentService) {
             return {
                 restrict: 'A',

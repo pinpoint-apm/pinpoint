@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)agentChartGroupDirective 
+	 * @ko agentChartGroupDirective
+	 * @group Directive
+	 * @name agentChartGroupDirective
+	 * @class
+	 */	
 	pinpointApp.constant('agentChartGroupConfig', {
 	    POINTS_TIMESTAMP: 0,
 	    POINTS_MIN: 1,

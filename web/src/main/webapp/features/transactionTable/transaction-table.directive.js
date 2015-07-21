@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)transactionTableDirective 
+	 * @ko transactionTableDirective
+	 * @group Directive
+	 * @name transactionTableDirective
+	 * @class
+	 */
 	pinpointApp.directive('transactionTableDirective', ['$window', 'helpContentTemplate', 'helpContentService', function ($window, helpContentTemplate, helpContentService) {
 	    return {
 	        restrict: 'EA',

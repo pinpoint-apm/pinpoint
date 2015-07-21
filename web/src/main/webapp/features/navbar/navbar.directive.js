@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)navbarDirective 
+	 * @ko navbarDirective
+	 * @group Directive
+	 * @name navbarDirective
+	 * @class
+	 */	
 	pinpointApp.constant('cfg', {
 	    applicationUrl: '/applications.pinpoint',
 	    serverTimeUrl: '/serverTime.pinpoint',

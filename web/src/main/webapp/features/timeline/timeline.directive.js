@@ -1,6 +1,12 @@
 (function( $ ) {
 	'use strict';
-
+	/**
+	 * (en)timelineDirective 
+	 * @ko timelineDirective
+	 * @group Directive
+	 * @name timelineDirective
+	 * @class
+	 */
 	pinpointApp.directive('timelineDirective', function () {
 	    return {
 	        restrict: 'EA',

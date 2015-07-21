@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)TransactionListCtrl 
+	 * @ko TransactionListCtrl
+	 * @group Controller
+	 * @name TransactionListCtrl
+	 * @class
+	 */
 	pinpointApp.constant('TransactionListConfig', {
 	    applicationUrl: '/transactionmetadata.pinpoint',
 	    MAX_FETCH_BLOCK_SIZE: 100,

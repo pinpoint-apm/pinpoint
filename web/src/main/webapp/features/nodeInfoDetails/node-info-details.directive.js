@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)nodeInfoDetailsDirective 
+	 * @ko nodeInfoDetailsDirective
+	 * @group Directive
+	 * @name nodeInfoDetailsDirective
+	 * @class
+	 */	
 	pinpointApp.constant('nodeInfoDetailsDirectiveConfig', {
 	    applicationStatisticsUrl: '/applicationStatistics.pinpoint',
 	    myColors: ["#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034"],
