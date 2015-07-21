@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
-import com.navercorp.pinpoint.profiler.context.ThreadLocalTraceRepositoy;
+import com.navercorp.pinpoint.profiler.context.ThreadLocalTraceFactory;
 import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricRegistry;
 import com.navercorp.pinpoint.profiler.sampler.TrueSampler;
@@ -35,19 +35,19 @@ import org.junit.Test;
 
 public class ThreadLocalTraceFactoryTest {
 
-    private ThreadLocalTraceRepositoy getTraceFactory() {
+    private ThreadLocalTraceFactory getTraceFactory() {
         LogStorageFactory logStorageFactory = new LogStorageFactory();
         TrueSampler trueSampler = new TrueSampler();
         ServerMetaDataHolder serverMetaDataHolder = new DefaultServerMetaDataHolder(Collections.<String>emptyList());
         AgentInformation agentInformation = new AgentInformation("agentId", "applicationName", System.currentTimeMillis(), 10, "test", "127.0.0.1", ServiceType.STAND_ALONE, Version.VERSION);
         DefaultTraceContext traceContext = new DefaultTraceContext(100, agentInformation, logStorageFactory, trueSampler, serverMetaDataHolder);
         MetricRegistry metricRegistry = new MetricRegistry(ServiceType.STAND_ALONE);
-        return new ThreadLocalTraceRepositoy(traceContext, metricRegistry, logStorageFactory, trueSampler);
+        return new ThreadLocalTraceFactory(traceContext, metricRegistry, logStorageFactory, trueSampler);
     }
 
     @Test
     public void nullTraceObject() {
-        ThreadLocalTraceRepositoy traceFactory = getTraceFactory();
+        ThreadLocalTraceFactory traceFactory = getTraceFactory();
 
         Trace currentTraceObject = traceFactory.currentTraceObject();
         Assert.assertNull(currentTraceObject);
@@ -59,7 +59,7 @@ public class ThreadLocalTraceFactoryTest {
 
     @Test
     public void testCurrentTraceObject() throws Exception {
-        ThreadLocalTraceRepositoy traceFactory = getTraceFactory();
+        ThreadLocalTraceFactory traceFactory = getTraceFactory();
 
         Trace trace = traceFactory.currentTraceObject();
 
