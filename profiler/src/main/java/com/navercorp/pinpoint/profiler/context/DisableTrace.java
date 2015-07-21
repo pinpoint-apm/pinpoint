@@ -28,36 +28,47 @@ import com.navercorp.pinpoint.bootstrap.context.TraceType;
  * @author emeroad
  * @author jaehong.kim
  */
-public class DisableTrace  implements Trace {
+public class DisableTrace implements Trace {
 
-    public static final DisableTrace INSTANCE = new DisableTrace();
+    public static final String UNSUPPORTED_OPERATION  = "disable trace";
+    public static final long DISABLE_TRACE_OBJECT_ID = -1;
+
+    public static final DisableTrace INSTANCE = new DisableTrace(DISABLE_TRACE_OBJECT_ID);
+
+    private final long id;
     
-    public DisableTrace() {
+    public DisableTrace(long id) {
+        this.id = id;
+    }
+
+    @Override
+    public long getId() {
+        return id;
     }
 
     @Override
     public SpanEventRecorder traceBlockBegin() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
     @Override
     public SpanEventRecorder traceBlockBegin(int stackId) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
     @Override
     public void traceBlockEnd() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
     @Override
     public void traceBlockEnd(int stackId) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
     @Override
     public TraceId getTraceId() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
     @Override
@@ -78,12 +89,12 @@ public class DisableTrace  implements Trace {
 
     @Override
     public boolean isRootStack() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
     @Override
     public AsyncTraceId getAsyncTraceId() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
     @Override

@@ -16,31 +16,46 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.google.common.collect.Lists;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author Taejin Koo
  */
 public class ActiveTraceRepository {
-    // Object key is ?
-    // spanId?, transactionId?, uniqueid;
-    private final Map<Object, ActiveTraceInfo> activeTraceInfoMap = new ConcurrentHashMap<Object, ActiveTraceInfo>(16*5, 0.75f, 16*5);
+
+    // memory leak defense threshold
+    private static final int DEFAULT_MAX_ACTIVE_TRACE_SIZE = 1024 * 10;
+    // oom safe cache
+    private final ConcurrentMap<Long, ActiveTraceInfo> activeTraceInfoMap;
 
     public ActiveTraceRepository() {
+        this(DEFAULT_MAX_ACTIVE_TRACE_SIZE);
+    }
+    public ActiveTraceRepository(int maxActiveTraceSize) {
+        this.activeTraceInfoMap = createCache(maxActiveTraceSize);
     }
 
-    public void addActiveTrace(Object key, ActiveTraceInfo trace) {
+    private ConcurrentMap<Long, ActiveTraceInfo> createCache(int maxActiveTraceSize) {
+        final CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
+        cacheBuilder.concurrencyLevel(64);
+        cacheBuilder.initialCapacity(maxActiveTraceSize);
+        cacheBuilder.maximumSize(maxActiveTraceSize);
+
+        final Cache<Long, ActiveTraceInfo> localCache = cacheBuilder.build();
+        return localCache.asMap();
+    }
+
+    public void addActiveTrace(Long key, ActiveTraceInfo trace) {
         activeTraceInfoMap.put(key, trace);
     }
 
-    public void removeActiveTrace(Object key) {
+    public void removeActiveTrace(Long key) {
         activeTraceInfoMap.remove(key);
     }
 

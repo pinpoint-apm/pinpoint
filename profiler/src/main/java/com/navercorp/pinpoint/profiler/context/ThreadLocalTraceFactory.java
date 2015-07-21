@@ -51,6 +51,8 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     // Unique id for tracing a internal stacktrace and calculating a slow time of activethreadcount
     // moved here in order to make codes simpler for now
     private final AtomicLong transactionId = new AtomicLong(0);
+    // -1 is DEFAULT_DISABLE_ID
+    private final AtomicLong disableId = new AtomicLong(-2);
 
     public ThreadLocalTraceFactory(TraceContext traceContext, StorageFactory storageFactory, Sampler sampler) {
         if (traceContext == null) {
@@ -159,7 +161,6 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         // TODO need to modify how to inject a datasender
         final boolean sampling = sampler.isSampling();
         if (sampling) {
-            // final Storage storage = storageFactory.createStorage();
             final DefaultTrace trace = new DefaultTrace(traceContext, nextTransactionId(), sampling);
 
             final Storage storage = storageFactory.createStorage();
@@ -184,11 +185,15 @@ public class ThreadLocalTraceFactory implements TraceFactory {
 
     
     private Trace newDisableTrace() {
-        return new DisableTrace();
+        return new DisableTrace(nextDisableId());
     }
 
     private long nextTransactionId() {
         return this.transactionId.getAndIncrement();
+    }
+
+    private long nextDisableId() {
+        return this.disableId.getAndDecrement();
     }
     
     public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {

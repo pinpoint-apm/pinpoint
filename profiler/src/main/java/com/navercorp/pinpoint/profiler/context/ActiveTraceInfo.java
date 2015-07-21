@@ -16,9 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import java.util.Iterator;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 
 /**
  * @author Taejin Koo
@@ -26,19 +23,31 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ActiveTraceInfo {
 
     private final long startTime;
-    private final long spanId;
+    private final long traceObjectId;
+    private final Thread currentThread;
 
-    public ActiveTraceInfo(long spanId, long startTime) {
+    public ActiveTraceInfo(long traceObjectId, long startTime) {
+        this(traceObjectId, startTime, Thread.currentThread());
+    }
+
+    public ActiveTraceInfo(long traceObjectId, long startTime, Thread currentThread) {
+        if (currentThread == null) {
+            throw new NullPointerException("currentThread must not be null");
+        }
         this.startTime = startTime;
-        this.spanId = spanId;
+        this.traceObjectId = traceObjectId;
+        this.currentThread = currentThread;
     }
 
     public long getStartTime() {
         return startTime;
     }
 
-    public long getSpanId() {
-        return spanId;
+    public long getTraceObjectId() {
+        return traceObjectId;
     }
 
+    public Thread getCurrentThread() {
+        return currentThread;
+    }
 }
