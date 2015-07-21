@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.util.ParsingResult;
 /**
  * @author emeroad
  * @author hyungil.jeong
+ * @author Taejin Koo
  */
 public class MockTraceContext implements TraceContext {
 
@@ -185,5 +186,17 @@ public class MockTraceContext implements TraceContext {
         Trace old = trace;
         trace = null;
         return old;
+    }
+    
+    @Override
+    public void disableActiveTraceTracking() {
+        // TODO Auto-generated method stub
+        
+    }
+    
+    @Override
+    public void enableActiveTraceTracking() {
+        // TODO Auto-generated method stub
+        
     }
 }

@@ -16,22 +16,30 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.context.TraceType;
+import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author Taejin Koo
  */
-public interface TraceFactory {
+public class ActiveTraceRepository {
 
-    Trace createDefaultTrace(long transactionId, TraceType traceType, boolean sampling);
+    private final CopyOnWriteArrayList<ActiveTraceInfo> activeTraceInfoList = new CopyOnWriteArrayList<ActiveTraceInfo>();
 
-    Trace createDefaultTrace(TraceId continueTraceId, boolean sampling);
+    public ActiveTraceRepository() {
+        super();
+    }
 
-    Trace createAsyncTrace(AsyncTraceId traceId, int asyncId, long startTime, boolean sampling);
+    void addActiveTrace(ActiveTraceInfo activeTraceInfo) {
+        activeTraceInfoList.add(activeTraceInfo);
+    }
 
-    Trace createMetricTrace();
+    void removeActiveTrace(ActiveTraceInfo activeTraceInfo) {
+        activeTraceInfoList.remove(activeTraceInfo);
+    }
+
+    Iterator<ActiveTraceInfo> getIterator() {
+        return activeTraceInfoList.iterator();
+    }
 
 }
