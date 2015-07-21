@@ -22,6 +22,7 @@ import java.util.List;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
+import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
@@ -77,7 +78,7 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
     
     private String remoteAddr; // optional
 
-    private boolean loggingTransactionInfo; //optional
+    private byte loggingTransactionInfo; //optional
 
     public SpanBo(TSpan span) {
         if (span == null) {
@@ -112,7 +113,7 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
         
         this.remoteAddr = span.getRemoteAddr();
         
-        this.loggingTransactionInfo = span.getLoggingTransactionInfo() == 1 ? true : false;
+        this.loggingTransactionInfo = span.getLoggingTransactionInfo();
         
         // FIXME (2015.03) Legacy - applicationServiceType added in v1.1.0
         // applicationServiceType is not saved for older versions where applicationServiceType does not exist.
@@ -385,11 +386,11 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
         }
     }
     
-    public boolean isLoggingTransactionInfo() {
+    public byte getLoggingTransactionInfo() {
         return loggingTransactionInfo;
     }
 
-    public void setLoggingTransactionInfo(boolean loggingTransactionInfo) {
+    public void setLoggingTransactionInfo(byte loggingTransactionInfo) {
         this.loggingTransactionInfo = loggingTransactionInfo;
     }
 
@@ -496,7 +497,7 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
         }
         
         if (buffer.limit() > 0) {
-            this.loggingTransactionInfo = buffer.readBoolean();
+            this.loggingTransactionInfo = buffer.readByte();
         }
 
         return buffer.getOffset();

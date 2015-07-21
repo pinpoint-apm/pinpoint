@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.common.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
+import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeNode;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
@@ -168,7 +169,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     private boolean findIsLoggingTransactionInfo(List<SpanAlign> spanAlignList) {
         for (SpanAlign spanAlign : spanAlignList) {
             if (spanAlign.isSpan()) {
-                if (spanAlign.getSpanBo().isLoggingTransactionInfo()) {
+                if (spanAlign.getSpanBo().getLoggingTransactionInfo() == LoggingInfo.LOGGED.getCode()) {
                     return true;
                 }
             }

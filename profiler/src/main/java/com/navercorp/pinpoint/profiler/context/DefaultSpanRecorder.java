@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
@@ -123,9 +124,9 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     }
     
     @Override
-    public void recordLogging(boolean isLogging) {
+    public void recordLogging(LoggingInfo loggingInfo) {
         if (!span.isSetLoggingTransactionInfo()) {
-            span.setLoggingTransactionInfo((short)(isLogging ? 1 : 0)); 
+            span.setLoggingTransactionInfo(loggingInfo.getCode()); 
         }
     }
     
