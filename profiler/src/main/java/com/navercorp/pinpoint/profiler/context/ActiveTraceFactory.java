@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceType;
 import java.util.List;
 
 /**
+ * @author Taejin Koo
  * @author emeroad
  */
 public class ActiveTraceFactory implements TraceFactory {

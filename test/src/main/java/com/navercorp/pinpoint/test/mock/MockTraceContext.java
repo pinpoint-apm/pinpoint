@@ -136,31 +136,6 @@ public class MockTraceContext implements TraceContext {
     }
 
     @Override
-    public Metric getRpcMetric(ServiceType serviceType) {
-        return null;
-    }
-
-    @Override
-    public void recordContextMetricIsError() {
-
-    }
-
-    @Override
-    public void recordContextMetric(int elapsedTime) {
-
-    }
-
-    @Override
-    public void recordAcceptResponseTime(String parentApplicationName, short parentApplicationType, int elapsedTime) {
-
-    }
-
-    @Override
-    public void recordUserAcceptResponseTime(int elapsedTime) {
-
-    }
-
-    @Override
     public ServerMetaDataHolder getServerMetaDataHolder() {
         return null;
     }

@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.storage.AsyncStorage;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
-import com.navercorp.pinpoint.profiler.monitor.metric.MetricRegistry;
 import com.navercorp.pinpoint.profiler.util.NamedThreadLocal;
 
 import org.slf4j.Logger;
@@ -45,7 +44,6 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     private final ThreadLocal<Trace> threadLocal = new NamedThreadLocal<Trace>("Trace");
 
     private final TraceContext traceContext;
-    private final MetricRegistry metricRegistry;
 
     private final StorageFactory storageFactory;
     private final Sampler sampler;
@@ -54,12 +52,9 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     // moved here in order to make codes simpler for now
     private final AtomicLong transactionId = new AtomicLong(0);
 
-    public ThreadLocalTraceFactory(TraceContext traceContext, MetricRegistry metricRegistry, StorageFactory storageFactory, Sampler sampler) {
+    public ThreadLocalTraceFactory(TraceContext traceContext, StorageFactory storageFactory, Sampler sampler) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
-        }
-        if (metricRegistry == null) {
-            throw new NullPointerException("metricRegistry must not be null");
         }
         if (storageFactory == null) {
             throw new NullPointerException("storageFactory must not be null");
@@ -68,7 +63,6 @@ public class ThreadLocalTraceFactory implements TraceFactory {
             throw new NullPointerException("sampler must not be null");
         }
         this.traceContext = traceContext;
-        this.metricRegistry = metricRegistry;
         this.storageFactory = storageFactory;
         this.sampler = sampler;
     }
@@ -111,10 +105,9 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     @Override
     public Trace disableSampling() {
         checkBeforeTraceObject();
-        final Trace metricTrace = createMetricTrace();
+        final Trace metricTrace = newDisableTrace();
         threadLocal.set(metricTrace);
 
-        // TODO STATDISABLE, disabled to store statistics for now. createMetricTrace() returns DisableTrace.INSTANCE.
         return metricTrace;
     }
 
@@ -168,16 +161,16 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         if (sampling) {
             // final Storage storage = storageFactory.createStorage();
             final DefaultTrace trace = new DefaultTrace(traceContext, nextTransactionId(), sampling);
-            final TraceId traceId = trace.getTraceId();
+
             final Storage storage = storageFactory.createStorage();
             trace.setStorage(storage);
             trace.setTraceType(traceType);
             threadLocal.set(trace);
             return trace;
         } else {
-            final Trace metricTrace = createMetricTrace();
-            threadLocal.set(metricTrace);
-            return metricTrace;
+            final Trace disableTrace = newDisableTrace();
+            threadLocal.set(disableTrace);
+            return disableTrace;
         }
     }
 
@@ -190,10 +183,8 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     }
 
     
-    private Trace createMetricTrace() {
-        return DisableTrace.INSTANCE;
-        // TODO STATDISABLE ,  disabled to store statistics for now
-        // return new MetricTrace(traceContext, nextTransactionId());
+    private Trace newDisableTrace() {
+        return new DisableTrace();
     }
 
     private long nextTransactionId() {
