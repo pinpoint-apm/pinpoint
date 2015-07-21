@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)ProgressBarService 
+	 * @ko ProgressBarService
+	 * @group Service
+	 * @name ProgressBarService
+	 * @class
+	 */
 	pinpointApp.factory('ProgressBarService', [ '$timeout', '$window', '$location', 'UserLocalesService', function ($timeout, $window, $location, UserLocalesService) {
 		var AVAILABLE_LOCALE = [ "ko", "en" ];
 		var TIP_MAX_COUNT = 5;

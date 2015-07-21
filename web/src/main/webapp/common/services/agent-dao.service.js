@@ -1,6 +1,13 @@
 (function() {
 	'use strict';
 	
+	/**
+	 * (en)Agent의 Chart 정보를 로드하고 chart library에 사용할 수 있도록 데이터를 가공함. 
+	 * @ko Agent의 Chart 정보를 로드하고 chart library에 사용할 수 있도록 데이터를 가공함.
+	 * @group Service
+	 * @name AgentDaoService
+	 * @class
+	 */	
 	pinpointApp.constant('agentDaoServiceConfig', {
 	    agentStatUrl: '/getAgentStat.pinpoint'
 	});
@@ -8,6 +15,13 @@
 	pinpointApp.service('AgentDaoService', [ 'agentDaoServiceConfig',
 	    function AgentDaoService(cfg) {
 		
+			/**
+			 * (en)선택한 Agent의 Chart 정보를 로드함.
+			 * @ko 선택한 Agent의 Chart 정보를 로드함.
+			 * @method AgentDaoService#getAgentStat
+			 * @param {String} query
+			 * @param {Function} cb
+			 */
 	        this.getAgentStat = function (query, cb) {
 	            jQuery.ajax({
 	                type: 'GET',

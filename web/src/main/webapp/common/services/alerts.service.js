@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)AlertsService 
+	 * @ko AlertsService.
+	 * @group Service
+	 * @name AlertsService
+	 * @class
+	 */
 	pinpointApp.factory('AlertsService', ['$timeout', function ($timeout) {
 	
 	    return function (parent) {
