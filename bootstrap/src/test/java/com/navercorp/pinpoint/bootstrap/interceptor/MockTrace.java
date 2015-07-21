@@ -46,6 +46,11 @@ public class MockTrace implements Trace {
     }
 
     @Override
+	public long getId() {
+		return -1;
+	}
+	
+    @Override
     public TraceId getTraceId() {
         return null;
     }
