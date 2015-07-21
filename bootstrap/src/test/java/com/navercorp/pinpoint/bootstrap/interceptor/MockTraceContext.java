@@ -187,16 +187,4 @@ public class MockTraceContext implements TraceContext {
         trace = null;
         return old;
     }
-    
-    @Override
-    public void disableActiveTraceTracking() {
-        // TODO Auto-generated method stub
-        
-    }
-    
-    @Override
-    public void enableActiveTraceTracking() {
-        // TODO Auto-generated method stub
-        
-    }
 }

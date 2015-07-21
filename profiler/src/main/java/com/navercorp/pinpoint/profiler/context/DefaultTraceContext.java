@@ -67,11 +67,9 @@ public class DefaultTraceContext implements TraceContext {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final TraceRepository traceRepository;
+    private final TraceFactory traceFactory;
 
     private final ActiveThreadCounter activeThreadCounter = new ActiveThreadCounter();
-    
-    private final ActiveTraceRepository activeTraceRepository = new ActiveTraceRepository();
 
 //    private GlobalCallTrace globalCallTrace = new GlobalCallTrace();
 
@@ -114,7 +112,9 @@ public class DefaultTraceContext implements TraceContext {
         this.sqlCache = new SimpleCache<String>(sqlCacheSize);
         this.metricRegistry = new MetricRegistry(this.agentInformation.getServerType());
 
-        this.traceRepository = new ThreadLocalTraceRepositoy(this, metricRegistry, storageFactory, sampler, new ActiveTraceEventListener());
+        final TraceFactory threadLocalThreadFactory = new ThreadLocalTraceFactory(this, metricRegistry, storageFactory, sampler);
+        final TraceFactory activeTraceFactory = ActiveTraceFactory.wrap(threadLocalThreadFactory);
+        this.traceFactory = activeTraceFactory;
         
         this.serverMetaDataHolder = serverMetaDataHolder;
     }
@@ -124,11 +124,11 @@ public class DefaultTraceContext implements TraceContext {
      * @return
      */
     public Trace currentTraceObject() {
-        return traceRepository.currentTraceObject();
+        return traceFactory.currentTraceObject();
     }
 
     public Trace currentRpcTraceObject() {
-        return traceRepository.currentTraceObject();
+        return traceFactory.currentTraceObject();
     }
 
     /**
@@ -137,13 +137,13 @@ public class DefaultTraceContext implements TraceContext {
      */
     @Override
     public Trace currentRawTraceObject() {
-        return traceRepository.currentRawTraceObject();
+        return traceFactory.currentRawTraceObject();
     }
 
     @Override
     public Trace disableSampling() {
         // return null; is bug.  #93
-        return traceRepository.disableSampling();
+        return traceFactory.disableSampling();
     }
 
     public void setProfilerConfig(final ProfilerConfig profilerConfig) {
@@ -160,30 +160,30 @@ public class DefaultTraceContext implements TraceContext {
 
     // Will be invoked when current transaction is picked as sampling target at remote.
     public Trace continueTraceObject(final TraceId traceID) {
-        return traceRepository.continueTraceObject(traceID);
+        return traceFactory.continueTraceObject(traceID);
     }
 
     @Override
     public Trace continueTraceObject(Trace trace) {
-        return traceRepository.continueTraceObject(trace);
+        return traceFactory.continueTraceObject(trace);
     }
     
     @Override
     public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
-        return traceRepository.continueAsyncTraceObject(traceId, asyncId, startTime);
+        return traceFactory.continueAsyncTraceObject(traceId, asyncId, startTime);
     }
     
     public Trace newTraceObject() {
-        return traceRepository.newTraceObject();
+        return traceFactory.newTraceObject();
     }
 
     public Trace newTraceObject(TraceType traceType) {
-        return traceRepository.newTraceObject(traceType);
+        return traceFactory.newTraceObject(traceType);
     }
 
     @Override
     public Trace removeTraceObject() {
-        return traceRepository.removeTraceObject();
+        return traceFactory.removeTraceObject();
     }
 
     //@Override
@@ -371,27 +371,4 @@ public class DefaultTraceContext implements TraceContext {
         return id == -1 ? asyncId.incrementAndGet() : id;
     }
 
-    @Override
-    public void enableActiveTraceTracking() {
-        traceRepository.enableActiveTraceTracking();
-    }
-
-    @Override
-    public void disableActiveTraceTracking() {
-        traceRepository.disableActiveTraceTracking();
-    }
-
-    class ActiveTraceEventListener implements ActiveTraceLifeCycleEventListener {
-
-        @Override
-        public void onCreate(ActiveTraceInfo activeTraceInfo) {
-            activeTraceRepository.addActiveTrace(activeTraceInfo);
-        }
-
-        @Override
-        public void onClose(ActiveTraceInfo activeTraceInfo) {
-             activeTraceRepository.removeActiveTrace(activeTraceInfo);
-        }
-    }
-    
 }

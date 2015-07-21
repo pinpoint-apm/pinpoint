@@ -92,9 +92,4 @@ public interface TraceContext {
     ServerMetaDataHolder getServerMetaDataHolder();
 
     int getAsyncId();
-
-    void enableActiveTraceTracking();
-
-    void disableActiveTraceTracking();
-
 }

@@ -16,30 +16,37 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import java.util.Iterator;
-import java.util.concurrent.CopyOnWriteArrayList;
+import com.google.common.collect.Lists;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Taejin Koo
  */
 public class ActiveTraceRepository {
-
-    private final CopyOnWriteArrayList<ActiveTraceInfo> activeTraceInfoList = new CopyOnWriteArrayList<ActiveTraceInfo>();
+    // Object key is ?
+    // spanId?, transactionId?, uniqueid;
+    private final Map<Object, ActiveTraceInfo> activeTraceInfoMap = new ConcurrentHashMap<Object, ActiveTraceInfo>(16*5, 0.75f, 16*5);
 
     public ActiveTraceRepository() {
-        super();
     }
 
-    void addActiveTrace(ActiveTraceInfo activeTraceInfo) {
-        activeTraceInfoList.add(activeTraceInfo);
+    public void addActiveTrace(Object key, ActiveTraceInfo trace) {
+        activeTraceInfoMap.put(key, trace);
     }
 
-    void removeActiveTrace(ActiveTraceInfo activeTraceInfo) {
-        activeTraceInfoList.remove(activeTraceInfo);
+    public void removeActiveTrace(Object key) {
+        activeTraceInfoMap.remove(key);
     }
 
-    Iterator<ActiveTraceInfo> getIterator() {
-        return activeTraceInfoList.iterator();
+    public List<ActiveTraceInfo> collect() {
+        final Collection<ActiveTraceInfo> copy = activeTraceInfoMap.values();
+        return new ArrayList<ActiveTraceInfo>(copy);
     }
 
 }
