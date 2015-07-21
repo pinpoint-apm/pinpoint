@@ -45,6 +45,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.bootstrap.plugin.test.TraceType;
 import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.Span;
@@ -754,7 +755,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
 
     @Override
-    public void verifyIsLoggingTransactionInfo(boolean isLoggingTransactionInfo) {
+    public void verifyIsLoggingTransactionInfo(LoggingInfo loggingInfo) {
         Object actual = popSpan();
         Span span = null;
 
@@ -766,10 +767,16 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
             throw new IllegalArgumentException("Unexpected type: " + actual.getClass());
         }
         
-        boolean actualValue = span.getLoggingTransactionInfo() == 1 ? true : false; 
-        
-        if (isLoggingTransactionInfo != actualValue) {
-            throw new AssertionError("Expected a Span isLoggingTransactionInfo value with [" + isLoggingTransactionInfo + "] but was [" + !isLoggingTransactionInfo + "]. expected: " + isLoggingTransactionInfo + ", was: " + !isLoggingTransactionInfo);
+        if (span.getLoggingTransactionInfo() != loggingInfo.getCode()) {
+            
+            LoggingInfo loggingTransactionInfo = LoggingInfo.searchByCode(span.getLoggingTransactionInfo());
+            
+            if (loggingTransactionInfo != null) {
+                throw new AssertionError("Expected a Span isLoggingTransactionInfo value with [" + loggingInfo.getName() + "] but was [" + loggingTransactionInfo.getName() + "]. expected: " + loggingInfo.getName() + ", was: " + loggingTransactionInfo.getName());
+            } else {
+                throw new AssertionError("Expected a Span isLoggingTransactionInfo value with [" + loggingInfo.getName() + "] but loggingTransactionInfo value invalid.");
+            }
+            
         }
         
         

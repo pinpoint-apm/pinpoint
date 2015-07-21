@@ -17,6 +17,8 @@ package com.navercorp.pinpoint.bootstrap.plugin.test;
 import java.io.PrintStream;
 import java.util.List;
 
+import com.navercorp.pinpoint.common.trace.LoggingInfo;
+
 
 
 /**
@@ -36,5 +38,5 @@ public interface PluginTestVerifier {
     public void printCache();
     public void initialize(boolean initializeTraceObject);
     public void cleanUp(boolean detachTraceObject);
-    public void verifyIsLoggingTransactionInfo(boolean isLoggingTransactionInfo);
+    public void verifyIsLoggingTransactionInfo(LoggingInfo loggingInfo);
 }
