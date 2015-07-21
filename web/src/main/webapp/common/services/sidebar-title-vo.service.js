@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)SidebarTitleVoService 
+	 * @ko SidebarTitleVoService
+	 * @group Service
+	 * @name SidebarTitleVoService
+	 * @class
+	 */
 	pinpointApp.factory('SidebarTitleVoService', [ function () {
 	    return function () {
 	        var self = this;

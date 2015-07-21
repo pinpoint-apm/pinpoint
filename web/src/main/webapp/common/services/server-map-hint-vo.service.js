@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)ServerMapHintVoService 
+	 * @ko ServerMapHintVoService
+	 * @group Service
+	 * @name ServerMapHintVoService
+	 * @class
+	 */
 	pinpointApp.factory('ServerMapHintVoService', [function () {
 	    return function ServerMapHintVo(dataSet) {
 	        var self = this;

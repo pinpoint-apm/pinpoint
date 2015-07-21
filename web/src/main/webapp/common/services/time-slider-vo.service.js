@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)TimeSliderVoService 
+	 * @ko TimeSliderVoService
+	 * @group Service
+	 * @name TimeSliderVoService
+	 * @class
+	 */
 	pinpointApp.factory('TimeSliderVoService', function () {
 	    return function () {
 	        // define and initialize private variables;

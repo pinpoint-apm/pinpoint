@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)ServerMapDaoService 
+	 * @ko ServerMapDaoService
+	 * @group Service
+	 * @name ServerMapDaoService
+	 * @class
+	 */
 	pinpointApp.constant('serverMapDaoServiceConfig', {
 	    serverMapDataUrl: '/getServerMapData.pinpoint',
 	    filteredServerMapDataUrl: '/getFilteredServerMapData.pinpoint',

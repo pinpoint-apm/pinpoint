@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)NavbarVoService 
+	 * @ko NavbarVoService
+	 * @group Service
+	 * @name NavbarVoService
+	 * @class
+	 */
 	pinpointApp.factory('NavbarVoService', function () {
 	    return function () {
 	        // define and initialize private variables;

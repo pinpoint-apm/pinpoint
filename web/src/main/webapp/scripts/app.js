@@ -1,3 +1,6 @@
+/**
+ * @namespace pinpointApp
+ */
 'use strict';
 
 //nv.dev = false;

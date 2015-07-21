@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)TransactionDaoService 
+	 * @ko TransactionDaoService
+	 * @group Service
+	 * @name TransactionDaoService
+	 * @class
+	 */
 	pinpointApp.constant('TransactionDaoServiceConfig', {
 	    transactionInfoUrl: '/transactionInfo.pinpoint'
 	});

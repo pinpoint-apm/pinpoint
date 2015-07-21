@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)isVisibleService 
+	 * @ko isVisibleService
+	 * @group Service
+	 * @name isVisibleService
+	 * @class
+	 */
 	pinpointApp.factory('isVisibleService', function () {
 	
 	    /**
