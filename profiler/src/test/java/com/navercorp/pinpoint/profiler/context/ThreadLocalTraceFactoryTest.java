@@ -41,8 +41,7 @@ public class ThreadLocalTraceFactoryTest {
         ServerMetaDataHolder serverMetaDataHolder = new DefaultServerMetaDataHolder(Collections.<String>emptyList());
         AgentInformation agentInformation = new AgentInformation("agentId", "applicationName", System.currentTimeMillis(), 10, "test", "127.0.0.1", ServiceType.STAND_ALONE, Version.VERSION);
         DefaultTraceContext traceContext = new DefaultTraceContext(100, agentInformation, logStorageFactory, trueSampler, serverMetaDataHolder);
-        MetricRegistry metricRegistry = new MetricRegistry(ServiceType.STAND_ALONE);
-        return new ThreadLocalTraceFactory(traceContext, metricRegistry, logStorageFactory, trueSampler);
+        return new ThreadLocalTraceFactory(traceContext, logStorageFactory, trueSampler);
     }
 
     @Test

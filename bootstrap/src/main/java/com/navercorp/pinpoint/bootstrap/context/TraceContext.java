@@ -79,16 +79,7 @@ public interface TraceContext {
 
     ProfilerConfig getProfilerConfig();
 
-    Metric getRpcMetric(ServiceType serviceType);
 
-    void recordContextMetricIsError();
-
-    void recordContextMetric(int elapsedTime);
-
-    void recordAcceptResponseTime(String parentApplicationName, short parentApplicationType, int elapsedTime);
-
-    void recordUserAcceptResponseTime(int elapsedTime);
-    
     ServerMetaDataHolder getServerMetaDataHolder();
 
     int getAsyncId();

@@ -32,7 +32,7 @@ public class DisableTrace  implements Trace {
 
     public static final DisableTrace INSTANCE = new DisableTrace();
     
-    private DisableTrace() {
+    public DisableTrace() {
     }
 
     @Override
