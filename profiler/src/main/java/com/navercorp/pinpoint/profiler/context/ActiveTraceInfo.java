@@ -26,26 +26,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ActiveTraceInfo {
 
     private final long startTime;
-    private final CopyOnWriteArrayList<String> relatedThreadNameList;
     private final long spanId;
 
-    public ActiveTraceInfo(long spanId) {
-        this.startTime = System.currentTimeMillis();
-        this.relatedThreadNameList = new CopyOnWriteArrayList<String>();
-
+    public ActiveTraceInfo(long spanId, long startTime) {
+        this.startTime = startTime;
         this.spanId = spanId;
     }
 
     public long getStartTime() {
         return startTime;
-    }
-
-    public void addThreadName(String activeThreadName) {
-        this.relatedThreadNameList.add(activeThreadName);
-    }
-
-    public Iterator<String> getRelatedThreadNameList() {
-        return relatedThreadNameList.iterator();
     }
 
     public long getSpanId() {

@@ -112,7 +112,9 @@ public class DefaultTraceContext implements TraceContext {
         this.sqlCache = new SimpleCache<String>(sqlCacheSize);
         this.metricRegistry = new MetricRegistry(this.agentInformation.getServerType());
 
-        this.traceFactory = new ThreadLocalTraceFactory(this, metricRegistry, storageFactory, sampler);
+        final TraceFactory threadLocalThreadFactory = new ThreadLocalTraceFactory(this, metricRegistry, storageFactory, sampler);
+        final TraceFactory activeTraceFactory = ActiveTraceFactory.wrap(threadLocalThreadFactory);
+        this.traceFactory = activeTraceFactory;
         
         this.serverMetaDataHolder = serverMetaDataHolder;
     }
