@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)distributedCallFlowDirective 
+	 * @ko distributedCallFlowDirective
+	 * @group Directive
+	 * @name distributedCallFlowDirective
+	 * @class
+	 */	
 	pinpointApp.directive('distributedCallFlowDirective', [ '$filter', '$timeout',
 	    function ($filter, $timeout) {
 	        return {

@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)sidebarTitleDirective 
+	 * @ko sidebarTitleDirective
+	 * @group Directive
+	 * @name sidebarTitleDirective
+	 * @class
+	 */
 	pinpointApp.directive('sidebarTitleDirective', [ '$timeout',
 	    function ($timeout) {
 	        return {

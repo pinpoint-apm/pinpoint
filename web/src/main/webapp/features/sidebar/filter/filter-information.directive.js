@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)filterInformationDirective 
+	 * @ko filterInformationDirective
+	 * @group Directive
+	 * @name filterInformationDirective
+	 * @class
+	 */
 	pinpointApp.directive('filterInformationDirective', [ '$filter', '$base64',
 	    function ($filter, $base64) {
 	        return {

@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)responseTimeChartDirective 
+	 * @ko responseTimeChartDirective
+	 * @group Directive
+	 * @name responseTimeChartDirective
+	 * @class
+	 */	
 	pinpointApp.constant('responseTimeChartDirectiveConfig', {
 	    myColors: ["#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034"]
 	});

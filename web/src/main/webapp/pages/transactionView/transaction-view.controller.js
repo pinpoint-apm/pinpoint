@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)TransactionViewCtrl 
+	 * @ko TransactionViewCtrl
+	 * @group Controller
+	 * @name TransactionViewCtrl
+	 * @class
+	 */
 	pinpointApp.constant('TransactionViewConfig', {
 	    applicationUrl: '/transactionInfo.pinpoint'
 	});

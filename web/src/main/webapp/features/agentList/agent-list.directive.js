@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)agentListDirective 
+	 * @ko agentListDirective
+	 * @group Directive
+	 * @name agentListDirective
+	 * @class
+	 */	
 	pinpointApp.constant('agentListConfig', {
 	    agentGroupUrl: '/getAgentList.pinpoint'
 	});

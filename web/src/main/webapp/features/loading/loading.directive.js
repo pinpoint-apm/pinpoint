@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)loadingDirective 
+	 * @ko loadingDirective
+	 * @group Directive
+	 * @name loadingDirective
+	 * @class
+	 */	
 	pinpointApp.directive('loadingDirective', ['$timeout', '$templateCache', '$compile', function ($timeout, $templateCache, $compile) {
         return {
             restrict: 'A',
