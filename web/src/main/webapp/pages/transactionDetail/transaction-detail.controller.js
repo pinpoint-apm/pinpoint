@@ -28,6 +28,7 @@
 	        };
 	        oAlertService = new AlertsService($rootElement);
 	        oProgressBarService = new ProgressBarService($rootElement);
+	        $("#customLogPopup").modal("hide");
 	
 	        /**
 	         * initialize
