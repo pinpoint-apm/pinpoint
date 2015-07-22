@@ -30,22 +30,18 @@
     <div ng-include=" 'loading' "></div>
 
     <ul ng-style="nodeContextMenuStyle" class="nodeContextMenu dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="z-index:10">
-        <!--<li><a href tabindex="-1" ng-click="passingTransactionList()"><i class="icon-map-marker"></i> Passing Transaction List</a></li>-->
-        <!--<li class="divider"></li>-->
-        <li><a href tabindex="-1" ng-click="passingTransactionResponseToScatterChart()"><span
-                class="glyphicon glyphicon-list"></span> Transaction Scatter Chart</a></li>
-        <li><a tabindex="-1"
-               ng-href="#/inspector/{{oNavbarVoService.getApplication()}}/{{oNavbarVoService.getPeriod()}}/{{oNavbarVoService.getQueryEndTime()}}"
-               target="_blank"><span class="glyphicon glyphicon-search"></span> Inspect Agents</a></li>
+        <li><a href tabindex="-1" ng-click=""><span class="glyphicon glyphicon-filter"></span> Filter Transaction</a></li>
+        <li><a href tabindex="-1" ng-click=""><span class="glyphicon glyphicon-filter"></span> Filter Transaction Wizard</a></li>
+        <li class="divider"></li>
+        <li>
+        	<a tabindex="-1" ng-href="#/inspector/{{oNavbarVoService.getApplication()}}/{{oNavbarVoService.getReadablePeriod()}}/{{oNavbarVoService.getQueryEndDateTime()}}"
+               target="_blank"><span class="glyphicon glyphicon-search"></span> Inspect Agents</a>
+        </li>
     </ul>
 
-    <ul ng-style="linkContextMenuStyle" class="linkContextMenu dropdown-menu" role="menu" aria-labelledby="dropdownMenu"
-        style="z-index:10">
-        <!--<li><a href tabindex="-1" ng-click="openFilterWizard()"><span class="glyphicon glyphicon-filter"></span> Filter Transaction</a></li>-->
-        <li><a href tabindex="-1" ng-click="passingTransactionList()"><span class="glyphicon glyphicon-filter"></span> Filter
-            Transaction</a></li>
-        <li><a href tabindex="-1" ng-click="openFilterWizard()"><span class="glyphicon glyphicon-filter"></span> Filter
-            Transaction Wizard</a></li>
+    <ul ng-style="linkContextMenuStyle" class="linkContextMenu dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="z-index:10">
+        <li><a href tabindex="-1" ng-click="passingTransactionList()"><span class="glyphicon glyphicon-filter"></span> Filter Transaction</a></li>
+        <li><a href tabindex="-1" ng-click="openFilterWizard()"><span class="glyphicon glyphicon-filter"></span> Filter Transaction Wizard</a></li>
     </ul>
 
     <!-- Modal -->
