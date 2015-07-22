@@ -110,11 +110,13 @@ public class DefaultTraceContext implements TraceContext {
     private TraceFactory createTraceFactory(StorageFactory storageFactory, Sampler sampler) {
 
         // TODO extract chain TraceFactory??
-        final TraceFactory threadLocalThreadFactory = new ThreadLocalTraceFactory(this, storageFactory, sampler);
+        final TraceFactory threadLocalTraceFactory = new ThreadLocalTraceFactory(this, storageFactory, sampler);
 //        TODO
-//        TraceFactory metricTraceFactory =  MetricTraceFactory.wrap(threadLocalThreadFactory, this.agentInformation.getServerType());
+//        TraceFactory metricTraceFactory =  MetricTraceFactory.wrap(threadLocalTraceFactory, this.agentInformation.getServerType());
 //        final TraceFactory activeTraceFactory = ActiveTraceFactory.wrap(metircTraceFactory);
-        return ActiveTraceFactory.wrap(threadLocalThreadFactory);
+
+//        TODO disable option
+        return ActiveTraceFactory.wrap(threadLocalTraceFactory);
     }
 
     /**

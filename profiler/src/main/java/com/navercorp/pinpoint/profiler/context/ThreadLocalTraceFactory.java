@@ -26,12 +26,10 @@ import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.storage.AsyncStorage;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
-import com.navercorp.pinpoint.profiler.util.NamedThreadLocal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author emeroad
@@ -41,18 +39,14 @@ public class ThreadLocalTraceFactory implements TraceFactory {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ThreadLocal<Trace> threadLocal = new NamedThreadLocal<Trace>("Trace");
+    private final Binder<Trace> threadLocalBinder = new ThreadLocalBinder<Trace>();
 
     private final TraceContext traceContext;
 
     private final StorageFactory storageFactory;
     private final Sampler sampler;
 
-    // Unique id for tracing a internal stacktrace and calculating a slow time of activethreadcount
-    // moved here in order to make codes simpler for now
-    private final AtomicLong transactionId = new AtomicLong(0);
-    // -1 is DEFAULT_DISABLE_ID
-    private final AtomicLong disableId = new AtomicLong(-2);
+    private final IdGenerator idGenerator = new IdGenerator();
 
     public ThreadLocalTraceFactory(TraceContext traceContext, StorageFactory storageFactory, Sampler sampler) {
         if (traceContext == null) {
@@ -76,7 +70,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
      */
     @Override
     public Trace currentTraceObject() {
-        final Trace trace = threadLocal.get();
+        final Trace trace = threadLocalBinder.get();
         if (trace == null) {
             return null;
         }
@@ -92,7 +86,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
      */
     @Override
     public Trace currentRpcTraceObject() {
-        final Trace trace = threadLocal.get();
+        final Trace trace = threadLocalBinder.get();
         if (trace == null) {
             return null;
         }
@@ -101,14 +95,14 @@ public class ThreadLocalTraceFactory implements TraceFactory {
 
     @Override
     public Trace currentRawTraceObject() {
-        return threadLocal.get();
+        return threadLocalBinder.get();
     }
 
     @Override
     public Trace disableSampling() {
         checkBeforeTraceObject();
         final Trace metricTrace = newDisableTrace();
-        threadLocal.set(metricTrace);
+        bind(metricTrace);
 
         return metricTrace;
     }
@@ -126,7 +120,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         // final Storage storage = storageFactory.createStorage();
         final Storage storage = storageFactory.createStorage();
         trace.setStorage(storage);
-        threadLocal.set(trace);
+        bind(trace);
         return trace;
     }
     
@@ -135,12 +129,12 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     public Trace continueTraceObject(Trace trace) {
         checkBeforeTraceObject();
 
-        threadLocal.set(trace);
+        bind(trace);
         return trace;
     }
 
     private void checkBeforeTraceObject() {
-        final Trace old = this.threadLocal.get();
+        final Trace old = this.threadLocalBinder.get();
         if (old != null) {
             final PinpointException exception = new PinpointException("already Trace Object exist.");
             if (logger.isWarnEnabled()) {
@@ -161,41 +155,35 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         // TODO need to modify how to inject a datasender
         final boolean sampling = sampler.isSampling();
         if (sampling) {
-            final DefaultTrace trace = new DefaultTrace(traceContext, nextTransactionId(), sampling);
+            final DefaultTrace trace = new DefaultTrace(traceContext, idGenerator.nextTransactionId(), sampling);
 
             final Storage storage = storageFactory.createStorage();
             trace.setStorage(storage);
             trace.setTraceType(traceType);
-            threadLocal.set(trace);
+            bind(trace);
             return trace;
         } else {
             final Trace disableTrace = newDisableTrace();
-            threadLocal.set(disableTrace);
+            bind(disableTrace);
             return disableTrace;
         }
     }
 
+    private void bind(Trace trace) {
+        // TODO considering traceWrap
+        threadLocalBinder.set(trace);
+    }
+
     @Override
     public Trace removeTraceObject() {
-        final Trace trace = currentRawTraceObject();
-        this.threadLocal.remove();
-
-        return trace;
+        return this.threadLocalBinder.remove();
     }
 
     
     private Trace newDisableTrace() {
-        return new DisableTrace(nextDisableId());
+        return new DisableTrace(idGenerator.nextDisableId());
     }
 
-    private long nextTransactionId() {
-        return this.transactionId.getAndIncrement();
-    }
-
-    private long nextDisableId() {
-        return this.disableId.getAndDecrement();
-    }
-    
     public Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime) {
         checkBeforeTraceObject();
         
@@ -206,7 +194,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         trace.setStorage(new AsyncStorage(storage));
 
         final AsyncTrace asyncTrace = new AsyncTrace(trace, asyncId, traceId.nextAsyncSequence(), startTime);
-        threadLocal.set(asyncTrace);
+        bind(asyncTrace);
 
         return asyncTrace;
     }

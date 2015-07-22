@@ -51,16 +51,16 @@ public class ActiveTraceRepository {
         return localCache.asMap();
     }
 
-    public void addActiveTrace(Long key, ActiveTraceInfo trace) {
-        activeTraceInfoMap.put(key, trace);
+    public void put(Long key, ActiveTraceInfo trace) {
+        this.activeTraceInfoMap.put(key, trace);
     }
 
-    public void removeActiveTrace(Long key) {
-        activeTraceInfoMap.remove(key);
+    public void remove(Long key) {
+        this.activeTraceInfoMap.remove(key);
     }
 
     public List<ActiveTraceInfo> collect() {
-        final Collection<ActiveTraceInfo> copy = activeTraceInfoMap.values();
+        final Collection<ActiveTraceInfo> copy = this.activeTraceInfoMap.values();
         return new ArrayList<ActiveTraceInfo>(copy);
     }
 

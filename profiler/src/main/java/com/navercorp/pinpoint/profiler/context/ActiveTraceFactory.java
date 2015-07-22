@@ -48,6 +48,7 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
 
     @Override
     public TraceFactory unwrap() {
+        final TraceFactory delegate = this.delegate;
         if (delegate instanceof TraceFactoryWrapper) {
             return ((TraceFactoryWrapper) delegate).unwrap();
         }
@@ -97,7 +98,7 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
 
     @Override
     public Trace newTraceObject() {
-        final Trace trace = delegate.newTraceObject();
+        final Trace trace = this.delegate.newTraceObject();
         attachTrace(trace);
         return trace;
     }
@@ -105,7 +106,7 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
 
     @Override
     public Trace newTraceObject(TraceType traceType) {
-        final Trace trace = delegate.newTraceObject(traceType);
+        final Trace trace = this.delegate.newTraceObject(traceType);
         if (TraceType.DEFAULT == traceType) {
             attachTrace(trace);
         }
@@ -115,7 +116,7 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
 
     @Override
     public Trace removeTraceObject() {
-        final Trace trace = delegate.removeTraceObject();
+        final Trace trace = this.delegate.removeTraceObject();
         detachTrace(trace);
         return trace;
     }
@@ -125,14 +126,11 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
         if (trace == null) {
             return;
         }
-//        if (activeTraceTracking) {
-        //  TODO incomplete state checking.
-//        }
 
         final long traceObjectId = trace.getId();
         // TODO Trace instead of ActiveTraceInfo;
         final ActiveTraceInfo activeTraceInfo = new ActiveTraceInfo(traceObjectId, System.currentTimeMillis());
-        this.activeTraceRepository.addActiveTrace(traceObjectId, activeTraceInfo);
+        this.activeTraceRepository.put(traceObjectId, activeTraceInfo);
 
     }
 
@@ -140,8 +138,8 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
         if (trace == null) {
             return;
         }
-        long spanId = trace.getId();
-        this.activeTraceRepository.removeActiveTrace(spanId);
+        final long traceObjectId = trace.getId();
+        this.activeTraceRepository.remove(traceObjectId);
     }
 
 
