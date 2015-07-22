@@ -32,12 +32,13 @@ public class TraceWrap implements Trace, TraceWrapper {
         this.delegate = trace;
     }
 
-    public static Trace warp(Trace trace) {
+    public static Trace wrap(Trace trace) {
         return new TraceWrap(trace);
     }
 
     @Override
     public Trace unwrap() {
+        final Trace delegate = this.delegate;
         if (delegate instanceof TraceWrapper) {
             return ((TraceWrapper) delegate).unwrap();
         }
