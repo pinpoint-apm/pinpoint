@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.plugin.gson.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.gson.GsonPlugin;
@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.plugin.gson.GsonPlugin;
  *
  * @author ChaYoung You
  */
-public class FromJsonInterceptor implements SimpleAroundInterceptor {
+public class FromJsonInterceptor implements Interceptor {
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
@@ -39,10 +39,9 @@ public class FromJsonInterceptor implements SimpleAroundInterceptor {
         this.descriptor = descriptor;
     }
 
-    @Override
-    public void before(Object target, Object[] args) {
+    public void before(Object target, Object arg0, Object arg1) {
         if (logger.isDebugEnabled()) {
-            logger.beforeInterceptor(target, args);
+            logger.beforeInterceptor(target, new Object[] {arg0, arg1});
         }
 
         final Trace trace = traceContext.currentTraceObject();
@@ -53,10 +52,9 @@ public class FromJsonInterceptor implements SimpleAroundInterceptor {
         trace.traceBlockBegin();
     }
 
-    @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object arg0, Object arg1) {
         if (logger.isDebugEnabled()) {
-            logger.afterInterceptor(target, args, result, throwable);
+            logger.afterInterceptor(target, new Object[] {arg0, arg1}, result, throwable);
         }
 
         final Trace trace = traceContext.currentTraceObject();
@@ -70,8 +68,8 @@ public class FromJsonInterceptor implements SimpleAroundInterceptor {
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
 
-            if (args.length >= 1 && args[0] instanceof String) {
-                recorder.recordAttribute(GsonPlugin.GSON_ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
+            if (arg0 != null && arg0 instanceof String) {
+                recorder.recordAttribute(GsonPlugin.GSON_ANNOTATION_KEY_JSON_LENGTH, ((String) arg0).length());
             }
         } finally {
             trace.traceBlockEnd();

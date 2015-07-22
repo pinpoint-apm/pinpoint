@@ -14,38 +14,35 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin.interceptor;
+package com.navercorp.pinpoint.bootstrap.interceptor.group;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
  * @author emeroad
  */
-public class GroupedSimpleAroundInterceptor implements SimpleAroundInterceptor {
+public class GroupedStaticAroundInterceptor implements StaticAroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final boolean debugEnabled = logger.isDebugEnabled();
 
-    private final SimpleAroundInterceptor delegate;
+    private final StaticAroundInterceptor delegate;
     private final InterceptorGroup group;
     private final ExecutionPolicy point;
 
-    public GroupedSimpleAroundInterceptor(SimpleAroundInterceptor delegate, InterceptorGroup group, ExecutionPolicy point) {
+    public GroupedStaticAroundInterceptor(StaticAroundInterceptor delegate, InterceptorGroup group, ExecutionPolicy point) {
         this.delegate = delegate;
         this.group = group;
         this.point = point;
     }
 
     @Override
-    public void before(Object target, Object[] args) {
+    public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
         InterceptorGroupInvocation transaction = group.getCurrentInvocation();
         
         if (transaction.tryEnter(point)) {
-            delegate.before(target, args);
+            this.delegate.before(target, className, methodName, parameterDescription, args);
         } else {
             if (debugEnabled) {
                 logger.debug("tryBefore() returns false: interceptorGroupTransaction: {}, executionPoint: {}. Skip interceptor {}", new Object[] {transaction, point, delegate.getClass()} );
@@ -54,11 +51,11 @@ public class GroupedSimpleAroundInterceptor implements SimpleAroundInterceptor {
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
         InterceptorGroupInvocation transaction = group.getCurrentInvocation();
         
         if (transaction.canLeave(point)) {
-            delegate.after(target, args, result, throwable);
+            this.delegate.after(target, className, methodName, parameterDescription, args, result, throwable);
             transaction.leave(point);
         } else {
             if (debugEnabled) {

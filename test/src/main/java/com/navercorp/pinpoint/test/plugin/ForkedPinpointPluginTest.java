@@ -130,21 +130,35 @@ public class ForkedPinpointPluginTest implements PinpointPluginTestConstants {
             
             builder.append(failure.getTestHeader());
             builder.append(JUNIT_OUTPUT_DELIMITER);
-            builder.append(failure.getException().getClass().getName());
-            builder.append(JUNIT_OUTPUT_DELIMITER);
-            builder.append(failure.getMessage());
-            builder.append(JUNIT_OUTPUT_DELIMITER);
             
-            for (StackTraceElement e : failure.getException().getStackTrace()) {
-                builder.append(e.getClassName());
-                builder.append(',');
-                builder.append(e.getMethodName());
-                builder.append(',');
-                builder.append(e.getFileName());
-                builder.append(',');
-                builder.append(e.getLineNumber());
-                
+            Throwable t = failure.getException();
+            
+            while (true) {
+                builder.append(t.getClass().getName());
                 builder.append(JUNIT_OUTPUT_DELIMITER);
+                builder.append(t.getMessage());
+                builder.append(JUNIT_OUTPUT_DELIMITER);
+
+                for (StackTraceElement e : failure.getException().getStackTrace()) {
+                    builder.append(e.getClassName());
+                    builder.append(',');
+                    builder.append(e.getMethodName());
+                    builder.append(',');
+                    builder.append(e.getFileName());
+                    builder.append(',');
+                    builder.append(e.getLineNumber());
+                    
+                    builder.append(JUNIT_OUTPUT_DELIMITER);
+                }
+            
+                Throwable cause = t.getCause();
+                
+                if (cause == null || t == cause) {
+                    break;
+                }
+                
+                t = cause;
+                builder.append("cause: ");
             }
             
             return builder.toString();
