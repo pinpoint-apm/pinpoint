@@ -164,6 +164,7 @@ public class JavassistMethodInfo implements MethodInfo {
             policy = ExecutionPolicy.BOUNDARY;
         }
         
+
         CtClass invoker = behavior.getDeclaringClass().getClassPool().makeClass("com.navercorp.pinpoint.profiler.generated.InterceptorInvoker" + interceptorId);
         
         String fieldDeclaration = "private static final " + interceptor.getClass().getName() + " INTERCEPTOR = (" + interceptor.getClass().getName() + ") "+ InterceptorRegistry.class.getName() + ".findInterceptor(" + interceptorId + ");";
@@ -180,7 +181,11 @@ public class JavassistMethodInfo implements MethodInfo {
         
         invoker.addMethod(CtNewMethod.make("public static void setGroup(" + InterceptorGroup.class.getName() + " g) { group = g; }", invoker));
         invoker.addMethod(CtNewMethod.make("public static void setPolicy(" + ExecutionPolicy.class.getName() + " p) { policy = p; }", invoker));
-
+        
+        String global = InterceptorInvoker.class.getName();
+        invoker.addMethod(CtNewMethod.make("private static void handleException(java.lang.Throwable t) { if (" + global + ".throwException) { throw new RuntimeException(t); } else { " + global + ".logger.log(java.util.logging.Level.WARNING, \"Excetpion occured from interceptor\", t); } }", invoker));
+        invoker.addMethod(CtNewMethod.make("private static void logSkipBefore() { " + global + ".logger.log(java.util.logging.Level.FINE, \"tryEnter() returns false: interceptorGroupTransaction: " + group.getName() + ", policy: " + policy + ". Skip interceptor " + interceptor.getClass().getName() + "\"); }", invoker));
+        invoker.addMethod(CtNewMethod.make("private static void logSkipAfter() { " + global + ".logger.log(java.util.logging.Level.FINE, \"canLeave() returns false: interceptorGroupTransaction: " + group.getName() + ", policy: " + policy + ". Skip interceptor " + interceptor.getClass().getName() + "\"); }", invoker));
         
         StringBuilder beforeBuilder = new StringBuilder("public static void before(");
         Method before = getBefore(interceptor.getClass());
@@ -216,12 +221,9 @@ public class JavassistMethodInfo implements MethodInfo {
         }
         
         
-        String global = InterceptorInvoker.class.getName();
         
-        beforeBuilder.append("); } else { " + global + ".logger.log(java.util.logging.Level.FINE, \"tryEnter() returns false: interceptorGroupTransaction: " + group.getName() + ", policy: " + policy + ". Skip interceptor " + interceptor.getClass().getName() + "\"); }}");
-        beforeBuilder.append("catch (Throwable t) {");
-        beforeBuilder.append("    if (" + global + ".throwException) { throw new RuntimeException(t); }");
-        beforeBuilder.append("    else { " + global + ".logger.log(java.util.logging.Level.WARNING, \"Excetpion occured from interceptor\", t); }");
+        beforeBuilder.append("); } else { logSkipBefore(); }}");
+        beforeBuilder.append("catch (Throwable t) { handleException(t); }");
         beforeBuilder.append("}}");
         
         String beforeBody = beforeBuilder.toString();
@@ -260,10 +262,8 @@ public class JavassistMethodInfo implements MethodInfo {
             afterBuilder.append(i);
         }
         
-        afterBuilder.append("); transaction.leave(policy);} else { " + global + ".logger.log(java.util.logging.Level.FINE, \"canLeave() returns false: interceptorGroupTransaction: " + group.getName() + ", policy: " + policy + ". Skip interceptor " + interceptor.getClass().getName() + "\"); }}");
-        afterBuilder.append("catch (Throwable t) {");
-        afterBuilder.append("    if (" + global + ".throwException) { throw new RuntimeException(t); }");
-        afterBuilder.append("    else { " + global + ".logger.log(java.util.logging.Level.WARNING, \"Excetpion occured from interceptor\", t); }");
+        afterBuilder.append("); transaction.leave(policy);} else { logSkipAfter(); }}");
+        afterBuilder.append("catch (Throwable t) { handleException(t); }");
         afterBuilder.append("}}");
         
         String afterBody = afterBuilder.toString();

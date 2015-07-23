@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.test.mock;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.context.Metric;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -166,12 +165,4 @@ public class MockTraceContext implements TraceContext {
     public Trace removeTraceObject() {
         return null;
     }
-
-    @Override
-    public void enableActiveTraceTracking() {
-    }
-
-    @Override
-    public void disableActiveTraceTracking() {
-    }        
 }
