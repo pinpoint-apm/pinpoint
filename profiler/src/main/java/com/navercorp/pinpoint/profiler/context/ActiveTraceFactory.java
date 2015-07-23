@@ -48,11 +48,11 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
 
     @Override
     public TraceFactory unwrap() {
-        final TraceFactory delegate = this.delegate;
-        if (delegate instanceof TraceFactoryWrapper) {
-            return ((TraceFactoryWrapper) delegate).unwrap();
+        final TraceFactory copy = this.delegate;
+        if (copy instanceof TraceFactoryWrapper) {
+            return ((TraceFactoryWrapper) copy).unwrap();
         }
-        return delegate;
+        return copy;
     }
 
     @Override
@@ -128,9 +128,7 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
         }
 
         final long traceObjectId = trace.getId();
-        // TODO Trace instead of ActiveTraceInfo;
-        final ActiveTraceInfo activeTraceInfo = new ActiveTraceInfo(traceObjectId, System.currentTimeMillis());
-        this.activeTraceRepository.put(traceObjectId, activeTraceInfo);
+        this.activeTraceRepository.put(traceObjectId, trace);
 
     }
 

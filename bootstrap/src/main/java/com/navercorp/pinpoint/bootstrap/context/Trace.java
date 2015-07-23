@@ -21,8 +21,16 @@ package com.navercorp.pinpoint.bootstrap.context;
  * @author emeroad
  */
 public interface Trace extends StackOperation {
-
+    // ----------------------------------------------
+    // activeTrace related api
+    // TODO extract interface???
     long getId();
+
+    long getStartTime();
+
+    Thread getBindThread();
+
+    //------------------------------------------------
 
     TraceId getTraceId();
 

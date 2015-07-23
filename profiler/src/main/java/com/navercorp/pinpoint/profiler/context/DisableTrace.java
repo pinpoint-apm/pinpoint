@@ -33,17 +33,29 @@ public class DisableTrace implements Trace {
     public static final String UNSUPPORTED_OPERATION  = "disable trace";
     public static final long DISABLE_TRACE_OBJECT_ID = -1;
 
-    public static final DisableTrace INSTANCE = new DisableTrace(DISABLE_TRACE_OBJECT_ID);
-
     private final long id;
+    private final long startTime;
+    private final Thread bindThread;
     
     public DisableTrace(long id) {
         this.id = id;
+        this.startTime = System.currentTimeMillis();
+        this.bindThread = Thread.currentThread();
     }
 
     @Override
     public long getId() {
         return id;
+    }
+
+    @Override
+    public long getStartTime() {
+        return startTime;
+    }
+
+    @Override
+    public Thread getBindThread() {
+        return bindThread;
     }
 
     @Override

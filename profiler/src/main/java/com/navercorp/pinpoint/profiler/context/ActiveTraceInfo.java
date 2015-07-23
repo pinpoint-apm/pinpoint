@@ -23,31 +23,13 @@ package com.navercorp.pinpoint.profiler.context;
 public class ActiveTraceInfo {
 
     private final long startTime;
-    private final long traceObjectId;
-    private final Thread currentThread;
 
-    public ActiveTraceInfo(long traceObjectId, long startTime) {
-        this(traceObjectId, startTime, Thread.currentThread());
-    }
-
-    public ActiveTraceInfo(long traceObjectId, long startTime, Thread currentThread) {
-        if (currentThread == null) {
-            throw new NullPointerException("currentThread must not be null");
-        }
+    public ActiveTraceInfo(long startTime) {
         this.startTime = startTime;
-        this.traceObjectId = traceObjectId;
-        this.currentThread = currentThread;
     }
 
     public long getStartTime() {
         return startTime;
     }
 
-    public long getTraceObjectId() {
-        return traceObjectId;
-    }
-
-    public Thread getCurrentThread() {
-        return currentThread;
-    }
 }

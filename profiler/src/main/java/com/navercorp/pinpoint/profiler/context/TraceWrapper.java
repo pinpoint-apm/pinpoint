@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 /**
  * @author emeroad
  */
-public interface TraceWrapper<T> {
+public interface TraceWrapper {
     Trace unwrap();
+
+    void wrap(Trace trace);
 }

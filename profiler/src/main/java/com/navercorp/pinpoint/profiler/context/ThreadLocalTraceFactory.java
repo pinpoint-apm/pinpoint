@@ -170,8 +170,24 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     }
 
     private void bind(Trace trace) {
-        // TODO considering traceWrap
         threadLocalBinder.set(trace);
+
+//        // TODO traceChain example
+//        Trace traceChain = new TraceChain(trace);
+//        threadLocalBinder.set(traceChain);
+//
+//        // MetricTraceFactory
+//        final Trace delegatedTrace = this.delegate.newTraceObject();
+//        if (delegatedTrace instanceof TraceChain) {
+//            TraceChain chain = (TraceChain)delegatedTrace;
+//            TraceWrap metricTrace = new MetricTraceWrap();
+//            // add metricTraceWrap to traceChain
+//            chain.addFirst(metricTrace);
+//            return chain;
+//        } else {
+//            logger.warn("error???");
+//            return delegatedTrace;
+//        }
     }
 
     @Override
