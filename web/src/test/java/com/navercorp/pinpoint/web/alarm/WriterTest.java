@@ -32,8 +32,9 @@ import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.web.alarm.checker.SlowCountChecker;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:applicationContext-test.xml")
+@Ignore
+//@RunWith(SpringJUnit4ClassRunner.class)
+//@ContextConfiguration("classpath:applicationContext-test.xml")
 public class WriterTest {
 
     @Autowired
