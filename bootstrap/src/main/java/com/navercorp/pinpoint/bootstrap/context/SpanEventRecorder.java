@@ -5,7 +5,7 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ParsingResult;
 
-public interface SpanEventRecorder {
+public interface SpanEventRecorder extends FrameAttachment {
 
     void recordTime(boolean time);
     

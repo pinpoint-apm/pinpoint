@@ -144,4 +144,20 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
             span.setStartTimeIsSet(false);
         }
     }
+
+
+    @Override
+    public Object attachFrameObject(Object frameObject) {
+        return span.attachFrameObject(frameObject);
+    }
+
+    @Override
+    public Object getFrameObject() {
+        return span.getFrameObject();
+    }
+
+    @Override
+    public Object detachFrameObject() {
+        return span.detachFrameObject();
+    }
 }

@@ -14,41 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context;
-
+package com.navercorp.pinpoint.bootstrap.context;
 
 /**
  * @author emeroad
  */
-public interface StackFrame {
-
-    int getStackFrameId();
-
-    void setStackFrameId(int stackId);
-
-    void markBeforeTime();
-
-    long getBeforeTime();
-
-    void markAfterTime();
-
-    long getAfterTime();
-
-    int getElapsedTime();
-
-    void setEndPoint(String endPoint);
-
-    void setRpc(String rpc);
-
-    void setApiId(int apiId);
-
-    void setExceptionInfo(int exceptionId, String exceptionMessage);
-
-    void setServiceType(short serviceType);
-
-    void addAnnotation(Annotation annotation);
-
-    short getServiceType();
+public interface FrameAttachment {
 
     Object attachFrameObject(Object frameObject);
 
