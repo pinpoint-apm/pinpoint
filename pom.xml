@@ -20,6 +20,11 @@
             <id>cloudera</id>
             <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
         </repository>
+        <repository>
+            <id>spring-maven-repository</id>
+            <name>Spring Framework Maven Release Repository</name>
+            <url>http://maven.springframework.org/release</url>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -50,7 +55,7 @@
         <jdk.home>${env.JAVA_6_HOME}</jdk.home>
         <slf4j.version>1.7.5</slf4j.version>
         <metrics.version>3.0.1</metrics.version>
-        <spring.version>3.2.3.RELEASE</spring.version>
+        <spring.version>4.1.7.RELEASE</spring.version>
         <jetty.version>8.1.12.v20130726</jetty.version>
         <codehaus.jackson.version>1.9.13</codehaus.jackson.version>
         <fastxml.jackson.version>2.3.1</fastxml.jackson.version>
