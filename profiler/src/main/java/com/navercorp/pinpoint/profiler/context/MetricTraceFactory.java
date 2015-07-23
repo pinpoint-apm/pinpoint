@@ -46,11 +46,11 @@ public class MetricTraceFactory implements TraceFactory, TraceFactoryWrapper {
 
     @Override
     public TraceFactory unwrap() {
-        final TraceFactory delegate = this.delegate;
-        if (delegate instanceof TraceFactoryWrapper) {
-            return ((TraceFactoryWrapper) delegate).unwrap();
+        final TraceFactory copy = this.delegate;
+        if (copy instanceof TraceFactoryWrapper) {
+            return ((TraceFactoryWrapper) copy).unwrap();
         }
-        return delegate;
+        return copy;
     }
 
     @Override
