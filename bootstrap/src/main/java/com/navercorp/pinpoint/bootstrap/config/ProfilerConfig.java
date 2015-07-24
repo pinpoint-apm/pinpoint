@@ -140,6 +140,8 @@ public class ProfilerConfig {
     private boolean memcached = true;
     private boolean memcachedKeyTrace = false;
     
+    private Filter<String> jettyExcludeUrlFilter = new SkipFilter<String>();
+    
     private boolean ibatis = true;
 
     private boolean mybatis = true;
@@ -433,6 +435,10 @@ public class ProfilerConfig {
         return memcachedKeyTrace;
     }
     
+    public Filter<String> getJettyExcludeUrlFilter() {
+        return jettyExcludeUrlFilter;
+    }
+    
     //-----------------------------------------
     // http apache client 3
 
@@ -703,6 +709,11 @@ public class ProfilerConfig {
         this.arucsKeyTrace = readBoolean("profiler.arcus.keytrace", false);
         this.memcached = readBoolean("profiler.memcached", true);
         this.memcachedKeyTrace = readBoolean("profiler.memcached.keytrace", false);
+
+        final String jettyExcludeURL = readString("profiler.jetty.excludeurl", "");
+        if (!jettyExcludeURL.isEmpty()) {
+            this.jettyExcludeUrlFilter = new ExcludeUrlFilter(jettyExcludeURL);
+        }
         
         /**
          * apache http client 3
@@ -974,6 +985,8 @@ public class ProfilerConfig {
         builder.append(memcached);
         builder.append(", memcachedKeyTrace=");
         builder.append(memcachedKeyTrace);
+        builder.append(", jettyExcludeUrlFilter=");
+        builder.append(jettyExcludeUrlFilter);
         builder.append(", ibatis=");
         builder.append(ibatis);
         builder.append(", mybatis=");

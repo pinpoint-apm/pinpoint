@@ -14,6 +14,7 @@
     <modules>
         <module>httpclient3</module>
         <module>httpclient4</module>
+    <!--  
         <module>gson</module>
         <module>jackson</module>
         <module>jdbc-driver</module>
@@ -21,10 +22,14 @@
 		<module>json-lib</module>
         <module>redis</module>
         <module>servlet</module>
+        -->
 		<module>tomcat</module>
+		<!-- 
         <module>thrift</module>
         <module>user</module>
         <module>arcus</module>
+        -->
+        <module>jetty</module>
     </modules>
 
     <dependencies>
@@ -38,6 +43,8 @@
             <artifactId>pinpoint-httpclient4-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        
+    <!-- 
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-gson-plugin</artifactId>
@@ -63,11 +70,13 @@
             <artifactId>pinpoint-servlet-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+         -->
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-tomcat-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- 
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-json-lib-plugin</artifactId>
@@ -91,6 +100,12 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-arcus-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        -->
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-jetty-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
