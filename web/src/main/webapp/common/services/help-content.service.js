@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)helpContentService 
+	 * @ko helpContentService
+	 * @group Service
+	 * @name helpContentService
+	 * @class
+	 */
 	pinpointApp.factory('helpContentService', [ '$window', '$injector', 'UserLocalesService', function($window, $injector, UserLocalesService) {
 
 		var name = "helpContent-" + UserLocalesService.userLocale;

@@ -16,43 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-
 /**
  * @author emeroad
  */
-public interface StackFrame {
+public interface TraceFactoryWrapper {
 
-    int getStackFrameId();
+    TraceFactory unwrap();
 
-    void setStackFrameId(int stackId);
-
-    void markBeforeTime();
-
-    long getBeforeTime();
-
-    void markAfterTime();
-
-    long getAfterTime();
-
-    int getElapsedTime();
-
-    void setEndPoint(String endPoint);
-
-    void setRpc(String rpc);
-
-    void setApiId(int apiId);
-
-    void setExceptionInfo(int exceptionId, String exceptionMessage);
-
-    void setServiceType(short serviceType);
-
-    void addAnnotation(Annotation annotation);
-
-    short getServiceType();
-
-    Object attachFrameObject(Object frameObject);
-
-    Object getFrameObject();
-
-    Object detachFrameObject();
 }

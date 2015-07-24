@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)FilteredMapCtrl 
+	 * @ko FilteredMapCtrl
+	 * @group Controller
+	 * @name FilteredMapCtrl
+	 * @class
+	 */
 	pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routeParams', '$timeout', 'TimeSliderVoService', 'NavbarVoService', '$window', 'SidebarTitleVoService', 'filteredMapUtilService', '$rootElement',
 	    function (cfg, $scope, $routeParams, $timeout, TimeSliderVoService, NavbarVoService, $window, SidebarTitleVoService, filteredMapUtilService, $rootElement) {
 			$at($at.FILTEREDMAP_PAGE);

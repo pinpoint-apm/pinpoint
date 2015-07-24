@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)InspectorCtrl 
+	 * @ko InspectorCtrl
+	 * @group Controller
+	 * @name InspectorCtrl
+	 * @class
+	 */
 	pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', 'locationService', 'NavbarVoService',
 	    function ($scope, $timeout, $routeParams, locationService, NavbarVoService) {
 			$at($at.INSPECTOR_PAGE);

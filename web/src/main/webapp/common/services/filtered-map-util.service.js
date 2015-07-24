@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)filteredMapUtilService 
+	 * @ko filteredMapUtilService
+	 * @group Service
+	 * @name filteredMapUtilService
+	 * @class
+	 */	
 	pinpointApp.factory('filteredMapUtilService', [ 'filterConfig', 'ServerMapFilterVoService', '$window',
 	    function (cfg, ServerMapFilterVoService, $window) {
 	        // define private variables

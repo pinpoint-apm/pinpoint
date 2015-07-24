@@ -28,36 +28,59 @@ import com.navercorp.pinpoint.bootstrap.context.TraceType;
  * @author emeroad
  * @author jaehong.kim
  */
-public class DisableTrace  implements Trace {
+public class DisableTrace implements Trace {
 
-    public static final DisableTrace INSTANCE = new DisableTrace();
+    public static final String UNSUPPORTED_OPERATION  = "disable trace";
+    public static final long DISABLE_TRACE_OBJECT_ID = -1;
+
+    private final long id;
+    private final long startTime;
+    private final Thread bindThread;
     
-    private DisableTrace() {
+    public DisableTrace(long id) {
+        this.id = id;
+        this.startTime = System.currentTimeMillis();
+        this.bindThread = Thread.currentThread();
+    }
+
+    @Override
+    public long getId() {
+        return id;
+    }
+
+    @Override
+    public long getStartTime() {
+        return startTime;
+    }
+
+    @Override
+    public Thread getBindThread() {
+        return bindThread;
     }
 
     @Override
     public SpanEventRecorder traceBlockBegin() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
     @Override
     public SpanEventRecorder traceBlockBegin(int stackId) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
     @Override
     public void traceBlockEnd() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
     @Override
     public void traceBlockEnd(int stackId) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
     @Override
     public TraceId getTraceId() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
     @Override
@@ -78,12 +101,12 @@ public class DisableTrace  implements Trace {
 
     @Override
     public boolean isRootStack() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
     @Override
     public AsyncTraceId getAsyncTraceId() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
     }
 
     @Override

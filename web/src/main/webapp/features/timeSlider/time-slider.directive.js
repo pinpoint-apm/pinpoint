@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)timeSliderDirective 
+	 * @ko timeSliderDirective
+	 * @group Directive
+	 * @name timeSliderDirective
+	 * @class
+	 */
 	pinpointApp.constant('timeSliderDirectiveConfig', {
 	    scaleCount: 10
 	});

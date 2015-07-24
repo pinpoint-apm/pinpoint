@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)scatterDirective 
+	 * @ko scatterDirective
+	 * @group Directive
+	 * @name scatterDirective
+	 * @class
+	 */
 	pinpointApp.constant('scatterDirectiveConfig', {
 	    get: {
 	        scatterData: '/getScatterData.pinpoint',

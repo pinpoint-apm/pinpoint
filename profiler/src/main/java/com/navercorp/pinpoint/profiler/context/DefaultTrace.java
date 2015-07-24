@@ -53,6 +53,8 @@ public final class DefaultTrace implements Trace {
     private final DefaultSpanRecorder spanRecorder;
     private boolean closed = false;
 
+    private Thread bindThread;
+
     public DefaultTrace(final TraceContext traceContext, long transactionId, boolean sampling) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
@@ -61,7 +63,7 @@ public final class DefaultTrace implements Trace {
         this.traceId = new DefaultTraceId(traceContext.getAgentId(), traceContext.getAgentStartTime(), transactionId);
         this.sampling = sampling;
 
-        Span span = createSpan();
+        final Span span = createSpan();
         this.spanRecorder = new DefaultSpanRecorder(traceContext, span, traceId, sampling);
         this.spanRecorder.recordTraceId(traceId);
         this.spanEventRecorder = new WrappedSpanEventRecorder(traceContext);
@@ -71,6 +73,7 @@ public final class DefaultTrace implements Trace {
         } else {
             this.callStack = new CallStack(span);
         }
+        setCurrentThread();
     }
 
     public DefaultTrace(TraceContext traceContext, TraceId continueTraceId, boolean sampling) {
@@ -84,7 +87,7 @@ public final class DefaultTrace implements Trace {
         this.traceId = continueTraceId;
         this.sampling = sampling;
 
-        Span span = createSpan();
+        final Span span = createSpan();
         this.spanRecorder = new DefaultSpanRecorder(traceContext, span, traceId, sampling);
         this.spanRecorder.recordTraceId(traceId);
         this.spanEventRecorder = new WrappedSpanEventRecorder(traceContext);
@@ -94,6 +97,7 @@ public final class DefaultTrace implements Trace {
         } else {
             this.callStack = new CallStack(span);
         }
+        setCurrentThread();
     }
 
     private Span createSpan() {
@@ -145,7 +149,7 @@ public final class DefaultTrace implements Trace {
     public void traceBlockEnd(int stackId) {
         if (this.closed) {
             if (isWarn) {
-                PinpointException exception = new PinpointException("alreday closed trace.");
+                final PinpointException exception = new PinpointException("already closed trace.");
                 logger.warn("[DefaultTrace] Corrupted call stack found.", exception);
             }
             return;
@@ -212,6 +216,34 @@ public final class DefaultTrace implements Trace {
     public TraceId getTraceId() {
         return this.traceId;
     }
+
+    @Override
+    public long getId() {
+        return traceId.getTransactionSequence();
+    }
+
+    @Override
+    public long getStartTime() {
+        final DefaultSpanRecorder copy = this.spanRecorder;
+        if (copy == null) {
+            return 0;
+        }
+        return copy.getSpan().getStartTime();
+    }
+
+    @Override
+    public Thread getBindThread() {
+        return bindThread;
+    }
+
+    private void setCurrentThread() {
+        this.setBindThread(Thread.currentThread());
+    }
+
+    private void setBindThread(Thread thread) {
+        bindThread = thread;
+    }
+
 
     public boolean canSampled() {
         return this.sampling;

@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)cpuLoadChartDirective 
+	 * @ko cpuLoadChartDirective
+	 * @group Directive
+	 * @name cpuLoadChartDirective
+	 * @class
+	 */	
 	angular.module('pinpointApp').directive('cpuLoadChartDirective', ['$timeout',
         function ($timeout) {
             return {

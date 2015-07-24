@@ -1,5 +1,12 @@
 (function() {
 	'use strict';
+	/**
+	 * (en)TransactionDetailCtrl 
+	 * @ko TransactionDetailCtrl
+	 * @group Controller
+	 * @name TransactionDetailCtrl
+	 * @class
+	 */
 	pinpointApp.constant('TransactionDetailConfig', {
 	    applicationUrl: '/transactionInfo.pinpoint'
 	});
@@ -21,6 +28,7 @@
 	        };
 	        oAlertService = new AlertsService($rootElement);
 	        oProgressBarService = new ProgressBarService($rootElement);
+	        $("#customLogPopup").modal("hide");
 	
 	        /**
 	         * initialize

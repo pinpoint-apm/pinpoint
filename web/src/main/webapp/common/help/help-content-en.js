@@ -1,6 +1,11 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)Tooltip for english 
+	 * @ko 영문 Tooltip
+	 * @group Config
+	 * @name pinpointApp#helpContent-en
+	 */
 	var oHelp = {
 		navbar : {
 			applicationSelector: {

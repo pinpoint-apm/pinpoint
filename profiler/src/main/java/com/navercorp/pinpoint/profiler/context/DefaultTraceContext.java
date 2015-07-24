@@ -35,7 +35,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.TraceType;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
-import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.DefaultParsingResult;
 import com.navercorp.pinpoint.common.util.ParsingResult;
@@ -48,8 +47,6 @@ import com.navercorp.pinpoint.profiler.metadata.Result;
 import com.navercorp.pinpoint.profiler.metadata.SimpleCache;
 import com.navercorp.pinpoint.profiler.modifier.db.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.profiler.modifier.db.JDBCUrlParser;
-import com.navercorp.pinpoint.profiler.monitor.metric.ContextMetric;
-import com.navercorp.pinpoint.profiler.monitor.metric.MetricRegistry;
 import com.navercorp.pinpoint.profiler.sampler.TrueSampler;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
@@ -60,6 +57,7 @@ import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
 /**
  * @author emeroad
  * @author hyungil.jeong
+ * @author Taejin Koo
  */
 public class DefaultTraceContext implements TraceContext {
 
@@ -68,15 +66,9 @@ public class DefaultTraceContext implements TraceContext {
 
     private final TraceFactory traceFactory;
 
-    private final ActiveThreadCounter activeThreadCounter = new ActiveThreadCounter();
-
-//    private GlobalCallTrace globalCallTrace = new GlobalCallTrace();
-
     private AgentInformation agentInformation;
 
     private EnhancedDataSender priorityDataSender;
-
-    private final MetricRegistry metricRegistry;
 
     private final SimpleCache<String> sqlCache;
     private final SqlParser sqlParser = new SqlParser();
@@ -109,11 +101,22 @@ public class DefaultTraceContext implements TraceContext {
         }
         this.agentInformation = agentInformation;
         this.sqlCache = new SimpleCache<String>(sqlCacheSize);
-        this.metricRegistry = new MetricRegistry(this.agentInformation.getServerType());
 
-        this.traceFactory = new ThreadLocalTraceFactory(this, metricRegistry, storageFactory, sampler);
+        this.traceFactory = createTraceFactory(storageFactory, sampler);;
         
         this.serverMetaDataHolder = serverMetaDataHolder;
+    }
+
+    private TraceFactory createTraceFactory(StorageFactory storageFactory, Sampler sampler) {
+
+        // TODO extract chain TraceFactory??
+        final TraceFactory threadLocalTraceFactory = new ThreadLocalTraceFactory(this, storageFactory, sampler);
+//        TODO
+//        TraceFactory metricTraceFactory =  MetricTraceFactory.wrap(threadLocalTraceFactory, this.agentInformation.getServerType());
+//        final TraceFactory activeTraceFactory = ActiveTraceFactory.wrap(metircTraceFactory);
+
+//        TODO disable option
+        return ActiveTraceFactory.wrap(threadLocalTraceFactory);
     }
 
     /**
@@ -181,11 +184,6 @@ public class DefaultTraceContext implements TraceContext {
     @Override
     public Trace removeTraceObject() {
         return traceFactory.removeTraceObject();
-    }
-
-    //@Override
-    public ActiveThreadCounter getActiveThreadCounter() {
-        return activeThreadCounter;
     }
 
     public AgentInformation getAgentInformation() {
@@ -327,34 +325,6 @@ public class DefaultTraceContext implements TraceContext {
         this.priorityDataSender = priorityDataSender;
     }
 
-    @Override
-    public Metric getRpcMetric(ServiceType serviceType) {
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null");
-        }
-
-        return this.metricRegistry.getRpcMetric(serviceType);
-    }
-
-
-    public void recordContextMetricIsError() {
-        recordContextMetric(HistogramSchema.ERROR_SLOT_TIME);
-    }
-
-    public void recordContextMetric(int elapsedTime) {
-        final ContextMetric contextMetric = this.metricRegistry.getResponseMetric();
-        contextMetric.addResponseTime(elapsedTime);
-    }
-
-    public void recordAcceptResponseTime(String parentApplicationName, short parentApplicationType, int elapsedTime) {
-        final ContextMetric contextMetric = this.metricRegistry.getResponseMetric();
-        contextMetric.addAcceptHistogram(parentApplicationName, parentApplicationType, elapsedTime);
-    }
-
-    public void recordUserAcceptResponseTime(int elapsedTime) {
-        final ContextMetric contextMetric = this.metricRegistry.getResponseMetric();
-        contextMetric.addUserAcceptHistogram(elapsedTime);
-    }
 
     @Override
     public ServerMetaDataHolder getServerMetaDataHolder() {

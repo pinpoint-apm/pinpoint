@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)serverMapDirective 
+	 * @ko serverMapDirective
+	 * @group Directive
+	 * @name serverMapDirective
+	 * @class
+	 */
 	pinpointApp.constant('serverMapDirectiveConfig', {
 	    options: {
 	        "sContainerId": 'servermap',
@@ -358,9 +364,9 @@
 	                            node = originalNode;
 	                        }
 	                        htLastNode = node;
-	                        if (!bUseNodeContextMenu) {
-	                            return;
-	                        }
+//	                        if (!bUseNodeContextMenu) {
+//	                            return;
+//	                        }
 	                        if (node.isWas === true) {
 	                            setNodeContextMenuPosition(e.event.layerY, e.event.layerX);
 	                        }
@@ -489,7 +495,8 @@
 	                    scope.sourceInfo = htLastLink.sourceInfo;
 	                    scope.sourceHistogram = htLastLink.sourceHistogram;
 	                    scope.targetInfo = htLastLink.targetInfo;
-	                    scope.targetHistogram = htLastLink.toNode.agentHistogram;
+	                    //scope.targetHistogram = htLastLink.toNode.agentHistogram;
+	                    scope.targetHistogram = htLastLink.targetHistogram;
 	                    scope.fromApplicationName = htLastLink.fromNode.applicationName;
 	                    scope.toApplicationName = htLastLink.toNode.applicationName;
 	                    $fromAgentName.select2('val', '');

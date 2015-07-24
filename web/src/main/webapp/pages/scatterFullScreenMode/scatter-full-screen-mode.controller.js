@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)ScatterFullScreenModeCtrl 
+	 * @ko ScatterFullScreenModeCtrl
+	 * @group Controller
+	 * @name ScatterFullScreenModeCtrl
+	 * @class
+	 */
 	pinpointApp.controller('ScatterFullScreenModeCtrl', [ '$scope', '$rootScope', '$routeParams', '$timeout', 'NavbarVoService',
 	    function ($scope, $rootScope, $routeParams, $timeout, NavbarVoService) {
 			$at($at.SCATTER_FULL_SCREEN_PAGE);

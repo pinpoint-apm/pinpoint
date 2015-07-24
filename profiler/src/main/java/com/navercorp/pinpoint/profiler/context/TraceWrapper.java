@@ -16,27 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 
 /**
  * @author emeroad
  */
-public class ActiveThreadCounter {
-    private AtomicInteger counter = new AtomicInteger(0);
+public interface TraceWrapper {
+    Trace unwrap();
 
-    public void start() {
-        counter.incrementAndGet();
-    }
-
-    public void end() {
-        counter.decrementAndGet();
-    }
-
-    public int getActiveThread() {
-        return counter.get();
-    }
-
-    public void reset() {
-        counter.set(0);
-    }
+    void wrap(Trace trace);
 }

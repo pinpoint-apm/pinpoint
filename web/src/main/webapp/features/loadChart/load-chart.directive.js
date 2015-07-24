@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)loadChartDirective 
+	 * @ko loadChartDirective
+	 * @group Directive
+	 * @name loadChartDirective
+	 * @class
+	 */	
 	pinpointApp.constant('loadChartDirectiveConfig', {
 	    myColors: ["#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034"]
 	//    myColors: ["#c9e7a5", "#bbcdf0", "#fce0b5", "#f69124", "#f53034"]

@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)agentInfoDirective 
+	 * @ko agentInfoDirective
+	 * @group Directive
+	 * @name agentInfoDirective
+	 * @class
+	 */	
 	pinpointApp.constant('agentInfoConfig', {
 	    agentStatUrl: '/getAgentStat.pinpoint'
 	});

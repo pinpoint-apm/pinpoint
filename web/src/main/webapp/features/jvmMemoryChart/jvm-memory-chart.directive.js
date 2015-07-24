@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)jvmMemoryChartDirective 
+	 * @ko jvmMemoryChartDirective
+	 * @group Directive
+	 * @name jvmMemoryChartDirective
+	 * @class
+	 */	
 	angular.module('pinpointApp').directive('jvmMemoryChartDirective', ['$timeout',
         function ($timeout) {
             return {

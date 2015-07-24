@@ -1,6 +1,12 @@
 (function() {
 	'use strict';
-	
+	/**
+	 * (en)navbarDirective 
+	 * @ko navbarDirective
+	 * @group Directive
+	 * @name navbarDirective
+	 * @class
+	 */	
 	pinpointApp.constant('cfg', {
 	    applicationUrl: '/applications.pinpoint',
 	    serverTimeUrl: '/serverTime.pinpoint',
@@ -373,6 +379,7 @@
 	
 	                    $application.select2({
 	                        placeholder: "Select an application.",
+	                        searchInputPlaceholder: "Input your application name.",
 	                        allowClear: false,
 	                        formatResult: formatOptionText,
 	                        formatSelection: formatOptionText,
@@ -387,6 +394,7 @@
 	                        // ref1 : http://jimhoskins.com/2012/12/17/angularjs-and-apply.html
 	                        // ref2 : http://jsfiddle.net/CDvGy/2/
 	                    });
+	                    console.log( $application.select2 );
 	                };
 	                getMilliSecondByReadablePeriod = function( period ) {
 	                	var time = parseInt( period );

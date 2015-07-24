@@ -16,37 +16,14 @@
 
 package com.navercorp.pinpoint.bootstrap.context;
 
-
 /**
  * @author emeroad
  */
-public interface Trace extends StackOperation {
-    // ----------------------------------------------
-    // activeTrace related api
-    // TODO extract interface???
-    long getId();
+public interface FrameAttachment {
 
-    long getStartTime();
+    Object attachFrameObject(Object frameObject);
 
-    Thread getBindThread();
+    Object getFrameObject();
 
-    //------------------------------------------------
-
-    TraceId getTraceId();
-
-    AsyncTraceId getAsyncTraceId();
-
-    boolean canSampled();
-
-    boolean isRoot();
-
-    boolean isAsync();
-    
-    SpanRecorder getSpanRecorder();
-    
-    SpanEventRecorder currentSpanEventRecorder();
-    
-    void close();
-    
-    TraceType getTraceType();
+    Object detachFrameObject();
 }
