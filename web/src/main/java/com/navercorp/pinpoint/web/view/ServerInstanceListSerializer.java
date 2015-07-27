@@ -22,6 +22,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,6 +34,9 @@ import java.util.Map;
  * @author minwoo.jung
  */
 public class ServerInstanceListSerializer extends JsonSerializer<ServerInstanceList> {
+
+    @Autowired(required=false)
+    private MatcherGroup matcherGroup;
 
     @Override
     public void serialize(ServerInstanceList serverInstanceList, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
@@ -47,7 +52,7 @@ public class ServerInstanceListSerializer extends JsonSerializer<ServerInstanceL
             jgen.writeStringField("status", null);
 
             
-            Map<String, String> linkInfo = serverInstanceList.getLink(entry.getKey());
+            Map<String, String> linkInfo = serverInstanceList.getLink(entry.getKey(), getMatcherGroup());
             jgen.writeStringField("linkName", linkInfo.get("linkName"));
             jgen.writeStringField("linkURL", linkInfo.get("linkURL"));
             
@@ -70,6 +75,14 @@ public class ServerInstanceListSerializer extends JsonSerializer<ServerInstanceL
         }
 
         jgen.writeEndObject();
+    }
+
+    private MatcherGroup getMatcherGroup() {
+        if (matcherGroup != null) {
+            return matcherGroup;
+        }
+
+        return new MatcherGroup();
     }
 
 
