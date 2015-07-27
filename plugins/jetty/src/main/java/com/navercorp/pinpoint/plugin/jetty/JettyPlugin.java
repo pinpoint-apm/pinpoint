@@ -22,18 +22,17 @@ import com.navercorp.pinpoint.plugin.jetty.JettyConfiguration;
 
 public class JettyPlugin implements ProfilerPlugin, JettyConstants{
 
-	@Override
-	public void setup(ProfilerPluginContext context) {
-		context.addApplicationTypeDetector(new JettyDetector());
+    @Override
+    public void setup(ProfilerPluginContext context) {
+        context.addApplicationTypeDetector(new JettyDetector());
         JettyConfiguration config = new JettyConfiguration(context.getConfig());
-		addServerInterceptors(context, config);
-	}
+        addServerInterceptor(context, config);
+    }
 
-    private void addServerInterceptors(ProfilerPluginContext context, JettyConfiguration config){
-    	ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.eclipse.jetty.server.Server");
+    private void addServerInterceptor(ProfilerPluginContext context, JettyConfiguration config){
+        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.eclipse.jetty.server.Server");
         builder.injectInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.ServerHandleInterceptor", config.getJettyExcludeUrlFilter());
-        //builder.injectInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.ServerHandleAsyncInterceptor");
-        builder.injectMetadata(METADATA_ASYNC_TRACE_ID);
+        builder.injectMetadata(METADATA_TRACE);
         context.addClassFileTransformer(builder.build());
     }
 }

@@ -17,16 +17,20 @@ package com.navercorp.pinpoint.plugin.jetty;
 import com.navercorp.pinpoint.bootstrap.config.ExcludeUrlFilter;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
 
 public class JettyConfiguration {
 
-    private Filter<String> jettyExcludeUrlFilter;
+    private final Filter<String> jettyExcludeUrlFilter;
 
     public JettyConfiguration(ProfilerConfig config) {
-        final String jettyExcludeURL = config.readString("profiler.tomcat.excludeurl", "");
-        
+        final String jettyExcludeURL = config.readString("profiler.jetty.excludeurl", "");
+
         if (!jettyExcludeURL.isEmpty()) {
             this.jettyExcludeUrlFilter = new ExcludeUrlFilter(jettyExcludeURL);
+        }
+        else{
+            this.jettyExcludeUrlFilter = new  SkipFilter<String>();
         }
     }
 

@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 public class JettyDetector implements ApplicationTypeDetector, JettyConstants {
 
     private static final String REQUIRED_MAIN_CLASS = "org.eclipse.jetty.start.Main";
-    
-  
+
+
     @Override
     public ServiceType getServerType() {
         return JETTY;
