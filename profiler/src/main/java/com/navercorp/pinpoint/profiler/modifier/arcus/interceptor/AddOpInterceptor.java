@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.profiler.modifier.arcus.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue2Utils;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.util.MetaObject;
 
 import net.spy.memcached.ops.Operation;
 
@@ -34,8 +34,6 @@ public class AddOpInterceptor implements SimpleAroundInterceptor, TargetClassLoa
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private MetaObject<String> getServiceCode = new MetaObject<String>("__getServiceCode");
-    private MetaObject<String> setServiceCode = new MetaObject<String>("__setServiceCode", String.class);
 
     @Override
     public void before(Object target, Object[] args) {
@@ -43,10 +41,25 @@ public class AddOpInterceptor implements SimpleAroundInterceptor, TargetClassLoa
             logger.beforeInterceptor(target, args);
         }
 
-        String serviceCode = getServiceCode.invoke(target);
-        Operation op = (Operation) args[1];
+        final String serviceCode = getServiceCode(target);
+        setServiceCode(args[1], serviceCode);
+    }
 
-        setServiceCode.invoke(op, serviceCode);
+    //    __serviceCode -> ObjectTraceValue2
+    private String getServiceCode(Object target) {
+        final Object serviceCodeObject = ObjectTraceValue2Utils.__getTraceObject2(target, null);
+        if (serviceCodeObject instanceof String) {
+            return (String) serviceCodeObject;
+        }
+        return null;
+    }
+
+    private void setServiceCode(Object target, Object value) {
+        if (target instanceof Operation) {
+            ObjectTraceValue2Utils.__setTraceObject2(target, value);
+        } else {
+            logger.info("invalid arg1");
+        }
     }
 
     @Override

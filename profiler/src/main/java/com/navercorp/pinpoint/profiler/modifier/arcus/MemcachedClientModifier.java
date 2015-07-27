@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.Type;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.ParameterExtractorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue2;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.ArcusScope;
 import com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.IndexParameterExtractor;
@@ -63,7 +64,8 @@ public class MemcachedClientModifier extends AbstractModifier {
             if (!checkCompatibility(aClass, args)) {
                 return null;
             }
-            aClass.addTraceVariable("__serviceCode", "__setServiceCode", "__getServiceCode", "java.lang.String");
+//            serviceCode->ObjectTraceValue2
+            aClass.addTraceValue(ObjectTraceValue2.class);
 
             Interceptor addOpInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
                     "com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.AddOpInterceptor");

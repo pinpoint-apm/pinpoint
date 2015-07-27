@@ -22,9 +22,10 @@ import java.net.SocketAddress;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue1Utils;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue2Utils;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.util.MetaObject;
 import com.navercorp.pinpoint.common.ServiceType;
 
 import net.spy.memcached.MemcachedNode;
@@ -38,9 +39,6 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private MetaObject<Object> getOperation = new MetaObject<Object>("__getOperation");
-    private MetaObject<Object> getServiceCode = new MetaObject<Object>("__getServiceCode");
-    
     private MethodDescriptor methodDescriptor;
     private TraceContext traceContext;
 
@@ -77,7 +75,7 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
 //            trace.recordAttribute(AnnotationKey.ARCUS_COMMAND, annotation);
 
             // find the target node
-            final Operation op = (Operation) getOperation.invoke(target);
+            final Operation op = getOperation(target);
             if (op != null) {
                 MemcachedNode handlingNode = op.getHandlingNode();
                 if (handlingNode != null) {
@@ -86,6 +84,7 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
                         InetSocketAddress address = (InetSocketAddress) socketAddress;
                         trace.recordEndPoint(address.getHostName() + ":" + address.getPort());
                     }
+                    trace.recordException(op.getException());
                 } else {
                     logger.info("no handling node");
                 }
@@ -94,7 +93,7 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
             }
 
             // determine the service type
-            String serviceCode = (String) getServiceCode.invoke((Operation)op);
+            final String serviceCode = getServiceCode(op);
             if (serviceCode != null) {
                 trace.recordDestinationId(serviceCode);
                 trace.recordServiceType(ServiceType.ARCUS_FUTURE_GET);
@@ -103,9 +102,6 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
                 trace.recordServiceType(ServiceType.MEMCACHED_FUTURE_GET);
             }
 
-            if (op != null) {
-                trace.recordException(op.getException());
-            }
 //            When it's canceled, doen't it throw exception?
 //            if (op.isCancelled()) {
 //                trace.recordAttribute(AnnotationKey.EXCEPTION, "cancelled by user");
@@ -116,7 +112,25 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
             trace.traceBlockEnd();
         }
     }
-    
+
+//    __operation -> ObjectTraceValue1.class
+    private Operation getOperation(Object target) {
+        final Object operationObject = ObjectTraceValue1Utils.__getTraceObject1(target, null);
+        if (operationObject instanceof Operation) {
+            return (Operation) operationObject;
+        }
+        return null;
+    }
+
+//    __serviceCode -> ObjectTraceValue2.class
+    private String getServiceCode(Object target) {
+        final Object serviceCodeObject = ObjectTraceValue2Utils.__getTraceObject2(target, null);
+        if (serviceCodeObject instanceof String) {
+            return (String) serviceCodeObject;
+        }
+        return null;
+    }
+
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
         this.methodDescriptor = descriptor;
