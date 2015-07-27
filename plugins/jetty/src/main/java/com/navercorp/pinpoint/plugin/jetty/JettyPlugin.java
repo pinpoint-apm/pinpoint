@@ -32,7 +32,7 @@ public class JettyPlugin implements ProfilerPlugin, JettyConstants{
     private void addServerInterceptor(ProfilerPluginContext context, JettyConfiguration config){
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.eclipse.jetty.server.Server");
         builder.injectInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.ServerHandleInterceptor", config.getJettyExcludeUrlFilter());
-        builder.injectMetadata(METADATA_TRACE);
+        //builder.injectMetadata(METADATA_TRACE);
         context.addClassFileTransformer(builder.build());
     }
 }
