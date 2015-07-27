@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue3;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue4;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.ArcusScope;
 import com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.FrontCacheGetFutureConstructInterceptor;
@@ -50,8 +52,11 @@ public class FrontCacheGetFutureModifier extends AbstractModifier {
         try {
             InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
-            aClass.addTraceVariable("__cacheName", "__setCacheName", "__getCacheName", "java.lang.String");
-            aClass.addTraceVariable("__cacheKey", "__setCacheKey", "__getCacheKey", "java.lang.String");
+//            cacheName->ObjectTraceValue3
+            aClass.addTraceValue(ObjectTraceValue3.class);
+
+//            cacheKey->ObjectTraceValue4
+            aClass.addTraceValue(ObjectTraceValue4.class);
 
             Interceptor frontCacheGetFutureConstructInterceptor = new FrontCacheGetFutureConstructInterceptor();
             aClass.addConstructorInterceptor(new String[]{"net.sf.ehcache.Element"}, frontCacheGetFutureConstructInterceptor);

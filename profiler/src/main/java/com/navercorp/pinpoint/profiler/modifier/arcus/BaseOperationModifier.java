@@ -21,6 +21,7 @@ import java.security.ProtectionDomain;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue2;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 
 import org.slf4j.Logger;
@@ -50,7 +51,8 @@ public class BaseOperationModifier extends AbstractModifier {
         try {
             InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
-            aClass.addTraceVariable("__serviceCode", "__setServiceCode", "__getServiceCode", "java.lang.String");
+//            serviceCode->ObjectTraceValue2
+            aClass.addTraceValue(ObjectTraceValue2.class);
 
             /* Do not intercept
             aClass.addTraceVariable("__asyncTrace", "__setAsyncTrace", "__getAsyncTrace", "java.lang.Object");

@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.profiler.modifier.arcus.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue3Utils;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.util.MetaObject;
 import com.navercorp.pinpoint.common.ServiceType;
 
 /**
@@ -32,8 +32,7 @@ public class FrontCacheGetFutureGetInterceptor implements SimpleAroundIntercepto
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final MetaObject<Object> getCacheName = new MetaObject<Object>("__getCacheName");
-//    private final MetaObject<Object> getCacheKey = new MetaObject<Object>("__getCacheKey");
+//    cacheKey->ObjectTrace4
 
     private MethodDescriptor methodDescriptor;
     private TraceContext traceContext;
@@ -72,7 +71,7 @@ public class FrontCacheGetFutureGetInterceptor implements SimpleAroundIntercepto
 //                // annotate it.
 //            }
 
-            String cacheName = (String) getCacheName.invoke(target);
+            final String cacheName = getCacheName(target);
             if (cacheName != null) {
                 trace.recordDestinationId(cacheName);
             }
@@ -82,6 +81,15 @@ public class FrontCacheGetFutureGetInterceptor implements SimpleAroundIntercepto
         } finally {
             trace.traceBlockEnd();
         }
+    }
+
+//    __cacheName->ObjectTrace3
+    private String getCacheName(Object result) {
+        final Object cacheNameObject = ObjectTraceValue3Utils.__getTraceObject3(result, null);
+        if (cacheNameObject instanceof String) {
+            return (String) cacheNameObject;
+        }
+        return null;
     }
 
     @Override

@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.profiler.modifier.arcus.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue2Utils;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.util.MetaObject;
 
 /**
  * 
@@ -30,8 +30,6 @@ public class CacheManagerConstructInterceptor implements SimpleAroundInterceptor
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-
-    private MetaObject<Object> setServiceCode = new MetaObject<Object>("__setServiceCode", String.class);
 
     @Override
     public void before(Object target, Object[] args) {
@@ -44,6 +42,12 @@ public class CacheManagerConstructInterceptor implements SimpleAroundInterceptor
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        setServiceCode.invoke(target, (String) args[1]);
+        setServiceCode(target, args[1]);
+    }
+
+    private void setServiceCode(Object target, Object value) {
+        if (value instanceof String) {
+            ObjectTraceValue2Utils.__setTraceObject2(target, value);
+        }
     }
 }
