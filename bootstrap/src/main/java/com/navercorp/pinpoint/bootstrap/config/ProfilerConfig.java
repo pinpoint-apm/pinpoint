@@ -703,7 +703,6 @@ public class ProfilerConfig {
         this.arucsKeyTrace = readBoolean("profiler.arcus.keytrace", false);
         this.memcached = readBoolean("profiler.memcached", true);
         this.memcachedKeyTrace = readBoolean("profiler.memcached.keytrace", false);
-
         
         /**
          * apache http client 3

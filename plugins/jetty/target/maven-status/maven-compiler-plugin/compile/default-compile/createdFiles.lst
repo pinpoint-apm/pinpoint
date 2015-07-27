@@ -1,8 +1,0 @@
-com/navercorp/pinpoint/plugin/jetty/JettyDetector.class
-com/navercorp/pinpoint/plugin/jetty/JettyPlugin.class
-com/navercorp/pinpoint/plugin/jetty/JettySyncMethodDescriptor.class
-com/navercorp/pinpoint/plugin/jetty/JettyTypeProvider.class
-com/navercorp/pinpoint/plugin/jetty/interceptor/ServerHandleInterceptor.class
-com/navercorp/pinpoint/plugin/jetty/JettyConstants.class
-com/navercorp/pinpoint/plugin/jetty/JettyConfiguration.class
-com/navercorp/pinpoint/plugin/jetty/JettyAsyncMethodDescriptor.class
