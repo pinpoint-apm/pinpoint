@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import java.util.List;
-import java.util.SortedMap;
-
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
-import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
 import com.navercorp.pinpoint.web.view.ApplicationAgentListSerializer;
+
+import java.util.List;
+import java.util.SortedMap;
 
 /**
  * @author minwoo.jung
@@ -30,15 +29,9 @@ import com.navercorp.pinpoint.web.view.ApplicationAgentListSerializer;
 @JsonSerialize(using = ApplicationAgentListSerializer.class)
 public class ApplicationAgentList {
 
-    private MatcherGroup matcherGroup = new MatcherGroup();
-    
     SortedMap<String, List<AgentInfoBo>> applicationAgentList;
     
-    public ApplicationAgentList(SortedMap<String, List<AgentInfoBo>> applicationAgentList, MatcherGroup matcherGroup) {
-        if (matcherGroup != null) {
-            this.matcherGroup.addMatcherGroup(matcherGroup);
-        }
-        
+    public ApplicationAgentList(SortedMap<String, List<AgentInfoBo>> applicationAgentList) {
         this.applicationAgentList = applicationAgentList;
     }
     
@@ -46,7 +39,4 @@ public class ApplicationAgentList {
         return this.applicationAgentList;
     }
     
-    public MatcherGroup getMatcherGroup() {
-        return matcherGroup; 
-    }
 }

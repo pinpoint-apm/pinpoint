@@ -40,15 +40,12 @@ public class ApplicationMapBuilder {
 
     private final Range range;
 
-    private MatcherGroup matcherGroup;
-
-    public ApplicationMapBuilder(Range range, MatcherGroup matcherGroup) {
+    public ApplicationMapBuilder(Range range) {
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
 
         this.range = range;
-        this.matcherGroup = matcherGroup;
     }
 
     public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService, NodeHistogramDataSource nodeHistogramDataSource) {
@@ -372,7 +369,7 @@ public class ApplicationMapBuilder {
 
         if (nodeServiceType.isTerminal()) {
             // extract information about the terminal node
-            ServerBuilder builder = new ServerBuilder(matcherGroup);
+            ServerBuilder builder = new ServerBuilder();
             for (LinkData linkData : linkDataDuplexMap.getSourceLinkDataList()) {
                 Application toApplication = linkData.getToApplication();
                 if (node.getApplication().equals(toApplication)) {
@@ -390,7 +387,7 @@ public class ApplicationMapBuilder {
                 return;
             }
             logger.debug("add agentInfo. {}, {}", node.getApplication(), agentList);
-            ServerBuilder builder = new ServerBuilder(matcherGroup);
+            ServerBuilder builder = new ServerBuilder();
             agentList = filterAgentInfoByResponseData(agentList, node);
             builder.addAgentInfo(agentList);
             ServerInstanceList serverInstanceList = builder.build();

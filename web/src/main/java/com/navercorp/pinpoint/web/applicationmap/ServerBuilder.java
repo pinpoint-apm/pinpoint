@@ -18,14 +18,13 @@ package com.navercorp.pinpoint.web.applicationmap;
 
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author emeroad
@@ -37,18 +36,10 @@ public class ServerBuilder {
 
     private final AgentHistogramList agentHistogramList;
     private final Set<AgentInfoBo> agentSet;
-    private final MatcherGroup matcherGroup;
 
     public ServerBuilder() {
-        // TODO FIX
-        this(null);
-    }
-
-    public ServerBuilder(MatcherGroup matcherGroup) {
         this.agentHistogramList = new AgentHistogramList();
         this.agentSet = new HashSet<AgentInfoBo>();
-        // TODO avoid null
-        this.matcherGroup = matcherGroup;
     }
 
     public void addCallHistogramList(AgentHistogramList agentHistogramList) {
@@ -103,7 +94,7 @@ public class ServerBuilder {
     }
 
     public ServerInstanceList buildPhysicalServer(final Set<AgentInfoBo> agentSet) {
-        final ServerInstanceList serverInstanceList = new ServerInstanceList(matcherGroup);
+        final ServerInstanceList serverInstanceList = new ServerInstanceList();
         for (AgentInfoBo agent : agentSet) {
             final ServerInstance serverInstance = new ServerInstance(agent);
             serverInstanceList.addServerInstance(serverInstance);
