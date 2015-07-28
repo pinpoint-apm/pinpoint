@@ -53,6 +53,13 @@ public final class HBaseTables {
     public static final byte[] AGENTINFO_CF_INFO_IDENTIFIER = Bytes.toBytes("i");
     public static final byte[] AGENTINFO_CF_INFO_SERVER_META_DATA = Bytes.toBytes("m");
 
+    public static final String AGENT_LIFECYCLE = "AgentLifeCycle";
+    public static final byte[] AGENT_LIFECYCLE_CF_STATUS = Bytes.toBytes("S"); // agent lifecycle column family
+    public static final byte[] AGENT_LIFECYCLE_CF_STATUS_QUALI_STATES = Bytes.toBytes("states"); // qualifier for agent lifecycle states
+
+    public static final String AGENT_EVENT = "AgentEvent";
+    public static final byte[] AGENT_EVENT_CF_EVENTS = Bytes.toBytes("E"); // agent events column family
+
     @Deprecated
     public static final String AGENTID_APPLICATION_INDEX = "AgentIdApplicationIndex";
     @Deprecated

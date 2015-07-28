@@ -399,6 +399,8 @@ public class DefaultPinpointServer implements PinpointServer {
 
         if (statusCode.getId() == packet.getStateCode()) {
             stateChecker.unmark();
+            
+            messageListener.handlePing(packet, this);
 
             PongPacket pongPacket = PongPacket.PONG_PACKET;
             ChannelFuture write = channel.write(pongPacket);

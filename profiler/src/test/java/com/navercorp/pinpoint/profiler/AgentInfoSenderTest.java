@@ -50,6 +50,7 @@ import com.navercorp.pinpoint.rpc.client.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
+import com.navercorp.pinpoint.rpc.packet.PingPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
@@ -397,6 +398,11 @@ public class AgentInfoSenderTest {
         @Override
         public HandshakeResponseCode handleHandshake(@SuppressWarnings("rawtypes") Map arg0) {
             return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
+        }
+
+        @Override
+        public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
+            logger.info("ping received {} {} ", pingPacket, pinpointServer);
         }
     }
     
