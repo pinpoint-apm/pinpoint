@@ -111,6 +111,12 @@ public final class DefaultTrace implements Trace {
         return span;
     }
 
+    private SpanEventRecorder wrappedSpanEventRecorder(SpanEvent spanEvent) {
+        final WrappedSpanEventRecorder spanEventRecorder = this.spanEventRecorder;
+        spanEventRecorder.setWrapped(spanEvent);
+        return spanEventRecorder;
+    }
+
     public void setStorage(Storage storage) {
         this.storage = storage;
     }
@@ -136,8 +142,7 @@ public final class DefaultTrace implements Trace {
             callStack.push(spanEvent);
         }
 
-        spanEventRecorder.setWrapped(spanEvent);
-        return spanEventRecorder;
+        return wrappedSpanEventRecorder(spanEvent);
     }
 
     @Override
@@ -301,8 +306,7 @@ public final class DefaultTrace implements Trace {
             spanEvent = new SpanEvent(spanRecorder.getSpan());
         }
 
-        spanEventRecorder.setWrapped(spanEvent);
-        return spanEventRecorder;
+        return wrappedSpanEventRecorder(spanEvent);
     }
 
     @Override
