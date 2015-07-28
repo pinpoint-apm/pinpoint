@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
+import com.navercorp.pinpoint.rpc.packet.PingPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 
@@ -54,6 +55,11 @@ public class TestSeverMessageListener implements ServerMessageListener {
     public HandshakeResponseCode handleHandshake(Map properties) {
         logger.debug("handle handShake properties:{} channel:{}", properties);
         return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
+    }
+
+    @Override
+    public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
+        logger.debug("pingPacket:{} channel:{} ", pingPacket, pinpointServer);
     }
 
     public byte[] getOpen() {

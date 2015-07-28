@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
+import com.navercorp.pinpoint.rpc.packet.PingPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
@@ -185,6 +186,11 @@ public class PinpointSocketManager {
         public HandshakeResponseCode handleHandshake(Map properties) {
             logger.warn("do handShake {}", properties);
             return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
+        }
+
+        @Override
+        public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
+            logger.debug("ping received {} {} ", pingPacket, pinpointServer);
         }
     }
 

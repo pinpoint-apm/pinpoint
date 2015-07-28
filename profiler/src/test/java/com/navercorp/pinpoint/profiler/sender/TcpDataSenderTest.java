@@ -22,7 +22,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +33,7 @@ import com.navercorp.pinpoint.rpc.client.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
+import com.navercorp.pinpoint.rpc.packet.PingPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
@@ -75,6 +75,11 @@ public class TcpDataSenderTest {
             @Override
             public HandshakeResponseCode handleHandshake(Map arg0) {
                 return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
+            }
+
+            @Override
+            public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
+                logger.info("ping received {} {} ", pingPacket, pinpointServer);
             }
         });
         serverAcceptor.bind(HOST, PORT);
