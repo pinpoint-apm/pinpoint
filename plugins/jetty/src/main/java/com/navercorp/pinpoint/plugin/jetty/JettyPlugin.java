@@ -17,6 +17,8 @@ package com.navercorp.pinpoint.plugin.jetty;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty;
 import com.navercorp.pinpoint.plugin.jetty.JettyDetector;
 import com.navercorp.pinpoint.plugin.jetty.JettyConfiguration;
 
@@ -27,12 +29,18 @@ public class JettyPlugin implements ProfilerPlugin, JettyConstants{
         context.addApplicationTypeDetector(new JettyDetector());
         JettyConfiguration config = new JettyConfiguration(context.getConfig());
         addServerInterceptor(context, config);
+        addRequestEditor(context);
     }
 
     private void addServerInterceptor(ProfilerPluginContext context, JettyConfiguration config){
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.eclipse.jetty.server.Server");
         builder.injectInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.ServerHandleInterceptor", config.getJettyExcludeUrlFilter());
-        //builder.injectMetadata(METADATA_TRACE);
+        context.addClassFileTransformer(builder.build());
+    }
+    
+    private void addRequestEditor(ProfilerPluginContext context) {
+        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.eclipse.jetty.server.Request");
+        builder.injectMetadata(METADATA_TRACE);
         context.addClassFileTransformer(builder.build());
     }
 }

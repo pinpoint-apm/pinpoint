@@ -16,7 +16,7 @@ package com.navercorp.pinpoint.plugin.jetty.interceptor;
 
 import java.util.Enumeration;
 
-import javax.servlet.http.HttpServletRequest;
+import org.eclipse.jetty.server.Request;
 
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
@@ -96,7 +96,7 @@ public class ServerHandleInterceptor implements SimpleAroundInterceptor, JettyCo
 
     private Trace createTrace(Object target, Object[] args) {
         final HttpChannel<?> channel = (HttpChannel<?>) args[0];
-        final HttpServletRequest request = (HttpServletRequest) channel.getRequest();
+        final Request request = channel.getRequest();
 
         final String requestURI = request.getRequestURI();
         if (excludeUrlFilter.filter(requestURI)) {
@@ -170,7 +170,7 @@ public class ServerHandleInterceptor implements SimpleAroundInterceptor, JettyCo
         try {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             final HttpChannel<?> channel = (HttpChannel<?>) args[0];
-            final HttpServletRequest request = (HttpServletRequest) channel.getRequest();
+            final Request request = channel.getRequest();
             final String parameters = getRequestParameter(request, 64, 512);
             if (parameters != null && parameters.length() > 0) {
                 recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
@@ -188,7 +188,7 @@ public class ServerHandleInterceptor implements SimpleAroundInterceptor, JettyCo
         }
     }
 
-    private boolean samplingEnable(HttpServletRequest request) {
+    private boolean samplingEnable(Request request) {
         // optional value
         final String samplingFlag = request.getHeader(Header.HTTP_SAMPLED.toString());
         if (isDebug) {
@@ -197,13 +197,13 @@ public class ServerHandleInterceptor implements SimpleAroundInterceptor, JettyCo
         return SamplingFlagUtils.isSamplingFlag(samplingFlag);
     }
 
-    private void setTraceMetadata(final HttpServletRequest request, final Trace trace) {
+    private void setTraceMetadata(final Request request, final Trace trace) {
         if(traceAccessor.isApplicable(request)) {
             traceAccessor.set(request, trace);            
         }
     }
 
-    private String getRequestParameter(HttpServletRequest request, int eachLimit, int totalLimit) {
+    private String getRequestParameter(Request request, int eachLimit, int totalLimit) {
         Enumeration<?> attrs = request.getParameterNames();
         final StringBuilder params = new StringBuilder(64);
         while (attrs.hasMoreElements()) {
@@ -226,7 +226,7 @@ public class ServerHandleInterceptor implements SimpleAroundInterceptor, JettyCo
         return params.toString();
     }
 
-    private void recordParentInfo(SpanRecorder recorder, HttpServletRequest request) {
+    private void recordParentInfo(SpanRecorder recorder, Request request) {
         String parentApplicationName = request.getHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString());
         if (parentApplicationName != null) {
             final String host = request.getHeader(Header.HTTP_HOST.toString());
@@ -241,7 +241,7 @@ public class ServerHandleInterceptor implements SimpleAroundInterceptor, JettyCo
         }
     }
 
-    private void recordRootSpan(final SpanRecorder recorder, final HttpServletRequest request) {
+    private void recordRootSpan(final SpanRecorder recorder, final Request request) {
         // root
         recorder.recordServiceType(JettyConstants.JETTY);
 
@@ -267,7 +267,7 @@ public class ServerHandleInterceptor implements SimpleAroundInterceptor, JettyCo
      * @param request
      * @return TraceId when it is possible to get a transactionId from Http header. if not possible return null
      */
-    private TraceId populateTraceIdFromRequest(HttpServletRequest request) {
+    private TraceId populateTraceIdFromRequest(Request request) {
 
         String transactionId = request.getHeader(Header.HTTP_TRACE_ID.toString());
         if (transactionId != null) {
@@ -289,7 +289,7 @@ public class ServerHandleInterceptor implements SimpleAroundInterceptor, JettyCo
         trace.traceBlockEnd();
         trace.close();
         final HttpChannel<?> channel = (HttpChannel<?>) args[0];
-        final HttpServletRequest request = (HttpServletRequest) channel.getRequest();
+        final Request request = channel.getRequest();
         setTraceMetadata(request, null);
     }
 }
