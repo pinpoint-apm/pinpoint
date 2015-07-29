@@ -19,11 +19,12 @@ package com.navercorp.pinpoint.rpc.server;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.handler.HandshakerHandler;
+import com.navercorp.pinpoint.rpc.server.handler.PingHandler;
 
 /**
  * @author emeroad
  */
-public interface ServerMessageListener extends HandshakerHandler {
+public interface ServerMessageListener extends HandshakerHandler, PingHandler {
 
     void handleSend(SendPacket sendPacket, PinpointServer pinpointServer);
 

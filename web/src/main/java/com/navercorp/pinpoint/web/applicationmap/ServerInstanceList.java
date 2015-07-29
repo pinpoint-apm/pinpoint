@@ -39,15 +39,7 @@ public class ServerInstanceList {
 
     private final Map<String, List<ServerInstance>> serverInstanceList = new TreeMap<String, List<ServerInstance>>();
 
-    private MatcherGroup matcherGroup = new MatcherGroup();
-
     public ServerInstanceList() {
-    }
-
-    public ServerInstanceList(MatcherGroup matcherGroup) {
-        if (matcherGroup != null) {
-            this.matcherGroup.addMatcherGroup(matcherGroup);
-        }
     }
 
     public Map<String, List<ServerInstance>> getServerInstanceList() {
@@ -100,7 +92,7 @@ public class ServerInstanceList {
         addServerInstance(find, serverInstance);
     }
 
-    public Map<String, String> getLink(String serverName) {
+    public Map<String, String> getLink(String serverName, MatcherGroup matcherGroup) {
         ServerMatcher serverMatcher = matcherGroup.match(serverName);
 
         Map<String, String> linkInfo = new HashMap<String, String>();

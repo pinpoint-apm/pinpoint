@@ -6,7 +6,7 @@
        xmlns:beans="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p"
        xmlns:util="http://www.springframework.org/schema/util" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
        xmlns:hdp="http://www.springframework.org/schema/hadoop"
-       xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+       xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
@@ -19,7 +19,7 @@
     <context:component-scan
             base-package="com.navercorp.pinpoint.collector.dao.hbase,
                         com.navercorp.pinpoint.collector.handler,
-                         com.navercorp.pinpoint.collector.manage,
+                        com.navercorp.pinpoint.collector.manage,
                         com.navercorp.pinpoint.collector.mapper,
                         com.navercorp.pinpoint.collector.util,
                         com.navercorp.pinpoint.collector.config" />
@@ -101,16 +101,38 @@
         <constructor-arg ref="collectorConfiguration"/>
         <constructor-arg ref="clusterPointRouter"/>
     </bean>
+
+    <!-- Agent Event/Lifecycle related Beans -->
+    <bean id="agentEventWorker" class="com.navercorp.pinpoint.common.util.ExecutorFactory" factory-method="newFixedThreadPool">
+        <constructor-arg index="0" value="#{collectorConfiguration.agentEventWorkerThreadSize}"/>
+        <constructor-arg index="1" value="#{collectorConfiguration.agentEventWorkerQueueSize}"/>
+        <constructor-arg index="2" value="Pinpoint-AgentEvent-Worker"/>
+        <constructor-arg index="3" value="true"/>
+    </bean>
     
+    <bean id="agentEventMessageSerializer" class="com.navercorp.pinpoint.common.util.AgentEventMessageSerializer">
+        <constructor-arg ref="commandHeaderTBaseSerializerFactory"/>
+    </bean>
+
+    <bean id="agentEventHandler" class="com.navercorp.pinpoint.collector.rpc.handler.AgentEventHandler">
+    </bean>
+
+    <bean id="agentLifeCycleHandler" class="com.navercorp.pinpoint.collector.rpc.handler.AgentLifeCycleHandler">
+    </bean>
+
+    <bean id="agentLifeCycleChangeEventHandler" class="com.navercorp.pinpoint.collector.rpc.handler.AgentLifeCycleChangeEventHandler">
+    </bean>
+
     <!-- TCPReceiver related Beans -->
     <bean id="serverAcceptor" class="com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor"/>
-    
+
     <util:list id="channelStateChangeEventHandlers" value-type="com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler">
+        <ref bean="agentLifeCycleChangeEventHandler"/> 
     </util:list>
 
     <bean id="tcpReceiver" class="com.navercorp.pinpoint.collector.receiver.tcp.TCPReceiver">
-        <constructor-arg type="com.navercorp.pinpoint.collector.receiver.DispatchHandler" ref="tcpDispatchHandlerWrapper"/>
         <constructor-arg type="com.navercorp.pinpoint.collector.config.CollectorConfiguration" ref="collectorConfiguration"/>
+        <constructor-arg type="com.navercorp.pinpoint.collector.receiver.DispatchHandler" ref="tcpDispatchHandlerWrapper"/>
         <constructor-arg type="com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor" ref="serverAcceptor"/>
         <constructor-arg type="com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService" ref="clusterService"/>
     </bean>

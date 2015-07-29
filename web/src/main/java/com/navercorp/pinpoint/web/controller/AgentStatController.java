@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.controller;
 
 
-import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.AgentStatService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
@@ -52,9 +51,6 @@ public class AgentStatController {
 
     @Autowired
     private AgentInfoService agentInfoService;
-
-    @Autowired(required = false)
-    private MatcherGroup matcherGroup;
 
     @RequestMapping(value = "/getAgentStat", method = RequestMethod.GET)
     @ResponseBody
@@ -96,6 +92,6 @@ public class AgentStatController {
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         Range range = new Range(from, to);
-        return new ApplicationAgentList(agentInfoService.getApplicationAgentList(applicationName, range), matcherGroup);
+        return new ApplicationAgentList(agentInfoService.getApplicationAgentList(applicationName, range));
     }
 }

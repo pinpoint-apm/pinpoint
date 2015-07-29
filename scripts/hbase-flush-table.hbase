@@ -1,5 +1,7 @@
 flush 'AgentInfo'
 flush 'AgentStat'
+flush 'AgentLifeCycle'
+flush 'AgentEvent'
 flush 'ApplicationIndex'
 
 flush 'StringMetaData'

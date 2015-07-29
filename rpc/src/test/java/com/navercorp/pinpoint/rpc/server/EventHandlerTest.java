@@ -37,6 +37,7 @@ import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
 import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
+import com.navercorp.pinpoint.rpc.packet.PingPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
@@ -209,6 +210,11 @@ public class EventHandlerTest {
         public HandshakeResponseCode handleHandshake(Map properties) {
             logger.info("handle Handshake {}", properties);
             return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
+        }
+
+        @Override
+        public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
+            
         }
     }
 
