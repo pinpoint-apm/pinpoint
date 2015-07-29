@@ -24,6 +24,38 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  */
 public class HttpClientPluginConfig {
 
+    private final boolean enable;
+    private final boolean async;
+    private final int maxAnonymousInnerClassNameNumber;
+
     public HttpClientPluginConfig(ProfilerConfig src) {
+        enable = src.readBoolean("profiler.google.httpclient.enable", true);
+        async = src.readBoolean("profiler.google.httpclient.async", true);
+        maxAnonymousInnerClassNameNumber = src.readInt("profiler.google.httpclient.async.innerclassname.max", 3);
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public boolean isAsync() {
+        return async;
+    }
+
+    public int getMaxAnonymousInnerClassNameNumber() {
+        return maxAnonymousInnerClassNameNumber;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("{enable=");
+        builder.append(enable);
+        builder.append(", async=");
+        builder.append(async);
+        builder.append(", maxAnonymousInnerClassNameNumber=");
+        builder.append(maxAnonymousInnerClassNameNumber);
+        builder.append("}");
+        return builder.toString();
     }
 }
