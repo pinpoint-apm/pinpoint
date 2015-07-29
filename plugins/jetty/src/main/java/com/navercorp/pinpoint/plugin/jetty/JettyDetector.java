@@ -32,5 +32,4 @@ public class JettyDetector implements ApplicationTypeDetector, JettyConstants {
     public boolean detect(ConditionProvider provider) {
         return provider.checkMainClass(REQUIRED_MAIN_CLASS);
     }
-
 }
