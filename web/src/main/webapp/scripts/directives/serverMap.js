@@ -89,7 +89,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 scope.mergeTypeList = [];
                 scope.mergeStatus = {};
                 scope.showAntStyleHint = false;
-                
+
                 /**
                  * extract node serviceType info
                  * @param serverMapData
@@ -480,10 +480,10 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         .setImageType2(htLastLink.toNode.serviceType)
                         .setTitle2(htLastLink.toNode.applicationName);
 
+                    scope.fromAgent = htLastLink.fromAgent || [];
+                    scope.toAgent = htLastLink.toAgent || [];
                     scope.sourceInfo = htLastLink.sourceInfo;
-                    scope.sourceHistogram = htLastLink.sourceHistogram;
                     scope.targetInfo = htLastLink.targetInfo;
-                    scope.targetHistogram = htLastLink.toNode.agentHistogram;
                     scope.fromApplicationName = htLastLink.fromNode.applicationName;
                     scope.toApplicationName = htLastLink.toNode.applicationName;
                     $fromAgentName.select2('val', '');
@@ -671,7 +671,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 		scope.totalRequestCount = true;
                         scope.tps = false;
                 	}
-                	
+
                     scope.totalRequestCount = (type !== 'tps') ? true : false;
                     scope.tps = (type === 'tps') ? true : false;
                     serverMapCallback(htLastQuery, htLastMergedMapData, scope.linkRouting, scope.linkCurve);
@@ -706,7 +706,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 scope.refresh = function () {
                 	$at($at.CONTEXT, $at.CLK_REFRESH);
                     if (oServerMap) {
-                    	
+
                         oServerMap.refresh();
                     }
                     reset();
@@ -759,11 +759,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     htLastLink = link;
                     openFilterWizard();
                 });
-                
+
                 scope.searchNodeByEnter = function( $event ) {
                 	if ( $event.keyCode == 13 ) {
                 		scope.searchNode();
-                	}                	
+                	}
                 }
                 scope.searchNodeWithCategory = function( index ) {
                 	if (oServerMap) {
@@ -786,7 +786,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 	scope.searchNodeList = [];
                 }
                 scope.toggleShowAntStyleHint = function() {
-                	scope.showAntStyleHint = !scope.showAntStyleHint; 
+                	scope.showAntStyleHint = !scope.showAntStyleHint;
                 }
             }
         };

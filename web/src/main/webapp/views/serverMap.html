@@ -79,7 +79,7 @@
             					</td>
             				</tr>
             			</tbody>
-            		</table> 
+            		</table>
         		</div>
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -96,7 +96,7 @@
                             <div class="col-sm-8">
                                 <select ng-show="sourceInfo.isWas" ng-model="fromAgentName" class="fromAgentName" style="width:120px;">
                                     <option value="">All</option>
-                                    <option ng-repeat="(agentName,v) in sourceHistogram" value="{{agentName}}">{{agentName}}</option>
+                                    <option ng-repeat="agentName in fromAgent" value="{{agentName}}">{{agentName}}</option>
                                 </select>
                                 <span ng-hide="sourceInfo.isWas">
                                     All<!--{{fromApplicationName}}-->
@@ -106,7 +106,7 @@
                                 &nbsp;
                                 <select ng-show="targetInfo.isWas" ng-model="toAgentName" class="toAgentName" style="width:120px;">
                                     <option value="">All</option>
-                                    <option ng-repeat="(agentName,v) in targetHistogram" value="{{agentName}}">{{agentName}}</option>
+                                    <option ng-repeat="agentName in toAgent" value="{{agentName}}">{{agentName}}</option>
                                 </select>
                                 <span ng-hide="targetInfo.isWas">
                                     All<!--{{toApplicationName}}-->
