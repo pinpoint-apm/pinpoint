@@ -492,11 +492,10 @@
 	                        .setImageType2(htLastLink.toNode.serviceType)
 	                        .setTitle2(htLastLink.toNode.applicationName);
 	
+	                    scope.fromAgent = htLastLink.fromAgent || [];
+	                    scope.toAgent = htLastLink.toAgent || [];
 	                    scope.sourceInfo = htLastLink.sourceInfo;
-	                    scope.sourceHistogram = htLastLink.sourceHistogram;
 	                    scope.targetInfo = htLastLink.targetInfo;
-	                    //scope.targetHistogram = htLastLink.toNode.agentHistogram;
-	                    scope.targetHistogram = htLastLink.targetHistogram;
 	                    scope.fromApplicationName = htLastLink.fromNode.applicationName;
 	                    scope.toApplicationName = htLastLink.toNode.applicationName;
 	                    $fromAgentName.select2('val', '');
