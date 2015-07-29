@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,12 +68,7 @@ public final class DefaultTrace implements Trace {
         this.spanRecorder = new DefaultSpanRecorder(traceContext, span, traceId, sampling);
         this.spanRecorder.recordTraceId(traceId);
         this.spanEventRecorder = new WrappedSpanEventRecorder(traceContext);
-        if (traceContext.getProfilerConfig() != null) {
-            final int maxCallStackDepth = traceContext.getProfilerConfig().getCallStackMaxDepth();
-            this.callStack = new CallStack(span, maxCallStackDepth);
-        } else {
-            this.callStack = new CallStack(span);
-        }
+        this.callStack = createCallStack(traceContext.getProfilerConfig(), span);
         setCurrentThread();
     }
 
@@ -91,13 +87,17 @@ public final class DefaultTrace implements Trace {
         this.spanRecorder = new DefaultSpanRecorder(traceContext, span, traceId, sampling);
         this.spanRecorder.recordTraceId(traceId);
         this.spanEventRecorder = new WrappedSpanEventRecorder(traceContext);
-        if (traceContext.getProfilerConfig() != null) {
-            final int maxCallStackDepth = traceContext.getProfilerConfig().getCallStackMaxDepth();
-            this.callStack = new CallStack(span, maxCallStackDepth);
-        } else {
-            this.callStack = new CallStack(span);
-        }
+        this.callStack = createCallStack(traceContext.getProfilerConfig(), span);
         setCurrentThread();
+    }
+
+    private CallStack createCallStack(ProfilerConfig profilerConfig, Span span) {
+        if (profilerConfig != null) {
+            final int maxCallStackDepth = profilerConfig.getCallStackMaxDepth();
+            return new CallStack(span, maxCallStackDepth);
+        } else {
+            return new CallStack(span);
+        }
     }
 
     private Span createSpan() {
@@ -109,6 +109,12 @@ public final class DefaultTrace implements Trace {
         span.markBeforeTime();
 
         return span;
+    }
+
+    private SpanEventRecorder wrappedSpanEventRecorder(SpanEvent spanEvent) {
+        final WrappedSpanEventRecorder spanEventRecorder = this.spanEventRecorder;
+        spanEventRecorder.setWrapped(spanEvent);
+        return spanEventRecorder;
     }
 
     public void setStorage(Storage storage) {
@@ -136,8 +142,7 @@ public final class DefaultTrace implements Trace {
             callStack.push(spanEvent);
         }
 
-        spanEventRecorder.setWrapped(spanEvent);
-        return spanEventRecorder;
+        return wrappedSpanEventRecorder(spanEvent);
     }
 
     @Override
@@ -301,8 +306,7 @@ public final class DefaultTrace implements Trace {
             spanEvent = new SpanEvent(spanRecorder.getSpan());
         }
 
-        spanEventRecorder.setWrapped(spanEvent);
-        return spanEventRecorder;
+        return wrappedSpanEventRecorder(spanEvent);
     }
 
     @Override

@@ -62,9 +62,6 @@ public class MapServiceImpl implements MapService {
     @Autowired
     private ApplicationFactory applicationFactory;
 
-    @Autowired(required=false)
-    private MatcherGroup matcherGroup;
-
     /**
      * Used in the main UI - draws the server map by querying the timeslot by time.
      */
@@ -86,7 +83,7 @@ public class MapServiceImpl implements MapService {
         watch.stop();
 
         watch.start("ApplicationMap MapBuilding(Response) Time");
-        ApplicationMapBuilder builder = new ApplicationMapBuilder(range, matcherGroup);
+        ApplicationMapBuilder builder = new ApplicationMapBuilder(range);
         ApplicationMap map = builder.build(linkDataDuplexMap, agentInfoService, this.mapResponseDao);
         watch.stop();
         if (logger.isInfoEnabled()) {

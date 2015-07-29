@@ -16,10 +16,6 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -28,26 +24,34 @@ import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
 import com.navercorp.pinpoint.web.applicationmap.link.ServerMatcher;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author minwoo.jung
  */
 public class ApplicationAgentListSerializer extends JsonSerializer<ApplicationAgentList> {
 
-  @Override
-  public void serialize(ApplicationAgentList applicationAgentList, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
-      jgen.writeStartObject();
-      Map<String, List<AgentInfoBo>> map = applicationAgentList.getApplicationAgentList();
+    @Autowired(required=false)
+    private MatcherGroup matcherGroup;
+
+
+    @Override
+    public void serialize(ApplicationAgentList applicationAgentList, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+        jgen.writeStartObject();
+        Map<String, List<AgentInfoBo>> map = applicationAgentList.getApplicationAgentList();
       
-      for (Map.Entry<String, List<AgentInfoBo>> entry : map.entrySet()) {
-          jgen.writeFieldName(entry.getKey());
-          writeAgentList(jgen, entry.getValue(), applicationAgentList.getMatcherGroup());
-      }
+        for (Map.Entry<String, List<AgentInfoBo>> entry : map.entrySet()) {
+            jgen.writeFieldName(entry.getKey());
+            writeAgentList(jgen, entry.getValue(), getMatcherGroup());
+        }
 
 
-      jgen.writeEndObject();
-
-  }
+        jgen.writeEndObject();
+    }
     
     private void writeAgentList(JsonGenerator jgen, List<AgentInfoBo> agentList, MatcherGroup matcherGroup) throws IOException {
         jgen.writeStartArray();
@@ -74,4 +78,13 @@ public class ApplicationAgentListSerializer extends JsonSerializer<ApplicationAg
         }
         jgen.writeEndArray();
     }
+
+    private MatcherGroup getMatcherGroup() {
+        if (matcherGroup != null) {
+            return matcherGroup;
+        }
+
+        return new MatcherGroup();
+    }
+
 }

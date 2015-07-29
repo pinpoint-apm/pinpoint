@@ -42,11 +42,16 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.rpc.handler.AgentEventHandler;
+import com.navercorp.pinpoint.collector.rpc.handler.AgentLifeCycleHandler;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
+import com.navercorp.pinpoint.common.util.AgentEventType;
+import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
+import com.navercorp.pinpoint.rpc.packet.PingPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
@@ -85,6 +90,15 @@ public class TCPReceiver {
 
     private final SerializerFactory<HeaderTBaseSerializer> serializerFactory = new ThreadLocalHeaderTBaseSerializerFactory<HeaderTBaseSerializer>(new HeaderTBaseSerializerFactory(true, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE));
     private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<HeaderTBaseDeserializer>(new HeaderTBaseDeserializerFactory());
+
+    @Resource(name="agentEventWorker")
+    private ExecutorService agentEventWorker;
+    
+    @Resource(name="agentEventHandler")
+    private AgentEventHandler agentEventHandler;
+    
+    @Resource(name="agentLifeCycleHandler")
+    private AgentLifeCycleHandler agentLifeCycleHandler;
     
     @Resource(name="channelStateChangeEventHandlers")
     private List<ChannelStateChangeEventHandler> channelStateChangeEventHandlers = Collections.emptyList();
@@ -176,6 +190,11 @@ public class TCPReceiver {
                     return HandshakeResponseType.Success.SIMPLEX_COMMUNICATION;
                 }
             }
+
+            @Override
+            public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
+                recordPing(pingPacket, pinpointServer);
+            }
         });
         this.serverAcceptor.bind(bindAddress, port);
 
@@ -196,6 +215,19 @@ public class TCPReceiver {
         } catch (RejectedExecutionException e) {
             // cause is clear - full stack trace not necessary
             logger.warn("RejectedExecutionException Caused:{}", e.getMessage());
+        }
+    }
+    
+    private void recordPing(PingPacket pingPacket, PinpointServer pinpointServer) {
+        final int eventCounter = pingPacket.getPingId();
+        long pingTimestamp = System.currentTimeMillis();
+        try {
+            if (!(eventCounter < 0)) {
+                agentLifeCycleHandler.handleLifeCycleEvent(pinpointServer, pingTimestamp, AgentLifeCycleState.RUNNING, eventCounter);
+            }
+            agentEventHandler.handleEvent(pinpointServer, pingTimestamp, AgentEventType.AGENT_PING);
+        } catch (Exception e) {
+            logger.warn("Error handling ping event", e);
         }
     }
 
@@ -291,6 +323,7 @@ public class TCPReceiver {
         logger.info("Pinpoint-TCP-Server stop");
         serverAcceptor.close();
         shutdownExecutor(worker);
+        shutdownExecutor(agentEventWorker);
     }
     
     private void shutdownExecutor(ExecutorService executor) {

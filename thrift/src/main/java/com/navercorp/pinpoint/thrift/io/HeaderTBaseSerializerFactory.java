@@ -58,7 +58,7 @@ public final class HeaderTBaseSerializerFactory implements SerializerFactory<Hea
     }
     
     public HeaderTBaseSerializerFactory(boolean safetyGuaranteed, int outputStreamSize, TProtocolFactory protocolFactory, TBaseLocator locator) {
-        this(safetyGuaranteed, outputStreamSize, DEFAULT_AUTO_EXPAND, DEFAULT_PROTOCOL_FACTORY, DEFAULT_TBASE_LOCATOR);
+        this(safetyGuaranteed, outputStreamSize, DEFAULT_AUTO_EXPAND, protocolFactory, locator);
     }
     
     public HeaderTBaseSerializerFactory(boolean safetyGuaranteed, int outputStreamSize, boolean autoExpand, TProtocolFactory protocolFactory, TBaseLocator locator) {

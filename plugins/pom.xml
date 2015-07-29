@@ -25,6 +25,7 @@
         <module>thrift</module>
         <module>user</module>
         <module>arcus</module>
+        <module>google-httpclient</module>
     </modules>
 
     <dependencies>
@@ -91,6 +92,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-arcus-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-google-httpclient-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

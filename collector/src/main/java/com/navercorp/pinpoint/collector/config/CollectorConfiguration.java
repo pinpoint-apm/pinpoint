@@ -74,6 +74,9 @@ public class CollectorConfiguration implements InitializingBean {
     private int udpSpanWorkerQueueSize;
     private int udpSpanSocketReceiveBufferSize;
     
+    private int agentEventWorkerThreadSize;
+    private int agentEventWorkerQueueSize;
+    
     private List<String> l4IpList = Collections.emptyList();
 
     private boolean clusterEnable;
@@ -191,6 +194,22 @@ public class CollectorConfiguration implements InitializingBean {
         this.udpSpanSocketReceiveBufferSize = udpSpanSocketReceiveBufferSize;
     }
 
+    public int getAgentEventWorkerThreadSize() {
+        return this.agentEventWorkerThreadSize;
+    }
+
+    public void setAgentEventWorkerThreadSize(int agentEventWorkerThreadSize) {
+        this.agentEventWorkerThreadSize = agentEventWorkerThreadSize;
+    }
+    
+    public int getAgentEventWorkerQueueSize() {
+        return agentEventWorkerQueueSize;
+    }
+
+    public void setAgentEventWorkerQueueSize(int agentEventWorkerQueueSize) {
+        this.agentEventWorkerQueueSize = agentEventWorkerQueueSize;
+    }
+
     public List<String> getL4IpList() {
         return l4IpList;
     }
@@ -271,6 +290,9 @@ public class CollectorConfiguration implements InitializingBean {
         this.udpSpanWorkerQueueSize = readInt(properties, "collector.udpSpanWorkerQueueSize", 1024 * 5);
         this.udpSpanSocketReceiveBufferSize = readInt(properties, "collector.udpSpanSocketReceiveBufferSize", 1024 * 4096);
         
+        this.agentEventWorkerThreadSize = readInt(properties, "collector.agentEventWorker.threadSize", 32);
+        this.agentEventWorkerQueueSize = readInt(properties, "collector.agentEventWorker.queueSize", 1024 * 5);
+        
         String[] l4Ips = StringUtils.split(readString(properties, "collector.l4.ip", null), ",");
         if (l4Ips == null) {
             this.l4IpList = Collections.emptyList();
@@ -330,6 +352,8 @@ public class CollectorConfiguration implements InitializingBean {
         sb.append(", udpSpanWorkerThread=").append(udpSpanWorkerThread);
         sb.append(", udpSpanWorkerQueueSize=").append(udpSpanWorkerQueueSize);
         sb.append(", udpSpanSocketReceiveBufferSize=").append(udpSpanSocketReceiveBufferSize);
+        sb.append(", agentEventWorkerThreadSize=").append(agentEventWorkerThreadSize);
+        sb.append(", agentEventWorkerQueueSize=").append(agentEventWorkerQueueSize);
         sb.append(", l4IpList=").append(l4IpList);
         sb.append(", clusterEnable=").append(clusterEnable);
         sb.append(", clusterAddress=").append(clusterAddress);
