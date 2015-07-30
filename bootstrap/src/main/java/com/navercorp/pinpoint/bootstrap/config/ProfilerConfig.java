@@ -103,6 +103,8 @@ public class ProfilerConfig {
     
     private boolean tcpDataSenderCommandAcceptEnable = false;
 
+    private boolean traceAgentActiveThread = true;
+
     private int callStackMaxDepth = 512;
     
     private int jdbcSqlCacheSize = 1024;
@@ -276,6 +278,10 @@ public class ProfilerConfig {
 
     public boolean isTcpDataSenderCommandAcceptEnable() {
         return tcpDataSenderCommandAcceptEnable;
+    }
+
+    public boolean isTraceAgentActiveThread() {
+        return traceAgentActiveThread;
     }
 
     public int getSpanDataSenderSocketTimeout() {
@@ -653,6 +659,8 @@ public class ProfilerConfig {
 
         this.tcpDataSenderCommandAcceptEnable = readBoolean("profiler.tcpdatasender.command.accept.enable", false);
 
+        this.traceAgentActiveThread = readBoolean("profiler.pinpoint.activethread", true);
+
         // CallStck
         this.callStackMaxDepth = readInt("profiler.callstack.max.depth", 64);
         if(this.callStackMaxDepth < 2) {
@@ -918,6 +926,8 @@ public class ProfilerConfig {
         builder.append(statDataSenderChunkSize);
         builder.append(", tcpDataSenderCommandAcceptEnable=");
         builder.append(tcpDataSenderCommandAcceptEnable);
+        builder.append(", recordAgentActiveThread=");
+        builder.append(traceAgentActiveThread);
         builder.append(", callStackMaxDepth=");
         builder.append(callStackMaxDepth);
         builder.append(", jdbcSqlCacheSize=");

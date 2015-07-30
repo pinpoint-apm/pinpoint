@@ -22,14 +22,30 @@ package com.navercorp.pinpoint.profiler.context;
  */
 public class ActiveTraceInfo {
 
+    private final long id;
     private final long startTime;
 
-    public ActiveTraceInfo(long startTime) {
+    public ActiveTraceInfo(long id, long startTime) {
+        this.id = id;
         this.startTime = startTime;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public long getStartTime() {
         return startTime;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder toString = new StringBuilder();
+        toString.append("ActiveTraceInfo{");
+        toString.append("id=").append(id);
+        toString.append(", startTime=").append(startTime);
+        toString.append("}");
+
+        return toString.toString();
+    }
 }

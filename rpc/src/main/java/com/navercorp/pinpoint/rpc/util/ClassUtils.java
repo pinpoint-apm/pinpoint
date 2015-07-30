@@ -230,11 +230,26 @@ public class ClassUtils {
     }
     
     public static String simpleClassNameAndHashCodeString(Object object) {
+        String simpleClassName = simpleClassName(object);
+        if (object == null) {
+            return simpleClassName;
+        } else {
+            return simpleClassName + "@" + Integer.toHexString(object.hashCode());
+        }
+    }
+
+    public static String simpleClassName(Object object) {
         if (object == null) {
             return "null_object";
         }
-        
-        return object.getClass().getSimpleName() + "@" + Integer.toHexString(object.hashCode());
+
+        Class clazz = object.getClass();
+        Package pkg = clazz.getPackage();
+        if (pkg != null) {
+            return clazz.getName().substring(pkg.getName().length() + 1);
+        } else {
+            return clazz.getName();
+        }
     }
 
 }

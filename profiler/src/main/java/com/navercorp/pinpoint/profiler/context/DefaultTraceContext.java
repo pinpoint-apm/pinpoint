@@ -17,22 +17,8 @@
 package com.navercorp.pinpoint.profiler.context;
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
-import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.context.Metric;
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.context.TraceType;
+import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -53,6 +39,13 @@ import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
 import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author emeroad
@@ -63,6 +56,8 @@ public class DefaultTraceContext implements TraceContext {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
+
+    private static final boolean TRACE_ACTIVE_THREAD = true;
 
     private final TraceFactory traceFactory;
 
@@ -86,10 +81,10 @@ public class DefaultTraceContext implements TraceContext {
     
     // for test
     public DefaultTraceContext(final AgentInformation agentInformation) {
-        this(LRUCache.DEFAULT_CACHE_SIZE, agentInformation, new LogStorageFactory(), new TrueSampler(), new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs()));
+        this(LRUCache.DEFAULT_CACHE_SIZE, agentInformation, new LogStorageFactory(), new TrueSampler(), new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs()), TRACE_ACTIVE_THREAD);
     }
 
-    public DefaultTraceContext(final int sqlCacheSize, final AgentInformation agentInformation, StorageFactory storageFactory, Sampler sampler, ServerMetaDataHolder serverMetaDataHolder) {
+    public DefaultTraceContext(final int sqlCacheSize, final AgentInformation agentInformation, StorageFactory storageFactory, Sampler sampler, ServerMetaDataHolder serverMetaDataHolder, final boolean traceActiveThread) {
         if (agentInformation == null) {
             throw new NullPointerException("agentInformation must not be null");
         }
@@ -102,21 +97,20 @@ public class DefaultTraceContext implements TraceContext {
         this.agentInformation = agentInformation;
         this.sqlCache = new SimpleCache<String>(sqlCacheSize);
 
-        this.traceFactory = createTraceFactory(storageFactory, sampler);;
-        
+        this.traceFactory = createTraceFactory(storageFactory, sampler, traceActiveThread);
+
         this.serverMetaDataHolder = serverMetaDataHolder;
     }
 
-    private TraceFactory createTraceFactory(StorageFactory storageFactory, Sampler sampler) {
-
+    private TraceFactory createTraceFactory(StorageFactory storageFactory, Sampler sampler, boolean recordActiveThread) {
         // TODO extract chain TraceFactory??
         final TraceFactory threadLocalTraceFactory = new ThreadLocalTraceFactory(this, storageFactory, sampler);
-//        TODO
-//        TraceFactory metricTraceFactory =  MetricTraceFactory.wrap(threadLocalTraceFactory, this.agentInformation.getServerType());
-//        final TraceFactory activeTraceFactory = ActiveTraceFactory.wrap(metircTraceFactory);
-
-//        TODO disable option
-        return ActiveTraceFactory.wrap(threadLocalTraceFactory);
+        if (recordActiveThread) {
+            ActiveTraceFactory activeTraceFactory = (ActiveTraceFactory) ActiveTraceFactory.wrap(threadLocalTraceFactory);
+            return activeTraceFactory;
+        } else {
+            return threadLocalTraceFactory;
+        }
     }
 
     /**
@@ -320,7 +314,6 @@ public class DefaultTraceContext implements TraceContext {
     }
 
 
-
     public void setPriorityDataSender(final EnhancedDataSender priorityDataSender) {
         this.priorityDataSender = priorityDataSender;
     }
@@ -336,6 +329,14 @@ public class DefaultTraceContext implements TraceContext {
     public int getAsyncId() {
         final int id = asyncId.incrementAndGet();
         return id == -1 ? asyncId.incrementAndGet() : id;
+    }
+
+    public ActiveTraceLocator getActiveTraceLocator() {
+        if (traceFactory instanceof ActiveTraceFactory) {
+            return (ActiveTraceLocator) ((ActiveTraceFactory) traceFactory).getActiveTraceLocator();
+        } else {
+            return null;
+        }
     }
 
 }
