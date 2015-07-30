@@ -32,7 +32,6 @@ import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadResponse;
 import org.apache.thrift.TBase;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Taejin Koo
@@ -69,9 +68,9 @@ public class ActiveThreadService implements ProfilerRequestCommandService {
             return fail;
         }
 
-        Map<SlotType, AtomicInteger> mappedSlot = new LinkedHashMap<SlotType, AtomicInteger>(activeThreadSlotsCount);
+        Map<SlotType, IntAdder> mappedSlot = new LinkedHashMap<SlotType, IntAdder>(activeThreadSlotsCount);
         for (SlotType slotType : ACTIVE_THREAD_SLOTS_ORDER) {
-            mappedSlot.put(slotType, new AtomicInteger(0));
+            mappedSlot.put(slotType, new IntAdder(0));
         }
 
         long currentTime = System.currentTimeMillis();
@@ -79,12 +78,11 @@ public class ActiveThreadService implements ProfilerRequestCommandService {
         List<ActiveTraceInfo> activeTraceInfoCollect = activeTraceLocator.collect();
         for (ActiveTraceInfo activeTraceInfo : activeTraceInfoCollect) {
             HistogramSlot slot = histogramSchema.findHistogramSlot((int) (System.currentTimeMillis() - activeTraceInfo.getStartTime()));
-            System.out.println(slot);
             mappedSlot.get(slot.getSlotType()).incrementAndGet();
         }
 
         List<Integer> activeThreadCount = new ArrayList<Integer>(activeThreadSlotsCount);
-        for (AtomicInteger statusCount : mappedSlot.values()) {
+        for (IntAdder statusCount : mappedSlot.values()) {
             activeThreadCount.add(statusCount.get());
         }
 
@@ -98,6 +96,22 @@ public class ActiveThreadService implements ProfilerRequestCommandService {
     @Override
     public Class<? extends TBase> getCommandClazz() {
         return TActiveThread.class;
+    }
+
+    private static class IntAdder {
+        private int value = 0;
+
+        public IntAdder(int defaultValue) {
+            this.value = defaultValue;
+        }
+
+        public int incrementAndGet() {
+            return ++value;
+        }
+
+        public int get() {
+            return this.value;
+        }
     }
 
 }
