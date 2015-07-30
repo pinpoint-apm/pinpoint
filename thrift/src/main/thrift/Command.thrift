@@ -46,6 +46,13 @@ struct TCommandThreadDumpResponse {
 	1: list<TThreadDump> threadDumps
 }
 
+struct TActiveThread {
+}
+
+struct TActiveThreadResponse {
+	1: list<i32> activeThreadCount
+}
+
 struct TCommandEcho {
 	1: string	message
 }

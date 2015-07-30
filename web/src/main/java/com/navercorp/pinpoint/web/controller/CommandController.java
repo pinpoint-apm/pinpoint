@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.navercorp.pinpoint.thrift.dto.command.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -36,13 +37,6 @@ import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.thrift.dto.TResult;
-import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
-import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDump;
-import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
-import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
-import com.navercorp.pinpoint.thrift.dto.command.TMonitorInfo;
-import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
-import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
@@ -260,6 +254,44 @@ public class CommandController {
         sb.append('\n');
         return sb.toString();
     }
+
+    @RequestMapping(value = "/activeThread", method = RequestMethod.GET)
+    public ModelAndView activeThread(@RequestParam("application") String applicationName, @RequestParam("agent") String agentId,
+                                     @RequestParam("startTimeStamp") long startTimeStamp) throws TException {
+
+        PinpointServer collector = socketManager.getCollector(applicationName, agentId, startTimeStamp);
+        if (collector == null) {
+            return createResponse(false, String.format("Can't find suitable PinpointServer(%s/%s/%d).", applicationName, agentId, startTimeStamp));
+        }
+
+        TActiveThread activeThread = new TActiveThread();
+
+        byte[] payload = serialize(activeThread);
+
+        TCommandTransfer transfer = new TCommandTransfer();
+        transfer.setApplicationName(applicationName);
+        transfer.setAgentId(agentId);
+        transfer.setStartTime(startTimeStamp);
+        transfer.setPayload(payload);
+
+        Future<ResponseMessage> future = collector.request(serialize(transfer));
+        future.await();
+
+        String exceptionMessage = StringUtils.EMPTY;
+
+        ResponseMessage responseMessage = future.getResult();
+        try {
+            TBase result = deserialize(responseMessage.getMessage());
+            if (result instanceof TActiveThreadResponse) {
+                return createResponse(true, ((TActiveThreadResponse) result).getActiveThreadCount());
+            }
+        } catch (TException e) {
+            exceptionMessage = e.getMessage();
+        }
+
+        return createResponse(false, exceptionMessage);
+    }
+
 
     private byte[] serialize(TBase result) throws TException {
         return SerializationUtils.serialize(result, commandSerializerFactory);

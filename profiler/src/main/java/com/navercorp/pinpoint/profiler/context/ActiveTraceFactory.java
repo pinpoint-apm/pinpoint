@@ -33,8 +33,6 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
     private final TraceFactory delegate;
     private final ActiveTraceRepository activeTraceRepository = new ActiveTraceRepository();
 
-    private volatile boolean activeTraceTracking = false;
-
     private ActiveTraceFactory(TraceFactory delegate) {
         if (delegate == null) {
             throw new NullPointerException("delegate must not be null");
@@ -140,20 +138,8 @@ public class ActiveTraceFactory implements TraceFactory, TraceFactoryWrapper {
         this.activeTraceRepository.remove(traceObjectId);
     }
 
-
-    public void enable() {
-        this.activeTraceTracking = true;
-    }
-
-    public void disable() {
-        this.activeTraceTracking = false;
-    }
-
-    public List<ActiveTraceInfo> collect() {
-        if (!activeTraceTracking) {
-            return Collections.emptyList();
-        }
-        return this.activeTraceRepository.collect();
+    public ActiveTraceLocator getActiveTraceLocator() {
+        return activeTraceRepository;
     }
 
 }

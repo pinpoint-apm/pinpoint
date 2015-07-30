@@ -16,16 +16,6 @@
 
 package com.navercorp.pinpoint.profiler;
 
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.Instrumentation;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
@@ -39,6 +29,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.profiler.context.ActiveTraceLocator;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
 import com.navercorp.pinpoint.profiler.context.storage.BufferedStorageFactory;
@@ -52,6 +43,7 @@ import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginLoader;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
+import com.navercorp.pinpoint.profiler.receiver.service.ActiveThreadService;
 import com.navercorp.pinpoint.profiler.receiver.service.EchoService;
 import com.navercorp.pinpoint.profiler.receiver.service.ThreadDumpService;
 import com.navercorp.pinpoint.profiler.sampler.SamplerFactory;
@@ -65,6 +57,19 @@ import com.navercorp.pinpoint.rpc.ClassPreLoader;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.client.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
+import com.navercorp.pinpoint.rpc.util.TimerFactory;
+import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.Timeout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.Instrumentation;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author emeroad
@@ -172,7 +177,8 @@ public class DefaultAgent implements Agent {
         this.agentInformation = agentInformationFactory.createAgentInformation(typeResolver.resolve());
         logger.info("agentInformation:{}", agentInformation);
         
-        CommandDispatcher commandDispatcher = createCommandDispatcher();
+        CommandDispatcher commandDispatcher = new CommandDispatcher();
+
         this.tcpDataSender = createTcpDataSender(commandDispatcher);
 
         this.serverMetaDataHolder = createServerMetaDataHolder();
@@ -186,6 +192,8 @@ public class DefaultAgent implements Agent {
 
         this.traceContext = createTraceContext();
 
+        addCommandService(commandDispatcher, traceContext);
+
         this.agentInfoSender = new AgentInfoSender(tcpDataSender, profilerConfig.getAgentInfoSendRetryInterval(), this.agentInformation);
         this.serverMetaDataHolder.addListener(this.agentInfoSender);
 
@@ -196,12 +204,16 @@ public class DefaultAgent implements Agent {
         return new ProfilerPluginLoader(this).load(agentOption.getPluginJars());
     }
 
-
-    private CommandDispatcher createCommandDispatcher() {
-        CommandDispatcher commandDispatcher = new CommandDispatcher();
+    private void addCommandService(CommandDispatcher commandDispatcher, TraceContext traceContext) {
         commandDispatcher.registerCommandService(new ThreadDumpService());
         commandDispatcher.registerCommandService(new EchoService());
-        return commandDispatcher;
+
+        if (traceContext instanceof DefaultTraceContext) {
+            ActiveTraceLocator activeTraceLocator = ((DefaultTraceContext) traceContext).getActiveTraceLocator();
+            if (activeTraceLocator != null) {
+                commandDispatcher.registerCommandService(new ActiveThreadService(activeTraceLocator));
+            }
+        }
     }
 
     public ByteCodeInstrumentor getByteCodeInstrumentor() {
@@ -257,9 +269,9 @@ public class DefaultAgent implements Agent {
         logger.info("SamplerType:{}", sampler);
         
         final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
-        final DefaultTraceContext traceContext = new DefaultTraceContext(jdbcSqlCacheSize, this.agentInformation, storageFactory, sampler, this.serverMetaDataHolder);
+        final boolean traceActiveThread = profilerConfig.isTraceAgentActiveThread();
+        final DefaultTraceContext traceContext = new DefaultTraceContext(jdbcSqlCacheSize, this.agentInformation, storageFactory, sampler, this.serverMetaDataHolder, traceActiveThread);
         traceContext.setPriorityDataSender(this.tcpDataSender);
-
         traceContext.setProfilerConfig(profilerConfig);
 
         return traceContext;

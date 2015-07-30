@@ -16,13 +16,10 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import com.navercorp.pinpoint.thrift.dto.command.*;
 import org.apache.thrift.TBase;
 
 import com.navercorp.pinpoint.thrift.dto.TResult;
-import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
-import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDump;
-import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
-import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 
 /**
  * @author koo.taejin
@@ -60,6 +57,18 @@ public enum TCommandType {
         @Override
         public TBase newObject() {
             return new TCommandThreadDumpResponse();
+        }
+    },
+    ACTIVE_THREAD((short) 730, TActiveThread.class) {
+        @Override
+        public TBase newObject() {
+            return new TActiveThread();
+        }
+    },
+    ACTIVE_THREAD_RESPONSE((short) 731, TActiveThreadResponse.class) {
+        @Override
+        public TBase newObject() {
+            return new TActiveThreadResponse();
         }
     };
 

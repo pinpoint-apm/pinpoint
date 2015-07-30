@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * @author Taejin Koo
  */
-public class ActiveTraceRepository {
+public class ActiveTraceRepository implements ActiveTraceLocator {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -93,6 +93,7 @@ public class ActiveTraceRepository {
     }
 
     // @ThreadSafe
+    @Override
     public List<ActiveTraceInfo> collect() {
         List<ActiveTraceInfo> collectData = new ArrayList<ActiveTraceInfo>();
         final Collection<Trace> copy = this.activeTraceInfoMap.values();
@@ -101,7 +102,7 @@ public class ActiveTraceRepository {
             // not started
             if (startTime > 0) {
                 // clear Trace reference
-                ActiveTraceInfo activeTraceInfo = new ActiveTraceInfo(startTime);
+                ActiveTraceInfo activeTraceInfo = new ActiveTraceInfo(trace.getId(), startTime);
                 collectData.add(activeTraceInfo);
             }
         }

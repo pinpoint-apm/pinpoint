@@ -47,6 +47,9 @@ import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactor
 import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 
+/**
+ * @author Taejin Koo
+ */
 public class CommandDispatcher implements MessageListener, ServerStreamChannelMessageListener  {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -87,10 +90,10 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
         logger.info("MessageReceive {} {}", requestPacket, channel);
 
         final TBase<?, ?> request = SerializationUtils.deserialize(requestPacket.getPayload(), deserializerFactory, null);
-        
+        logger.debug("MessageReceive {} {}", request, channel);
+
         TBase response;
         if (request == null) {
-
             final TResult tResult = new TResult(false);
             tResult.setMessage("Unsupported ServiceTypeInfo.");
             
@@ -99,7 +102,7 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
             final ProfilerRequestCommandService service = commandServiceRegistry.getRequestService(request);
             if (service == null) {
                 TResult tResult = new TResult(false);
-                tResult.setMessage("Unsupported Listener.");
+                tResult.setMessage("Can't find suitable service(" + request + ").");
 
                 response = tResult;
             } else {
