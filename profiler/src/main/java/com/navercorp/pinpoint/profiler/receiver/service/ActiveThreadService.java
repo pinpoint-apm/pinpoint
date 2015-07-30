@@ -19,8 +19,11 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.navercorp.pinpoint.profiler.context.ActiveTraceInfo;
-import com.navercorp.pinpoint.profiler.context.ActiveTraceLocator;
+import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.HistogramSlot;
+import com.navercorp.pinpoint.common.trace.SlotType;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceInfo;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.thrift.dto.TResult;
@@ -36,24 +39,25 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ActiveThreadService implements ProfilerRequestCommandService {
 
-    private static final List<ActiveThreadStatus> ACTIVE_THREAD_STATUSES_ORDER = new ArrayList<ActiveThreadStatus>();
+    private static final List<SlotType> ACTIVE_THREAD_SLOTS_ORDER = new ArrayList<SlotType>();
     static {
-        ACTIVE_THREAD_STATUSES_ORDER.add(ActiveThreadStatus.FAST);
-        ACTIVE_THREAD_STATUSES_ORDER.add(ActiveThreadStatus.NORMAL);
-        ACTIVE_THREAD_STATUSES_ORDER.add(ActiveThreadStatus.SLOW);
-        ACTIVE_THREAD_STATUSES_ORDER.add(ActiveThreadStatus.VERY_SLOW);
-        ACTIVE_THREAD_STATUSES_ORDER.add(ActiveThreadStatus.UNKNOWN);
+        ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.FAST);
+        ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.NORMAL);
+        ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.SLOW);
+        ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.VERY_SLOW);
+        ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.ERROR);
     }
 
     private final ActiveTraceLocator activeTraceLocator;
-    private final int activeThreadStatusCount;
+    private final int activeThreadSlotsCount;
+    private final HistogramSchema histogramSchema = HistogramSchema.NORMAL_SCHEMA;
 
     public ActiveThreadService(ActiveTraceLocator activeTraceLocator) {
         if (activeTraceLocator == null) {
             throw new NullPointerException("activeTraceLocator");
         }
         this.activeTraceLocator = activeTraceLocator;
-        this.activeThreadStatusCount = ACTIVE_THREAD_STATUSES_ORDER.size();
+        this.activeThreadSlotsCount = ACTIVE_THREAD_SLOTS_ORDER.size();
     }
 
     @Override
@@ -65,25 +69,27 @@ public class ActiveThreadService implements ProfilerRequestCommandService {
             return fail;
         }
 
-        Map<ActiveThreadStatus, AtomicInteger> mappedStatus = new LinkedHashMap<ActiveThreadStatus, AtomicInteger>(activeThreadStatusCount);
-        for (ActiveThreadStatus status : ACTIVE_THREAD_STATUSES_ORDER) {
-            mappedStatus.put(status, new AtomicInteger(0));
+        Map<SlotType, AtomicInteger> mappedSlot = new LinkedHashMap<SlotType, AtomicInteger>(activeThreadSlotsCount);
+        for (SlotType slotType : ACTIVE_THREAD_SLOTS_ORDER) {
+            mappedSlot.put(slotType, new AtomicInteger(0));
         }
 
         long currentTime = System.currentTimeMillis();
 
         List<ActiveTraceInfo> activeTraceInfoCollect = activeTraceLocator.collect();
         for (ActiveTraceInfo activeTraceInfo : activeTraceInfoCollect) {
-            ActiveThreadStatus status = ActiveThreadStatus.getStatus(currentTime - activeTraceInfo.getStartTime());
-            mappedStatus.get(status).incrementAndGet();
+            HistogramSlot slot = histogramSchema.findHistogramSlot((int) (System.currentTimeMillis() - activeTraceInfo.getStartTime()));
+            System.out.println(slot);
+            mappedSlot.get(slot.getSlotType()).incrementAndGet();
         }
 
-        List<Integer> activeThreadCount = new ArrayList<Integer>(activeThreadStatusCount);
-        for (AtomicInteger statusCount : mappedStatus.values()) {
+        List<Integer> activeThreadCount = new ArrayList<Integer>(activeThreadSlotsCount);
+        for (AtomicInteger statusCount : mappedSlot.values()) {
             activeThreadCount.add(statusCount.get());
         }
 
         TActiveThreadResponse response = new TActiveThreadResponse();
+        response.setHistogramSchemaType(histogramSchema.getTypeCode());
         response.setActiveThreadCount(activeThreadCount);
 
         return response;
@@ -92,44 +98,6 @@ public class ActiveThreadService implements ProfilerRequestCommandService {
     @Override
     public Class<? extends TBase> getCommandClazz() {
         return TActiveThread.class;
-    }
-
-    enum ActiveThreadStatus {
-        FAST(0, 1000),
-        NORMAL(1000, 3000),
-        SLOW(3000, 5000),
-        VERY_SLOW(5000, Long.MAX_VALUE),
-        UNKNOWN(-1, -1);
-
-        private final long from;
-        private final long to;
-
-        private ActiveThreadStatus(long from, long to) {
-            this.from = from;
-            this.to = to;
-        }
-
-        private boolean isThisStatus(long durationTime) {
-            if (from < durationTime && durationTime <= to) {
-                return true;
-            }
-
-            return false;
-        }
-
-        private static ActiveThreadStatus getStatus(long durationTime) {
-
-            ActiveThreadStatus[] statuses = ActiveThreadStatus.values();
-            for (ActiveThreadStatus status : statuses) {
-                boolean thisStatus = status.isThisStatus(durationTime);
-                if (thisStatus) {
-                    return status;
-                }
-            }
-
-            return UNKNOWN;
-        }
-
     }
 
 }
