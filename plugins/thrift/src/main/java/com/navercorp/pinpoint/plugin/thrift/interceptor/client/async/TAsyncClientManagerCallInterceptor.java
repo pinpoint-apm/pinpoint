@@ -127,7 +127,7 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
             InterceptorGroupInvocation currentTransaction = this.group.getCurrentInvocation();
             currentTransaction.setAttachment(parentTraceInfo);
         } catch (Throwable t) {
-            logger.warn("before error. Caused:{}", t.getMessage(), t);
+            logger.warn("BEFORE error. Caused:{}", t.getMessage(), t);
         }
     }
 
@@ -147,7 +147,7 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
             recorder.recordApi(this.descriptor);
             recorder.recordException(throwable);
         } catch (Throwable t) {
-            logger.warn("after error. Caused:{}", t.getMessage(), t);
+            logger.warn("AFTER error. Caused:{}", t.getMessage(), t);
         } finally {
             trace.traceBlockEnd();
         }

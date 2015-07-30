@@ -33,10 +33,9 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.BindValueTraceValue;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
@@ -45,6 +44,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
+import com.navercorp.pinpoint.profiler.interceptor.GlobalInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.profiler.modifier.db.interceptor.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.test.MockAgent;
@@ -59,14 +59,13 @@ public class JavaAssistClassTest {
 
     @Test
     public void testClassHierarchy() throws InstrumentException {
-
-        ByteCodeInstrumentor byteCodeInstrumentor = JavaAssistByteCodeInstrumentor.createTestInstrumentor();
+        JavassistClassPool pool = new JavassistClassPool(new GlobalInterceptorRegistryBinder(), null);
 
         String testObjectName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject";
 
 //        final CallLoader loader = null; // systemClassLoader
 //        final ClassLoader loader = ClassLoader.getSystemClassLoader();
-        InstrumentClass testObject = byteCodeInstrumentor.getClass(null, testObjectName, null);
+        InstrumentableClass testObject = pool.getClass(null, testObjectName, null);
 
         Assert.assertEquals(testObject.getName(), testObjectName);
 
@@ -76,7 +75,7 @@ public class JavaAssistClassTest {
         String[] testObjectSuperClassInterfaces = testObject.getInterfaces();
         Assert.assertEquals(testObjectSuperClassInterfaces.length, 0);
 
-        InstrumentClass classHierarchyObject = byteCodeInstrumentor.getClass(null, "com.navercorp.pinpoint.profiler.interceptor.bci.ClassHierarchyTestMock", null);
+        InstrumentableClass classHierarchyObject = pool.getClass(null, "com.navercorp.pinpoint.profiler.interceptor.bci.ClassHierarchyTestMock", null);
         String hierarchySuperClass = classHierarchyObject.getSuperClass();
         Assert.assertEquals("java.util.HashMap", hierarchySuperClass);
 
@@ -90,15 +89,15 @@ public class JavaAssistClassTest {
     @Test
     public void testDeclaredMethod() throws InstrumentException {
 
-        ByteCodeInstrumentor byteCodeInstrumentor = JavaAssistByteCodeInstrumentor.createTestInstrumentor();
+        JavassistClassPool pool = new JavassistClassPool(new GlobalInterceptorRegistryBinder(), null);
 
         String testObjectName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject";
 
-        InstrumentClass testObject = byteCodeInstrumentor.getClass(null, testObjectName, null);
+        InstrumentableClass testObject = pool.getClass(null, testObjectName, null);
 
         Assert.assertEquals(testObject.getName(), testObjectName);
 
-        MethodInfo declaredMethod = testObject.getDeclaredMethod("callA", null);
+        InstrumentableMethod declaredMethod = testObject.getDeclaredMethod("callA", null);
         Assert.assertNotNull(declaredMethod);
 
     }
@@ -106,15 +105,15 @@ public class JavaAssistClassTest {
     @Test
     public void testDeclaredMethods() throws InstrumentException {
 
-        ByteCodeInstrumentor byteCodeInstrumentor = JavaAssistByteCodeInstrumentor.createTestInstrumentor();
+        JavassistClassPool pool = new JavassistClassPool(new GlobalInterceptorRegistryBinder(), null);
 
         String testObjectName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject";
 
-        InstrumentClass testObject = byteCodeInstrumentor.getClass(null, testObjectName, null);
+        InstrumentableClass testObject = pool.getClass(null, testObjectName, null);
         Assert.assertEquals(testObject.getName(), testObjectName);
 
         int findMethodCount = 0;
-        for (MethodInfo methodInfo : testObject.getDeclaredMethods()) {
+        for (InstrumentableMethod methodInfo : testObject.getDeclaredMethods()) {
             if (!methodInfo.getName().equals("callA")) {
                 continue;
             }
@@ -139,7 +138,7 @@ public class JavaAssistClassTest {
                 try {
                     logger.info("modify cl:{}", classLoader);
 
-                    InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+                    InstrumentableClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
                     Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.interceptor.TestBeforeInterceptor");
                     addInterceptor(interceptor);
@@ -221,7 +220,7 @@ public class JavaAssistClassTest {
                 try {
                     logger.info("modify className:{} cl:{}", className, classLoader);
 
-                    InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+                    InstrumentableClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
                     Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.interceptor.TestBeforeInterceptor");
                     addInterceptor(interceptor);
@@ -279,7 +278,7 @@ public class JavaAssistClassTest {
     public void assertEqualsObjectField(Object target, String fieldName, Object value) throws NoSuchFieldException, IllegalAccessException {
         Field field = target.getClass().getField(fieldName);
         Object obj = field.get(target);
-        Assert.assertEquals(obj, value);
+        Assert.assertEquals(value, obj);
     }
 
 
@@ -293,7 +292,7 @@ public class JavaAssistClassTest {
             public byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
                 try {
                     logger.info("modify cl:{}", classLoader);
-                    InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, testClassObject, classFileBuffer);
+                    InstrumentableClass aClass = byteCodeInstrumentor.getClass(classLoader, testClassObject, classFileBuffer);
 
                     Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.interceptor.TestBeforeInterceptor");
                     addInterceptor(interceptor);
@@ -342,7 +341,7 @@ public class JavaAssistClassTest {
             public byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
                 try {
                     logger.info("modify cl:{}", classLoader);
-                    InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, testClassObject, classFileBuffer);
+                    InstrumentableClass aClass = byteCodeInstrumentor.getClass(classLoader, testClassObject, classFileBuffer);
 
                     Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.interceptor.TestAfterInterceptor");
                     addInterceptor(interceptor);
@@ -418,7 +417,7 @@ public class JavaAssistClassTest {
             public byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
                 try {
                     logger.info("modify cl:{}", classLoader);
-                    InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, testClassObject, classFileBuffer);
+                    InstrumentableClass aClass = byteCodeInstrumentor.getClass(classLoader, testClassObject, classFileBuffer);
 
                     aClass.addDebugLogBeforeAfterMethod();
                     aClass.addDebugLogBeforeAfterConstructor();
@@ -461,7 +460,7 @@ public class JavaAssistClassTest {
             public byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
                 try {
                     logger.info("modify cl:{}", classLoader);
-                    InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, testClassObject, classFileBuffer);
+                    InstrumentableClass aClass = byteCodeInstrumentor.getClass(classLoader, testClassObject, classFileBuffer);
                     aClass.addGetter(accessor0.getType(), "value");
                     aClass.addGetter(accessor1.getType(), "intValue");
 

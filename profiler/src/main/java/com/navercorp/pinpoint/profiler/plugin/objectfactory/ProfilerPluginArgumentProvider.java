@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
@@ -46,8 +45,6 @@ public class ProfilerPluginArgumentProvider implements ArgumentProvider {
             return Option.withValue(pluginContext.getTraceContext());
         } else if (type == ProfilerPluginContext.class) {
             return Option.withValue(pluginContext);
-        } else if (type == ByteCodeInstrumentor.class) {
-            return Option.withValue(pluginContext.getByteCodeInstrumentor());
         } else if (type == MetadataAccessor.class) {
             Name annotation = TypeUtils.findAnnotation(annotations, Name.class);
             

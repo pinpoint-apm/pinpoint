@@ -21,12 +21,13 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventListener;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.DefaultModifierRegistry;
@@ -174,8 +175,8 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Ret
     private void loadEditorsFromPlugins(DefaultModifierRegistry modifierRepository, List<DefaultProfilerPluginContext> pluginContexts) {
         for (DefaultProfilerPluginContext pluginContext : pluginContexts) {
             for (ClassFileTransformer transformer : pluginContext.getClassEditors()) {
-                if (transformer instanceof PinpointClassFileTransformer) {
-                    PinpointClassFileTransformer t = (PinpointClassFileTransformer)transformer;
+                if (transformer instanceof MatchableClassFileTransformer) {
+                    MatchableClassFileTransformer t = (MatchableClassFileTransformer)transformer;
                     logger.info("Registering class file transformer {} for {} ", t, t.getMatcher());
                     modifierRepository.addModifier(new ClassFileTransformerAdaptor(byteCodeInstrumentor, t));
                 } else {

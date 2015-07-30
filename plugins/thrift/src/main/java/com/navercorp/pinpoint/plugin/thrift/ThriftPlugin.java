@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.thrift;
 
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassConditions;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerBuilder;
@@ -33,16 +33,15 @@ import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProp
 public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
     
     @Override
-    public void setup(ProfilerPluginContext context) {
+    public void setup(ProfilerPluginSetupContext context) {
         ThriftPluginConfig config = new ThriftPluginConfig(context.getConfig());
-        context.setAttribute(ATTRIBUTE_CONFIG, config);
         
         boolean traceClient = config.traceThriftClient();
         boolean traceProcessor = config.traceThriftProcessor();
         boolean traceCommon = traceClient || traceProcessor;
         
         if (traceClient) {
-            addInterceptorsForSynchronousClients(context);
+            addInterceptorsForSynchronousClients(context, config);
             addInterceptorsForAsynchronousClients(context);
         }
         
@@ -53,18 +52,17 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         
         if (traceCommon) {
             addInterceptorsForRetrievingSocketAddresses(context);
-            addTProtocolEditors(context);
+            addTProtocolEditors(context, config);
         }
     }
     
     // Client - synchronous
     
-    private void addInterceptorsForSynchronousClients(ProfilerPluginContext context) {
-        addTServiceClientEditor(context);
+    private void addInterceptorsForSynchronousClients(ProfilerPluginSetupContext context, ThriftPluginConfig config) {
+        addTServiceClientEditor(context, config);
     }
     
-    private void addTServiceClientEditor(ProfilerPluginContext context) {
-        ThriftPluginConfig config = (ThriftPluginConfig)context.getAttribute(ATTRIBUTE_CONFIG);
+    private void addTServiceClientEditor(ProfilerPluginSetupContext context, ThriftPluginConfig config) {
         boolean traceServiceArgs = config.traceThriftServiceArgs();
         boolean traceServiceResult = config.traceThriftServiceResult();
         
@@ -86,12 +84,12 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
     
     // Client - asynchronous
     
-    private void addInterceptorsForAsynchronousClients(ProfilerPluginContext context) {
+    private void addInterceptorsForAsynchronousClients(ProfilerPluginSetupContext context) {
         addTAsyncClientManagerEditor(context);
         addTAsyncMethodCallEditor(context);
     }
     
-    private void addTAsyncClientManagerEditor(ProfilerPluginContext context) {
+    private void addTAsyncClientManagerEditor(ProfilerPluginSetupContext context) {
         final ClassFileTransformerBuilder classTransformerBuilder = context.getClassFileTransformerBuilder("org.apache.thrift.async.TAsyncClientManager");
         classTransformerBuilder.injectMetadata(METADATA_NONBLOCKING_SOCKET_ADDRESS);
         classTransformerBuilder.injectMetadata(METADATA_ASYNC_TRACE_ID);
@@ -106,7 +104,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(classTransformerBuilder.build());
     }
     
-    private void addTAsyncMethodCallEditor(ProfilerPluginContext context) {
+    private void addTAsyncMethodCallEditor(ProfilerPluginSetupContext context) {
         final ClassFileTransformerBuilder classTransformerBuilder = context.getClassFileTransformerBuilder("org.apache.thrift.async.TAsyncMethodCall");
         classTransformerBuilder.injectMetadata(METADATA_NONBLOCKING_SOCKET_ADDRESS);
         classTransformerBuilder.injectMetadata(METADATA_ASYNC_MARKER);
@@ -171,12 +169,12 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
     
     // Processor - synchronous
     
-    private void addInterceptorsForSynchronousProcessors(ProfilerPluginContext context) {
+    private void addInterceptorsForSynchronousProcessors(ProfilerPluginSetupContext context) {
         addTBaseProcessorEditor(context);
         addProcessFunctionEditor(context);
     }
     
-    private void addTBaseProcessorEditor(ProfilerPluginContext context) {
+    private void addTBaseProcessorEditor(ProfilerPluginSetupContext context) {
         final ClassFileTransformerBuilder classTransformerBuilder = context.getClassFileTransformerBuilder("org.apache.thrift.TBaseProcessor");
         classTransformerBuilder.injectMetadata(METADATA_SOCKET);
         
@@ -188,7 +186,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(classTransformerBuilder.build());
     }
 
-    private void addProcessFunctionEditor(ProfilerPluginContext context) {
+    private void addProcessFunctionEditor(ProfilerPluginSetupContext context) {
         final ClassFileTransformerBuilder classTransformerBuilder = context.getClassFileTransformerBuilder("org.apache.thrift.ProcessFunction");
         classTransformerBuilder.injectMetadata(METADATA_SERVER_MARKER);
         
@@ -202,11 +200,11 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
     
     // Processor - asynchronous
     
-    private void addInterceptorsForAsynchronousProcessors(ProfilerPluginContext context) {
+    private void addInterceptorsForAsynchronousProcessors(ProfilerPluginSetupContext context) {
         addTBaseAsyncProcessorEditor(context);
     }
     
-    private void addTBaseAsyncProcessorEditor(ProfilerPluginContext context) {
+    private void addTBaseAsyncProcessorEditor(ProfilerPluginSetupContext context) {
         final ClassFileTransformerBuilder classTransformerBuilder = context.getClassFileTransformerBuilder("org.apache.thrift.TBaseAsyncProcessor");
         classTransformerBuilder.injectMetadata(METADATA_SOCKET);
         classTransformerBuilder.injectMetadata(METADATA_SERVER_MARKER);
@@ -222,7 +220,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
     
     // Common
     
-    private void addInterceptorsForRetrievingSocketAddresses(ProfilerPluginContext context) {
+    private void addInterceptorsForRetrievingSocketAddresses(ProfilerPluginSetupContext context) {
         // injector TTranports
         // TSocket(Socket), TSocket(String, int, int)
         addTTransportEditor(context,"org.apache.thrift.transport.TSocket",
@@ -257,13 +255,13 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
     
     // Common - transports
     
-    private void addTTransportEditor(ProfilerPluginContext context, String tTransportClassName) {
+    private void addTTransportEditor(ProfilerPluginSetupContext context, String tTransportClassName) {
         final ClassFileTransformerBuilder classTransformerBuilder = context.getClassFileTransformerBuilder(tTransportClassName);
         classTransformerBuilder.injectMetadata(METADATA_SOCKET);
         context.addClassFileTransformer(classTransformerBuilder.build());
     }
     
-    private void addTTransportEditor(ProfilerPluginContext context, String tTransportClassName, String tTransportInterceptorClassName, String[] ... parameterTypeGroups ) {
+    private void addTTransportEditor(ProfilerPluginSetupContext context, String tTransportClassName, String tTransportInterceptorClassName, String[] ... parameterTypeGroups ) {
         final ClassFileTransformerBuilder classTransformerBuilder = context.getClassFileTransformerBuilder(tTransportClassName);
         classTransformerBuilder.injectMetadata(METADATA_SOCKET);
         
@@ -276,7 +274,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(classTransformerBuilder.build());
     }
     
-    private void addTNonblockingSocketEditor(ProfilerPluginContext context) {
+    private void addTNonblockingSocketEditor(ProfilerPluginSetupContext context) {
         final ClassFileTransformerBuilder classTransformerBuilder = context.getClassFileTransformerBuilder("org.apache.thrift.transport.TNonblockingSocket");
         classTransformerBuilder.injectMetadata(METADATA_SOCKET);
         classTransformerBuilder.injectMetadata(METADATA_NONBLOCKING_SOCKET_ADDRESS);
@@ -289,7 +287,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(classTransformerBuilder.build());
     }
     
-    private void addFrameBufferEditor(ProfilerPluginContext context) {
+    private void addFrameBufferEditor(ProfilerPluginSetupContext context) {
         final ClassFileTransformerBuilder classTransformerBuilder = context.getClassFileTransformerBuilder("org.apache.thrift.server.AbstractNonblockingServer$FrameBuffer");
         classTransformerBuilder.injectMetadata(METADATA_SOCKET);
         classTransformerBuilder.injectFieldAccessor(FIELD_FRAME_BUFFER_IN_TRANSPORT);
@@ -330,15 +328,13 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
     
     // Common - protocols
     
-    private void addTProtocolEditors(ProfilerPluginContext context) {
-        addTProtocolInterceptors(context, "org.apache.thrift.protocol.TBinaryProtocol");
-        addTProtocolInterceptors(context, "org.apache.thrift.protocol.TCompactProtocol");
-        addTProtocolInterceptors(context, "org.apache.thrift.protocol.TJSONProtocol");
+    private void addTProtocolEditors(ProfilerPluginSetupContext context, ThriftPluginConfig config) {
+        addTProtocolInterceptors(context, config, "org.apache.thrift.protocol.TBinaryProtocol");
+        addTProtocolInterceptors(context, config, "org.apache.thrift.protocol.TCompactProtocol");
+        addTProtocolInterceptors(context, config, "org.apache.thrift.protocol.TJSONProtocol");
     }
     
-    private void addTProtocolInterceptors(ProfilerPluginContext context, String tProtocolClassName) {
-        ThriftPluginConfig config = (ThriftPluginConfig)context.getAttribute(ATTRIBUTE_CONFIG);
-        
+    private void addTProtocolInterceptors(ProfilerPluginSetupContext context, ThriftPluginConfig config, String tProtocolClassName) {
         final ClassFileTransformerBuilder classTransformerBuilder = context.getClassFileTransformerBuilder(tProtocolClassName);
         
         // client

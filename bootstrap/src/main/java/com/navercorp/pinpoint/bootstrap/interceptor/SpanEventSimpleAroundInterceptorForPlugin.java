@@ -56,7 +56,7 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Simpl
             doInBeforeTrace(recorder, target, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
-                logger.warn("before. Caused:{}", th.getMessage(), th);
+                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
             }
         }
     }
@@ -88,7 +88,7 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Simpl
             doInAfterTrace(recorder, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
-                logger.warn("after error. Caused:{}", th.getMessage(), th);
+                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
             }
         } finally {
             trace.traceBlockEnd();

@@ -16,23 +16,23 @@
 
 package com.navercorp.pinpoint.profiler.plugin.transformer;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassCondition;
 
 public class ConditionalClassRecipe implements ClassRecipe {
-    private final ProfilerPluginContext context;
+    private final ProfilerPluginSetupContext context;
     private final ClassCondition condition;
     private final ClassRecipe delegate;
     
-    public ConditionalClassRecipe(ProfilerPluginContext context, ClassCondition condition, ClassRecipe delegate) {
+    public ConditionalClassRecipe(ProfilerPluginSetupContext context, ClassCondition condition, ClassRecipe delegate) {
         this.context = context;
         this.condition = condition;
         this.delegate = delegate;
     }
     
     @Override
-    public void edit(ClassLoader classLoader, InstrumentClass target) throws Throwable {
+    public void edit(ClassLoader classLoader, InstrumentableClass target) throws Throwable {
         if (condition.check(context, classLoader, target)) {
             delegate.edit(classLoader, target);
         }

@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
@@ -64,7 +64,7 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
         }
 
         try {
-            InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+            InstrumentableClass preparedStatement = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             Interceptor execute = new PreparedStatementExecuteQueryInterceptor();
             preparedStatement.addGroupInterceptor("execute", null, execute, MYSQLScope.SCOPE_NAME);
@@ -90,7 +90,7 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
         }
     }
 
-    private void bindVariableIntercept(InstrumentClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
+    private void bindVariableIntercept(InstrumentableClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
         ExcludeBindVariableFilter exclude = new ExcludeBindVariableFilter(new String[]{"setRowId", "setNClob", "setSQLXML"});
         List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod(exclude);
 

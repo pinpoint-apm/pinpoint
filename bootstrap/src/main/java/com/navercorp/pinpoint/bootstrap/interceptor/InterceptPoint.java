@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.instrument;
+package com.navercorp.pinpoint.bootstrap.interceptor;
 
 /**
  * @author emeroad
  */
-public enum Type {
-    around(), before(), after()
+public enum InterceptPoint {
+    AROUND,
+    BEFORE,
+    AFTER
 }

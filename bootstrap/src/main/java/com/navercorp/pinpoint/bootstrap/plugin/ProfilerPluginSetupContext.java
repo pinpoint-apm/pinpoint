@@ -16,14 +16,10 @@ package com.navercorp.pinpoint.bootstrap.plugin;
 
 import java.lang.instrument.ClassFileTransformer;
 
-import com.navercorp.pinpoint.bootstrap.FieldAccessor;
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 
 /**
  *  Provides attributes and objects to interceptors.
@@ -33,72 +29,24 @@ import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerB
  * @author Jongho Moon
  *
  */
-public interface ProfilerPluginContext {
-    /**
-     * Set an attribute. Only objects within same plug-in can see this attribute.
-     *   
-     * @param name attribute name
-     * @param value attribute value
-     * @return Previous value if the name was associated with other value. null otherwise.
-     */
-    public Object setAttribute(String name, Object value);
-    
-    /**
-     * Get an attribute set within a plug-in.
-     * 
-     * You can get attributes set by {@link ProfilerPluginSetupContext#setAttribute(String, Object)} too.
-     * 
-     * @param name attribute name
-     * @return value value associated with given name. null if no value is set.
-     */
-    public Object getAttribute(String name);
-
-    /**
-     * Get the {@link MetadataAccessor} with given name.
-     * 
-     * @param name 
-     * @return {@link MetadataAccessor} with given name. null if there is no {@link MetadataAccessor} with the name.  
-     */
-    public MetadataAccessor getMetadataAccessor(String name);
-    
-    /**
-     * Get the {@link MetadataAccessor} with given name.
-     * 
-     * @param name
-     * @return {@link MetadataAccessor} with given name. null if there is no {@link MetadataAccessor} with the name.  
-     */
-    public FieldAccessor getFieldAccessor(String name);
-    
-    /**
-     * Get {@link TraceContext}
-     * 
-     * @return {@link TraceContext} of current transaction
-     */
-    public TraceContext getTraceContext();
-    
+public interface ProfilerPluginSetupContext {
     /**
      * Get the {@link ProfilerConfig}
      * 
      * @return {@link ProfilerConfig}
      */
     public ProfilerConfig getConfig();
-    
-    public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classFileBuffer);
-    
-    public InterceptorGroup getInterceptorGroup(String name);
-    
+
     /**
      * Add a {@link ApplicationTypeDetector} to Pinpoint agent.
      * 
      * @param detectors
      */
     public void addApplicationTypeDetector(ApplicationTypeDetector... detectors);
+    
+    public void addClassFileTransformer(String targetClassName, PinpointClassFileTransformer transformer);
 
-    public void addClassFileTransformer(String targetClassName, ClassFileTransformer transformer);
-    
-    public void retransform(Class<?> target, ClassFileTransformer classEditor);
-    
-    
+
     
     
     /**

@@ -78,7 +78,7 @@ public class AgentHistogramTest {
         String before = originalJson(agentHistogram);
         logger.debug("callJson:{}", callJson);
         HashMap callJsonHashMap = mapper.readValue(callJson, HashMap.class);
-        logger.debug("before:{}", before);
+        logger.debug("BEFORE:{}", before);
         HashMap beforeJsonHashMap = mapper.readValue(before, HashMap.class);
         logger.debug("{} {}", callJsonHashMap, beforeJsonHashMap);
         Assert.assertEquals(callJsonHashMap, beforeJsonHashMap);

@@ -22,9 +22,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerExceptionHandler;
 
 public class DedicatedMethodTransformer implements MethodTransformer {
@@ -45,8 +45,8 @@ public class DedicatedMethodTransformer implements MethodTransformer {
     }
 
     @Override
-    public void edit(ClassLoader classLoader, InstrumentClass target) throws Throwable {
-        MethodInfo targetMethod = target.getDeclaredMethod(targetMethodName, targetMethodParameterTypes);
+    public void edit(ClassLoader classLoader, InstrumentableClass target) throws Throwable {
+        InstrumentableMethod targetMethod = target.getDeclaredMethod(targetMethodName, targetMethodParameterTypes);
         
         if (targetMethod == null) {
             if (ignoreIfNotExist) {

@@ -58,7 +58,7 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
             doInBeforeTrace(recorder, asyncTraceId, target, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
-                logger.warn("before. Caused:{}", th.getMessage(), th);
+                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
             }
         }
     }
@@ -94,7 +94,7 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
             doInAfterTrace(recorder, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
-                logger.warn("after error. Caused:{}", th.getMessage(), th);
+                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
             }
         } finally {
             trace.traceBlockEnd();

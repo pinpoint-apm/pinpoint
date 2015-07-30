@@ -14,9 +14,9 @@
  */
 package com.navercorp.pinpoint.bootstrap.plugin.transformer;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
 /**
  * @author Jongho Moon
@@ -66,7 +66,7 @@ public class ClassConditions {
         }
 
         @Override
-        public boolean check(ProfilerPluginContext context, ClassLoader classLoader, InstrumentClass target) {
+        public boolean check(ProfilerPluginSetupContext context, ClassLoader classLoader, InstrumentableClass target) {
             return target.hasField(name, type);
         }
 
@@ -88,7 +88,7 @@ public class ClassConditions {
         }
 
         @Override
-        public boolean check(ProfilerPluginContext context, ClassLoader classLoader, InstrumentClass target) {
+        public boolean check(ProfilerPluginSetupContext context, ClassLoader classLoader, InstrumentableClass target) {
             return target.hasMethod(name, paramTypes, returnType);
         }
 
@@ -121,7 +121,7 @@ public class ClassConditions {
         }
 
         @Override
-        public boolean check(ProfilerPluginContext context, ClassLoader classLoader, InstrumentClass target) {
+        public boolean check(ProfilerPluginSetupContext context, ClassLoader classLoader, InstrumentableClass target) {
             return target.hasDeclaredMethod(name, paramTypes);
         }
 
@@ -149,7 +149,7 @@ public class ClassConditions {
         }
 
         @Override
-        public boolean check(ProfilerPluginContext context, ClassLoader classLoader, InstrumentClass target) {
+        public boolean check(ProfilerPluginSetupContext context, ClassLoader classLoader, InstrumentableClass target) {
             return !super.check(context, classLoader, target);
         }
     }
@@ -162,7 +162,7 @@ public class ClassConditions {
         }
 
         @Override
-        public boolean check(ProfilerPluginContext context, ClassLoader classLoader, InstrumentClass target) {
+        public boolean check(ProfilerPluginSetupContext context, ClassLoader classLoader, InstrumentableClass target) {
             return target.hasConstructor(paramTypes);
         }
 
@@ -189,7 +189,7 @@ public class ClassConditions {
         }
 
         @Override
-        public boolean check(ProfilerPluginContext context, ClassLoader classLoader, InstrumentClass target) {
+        public boolean check(ProfilerPluginSetupContext context, ClassLoader classLoader, InstrumentableClass target) {
             try {
                 context.getByteCodeInstrumentor().getClass(classLoader, name, null);
             } catch (InstrumentException e) {

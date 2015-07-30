@@ -100,7 +100,7 @@ public interface PathMatcher {
      * <p>The full algorithm used depends on the underlying implementation, but generally,
      * the returned {@code Comparator} will
      * {@linkplain java.util.Collections#sort(java.util.List, java.util.Comparator) sort}
-     * a list so that more specific patterns come before generic patterns.
+     * a list so that more specific patterns come BEFORE generic patterns.
      *
      * @param path the full path to use for comparison
      * @return a comparator capable of sorting patterns in order of explicitness

@@ -19,7 +19,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.exception.PinpointException;
 
 /**
@@ -27,9 +27,9 @@ import com.navercorp.pinpoint.exception.PinpointException;
  *
  */
 public abstract class BaseClassFileTransformer implements ClassFileTransformer {
-    private final ProfilerPluginContext pluginContext;
+    private final ProfilerPluginSetupContext pluginContext;
 
-    public BaseClassFileTransformer(ProfilerPluginContext pluginContext) {
+    public BaseClassFileTransformer(ProfilerPluginSetupContext pluginContext) {
         this.pluginContext = pluginContext;
     }
 
@@ -42,6 +42,6 @@ public abstract class BaseClassFileTransformer implements ClassFileTransformer {
         }
     } 
     
-    protected abstract byte[] transform(ProfilerPluginContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException;
+    protected abstract byte[] transform(ProfilerPluginSetupContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException;
     
 }

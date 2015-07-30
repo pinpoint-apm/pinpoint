@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
@@ -62,8 +62,8 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
     }
 
     @Override
-    public void edit(ClassLoader classLoader, InstrumentClass target) throws Throwable {
-        Class<? extends Interceptor> interceptorType = pluginContext.getClassInjector().loadClass(classLoader, interceptorClassName);
+    public void edit(ClassLoader classLoader, InstrumentableClass target) throws Throwable {
+        Class<? extends Interceptor> interceptorType = pluginContext.injectClass(classLoader, interceptorClassName);
         
         AnnotatedInterceptorInjector injector = new AnnotatedInterceptorInjector(pluginContext, interceptorClassName, providedArguments, groupName, executionPoint);
         ClassRecipe recipe = createMethodEditor(classLoader, interceptorType, target,  injector);
@@ -71,7 +71,7 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
         recipe.edit(classLoader, target);
     }
     
-    private ClassRecipe createMethodEditor(ClassLoader classLoader, Class<?> interceptorType, InstrumentClass targetClass, AnnotatedInterceptorInjector injector) {
+    private ClassRecipe createMethodEditor(ClassLoader classLoader, Class<?> interceptorType, InstrumentableClass targetClass, AnnotatedInterceptorInjector injector) {
         List<MethodTransformer> editors = new ArrayList<MethodTransformer>();
         
         Targets targets = interceptorType.getAnnotation(Targets.class);
@@ -129,7 +129,7 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
         return new ConstructorTransformer(parameterTypeNames, Arrays.<MethodRecipe>asList(injector), null, false);
     }
     
-    private MethodTransformer createFilteredMethodEditor(TargetFilter annotation, InstrumentClass targetClass, AnnotatedInterceptorInjector injector, ClassLoader classLoader) {
+    private MethodTransformer createFilteredMethodEditor(TargetFilter annotation, InstrumentableClass targetClass, AnnotatedInterceptorInjector injector, ClassLoader classLoader) {
         String type = annotation.type();
         
         if (type == null) {

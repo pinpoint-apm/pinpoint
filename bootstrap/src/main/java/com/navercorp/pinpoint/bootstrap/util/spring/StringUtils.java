@@ -128,7 +128,7 @@ public class StringUtils {
      * (each of the characters is individually considered as a delimiter)
      * @param trimTokens trim the tokens via {@link String#trim()}
      * @param ignoreEmptyTokens omit empty tokens from the result array
-     * (only applies to tokens that are empty after trimming; StringTokenizer
+     * (only applies to tokens that are empty AFTER trimming; StringTokenizer
      * will not consider subsequent delimiters as token in the first place).
      * @return an array of the tokens ({@code null} if the input {@code String}
      * was {@code null})

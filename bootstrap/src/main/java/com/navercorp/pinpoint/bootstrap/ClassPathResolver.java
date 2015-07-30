@@ -242,7 +242,7 @@ public class ClassPathResolver {
             try {
                 urls[i] = jars[i].toURI().toURL();
             } catch (MalformedURLException e) {
-                // TODO have to change to PinpointException after moving the exception to pinpoint-common
+                // TODO have to change to PinpointException AFTER moving the exception to pinpoint-common
                 throw new RuntimeException("Fail to load plugin jars", e);
             }
         }

@@ -62,7 +62,7 @@ public class ApplicationServerTypePluginResolver {
             logger.info("Attempting to resolve using [{}]", currentDetectorName);
             if (currentDetector.detect(this.conditionProvider)) {
                 logger.info("Match found using [{}]", currentDetectorName);
-                return currentDetector.getServerType();
+                return currentDetector.getApplicationType();
             } else {
                 logger.info("No match found using [{}]", currentDetectorName);
             }

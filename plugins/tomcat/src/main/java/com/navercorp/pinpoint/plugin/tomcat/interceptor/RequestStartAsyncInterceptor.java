@@ -92,7 +92,7 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
         } catch (Throwable t) {
-            logger.warn("Failed to after process. {}", t.getMessage(), t);
+            logger.warn("Failed to AFTER process. {}", t.getMessage(), t);
         } finally {
             trace.traceBlockEnd();
         }

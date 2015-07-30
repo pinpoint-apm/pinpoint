@@ -152,7 +152,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
                     long reverseStartTime = BytesUtils.bytesToLong(row, HBaseTables.AGENT_NAME_MAX_LEN);
                     long startTime = TimeUtils.recoveryTimeMillis(reverseStartTime);
                     logger.debug("agent:{} startTime value {}", agentId, startTime);
-                    // should find just before the start time
+                    // should find just BEFORE the start time
                     if (startTime < currentTime) {
                         byte[] serializedAgentInfo = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER);
                         byte[] serializedServerMetaData = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_SERVER_META_DATA);

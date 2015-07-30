@@ -128,7 +128,7 @@ public final class LongAdder extends Striped64 implements Serializable {
      * #reset}. This method may apply for example during quiescent
      * points between multithreaded computations.  If there are
      * updates concurrent with this method, the returned value is
-     * <em>not</em> guaranteed to be the final value occurring before
+     * <em>not</em> guaranteed to be the final value occurring BEFORE
      * the reset.
      *
      * @return the sum
@@ -168,7 +168,7 @@ public final class LongAdder extends Striped64 implements Serializable {
     }
 
     /**
-     * Returns the {@link #sum} as an {@code int} after a narrowing
+     * Returns the {@link #sum} as an {@code int} AFTER a narrowing
      * primitive conversion.
      */
     public int intValue() {
@@ -177,14 +177,14 @@ public final class LongAdder extends Striped64 implements Serializable {
 
     /**
      * Returns the {@link #sum} as a {@code float}
-     * after a widening primitive conversion.
+     * AFTER a widening primitive conversion.
      */
     public float floatValue() {
         return (float)sum();
     }
 
     /**
-     * Returns the {@link #sum} as a {@code double} after a widening
+     * Returns the {@link #sum} as a {@code double} AFTER a widening
      * primitive conversion.
      */
     public double doubleValue() {

@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
- * MethodInfo interceptor
+ * InstrumentableMethod interceptor
  * <p/>
  * <p/>
  * 

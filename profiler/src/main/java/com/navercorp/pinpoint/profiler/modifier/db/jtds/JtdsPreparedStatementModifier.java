@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
@@ -61,7 +61,7 @@ public class JtdsPreparedStatementModifier extends AbstractModifier {
             logger.info("Modifying. {}", javassistClassName);
         }
         try {
-            InstrumentClass preparedStatementClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+            InstrumentableClass preparedStatementClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             Interceptor executeInterceptor = new PreparedStatementExecuteQueryInterceptor();
             preparedStatementClass.addGroupInterceptor("execute", null, executeInterceptor, JtdsScope.SCOPE_NAME);
@@ -87,7 +87,7 @@ public class JtdsPreparedStatementModifier extends AbstractModifier {
         }
     }
 
-    private void bindVariableIntercept(InstrumentClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
+    private void bindVariableIntercept(InstrumentableClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
         List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod();
         final InterceptorGroupInvocation scope = byteCodeInstrumentor.getInterceptorGroupTransaction(JtdsScope.SCOPE_NAME);
         Interceptor interceptor = new GroupDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor(), scope);

@@ -38,6 +38,7 @@ import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.interceptor.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
+import com.navercorp.pinpoint.profiler.interceptor.bci.JavassistClassPool;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
@@ -103,6 +104,8 @@ public class DefaultAgent implements Agent {
     private final InterceptorRegistryBinder interceptorRegistryBinder;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
     
+    private final Instrumentation instrumentation;
+    private final JavassistClassPool classPool;
     private final List<DefaultProfilerPluginContext> pluginContexts;
     
 
@@ -145,13 +148,13 @@ public class DefaultAgent implements Agent {
         changeStatus(AgentStatus.INITIALIZING);
         
         this.profilerConfig = agentOption.getProfilerConfig();
+        this.instrumentation = agentOption.getInstrumentation();
 
-        final Instrumentation instrumentation = agentOption.getInstrumentation();
         RetransformService retransformService = new RetransformService(instrumentation);
         
-
-
-        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(this, interceptorRegistryBinder, agentOption.getBootStrapJarPath(), retransformService);
+        this.classPool = new JavassistClassPool(interceptorRegistryBinder, agentOption.getBootStrapJarPath());
+        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(this, classPool, retransformService);
+        
         if (logger.isInfoEnabled()) {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
@@ -211,6 +214,10 @@ public class DefaultAgent implements Agent {
             }
         }
     }
+    
+    public Instrumentation getInstrumentation() {
+        return instrumentation;
+    }
 
     public ByteCodeInstrumentor getByteCodeInstrumentor() {
         return byteCodeInstrumentor;
@@ -218,6 +225,10 @@ public class DefaultAgent implements Agent {
 
     public ClassFileTransformer getClassFileTransformer() {
         return classFileTransformer;
+    }
+    
+    public JavassistClassPool getClassPool() {
+        return classPool;
     }
 
     private void dumpSystemProperties() {

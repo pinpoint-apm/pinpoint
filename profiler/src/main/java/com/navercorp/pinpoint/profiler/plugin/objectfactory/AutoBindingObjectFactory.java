@@ -23,19 +23,19 @@ import java.util.List;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe.ByConstructor;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe.ByStaticFactoryMethod;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 
 /**
  * @author Jongho Moon
  *
  */
 public class AutoBindingObjectFactory {
-    private final DefaultProfilerPluginContext pluginContext;
+    private final ProfilerPluginContext pluginContext;
     private final ClassLoader classLoader;
     private final List<ArgumentProvider> commonProviders;
     
-    public AutoBindingObjectFactory(DefaultProfilerPluginContext pluginContext, ClassLoader classLoader, ArgumentProvider... argumentProviders) {
+    public AutoBindingObjectFactory(ProfilerPluginContext pluginContext, ClassLoader classLoader, ArgumentProvider... argumentProviders) {
         this.pluginContext = pluginContext;
         this.classLoader = classLoader;
         this.commonProviders = new ArrayList<ArgumentProvider>(Arrays.asList(argumentProviders));
@@ -43,7 +43,7 @@ public class AutoBindingObjectFactory {
     }
     
     public Object createInstance(ObjectRecipe recipe, ArgumentProvider... providers) {
-        Class<?> type = pluginContext.getClassInjector().loadClass(classLoader, recipe.getClassName());
+        Class<?> type = pluginContext.injectClass(classLoader, recipe.getClassName());
         ArgumentsResolver argumentsResolver = getArgumentResolver(recipe, providers);
         
         if (recipe instanceof ByConstructor) {

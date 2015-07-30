@@ -15,17 +15,17 @@
 package com.navercorp.pinpoint.test;
 
 import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginClassLoader;
+import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginClassInjector;
 
 /**
  * @author Jongho Moon
  *
  */
-public class TestProfilerPluginClassLoader implements ProfilerPluginClassLoader {
+public class TestProfilerPluginClassLoader implements ProfilerPluginClassInjector {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> Class<? extends T> loadClass(ClassLoader targetClassLoader, String className) {
+    public <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className) {
         try {
             return (Class<? extends T>) targetClassLoader.loadClass(className);
         } catch (ClassNotFoundException e) {

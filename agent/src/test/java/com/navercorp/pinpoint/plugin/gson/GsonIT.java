@@ -78,7 +78,7 @@ public class GsonIT {
         
         /**
          * @see Gson#fromJson(String, Class)
-         * @see Gson#fromJson(String, Type)
+         * @see Gson#fromJson(String, InterceptPoint)
          */
         gson.fromJson(json, String.class);
         gson.fromJson(json, (Type) String.class);
@@ -88,7 +88,7 @@ public class GsonIT {
 
         /**
          * @see Gson#toJson(Object)
-         * @see Gson#toJson(Object, Type)
+         * @see Gson#toJson(Object, InterceptPoint)
          */
         gson.toJson(java);
         gson.toJson(java, String.class);
@@ -119,9 +119,9 @@ public class GsonIT {
         
         /**
          * @see Gson#fromJson(Reader, Class)
-         * @see Gson#fromJson(Reader, Type)
+         * @see Gson#fromJson(Reader, InterceptPoint)
          * @see Gson#fromJson(JsonElement, Class)
-         * @see Gson#fromJson(JsonElement, Type)
+         * @see Gson#fromJson(JsonElement, InterceptPoint)
          */
         gson.fromJson(new StringReader(json), (Class<?>) String.class);
         gson.fromJson(new StringReader(json), (Type) String.class);
@@ -135,7 +135,7 @@ public class GsonIT {
 
         /**
          * @see Gson#toJson(Object, Appendable)
-         * @see Gson#toJson(Object, Type, Appendable)
+         * @see Gson#toJson(Object, InterceptPoint, Appendable)
          * @see Gson#toJson(JsonElement)
          * @see Gson#toJson(JsonElement, Appendable)
          */
@@ -176,14 +176,14 @@ public class GsonIT {
         final Gson gson = new Gson();
         
         /**
-         * @see Gson#fromJson(JsonReader, Type)
+         * @see Gson#fromJson(JsonReader, InterceptPoint)
          */
         gson.fromJson(new JsonReader(new StringReader(json)), String.class);
         
         Method fromJson5 = Gson.class.getDeclaredMethod("fromJson", JsonReader.class, Type.class);
         
         /**
-         * @see Gson#toJson(Object, Type, JsonWriter)
+         * @see Gson#toJson(Object, InterceptPoint, JsonWriter)
          * @see Gson#toJson(JsonElement, JsonWriter)
          */
         gson.toJson(java, String.class, new JsonWriter(new StringWriter()));

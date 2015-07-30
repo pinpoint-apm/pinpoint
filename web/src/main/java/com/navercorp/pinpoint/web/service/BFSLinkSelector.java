@@ -261,7 +261,7 @@ public class BFSLinkSelector implements LinkSelector {
                 LinkCallDataMap linkCallDataMap = emulationLinkData.getLinkCallDataMap();
 
                 if (logger.isDebugEnabled()) {
-                    logger.debug("emulationLink before:{}", beforeLinkCallData);
+                    logger.debug("emulationLink BEFORE:{}", beforeLinkCallData);
                     logger.debug("emulationLink agent:{}", agentHistogram);
                     logger.debug("emulationLink link:{}/{} -> {}/{}", agentHistogram.getTarget(), agentHistogram.getTargetServiceType(),
                             beforeLinkCallData.getTarget(), beforeLinkCallData.getTargetServiceType().getCode());

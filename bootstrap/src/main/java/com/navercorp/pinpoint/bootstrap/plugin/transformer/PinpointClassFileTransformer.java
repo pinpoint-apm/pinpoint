@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.transformer;
 
-import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchable;
+import java.security.ProtectionDomain;
 
-import java.lang.instrument.ClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 
 
-public interface PinpointClassFileTransformer extends ClassFileTransformer, Matchable {
-
+public interface PinpointClassFileTransformer {
+    public byte[] transform(ProfilerPluginContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException;
 }

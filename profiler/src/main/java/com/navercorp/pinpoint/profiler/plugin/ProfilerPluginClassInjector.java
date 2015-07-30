@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.plugin;
  * @author Jongho Moon
  *
  */
-public interface ProfilerPluginClassLoader {
+public interface ProfilerPluginClassInjector {
 
-    public <T> Class<? extends T> loadClass(ClassLoader targetClassLoader, String className);
+    public <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className);
 
 }

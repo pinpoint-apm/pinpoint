@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.plugin.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
@@ -26,21 +26,21 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedSimpleAroundInt
 import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedStaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
-import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.objectfactory.AutoBindingObjectFactory;
 import com.navercorp.pinpoint.profiler.plugin.objectfactory.InterceptorArgumentProvider;
 
 public class AnnotatedInterceptorFactory implements InterceptorFactory {
-    private final DefaultProfilerPluginContext pluginContext;
+    private final ProfilerPluginContext pluginContext;
     
-    public AnnotatedInterceptorFactory(DefaultProfilerPluginContext pluginContext) {
+    public AnnotatedInterceptorFactory(ProfilerPluginContext pluginContext) {
         this.pluginContext = pluginContext;
     }
 
     @Override
-    public Interceptor getInterceptor(ClassLoader classLoader, String interceptorClassName, Object[] providedArguments, InterceptorGroup group, ExecutionPolicy policy, InstrumentClass target, MethodInfo targetMethod) {
-        Class<? extends Interceptor> interceptorType = pluginContext.getClassInjector().loadClass(classLoader, interceptorClassName);
+    public Interceptor getInterceptor(ClassLoader classLoader, String interceptorClassName, Object[] providedArguments, InterceptorGroup group, ExecutionPolicy policy, InstrumentableClass target, InstrumentableMethod targetMethod) {
+        Class<? extends Interceptor> interceptorType = pluginContext.injectClass(classLoader, interceptorClassName);
         
         if (group == null) {
             Group interceptorGroup = interceptorType.getAnnotation(Group.class);

@@ -42,7 +42,7 @@ import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.interceptor.GlobalInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
-import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginClassLoader;
+import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginClassInjector;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
@@ -116,7 +116,7 @@ public class MockAgent extends DefaultAgent {
     @Override
     protected List<DefaultProfilerPluginContext> loadPlugins(AgentOption agentOption) {
         List<DefaultProfilerPluginContext> pluginContexts = new ArrayList<DefaultProfilerPluginContext>();
-        ProfilerPluginClassLoader classInjector = new TestProfilerPluginClassLoader();
+        ProfilerPluginClassInjector classInjector = new TestProfilerPluginClassLoader();
 
         List<ProfilerPlugin> plugins = PluginLoader.load(ProfilerPlugin.class, ClassLoader.getSystemClassLoader());
         

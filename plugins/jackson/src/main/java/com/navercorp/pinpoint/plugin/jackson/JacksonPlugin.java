@@ -18,7 +18,7 @@ import java.lang.instrument.ClassFileTransformer;
 
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConstructorTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty;
@@ -36,7 +36,7 @@ public class JacksonPlugin implements ProfilerPlugin, JacksonConstants {
     private static final String WRITE_VALUE_AS_STRING_INTERCEPTOR = "com.navercorp.pinpoint.plugin.jackson.interceptor.WriteValueAsStringInterceptor";
 
     @Override
-    public void setup(ProfilerPluginContext context) {
+    public void setup(ProfilerPluginSetupContext context) {
         intercept_ObjectMapper(context);
         intercept_ObjectReader(context, "com.fasterxml.jackson.databind.ObjectReader");
         intercept_ObjectWriter(context, "com.fasterxml.jackson.databind.ObjectWriter");
@@ -46,7 +46,7 @@ public class JacksonPlugin implements ProfilerPlugin, JacksonConstants {
         intercept_ObjectWriter(context, "org.codehaus.jackson.map.ObjectWriter");
     }
 
-    private void intercept_ObjectMapper(ProfilerPluginContext context) {
+    private void intercept_ObjectMapper(ProfilerPluginSetupContext context) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("com.fasterxml.jackson.databind.ObjectMapper"); 
 
         /* constructor */
@@ -66,7 +66,7 @@ public class JacksonPlugin implements ProfilerPlugin, JacksonConstants {
         context.addClassFileTransformer(transformer);
     }
     
-    private void intercept_ObjectReader(ProfilerPluginContext context, String className) {
+    private void intercept_ObjectReader(ProfilerPluginSetupContext context, String className) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder(className); 
 
         /* deserialization */
@@ -76,7 +76,7 @@ public class JacksonPlugin implements ProfilerPlugin, JacksonConstants {
         context.addClassFileTransformer(transformer);
     }
     
-    private void intercept_ObjectWriter(ProfilerPluginContext context, String className) {
+    private void intercept_ObjectWriter(ProfilerPluginSetupContext context, String className) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder(className); 
 
         /* deserialization */
@@ -89,7 +89,7 @@ public class JacksonPlugin implements ProfilerPlugin, JacksonConstants {
     }
 
     
-    private void intercept_ObjectMapper_1_x(ProfilerPluginContext context) {
+    private void intercept_ObjectMapper_1_x(ProfilerPluginSetupContext context) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.codehaus.jackson.map.ObjectMapper"); 
 
         /* constructor */

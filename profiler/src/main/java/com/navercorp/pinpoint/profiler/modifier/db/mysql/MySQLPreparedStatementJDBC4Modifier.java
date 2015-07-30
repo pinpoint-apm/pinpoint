@@ -23,15 +23,16 @@ import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.Type;
+import com.navercorp.pinpoint.bootstrap.interceptor.InterceptPoint;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.profiler.interceptor.GroupDelegateStaticInterceptor;
@@ -63,7 +64,7 @@ public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
             logger.info("Modifying. {}", className);
         }
         try {
-            InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(classLoader, className, classFileBuffer);
+            InstrumentableClass preparedStatement = byteCodeInstrumentor.getClass(classLoader, className, classFileBuffer);
 
             bindVariableIntercept(preparedStatement, classLoader, protectedDomain);
 
@@ -76,7 +77,7 @@ public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
         }
     }
 
-    private void bindVariableIntercept(InstrumentClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
+    private void bindVariableIntercept(InstrumentableClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
         // TODO Need to add parameter type to filter arguments
         // Cannot specify methods without parameter type information because each JDBC driver has different API.
         BindVariableFilter exclude = new IncludeBindVariableFilter(new String[]{"setRowId", "setNClob", "setSQLXML"});
@@ -92,9 +93,9 @@ public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
             String[] parameterType = JavaAssistUtils.getParameterType(method.getParameterTypes());
             try {
                 if (interceptorId == -1) {
-                    interceptorId = preparedStatement.addInterceptor(methodName, parameterType, interceptor, Type.after);
+                    interceptorId = preparedStatement.addInterceptor(methodName, parameterType, interceptor, InterceptPoint.AFTER);
                 } else {
-                    preparedStatement.reuseInterceptor(methodName, parameterType, interceptorId, Type.after);
+                    preparedStatement.reuseInterceptor(methodName, parameterType, interceptorId, InterceptPoint.AFTER);
                 }
             } catch (NotFoundInstrumentException e) {
                 // Cannot find bind variable setter method. This is not an error. logging will be enough.

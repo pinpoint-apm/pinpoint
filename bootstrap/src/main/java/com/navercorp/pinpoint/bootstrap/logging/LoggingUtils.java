@@ -28,14 +28,14 @@ public final class LoggingUtils {
 
     public static void logBefore(PLogger logger, Object target, String className, String methodName, String parameterDescription, Object[] args) {
         StringBuilder sb = new StringBuilder(512);
-        sb.append("before ");
+        sb.append("BEFORE ");
         logMethod(sb, getTarget(target), className, methodName, parameterDescription, args);
         logger.debug(sb.toString());
     }
 
     public static void logAfter(PLogger logger, Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
         StringBuilder sb = new StringBuilder(512);
-        sb.append("after ");
+        sb.append("AFTER ");
         logMethod(sb, getTarget(target), className, methodName, parameterDescription, args);
         sb.append(" result:");
         sb.append(getTarget(result));
@@ -44,7 +44,7 @@ public final class LoggingUtils {
 
     public static void logAfter(PLogger logger, Object target, String className, String methodName, String parameterDescription, Object[] args) {
         StringBuilder sb = new StringBuilder(512);
-        sb.append("after ");
+        sb.append("AFTER ");
         logMethod(sb, getTarget(target), className, methodName, parameterDescription, args);
         logger.debug(sb.toString());
     }

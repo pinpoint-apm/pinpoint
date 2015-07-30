@@ -12,15 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.plugin.transformer;
+package com.navercorp.pinpoint.bootstrap.instrument;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 
 /**
  * @author Jongho Moon
  *
  */
-public interface MethodRecipe {
-    public void edit(ClassLoader targetClassLoader, InstrumentableClass targetClass, InstrumentableMethod targetMethod) throws Exception;
+public interface InstrumentableClassPool {
+    InstrumentableClass getClass(ProfilerPluginContext pluginContext, ClassLoader classLoader, String classInternalName, byte[] classFileBuffer) throws NotFoundInstrumentException;
+    boolean hasClass(ClassLoader classLoader, String classBinaryName);
 }

@@ -28,7 +28,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InterceptorGroupDefinition;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
@@ -91,7 +91,7 @@ public class AbstractAutowireCapableBeanFactoryModifierTest {
         }
         
         @Override
-        public InstrumentClass getClass(ClassLoader classLoader, String jvmClassName, byte[] classFileBuffer) throws NotFoundInstrumentException {
+        public InstrumentableClass getClass(ClassLoader classLoader, String jvmClassName, byte[] classFileBuffer) throws NotFoundInstrumentException {
             return delegate.getClass(classLoader, jvmClassName, classFileBuffer);
         }
 

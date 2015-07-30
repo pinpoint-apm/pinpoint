@@ -19,14 +19,15 @@ import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
 
 import java.security.ProtectionDomain;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.BaseClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
@@ -40,19 +41,19 @@ public class GsonPlugin implements ProfilerPlugin {
     private static final String GSON_GROUP = "GSON_GROUP";
 
     @Override
-    public void setup(ProfilerPluginContext context) {
-        context.addClassFileTransformer("com.google.gson.Gson", new BaseClassFileTransformer(context) {
+    public void setup(ProfilerPluginSetupContext context) {
+        context.addClassFileTransformer("com.google.gson.Gson", new PinpointClassFileTransformer() {
             
             @Override
-            protected byte[] transform(ProfilerPluginContext pluginContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = pluginContext.getInstrumentClass(loader, className, classfileBuffer);
+            public byte[] transform(ProfilerPluginContext pluginContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentableClass target = pluginContext.getInstrumentableClass(loader, className, classfileBuffer);
                 InterceptorGroup group = pluginContext.getInterceptorGroup(GSON_GROUP); 
                 
-                for (MethodInfo m : target.getDeclaredMethods(MethodFilters.name("fromJson"))) {
+                for (InstrumentableMethod m : target.getDeclaredMethods(MethodFilters.name("fromJson"))) {
                     m.addInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.FromJsonInterceptor", group);
                 }
                 
-                for (MethodInfo m : target.getDeclaredMethods(MethodFilters.name("toJson"))) {
+                for (InstrumentableMethod m : target.getDeclaredMethods(MethodFilters.name("toJson"))) {
                     m.addInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.ToJsonInterceptor", group);
                 }
                 

@@ -178,7 +178,7 @@ public class FromToResponseFilter implements Filter {
                 }
             } else {
                 /**
-                 * codes before hint has been added.
+                 * codes BEFORE hint has been added.
                  * if problems happen because of hint, don't use hint at front end (UI) or use below code in order to work properly.
                  */
                 for (SpanBo srcSpan : transaction) {

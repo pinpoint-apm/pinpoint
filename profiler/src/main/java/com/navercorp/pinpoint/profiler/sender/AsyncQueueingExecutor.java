@@ -57,7 +57,7 @@ public class AsyncQueueingExecutor<T> implements Runnable {
         if (executorName == null) {
             throw new NullPointerException("executorName must not be null");
         }
-        // before executeThread start
+        // BEFORE executeThread start
         this.maxDrainSize = 10;
         this.drain = new UnsafeArrayCollection<T>(maxDrainSize);
         this.queue = new LinkedBlockingQueue<T>(queueSize);

@@ -16,11 +16,13 @@ package com.navercorp.pinpoint.profiler.plugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.instrument.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.jar.JarFile;
 
 import javassist.CannotCompileException;
@@ -38,8 +40,8 @@ import com.navercorp.pinpoint.exception.PinpointException;
  * @author Jongho Moon
  *
  */
-public class JarProfilerPluginClassLoader implements ProfilerPluginClassLoader {
-    private static final Logger logger = LoggerFactory.getLogger(JarProfilerPluginClassLoader.class);
+public class JarProfilerPluginClassInjector implements ProfilerPluginClassInjector {
+    private static final Logger logger = LoggerFactory.getLogger(JarProfilerPluginClassInjector.class);
 
     private static final Method ADD_URL;
     private static final Method DEFINE_CLASS;
@@ -60,25 +62,25 @@ public class JarProfilerPluginClassLoader implements ProfilerPluginClassLoader {
         }
     }
     
-    public static JarProfilerPluginClassLoader of(URL pluginJar) {
+    public static JarProfilerPluginClassInjector of(Instrumentation instrumentation, URL pluginJar) {
         try {
             JarFile jarFile = new JarFile(new File(pluginJar.toURI()));
-            return new JarProfilerPluginClassLoader(pluginJar, jarFile);
+            return new JarProfilerPluginClassInjector(instrumentation, pluginJar, jarFile);
         } catch (Exception e) {
             logger.warn("Failed to get JarFile {}", pluginJar, e);
             return null;
         }
     }
     
+    private final Instrumentation instrumentation;
+    private final AtomicBoolean injectedToRoot = new AtomicBoolean(false);
     private final URL pluginJarURL;
     private final String pluginJarURLExternalForm;
     private final JarFile pluginJar;
     
     
-    private JarProfilerPluginClassLoader(URL pluginJarURL, JarFile pluginJar) {
-        if (pluginJarURL == null) {
-            throw new NullPointerException("pluginJarURL must not be null");
-        }
+    private JarProfilerPluginClassInjector(Instrumentation instrumentation, URL pluginJarURL, JarFile pluginJar) {
+        this.instrumentation = instrumentation;
         this.pluginJarURL = pluginJarURL;
         this.pluginJarURLExternalForm = pluginJarURL.toExternalForm();
         this.pluginJar = pluginJar;
@@ -86,22 +88,30 @@ public class JarProfilerPluginClassLoader implements ProfilerPluginClassLoader {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Class<? extends T> loadClass(ClassLoader classLoader, String className) {
-        ClassLoader targetClassLoader = classLoader == null ? ClassLoader.getSystemClassLoader() : classLoader;
-
+    public <T> Class<? extends T> injectClass(ClassLoader classLoader, String className) {
         try {
-            if (targetClassLoader instanceof URLClassLoader) {
-                return (Class<T>)loadFromURLClassLoader((URLClassLoader)targetClassLoader, className);
+            if (classLoader == null) {
+                return (Class<T>)injectToBootstrapClassLoader(className);
+            } else if (classLoader instanceof URLClassLoader) {
+                return (Class<T>)injectToURLClassLoader((URLClassLoader)classLoader, className);
             } else {
-                return (Class<T>)loadFromOtherClassLoader(targetClassLoader, className);
+                return (Class<T>)injectToPlainClassLoader(classLoader, className);
             }
         } catch (Exception e) {
-            logger.warn("Failed to load plugin class {} with classLoader {}", className, targetClassLoader, e);
-            throw new PinpointException("Failed to load plugin class " + className + " with classLoader " + targetClassLoader, e);
+            logger.warn("Failed to load plugin class {} with classLoader {}", className, classLoader, e);
+            throw new PinpointException("Failed to load plugin class " + className + " with classLoader " + classLoader, e);
         }
     }
-    
-    private Class<?> loadFromURLClassLoader(URLClassLoader classLoader, String className) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
+
+    private Class<?> injectToBootstrapClassLoader(String className) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
+        if (injectedToRoot.compareAndSet(false, true)) {
+            instrumentation.appendToBootstrapClassLoaderSearch(pluginJar);
+        }
+        
+        return Class.forName(className, false, null);
+    }
+
+    private Class<?> injectToURLClassLoader(URLClassLoader classLoader, String className) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
         final URL[] urls = classLoader.getURLs();
         if (urls != null) {
 
@@ -124,16 +134,16 @@ public class JarProfilerPluginClassLoader implements ProfilerPluginClassLoader {
         return classLoader.loadClass(className);
     }
     
-    private Class<?> loadFromOtherClassLoader(ClassLoader classLoader, String className) throws NotFoundException, IllegalArgumentException, IOException, CannotCompileException, IllegalAccessException, InvocationTargetException {
+    private Class<?> injectToPlainClassLoader(ClassLoader classLoader, String className) throws NotFoundException, IllegalArgumentException, IOException, CannotCompileException, IllegalAccessException, InvocationTargetException {
         ClassPool pool = new ClassPool();
         
         pool.appendClassPath(new LoaderClassPath(classLoader));
         pool.appendClassPath(pluginJar.getName());
         
-        return loadFromOtherClassLoader(pool, classLoader, className);
+        return injectToPlainClassLoader(pool, classLoader, className);
     }
     
-    private Class<?> loadFromOtherClassLoader(ClassPool pool, ClassLoader classLoader, String className) throws NotFoundException, IOException, CannotCompileException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    private Class<?> injectToPlainClassLoader(ClassPool pool, ClassLoader classLoader, String className) throws NotFoundException, IOException, CannotCompileException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         Class<?> c = null;
         
         try {
@@ -156,20 +166,20 @@ public class JarProfilerPluginClassLoader implements ProfilerPluginClassLoader {
         CtClass superClass = ct.getSuperclass();
         
         if (superClass != null) {
-            loadFromOtherClassLoader(pool, classLoader, superClass.getName());
+            injectToPlainClassLoader(pool, classLoader, superClass.getName());
         }
         
         CtClass[] interfaces = ct.getInterfaces();
         
         for (CtClass i : interfaces) {
-            loadFromOtherClassLoader(pool, classLoader, i.getName());
+            injectToPlainClassLoader(pool, classLoader, i.getName());
         }
         
         Collection<String> refs = ct.getRefClasses();
         
         for (String ref : refs) {
             try {
-                loadFromOtherClassLoader(pool, classLoader, ref);
+                injectToPlainClassLoader(pool, classLoader, ref);
             } catch (NotFoundException e) {
                 logger.warn("Skip a referenced class because of NotFoundException : ", e);
             }

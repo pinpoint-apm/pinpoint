@@ -17,7 +17,8 @@ public final class DefaultInterceptorRegistryAdaptor implements InterceptorRegis
 
     private final AtomicInteger id = new AtomicInteger(0);
 
-    private final WeakAtomicReferenceArray<Interceptor> simpleIndex;
+    private final WeakAtomicReferenceArray<StaticAroundInterceptor> staticIndex;
+    private final WeakAtomicReferenceArray<SimpleAroundInterceptor> simpleIndex;
 
 //    private final ConcurrentMap<String, Integer> nameIndex = new ConcurrentHashMap<String, Integer>();
 
@@ -30,7 +31,8 @@ public final class DefaultInterceptorRegistryAdaptor implements InterceptorRegis
             throw new IllegalArgumentException("negative maxRegistrySize:" + maxRegistrySize);
         }
         this.registrySize = maxRegistrySize;
-        this.simpleIndex = new WeakAtomicReferenceArray<Interceptor>(maxRegistrySize, Interceptor.class);
+        this.staticIndex = new WeakAtomicReferenceArray<StaticAroundInterceptor>(maxRegistrySize, StaticAroundInterceptor.class);
+        this.simpleIndex = new WeakAtomicReferenceArray<SimpleAroundInterceptor>(maxRegistrySize, SimpleAroundInterceptor.class);
     }
 
 
@@ -38,7 +40,7 @@ public final class DefaultInterceptorRegistryAdaptor implements InterceptorRegis
         if (interceptor == null) {
             return -1;
         }
-        return addInterceptor(interceptor, simpleIndex);
+        return addInterceptor(interceptor, staticIndex);
     }
 
     private <T extends Interceptor> int addInterceptor(T interceptor, WeakAtomicReferenceArray<T> index) {
@@ -60,7 +62,7 @@ public final class DefaultInterceptorRegistryAdaptor implements InterceptorRegis
         }
         final int newId = nextId();
         if (newId >= registrySize) {
-            throw new IndexOutOfBoundsException("size=" + simpleIndex.length() + " id=" + id);
+            throw new IndexOutOfBoundsException("size=" + staticIndex.length() + " id=" + id);
         }
 
         this.simpleIndex.set(newId, interceptor);
@@ -68,7 +70,7 @@ public final class DefaultInterceptorRegistryAdaptor implements InterceptorRegis
     }
 
     public StaticAroundInterceptor getStaticInterceptor(int key) {
-        final StaticAroundInterceptor interceptor = (StaticAroundInterceptor)simpleIndex.get(key);
+        final StaticAroundInterceptor interceptor = staticIndex.get(key);
         if (interceptor == null) {
             // return LOGGING_INTERCEPTOR upon wrong logic
             return LOGGING_INTERCEPTOR;
@@ -77,9 +79,13 @@ public final class DefaultInterceptorRegistryAdaptor implements InterceptorRegis
     }
 
     public Interceptor findInterceptor(int key) {
-        final Interceptor simpleInterceptor = this.simpleIndex.get(key);
+        final SimpleAroundInterceptor simpleInterceptor = this.simpleIndex.get(key);
         if (simpleInterceptor != null) {
             return simpleInterceptor;
+        }
+        final StaticAroundInterceptor staticAroundInterceptor = this.staticIndex.get(key);
+        if (staticAroundInterceptor != null) {
+            return staticAroundInterceptor;
         }
         Logger logger = Logger.getLogger(InterceptorRegistry.class.getName());
         if (logger.isLoggable(Level.WARNING)) {
@@ -89,25 +95,11 @@ public final class DefaultInterceptorRegistryAdaptor implements InterceptorRegis
     }
 
     public SimpleAroundInterceptor getSimpleInterceptor(int key) {
-        final SimpleAroundInterceptor interceptor = (SimpleAroundInterceptor)simpleIndex.get(key);
+        final SimpleAroundInterceptor interceptor = simpleIndex.get(key);
         if (interceptor == null) {
             // return LOGGING_INTERCEPTOR upon wrong logic
             return LOGGING_INTERCEPTOR;
         }
         return interceptor;
-    }
-
-    @Override
-    public int addInterceptor(Interceptor interceptor) {
-        if (interceptor == null) {
-            return -1;
-        }
-        final int newId = nextId();
-        if (newId >= registrySize) {
-            throw new IndexOutOfBoundsException("size=" + simpleIndex.length() + " id=" + id);
-        }
-
-        this.simpleIndex.set(newId, interceptor);
-        return newId;
     }
 }

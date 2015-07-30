@@ -20,13 +20,14 @@ import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
+import com.navercorp.pinpoint.bootstrap.interceptor.InterceptPoint;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 
 /**
  * @author emeroad
  * @author netspider
  */
-public interface InstrumentClass {
+public interface InstrumentableClass {
 
     boolean isInterface();
 
@@ -36,13 +37,13 @@ public interface InstrumentClass {
 
     String[] getInterfaces();
     
-    MethodInfo getConstructor(String[] parameterTypes);
+    InstrumentableMethod getConstructor(String[] parameterTypes);
 
-    List<MethodInfo> getDeclaredMethods();
+    List<InstrumentableMethod> getDeclaredMethods();
 
-    List<MethodInfo> getDeclaredMethods(MethodFilter filter);
+    List<InstrumentableMethod> getDeclaredMethods(MethodFilter filter);
 
-    MethodInfo getDeclaredMethod(String name, String[] parameterTypes);
+    InstrumentableMethod getDeclaredMethod(String name, String[] parameterTypes);
     
     ClassLoader getClassLoader();
 
@@ -64,18 +65,7 @@ public interface InstrumentClass {
     boolean hasField(String name);
 
     
-
-    int addConstructorInterceptor(String[] parameterTypes, int interceptorId) throws InstrumentException, NotFoundInstrumentException;
-
-    int addConstructorInterceptor(String[] parameterTypes, int interceptorId, Type type) throws InstrumentException, NotFoundInstrumentException;
-
-    int addInterceptor(String methodName, String[] parameterTypes, int interceptorId) throws InstrumentException, NotFoundInstrumentException;
-    
-    int addInterceptor(String methodName, String[] parameterTypes, int interceptorId, Type type) throws InstrumentException, NotFoundInstrumentException;
-
-    
-
-    void weave(String adviceClassName, ClassLoader classLoader) throws InstrumentException;
+    void weave(String adviceClassName) throws InstrumentException;
 
     
     void addMetadata(MetadataAccessor metadata, String initialValue) throws InstrumentException;
@@ -93,8 +83,6 @@ public interface InstrumentClass {
     byte[] toBytecode() throws InstrumentException;
     
     
-    
-
     @Deprecated
     void addTraceValue(Class<?> accessorType, String initialValue) throws InstrumentException;
     
@@ -112,19 +100,19 @@ public interface InstrumentClass {
     int addConstructorInterceptor(String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
 
     @Deprecated
-    int addConstructorInterceptor(String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
+    int addConstructorInterceptor(String[] args, Interceptor interceptor, InterceptPoint type) throws InstrumentException, NotFoundInstrumentException;
 
     @Deprecated
     int addInterceptor(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
     
     @Deprecated
-    int addInterceptor(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
+    int addInterceptor(String methodName, String[] args, Interceptor interceptor, InterceptPoint type) throws InstrumentException, NotFoundInstrumentException;
 
     @Deprecated
     int reuseInterceptor(String methodName, String[] args, int interceptorId) throws InstrumentException, NotFoundInstrumentException;
 
     @Deprecated
-    int reuseInterceptor(String methodName, String[] args, int interceptorId, Type type) throws InstrumentException, NotFoundInstrumentException;
+    int reuseInterceptor(String methodName, String[] args, int interceptorId, InterceptPoint type) throws InstrumentException, NotFoundInstrumentException;
     
     
     @Deprecated
@@ -140,7 +128,7 @@ public interface InstrumentClass {
     int addGroupInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, InterceptorGroupDefinition scopeDefinition) throws InstrumentException;
     
     @Deprecated
-    InstrumentClass getNestedClass(String className);
+    InstrumentableClass getNestedClass(String className);
 
     @Deprecated
     boolean addDebugLogBeforeAfterMethod();
@@ -168,10 +156,4 @@ public interface InstrumentClass {
 
     @Deprecated
     void addTraceVariable(String variableName, String setterName, String getterName, String variableType) throws InstrumentException;
-    
-    @Deprecated
-    public int addAllConstructorInterceptor(Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
-    
-    @Deprecated
-    public int addAllConstructorInterceptor(Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
 }

@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -56,7 +56,7 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
     private final boolean traceKey;
     private final int keyIndex;
 
-    public ApiInterceptor(TraceContext context, MethodInfo targetMethod, @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor, @Name(METADATA_SERVICE_CODE) MetadataAccessor serviceCodeAccessor,
+    public ApiInterceptor(TraceContext context, InstrumentableMethod targetMethod, @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor, @Name(METADATA_SERVICE_CODE) MetadataAccessor serviceCodeAccessor,
             @Name(METADATA_OPERATION) MetadataAccessor operationAccessor, boolean traceKey) {
 
         this.traceContext = context;
@@ -97,7 +97,7 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
             trace.traceBlockBegin();
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
-                logger.warn("before. Caused:{}", th.getMessage(), th);
+                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
             }
         }
     }
@@ -166,11 +166,11 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
                     }
                 }
             } catch (Throwable t) {
-                logger.warn("Failed to before process. {}", t.getMessage(), t);
+                logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
             }
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
-                logger.warn("after error. Caused:{}", th.getMessage(), th);
+                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
             }
         } finally {
             trace.traceBlockEnd();

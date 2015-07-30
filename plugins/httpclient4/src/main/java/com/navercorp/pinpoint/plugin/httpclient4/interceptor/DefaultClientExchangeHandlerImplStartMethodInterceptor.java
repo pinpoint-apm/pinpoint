@@ -147,7 +147,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
                 }
             }
         } catch (Throwable t) {
-            logger.warn("Failed to before process. {}", t.getMessage(), t);
+            logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
         }
     }
 
@@ -198,7 +198,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             final HttpRequest httpRequest = getHttpRequest(target);
             if (httpRequest != null) {
-                // Accessing httpRequest here not before() because it can cause side effect.
+                // Accessing httpRequest here not BEFORE() because it can cause side effect.
                 recorder.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getRequestLine().getUri());
                 final NameIntValuePair<String> host = getHost(target);
                 if (host != null) {

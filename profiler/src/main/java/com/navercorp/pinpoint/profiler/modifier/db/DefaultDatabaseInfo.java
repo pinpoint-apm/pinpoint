@@ -29,7 +29,7 @@ public class DefaultDatabaseInfo implements DatabaseInfo {
     private ServiceType type = ServiceType.UNKNOWN_DB;
     private ServiceType executeQueryType = ServiceType.UNKNOWN_DB_EXECUTE_QUERY;
     private String databaseId;
-    private String realUrl; // URL before refinement
+    private String realUrl; // URL BEFORE refinement
     private String normalizedUrl;
     private List<String> host;
     private String multipleHost;

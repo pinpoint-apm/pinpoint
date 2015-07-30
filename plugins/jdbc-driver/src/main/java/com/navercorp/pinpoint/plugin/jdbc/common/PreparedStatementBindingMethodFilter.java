@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
 
 /**
  * @author Jongho Moon
@@ -57,7 +57,7 @@ public class PreparedStatementBindingMethodFilter implements MethodFilter {
     
 
     @Override
-    public boolean accept(MethodInfo method) {
+    public boolean accept(InstrumentableMethod method) {
         List<String[]> paramTypes = targets.get(method.getName());
         
         if (paramTypes == null) {

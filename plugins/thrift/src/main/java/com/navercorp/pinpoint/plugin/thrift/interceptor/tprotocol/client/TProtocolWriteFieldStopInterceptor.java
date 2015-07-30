@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.plugin.thrift.ThriftHeader;
 
 /**
  * This interceptor writes the trace data directly on the wire to allow remote tracing.
- * Trace data is written after all the data fields of the Thrift message have been written out.
+ * Trace data is written AFTER all the data fields of the Thrift message have been written out.
  * <p>
  * <tt>TServiceClientSendBaseInterceptor</tt> -> <b><tt>TProtocolWriteFieldStopInterceptor</tt></b>
  * <p>

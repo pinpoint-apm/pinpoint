@@ -32,7 +32,7 @@ public class TomcatDetector implements ApplicationTypeDetector, TomcatConstants 
     private static final String REQUIRED_CLASS = "org.apache.catalina.startup.Bootstrap";
     
     @Override
-    public ServiceType getServerType() {
+    public ServiceType getApplicationType() {
         return TOMCAT;
     }
 

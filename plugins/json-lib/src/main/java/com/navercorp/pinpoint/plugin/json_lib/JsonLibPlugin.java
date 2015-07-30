@@ -21,7 +21,7 @@ import java.lang.reflect.Modifier;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
 
 /**
@@ -35,13 +35,13 @@ public class JsonLibPlugin implements ProfilerPlugin {
     private static final String GROUP = "json-lib";
   
     @Override
-    public void setup(ProfilerPluginContext context) {
+    public void setup(ProfilerPluginSetupContext context) {
         addJSONSerializerInterceptor(context);
         addJSONObjectInterceptor(context);
         addJSONArrayInterceptor(context);
     }
     
-    private void addJSONSerializerInterceptor(ProfilerPluginContext context) {
+    private void addJSONSerializerInterceptor(ProfilerPluginSetupContext context) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("net.sf.json.JSONSerializer");
         
         builder.editMethods(name("toJSON"), modifier(Modifier.PUBLIC)).injectInterceptor(PARSING_INTERCEPTOR).group(GROUP);
@@ -51,7 +51,7 @@ public class JsonLibPlugin implements ProfilerPlugin {
         context.addClassFileTransformer(transformer);
     }
 
-    private void addJSONObjectInterceptor(ProfilerPluginContext context) {
+    private void addJSONObjectInterceptor(ProfilerPluginSetupContext context) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("net.sf.json.JSONObject");
         
         builder.editMethods(name("fromObject"), modifier(Modifier.PUBLIC)).injectInterceptor(PARSING_INTERCEPTOR).group(GROUP);
@@ -62,7 +62,7 @@ public class JsonLibPlugin implements ProfilerPlugin {
         context.addClassFileTransformer(transformer);
     }
 
-    private void addJSONArrayInterceptor(ProfilerPluginContext context) {
+    private void addJSONArrayInterceptor(ProfilerPluginSetupContext context) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("net.sf.json.JSONArray");
         
         builder.editMethods(name("fromObject"), modifier(Modifier.PUBLIC)).injectInterceptor(PARSING_INTERCEPTOR).group(GROUP);

@@ -59,7 +59,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
             doInBeforeTrace(recorder, target, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
-                logger.warn("before. Caused:{}", th.getMessage(), th);
+                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
             }
         }
     }
@@ -90,7 +90,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
             doInAfterTrace(recorder, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
-                logger.warn("after. Caused:{}", th.getMessage(), th);
+                logger.warn("AFTER. Caused:{}", th.getMessage(), th);
             }
         } finally {
             traceContext.removeTraceObject();

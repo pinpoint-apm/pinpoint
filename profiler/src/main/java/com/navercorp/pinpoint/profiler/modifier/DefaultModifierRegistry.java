@@ -69,7 +69,7 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
  */
 public class DefaultModifierRegistry implements ModifierRegistry {
 
-    // No concurrent issue because only one thread put entries to the map and get operations are started after the map is completely build.
+    // No concurrent issue because only one thread put entries to the map and get operations are started AFTER the map is completely build.
     // Set the map size big intentionally to keep hash collision low.
     private final Map<String, AbstractModifier> registry = new HashMap<String, AbstractModifier>(512);
 

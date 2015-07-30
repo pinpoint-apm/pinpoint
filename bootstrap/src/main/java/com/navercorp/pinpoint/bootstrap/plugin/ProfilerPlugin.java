@@ -26,5 +26,5 @@ package com.navercorp.pinpoint.bootstrap.plugin;
  *
  */
 public interface ProfilerPlugin {
-    void setup(ProfilerPluginContext context);
+    void setup(ProfilerPluginSetupContext context);
 }
