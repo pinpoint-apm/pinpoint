@@ -26,6 +26,8 @@ import com.navercorp.pinpoint.common.util.DefaultParsingResult;
 import com.navercorp.pinpoint.common.util.ParsingResult;
 import com.navercorp.pinpoint.common.util.SqlParser;
 import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceFactory;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
 import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.metadata.LRUCache;
@@ -43,7 +45,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 

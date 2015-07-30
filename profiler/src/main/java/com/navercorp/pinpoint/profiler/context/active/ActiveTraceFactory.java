@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context.active;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.TraceType;
-
-import java.util.Collections;
-import java.util.List;
+import com.navercorp.pinpoint.profiler.context.TraceFactory;
+import com.navercorp.pinpoint.profiler.context.TraceFactoryWrapper;
 
 /**
  * @author Taejin Koo

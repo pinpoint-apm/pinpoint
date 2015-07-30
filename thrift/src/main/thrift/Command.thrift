@@ -50,7 +50,8 @@ struct TActiveThread {
 }
 
 struct TActiveThreadResponse {
-	1: list<i32> activeThreadCount
+	1: i32 	histogramSchemaType
+	2: list<i32> activeThreadCount
 }
 
 struct TCommandEcho {

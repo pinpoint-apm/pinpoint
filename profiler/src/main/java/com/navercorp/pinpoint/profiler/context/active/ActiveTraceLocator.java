@@ -17,7 +17,7 @@
  *
  */
 
-package com.navercorp.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context.active;
 
 import java.util.List;
 
