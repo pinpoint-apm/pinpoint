@@ -54,7 +54,7 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
 
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
-            trace = traceContext.newTraceObject();
+            trace = traceContext.newTraceObject(TraceType.USER);
             if (!trace.canSampled()) {
                 if(isDebug) {
                     logger.debug("New trace and can't sampled {}", trace);
@@ -95,7 +95,13 @@ public class UserIncludeMethodInterceptor implements SimpleAroundInterceptor {
             recorder.recordException(throwable);
         } finally {
             trace.traceBlockEnd();
+            if(isDebug) {
+                logger.debug("Closed user trace. {}", trace.getCallStackFrameId());
+            }
             if(trace.getTraceType() == TraceType.USER && trace.isRootStack()) {
+                if(isDebug) {
+                    logger.debug("Closed user trace. {}", trace);
+                }
                 trace.close();
                 traceContext.removeTraceObject();
             }
