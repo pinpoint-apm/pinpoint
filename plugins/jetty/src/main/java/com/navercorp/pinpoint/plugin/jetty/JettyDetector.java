@@ -24,7 +24,7 @@ public class JettyDetector implements ApplicationTypeDetector, JettyConstants {
 
 
     @Override
-    public ServiceType getServerType() {
+    public ServiceType getApplicationType() {
         return JETTY;
     }
 
