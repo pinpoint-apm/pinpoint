@@ -15,11 +15,11 @@
  */
 package com.navercorp.pinpoint.plugin.google.httpclient;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassCondition;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerBuilder;
@@ -37,7 +37,7 @@ public class HttpClientPlugin implements ProfilerPlugin, HttpClientConstants {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     @Override
-    public void setup(ProfilerPluginContext context) {
+    public void setup(ProfilerPluginSetupContext context) {
         final HttpClientPluginConfig config = new HttpClientPluginConfig(context.getConfig());
         logger.debug("[GoogleHttpClient] Initialized config={}", config);
 
@@ -58,7 +58,7 @@ public class HttpClientPlugin implements ProfilerPlugin, HttpClientConstants {
         }
     }
 
-    private void addHttpRequestClass(ProfilerPluginContext context, HttpClientPluginConfig config) {
+    private void addHttpRequestClass(ProfilerPluginSetupContext context, HttpClientPluginConfig config) {
         final ClassFileTransformerBuilder classBuilder = context.getClassFileTransformerBuilder("com.google.api.client.http.HttpRequest");
 
         MethodTransformerBuilder executeMethodBuilder = classBuilder.editMethod("execute");
@@ -74,13 +74,13 @@ public class HttpClientPlugin implements ProfilerPlugin, HttpClientConstants {
         context.addClassFileTransformer(classBuilder.build());
     }
 
-    private void addHttpRequestExecuteAsyncMethodInnerClass(ProfilerPluginContext context, String targetClassName) {
+    private void addHttpRequestExecuteAsyncMethodInnerClass(ProfilerPluginSetupContext context, String targetClassName) {
         final ClassFileTransformerBuilder classBuilder = context.getClassFileTransformerBuilder(targetClassName);
         classBuilder.injectMetadata(METADATA_ASYNC_TRACE_ID);
 
         classBuilder.conditional(new ClassCondition() {
             @Override
-            public boolean check(ProfilerPluginContext context, ClassLoader classLoader, InstrumentClass target) {
+            public boolean check(ProfilerPluginSetupContext context, ClassLoader classLoader, InstrumentableClass target) {
                 if (!target.hasConstructor(new String[] { "com.google.api.client.http.HttpRequest" })) {
                     return false;
                 }
