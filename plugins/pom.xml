@@ -26,6 +26,7 @@
         <module>user</module>
         <module>arcus</module>
         <module>google-httpclient</module>
+        <module>jetty</module>
     </modules>
 
     <dependencies>
@@ -38,7 +39,7 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-httpclient4-plugin</artifactId>
             <version>${project.version}</version>
-        </dependency>
+        </dependency> 
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-gson-plugin</artifactId>
@@ -97,6 +98,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-google-httpclient-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-jetty-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
