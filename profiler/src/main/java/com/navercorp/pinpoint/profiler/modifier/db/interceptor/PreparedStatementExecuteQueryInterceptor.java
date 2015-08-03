@@ -32,7 +32,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTrace
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ParsingResultTraceValue;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.util.ParsingResult;
+import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 
 /**
  * @author emeroad

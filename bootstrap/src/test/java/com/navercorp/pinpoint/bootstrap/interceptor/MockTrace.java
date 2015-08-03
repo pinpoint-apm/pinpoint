@@ -23,10 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.TraceType;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Clock;
-import com.navercorp.pinpoint.common.util.ParsingResult;
 import com.navercorp.pinpoint.common.util.SystemClock;
 
 /**

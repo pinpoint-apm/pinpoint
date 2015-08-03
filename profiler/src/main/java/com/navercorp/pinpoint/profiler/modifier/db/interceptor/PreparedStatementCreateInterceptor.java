@@ -17,14 +17,13 @@
 package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ParsingResultTraceValue;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
-import com.navercorp.pinpoint.common.util.ParsingResult;
+import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 
 /**
  * @author emeroad

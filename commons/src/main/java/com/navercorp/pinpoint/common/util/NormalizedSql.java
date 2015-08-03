@@ -19,15 +19,8 @@ package com.navercorp.pinpoint.common.util;
 /**
  * @author emeroad
  */
-public interface ParsingResult {
+public interface NormalizedSql {
+    String getNormalizedSql();
 
-    int ID_NOT_EXIST = 0;
-
-    String getSql();
-
-    String getOutput();
-
-    int getId();
-
-    boolean setId(int id);
+    String getParseParameter();
 }

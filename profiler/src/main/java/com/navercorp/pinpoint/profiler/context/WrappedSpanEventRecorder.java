@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.ParsingResult;
+import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
 
 /**

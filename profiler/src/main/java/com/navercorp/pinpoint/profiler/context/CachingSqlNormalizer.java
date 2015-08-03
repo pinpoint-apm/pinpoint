@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.interceptor.tracevalue;
+package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 
 /**
  * @author emeroad
  */
-public interface ParsingResultTraceValue extends TraceValue {
-    void _$PINPOINT$_setTraceParsingResult(ParsingResult parsingResult);
+public interface CachingSqlNormalizer {
+    ParsingResult wrapSql(String sql);
 
-    ParsingResult _$PINPOINT$_getTraceParsingResult();
+    boolean normalizedSql(ParsingResult sql);
 }
