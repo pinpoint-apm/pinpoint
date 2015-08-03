@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Targets;
-import com.navercorp.pinpoint.common.util.ParsingResult;
+import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.plugin.jdbc.common.JdbcDriverConstants;
 import com.navercorp.pinpoint.plugin.jdbc.common.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.plugin.jdbc.common.bindvalue.BindValueUtils;

@@ -14,15 +14,24 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.interceptor.tracevalue;
+package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
+import org.junit.Assert;
+import org.junit.Test;
 
-/**
- * @author emeroad
- */
-public interface ParsingResultTraceValue extends TraceValue {
-    void _$PINPOINT$_setTraceParsingResult(ParsingResult parsingResult);
+public class DefaultParsingResultTest {
 
-    ParsingResult _$PINPOINT$_getTraceParsingResult();
+    @Test
+    public void testId() throws Exception {
+        DefaultParsingResult result = new DefaultParsingResult("");
+        Assert.assertEquals(ParsingResult.ID_NOT_EXIST, result.getId());
+
+        // update
+        Assert.assertTrue(result.setId(1));
+
+        // already updated
+        Assert.assertFalse(result.setId(1));
+    }
 }
+

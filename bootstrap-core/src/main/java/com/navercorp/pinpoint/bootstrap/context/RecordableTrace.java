@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.bootstrap.context;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.ParsingResult;
 
 /**
  * @author emeroad

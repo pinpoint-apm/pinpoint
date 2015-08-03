@@ -16,21 +16,26 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+/**
+ * @author emeroad
+ */
+public class DefaultNormalizedSql implements NormalizedSql {
 
-public class DefaultParsingResultTest {
+    private final String normalizedSql;
+    private final String parseParameter;
 
-    @Test
-    public void testId() throws Exception {
-        DefaultParsingResult result = new DefaultParsingResult();
-        Assert.assertEquals(ParsingResult.ID_NOT_EXIST, result.getId());
-
-        // update
-        Assert.assertTrue(result.setId(1));
-
-        // already updated
-        Assert.assertFalse(result.setId(1));
+    public DefaultNormalizedSql(String normalizedSql, String parseParameter) {
+        this.normalizedSql = normalizedSql;
+        this.parseParameter = parseParameter;
     }
 
+    @Override
+    public String getNormalizedSql() {
+        return normalizedSql;
+    }
+
+    @Override
+    public String getParseParameter() {
+        return parseParameter;
+    }
 }

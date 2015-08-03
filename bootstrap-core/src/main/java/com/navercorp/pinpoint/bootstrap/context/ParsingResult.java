@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.interceptor.tracevalue;
-
-import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
+package com.navercorp.pinpoint.bootstrap.context;
 
 /**
  * @author emeroad
  */
-public interface ParsingResultTraceValue extends TraceValue {
-    void _$PINPOINT$_setTraceParsingResult(ParsingResult parsingResult);
+public interface ParsingResult {
 
-    ParsingResult _$PINPOINT$_getTraceParsingResult();
+    int ID_NOT_EXIST = 0;
+
+    String getSql();
+
+    String getOutput();
+
+    int getId();
 }
