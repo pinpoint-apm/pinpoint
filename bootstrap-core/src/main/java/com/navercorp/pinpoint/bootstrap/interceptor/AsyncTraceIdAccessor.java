@@ -12,13 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.plugin.transformer;
+package com.navercorp.pinpoint.bootstrap.interceptor;
+
+import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 
 /**
  * @author Jongho Moon
  *
  */
-@Deprecated
-public interface ConditionalClassFileTransformerBuilder extends BaseClassFileTransformerBuilder {
-
+public interface AsyncTraceIdAccessor {
+    public void _$PINPOINT$_setAsyncTraceId(AsyncTraceId id);
+    public AsyncTraceId _$PINPOINT$_getAsyncTraceId();
 }

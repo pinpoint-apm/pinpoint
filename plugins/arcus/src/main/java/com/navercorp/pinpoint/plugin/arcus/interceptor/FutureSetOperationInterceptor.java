@@ -14,13 +14,13 @@
  */
 package com.navercorp.pinpoint.plugin.arcus.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
+import net.spy.memcached.ops.Operation;
+
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
 import com.navercorp.pinpoint.plugin.arcus.ArcusConstants;
+import com.navercorp.pinpoint.plugin.arcus.OperationAccessor;
 
 
 /**
@@ -32,20 +32,13 @@ public class FutureSetOperationInterceptor implements SimpleAroundInterceptor, A
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     
-    private final MetadataAccessor operationAccessor;
-    
-    public FutureSetOperationInterceptor(@Name(METADATA_OPERATION) MetadataAccessor operationAccessor) {
-        this.operationAccessor = operationAccessor;
-    }
-
-
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
 
-        operationAccessor.set(target, args[0]);
+        ((OperationAccessor)target)._$PINPOINT$_setOperation((Operation)args[0]);
     }
 
     @Override

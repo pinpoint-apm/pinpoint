@@ -14,23 +14,20 @@
  */
 package com.navercorp.pinpoint.plugin.arcus;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassConditions.*;
+import java.security.ProtectionDomain;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.BaseClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerSetup;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerExceptionHandler;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.plugin.arcus.filter.ArcusMethodFilter;
 import com.navercorp.pinpoint.plugin.arcus.filter.FrontCacheMemcachedMethodFilter;
-import com.navercorp.pinpoint.plugin.arcus.filter.MemcachedMethodFilter;
 
 /**
  * 
@@ -38,6 +35,12 @@ import com.navercorp.pinpoint.plugin.arcus.filter.MemcachedMethodFilter;
  *
  */
 public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
+    private static final String ASYNC_TRACE_ID_ACCESSOR = "com.navercorp.pinpoint.bootstrap.interceptor.AsyncTraceIdAccessor";
+    private static final String OPERATION_ACCESSOR = "com.navercorp.pinpoint.plugin.arcus.OperationAccessor";
+    private static final String CACHE_KEY_ACCESSOR = "com.navercorp.pinpoint.plugin.arcus.CacheKeyAccessor";
+    private static final String CACHE_NAME_ACCESSOR = "com.navercorp.pinpoint.plugin.arcus.CacheNameAccessor";
+    private static final String SERVICE_CODE_ACCESSOR = "com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor";
+
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -73,173 +76,210 @@ public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
     }
 
     private void addArcusClientEditor(ProfilerPluginSetupContext context, final ArcusPluginConfig config) {
-        final ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("net.spy.memcached.ArcusClient");
-        builder.conditional(hasMethod("addOp", "net.spy.memcached.ops.Operation", "java.lang.String", "net.spy.memcached.ops.Operation"), new ConditionalClassFileTransformerSetup() {
+        context.addClassFileTransformer("net.spy.memcached.ArcusClient", new PinpointClassFileTransformer() {
+
             @Override
-            public void setup(ConditionalClassFileTransformerBuilder conditional) {
-                boolean traceKey = config.isArcusKeyTrace();
+            public byte[] transform(ProfilerPluginContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentableClass target = context.getInstrumentableClass(loader, className, classfileBuffer);
 
-                conditional.injectInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.SetCacheManagerInterceptor");
+                if (target.hasMethod("addOp", new String[] { "java.lang.String", "net.spy.memcached.ops.Operation" }, "net.spy.memcached.ops.Operation")) {
+                    boolean traceKey = config.isArcusKeyTrace();
 
-                MethodTransformerBuilder mb = conditional.editMethods(new ArcusMethodFilter());
-                mb.exceptionHandler(new MethodTransformerExceptionHandler() {
-                    public void handle(String targetClassName, String targetMethodName, String[] targetMethodParameterTypes, Throwable exception) throws Throwable {
-                        if (logger.isWarnEnabled()) {
-                            logger.warn("Unsupported method " + targetClassName + "." + targetMethodName, exception);
+                    target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.SetCacheManagerInterceptor");
+
+                    for (InstrumentableMethod m : target.getDeclaredMethods(new ArcusMethodFilter())) {
+                        try {
+                            m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", traceKey);
+                        } catch (Exception e) {
+                            if (logger.isWarnEnabled()) {
+                                logger.warn("Unsupported method " + className + "." + m.getName(), e);
+                            }
                         }
                     }
-                });
-                mb.injectInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", traceKey);
+
+                    return target.toBytecode();
+                } else {
+                    return null;
+                }
             }
         });
-
-        context.addClassFileTransformer(builder.build());
     }
 
     private void addCacheManagerEditor(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("net.spy.memcached.CacheManager");
-        builder.injectMetadata(METADATA_SERVICE_CODE);
-        builder.injectInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.CacheManagerConstructInterceptor");
+        context.addClassFileTransformer("net.spy.memcached.CacheManager", new PinpointClassFileTransformer() {
 
-        context.addClassFileTransformer(builder.build());
+            @Override
+            public byte[] transform(ProfilerPluginContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentableClass target = context.getInstrumentableClass(loader, className, classfileBuffer);
+                target.addField(SERVICE_CODE_ACCESSOR);
+                target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.CacheManagerConstructInterceptor");
+                return target.toBytecode();
+            }
+
+        });
     }
 
     private void addBaseOperationImplEditor(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("net.spy.memcached.protocol.BaseOperationImpl");
-        builder.injectMetadata(METADATA_SERVICE_CODE);
+        context.addClassFileTransformer("net.spy.memcached.protocol.BaseOperationImpl", new PinpointClassFileTransformer() {
 
-        context.addClassFileTransformer(builder.build());
+            @Override
+            public byte[] transform(ProfilerPluginContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentableClass target = context.getInstrumentableClass(loader, className, classfileBuffer);
+                target.addField(SERVICE_CODE_ACCESSOR);
+                return target.toBytecode();
+            }
+
+        });
     }
 
     private void addFrontCacheGetFutureEditor(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("net.spy.memcached.plugin.FrontCacheGetFuture");
-        builder.injectMetadata(MEATDATA_CACHE_NAME);
-        builder.injectMetadata(METADATA_CACHE_KEY);
+        context.addClassFileTransformer("net.spy.memcached.plugin.FrontCacheGetFuture", new PinpointClassFileTransformer() {
 
-        builder.injectInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureConstructInterceptor");
+            @Override
+            public byte[] transform(ProfilerPluginContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentableClass target = context.getInstrumentableClass(loader, className, classfileBuffer);
 
-        MethodTransformerBuilder mb2 = builder.editMethod("get", "long", "java.util.concurrent.TimeUnit");
-        mb2.injectInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureGetInterceptor");
+                target.addField(CACHE_NAME_ACCESSOR);
+                target.addField(CACHE_KEY_ACCESSOR);
+                target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureConstructInterceptor");
 
-        MethodTransformerBuilder mb3 = builder.editMethod("get");
-        mb3.injectInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureGetInterceptor");
+                InstrumentableMethod get0 = target.getDeclaredMethod("get", new String[] { "long", "java.util.concurrent.TimeUnit" });
+                get0.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureGetInterceptor");
 
-        context.addClassFileTransformer(builder.build());
+                InstrumentableMethod get1 = target.getDeclaredMethod("get", new String[0]);
+                get1.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureGetInterceptor");
+
+                return target.toBytecode();
+            }
+
+        });
     }
 
     private void addFrontCacheMemcachedClientEditor(ProfilerPluginSetupContext context, final ArcusPluginConfig config) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("net.spy.memcached.plugin.FrontCacheMemcachedClient");
+        context.addClassFileTransformer("net.spy.memcached.plugin.FrontCacheMemcachedClient", new PinpointClassFileTransformer() {
 
-        boolean traceKey = config.isMemcachedKeyTrace();
-        MethodTransformerBuilder mb = builder.editMethods(new FrontCacheMemcachedMethodFilter());
-        mb.exceptionHandler(new MethodTransformerExceptionHandler() {
-            public void handle(String targetClassName, String targetMethodName, String[] targetMethodParameterTypes, Throwable exception) throws Throwable {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("Unsupported method " + targetClassName + "." + targetMethodName, exception);
+            @Override
+            public byte[] transform(ProfilerPluginContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentableClass target = context.getInstrumentableClass(loader, className, classfileBuffer);
+                boolean traceKey = config.isMemcachedKeyTrace();
+
+                for (InstrumentableMethod m : target.getDeclaredMethods(new FrontCacheMemcachedMethodFilter())) {
+                    try {
+                        m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", traceKey);
+                    } catch (Exception e) {
+                        if (logger.isWarnEnabled()) {
+                            logger.warn("Unsupported method " + className + "." + m.getName(), e);
+                        }
+                    }
                 }
-            }
-        });
-        mb.injectInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", traceKey);
 
-        context.addClassFileTransformer(builder.build());
+                return target.toBytecode();
+            }
+
+        });
     }
 
     private void addMemcachedClientEditor(ProfilerPluginSetupContext context, final ArcusPluginConfig config) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("net.spy.memcached.MemcachedClient");
-        builder.conditional(hasDeclaredMethod("addOp", "java.lang.String", "net.spy.memcached.ops.Operation"), new ConditionalClassFileTransformerSetup() {
+        context.addClassFileTransformer("net.spy.memcached.MemcachedClient", new PinpointClassFileTransformer() {
+
             @Override
-            public void setup(ConditionalClassFileTransformerBuilder conditional) {
-                conditional.injectMetadata(METADATA_SERVICE_CODE);
-                conditional.injectInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.AddOpInterceptor");
-            }
-        });
+            public byte[] transform(ProfilerPluginContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentableClass target = context.getInstrumentableClass(loader, className, classfileBuffer);
 
-        boolean traceKey = config.isMemcachedKeyTrace();
-        MethodTransformerBuilder mb2 = builder.editMethods(new MemcachedMethodFilter());
-        mb2.exceptionHandler(new MethodTransformerExceptionHandler() {
-            public void handle(String targetClassName, String targetMethodName, String[] targetMethodParameterTypes, Throwable exception) throws Throwable {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("Unsupported method " + targetClassName + "." + targetMethodName, exception);
+                if (target.hasDeclaredMethod("addOp", new String[] { "java.lang.String", "net.spy.memcached.ops.Operation" })) {
+                    target.addField(SERVICE_CODE_ACCESSOR);
+                    target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.AddOpInterceptor");
                 }
+
+                boolean traceKey = config.isMemcachedKeyTrace();
+
+                for (InstrumentableMethod m : target.getDeclaredMethods(new FrontCacheMemcachedMethodFilter())) {
+                    try {
+                        m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", traceKey);
+                    } catch (Exception e) {
+                        if (logger.isWarnEnabled()) {
+                            logger.warn("Unsupported method " + className + "." + m.getName(), e);
+                        }
+                    }
+                }
+
+                return target.toBytecode();
             }
+
         });
-        mb2.injectInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", traceKey);
-
-        context.addClassFileTransformer(builder.build());
     }
 
-    private void injectFutureInterceptor(ProfilerPluginSetupContext context, BaseClassFileTransformerBuilder builder) {
-        builder.injectMetadata(ArcusConstants.METADATA_OPERATION);
-        builder.injectMetadata(ArcusConstants.METADATA_ASYNC_TRACE_ID);
+    private static final PinpointClassFileTransformer FUTURE_TRANSFORMER = new PinpointClassFileTransformer() {
 
-        // setOperation
-        final MethodTransformerBuilder setOperationMethodBuilder = builder.editMethod("setOperation", "net.spy.memcached.ops.Operation");
-        setOperationMethodBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        setOperationMethodBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureSetOperationInterceptor");
+        @Override
+        public byte[] transform(ProfilerPluginContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentableClass target = context.getInstrumentableClass(loader, className, classfileBuffer);
 
-        // cancel, get, set
-        final MethodTransformerBuilder methodBuilder = builder.editMethods(MethodFilters.name("cancel", "get", "set", "signalComplete"));
-        methodBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        methodBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureGetInterceptor");
-    }
+            target.addField(OPERATION_ACCESSOR);
+            target.addField(ASYNC_TRACE_ID_ACCESSOR);
 
+            // setOperation
+            InstrumentableMethod setOperation = target.getDeclaredMethod("setOperation", new String[] { "net.spy.memcached.ops.Operation" });
+            if (setOperation != null) {
+                setOperation.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureSetOperationInterceptor");
+            }
+
+            // cancel, get, set
+            for (InstrumentableMethod m : target.getDeclaredMethods(MethodFilters.name("cancel", "get", "set", "signalComplete"))) {
+                m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureGetInterceptor");
+            }
+
+            return target.toBytecode();
+        }
+    };
+
+    private static final PinpointClassFileTransformer INTERNAL_FUTURE_TRANSFORMER = new PinpointClassFileTransformer() {
+
+        @Override
+        public byte[] transform(ProfilerPluginContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentableClass target = context.getInstrumentableClass(loader, className, classfileBuffer);
+
+            target.addField(ASYNC_TRACE_ID_ACCESSOR);
+            
+            // cancel, get, set
+            for (InstrumentableMethod m : target.getDeclaredMethods(MethodFilters.name("cancel", "get"))) {
+                m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureInternalMethodInterceptor");
+            }
+
+            return target.toBytecode();
+        }
+    };
+
+    
     private void addCollectionFutureEditor(ProfilerPluginSetupContext context) {
-        final ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("net.spy.memcached.internal.CollectionFuture");
-        injectFutureInterceptor(context, builder);
-        context.addClassFileTransformer(builder.build());
+        context.addClassFileTransformer("net.spy.memcached.internal.CollectionFuture", FUTURE_TRANSFORMER);
     }
 
     private void addGetFutureEditor(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("net.spy.memcached.internal.GetFuture");
-        injectFutureInterceptor(context, builder);
-
-        context.addClassFileTransformer(builder.build());
+        context.addClassFileTransformer("net.spy.memcached.internal.GetFuture", FUTURE_TRANSFORMER);
     }
 
     private void addOperationFutureEditor(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("net.spy.memcached.internal.OperationFuture");
-        injectFutureInterceptor(context, builder);
-
-        context.addClassFileTransformer(builder.build());
+        context.addClassFileTransformer("net.spy.memcached.internal.OperationFuture", FUTURE_TRANSFORMER);
     }
 
     private void addImmediateFutureEditor(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("net.spy.memcached.internal.ImmediateFuture");
-        injectFutureInternalInterceptor(context, builder);
-        context.addClassFileTransformer(builder.build());
+        context.addClassFileTransformer("net.spy.memcached.internal.ImmediateFuture", INTERNAL_FUTURE_TRANSFORMER);
     }
 
     private void addBulkGetFutureEditor(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("net.spy.memcached.internal.BulkGetFuture");
-        injectFutureInternalInterceptor(context, builder);
-        context.addClassFileTransformer(builder.build());
+        context.addClassFileTransformer("net.spy.memcached.internal.BulkGetFuture", INTERNAL_FUTURE_TRANSFORMER);
     }
 
     private void addBTreeStoreGetFutureEditor(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("net.spy.memcached.internal.BTreeStoreAndGetFuture");
-        injectFutureInternalInterceptor(context, builder);
-        context.addClassFileTransformer(builder.build());
+        context.addClassFileTransformer("net.spy.memcached.internal.BTreeStoreAndGetFuture", INTERNAL_FUTURE_TRANSFORMER);
     }
 
     private void addCollectionGetBulkFutureEditor(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("net.spy.memcached.internal.CollectionGetBulkFuture");
-        injectFutureInternalInterceptor(context, builder);
-        context.addClassFileTransformer(builder.build());
+        context.addClassFileTransformer("net.spy.memcached.internal.CollectionGetBulkFuture", INTERNAL_FUTURE_TRANSFORMER);
     }
 
     private void addSMGetFutureFutureEditor(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("net.spy.memcached.internal.SMGetFuture");
-        injectFutureInternalInterceptor(context, builder);
-        context.addClassFileTransformer(builder.build());
-    }
-
-    private void injectFutureInternalInterceptor(ProfilerPluginSetupContext context, BaseClassFileTransformerBuilder builder) {
-        builder.injectMetadata(ArcusConstants.METADATA_ASYNC_TRACE_ID);
-
-        // cancel, get
-        final MethodTransformerBuilder methodBuilder = builder.editMethods(MethodFilters.name("cancel", "get"));
-
-        methodBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        methodBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureInternalMethodInterceptor");
+        context.addClassFileTransformer("net.spy.memcached.internal.SMGetFuture", INTERNAL_FUTURE_TRANSFORMER);
     }
 }
