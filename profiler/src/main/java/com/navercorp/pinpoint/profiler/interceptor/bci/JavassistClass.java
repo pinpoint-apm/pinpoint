@@ -45,11 +45,21 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.interceptor.InterceptPoint;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetConstructor;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetFilter;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Targets;
+import com.navercorp.pinpoint.common.util.Asserts;
+import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.bci.AccessorAnalyzer.AccessorDetails;
 import com.navercorp.pinpoint.profiler.interceptor.bci.GetterAnalyzer.GetterDetails;
+import com.navercorp.pinpoint.profiler.plugin.objectfactory.AutoBindingObjectFactory;
+import com.navercorp.pinpoint.profiler.plugin.objectfactory.InterceptorArgumentProvider;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 /**
@@ -389,6 +399,96 @@ public class JavassistClass implements InstrumentableClass {
     }
     
     
+    @Override
+    public int addInterceptor(String interceptorClassName, Object... constructorArgs) throws InstrumentException {
+        return addInterceptor(interceptorClassName, null, null, constructorArgs);
+    }
+    
+    @Override
+    public int addInterceptor(String interceptorClassName, InterceptorGroup group, Object... constructorArgs) throws InstrumentException {
+        return addInterceptor(interceptorClassName, group, ExecutionPolicy.BOUNDARY, constructorArgs);
+    }
+    
+    @Override
+    public int addInterceptor(String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException {
+        Asserts.notNull(interceptorClassName, "interceptorClassName");
+        
+        int interceptorId = -1;
+
+        Class<?> interceptorType = pluginContext.injectClass(classLoader, interceptorClassName);
+        Targets targets = interceptorType.getAnnotation(Targets.class);
+        
+        if (targets != null) {
+            for (TargetMethod m : targets.methods()) {
+                interceptorId = addInterceptor0(m, interceptorClassName, group, executionPolicy, constructorArgs);
+            }
+            
+            for (TargetConstructor c : targets.constructors()) {
+                interceptorId = addInterceptor0(c, interceptorClassName, group, executionPolicy, constructorArgs);
+            }
+            
+            for (TargetFilter f : targets.filters()) {
+                interceptorId = addInterceptor0(f, interceptorClassName, group, executionPolicy, constructorArgs);
+            }
+            
+        }
+
+        TargetMethod targetMethod = interceptorType.getAnnotation(TargetMethod.class);
+        if (targetMethod != null) {
+            interceptorId = addInterceptor0(targetMethod, interceptorClassName, group, executionPolicy, constructorArgs);
+        }
+        
+        TargetConstructor targetConstructor = interceptorType.getAnnotation(TargetConstructor.class);
+        if (targetConstructor != null) {
+            interceptorId = addInterceptor0(targetConstructor, interceptorClassName, group, executionPolicy, constructorArgs);
+        }
+        
+        TargetFilter targetFilter = interceptorType.getAnnotation(TargetFilter.class);
+        if (targetFilter != null) {
+            interceptorId = addInterceptor0(targetFilter, interceptorClassName, group, executionPolicy, constructorArgs);
+        }
+        
+        if (interceptorId == -1) {
+            throw new PinpointException("No target is specified. At least one of @Targets, @TargetMethod, @TargetConstructor, @TargetFilter must present. interceptor: " + interceptorClassName);
+        }
+        
+        return interceptorId;
+    }
+
+    private int addInterceptor0(TargetConstructor c, String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException {
+        InstrumentableMethod constructor = getConstructor(c.value());
+        return constructor.addInterceptor(interceptorClassName, group, executionPolicy, constructorArgs);
+    }
+
+    private int addInterceptor0(TargetMethod m, String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException {
+        InstrumentableMethod method = getDeclaredMethod(m.name(), m.paramTypes());
+        return method.addInterceptor(interceptorClassName, group, executionPolicy, constructorArgs);
+    }
+        
+    private int addInterceptor0(TargetFilter annotation, String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException {
+        String filterTypeName = annotation.type();
+        Asserts.notNull(filterTypeName, "type of @TargetFilter");
+        
+        AutoBindingObjectFactory filterFactory = new AutoBindingObjectFactory(pluginContext, classLoader, new InterceptorArgumentProvider(pluginContext.getTraceContext(), this));
+        MethodFilter filter = (MethodFilter)filterFactory.createInstance(ObjectRecipe.byConstructor(filterTypeName, (Object[])annotation.constructorArguments()));
+        
+        boolean singleton = annotation.singleton();
+        int interceptorId = -1;
+        
+        for (InstrumentableMethod m : getDeclaredMethods(filter)) {
+            if (singleton && interceptorId != -1) {
+                m.addInterceptor(interceptorId);
+            } else {
+                interceptorId = m.addInterceptor(interceptorClassName, group, executionPolicy, constructorArgs);
+            }
+        }
+        
+        if (interceptorId == -1) {
+            logger.warn("No methods are intercepted. target: " + ctClass.getName(), ", interceptor: " + interceptorClassName + ", methodFilter: " + filterTypeName);
+        }
+        
+        return interceptorId;
+    }
     
     
     
@@ -426,7 +526,7 @@ public class JavassistClass implements InstrumentableClass {
     
     
     
-    
+
     
     // below methods will be removed soon
     @Override

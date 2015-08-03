@@ -20,16 +20,16 @@ import java.net.SocketAddress;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.ops.Operation;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.arcus.ArcusConstants;
+import com.navercorp.pinpoint.plugin.arcus.OperationAccessor;
+import com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor;
 
 /**
  * @author emeroad
@@ -38,15 +38,8 @@ import com.navercorp.pinpoint.plugin.arcus.ArcusConstants;
 @Group(ArcusConstants.ARCUS_FUTURE_SCOPE)
 public class FutureGetInterceptor extends SpanAsyncEventSimpleAroundInterceptor implements ArcusConstants {
 
-    private final MetadataAccessor operationAccessor;
-    private final MetadataAccessor serviceCodeAccessor;
-
-    public FutureGetInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext, @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor, @Name(METADATA_SERVICE_CODE) MetadataAccessor serviceCodeAccessor,
-            @Name(METADATA_OPERATION) MetadataAccessor operationAccessor) {
-        super(traceContext, methodDescriptor, asyncTraceIdAccessor);
-
-        this.serviceCodeAccessor = serviceCodeAccessor;
-        this.operationAccessor = operationAccessor;
+    public FutureGetInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext) {
+        super(traceContext, methodDescriptor);
     }
 
     @Override
@@ -56,7 +49,7 @@ public class FutureGetInterceptor extends SpanAsyncEventSimpleAroundInterceptor 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         // find the target node
-        final Operation op = operationAccessor.get(target);
+        final Operation op = ((OperationAccessor)target)._$PINPOINT$_getOperation();
         if (op != null) {
             MemcachedNode handlingNode = op.getHandlingNode();
             if (handlingNode != null) {
@@ -73,7 +66,7 @@ public class FutureGetInterceptor extends SpanAsyncEventSimpleAroundInterceptor 
         }
 
         // determine the service type
-        String serviceCode = serviceCodeAccessor.get(op);
+        String serviceCode = ((ServiceCodeAccessor)op)._$PINPOINT$_getServiceCode();
         if (serviceCode != null) {
             recorder.recordDestinationId(serviceCode);
             recorder.recordServiceType(ARCUS_FUTURE_GET);

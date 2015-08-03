@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.interceptor.InterceptPoint;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 
 /**
  * @author emeroad
@@ -73,6 +75,12 @@ public interface InstrumentableClass {
     
     void addGetter(String getterTypeName, String fieldName) throws InstrumentException;
     
+    int addInterceptor(String interceptorClassName, Object... constructorArgs) throws InstrumentException;
+    
+    int addInterceptor(String interceptorClassName, InterceptorGroup group, Object... constructorArgs) throws InstrumentException;
+
+    int addInterceptor(String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException;
+
 
     /**
      * You should check that class already have Declared method.

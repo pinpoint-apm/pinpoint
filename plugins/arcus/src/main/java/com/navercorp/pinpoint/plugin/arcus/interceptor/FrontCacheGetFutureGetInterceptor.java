@@ -14,7 +14,6 @@
  */
 package com.navercorp.pinpoint.plugin.arcus.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -23,8 +22,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.plugin.arcus.ArcusConstants;
+import com.navercorp.pinpoint.plugin.arcus.CacheNameAccessor;
 
 /**
  * @author harebox
@@ -37,12 +36,10 @@ public class FrontCacheGetFutureGetInterceptor implements SimpleAroundIntercepto
 
     private final MethodDescriptor methodDescriptor;
     private final TraceContext traceContext;
-    private final MetadataAccessor cacheNameAccessor;
     
-    public FrontCacheGetFutureGetInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, @Name(MEATDATA_CACHE_NAME) MetadataAccessor cacheNameAccessor) {
+    public FrontCacheGetFutureGetInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.methodDescriptor = methodDescriptor;
         this.traceContext = traceContext;
-        this.cacheNameAccessor = cacheNameAccessor;
     }
 
     @Override
@@ -73,7 +70,7 @@ public class FrontCacheGetFutureGetInterceptor implements SimpleAroundIntercepto
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(methodDescriptor);
-            String cacheName = cacheNameAccessor.get(target);
+            String cacheName = ((CacheNameAccessor)target)._$PINPOINT$_getCacheName();
             if (cacheName != null) {
                 recorder.recordDestinationId(cacheName);
             }

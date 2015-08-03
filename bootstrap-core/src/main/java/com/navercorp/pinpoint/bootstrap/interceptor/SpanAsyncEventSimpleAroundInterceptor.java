@@ -5,7 +5,6 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -16,15 +15,27 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
 
     protected final MethodDescriptor methodDescriptor;
     protected final TraceContext traceContext;
-    private MetadataAccessor asyncTraceIdAccessor;
+    private final MetadataAccessor asyncTraceIdAccessor;
     final MethodDescriptor asyncMethodDescriptor = new AsyncMethodDescriptor();
 
+    public SpanAsyncEventSimpleAroundInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+        this (traceContext, methodDescriptor, null);
+    }
+    
     public SpanAsyncEventSimpleAroundInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, MetadataAccessor asyncTraceIdAccessor) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
         this.asyncTraceIdAccessor = asyncTraceIdAccessor;
 
         traceContext.cacheApi(asyncMethodDescriptor);
+    }
+    
+    private AsyncTraceId getAsyncTraceId(Object target) {
+        if (asyncTraceIdAccessor != null) {
+            return asyncTraceIdAccessor.isApplicable(target) ? (AsyncTraceId)asyncTraceIdAccessor.get(target) : null;
+        } else {
+            return target instanceof AsyncTraceIdAccessor ? ((AsyncTraceIdAccessor)target)._$PINPOINT$_getAsyncTraceId() : null;
+        }
     }
 
     @Override
@@ -33,12 +44,13 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
             logger.beforeInterceptor(target, methodDescriptor.getClassName(), methodDescriptor.getMethodName(), "", args);
         }
 
-        if (!asyncTraceIdAccessor.isApplicable(target) || asyncTraceIdAccessor.get(target) == null) {
+        final AsyncTraceId asyncTraceId = getAsyncTraceId(target);
+        
+        if (asyncTraceId == null) {
             logger.debug("Not found asynchronous invocation metadata");
             return;
         }
 
-        final AsyncTraceId asyncTraceId = asyncTraceIdAccessor.get(target);
         Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             trace = traceContext.continueAsyncTraceObject(asyncTraceId, asyncTraceId.getAsyncId(), asyncTraceId.getSpanStartTime());
@@ -79,7 +91,7 @@ public abstract class SpanAsyncEventSimpleAroundInterceptor implements SimpleAro
             logger.afterInterceptor(target, methodDescriptor.getClassName(), methodDescriptor.getMethodName(), "", args, result, throwable);
         }
 
-        if (!asyncTraceIdAccessor.isApplicable(target) || asyncTraceIdAccessor.get(target) == null) {
+        if (getAsyncTraceId(target) == null) {
             logger.debug("Not found asynchronous invocation metadata");
             return;
         }

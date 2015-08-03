@@ -20,6 +20,7 @@ package com.navercorp.pinpoint.bootstrap;
  *
  */
 @SuppressWarnings("unchecked")
+@Deprecated
 public abstract class MetadataAccessor {
     private static final MetadataAccessor[] VALUES = {
         new MetadataAccessor(ObjectAccessor0.class) {

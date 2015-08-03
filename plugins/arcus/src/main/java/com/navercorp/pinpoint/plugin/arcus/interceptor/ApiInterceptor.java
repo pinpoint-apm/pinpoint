@@ -21,19 +21,20 @@ import java.util.concurrent.Future;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.ops.Operation;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncTraceIdAccessor;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.arcus.ArcusConstants;
+import com.navercorp.pinpoint.plugin.arcus.OperationAccessor;
+import com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor;
 
 /**
  * @author emeroad
@@ -47,16 +48,10 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
     protected final MethodDescriptor methodDescriptor;
     protected final TraceContext traceContext;
 
-    private final MetadataAccessor serviceCodeAccessor;
-    private final MetadataAccessor operationAccessor;
-    private final MetadataAccessor asyncTraceIdAccessor;
-
     private final boolean traceKey;
     private final int keyIndex;
 
-    public ApiInterceptor(TraceContext context, MethodDescriptor targetMethod, @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor, @Name(METADATA_SERVICE_CODE) MetadataAccessor serviceCodeAccessor,
-            @Name(METADATA_OPERATION) MetadataAccessor operationAccessor, boolean traceKey) {
-
+    public ApiInterceptor(TraceContext context, MethodDescriptor targetMethod, boolean traceKey) {
         this.traceContext = context;
         this.methodDescriptor = targetMethod;
 
@@ -74,26 +69,21 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
             this.traceKey = false;
             this.keyIndex = -1;
         }
-
-        this.serviceCodeAccessor = serviceCodeAccessor;
-        this.operationAccessor = operationAccessor;
-        this.asyncTraceIdAccessor = asyncTraceIdAccessor;
     }
-    
+
     private static int findFirstString(MethodDescriptor method) {
         if (method == null) {
             return -1;
         }
         final String[] methodParams = method.getParameterTypes();
         final int minIndex = Math.min(methodParams.length, 3);
-        for(int i =0; i < minIndex; i++) {
+        for (int i = 0; i < minIndex; i++) {
             if ("java.lang.String".equals(methodParams[i])) {
                 return i;
             }
         }
         return -1;
     }
-
 
     @Override
     public void before(Object target, Object[] args) {
@@ -136,8 +126,8 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
             recorder.recordException(throwable);
 
             // find the target node
-            if (result instanceof Future && operationAccessor.isApplicable(result)) {
-                Operation op = operationAccessor.get(result);
+            if (result instanceof Future && result instanceof OperationAccessor) {
+                Operation op = ((OperationAccessor)result)._$PINPOINT$_getOperation();
 
                 if (op != null) {
                     MemcachedNode handlingNode = op.getHandlingNode();
@@ -152,9 +142,9 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
                 }
             }
 
-            if (serviceCodeAccessor.isApplicable(target)) {
+            if (target instanceof ServiceCodeAccessor) {
                 // determine the service type
-                String serviceCode = serviceCodeAccessor.get(target);
+                String serviceCode = ((ServiceCodeAccessor)target)._$PINPOINT$_getServiceCode();
                 if (serviceCode != null) {
                     recorder.recordDestinationId(serviceCode);
                     recorder.recordServiceType(ARCUS);
@@ -173,7 +163,7 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
                     this.traceContext.getAsyncId();
                     final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
                     recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
-                    asyncTraceIdAccessor.set(result, asyncTraceId);
+                    ((AsyncTraceIdAccessor)result)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
                     if (isDebug) {
                         logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
                     }
@@ -195,8 +185,8 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
             return false;
         }
 
-        if (!asyncTraceIdAccessor.isApplicable(result)) {
-            logger.debug("Invalid result object. Need metadata accessor({}).", METADATA_ASYNC_TRACE_ID);
+        if (!(result instanceof AsyncTraceIdAccessor)) {
+            logger.debug("Invalid result object. Need accessor({}).", AsyncTraceIdAccessor.class.getName());
             return false;
         }
 

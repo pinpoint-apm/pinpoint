@@ -12,13 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.plugin.transformer;
+package com.navercorp.pinpoint.plugin.arcus;
 
 /**
  * @author Jongho Moon
  *
  */
-@Deprecated
-public interface ConditionalClassFileTransformerBuilder extends BaseClassFileTransformerBuilder {
-
+public interface CacheKeyAccessor {
+    public void _$PINPOINT$_setCacheKey(Object serviceCode);
+    public Object _$PINPOINT$_getCacheKey();
 }
