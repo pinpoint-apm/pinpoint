@@ -24,6 +24,7 @@
 	-->
 
     <context:component-scan base-package="com.navercorp.pinpoint.web.dao.hbase,
+                                         com.navercorp.pinpoint.web.dao.mysql,
                                          com.navercorp.pinpoint.web.service,
                                          com.navercorp.pinpoint.web.mapper,
                                          com.navercorp.pinpoint.web.filter,
@@ -33,9 +34,7 @@
         <property name="locations">
             <list>
                 <value>classpath:hbase.properties</value>
-                <!-- 
                 <value>classpath:jdbc.properties</value>
-                -->
             </list>
         </property>
     </bean>
@@ -51,9 +50,9 @@
  
     <import resource="classpath:applicationContext-hbase.xml" />
     
-    <!-- 
     <import resource="classpath:applicationContext-datasource.xml" />
     <import resource="classpath:applicationContext-dao-config.xml" />
+    <!-- 
     <import resource="classpath:applicationContext-scheduler.xml" />
     -->
 
