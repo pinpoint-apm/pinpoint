@@ -14,8 +14,8 @@
  */
 package com.navercorp.pinpoint.profiler.plugin.transformer;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
 
 /**
  * @author Jongho Moon
@@ -29,8 +29,8 @@ public class ClassWeaver implements ClassRecipe {
     }
 
     @Override
-    public void edit(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
-        target.weave(aspectClassName, classLoader);
+    public void edit(ClassLoader classLoader, InstrumentableClass target) throws InstrumentException {
+        target.weave(aspectClassName);
     }
 
     @Override

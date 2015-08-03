@@ -84,7 +84,7 @@ public class JedisConstructorInterceptor implements SimpleAroundInterceptor, Red
             endPointAccessor.set(target, endPoint.toString());
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
-                logger.warn("Failed to before process. {}", t.getMessage(), t);
+                logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
             }
         }
     }

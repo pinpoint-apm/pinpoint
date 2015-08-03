@@ -61,7 +61,7 @@ public class TestContext implements Closeable {
 
     private MockAgent createMockAgent() {
         logger.trace("agent create");
-        return MockAgent.of("pinpoint.config");
+        return MockAgent.of("pinpoint.config", true);
     }
 
     public ClassLoader getClassLoader() {

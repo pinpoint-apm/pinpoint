@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.modifier.db.oracle;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
@@ -55,7 +55,7 @@ public class PhysicalConnectionModifier extends AbstractModifier {
             logger.info("Modifying. {}", javassistClassName);
         }
         try {
-            InstrumentClass oracleConnection = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+            InstrumentableClass oracleConnection = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
 
             oracleConnection.addTraceValue(DatabaseInfoTraceValue.class);

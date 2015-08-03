@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.modifier.db.mysql;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
@@ -52,7 +52,7 @@ public class MySQLNonRegisteringDriverModifier extends AbstractModifier {
             logger.info("Modifying. {}", javassistClassName);
         }
         try {
-            InstrumentClass mysqlConnection = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+            InstrumentableClass mysqlConnection = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             final InterceptorGroupInvocation scope = byteCodeInstrumentor.getInterceptorGroupTransaction(MYSQLScope.SCOPE_NAME);
             Interceptor createConnection = new DriverConnectInterceptor(false, scope);

@@ -205,7 +205,7 @@ public final class DefaultTrace implements Trace {
             logSpan(span);
         }
 
-        // If the stack is not handled properly, NullPointerException will be thrown after this. Is it OK?
+        // If the stack is not handled properly, NullPointerException will be thrown AFTER this. Is it OK?
         if (this.storage != null) {
             this.storage.close();
             this.storage = null;

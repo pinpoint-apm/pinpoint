@@ -42,7 +42,7 @@ import com.navercorp.pinpoint.plugin.thrift.ThriftUtils;
 /**
  * @author HyunGil Jeong
  */
-@Group(value=THRIFT_CLIENT_SCOPE, executionPoint=ExecutionPolicy.BOUNDARY)
+@Group(value=THRIFT_CLIENT_SCOPE, executionPolicy=ExecutionPolicy.BOUNDARY)
 public class TAsyncClientManagerCallInterceptor implements SimpleAroundInterceptor, ThriftConstants {
    
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -127,7 +127,7 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
             InterceptorGroupInvocation currentTransaction = this.group.getCurrentInvocation();
             currentTransaction.setAttachment(parentTraceInfo);
         } catch (Throwable t) {
-            logger.warn("before error. Caused:{}", t.getMessage(), t);
+            logger.warn("BEFORE error. Caused:{}", t.getMessage(), t);
         }
     }
 
@@ -147,7 +147,7 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
             recorder.recordApi(this.descriptor);
             recorder.recordException(throwable);
         } catch (Throwable t) {
-            logger.warn("after error. Caused:{}", t.getMessage(), t);
+            logger.warn("AFTER error. Caused:{}", t.getMessage(), t);
         } finally {
             trace.traceBlockEnd();
         }

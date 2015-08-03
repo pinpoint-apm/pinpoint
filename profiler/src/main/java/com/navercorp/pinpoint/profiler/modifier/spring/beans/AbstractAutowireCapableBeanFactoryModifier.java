@@ -20,7 +20,7 @@ import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
@@ -43,7 +43,7 @@ import com.navercorp.pinpoint.profiler.modifier.spring.beans.interceptor.TargetB
  * One more thing we must consider is proxy.
  * Pinpoint profiler could miss a target bean wrapped by a proxy, because the proxy class is different from the wrapped bean class(usually proxy class is subclass of the original class).
  * 
- * There are two points where once created bean is replaced with other bean(maybe proxy) before createBean(String, RootBeanDefinition, Object[]) returns.
+ * There are two points where once created bean is replaced with other bean(maybe proxy) BEFORE createBean(String, RootBeanDefinition, Object[]) returns.
  * 
  * 1. When a bean is acquired by resolveBeforeInstantiation(String, RootBeanDefinition),
  *    original bean returned by applyBeanPostProcessorsBeforeInstantiation(Class<?>, String) could be replaced by applyBeanPostProcessorsAfterInitialization(Object, String).
@@ -96,7 +96,7 @@ public class AbstractAutowireCapableBeanFactoryModifier extends AbstractModifier
         }
         
         try {
-            InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, className, classFileBuffer);
+            InstrumentableClass aClass = byteCodeInstrumentor.getClass(classLoader, className, classFileBuffer);
 
             Interceptor createBeanInterceptor = new CreateBeanInstanceInterceptor(byteCodeInstrumentor.getRetransformEventTrigger(), modifier, filter);
             aClass.addInterceptor("createBeanInstance",

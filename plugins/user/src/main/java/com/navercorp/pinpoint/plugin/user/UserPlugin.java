@@ -19,7 +19,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty;
@@ -32,7 +32,7 @@ public class UserPlugin implements ProfilerPlugin, UserConstants {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     @Override
-    public void setup(ProfilerPluginContext context) {
+    public void setup(ProfilerPluginSetupContext context) {
         final UserPluginConfig config = new UserPluginConfig(context.getConfig());
         
         // add user include methods 
@@ -48,7 +48,7 @@ public class UserPlugin implements ProfilerPlugin, UserConstants {
         }
     }
 
-    private void addUserIncludeClass(ProfilerPluginContext context, final String fullQualifiedMethodName) {
+    private void addUserIncludeClass(ProfilerPluginSetupContext context, final String fullQualifiedMethodName) {
         final String className = toClassName(fullQualifiedMethodName);
         final String methodName = toMethodName(fullQualifiedMethodName);
         final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder(className);

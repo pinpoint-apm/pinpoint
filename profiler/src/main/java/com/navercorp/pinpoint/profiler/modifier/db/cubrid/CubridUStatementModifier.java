@@ -20,7 +20,7 @@ import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
@@ -52,7 +52,7 @@ public class CubridUStatementModifier extends AbstractModifier {
         }
 
         try {
-            InstrumentClass ustatementClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+            InstrumentableClass ustatementClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             return ustatementClass.toBytecode();
         } catch (InstrumentException e) {

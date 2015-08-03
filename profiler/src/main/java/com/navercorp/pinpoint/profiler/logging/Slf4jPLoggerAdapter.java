@@ -83,7 +83,7 @@ public class Slf4jPLoggerAdapter implements PLogger {
     @Override
     public void beforeInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args) {
         StringBuilder sb = new StringBuilder(BUFFER_SIZE);
-        sb.append("before ");
+        sb.append("BEFORE ");
         logMethod(sb, target, className, methodName, parameterDescription, args);
         logger.debug(sb.toString());
     }
@@ -91,7 +91,7 @@ public class Slf4jPLoggerAdapter implements PLogger {
     @Override
     public void beforeInterceptor(Object target, Object[] args) {
         StringBuilder sb = new StringBuilder(BUFFER_SIZE);
-        sb.append("before ");
+        sb.append("BEFORE ");
         logMethod(sb, target, args);
         logger.debug(sb.toString());
     }
@@ -99,7 +99,7 @@ public class Slf4jPLoggerAdapter implements PLogger {
     @Override
     public void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
         StringBuilder sb = new StringBuilder(BUFFER_SIZE);
-        sb.append("after ");
+        sb.append("AFTER ");
         logMethod(sb, target, className, methodName, parameterDescription, args);
         logResult(sb, result, throwable);
         if (throwable == null) {
@@ -114,7 +114,7 @@ public class Slf4jPLoggerAdapter implements PLogger {
     @Override
     public void afterInterceptor(Object target, Object[] args, Object result, Throwable throwable) {
         StringBuilder sb = new StringBuilder(BUFFER_SIZE);
-        sb.append("after ");
+        sb.append("AFTER ");
         logMethod(sb, target, args);
         logResult(sb, result, throwable);
         if (throwable == null) {
@@ -137,7 +137,7 @@ public class Slf4jPLoggerAdapter implements PLogger {
     @Override
     public void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args) {
         StringBuilder sb = new StringBuilder(BUFFER_SIZE);
-        sb.append("after ");
+        sb.append("AFTER ");
         logMethod(sb, target, className, methodName, parameterDescription, args);
         logger.debug(sb.toString());
     }
@@ -145,7 +145,7 @@ public class Slf4jPLoggerAdapter implements PLogger {
     @Override
     public void afterInterceptor(Object target, Object[] args) {
         StringBuilder sb = new StringBuilder(BUFFER_SIZE);
-        sb.append("after ");
+        sb.append("AFTER ");
         logMethod(sb, target, args);
         logger.debug(sb.toString());
     }

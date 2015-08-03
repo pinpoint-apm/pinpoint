@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.plugin.google.httpclient.HttpClientConstants;
  * @author jaehong.kim
  *
  */
-@Group(value = HttpClientConstants.EXECUTE_ASYNC_SCOPE, executionPoint = ExecutionPolicy.ALWAYS)
+@Group(value = HttpClientConstants.EXECUTE_ASYNC_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
 public class HttpRequestExecuteAsyncMethodInterceptor implements SimpleAroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();

@@ -15,7 +15,7 @@
 package com.navercorp.pinpoint.plugin.servlet;
 
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
 
@@ -26,11 +26,11 @@ import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuil
 public class ServletPlugin implements ProfilerPlugin {
 
     @Override
-    public void setup(ProfilerPluginContext context) {
+    public void setup(ProfilerPluginSetupContext context) {
         addHttpServletEditor(context);
     }
 
-    private void addHttpServletEditor(ProfilerPluginContext context) {
+    private void addHttpServletEditor(ProfilerPluginSetupContext context) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("javax.servlet.http.HttpServlet");
         
         MethodTransformerBuilder doGetBuilder = builder.editMethod("doGet", "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse");

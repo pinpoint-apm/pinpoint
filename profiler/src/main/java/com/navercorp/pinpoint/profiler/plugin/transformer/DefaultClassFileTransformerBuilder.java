@@ -30,8 +30,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerB
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerSetup;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConstructorTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.InterceptorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerExceptionHandler;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty;
@@ -127,7 +127,7 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
     }
     
     @Override
-    public PinpointClassFileTransformer build() {
+    public MatchableClassFileTransformer build() {
         ClassRecipe recipe = buildClassRecipe(); 
         return new DedicatedClassFileTransformer(pluginContext.getByteCodeInstrumentor(), targetClassName, recipe);
     }

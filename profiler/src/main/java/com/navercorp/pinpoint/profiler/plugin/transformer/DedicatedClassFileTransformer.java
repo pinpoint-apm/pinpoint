@@ -20,14 +20,14 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
-public class DedicatedClassFileTransformer implements PinpointClassFileTransformer {
+public class DedicatedClassFileTransformer implements MatchableClassFileTransformer {
     private final ByteCodeInstrumentor instrumentor;
 
     private final String targetClassName;
@@ -43,7 +43,7 @@ public class DedicatedClassFileTransformer implements PinpointClassFileTransform
     @Override
     public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         try {
-            InstrumentClass target = instrumentor.getClass(classLoader, className, classfileBuffer);
+            InstrumentableClass target = instrumentor.getClass(classLoader, className, classfileBuffer);
             recipe.edit(classLoader, target);
             return target.toBytecode();
         } catch (PinpointException e) {

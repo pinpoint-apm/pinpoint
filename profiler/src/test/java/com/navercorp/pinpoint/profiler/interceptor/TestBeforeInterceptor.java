@@ -42,7 +42,7 @@ public class TestBeforeInterceptor implements StaticAroundInterceptor, TargetCla
 
         @Override
         public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-            logger.info("before target:" + target  + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
+            logger.info("BEFORE target:" + target  + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
             this.target = target;
             this.className = className;
             this.methodName = methodName;

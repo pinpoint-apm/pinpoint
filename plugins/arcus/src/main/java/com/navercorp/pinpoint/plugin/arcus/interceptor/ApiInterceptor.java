@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -35,7 +34,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.arcus.ArcusConstants;
-import com.navercorp.pinpoint.plugin.arcus.ParameterUtils;
 
 /**
  * @author emeroad
@@ -56,14 +54,14 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
     private final boolean traceKey;
     private final int keyIndex;
 
-    public ApiInterceptor(TraceContext context, MethodInfo targetMethod, @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor, @Name(METADATA_SERVICE_CODE) MetadataAccessor serviceCodeAccessor,
+    public ApiInterceptor(TraceContext context, MethodDescriptor targetMethod, @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor, @Name(METADATA_SERVICE_CODE) MetadataAccessor serviceCodeAccessor,
             @Name(METADATA_OPERATION) MetadataAccessor operationAccessor, boolean traceKey) {
 
         this.traceContext = context;
-        this.methodDescriptor = targetMethod.getDescriptor();
+        this.methodDescriptor = targetMethod;
 
         if (traceKey) {
-            int index = ParameterUtils.findFirstString(targetMethod, 3);
+            int index = findFirstString(targetMethod);
 
             if (index != -1) {
                 this.traceKey = true;
@@ -81,6 +79,21 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
         this.operationAccessor = operationAccessor;
         this.asyncTraceIdAccessor = asyncTraceIdAccessor;
     }
+    
+    private static int findFirstString(MethodDescriptor method) {
+        if (method == null) {
+            return -1;
+        }
+        final String[] methodParams = method.getParameterTypes();
+        final int minIndex = Math.min(methodParams.length, 3);
+        for(int i =0; i < minIndex; i++) {
+            if ("java.lang.String".equals(methodParams[i])) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
 
     @Override
     public void before(Object target, Object[] args) {
@@ -97,7 +110,7 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
             trace.traceBlockBegin();
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
-                logger.warn("before. Caused:{}", th.getMessage(), th);
+                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
             }
         }
     }
@@ -166,11 +179,11 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
                     }
                 }
             } catch (Throwable t) {
-                logger.warn("Failed to before process. {}", t.getMessage(), t);
+                logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
             }
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
-                logger.warn("after error. Caused:{}", th.getMessage(), th);
+                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
             }
         } finally {
             trace.traceBlockEnd();

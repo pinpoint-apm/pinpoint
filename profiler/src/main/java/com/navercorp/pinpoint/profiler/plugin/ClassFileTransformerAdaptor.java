@@ -21,15 +21,15 @@ import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 
 public class ClassFileTransformerAdaptor extends AbstractModifier {
-    private final PinpointClassFileTransformer transformer;
+    private final MatchableClassFileTransformer transformer;
 
     
-    public ClassFileTransformerAdaptor(ByteCodeInstrumentor byteCodeInstrumentor, PinpointClassFileTransformer transformer) {
+    public ClassFileTransformerAdaptor(ByteCodeInstrumentor byteCodeInstrumentor, MatchableClassFileTransformer transformer) {
         super(byteCodeInstrumentor);
         this.transformer = transformer;
     }

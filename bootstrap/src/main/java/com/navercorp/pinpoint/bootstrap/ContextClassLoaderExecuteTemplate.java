@@ -41,8 +41,8 @@ public class ContextClassLoaderExecuteTemplate<V> {
             try {
                 return callable.call();
             } finally {
-                // even though  the "before" classloader  is null, rollback  is needed.
-                // if an exception occurs before callable.call(), the call flow can't reach here.
+                // even though  the "BEFORE" classloader  is null, rollback  is needed.
+                // if an exception occurs BEFORE callable.call(), the call flow can't reach here.
                 // so  rollback  here is right.
                 currentThread.setContextClassLoader(before);
             }

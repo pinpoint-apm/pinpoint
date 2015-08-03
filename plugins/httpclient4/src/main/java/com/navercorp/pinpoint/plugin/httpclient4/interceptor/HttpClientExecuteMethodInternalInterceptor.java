@@ -36,7 +36,7 @@ import org.apache.http.*;
  * @author minwoo.jung
  * @author jaehong.kim
  */
-@Group(value = HttpClient4Constants.HTTP_CLIENT4_SCOPE, executionPoint = ExecutionPolicy.INTERNAL)
+@Group(value = HttpClient4Constants.HTTP_CLIENT4_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
 public class HttpClientExecuteMethodInternalInterceptor implements SimpleAroundInterceptor, HttpClient4Constants {
 
     private boolean isHasCallbackParam;

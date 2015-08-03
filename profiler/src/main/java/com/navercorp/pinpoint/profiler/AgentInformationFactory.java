@@ -68,7 +68,7 @@ public class AgentInformationFactory {
             throw new NullPointerException("id must not be null");
         }
 
-        // TODO AgengId should be validated before bootclass.
+        // TODO AgengId should be validated BEFORE bootclass.
         // or agent should stop when validation is failed here.
         final byte[] bytes = BytesUtils.toBytes(id);
         if (bytes.length > maxlen) {

@@ -17,8 +17,8 @@ package com.navercorp.pinpoint.profiler.plugin.interceptor;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
 import com.navercorp.pinpoint.profiler.plugin.transformer.MethodRecipe;
 
 /**
@@ -35,7 +35,7 @@ public class SharedAnnotatedInterceptorInjector implements MethodRecipe {
     }
     
     @Override
-    public void edit(ClassLoader targetClassLoader, InstrumentClass targetClass, MethodInfo targetMethod) throws Exception {
+    public void edit(ClassLoader targetClassLoader, InstrumentableClass targetClass, InstrumentableMethod targetMethod) throws Exception {
         Integer interceptorId = interceptorIdMap.get(targetClassLoader);
         
         if (interceptorId == null) {
@@ -43,7 +43,7 @@ public class SharedAnnotatedInterceptorInjector implements MethodRecipe {
             interceptorIdMap.put(targetClassLoader, interceptorId);
         } else {
             if (targetMethod.isConstructor()) {
-                // InstrumentClass does not have reuseConstructorInterceptor(). Maybe nobody needs it. Don't bother adding unnecessary method.
+                // InstrumentableClass does not have reuseConstructorInterceptor(). Maybe nobody needs it. Don't bother adding unnecessary method.
                 throw new IllegalArgumentException("Reusing constructor interceptor is not supported");
             } else {
                 targetClass.reuseInterceptor(targetMethod.getName(), targetMethod.getParameterTypes(), interceptorId);

@@ -203,7 +203,7 @@ abstract class Striped64 extends Number {
      *
      * @param x the value
      * @param hc the hash code holder
-     * @param wasUncontended false if CAS failed before call
+     * @param wasUncontended false if CAS failed BEFORE call
      */
     final void retryUpdate(long x, HashCode hc, boolean wasUncontended) {
         int h = hc.code;
@@ -235,7 +235,7 @@ abstract class Striped64 extends Number {
                     collide = false;
                 }
                 else if (!wasUncontended)       // CAS already known to fail
-                    wasUncontended = true;      // Continue after rehash
+                    wasUncontended = true;      // Continue AFTER rehash
                 else if (a.cas(v = a.value, fn(v, x)))
                     break;
                 else if (n >= NCPU || cells != as)

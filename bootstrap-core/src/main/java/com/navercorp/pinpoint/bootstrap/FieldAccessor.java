@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.bootstrap;
  *
  */
 @SuppressWarnings("unchecked")
+@Deprecated
 public abstract class FieldAccessor {
     private static final FieldAccessor[] VALUES = {
         new FieldAccessor(ObjectSnooper0.class) {

@@ -99,7 +99,7 @@ public class ZookeeperClient {
         
         ZooKeeper newZookeeper = createNewZookeeper();
         if (newZookeeper == null) {
-            logger.warn("Failed to create new Zookeeper instance. It will be retry  after {}ms.", reconnectDelayWhenSessionExpired);
+            logger.warn("Failed to create new Zookeeper instance. It will be retry  AFTER {}ms.", reconnectDelayWhenSessionExpired);
             
             timer.newTimeout(new TimerTask() {
                 @Override

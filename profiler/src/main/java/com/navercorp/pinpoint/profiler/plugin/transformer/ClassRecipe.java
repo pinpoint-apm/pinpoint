@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.plugin.transformer;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
 
 public interface ClassRecipe {
-    void edit(ClassLoader classLoader, InstrumentClass target) throws Throwable;
+    void edit(ClassLoader classLoader, InstrumentableClass target) throws Throwable;
 }

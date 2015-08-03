@@ -65,7 +65,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
 
 
     /**
-     * Return Trace object after validating whether it can be sampled or not.
+     * Return Trace object AFTER validating whether it can be sampled or not.
      * @return Trace
      */
     @Override

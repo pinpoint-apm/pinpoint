@@ -347,7 +347,7 @@ public final class JavaAssistUtils {
         return paramsString;
     }
     
-    private static String toPinpointParameterType(Class<?> type) {
+    public static String toPinpointParameterType(Class<?> type) {
         if (type.isArray()) {
             return toPinpointParameterType(type.getComponentType()) + "[]";
         } else {

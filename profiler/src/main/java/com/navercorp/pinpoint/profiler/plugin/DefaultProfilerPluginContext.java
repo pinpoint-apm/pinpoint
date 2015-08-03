@@ -17,32 +17,41 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.IllegalClassFormatException;
+import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.MatchableClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.plugin.transformer.DefaultClassFileTransformerBuilder;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.profiler.util.NameValueList;
 
-public class DefaultProfilerPluginContext implements ProfilerPluginContext {
+public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, ProfilerPluginContext {
     private final DefaultAgent agent;
-    private final ProfilerPluginClassLoader classInjector;
+    private final ProfilerPluginClassInjector classInjector;
     
     private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
     private final List<ClassFileTransformer> classTransformers = new ArrayList<ClassFileTransformer>();
     
-    private final ConcurrentMap<String, Object> attributeMap = new ConcurrentHashMap<String, Object>();
     private final NameValueList<MetadataAccessor> metadataAccessors = new NameValueList<MetadataAccessor>();
     private final NameValueList<FieldAccessor> fieldSnoopers = new NameValueList<FieldAccessor>();
     private final NameValueList<InterceptorGroup> interceptorGroups = new NameValueList<InterceptorGroup>();
@@ -52,8 +61,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginContext {
     
     private boolean initialized = false;
     
-    
-    public DefaultProfilerPluginContext(DefaultAgent agent, ProfilerPluginClassLoader classInjector) {
+    public DefaultProfilerPluginContext(DefaultAgent agent, ProfilerPluginClassInjector classInjector) {
         this.agent = agent;
         this.classInjector = classInjector;
     }
@@ -132,17 +140,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginContext {
         
         return snooper;
     }
-    
-    @Override
-    public Object setAttribute(String key, Object value) {
-        return attributeMap.put(key, value);
-    }
-
-    @Override
-    public Object getAttribute(String key) {
-        return attributeMap.get(key);
-    }
-    
+        
     @Override
     public void addApplicationTypeDetector(ApplicationTypeDetector... detectors) {
         if (initialized) {
@@ -154,8 +152,47 @@ public class DefaultProfilerPluginContext implements ProfilerPluginContext {
         }
     }
     
-    public ProfilerPluginClassLoader getClassInjector() {
-        return classInjector;
+    @Override
+    public InstrumentableClass getInstrumentableClass(ClassLoader classLoader, String className, byte[] classFileBuffer) {
+        try {
+            return agent.getClassPool().getClass(this, classLoader, className, classFileBuffer);
+        } catch (NotFoundInstrumentException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public void addClassFileTransformer(final String targetClassName, final PinpointClassFileTransformer transformer) {
+        if (initialized) {
+            throw new IllegalStateException("Context already initialized");
+        }
+
+        classTransformers.add(new MatchableClassFileTransformer() {
+            private final Matcher matcher = Matchers.newClassNameMatcher(JavaAssistUtils.javaNameToJvmName(targetClassName));
+            
+            @Override
+            public Matcher getMatcher() {
+                return matcher;
+            }
+            
+            @Override
+            public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+                try {
+                    return transformer.transform(DefaultProfilerPluginContext.this, loader, targetClassName, classBeingRedefined, protectionDomain, classfileBuffer);
+                } catch (InstrumentException e) {
+                    throw new PinpointException(e);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void retransform(Class<?> target, ClassFileTransformer classEditor) {
+        agent.getRetransformService().retransform(target, classEditor);
+    }
+    
+    public <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className) {
+        return classInjector.injectClass(targetClassLoader, className);
     }
 
     public List<ClassFileTransformer> getClassEditors() {

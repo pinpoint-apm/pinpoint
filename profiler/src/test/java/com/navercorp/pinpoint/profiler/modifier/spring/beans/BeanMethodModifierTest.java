@@ -20,7 +20,7 @@ import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor;
 import com.navercorp.pinpoint.profiler.modifier.spring.beans.BeanMethodModifier;
@@ -43,7 +43,7 @@ public class BeanMethodModifierTest {
         byte[] byteCode = BytecodeUtils.getClassFile(loader, TARGET);
 
         ByteCodeInstrumentor instrumentor = mock(ByteCodeInstrumentor.class);
-        InstrumentClass instrumentClass = mock(InstrumentClass.class);
+        InstrumentableClass instrumentClass = mock(InstrumentableClass.class);
         
         when(instrumentor.getClass(loader, TARGET_INTERNAL_NAME, byteCode)).thenReturn(instrumentClass);
         when(instrumentClass.isInterceptable()).thenReturn(true);

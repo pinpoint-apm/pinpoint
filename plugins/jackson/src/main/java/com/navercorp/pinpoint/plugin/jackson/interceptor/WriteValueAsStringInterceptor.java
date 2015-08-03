@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.plugin.jackson.JacksonConstants;
 import com.navercorp.pinpoint.plugin.jackson.JacksonPlugin;
 
 /**
- * @see JacksonPlugin#intercept_ObjectMapper(com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext)
+ * @see JacksonPlugin#intercept_ObjectMapper(com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext)
  * @author Sungkook Kim
  */
 public class WriteValueAsStringInterceptor implements SimpleAroundInterceptor, JacksonConstants {

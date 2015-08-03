@@ -154,7 +154,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             final com.ning.http.client.Request httpRequest = (com.ning.http.client.Request) args[0];
             if (httpRequest != null) {
-                // Accessing httpRequest here not before() because it can cause side effect.
+                // Accessing httpRequest here not BEFORE() because it can cause side effect.
                 recorder.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getUrl());
 
                 String endpoint = getEndpoint(httpRequest.getURI().getHost(), httpRequest.getURI().getPort());

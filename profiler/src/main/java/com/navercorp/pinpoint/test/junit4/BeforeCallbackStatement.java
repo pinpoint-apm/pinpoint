@@ -31,7 +31,7 @@ public class BeforeCallbackStatement extends Statement {
             throw new NullPointerException("statement must not be null");
         }
         if (before == null) {
-            throw new NullPointerException("before must not be null");
+            throw new NullPointerException("BEFORE must not be null");
         }
 
         this.statement = statement;

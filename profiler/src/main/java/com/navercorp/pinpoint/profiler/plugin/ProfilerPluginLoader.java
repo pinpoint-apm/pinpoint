@@ -46,7 +46,7 @@ public class ProfilerPluginLoader {
             for (ProfilerPlugin plugin : plugins) {
                 logger.info("Loading plugin: {}", plugin.getClass().getName());
                 
-                ProfilerPluginClassLoader classInjector = JarProfilerPluginClassLoader.of(jar);
+                ProfilerPluginClassInjector classInjector = JarProfilerPluginClassInjector.of(agent.getInstrumentation(), jar);
                 DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(agent, classInjector);
                 plugin.setup(context);
                 context.markInitialized();

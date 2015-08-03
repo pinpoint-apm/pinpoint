@@ -20,12 +20,9 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 
 import javassist.CannotCompileException;
-import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
@@ -36,16 +33,16 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.DefaultInterceptorGroupDefinition;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InterceptorGroupDefinition;
+import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventTrigger;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
-import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.interceptor.GlobalInterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.DefaultAgent;
+import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.util.ScopePool;
 import com.navercorp.pinpoint.profiler.util.ThreadLocalScopePool;
 
@@ -58,61 +55,28 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     private final boolean isInfo = logger.isInfoEnabled();
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final MultipleClassPool childClassPool;
-
+    private final JavassistClassPool classPool;
     private Agent agent;
 
     private final ScopePool scopePool = new ThreadLocalScopePool();
 
     private final ClassLoadChecker classLoadChecker = new ClassLoadChecker();
-    private final InterceptorRegistryBinder interceptorRegistryBinder;
     private final RetransformEventTrigger retransformEventTrigger;
-
-    private final IsolateMultipleClassPool.EventListener eventListener =  new IsolateMultipleClassPool.EventListener() {
-        @Override
-        public void onCreateClassPool(ClassLoader classLoader, NamedClassPool classPool) {
-            dumpClassLoaderLibList(classLoader, classPool);
-        }
-    };
-
-    public static JavaAssistByteCodeInstrumentor createTestInstrumentor() {
-        return new JavaAssistByteCodeInstrumentor();
-    }
-
-    // for test
-    private JavaAssistByteCodeInstrumentor() {
-        this.childClassPool = new IsolateMultipleClassPool(eventListener, null);
-        this.interceptorRegistryBinder = new GlobalInterceptorRegistryBinder();
-        this.retransformEventTrigger = null;
-    }
-
-    public JavaAssistByteCodeInstrumentor(Agent agent, InterceptorRegistryBinder interceptorRegistryBinder, final String bootStrapJar, RetransformEventTrigger retransformEventTrigger) {
-        if (interceptorRegistryBinder == null) {
-            throw new NullPointerException("interceptorRegistryBinder must not be null");
+    
+    private final DefaultProfilerPluginContext globalContext;
+    
+    public JavaAssistByteCodeInstrumentor(Agent agent, JavassistClassPool classPool, RetransformEventTrigger retransformEventTrigger) {
+        if (classPool == null) {
+            throw new NullPointerException("classPool must not be null");
         }
         if (retransformEventTrigger == null) {
             throw new NullPointerException("retransformEventTrigger must not be null");
         }
-
-        this.childClassPool = new IsolateMultipleClassPool(eventListener, new IsolateMultipleClassPool.ClassPoolHandler() {
-            @Override
-            public void handleClassPool(NamedClassPool systemClassPool) {
-                try {
-                    if (bootStrapJar != null) {
-                        // append bootstarp-core
-                        systemClassPool.appendClassPath(bootStrapJar);
-                    }
-                } catch (NotFoundException ex) {
-                    throw new PinpointException("bootStrapJar not found. Caused by:" + ex.getMessage(), ex);
-                }
-                // append pinpoint classLoader
-                systemClassPool.appendClassPath(new ClassClassPath(this.getClass()));
-            }
-        });
         
         this.agent = agent;
-        this.interceptorRegistryBinder = interceptorRegistryBinder;
+        this.classPool = classPool;
         this.retransformEventTrigger = retransformEventTrigger;
+        this.globalContext = new DefaultProfilerPluginContext((DefaultAgent)agent, new LegacyProfilerPluginClassLoader(getClass().getClassLoader()));
     }
 
     public Agent getAgent() {
@@ -135,24 +99,25 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     }
 
     @Override
-    public InstrumentClass getClass(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) throws InstrumentException {
-        CtClass cc = getClass(classLoader, javassistClassName);
-        return new JavaAssistClass(this, cc, interceptorRegistryBinder);
+    @Deprecated
+    public InstrumentableClass getClass(ClassLoader classLoader, String jvmInternalClassName, byte[] classFileBuffer) throws NotFoundInstrumentException {
+        return classPool.getClass(globalContext, classLoader, jvmInternalClassName, classFileBuffer);
     }
     
-    public CtClass getClass(ClassLoader classLoader, String className) throws InstrumentException {
-        final NamedClassPool classPool = getClassPool(classLoader);
-        try {
-            return classPool.get(className);
-        } catch (NotFoundException e) {
-            throw new InstrumentException(className + " class not found. Cause:" + e.getMessage(), e);
-        }
+    @Deprecated
+    public InstrumentableClass getClass(DefaultProfilerPluginContext pluginContext, ClassLoader classLoader, String jvmInternalClassName, byte[] classFileBuffer) throws NotFoundInstrumentException {
+        return classPool.getClass(pluginContext, classLoader, jvmInternalClassName, classFileBuffer);
+    }
+    
+    @Deprecated
+    public CtClass getClass(ClassLoader classLoader, String className) throws NotFoundInstrumentException {
+        return classPool.getClass(classLoader, className);
     }
 
+    @Deprecated
     public NamedClassPool getClassPool(ClassLoader classLoader) {
-        return childClassPool.getClassPool(classLoader);
+        return classPool.getClassPool(classLoader);
     }
-
 
     public Class<?> defineClass(ClassLoader classLoader, String defineClass, ProtectionDomain protectedDomain) throws InstrumentException {
         if (isInfo) {
@@ -237,18 +202,15 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         }
     }
 
-    public boolean findClass(String javassistClassName, ClassPool classPool) {
-        URL url = classPool.find(javassistClassName);
-        if (url == null) {
-            return false;
-        }
-        return true;
+    @Deprecated
+    public boolean findClass(String classBinaryName, ClassPool classPool) {
+        return this.classPool.hasClass(classBinaryName, classPool);
     }
 
     @Override
-    public boolean findClass(ClassLoader classLoader, String javassistClassName) {
-        ClassPool classPool = getClassPool(classLoader);
-        return findClass(javassistClassName, classPool);
+    @Deprecated
+    public boolean findClass(ClassLoader classLoader, String classBinaryName) {
+        return classPool.hasClass(classLoader, classBinaryName);
     }
 
     @Override
@@ -279,24 +241,6 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
             throw new InstrumentException(aClass + " instance create fail Cause:" + e.getMessage(), e);
         }
 
-    }
-
-    private void dumpClassLoaderLibList(ClassLoader classLoader, NamedClassPool classPool) {
-        if (isInfo) {
-            if (classLoader instanceof URLClassLoader) {
-                final URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
-                final URL[] urlList = urlClassLoader.getURLs();
-                if (urlList != null) {
-                    final String classLoaderName = classLoader.getClass().getName();
-                    final String classPoolName = classPool.getName();
-                    logger.info("classLoader lib cl:{} classPool:{}", classLoaderName, classPoolName);
-                    for (URL tempURL : urlList) {
-                        String filePath = tempURL.getFile();
-                        logger.info("lib:{} ", filePath);
-                    }
-                }
-            }
-        }
     }
 
     @Override

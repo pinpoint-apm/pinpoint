@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.httpclient4;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.BaseClassFileTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassConditions;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
@@ -38,7 +38,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, HttpClient4Constants {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     @Override
-    public void setup(ProfilerPluginContext context) {
+    public void setup(ProfilerPluginSetupContext context) {
         final HttpClient4PluginConfig config = new HttpClient4PluginConfig(context.getConfig());
 
         if (config.isApacheHttpClient4Profile()) {
@@ -60,7 +60,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, HttpClient4Constants {
         addBasicFutureClass(context, config);
     }
 
-    private void addHttpClient4Class(ProfilerPluginContext context, HttpClient4PluginConfig config) {
+    private void addHttpClient4Class(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
         final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.http.impl.client.AbstractHttpClient");
         // The execute method was moved to CloseableHttpClient class from httpclient 4.0 or later.
         // Need to check if CloseableHttpClient class exist.
@@ -82,7 +82,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, HttpClient4Constants {
         context.addClassFileTransformer(classEditorBuilder.build());
     }
 
-    private void addCloseableHttpClientClass(ProfilerPluginContext context, HttpClient4PluginConfig config) {
+    private void addCloseableHttpClientClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
         final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.http.impl.client.CloseableHttpClient");
         injectHttpClientExecuteMethodWithHttpRequestInterceptor(classEditorBuilder, false, "org.apache.http.HttpHost", "org.apache.http.HttpRequest");
         injectHttpClientExecuteMethodWithHttpRequestInterceptor(classEditorBuilder, false, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.protocol.HttpContext");
@@ -111,7 +111,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, HttpClient4Constants {
         methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodInternalInterceptor", isHasCallbackParam);
     }
 
-    private void addDefaultHttpRequestRetryHandlerClass(ProfilerPluginContext context, HttpClient4PluginConfig config) {
+    private void addDefaultHttpRequestRetryHandlerClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
         final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.http.impl.client.DefaultHttpRequestRetryHandler");
         MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethod("retryRequest", "java.io.IOException", "int", "org.apache.http.protocol.HttpContext");
         methodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
@@ -120,7 +120,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, HttpClient4Constants {
         context.addClassFileTransformer(classEditorBuilder.build());
     }
 
-    private void addClosableHttpAsyncClientClass(ProfilerPluginContext context, HttpClient4PluginConfig config) {
+    private void addClosableHttpAsyncClientClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
         final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.http.impl.nio.client.CloseableHttpAsyncClient");
         // with HttpRequest
         injectHttpAsyncClientExecuteMethodInterceptor(classEditorBuilder, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.protocol.HttpContext", "org.apache.http.concurrent.FutureCallback");
@@ -139,7 +139,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, HttpClient4Constants {
         methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpAsyncClientExecuteMethodInterceptor");
     }
 
-    private void addDefaultClientExchangeHandlerImplClass(ProfilerPluginContext context, HttpClient4PluginConfig config) {
+    private void addDefaultClientExchangeHandlerImplClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
         final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.http.impl.nio.client.DefaultClientExchangeHandlerImpl");
         classEditorBuilder.injectFieldAccessor(FIELD_REQUEST_PRODUCER);
         classEditorBuilder.injectFieldAccessor(FIELD_RESULT_FUTURE);
@@ -151,7 +151,7 @@ public class HttpClient4Plugin implements ProfilerPlugin, HttpClient4Constants {
         context.addClassFileTransformer(classEditorBuilder.build());
     }
 
-    private void addBasicFutureClass(ProfilerPluginContext context, HttpClient4PluginConfig config) {
+    private void addBasicFutureClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
         final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.http.concurrent.BasicFuture");
         classEditorBuilder.injectMetadata(METADATA_ASYNC_TRACE_ID);
 

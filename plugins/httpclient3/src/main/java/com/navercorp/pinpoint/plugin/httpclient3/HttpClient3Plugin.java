@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.httpclient3;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.BaseClassFileTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
@@ -34,7 +34,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProp
 public class HttpClient3Plugin implements ProfilerPlugin, HttpClient3Constants {
 
     @Override
-    public void setup(ProfilerPluginContext context) {
+    public void setup(ProfilerPluginSetupContext context) {
         final HttpClient3PluginConfig config = new HttpClient3PluginConfig(context.getConfig());
 
         if (config.isApacheHttpClient3Profile()) {
@@ -49,7 +49,7 @@ public class HttpClient3Plugin implements ProfilerPlugin, HttpClient3Constants {
         }
     }
 
-    private void addHttpClient3Class(ProfilerPluginContext context, HttpClient3PluginConfig config) {
+    private void addHttpClient3Class(ProfilerPluginSetupContext context, HttpClient3PluginConfig config) {
         final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.commons.httpclient.HttpClient");
 
         injectHttpClientExecuteMethod(classEditorBuilder, "org.apache.commons.httpclient.HttpMethod");
@@ -65,7 +65,7 @@ public class HttpClient3Plugin implements ProfilerPlugin, HttpClient3Constants {
         methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.ExecuteInterceptor");
     }
 
-    private void addDefaultHttpMethodRetryHandlerClass(ProfilerPluginContext context, HttpClient3PluginConfig config) {
+    private void addDefaultHttpMethodRetryHandlerClass(ProfilerPluginSetupContext context, HttpClient3PluginConfig config) {
         final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.commons.httpclient.DefaultHttpMethodRetryHandler");
         MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethod("retryMethod", "org.apache.commons.httpclient.HttpMethod", "java.io.IOException", "int");
         methodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
@@ -74,7 +74,7 @@ public class HttpClient3Plugin implements ProfilerPlugin, HttpClient3Constants {
         context.addClassFileTransformer(classEditorBuilder.build());
     }
     
-    private void addHttpConnectionClass(ProfilerPluginContext context, HttpClient3PluginConfig config) {
+    private void addHttpConnectionClass(ProfilerPluginSetupContext context, HttpClient3PluginConfig config) {
         final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.commons.httpclient.HttpConnection");
         MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethod("open");
         methodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
@@ -83,7 +83,7 @@ public class HttpClient3Plugin implements ProfilerPlugin, HttpClient3Constants {
         context.addClassFileTransformer(classEditorBuilder.build());
     }
     
-    private void addHttpMethodBaseClass(ProfilerPluginContext context, HttpClient3PluginConfig config) {
+    private void addHttpMethodBaseClass(ProfilerPluginSetupContext context, HttpClient3PluginConfig config) {
         final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.commons.httpclient.HttpMethodBase");
         MethodTransformerBuilder writeRequestMethodEditorBuilder = classEditorBuilder.editMethod("writeRequest", "org.apache.commons.httpclient.HttpState", "org.apache.commons.httpclient.HttpConnection");
         writeRequestMethodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);

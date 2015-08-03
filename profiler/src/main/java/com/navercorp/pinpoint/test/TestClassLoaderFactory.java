@@ -36,7 +36,7 @@ public class TestClassLoaderFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestClassLoaderFactory.class);
 
-    // Classes to check for to determine which Clover runtime has been loaded after source code instrumentation.
+    // Classes to check for to determine which Clover runtime has been loaded AFTER source code instrumentation.
     private static final String CENQUA_CLOVER = "com_cenqua_clover.Clover";
 
     private static final String ATLASSIAN_CLOVER = "com_atlassian_clover.Clover";

@@ -98,7 +98,7 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
             recorder.recordServiceType(TOMCAT_METHOD);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
-                logger.warn("before. Caused:{}", th.getMessage(), th);
+                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
             }
         }
     }
@@ -281,7 +281,7 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
             recorder.recordException(throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
-                logger.warn("after. Caused:{}", th.getMessage(), th);
+                logger.warn("AFTER. Caused:{}", th.getMessage(), th);
             }
         } finally {
             traceContext.removeTraceObject();

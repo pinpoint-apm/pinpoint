@@ -53,10 +53,10 @@ public class TestObject {
     }
 
     public static void before() {
-        System.out.println("before");
+        System.out.println("BEFORE");
     }
     public static void after() {
-        System.out.println("after");
+        System.out.println("AFTER");
     }
     public static void callCatch() {
         System.out.println("callCatch");

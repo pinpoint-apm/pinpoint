@@ -79,12 +79,12 @@ public class InterceptorTest {
 
             @Override
             public void before(Object target, Object[] args) {
-                logger.info("before target:" + target + " args:" + Arrays.toString(args));
+                logger.info("BEFORE target:" + target + " args:" + Arrays.toString(args));
             }
 
             @Override
             public void after(Object target, Object[] args, Object result, Throwable throwable) {
-                logger.info("after target: " + target + " args:" + Arrays.toString(args) + " result:" + result + " throwable:" + throwable);
+                logger.info("AFTER target: " + target + " args:" + Arrays.toString(args) + " result:" + result + " throwable:" + throwable);
             }
         };
         int interceptorId = INTERCEPTOR_REGISTRY_ADAPTOR.addSimpleInterceptor(aroundInterceptor);
@@ -106,7 +106,7 @@ public class InterceptorTest {
         CtClass object = classPool.get(Object.class.getName());
         hello.addLocalVariable("result", object);
 
-//        hello.insertBefore("{ System.out.println(\"before\"); }");
+//        hello.insertBefore("{ System.out.println(\"BEFORE\"); }");
         hello.insertBefore("{" +
                 "interceptor = (" + interceptorClassName + ") " + InterceptorRegistry.class.getName() + ".getSimpleInterceptor(" + interceptorId + ");" +
                 "interceptor.before(this, $args);" +
@@ -122,7 +122,7 @@ public class InterceptorTest {
 
 //       hello.setBody(generatedAroundInterceptor("TestObject", "hello"));
 //       hello.setBody("{ System.out.println(\"ddd\");  }", ClassMap map );
-//       hello.insertBefore(" System.out.println(\" before +  \");");
+//       hello.insertBefore(" System.out.println(\" BEFORE +  \");");
 //       hello.insertAfter(" System.out.println($_);");
 //       hello.insertAfter(" System.out.println($r);");
 //       hello.insertAfter(" System.out.println($w);");
@@ -193,7 +193,7 @@ public class InterceptorTest {
         sb.append("  interceptor = (AroundInterceptor) " + InterceptorRegistry.class.getName() + ".getStaticInterceptor(\"a\");");
         sb.append("  interceptor.before(ctx);");
         sb.append("  result = null;");
-//        println(sb, "before systemout \"ttt\"");
+//        println(sb, "BEFORE systemout \"ttt\"");
         sb.append("}");
         sb.append("try {");
         sb.append("  $_ = $proceed($$);");

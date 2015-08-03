@@ -49,14 +49,14 @@ public class JavaAssistTest {
         CtMethod callA = ctClass.getDeclaredMethod("callA", null);
         logger.debug("callA:{}", callA);
 //      callA.addLocalVariable("__test", object);
-        final String before = "{ java.lang.Throwable __throwable = null; java.lang.String __test = \"abc\"; System.out.println(\"before\" + __test);";
+        final String before = "{ java.lang.Throwable __throwable = null; java.lang.String __test = \"abc\"; System.out.println(\"BEFORE\" + __test);";
 //      callA.insertBefore();
-//      callA.insertAfter("System.out.println(\"after\" + __test);");
-//      final String after =  "finally {System.out.println(\"after\" + __test);}}";
+//      callA.insertAfter("System.out.println(\"AFTER\" + __test);");
+//      final String AFTER =  "finally {System.out.println(\"AFTER\" + __test);}}";
         final String after = "}";
 //      callA.addCatch();
 
-//      callA.addCatch("System.out.println(\"after\");", pool.get("java.lang.Throwable"));
+//      callA.addCatch("System.out.println(\"AFTER\");", pool.get("java.lang.Throwable"));
         callA.instrument(new ExprEditor() {
             @Override
             public void edit(MethodCall m) throws CannotCompileException {
@@ -91,8 +91,8 @@ public class JavaAssistTest {
         CtMethod callA = ctClass.getDeclaredMethod("callA", null);
         logger.debug("callA:{}", callA);
         callA.addLocalVariable("__test", object);
-        callA.insertBefore("{ __test = \"abc\"; System.out.println(\"before\" + __test); }");
-        callA.insertAfter("{ System.out.println(\"after\"); }");
+        callA.insertBefore("{ __test = \"abc\"; System.out.println(\"BEFORE\" + __test); }");
+        callA.insertAfter("{ System.out.println(\"AFTER\"); }");
         callA.addCatch("{ System.out.println(\"catch\"); throw $e; }", pool.get("java.lang.Throwable"));
 
         Class aClass = loader.loadClass(ctClass.getName());

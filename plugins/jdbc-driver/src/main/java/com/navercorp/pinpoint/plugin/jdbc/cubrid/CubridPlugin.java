@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.plugin.jdbc.cubrid;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
 import com.navercorp.pinpoint.plugin.jdbc.common.JdbcDriverConstants;
 
@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.plugin.jdbc.common.JdbcDriverConstants;
 public class CubridPlugin implements ProfilerPlugin, JdbcDriverConstants, CubridConstants {
 
     @Override
-    public void setup(ProfilerPluginContext context) {
+    public void setup(ProfilerPluginSetupContext context) {
         CubridConfig config = new CubridConfig(context.getConfig());
         
         if (!config.isProfileCubrid()) {
@@ -42,7 +42,7 @@ public class CubridPlugin implements ProfilerPlugin, JdbcDriverConstants, Cubrid
     }
 
     
-    private void addCUBRIDConnectionTransformer(ProfilerPluginContext context, CubridConfig config) {
+    private void addCUBRIDConnectionTransformer(ProfilerPluginSetupContext context, CubridConfig config) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("cubrid.jdbc.driver.CUBRIDConnection");
         
         builder.injectMetadata(DATABASE_INFO);
@@ -66,7 +66,7 @@ public class CubridPlugin implements ProfilerPlugin, JdbcDriverConstants, Cubrid
         context.addClassFileTransformer(builder.build());
     }
     
-    private void addCUBRIDDriverTransformer(ProfilerPluginContext context) {
+    private void addCUBRIDDriverTransformer(ProfilerPluginSetupContext context) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("cubrid.jdbc.driver.CUBRIDDriver");
         
         ObjectRecipe jdbcUrlParser = ObjectRecipe.byConstructor("com.navercorp.pinpoint.plugin.jdbc.cubrid.CubridJdbcUrlParser");
@@ -75,7 +75,7 @@ public class CubridPlugin implements ProfilerPlugin, JdbcDriverConstants, Cubrid
         context.addClassFileTransformer(builder.build());
     }
     
-    private void addCUBRIDPreparedStatementTransformer(ProfilerPluginContext context, CubridConfig config) {
+    private void addCUBRIDPreparedStatementTransformer(ProfilerPluginSetupContext context, CubridConfig config) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("cubrid.jdbc.driver.CUBRIDPreparedStatement");
 
         builder.injectMetadata(DATABASE_INFO);
@@ -90,7 +90,7 @@ public class CubridPlugin implements ProfilerPlugin, JdbcDriverConstants, Cubrid
         context.addClassFileTransformer(builder.build());
     }
     
-    private void addCUBRIDStatementTransformer(ProfilerPluginContext context) {
+    private void addCUBRIDStatementTransformer(ProfilerPluginSetupContext context) {
         ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("cubrid.jdbc.driver.CUBRIDStatement");
         
         builder.injectMetadata(DATABASE_INFO);

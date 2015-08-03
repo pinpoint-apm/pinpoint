@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -11,9 +11,9 @@ public class CoyoteAdapterInterceptor implements SimpleAroundInterceptor {
 
     private PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    private MethodInfo targetMethod;
+    private InstrumentableMethod targetMethod;
 
-    public CoyoteAdapterInterceptor(TraceContext context, MethodInfo targetMethod) {
+    public CoyoteAdapterInterceptor(TraceContext context, InstrumentableMethod targetMethod) {
         this.targetMethod = targetMethod;
     }
 
