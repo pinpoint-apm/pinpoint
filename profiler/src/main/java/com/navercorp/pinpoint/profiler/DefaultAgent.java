@@ -16,6 +16,16 @@
 
 package com.navercorp.pinpoint.profiler;
 
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.Instrumentation;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
@@ -29,9 +39,9 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
 import com.navercorp.pinpoint.profiler.context.storage.BufferedStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
@@ -58,15 +68,6 @@ import com.navercorp.pinpoint.rpc.ClassPreLoader;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.client.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.Instrumentation;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 
 /**
  * @author emeroad
@@ -106,6 +107,7 @@ public class DefaultAgent implements Agent {
     
     private final Instrumentation instrumentation;
     private final JavassistClassPool classPool;
+    private final RetransformService retransformService;
     private final List<DefaultProfilerPluginContext> pluginContexts;
     
 
@@ -150,8 +152,7 @@ public class DefaultAgent implements Agent {
         this.profilerConfig = agentOption.getProfilerConfig();
         this.instrumentation = agentOption.getInstrumentation();
 
-        RetransformService retransformService = new RetransformService(instrumentation);
-        
+        this.retransformService = new RetransformService(instrumentation);
         this.classPool = new JavassistClassPool(interceptorRegistryBinder, agentOption.getBootStrapJarPath());
         this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(this, classPool, retransformService);
         
@@ -215,6 +216,10 @@ public class DefaultAgent implements Agent {
         }
     }
     
+    public RetransformService getRetransformService() {
+        return retransformService;
+    }
+
     public Instrumentation getInstrumentation() {
         return instrumentation;
     }

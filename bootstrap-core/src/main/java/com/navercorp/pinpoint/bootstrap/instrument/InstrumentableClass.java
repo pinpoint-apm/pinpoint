@@ -67,13 +67,13 @@ public interface InstrumentableClass {
     
     void weave(String adviceClassName) throws InstrumentException;
 
+    void addField(String accessorTypeName) throws InstrumentException;
+
+    void addField(String accessorTypeName, String initValExp) throws InstrumentException;
     
-    void addMetadata(MetadataAccessor metadata, String initialValue) throws InstrumentException;
+    void addGetter(String getterTypeName, String fieldName) throws InstrumentException;
     
-    void addMetadata(MetadataAccessor metadata) throws InstrumentException;
-    
-    void addGetter(FieldAccessor getter, String fieldName) throws InstrumentException;
-    
+
     /**
      * You should check that class already have Declared method.
      * If class already have method, this method throw exception. 
@@ -81,7 +81,21 @@ public interface InstrumentableClass {
     void addDelegatorMethod(String methodName, String[] args) throws InstrumentException;
     
     byte[] toBytecode() throws InstrumentException;
+
     
+    
+    
+    @Deprecated
+    void addGetter(Class<?> getterType, String fieldName) throws InstrumentException;
+    
+    @Deprecated
+    void addMetadata(MetadataAccessor metadata, String initialValue) throws InstrumentException;
+    
+    @Deprecated
+    void addMetadata(MetadataAccessor metadata) throws InstrumentException;
+    
+    @Deprecated
+    void addGetter(FieldAccessor getter, String fieldName) throws InstrumentException;
     
     @Deprecated
     void addTraceValue(Class<?> accessorType, String initialValue) throws InstrumentException;
@@ -91,9 +105,6 @@ public interface InstrumentableClass {
 
     @Deprecated
     void addGetter(String getterName, String fieldName, String fieldType) throws InstrumentException;
-    
-    @Deprecated
-    void addGetter(Class<?> interfaceType, String fieldName) throws InstrumentException;
     
     
     @Deprecated

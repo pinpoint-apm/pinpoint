@@ -48,6 +48,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.interceptor.bci.AccessorAnalyzer.AccessorDetails;
+import com.navercorp.pinpoint.profiler.interceptor.bci.GetterAnalyzer.GetterDetails;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 /**
@@ -66,15 +68,9 @@ public class JavassistClass implements InstrumentableClass {
     private final ClassLoader classLoader;
     private final CtClass ctClass;
 
-    private static final int STATIC_INTERCEPTOR = 0;
-    private static final int SIMPLE_INTERCEPTOR = 1;
-
-    private static final int NOT_DEFINE_INTERCEPTOR_ID = -1;
-
     private static final String FIELD_PREFIX = "_$PINPOINT$_";
     private static final String SETTER_PREFIX = "_$PINPOINT$_set";
     private static final String GETTER_PREFIX = "_$PINPOINT$_get";
-    private static final String MARKER_CLASS_NAME = "com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue";
 
 
 
@@ -295,41 +291,183 @@ public class JavassistClass implements InstrumentableClass {
         }
     }
 
-
     @Override
-    public void addMetadata(MetadataAccessor metadata, String initialValue) throws InstrumentException {
-        addMetadata0(metadata, initialValue);
-    };
-    
-    @Override
-    public void addMetadata(MetadataAccessor metadata) throws InstrumentException {
-        addMetadata0(metadata, null);
-    }
-    
-    public void addMetadata0(MetadataAccessor metadata, String initValue) throws InstrumentException {
-        if (metadata == null) {
-            throw new NullPointerException("traceValue must not be null");
+    public void addDelegatorMethod(String methodName, String[] args) throws InstrumentException {
+        if (getCtMethod0(ctClass, methodName, args) != null) {
+            throw new InstrumentException(getName() + "already have method(" + methodName  +").");
         }
         
         try {
-            ClassPool classPool = ctClass.getClassPool();
-            final CtClass accessorType = classPool.get(metadata.getType().getName());
-            final String fieldName = FIELD_PREFIX + accessorType.getSimpleName();
-            final CtField field = new CtField(classPool.get(Object.class.getName()), fieldName, ctClass);
-
-            ctClass.addInterface(accessorType);
+            final CtClass superClass = ctClass.getSuperclass();
+            CtMethod superMethod = getCtMethod0(superClass, methodName, args);
             
-            if (initValue == null) {
-                ctClass.addField(field);
-            } else {
-                ctClass.addField(field, initValue);
+            if (superMethod == null) {
+                throw new NotFoundInstrumentException(methodName + Arrays.toString(args) + " is not found in " + superClass.getName());
             }
-        } catch (CannotCompileException e) {
-            throw new InstrumentException(metadata.getType() + " implements fail. Cause:" + e.getMessage(), e);
-        } catch (NotFoundException e) {
-            throw new InstrumentException(metadata.getType() + " implements fail. Cause:" + e.getMessage(), e);
+            
+            CtMethod delegatorMethod = CtNewMethod.delegator(superMethod, ctClass);
+            ctClass.addMethod(delegatorMethod);
+        } catch (NotFoundException ex) {
+            throw new InstrumentException(getName() + "don't have super class(" + getSuperClass()  +"). Cause:" + ex.getMessage(), ex);
+        } catch (CannotCompileException ex) {
+            throw new InstrumentException(methodName + " addDelegatorMethod fail. Cause:" + ex.getMessage(), ex);
         }
     }
+
+    @Override
+    public byte[] toBytecode() {
+        try {
+            byte[] bytes = ctClass.toBytecode();
+            ctClass.detach();
+            return bytes;
+        } catch (IOException e) {
+            logger.info("IoException class:{} Caused:{}", ctClass.getName(),  e.getMessage(), e);
+        } catch (CannotCompileException e) {
+            logger.info("CannotCompileException class:{} Caused:{}", ctClass.getName(), e.getMessage(), e);
+        }
+        return null;
+    }
+
+    
+    @Override
+    public void addField(String accessorTypeName) throws InstrumentException {
+        addField0(accessorTypeName, null);
+    }
+
+    @Override
+    public void addField(String accessorTypeName, String initValExp) throws InstrumentException {
+        addField0(accessorTypeName, initValExp);
+    }
+    
+    private void addField0(String accessorTypeName, String initValExp) throws InstrumentException {
+        try {
+            Class<?> accessorType = pluginContext.injectClass(classLoader, accessorTypeName);
+            AccessorDetails accessorDetails = new AccessorAnalyzer().analyze(accessorType);
+
+            
+            CtField newField = CtField.make("private " + accessorDetails.getFieldType().getName() + " " + FIELD_PREFIX + accessorTypeName.replace('.', '_').replace('$', '_') + ";", ctClass);
+
+            if (initValExp == null) {
+                ctClass.addField(newField);
+            } else {
+                ctClass.addField(newField, initValExp);
+            }
+
+            final CtClass accessorInterface = ctClass.getClassPool().get(accessorTypeName);
+            ctClass.addInterface(accessorInterface);
+
+            CtMethod getterMethod = CtNewMethod.getter(accessorDetails.getGetter().getName(), newField);
+            ctClass.addMethod(getterMethod);
+
+            CtMethod setterMethod = CtNewMethod.setter(accessorDetails.getSetter().getName(), newField);
+            ctClass.addMethod(setterMethod);
+        } catch (Exception e) {
+            throw new InstrumentException("Failed to add field with accessor [" + accessorTypeName + "]. Cause:" + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void addGetter(String getterTypeName, String fieldName) throws InstrumentException {
+        try {
+            Class<?> getterType = pluginContext.injectClass(classLoader, getterTypeName);
+            GetterDetails getterDetails = new GetterAnalyzer().analyze(getterType);
+            
+            CtField field = ctClass.getField(fieldName);
+            
+            if (!field.getType().getName().equals(getterDetails.getFieldType().getName())) {
+                throw new IllegalArgumentException("Return type of the getter is different with the field type. getterMethod: " + getterDetails.getGetter() + ", fieldType: " + field.getType().getName());
+            }
+            
+            CtMethod getterMethod = CtNewMethod.getter(getterDetails.getGetter().getName(), field);
+            ctClass.addMethod(getterMethod);
+        
+            CtClass ctInterface = ctClass.getClassPool().get(getterTypeName);
+            ctClass.addInterface(ctInterface);
+        } catch (Exception e) {
+            throw new InstrumentException("Fail to add getter: " + getterTypeName, e);
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    // below methods will be removed soon
+    @Override
+    public void addGetter(Class<?> interfaceType, String fieldName) throws InstrumentException {
+        java.lang.reflect.Method[] methods = interfaceType.getMethods();
+        
+        if (methods.length != 1) {
+            throw new InstrumentException("Getter interface must have only one method: " + interfaceType.getName());
+        }
+        
+        java.lang.reflect.Method getter = methods[0];
+        
+        if (getter.getParameterTypes().length != 0) {
+            throw new InstrumentException("Getter interface method must be no-args and non-void: " + interfaceType.getName());
+        }
+        
+        try {
+            CtField field = ctClass.getField(fieldName);
+            String expression;
+            
+            if (field.getType().isPrimitive()) {
+                String fieldType = field.getType().getName();
+                String wrapperType = getWrapperClassName(fieldType);
+                expression = wrapperType + ".valueOf(" + fieldName + ")";
+            } else {
+                expression = fieldName;
+            }
+            
+            CtMethod getterMethod = CtNewMethod.make("public " + getter.getReturnType().getName() + " " + getter.getName() + "() { return " + expression + "; }", ctClass);
+            ctClass.addMethod(getterMethod);
+        
+            CtClass ctInterface = ctClass.getClassPool().get(interfaceType.getName());
+            ctClass.addInterface(ctInterface);
+        } catch (NotFoundException ex) {
+            throw new InstrumentException("Failed to add getter. No such field: " + fieldName, ex);
+        } catch (Exception e) {
+            // Cannot happen. Reaching here means a bug.   
+            throw new InstrumentException("Fail to add getter: " + interfaceType.getName(), e);
+        }
+    }
+
     
     @Override
     public void addGetter(FieldAccessor fieldGetter, String fieldName) throws InstrumentException {
@@ -392,90 +530,44 @@ public class JavassistClass implements InstrumentableClass {
 
         throw new IllegalArgumentException(primitiveType);
     }
-    
+
     
     @Override
-    public void addDelegatorMethod(String methodName, String[] args) throws InstrumentException {
-        if (getCtMethod0(ctClass, methodName, args) != null) {
-            throw new InstrumentException(getName() + "already have method(" + methodName  +").");
+    public void addMetadata(MetadataAccessor metadata, String initialValue) throws InstrumentException {
+        addMetadata0(metadata, initialValue);
+    };
+    
+    @Override
+    public void addMetadata(MetadataAccessor metadata) throws InstrumentException {
+        addMetadata0(metadata, null);
+    }
+    
+    public void addMetadata0(MetadataAccessor metadata, String initValue) throws InstrumentException {
+        if (metadata == null) {
+            throw new NullPointerException("traceValue must not be null");
         }
         
         try {
-            final CtClass superClass = ctClass.getSuperclass();
-            CtMethod superMethod = getCtMethod0(superClass, methodName, args);
+            ClassPool classPool = ctClass.getClassPool();
+            final CtClass accessorType = classPool.get(metadata.getType().getName());
+            final String fieldName = FIELD_PREFIX + accessorType.getSimpleName();
+            final CtField field = new CtField(classPool.get(Object.class.getName()), fieldName, ctClass);
+
+            ctClass.addInterface(accessorType);
             
-            if (superMethod == null) {
-                throw new NotFoundInstrumentException(methodName + Arrays.toString(args) + " is not found in " + superClass.getName());
+            if (initValue == null) {
+                ctClass.addField(field);
+            } else {
+                ctClass.addField(field, initValue);
             }
-            
-            CtMethod delegatorMethod = CtNewMethod.delegator(superMethod, ctClass);
-            ctClass.addMethod(delegatorMethod);
-        } catch (NotFoundException ex) {
-            throw new InstrumentException(getName() + "don't have super class(" + getSuperClass()  +"). Cause:" + ex.getMessage(), ex);
-        } catch (CannotCompileException ex) {
-            throw new InstrumentException(methodName + " addDelegatorMethod fail. Cause:" + ex.getMessage(), ex);
-        }
-    }
-
-    @Override
-    public byte[] toBytecode() {
-        try {
-            byte[] bytes = ctClass.toBytecode();
-            ctClass.detach();
-            return bytes;
-        } catch (IOException e) {
-            logger.info("IoException class:{} Caused:{}", ctClass.getName(),  e.getMessage(), e);
         } catch (CannotCompileException e) {
-            logger.info("CannotCompileException class:{} Caused:{}", ctClass.getName(), e.getMessage(), e);
+            throw new InstrumentException(metadata.getType() + " implements fail. Cause:" + e.getMessage(), e);
+        } catch (NotFoundException e) {
+            throw new InstrumentException(metadata.getType() + " implements fail. Cause:" + e.getMessage(), e);
         }
-        return null;
     }
 
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    // below methods will be removed soon
     private ClassPool getClassPool() {
         return ctClass.getClassPool();
     }
@@ -911,45 +1003,6 @@ public class JavassistClass implements InstrumentableClass {
             throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);
         } catch (CannotCompileException ex) {
             throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);
-        }
-    }
-
-    @Override
-    public void addGetter(Class<?> interfaceType, String fieldName) throws InstrumentException {
-        java.lang.reflect.Method[] methods = interfaceType.getMethods();
-        
-        if (methods.length != 1) {
-            throw new InstrumentException("Getter interface must have only one method: " + interfaceType.getName());
-        }
-        
-        java.lang.reflect.Method getter = methods[0];
-        
-        if (getter.getParameterTypes().length != 0) {
-            throw new InstrumentException("Getter interface method must be no-args and non-void: " + interfaceType.getName());
-        }
-        
-        try {
-            CtField field = ctClass.getField(fieldName);
-            String expression;
-            
-            if (field.getType().isPrimitive()) {
-                String fieldType = field.getType().getName();
-                String wrapperType = getWrapperClassName(fieldType);
-                expression = wrapperType + ".valueOf(" + fieldName + ")";
-            } else {
-                expression = fieldName;
-            }
-            
-            CtMethod getterMethod = CtNewMethod.make("public " + getter.getReturnType().getName() + " " + getter.getName() + "() { return " + expression + "; }", ctClass);
-            ctClass.addMethod(getterMethod);
-        
-            CtClass ctInterface = ctClass.getClassPool().get(interfaceType.getName());
-            ctClass.addInterface(ctInterface);
-        } catch (NotFoundException ex) {
-            throw new InstrumentException("Failed to add getter. No such field: " + fieldName, ex);
-        } catch (Exception e) {
-            // Cannot happen. Reaching here means a bug.   
-            throw new InstrumentException("Fail to add getter: " + interfaceType.getName(), e);
         }
     }
 }

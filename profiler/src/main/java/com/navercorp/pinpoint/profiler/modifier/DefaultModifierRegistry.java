@@ -111,7 +111,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         final String checkJvmClassName = JavaAssistUtils.javaNameToJvmName(className);
         AbstractModifier old = registry.put(checkJvmClassName, modifier);
         if (old != null) {
-            throw new IllegalStateException("Modifier already exist. className:" + checkJvmClassName + " new:" + modifier.getClass() + " old:" + old.getMatcher());
+            throw new IllegalStateException("Modifier already exist. className:" + checkJvmClassName + " new:" + modifier.getClass() + " old:" + old.getClass());
         }
     }
 

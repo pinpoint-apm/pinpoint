@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvoca
 /**
  * @author emeroad
  */
+@Deprecated
 public interface ByteCodeInstrumentor {
 
     InstrumentableClass getClass(ClassLoader classLoader, String jvmClassName, byte[] classFileBuffer) throws NotFoundInstrumentException;
@@ -45,7 +46,9 @@ public interface ByteCodeInstrumentor {
     @Deprecated
     Interceptor newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN, Object[] params, Class[] paramClazz) throws InstrumentException;
     
+    @Deprecated
     void retransform(Class<?> target, ClassFileTransformer classEditor);
 
+    @Deprecated
     RetransformEventTrigger getRetransformEventTrigger();
 }

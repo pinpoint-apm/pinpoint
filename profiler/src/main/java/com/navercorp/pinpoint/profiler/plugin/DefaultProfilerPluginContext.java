@@ -188,7 +188,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
 
     @Override
     public void retransform(Class<?> target, ClassFileTransformer classEditor) {
-        agent.getByteCodeInstrumentor().retransform(target, classEditor);
+        agent.getRetransformService().retransform(target, classEditor);
     }
     
     public <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className) {
