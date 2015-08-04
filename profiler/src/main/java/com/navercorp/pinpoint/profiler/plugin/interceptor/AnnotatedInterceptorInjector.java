@@ -16,8 +16,8 @@ package com.navercorp.pinpoint.profiler.plugin.interceptor;
 
 import java.util.Arrays;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
@@ -46,11 +46,11 @@ public class AnnotatedInterceptorInjector implements MethodRecipe {
     }
     
     @Override
-    public void edit(ClassLoader targetClassLoader, InstrumentableClass targetClass, InstrumentableMethod targetMethod) throws Exception {
+    public void edit(ClassLoader targetClassLoader, InstrumentClass targetClass, InstrumentMethod targetMethod) throws Exception {
         inject(targetClassLoader, targetClass, targetMethod);
     }
 
-    int inject(ClassLoader targetClassLoader, InstrumentableClass targetClass, InstrumentableMethod targetMethod) throws Exception {
+    int inject(ClassLoader targetClassLoader, InstrumentClass targetClass, InstrumentMethod targetMethod) throws Exception {
         InterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext);
         Interceptor interceptor = factory.getInterceptor(targetClassLoader, interceptorClassName, providedArguments, null, null, targetClass, targetMethod);
         

@@ -27,8 +27,8 @@ import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClassPool;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.navercorp.pinpoint.exception.PinpointException;
@@ -37,7 +37,7 @@ import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
 /**
  * @author emeroad
  */
-public class JavassistClassPool implements InstrumentableClassPool {
+public class JavassistClassPool implements InstrumentClassPool {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isInfo = logger.isInfoEnabled();
@@ -95,13 +95,13 @@ public class JavassistClassPool implements InstrumentableClassPool {
         this.interceptorRegistryBinder = interceptorRegistryBinder;
     }
 
-    public InstrumentableClass getClass(ClassLoader classLoader, String jvmInternalClassName, byte[] classFileBuffer) throws NotFoundInstrumentException {
+    public InstrumentClass getClass(ClassLoader classLoader, String jvmInternalClassName, byte[] classFileBuffer) throws NotFoundInstrumentException {
         CtClass cc = getClass(classLoader, jvmInternalClassName);
         return new JavassistClass(null, interceptorRegistryBinder, classLoader, cc);
     }
     
     @Override
-    public InstrumentableClass getClass(ProfilerPluginContext pluginContext, ClassLoader classLoader, String jvmInternalClassName, byte[] classFileBuffer) throws NotFoundInstrumentException {
+    public InstrumentClass getClass(ProfilerPluginContext pluginContext, ClassLoader classLoader, String jvmInternalClassName, byte[] classFileBuffer) throws NotFoundInstrumentException {
         CtClass cc = getClass(classLoader, jvmInternalClassName);
         return new JavassistClass(pluginContext, interceptorRegistryBinder, classLoader, cc);
     }

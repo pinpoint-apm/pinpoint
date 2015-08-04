@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 
 /**
- * InstrumentableMethod interceptor
+ * InstrumentMethod interceptor
  * <p/>
  * <pre>
  * org.apache.http.impl.client.AbstractHttpClient.

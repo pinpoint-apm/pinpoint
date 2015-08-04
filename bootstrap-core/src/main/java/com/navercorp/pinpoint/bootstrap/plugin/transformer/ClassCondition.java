@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.transformer;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
 public interface ClassCondition {
-    boolean check(ProfilerPluginSetupContext context, ClassLoader classLoader, InstrumentableClass target);
+    boolean check(ProfilerPluginSetupContext context, ClassLoader classLoader, InstrumentClass target);
 }

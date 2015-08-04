@@ -28,9 +28,9 @@ import org.slf4j.Logger;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
@@ -64,11 +64,11 @@ public class SqlMapModifier extends AbstractModifier {
             logger.info("Modifying. {}", javassistClassName);
         }
         try {
-            InstrumentableClass ibatisClientImpl = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+            InstrumentClass ibatisClientImpl = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
             final MethodFilter ibatisApiMethodFilter = getIbatisApiMethodFilter(javassistClassName);
-            List<InstrumentableMethod> declaredMethods = ibatisClientImpl.getDeclaredMethods(ibatisApiMethodFilter);
+            List<InstrumentMethod> declaredMethods = ibatisClientImpl.getDeclaredMethods(ibatisApiMethodFilter);
 
-            for (InstrumentableMethod method : declaredMethods) {
+            for (InstrumentMethod method : declaredMethods) {
                 Interceptor ibatisApiInterceptor = new IbatisSqlMapOperationInterceptor(serviceType);
                 ibatisClientImpl.addGroupInterceptor(method.getName(), method.getParameterTypes(), ibatisApiInterceptor, SCOPE);
             }

@@ -24,5 +24,5 @@ public interface MethodFilter {
     public static final boolean ACCEPT = true;
     public static final boolean REJECT = false;
     
-    boolean accept(InstrumentableMethod method);
+    boolean accept(InstrumentMethod method);
 }

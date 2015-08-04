@@ -22,8 +22,8 @@ import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
@@ -57,14 +57,14 @@ public class MethodModifier extends AbstractModifier {
         }
 
         try {
-            InstrumentableClass clazz = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+            InstrumentClass clazz = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             if (!clazz.isInterceptable()) {
                 return null;
             }
 
-            List<InstrumentableMethod> methodList = clazz.getDeclaredMethods(EmptyMethodFilter.FILTER);
-            for (InstrumentableMethod method : methodList) {
+            List<InstrumentMethod> methodList = clazz.getDeclaredMethods(EmptyMethodFilter.FILTER);
+            for (InstrumentMethod method : methodList) {
                 final Interceptor interceptor = new MethodInterceptor();
                 if (logger.isTraceEnabled()) {
                     logger.trace("### c={}, m={}, params={}", javassistClassName, method.getName(), Arrays.toString(method.getParameterTypes()));

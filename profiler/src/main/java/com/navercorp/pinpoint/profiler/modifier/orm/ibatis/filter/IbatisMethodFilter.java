@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.modifier.orm.ibatis.filter;
 import java.lang.reflect.Modifier;
 
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 
 /**
  * @author Hyun Jeong
@@ -29,7 +29,7 @@ public abstract class IbatisMethodFilter implements MethodFilter {
     protected abstract boolean shouldTrackMethod(String methodName);
 
     @Override
-    public boolean accept(InstrumentableMethod ctMethod) {
+    public boolean accept(InstrumentMethod ctMethod) {
         final int modifiers = ctMethod.getModifiers();
         if (!Modifier.isPublic(modifiers) || Modifier.isStatic(modifiers) || Modifier.isAbstract(modifiers) || Modifier.isNative(modifiers)) {
             return REJECT;
@@ -37,7 +37,7 @@ public abstract class IbatisMethodFilter implements MethodFilter {
         return filterApiForTracking(ctMethod);
     }
 
-    private boolean filterApiForTracking(InstrumentableMethod ctMethod) {
+    private boolean filterApiForTracking(InstrumentMethod ctMethod) {
         if (!shouldTrackMethod(ctMethod.getName())) {
             return REJECT;
         }

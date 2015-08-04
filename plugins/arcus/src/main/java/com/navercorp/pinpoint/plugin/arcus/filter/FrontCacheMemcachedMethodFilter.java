@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 
 /**
  * @author emeroad
@@ -66,7 +66,7 @@ public class FrontCacheMemcachedMethodFilter implements MethodFilter {
     }
 
     @Override
-    public boolean accept(InstrumentableMethod ctMethod) {
+    public boolean accept(InstrumentMethod ctMethod) {
         final int modifiers = ctMethod.getModifiers();
         if (!Modifier.isPublic(modifiers) || Modifier.isStatic(modifiers) || Modifier.isAbstract(modifiers) || Modifier.isNative(modifiers)) {
             return REJECT;

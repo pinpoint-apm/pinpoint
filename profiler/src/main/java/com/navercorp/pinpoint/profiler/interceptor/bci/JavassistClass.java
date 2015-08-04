@@ -37,8 +37,8 @@ import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.DefaultInterceptorGroupDefinition;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.InterceptorGroupDefinition;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
@@ -67,7 +67,7 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
  * @author netspider
  * @author minwoo.jung
  */
-public class JavassistClass implements InstrumentableClass {
+public class JavassistClass implements InstrumentClass {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -146,23 +146,23 @@ public class JavassistClass implements InstrumentableClass {
         return method;
     }
 
-    public InstrumentableMethod getDeclaredMethod(String name, String[] parameterTypes) {
+    public InstrumentMethod getDeclaredMethod(String name, String[] parameterTypes) {
         CtMethod method = getCtMethod0(ctClass, name, parameterTypes);
         return method == null ? null : new JavassistMethod(pluginContext, interceptorRegistryBinder, this, method);
     }
 
-    public List<InstrumentableMethod> getDeclaredMethods() {
+    public List<InstrumentMethod> getDeclaredMethods() {
         return getDeclaredMethods(MethodFilters.ACCEPT_ALL);
     }
 
-    public List<InstrumentableMethod> getDeclaredMethods(MethodFilter methodFilter) {
+    public List<InstrumentMethod> getDeclaredMethods(MethodFilter methodFilter) {
         if (methodFilter == null) {
             throw new NullPointerException("methodFilter must not be null");
         }
         final CtMethod[] declaredMethod = ctClass.getDeclaredMethods();
-        final List<InstrumentableMethod> candidateList = new ArrayList<InstrumentableMethod>(declaredMethod.length);
+        final List<InstrumentMethod> candidateList = new ArrayList<InstrumentMethod>(declaredMethod.length);
         for (CtMethod ctMethod : declaredMethod) {
-            final InstrumentableMethod method = new JavassistMethod(pluginContext, interceptorRegistryBinder, this, ctMethod);
+            final InstrumentMethod method = new JavassistMethod(pluginContext, interceptorRegistryBinder, this, ctMethod);
             if (methodFilter.accept(method)) {
                 candidateList.add(method);
             }
@@ -195,7 +195,7 @@ public class JavassistClass implements InstrumentableClass {
         return null;
     }
     
-    public InstrumentableMethod getConstructor(String[] parameterTypes) {
+    public InstrumentMethod getConstructor(String[] parameterTypes) {
         CtConstructor constructor = getCtConstructor0(parameterTypes);
         return constructor == null ? null : new JavassistMethod(pluginContext, interceptorRegistryBinder, this, constructor);
     }
@@ -456,12 +456,12 @@ public class JavassistClass implements InstrumentableClass {
     }
 
     private int addInterceptor0(TargetConstructor c, String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException {
-        InstrumentableMethod constructor = getConstructor(c.value());
+        InstrumentMethod constructor = getConstructor(c.value());
         return constructor.addInterceptor(interceptorClassName, group, executionPolicy, constructorArgs);
     }
 
     private int addInterceptor0(TargetMethod m, String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException {
-        InstrumentableMethod method = getDeclaredMethod(m.name(), m.paramTypes());
+        InstrumentMethod method = getDeclaredMethod(m.name(), m.paramTypes());
         return method.addInterceptor(interceptorClassName, group, executionPolicy, constructorArgs);
     }
         
@@ -475,7 +475,7 @@ public class JavassistClass implements InstrumentableClass {
         boolean singleton = annotation.singleton();
         int interceptorId = -1;
         
-        for (InstrumentableMethod m : getDeclaredMethods(filter)) {
+        for (InstrumentMethod m : getDeclaredMethods(filter)) {
             if (singleton && interceptorId != -1) {
                 m.addInterceptor(interceptorId);
             } else {
@@ -1071,7 +1071,7 @@ public class JavassistClass implements InstrumentableClass {
 
 
    @Override
-   public InstrumentableClass getNestedClass(String className) {
+   public InstrumentClass getNestedClass(String className) {
        CtClass[] nestedClasses;
        try {
            nestedClasses = ctClass.getNestedClasses();

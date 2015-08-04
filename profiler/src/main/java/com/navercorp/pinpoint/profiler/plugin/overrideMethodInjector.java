@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.profiler.plugin.transformer.ClassRecipe;
 
@@ -14,7 +14,7 @@ public class overrideMethodInjector implements ClassRecipe {
     }
 
     @Override
-    public void edit(ClassLoader classLoader, InstrumentableClass target) throws InstrumentException {
+    public void edit(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
         target.addDelegatorMethod(methodName, paramTypes);
     }
 

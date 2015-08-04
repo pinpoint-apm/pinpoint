@@ -26,9 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.modifier.Modifier;
 import com.navercorp.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor;
@@ -46,7 +46,7 @@ public class BeanMethodModifier implements Modifier {
                 AccessFlag.PROTECTED | AccessFlag.SYNTHETIC | AccessFlag.STATIC;
 
         @Override
-        public boolean accept(InstrumentableMethod ctMethod) {
+        public boolean accept(InstrumentMethod ctMethod) {
             if (ctMethod.isConstructor()) {
                 return REJECT;
             }
@@ -71,14 +71,14 @@ public class BeanMethodModifier implements Modifier {
 
 
         try {
-            InstrumentableClass clazz = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+            InstrumentClass clazz = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             if (!clazz.isInterceptable()) {
                 return null;
             }
 
-            List<InstrumentableMethod> methodList = clazz.getDeclaredMethods(METHOD_FILTER);
-            for (InstrumentableMethod method : methodList) {
+            List<InstrumentMethod> methodList = clazz.getDeclaredMethods(METHOD_FILTER);
+            for (InstrumentMethod method : methodList) {
                 if (logger.isTraceEnabled()) {
                     logger.trace("### c={}, m={}, params={}", javassistClassName, method.getName(), Arrays.toString(method.getParameterTypes()));
                 }

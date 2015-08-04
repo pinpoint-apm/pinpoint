@@ -17,8 +17,8 @@ package com.navercorp.pinpoint.plugin.arcus;
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -80,14 +80,14 @@ public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
 
             @Override
             public byte[] transform(ProfilerPluginContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentableClass target = context.getInstrumentableClass(loader, className, classfileBuffer);
+                InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
 
                 if (target.hasMethod("addOp", new String[] { "java.lang.String", "net.spy.memcached.ops.Operation" }, "net.spy.memcached.ops.Operation")) {
                     boolean traceKey = config.isArcusKeyTrace();
 
                     target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.SetCacheManagerInterceptor");
 
-                    for (InstrumentableMethod m : target.getDeclaredMethods(new ArcusMethodFilter())) {
+                    for (InstrumentMethod m : target.getDeclaredMethods(new ArcusMethodFilter())) {
                         try {
                             m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", traceKey);
                         } catch (Exception e) {
@@ -110,7 +110,7 @@ public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
 
             @Override
             public byte[] transform(ProfilerPluginContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentableClass target = context.getInstrumentableClass(loader, className, classfileBuffer);
+                InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(SERVICE_CODE_ACCESSOR);
                 target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.CacheManagerConstructInterceptor");
                 return target.toBytecode();
@@ -124,7 +124,7 @@ public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
 
             @Override
             public byte[] transform(ProfilerPluginContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentableClass target = context.getInstrumentableClass(loader, className, classfileBuffer);
+                InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(SERVICE_CODE_ACCESSOR);
                 return target.toBytecode();
             }
@@ -137,16 +137,16 @@ public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
 
             @Override
             public byte[] transform(ProfilerPluginContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentableClass target = context.getInstrumentableClass(loader, className, classfileBuffer);
+                InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
 
                 target.addField(CACHE_NAME_ACCESSOR);
                 target.addField(CACHE_KEY_ACCESSOR);
                 target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureConstructInterceptor");
 
-                InstrumentableMethod get0 = target.getDeclaredMethod("get", new String[] { "long", "java.util.concurrent.TimeUnit" });
+                InstrumentMethod get0 = target.getDeclaredMethod("get", new String[] { "long", "java.util.concurrent.TimeUnit" });
                 get0.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureGetInterceptor");
 
-                InstrumentableMethod get1 = target.getDeclaredMethod("get", new String[0]);
+                InstrumentMethod get1 = target.getDeclaredMethod("get", new String[0]);
                 get1.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureGetInterceptor");
 
                 return target.toBytecode();
@@ -160,10 +160,10 @@ public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
 
             @Override
             public byte[] transform(ProfilerPluginContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentableClass target = context.getInstrumentableClass(loader, className, classfileBuffer);
+                InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
                 boolean traceKey = config.isMemcachedKeyTrace();
 
-                for (InstrumentableMethod m : target.getDeclaredMethods(new FrontCacheMemcachedMethodFilter())) {
+                for (InstrumentMethod m : target.getDeclaredMethods(new FrontCacheMemcachedMethodFilter())) {
                     try {
                         m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", traceKey);
                     } catch (Exception e) {
@@ -184,7 +184,7 @@ public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
 
             @Override
             public byte[] transform(ProfilerPluginContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentableClass target = context.getInstrumentableClass(loader, className, classfileBuffer);
+                InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
 
                 if (target.hasDeclaredMethod("addOp", new String[] { "java.lang.String", "net.spy.memcached.ops.Operation" })) {
                     target.addField(SERVICE_CODE_ACCESSOR);
@@ -193,7 +193,7 @@ public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
 
                 boolean traceKey = config.isMemcachedKeyTrace();
 
-                for (InstrumentableMethod m : target.getDeclaredMethods(new FrontCacheMemcachedMethodFilter())) {
+                for (InstrumentMethod m : target.getDeclaredMethods(new FrontCacheMemcachedMethodFilter())) {
                     try {
                         m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", traceKey);
                     } catch (Exception e) {
@@ -213,19 +213,19 @@ public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
 
         @Override
         public byte[] transform(ProfilerPluginContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            InstrumentableClass target = context.getInstrumentableClass(loader, className, classfileBuffer);
+            InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
 
             target.addField(OPERATION_ACCESSOR);
             target.addField(ASYNC_TRACE_ID_ACCESSOR);
 
             // setOperation
-            InstrumentableMethod setOperation = target.getDeclaredMethod("setOperation", new String[] { "net.spy.memcached.ops.Operation" });
+            InstrumentMethod setOperation = target.getDeclaredMethod("setOperation", new String[] { "net.spy.memcached.ops.Operation" });
             if (setOperation != null) {
                 setOperation.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureSetOperationInterceptor");
             }
 
             // cancel, get, set
-            for (InstrumentableMethod m : target.getDeclaredMethods(MethodFilters.name("cancel", "get", "set", "signalComplete"))) {
+            for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("cancel", "get", "set", "signalComplete"))) {
                 m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureGetInterceptor");
             }
 
@@ -237,12 +237,12 @@ public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
 
         @Override
         public byte[] transform(ProfilerPluginContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-            InstrumentableClass target = context.getInstrumentableClass(loader, className, classfileBuffer);
+            InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
 
             target.addField(ASYNC_TRACE_ID_ACCESSOR);
             
             // cancel, get, set
-            for (InstrumentableMethod m : target.getDeclaredMethods(MethodFilters.name("cancel", "get"))) {
+            for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("cancel", "get"))) {
                 m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.FutureInternalMethodInterceptor");
             }
 

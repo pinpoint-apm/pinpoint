@@ -14,13 +14,12 @@
  */
 package com.navercorp.pinpoint.bootstrap.plugin;
 
-import java.lang.instrument.ClassFileTransformer;
-
 import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 
 /**
  * @author Jongho Moon
@@ -29,13 +28,13 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 public interface ProfilerPluginContext {
     public TraceContext getTraceContext();
     
-    public InstrumentableClass getInstrumentableClass(ClassLoader classLoader, String className, byte[] classFileBuffer);
+    public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classFileBuffer);
     
     public InterceptorGroup getInterceptorGroup(String name);
         
     public <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className);
     
-    public void retransform(Class<?> target, ClassFileTransformer classEditor);
+    public void retransform(Class<?> target, PinpointClassFileTransformer classEditor);
     
     @Deprecated
     public MetadataAccessor getMetadataAccessor(String name);

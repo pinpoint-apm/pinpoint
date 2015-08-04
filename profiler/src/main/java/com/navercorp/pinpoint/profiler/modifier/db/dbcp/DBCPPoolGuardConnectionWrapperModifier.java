@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.modifier.db.dbcp;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
@@ -56,7 +56,7 @@ public class DBCPPoolGuardConnectionWrapperModifier extends AbstractModifier {
     private byte[] changeMethod(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 
         try {
-            InstrumentableClass wrapper = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+            InstrumentClass wrapper = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
             Interceptor close = new DataSourceCloseInterceptor();
             wrapper.addGroupInterceptor("close", null, close, DBCPScope.SCOPE_NAME);
 

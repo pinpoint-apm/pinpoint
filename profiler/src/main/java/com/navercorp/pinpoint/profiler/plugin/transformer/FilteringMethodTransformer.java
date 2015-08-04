@@ -21,10 +21,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerExceptionHandler;
 
 public class FilteringMethodTransformer implements MethodTransformer {
@@ -41,8 +41,8 @@ public class FilteringMethodTransformer implements MethodTransformer {
     }
     
     @Override
-    public void edit(ClassLoader classLoader, InstrumentableClass target) throws Throwable {
-        for (InstrumentableMethod targetMethod : target.getDeclaredMethods(filter)) {
+    public void edit(ClassLoader classLoader, InstrumentClass target) throws Throwable {
+        for (InstrumentMethod targetMethod : target.getDeclaredMethods(filter)) {
             for (MethodRecipe recipe : recipes) {
                 try {
                     recipe.edit(classLoader, target, targetMethod);
@@ -83,7 +83,7 @@ public class FilteringMethodTransformer implements MethodTransformer {
         }
 
         @Override
-        public boolean accept(InstrumentableMethod method) {
+        public boolean accept(InstrumentMethod method) {
             for (MethodFilter filter : filters) {
                 if (!filter.accept(method)) {
                     return REJECT;

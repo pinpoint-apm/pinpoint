@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 
 /**
  * @author Hyun Jeong
@@ -49,7 +49,7 @@ public class SqlSessionMethodFilter implements MethodFilter {
     }
 
     @Override
-    public boolean accept(InstrumentableMethod ctMethod) {
+    public boolean accept(InstrumentMethod ctMethod) {
         if (WHITE_LIST_API.contains(ctMethod.getName())) {
             return ACCEPT;
         }

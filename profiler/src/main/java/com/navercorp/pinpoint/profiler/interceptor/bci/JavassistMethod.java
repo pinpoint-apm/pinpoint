@@ -30,8 +30,8 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.InterceptPoint;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
@@ -51,7 +51,7 @@ import com.navercorp.pinpoint.profiler.plugin.interceptor.AnnotatedInterceptorFa
 import com.navercorp.pinpoint.profiler.plugin.interceptor.InterceptorFactory;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
-public class JavassistMethod implements InstrumentableMethod {
+public class JavassistMethod implements InstrumentMethod {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -59,10 +59,10 @@ public class JavassistMethod implements InstrumentableMethod {
     private final InterceptorRegistryBinder interceptorRegistryBinder;
 
     private final CtBehavior behavior;
-    private final InstrumentableClass declaringClass;
+    private final InstrumentClass declaringClass;
     private final MethodDescriptor descriptor;
     
-    public JavassistMethod(ProfilerPluginContext pluginContext, InterceptorRegistryBinder interceptorRegistryBinder, InstrumentableClass declaringClass, CtBehavior behavior) {
+    public JavassistMethod(ProfilerPluginContext pluginContext, InterceptorRegistryBinder interceptorRegistryBinder, InstrumentClass declaringClass, CtBehavior behavior) {
         this.pluginContext = pluginContext;
         this.interceptorRegistryBinder = interceptorRegistryBinder;
         this.behavior = behavior;

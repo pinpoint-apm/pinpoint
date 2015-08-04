@@ -20,7 +20,7 @@ import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
@@ -96,7 +96,7 @@ public class AbstractAutowireCapableBeanFactoryModifier extends AbstractModifier
         }
         
         try {
-            InstrumentableClass aClass = byteCodeInstrumentor.getClass(classLoader, className, classFileBuffer);
+            InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, className, classFileBuffer);
 
             Interceptor createBeanInterceptor = new CreateBeanInstanceInterceptor(byteCodeInstrumentor.getRetransformEventTrigger(), modifier, filter);
             aClass.addInterceptor("createBeanInstance",

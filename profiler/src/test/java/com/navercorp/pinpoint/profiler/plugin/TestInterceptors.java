@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 
@@ -110,8 +110,8 @@ public class TestInterceptors {
     public static class TestInterceptor2 extends AbstractInterceptor {
         private final TraceContext context;
         private final MethodDescriptor descriptor;
-        private final InstrumentableClass targetClass;
-        private final InstrumentableMethod targetMethod;
+        private final InstrumentClass targetClass;
+        private final InstrumentMethod targetMethod;
         
         private final String field0;
         private final int field1;
@@ -120,7 +120,7 @@ public class TestInterceptors {
         private final long field4;
         
 
-        public TestInterceptor2(String field0, TraceContext context, int field1, double field2, MethodDescriptor descriptor, boolean field3, InstrumentableClass targetClass, InstrumentableMethod targetMethod, long field4) {
+        public TestInterceptor2(String field0, TraceContext context, int field1, double field2, MethodDescriptor descriptor, boolean field3, InstrumentClass targetClass, InstrumentMethod targetMethod, long field4) {
             this.context = context;
             this.descriptor = descriptor;
             this.targetClass = targetClass;
@@ -132,7 +132,7 @@ public class TestInterceptors {
             this.field4 = field4;
         }
 
-        public TestInterceptor2(String field0, int field1, double field2, TraceContext context, InstrumentableClass targetClass, MethodDescriptor descriptor, InstrumentableMethod targetMethod) {
+        public TestInterceptor2(String field0, int field1, double field2, TraceContext context, InstrumentClass targetClass, MethodDescriptor descriptor, InstrumentMethod targetMethod) {
             this.context = context;
             this.descriptor = descriptor;
             this.targetClass = targetClass;
@@ -144,7 +144,7 @@ public class TestInterceptors {
             this.field4 = 0;
         }
         
-        public TestInterceptor2(TraceContext context, MethodDescriptor descriptor, InstrumentableClass targetClass, InstrumentableMethod targetMethod, String field0, int field1) {
+        public TestInterceptor2(TraceContext context, MethodDescriptor descriptor, InstrumentClass targetClass, InstrumentMethod targetMethod, String field0, int field1) {
             this.context = context;
             this.descriptor = descriptor;
             this.targetClass = targetClass;
@@ -156,7 +156,7 @@ public class TestInterceptors {
             this.field4 = 0;
         }
         
-        public TestInterceptor2(TraceContext context, InstrumentableClass targetClass, MethodDescriptor descriptor, InstrumentableMethod targetMethod) {
+        public TestInterceptor2(TraceContext context, InstrumentClass targetClass, MethodDescriptor descriptor, InstrumentMethod targetMethod) {
             this.context = context;
             this.descriptor = descriptor;
             this.targetClass = targetClass;
@@ -168,7 +168,7 @@ public class TestInterceptors {
             this.field4 = 0;
         }
         
-        public TestInterceptor2(MethodDescriptor descriptor, InstrumentableClass targetClass, String field0) {
+        public TestInterceptor2(MethodDescriptor descriptor, InstrumentClass targetClass, String field0) {
             this.context = null;
             this.descriptor = descriptor;
             this.targetClass = targetClass;
@@ -188,11 +188,11 @@ public class TestInterceptors {
             return descriptor;
         }
 
-        public InstrumentableMethod getTargetMethod() {
+        public InstrumentMethod getTargetMethod() {
             return targetMethod;
         }
         
-        public InstrumentableClass getTargetClass() {
+        public InstrumentClass getTargetClass() {
             return targetClass;
         }
 

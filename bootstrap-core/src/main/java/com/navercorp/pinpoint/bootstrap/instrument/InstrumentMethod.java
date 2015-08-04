@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 /**
  * @author emeroad
  */
-public interface InstrumentableMethod {
+public interface InstrumentMethod {
     String getName();
 
     String[] getParameterTypes();

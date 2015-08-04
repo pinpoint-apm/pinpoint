@@ -19,16 +19,16 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 
 /**
  * Indicates that the target have to be cached. 
  * 
  * For now, only {@link MethodDescriptor} can be cached. 
- * You can also annotate {@link InstrumentableMethod} with this annotation 
- * but it makes the {@link MethodDescriptor} returned by {@link InstrumentableMethod#getDescriptor()} cached 
- * not {@link InstrumentableMethod} itself.
+ * You can also annotate {@link InstrumentMethod} with this annotation 
+ * but it makes the {@link MethodDescriptor} returned by {@link InstrumentMethod#getDescriptor()} cached 
+ * not {@link InstrumentMethod} itself.
  * 
  * @author Jongho Moon
  *

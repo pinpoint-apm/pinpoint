@@ -17,8 +17,8 @@ package com.navercorp.pinpoint.profiler.plugin.objectfactory;
 import java.lang.annotation.Annotation;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
@@ -33,14 +33,14 @@ import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
 public class InterceptorArgumentProvider implements ArgumentProvider {
     private final TraceContext traceContext;
     private final InterceptorGroup interceptorGroup;
-    private final InstrumentableClass targetClass;
-    private final InstrumentableMethod targetMethod;
+    private final InstrumentClass targetClass;
+    private final InstrumentMethod targetMethod;
 
-    public InterceptorArgumentProvider(TraceContext traceContext, InstrumentableClass targetClass) {
+    public InterceptorArgumentProvider(TraceContext traceContext, InstrumentClass targetClass) {
         this(traceContext, null, targetClass, null);
     }
     
-    public InterceptorArgumentProvider(TraceContext traceContext, InterceptorGroup interceptorGroup, InstrumentableClass targetClass, InstrumentableMethod targetMethod) {
+    public InterceptorArgumentProvider(TraceContext traceContext, InterceptorGroup interceptorGroup, InstrumentClass targetClass, InstrumentMethod targetMethod) {
         this.traceContext = traceContext;
         this.interceptorGroup = interceptorGroup;
         this.targetClass = targetClass;
@@ -49,14 +49,14 @@ public class InterceptorArgumentProvider implements ArgumentProvider {
 
     @Override
     public Option get(int index, Class<?> type, Annotation[] annotations) {
-        if (type == InstrumentableClass.class) {
+        if (type == InstrumentClass.class) {
             return Option.withValue(targetClass);
         } else if (type == MethodDescriptor.class) {
             MethodDescriptor descriptor = targetMethod.getDescriptor();
             cacheApiIfAnnotationNotPresent(annotations, descriptor);
             
             return Option.withValue(descriptor);
-        } else if (type == InstrumentableMethod.class) {
+        } else if (type == InstrumentMethod.class) {
             return Option.withValue(targetMethod);
         } else if (type == InterceptorGroup.class) {
             Name annotation = TypeUtils.findAnnotation(annotations, Name.class);

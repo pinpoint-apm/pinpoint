@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
@@ -43,8 +43,8 @@ public class DefaultClassEditorBuilderTest {
     public void test() throws Exception {
         ByteCodeInstrumentor instrumentor = mock(ByteCodeInstrumentor.class);
         TraceContext traceContext = mock(TraceContext.class);
-        InstrumentableClass aClass = mock(InstrumentableClass.class);
-        InstrumentableMethod aMethod = mock(InstrumentableMethod.class);
+        InstrumentClass aClass = mock(InstrumentClass.class);
+        InstrumentMethod aMethod = mock(InstrumentMethod.class);
         MethodDescriptor aDescriptor = mock(MethodDescriptor.class);
         DefaultAgent agent = mock(DefaultAgent.class);
         

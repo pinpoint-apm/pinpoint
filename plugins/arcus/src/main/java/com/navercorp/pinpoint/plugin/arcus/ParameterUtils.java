@@ -14,14 +14,14 @@
  */
 package com.navercorp.pinpoint.plugin.arcus;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 
 /**
  * @author emeroad
  */
 public class ParameterUtils {
 
-    public static int findFirstString(InstrumentableMethod method, int maxIndex) {
+    public static int findFirstString(InstrumentMethod method, int maxIndex) {
         if (method == null) {
             return -1;
         }

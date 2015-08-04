@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
  * @author emeroad
  * @author netspider
  */
-public interface InstrumentableClass {
+public interface InstrumentClass {
 
     boolean isInterface();
 
@@ -39,13 +39,13 @@ public interface InstrumentableClass {
 
     String[] getInterfaces();
     
-    InstrumentableMethod getConstructor(String[] parameterTypes);
+    InstrumentMethod getConstructor(String[] parameterTypes);
 
-    List<InstrumentableMethod> getDeclaredMethods();
+    List<InstrumentMethod> getDeclaredMethods();
 
-    List<InstrumentableMethod> getDeclaredMethods(MethodFilter filter);
+    List<InstrumentMethod> getDeclaredMethods(MethodFilter filter);
 
-    InstrumentableMethod getDeclaredMethod(String name, String[] parameterTypes);
+    InstrumentMethod getDeclaredMethod(String name, String[] parameterTypes);
     
     ClassLoader getClassLoader();
 
@@ -147,7 +147,7 @@ public interface InstrumentableClass {
     int addGroupInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, InterceptorGroupDefinition scopeDefinition) throws InstrumentException;
     
     @Deprecated
-    InstrumentableClass getNestedClass(String className);
+    InstrumentClass getNestedClass(String className);
 
     @Deprecated
     boolean addDebugLogBeforeAfterMethod();

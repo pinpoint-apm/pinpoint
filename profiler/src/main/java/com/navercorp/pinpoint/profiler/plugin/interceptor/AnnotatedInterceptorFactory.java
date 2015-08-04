@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.plugin.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
@@ -39,7 +39,7 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
     }
 
     @Override
-    public Interceptor getInterceptor(ClassLoader classLoader, String interceptorClassName, Object[] providedArguments, InterceptorGroup group, ExecutionPolicy policy, InstrumentableClass target, InstrumentableMethod targetMethod) {
+    public Interceptor getInterceptor(ClassLoader classLoader, String interceptorClassName, Object[] providedArguments, InterceptorGroup group, ExecutionPolicy policy, InstrumentClass target, InstrumentMethod targetMethod) {
         Class<? extends Interceptor> interceptorType = pluginContext.injectClass(classLoader, interceptorClassName);
         
         if (group == null) {
