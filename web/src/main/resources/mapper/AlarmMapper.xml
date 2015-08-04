@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.navercorp.pinpoint.web.dao.AlarmResourceDao">
-
 	<select id="selectRules" resultType="rule" parameterType="String">
 		SELECT *
 		FROM alarm_rule
@@ -10,10 +9,10 @@
 	</select>
 	
 	<insert id="insertAppRule" parameterType="java.util.List">
-        INSERT INTO alarm_rule(application_id, checker_name, threshold, emp_group, sms_send, email_send, notes)
+        INSERT INTO alarm_rule(application_id, checker_name, threshold, user_group_id, sms_send, email_send, notes)
         VALUES
 		<foreach collection="list" item="rule" separator=",">
-			(#{rule.applicationId}, #{rule.checkerName}, #{rule.threshold}, #{rule.empGroup}, #{rule.smsSend}, #{rule.emailSend}, #{rule.notes})
+			(#{rule.applicationId}, #{rule.checkerName}, #{rule.threshold}, #{rule.userGroupId}, #{rule.smsSend}, #{rule.emailSend}, #{rule.notes})
 		</foreach>
 	</insert>
 	

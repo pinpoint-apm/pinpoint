@@ -22,5 +22,10 @@
         <!--undersocre mapping of DB table  -->
         <setting name="mapUnderscoreToCamelCase" value="true"/>
     </settings>
+    
+    <typeAliases>
+        <typeAlias type="com.navercorp.pinpoint.web.vo.UserGroupMember" alias="UserGroupMember"/>
+        <typeAlias type="com.navercorp.pinpoint.web.vo.User" alias="User"/>
+    </typeAliases>
 
 </configuration>

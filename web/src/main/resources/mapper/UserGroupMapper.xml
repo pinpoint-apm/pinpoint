@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
+
 <mapper namespace="com.navercorp.pinpoint.web.dao.UserGroupDao">
 
 	<insert id="insertUserGroup" parameterType="string">
@@ -12,5 +13,16 @@
         DELETE
         FROM user_group
         WHERE groupId = #{userGroupId}
+    </delete>
+
+    <insert id="insertMember" parameterType="UserGroupMember">
+        INSERT INTO user_group_member
+        VALUES (#{userGroupId}, #{memberId})
+    </insert>
+    
+    <delete id="deleteMember" parameterType="UserGroupMember">
+        DELETE
+        FROM user_group_member
+        WHERE groupId = #{userGroupId} AND memberId = #{memberId}
     </delete>
 </mapper>

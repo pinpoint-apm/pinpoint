@@ -13,25 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.web.dao;
+package com.navercorp.pinpoint.web.service;
 
-import java.util.List;
-
-import com.navercorp.pinpoint.web.vo.UserGroupMember;
+import com.navercorp.pinpoint.web.vo.User;
 
 /**
  * @author minwoo.jung
  */
-public interface UserGroupDao {
-    void createUserGroup(String userGroupId);
-    
-    List<String> selectUserGroupList();
-    
-    void updateUserGroup();
-    
-    void deleteUserGroup(String userGroupId);
+public interface UserService {
 
-    void insertMember(UserGroupMember userGroupMember);
+    void insertUser(User user);
 
-    void deleteMember(UserGroupMember userGroupMember);
+    void deleteUser(User user);
+
 }

@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.navercorp.pinpoint.web.dao.UserGroupDao;
+import com.navercorp.pinpoint.web.vo.UserGroupMember;
 
 /**
  * @author minwoo.jung
@@ -48,6 +49,17 @@ public class UserGroupServiceImpl implements UserGroupService {
     @Override
     public void deleteUserGroup(String userGroupId) {
         userGroupDao.deleteUserGroup(userGroupId);
+    }
+
+    @Override
+    public void insertMember(UserGroupMember userGroupMember) {
+        userGroupDao.insertMember(userGroupMember);
+    }
+
+    @Override
+    public void deleteMember(UserGroupMember userGroupMember) {
+        userGroupDao.deleteMember(userGroupMember); 
+        
     }
 
 }

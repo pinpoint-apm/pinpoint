@@ -15,23 +15,15 @@
  */
 package com.navercorp.pinpoint.web.dao;
 
-import java.util.List;
-
-import com.navercorp.pinpoint.web.vo.UserGroupMember;
+import com.navercorp.pinpoint.web.vo.User;
 
 /**
  * @author minwoo.jung
  */
-public interface UserGroupDao {
-    void createUserGroup(String userGroupId);
-    
-    List<String> selectUserGroupList();
-    
-    void updateUserGroup();
-    
-    void deleteUserGroup(String userGroupId);
+public interface UserDao {
 
-    void insertMember(UserGroupMember userGroupMember);
+    void insertUser(User user);
 
-    void deleteMember(UserGroupMember userGroupMember);
+    void deleteUser(User user);
+
 }
