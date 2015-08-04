@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.modifier.db.jtds;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
@@ -47,7 +47,7 @@ public abstract class JtdsConnectionModifier extends AbstractModifier {
             logger.info("Modifying. {}", javassistClassName);
         }
         try {
-            InstrumentableClass jtdsConnection = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+            InstrumentClass jtdsConnection = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
 
             jtdsConnection.addTraceValue(DatabaseInfoTraceValue.class);

@@ -30,8 +30,8 @@ import org.mockito.stubbing.Answer;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
@@ -45,8 +45,8 @@ public class DefaultInterceptorFactoryTest {
     private final DefaultProfilerPluginContext pluginContext = mock(DefaultProfilerPluginContext.class);
     private final ByteCodeInstrumentor instrumentor = mock(ByteCodeInstrumentor.class);
     private final TraceContext traceContext = mock(TraceContext.class);
-    private final InstrumentableClass aClass = mock(InstrumentableClass.class);
-    private final InstrumentableMethod aMethod = mock(InstrumentableMethod.class);
+    private final InstrumentClass aClass = mock(InstrumentClass.class);
+    private final InstrumentMethod aMethod = mock(InstrumentMethod.class);
     private final MethodDescriptor descriptor = mock(MethodDescriptor.class);
     
     @Before

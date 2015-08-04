@@ -12,7 +12,7 @@ public class ApiInterceptorTest {
 //
 //        TraceContext traceContext = mock(TraceContext.class);
 //        MethodDescriptor methodDescriptor = new DefaultMethodDescriptor(Object.class.getName(), "set", parameterTypes, parameterNames);
-//        InstrumentableMethod methodInfo = mock(InstrumentableMethod.class);
+//        InstrumentMethod methodInfo = mock(InstrumentMethod.class);
 //        ObjectAccessor target = mock(ObjectAccessor.class);
 //
 //        when(methodInfo.getDescriptor()).thenReturn(methodDescriptor);

@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.profiler.modifier.orm.mybatis;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
@@ -65,9 +65,9 @@ public class MyBatisModifier extends AbstractModifier {
             logger.info("Modifying. {}", javassistClassName);
         }
         try {
-            InstrumentableClass myBatisClientImpl = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
-            List<InstrumentableMethod> declaredMethods = myBatisClientImpl.getDeclaredMethods(getSqlSessionMethodFilter());
-            for (InstrumentableMethod method : declaredMethods) {
+            InstrumentClass myBatisClientImpl = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+            List<InstrumentMethod> declaredMethods = myBatisClientImpl.getDeclaredMethods(getSqlSessionMethodFilter());
+            for (InstrumentMethod method : declaredMethods) {
                 Interceptor sqlSessionInterceptor = new MyBatisSqlMapOperationInterceptor(serviceType);
                 myBatisClientImpl.addGroupInterceptor(method.getName(), method.getParameterTypes(), sqlSessionInterceptor, SCOPE);
             }

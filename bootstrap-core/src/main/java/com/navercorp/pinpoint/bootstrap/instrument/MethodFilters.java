@@ -27,7 +27,7 @@ public class MethodFilters {
     public static final MethodFilter ACCEPT_ALL = new MethodFilter() {
 
         @Override
-        public boolean accept(InstrumentableMethod method) {
+        public boolean accept(InstrumentMethod method) {
             return ACCEPT;
         }
         
@@ -66,7 +66,7 @@ public class MethodFilters {
         }
 
         @Override
-        public boolean accept(InstrumentableMethod method) {
+        public boolean accept(InstrumentMethod method) {
             for (String name : names) {
                 if (name.equals(method.getName())) {
                     return ACCEPT;
@@ -87,7 +87,7 @@ public class MethodFilters {
         }
 
         @Override
-        public boolean accept(InstrumentableMethod method) {
+        public boolean accept(InstrumentMethod method) {
             int modifier = method.getModifiers();
             return ((required & modifier) == required) && ((rejected & modifier) == 0);
         }
@@ -103,7 +103,7 @@ public class MethodFilters {
         }
 
         @Override
-        public boolean accept(InstrumentableMethod method) {
+        public boolean accept(InstrumentMethod method) {
             String[] paramTypes = method.getParameterTypes();
             
             if (paramTypes.length < index + 1) {
@@ -122,7 +122,7 @@ public class MethodFilters {
         }
 
         @Override
-        public boolean accept(InstrumentableMethod method) {
+        public boolean accept(InstrumentMethod method) {
             String[] paramTypes = method.getParameterTypes();
             return Arrays.equals(paramTypes, types);
         }

@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
@@ -54,7 +54,7 @@ public class LoggingEventOfLogbackModifier extends AbstractModifier {
         }
         
         try {
-            InstrumentableClass mdcClass = byteCodeInstrumentor.getClass(classLoader, "org.slf4j.MDC", classFileBuffer);
+            InstrumentClass mdcClass = byteCodeInstrumentor.getClass(classLoader, "org.slf4j.MDC", classFileBuffer);
             
             if (!mdcClass.hasMethod("put", new String[]{"java.lang.String", "java.lang.String"}, "void")) {
                 logger.warn("modify fail. Because put method does not existed org.slf4j.MDC class.");
@@ -70,7 +70,7 @@ public class LoggingEventOfLogbackModifier extends AbstractModifier {
         }
         
         try {
-            InstrumentableClass loggingEvent = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+            InstrumentClass loggingEvent = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
             
             Interceptor interceptor1 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.modifier.log.logback.interceptor.LoggingEventOfLogbackInterceptor");
             loggingEvent.addConstructorInterceptor(new String[]{"java.lang.String", "ch.qos.logback.classic.Logger", "ch.qos.logback.classic.Level", "java.lang.String", "java.lang.Throwable", "java.lang.Object[]"}, interceptor1);

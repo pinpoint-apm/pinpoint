@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
@@ -153,7 +153,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     }
     
     @Override
-    public InstrumentableClass getInstrumentableClass(ClassLoader classLoader, String className, byte[] classFileBuffer) {
+    public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classFileBuffer) {
         try {
             return agent.getClassPool().getClass(this, classLoader, className, classFileBuffer);
         } catch (NotFoundInstrumentException e) {
@@ -187,8 +187,19 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     }
 
     @Override
-    public void retransform(Class<?> target, ClassFileTransformer classEditor) {
-        agent.getRetransformService().retransform(target, classEditor);
+    public void retransform(Class<?> target, final PinpointClassFileTransformer transformer) {
+        agent.getRetransformService().retransform(target, new ClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+                try {
+                    return transformer.transform(DefaultProfilerPluginContext.this, loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+                } catch (InstrumentException e) {
+                    throw new PinpointException(e);
+                }
+            }
+            
+        });
     }
     
     public <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className) {

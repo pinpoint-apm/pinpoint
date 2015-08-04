@@ -14,13 +14,13 @@
  */
 package com.navercorp.pinpoint.profiler.plugin.transformer;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 
 /**
  * @author Jongho Moon
  *
  */
 public interface MethodRecipe {
-    public void edit(ClassLoader targetClassLoader, InstrumentableClass targetClass, InstrumentableMethod targetMethod) throws Exception;
+    public void edit(ClassLoader targetClassLoader, InstrumentClass targetClass, InstrumentMethod targetMethod) throws Exception;
 }

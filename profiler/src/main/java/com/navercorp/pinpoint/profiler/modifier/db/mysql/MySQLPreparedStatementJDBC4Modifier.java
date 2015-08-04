@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.interceptor.InterceptPoint;
@@ -64,7 +64,7 @@ public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
             logger.info("Modifying. {}", className);
         }
         try {
-            InstrumentableClass preparedStatement = byteCodeInstrumentor.getClass(classLoader, className, classFileBuffer);
+            InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(classLoader, className, classFileBuffer);
 
             bindVariableIntercept(preparedStatement, classLoader, protectedDomain);
 
@@ -77,7 +77,7 @@ public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
         }
     }
 
-    private void bindVariableIntercept(InstrumentableClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
+    private void bindVariableIntercept(InstrumentClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
         // TODO Need to add parameter type to filter arguments
         // Cannot specify methods without parameter type information because each JDBC driver has different API.
         BindVariableFilter exclude = new IncludeBindVariableFilter(new String[]{"setRowId", "setNClob", "setSQLXML"});

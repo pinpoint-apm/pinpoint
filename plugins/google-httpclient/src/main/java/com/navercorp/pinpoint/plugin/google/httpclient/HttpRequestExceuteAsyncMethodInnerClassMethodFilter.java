@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.plugin.google.httpclient;
 
 import java.lang.reflect.Modifier;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 
 /**
@@ -29,7 +29,7 @@ public class HttpRequestExceuteAsyncMethodInnerClassMethodFilter implements Meth
     private static final int SYNTHETIC = 0x00001000;
 
     @Override
-    public boolean accept(InstrumentableMethod method) {
+    public boolean accept(InstrumentMethod method) {
         final int modifiers = method.getModifiers();
 
         if (isSynthetic(modifiers) || !Modifier.isPublic(modifiers) || Modifier.isStatic(modifiers) || Modifier.isAbstract(modifiers) || Modifier.isNative(modifiers)) {

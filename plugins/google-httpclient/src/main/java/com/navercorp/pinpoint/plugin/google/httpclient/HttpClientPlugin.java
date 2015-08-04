@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.plugin.google.httpclient;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -80,7 +80,7 @@ public class HttpClientPlugin implements ProfilerPlugin, HttpClientConstants {
 
         classBuilder.conditional(new ClassCondition() {
             @Override
-            public boolean check(ProfilerPluginSetupContext context, ClassLoader classLoader, InstrumentableClass target) {
+            public boolean check(ProfilerPluginSetupContext context, ClassLoader classLoader, InstrumentClass target) {
                 if (!target.hasConstructor(new String[] { "com.google.api.client.http.HttpRequest" })) {
                     return false;
                 }

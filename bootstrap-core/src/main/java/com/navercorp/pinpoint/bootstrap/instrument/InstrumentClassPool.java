@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
  * @author Jongho Moon
  *
  */
-public interface InstrumentableClassPool {
-    InstrumentableClass getClass(ProfilerPluginContext pluginContext, ClassLoader classLoader, String classInternalName, byte[] classFileBuffer) throws NotFoundInstrumentException;
+public interface InstrumentClassPool {
+    InstrumentClass getClass(ProfilerPluginContext pluginContext, ClassLoader classLoader, String classInternalName, byte[] classFileBuffer) throws NotFoundInstrumentException;
     boolean hasClass(ClassLoader classLoader, String classBinaryName);
 }

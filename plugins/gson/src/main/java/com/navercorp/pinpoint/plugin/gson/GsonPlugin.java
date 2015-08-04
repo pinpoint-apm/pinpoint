@@ -20,8 +20,8 @@ import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -46,14 +46,14 @@ public class GsonPlugin implements ProfilerPlugin {
             
             @Override
             public byte[] transform(ProfilerPluginContext pluginContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentableClass target = pluginContext.getInstrumentableClass(loader, className, classfileBuffer);
+                InstrumentClass target = pluginContext.getInstrumentClass(loader, className, classfileBuffer);
                 InterceptorGroup group = pluginContext.getInterceptorGroup(GSON_GROUP); 
                 
-                for (InstrumentableMethod m : target.getDeclaredMethods(MethodFilters.name("fromJson"))) {
+                for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("fromJson"))) {
                     m.addInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.FromJsonInterceptor", group);
                 }
                 
-                for (InstrumentableMethod m : target.getDeclaredMethods(MethodFilters.name("toJson"))) {
+                for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("toJson"))) {
                     m.addInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.ToJsonInterceptor", group);
                 }
                 

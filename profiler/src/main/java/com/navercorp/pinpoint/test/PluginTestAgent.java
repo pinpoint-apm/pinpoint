@@ -34,9 +34,9 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedSql;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
@@ -654,14 +654,14 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     private int findApiId(Member method) throws AssertionError {
         Class<?> clazz = method.getDeclaringClass();
         
-        InstrumentableClass ic;
+        InstrumentClass ic;
         try {
             ic = getByteCodeInstrumentor().getClass(clazz.getClassLoader(), clazz.getName(), null);
         } catch (InstrumentException e) {
             throw new RuntimeException("Cannot get instrumentClass " + clazz.getName(), e);
         }
 
-        InstrumentableMethod methodInfo;
+        InstrumentMethod methodInfo;
         
         if (method instanceof Method) {
             methodInfo = getMethodInfo(ic, (Method)method);
@@ -676,14 +676,14 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         return findApiId(desc);
     }
     
-    private InstrumentableMethod getMethodInfo(InstrumentableClass ic, Method method) {
+    private InstrumentMethod getMethodInfo(InstrumentClass ic, Method method) {
         Class<?>[] parameterTypes = method.getParameterTypes();
         String[] parameterTypeNames = JavaAssistUtils.toPinpointParameterType(parameterTypes);
         
         return ic.getDeclaredMethod(method.getName(), parameterTypeNames);
     }
     
-    private InstrumentableMethod getMethodInfo(InstrumentableClass ic, Constructor<?> constructor) {
+    private InstrumentMethod getMethodInfo(InstrumentClass ic, Constructor<?> constructor) {
         Class<?>[] parameterTypes = constructor.getParameterTypes();
         String[] parameterTypeNames = JavaAssistUtils.getParameterType(parameterTypes);
         

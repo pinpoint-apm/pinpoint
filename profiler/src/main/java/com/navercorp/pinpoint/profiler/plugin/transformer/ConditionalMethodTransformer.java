@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.plugin.transformer;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentableClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassCondition;
 
@@ -32,7 +32,7 @@ public class ConditionalMethodTransformer implements MethodTransformer {
     }
     
     @Override
-    public void edit(ClassLoader classLoader, InstrumentableClass target) throws Throwable {
+    public void edit(ClassLoader classLoader, InstrumentClass target) throws Throwable {
         if (condition.check(context, classLoader, target)) {
             delegate.edit(classLoader, target);
         }
