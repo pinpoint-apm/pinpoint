@@ -22,6 +22,7 @@ import java.util.List;
 
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.bo.*;
+import com.navercorp.pinpoint.common.util.DefaultSqlParser;
 import com.navercorp.pinpoint.common.util.OutputParameterParser;
 import com.navercorp.pinpoint.common.util.SqlParser;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
@@ -58,7 +59,7 @@ public class SpanServiceImpl implements SpanService {
     @Autowired
     private StringMetaDataDao stringMetaDataDao;
 
-    private final SqlParser sqlParser = new SqlParser();
+    private final SqlParser sqlParser = new DefaultSqlParser();
     private final OutputParameterParser outputParameterParser = new OutputParameterParser();
 
     @Override

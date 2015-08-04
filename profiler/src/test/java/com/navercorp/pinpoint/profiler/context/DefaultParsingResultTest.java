@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.util;
+package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.common.util.ParsingResult;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -23,7 +24,7 @@ public class DefaultParsingResultTest {
 
     @Test
     public void testId() throws Exception {
-        DefaultParsingResult result = new DefaultParsingResult();
+        DefaultParsingResult result = new DefaultParsingResult("");
         Assert.assertEquals(ParsingResult.ID_NOT_EXIST, result.getId());
 
         // update

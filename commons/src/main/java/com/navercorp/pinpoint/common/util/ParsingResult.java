@@ -28,6 +28,4 @@ public interface ParsingResult {
     String getOutput();
 
     int getId();
-
-    boolean setId(int id);
 }
