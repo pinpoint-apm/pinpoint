@@ -28,7 +28,7 @@ public class Rule {
     private String applicationId;
     private String CheckerName;
     private Integer threshold;
-    private String empGroup;
+    private String userGroupId;
     private boolean smsSend;
     private boolean emailSend;
     private String notes;
@@ -36,11 +36,11 @@ public class Rule {
     public Rule() {
     }
 
-    public Rule(String applicationId, String checkerName, Integer Threshold, String empGroup, boolean smsSend, boolean emailSend, String notes) {
+    public Rule(String applicationId, String checkerName, Integer Threshold, String userGroupId, boolean smsSend, boolean emailSend, String notes) {
         this.applicationId = applicationId;
         this.CheckerName = checkerName;
         this.threshold = Threshold;
-        this.empGroup = empGroup;
+        this.userGroupId = userGroupId;
         this.smsSend = smsSend;
         this.emailSend = emailSend;
         this.notes = notes;
@@ -70,12 +70,12 @@ public class Rule {
         this.threshold = threshold;
     }
 
-    public String getEmpGroup() {
-        return empGroup;
+    public String getUserGroupId() {
+        return userGroupId;
     }
 
-    public void setEmpGroup(String empGroup) {
-        this.empGroup = empGroup;
+    public void setuserGroupId(String userGroupId) {
+        this.userGroupId = userGroupId;
     }
 
     public boolean isSmsSend() {

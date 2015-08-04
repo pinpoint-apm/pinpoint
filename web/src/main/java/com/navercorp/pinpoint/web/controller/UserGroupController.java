@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.navercorp.pinpoint.web.service.UserGroupService;
+import com.navercorp.pinpoint.web.vo.UserGroupMember;
 
 /**
  * @author minwoo.jung
@@ -35,6 +36,7 @@ import com.navercorp.pinpoint.web.service.UserGroupService;
 public class UserGroupController {
     
     public static final String USER_GROUP_ID = "userGroupId";
+    public static final String USER_GROUP_MEMBER_ID = "userGroupMemberId";
 
     @Autowired
     UserGroupService userGroupService;
@@ -71,6 +73,47 @@ public class UserGroupController {
         }
         
         userGroupService.deleteUserGroup(userGroupId);
+
+        Map<String, String> result = new HashMap<String, String>();
+        result.put("result", "SUCCESS");
+        return result;
+    }
+    
+    
+    @RequestMapping(value = "/member", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String, String> insertUserGroupMember(@RequestBody Map<String, String> params) {
+        String userGroupId = params.get(USER_GROUP_ID);
+        String userGroupMemberId = params.get(USER_GROUP_MEMBER_ID);
+        
+        if (userGroupId == null || userGroupMemberId == null) {
+            Map<String, String> result = new HashMap<String, String>();
+            result.put("errorCode", "500");
+            result.put("errorMessage", "there is not userGroupId or userGroupMemberId in params to deleting user group");
+            return result;
+        }
+        
+        userGroupService.insertMember(new UserGroupMember(userGroupId, userGroupMemberId));
+
+        Map<String, String> result = new HashMap<String, String>();
+        result.put("result", "SUCCESS");
+        return result;
+    }
+    
+    @RequestMapping(value = "/member", method = RequestMethod.DELETE)
+    @ResponseBody
+    public Map<String, String> deleteUserGroupMember(@RequestBody Map<String, String> params) {
+        String userGroupId = params.get(USER_GROUP_ID);
+        String userGroupMemberId = params.get(USER_GROUP_MEMBER_ID);
+        
+        if (userGroupId == null || userGroupMemberId == null) {
+            Map<String, String> result = new HashMap<String, String>();
+            result.put("errorCode", "500");
+            result.put("errorMessage", "there is not userGroupId or userGroupMemberId in params to deleting user group");
+            return result;
+        }
+        
+        userGroupService.deleteMember(new UserGroupMember(userGroupId, userGroupMemberId));
 
         Map<String, String> result = new HashMap<String, String>();
         result.put("result", "SUCCESS");

@@ -17,12 +17,15 @@ package com.navercorp.pinpoint.web.dao.mysql;
 
 import java.util.List;
 
+import javax.xml.stream.events.Namespace;
+
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import com.navercorp.pinpoint.web.dao.UserGroupDao;
+import com.navercorp.pinpoint.web.vo.UserGroupMember;
 
 /**
  * @author minwoo.jung
@@ -43,19 +46,26 @@ public class MysqlUserGroupDao implements UserGroupDao {
 
     @Override
     public List<String> selectUserGroupList() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public void updateUserGroup() {
-        // TODO Auto-generated method stub
-        
     }
 
     @Override
     public void deleteUserGroup(String userGroupId) {
         sqlSessionTemplate.delete(NAMESPACE + "deleteUserGroup", userGroupId);
+    }
+
+    @Override
+    public void insertMember(UserGroupMember userGroupMember) {
+        sqlSessionTemplate.insert(NAMESPACE + "insertMember", userGroupMember);
+    }
+
+    @Override
+    public void deleteMember(UserGroupMember userGroupMember) {
+        sqlSessionTemplate.delete(NAMESPACE + "deleteMember", userGroupMember);
     }
 
 }

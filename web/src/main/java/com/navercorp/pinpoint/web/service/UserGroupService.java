@@ -17,6 +17,8 @@ package com.navercorp.pinpoint.web.service;
 
 import java.util.List;
 
+import com.navercorp.pinpoint.web.vo.UserGroupMember;
+
 /**
  * @author minwoo.jung
  */
@@ -28,4 +30,8 @@ public interface UserGroupService {
     void updateUserGroup();
     
     void deleteUserGroup(String userGroupId);
+
+    void insertMember(UserGroupMember userGroupMember);
+
+    void deleteMember(UserGroupMember userGroupMember);
 }
