@@ -63,7 +63,7 @@ public class DefaultCachingSqlNormalizer implements CachingSqlNormalizer {
 
         if (!(parsingResult instanceof ParsingResultInternal)) {
             if (logger.isWarnEnabled()) {
-                logger.warn("unsupported ParsingResult Type type {}");
+                logger.warn("unsupported ParsingResult Type type {}", parsingResult);
             }
             throw new IllegalArgumentException("unsupported ParsingResult Type");
         }
