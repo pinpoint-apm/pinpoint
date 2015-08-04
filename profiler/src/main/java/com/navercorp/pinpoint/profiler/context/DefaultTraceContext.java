@@ -23,9 +23,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.HistogramSchema;
 import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.common.util.DefaultParsingResult;
 import com.navercorp.pinpoint.common.util.ParsingResult;
-import com.navercorp.pinpoint.common.util.SqlParser;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
@@ -73,8 +71,7 @@ public class DefaultTraceContext implements TraceContext {
 
     private final MetricRegistry metricRegistry;
 
-    private final SimpleCache<String> sqlCache;
-    private final SqlParser sqlParser = new SqlParser();
+    private final CachingSqlNormalizer cachingSqlNormalizer;
 
     private final SimpleCache<String> apiCache = new SimpleCache<String>();
     private final SimpleCache<String> stringCache = new SimpleCache<String>();
@@ -97,7 +94,7 @@ public class DefaultTraceContext implements TraceContext {
         if (sampler == null) {
             throw new NullPointerException("sampler must not be null");
         }
-        this.sqlCache = new SimpleCache<String>(sqlCacheSize);
+        this.cachingSqlNormalizer = new DefaultCachingSqlNormalizer(sqlCacheSize);
         this.contextServiceType = ServiceType.findServiceType(contextServiceType);
         this.metricRegistry = new MetricRegistry(this.contextServiceType);
 
@@ -246,9 +243,8 @@ public class DefaultTraceContext implements TraceContext {
 
     @Override
     public ParsingResult parseSql(final String sql) {
-
-        final DefaultParsingResult parsingResult = this.sqlParser.normalizedSql(sql);
-        return parsingResult;
+        // lazy sql normalization
+        return this.cachingSqlNormalizer.wrapSql(sql);
     }
 
     @Override
@@ -256,14 +252,9 @@ public class DefaultTraceContext implements TraceContext {
         if (parsingResult == null) {
             return false;
         }
-        if (parsingResult.getId() != ParsingResult.ID_NOT_EXIST) {
-            // already cached
-            return false;
-        }
-        final String normalizedSql = parsingResult.getSql();
-
-        final Result cachingResult = this.sqlCache.put(normalizedSql);
-        if (cachingResult.isNewValue()) {
+        // lazy sql parsing
+        boolean isNewValue = this.cachingSqlNormalizer.normalizedSql(parsingResult);
+        if (isNewValue) {
             if (isDebug) {
                 // TODO logging hit ratio could help debugging
                 logger.debug("NewSQLParsingResult:{}", parsingResult);
@@ -275,12 +266,12 @@ public class DefaultTraceContext implements TraceContext {
             sqlMetaData.setAgentId(getAgentId());
             sqlMetaData.setAgentStartTime(getAgentStartTime());
 
-            sqlMetaData.setSqlId(cachingResult.getId());
-            sqlMetaData.setSql(normalizedSql);
+            sqlMetaData.setSqlId(parsingResult.getId());
+            sqlMetaData.setSql(parsingResult.getSql());
 
             this.priorityDataSender.request(sqlMetaData);
         }
-        return parsingResult.setId(cachingResult.getId());
+        return isNewValue;
     }
 
     @Override
