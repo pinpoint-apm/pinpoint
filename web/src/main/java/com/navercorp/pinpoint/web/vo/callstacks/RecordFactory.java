@@ -46,7 +46,7 @@ public class RecordFactory {
                 align.getAgentId(), 
                 align.getApplicationId(), 
                 registry.findServiceType(align.getServiceType()),
-                null, 
+                align.getDestinationId(), 
                 align.isHasChild(), 
                 false, 
                 align.getTransactionId(), 

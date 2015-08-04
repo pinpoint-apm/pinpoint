@@ -219,6 +219,14 @@ public class SpanAlign {
         return spanEventBo.getAnnotationBoList();
     }
     
+    public String getDestinationId() {
+        if(isSpan()) {
+            return null;
+        }
+        
+        return spanEventBo.getDestinationId();
+    }
+    
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
