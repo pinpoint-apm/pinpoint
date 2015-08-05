@@ -37,6 +37,11 @@
         <url-pattern>*.pinpoint</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>pinpoint-web</servlet-name>
+        <url-pattern>*.pinpointws</url-pattern>
+    </servlet-mapping>
+
     <filter>
         <filter-name>encodingFilter</filter-name>
         <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
