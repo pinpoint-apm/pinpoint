@@ -12,7 +12,7 @@
     <delete id="deleteUserGroup" parameterType="string">
         DELETE
         FROM user_group
-        WHERE groupId = #{userGroupId}
+        WHERE group_id = #{userGroupId}
     </delete>
 
     <insert id="insertMember" parameterType="UserGroupMember">
@@ -23,6 +23,6 @@
     <delete id="deleteMember" parameterType="UserGroupMember">
         DELETE
         FROM user_group_member
-        WHERE groupId = #{userGroupId} AND memberId = #{memberId}
+        WHERE group_id = #{userGroupId} AND member_id = #{memberId}
     </delete>
 </mapper>

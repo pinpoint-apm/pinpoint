@@ -12,6 +12,6 @@
     <delete id="deleteUser" parameterType="User">
         DELETE
         FROM user
-        WHERE userId = #{userId} 
+        WHERE user_id = #{userId} 
     </delete>
 </mapper>

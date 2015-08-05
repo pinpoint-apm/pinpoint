@@ -16,15 +16,12 @@
 
 package com.navercorp.pinpoint.web.alarm.vo;
 
-import org.apache.ibatis.type.Alias;
-
 /**
  * @author minwoo.jung
  */
-@Alias(value = "rule")
 public class Rule {
 
-    private String id;
+    private String ruleId;
     private String applicationId;
     private String CheckerName;
     private Integer threshold;
@@ -94,12 +91,12 @@ public class Rule {
         this.emailSend = emailSend;
     }
 
-    public String getId() {
-        return id;
+    public String getRuleId() {
+        return ruleId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setRuleId(String ruleId) {
+        this.ruleId = ruleId;
     }
 
     public String getNotes() {
