@@ -26,6 +26,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,6 +112,10 @@ public class PinpointSocketManager {
 
     public List<PinpointServer> getCollectorList() {
         return serverAcceptor.getWritableServerList();
+    }
+
+    public PinpointServer getCollector(AgentInfoBo agentInfo) {
+        return getCollector(agentInfo.getApplicationName(), agentInfo.getAgentId(), agentInfo.getStartTime());
     }
 
     public PinpointServer getCollector(String applicationName, String agentId, long startTimeStamp) {
