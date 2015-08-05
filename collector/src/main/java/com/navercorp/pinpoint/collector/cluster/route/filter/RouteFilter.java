@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.cluster.route;
+package com.navercorp.pinpoint.collector.cluster.route.filter;
+
+import com.navercorp.pinpoint.collector.cluster.route.RouteEvent;
 
 public interface RouteFilter<T extends RouteEvent> {
 

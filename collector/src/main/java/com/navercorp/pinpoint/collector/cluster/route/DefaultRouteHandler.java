@@ -22,12 +22,14 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
 import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
+import com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
 
 /**
  * @author koo.taejin
+ * @author HyunGil Jeong
  */
 public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
 
@@ -36,11 +38,13 @@ public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
     private final RouteFilterChain<RequestEvent> requestFilterChain;
     private final RouteFilterChain<ResponseEvent> responseFilterChain;
 
-    public DefaultRouteHandler(ClusterPointLocator<TargetClusterPoint> targetClusterPointLocator) {
+    public DefaultRouteHandler(ClusterPointLocator<TargetClusterPoint> targetClusterPointLocator,
+            RouteFilterChain<RequestEvent> requestFilterChain,
+            RouteFilterChain<ResponseEvent> responseFilterChain) {
         super(targetClusterPointLocator);
 
-        this.requestFilterChain = new DefaultRouteFilterChain<RequestEvent>();
-        this.responseFilterChain = new DefaultRouteFilterChain<ResponseEvent>();
+        this.requestFilterChain = requestFilterChain;
+        this.responseFilterChain = responseFilterChain;
     }
 
     @Override
@@ -65,7 +69,7 @@ public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
     }
 
     private RouteResult onRoute0(RequestEvent event) {
-        TBase requestObject = event.getRequestObject();
+        TBase<?,?> requestObject = event.getRequestObject();
         if (requestObject == null) {
             return new RouteResult(RouteStatus.BAD_REQUEST);
         }
