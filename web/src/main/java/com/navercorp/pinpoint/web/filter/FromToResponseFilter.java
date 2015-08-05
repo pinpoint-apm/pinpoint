@@ -21,6 +21,11 @@ import java.util.List;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.rpc.util.AssertUtils;
+import com.navercorp.pinpoint.web.filter.agent.AgentFilter;
+import com.navercorp.pinpoint.web.filter.agent.AgentFilterFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -28,65 +33,70 @@ import com.navercorp.pinpoint.common.bo.SpanEventBo;
  * 
  */
 public class FromToResponseFilter implements Filter {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final List<ServiceType> fromServiceCode;
     private final String fromApplicationName;
-    private final String fromAgentName;
 
     private final List<ServiceType> toServiceCode;
     private final String toApplicationName;
-    private final String toAgentName;
 
     private final Long fromResponseTime;
     private final Long toResponseTime;
     private final Boolean includeFailed;
 
-    private final FilterHint hint;
+    private final FilterHint filterHint;
+    private final AgentFilter agentFilter;
 
-    public FromToResponseFilter(FilterDescriptor filterDescriptor, FilterHint hint) {
+    public FromToResponseFilter(FilterDescriptor filterDescriptor, FilterHint filterHint) {
         if (filterDescriptor == null) {
             throw new NullPointerException("filter descriptor must not be null");
         }
 
-        String fromServiceType = filterDescriptor.getFromServiceType();
-        String fromApplicationName = filterDescriptor.getFromApplicationName();
-        String fromAgentName = filterDescriptor.getFromAgentName();
-        String toServiceType = filterDescriptor.getToServiceType();
-        String toApplicationName = filterDescriptor.getToApplicationName();
-        String toAgentName = filterDescriptor.getToAgentName();
-        Long fromResponseTime = filterDescriptor.getResponseFrom();
-        Long toResponseTime = filterDescriptor.getResponseTo();
-        Boolean includeFailed = filterDescriptor.getIncludeException();
-
-        if (fromApplicationName == null) {
-            throw new NullPointerException("fromApplicationName must not be null");
-        }
-        if (toApplicationName == null) {
-            throw new NullPointerException("toApplicationName must not be null");
-        }
-
+        final String fromServiceType = filterDescriptor.getFromServiceType();
         this.fromServiceCode = ServiceType.findDesc(fromServiceType);
-        if (fromServiceCode == null) {
+        if (this.fromServiceCode == null) {
             throw new IllegalArgumentException("fromServiceCode not found. fromServiceType:" + fromServiceType);
         }
-        this.fromApplicationName = fromApplicationName;
-        this.fromAgentName = fromAgentName;
 
+        this.fromApplicationName = filterDescriptor.getFromApplicationName();
+        AssertUtils.assertNotNull(this.fromApplicationName, "fromApplicationName must not be null");
+//        this.fromAgentName = filterDescriptor.getFromAgentName();
+
+
+        final String toServiceType = filterDescriptor.getToServiceType();
         this.toServiceCode = ServiceType.findDesc(toServiceType);
         if (toServiceCode == null) {
             throw new IllegalArgumentException("toServiceCode not found. toServiceCode:" + toServiceType);
         }
-        this.toApplicationName = toApplicationName;
-        this.toAgentName = toAgentName;
 
-        this.fromResponseTime = fromResponseTime;
-        this.toResponseTime = toResponseTime;
-        this.includeFailed = includeFailed;
 
-        if (hint == null) {
-            throw new NullPointerException("hint must not be null");
+        this.toApplicationName = filterDescriptor.getToApplicationName();
+        AssertUtils.assertNotNull(this.toApplicationName, "toApplicationName must not be null");
+//        this.toAgentName = filterDescriptor.getToAgentName();
+
+        this.fromResponseTime = filterDescriptor.getResponseFrom();
+        this.toResponseTime = filterDescriptor.getResponseTo();
+
+        this.includeFailed = filterDescriptor.getIncludeException();
+
+        if (filterHint == null) {
+            throw new NullPointerException("hintFilter must not be null");
         }
-        this.hint = hint;
+        this.filterHint = filterHint;
+
+        this.agentFilter = createAgentFilter(filterDescriptor);
+
+    }
+
+    private AgentFilter createAgentFilter(FilterDescriptor filterDescriptor) {
+        final String fromAgentName = filterDescriptor.getFromAgentName();
+        final String toAgentName = filterDescriptor.getToAgentName();
+
+        AgentFilterFactory factory = new AgentFilterFactory(fromAgentName, toAgentName);
+        final AgentFilter agentFilter = factory.createFilter();
+        logger.debug("agentFilter:{}", agentFilter);
+        return agentFilter;
     }
 
     private boolean checkResponseCondition(long elapsed, boolean hasError) {
@@ -104,22 +114,8 @@ public class FromToResponseFilter implements Filter {
         return result;
     }
 
-    private boolean checkPinPointAgentName(String fromAgentName, String toAgentName) {
-        if (this.fromAgentName == null && this.toAgentName == null) {
-            return true;
-        }
-
-        boolean result = true;
-
-        if (this.fromAgentName != null) {
-            result &= this.fromAgentName.equals(fromAgentName);
-        }
-
-        if (this.toAgentName != null) {
-            result &= this.toAgentName.equals(toAgentName);
-        }
-
-        return result;
+    private boolean filterAgentName(String fromAgentName, String toAgentName) {
+        return this.agentFilter.accept(fromAgentName, toAgentName);
     }
 
     @Override
@@ -131,7 +127,7 @@ public class FromToResponseFilter implements Filter {
             for (SpanBo span : transaction) {
                 if (span.isRoot() && includeServiceType(toServiceCode, span.getServiceType()) && toApplicationName.equals(span.getApplicationId())) {
                     return checkResponseCondition(span.getElapsed(), span.getErrCode() > 0)
-                            && checkPinPointAgentName(null, span.getAgentId());
+                            && filterAgentName(null, span.getAgentId());
                 }
             }
         } else if (includeUnknown(toServiceCode)) {
@@ -161,7 +157,7 @@ public class FromToResponseFilter implements Filter {
              * if destination is a "WAS", the span of src and dest may exists. need to check if be circular or not.
              * find src first. span (from, to) may exist more than one. so (spanId == parentSpanID) should be checked.
              */
-            if (hint.containApplicationHint(toApplicationName)) {
+            if (filterHint.containApplicationHint(toApplicationName)) {
                 for (SpanBo srcSpan : transaction) {
                     List<SpanEventBo> eventBoList = srcSpan.getSpanEventBoList();
                     if (eventBoList == null) {
@@ -176,7 +172,7 @@ public class FromToResponseFilter implements Filter {
                             continue;
                         }
 
-                        if (!hint.containApplicationEndpoint(toApplicationName, event.getDestinationId(), event.getServiceType().getCode())) {
+                        if (!filterHint.containApplicationEndpoint(toApplicationName, event.getDestinationId(), event.getServiceType().getCode())) {
                             continue;
                         }
 
@@ -188,8 +184,8 @@ public class FromToResponseFilter implements Filter {
                 }
             } else {
                 /**
-                 * codes before hint has been added.
-                 * if problems happen because of hint, don't use hint at front end (UI) or use below code in order to work properly.
+                 * codes before hintFilter has been added.
+                 * if problems happen because of hintFilter, don't use hintFilter at front end (UI) or use below code in order to work properly.
                  */
                 for (SpanBo srcSpan : transaction) {
                     if (includeServiceType(fromServiceCode, srcSpan.getServiceType()) && fromApplicationName.equals(srcSpan.getApplicationId())) {
@@ -200,7 +196,7 @@ public class FromToResponseFilter implements Filter {
                             }
 
                             if (includeServiceType(toServiceCode, destSpan.getServiceType()) && toApplicationName.equals(destSpan.getApplicationId())) {
-                                return checkResponseCondition(destSpan.getElapsed(), destSpan.getErrCode() > 0) && checkPinPointAgentName(srcSpan.getAgentId(), destSpan.getAgentId());
+                                return checkResponseCondition(destSpan.getElapsed(), destSpan.getErrCode() > 0) && filterAgentName(srcSpan.getAgentId(), destSpan.getAgentId());
                             }
                         }
                     }
@@ -219,7 +215,7 @@ public class FromToResponseFilter implements Filter {
                     for (SpanEventBo event : eventBoList) {
                         if (includeServiceType(toServiceCode, event.getServiceType()) && toApplicationName.equals(event.getDestinationId())) {
                             return checkResponseCondition(event.getEndElapsed(), event.hasException())
-                                    && checkPinPointAgentName(span.getAgentId(), null);
+                                    && filterAgentName(span.getAgentId(), null);
                         }
                     }
                 }
@@ -255,8 +251,20 @@ public class FromToResponseFilter implements Filter {
         return false;
     }
 
+
     @Override
     public String toString() {
-        return "FromToResponseFilter [fromServiceCode=" + fromServiceCode + ", fromApplicationName=" + fromApplicationName + ", fromAgentName=" + fromAgentName + ", toServiceCode=" + toServiceCode + ", toApplicationName=" + toApplicationName + ", toAgentName=" + toAgentName + ", fromResponseTime=" + fromResponseTime + ", toResponseTime=" + toResponseTime + ", includeFailed=" + includeFailed + "]";
+        final StringBuilder sb = new StringBuilder("FromToResponseFilter{");
+        sb.append("fromServiceCode=").append(fromServiceCode);
+        sb.append(", fromApplicationName='").append(fromApplicationName).append('\'');
+        sb.append(", toServiceCode=").append(toServiceCode);
+        sb.append(", toApplicationName='").append(toApplicationName).append('\'');
+        sb.append(", fromResponseTime=").append(fromResponseTime);
+        sb.append(", toResponseTime=").append(toResponseTime);
+        sb.append(", includeFailed=").append(includeFailed);
+        sb.append(", hintFilter=").append(filterHint);
+        sb.append(", agentFilter=").append(agentFilter);
+        sb.append('}');
+        return sb.toString();
     }
 }

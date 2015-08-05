@@ -95,11 +95,9 @@ public class DefaultFilterBuilder implements FilterBuilder {
         }
         FilterChain chain = new FilterChain();
         try {
-            List<FilterDescriptor> list = jsonObjectMapper.readValue(jsonFilterText, new TypeReference<List<FilterDescriptor>>() {
-            });
+            List<FilterDescriptor> list = jsonObjectMapper.readValue(jsonFilterText, new TypeReference<List<FilterDescriptor>>() {});
 
-            FilterHint hint = jsonObjectMapper.readValue(jsonFilterHint, new TypeReference<FilterHint>() {
-            });
+            FilterHint hint = jsonObjectMapper.readValue(jsonFilterHint, new TypeReference<FilterHint>() {});
 
             for (FilterDescriptor descriptor : list) {
                 if (!descriptor.isValid()) {
