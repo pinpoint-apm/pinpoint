@@ -159,6 +159,7 @@ public class ProfilerConfig {
     private boolean apacheHttpClient3ProfileEntity = false;
     private DumpType apacheHttpClient3ProfileEntityDumpType = DumpType.EXCEPTION;
     private int apacheHttpClient3ProfileEntitySamplingRate = 1;
+    private boolean apacheHttpClient3ProfileIo = true;
     
     /**
      * apache http client 4
@@ -470,9 +471,12 @@ public class ProfilerConfig {
         return apacheHttpClient3ProfileEntitySamplingRate;
     }
     
+    public boolean isApacheHttpClient3ProfileIo() {
+        return apacheHttpClient3ProfileIo;
+    }
+    
     //-----------------------------------------
     // http apache client 4
-
     public boolean isApacheHttpClient4Profile() {
         return apacheHttpClient4Profile;
     }
@@ -723,7 +727,7 @@ public class ProfilerConfig {
         this.apacheHttpClient3ProfileEntity = readBoolean("profiler.apache.httpclient3.entity", false);
         this.apacheHttpClient3ProfileEntityDumpType = readDumpType("profiler.apache.httpclient3.entity.dumptype", DumpType.EXCEPTION);
         this.apacheHttpClient3ProfileEntitySamplingRate = readInt("profiler.apache.httpclient3.entity.sampling.rate", 1);
-        
+        this.apacheHttpClient3ProfileIo = readBoolean("profiler.apache.httpclient3.io", true);
         /**
          * apache http client 4
          */
@@ -926,7 +930,7 @@ public class ProfilerConfig {
         builder.append(statDataSenderChunkSize);
         builder.append(", tcpDataSenderCommandAcceptEnable=");
         builder.append(tcpDataSenderCommandAcceptEnable);
-        builder.append(", recordAgentActiveThread=");
+        builder.append(", traceAgentActiveThread=");
         builder.append(traceAgentActiveThread);
         builder.append(", callStackMaxDepth=");
         builder.append(callStackMaxDepth);
@@ -1006,6 +1010,8 @@ public class ProfilerConfig {
         builder.append(apacheHttpClient3ProfileEntityDumpType);
         builder.append(", apacheHttpClient3ProfileEntitySamplingRate=");
         builder.append(apacheHttpClient3ProfileEntitySamplingRate);
+        builder.append(", apacheHttpClient3ProfileIo=");
+        builder.append(apacheHttpClient3ProfileIo);
         builder.append(", apacheHttpClient4Profile=");
         builder.append(apacheHttpClient4Profile);
         builder.append(", apacheHttpClient4ProfileCookie=");

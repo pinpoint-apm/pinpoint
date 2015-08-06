@@ -16,19 +16,23 @@
 
 package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
+import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContext;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 
 /**
  * @author jaehong.kim
  */
+@Group(value=HttpClient3Constants.HTTP_CLIENT3_METHOD_BASE_SCOPE, executionPolicy=ExecutionPolicy.ALWAYS)
 public class HttpMethodBaseRequestAndResponseMethodInterceptor implements SimpleAroundInterceptor, HttpClient3Constants {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -36,13 +40,14 @@ public class HttpMethodBaseRequestAndResponseMethodInterceptor implements Simple
 
     private TraceContext traceContext;
     private MethodDescriptor methodDescriptor;
+    private InterceptorGroup interceptorGroup;
 
 
-    public HttpMethodBaseRequestAndResponseMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    public HttpMethodBaseRequestAndResponseMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
+        this.interceptorGroup = interceptorGroup;
     }
-    
     
     @Override
     public void before(Object target, Object[] args) {
@@ -55,7 +60,16 @@ public class HttpMethodBaseRequestAndResponseMethodInterceptor implements Simple
             return;
         }
 
-        trace.traceBlockBegin();
+        InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
+        if(invocation != null && invocation.getAttachment() != null) {
+            HttpClient3CallContext callContext = (HttpClient3CallContext) invocation.getAttachment();
+            if(methodDescriptor.getMethodName().equals("writeRequest")) {
+                callContext.setWriteBeginTime(System.currentTimeMillis());
+            } else {
+                callContext.setReadBeginTime(System.currentTimeMillis());
+            }
+            logger.debug("Set call context {}", callContext);
+        }
     }
 
     @Override
@@ -69,13 +83,17 @@ public class HttpMethodBaseRequestAndResponseMethodInterceptor implements Simple
             return;
         }
 
-        try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
-            recorder.recordApi(methodDescriptor);
-            recorder.recordException(throwable);
-        } finally {
-            trace.traceBlockEnd();
+        InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
+        if(invocation != null && invocation.getAttachment() != null) {
+            HttpClient3CallContext callContext = (HttpClient3CallContext) invocation.getAttachment();
+            if(methodDescriptor.getMethodName().equals("writeRequest")) {
+                callContext.setWriteEndTime(System.currentTimeMillis());
+                callContext.setWriteFail(throwable != null);
+            } else {
+                callContext.setReadEndTime(System.currentTimeMillis());
+                callContext.setReadFail(throwable != null);
+            }
+            logger.debug("Set call context {}", callContext);
         }
     }
 }

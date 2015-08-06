@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 
-import java.io.IOException;
-
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -31,6 +29,7 @@ import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 
 /**
  * @author Minwoo Jung
+ * @author jaehong.kim
  */
 public class RetryMethodInterceptor implements SimpleAroundInterceptor, HttpClient3Constants {
 
@@ -77,8 +76,8 @@ public class RetryMethodInterceptor implements SimpleAroundInterceptor, HttpClie
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
             
-            if (args.length >= 2 && (args[1] instanceof IOException)) {
-                recorder.recordAttribute(AnnotationKey.HTTP_CALL_RETRY_COUNT, args[1].getClass().getName());
+            if (args.length >= 3 && (args[2] instanceof Integer)) {
+                recorder.recordAttribute(AnnotationKey.HTTP_CALL_RETRY_COUNT, args[2]);
             }
             if (result != null) {
                 recorder.recordAttribute(AnnotationKey.RETURN_DATA, result);
