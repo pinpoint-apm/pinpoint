@@ -18,13 +18,11 @@ package com.navercorp.pinpoint.web.filter;
 
 import java.util.List;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.web.filter.FilterDescriptor;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * 

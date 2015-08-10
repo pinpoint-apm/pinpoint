@@ -18,7 +18,9 @@ package com.navercorp.pinpoint.web.filter;
 
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -95,11 +97,10 @@ public class DefaultFilterBuilder implements FilterBuilder {
         }
         FilterChain chain = new FilterChain();
         try {
-            List<FilterDescriptor> list = jsonObjectMapper.readValue(jsonFilterText, new TypeReference<List<FilterDescriptor>>() {
-            });
+            final List<FilterDescriptor> list = jsonObjectMapper.readValue(jsonFilterText, new TypeReference<List<FilterDescriptor>>() {});
 
-            FilterHint hint = jsonObjectMapper.readValue(jsonFilterHint, new TypeReference<FilterHint>() {
-            });
+            final Map<String, List<Object>> hintMap = jsonObjectMapper.readValue(jsonFilterHint, new TypeReference<LinkedHashMap>() {});
+            final FilterHint hint = new FilterHint(hintMap);
 
             for (FilterDescriptor descriptor : list) {
                 if (!descriptor.isValid()) {

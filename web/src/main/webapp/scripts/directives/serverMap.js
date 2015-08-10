@@ -561,7 +561,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
 
                     var oServerMapHintVo = new ServerMapHintVo();
                     if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
-                        oServerMapHintVo.setHint(htLastLink.toNode.applicationName, htLastLink.filterTargetRpcList)
+                        oServerMapHintVo.setHint(htLastLink.sourceInfo.applicationName, htLastLink.filterTargetRpcList)
                     }
 
                     scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo, oServerMapHintVo);
@@ -641,7 +641,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
 
                     var oServerMapHintVo = new ServerMapHintVo();
                     if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
-                        oServerMapHintVo.setHint(htLastLink.toNode.applicationName, htLastLink.filterTargetRpcList)
+                        oServerMapHintVo.setHint(htLastLink.sourceInfo.applicationName, htLastLink.filterTargetRpcList)
                     }
                     scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo, oServerMapHintVo);
                     reset();

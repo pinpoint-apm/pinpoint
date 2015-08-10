@@ -16,13 +16,16 @@
 
 package com.navercorp.pinpoint.web.filter;
 
-import junit.framework.Assert;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.web.filter.FilterHint;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -34,15 +37,17 @@ public class FilterHintTest {
 
     @Test
     public void convert() {
-        StringBuilder json = new StringBuilder();
-        json.append("{ \"TO_APPLICATION\" : [\"IP1\", 1,\"IP2\", 2], \"TO_APPLICATION2\" : [\"IP3\", 3,\"IP4\", 4] }");
+
+        String json = "{ \"TO_APPLICATION\" : [\"IP1\", 1,\"IP2\", 2], \"TO_APPLICATION2\" : [\"IP3\", 3,\"IP4\", 4] }";
 
         try {
-            FilterHint hint = om.readValue(json.toString(), new TypeReference<FilterHint>() {
+            Map<String, List<Object>> hintMap = om.readValue(json, new TypeReference<HashMap>() {
             });
+            final FilterHint hint = new FilterHint(hintMap);
+
 
             Assert.assertNotNull(hint);
-            Assert.assertEquals(2, hint.size());
+            Assert.assertEquals(2, hintMap.size());
 
             Assert.assertTrue(hint.containApplicationHint("TO_APPLICATION"));
             Assert.assertTrue(hint.containApplicationHint("TO_APPLICATION2"));
@@ -61,15 +66,15 @@ public class FilterHintTest {
 
     @Test
     public void empty() {
-        StringBuilder json = new StringBuilder();
-        json.append("{}");
+        String json = "{}";
 
         try {
-            FilterHint hint = om.readValue(json.toString(), new TypeReference<FilterHint>() {
+            Map<String, List<Object>> hintMap = om.readValue(json, new TypeReference<HashMap>() {
             });
+            final FilterHint hint = new FilterHint(hintMap);
 
             Assert.assertNotNull(hint);
-            Assert.assertTrue(hint.isEmpty());
+            Assert.assertTrue(hintMap.isEmpty());
         } catch (Exception e) {
             e.printStackTrace();
             Assert.fail(e.getMessage());
