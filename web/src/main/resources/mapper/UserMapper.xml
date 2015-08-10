@@ -14,4 +14,15 @@
         FROM user
         WHERE user_id = #{userId} 
     </delete>
+    
+    <select id="selectUserList" resultType="User">
+        SELECT *
+        FROM user
+    </select>
+    
+    <update id="updateUser" parameterType="User">
+        UPDATE user
+        SET name = #{name}, department = #{department}, phoneNumber = #{phoneNumber}, email = #{email}
+        WHERE user_id = #{userId}
+    </update>
 </mapper>

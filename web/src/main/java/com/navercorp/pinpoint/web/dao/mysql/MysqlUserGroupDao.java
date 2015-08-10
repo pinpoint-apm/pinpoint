@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import com.navercorp.pinpoint.web.dao.UserGroupDao;
+import com.navercorp.pinpoint.web.vo.UserGroup;
 import com.navercorp.pinpoint.web.vo.UserGroupMember;
 
 /**
@@ -40,32 +41,45 @@ public class MysqlUserGroupDao implements UserGroupDao {
     private SqlSessionTemplate sqlSessionTemplate;
 
     @Override
-    public void createUserGroup(String userGroupId) {
-        sqlSessionTemplate.insert(NAMESPACE + "insertUserGroup", userGroupId);
+    public String createUserGroup(UserGroup userGroup) {
+        sqlSessionTemplate.insert(NAMESPACE + "insertUserGroup", userGroup);
+        return userGroup.getNumber();
     }
 
     @Override
-    public List<String> selectUserGroupList() {
-        return null;
+    public List<UserGroup> selectUserGroup() {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectUserGroupList");
     }
 
     @Override
-    public void updateUserGroup() {
+    public void updateUserGroup(UserGroup userGroup) {
+        sqlSessionTemplate.update(NAMESPACE + "updateUserGroup", userGroup);
     }
 
     @Override
-    public void deleteUserGroup(String userGroupId) {
-        sqlSessionTemplate.delete(NAMESPACE + "deleteUserGroup", userGroupId);
+    public void deleteUserGroup(UserGroup userGroup) {
+        sqlSessionTemplate.delete(NAMESPACE + "deleteUserGroup", userGroup);
     }
 
     @Override
-    public void insertMember(UserGroupMember userGroupMember) {
+    public String insertMember(UserGroupMember userGroupMember) {
         sqlSessionTemplate.insert(NAMESPACE + "insertMember", userGroupMember);
+        return userGroupMember.getNumber();
     }
 
     @Override
     public void deleteMember(UserGroupMember userGroupMember) {
         sqlSessionTemplate.delete(NAMESPACE + "deleteMember", userGroupMember);
+    }
+
+    @Override
+    public List<UserGroupMember> selectMember(String userGroupId) {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectMemberList", userGroupId);
+    }
+
+    @Override
+    public void updateMember(UserGroupMember userGroupMember) {
+        sqlSessionTemplate.delete(NAMESPACE + "updateMember", userGroupMember);
     }
 
 }

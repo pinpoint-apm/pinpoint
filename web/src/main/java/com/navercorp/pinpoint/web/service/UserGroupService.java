@@ -17,21 +17,27 @@ package com.navercorp.pinpoint.web.service;
 
 import java.util.List;
 
+import com.navercorp.pinpoint.web.vo.UserGroup;
 import com.navercorp.pinpoint.web.vo.UserGroupMember;
 
 /**
  * @author minwoo.jung
  */
 public interface UserGroupService {
-    void createUserGroup(String userGroupId);
+    String createUserGroup(UserGroup userGroup);
     
-    List<String> selectUserGroupList();
+    List<UserGroup> selectUserGroup();
     
-    void updateUserGroup();
+    void updateUserGroup(UserGroup userGroup);
     
-    void deleteUserGroup(String userGroupId);
+    void deleteUserGroup(UserGroup userGroup);
 
-    void insertMember(UserGroupMember userGroupMember);
+    String insertMember(UserGroupMember userGroupMember);
 
     void deleteMember(UserGroupMember userGroupMember);
+
+    List<UserGroupMember> selectMember(String userGroupId);
+
+    void updateMember(UserGroupMember userGroupMember);
+
 }
