@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
 import com.navercorp.pinpoint.collector.cluster.PinpointServerClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
+import com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
@@ -46,14 +47,17 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
 
     private final RouteFilterChain<StreamEvent> streamCreateFilterChain;
     private final RouteFilterChain<ResponseEvent> responseFilterChain;
-    private final RouteFilterChain<StreamRouteCloseEvent> streamCloseFilterchain;
+    private final RouteFilterChain<StreamRouteCloseEvent> streamCloseFilterChain;
 
-    public StreamRouteHandler(ClusterPointLocator<TargetClusterPoint> targetClusterPointLocator) {
+    public StreamRouteHandler(ClusterPointLocator<TargetClusterPoint> targetClusterPointLocator,
+            RouteFilterChain<StreamEvent> streamCreateFilterChain,
+            RouteFilterChain<ResponseEvent> responseFilterChain,
+            RouteFilterChain<StreamRouteCloseEvent> streamCloseFilterChain) {
         super(targetClusterPointLocator);
 
-        this.streamCreateFilterChain = new DefaultRouteFilterChain<StreamEvent>();
-        this.responseFilterChain = new DefaultRouteFilterChain<ResponseEvent>();
-        this.streamCloseFilterchain = new DefaultRouteFilterChain<StreamRouteCloseEvent>();
+        this.streamCreateFilterChain = streamCreateFilterChain;
+        this.responseFilterChain = responseFilterChain;
+        this.streamCloseFilterChain = streamCloseFilterChain;
     }
 
     @Override
@@ -67,7 +71,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
     }
 
     public void addCloseFilter(RouteFilter<StreamRouteCloseEvent> filter) {
-        this.streamCloseFilterchain.addLast(filter);
+        this.streamCloseFilterChain.addLast(filter);
     }
 
     @Override
@@ -79,7 +83,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
     }
 
     private RouteResult onRoute0(StreamEvent event) {
-        TBase requestObject = event.getRequestObject();
+        TBase<?,?> requestObject = event.getRequestObject();
         if (requestObject == null) {
             return new RouteResult(RouteStatus.BAD_REQUEST);
         }
@@ -167,7 +171,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
             responseMessage.setMessage(packet.getPayload());
 
             StreamRouteCloseEvent event = new StreamRouteCloseEvent(streamEvent.getDeliveryCommand(), producerContext, streamEvent.getStreamChannelContext());
-            streamCloseFilterchain.doEvent(event);
+            streamCloseFilterChain.doEvent(event);
 
             consumer.close();
         }

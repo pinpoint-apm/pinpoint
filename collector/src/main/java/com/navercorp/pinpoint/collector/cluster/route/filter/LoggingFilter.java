@@ -14,14 +14,24 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.cluster.route;
+package com.navercorp.pinpoint.collector.cluster.route.filter;
 
-import com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public interface RouteFilterChain<T extends RouteEvent> {
+import com.navercorp.pinpoint.collector.cluster.route.RouteEvent;
 
-    void addLast(RouteFilter<T> filter);
+/**
+ * @author koo.taejin
+ * @author HyunGil Jeong
+ */
+public class LoggingFilter<T extends RouteEvent> implements RouteFilter<T> {
 
-    void doEvent(T event);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Override
+    public void doEvent(T event) {
+        logger.info("{} doEvent {}.", this.getClass().getSimpleName(), event);
+    }
 
 }

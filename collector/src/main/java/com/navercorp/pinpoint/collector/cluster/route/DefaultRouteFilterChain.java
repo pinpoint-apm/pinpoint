@@ -16,16 +16,27 @@
 
 package com.navercorp.pinpoint.collector.cluster.route;
 
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter;
+
 public class DefaultRouteFilterChain<T extends RouteEvent> implements RouteFilterChain<T> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final CopyOnWriteArrayList<RouteFilter<T>> filterList = new CopyOnWriteArrayList<RouteFilter<T>>();
+    private final List<RouteFilter<T>> filterList;
+    
+    public DefaultRouteFilterChain() {
+        this.filterList = new CopyOnWriteArrayList<RouteFilter<T>>();
+    }
+    
+    public DefaultRouteFilterChain(List<RouteFilter<T>> filterList) {
+        this.filterList = new CopyOnWriteArrayList<RouteFilter<T>>(filterList);
+    }
 
     @Override
     public void addLast(RouteFilter<T> filter) {

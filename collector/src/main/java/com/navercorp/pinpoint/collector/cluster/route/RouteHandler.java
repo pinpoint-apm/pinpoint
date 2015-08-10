@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.cluster.route;
 
+import com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter;
+
 
 /**
  * @author koo.taejin
