@@ -16,12 +16,16 @@
 package com.navercorp.pinpoint.web.controller;
 
 import static org.hamcrest.Matchers.hasKey;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -32,10 +36,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.web.dao.UserGroupDao;
+import com.navercorp.pinpoint.web.vo.UserGroup;
 import com.navercorp.pinpoint.web.vo.UserGroupMember;
 
 /**
@@ -48,7 +55,11 @@ import com.navercorp.pinpoint.web.vo.UserGroupMember;
 public class UserGroupControllerTest {
     
     private final static String TEST_USER_GROUP_ID = "testUserGroup";
+    private final static String TEST_USER_GROUP_ID_UPDATED = "testUserGroupUpdated";
+    
     private final static String TEST_USER_GROUP_MEMBER_ID = "naver01";
+    private final static String TEST_USER_GROUP_MEMBER_ID_UPDATE = "naver010";
+    
     
     @Autowired
     private WebApplicationContext wac;
@@ -61,20 +72,57 @@ public class UserGroupControllerTest {
     @Before
     public void setup() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
-        userGroupDao.deleteUserGroup(TEST_USER_GROUP_ID);
-        userGroupDao.deleteMember(new UserGroupMember(TEST_USER_GROUP_ID, TEST_USER_GROUP_MEMBER_ID));
+        userGroupDao.deleteUserGroup(new UserGroup("", TEST_USER_GROUP_ID));
+        userGroupDao.deleteUserGroup(new UserGroup("", TEST_USER_GROUP_ID_UPDATED));
+        userGroupDao.deleteMember(new UserGroupMember("", TEST_USER_GROUP_ID, TEST_USER_GROUP_MEMBER_ID));
+        userGroupDao.deleteMember(new UserGroupMember("", TEST_USER_GROUP_ID, TEST_USER_GROUP_MEMBER_ID_UPDATE));
     }
 
     @Test
-    public void createAndDeleteUserGroup() throws Exception {
-        this.mockMvc.perform(post("/userGroup.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"userGroupId\" : \"" + TEST_USER_GROUP_ID + "\"}"))
+    public void createAndSelectAndDeleteUserGroup() throws Exception {
+        this.mockMvc.perform(post("/userGroup.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"id\" : \"" + TEST_USER_GROUP_ID + "\"}"))
+                            .andExpect(status().isOk())
+                            .andExpect(content().contentType("application/json;charset=UTF-8"))
+                            .andExpect(jsonPath("$", hasKey("number")))
+                            .andReturn();
+        
+        this.mockMvc.perform(get("/userGroup.pinpoint").contentType(MediaType.APPLICATION_JSON))
+                            .andExpect(status().isOk())
+                            .andExpect(content().contentType("application/json;charset=UTF-8"))
+                            .andExpect(jsonPath("$[0]", hasKey("id")))
+                            .andReturn();
+
+        this.mockMvc.perform(delete("/userGroup.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"id\" : \"" + TEST_USER_GROUP_ID + "\"}"))
                             .andExpect(status().isOk())
                             .andExpect(content().contentType("application/json;charset=UTF-8"))
                             .andExpect(jsonPath("$", hasKey("result")))
                             .andExpect(jsonPath("$.result").value("SUCCESS"))
                             .andReturn();
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Test
+    public void updateUserGroup() throws Exception {
+        MvcResult mvcResult = this.mockMvc.perform(post("/userGroup.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"id\" : \"" + TEST_USER_GROUP_ID + "\"}"))
+                            .andExpect(status().isOk())
+                            .andExpect(content().contentType("application/json;charset=UTF-8"))
+                            .andExpect(jsonPath("$", hasKey("number")))
+                            .andReturn();
+        
+        String content = mvcResult.getResponse().getContentAsString();
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, String> resultMap = objectMapper.readValue(content, HashMap.class);
+        String userGroupNumber = resultMap.get("number");
+        
+        this.mockMvc.perform(put("/userGroup.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"number\" : \"" + userGroupNumber + "\", \"id\" : \"" + TEST_USER_GROUP_ID_UPDATED + "\"}"))
+                        .andExpect(status().isOk())
+                        .andExpect(content().contentType("application/json;charset=UTF-8"))
+                        .andExpect(jsonPath("$", hasKey("result")))
+                        .andExpect(jsonPath("$.result").value("SUCCESS"))
+                        .andReturn();
 
-        this.mockMvc.perform(delete("/userGroup.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"userGroupId\" : \"" + TEST_USER_GROUP_ID + "\"}"))
+
+        this.mockMvc.perform(delete("/userGroup.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"id\" : \"" + TEST_USER_GROUP_ID_UPDATED + "\"}"))
                             .andExpect(status().isOk())
                             .andExpect(content().contentType("application/json;charset=UTF-8"))
                             .andExpect(jsonPath("$", hasKey("result")))
@@ -93,7 +141,7 @@ public class UserGroupControllerTest {
     }
     
     @Test
-    public void createUserGroup2Error() throws Exception {
+    public void deleteUserGroupError() throws Exception {
         this.mockMvc.perform(delete("/userGroup.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{}"))
                         .andExpect(status().isOk())
                         .andExpect(content().contentType("application/json;charset=UTF-8"))
@@ -102,16 +150,52 @@ public class UserGroupControllerTest {
                         .andReturn();
     }
     
+    @SuppressWarnings("unchecked")
     @Test
-    public void insertAndDeleteMember() throws Exception  {
-        this.mockMvc.perform(post("/userGroup/member.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"userGroupId\" : \"" + TEST_USER_GROUP_ID + "\", \"userGroupMemberId\" : \"" + TEST_USER_GROUP_MEMBER_ID + "\"}"))
+    public void insertAndSelectDeleteMember() throws Exception {
+            this.mockMvc.perform(post("/userGroup/member.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"userGroupId\" : \"" + TEST_USER_GROUP_ID + "\", \"memberId\" : \"" + TEST_USER_GROUP_MEMBER_ID + "\"}"))
+                            .andExpect(status().isOk())
+                            .andExpect(content().contentType("application/json;charset=UTF-8"))
+                            .andExpect(jsonPath("$", hasKey("number")))
+                            .andReturn();
+    
+            this.mockMvc.perform(get("/userGroup/member.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"userGroupId\" : \"" + TEST_USER_GROUP_ID + "\", \"memberId\" : \"" + TEST_USER_GROUP_MEMBER_ID + "\"}"))
+                            .andExpect(status().isOk())
+                            .andExpect(content().contentType("application/json;charset=UTF-8"))
+                            .andExpect(jsonPath("$[0]", hasKey("userGroupId")))
+                            .andExpect(jsonPath("$[0]", hasKey("memberId")))
+                            .andReturn();
+            
+            this.mockMvc.perform(delete("/userGroup/member.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"userGroupId\" : \"" + TEST_USER_GROUP_ID + "\", \"memberId\" : \"" + TEST_USER_GROUP_MEMBER_ID + "\"}"))
+                            .andExpect(status().isOk())
+                            .andExpect(content().contentType("application/json;charset=UTF-8"))
+                            .andExpect(jsonPath("$", hasKey("result")))
+                            .andExpect(jsonPath("$.result").value("SUCCESS"))
+                            .andReturn();
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Test
+    public void updateMember() throws Exception  {
+        MvcResult mvcResult = this.mockMvc.perform(post("/userGroup/member.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"userGroupId\" : \"" + TEST_USER_GROUP_ID + "\", \"memberId\" : \"" + TEST_USER_GROUP_MEMBER_ID + "\"}"))
+                        .andExpect(status().isOk())
+                        .andExpect(content().contentType("application/json;charset=UTF-8"))
+                        .andExpect(jsonPath("$", hasKey("number")))
+                        .andReturn();
+        
+        String content = mvcResult.getResponse().getContentAsString();
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, String> resultMap = objectMapper.readValue(content, HashMap.class);
+        String userGroupMemberNumber = resultMap.get("number");
+        
+        this.mockMvc.perform(put("/userGroup/member.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"number\" : \"" + userGroupMemberNumber + "\"," + "\"userGroupId\" : \"" + TEST_USER_GROUP_ID + "\", \"memberId\" : \"" + TEST_USER_GROUP_MEMBER_ID_UPDATE + "\"}"))
                         .andExpect(status().isOk())
                         .andExpect(content().contentType("application/json;charset=UTF-8"))
                         .andExpect(jsonPath("$", hasKey("result")))
                         .andExpect(jsonPath("$.result").value("SUCCESS"))
                         .andReturn();
         
-        this.mockMvc.perform(delete("/userGroup/member.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"userGroupId\" : \"" + TEST_USER_GROUP_ID + "\", \"userGroupMemberId\" : \"" + TEST_USER_GROUP_MEMBER_ID + "\"}"))
+        this.mockMvc.perform(delete("/userGroup/member.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"userGroupId\" : \"" + TEST_USER_GROUP_ID + "\", \"memberId\" : \"" + TEST_USER_GROUP_MEMBER_ID_UPDATE + "\"}"))
                         .andExpect(status().isOk())
                         .andExpect(content().contentType("application/json;charset=UTF-8"))
                         .andExpect(jsonPath("$", hasKey("result")))
@@ -119,6 +203,25 @@ public class UserGroupControllerTest {
                         .andReturn();
     }
     
+    @Test
+    public void deleteUserGroupMemberError() throws Exception {
+        this.mockMvc.perform(delete("/userGroup/member.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{}"))
+                        .andExpect(status().isOk())
+                        .andExpect(content().contentType("application/json;charset=UTF-8"))
+                        .andExpect(jsonPath("$", hasKey("errorCode")))
+                        .andExpect(jsonPath("$.errorCode").value("500"))
+                        .andReturn();
+    }
+    
+    @Test
+    public void insertUserGroupMemberError() throws Exception {
+        this.mockMvc.perform(post("/userGroup/member.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{}"))
+                        .andExpect(status().isOk())
+                        .andExpect(content().contentType("application/json;charset=UTF-8"))
+                        .andExpect(jsonPath("$", hasKey("errorCode")))
+                        .andExpect(jsonPath("$.errorCode").value("500"))
+                        .andReturn();
+    }
     
     
 }
