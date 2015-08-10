@@ -36,6 +36,8 @@ import com.navercorp.pinpoint.web.vo.User;
 @RequestMapping(value = "/user")
 public class UserController {
     
+    public final static String USER_ID = "userid";
+    
     @Autowired
     UserService userService;
     
@@ -73,4 +75,37 @@ public class UserController {
         result.put("result", "SUCCESS");
         return result;
     }
+    
+    @RequestMapping(method = RequestMethod.GET)
+    @ResponseBody
+    public Object getUser(@RequestBody(required=false) Map<String, String> params) {
+        if(params == null) {
+            return userService.selectUser();
+        }
+        
+        Map<String, String> result = new HashMap<String, String>();
+        result.put("errorCode", "500");
+        result.put("errorMessage", "This api need to collect condition for search.");
+        return result;
+    }
+    
+    @RequestMapping(method = RequestMethod.PUT)
+    @ResponseBody
+    public Map<String, String> updateUser(@RequestBody User user) {
+       
+        if (StringUtils.isEmpty(user.getUserId())) {
+            Map<String, String> result = new HashMap<String, String>();
+            result.put("errorCode", "500");
+            result.put("errorMessage", "there is not userId in params to update user");
+            return result;
+        }
+        
+        userService.updateUser(user);
+        
+        Map<String, String> result = new HashMap<String, String>();
+        result.put("result", "SUCCESS");
+        return result;
+    }
+    
+    
 }

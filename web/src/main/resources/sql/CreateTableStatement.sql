@@ -4,14 +4,16 @@ DROP TABLE user;
 DROP TABLE alarm_rule;
 
 CREATE TABLE `user_group` (
-  `groupId` VARCHAR(30) NOT NULL,
-  PRIMARY KEY (`groupId`)
+        `number` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`id` VARCHAR(30) NOT NULL,
+	PRIMARY KEY (`number`)
 );
+ALTER TABLE user_group ADD UNIQUE KEY id_idx (id);
 
 CREATE TABLE `user_group_member` (
-  `group_id` VARCHAR(30) NOT NULL,
-  `member_id` VARCHAR(30) NOT NULL,
-  PRIMARY KEY (`groupId`, memberId)
+  `user_group_id` varchar(30) NOT NULL,
+  `member_id` varchar(30) NOT NULL,
+  PRIMARY KEY (`user_group_id`,`member_id`)
 );
 
 CREATE TABLE `user` (

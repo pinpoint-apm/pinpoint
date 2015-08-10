@@ -4,25 +4,48 @@
 
 <mapper namespace="com.navercorp.pinpoint.web.dao.UserGroupDao">
 
-	<insert id="insertUserGroup" parameterType="string">
-        INSERT INTO user_group
-        VALUES (#{userGroupId})
+	<insert id="insertUserGroup" parameterType="UserGroup" useGeneratedKeys="true" keyProperty="number">
+        INSERT INTO user_group (id)
+        VALUES (#{id})
 	</insert>
 
-    <delete id="deleteUserGroup" parameterType="string">
+    <select id="selectUserGroupList" resultType="UserGroup">
+        SELECT *
+        FROM user_group
+    </select>
+
+    <delete id="deleteUserGroup" parameterType="UserGroup">
         DELETE
         FROM user_group
-        WHERE group_id = #{userGroupId}
+        WHERE id = #{id}
     </delete>
+    
+    <update id="updateUserGroup" parameterType="UserGroup">
+        UPDATE user_group
+        SET id =  #{id}
+        WHERE number = #{number} 
+    </update>
 
-    <insert id="insertMember" parameterType="UserGroupMember">
-        INSERT INTO user_group_member
+    <insert id="insertMember" parameterType="UserGroupMember" useGeneratedKeys="true" keyProperty="number">
+        INSERT INTO user_group_member(user_group_id, member_id)
         VALUES (#{userGroupId}, #{memberId})
     </insert>
     
     <delete id="deleteMember" parameterType="UserGroupMember">
         DELETE
         FROM user_group_member
-        WHERE group_id = #{userGroupId} AND member_id = #{memberId}
+        WHERE user_group_id = #{userGroupId} AND member_id = #{memberId}
     </delete>
+    
+    <select id="selectMemberList" resultType="UserGroupMember">
+        SELECT *
+        FROM user_group_member
+    </select>
+    
+    <update id="updateMember" parameterType="UserGroupMember">
+        UPDATE user_group_member
+        SET user_group_id = #{userGroupId} , member_id = #{memberId} 
+        WHERE number = #{number}
+    </update>
+    
 </mapper>

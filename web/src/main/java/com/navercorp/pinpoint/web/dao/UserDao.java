@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.web.dao;
 
+import java.util.List;
+
 import com.navercorp.pinpoint.web.vo.User;
 
 /**
@@ -25,5 +27,9 @@ public interface UserDao {
     void insertUser(User user);
 
     void deleteUser(User user);
+
+    List<User> selectUser();
+
+    void updateUser(User user);
 
 }

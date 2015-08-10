@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.web.dao.mysql;
 
+import java.util.List;
+
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -44,6 +46,16 @@ public class MysqlUserDao implements UserDao {
     public void deleteUser(User user) {
         sqlSessionTemplate.delete(NAMESPACE + "deleteUser", user);
         
+    }
+
+    @Override
+    public List<User> selectUser() {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectUserList"); 
+    }
+
+    @Override
+    public void updateUser(User user) {
+        sqlSessionTemplate.update(NAMESPACE + "updateUser", user);
     }
 
 }

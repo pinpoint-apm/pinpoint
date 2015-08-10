@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.navercorp.pinpoint.web.dao.UserGroupDao;
+import com.navercorp.pinpoint.web.vo.UserGroup;
 import com.navercorp.pinpoint.web.vo.UserGroupMember;
 
 /**
@@ -33,27 +34,28 @@ public class UserGroupServiceImpl implements UserGroupService {
     UserGroupDao userGroupDao;
     
     @Override
-    public void createUserGroup(String userGroupId) {
-        userGroupDao.createUserGroup(userGroupId);
+    public String createUserGroup(UserGroup userGroup) {
+        return userGroupDao.createUserGroup(userGroup);
     }
 
     @Override
-    public List<String> selectUserGroupList() {
-        return null;
+    public List<UserGroup> selectUserGroup() {
+        return userGroupDao.selectUserGroup();
     }
 
     @Override
-    public void updateUserGroup() {
+    public void updateUserGroup(UserGroup userGroup) {
+        userGroupDao.updateUserGroup(userGroup);
     }
 
     @Override
-    public void deleteUserGroup(String userGroupId) {
-        userGroupDao.deleteUserGroup(userGroupId);
+    public void deleteUserGroup(UserGroup userGroup) {
+        userGroupDao.deleteUserGroup(userGroup);
     }
 
     @Override
-    public void insertMember(UserGroupMember userGroupMember) {
-        userGroupDao.insertMember(userGroupMember);
+    public String insertMember(UserGroupMember userGroupMember) {
+        return userGroupDao.insertMember(userGroupMember);
     }
 
     @Override
@@ -61,5 +63,16 @@ public class UserGroupServiceImpl implements UserGroupService {
         userGroupDao.deleteMember(userGroupMember); 
         
     }
+
+    @Override
+    public List<UserGroupMember> selectMember(String userGroupId) {
+        return userGroupDao.selectMember(userGroupId);
+    }
+
+    @Override
+    public void updateMember(UserGroupMember userGroupMember) {
+        userGroupDao.updateMember(userGroupMember);
+    }
+
 
 }
