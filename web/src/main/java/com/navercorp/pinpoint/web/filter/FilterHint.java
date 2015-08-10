@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.web.filter;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Hint for fitering
@@ -26,14 +27,53 @@ import java.util.List;
  * 
  */
 // FIXME don't know how to implement deserializer like this.
-public class FilterHint extends HashMap<String, List<Object>> {
+public class FilterHint {
 
     private static final long serialVersionUID = -8765645836014210889L;
 
+    private Map<String, List<Object>> map;
+    private final List<RpcHint> rpcHintList = new ArrayList<>();
+
     public static final String EMPTY_JSON = "{}";
 
+    public FilterHint(Map<String, List<Object>> filterHintJsonObjectMap) {
+        if (filterHintJsonObjectMap == null) {
+            throw new NullPointerException("filterHintJsonObjectMap must not be null");
+        }
+        this.map = filterHintJsonObjectMap;
+        for (Map.Entry<String, List<Object>> filterHintObject : filterHintJsonObjectMap.entrySet()) {
+            List<RpcType> rpcTypeList = getRpcType(filterHintObject.getValue());
+            rpcHintList.add(new RpcHint(filterHintObject.getKey(), rpcTypeList));
+        }
+    }
+
+    private List<RpcType> getRpcType(List<Object> tpcTypeList) {
+        final List<RpcType> returnRpcTypeLIst = new ArrayList<>();
+        for (int i = 0; i < tpcTypeList.size(); i += 2) {
+            final String urlHint = (String) tpcTypeList.get(i);
+            final int urlServiceTypeCode = (int) tpcTypeList.get(i + 1);
+            returnRpcTypeLIst.add(new RpcType(urlHint, urlServiceTypeCode));
+        }
+        return returnRpcTypeLIst;
+    }
+
+    public List<RpcHint> getRpcHintList(String sourceApplicationName) {
+        if (sourceApplicationName == null) {
+            throw new NullPointerException("sourceApplicationName must not be null");
+        }
+        final List<RpcHint> findRpcHintList = new ArrayList<>();
+        for (RpcHint rpcHint : rpcHintList) {
+            // TODO miss serviceType check
+            if (rpcHint.getApplicationName().equals(sourceApplicationName)) {
+                findRpcHintList.add(rpcHint);
+            }
+        }
+        return findRpcHintList;
+    }
+
+
     public boolean containApplicationHint(String applicationName) {
-        List<Object> list = get(applicationName);
+        List<Object> list = map.get(applicationName);
 
         if (list == null) {
             return false;
@@ -41,6 +81,7 @@ public class FilterHint extends HashMap<String, List<Object>> {
             return !list.isEmpty();
         }
     }
+
 
     public boolean containApplicationEndpoint(String applicationName, String endPoint, int serviceTypeCode) {
         if (!containApplicationHint(applicationName)) {
@@ -51,11 +92,13 @@ public class FilterHint extends HashMap<String, List<Object>> {
             return false;
         }
 
-        List<Object> list = get(applicationName);
+        List<Object> list = map.get(applicationName);
 
         for (int i = 0; i < list.size(); i += 2) {
-            if (endPoint.equals(list.get(i))) {
-                if (serviceTypeCode == (Integer) list.get(i + 1)) {
+            final Object urlHint = list.get(i);
+            if (endPoint.equals(urlHint)) {
+                final Object urlServiceTypeCode = list.get(i + 1);
+                if (serviceTypeCode == (Integer) urlServiceTypeCode) {
                     return true;
                 }
             }
@@ -63,4 +106,6 @@ public class FilterHint extends HashMap<String, List<Object>> {
 
         return false;
     }
+
+
 }

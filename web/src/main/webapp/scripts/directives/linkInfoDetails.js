@@ -190,7 +190,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', '$filter', '
 
                             var oServerMapHintVo = new ServerMapHintVo();
                             if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
-                                oServerMapHintVo.setHint(htLastLink.targetInfo.applicationName, htLastLink.filterTargetRpcList)
+                                oServerMapHintVo.setHint(htLastLink.sourceInfo.applicationName, htLastLink.filterTargetRpcList)
                             }
                             scope.$emit('linkInfoDetails.ResponseSummary.barClicked', oServerMapFilterVo, oServerMapHintVo);
                         });
@@ -246,7 +246,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', '$filter', '
 
                             var oServerMapHintVo = new ServerMapHintVo();
                             if (link.sourceInfo.isWas && link.targetInfo.isWas) {
-                                oServerMapHintVo.setHint(link.targetInfo.applicationName, link.filterTargetRpcList)
+                                oServerMapHintVo.setHint(link.sourceInfo.applicationName, link.filterTargetRpcList)
                             }
                             scope.$emit('linkInfoDetails.ResponseSummary.barClicked', oServerMapFilterVo, oServerMapHintVo);
                         });
@@ -411,7 +411,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', '$filter', '
 
                     var oServerMapHintVo = new ServerMapHintVo();
                     if (link.sourceInfo.isWas && link.targetInfo.isWas) {
-                        oServerMapHintVo.setHint(link.toNode.applicationName, link.filterTargetRpcList)
+                        oServerMapHintVo.setHint(link.sourceInfo.applicationName, link.filterTargetRpcList)
                     }
                     //scope.$broadcast('linkInfoDetails.openFilteredMap', oServerMapFilterVo, oServerMapHintVo);
                     scope.$emit('linkInfoDetails.openFilteredMap', oServerMapFilterVo, oServerMapHintVo);
