@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.web.dao;
 
+import java.util.List;
+
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 /**
@@ -26,6 +28,10 @@ public interface AlarmDao {
 
     void deleteRule(Rule rule);
 
-    void deleteRule(String userGroupId);
+    void deleteRuleByUserGroupId(String userGroupId);
+
+    List<Rule> selectRuleByUserGroupId(String userGroupId);
+
+    void updateRule(Rule rule);
 
 }

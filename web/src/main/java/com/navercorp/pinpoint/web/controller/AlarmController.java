@@ -36,6 +36,7 @@ import com.navercorp.pinpoint.web.service.AlarmService;
 @Controller
 @RequestMapping(value="/alarmRule")
 public class AlarmController {
+    public final static String USER_GROUP_ID = "userGroupId";
 
     @Autowired
     AlarmService alarmService;
@@ -43,8 +44,9 @@ public class AlarmController {
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
     public Map<String, String> insertRule(@RequestBody Rule rule) {
+        Map<String, String> result = new HashMap<String, String>();
+
         if (StringUtils.isEmpty(rule.getApplicationId()) || StringUtils.isEmpty(rule.getCheckerName()) || StringUtils.isEmpty(rule.getUserGroupId()) || StringUtils.isEmpty(rule.getThreshold())) {
-            Map<String, String> result = new HashMap<String, String>();
             result.put("errorCode", "500");
             result.put("errorMessage", "there is not applicationId/checkerName/userGroupId/threashold to insert alarm rule");
             return result;
@@ -52,7 +54,6 @@ public class AlarmController {
         
         String ruleId = alarmService.insertRule(rule);
 
-        Map<String, String> result = new HashMap<String, String>();
         result.put("result", "SUCCESS");
         result.put("ruleId", ruleId);
         return result;
@@ -71,6 +72,38 @@ public class AlarmController {
         alarmService.deleteRule(rule);
 
         Map<String, String> result = new HashMap<String, String>();
+        result.put("result", "SUCCESS");
+        return result;
+    }
+    
+    @RequestMapping(method = RequestMethod.GET)
+    @ResponseBody
+    public Object getRule(@RequestBody Map<String, String> params) {
+        String userGroupId = params.get(USER_GROUP_ID);
+        
+        if (StringUtils.isEmpty(userGroupId)) {
+            Map<String, String> result = new HashMap<String, String>();
+            result.put("errorCode", "500");
+            result.put("errorMessage", "there is not userGroupId to get alarm rule");
+            return result;
+        }
+        
+        return alarmService.selectRuleByUserGroupId(userGroupId);
+    }
+    
+    @RequestMapping(method = RequestMethod.PUT)
+    @ResponseBody
+    public Map<String, String> updateRule(@RequestBody Rule rule) {
+        Map<String, String> result = new HashMap<String, String>();
+
+        if (StringUtils.isEmpty(rule.getRuleId()) || StringUtils.isEmpty(rule.getApplicationId()) || StringUtils.isEmpty(rule.getCheckerName()) || StringUtils.isEmpty(rule.getUserGroupId())) {
+            result.put("errorCode", "500");
+            result.put("errorMessage", "there is not ruleId/userGroupId/applicationid/checkerName to get alarm rule");
+            return result;
+        }
+        
+        alarmService.updateRule(rule);
+        
         result.put("result", "SUCCESS");
         return result;
     }
