@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.web.service;
 
+import java.util.List;
+
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 /**
@@ -25,5 +27,9 @@ public interface AlarmService {
     String insertRule(Rule rule);
 
     void deleteRule(Rule rule);
+
+    List<Rule> selectRuleByUserGroupId(String userGroupId);
+
+    void updateRule(Rule rule);
 
 }

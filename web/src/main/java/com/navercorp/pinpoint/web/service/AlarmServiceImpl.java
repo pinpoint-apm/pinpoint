@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.web.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +41,16 @@ public class AlarmServiceImpl implements AlarmService {
     @Override
     public void deleteRule(Rule rule) {
         alarmDao.deleteRule(rule);
+    }
+
+    @Override
+    public List<Rule> selectRuleByUserGroupId(String userGroupId) {
+        return alarmDao.selectRuleByUserGroupId(userGroupId);
+    }
+
+    @Override
+    public void updateRule(Rule rule) {
+        alarmDao.updateRule(rule);
     }
 
 }

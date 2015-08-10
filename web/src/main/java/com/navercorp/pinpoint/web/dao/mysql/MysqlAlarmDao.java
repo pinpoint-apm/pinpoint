@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.web.dao.mysql;
 
+import java.util.List;
+
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -47,8 +49,18 @@ public class MysqlAlarmDao implements AlarmDao {
     }
 
     @Override
-    public void deleteRule(String userGroupId) {
+    public void deleteRuleByUserGroupId(String userGroupId) {
         sqlSessionTemplate.insert(NAMESPACE + "deleteRuleByUserGroupId", userGroupId);
+    }
+
+    @Override
+    public List<Rule> selectRuleByUserGroupId(String userGroupId) {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectRuleByUserGroupId", userGroupId);
+    }
+
+    @Override
+    public void updateRule(Rule rule) {
+        sqlSessionTemplate.update(NAMESPACE + "updateRule", rule);
     }
 
 }

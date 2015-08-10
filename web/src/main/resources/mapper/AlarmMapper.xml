@@ -20,4 +20,16 @@
         FROM alarm_rule
         WHERE user_group_id = #{userGroupId} 
     </delete>
+    
+    <select id="selectRuleByUserGroupId" resultType="Rule">
+        SELECT *
+        FROM alarm_rule
+        WHERE user_group_id = #{userGroupId}
+    </select>
+    
+    <update id="updateRule">
+        UPDATE alarm_rule
+        SET application_id = #{applicationId}, checker_name = #{checkerName}, threshold = #{threshold}, user_group_id = #{userGroupId}, sms_send = #{smsSend}, email_send = #{emailSend}, notes = #{notes} 
+        WHERE rule_id = #{ruleId}
+    </update>
 </mapper>

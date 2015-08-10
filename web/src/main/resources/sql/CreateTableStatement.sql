@@ -26,14 +26,14 @@ CREATE TABLE `user` (
 );
 
 CREATE TABLE `alarm_rule` (
-  `rule_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `application_id` varchar(30) NOT NULL,
-  `checker_name` varchar(30) NOT NULL,
-  `threshold` int(10) DEFAULT NULL,
-  `user_group_id` varchar(30) NOT NULL,
-  `sms_send` char(1) DEFAULT NULL,
-  `email_send` char(1) DEFAULT NULL,
-  `notes` varchar(50) DEFAULT NULL,
+  `rule_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `application_id` VARCHAR(30) NOT NULL,
+  `checker_name` VARCHAR(30) NOT NULL,
+  `threshold` INT(10) DEFAULT NULL,
+  `user_group_id` VARCHAR(30) NOT NULL,
+  `sms_send` CHAR(1) DEFAULT NULL,
+  `email_send` CHAR(1) DEFAULT NULL,
+  `notes` VARCHAR(50) DEFAULT NULL,
   PRIMARY KEY (`rule_id`),
-  KEY `idx_application_id_agent_id` (`application_id`)
-) 
+);
+ALTER TABLE alarm_rule ADD UNIQUE KEY application_id_checker_name_user_group_id_idx (application_id, user_group_id, checker_name);
