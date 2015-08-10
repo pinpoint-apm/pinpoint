@@ -172,6 +172,7 @@ public class ProfilerConfig {
     private DumpType apacheHttpClient4ProfileEntityDumpType = DumpType.EXCEPTION;
     private int apacheHttpClient4ProfileEntitySamplingRate = 1;
     private boolean apacheHttpClient4ProfileStatusCode = true;
+    private boolean apacheHttpClient4ProfileIo = true;
 
     /**
      * apache nio http client
@@ -508,6 +509,10 @@ public class ProfilerConfig {
     public boolean isApacheHttpClient4ProfileStatusCode() {
         return apacheHttpClient4ProfileStatusCode;
     }
+    
+    public boolean isApacheHttpClient4ProfileIo() {
+        return apacheHttpClient4ProfileIo;
+    }
 
     //-----------------------------------------
     // org/apache/http/impl/nio/*
@@ -741,6 +746,7 @@ public class ProfilerConfig {
         this.apacheHttpClient4ProfileEntitySamplingRate = readInt("profiler.apache.httpclient4.entity.sampling.rate", 1);
 
         this.apacheHttpClient4ProfileStatusCode = readBoolean("profiler.apache.httpclient4.entity.statuscode", true);
+        this.apacheHttpClient4ProfileIo = readBoolean("profiler.apache.httpclient4.io", true);
         /**
          * apache nio http client
          */
@@ -1028,6 +1034,8 @@ public class ProfilerConfig {
         builder.append(apacheHttpClient4ProfileEntitySamplingRate);
         builder.append(", apacheHttpClient4ProfileStatusCode=");
         builder.append(apacheHttpClient4ProfileStatusCode);
+        builder.append(", apacheHttpClient4ProfileIo=");
+        builder.append(apacheHttpClient4ProfileIo);
         builder.append(", apacheNIOHttpClient4Profile=");
         builder.append(apacheNIOHttpClient4Profile);
         builder.append(", ningAsyncHttpClientProfile=");

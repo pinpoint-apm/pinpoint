@@ -20,17 +20,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URI;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.StatusLine;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
 
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
@@ -42,6 +47,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.interceptor.http.HttpCallContext;
@@ -62,67 +68,121 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author minwoo.jung
  * @author jaehong.kim
  */
-@Group(HttpClient4Constants.HTTP_CLIENT4_SCOPE)
-public abstract class AbstractHttpClientExecuteMethodInterceptor implements SimpleAroundInterceptor, HttpClient4Constants {
-    protected final PLogger logger;
-    protected final boolean isDebug;
+@Group(value = HttpClient4Constants.HTTP_CLIENT4_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
+public class HttpRequestExecutorExecuteMethodInterceptor implements SimpleAroundInterceptor, HttpClient4Constants {
+    private static final int HTTP_REQUEST_INDEX = 1;
 
-    private boolean isHasCallbackParam;
-    protected TraceContext traceContext;
-    protected MethodDescriptor descriptor;
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
-    protected boolean cookie;
-    protected DumpType cookieDumpType;
-    protected SimpleSampler cookieSampler;
+    private TraceContext traceContext;
+    private MethodDescriptor methodDescriptor;
 
-    protected boolean entity;
-    protected DumpType entityDumpType;
-    protected SimpleSampler entitySampler;
+    private boolean cookie;
+    private DumpType cookieDumpType;
+    private SimpleSampler cookieSampler;
 
-    protected boolean statusCode;
-    protected InterceptorGroup interceptorGroup;
+    private boolean entity;
+    private DumpType entityDumpType;
+    private SimpleSampler entitySampler;
 
-    public AbstractHttpClientExecuteMethodInterceptor(Class<? extends AbstractHttpClientExecuteMethodInterceptor> childClazz, boolean isHasCallbackParam, TraceContext context, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup) {
-        this.logger = PLoggerFactory.getLogger(childClazz);
-        this.isDebug = logger.isDebugEnabled();
+    private boolean statusCode;
+    private InterceptorGroup interceptorGroup;
 
-        this.traceContext = context;
-        this.descriptor = methodDescriptor;
-        this.isHasCallbackParam = isHasCallbackParam;
+    private boolean io;
+
+    public HttpRequestExecutorExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup) {
+        this.traceContext = traceContext;
+        this.methodDescriptor = methodDescriptor;
         this.interceptorGroup = interceptorGroup;
+
+        final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
+        this.cookie = profilerConfig.isApacheHttpClient4ProfileCookie();
+        this.cookieDumpType = profilerConfig.getApacheHttpClient4ProfileCookieDumpType();
+        if (cookie) {
+            this.cookieSampler = SimpleSamplerFactory.createSampler(cookie, profilerConfig.getApacheHttpClient4ProfileCookieSamplingRate());
+        }
+
+        this.entity = profilerConfig.isApacheHttpClient4ProfileEntity();
+        this.entityDumpType = profilerConfig.getApacheHttpClient4ProfileEntityDumpType();
+        if (entity) {
+            this.entitySampler = SimpleSamplerFactory.createSampler(entity, profilerConfig.getApacheHttpClient4ProfileEntitySamplingRate());
+        }
+        this.statusCode = profilerConfig.isApacheHttpClient4ProfileStatusCode();
+        this.io = profilerConfig.isApacheHttpClient4ProfileIo();
     }
-
-    abstract NameIntValuePair<String> getHost(Object[] args);
-
-    abstract HttpRequest getHttpRequest(Object[] args);
 
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
-        final Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
 
+        final HttpRequest httpRequest = getHttpRequest(args);
+
+        final boolean sampling = trace.canSampled();
+        if (!sampling) {
+            if (isDebug) {
+                logger.debug("set Sampling flag=false");
+            }
+            if (httpRequest != null) {
+                httpRequest.setHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
+            }
+            return;
+        }
+
         final SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
-        final NameIntValuePair<String> host = getHost(args);
-        if (host != null) {
-            final InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
-            if (invocation != null) {
-                final HttpCallContext callContext = (HttpCallContext) invocation.getOrCreateAttachment(new AttachmentFactory() {
-                    @Override
-                    public Object createAttachment() {
-                        return new HttpCallContext();
-                    }
-                });
-                callContext.setHost(host.getName());
-                callContext.setPort(host.getValue());
-                invocation.setAttachment(callContext);
+        TraceId nextId = trace.getTraceId().getNextTraceId();
+        recorder.recordNextSpanId(nextId.getSpanId());
+        recorder.recordServiceType(ServiceType.HTTP_CLIENT);
+
+        if (httpRequest != null) {
+            httpRequest.setHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
+            httpRequest.setHeader(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
+
+            httpRequest.setHeader(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
+
+            httpRequest.setHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
+            httpRequest.setHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
+            httpRequest.setHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
+            final NameIntValuePair<String> host = getHost();
+            if (host != null) {
+                httpRequest.setHeader(Header.HTTP_HOST.toString(), host.getName());
             }
         }
+
+        InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
+        if (invocation != null) {
+            HttpCallContext callContext = (HttpCallContext) invocation.getOrCreateAttachment(new AttachmentFactory() {
+                @Override
+                public Object createAttachment() {
+                    return new HttpCallContext();
+                }
+            });
+            invocation.setAttachment(callContext);
+        }
+    }
+
+    private HttpRequest getHttpRequest(Object[] args) {
+        if (args != null && args.length >= 1 && args[0] != null && args[0] instanceof HttpRequest) {
+            return (HttpRequest) args[0];
+        }
+
+        return null;
+    }
+
+    private NameIntValuePair<String> getHost() {
+        InterceptorGroupInvocation transaction = interceptorGroup.getCurrentInvocation();
+        if (transaction != null && transaction.getAttachment() != null) {
+            HttpCallContext callContext = (HttpCallContext) transaction.getAttachment();
+            return new NameIntValuePair<String>(callContext.getHost(), callContext.getPort());
+        }
+
+        return null;
     }
 
     @Override
@@ -138,25 +198,57 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Simp
 
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(descriptor);
+            final HttpRequest httpRequest = getHttpRequest(args);
+            if (httpRequest != null) {
+                // Accessing httpRequest here not BEFORE() becuase it can cause side effect.
+                recorder.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getRequestLine().getUri());
+                final NameIntValuePair<String> host = getHost();
+                if (host != null) {
+                    int port = host.getValue();
+                    String endpoint = getEndpoint(host.getName(), port);
+                    recorder.recordDestinationId(endpoint);
+                }
+
+                recordHttpRequest(trace, httpRequest, throwable);
+            }
+
+            if (statusCode) {
+                final Integer statusCodeValue = getStatusCode(result);
+                if (statusCodeValue != null) {
+                    recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, statusCodeValue);
+                }
+            }
+
+            recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);
 
-            final InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
-            if (invocation != null) {
+            InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
+            if (invocation != null && invocation.getAttachment() != null) {
+                final HttpCallContext callContext = (HttpCallContext) invocation.getAttachment();
+                logger.debug("Check call context {}", callContext);
+                if (io) {
+                    final StringBuilder sb = new StringBuilder();
+                    sb.append("write=").append(callContext.getWriteElapsedTime());
+                    if (callContext.isWriteFail()) {
+                        sb.append("(fail)");
+                    }
+                    sb.append(", read=").append(callContext.getReadElapsedTime());
+                    if (callContext.isReadFail()) {
+                        sb.append("(fail)");
+                    }
+                    recorder.recordAttribute(AnnotationKey.HTTP_IO, sb.toString());
+                }
                 // clear
                 invocation.removeAttachment();
             }
+
         } finally {
             trace.traceBlockEnd();
         }
     }
 
     private Integer getStatusCode(Object result) {
-        if (isHasCallbackParam) {
-            return getStatusCodeFromAttachment();
-        } else {
-            return getStatusCodeFromResponse(result);
-        }
+        return getStatusCodeFromResponse(result);
     }
 
     Integer getStatusCodeFromResponse(Object result) {
@@ -170,21 +262,6 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Simp
                 return null;
             }
         }
-        return null;
-    }
-
-    private Integer getStatusCodeFromAttachment() {
-        InterceptorGroupInvocation transaction = interceptorGroup.getCurrentInvocation();
-
-        final Object attachment = transaction.getAttachment();
-        if (attachment == null) {
-            return null;
-        }
-
-        if (attachment instanceof HttpCallContext) {
-            return ((HttpCallContext) attachment).getStatusCode();
-        }
-
         return null;
     }
 
@@ -332,28 +409,5 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Simp
             }
         }
         return charset;
-    }
-
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
-
-        final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
-        this.cookie = profilerConfig.isApacheHttpClient4ProfileCookie();
-        this.cookieDumpType = profilerConfig.getApacheHttpClient4ProfileCookieDumpType();
-        if (cookie) {
-            this.cookieSampler = SimpleSamplerFactory.createSampler(cookie, profilerConfig.getApacheHttpClient4ProfileCookieSamplingRate());
-        }
-
-        this.entity = profilerConfig.isApacheHttpClient4ProfileEntity();
-        this.entityDumpType = profilerConfig.getApacheHttpClient4ProfileEntityDumpType();
-        if (entity) {
-            this.entitySampler = SimpleSamplerFactory.createSampler(entity, profilerConfig.getApacheHttpClient4ProfileEntitySamplingRate());
-        }
-        this.statusCode = profilerConfig.isApacheHttpClient4ProfileStatusCode();
-    }
-
-    public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.descriptor = descriptor;
-        traceContext.cacheApi(descriptor);
     }
 }

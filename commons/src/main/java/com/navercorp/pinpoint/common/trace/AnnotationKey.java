@@ -116,7 +116,7 @@ public class AnnotationKey {
     public static final AnnotationKey HTTP_PARAM_ENTITY = new AnnotationKey(42, "http.entity", VIEW_IN_RECORD_SET);
     public static final AnnotationKey HTTP_COOKIE = new AnnotationKey(45, "http.cookie", VIEW_IN_RECORD_SET);
     public static final AnnotationKey HTTP_STATUS_CODE = new AnnotationKey(46, "http.status.code", VIEW_IN_RECORD_SET);
-    public static final AnnotationKey HTTP_CALL_RETRY_COUNT = new AnnotationKey(48, "retryCount");
+    public static final AnnotationKey HTTP_INTERNAL_DISPLAY = new AnnotationKey(48, "http.internal.display");
     public static final AnnotationKey HTTP_IO = new AnnotationKey(49, "http.io", VIEW_IN_RECORD_SET);
     // post method parameter of httpclient
 
