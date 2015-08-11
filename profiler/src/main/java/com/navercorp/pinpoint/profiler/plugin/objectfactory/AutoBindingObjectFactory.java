@@ -23,7 +23,7 @@ import java.util.List;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe.ByConstructor;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe.ByStaticFactoryMethod;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.exception.PinpointException;
 
 /**
@@ -31,11 +31,11 @@ import com.navercorp.pinpoint.exception.PinpointException;
  *
  */
 public class AutoBindingObjectFactory {
-    private final ProfilerPluginContext pluginContext;
+    private final ProfilerPluginInstrumentContext pluginContext;
     private final ClassLoader classLoader;
     private final List<ArgumentProvider> commonProviders;
     
-    public AutoBindingObjectFactory(ProfilerPluginContext pluginContext, ClassLoader classLoader, ArgumentProvider... argumentProviders) {
+    public AutoBindingObjectFactory(ProfilerPluginInstrumentContext pluginContext, ClassLoader classLoader, ArgumentProvider... argumentProviders) {
         this.pluginContext = pluginContext;
         this.classLoader = classLoader;
         this.commonProviders = new ArrayList<ArgumentProvider>(Arrays.asList(argumentProviders));

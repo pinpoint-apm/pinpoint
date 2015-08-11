@@ -12,15 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.instrument;
+package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
+import java.util.Map;
 
 /**
  * @author Jongho Moon
  *
  */
-public interface InstrumentClassPool {
-    InstrumentClass getClass(ProfilerPluginInstrumentContext pluginContext, ClassLoader classLoader, String classInternalName, byte[] classFileBuffer) throws NotFoundInstrumentException;
-    boolean hasClass(ClassLoader classLoader, String classBinaryName);
+public interface BindValueAccessor {
+    public void _$PINPOINT$_setBindValue(Map<Integer, String> map);
+    public Map<Integer, String> _$PINPOINT$_getBindValue();
 }

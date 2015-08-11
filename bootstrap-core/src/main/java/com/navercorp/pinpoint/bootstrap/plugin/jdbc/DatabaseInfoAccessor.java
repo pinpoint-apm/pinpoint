@@ -12,15 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.instrument;
+package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 
 /**
  * @author Jongho Moon
  *
  */
-public interface InstrumentClassPool {
-    InstrumentClass getClass(ProfilerPluginInstrumentContext pluginContext, ClassLoader classLoader, String classInternalName, byte[] classFileBuffer) throws NotFoundInstrumentException;
-    boolean hasClass(ClassLoader classLoader, String classBinaryName);
+public interface DatabaseInfoAccessor {
+    public void _$PINPOINT$_setDatabaseInfo(DatabaseInfo info);
+    public DatabaseInfo _$PINPOINT$_getDatabaseInfo();
 }

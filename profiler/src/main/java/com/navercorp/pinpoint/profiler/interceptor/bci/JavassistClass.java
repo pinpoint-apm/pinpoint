@@ -48,7 +48,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetConstructor;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetFilter;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
@@ -72,7 +72,7 @@ public class JavassistClass implements InstrumentClass {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final ProfilerPluginContext pluginContext;
+    private final ProfilerPluginInstrumentContext pluginContext;
 //    private final JavassistClassPool instrumentClassPool;
     private final InterceptorRegistryBinder interceptorRegistryBinder;
     private final ClassLoader classLoader;
@@ -84,7 +84,7 @@ public class JavassistClass implements InstrumentClass {
 
 
 
-    public JavassistClass(ProfilerPluginContext pluginContext, InterceptorRegistryBinder interceptorRegistryBinder, ClassLoader classLoader, CtClass ctClass) {
+    public JavassistClass(ProfilerPluginInstrumentContext pluginContext, InterceptorRegistryBinder interceptorRegistryBinder, ClassLoader classLoader, CtClass ctClass) {
         this.pluginContext = pluginContext;
         this.ctClass = ctClass;
         this.interceptorRegistryBinder = interceptorRegistryBinder;
