@@ -61,4 +61,9 @@ public class SpanAsyncCallTree implements CallTree {
     public void add(int depth, SpanAlign spanAlign) {
         tree.add(depth, spanAlign);
     }
+
+    @Override
+    public void sort() {
+        tree.sort();
+    }
 }

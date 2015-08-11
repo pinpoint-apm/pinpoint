@@ -134,8 +134,10 @@ public class SpanAligner2 {
         if (rootList.size() > 1) {
             throw new IllegalStateException("duplicate rootList span found. rootSpanId=" + rootSpanId + ", map=" + spanIdMap.keySet());
         }
-        SpanBo rootSpanBo = rootList.get(0);
-        CallTree tree = populate(rootSpanBo, rootSpanBo.getSpanEventBoList(), null);
+        final SpanBo rootSpanBo = rootList.get(0);
+        final CallTree tree = populate(rootSpanBo, rootSpanBo.getSpanEventBoList(), null);
+        tree.sort();
+        
         return tree;
     }
 
