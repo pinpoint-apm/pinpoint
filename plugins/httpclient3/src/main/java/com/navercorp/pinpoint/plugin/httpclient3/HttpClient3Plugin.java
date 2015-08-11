@@ -65,6 +65,7 @@ public class HttpClient3Plugin implements ProfilerPlugin, HttpClient3Constants {
         methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.ExecuteInterceptor");
     }
 
+    
     private void addDefaultHttpMethodRetryHandlerClass(ProfilerPluginSetupContext context, HttpClient3PluginConfig config) {
         final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.commons.httpclient.DefaultHttpMethodRetryHandler");
         MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethod("retryMethod", "org.apache.commons.httpclient.HttpMethod", "java.io.IOException", "int");
@@ -76,6 +77,11 @@ public class HttpClient3Plugin implements ProfilerPlugin, HttpClient3Constants {
     
     private void addHttpConnectionClass(ProfilerPluginSetupContext context, HttpClient3PluginConfig config) {
         final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.commons.httpclient.HttpConnection");
+        classEditorBuilder.injectFieldAccessor(FIELD_HOST_NAME);
+        classEditorBuilder.injectFieldAccessor(FIELD_PORT_NUMBER);
+        classEditorBuilder.injectFieldAccessor(FIELD_PROXY_HOST_NAME);
+        classEditorBuilder.injectFieldAccessor(FIELD_PROXY_PORT_NUMBER);
+        
         MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethod("open");
         methodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
         methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.HttpConnectionOpenMethodInterceptor");
@@ -85,13 +91,19 @@ public class HttpClient3Plugin implements ProfilerPlugin, HttpClient3Constants {
     
     private void addHttpMethodBaseClass(ProfilerPluginSetupContext context, HttpClient3PluginConfig config) {
         final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.commons.httpclient.HttpMethodBase");
-        MethodTransformerBuilder writeRequestMethodEditorBuilder = classEditorBuilder.editMethod("writeRequest", "org.apache.commons.httpclient.HttpState", "org.apache.commons.httpclient.HttpConnection");
-        writeRequestMethodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        writeRequestMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.HttpMethodBaseRequestAndResponseMethodInterceptor");
+        MethodTransformerBuilder executeMethodEditorBuilder = classEditorBuilder.editMethod("execute", "org.apache.commons.httpclient.HttpState", "org.apache.commons.httpclient.HttpConnection");
+        executeMethodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
+        executeMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.HttpMethodBaseExecuteMethodInterceptor");
         
-        MethodTransformerBuilder readResponseMethodEditorBuilder = classEditorBuilder.editMethod("readResponse", "org.apache.commons.httpclient.HttpState", "org.apache.commons.httpclient.HttpConnection");
-        readResponseMethodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        readResponseMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.HttpMethodBaseRequestAndResponseMethodInterceptor");
+        if(config.isApacheHttpClient3ProfileIo()) {
+            MethodTransformerBuilder writeRequestMethodEditorBuilder = classEditorBuilder.editMethod("writeRequest", "org.apache.commons.httpclient.HttpState", "org.apache.commons.httpclient.HttpConnection");
+            writeRequestMethodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
+            writeRequestMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.HttpMethodBaseRequestAndResponseMethodInterceptor");
+            
+            MethodTransformerBuilder readResponseMethodEditorBuilder = classEditorBuilder.editMethod("readResponse", "org.apache.commons.httpclient.HttpState", "org.apache.commons.httpclient.HttpConnection");
+            readResponseMethodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
+            readResponseMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.HttpMethodBaseRequestAndResponseMethodInterceptor");
+        }
 
         context.addClassFileTransformer(classEditorBuilder.build());
     }

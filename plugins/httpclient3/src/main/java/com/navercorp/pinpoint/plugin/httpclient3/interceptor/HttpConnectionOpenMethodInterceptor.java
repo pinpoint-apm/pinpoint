@@ -16,67 +16,55 @@
 
 package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 
 /**
  * @author jaehong.kim
  */
-@Group(HttpClient3Constants.HTTP_CLIENT3_CONNECTION_SCOPE)
-public class HttpConnectionOpenMethodInterceptor implements SimpleAroundInterceptor, HttpClient3Constants {
+public class HttpConnectionOpenMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin implements HttpClient3Constants {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
+    private FieldAccessor hostNameAccessor;
+    private FieldAccessor portNumberAccessor;
+    private FieldAccessor proxyHostNameAccessor;
+    private FieldAccessor proxyPortNumberAccessor;
 
-    private TraceContext traceContext;
-    private MethodDescriptor methodDescriptor;
-
-
-    public HttpConnectionOpenMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        this.traceContext = traceContext;
-        this.methodDescriptor = methodDescriptor;
-    }
-    
-    @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, methodDescriptor.getClassName(), methodDescriptor.getMethodName(), "", args);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        trace.traceBlockBegin();
+    public HttpConnectionOpenMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, @Name(FIELD_HOST_NAME) FieldAccessor hostNameAccessor, @Name(FIELD_PORT_NUMBER) FieldAccessor portNumberAccessor,
+            @Name(FIELD_PROXY_HOST_NAME) FieldAccessor proxyHostNameAccessor, @Name(FIELD_PROXY_PORT_NUMBER) FieldAccessor proxyPortNumberAccessor) {
+        super(traceContext, methodDescriptor);
+        this.hostNameAccessor = hostNameAccessor;
+        this.portNumberAccessor = portNumberAccessor;
+        this.proxyHostNameAccessor = proxyHostNameAccessor;
+        this.proxyPortNumberAccessor = proxyPortNumberAccessor;
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, methodDescriptor.getClassName(), methodDescriptor.getMethodName(), "", args, result, throwable);
-        }
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordApi(methodDescriptor);
+        recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
 
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
+        if (hostNameAccessor.isApplicable(target) && portNumberAccessor.isApplicable(target) && proxyHostNameAccessor.isApplicable(target) && proxyPortNumberAccessor.isApplicable(target)) {
+            final StringBuilder sb = new StringBuilder();
+            if (proxyHostNameAccessor.get(target) != null) {
+                sb.append(proxyHostNameAccessor.get(target));
+                sb.append(":").append(proxyPortNumberAccessor.get(target));
+            } else {
+                sb.append(hostNameAccessor.get(target));
+                sb.append(":").append(proxyPortNumberAccessor.get(target));
+            }
+            recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, sb.toString());
         }
+    }
 
-        try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
-            recorder.recordApi(methodDescriptor);
-            recorder.recordException(throwable);
-        } finally {
-            trace.traceBlockEnd();
-        }
+    @Override
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordException(throwable);
     }
 }

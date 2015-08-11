@@ -29,4 +29,5 @@ public interface HttpClient4Constants {
     public static final String FIELD_RESULT_FUTURE = "resultFuture";
     
     public static final String HTTP_CLIENT4_SCOPE = "HttpClient4Scope"; 
+    public static final String HTTP_CLIENT4_EXECUTOR_SCOPE = "HttpClient4ExecutorScope";
 }

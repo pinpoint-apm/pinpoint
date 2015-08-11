@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.navercorp.pinpoint.bootstrap.interceptor.http;
+package com.navercorp.pinpoint.plugin.httpclient3;
 
 /**
- * @author minwoo.jung
+ * 
+ * @author jaehong.kim
+ *
  */
-public class HttpCallContext {
-    private int statusCode;
-    private String host;
-    private int port;
-
+public class HttpClient3CallContext {
     private long readBeginTime;
     private long readEndTime;
     private boolean readFail;
@@ -74,40 +71,10 @@ public class HttpCallContext {
         return result > 0 ? result : 0;
     }
 
-    public int getStatusCode() {
-        return statusCode;
-    }
-
-    public void setStatusCode(int statusCode) {
-        this.statusCode = statusCode;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("{statusCode=");
-        builder.append(statusCode);
-        builder.append(", host=");
-        builder.append(host);
-        builder.append(", port=");
-        builder.append(port);
-        builder.append(", readBeginTime=");
+        builder.append("{readBeginTime=");
         builder.append(readBeginTime);
         builder.append(", readEndTime=");
         builder.append(readEndTime);

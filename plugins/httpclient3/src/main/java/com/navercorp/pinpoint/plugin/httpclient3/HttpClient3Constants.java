@@ -23,4 +23,9 @@ package com.navercorp.pinpoint.plugin.httpclient3;
 public interface HttpClient3Constants {
     public static final String HTTP_CLIENT3_SCOPE = "HttpClient3Scope"; 
     public static final String HTTP_CLIENT3_CONNECTION_SCOPE = "HttpClient3HttpConnection";
+    public static final String HTTP_CLIENT3_METHOD_BASE_SCOPE = "HttpClient3MethodBase";
+    public static final String FIELD_HOST_NAME = "hostName";
+    public static final String FIELD_PORT_NUMBER = "portNumber";
+    public static final String FIELD_PROXY_HOST_NAME = "proxyHostName";
+    public static final String FIELD_PROXY_PORT_NUMBER = "proxyPortNumber";
 }
