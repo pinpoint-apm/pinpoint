@@ -27,6 +27,8 @@ public interface InstrumentMethod {
     String getName();
 
     String[] getParameterTypes();
+    
+    String getReturnType();
 
     int getModifiers();
     

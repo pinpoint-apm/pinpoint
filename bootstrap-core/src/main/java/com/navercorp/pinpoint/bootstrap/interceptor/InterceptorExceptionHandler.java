@@ -21,53 +21,19 @@ import java.util.logging.Logger;
  * @author Jongho Moon
  *
  */
-public class InterceptorInvoker {
-    public static final boolean throwException = "true".equals(System.getProperty("throwExcepton"));
-    public static final Logger logger = Logger.getLogger("com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInvoker");
+public class InterceptorExceptionHandler {
+    private static boolean propagateException = false;
+    private static final Logger logger = Logger.getLogger(InterceptorExceptionHandler.class.getName());
     
-    public static SimpleAroundInterceptor before(int interceptorId, Object target, Object[] args) {
-        SimpleAroundInterceptor interceptor = InterceptorRegistry.getSimpleInterceptor(interceptorId);
-
-        try {
-            interceptor.before(target, args);
-        } catch (Throwable t) {
-            if (throwException) {
-                throw new RuntimeException(t);
-            } else {
-                logger.log(Level.WARNING, "Excetpion occured from interceptor", t);
-            }
-        }
-        
-        return interceptor;
-    }
-    
-    public static SimpleAroundInterceptor after(int interceptorId, Object target, Object[] args, Object result, Throwable throwable) {
-        SimpleAroundInterceptor interceptor = InterceptorRegistry.getSimpleInterceptor(interceptorId);
-        
-        try {
-            interceptor.after(target, args, result, throwable);
-        } catch (Throwable t) {
-            if (throwException) {
-                throw new RuntimeException(t);
-            } else {
-                logger.log(Level.WARNING, "Excetpion occured from interceptor", t);
-            }
-        }
-        
-        return interceptor;
-    }
-
-    public static void after(SimpleAroundInterceptor interceptor, Object target, Object[] args, Object result, Throwable throwable) {
-        try {
-            interceptor.after(target, args, result, throwable);
-        } catch (Throwable t) {
-            if (throwException) {
-                throw new RuntimeException(t);
-            } else {
-                logger.log(Level.WARNING, "Excetpion occured from interceptor", t);
-            }
+    public static void handleException(Throwable t) {
+        if (propagateException) {
+            throw new RuntimeException(t);
+        } else {
+            logger.log(Level.WARNING, "Excetpion occured from interceptor", t);
         }
     }
-
     
+    public static void setPropagateException(boolean propagate) {
+        propagateException = propagate;
+    }
 }

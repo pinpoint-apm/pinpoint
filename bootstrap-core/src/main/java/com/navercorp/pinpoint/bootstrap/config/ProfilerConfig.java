@@ -16,10 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
-import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
-import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
-import com.navercorp.pinpoint.common.util.PropertyUtils;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
@@ -28,6 +24,10 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
+import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
+import com.navercorp.pinpoint.common.util.PropertyUtils;
 
 /**
  * @author emeroad
@@ -219,6 +219,8 @@ public class ProfilerConfig {
     private List<String> applicationTypeDetectOrder = Collections.emptyList();
     private boolean log4jLoggingTransactionInfo;
     private boolean logbackLoggingTransactionInfo;
+    
+    private boolean propagateInterceptorException = false;
 
     public ProfilerConfig() {
         this.properties = new Properties();
@@ -629,6 +631,10 @@ public class ProfilerConfig {
     public void setCallStackMaxDepth(int callStackMaxDepth) {
         this.callStackMaxDepth = callStackMaxDepth;
     }
+    
+    public boolean isPropagateInterceptorException() {
+        return propagateInterceptorException;
+    }
 
     // for test
     void readPropertyValues() {
@@ -812,6 +818,8 @@ public class ProfilerConfig {
         if (!profilableClass.isEmpty()) {
             this.profilableClassFilter = new ProfilableClassFilter(profilableClass);
         }
+        
+        this.propagateInterceptorException = readBoolean("profiler.interceptor.exception.propagate", false);
 
         logger.info("configuration loaded successfully.");
     }

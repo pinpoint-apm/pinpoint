@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.interceptor.bci;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import javassist.CannotCompileException;
 import javassist.CtBehavior;
@@ -24,13 +25,14 @@ import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtMethod;
 import javassist.NotFoundException;
+import javassist.bytecode.analysis.ControlFlow.Catcher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.InterceptPoint;
@@ -86,6 +88,19 @@ public class JavassistMethod implements InstrumentMethod {
     public String[] getParameterTypes() {
         return JavaAssistUtils.parseParameterSignature(behavior.getSignature());
     }
+    
+    @Override
+    public String getReturnType() {
+        if (behavior instanceof CtMethod) {
+            try {
+                return ((CtMethod)behavior).getReturnType().getName();
+            } catch (NotFoundException e) {
+                return null;
+            }
+        }
+        
+        return null;
+    }
 
     @Override
     public int getModifiers() {
@@ -127,10 +142,9 @@ public class JavassistMethod implements InstrumentMethod {
     @Override
     public void addInterceptor(int interceptorId) throws InstrumentException {
         Interceptor interceptor = InterceptorRegistry.findInterceptor(interceptorId);
-        boolean isStatic = interceptor instanceof StaticAroundInterceptor;
         
         try { 
-            addInterceptor0(interceptorId, InterceptPoint.AROUND, isStatic);
+            addInterceptor0(interceptor, interceptorId, InterceptPoint.AROUND);
         } catch (Exception e) {
             throw new InstrumentException("Failed to add interceptor " + interceptor.getClass().getName() + " to " + behavior, e);
         }
@@ -140,18 +154,18 @@ public class JavassistMethod implements InstrumentMethod {
         Interceptor interceptor = createInterceptor(interceptorClassName, group, policy, constructorArgs);
         
         int interceptorId;
-        boolean isStatic = false;
         
         if (interceptor instanceof StaticAroundInterceptor) {
             interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addStaticInterceptor((StaticAroundInterceptor) interceptor);
-            isStatic = true;
         } else if (interceptor instanceof SimpleAroundInterceptor) {
             interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addSimpleInterceptor((SimpleAroundInterceptor) interceptor);
+        } else if (interceptor instanceof Interceptor) {
+            interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor((Interceptor) interceptor);
         } else {
             throw new InstrumentException("unsupported interceptor type:" + interceptor);
         }
         
-        addInterceptor0(interceptorId, type, isStatic);
+        addInterceptor0(interceptor, interceptorId, type);
         
         return interceptorId;
     }
@@ -193,7 +207,7 @@ public class JavassistMethod implements InstrumentMethod {
         }
         
         try {
-            addInterceptor0(interceptorId, type, isStatic);
+            addInterceptor0(interceptor, interceptorId, type);
         } catch (Exception e) {
             throw new InstrumentException(e);
         }
@@ -203,10 +217,9 @@ public class JavassistMethod implements InstrumentMethod {
     
     public void addInterceptor0(int interceptorId, InterceptPoint type) throws InstrumentException {
         Interceptor interceptor = InterceptorRegistry.findInterceptor(interceptorId);
-        boolean isStatic = interceptor instanceof StaticAroundInterceptor;
         
         try { 
-            addInterceptor0(interceptorId, type, isStatic);
+            addInterceptor0(interceptor, interceptorId, type);
         } catch (Exception e) {
             throw new InstrumentException("Failed to add interceptor " + interceptor.getClass().getName() + " to " + behavior, e);
         }
@@ -222,97 +235,90 @@ public class JavassistMethod implements InstrumentMethod {
         return interceptor;
     }
     
-    private void addInterceptor0(int interceptorId, InterceptPoint type, boolean isStatic) throws CannotCompileException, NotFoundException {
-        switch (type) {
+    private void addInterceptor0(Interceptor interceptor, int interceptorId, InterceptPoint point) throws CannotCompileException, NotFoundException {
+        switch (point) {
         case AROUND:
-            addBeforeInterceptor(interceptorId, isStatic);
-            addAfterInterceptor(interceptorId, isStatic);
+            addBeforeInterceptor(interceptor, interceptorId);
+            addAfterInterceptor(interceptor, interceptorId);
             break;
         case BEFORE:
-            addBeforeInterceptor(interceptorId, isStatic);
+            addBeforeInterceptor(interceptor, interceptorId);
             break;
         case AFTER:
-            addAfterInterceptor(interceptorId, isStatic);
+            addAfterInterceptor(interceptor, interceptorId);
             break;
         default:
             throw new UnsupportedOperationException("unsupported type");
         }
     }
-
-    private void addAfterInterceptor(int interceptorId, boolean isStatic) throws NotFoundException, CannotCompileException {
-        final String returnType = getReturnType(behavior);
-        final String target = getTargetIdentifier(behavior);
-
-        final String[] parameterType = JavaAssistUtils.parseParameterSignature(behavior.getSignature());
-        String parameterTypeString = null;
-        if (isStatic) {
-            parameterTypeString = JavaAssistUtils.getParameterDescription(parameterType);
+    
+    private static final Method getBefore(Class<?> interceptorClass) {
+        for (Method m : interceptorClass.getMethods()) {
+            if (m.getName().equals("before")) {
+                return m;
+            }
         }
-        final String parameterIdentifier = getParameterIdentifier(parameterType);
-
-        final CodeBuilder after = new CodeBuilder();
-        after.begin();
-
-        if (isStatic) {
-            after.format("  %1$s interceptor = %2$s.getStaticInterceptor(%3$d);", StaticAroundInterceptor.class.getName(), interceptorRegistryBinder.getInterceptorRegistryClassName(), interceptorId);
-            after.format("  interceptor.after(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, %6$s, null);", target, behavior.getDeclaringClass().getName(), behavior.getName(), parameterTypeString, parameterIdentifier, returnType);
-        } else {
-            after.format("  %1$s interceptor = %2$s.getSimpleInterceptor(%3$d);", SimpleAroundInterceptor.class.getName(), interceptorRegistryBinder.getInterceptorRegistryClassName(), interceptorId);
-            after.format("  interceptor.after(%1$s, %2$s, %3$s, null);", target, parameterIdentifier, returnType);
+        
+        return null;
+    }
+    
+    private static final Method getAfter(Class<?> interceptorClass) {
+        for (Method m : interceptorClass.getMethods()) {
+            if (m.getName().equals("after")) {
+                return m;
+            }
         }
-        after.end();
+        
+        return null;
+    }
 
-        final String buildAfter = after.toString();
+    private void addAfterInterceptor(Interceptor interceptor, int interceptorId) throws NotFoundException, CannotCompileException {
+        Class<?> interceptorClass = interceptor.getClass();
+        Method interceptorMethod = getAfter(interceptorClass);
+        
+        if (interceptorMethod == null) {
+            if (isDebug) {
+                logger.debug("Skip adding after interceptor becuase the interceptor doesn't have after method: {}", interceptorClass.getName());
+            }
+            return;
+        }
+        
+        InterceptorInvokeCodeGenerator after = new InterceptorInvokeCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this, false);
+        final String buildAfter = after.generate();
+        
         if (isDebug) {
             logger.debug("addAfterInterceptor after behavior:{} code:{}", behavior.getLongName(), buildAfter);
         }
+        
         behavior.insertAfter(buildAfter);
 
-
-        CodeBuilder catchCode = new CodeBuilder();
-        catchCode.begin();
-        if (isStatic) {
-            catchCode.format("  %1$s interceptor = %2$s.getStaticInterceptor(%3$d);", StaticAroundInterceptor.class.getName(), interceptorRegistryBinder.getInterceptorRegistryClassName(), interceptorId);
-            catchCode.format("  interceptor.after(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, null, $e);", target, behavior.getDeclaringClass().getName(), behavior.getName(), parameterTypeString, parameterIdentifier);
-        } else {
-            catchCode.format("  %1$s interceptor = %2$s.getSimpleInterceptor(%3$d);", SimpleAroundInterceptor.class.getName(), interceptorRegistryBinder.getInterceptorRegistryClassName(), interceptorId);
-            catchCode.format("  interceptor.after(%1$s, %2$s, null, $e);", target, parameterIdentifier);
-        }
-        catchCode.append("  throw $e;");
-        catchCode.end();
-        String buildCatch = catchCode.toString();
+        
+        InterceptorInvokeCodeGenerator catchCode = new InterceptorInvokeCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this, true);
+        String buildCatch = catchCode.generate();
+        
         if (isDebug) {
             logger.debug("addAfterInterceptor catch behavior:{} code:{}", behavior.getLongName(), buildCatch);
         }
-        CtClass th = behavior.getDeclaringClass().getClassPool().get("java.lang.Throwable");
-        behavior.addCatch(buildCatch, th);
-
+        
+        CtClass throwable = behavior.getDeclaringClass().getClassPool().get("java.lang.Throwable");
+        behavior.addCatch(buildCatch, throwable);
     }
 
-    private void addBeforeInterceptor(int interceptorId, boolean isStatic) throws CannotCompileException, NotFoundException {
-        final String target = getTargetIdentifier(behavior);
-
-        final String[] parameterType = JavaAssistUtils.parseParameterSignature(behavior.getSignature());
+    private void addBeforeInterceptor(Interceptor interceptor, int interceptorId) throws CannotCompileException, NotFoundException {
+        Class<?> interceptorClass = interceptor.getClass();
+        Method interceptorMethod = getBefore(interceptorClass);
         
-        // If possible, use static data to reduce interceptor overhead.
-        String parameterDescription = null;
-        if (isStatic) {
-            parameterDescription = JavaAssistUtils.getParameterDescription(parameterType);
+        if (interceptorMethod == null) {
+            if (isDebug) {
+                logger.debug("Skip adding before interceptor becuase the interceptor doesn't have before method: {}", interceptorClass.getName());
+            }
+            return;
         }
-        final String parameterIdentifier = getParameterIdentifier(parameterType);
 
-        CodeBuilder code = new CodeBuilder();
-        code.begin();
-        if (isStatic) {
-            code.format("  %1$s interceptor = %2$s.getStaticInterceptor(%3$d);", StaticAroundInterceptor.class.getName(), interceptorRegistryBinder.getInterceptorRegistryClassName(), interceptorId);
-            code.format("  interceptor.before(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s);", target, behavior.getDeclaringClass().getName(), behavior.getName(), parameterDescription, parameterIdentifier);
-        } else {
-            // Separated getStaticInterceptor() with getSimpleInterceptor() to remove type casting cost.
-            code.format("  %1$s interceptor = %2$s.getSimpleInterceptor(%3$d);", SimpleAroundInterceptor.class.getName(), interceptorRegistryBinder.getInterceptorRegistryClassName(), interceptorId);
-            code.format("  interceptor.before(%1$s, %2$s);", target, parameterIdentifier);
-        }
-        code.end();
-        String buildBefore = code.toString();
+        
+        InterceptorInvokeCodeGenerator before = new InterceptorInvokeCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this, false);
+        String buildBefore = before.generate();
+        
         if (isDebug) {
             logger.debug("addStaticBeforeInterceptor catch behavior:{} code:{}", behavior.getLongName(), buildBefore);
         }
@@ -323,35 +329,4 @@ public class JavassistMethod implements InstrumentMethod {
             behavior.insertBefore(buildBefore);
         }
     }
-
-    private String getParameterIdentifier(String[] parameterTypes) {
-        if (parameterTypes.length == 0) {
-            return "null";
-        }
-        return "$args";
-    }
-    
-    private String getTargetIdentifier(CtBehavior behavior) {
-        boolean staticMethod = JavaAssistUtils.isStaticBehavior(behavior);
-        if (staticMethod) {
-            return "null";
-        } else {
-            return "this";
-        }
-    }
-
-    private String getReturnType(CtBehavior behavior) {
-        if (behavior instanceof CtMethod) {
-            final String signature = behavior.getSignature();
-            if (isVoid(signature)) {
-                return "null";
-            }
-        }
-        return "($w)$_";
-    }
-
-    private boolean isVoid(String signature) {
-        return signature.endsWith("V");
-    }
-    
 }
