@@ -99,21 +99,16 @@ public class DefaultFilterBuilder implements FilterBuilder {
         try {
             final List<FilterDescriptor> list = jsonObjectMapper.readValue(jsonFilterText, new TypeReference<List<FilterDescriptor>>() {});
 
-            final Map<String, List<Object>> hintMap = jsonObjectMapper.readValue(jsonFilterHint, new TypeReference<LinkedHashMap>() {});
-            final FilterHint hint = new FilterHint(hintMap);
-
+            final FilterHint hint = jsonObjectMapper.readValue(jsonFilterHint, FilterHint.class);
+            logger.debug("filterHint:{}", hint);
             for (FilterDescriptor descriptor : list) {
                 if (!descriptor.isValid()) {
                     throw new IllegalArgumentException("invalid json " + jsonFilterText);
                 }
 
                 logger.debug("FilterDescriptor={}", descriptor);
-
-                chain.addFilter(new FromToResponseFilter(descriptor, hint));
-
-                if (descriptor.isSetUrl()) {
-                    chain.addFilter(new URLPatternFilter(descriptor));
-                }
+                LinkFilter linkFilter = new LinkFilter(descriptor, hint);
+                chain.addFilter(linkFilter);
             }
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);

@@ -1,11 +1,15 @@
 package com.navercorp.pinpoint.web.filter;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.navercorp.pinpoint.web.filter.deserializer.RpcHintJsonDeserializer;
+
 import java.util.Collections;
 import java.util.List;
 
 /**
  * @author emeroad
  */
+@JsonDeserialize(using = RpcHintJsonDeserializer.class)
 public class RpcHint {
 
     private final String applicationName;
@@ -23,6 +27,7 @@ public class RpcHint {
         this.applicationName = applicationName;
         this.rpcTypeList = Collections.unmodifiableList(rpcTypeList);
     }
+
 
     public String getApplicationName() {
         return applicationName;

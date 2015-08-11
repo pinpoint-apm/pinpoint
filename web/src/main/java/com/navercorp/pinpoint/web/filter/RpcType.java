@@ -1,8 +1,12 @@
 package com.navercorp.pinpoint.web.filter;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.navercorp.pinpoint.web.filter.deserializer.RpcTypeJsonDeserializer;
+
 /**
  * @author emeroad
  */
+@JsonDeserialize(using = RpcTypeJsonDeserializer.class)
 public class RpcType {
     private final String address;
     private final int spanEventServiceTypeCode;

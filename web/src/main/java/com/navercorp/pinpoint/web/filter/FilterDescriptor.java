@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.filter;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.apache.commons.lang3.StringUtils;
 
 /**

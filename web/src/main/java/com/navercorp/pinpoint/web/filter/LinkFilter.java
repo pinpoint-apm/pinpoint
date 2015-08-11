@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * @author netspider
  * 
  */
-public class FromToResponseFilter implements Filter {
+public class LinkFilter implements Filter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final List<ServiceType> fromServiceDescList;
@@ -55,7 +55,9 @@ public class FromToResponseFilter implements Filter {
 
     private final List<RpcHint> rpcHintList;
 
-    public FromToResponseFilter(FilterDescriptor filterDescriptor, FilterHint filterHint) {
+    private final URLPatternFilter acceptURLFilter;
+
+    public LinkFilter(FilterDescriptor filterDescriptor, FilterHint filterHint) {
         if (filterDescriptor == null) {
             throw new NullPointerException("filter descriptor must not be null");
         }
@@ -91,9 +93,20 @@ public class FromToResponseFilter implements Filter {
 
         this.agentFilter = createAgentFilter(filterDescriptor);
         this.filterType = getFilterType();
-        logger.debug("filterType:{}", filterType);
+        logger.info("filterType:{}", filterType);
 
         this.rpcHintList = this.filterHint.getRpcHintList(fromApplicationName);
+        // TODO fix : fromSpan base rpccall filter
+        this.acceptURLFilter = cratePatternFilter(filterDescriptor);
+        logger.info("acceptURLFilter:{}", acceptURLFilter);
+    }
+
+    private URLPatternFilter cratePatternFilter(FilterDescriptor filterDescriptor) {
+        if (filterDescriptor.getUrlPattern() == null) {
+            return new BypassURLPatternFilter();
+        }
+        //
+        return new AcceptUrlFilter(filterDescriptor.getUrlPattern());
     }
 
     private ResponseTimeFilter createResponseTimeFilter(FilterDescriptor filterDescriptor) {
@@ -101,12 +114,6 @@ public class FromToResponseFilter implements Filter {
         return factory.createFilter();
     }
 
-    private Long defaultLong(Long value, long defaultValue) {
-        if (value == null) {
-            return defaultValue;
-        }
-        return value;
-    }
 
     private ExecutionType getExecutionType(FilterDescriptor filterDescriptor) {
         final Boolean includeException = filterDescriptor.getIncludeException();
@@ -293,21 +300,12 @@ public class FromToResponseFilter implements Filter {
         if (!toSpanList.isEmpty()) {
 
             // from -> to compare SpanId & pSpanId filter
-            for (SpanBo fromSpanBo : fromSpanList) {
-                for (SpanBo toSpanBo : toSpanList) {
-                    if (fromSpanBo == toSpanBo) {
-                        // skip same object;
-                        continue;
-                    }
-                    if (fromSpanBo.getSpanId() == toSpanBo.getParentSpanId()) {
-                        final int elapsed = toSpanBo.getElapsed();
-                        final boolean hasError = toSpanBo.getErrCode() > 0;
-                        return checkResponseCondition(elapsed, hasError) && filterAgentName(fromSpanBo.getAgentId(), toSpanBo.getAgentId());
-                    }
-                }
+            final boolean exactMatch = wasToWasExactMatch(fromSpanList, toSpanList);
+            if (exactMatch)  {
+                return true;
             }
         }
-        if ((agentFilter instanceof FromToAgentFilter) && (agentFilter instanceof ToAgentFilter)) {
+        if (isToAgentFilter()) {
             // fast skip. toAgent filtering condition exist.
             // url filter not available.
             return false;
@@ -317,8 +315,11 @@ public class FromToResponseFilter implements Filter {
             return false;
         }
         // if agent filter is FromAgentFilter or AcceptAgentFilter(agent filter is not selected), url filtering is available.
+        return fromBaseFilter(fromSpanList);
+    }
 
-        // url base filter.
+    private boolean fromBaseFilter(List<SpanBo> fromSpanList) {
+        // from base filter. hint base filter
         // exceptional case
         // 1. remote call fail
         // 2. span packet lost.
@@ -348,15 +349,49 @@ public class FromToResponseFilter implements Filter {
             }
         }
         return false;
+    }
 
+    private boolean isToAgentFilter() {
+        return (agentFilter instanceof FromToAgentFilter) && (agentFilter instanceof ToAgentFilter);
+    }
+
+    private boolean wasToWasExactMatch(List<SpanBo> fromSpanList, List<SpanBo> toSpanList) {
+        // from -> to compare SpanId & pSpanId filter
+        for (SpanBo fromSpanBo : fromSpanList) {
+            for (SpanBo toSpanBo : toSpanList) {
+                if (fromSpanBo == toSpanBo) {
+                    // skip same object;
+                    continue;
+                }
+                if (fromSpanBo.getSpanId() == toSpanBo.getParentSpanId()) {
+                    final boolean agentMatch = filterAgentName(fromSpanBo.getAgentId(), toSpanBo.getAgentId());
+                    if (agentMatch) {
+                        final int elapsed = toSpanBo.getElapsed();
+                        final boolean hasError = toSpanBo.getErrCode() > 0;
+
+                        return checkResponseCondition(elapsed, hasError);
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private List<SpanBo> findFromNode(List<SpanBo> transaction) {
-        return findNode(transaction, fromApplicationName, fromServiceDescList);
+        List<SpanBo> node = findNode(transaction, fromApplicationName, fromServiceDescList);
+//        RpcURLPatternFilter rpcURLPatternFilter = new RpcURLPatternFilter("/**/*");
+//        if(rpcURLPatternFilter.accept(node)) {
+//            return node;
+//        }
+        return node;
     }
 
     private List<SpanBo> findToNode(List<SpanBo> transaction) {
-        return findNode(transaction, toApplicationName, toServiceDescList);
+        List<SpanBo> node = findNode(transaction, toApplicationName, toServiceDescList);
+        if (acceptURLFilter.accept(node)) {
+            return node;
+        }
+        return Collections.emptyList();
     }
 
 

@@ -17,12 +17,17 @@
 package com.navercorp.pinpoint.web.filter;
 
 
+import com.fasterxml.jackson.core.JsonParseException;
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,51 +38,61 @@ import java.util.Map;
  * 
  */
 public class FilterHintTest {
-    private final ObjectMapper om = new ObjectMapper();
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    public void convert() {
+    public void convert() throws IOException {
 
         String json = "{ \"TO_APPLICATION\" : [\"IP1\", 1,\"IP2\", 2], \"TO_APPLICATION2\" : [\"IP3\", 3,\"IP4\", 4] }";
 
-        try {
-            Map<String, List<Object>> hintMap = om.readValue(json, new TypeReference<HashMap>() {
-            });
-            final FilterHint hint = new FilterHint(hintMap);
+        final FilterHint hint = mapper.readValue(json, FilterHint.class);
 
+        Assert.assertNotNull(hint);
+        Assert.assertEquals(2, hint.size());
 
-            Assert.assertNotNull(hint);
-            Assert.assertEquals(2, hintMap.size());
+        Assert.assertTrue(hint.containApplicationHint("TO_APPLICATION"));
+        Assert.assertTrue(hint.containApplicationHint("TO_APPLICATION2"));
+        Assert.assertFalse(hint.containApplicationHint("TO_APPLICATION3"));
 
-            Assert.assertTrue(hint.containApplicationHint("TO_APPLICATION"));
-            Assert.assertTrue(hint.containApplicationHint("TO_APPLICATION2"));
-            Assert.assertFalse(hint.containApplicationHint("TO_APPLICATION3"));
+        Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP1", 1));
+        Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP2", 2));
 
-            Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP1", 1));
-            Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP2", 2));
-
-            Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION2", "IP3", 3));
-            Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION2", "IP4", 4));
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.fail(e.getMessage());
-        }
+        Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION2", "IP3", 3));
+        Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION2", "IP4", 4));
     }
 
     @Test
-    public void empty() {
+    public void convert_duplicate_applicationName_filter() throws IOException {
+
+        String json = "{ \"TO_APPLICATION\" : [\"IP1\", 1,\"IP2\", 2], \"TO_APPLICATION\" : [\"IP3\", 3,\"IP4\", 4] }";
+
+
+        final FilterHint hint = mapper.readValue(json, FilterHint.class);
+
+        Assert.assertNotNull(hint);
+        Assert.assertEquals(2, hint.size());
+
+        Assert.assertTrue(hint.containApplicationHint("TO_APPLICATION"));
+        Assert.assertFalse(hint.containApplicationHint("TO_APPLICATION2"));
+
+        Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP1", 1));
+        Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP2", 2));
+
+        Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP3", 3));
+        Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP4", 4));
+    }
+
+    @Test
+    public void empty() throws IOException {
         String json = "{}";
 
-        try {
-            Map<String, List<Object>> hintMap = om.readValue(json, new TypeReference<HashMap>() {
-            });
-            final FilterHint hint = new FilterHint(hintMap);
+        final FilterHint hint = mapper.readValue(json, FilterHint.class);
 
-            Assert.assertNotNull(hint);
-            Assert.assertTrue(hintMap.isEmpty());
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.fail(e.getMessage());
-        }
+        Assert.assertNotNull(hint);
+        Assert.assertTrue(hint.size() == 0);
+
     }
 }

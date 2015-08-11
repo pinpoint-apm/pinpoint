@@ -3,7 +3,7 @@ package com.navercorp.pinpoint.web.filter.agent;
 /**
  * @author emeroad
  */
-public class AcceptAgentFilter implements AgentFilter {
+public class SkipAgentFilter implements AgentFilter {
 
     @Override
     public boolean accept(String formAgent, String toAgent) {
