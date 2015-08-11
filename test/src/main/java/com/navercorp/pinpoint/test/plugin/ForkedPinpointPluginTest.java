@@ -158,7 +158,8 @@ public class ForkedPinpointPluginTest implements PinpointPluginTestConstants {
                 }
                 
                 t = cause;
-                builder.append("cause: ");
+                builder.append("$CAUSE$");
+                builder.append(JUNIT_OUTPUT_DELIMITER);
             }
             
             return builder.toString();

@@ -39,8 +39,6 @@ import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
-import com.navercorp.pinpoint.profiler.interceptor.DefaultInterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.interceptor.GlobalInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginClassInjector;
@@ -57,7 +55,7 @@ import com.navercorp.pinpoint.thrift.dto.TAnnotation;
  */
 public class MockAgent extends DefaultAgent {
     
-    public static MockAgent of(String configPath, boolean useDefaultInterceptorRegistryBinder) {
+    public static MockAgent of(String configPath) {
         ProfilerConfig profilerConfig = null;
         try {
             URL resource = MockAgent.class.getClassLoader().getResource(configPath);
@@ -70,26 +68,18 @@ public class MockAgent extends DefaultAgent {
             throw new RuntimeException(ex.getMessage(), ex);
         }
         
-        return of(profilerConfig, useDefaultInterceptorRegistryBinder);
-    }
-    
-    public static MockAgent of(String configPath) {
-        return of(configPath, false);
+        return of(profilerConfig);
     }
     
     public static MockAgent of(ProfilerConfig config) {
-        return of(config, false);
-    }    
-    
-    public static MockAgent of(ProfilerConfig config, boolean useDefaultInterceptorRegistryBinder) {
         AgentOption agentOption = new DefaultAgentOption("", new DummyInstrumentation(), config, new URL[0], null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
-        InterceptorRegistryBinder binder = useDefaultInterceptorRegistryBinder ? new DefaultInterceptorRegistryBinder() : new GlobalInterceptorRegistryBinder();
+        InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
         
         return new MockAgent(agentOption, binder);
     }
 
     public MockAgent(AgentOption agentOption) {
-        this(agentOption, new GlobalInterceptorRegistryBinder());
+        this(agentOption, new TestInterceptorRegistryBinder());
     }
     
     public MockAgent(AgentOption agentOption, InterceptorRegistryBinder binder) {

@@ -20,6 +20,11 @@ package com.navercorp.pinpoint.test.plugin;
  */
 @SuppressWarnings("serial")
 public class PinpointPluginTestException extends RuntimeException {
+    public PinpointPluginTestException(String message, StackTraceElement[] stackTrace, Throwable cause) {
+        super(message, cause);
+        setStackTrace(stackTrace);
+    }
+
     public PinpointPluginTestException(String message, StackTraceElement[] stackTrace) {
         super(message);
         setStackTrace(stackTrace);

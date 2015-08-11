@@ -16,19 +16,19 @@
 
 package com.navercorp.pinpoint.test.junit4;
 
+import java.io.Closeable;
+import java.io.IOException;
+
+import org.junit.runners.model.TestClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.test.MockAgent;
-import com.navercorp.pinpoint.test.TestClassLoaderFactory;
-import org.junit.runners.model.TestClass;
-
 import com.navercorp.pinpoint.test.TestClassLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.Closeable;
-import java.io.IOException;
+import com.navercorp.pinpoint.test.TestClassLoaderFactory;
 
 /**
  * @author hyungil.jeong
@@ -61,7 +61,7 @@ public class TestContext implements Closeable {
 
     private MockAgent createMockAgent() {
         logger.trace("agent create");
-        return MockAgent.of("pinpoint.config", true);
+        return MockAgent.of("pinpoint.config");
     }
 
     public ClassLoader getClassLoader() {

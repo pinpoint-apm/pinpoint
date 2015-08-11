@@ -66,6 +66,8 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
     }
     
     private Interceptor wrapByGroup(Interceptor interceptor, InterceptorGroup group, ExecutionPolicy policy) {
+        // TODO how to handle plain interceptor?
+        
         if (interceptor instanceof SimpleAroundInterceptor) {
             return new GroupedSimpleAroundInterceptor((SimpleAroundInterceptor)interceptor, group, policy);
         }  else if (interceptor instanceof StaticAroundInterceptor) {

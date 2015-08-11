@@ -29,15 +29,22 @@ public final class InterceptorRegistry {
         if (interceptorRegistryAdaptor == null) {
             throw new NullPointerException("interceptorRegistryAdaptor must not be null");
         }
+        
+        System.out.println("try to set interceptorRegistryAdator: " + interceptorRegistryAdaptor);
+        
         if (LOCK.lock(lock)) {
             REGISTRY = interceptorRegistryAdaptor;
+            System.out.println("set interceptorRegistryAdator: " + interceptorRegistryAdaptor);
         } else {
             throw new IllegalStateException("bind failed.");
         }
     }
 
     public static void unbind(final Object lock) {
+        System.out.println("try to unset interceptorRegistryAdator: " + REGISTRY);
+        
         if (LOCK.unlock(lock)) {
+            System.out.println("unset interceptorRegistryAdator: " + REGISTRY);
             REGISTRY = null;
         } else {
             throw new IllegalStateException("unbind failed.");

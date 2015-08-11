@@ -17,6 +17,7 @@ public final class DefaultInterceptorRegistryAdaptor implements InterceptorRegis
 
     private final AtomicInteger id = new AtomicInteger(0);
 
+    private final WeakAtomicReferenceArray<Interceptor> index;
     private final WeakAtomicReferenceArray<StaticAroundInterceptor> staticIndex;
     private final WeakAtomicReferenceArray<SimpleAroundInterceptor> simpleIndex;
 
@@ -31,6 +32,7 @@ public final class DefaultInterceptorRegistryAdaptor implements InterceptorRegis
             throw new IllegalArgumentException("negative maxRegistrySize:" + maxRegistrySize);
         }
         this.registrySize = maxRegistrySize;
+        this.index = new WeakAtomicReferenceArray<Interceptor>(maxRegistrySize, Interceptor.class);
         this.staticIndex = new WeakAtomicReferenceArray<StaticAroundInterceptor>(maxRegistrySize, StaticAroundInterceptor.class);
         this.simpleIndex = new WeakAtomicReferenceArray<SimpleAroundInterceptor>(maxRegistrySize, SimpleAroundInterceptor.class);
     }
@@ -41,6 +43,14 @@ public final class DefaultInterceptorRegistryAdaptor implements InterceptorRegis
             return -1;
         }
         return addInterceptor(interceptor, staticIndex);
+    }
+    
+    @Override
+    public int addInterceptor(Interceptor interceptor) {
+        if (interceptor == null) {
+            return -1;
+        }
+        return addInterceptor(interceptor, index);
     }
 
     private <T extends Interceptor> int addInterceptor(T interceptor, WeakAtomicReferenceArray<T> index) {
@@ -79,6 +89,10 @@ public final class DefaultInterceptorRegistryAdaptor implements InterceptorRegis
     }
 
     public Interceptor findInterceptor(int key) {
+        final Interceptor interceptor = this.index.get(key);
+        if (interceptor != null) {
+            return interceptor;
+        }
         final SimpleAroundInterceptor simpleInterceptor = this.simpleIndex.get(key);
         if (simpleInterceptor != null) {
             return simpleInterceptor;

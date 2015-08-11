@@ -232,9 +232,21 @@ public class PinpointPluginTestStatement extends Statement implements PinpointPl
         
         for (int i = 0; i < traceInText.size(); i++) {
             String trace = traceInText.get(i);
+
+            if (trace.equals("$CAUSE$")) {
+                PinpointPluginTestException cause = toException(traceInText.get(i + 2), traceInText.get(i + 1), traceInText.subList(i + 3, traceInText.size()));
+                return new PinpointPluginTestException(exceptionClass + ": " + message, Arrays.copyOf(stackTrace, i), cause);
+            }
+            
             String[] tokens = trace.split(",");
             
-            stackTrace[i] = new StackTraceElement(tokens[0], tokens[1], tokens[2], Integer.parseInt(tokens[3]));
+            if (tokens.length != 4) {
+                System.out.println("Unexpected trace string: " + trace);
+                stackTrace[i] = new StackTraceElement(trace, "", null, -1);
+            } else {
+                stackTrace[i] = new StackTraceElement(tokens[0], tokens[1], tokens[2], Integer.parseInt(tokens[3]));
+            }
+            
         }
         
         return new PinpointPluginTestException(exceptionClass + ": " + message, stackTrace);
