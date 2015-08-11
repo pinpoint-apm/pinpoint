@@ -15,6 +15,11 @@
  */
 package com.navercorp.pinpoint.web.calltree.span;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 /**
  * 
  * @author jaehong.kim
@@ -147,5 +152,75 @@ public class SpanCallTree implements CallTree {
         }
 
         return lastSibling;
+    }
+
+    public void sort() {
+        travel(root);
+    }
+
+    void travel(CallTreeNode node) {
+        sortChildSibling(node);
+        if (node.hasChild()) {
+            travel(node.getChild());
+        }
+
+        if (node.hasSibling()) {
+            travel(node.getSibling());
+        }
+    }
+
+    void sortChildSibling(final CallTreeNode parent) {
+        if (!parent.hasChild() || !parent.getChild().hasSibling()) {
+            return;
+        }
+
+        final List<CallTreeNode> nodes = getChildSiblingNodes(parent);
+        if(nodes == null) {
+            return;
+        }
+
+        Collections.sort(nodes, new Comparator<CallTreeNode>() {
+            @Override
+            public int compare(CallTreeNode source, CallTreeNode target) {
+                return (int) (source.getValue().getStartTime() - target.getValue().getStartTime());
+            }
+        });
+
+        // reform sibling
+        CallTreeNode prev = null;
+        for (CallTreeNode node : nodes) {
+            final CallTreeNode reset = null;
+            node.setSibling(reset);
+            if (prev == null) {
+                parent.setChild(node);
+                prev = node;
+            } else {
+                prev.setSibling(node);
+                prev = node;
+            }
+        }
+    }
+
+    private List<CallTreeNode> getChildSiblingNodes(final CallTreeNode parent) {
+        final List<CallTreeNode> nodes = new ArrayList<CallTreeNode>();
+        boolean span = false;
+        CallTreeNode node = parent.getChild();
+        nodes.add(node);
+        if(node.getValue().isSpan()) {
+            span = true;
+        }
+        while (node.hasSibling()) {
+            node = node.getSibling();
+            nodes.add(node);
+            if(node.getValue().isSpan()) {
+                span = true;
+            }
+        }
+        
+        if(nodes.size() < 2 || !span) {
+            return null;
+        }
+        
+        return nodes;
     }
 }

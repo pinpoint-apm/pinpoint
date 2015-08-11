@@ -232,6 +232,57 @@ public class CallTreeTest {
 
     }
 
+    @Test
+    public void sort() {
+        expectResult.add("#");
+        expectResult.add("##");
+        expectResult.add("###");
+        expectResult.add("####");
+        expectResult.add("###");
+        expectResult.add("###");
+        expectResult.add("##");
+        
+        SpanAlign root = makeSpanAlign(0, 10);
+        SpanCallTree callTree = new SpanCallTree(root);
+        callTree.add(1, makeSpanAlign(root.getSpanBo(), SYNC, (short) 0, -1, -1, 1, 1));
+
+        SpanAlign remoteRoot = makeSpanAlign(4, 5);
+        SpanCallTree subTree = new SpanCallTree(remoteRoot);
+        subTree.add(1, makeSpanAlign(remoteRoot.getSpanBo(), SYNC, (short) 0, -1, -1, 1, 1));
+        callTree.add(subTree);
+
+        callTree.add(2, makeSpanAlign(root.getSpanBo(), SYNC, (short) 1, -1, -1, 2, 1));
+        callTree.add(-1, makeSpanAlign(root.getSpanBo(), SYNC, (short) 2, -1, -1, 3, 1));
+        callTree.add(1, makeSpanAlign(root.getSpanBo(), SYNC, (short) 3, -1, -1, 4, 1));
+        
+        CallTreeIterator iterator = callTree.iterator();
+        while(iterator.hasNext()) {
+            CallTreeNode node = iterator.next();
+            System.out.println(node.getDepth() + ", " + node.getValue().getStartTime());
+        }
+        
+        assertDepth("before sort", callTree, expectResult);
+        
+        callTree.sort();
+        
+        expectResult.clear();
+        expectResult.add("#");
+        expectResult.add("##");
+        expectResult.add("###");
+        expectResult.add("###");
+        expectResult.add("###");
+        expectResult.add("####");
+        expectResult.add("##");
+        
+        iterator = callTree.iterator();
+        while(iterator.hasNext()) {
+            CallTreeNode node = iterator.next();
+            System.out.println(node.getDepth() + ", " + node.getValue().getStartTime());
+        }
+        
+        assertDepth("after sort", callTree, expectResult);
+    }
+
     private void assertDepth(final String name, SpanCallTree tree, List<String> result) {
         int index = 0;
         CallTreeIterator iterator = tree.iterator();
@@ -253,7 +304,15 @@ public class CallTreeTest {
     }
 
     private SpanAlign makeSpanAlign() {
-        return new SpanAlign(new SpanBo());
+        return makeSpanAlign(0, 0);
+    }
+
+    private SpanAlign makeSpanAlign(long startTime, int elapsed) {
+        SpanBo span = new SpanBo();
+        span.setStartTime(startTime);
+        span.setElapsed(elapsed);
+
+        return new SpanAlign(span);
     }
 
     private SpanAlign makeSpanAlign(final boolean async, final short sequence) {
@@ -261,12 +320,18 @@ public class CallTreeTest {
     }
 
     private SpanAlign makeSpanAlign(final boolean async, final short sequence, final int nextAsyncId, final int asyncId) {
+        return makeSpanAlign(new SpanBo(), async, sequence, nextAsyncId, asyncId, -1, -1);
+    }
+
+    private SpanAlign makeSpanAlign(SpanBo span, final boolean async, final short sequence, int nextAsyncId, final int asyncId, int startElapsed, int endElapsed) {
         SpanEventBo event = new SpanEventBo();
         event.setAsyncId(async ? 1 : -1);
         event.setSequence(sequence);
         event.setNextAsyncId(nextAsyncId);
         event.setAsyncId(asyncId);
+        event.setStartElapsed(startElapsed);
+        event.setEndElapsed(endElapsed);
 
-        return new SpanAlign(new SpanBo(), event);
+        return new SpanAlign(span, event);
     }
 }
