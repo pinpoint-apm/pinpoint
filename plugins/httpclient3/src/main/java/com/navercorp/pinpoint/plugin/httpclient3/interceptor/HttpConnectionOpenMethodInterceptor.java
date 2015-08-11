@@ -16,10 +16,13 @@
 
 package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 
@@ -28,14 +31,36 @@ import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
  */
 public class HttpConnectionOpenMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin implements HttpClient3Constants {
 
-    public HttpConnectionOpenMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    private FieldAccessor hostNameAccessor;
+    private FieldAccessor portNumberAccessor;
+    private FieldAccessor proxyHostNameAccessor;
+    private FieldAccessor proxyPortNumberAccessor;
+
+    public HttpConnectionOpenMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, @Name(FIELD_HOST_NAME) FieldAccessor hostNameAccessor, @Name(FIELD_PORT_NUMBER) FieldAccessor portNumberAccessor,
+            @Name(FIELD_PROXY_HOST_NAME) FieldAccessor proxyHostNameAccessor, @Name(FIELD_PROXY_PORT_NUMBER) FieldAccessor proxyPortNumberAccessor) {
         super(traceContext, methodDescriptor);
+        this.hostNameAccessor = hostNameAccessor;
+        this.portNumberAccessor = portNumberAccessor;
+        this.proxyHostNameAccessor = proxyHostNameAccessor;
+        this.proxyPortNumberAccessor = proxyPortNumberAccessor;
     }
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
+
+        if (hostNameAccessor.isApplicable(target) && portNumberAccessor.isApplicable(target) && proxyHostNameAccessor.isApplicable(target) && proxyPortNumberAccessor.isApplicable(target)) {
+            final StringBuilder sb = new StringBuilder();
+            if (proxyHostNameAccessor.get(target) != null) {
+                sb.append(proxyHostNameAccessor.get(target));
+                sb.append(":").append(proxyPortNumberAccessor.get(target));
+            } else {
+                sb.append(hostNameAccessor.get(target));
+                sb.append(":").append(proxyPortNumberAccessor.get(target));
+            }
+            recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, sb.toString());
+        }
     }
 
     @Override

@@ -77,6 +77,11 @@ public class HttpClient3Plugin implements ProfilerPlugin, HttpClient3Constants {
     
     private void addHttpConnectionClass(ProfilerPluginSetupContext context, HttpClient3PluginConfig config) {
         final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.commons.httpclient.HttpConnection");
+        classEditorBuilder.injectFieldAccessor(FIELD_HOST_NAME);
+        classEditorBuilder.injectFieldAccessor(FIELD_PORT_NUMBER);
+        classEditorBuilder.injectFieldAccessor(FIELD_PROXY_HOST_NAME);
+        classEditorBuilder.injectFieldAccessor(FIELD_PROXY_PORT_NUMBER);
+        
         MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethod("open");
         methodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
         methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient3.interceptor.HttpConnectionOpenMethodInterceptor");
