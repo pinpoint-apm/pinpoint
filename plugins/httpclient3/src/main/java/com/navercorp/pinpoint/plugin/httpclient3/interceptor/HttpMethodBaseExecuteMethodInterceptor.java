@@ -54,7 +54,6 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContext;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
-import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3PluginConfig;
 
 /**
  * @author Minwoo Jung
