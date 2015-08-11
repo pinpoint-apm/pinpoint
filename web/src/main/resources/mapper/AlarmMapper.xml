@@ -26,6 +26,12 @@
         FROM alarm_rule
         WHERE user_group_id = #{userGroupId}
     </select>
+
+    <select id="selectRuleByApplicationId" resultType="Rule">
+        SELECT *
+        FROM alarm_rule
+        WHERE application_id = #{applicationId}
+    </select>
     
     <update id="updateRule">
         UPDATE alarm_rule

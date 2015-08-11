@@ -49,8 +49,14 @@ public class AlarmServiceImpl implements AlarmService {
     }
 
     @Override
+    public List<Rule> selectRuleByApplicationId(String applicationId) {
+        return alarmDao.selectRuleByApplicationId(applicationId);
+    }
+
+    @Override
     public void updateRule(Rule rule) {
         alarmDao.updateRule(rule);
     }
+
 
 }

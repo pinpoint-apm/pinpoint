@@ -32,8 +32,9 @@ import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCatego
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
-import com.navercorp.pinpoint.web.dao.AlarmResourceDao;
+import com.navercorp.pinpoint.web.dao.AlarmDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.web.vo.Application;
 
 /**
@@ -48,17 +49,17 @@ public class AlarmReader implements ItemReader<AlarmChecker>, StepExecutionListe
     private ApplicationIndexDao applicationIndexDao;
     
     @Autowired
-    private AlarmResourceDao alarmResourceDao;
+    private AlarmService alarmService;
     
     private final Queue<AlarmChecker> checkers = new LinkedList<AlarmChecker>();
 
     public AlarmReader() {
     }
     
-    protected AlarmReader(DataCollectorFactory dataCollectorFactory, ApplicationIndexDao applicationIndexDao, AlarmResourceDao alarmResourceDao) {
+    protected AlarmReader(DataCollectorFactory dataCollectorFactory, ApplicationIndexDao applicationIndexDao, AlarmService alarmService) {
         this.dataCollectorFactory = dataCollectorFactory;
         this.applicationIndexDao = applicationIndexDao;
-        this.alarmResourceDao = alarmResourceDao;
+        this.alarmService = alarmService;
     }
     
     public AlarmChecker read() {
@@ -87,7 +88,7 @@ public class AlarmReader implements ItemReader<AlarmChecker>, StepExecutionListe
     }
 
     private void addChecker(Application application) {
-        List<Rule> rules = alarmResourceDao.selectAppRule(application.getName());
+        List<Rule> rules = alarmService.selectRuleByApplicationId(application.getName());
         long timeSlotEndTime = System.currentTimeMillis();
         Map<DataCollectorCategory, DataCollector> collectorMap = new HashMap<DataCollectorCategory, DataCollector>();
         

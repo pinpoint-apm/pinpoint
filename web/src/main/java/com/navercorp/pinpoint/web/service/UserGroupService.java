@@ -40,4 +40,8 @@ public interface UserGroupService {
 
     void updateMember(UserGroupMember userGroupMember);
 
+    List<String> selectPhoneNumberOfMember(String userGroupId);
+
+    List<String> selectEmailOfMember(String userGroupId);
+
 }

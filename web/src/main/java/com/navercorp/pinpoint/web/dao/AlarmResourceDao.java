@@ -24,13 +24,13 @@ import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 public interface AlarmResourceDao {
     
-    List<Rule> selectAppRule(String applicationName);
+//    List<Rule> selectAppRule(String applicationName);
     
 //    void insertAppRule(List<Rule> rules);
 
 //    void deleteAppRule(String applicationName);
     
-    List<String> selectEmpGroupPhoneNumber(String empGroup);
+//    List<String> selectEmpGroupPhoneNumber(String empGroup);
     
     List<String> selectEmpGroupEmail(String empGroup);
     

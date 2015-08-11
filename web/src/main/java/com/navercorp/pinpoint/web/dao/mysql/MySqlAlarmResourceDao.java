@@ -40,9 +40,9 @@ public class MySqlAlarmResourceDao implements AlarmResourceDao {
         return sqlSessionTemplate;
     }
 
-    public List<Rule> selectAppRule(String applicationName) {
-        return getSqlSessionTemplate().selectList(NAMESPACE + "selectRules", applicationName);
-    }
+//    public List<Rule> selectAppRule(String applicationName) {
+//        return getSqlSessionTemplate().selectList(NAMESPACE + "selectRules", applicationName);
+//    }
     
 //    public void insertAppRule(List<Rule> rules) {
 //        getSqlSessionTemplate().selectList(NAMESPACE + "insertAppRule", rules);
@@ -52,9 +52,9 @@ public class MySqlAlarmResourceDao implements AlarmResourceDao {
 //        getSqlSessionTemplate().selectList(NAMESPACE + "deleteAppRule", applicationName);
 //    }
     
-    public List<String> selectEmpGroupPhoneNumber(String empGroup) {
-        return getSqlSessionTemplate().selectList(NAMESPACE + "selectEmpGroupPhoneNumber", empGroup);
-    }
+//    public List<String> selectEmpGroupPhoneNumber(String empGroup) {
+//        return getSqlSessionTemplate().selectList(NAMESPACE + "selectEmpGroupPhoneNumber", empGroup);
+//    }
     
     public List<String> selectEmpGroupEmail(String empGroup) {
         return getSqlSessionTemplate().selectList(NAMESPACE + "selectEmpGroupEmail", empGroup);

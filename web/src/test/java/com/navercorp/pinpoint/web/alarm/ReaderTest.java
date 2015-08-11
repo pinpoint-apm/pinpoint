@@ -30,22 +30,18 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.item.ExecutionContext;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.alarm.AlarmPartitioner;
-import com.navercorp.pinpoint.web.alarm.AlarmReader;
-import com.navercorp.pinpoint.web.alarm.CheckerCategory;
-import com.navercorp.pinpoint.web.alarm.DataCollectorFactory;
 import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
-import com.navercorp.pinpoint.web.dao.AlarmResourceDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.dao.mysql.MySqlAlarmResourceDao;
+import com.navercorp.pinpoint.web.service.AlarmService;
+import com.navercorp.pinpoint.web.service.AlarmServiceImpl;
 import com.navercorp.pinpoint.web.vo.Application;
 
 public class ReaderTest {
 
     private static ApplicationIndexDao applicationIndexDao;
-    private static AlarmResourceDao alarmResourceDao;
+    private static AlarmService alarmService;
     private static DataCollectorFactory dataCollectorFactory;
     private static final String APP_NAME = "app";
     
@@ -56,7 +52,7 @@ public class ReaderTest {
         executionContext.put(AlarmPartitioner.PARTITION_NUMBER, 1);
         stepExecution.setExecutionContext(executionContext);
         
-        AlarmReader reader = new AlarmReader(dataCollectorFactory, applicationIndexDao, alarmResourceDao);
+        AlarmReader reader = new AlarmReader(dataCollectorFactory, applicationIndexDao, alarmService);
 
         reader.beforeStep(stepExecution);
 
@@ -74,7 +70,7 @@ public class ReaderTest {
         executionContext.put(AlarmPartitioner.PARTITION_NUMBER, 2);
         stepExecution.setExecutionContext(executionContext);
         
-        AlarmReader reader = new AlarmReader(dataCollectorFactory, applicationIndexDao, alarmResourceDao);
+        AlarmReader reader = new AlarmReader(dataCollectorFactory, applicationIndexDao, alarmService);
 
         reader.beforeStep(stepExecution);
 
@@ -92,14 +88,14 @@ public class ReaderTest {
         executionContext.put(AlarmPartitioner.PARTITION_NUMBER, 2);
         stepExecution.setExecutionContext(executionContext);
         
-        MySqlAlarmResourceDao alarmResourceDao = new MySqlAlarmResourceDao() {
+        AlarmServiceImpl alarmService = new AlarmServiceImpl() {
             @Override
-            public java.util.List<Rule> selectAppRule(String applicationName) {
+            public java.util.List<Rule> selectRuleByApplicationId(String applicationId) {
                 return new LinkedList<Rule>();
-            }
+            };
         };
         
-        AlarmReader reader = new AlarmReader(dataCollectorFactory, applicationIndexDao, alarmResourceDao);
+        AlarmReader reader = new AlarmReader(dataCollectorFactory, applicationIndexDao, alarmService);
         reader.beforeStep(stepExecution);
         assertNull(reader.read());
     }
@@ -124,7 +120,7 @@ public class ReaderTest {
             
         };
         
-        alarmResourceDao = new MySqlAlarmResourceDao() {
+        alarmService = new AlarmServiceImpl() {
             private Map<String, Rule> ruleMap ;
             
             {
@@ -136,9 +132,9 @@ public class ReaderTest {
             }
             
             @Override
-            public java.util.List<Rule> selectAppRule(String applicationName) {
+            public List<Rule> selectRuleByApplicationId(String applicationId) {
                 List<Rule> rules = new LinkedList<Rule>();
-                rules.add(ruleMap.get(applicationName));
+                rules.add(ruleMap.get(applicationId));
                 return rules;
             }
         };
