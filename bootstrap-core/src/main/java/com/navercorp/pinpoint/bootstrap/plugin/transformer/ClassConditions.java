@@ -32,8 +32,8 @@ public class ClassConditions {
         return new HasField(name, type);
     }
 
-    public static ClassCondition hasMethod(String name, String returnType, String... paramTypes) {
-        return new HasMethod(name, returnType, paramTypes);
+    public static ClassCondition hasMethod(String name, String... paramTypes) {
+        return new HasMethod(name, paramTypes);
     }
 
     public static ClassCondition hasDeclaredMethod(String name, String... paramTypes) {
@@ -78,26 +78,22 @@ public class ClassConditions {
 
     private static class HasMethod implements ClassCondition {
         private final String name;
-        private final String returnType;
         private final String[] paramTypes;
 
-        public HasMethod(String name, String returnType, String... paramTypes) {
+        public HasMethod(String name, String... paramTypes) {
             this.name = name;
-            this.returnType = returnType;
             this.paramTypes = paramTypes;
         }
 
         @Override
         public boolean check(ProfilerPluginSetupContext context, ClassLoader classLoader, InstrumentClass target) {
-            return target.hasMethod(name, paramTypes, returnType);
+            return target.hasMethod(name, paramTypes);
         }
 
         @Override
         public String toString() {
             StringBuilder builder = new StringBuilder();
             builder.append("HasMethod[");
-            builder.append(returnType);
-            builder.append(' ');
             builder.append(name);
             builder.append('(');
 

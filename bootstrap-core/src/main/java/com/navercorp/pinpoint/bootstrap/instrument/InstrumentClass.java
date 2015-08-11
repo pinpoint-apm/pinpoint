@@ -39,28 +39,24 @@ public interface InstrumentClass {
 
     String[] getInterfaces();
     
-    InstrumentMethod getConstructor(String[] parameterTypes);
+    InstrumentMethod getConstructor(String... parameterTypes);
 
     List<InstrumentMethod> getDeclaredMethods();
 
     List<InstrumentMethod> getDeclaredMethods(MethodFilter filter);
 
-    InstrumentMethod getDeclaredMethod(String name, String[] parameterTypes);
+    InstrumentMethod getDeclaredMethod(String name, String... parameterTypes);
     
     ClassLoader getClassLoader();
 
 
     public boolean isInterceptable();
     
-    boolean hasConstructor(String[] parameterTypes);
+    boolean hasConstructor(String... parameterTypes);
 
-    boolean hasDeclaredMethod(String methodName, String[] parameterTypes, String returnType);
+    boolean hasDeclaredMethod(String methodName, String... parameterTypes);
     
-    boolean hasDeclaredMethod(String methodName, String[] parameterTypes);
-    
-    boolean hasMethod(String methodName, String[] parameterTypes, String returnType);
-    
-    boolean hasMethod(String methodName, String[] parameterTypes);
+    boolean hasMethod(String methodName, String... parameterTypes);
     
     boolean hasField(String name, String type);
     

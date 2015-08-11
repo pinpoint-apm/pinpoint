@@ -17,8 +17,6 @@ package com.navercorp.pinpoint.profiler.modifier.log.log4j;
 
 import java.security.ProtectionDomain;
 
-import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
-import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +24,8 @@ import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 
@@ -56,11 +56,11 @@ public class LoggingEventOfLog4jModifier extends AbstractModifier {
         try {
             InstrumentClass mdcClass = byteCodeInstrumentor.getClass(classLoader, "org.apache.log4j.MDC", classFileBuffer);
             
-            if (!mdcClass.hasMethod("put", new String[]{"java.lang.String", "java.lang.Object"}, "void")) {
+            if (!mdcClass.hasMethod("put", new String[]{"java.lang.String", "java.lang.Object"})) {
                 logger.warn("modify fail. Because put method does not existed org.apache.log4j.MDC class.");
                 return null;
             }
-            if (!mdcClass.hasMethod("remove", new String[]{"java.lang.String"}, "void")) {
+            if (!mdcClass.hasMethod("remove", new String[]{"java.lang.String"})) {
                 logger.warn("modify fail. Because remove method does not existed org.apache.log4j.MDC class.");
                 return null;
             }

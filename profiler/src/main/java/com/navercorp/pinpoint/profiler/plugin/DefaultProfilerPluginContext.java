@@ -34,7 +34,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MatchableClassFileTransformer;
@@ -45,7 +45,7 @@ import com.navercorp.pinpoint.profiler.plugin.transformer.DefaultClassFileTransf
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.profiler.util.NameValueList;
 
-public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, ProfilerPluginContext {
+public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, ProfilerPluginInstrumentContext {
     private final DefaultAgent agent;
     private final ProfilerPluginClassInjector classInjector;
     
