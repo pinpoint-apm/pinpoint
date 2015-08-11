@@ -2,25 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.navercorp.pinpoint.web.dao.AlarmResourceDao">
-    <select id="selectRules" resultType="rule" parameterType="String">
-        SELECT *
-        FROM alarm_rule
-        WHERE application_id = #{applicationId}
-    </select>
-    
-    <insert id="insertAppRule" parameterType="java.util.List">
-        INSERT INTO alarm_rule(application_id, checker_name, threshold, user_group_id, sms_send, email_send, notes)
-        VALUES
-        <foreach collection="list" item="rule" separator=",">
-            (#{rule.applicationId}, #{rule.checkerName}, #{rule.threshold}, #{rule.userGroupId}, #{rule.smsSend}, #{rule.emailSend}, #{rule.notes})
-        </foreach>
-    </insert>
-    
-    <delete id="deleteAppRule" parameterType="String">
-        DELETE
-        FROM alarm_rule
-        WHERE application_id = #{applicationId}
-    </delete>
+<!--     <select id="selectRules" resultType="rule" parameterType="String"> -->
+<!--         SELECT * -->
+<!--         FROM alarm_rule -->
+<!--         WHERE application_id = #{applicationId} -->
+<!--     </select> -->
     
     <select id="selectEmpGroupPhoneNumber" resultType="String" parameterType="String">
         SELECT sms
@@ -41,29 +27,44 @@
             WHERE group_name = #{group_name}
         )
     </select>
+
+<!--     <insert id="insertAppRule" parameterType="java.util.List"> -->
+<!--         INSERT INTO alarm_rule(application_id, checker_name, threshold, user_group_id, sms_send, email_send, notes) -->
+<!--         VALUES -->
+<!--         <foreach collection="list" item="rule" separator=","> -->
+<!--             (#{rule.applicationId}, #{rule.checkerName}, #{rule.threshold}, #{rule.userGroupId}, #{rule.smsSend}, #{rule.emailSend}, #{rule.notes}) -->
+<!--         </foreach> -->
+<!--     </insert> -->
     
-    <select id="selectAlarmGroupList" resultType="String" parameterType="String">
-        SELECT DISTINCT(group_name)
-        FROM alarm_group
-    </select>
+<!--     <delete id="deleteAppRule" parameterType="String"> -->
+<!--         DELETE -->
+<!--         FROM alarm_rule -->
+<!--         WHERE application_id = #{applicationId} -->
+<!--     </delete> -->
     
-    <select id="selectAlarmGroupMember" resultType="alarmEmp" parameterType="String">
-        SELECT *
-        FROM alarm_group
-        WHERE group_name = #{group_name}
-    </select>
     
-    <insert id="insertAlarmGroupMember" parameterType="java.util.List">
-        INSERT INTO alarm_group(group_name, emp_id)
-        VALUES
-        <foreach collection="list" item="alarmEmp" separator=",">
-            (#{alarmEmp.groupName}, #{alarmEmp.empId})
-        </foreach>
-    </insert>
+<!--     <select id="selectAlarmGroupList" resultType="String" parameterType="String"> -->
+<!--         SELECT DISTINCT(group_name) -->
+<!--         FROM alarm_group -->
+<!--     </select> -->
     
-    <delete id="deleteAlarmGroupMember" parameterType="String">
-        DELETE
-        FROM alarm_group
-        WHERE group_name = #{group_name}
-    </delete>
+<!--     <select id="selectAlarmGroupMember" resultType="alarmEmp" parameterType="String"> -->
+<!--         SELECT * -->
+<!--         FROM alarm_group -->
+<!--         WHERE group_name = #{group_name} -->
+<!--     </select> -->
+    
+<!--     <insert id="insertAlarmGroupMember" parameterType="java.util.List"> -->
+<!--         INSERT INTO alarm_group(group_name, emp_id) -->
+<!--         VALUES -->
+<!--         <foreach collection="list" item="alarmEmp" separator=","> -->
+<!--             (#{alarmEmp.groupName}, #{alarmEmp.empId}) -->
+<!--         </foreach> -->
+<!--     </insert> -->
+    
+<!--     <delete id="deleteAlarmGroupMember" parameterType="String"> -->
+<!--         DELETE -->
+<!--         FROM alarm_group -->
+<!--         WHERE group_name = #{group_name} -->
+<!--     </delete> -->
 </mapper>

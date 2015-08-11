@@ -81,5 +81,15 @@ public class MysqlUserGroupDao implements UserGroupDao {
     public void updateMember(UserGroupMember userGroupMember) {
         sqlSessionTemplate.delete(NAMESPACE + "updateMember", userGroupMember);
     }
+    
+    @Override
+    public List<String> selectPhoneNumberOfMember(String userGroupId) {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectPhoneNumberOfMember", userGroupId);
+    }
+
+    @Override
+    public List<String> selectEmailOfMember(String userGroupId) {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectEmailOfMember", userGroupId);
+    }
 
 }

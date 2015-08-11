@@ -57,10 +57,14 @@ public class MysqlAlarmDao implements AlarmDao {
     public List<Rule> selectRuleByUserGroupId(String userGroupId) {
         return sqlSessionTemplate.selectList(NAMESPACE + "selectRuleByUserGroupId", userGroupId);
     }
+    
+    @Override
+    public List<Rule> selectRuleByApplicationId(String applicationId) {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectRuleByApplicationId", applicationId);
+    }
 
     @Override
     public void updateRule(Rule rule) {
         sqlSessionTemplate.update(NAMESPACE + "updateRule", rule);
     }
-
 }

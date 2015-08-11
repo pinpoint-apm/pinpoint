@@ -48,4 +48,25 @@
         WHERE number = #{number}
     </update>
     
+    <select id="selectPhoneNumberOfMember" resultType="String" parameterType="String">
+        SELECT phoneNumber
+        FROM user
+        WHERE user_id IN (
+            SELECT member_id
+            FROM user_group_member
+            WHERE user_group_id = #{userGroupId}
+        )
+    </select>
+    
+    <select id="selectEmailOfMember" resultType="String" parameterType="String">
+        SELECT email
+        FROM user
+        WHERE user_id IN (
+            SELECT member_id
+            FROM user_group_member
+            WHERE user_group_id = #{userGroupId}
+        )
+    </select>
+    
+    
 </mapper>

@@ -73,6 +73,18 @@ public class UserGroupServiceImpl implements UserGroupService {
     public void updateMember(UserGroupMember userGroupMember) {
         userGroupDao.updateMember(userGroupMember);
     }
+    
+    @Override
+    public List<String> selectPhoneNumberOfMember(String userGroupId) {
+        return userGroupDao.selectPhoneNumberOfMember(userGroupId);
+    }
+
+    @Override
+    public List<String> selectEmailOfMember(String userGroupId) {
+        return userGroupDao.selectEmailOfMember(userGroupId);
+    }
+    
+    
 
 
 }
