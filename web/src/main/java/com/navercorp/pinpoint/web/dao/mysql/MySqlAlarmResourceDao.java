@@ -44,13 +44,13 @@ public class MySqlAlarmResourceDao implements AlarmResourceDao {
         return getSqlSessionTemplate().selectList(NAMESPACE + "selectRules", applicationName);
     }
     
-    public void insertAppRule(List<Rule> rules) {
-        getSqlSessionTemplate().selectList(NAMESPACE + "insertAppRule", rules);
-    }
+//    public void insertAppRule(List<Rule> rules) {
+//        getSqlSessionTemplate().selectList(NAMESPACE + "insertAppRule", rules);
+//    }
 
-    public void deleteAppRule(String applicationName) {
-        getSqlSessionTemplate().selectList(NAMESPACE + "deleteAppRule", applicationName);
-    }
+//    public void deleteAppRule(String applicationName) {
+//        getSqlSessionTemplate().selectList(NAMESPACE + "deleteAppRule", applicationName);
+//    }
     
     public List<String> selectEmpGroupPhoneNumber(String empGroup) {
         return getSqlSessionTemplate().selectList(NAMESPACE + "selectEmpGroupPhoneNumber", empGroup);
@@ -60,19 +60,19 @@ public class MySqlAlarmResourceDao implements AlarmResourceDao {
         return getSqlSessionTemplate().selectList(NAMESPACE + "selectEmpGroupEmail", empGroup);
     }
     
-    public List<String> selectEmpGroupName() {
-        return getSqlSessionTemplate().selectList(NAMESPACE + "selectAlarmGroupList");
-    }
+//    public List<String> selectEmpGroupName() {
+//        return getSqlSessionTemplate().selectList(NAMESPACE + "selectAlarmGroupList");
+//    }
 
-    public List<AlarmEmp> selectEmpGroupMember(String alarmGroup) {
-        return getSqlSessionTemplate().selectList(NAMESPACE + "selectAlarmGroupMember", alarmGroup);
-    }
+//    public List<AlarmEmp> selectEmpGroupMember(String alarmGroup) {
+//        return getSqlSessionTemplate().selectList(NAMESPACE + "selectAlarmGroupMember", alarmGroup);
+//    }
 
-    public void insertEmpGroupMember(List<AlarmEmp> emps) {
-        getSqlSessionTemplate().insert(NAMESPACE + "insertAlarmGroupMember", emps);
-    }
+//    public void insertEmpGroupMember(List<AlarmEmp> emps) {
+//        getSqlSessionTemplate().insert(NAMESPACE + "insertAlarmGroupMember", emps);
+//    }
 
-    public void deleteEmpGroupMember(String groupName) {
-        getSqlSessionTemplate().insert(NAMESPACE + "deleteAlarmGroupMember", groupName);
-    }
+//    public void deleteEmpGroupMember(String groupName) {
+//        getSqlSessionTemplate().insert(NAMESPACE + "deleteAlarmGroupMember", groupName);
+//    }
 }
