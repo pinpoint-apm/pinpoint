@@ -82,7 +82,7 @@ public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
             public byte[] transform(ProfilerPluginInstrumentContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
 
-                if (target.hasMethod("addOp", new String[] { "java.lang.String", "net.spy.memcached.ops.Operation" }, "net.spy.memcached.ops.Operation")) {
+                if (target.hasMethod("addOp", "java.lang.String", "net.spy.memcached.ops.Operation")) {
                     boolean traceKey = config.isArcusKeyTrace();
 
                     target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.SetCacheManagerInterceptor");

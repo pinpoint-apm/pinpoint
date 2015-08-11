@@ -36,8 +36,8 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.DefaultInterceptorGroupDefinition;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.InterceptorGroupDefinition;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
@@ -146,15 +146,18 @@ public class JavassistClass implements InstrumentClass {
         return method;
     }
 
-    public InstrumentMethod getDeclaredMethod(String name, String[] parameterTypes) {
+    @Override
+    public InstrumentMethod getDeclaredMethod(String name, String... parameterTypes) {
         CtMethod method = getCtMethod0(ctClass, name, parameterTypes);
         return method == null ? null : new JavassistMethod(pluginContext, interceptorRegistryBinder, this, method);
     }
 
+    @Override
     public List<InstrumentMethod> getDeclaredMethods() {
         return getDeclaredMethods(MethodFilters.ACCEPT_ALL);
     }
 
+    @Override
     public List<InstrumentMethod> getDeclaredMethods(MethodFilter methodFilter) {
         if (methodFilter == null) {
             throw new NullPointerException("methodFilter must not be null");
@@ -195,48 +198,20 @@ public class JavassistClass implements InstrumentClass {
         return null;
     }
     
-    public InstrumentMethod getConstructor(String[] parameterTypes) {
+    @Override
+    public InstrumentMethod getConstructor(String... parameterTypes) {
         CtConstructor constructor = getCtConstructor0(parameterTypes);
         return constructor == null ? null : new JavassistMethod(pluginContext, interceptorRegistryBinder, this, constructor);
     }
     
 
     @Override
-    public boolean hasDeclaredMethod(String methodName, String[] args) {
+    public boolean hasDeclaredMethod(String methodName, String... args) {
         return getCtMethod0(ctClass, methodName, args) != null;
     }
 
     @Override
-    public boolean hasDeclaredMethod(String methodName, String[] parameterTypes, String returnType) {
-        final String signature = JavaAssistUtils.javaTypeToJvmSignature(parameterTypes, returnType);
-        
-        try {
-            for (CtMethod method : ctClass.getDeclaredMethods(methodName)) {
-                final String descriptor = method.getMethodInfo2().getDescriptor();
-                if (descriptor.startsWith(signature)) {
-                    return true;
-                }
-            }
-        } catch (NotFoundException e) {
-            return false;
-        }
-        
-        return false;
-    }
-
-    @Override
-    public boolean hasMethod(String methodName, String[] parameterTypeArray, String returnType) {
-        final String signature = JavaAssistUtils.javaTypeToJvmSignature(parameterTypeArray, returnType);
-        try {
-            CtMethod m = ctClass.getMethod(methodName, signature);
-            return m != null;
-        } catch (NotFoundException e) {
-            return false;
-        }
-    }
-    
-    @Override
-    public boolean hasMethod(String methodName, String[] parameterTypes) {
+    public boolean hasMethod(String methodName, String... parameterTypes) {
         final String jvmSignature = JavaAssistUtils.javaTypeToJvmSignature(parameterTypes);
         
         for (CtMethod method : ctClass.getMethods()) {
@@ -254,7 +229,7 @@ public class JavassistClass implements InstrumentClass {
     }
    
     @Override
-    public boolean hasConstructor(String[] parameterTypeArray) {
+    public boolean hasConstructor(String... parameterTypeArray) {
         final String signature = JavaAssistUtils.javaTypeToJvmSignature(parameterTypeArray, "void");
         try {
             CtConstructor c = ctClass.getConstructor(signature);

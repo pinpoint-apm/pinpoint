@@ -23,5 +23,5 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 
 
 public interface PinpointClassFileTransformer {
-    public byte[] transform(ProfilerPluginInstrumentContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException;
+    public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException;
 }

@@ -15,19 +15,18 @@
  */
 package com.navercorp.pinpoint.plugin.google.httpclient;
 
+import java.security.ProtectionDomain;
+
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncTraceIdAccessor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassCondition;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerSetup;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConstructorTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerExceptionHandler;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 
 /**
  * @author jaehong.kim
@@ -58,56 +57,60 @@ public class HttpClientPlugin implements ProfilerPlugin, HttpClientConstants {
         }
     }
 
-    private void addHttpRequestClass(ProfilerPluginSetupContext context, HttpClientPluginConfig config) {
-        final ClassFileTransformerBuilder classBuilder = context.getClassFileTransformerBuilder("com.google.api.client.http.HttpRequest");
-
-        MethodTransformerBuilder executeMethodBuilder = classBuilder.editMethod("execute");
-        executeMethodBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        executeMethodBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteMethodInterceptor");
-
-        if (config.isAsync()) {
-            MethodTransformerBuilder executeAsyncMethodBuilder = classBuilder.editMethod("executeAsync", "java.util.concurrent.Executor");
-            executeAsyncMethodBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-            executeAsyncMethodBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteAsyncMethodInterceptor");
-        }
-
-        context.addClassFileTransformer(classBuilder.build());
+    private void addHttpRequestClass(ProfilerPluginSetupContext context, final HttpClientPluginConfig config) {
+        context.addClassFileTransformer("com.google.api.client.http.HttpRequest", new PinpointClassFileTransformer() {
+            
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                
+                
+                InstrumentMethod execute = target.getDeclaredMethod("execute", new String[] {});
+                
+                if (execute != null) {
+                    execute.addInterceptor("com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteMethodInterceptor");
+                }
+                
+                
+                if (config.isAsync()) {
+                    InstrumentMethod executeAsync = target.getDeclaredMethod("executeAsync", "java.util.concurrent.Executor");
+                    
+                    if (executeAsync != null) {
+                        executeAsync.addInterceptor("com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteAsyncMethodInterceptor");
+                    }
+                }
+                        
+                return target.toBytecode();
+            }
+        });
     }
 
     private void addHttpRequestExecuteAsyncMethodInnerClass(ProfilerPluginSetupContext context, String targetClassName) {
-        final ClassFileTransformerBuilder classBuilder = context.getClassFileTransformerBuilder(targetClassName);
-        classBuilder.injectMetadata(METADATA_ASYNC_TRACE_ID);
-
-        classBuilder.conditional(new ClassCondition() {
+        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+            
             @Override
-            public boolean check(ProfilerPluginSetupContext context, ClassLoader classLoader, InstrumentClass target) {
-                if (!target.hasConstructor(new String[] { "com.google.api.client.http.HttpRequest" })) {
-                    return false;
-                }
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                target.addField(AsyncTraceIdAccessor.class.getName());
 
-                if (!target.hasMethod("call", null, "com.google.api.client.http.HttpResponse")) {
-                    return false;
-                }
-                
-                return true;
-            }
-        }, new ConditionalClassFileTransformerSetup() {
-            @Override
-            public void setup(ConditionalClassFileTransformerBuilder conditional) {
-                ConstructorTransformerBuilder constructorBuilder = conditional.editConstructor("com.google.api.client.http.HttpRequest");
-                constructorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor");
-                
-                MethodTransformerBuilder methodBuilder = conditional.editMethods(new HttpRequestExceuteAsyncMethodInnerClassMethodFilter());
-                methodBuilder.exceptionHandler(new MethodTransformerExceptionHandler() {
-                    public void handle(String targetClassName, String targetMethodName, String[] targetMethodParameterTypes, Throwable exception) throws Throwable {
-                        if (logger.isWarnEnabled()) {
-                            logger.warn("[GoogleHttpClient] Unsupported method " + targetClassName + "." + targetMethodName, exception);
+                if (target.hasConstructor("com.google.api.client.http.HttpRequest") && target.hasMethod("call", "com.google.api.client.http.HttpResponse")) {
+                    InstrumentMethod constructor = target.getConstructor("com.google.api.client.http.HttpRequest");
+                    constructor.addInterceptor("com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor");
+                    
+                    for (InstrumentMethod m : target.getDeclaredMethods(new HttpRequestExceuteAsyncMethodInnerClassMethodFilter())) {
+                        try {
+                            m.addInterceptor("com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteAsyncMethodInnerClassCallMethodInterceptor");
+                        } catch (Throwable t) {
+                            if (logger.isWarnEnabled()) {
+                                logger.warn("[GoogleHttpClient] Unsupported method " + className + "." + m.getName(), t);
+                            }
                         }
+                        
                     }
-                });
-                methodBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteAsyncMethodInnerClassCallMethodInterceptor");
+                }
+                
+                return target.toBytecode();
             }
         });
-       context.addClassFileTransformer(classBuilder.build());
-    }
+   }
 }

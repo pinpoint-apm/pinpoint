@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTran
 public interface ProfilerPluginInstrumentContext {
     public TraceContext getTraceContext();
     
-    public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classFileBuffer);
+    public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classfileBuffer);
     
     public InterceptorGroup getInterceptorGroup(String name);
         

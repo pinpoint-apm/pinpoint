@@ -56,11 +56,11 @@ public class LoggingEventOfLogbackModifier extends AbstractModifier {
         try {
             InstrumentClass mdcClass = byteCodeInstrumentor.getClass(classLoader, "org.slf4j.MDC", classFileBuffer);
             
-            if (!mdcClass.hasMethod("put", new String[]{"java.lang.String", "java.lang.String"}, "void")) {
+            if (!mdcClass.hasMethod("put", new String[]{"java.lang.String", "java.lang.String"})) {
                 logger.warn("modify fail. Because put method does not existed org.slf4j.MDC class.");
                 return null;
             }
-            if (!mdcClass.hasMethod("remove", new String[]{"java.lang.String"}, "void")) {
+            if (!mdcClass.hasMethod("remove", new String[]{"java.lang.String"})) {
                 logger.warn("modify fail. Because remove method does not existed org.slf4j.MDC class.");
                 return null;
             }
