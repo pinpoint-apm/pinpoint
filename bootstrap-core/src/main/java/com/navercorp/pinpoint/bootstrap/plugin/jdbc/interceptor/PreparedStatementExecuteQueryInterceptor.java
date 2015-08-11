@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jdbc.common.interceptor;
+package com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -28,13 +28,13 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Targets;
-import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
-import com.navercorp.pinpoint.plugin.jdbc.common.JdbcDriverConstants;
-import com.navercorp.pinpoint.plugin.jdbc.common.UnKnownDatabaseInfo;
-import com.navercorp.pinpoint.plugin.jdbc.common.bindvalue.BindValueUtils;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue.BindValueUtils;
 
 /**
  * @author emeroad
@@ -44,7 +44,7 @@ import com.navercorp.pinpoint.plugin.jdbc.common.bindvalue.BindValueUtils;
         @TargetMethod(name="executeQuery"),
         @TargetMethod(name="executeUpdate")
 })
-public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInterceptor, JdbcDriverConstants {
+public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInterceptor {
 
     private static final int DEFAULT_BIND_VALUE_LENGTH = 1024;
 
@@ -53,22 +53,16 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
 
     private final MethodDescriptor descriptor;
     private final TraceContext traceContext;
-    private final MetadataAccessor databaseInfoAccessor;
-    private final MetadataAccessor parsingResultAccessor;
-    private final MetadataAccessor bindValueAccessor;
     private final int maxSqlBindValueLength;
     
     
-    public PreparedStatementExecuteQueryInterceptor(TraceContext traceContext, MethodDescriptor descriptor, @Name(DATABASE_INFO) MetadataAccessor databaseInfoAccessor, @Name(PARSING_RESULT) MetadataAccessor parsingResultAccessor, @Name(BIND_VALUE) MetadataAccessor bindValueAccessor) {
-        this(traceContext, descriptor, databaseInfoAccessor, parsingResultAccessor, bindValueAccessor, DEFAULT_BIND_VALUE_LENGTH);
+    public PreparedStatementExecuteQueryInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+        this(traceContext, descriptor, DEFAULT_BIND_VALUE_LENGTH);
     }
     
-    public PreparedStatementExecuteQueryInterceptor(TraceContext traceContext, MethodDescriptor descriptor, @Name(DATABASE_INFO) MetadataAccessor databaseInfoAccessor, @Name(PARSING_RESULT) MetadataAccessor parsingResultAccessor, @Name(BIND_VALUE) MetadataAccessor bindValueAccessor, int maxSqlBindValueLength) {
+    public PreparedStatementExecuteQueryInterceptor(TraceContext traceContext, MethodDescriptor descriptor, int maxSqlBindValueLength) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
-        this.databaseInfoAccessor = databaseInfoAccessor;
-        this.parsingResultAccessor = parsingResultAccessor;
-        this.bindValueAccessor = bindValueAccessor;
         this.maxSqlBindValueLength = maxSqlBindValueLength;
     }
 
@@ -85,19 +79,23 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
 
         SpanEventRecorder recorder = trace.traceBlockBegin();
         try {
-            DatabaseInfo databaseInfo = databaseInfoAccessor.get(target, UnKnownDatabaseInfo.INSTANCE);
+            DatabaseInfo databaseInfo = (target instanceof DatabaseInfoAccessor) ? ((DatabaseInfoAccessor)target)._$PINPOINT$_getDatabaseInfo() : null;
+            
+            if (databaseInfo == null) {
+                databaseInfo = UnKnownDatabaseInfo.INSTANCE;
+            }
+            
             recorder.recordServiceType(databaseInfo.getExecuteQueryType());
-
             recorder.recordEndPoint(databaseInfo.getMultipleHost());
             recorder.recordDestinationId(databaseInfo.getDatabaseId());
 
             ParsingResult parsingResult = null;
-            if (parsingResultAccessor.isApplicable(target)) {
-                parsingResult = parsingResultAccessor.get(target);
+            if (target instanceof ParsingResultAccessor) {
+                parsingResult = ((ParsingResultAccessor)target)._$PINPOINT$_getParsingResult();
             }
             Map<Integer, String> bindValue = null;
-            if (bindValueAccessor.isApplicable(target)) {
-                bindValue = bindValueAccessor.get(target);
+            if (target instanceof BindValueAccessor) {
+                bindValue = ((BindValueAccessor)target)._$PINPOINT$_getBindValue();
             }
             if (bindValue != null) {
                 String bindString = toBindVariable(bindValue);
@@ -124,8 +122,8 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
     }
 
     private void clean(Object target) {
-        if (bindValueAccessor.isApplicable(target)) {
-            bindValueAccessor.set(target, new HashMap<Integer, String>());
+        if (target instanceof BindValueAccessor) {
+            ((BindValueAccessor)target)._$PINPOINT$_setBindValue(new HashMap<Integer, String>());
         }
     }
 

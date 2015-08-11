@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jdbc.common.interceptor;
+package com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Targets;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
-import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
-import com.navercorp.pinpoint.plugin.jdbc.common.JdbcDriverConstants;
-import com.navercorp.pinpoint.plugin.jdbc.common.UnKnownDatabaseInfo;
 
 /**
  * @author emeroad
@@ -40,20 +39,19 @@ import com.navercorp.pinpoint.plugin.jdbc.common.UnKnownDatabaseInfo;
         @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int", "int" }),
         @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int", "int", "int" })
 })
-public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInterceptorForPlugin implements JdbcDriverConstants {
+public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
-    private final MetadataAccessor databaseInfoAccessor;
-    private final MetadataAccessor parsingResultAccessor;
-
-    public PreparedStatementCreateInterceptor(TraceContext context, MethodDescriptor descriptor, @Name(DATABASE_INFO) MetadataAccessor databaseInfoAccessor, @Name(PARSING_RESULT) MetadataAccessor parsingResultAccessor) {
+    public PreparedStatementCreateInterceptor(TraceContext context, MethodDescriptor descriptor) {
         super(context, descriptor);
-        this.databaseInfoAccessor = databaseInfoAccessor;
-        this.parsingResultAccessor = parsingResultAccessor;
     }
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args)  {
-        final DatabaseInfo databaseInfo = databaseInfoAccessor.get(target, UnKnownDatabaseInfo.INSTANCE);
+        DatabaseInfo databaseInfo = (target instanceof DatabaseInfoAccessor) ? ((DatabaseInfoAccessor)target)._$PINPOINT$_getDatabaseInfo() : null;
+        
+        if (databaseInfo == null) {
+            databaseInfo = UnKnownDatabaseInfo.INSTANCE;
+        }
         
         recorder.recordServiceType(databaseInfo.getType());
         recorder.recordEndPoint(databaseInfo.getMultipleHost());
@@ -64,22 +62,22 @@ public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInt
     protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {
         final boolean success = InterceptorUtils.isSuccess(throwable);
         if (success) {
-            if (databaseInfoAccessor.isApplicable(target)) {
+            if (target instanceof DatabaseInfoAccessor) {
                 // set databaseInfo to PreparedStatement only when preparedStatement is generated successfully.
-                DatabaseInfo databaseInfo = databaseInfoAccessor.get(target);
+                DatabaseInfo databaseInfo = ((DatabaseInfoAccessor)target)._$PINPOINT$_getDatabaseInfo();
                 if (databaseInfo != null) {
-                    if (databaseInfoAccessor.isApplicable(result)) {
-                        databaseInfoAccessor.set(result, databaseInfo);
+                    if (result instanceof DatabaseInfoAccessor) {
+                        ((DatabaseInfoAccessor)result)._$PINPOINT$_setDatabaseInfo(databaseInfo);
                     }
                 }
             }
-            if (parsingResultAccessor.isApplicable(result)) {
+            if (result instanceof ParsingResultAccessor) {
                 // 1. Don't check traceContext. preparedStatement can be created in other thread.
                 // 2. While sampling is active, the thread which creates preparedStatement could not be a sampling target. So record sql anyway. 
                 String sql = (String) args[0];
                 ParsingResult parsingResult = traceContext.parseSql(sql);
                 if (parsingResult != null) {
-                    parsingResultAccessor.set(result, parsingResult);
+                    ((ParsingResultAccessor)result)._$PINPOINT$_setParsingResult(parsingResult);
                 } else {
                     if (logger.isErrorEnabled()) {
                         logger.error("sqlParsing fail. parsingResult is null sql:{}", sql);
@@ -91,8 +89,8 @@ public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInt
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        if (parsingResultAccessor.isApplicable(result)) {
-            ParsingResult parsingResult = parsingResultAccessor.get(result);
+        if (result instanceof ParsingResultAccessor) {
+            ParsingResult parsingResult = ((ParsingResultAccessor)result)._$PINPOINT$_getParsingResult();
             recorder.recordSqlParsingResult(parsingResult);
         }
         recorder.recordException(throwable);

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jdbc.common;
+package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
 
 /**
  * @author emeroad

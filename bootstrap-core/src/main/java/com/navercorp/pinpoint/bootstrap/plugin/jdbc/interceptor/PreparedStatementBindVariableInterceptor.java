@@ -14,37 +14,33 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jdbc.common.interceptor;
+package com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor;
 
 import java.util.Map;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetFilter;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue.BindValueConverter;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
-import com.navercorp.pinpoint.plugin.jdbc.common.JdbcDriverConstants;
-import com.navercorp.pinpoint.plugin.jdbc.common.bindvalue.BindValueConverter;
 
 /**
  * @author emeroad
  */
-@TargetFilter(type="com.navercorp.pinpoint.plugin.jdbc.common.PreparedStatementBindingMethodFilter", singleton=true)
-public class PreparedStatementBindVariableInterceptor implements StaticAroundInterceptor, JdbcDriverConstants {
+@TargetFilter(type="com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter", singleton=true)
+public class PreparedStatementBindVariableInterceptor implements StaticAroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceContext traceContext;
-    private final MetadataAccessor bindValueAccessor;
     
-    public PreparedStatementBindVariableInterceptor(TraceContext traceContext, @Name(BIND_VALUE) MetadataAccessor bindValueAccessor) {
+    public PreparedStatementBindVariableInterceptor(TraceContext traceContext) {
         this.traceContext = traceContext;
-        this.bindValueAccessor = bindValueAccessor;
     }
 
     @Override
@@ -63,8 +59,8 @@ public class PreparedStatementBindVariableInterceptor implements StaticAroundInt
             return;
         }
         Map<Integer, String> bindList = null;
-        if (bindValueAccessor.isApplicable(target)) {
-            bindList = bindValueAccessor.get(target);
+        if (target instanceof BindValueAccessor) {
+            bindList = ((BindValueAccessor)target)._$PINPOINT$_getBindValue();
         }
         if (bindList == null) {
             if (logger.isWarnEnabled()) {

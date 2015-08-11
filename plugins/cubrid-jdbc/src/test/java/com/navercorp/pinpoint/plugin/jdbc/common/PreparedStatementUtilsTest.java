@@ -22,6 +22,8 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementUtils;
+
 /**
  * @author emeroad
  */

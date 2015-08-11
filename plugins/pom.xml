@@ -16,7 +16,7 @@
         <module>httpclient4</module>
         <module>gson</module>
         <module>jackson</module>
-        <module>jdbc-driver</module>
+        <module>cubrid-jdbc</module>
         <module>jdk-http</module>
 		<module>json-lib</module>
         <module>redis</module>
@@ -47,7 +47,7 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-jdbc-driver-plugin</artifactId>
+            <artifactId>pinpoint-cubrid-jdbc-driver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

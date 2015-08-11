@@ -26,15 +26,15 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedSimpleAroundInt
 import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedStaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.profiler.plugin.objectfactory.AutoBindingObjectFactory;
 import com.navercorp.pinpoint.profiler.plugin.objectfactory.InterceptorArgumentProvider;
 
 public class AnnotatedInterceptorFactory implements InterceptorFactory {
-    private final ProfilerPluginContext pluginContext;
+    private final ProfilerPluginInstrumentContext pluginContext;
     
-    public AnnotatedInterceptorFactory(ProfilerPluginContext pluginContext) {
+    public AnnotatedInterceptorFactory(ProfilerPluginInstrumentContext pluginContext) {
         this.pluginContext = pluginContext;
     }
 

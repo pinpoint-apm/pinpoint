@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jdbc.common.interceptor;
+package com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Targets;
-import com.navercorp.pinpoint.plugin.jdbc.common.JdbcDriverConstants;
-import com.navercorp.pinpoint.plugin.jdbc.common.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 
 /**
  * protected int executeUpdate(String sql, boolean isBatch, boolean returnGeneratedKeys)
@@ -40,17 +38,19 @@ import com.navercorp.pinpoint.plugin.jdbc.common.UnKnownDatabaseInfo;
         @TargetMethod(name="execute", paramTypes={ "java.lang.String" }),
         @TargetMethod(name="execute", paramTypes={ "java.lang.String", "int" })
 })
-public class StatementExecuteUpdateInterceptor extends SpanEventSimpleAroundInterceptorForPlugin implements JdbcDriverConstants {
-    private final MetadataAccessor databaseInfoAccessor;
+public class StatementExecuteUpdateInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
     
-    public StatementExecuteUpdateInterceptor(TraceContext traceContext, MethodDescriptor descriptor, @Name(DATABASE_INFO) MetadataAccessor databaseInfoAccessor) {
+    public StatementExecuteUpdateInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
-        this.databaseInfoAccessor = databaseInfoAccessor;
     }
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        DatabaseInfo databaseInfo = databaseInfoAccessor.get(target, UnKnownDatabaseInfo.INSTANCE);
+        DatabaseInfo databaseInfo = (target instanceof DatabaseInfoAccessor) ? ((DatabaseInfoAccessor)target)._$PINPOINT$_getDatabaseInfo() : null;
+        
+        if (databaseInfo == null) {
+            databaseInfo = UnKnownDatabaseInfo.INSTANCE;
+        }
 
         recorder.recordServiceType(databaseInfo.getExecuteQueryType());
         recorder.recordEndPoint(databaseInfo.getMultipleHost());

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.jdbc.common;
+package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

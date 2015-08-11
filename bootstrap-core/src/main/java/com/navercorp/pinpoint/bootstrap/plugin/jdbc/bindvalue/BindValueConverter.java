@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jdbc.common.bindvalue;
+package com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue;
 
 import java.util.HashMap;
 import java.util.Map;

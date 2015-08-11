@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jdbc.common.bindvalue;
+package com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -22,8 +22,8 @@ import java.math.BigInteger;
 import java.sql.Time;
 import java.sql.Timestamp;
 
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ArrayUtils;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
-import com.navercorp.pinpoint.plugin.jdbc.common.ArrayUtils;
 
 /**
  * @author emeroad

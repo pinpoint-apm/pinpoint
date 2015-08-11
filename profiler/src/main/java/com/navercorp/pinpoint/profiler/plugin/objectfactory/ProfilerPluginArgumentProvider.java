@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
@@ -31,9 +31,9 @@ import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
  *
  */
 public class ProfilerPluginArgumentProvider implements ArgumentProvider {
-    private final ProfilerPluginContext pluginContext;
+    private final ProfilerPluginInstrumentContext pluginContext;
 
-    public ProfilerPluginArgumentProvider(ProfilerPluginContext pluginContext) {
+    public ProfilerPluginArgumentProvider(ProfilerPluginInstrumentContext pluginContext) {
         this.pluginContext = pluginContext;
     }
 
@@ -43,7 +43,7 @@ public class ProfilerPluginArgumentProvider implements ArgumentProvider {
             return Option.withValue(pluginContext.getTraceContext().currentTraceObject());
         } else if (type == TraceContext.class) {
             return Option.withValue(pluginContext.getTraceContext());
-        } else if (type == ProfilerPluginContext.class) {
+        } else if (type == ProfilerPluginInstrumentContext.class) {
             return Option.withValue(pluginContext);
         } else if (type == MetadataAccessor.class) {
             Name annotation = TypeUtils.findAnnotation(annotations, Name.class);

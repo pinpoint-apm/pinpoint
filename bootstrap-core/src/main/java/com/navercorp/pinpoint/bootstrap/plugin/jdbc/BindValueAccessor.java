@@ -1,28 +1,26 @@
-/*
+/**
  * Copyright 2014 NAVER Corp.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
 
-package com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue;
+import java.util.Map;
 
 /**
- * @author emeroad
+ * @author Jongho Moon
+ *
  */
-public class NullTypeConverter implements Converter {
-
-    @Override
-    public String convert(Object[] args) {
-        return "null";
-    }
+public interface BindValueAccessor {
+    public void _$PINPOINT$_setBindValue(Map<Integer, String> map);
+    public Map<Integer, String> _$PINPOINT$_getBindValue();
 }

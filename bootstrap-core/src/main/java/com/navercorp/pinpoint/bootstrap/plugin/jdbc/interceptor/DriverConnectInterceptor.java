@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jdbc.common.interceptor;
+package com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
-import com.navercorp.pinpoint.plugin.jdbc.common.JdbcDriverConstants;
-import com.navercorp.pinpoint.plugin.jdbc.common.JdbcUrlParser;
-import com.navercorp.pinpoint.plugin.jdbc.common.UnKnownDatabaseInfo;
 
 
 /**
@@ -36,21 +34,19 @@ import com.navercorp.pinpoint.plugin.jdbc.common.UnKnownDatabaseInfo;
  * @author emeroad
  */
 @TargetMethod(name="connect", paramTypes={ "java.lang.String", "java.util.Properties" })
-public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorForPlugin implements JdbcDriverConstants {
-    private final MetadataAccessor databaseInfoAccessor;
+public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
     
     private final JdbcUrlParser jdbcUrlParser;
     private final boolean recordConnection;
 
 
-    public DriverConnectInterceptor(TraceContext context, MethodDescriptor descriptor, @Name(DATABASE_INFO) MetadataAccessor databaseInfoAccessor, JdbcUrlParser jdbcUrlParser) {
-        this(context, descriptor, databaseInfoAccessor, jdbcUrlParser, true);
+    public DriverConnectInterceptor(TraceContext context, MethodDescriptor descriptor, JdbcUrlParser jdbcUrlParser) {
+        this(context, descriptor, jdbcUrlParser, true);
     }
 
-    public DriverConnectInterceptor(TraceContext context, MethodDescriptor descriptor, @Name(DATABASE_INFO) MetadataAccessor databaseInfoAccessor, JdbcUrlParser jdbcUrlParser, boolean recordConnection) {
+    public DriverConnectInterceptor(TraceContext context, MethodDescriptor descriptor, JdbcUrlParser jdbcUrlParser, boolean recordConnection) {
         super(context, descriptor);
 
-        this.databaseInfoAccessor = databaseInfoAccessor;
         this.jdbcUrlParser = jdbcUrlParser;
         // option for mysql loadbalance only. Destination is recorded at lower implementations.
         this.recordConnection = recordConnection;
@@ -80,7 +76,7 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorFo
         DatabaseInfo databaseInfo = createDatabaseInfo(driverUrl);
         if (success) {
             if (recordConnection) {
-                databaseInfoAccessor.set(result, databaseInfo);
+                ((DatabaseInfoAccessor)result)._$PINPOINT$_setDatabaseInfo(databaseInfo);
             }
         }
     }
@@ -89,7 +85,12 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptorFo
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
 
         if (recordConnection) {
-            final DatabaseInfo databaseInfo = databaseInfoAccessor.get(result, UnKnownDatabaseInfo.INSTANCE);
+            DatabaseInfo databaseInfo = (result instanceof DatabaseInfoAccessor) ? ((DatabaseInfoAccessor)result)._$PINPOINT$_getDatabaseInfo() : null;
+            
+            if (databaseInfo == null) {
+                databaseInfo = UnKnownDatabaseInfo.INSTANCE;
+            }
+            
             // Count database connect too because it's very heavy operation
             recorder.recordServiceType(databaseInfo.getType());
             recorder.recordEndPoint(databaseInfo.getMultipleHost());

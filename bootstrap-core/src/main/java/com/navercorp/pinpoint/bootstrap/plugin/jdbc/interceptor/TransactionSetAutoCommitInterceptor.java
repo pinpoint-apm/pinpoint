@@ -14,29 +14,25 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jdbc.common.interceptor;
+package com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
-import com.navercorp.pinpoint.plugin.jdbc.common.JdbcDriverConstants;
-import com.navercorp.pinpoint.plugin.jdbc.common.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 
 /**
  * @author emeroad
  */
 @TargetMethod(name="setAutoCommit", paramTypes="boolean")
-public class TransactionSetAutoCommitInterceptor extends SpanEventSimpleAroundInterceptorForPlugin implements JdbcDriverConstants {
-    private final MetadataAccessor databaseInfoAccessor;
+public class TransactionSetAutoCommitInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
-    public TransactionSetAutoCommitInterceptor(TraceContext traceContext, MethodDescriptor descriptor, @Name(DATABASE_INFO) MetadataAccessor databaseInfoAccessor) {
+    public TransactionSetAutoCommitInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
-        this.databaseInfoAccessor = databaseInfoAccessor;
     }
 
     @Override
@@ -45,7 +41,12 @@ public class TransactionSetAutoCommitInterceptor extends SpanEventSimpleAroundIn
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        DatabaseInfo databaseInfo = databaseInfoAccessor.get(target, UnKnownDatabaseInfo.INSTANCE);
+        DatabaseInfo databaseInfo = (target instanceof DatabaseInfoAccessor) ? ((DatabaseInfoAccessor)target)._$PINPOINT$_getDatabaseInfo() : null;
+        
+        if (databaseInfo == null) {
+            databaseInfo = UnKnownDatabaseInfo.INSTANCE;
+        }
+
 
         recorder.recordServiceType(databaseInfo.getType());
         recorder.recordEndPoint(databaseInfo.getMultipleHost());

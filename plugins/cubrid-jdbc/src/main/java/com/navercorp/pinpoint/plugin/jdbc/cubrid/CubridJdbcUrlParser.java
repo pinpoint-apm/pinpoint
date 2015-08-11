@@ -22,10 +22,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.plugin.jdbc.common.DefaultDatabaseInfo;
-import com.navercorp.pinpoint.plugin.jdbc.common.JdbcUrlParser;
-import com.navercorp.pinpoint.plugin.jdbc.common.StringMaker;
-import com.navercorp.pinpoint.plugin.jdbc.common.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 
 /**
  * @author emeroad

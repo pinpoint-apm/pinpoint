@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jdbc.common.bindvalue;
+package com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue;
 
-import com.navercorp.pinpoint.plugin.jdbc.common.ArrayUtils;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ArrayUtils;
 
 /**
  * @author emeroad

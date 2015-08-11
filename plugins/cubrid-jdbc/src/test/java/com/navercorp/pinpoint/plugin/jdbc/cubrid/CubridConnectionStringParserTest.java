@@ -20,8 +20,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.plugin.jdbc.common.JdbcUrlParser;
-import com.navercorp.pinpoint.plugin.jdbc.common.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.plugin.jdbc.cubrid.CubridConstants;
 import com.navercorp.pinpoint.plugin.jdbc.cubrid.CubridJdbcUrlParser;
 
