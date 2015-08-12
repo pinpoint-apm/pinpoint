@@ -1,7 +1,5 @@
 package com.navercorp.pinpoint.web.filter.agent;
 
-import com.navercorp.pinpoint.web.filter.agent.AgentFilter;
-
 /**
  * @author emeroad
  */
@@ -16,12 +14,28 @@ public class FromAgentFilter implements AgentFilter {
     }
 
     @Override
-    public boolean accept(String formAgent, String toAgent) {
+    public boolean accept(String fromAgent, String toAgent) {
+        return filerFrom(fromAgent);
+    }
+
+    private boolean filerFrom(String formAgent) {
         if (this.fromAgent.equals(formAgent)) {
             return ACCEPT;
         }
         return REJECT;
     }
+
+    @Override
+    public boolean acceptFrom(String fromAgent) {
+        return filerFrom(fromAgent);
+    }
+
+    @Override
+    public boolean acceptTo(String toAgent) {
+        return ACCEPT;
+    }
+
+
 
     @Override
     public String toString() {

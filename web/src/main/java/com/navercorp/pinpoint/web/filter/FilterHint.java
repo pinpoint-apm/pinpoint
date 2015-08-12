@@ -51,7 +51,7 @@ public class FilterHint {
         }
         final List<RpcHint> findRpcHintList = new ArrayList<>();
         for (RpcHint rpcHint : rpcHintList) {
-            // TODO miss serviceType check
+            // TODO miss serviceType
             if (rpcHint.getApplicationName().equals(sourceApplicationName)) {
                 findRpcHintList.add(rpcHint);
             }

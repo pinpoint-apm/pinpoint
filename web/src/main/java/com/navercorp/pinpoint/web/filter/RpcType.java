@@ -27,6 +27,10 @@ public class RpcType {
         return spanEventServiceTypeCode;
     }
 
+    public boolean isMatched(String address, int serviceTypeCode) {
+        return this.address.equals(address) && this.spanEventServiceTypeCode == serviceTypeCode;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("RpcType{");

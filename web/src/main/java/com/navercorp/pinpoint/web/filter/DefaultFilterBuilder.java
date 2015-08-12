@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.web.filter;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -43,7 +43,7 @@ public class DefaultFilterBuilder implements FilterBuilder {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private ObjectMapper jsonObjectMapper;
+    private ObjectMapper mapper;
 
     @Override
     public Filter build(String filterText) {
@@ -51,14 +51,12 @@ public class DefaultFilterBuilder implements FilterBuilder {
             return Filter.NONE;
         }
 
-        try {
-            filterText = URLDecoder.decode(filterText, "UTF-8");
-            logger.debug("build filter from string. {}", filterText);
-        } catch (Exception e) {
-            throw new IllegalArgumentException(filterText);
-        }
+        filterText = decode(filterText);
+        logger.debug("build filter from string. {}", filterText);
+
         return makeFilterFromJson(filterText);
     }
+
 
     @Override
     public Filter build(String filterText, String filterHint) {
@@ -66,25 +64,29 @@ public class DefaultFilterBuilder implements FilterBuilder {
             return Filter.NONE;
         }
 
-        try {
-            filterText = URLDecoder.decode(filterText, "UTF-8");
-            logger.debug("build filter from string. {}", filterText);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("invalid filter text. " + filterText);
-        }
+        filterText = decode(filterText);
+        logger.debug("build filter from string. {}", filterText);
+
 
         if (!StringUtils.isEmpty(filterHint)) {
-            try {
-                filterHint = URLDecoder.decode(filterHint, "UTF-8");
-                logger.debug("build filter hint from string. {}", filterHint);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("invalid filter hint. " + filterHint);
-            }
+            filterHint = decode(filterHint);
         } else {
             filterHint = FilterHint.EMPTY_JSON;
         }
+        logger.debug("build filter hint from string. {}", filterHint);
 
         return makeFilterFromJson(filterText, filterHint);
+    }
+
+    private String decode(String value) {
+        if (value ==null) {
+            return null;
+        }
+        try {
+            return URLDecoder.decode(value, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException("UTF8 decodeFail. value:" + value);
+        }
     }
 
     private Filter makeFilterFromJson(String jsonFilterText) {
@@ -95,24 +97,45 @@ public class DefaultFilterBuilder implements FilterBuilder {
         if (StringUtils.isEmpty(jsonFilterText)) {
             throw new IllegalArgumentException("json string is empty");
         }
-        FilterChain chain = new FilterChain();
-        try {
-            final List<FilterDescriptor> list = jsonObjectMapper.readValue(jsonFilterText, new TypeReference<List<FilterDescriptor>>() {});
+        final FilterChain chain = new FilterChain();
 
-            final FilterHint hint = jsonObjectMapper.readValue(jsonFilterHint, FilterHint.class);
-            logger.debug("filterHint:{}", hint);
-            for (FilterDescriptor descriptor : list) {
-                if (!descriptor.isValid()) {
-                    throw new IllegalArgumentException("invalid json " + jsonFilterText);
-                }
+        final List<FilterDescriptor> filterDescriptorList = readFilterDescriptor(jsonFilterText);
+        final FilterHint hint = readFilterHint(jsonFilterHint);
+        logger.debug("filterHint:{}", hint);
 
-                logger.debug("FilterDescriptor={}", descriptor);
-                LinkFilter linkFilter = new LinkFilter(descriptor, hint);
-                chain.addFilter(linkFilter);
+        List<LinkFilter> linkFilter = createLinkFilter(jsonFilterText, chain, filterDescriptorList, hint);
+        chain.addAllFilter(linkFilter);
+
+        return chain;
+    }
+
+    private List<LinkFilter> createLinkFilter(String jsonFilterText, FilterChain chain, List<FilterDescriptor> filterDescriptorList, FilterHint hint) {
+        final List<LinkFilter> result = new ArrayList<>();
+        for (FilterDescriptor descriptor : filterDescriptorList) {
+            if (!descriptor.isValid()) {
+                throw new IllegalArgumentException("invalid json " + jsonFilterText);
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
+
+            logger.debug("FilterDescriptor={}", descriptor);
+            final LinkFilter linkFilter = new LinkFilter(descriptor, hint);
+            result.add(linkFilter);
         }
-        return chain.get();
+        return result;
+    }
+
+    private FilterHint readFilterHint(String jsonFilterHint) {
+        try {
+            return mapper.readValue(jsonFilterHint, FilterHint.class);
+        } catch (IOException e) {
+            throw new RuntimeException("FilterHint read fail. error:" + e.getMessage(), e);
+        }
+    }
+
+    private List<FilterDescriptor> readFilterDescriptor(String jsonFilterText)  {
+        try {
+            return mapper.readValue(jsonFilterText, new TypeReference<List<FilterDescriptor>>() {});
+        } catch (IOException e) {
+            throw new RuntimeException("FilterDescriptor read fail. error:" + e.getMessage(), e);
+        }
     }
 }
