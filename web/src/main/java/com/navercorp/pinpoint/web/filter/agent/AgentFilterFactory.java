@@ -26,7 +26,7 @@ public class AgentFilterFactory {
         if (isNotBlank(toAgent)) {
             return new ToAgentFilter(toAgent);
         }
-        return new AcceptAgentFilter();
+        return SkipAgentFilter.SKIP_FILTER;
     }
 
     private static boolean isNotBlank(String toAgent) {
