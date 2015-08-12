@@ -29,7 +29,11 @@ public class RpcHintJsonDeserializer extends JsonDeserializer<RpcHint> {
         }
         // skip start array
         jp.nextToken();
-
+        // [] empty array
+        if (jp.getCurrentToken() == JsonToken.END_ARRAY) {
+            return new RpcHint(applicationName, Collections.<RpcType>emptyList());
+        }
+        logger.info("jp:{}", jp.getCurrentToken());
         final List<RpcType> rpcHintList = new ArrayList<RpcType>();
         while (true) {
             RpcType rpcType =  jp.readValueAs(RpcType.class);

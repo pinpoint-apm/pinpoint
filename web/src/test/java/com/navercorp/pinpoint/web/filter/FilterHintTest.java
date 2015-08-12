@@ -95,4 +95,41 @@ public class FilterHintTest {
         Assert.assertTrue(hint.size() == 0);
 
     }
+
+    @Test
+    public void empty_array() throws IOException {
+
+        String json = "{ \"TO_APPLICATION\" : [] }";
+
+
+        final FilterHint hint = mapper.readValue(json, FilterHint.class);
+
+        Assert.assertNotNull(hint);
+        Assert.assertEquals(1, hint.size());
+        Assert.assertTrue(hint.getRpcHintList("TO_APPLICATION").get(0).getRpcTypeList().isEmpty());
+
+        Assert.assertTrue(hint.containApplicationHint("TO_APPLICATION"));
+        Assert.assertFalse(hint.containApplicationHint("TO_APPLICATION2"));
+
+        Assert.assertFalse(hint.containApplicationEndpoint("TO_APPLICATION", "IP1", 1));
+
+    }
+
+    @Test
+    public void empty_array2() throws IOException {
+
+        String json = "{ \"TO_APPLICATION\" : [], \"TO_APPLICATION2\" : [\"IP3\", 3,\"IP4\", 4] }";
+
+        final FilterHint hint = mapper.readValue(json, FilterHint.class);
+
+        Assert.assertNotNull(hint);
+        Assert.assertEquals(2, hint.size());
+
+        Assert.assertTrue(hint.containApplicationHint("TO_APPLICATION"));
+        Assert.assertTrue(hint.containApplicationHint("TO_APPLICATION2"));
+
+        Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION2", "IP3", 3));
+        Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION2", "IP4", 4));
+
+    }
 }

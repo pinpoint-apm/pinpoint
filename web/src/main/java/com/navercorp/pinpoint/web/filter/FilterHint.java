@@ -82,7 +82,7 @@ public class FilterHint {
         for (RpcHint rpcHint : rpcHintList) {
             if (rpcHint.getApplicationName().equals(applicationName)) {
                 for (RpcType rpcType : rpcHint.getRpcTypeList()) {
-                    if (rpcType.getAddress().equals(endPoint) && rpcType.getSpanEventServiceTypeCode() == serviceTypeCode) {
+                    if (rpcType.isMatched(endPoint, serviceTypeCode)) {
                         return true;
                     }
                 }
