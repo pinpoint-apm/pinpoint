@@ -23,6 +23,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
+import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
@@ -142,9 +143,9 @@ public class BusinessTransactionController {
 
         // select spans
         final SpanResult spanResult = this.spanService.selectSpan(traceId, focusTimestamp);
-        List<SpanAlign> spanAligns = spanResult.getSpanAlignList();
+        CallTreeIterator callTreeIterator = spanResult.getCallTree();
 
-        if (spanAligns.isEmpty()) {
+        if (callTreeIterator.isEmpty()) {
             // TODO fix error page.
             final ModelAndView error = new ModelAndView();
             // redefine errorCode.???
@@ -156,7 +157,7 @@ public class BusinessTransactionController {
 
         final ModelAndView mv = new ModelAndView();
         // debug
-        mv.addObject("spanList", spanAligns);
+        mv.addObject("spanList", callTreeIterator.values());
 
         mv.addObject("traceId", traceId);
 
@@ -166,7 +167,7 @@ public class BusinessTransactionController {
         mv.addObject("links", map.getLinks());
 
         // call stacks
-        RecordSet recordSet = this.transactionInfoService.createRecordSet(spanAligns, focusTimestamp);
+        RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp);
         mv.addObject("recordSet", recordSet);
 
         mv.addObject("applicationName", recordSet.getApplicationName());

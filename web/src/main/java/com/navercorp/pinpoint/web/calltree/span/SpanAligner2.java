@@ -39,7 +39,6 @@ public class SpanAligner2 {
     // transaction in-flight or missing data
     public static final int START_TIME_MATCH = 2;
 
-
     private static final Long ROOT = -1L;
     private final Map<Long, List<SpanBo>> spanIdMap;
     private Long rootSpanId = null;
@@ -80,7 +79,7 @@ public class SpanAligner2 {
         // next best thing is to lookup span based on the beginning of time of span it looked up
         // most likely data exist since the data gets extracted from span. non-existent data possible due to hbase insertion failure
         final List<SpanBo> collectorAcceptTimeMatcher = new ArrayList<SpanBo>();
-        for(SpanBo span : spanList) {
+        for (SpanBo span : spanList) {
             // collectorTime is a hint
             if (span.getCollectorAcceptTime() == collectorAcceptTime) {
                 collectorAcceptTimeMatcher.add(span);
@@ -126,7 +125,7 @@ public class SpanAligner2 {
         return spanMap;
     }
 
-    public List<SpanAlign> sort() {
+    public CallTree sort() {
         final List<SpanBo> rootList = spanIdMap.remove(rootSpanId);
         if (rootList == null || rootList.size() == 0) {
             throw new IllegalStateException("rootList span not found. rootSpanId=" + rootSpanId + ", map=" + spanIdMap.keySet());
@@ -135,58 +134,58 @@ public class SpanAligner2 {
             throw new IllegalStateException("duplicate rootList span found. rootSpanId=" + rootSpanId + ", map=" + spanIdMap.keySet());
         }
         SpanBo rootSpanBo = rootList.get(0);
-        final List<SpanAlign> list = new ArrayList<SpanAlign>();
-        populate(rootSpanBo, 0, list);
-
-        return list;
+        CallTree tree = populate(rootSpanBo, rootSpanBo.getSpanEventBoList());
+        tree.sort();
+        
+        return tree;
     }
 
     public int getMatchType() {
         return matchType;
     }
 
-    private void populate(SpanBo span, int spanDepth, List<SpanAlign> container) {
-        logger.debug("populate start");
-        int currentDepth = spanDepth;
-        if (logger.isDebugEnabled()) {
-            logger.debug("span type:{} depth:{} spanDepth:{} ", currentDepth, span.getServiceType(), spanDepth);
-        }
+    private CallTree populate(SpanBo span, List<SpanEventBo> spanEventBoList) {
+        logger.debug("Populate start. span={}", span);
 
-        SpanAlign spanAlign = new SpanAlign(currentDepth, span);
-        container.add(spanAlign);
-
-        List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
+        final SpanAlign spanAlign = new SpanAlign(span);
+        CallTree tree = new SpanCallTree(spanAlign);
         if (spanEventBoList == null) {
-            return;
+            return tree;
         }
 
         spanAlign.setHasChild(true);
 
         for (SpanEventBo spanEventBo : spanEventBoList) {
-            if (spanEventBo. getDepth() != -1) {
-                currentDepth = spanDepth + spanEventBo.getDepth();
-            }
             if (logger.isDebugEnabled()) {
-                logger.debug("spanEvent type:{} depth:{} spanEventDepth:{} ", spanEventBo.getServiceType(), currentDepth, spanEventBo.getDepth());
+                logger.debug("Align seq={}, depth={}, event={}", spanEventBo.getSequence(), spanEventBo.getDepth(), spanEventBo);
             }
 
-            SpanAlign spanEventAlign = new SpanAlign(currentDepth, span, spanEventBo);
-            container.add(spanEventAlign);
+            final SpanAlign spanEventAlign = new SpanAlign(span, spanEventBo);
+            try {
+                tree.add(spanEventBo.getDepth(), spanEventAlign);
+            } catch (CorruptedSpanCallTreeNodeException e) {
+                logger.warn("Find corrupted span event.", e);
+                CorruptedSpanAlignFactory factory = new CorruptedSpanAlignFactory();
+                final CallTree subTree = new SpanCallTree(factory.get(span, spanEventBo));
+                tree.add(subTree);
+                return tree;
+            }
 
             final long nextSpanId = spanEventBo.getNextSpanId();
             final List<SpanBo> nextSpanBoList = spanIdMap.remove(nextSpanId);
             if (nextSpanId != ROOT && nextSpanBoList != null) {
-                int childDepth = currentDepth + 1;
-
-                SpanBo spanBo = getNextSpan(span, spanEventBo, nextSpanBoList);
-                if (spanBo != null) {
-                    populate(spanBo, childDepth, container);
+                final SpanBo nextSpanBo = getNextSpan(span, spanEventBo, nextSpanBoList);
+                if (nextSpanBo != null) {
+                    final CallTree subTree = populate(nextSpanBo, nextSpanBo.getSpanEventBoList());
+                    tree.add(subTree);
                 } else {
                     logger.debug("nextSpanId not found. {}", nextSpanId);
                 }
             }
         }
-        logger.debug("populate end");
+        logger.debug("populate end. span={}", span);
+
+        return tree;
     }
 
     // fix nextSpan collision problem
@@ -196,9 +195,9 @@ public class SpanAligner2 {
         }
         if (nextSpanBoList.size() == 1) {
             return nextSpanBoList.get(0);
-        } else if(nextSpanBoList.size() > 1) {
+        } else if (nextSpanBoList.size() > 1) {
             // attempt matching based on similarity
-//            return spanBos.get(0);
+            // return spanBos.get(0);
             long spanEventBoStartTime = span.getStartTime() + beforeSpanEventBo.getStartElapsed();
 
             SpanIdMatcher spanIdMatcher = new SpanIdMatcher(nextSpanBoList);

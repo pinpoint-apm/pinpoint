@@ -25,6 +25,8 @@ import com.navercorp.pinpoint.common.bo.*;
 import com.navercorp.pinpoint.common.util.DefaultSqlParser;
 import com.navercorp.pinpoint.common.util.OutputParameterParser;
 import com.navercorp.pinpoint.common.util.SqlParser;
+import com.navercorp.pinpoint.web.calltree.span.CallTree;
+import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
 import com.navercorp.pinpoint.web.calltree.span.SpanAligner2;
 import com.navercorp.pinpoint.web.dao.ApiMetaDataDao;
@@ -70,16 +72,18 @@ public class SpanServiceImpl implements SpanService {
 
         List<SpanBo> spans = traceDao.selectSpanAndAnnotation(transactionId);
         if (spans == null || spans.isEmpty()) {
-            return new SpanResult(SpanAligner2.FAIL_MATCH, Collections.<SpanAlign>emptyList());
+            return new SpanResult(SpanAligner2.FAIL_MATCH, new CallTreeIterator(null));
         }
 
         SpanResult result = order(spans, selectedSpanHint);
-        List<SpanAlign> order = result.getSpanAlignList();
+        CallTreeIterator order = result.getCallTree();
+        List<SpanAlign> values = order.values();
+        
 //        transitionApiId(order);
-        transitionDynamicApiId(order);
-        transitionSqlId(order);
-        transitionCachedString(order);
-        transitionException(order);
+        transitionDynamicApiId(values);
+        transitionSqlId(values);
+        transitionCachedString(values);
+        transitionException(values);
         // TODO need to at least show the row data when root span is not found. 
         return result;
     }
@@ -387,10 +391,9 @@ public class SpanServiceImpl implements SpanService {
 
     private SpanResult order(List<SpanBo> spans, long selectedSpanHint) {
         SpanAligner2 spanAligner = new SpanAligner2(spans, selectedSpanHint);
-        List<SpanAlign> sort = spanAligner.sort();
+        CallTree callTree = spanAligner.sort();
 
-        logger.trace("SpanAlignList:{}", sort);
-        return new SpanResult(spanAligner.getMatchType(), sort);
+        return new SpanResult(spanAligner.getMatchType(), callTree.iterator());
 
     }
 

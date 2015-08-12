@@ -16,6 +16,10 @@
 
 package com.navercorp.pinpoint.web.calltree.span;
 
+import java.util.List;
+
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
 
@@ -23,29 +27,31 @@ import com.navercorp.pinpoint.common.bo.SpanEventBo;
  * @author emeroad
  */
 public class SpanAlign {
-    private int depth;
     private SpanBo spanBo;
     private SpanEventBo spanEventBo;
     private boolean span = true;
     private boolean hasChild = false;
 
-    public SpanAlign(int depth, SpanBo spanBo) {
+    private int id;
+    private long gap;
+    private int depth;
+    private long executionMilliseconds;
+
+    public SpanAlign(SpanBo spanBo) {
         if (spanBo == null) {
             throw new NullPointerException("spanBo must not be null");
         }
-        this.depth = depth;
         this.spanBo = spanBo;
         this.span = true;
     }
 
-    public SpanAlign(int depth, SpanBo spanBo, SpanEventBo spanEventBo) {
+    public SpanAlign(SpanBo spanBo, SpanEventBo spanEventBo) {
         if (spanBo == null) {
             throw new NullPointerException("spanBo must not be null");
         }
         if (spanEventBo == null) {
             throw new NullPointerException("spanEventBo must not be null");
         }
-        this.depth = depth;
         this.spanBo = spanBo;
         this.spanEventBo = spanEventBo;
         this.span = false;
@@ -57,10 +63,6 @@ public class SpanAlign {
 
     public boolean isSpan() {
         return span;
-    }
-
-    public int getDepth() {
-        return depth;
     }
 
     public SpanBo getSpanBo() {
@@ -79,20 +81,156 @@ public class SpanAlign {
         this.hasChild = hasChild;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public long getGap() {
+        return gap;
+    }
+
+    public void setGap(long gap) {
+        this.gap = gap;
+    }
+
+    public int getDepth() {
+        return depth;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
+
+    public long getExecutionMilliseconds() {
+        return executionMilliseconds;
+    }
+
+    public void setExecutionMilliseconds(long executionMilliseconds) {
+        this.executionMilliseconds = executionMilliseconds;
+    }
+
+    public long getLastTime() {
+        if (isSpan()) {
+            return spanBo.getStartTime() + spanBo.getElapsed();
+        } else {
+            return spanBo.getStartTime() + spanEventBo.getStartElapsed() + spanEventBo.getEndElapsed();
+        }
+    }
+
+    public long getStartTime() {
+        if (isSpan()) {
+            return spanBo.getStartTime();
+        } else {
+            return spanBo.getStartTime() + spanEventBo.getStartElapsed();
+        }
+    }
+
+    public long getElapsed() {
+        if (isSpan()) {
+            return spanBo.getElapsed();
+        } else {
+            return spanEventBo.getEndElapsed();
+        }
+    }
+
+    public String getAgentId() {
+        if (isSpan()) {
+            return spanBo.getAgentId();
+        }
+        return spanEventBo.getAgentId();
+    }
+
+    public String getApplicationId() {
+        return spanBo.getApplicationId();
+    }
+
+    public ServiceType getServiceType() {
+        if (isSpan()) {
+            return spanBo.getServiceType();
+        }
+        return spanEventBo.getServiceType();
+    }
+
+    public String getTransactionId() {
+        return spanBo.getTransactionId();
+    }
+
+    public long getSpanId() {
+        if (isSpan()) {
+            return spanBo.getSpanId();
+        }
+        return spanEventBo.getSpanId();
+    }
+
+    public boolean hasException() {
+        if (isSpan()) {
+            return spanBo.hasException();
+        }
+        return spanEventBo.hasException();
+    }
+
+    public String getExceptionClass() {
+        if (isSpan()) {
+            return spanBo.getExceptionClass();
+        }
+        return spanEventBo.getExceptionClass();
+    }
+
+    public String getExceptionMessage() {
+        if (isSpan()) {
+            return spanBo.getExceptionMessage();
+        }
+
+        return spanEventBo.getExceptionMessage();
+    }
+
+    public String getRemoteAddr() {
+        if (isSpan()) {
+            return spanBo.getRemoteAddr();
+        }
+
+        return null;
+    }
+
+    public List<AnnotationBo> getAnnotationBoList() {
+        if (isSpan()) {
+            return spanBo.getAnnotationBoList();
+        }
+        return spanEventBo.getAnnotationBoList();
+    }
+
+    public String getDestinationId() {
+        if (isSpan()) {
+            return null;
+        }
+
+        return spanEventBo.getDestinationId();
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("SpanAlign{");
-        sb.append("depth=").append(depth);
-        if (span) {
-            sb.append(", spanBo=").append(spanBo);
-            sb.append(", spanEventBo=").append(spanEventBo);
-        } else {
-            sb.append(", spanEventBo=").append(spanEventBo);
-            sb.append(", spanBo=").append(spanBo);
-        }
-        sb.append(", span=").append(span);
-        sb.append(", hasChild=").append(hasChild);
-        sb.append('}');
-        return sb.toString();
+        StringBuilder builder = new StringBuilder();
+        builder.append("{spanBo=");
+        builder.append(spanBo);
+        builder.append(", spanEventBo=");
+        builder.append(spanEventBo);
+        builder.append(", span=");
+        builder.append(span);
+        builder.append(", hasChild=");
+        builder.append(hasChild);
+        builder.append(", id=");
+        builder.append(id);
+        builder.append(", gap=");
+        builder.append(gap);
+        builder.append(", depth=");
+        builder.append(depth);
+        builder.append(", executionMilliseconds=");
+        builder.append(executionMilliseconds);
+        builder.append("}");
+        return builder.toString();
     }
 }
