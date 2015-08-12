@@ -16,16 +16,17 @@
 package com.navercorp.pinpoint.web.controller;
 
 import static org.hamcrest.Matchers.hasKey;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -159,7 +160,7 @@ public class UserGroupControllerTest {
                             .andExpect(jsonPath("$", hasKey("number")))
                             .andReturn();
     
-            this.mockMvc.perform(get("/userGroup/member.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"userGroupId\" : \"" + TEST_USER_GROUP_ID + "\", \"memberId\" : \"" + TEST_USER_GROUP_MEMBER_ID + "\"}"))
+            this.mockMvc.perform(get("/userGroup/member.pinpoint?userGroupId=" + TEST_USER_GROUP_ID))
                             .andExpect(status().isOk())
                             .andExpect(content().contentType("application/json;charset=UTF-8"))
                             .andExpect(jsonPath("$[0]", hasKey("userGroupId")))
