@@ -22,7 +22,6 @@
     <mvc:annotation-driven />
 	<tx:annotation-driven />
 	<context:component-scan base-package="com.navercorp.pinpoint.web.controller, com.navercorp.pinpoint.web.util">
-		<context:exclude-filter type="regex" expression="com.navercorp.pinpoint.web.controller.AlarmRuleController"/>
 	</context:component-scan>
 
     <bean id="jsonView" class="org.springframework.web.servlet.view.json.MappingJackson2JsonView">
