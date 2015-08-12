@@ -7,5 +7,7 @@ public interface AgentFilter {
     boolean ACCEPT = true;
     boolean REJECT = false;
 
-    boolean accept(String formAgent, String toAgent);
+    boolean accept(String fromAgent, String toAgent);
+    boolean acceptFrom(String fromAgent);
+    boolean acceptTo(String toAgent);
 }

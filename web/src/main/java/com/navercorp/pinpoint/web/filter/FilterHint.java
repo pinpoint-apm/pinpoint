@@ -16,9 +16,12 @@
 
 package com.navercorp.pinpoint.web.filter;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.navercorp.pinpoint.web.filter.deserializer.FilterHintListJsonDeserializer;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Hint for fitering
@@ -26,36 +29,21 @@ import java.util.Map;
  * @author netspider
  * 
  */
-// FIXME don't know how to implement deserializer like this.
+@JsonDeserialize(using = FilterHintListJsonDeserializer.class)
 public class FilterHint {
-
-    private static final long serialVersionUID = -8765645836014210889L;
-
-    private Map<String, List<Object>> map;
-    private final List<RpcHint> rpcHintList = new ArrayList<>();
 
     public static final String EMPTY_JSON = "{}";
 
-    public FilterHint(Map<String, List<Object>> filterHintJsonObjectMap) {
-        if (filterHintJsonObjectMap == null) {
-            throw new NullPointerException("filterHintJsonObjectMap must not be null");
+    private final List<RpcHint> rpcHintList;
+
+
+    public FilterHint(List<RpcHint> rpcHintList) {
+        if (rpcHintList == null) {
+            rpcHintList = Collections.emptyList();
         }
-        this.map = filterHintJsonObjectMap;
-        for (Map.Entry<String, List<Object>> filterHintObject : filterHintJsonObjectMap.entrySet()) {
-            List<RpcType> rpcTypeList = getRpcType(filterHintObject.getValue());
-            rpcHintList.add(new RpcHint(filterHintObject.getKey(), rpcTypeList));
-        }
+        this.rpcHintList = rpcHintList;
     }
 
-    private List<RpcType> getRpcType(List<Object> tpcTypeList) {
-        final List<RpcType> returnRpcTypeLIst = new ArrayList<>();
-        for (int i = 0; i < tpcTypeList.size(); i += 2) {
-            final String urlHint = (String) tpcTypeList.get(i);
-            final int urlServiceTypeCode = (int) tpcTypeList.get(i + 1);
-            returnRpcTypeLIst.add(new RpcType(urlHint, urlServiceTypeCode));
-        }
-        return returnRpcTypeLIst;
-    }
 
     public List<RpcHint> getRpcHintList(String sourceApplicationName) {
         if (sourceApplicationName == null) {
@@ -63,7 +51,7 @@ public class FilterHint {
         }
         final List<RpcHint> findRpcHintList = new ArrayList<>();
         for (RpcHint rpcHint : rpcHintList) {
-            // TODO miss serviceType check
+            // TODO miss serviceType
             if (rpcHint.getApplicationName().equals(sourceApplicationName)) {
                 findRpcHintList.add(rpcHint);
             }
@@ -73,13 +61,12 @@ public class FilterHint {
 
 
     public boolean containApplicationHint(String applicationName) {
-        List<Object> list = map.get(applicationName);
-
-        if (list == null) {
-            return false;
-        } else {
-            return !list.isEmpty();
+        for (RpcHint rpcHint : rpcHintList) {
+            if(rpcHint.getApplicationName().equals(applicationName)) {
+                return true;
+            }
         }
+        return false;
     }
 
 
@@ -92,20 +79,29 @@ public class FilterHint {
             return false;
         }
 
-        List<Object> list = map.get(applicationName);
-
-        for (int i = 0; i < list.size(); i += 2) {
-            final Object urlHint = list.get(i);
-            if (endPoint.equals(urlHint)) {
-                final Object urlServiceTypeCode = list.get(i + 1);
-                if (serviceTypeCode == (Integer) urlServiceTypeCode) {
-                    return true;
+        for (RpcHint rpcHint : rpcHintList) {
+            if (rpcHint.getApplicationName().equals(applicationName)) {
+                for (RpcType rpcType : rpcHint.getRpcTypeList()) {
+                    if (rpcType.getAddress().equals(endPoint) && rpcType.getSpanEventServiceTypeCode() == serviceTypeCode) {
+                        return true;
+                    }
                 }
             }
-        }
 
+        }
         return false;
     }
 
 
+    public int size() {
+        return rpcHintList.size();
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("FilterHint{");
+        sb.append("rpcHintList=").append(rpcHintList);
+        sb.append('}');
+        return sb.toString();
+    }
 }

@@ -15,12 +15,26 @@ public class ToAgentFilter implements AgentFilter {
         this.toAgent = toAgent;
     }
 
-    @Override
-    public boolean accept(String formAgent, String toAgent) {
+//    @Override
+    public boolean accept(String fromAgent, String toAgent) {
+        return filterTo(toAgent);
+    }
+
+    private boolean filterTo(String toAgent) {
         if (this.toAgent.equals(toAgent)) {
             return ACCEPT;
         }
         return REJECT;
+    }
+
+    @Override
+    public boolean acceptFrom(String fromAgent) {
+        return ACCEPT;
+    }
+
+    @Override
+    public boolean acceptTo(String toAgent) {
+        return filterTo(toAgent);
     }
 
     @Override
