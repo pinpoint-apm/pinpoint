@@ -25,6 +25,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.navercorp.pinpoint.web.service.UserGroupService;
@@ -138,9 +139,7 @@ public class UserGroupController {
     
     @RequestMapping(value = "/member", method = RequestMethod.GET)
     @ResponseBody
-    public List<UserGroupMember> getUserGroupMember(@RequestBody Map<String, String> params) {
-        String userGroupId = params.get(USER_GROUP_ID);
-        
+    public List<UserGroupMember> getUserGroupMember(@RequestParam(USER_GROUP_ID) String userGroupId) {
         //need param check and make respose message for exception
         
         return userGroupService.selectMember(userGroupId);
