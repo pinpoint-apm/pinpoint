@@ -40,6 +40,7 @@
     <select id="selectMemberList" resultType="UserGroupMember">
         SELECT *
         FROM user_group_member
+        WHERE user_group_id = #{userGroupId}
     </select>
     
     <update id="updateMember" parameterType="UserGroupMember">
