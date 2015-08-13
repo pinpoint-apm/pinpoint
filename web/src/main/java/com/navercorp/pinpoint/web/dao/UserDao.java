@@ -32,4 +32,5 @@ public interface UserDao {
 
     void updateUser(User user);
 
+    User selectUserByUserId(String userId);
 }

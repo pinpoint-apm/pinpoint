@@ -19,6 +19,12 @@
         SELECT *
         FROM user
     </select>
+
+    <select id="selectUserByUserId" resultType="User">
+        SELECT *
+        FROM user
+        WHERE user_id = #{userId}
+    </select>
     
     <update id="updateUser" parameterType="User">
         UPDATE user

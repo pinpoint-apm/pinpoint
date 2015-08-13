@@ -58,4 +58,9 @@ public class MysqlUserDao implements UserDao {
         sqlSessionTemplate.update(NAMESPACE + "updateUser", user);
     }
 
+    @Override
+    public User selectUserByUserId(String userId) {
+        return sqlSessionTemplate.selectOne(NAMESPACE + "selectUserByUserId", userId);
+    }
+
 }
