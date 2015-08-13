@@ -394,7 +394,6 @@
 	                        // ref1 : http://jimhoskins.com/2012/12/17/angularjs-and-apply.html
 	                        // ref2 : http://jsfiddle.net/CDvGy/2/
 	                    });
-	                    console.log( $application.select2 );
 	                };
 	                getMilliSecondByReadablePeriod = function( period ) {
 	                	var time = parseInt( period );
@@ -552,6 +551,10 @@
 	                	$at($at.MAIN, $at.TG_DATE, type);
 	                    scope.periodType = type;
 	                    scope.autoUpdate = false;
+	                };
+	                
+	                scope.showConfig = function() {
+	                	$rootScope.$broadcast("configuration.show");
 	                };
 	
 	                /**
