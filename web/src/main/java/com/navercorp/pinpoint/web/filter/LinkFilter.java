@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  * @author netspider
+ * @author emeroad
  * 
  */
 public class LinkFilter implements Filter {
@@ -50,9 +51,9 @@ public class LinkFilter implements Filter {
 
     private final FilterHint filterHint;
 
-    private final AgentFilter agentFilter;
-    private final PreAgentFilter preFromAgentFilter;
-    private final PreAgentFilter preToAgentFilter;
+    private final AgentFilterFactory agentFilterFactory;
+    private final SimpleAgentFilter fromAgentFilter;
+    private final SimpleAgentFilter toAgentFilter;
 
     private final FilterType filterType;
 
@@ -94,9 +95,13 @@ public class LinkFilter implements Filter {
         this.filterHint = filterHint;
         AssertUtils.assertNotNull(this.filterHint, "filterHint must not be null");
 
-        this.agentFilter = createAgentFilter(filterDescriptor);
-        this.preFromAgentFilter = new FromPreAgentFilter(agentFilter);
-        this.preToAgentFilter = new ToPreAgentFilter(agentFilter);
+        final String fromAgentName = filterDescriptor.getFromAgentName();
+        final String toAgentName = filterDescriptor.getToAgentName();
+
+        this.agentFilterFactory = new AgentFilterFactory(fromAgentName, toAgentName);
+        logger.debug("agentFilterFactory:{}", agentFilterFactory);
+        this.fromAgentFilter = agentFilterFactory.createSimpleFromAgentFilter();
+        this.toAgentFilter = agentFilterFactory.createSimpleToAgentFilter();
 
         this.filterType = getFilterType();
         logger.info("filterType:{}", filterType);
@@ -116,7 +121,7 @@ public class LinkFilter implements Filter {
     }
 
     private ResponseTimeFilter createResponseTimeFilter(FilterDescriptor filterDescriptor) {
-        final ResponseTimeFilterFactory factory = new ResponseTimeFilterFactory(filterDescriptor.getResponseFrom(), filterDescriptor.getResponseTo());
+        final ResponseTimeFilterFactory factory = new ResponseTimeFilterFactory(filterDescriptor.getFromResponseTime(), filterDescriptor.getResponseTo());
         return factory.createFilter();
     }
 
@@ -130,16 +135,6 @@ public class LinkFilter implements Filter {
             return ExecutionType.FAIL_ONLY;
         }
         return ExecutionType.SUCCESS_ONLY;
-    }
-
-    private AgentFilter createAgentFilter(FilterDescriptor filterDescriptor) {
-        final String fromAgentName = filterDescriptor.getFromAgentName();
-        final String toAgentName = filterDescriptor.getToAgentName();
-
-        AgentFilterFactory factory = new AgentFilterFactory(fromAgentName, toAgentName);
-        final AgentFilter agentFilter = factory.createFilter();
-        logger.debug("agentFilter:{}", agentFilter);
-        return agentFilter;
     }
 
     enum FilterType {
@@ -361,7 +356,7 @@ public class LinkFilter implements Filter {
     }
 
     private boolean isToAgentFilter() {
-        return (agentFilter instanceof FromToAgentFilter) && (agentFilter instanceof ToAgentFilter);
+        return this.agentFilterFactory.toAgentExist();
     }
 
     private boolean wasToWasExactMatch(List<SpanBo> fromSpanList, List<SpanBo> toSpanList) {
@@ -385,7 +380,7 @@ public class LinkFilter implements Filter {
     }
 
     private List<SpanBo> findFromNode(List<SpanBo> transaction) {
-        final List<SpanBo> node = findNode(transaction, fromApplicationName, fromServiceDescList, preFromAgentFilter);
+        final List<SpanBo> node = findNode(transaction, fromApplicationName, fromServiceDescList, fromAgentFilter);
 //        RpcURLPatternFilter rpcURLPatternFilter = new RpcURLPatternFilter("/**/*");
 //        if (!rpcURLPatternFilter.accept(node)) {
 //            return Collections.emptyList();
@@ -394,7 +389,7 @@ public class LinkFilter implements Filter {
     }
 
     private List<SpanBo> findToNode(List<SpanBo> transaction) {
-        final List<SpanBo> node = findNode(transaction, toApplicationName, toServiceDescList, preToAgentFilter);
+        final List<SpanBo> node = findNode(transaction, toApplicationName, toServiceDescList, toAgentFilter);
         if (!acceptURLFilter.accept(node)) {
             return Collections.emptyList();
         }
@@ -402,12 +397,12 @@ public class LinkFilter implements Filter {
     }
 
 
-    private List<SpanBo> findNode(List<SpanBo> nodeList, String findApplicationName, List<ServiceType> findServiceCode, PreAgentFilter preAgentFilter) {
+    private List<SpanBo> findNode(List<SpanBo> nodeList, String findApplicationName, List<ServiceType> findServiceCode, SimpleAgentFilter simpleAgentFilter) {
         List<SpanBo> findList = null;
         for (SpanBo span : nodeList) {
             if (findApplicationName.equals(span.getApplicationId()) && includeServiceType(findServiceCode, span.getServiceType())) {
                 // apply preAgentFilter
-                if (preAgentFilter.accept(span.getAgentId())) {
+                if (simpleAgentFilter.accept(span.getAgentId())) {
                     if (findList == null) {
                         findList = new ArrayList<>();
                     }
@@ -455,18 +450,5 @@ public class LinkFilter implements Filter {
     }
 
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("FromToResponseFilter{");
-        sb.append("fromServiceDescList=").append(fromServiceDescList);
-        sb.append(", fromApplicationName='").append(fromApplicationName).append('\'');
-        sb.append(", toServiceDescList=").append(toServiceDescList);
-        sb.append(", toApplicationName='").append(toApplicationName).append('\'');
-        sb.append(", responseTimeFilter=").append(responseTimeFilter);
-        sb.append(", executionType=").append(executionType);
-        sb.append(", hintFilter=").append(filterHint);
-        sb.append(", agentFilter=").append(agentFilter);
-        sb.append('}');
-        return sb.toString();
-    }
+
 }

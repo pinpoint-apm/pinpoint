@@ -29,8 +29,39 @@ public class AgentFilterFactory {
         return SkipAgentFilter.SKIP_FILTER;
     }
 
-    private static boolean isNotBlank(String toAgent) {
+    private boolean isNotBlank(String toAgent) {
         return StringUtils.isNotBlank(toAgent);
     }
 
+    public SimpleAgentFilter createSimpleFromAgentFilter() {
+        return createSimpleAgentFilter(fromAgent);
+    }
+
+    public SimpleAgentFilter createSimpleToAgentFilter() {
+        return createSimpleAgentFilter(toAgent);
+    }
+
+    private SimpleAgentFilter createSimpleAgentFilter(String agentId) {
+        if (StringUtils.isBlank(agentId)) {
+            return SkipSimpleAgentFilter.SKIP_FILTER;
+        }
+        return new DefaultSimpleAgentFilter(agentId);
+    }
+
+    public boolean fromAgentExist() {
+        return isNotBlank(fromAgent);
+    }
+
+    public boolean toAgentExist() {
+        return isNotBlank(toAgent);
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("AgentFilterFactory{");
+        sb.append("fromAgent='").append(fromAgent).append('\'');
+        sb.append(", toAgent='").append(toAgent).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
 }

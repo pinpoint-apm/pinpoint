@@ -46,10 +46,10 @@ public class FilterChain implements Filter {
         // FIXME how to improve performance without "for loop"
         for (Filter filter : filterList) {
             if (!filter.include(transaction)) {
-                return false;
+                return REJECT;
             }
         }
-        return true;
+        return ACCEPT;
     }
 
     @Override

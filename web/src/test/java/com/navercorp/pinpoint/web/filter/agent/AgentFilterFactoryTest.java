@@ -56,4 +56,51 @@ public class AgentFilterFactoryTest {
         Assert.assertFalse(filter.accept(null, "a"));
 
     }
+
+    @Test
+    public void simpleFromFilter() throws Exception {
+        AgentFilterFactory factory = new AgentFilterFactory("a", "b");
+        SimpleAgentFilter filter = factory.createSimpleFromAgentFilter();
+
+        Assert.assertTrue(filter.accept("a"));
+        Assert.assertFalse(filter.accept("b"));
+        Assert.assertFalse(filter.accept(null));
+    }
+
+    @Test
+    public void simpleFromFilter_skip() throws Exception {
+        AgentFilterFactory factory = new AgentFilterFactory(null, "b");
+        SimpleAgentFilter filter = factory.createSimpleFromAgentFilter();
+
+        Assert.assertTrue(filter.accept("a"));
+        Assert.assertTrue(filter.accept("b"));
+        Assert.assertTrue(filter.accept(null));
+    }
+
+    @Test
+    public void simpleToFilter() throws Exception {
+        AgentFilterFactory factory = new AgentFilterFactory("a", "b");
+        SimpleAgentFilter filter = factory.createSimpleToAgentFilter();
+
+        Assert.assertTrue(filter.accept("b"));
+
+        Assert.assertFalse(filter.accept("a"));
+        Assert.assertFalse(filter.accept(null));
+
+        Assert.assertTrue(factory.toAgentExist());
+    }
+
+    @Test
+    public void simpleToFilter_skip() throws Exception {
+        AgentFilterFactory factory = new AgentFilterFactory("a", null);
+        SimpleAgentFilter filter = factory.createSimpleToAgentFilter();
+
+        Assert.assertTrue(filter.accept("b"));
+        Assert.assertTrue(filter.accept("a"));
+        Assert.assertTrue(filter.accept(null));
+
+    }
+
+
+
 }
