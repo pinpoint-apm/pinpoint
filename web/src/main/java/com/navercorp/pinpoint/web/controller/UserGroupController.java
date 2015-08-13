@@ -112,10 +112,10 @@ public class UserGroupController {
             return result;
         }
         
-        String numOfMember = userGroupService.insertMember(userGroupMember);
+        userGroupService.insertMember(userGroupMember);
 
         Map<String, String> result = new HashMap<String, String>();
-        result.put("number", numOfMember);
+        result.put("result", "SUCCESS");
         return result;
     }
     
@@ -123,7 +123,7 @@ public class UserGroupController {
     @ResponseBody
     public Map<String, String> deleteUserGroupMember(@RequestBody UserGroupMember userGroupMember) {
         
-        if (StringUtils.isEmpty(userGroupMember.getMemberId()) || StringUtils.isEmpty(userGroupMember.getMemberId())) {
+        if (StringUtils.isEmpty(userGroupMember.getUserGroupId()) || StringUtils.isEmpty(userGroupMember.getMemberId())) {
             Map<String, String> result = new HashMap<String, String>();
             result.put("errorCode", "500");
             result.put("errorMessage", "there is not userGroupId or memberId in params to delete user group member");
@@ -145,20 +145,20 @@ public class UserGroupController {
         return userGroupService.selectMember(userGroupId);
     }
     
-    @RequestMapping(value = "/member", method = RequestMethod.PUT)
-    @ResponseBody
-    public Map<String, String> updateUserGroupMember(@RequestBody UserGroupMember userGroupMember) {
-        if (StringUtils.isEmpty(userGroupMember.getNumber()) || StringUtils.isEmpty(userGroupMember.getMemberId()) || StringUtils.isEmpty(userGroupMember.getMemberId())) {
-            Map<String, String> result = new HashMap<String, String>();
-            result.put("errorCode", "500");
-            result.put("errorMessage", "there is not number/userGroupId/memberId in params to update user group member");
-            return result;
-        }
-        
-        userGroupService.updateMember(userGroupMember);
-
-        Map<String, String> result = new HashMap<String, String>();
-        result.put("result", "SUCCESS");
-        return result;
-    }
+//    @RequestMapping(value = "/member", method = RequestMethod.PUT)
+//    @ResponseBody
+//    public Map<String, String> updateUserGroupMember(@RequestBody UserGroupMember userGroupMember) {
+//        if (StringUtils.isEmpty(userGroupMember.getNumber()) || StringUtils.isEmpty(userGroupMember.getMemberId()) || StringUtils.isEmpty(userGroupMember.getMemberId())) {
+//            Map<String, String> result = new HashMap<String, String>();
+//            result.put("errorCode", "500");
+//            result.put("errorMessage", "there is not number/userGroupId/memberId in params to update user group member");
+//            return result;
+//        }
+//        
+//        userGroupService.updateMember(userGroupMember);
+//
+//        Map<String, String> result = new HashMap<String, String>();
+//        result.put("result", "SUCCESS");
+//        return result;
+//    }
 }

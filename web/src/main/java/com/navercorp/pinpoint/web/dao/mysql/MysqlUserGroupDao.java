@@ -62,9 +62,8 @@ public class MysqlUserGroupDao implements UserGroupDao {
     }
 
     @Override
-    public String insertMember(UserGroupMember userGroupMember) {
+    public void insertMember(UserGroupMember userGroupMember) {
         sqlSessionTemplate.insert(NAMESPACE + "insertMember", userGroupMember);
-        return userGroupMember.getNumber();
     }
 
     @Override
