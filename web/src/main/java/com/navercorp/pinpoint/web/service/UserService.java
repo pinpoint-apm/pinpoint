@@ -32,4 +32,6 @@ public interface UserService {
 
     void updateUser(User user);
 
+    User selectUserByUserId(String userId);
+
 }
