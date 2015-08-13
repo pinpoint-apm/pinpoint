@@ -32,7 +32,7 @@ public interface UserGroupDao {
     
     void deleteUserGroup(UserGroup userGroup);
 
-    String insertMember(UserGroupMember userGroupMember);
+    void insertMember(UserGroupMember userGroupMember);
 
     void deleteMember(UserGroupMember userGroupMember);
 

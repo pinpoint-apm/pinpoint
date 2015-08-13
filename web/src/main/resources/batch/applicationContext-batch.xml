@@ -42,7 +42,7 @@
     	<constructor-arg index="1" value="#{batchProps['alarm.sms.serviceId']}"/>
     	<constructor-arg index="2">
     		<list>
-    			<value>01073715625</value>
+    			<value>0107371</value>
     		</list>
     	</constructor-arg>
     </bean>
