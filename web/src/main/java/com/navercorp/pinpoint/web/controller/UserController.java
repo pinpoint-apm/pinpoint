@@ -18,12 +18,15 @@ package com.navercorp.pinpoint.web.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.navercorp.pinpoint.web.service.UserService;
@@ -35,6 +38,7 @@ import com.navercorp.pinpoint.web.vo.User;
 @Controller
 @RequestMapping(value = "/user")
 public class UserController {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
     public final static String USER_ID = "userid";
     
@@ -78,15 +82,21 @@ public class UserController {
     
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public Object getUser(@RequestBody(required=false) Map<String, String> params) {
-        if(params == null) {
-            return userService.selectUser();
+    public Object getUser(@RequestParam(value="userId", required=false) String userId) {
+        try {
+            if(userId == null) {
+                return userService.selectUser();
+            } else {
+                return userService.selectUserByUserId(userId);
+            }
+        } catch (Exception e) {
+            logger.error("can't select user", e);
+            
+            Map<String, String> result = new HashMap<String, String>();
+            result.put("errorCode", "500");
+            result.put("errorMessage", "This api need to collect condition for search.");
+            return result;
         }
-        
-        Map<String, String> result = new HashMap<String, String>();
-        result.put("errorCode", "500");
-        result.put("errorMessage", "This api need to collect condition for search.");
-        return result;
     }
     
     @RequestMapping(method = RequestMethod.PUT)

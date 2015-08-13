@@ -25,6 +25,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
@@ -78,9 +79,7 @@ public class AlarmController {
     
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public Object getRule(@RequestBody Map<String, String> params) {
-        String userGroupId = params.get(USER_GROUP_ID);
-        
+    public Object getRule(@RequestParam(USER_GROUP_ID) String userGroupId) {
         if (StringUtils.isEmpty(userGroupId)) {
             Map<String, String> result = new HashMap<String, String>();
             result.put("errorCode", "500");
