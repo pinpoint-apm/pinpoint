@@ -48,7 +48,7 @@
     <import resource="classpath:applicationContext-datasource.xml" />
     <import resource="classpath:applicationContext-dao-config.xml" />
     <import resource="classpath:applicationContext-cache.xml" />
-    <import resource="classpath:batch/applicationContext-batch.xml" />
+<!--     <import resource="classpath:batch/applicationContext-batch.xml" /> -->
 
     <import resource="classpath:applicationContext-websocket.xml" />
 

@@ -54,8 +54,8 @@ public class UserGroupServiceImpl implements UserGroupService {
     }
 
     @Override
-    public String insertMember(UserGroupMember userGroupMember) {
-        return userGroupDao.insertMember(userGroupMember);
+    public void insertMember(UserGroupMember userGroupMember) {
+        userGroupDao.insertMember(userGroupMember);
     }
 
     @Override
