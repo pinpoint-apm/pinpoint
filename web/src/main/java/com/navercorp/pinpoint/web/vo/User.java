@@ -7,6 +7,17 @@ public class User {
     private String phoneNumber;
     private String email;
     
+    public User() {
+    }
+    
+    public User(String userId, String name, String department, String phoneNumber, String email) {
+        this.userId = userId;
+        this.name = name;
+        this.department = department;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+    }
+
     public String getUserId() {
         return userId;
     }

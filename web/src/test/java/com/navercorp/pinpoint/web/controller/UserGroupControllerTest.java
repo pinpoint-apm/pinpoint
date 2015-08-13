@@ -27,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -42,7 +43,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.web.dao.UserDao;
 import com.navercorp.pinpoint.web.dao.UserGroupDao;
+import com.navercorp.pinpoint.web.vo.User;
 import com.navercorp.pinpoint.web.vo.UserGroup;
 import com.navercorp.pinpoint.web.vo.UserGroupMember;
 
@@ -68,15 +71,26 @@ public class UserGroupControllerTest {
     @Autowired
     private UserGroupDao userGroupDao;
     
+    @Autowired
+    private UserDao userDao;
+    
     private MockMvc mockMvc;
     
+    private User user = new User(TEST_USER_GROUP_MEMBER_ID, "userName", "pinpoint_team", "0101234", "pinpoint_team@navercorp.com");
     @Before
     public void setup() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
         userGroupDao.deleteUserGroup(new UserGroup("", TEST_USER_GROUP_ID));
         userGroupDao.deleteUserGroup(new UserGroup("", TEST_USER_GROUP_ID_UPDATED));
-        userGroupDao.deleteMember(new UserGroupMember("", TEST_USER_GROUP_ID, TEST_USER_GROUP_MEMBER_ID));
-        userGroupDao.deleteMember(new UserGroupMember("", TEST_USER_GROUP_ID, TEST_USER_GROUP_MEMBER_ID_UPDATE));
+        userGroupDao.deleteMember(new UserGroupMember(TEST_USER_GROUP_ID, TEST_USER_GROUP_MEMBER_ID));
+        userGroupDao.deleteMember(new UserGroupMember(TEST_USER_GROUP_ID, TEST_USER_GROUP_MEMBER_ID_UPDATE));
+        
+        userDao.insertUser(user);
+    }
+    
+    @After
+    public void after(){
+        userDao.deleteUser(user);
     }
 
     @Test
@@ -161,12 +175,14 @@ public class UserGroupControllerTest {
                             .andExpect(jsonPath("$.result").value("SUCCESS"))
                             .andReturn();
     
-            this.mockMvc.perform(get("/userGroup/member.pinpoint?userGroupId=" + TEST_USER_GROUP_ID))
+            MvcResult andReturn = this.mockMvc.perform(get("/userGroup/member.pinpoint?userGroupId=" + TEST_USER_GROUP_ID))
                             .andExpect(status().isOk())
                             .andExpect(content().contentType("application/json;charset=UTF-8"))
                             .andExpect(jsonPath("$[0]", hasKey("userGroupId")))
                             .andExpect(jsonPath("$[0]", hasKey("memberId")))
                             .andReturn();
+            System.out.println(andReturn.getResponse().getContentAsString());
+            
             
             this.mockMvc.perform(delete("/userGroup/member.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"userGroupId\" : \"" + TEST_USER_GROUP_ID + "\", \"memberId\" : \"" + TEST_USER_GROUP_MEMBER_ID + "\"}"))
                             .andExpect(status().isOk())
