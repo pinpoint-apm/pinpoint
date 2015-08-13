@@ -38,9 +38,10 @@
     </delete>
     
     <select id="selectMemberList" resultType="UserGroupMember">
-        SELECT *
-        FROM user_group_member
-        WHERE user_group_id = #{userGroupId}
+        SELECT a.user_group_id, a.member_id, b.name, b.department 
+        FROM user_group_member a
+        INNER JOIN user b ON a.member_id = b.user_id
+        WHERE a.user_group_id =  #{userGroupId}
     </select>
     
     <update id="updateMember" parameterType="UserGroupMember">
