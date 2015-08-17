@@ -2,24 +2,16 @@ package com.navercorp.pinpoint.web.vo;
 
 public class UserGroupMember {
     
-    private String number;
     private String userGroupId;
     private String memberId;
+    private String name;
+    private String department;
     
     public UserGroupMember() {
     }
 
-    public String getNumber() {
-        return number;
-    }
-    
-    public void setNumber(String number) {
-        this.number = number;
-    }
-    
-    public UserGroupMember(String number, String userGroupId, String memberId) {
+    public UserGroupMember(String userGroupId, String memberId) {
         this.userGroupId = userGroupId;
-        this.memberId  = memberId;
     }
     
     public String getUserGroupId() {
@@ -38,4 +30,19 @@ public class UserGroupMember {
         this.memberId = memberId;
     }
 
+    public String getName() {
+        return name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    public String getDepartment() {
+        return department;
+    }
+    
+    public void setDepartment(String department) {
+        this.department = department;
+    }
 }
