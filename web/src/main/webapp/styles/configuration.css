@@ -324,6 +324,9 @@
 	padding-right: 10px;
 	line-height: 32px;
 }
+#pinpoint-configuration .some-table .some-list-content thead th {
+	font-weight: normal !important;
+}
 #pinpoint-configuration .some-table .some-list-content tbody tr {
 	height: 30px;
 	padding-right: 10px;
@@ -335,15 +338,19 @@
 	color: #FFF;
 }
 #pinpoint-configuration .some-table .some-list-content tbody tr td:first-child {
-	text-align:left;
+	text-align: left;
+	padding-left: 4px;
 }
 #pinpoint-configuration .some-table .some-list-content tbody tr td:last-child {
 	padding-right: 10px;
 	padding-left: 5px;
 }
-#pinpoint-configuration .some-table .some-list-content td button {
-	border: none;
+#pinpoint-configuration .some-table .filter-input {
+	position: relative;
+	bottom: -6px;
+	width: 100%;
 }
+
 #pinpoint-configuration div.popover {
 	color: #000;
 }

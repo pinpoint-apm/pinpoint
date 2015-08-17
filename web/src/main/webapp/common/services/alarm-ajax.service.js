@@ -144,5 +144,27 @@
 				callback(error);
 			});
 		};
+		this.createRule = function(data, callback ) {
+			$.ajax($config.alramRule, {
+				type: "POST",
+				data: JSON.stringify(data),
+				contentType: "application/json"
+			}).done(function(result) {
+				callback(result);
+			}).fail(function(error) {
+				callback(error);
+			});
+		};
+		this.updateRule = function(data, callback ) {
+			$.ajax($config.alramRule, {
+				type: "PUT",
+				data: JSON.stringify(data),
+				contentType: "application/json"
+			}).done(function(result) {
+				callback(result);
+			}).fail(function(error) {
+				callback(error);
+			});
+		};
 	}]);
 })(jQuery);

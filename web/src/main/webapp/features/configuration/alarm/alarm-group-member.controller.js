@@ -110,7 +110,7 @@
 
 			function addMember( memberId ) {
 				$ajaxService.addMemberInGroup({ "userGroupId": currentUserGroupID, "memberId": memberId }, function( resultData ) {
-					if ( resultData.errorcode ) {
+					if ( resultData.errorCode ) {
 						showAlert( resutlData.errormessage, true );
 					} else {
 						// @TODO
@@ -129,7 +129,7 @@
 			}
 			function removeMember( memberID ) {
 				$ajaxService.removeMemberInGroup({ "userGroupId": currentUserGroupID, "memberId": memberID }, function( resultData ) {
-					if ( resultData.errorcode ) {
+					if ( resultData.errorCode ) {
 						showAlert( resutlData.errormessage, false );
 					} else {
 						// @TODO
@@ -145,8 +145,8 @@
 			}
 			function loadList() {
 				$ajaxService.getGroupMemberListInGroup({ "userGroupId": currentUserGroupID }, function( resultData ) {
-					if ( resultData.errorcode ) {
-						showAlert( resultData.errormessage, false );
+					if ( resultData.errorCode ) {
+						showAlert( resultData.errorMessage, false );
 						// @TODO
 						// 에러 처리
 					} else {

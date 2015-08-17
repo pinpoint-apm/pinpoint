@@ -10,8 +10,8 @@
 	pinpointApp.constant('AlarmRuleConfig', {
 	});	
 
-	pinpointApp.controller('AlarmRuleCtrl', [ '$scope','$element', 'AlarmRuleConfig', 'AlarmAjaxService',
-	    function ($scope, $element, $constant, $ajaxService) {
+	pinpointApp.controller('AlarmRuleCtrl', [ '$scope','$document', '$element', 'AlarmRuleConfig', 'AlarmAjaxService',
+	    function ($scope, $document, $element, $constant, $ajaxService) {
 			//@TODO
 			//통계 추가할 것.
 			//$at($at.FILTEREDMAP_PAGE);
@@ -25,11 +25,12 @@
 			var $elFilterInput = $element.find("div.filter-input input");
 			var $elFilterEmpty = $element.find("div.filter-input button.trash");
 			var $elEdit = $element.find(".some-edit-content");
-			var $elEditInputUserID = $elEdit.find("input[name=userID]");
-			var $elEditInputName = $elEdit.find("input[name=name]");
-			var $elEditInputDepartment = $elEdit.find("input[name=department]");
-			var $elEditInputPhone = $elEdit.find("input[name=phone]");
-			var $elEditInputEmail = $elEdit.find("input[name=email]");
+			var $elEditSelectApplication = $elEdit.find("select[name=application]");
+			var $elEditSelectRules = $elEdit.find("select[name=rule]");
+			var $elEditInputThreshold = $elEdit.find("input[name=threshold]");
+			var $elEditCheckboxSMS = $elEdit.find("input[name=sms]");
+			var $elEditCheckboxEmail = $elEdit.find("input[name=email]");
+			var $elEditTextareaNotes = $elEdit.find("textarea");
 			var $elEditGuide = $elEdit.find(".title-message");
 			var $removeTemplate = $([
 	           '<span class="right">',
@@ -44,10 +45,12 @@
 			var isRemoving = false;
 			var ruleList = $scope.ruleList = [];
 			
-			var $elUL = $element.find(".some-list-content ul");
-			$elUL.on("dblclick", "li", function($event) {
+			
+
+			var $elUL = $element.find(".some-list-content tbody");
+			$elUL.on("dblclick", "tr", function($event) {
 				$scope.onUpdate( $event );
-			}).on("dblclick", "span.contents", function($event) {
+			}).on("dblclick", "td", function($event) {
 				$scope.onUpdate( $event );
 			}).on("click", "button.move", function($event) {
 			}).on("click", "span.remove", function($event) {
@@ -66,7 +69,7 @@
 			});
 			
 			var enterLeaveData = [
-              { selector: "li", 					name: "contents" },
+              { selector: "tr", 					name: "contents" },
               { selector: "span.contents", 			name: "contents" },
               { selector: "span.remove", 			name: "remove" },
               { selector: "button.confirm-cancel", 	name: "removeCancel" },
@@ -81,7 +84,52 @@
 					})
 				})(enterLeaveData[i].selector, enterLeaveData[i].name)
 			}
-			
+			function initPopover() {
+				$('[data-toggle="alarm-popover"]').popover();
+			}
+			function formatOptionText(state) {
+                if (!state.id) {
+                    return state.text;
+                }
+                var chunk = state.text.split("@");
+                if (chunk.length > 1) {
+                    var img = $document.get(0).createElement("img");
+                    img.src = "/images/icons/" + chunk[1] + ".png";
+                    img.style.height = "25px";
+                    img.style.paddingRight = "3px";
+                    return img.outerHTML + chunk[0];
+                } else {
+                    return state.text;
+                }
+            }
+			function initApplicationSelect() {
+				$elEditSelectApplication.select2({
+	                placeholder: "Select an application.",
+	                searchInputPlaceholder: "Input your application name.",
+	                allowClear: false,
+	                formatResult: formatOptionText,
+	                formatSelection: formatOptionText,
+	                escapeMarkup: function (m) {
+	                    return m;
+	                }
+	            }).on("change", function (e) {
+	            	$at( $at.MAIN, $at.CLK_APPLICATION );
+	            	console.log("changed : application ");
+	            });
+				$elEditSelectRules.select2({
+	                searchInputPlaceholder: "Input your rule name.",
+	                placeholder: "Select an rule.",
+	                allowClear: false,
+	                formatResult: formatOptionText,
+	                formatSelection: formatOptionText,
+	                escapeMarkup: function (m) {
+	                    return m;
+	                }
+	            }).on("change", function (e) {
+	            	$at( $at.MAIN, $at.CLK_APPLICATION );
+	            	console.log("changed : rule ");
+	            });
+			}
 			function show( $el ) {
 				$el.removeClass("hide-me");
 			}
@@ -99,95 +147,103 @@
 					height: 300
 				}, 500, function() {});
 			}
-			function searchUser( userID ) {
-				var oUser;
+			function searchRule( ruleID ) {
+				var oRule;
 				var len = ruleList.length;
 				for( var i = 0 ; i < len ; i++ ) {
-					if ( ruleList[i].userId == userID ) {
-						oUser = ruleList[i];
+					if ( ruleList[i].ruleId == ruleID ) {
+						oRule = ruleList[i];
 						break;
 					}
 				}
-				return oUser;
+				return oRule;
 			}
-			function createUser( userID, userName, userDepartment, userPhone, userEmail ) {
-				var oNewUser = { 
-					"userId": userID,
-					"name": userName,
-					"department": userDepartment,
-					"phoneNumber": userPhone,
-					"email": userEmail
+			function createRule( application, rule, threshold, sms, email, notes ) {
+				var oNewRule = { 
+					"applicationId": application,
+					"userGroupId": currentUserGroupID,
+					"checkerName": rule,
+					"threshold": threshold,
+					"smsSend": sms,
+					"emailSend": email,
+					"notes": notes
 				}; 
-				$ajaxService.createPinpointUser(oNewUser, function( resultData ) {
-					if ( resultData.errorcode ) {
-						showAlert( resutlData.errormessage );
+				$ajaxService.createRule(oNewRule, function( resultData ) {
+					if ( resultData.errorCode ) {
+						showAlert( resultData.errorMessage );
 					} else {
 						// @TODO
 						// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
+						oNewRule.ruleId = resultData.ruleId;
 						$scope.$apply(function() {
-							ruleList.push(oNewUser);
+							ruleList.push(oNewRule);
 							setTotal(ruleList.length);
 						});
+						initPopover();
 						hide( $elLoading, $elEdit );
 					}
 					
 				});
 			}
-			function updateUser( userID, userName, userDepartment, userPhone, userEmail ) {
-				var oUpdateUser = { 
-					"userId": userID,
-					"name": userName,
-					"department": userDepartment,
-					"phoneNumber": userPhone,
-					"email": userEmail
+			function updateRule( ruleID, application, rule, threshold, sms, email, notes ) {
+				var oUpdateRule = { 
+					"ruleId": ruleID,
+					"applicationId": application,
+					"userGroupId": currentUserGroupID,
+					"checkerName": rule,
+					"threshold": parseInt(threshold, 10),
+					"smsSend": sms,
+					"emailSend": email,
+					"notes": notes
 				}; 
-				$ajaxService.updatePinpointUser(oUpdateUser, function( resultData ) {
-					if ( resultData.errorcode || resultData.exception ) {
-						showAlert( resutlData.errormessage );
+				$ajaxService.updateRule(oUpdateRule, function( resultData ) {
+					if ( resultData.errorCode ) {
+						showAlert( resultData.errorMessage );
 					} else {
 						// @TODO
 						// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
 						$scope.$apply(function() {
 							for( var i = 0 ; i < ruleList.length ; i++ ) {
-								if ( ruleList[i].userId == userID ) {
-									ruleList[i].name = userName;
-									ruleList[i].department = userDepartment;
-									ruleList[i].phoneNumber = userPhone;
-									ruleList[i].email = userEmail;
+								if ( ruleList[i].ruleId == ruleID ) {
+									ruleList[i].applicationId = application;
+									ruleList[i].checkerName = rule;
+									ruleList[i].threshold = threshold;
+									ruleList[i].smsSend = sms;
+									ruleList[i].emailSend = email;
+									ruleList[i].notes = notes;
 								}
 							}
 						});
 						hide( $elLoading, $elEdit );
-						updatedUser( oUpdateUser );
 					}
 				});
 			}
-			function removeUser( userID ) {
-				$ajaxService.removePinpointUser( { "userId": userID }, function( resultData ) {
-					if ( resultData.errorcode ) {
-						showAlert( resutlData.errormessage );
-					} else {
-						// @TODO
-						// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
-						$scope.$apply(function() {
-							for( var i = 0 ; i < ruleList.length ; i++ ) {
-								if ( ruleList[i].userId == userID ) {
-									ruleList.splice(i, 1);
-									break;
-								}
-							}
-							setTotal(ruleList.length);
-							hide( $elLoading );
-							isRemoving = false;
-							removedUser( userID );
-						});
-					}
-				});
-			}
+//			function removeUser( userID ) {
+//				$ajaxService.removePinpointUser( { "userId": userID }, function( resultData ) {
+//					if ( resultData.errorCode ) {
+//						showAlert( resultData.errorMessage );
+//					} else {
+//						// @TODO
+//						// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
+//						$scope.$apply(function() {
+//							for( var i = 0 ; i < ruleList.length ; i++ ) {
+//								if ( ruleList[i].userId == userID ) {
+//									ruleList.splice(i, 1);
+//									break;
+//								}
+//							}
+//							setTotal(ruleList.length);
+//							hide( $elLoading );
+//							isRemoving = false;
+//							removedUser( userID );
+//						});
+//					}
+//				});
+//			}
 			function loadList( isFirst ) {
 				$ajaxService.getRuleList( { "userGroupId": currentUserGroupID }, function( resultData ) {
-					if ( resultData.errorcode ) {
-						showAlert( resultData.errormessage );
+					if ( resultData.errorCode ) {
+						showAlert( resultData.errorMessage );
 						// @TODO
 						// 에러 처리
 					} else {
@@ -198,7 +254,7 @@
 							ruleList = $scope.ruleList = resultData;
 						});
 						setTotal(ruleList.length);
-						$('[data-toggle="alarm-popover"]').popover();
+						initPopover();
 						hide( $elLoading );
 						$scope.onLeave();
 						
@@ -229,6 +285,11 @@
 				$scope.$parent.$broadcast( "alarmGroupMember.configuration.load", userGroupID );
 			}
 			
+			$scope.rules = [
+			    { "text": "" },
+                { "text": "JVM_CPU_USAGE_RATE" },
+                { "text": "ERROR_COUNT" }
+			];
 			$scope.onRefresh = function() {
 				if ( isRemoving == true ) return;
 				
@@ -241,36 +302,37 @@
 				
 				isCreate = true;
 				$elEditGuide.html( "Create new pinpoint user" );
-				$elEditInputUserID.removeProp("disabled");
-				$elEditInputUserID.val("");
-				$elEditInputName.val("");
-				$elEditInputDepartment.val("");
-				$elEditInputPhone.val("");
-				$elEditInputEmail.val("");
+				$elEditSelectApplication.select2("val", "");
+				$elEditSelectRules.select2( "val", "");
+				$elEditInputThreshold.val("0");
+				$elEditCheckboxSMS.prop("checked", "");
+				$elEditCheckboxEmail.prop("checked", "");		
+				$elEditTextareaNotes.val("");
 				show( $elEdit );
-				$elEditInputUserID.focus();
 			};
 			$scope.onUpdate = function($event) {
 				if ( isRemoving == true ) return;
 				
 				var tagName = $event.toElement.tagName.toLowerCase();
 				var $el = $( $event.toElement );
-				if ( tagName != "li" && tagName != "span") return;
-				if ( tagName == "span" && $el.hasClass("remove") ) return;
-
+				if ( tagName != "tr" && tagName != "td") return;
+				
 				isCreate = false;
-				$el = ( tagName == "span" ) ? $el.parent() : $el;
-				var oUser = searchUser( $el.prop("id").split("_")[1] );
+				$el = ( tagName == "td" ) ? $el.parent() : $el;
+				var ruleID = $el.prop("id").split("_")[1];
+				var oRule = searchRule( ruleID );
 				
 				$elEditGuide.html( "아래 항목을 수정할 수 있습니다." );
-				$elEditInputUserID.prop("disabled", "disabled");
-				$elEditInputUserID.val( oUser.userId );
-				$elEditInputName.val( oUser.name );
-				$elEditInputDepartment.val( oUser.department );
-				$elEditInputPhone.val( oUser.phoneNumber );
-				$elEditInputEmail.val( oUser.email );
+				$elEditSelectApplication.select2("val", oRule.applicationId).parent().prop("id", "updateRule_" + ruleID);
+				$elEditSelectRules.select2( "val", oRule.checkerName);
+				$elEditInputThreshold.val( oRule.threshold );
+				$elEditCheckboxSMS.prop("checked", oRule.smsSend);
+				$elEditCheckboxEmail.prop("checked", oRule.emailSend);		
+				$elEditTextareaNotes.val( oRule.notes );
+				
+				console.log( oRule );
+				console.log( $elEditSelectApplication.select2("val"), $elEditSelectRules.select2( "val") );
 				show( $elEdit );
-				$elEditInputName.focus().select();
 			};
 			$scope.onInputFilter = function($event) {
 				if ( isRemoving == true ) return;
@@ -328,28 +390,30 @@
 				hide( $elEdit );
 			};
 			$scope.onApplyEdit = function() {
-				var userID = $.trim( $elEditInputUserID.val() );
-				var userName = $.trim( $elEditInputName.val() );
-				var userDepartment = $.trim( $elEditInputDepartment.val() );
-				var userPhone = $.trim( $elEditInputPhone.val() );
-				var userEmail = $.trim( $elEditInputEmail.val() );
+				console.log("-onApplyEdit");
+				var application = $elEditSelectApplication.select2("val");
+				var rule = $elEditSelectRules.select2( "val");
+				console.log( "apply", $elEditSelectApplication.select2("val"), $elEditSelectRules.select2( "val") );
+				var threshold = $elEditInputThreshold.val();
+				var sms = $elEditCheckboxSMS.prop("checked");
+				var email = $elEditCheckboxEmail.prop("checked");	
+				var notes = $elEditTextareaNotes.val();
 				
-				if ( userID == "" || userName == "" ) {
+				console.log("-onApplyEdit", application, rule);
+				if ( application == "" || rule == "" ) {
 					$scope.onEnter("notEmpty");
 					return;
-				}
-				// TODO phone - 체크
-				// TODO email 포맷 체크
-				
+				}				
 				showLoading( true );
-				if ( hasDuplicateID( userID ) && isCreate == true) {
-					showAlert( "동일한 userID를 가진 사용자가 이미 있습니다." );
-					return;
-				}
+//				if ( hasDuplicateID( userID ) && isCreate == true) {
+//					showAlert( "동일한 userID를 가진 사용자가 이미 있습니다." );
+//					return;
+//				}
 				if ( isCreate ) {
-					createUser( userID, userName, userDepartment, userPhone, userEmail );
+					createRule( application, rule, threshold, sms, email, notes );
 				} else {
-					updateUser( userID, userName, userDepartment, userPhone, userEmail );
+					console.log("-onApplyEdit - updateUser");
+					updateRule( $elEditSelectApplication.parent().prop("id").split("_")[1], application, rule, threshold, sms, email, notes );
 				}
 			};
 			$scope.onCloseAlert = function() {
@@ -405,11 +469,15 @@
 			$scope.onLeave = function( type ) {
 				$elGuideMessage.html("Pinpoint 사용자 목록입니다.");
 			}
-			$scope.$on("alarmPinpointUser.configuration.load", function( event, userGroupID ) {
+			$scope.$on("alarmRule.configuration.load", function( event, userGroupID ) {
 				currentUserGroupID = userGroupID;
 //				if ( isLoadedRuleList === false ) {
 					loadList( true );
 //				}
+			});
+			$scope.$on("alarmRule.applications.set", function( event, applicationData ) {
+				$scope.applications = applicationData;
+				initApplicationSelect();
 			});
 		}
 	]);

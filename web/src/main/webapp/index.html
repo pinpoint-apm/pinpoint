@@ -482,8 +482,8 @@
 				       							<td>{{rule.applicationId}}</td>
 				       							<td>{{rule.checkerName}}</td>
 				       							<td>{{rule.threshold}}</td>
-				       							<td>{{rule.smsSend.toUpperCase()}}</td>
-				       							<td>{{rule.emailSend.toUpperCase()}}</td>
+				       							<td>{{rule.smsSend ? "TRUE": "FALSE"}}</td>
+				       							<td>{{rule.emailSend ? "TRUE": "FALSE"}}</td>
 				       							<td><span ng-show="rule.notes != '' && rule.notes != null" class="glyphicon glyphicon-eye-open" aria-hidden="true" data-toggle="alarm-popover" data-trigger="hover" data-placement="left" data-content="{{rule.notes}}"></span></td>
 				       							<td><span class="remove">x</span></td>
 				       						</tr>
@@ -494,19 +494,19 @@
 				       			<div class="filter-input">
 				       				<table>
 				       					<colgroup>
-				       						<col width="40%"/>
-				       						<col width="35%"/>
+				       						<col width="30%"/>
+				       						<col width="25%"/>
 				       						<col width="10%"/>
-				       						<col width="10%"/>
-				       						<col width="10%"/>
-				       						<col width="10%"/>
+				       						<col width="9%"/>
+				       						<col width="9%"/>
+				       						<col width="28%"/>
 				       					</colgroup>
 				       					<tr>
 				       						<td><input type="text" placeholder="Application name" style="width:94%"/></td>
 				       						<td><input type="text" placeholder="Rule name" style="width:94%"/></td>
 				       						<td><input type="text" placeholder="Threshold" style="width:94%"/></td>
-				       						<td><input type="checkbox" placeholder="SMS"/></td>
-				       						<td><input type="checkbox" placeholder="Email"/></td>
+				       						<td><input type="checkbox" placeholder="SMS" id="rule_filter_sms" style="width:20%"/><label for="rule_filter_sms" style="color:#A9A9A9;font-size:13px;margin-left:1px;">SMS</label></td>
+				       						<td><input type="checkbox" placeholder="Email" id="rule_filter_email" style="width:20%"/><label for="rule_filter_email" style="color:#A9A9A9;font-size:13px;margin-left:1px;">Email</label></td>
 				       						<td>
 				       							<button class="btn btn-info disabled trash" ng-click="onFilterEmpty()" ng-mouseenter="onEnter('filterEmpty')" ng-mouseleave="onLeave('filterEmpty')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
 				       							<button class="btn btn-info" ng-click="onFilterGroup()" style="margin-right:2px" ng-mouseenter="onEnter('filterSearch')" ng-mouseleave="onLeave('filterSearch')"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
@@ -518,20 +518,24 @@
 				       		<div class="some-edit-content hide-me" style="width:100%;">
 				       			<div style="padding-top:15%">
 				       				<div class="title-message">Creat new alram rule</div>
-						       		<input type="text" placeholder="Appalication Name" name="applicationName" style="width:50%;"/>
-					       			<br/>
-					       			<input type="text" placeholder="Rule Name" name="rule" style="width:50%;"/>
+				       				<select name="application" style="width:50%">
+		                                <option ng-repeat="app in applications" value="{{app.text}}">{{app.text}}</option>
+		                            </select>
+					       			<br/><br/>
+					       			<select name="rule" style="width:50%">
+		                                <option ng-repeat="rule in rules" value="{{rule.text}}">{{rule.text}}</option>
+		                            </select>
 					       			<br/><br/>
 					       			<div style="display:inline-block;width:50%;text-align:left;">
-						       			<label>Limits</label> <input type="number" value="1" placeholder="Limits" name="limits" style="width:50px"/>
-						       			<input type="checkbox" placeholder="SMS" name="sms" style="margin-left:40px;"/><label>SMS</label>
-						       			<input type="checkbox" placeholder="Email" name="email" style="margin-left:40px"/><label>Email</label>
+						       			<label>Threshold</label> <input type="number" value="1" placeholder="Threshold" name="threshold" style="width:50px"/>
+						       			<input type="checkbox" placeholder="SMS" name="sms" style="margin-left:30px;"/><label>SMS</label>
+						       			<input type="checkbox" placeholder="Email" name="email" style="margin-left:30px"/><label>Email</label>
 					       			</div>
 					       			<br/><br/>
 					       			<textarea placeholder="Note" name="note" style="width:50%;height:120px"></textarea>
 					       			<div style="padding-top:1px;">
-					       				<button class="btn btn-info left" style="margin-left:25%"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
-					       				<button class="btn btn-info right" style="margin-right:25%"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
+					       				<button class="btn btn-info left" style="margin-left:25%" ng-click="onCancelEdit()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+					       				<button class="btn btn-info right" style="margin-right:25%" ng-click="onApplyEdit()"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
 					       			</div>
 				       			</div>
 				       		</div>

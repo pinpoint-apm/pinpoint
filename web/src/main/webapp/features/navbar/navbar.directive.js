@@ -294,6 +294,7 @@
 	                    $http.get(cfg.applicationUrl).success(function (data, status) {
 	                        if (angular.isArray(data) === false || data.length === 0) {
 	                            scope.applications[0].text = 'Application not found.';
+	                            $rootScope.$broadcast("alarmRule.applications.set", scope.applications);
 	                        } else {
 	                            parseApplicationList(data, function () {
 	                                scope.disableApplication = false;
@@ -305,6 +306,7 @@
 	                                        scope.application = oNavbarVoService.getApplication();
 	                                    }
 	                                });
+	                                $rootScope.$broadcast("alarmRule.applications.set", scope.applications);
 	                            });
 	                        }
 	                        scope.hideFakeApplication = true;

@@ -129,8 +129,8 @@
 					"email": userEmail
 				}; 
 				$ajaxService.createPinpointUser(oNewUser, function( resultData ) {
-					if ( resultData.errorcode ) {
-						showAlert( resutlData.errormessage );
+					if ( resultData.errorCode ) {
+						showAlert( resultData.errorMessage );
 					} else {
 						// @TODO
 						// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
@@ -152,8 +152,8 @@
 					"email": userEmail
 				}; 
 				$ajaxService.updatePinpointUser(oUpdateUser, function( resultData ) {
-					if ( resultData.errorcode || resultData.exception ) {
-						showAlert( resutlData.errormessage );
+					if ( resultData.errorCode || resultData.exception ) {
+						showAlert( resultData.errorMessage );
 					} else {
 						// @TODO
 						// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
@@ -174,8 +174,8 @@
 			}
 			function removeUser( userID ) {
 				$ajaxService.removePinpointUser( { "userId": userID }, function( resultData ) {
-					if ( resultData.errorcode ) {
-						showAlert( resutlData.errormessage );
+					if ( resultData.errorCode ) {
+						showAlert( resultData.errorMessage );
 					} else {
 						// @TODO
 						// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
@@ -196,8 +196,8 @@
 			}
 			function loadList( isFirst ) {
 				$ajaxService.getPinpointUserList( function( resultData ) {
-					if ( resultData.errorcode ) {
-						showAlert( resultData.errormessage );
+					if ( resultData.errorCode ) {
+						showAlert( resultData.errorMessage );
 						// @TODO
 						// 에러 처리
 					} else {

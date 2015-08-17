@@ -112,8 +112,8 @@
 			}
 			function createGroup( name ) {
 				$ajaxService.createUserGroup( { "id": name }, function( resultData ) {
-					if ( resultData.errorcode ) {
-						showAlert( resutlData.errormessage );
+					if ( resultData.errorCode ) {
+						showAlert( resultData.errorMessage );
 					} else {
 						// @TODO
 						// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
@@ -131,8 +131,8 @@
 			}
 			function updateGroup( number, name ) {
 				$ajaxService.updateUserGroup( { "number": number, "id": name }, function( resultData ) {
-					if ( resultData.errorcode || resultData.exception ) {
-						showAlert( resutlData.errormessage );
+					if ( resultData.errorCode ) {
+						showAlert( resultData.errorMessage );
 					} else {
 						// @TODO
 						// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
@@ -149,8 +149,8 @@
 			}
 			function removeGroup( number, name ) {
 				$ajaxService.removeUserGroup( { "id": name }, function( resultData ) {
-					if ( resultData.errorcode ) {
-						showAlert( resutlData.errormessage );
+					if ( resultData.errorCode ) {
+						showAlert( resultData.errorMessage );
 					} else {
 						// @TODO
 						// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
@@ -170,8 +170,8 @@
 			}
 			function loadGroupList( isFirst ) {
 				$ajaxService.getUserGroupList( function( resultData ) {
-					if ( resultData.errorcode ) {
-						showAlert( resultData.errormessage );
+					if ( resultData.errorCode ) {
+						showAlert( resultData.errorMessage );
 						// @TODO
 						// 에러 처리
 					} else {
@@ -214,6 +214,7 @@
 			function loadGroupMember( userGroupID ) {
 				$scope.$parent.$broadcast( "alarmGroupMember.configuration.load", userGroupID );
 				$scope.$parent.$broadcast( "alarmPinpointUser.configuration.load", userGroupID );
+				$scope.$parent.$broadcast( "alarmRule.configuration.load", userGroupID );
 			}
 			
 			$scope.prefix = "alarmUserGroup_";
