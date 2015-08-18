@@ -24,9 +24,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.awt.Container;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -48,7 +52,7 @@ import com.navercorp.pinpoint.web.dao.AlarmDao;
 /**
  * @author minwoo.jung
  */
-@Ignore
+//@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration(locations = {"classpath:servlet-context.xml", "classpath:applicationContext-web.xml"})
@@ -181,6 +185,20 @@ public class AlarmControllerTest {
 //                        .andExpect(jsonPath("$", hasKey("result")))
 //                        .andExpect(jsonPath("$.result").value("SUCCESS"))
 //                        .andReturn();
+    }
+    
+    @Test
+    public void checkerTest() throws Exception {
+        MvcResult result = this.mockMvc.perform(get("/alarmRule/checker.pinpoint").contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(status().isOk())
+                                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                                .andExpect(jsonPath("$").isArray())
+                                .andReturn();
+        
+        String content = result.getResponse().getContentAsString();
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<String> checherList = objectMapper.readValue(content, List.class);
+        Assert.assertNotEquals(checherList.size(), 0);
     }
     
 }
