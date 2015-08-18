@@ -84,7 +84,7 @@ public class TotalCountToCalleCheckerTest {
     public void checkTest() {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
         MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.TOTAL_COUNT_TO_CALLE.getName(), 10, "testGroup", false, false, TO_SERVICE_NAME + 1);
+        Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.TOTAL_COUNT_TO_CALLEE.getName(), 10, "testGroup", false, false, TO_SERVICE_NAME + 1);
         TotalCountToCalleeChecker checker = new TotalCountToCalleeChecker(dataCollector, rule);
         
         checker.check();
@@ -95,7 +95,7 @@ public class TotalCountToCalleCheckerTest {
     public void checkTest2() {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
         MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.TOTAL_COUNT_TO_CALLE.getName(), 11, "testGroup", false, false, TO_SERVICE_NAME + 1);
+        Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.TOTAL_COUNT_TO_CALLEE.getName(), 11, "testGroup", false, false, TO_SERVICE_NAME + 1);
         TotalCountToCalleeChecker checker = new TotalCountToCalleeChecker(dataCollector, rule);
         
         checker.check();
@@ -106,7 +106,7 @@ public class TotalCountToCalleCheckerTest {
     public void checkTest3() {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
         MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.TOTAL_COUNT_TO_CALLE.getName(), 10, "testGroup", false, false, TO_SERVICE_NAME + 2);
+        Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.TOTAL_COUNT_TO_CALLEE.getName(), 10, "testGroup", false, false, TO_SERVICE_NAME + 2);
         TotalCountToCalleeChecker checker = new TotalCountToCalleeChecker(dataCollector, rule);
         
         checker.check();
