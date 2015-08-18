@@ -28,7 +28,7 @@ import org.junit.Test;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
-import com.navercorp.pinpoint.web.alarm.checker.ErrorRateToCalleChecker;
+import com.navercorp.pinpoint.web.alarm.checker.ErrorRateToCalleeChecker;
 import com.navercorp.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
@@ -90,8 +90,8 @@ public class ErrorRateToCalleCheckerTest {
     public void checkTest() {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
         MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.ERROR_RATE_TO_CALLE.getName(), 50, "testGroup", false, false, TO_SERVICE_NAME + 1);
-        ErrorRateToCalleChecker checker = new ErrorRateToCalleChecker(dataCollector, rule);
+        Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.ERROR_RATE_TO_CALLEE.getName(), 50, "testGroup", false, false, TO_SERVICE_NAME + 1);
+        ErrorRateToCalleeChecker checker = new ErrorRateToCalleeChecker(dataCollector, rule);
         
         checker.check();
         assertTrue(checker.isDetected());
@@ -101,8 +101,8 @@ public class ErrorRateToCalleCheckerTest {
     public void checkTest2() {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
         MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.ERROR_RATE_TO_CALLE.getName(), 51, "testGroup", false, false, TO_SERVICE_NAME + 1);
-        ErrorRateToCalleChecker checker = new ErrorRateToCalleChecker(dataCollector, rule);
+        Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.ERROR_RATE_TO_CALLEE.getName(), 51, "testGroup", false, false, TO_SERVICE_NAME + 1);
+        ErrorRateToCalleeChecker checker = new ErrorRateToCalleeChecker(dataCollector, rule);
         
         checker.check();
         assertFalse(checker.isDetected());
@@ -112,8 +112,8 @@ public class ErrorRateToCalleCheckerTest {
     public void checkTest3() {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
         MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.ERROR_RATE_TO_CALLE.getName(), 50, "testGroup", false, false, TO_SERVICE_NAME + 2);
-        ErrorRateToCalleChecker checker = new ErrorRateToCalleChecker(dataCollector, rule);
+        Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.ERROR_RATE_TO_CALLEE.getName(), 50, "testGroup", false, false, TO_SERVICE_NAME + 2);
+        ErrorRateToCalleeChecker checker = new ErrorRateToCalleeChecker(dataCollector, rule);
         
         checker.check();
         assertTrue(checker.isDetected());
