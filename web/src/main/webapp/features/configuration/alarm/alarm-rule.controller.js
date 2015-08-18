@@ -33,7 +33,7 @@
 			var $elEditTextareaNotes = $elEdit.find("textarea");
 			var $elEditGuide = $elEdit.find(".title-message");
 			var $removeTemplate = $([
-	           '<span class="right">',
+	           '<span class="removeTemplate">',
 	               '<button class="btn btn-danger confirm-cancel"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>',
 	               '<button class="btn btn-danger confirm-remove" style="margin-left:2px;"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>',
    			   '</span>'
@@ -47,7 +47,7 @@
 			
 			
 
-			var $elUL = $element.find(".some-list-content tbody");
+			var $elUL = $element.find(".some-list-content .wrapper tbody");
 			$elUL.on("dblclick", "tr", function($event) {
 				$scope.onUpdate( $event );
 			}).on("dblclick", "td", function($event) {
@@ -55,17 +55,16 @@
 			}).on("click", "button.move", function($event) {
 			}).on("click", "span.remove", function($event) {
 				isRemoving = true;
-				$($event.toElement).parent().addClass("remove").find("span.remove").hide().end().find("button.move").addClass("disabled").end().append($removeTemplate);
+				$($event.toElement).parent().addClass("remove").parent().addClass("remove").find("span.remove").hide().end().end().append($removeTemplate);
 			}).on("click", "button.confirm-cancel", function($event) {
-				$($event.toElement).parents("li.remove")
-					.find("span.right").remove().end()
+				$($event.toElement).parents("td")
+					.find("span.removeTemplate").remove().end()
 					.find("span.remove").show().end()
-					.find("button.move").removeClass("disabled").end()
-					.removeClass("remove");
+					.removeClass("remove").parent().removeClass("remove");
 				isRemoving = false;
 			}).on("click", "button.confirm-remove", function($event) {
 				showLoading( false );
-				removeUser( $($event.toElement).parents("li.remove").prop("id").split("_")[1] );
+				removeUser( $($event.toElement).parents("tr").prop("id").split("_")[1] );
 			});
 			
 			var enterLeaveData = [
@@ -218,28 +217,27 @@
 					}
 				});
 			}
-//			function removeUser( userID ) {
-//				$ajaxService.removePinpointUser( { "userId": userID }, function( resultData ) {
-//					if ( resultData.errorCode ) {
-//						showAlert( resultData.errorMessage );
-//					} else {
-//						// @TODO
-//						// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
-//						$scope.$apply(function() {
-//							for( var i = 0 ; i < ruleList.length ; i++ ) {
-//								if ( ruleList[i].userId == userID ) {
-//									ruleList.splice(i, 1);
-//									break;
-//								}
-//							}
-//							setTotal(ruleList.length);
-//							hide( $elLoading );
-//							isRemoving = false;
-//							removedUser( userID );
-//						});
-//					}
-//				});
-//			}
+			function removeUser( ruleID ) {
+				$ajaxService.removeRule( { "ruleId": ruleID }, function( resultData ) {
+					if ( resultData.errorCode ) {
+						showAlert( resultData.errorMessage );
+					} else {
+						// @TODO
+						// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
+						$scope.$apply(function() {
+							for( var i = 0 ; i < ruleList.length ; i++ ) {
+								if ( ruleList[i].ruleId == ruleID ) {
+									ruleList.splice(i, 1);
+									break;
+								}
+							}
+							setTotal(ruleList.length);
+							hide( $elLoading );
+							isRemoving = false;
+						});
+					}
+				});
+			}
 			function loadList( isFirst ) {
 				$ajaxService.getRuleList( { "userGroupId": currentUserGroupID }, function( resultData ) {
 					if ( resultData.errorCode ) {
@@ -258,6 +256,26 @@
 						hide( $elLoading );
 						$scope.onLeave();
 						
+					}
+				});				
+			};
+			function loadRuleSet() {
+				if ( $scope.ruleSets.length > 1 ) return;
+				$ajaxService.getRuleSet(function( resultData ) {
+					if ( resultData.errorCode ) {
+						showAlert( resultData.errorMessage );
+						// @TODO
+						// 에러 처리
+					} else {
+						// @TODO
+						// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
+						$scope.$apply(function() {
+							for( var i = 0 ; i < resultData.length ; i++ ) {
+								$scope.ruleSets.push( {
+									"text": resultData[i]
+								});
+							}
+						});
 					}
 				});				
 			};
@@ -285,11 +303,7 @@
 				$scope.$parent.$broadcast( "alarmGroupMember.configuration.load", userGroupID );
 			}
 			
-			$scope.rules = [
-			    { "text": "" },
-                { "text": "JVM_CPU_USAGE_RATE" },
-                { "text": "ERROR_COUNT" }
-			];
+			$scope.ruleSets = [ {"text": ""} ];
 			$scope.onRefresh = function() {
 				if ( isRemoving == true ) return;
 				
@@ -473,6 +487,7 @@
 				currentUserGroupID = userGroupID;
 //				if ( isLoadedRuleList === false ) {
 					loadList( true );
+					loadRuleSet();
 //				}
 			});
 			$scope.$on("alarmRule.applications.set", function( event, applicationData ) {

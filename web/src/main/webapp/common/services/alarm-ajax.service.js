@@ -12,97 +12,61 @@
 		group: "/userGroup.pinpoint", //POST, GET, PUT, DELETE
 		groupMember: "/userGroup/member.pinpoint",
 		pinpointUser: "/user.pinpoint",
-		alramRule: "/alarmRule.pinpoint",
-		ruleList: ""
+		alarmRule: "/alarmRule.pinpoint",
+		alarmRuleSet: "/alarmRule/checker.pinpoint"
 	});
 	
 	pinpointApp.service('AlarmAjaxService', [ 'AlarmAjaxServiceConfig', function ($config) {
 		this.getUserGroupList = function(callback) {
-			$.ajax($config.group, {
-				type: "GET"
-			}).done(function(result) {
-				callback(result);
-			}).fail(function(error) {
-				callback(error);
-			});
+			retrieve($config.group, {}, callback);
 		};
 		this.createUserGroup = function(data, callback ) {
-			$.ajax($config.group, {
-				type: "POST",
-				data: JSON.stringify(data),
-				contentType: "application/json"
-			}).done(function(result) {
-				callback(result);
-			}).fail(function(error) {
-				callback(error);
-			});
+			create($config.group, data, callback);
 		};
 		this.updateUserGroup = function(data, callback ) {
-			$.ajax($config.group, {
-				type: "PUT",
-				data: JSON.stringify(data),
-				contentType: "application/json"
-			}).done(function(result) {
-				callback(result);
-			}).fail(function(error) {
-				callback(error);
-			});
+			update($config.group, data, callback);
 		};
 		this.removeUserGroup = function(data, callback ) {
-			$.ajax($config.group, {
-				type: "DELETE",
-				data: JSON.stringify(data),
-				contentType: "application/json"
-			}).done(function(result) {
-				callback(result);
-			}).fail(function(error) {
-				callback(error);
-			});
+			remove($config.group, data, callback);
 		};
 		this.addMemberInGroup = function(data, callback ) {
-			console.log( "addMember :", data );
-			$.ajax($config.groupMember, {
-				type: "POST",
-				data: JSON.stringify(data),
-				contentType: "application/json"
-			}).done(function(result) {
-				callback(result);
-			}).fail(function(error) {
-				callback(error);
-			});
+			create($config.groupMember, data, callback);
 		};
 		this.getGroupMemberListInGroup = function(data, callback) {
-			$.ajax($config.groupMember, {
-				type: "GET",
-				data: data
-			}).done(function(result) {
-				callback(result);
-			}).fail(function(error) {
-				callback(error);
-			});
+			retrieve($config.groupMember, data, callback);
 		};
 		this.removeMemberInGroup = function(data, callback) {
-			$.ajax($config.groupMember, {
-				type: "DELETE",
-				data: JSON.stringify(data),
-				contentType: "application/json"
-			}).done(function(result) {
-				callback(result);
-			}).fail(function(error) {
-				callback(error);
-			});
+			remove($config.groupMember, data, callback);
 		};
 		this.getPinpointUserList = function(callback) {
-			$.ajax($config.pinpointUser, {
-				type: "GET"
-			}).done(function(result) {
-				callback(result);
-			}).fail(function(error) {
-				callback(error);
-			});
+			retrieve($config.pinpointUser, {}, callback);
 		};
 		this.createPinpointUser = function(data, callback ) {
-			$.ajax($config.pinpointUser, {
+			create($config.pinpointUser, data, callback);
+		};
+		this.updatePinpointUser = function(data, callback ) {
+			update($config.pinpointUser, data, callback);
+		};
+		this.removePinpointUser = function(data, callback ) {
+			remove($config.pinpointUser, data, callback);
+		};		
+		this.getRuleList = function(data, callback) {
+			retrieve($config.alarmRule, data, callback);
+		};
+		this.createRule = function(data, callback ) {
+			create($config.alarmRule, data, callback);
+		};
+		this.updateRule = function(data, callback ) {
+			update($config.alarmRule, data, callback);
+		};
+		this.removeRule = function(data, callback ) {
+			remove($config.alarmRule, data, callback);
+		};	
+		this.getRuleSet = function(callback) {
+			retrieve($config.alarmRuleSet, {}, callback);
+		}
+		function create(url, data, callback) {
+			$.ajax(url, {
 				type: "POST",
 				data: JSON.stringify(data),
 				contentType: "application/json"
@@ -111,9 +75,9 @@
 			}).fail(function(error) {
 				callback(error);
 			});
-		};
-		this.updatePinpointUser = function(data, callback ) {
-			$.ajax($config.pinpointUser, {
+		}
+		function update(url, data, callback) {
+			$.ajax(url, {
 				type: "PUT",
 				data: JSON.stringify(data),
 				contentType: "application/json"
@@ -122,9 +86,9 @@
 			}).fail(function(error) {
 				callback(error);
 			});
-		};
-		this.removePinpointUser = function(data, callback ) {
-			$.ajax($config.pinpointUser, {
+		}
+		function remove(url, data, callback) {
+			$.ajax(url, {
 				type: "DELETE",
 				data: JSON.stringify(data),
 				contentType: "application/json"
@@ -133,9 +97,9 @@
 			}).fail(function(error) {
 				callback(error);
 			});
-		};		
-		this.getRuleList = function(data, callback) {
-			$.ajax($config.alramRule, {
+		}
+		function retrieve(url, data, callback) {
+			$.ajax(url, {
 				type: "GET",
 				data: data
 			}).done(function(result) {
@@ -143,28 +107,6 @@
 			}).fail(function(error) {
 				callback(error);
 			});
-		};
-		this.createRule = function(data, callback ) {
-			$.ajax($config.alramRule, {
-				type: "POST",
-				data: JSON.stringify(data),
-				contentType: "application/json"
-			}).done(function(result) {
-				callback(result);
-			}).fail(function(error) {
-				callback(error);
-			});
-		};
-		this.updateRule = function(data, callback ) {
-			$.ajax($config.alramRule, {
-				type: "PUT",
-				data: JSON.stringify(data),
-				contentType: "application/json"
-			}).done(function(result) {
-				callback(result);
-			}).fail(function(error) {
-				callback(error);
-			});
-		};
+		}
 	}]);
 })(jQuery);

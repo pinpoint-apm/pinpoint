@@ -394,7 +394,7 @@
 				       		</div>
 			            	<div class="some-list-content">
 				       			<div class="wrapper"><ul>
-				       				<li ng-repeat="groupMember in groupMemberList" id="{{prefix + groupMember.memberId}}"><span class="contents">{{groupMember.memberId}}</span><span class="remove">x</span></li>
+				       				<li ng-repeat="groupMember in groupMemberList" id="{{prefix + groupMember.memberId}}"><span class="contents">({{groupMember.department}}){{groupMember.name}}</span><span class="remove">x</span></li>
 				       			</ul></div>
 				       			<div class="guide-message"></div>
 				       			<div class="filter-input">
@@ -494,19 +494,13 @@
 				       			<div class="filter-input">
 				       				<table>
 				       					<colgroup>
-				       						<col width="30%"/>
+				       						<col width="40%"/>
+				       						<col width="35%"/>
 				       						<col width="25%"/>
-				       						<col width="10%"/>
-				       						<col width="9%"/>
-				       						<col width="9%"/>
-				       						<col width="28%"/>
 				       					</colgroup>
 				       					<tr>
-				       						<td><input type="text" placeholder="Application name" style="width:94%"/></td>
-				       						<td><input type="text" placeholder="Rule name" style="width:94%"/></td>
-				       						<td><input type="text" placeholder="Threshold" style="width:94%"/></td>
-				       						<td><input type="checkbox" placeholder="SMS" id="rule_filter_sms" style="width:20%"/><label for="rule_filter_sms" style="color:#A9A9A9;font-size:13px;margin-left:1px;">SMS</label></td>
-				       						<td><input type="checkbox" placeholder="Email" id="rule_filter_email" style="width:20%"/><label for="rule_filter_email" style="color:#A9A9A9;font-size:13px;margin-left:1px;">Email</label></td>
+				       						<td><input type="text" placeholder="Application name" style="width:98%"/></td>
+				       						<td><input type="text" placeholder="Rule name" style="width:100%"/></td>
 				       						<td>
 				       							<button class="btn btn-info disabled trash" ng-click="onFilterEmpty()" ng-mouseenter="onEnter('filterEmpty')" ng-mouseleave="onLeave('filterEmpty')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
 				       							<button class="btn btn-info" ng-click="onFilterGroup()" style="margin-right:2px" ng-mouseenter="onEnter('filterSearch')" ng-mouseleave="onLeave('filterSearch')"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
@@ -523,7 +517,7 @@
 		                            </select>
 					       			<br/><br/>
 					       			<select name="rule" style="width:50%">
-		                                <option ng-repeat="rule in rules" value="{{rule.text}}">{{rule.text}}</option>
+		                                <option ng-repeat="rule in ruleSets" value="{{rule.text}}">{{rule.text}}</option>
 		                            </select>
 					       			<br/><br/>
 					       			<div style="display:inline-block;width:50%;text-align:left;">

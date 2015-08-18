@@ -333,17 +333,25 @@
 	border-bottom: 1px solid #F8F8F8;
 	cursor: pointer;
 }
-#pinpoint-configuration .some-table .some-list-content tbody tr:hover {
+#pinpoint-configuration .some-table .some-list-content .wrapper tbody tr:hover {
 	background-color: #928484;
 	color: #FFF;
 }
-#pinpoint-configuration .some-table .some-list-content tbody tr td:first-child {
+#pinpoint-configuration .some-table .some-list-content .wrapper tbody tr td:first-child {
 	text-align: left;
 	padding-left: 4px;
 }
-#pinpoint-configuration .some-table .some-list-content tbody tr td:last-child {
+#pinpoint-configuration .some-table .some-list-content .wrapper tbody tr td:last-child {
 	padding-right: 10px;
 	padding-left: 5px;
+}
+#pinpoint-configuration .some-table .some-list-content .wrapper tbody tr.remove {
+	background-color: #EFABAB;
+	text-decoration: line-through;
+}
+#pinpoint-configuration .some-table .some-list-content .wrapper tbody td.remove {
+	position: absolute;
+	right: 24px;
 }
 #pinpoint-configuration .some-table .filter-input {
 	position: relative;

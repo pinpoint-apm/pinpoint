@@ -91,6 +91,24 @@
 			function callbackAddUser( bIsSuccess ) {
 				$scope.$parent.$broadcast( "alarmPinpointUser.configuration.addUserCallback", bIsSuccess );
 			}
+			function updateFromList( oUser ) {
+				if ( $scope.groupMemberList != groupMemberList ) {
+					for( var i = 0 ; i < groupMemberList.length ; i++ ) {
+						if ( groupMemberList[i].memberId == oUser.memberId ) {
+							groupMemberList[i].name = oUser.name;
+							groupMemberList[i].department = oUser.department;
+							break;
+						}
+					}	
+				}
+				for( var i = 0 ; i < $scope.groupMemberList.length ; i++ ) {
+					if ( $scope.groupMemberList[i].memberId == oUser.memberId ) {
+						groupMemberList[i].name = oUser.name;
+						groupMemberList[i].department = oUser.department;
+						break;
+					}
+				}
+			}
 			function removeFromList( memberID ) {
 				if ( $scope.groupMemberList != groupMemberList ) {
 					for( var i = 0 ; i < groupMemberList.length ; i++ ) {
@@ -289,9 +307,8 @@
 				}
 			});
 			$scope.$on("alarmGroupMember.configuration.updateUser", function( event, oUser )  {
-				// 사용자 정보 갱신됨( 부서, 이름 )
 				if ( hasUser( oUser.userId ) ) {
-					//updateFromList( oUser );
+					updateFromList( oUser );
 				}
 			});
 			$scope.$on("alarmGroupMember.configuration.removeUser", function( event, userID )  {
