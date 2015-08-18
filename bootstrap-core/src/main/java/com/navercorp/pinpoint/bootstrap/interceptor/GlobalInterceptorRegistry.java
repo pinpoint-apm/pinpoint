@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
+
 /**
  * for test
  * @author emeroad
@@ -36,7 +37,7 @@ public class GlobalInterceptorRegistry {
         return REGISTRY.getStaticInterceptor(key);
     }
 
-    public static Interceptor findInterceptor(int key) {
+    public static InterceptorInstance findInterceptor(int key) {
         return REGISTRY.findInterceptor(key);
     }
 

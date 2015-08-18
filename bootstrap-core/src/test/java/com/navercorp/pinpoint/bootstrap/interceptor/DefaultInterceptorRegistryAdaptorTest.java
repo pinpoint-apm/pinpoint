@@ -61,24 +61,4 @@ public class DefaultInterceptorRegistryAdaptorTest {
 
         Assert.assertSame(mock, find);
     }
-
-    @Test
-    public void findInterceptor() {
-        SimpleAroundInterceptor mock0 = mock(SimpleAroundInterceptor.class);
-        StaticAroundInterceptor mock1 = mock(StaticAroundInterceptor.class);
-
-        InterceptorRegistryAdaptor registry = new DefaultInterceptorRegistryAdaptor();
-        int key1 = registry.addSimpleInterceptor(mock0);
-        Assert.assertEquals(key1, 0);
-        int key2 = registry.addStaticInterceptor(mock1);
-        Assert.assertEquals(key2, 1);
-        Interceptor interceptor0 = registry.findInterceptor(0);
-        Assert.assertNotNull(interceptor0);
-        Assert.assertSame(interceptor0, mock0);
-        Interceptor interceptor1 = registry.findInterceptor(1);
-        Assert.assertNotNull(interceptor1);
-        Assert.assertSame(interceptor1, mock1);
-
-    }
-
 }

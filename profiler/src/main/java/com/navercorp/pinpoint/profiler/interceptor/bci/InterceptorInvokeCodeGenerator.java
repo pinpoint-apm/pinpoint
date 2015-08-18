@@ -19,7 +19,7 @@ import java.lang.reflect.Modifier;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorExceptionHandler;
+import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInvokerHelper;
 import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
@@ -69,7 +69,7 @@ public class InterceptorInvokeCodeGenerator {
         // try {
         //     (($INTERCEPTOR_TYPE)InterceptorRegistry.findInterceptor($INTERCEPTOR_ID)).$INTERCEPTOR_METHOD_NAME($ARGUMENTS);
         // } catch (Throwable t) {
-        //     InterceptorExceptionHandler.handleException(t);
+        //     InterceptorInvokerHelper.handleException(t);
         // }
 
         builder.append("try { ");
@@ -79,7 +79,7 @@ public class InterceptorInvokeCodeGenerator {
 
         appendArguments(builder);
 
-        builder.format("); } catch (java.lang.Throwable _$PINPOINT_EXCEPTION$_) { %1$s.handleException(_$PINPOINT_EXCEPTION$_); }", InterceptorExceptionHandler.class.getName());
+        builder.format("); } catch (java.lang.Throwable _$PINPOINT_EXCEPTION$_) { %1$s.handleException(_$PINPOINT_EXCEPTION$_); }", InterceptorInvokerHelper.class.getName());
         
         if (inCatch) {
             builder.append(" throw $e;");
@@ -101,7 +101,7 @@ public class InterceptorInvokeCodeGenerator {
             break;
             
         case CUSTOM:
-            builder.format("((%1$s)%2$s.getStaticInterceptor(%2$d))", interceptorClass.getName(), InterceptorRegistry.class.getName(), interceptorId);
+            builder.format("((%1$s)%2$s.getStaticInterceptor(%3$d))", interceptorClass.getName(), InterceptorRegistry.class.getName(), interceptorId);
             break;
         }
     }

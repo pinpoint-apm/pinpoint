@@ -31,7 +31,7 @@ public class DefaultInterceptorGroup implements InterceptorGroup {
 
             @Override
             protected InterceptorGroupInvocation initialValue() {
-                return new DefaultInterceptorStack(name);
+                return new DefaultInterceptorGroupInvocation(name);
             }
             
         };

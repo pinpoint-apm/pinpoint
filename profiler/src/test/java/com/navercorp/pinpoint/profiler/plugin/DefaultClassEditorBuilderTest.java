@@ -26,11 +26,13 @@ import org.junit.Test;
 import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.plugin.transformer.DefaultClassFileTransformerBuilder;
@@ -41,12 +43,13 @@ public class DefaultClassEditorBuilderTest {
 
     @Test
     public void test() throws Exception {
-        ByteCodeInstrumentor instrumentor = mock(ByteCodeInstrumentor.class);
+        InstrumentClassPool pool = mock(InstrumentClassPool.class);
         TraceContext traceContext = mock(TraceContext.class);
         InstrumentClass aClass = mock(InstrumentClass.class);
         InstrumentMethod aMethod = mock(InstrumentMethod.class);
         MethodDescriptor aDescriptor = mock(MethodDescriptor.class);
         DefaultAgent agent = mock(DefaultAgent.class);
+        DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(agent, new TestProfilerPluginClassLoader());
         
         ClassLoader classLoader = getClass().getClassLoader();
         String className = "someClass";
@@ -55,16 +58,15 @@ public class DefaultClassEditorBuilderTest {
         Class<?>[] parameterTypes = new Class<?>[] { String.class };
         String[] parameterTypeNames = TypeUtils.toClassNames(parameterTypes);
         
-        when(agent.getByteCodeInstrumentor()).thenReturn(instrumentor);
+        when(agent.getClassPool()).thenReturn(pool);
         when(agent.getTraceContext()).thenReturn(traceContext);
-        when(instrumentor.getClass(classLoader, className, classFileBuffer)).thenReturn(aClass);
+        when(pool.getClass(context, classLoader, className, classFileBuffer)).thenReturn(aClass);
         when(aClass.getDeclaredMethod(methodName, parameterTypeNames)).thenReturn(aMethod);
         when(aMethod.getName()).thenReturn(methodName);
         when(aMethod.getParameterTypes()).thenReturn(parameterTypeNames);
         when(aMethod.getDescriptor()).thenReturn(aDescriptor);
         when(aClass.addInterceptor(eq(methodName), eq(parameterTypeNames), isA(Interceptor.class))).thenReturn(0);
         
-        DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(agent, new TestProfilerPluginClassLoader());
         
         DefaultClassFileTransformerBuilder builder = new DefaultClassFileTransformerBuilder(context, "TargetClass");
         builder.injectMetadata("a", "java.util.HashMap");
@@ -77,7 +79,7 @@ public class DefaultClassEditorBuilderTest {
         
         transformer.transform(classLoader, className, null, null, classFileBuffer);
         
-        verify(aClass).addInterceptor(eq(methodName), isA(String[].class), isA(Interceptor.class));
+        verify(aMethod).addInterceptor(eq("com.navercorp.pinpoint.profiler.plugin.TestInterceptor"), (InterceptorGroup)isNull(), (ExecutionPolicy)isNull(), eq("provided"));
         verify(aClass).addTraceValue(MetadataAccessor.get(0).getType(), "new java.util.HashMap();");
         verify(aClass).addGetter(FieldAccessor.get(0).getType(), "someField");
     }
