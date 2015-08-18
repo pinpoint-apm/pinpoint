@@ -22,7 +22,8 @@
 			var $elLoading = $element.find(".some-loading");
 			var $elAlert = $element.find(".some-alert");
 			var $elGuideMessage = $element.find(".guide-message");
-			var $elFilterInput = $element.find("div.filter-input input");
+			var $elFilterInputApplication = $element.find("div.filter-input input[name=filterApplication]");
+			var $elFilterInputRule = $element.find("div.filter-input input[name=filterRule]");
 			var $elFilterEmpty = $element.find("div.filter-input button.trash");
 			var $elEdit = $element.find(".some-edit-content");
 			var $elEditSelectApplication = $elEdit.find("select[name=application]");
@@ -45,8 +46,6 @@
 			var isRemoving = false;
 			var ruleList = $scope.ruleList = [];
 			
-			
-
 			var $elUL = $element.find(".some-list-content .wrapper tbody");
 			$elUL.on("dblclick", "tr", function($event) {
 				$scope.onUpdate( $event );
@@ -288,11 +287,11 @@
 			function unsetFilterBackground() {
 				$elWrapper.css("background-color", "#FFF");
 			};
-			function hasDuplicateID( userID ) {
+			function hasDuplicateRule( application, rule ) {
 				var len = ruleList.length;
 				var has = false;
 				for( var i = 0 ; i < ruleList.length ; i++ ) {
-					if ( ruleList[i].userId == userID ) {
+					if ( ruleList[i].applicationId == application && ruleList[i].ruleId == rule ) {
 						has = true;
 						break;
 					}
@@ -355,7 +354,7 @@
 					$scope.onFilterGroup();
 					return;
 				}
-				if ($.trim( $elFilterInput.val() ).length >= 3 ) {
+				if ($.trim( $elFilterInputApplication.val() ).length >= 3 || $.trim( $elFilterInputRule.val() ).length) {
 					$elFilterEmpty.removeClass("disabled");
 				} else {
 					$elFilterEmpty.addClass("disabled");
@@ -363,39 +362,50 @@
 			};
 			$scope.onFilterGroup = function() {
 				if ( isRemoving == true ) return;
-				var query = $.trim( $elFilterInput.val() );
-				if ( query.length != 0 && query.length < 3 ) {
+				var queryApplication = $.trim( $elFilterInputApplication.val() );
+				var queryRule = $.trim( $elFilterInputRule.val() );
+				
+				if ( (queryApplication.length != 0 && queryApplication.length < 3) || (queryRule.length != 0 && queryRule.length < 3)  ) {
 					$scope.onEnter("greater2");
 					return;
 				}
-				if ( query == "" ) {
+				if ( queryApplication == "" && queryRule == "" ) {
 					if ( $scope.ruleList.length != ruleList.length ) {
 						$scope.ruleList = ruleList;
 						unsetFilterBackground();
 					}
 					$elFilterEmpty.addClass("disabled");
 				} else {
-					var newFilterUserGroup = [];
+					var newFilterRules = [];
 					var length = ruleList.length;
 					for( var i = 0 ; i < ruleList.length ; i++ ) {
-						if ( ruleList[i].name.indexOf( query ) != -1 || ruleList[i].department.indexOf( query ) != -1 ) {
-							newFilterUserGroup.push( ruleList[i] );
+						if ( queryApplication == "" ) {
+							if ( ruleList[i].checkerName.indexOf( queryRule ) != -1 ) {
+								newFilterRules.push( ruleList[i] );
+							}
+						} else if ( queryRule == "" ) {
+							if ( ruleList[i].applicationId.indexOf( queryApplication ) != -1 ) {
+								newFilterRules.push( ruleList[i] );
+							}							
+						} else {
+							if ( ruleList[i].applicationId.indexOf( queryApplication ) != -1 && ruleList[i].checkerName.indexOf( queryRule ) != -1 ) {
+								newFilterRules.push( ruleList[i] );
+							}
 						}
 					}
-					$scope.ruleList = newFilterUserGroup;
+					$scope.ruleList = newFilterRules;
 					setFilterBackground();
 				}
 			};
 			$scope.onFilterEmpty = function() {
 				if ( isRemoving == true ) return;
-				if ( $.trim( $elFilterInput.val() ) == "" ) return;
-				$elFilterInput.val("");
+				if ( $.trim( $elFilterInputApplication.val() ) == "" && $.trim( $elFilterInputRule.val() ) == "" ) return;
+				$elFilterInputApplication.val("");
+				$elFilterInputRule.val("");
 				$scope.onFilterGroup();
 			};
 			$scope.onInputEdit = function($event) {
-				if ( $event.keyCode == 13 ) { // Enter
-					$scope.onApplyEdit();
-				} else if ( $event.keyCode == 27 ) { // ESC
+				if ( $event.keyCode == 27 ) { // ESC
 					$scope.onCancelEdit();
 					$event.stopPropagation();
 				}
@@ -404,25 +414,22 @@
 				hide( $elEdit );
 			};
 			$scope.onApplyEdit = function() {
-				console.log("-onApplyEdit");
 				var application = $elEditSelectApplication.select2("val");
 				var rule = $elEditSelectRules.select2( "val");
-				console.log( "apply", $elEditSelectApplication.select2("val"), $elEditSelectRules.select2( "val") );
 				var threshold = $elEditInputThreshold.val();
 				var sms = $elEditCheckboxSMS.prop("checked");
 				var email = $elEditCheckboxEmail.prop("checked");	
 				var notes = $elEditTextareaNotes.val();
 				
-				console.log("-onApplyEdit", application, rule);
 				if ( application == "" || rule == "" ) {
 					$scope.onEnter("notEmpty");
 					return;
 				}				
 				showLoading( true );
-//				if ( hasDuplicateID( userID ) && isCreate == true) {
-//					showAlert( "동일한 userID를 가진 사용자가 이미 있습니다." );
-//					return;
-//				}
+				if ( hasDuplicateRule( application, rule ) && isCreate == true) {
+					showAlert( "동일하게 설정된 ruleSet이 이미 있습니다." );
+					return;
+				}
 				if ( isCreate ) {
 					createRule( application, rule, threshold, sms, email, notes );
 				} else {
