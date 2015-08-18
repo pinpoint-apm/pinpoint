@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
+
 /**
  * @author emeroad
  */
@@ -30,21 +31,15 @@ public final class InterceptorRegistry {
             throw new NullPointerException("interceptorRegistryAdaptor must not be null");
         }
         
-        System.out.println("try to set interceptorRegistryAdator: " + interceptorRegistryAdaptor);
-        
         if (LOCK.lock(lock)) {
             REGISTRY = interceptorRegistryAdaptor;
-            System.out.println("set interceptorRegistryAdator: " + interceptorRegistryAdaptor);
         } else {
             throw new IllegalStateException("bind failed.");
         }
     }
 
     public static void unbind(final Object lock) {
-        System.out.println("try to unset interceptorRegistryAdator: " + REGISTRY);
-        
         if (LOCK.unlock(lock)) {
-            System.out.println("unset interceptorRegistryAdator: " + REGISTRY);
             REGISTRY = null;
         } else {
             throw new IllegalStateException("unbind failed.");
@@ -57,7 +52,7 @@ public final class InterceptorRegistry {
         return REGISTRY.getStaticInterceptor(key);
     }
 
-    public static Interceptor findInterceptor(int key) {
+    public static InterceptorInstance findInterceptor(int key) {
         return REGISTRY.findInterceptor(key);
     }
 

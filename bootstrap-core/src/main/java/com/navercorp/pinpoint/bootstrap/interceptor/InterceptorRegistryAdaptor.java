@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
+
 /**
  * @author emeroad
  */
@@ -9,11 +10,11 @@ public interface InterceptorRegistryAdaptor {
 
     int addSimpleInterceptor(SimpleAroundInterceptor interceptor);
     
-    int addInterceptor(Interceptor interceptor);
+    int addInterceptor(InterceptorInstance interceptor);
     
     StaticAroundInterceptor getStaticInterceptor(int key);
 
-    Interceptor findInterceptor(int key);
+    InterceptorInstance findInterceptor(int key);
 
     SimpleAroundInterceptor getSimpleInterceptor(int key);
 

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.service.AlarmService;
 
@@ -106,4 +108,11 @@ public class AlarmController {
         result.put("result", "SUCCESS");
         return result;
     }
+    
+    @RequestMapping(value = "/checker", method = RequestMethod.GET)
+    @ResponseBody
+    public List<String> getCheckerName() {
+        return CheckerCategory.getNames();
+    }
+    
 }

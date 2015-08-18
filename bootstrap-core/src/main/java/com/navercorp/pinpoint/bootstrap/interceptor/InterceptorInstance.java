@@ -14,26 +14,19 @@
  */
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 
 /**
  * @author Jongho Moon
  *
  */
-public class InterceptorExceptionHandler {
-    private static boolean propagateException = false;
-    private static final Logger logger = Logger.getLogger(InterceptorExceptionHandler.class.getName());
-    
-    public static void handleException(Throwable t) {
-        if (propagateException) {
-            throw new RuntimeException(t);
-        } else {
-            logger.log(Level.WARNING, "Excetpion occured from interceptor", t);
-        }
-    }
-    
-    public static void setPropagateException(boolean propagate) {
-        propagateException = propagate;
-    }
+public interface InterceptorInstance {
+
+    public Interceptor getInterceptor();
+
+    public InterceptorGroup getGroup();
+
+    public ExecutionPolicy getPolicy();
+
 }

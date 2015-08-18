@@ -19,23 +19,23 @@ package com.navercorp.pinpoint.profiler.plugin.transformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
-import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 public class DedicatedClassFileTransformer implements MatchableClassFileTransformer {
-    private final ByteCodeInstrumentor instrumentor;
+    private final ProfilerPluginInstrumentContext context;
 
     private final String targetClassName;
     private final ClassRecipe recipe;
     
     
-    public DedicatedClassFileTransformer(ByteCodeInstrumentor instrumentor, String targetClassName, ClassRecipe recipe) {
-        this.instrumentor = instrumentor;
+    public DedicatedClassFileTransformer(ProfilerPluginInstrumentContext context, String targetClassName, ClassRecipe recipe) {
+        this.context = context;
         this.targetClassName = targetClassName;
         this.recipe = recipe;
     }
@@ -43,7 +43,7 @@ public class DedicatedClassFileTransformer implements MatchableClassFileTransfor
     @Override
     public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         try {
-            InstrumentClass target = instrumentor.getClass(classLoader, className, classfileBuffer);
+            InstrumentClass target = context.getInstrumentClass(classLoader, className, classfileBuffer);
             recipe.edit(classLoader, target);
             return target.toBytecode();
         } catch (PinpointException e) {

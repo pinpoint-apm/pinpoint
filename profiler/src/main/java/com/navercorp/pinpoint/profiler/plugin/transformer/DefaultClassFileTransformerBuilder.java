@@ -129,7 +129,7 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
     @Override
     public MatchableClassFileTransformer build() {
         ClassRecipe recipe = buildClassRecipe(); 
-        return new DedicatedClassFileTransformer(pluginContext.getByteCodeInstrumentor(), targetClassName, recipe);
+        return new DedicatedClassFileTransformer(pluginContext, targetClassName, recipe);
     }
 
     private ClassRecipe buildClassRecipe() {
