@@ -33,7 +33,8 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorExceptionHandler;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
+import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInvokerHelper;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -200,7 +201,7 @@ public class DefaultAgent implements Agent {
 
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime());
         
-        InterceptorExceptionHandler.setPropagateException(profilerConfig.isPropagateInterceptorException());
+        InterceptorInvokerHelper.setPropagateException(profilerConfig.isPropagateInterceptorException());
     }
 
     protected List<DefaultProfilerPluginContext> loadPlugins(AgentOption agentOption) {
@@ -235,7 +236,7 @@ public class DefaultAgent implements Agent {
         return classFileTransformer;
     }
     
-    public JavassistClassPool getClassPool() {
+    public InstrumentClassPool getClassPool() {
         return classPool;
     }
 

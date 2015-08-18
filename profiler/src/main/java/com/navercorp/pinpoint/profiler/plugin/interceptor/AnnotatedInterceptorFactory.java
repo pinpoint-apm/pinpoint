@@ -19,11 +19,9 @@ package com.navercorp.pinpoint.profiler.plugin.interceptor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInstance;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.DefaultInterceptorInstance;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedSimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedStaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
@@ -39,7 +37,7 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
     }
 
     @Override
-    public Interceptor getInterceptor(ClassLoader classLoader, String interceptorClassName, Object[] providedArguments, InterceptorGroup group, ExecutionPolicy policy, InstrumentClass target, InstrumentMethod targetMethod) {
+    public InterceptorInstance getInterceptor(ClassLoader classLoader, String interceptorClassName, Object[] providedArguments, InterceptorGroup group, ExecutionPolicy policy, InstrumentClass target, InstrumentMethod targetMethod) {
         Class<? extends Interceptor> interceptorType = pluginContext.injectClass(classLoader, interceptorClassName);
         
         if (group == null) {
@@ -58,22 +56,6 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
         
         Interceptor interceptor = (Interceptor)factory.createInstance(recipe, interceptorArgumentProvider);
         
-        if (group != null) {
-            interceptor = wrapByGroup(interceptor, group, policy == null ? ExecutionPolicy.BOUNDARY : policy);
-        }
-        
-        return interceptor;
-    }
-    
-    private Interceptor wrapByGroup(Interceptor interceptor, InterceptorGroup group, ExecutionPolicy policy) {
-        // TODO how to handle plain interceptor?
-        
-        if (interceptor instanceof SimpleAroundInterceptor) {
-            return new GroupedSimpleAroundInterceptor((SimpleAroundInterceptor)interceptor, group, policy);
-        }  else if (interceptor instanceof StaticAroundInterceptor) {
-            return new GroupedStaticAroundInterceptor((StaticAroundInterceptor)interceptor, group, policy);
-        }
-        
-        throw new IllegalArgumentException("Unexpected interceptor type: " + interceptor.getClass());
+        return new DefaultInterceptorInstance(interceptor, group, policy);
     }
 }

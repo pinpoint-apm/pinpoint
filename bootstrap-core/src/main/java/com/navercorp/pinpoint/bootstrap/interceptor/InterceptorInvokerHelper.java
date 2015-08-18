@@ -14,26 +14,42 @@
  */
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
  * @author Jongho Moon
  *
  */
-public class InterceptorExceptionHandler {
+public class InterceptorInvokerHelper {
     private static boolean propagateException = false;
-    private static final Logger logger = Logger.getLogger(InterceptorExceptionHandler.class.getName());
+    private static final PLogger logger = PLoggerFactory.getLogger(InterceptorInvokerHelper.class.getName());
+    private static final boolean debugEnabled = logger.isDebugEnabled();
     
     public static void handleException(Throwable t) {
         if (propagateException) {
             throw new RuntimeException(t);
         } else {
-            logger.log(Level.WARNING, "Excetpion occured from interceptor", t);
+            logger.warn("Excetpion occured from interceptor", t);
         }
     }
     
     public static void setPropagateException(boolean propagate) {
         propagateException = propagate;
     }
+    
+    public static void logSkipBeforeByExecutionPolicy(InterceptorInstance holder, InterceptorGroupInvocation invocation, ExecutionPolicy policy) {
+        if (debugEnabled) {
+            logger.debug("Skip before interceptor due to execution policy: interceptorGroupInvocation: {}, executionPolicy: {}, interceptor: {}", new Object[] {invocation, policy, holder.getInterceptor().getClass().getName()} );
+        }
+    }
+    
+    public static void logSkipAfterByExecutionPolicy(InterceptorInstance holder, InterceptorGroupInvocation invocation, ExecutionPolicy policy) {
+        if (debugEnabled) {
+            logger.debug("Skip after interceptor due to execution policy: interceptorGroupInvocation: {}, executionPolicy: {}, interceptor: {}", new Object[] {invocation, policy, holder.getInterceptor().getClass().getName()} );
+        }
+    }
+
 }

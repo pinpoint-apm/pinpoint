@@ -17,9 +17,10 @@ package com.navercorp.pinpoint.profiler.plugin.interceptor;
 import java.util.Arrays;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.transformer.MethodRecipe;
 
@@ -35,32 +36,26 @@ public class AnnotatedInterceptorInjector implements MethodRecipe {
     private final Object[] providedArguments;
     
     private final String groupName;
-    private final ExecutionPolicy executionPoint;
+    private final ExecutionPolicy executionPolicy;
     
-    public AnnotatedInterceptorInjector(DefaultProfilerPluginContext pluginContext, String interceptorName, Object[] constructorArguments, String groupName, ExecutionPolicy executionPoint) {
+    public AnnotatedInterceptorInjector(DefaultProfilerPluginContext pluginContext, String interceptorName, Object[] constructorArguments, String groupName, ExecutionPolicy executionPolicy) {
         this.pluginContext = pluginContext;
         this.interceptorClassName = interceptorName;
         this.providedArguments = constructorArguments;
         this.groupName = groupName;
-        this.executionPoint = executionPoint; 
+        this.executionPolicy = executionPolicy; 
     }
     
     @Override
     public void edit(ClassLoader targetClassLoader, InstrumentClass targetClass, InstrumentMethod targetMethod) throws Exception {
-        inject(targetClassLoader, targetClass, targetMethod);
+        inject(targetMethod);
     }
 
-    int inject(ClassLoader targetClassLoader, InstrumentClass targetClass, InstrumentMethod targetMethod) throws Exception {
-        InterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext);
-        Interceptor interceptor = factory.getInterceptor(targetClassLoader, interceptorClassName, providedArguments, null, null, targetClass, targetMethod);
-        
-        if (targetMethod.isConstructor()) {
-            return targetClass.addConstructorInterceptor(targetMethod.getParameterTypes(), interceptor);
-        } else {
-            return targetClass.addInterceptor(targetMethod.getName(), targetMethod.getParameterTypes(), interceptor);
-        }
+    int inject(InstrumentMethod targetMethod) throws InstrumentException {
+        InterceptorGroup group = groupName == null ? null : pluginContext.getInterceptorGroup(groupName);
+        return targetMethod.addInterceptor(interceptorClassName, group, executionPolicy, providedArguments);
     }
-    
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -76,7 +71,7 @@ public class AnnotatedInterceptorInjector implements MethodRecipe {
             builder.append(", group=");
             builder.append(groupName);
             builder.append(", executionPolicy=");
-            builder.append(executionPoint);
+            builder.append(executionPolicy);
         }
         
         builder.append(']');

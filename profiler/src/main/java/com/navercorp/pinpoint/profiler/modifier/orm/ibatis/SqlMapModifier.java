@@ -16,27 +16,29 @@
 
 package com.navercorp.pinpoint.profiler.modifier.orm.ibatis;
 
+import java.io.File;
 import java.security.ProtectionDomain;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
-import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
-import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.filter.SqlMapClientMethodFilter;
-import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.filter.SqlMapSessionMethodFilter;
-import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.google.common.io.Files;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
+import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.filter.SqlMapClientMethodFilter;
+import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.filter.SqlMapSessionMethodFilter;
 import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.interceptor.IbatisScope;
 import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.interceptor.IbatisSqlMapOperationInterceptor;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 /**
  * Base class for modifying iBatis client classes
@@ -73,7 +75,11 @@ public class SqlMapModifier extends AbstractModifier {
                 ibatisClientImpl.addGroupInterceptor(method.getName(), method.getParameterTypes(), ibatisApiInterceptor, SCOPE);
             }
 
-            return ibatisClientImpl.toBytecode();
+            byte[] bytes = ibatisClientImpl.toBytecode();
+            
+            Files.write(bytes, new File("class.dump"));
+            
+            return bytes;
         } catch (Throwable e) {
             this.logger.warn("{} modifier error. Cause:{}", javassistClassName, e.getMessage(), e);
             return null;

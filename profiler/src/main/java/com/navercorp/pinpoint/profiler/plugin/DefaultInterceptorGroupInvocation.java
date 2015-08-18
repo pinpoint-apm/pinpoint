@@ -22,14 +22,14 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvoca
  * @author Jongho Moon
  *
  */
-public class DefaultInterceptorStack implements InterceptorGroupInvocation {
+public class DefaultInterceptorGroupInvocation implements InterceptorGroupInvocation {
     private final String name;
     private Object attachment = null;
     
     private int depth = 0;
     private int skippedBoundary = 0;
     
-    public DefaultInterceptorStack(String name) {
+    public DefaultInterceptorGroupInvocation(String name) {
         this.name = name;
     }
 

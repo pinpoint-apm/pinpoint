@@ -22,13 +22,13 @@ import org.junit.Test;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
-import com.navercorp.pinpoint.profiler.plugin.DefaultInterceptorStack;
+import com.navercorp.pinpoint.profiler.plugin.DefaultInterceptorGroupInvocation;
 
 
 public class DefaultScopeTest {
     @Test
     public void test0() {
-        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
+        InterceptorGroupInvocation transaction = new DefaultInterceptorGroupInvocation("test");
         
         assertFalse(transaction.isActive());
         
@@ -62,7 +62,7 @@ public class DefaultScopeTest {
     
     @Test
     public void test1() {
-        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
+        InterceptorGroupInvocation transaction = new DefaultInterceptorGroupInvocation("test");
         
         assertFalse(transaction.isActive());
         
@@ -86,7 +86,7 @@ public class DefaultScopeTest {
     @Test
     public void testAttachment() {
         String attachment = "context";
-        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
+        InterceptorGroupInvocation transaction = new DefaultInterceptorGroupInvocation("test");
         
         transaction.tryEnter(ExecutionPolicy.ALWAYS);
         assertNull(transaction.getAttachment());
@@ -108,7 +108,7 @@ public class DefaultScopeTest {
     @Test
     public void testAttachment2() {
         String attachment = "context";
-        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
+        InterceptorGroupInvocation transaction = new DefaultInterceptorGroupInvocation("test");
 
         transaction.tryEnter(ExecutionPolicy.ALWAYS);
         assertNull(transaction.getAttachment());
@@ -126,7 +126,7 @@ public class DefaultScopeTest {
     public void testAttachment3() {
         String oldAttachment = "context";
         String newAttachment = "newnew";
-        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
+        InterceptorGroupInvocation transaction = new DefaultInterceptorGroupInvocation("test");
 
         transaction.tryEnter(ExecutionPolicy.ALWAYS);
         transaction.setAttachment(oldAttachment);
@@ -141,13 +141,13 @@ public class DefaultScopeTest {
     
     @Test(expected=IllegalStateException.class)
     public void testSetAttachmentFail() {
-        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
+        InterceptorGroupInvocation transaction = new DefaultInterceptorGroupInvocation("test");
         transaction.setAttachment("attachment");
     }
     
     @Test(expected=IllegalStateException.class)
     public void testSetAttachmentFail2() {
-        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
+        InterceptorGroupInvocation transaction = new DefaultInterceptorGroupInvocation("test");
 
         transaction.tryEnter(ExecutionPolicy.ALWAYS);
         transaction.canLeave(ExecutionPolicy.ALWAYS);
@@ -158,13 +158,13 @@ public class DefaultScopeTest {
     
     @Test(expected=IllegalStateException.class)
     public void testGetAttachmentFail() {
-        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
+        InterceptorGroupInvocation transaction = new DefaultInterceptorGroupInvocation("test");
         transaction.getAttachment();
     }
     
     @Test(expected=IllegalStateException.class)
     public void testGetAttachmentFail2() {
-        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
+        InterceptorGroupInvocation transaction = new DefaultInterceptorGroupInvocation("test");
 
         transaction.tryEnter(ExecutionPolicy.ALWAYS);
         transaction.canLeave(ExecutionPolicy.ALWAYS);
@@ -175,13 +175,13 @@ public class DefaultScopeTest {
     
     @Test(expected=IllegalStateException.class)
     public void testRemoveAttachmentFail() {
-        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
+        InterceptorGroupInvocation transaction = new DefaultInterceptorGroupInvocation("test");
         transaction.removeAttachment();
     }
     
     @Test(expected=IllegalStateException.class)
     public void testRemoveAttachmentFail2() {
-        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
+        InterceptorGroupInvocation transaction = new DefaultInterceptorGroupInvocation("test");
 
         transaction.tryEnter(ExecutionPolicy.ALWAYS);
         transaction.canLeave(ExecutionPolicy.ALWAYS);
@@ -192,19 +192,19 @@ public class DefaultScopeTest {
     
     @Test(expected=IllegalStateException.class)
     public void testAfterWithoutBefore() {
-        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
+        InterceptorGroupInvocation transaction = new DefaultInterceptorGroupInvocation("test");
         transaction.leave(ExecutionPolicy.ALWAYS);
     }
     
     @Test(expected=IllegalStateException.class)
     public void testAfterWithoutBefore2() {
-        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
+        InterceptorGroupInvocation transaction = new DefaultInterceptorGroupInvocation("test");
         transaction.leave(ExecutionPolicy.BOUNDARY);
     }
     
     @Test(expected=IllegalStateException.class)
     public void testAfterWithoutBefore3() {
-        InterceptorGroupInvocation transaction = new DefaultInterceptorStack("test");
+        InterceptorGroupInvocation transaction = new DefaultInterceptorGroupInvocation("test");
         transaction.leave(ExecutionPolicy.INTERNAL);
     }
 }

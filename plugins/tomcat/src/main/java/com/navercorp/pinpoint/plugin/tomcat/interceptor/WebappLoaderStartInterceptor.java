@@ -40,17 +40,16 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 /**
  * @author hyungil.jeong
  */
-public class WebappLoaderStartInterceptor implements SimpleAroundInterceptor, TraceContextSupport, TargetClassLoader {
+public class WebappLoaderStartInterceptor implements SimpleAroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     
-    private TraceContext traceContext;
+    private final TraceContext traceContext;
 
-    @Override
-    public void setTraceContext(TraceContext traceContext) {
+    public WebappLoaderStartInterceptor(TraceContext traceContext) {
         this.traceContext = traceContext;
     }
-    
+
     @Override
     public void before(Object target, Object[] args) {
         // Do Nothing

@@ -16,12 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.modifier.orm.ibatis;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
-import static org.hamcrest.CoreMatchers.*;
 
 import java.sql.SQLException;
 import java.util.List;
+
+import javassist.CtClass;
 
 import org.junit.Before;
 import org.junit.Ignore;

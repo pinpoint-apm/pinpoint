@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInstance;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
 import com.navercorp.pinpoint.exception.PinpointException;
@@ -41,7 +42,7 @@ import com.navercorp.pinpoint.profiler.plugin.TestInterceptors.TestInterceptor1;
 import com.navercorp.pinpoint.profiler.plugin.TestInterceptors.TestInterceptor2;
 import com.navercorp.pinpoint.profiler.plugin.interceptor.AnnotatedInterceptorFactory;
 
-public class DefaultInterceptorFactoryTest {
+public class AnnotatedInterceptorFactoryTest {
     private final DefaultProfilerPluginContext pluginContext = mock(DefaultProfilerPluginContext.class);
     private final ByteCodeInstrumentor instrumentor = mock(ByteCodeInstrumentor.class);
     private final TraceContext traceContext = mock(TraceContext.class);
@@ -70,9 +71,9 @@ public class DefaultInterceptorFactoryTest {
     @Test
     public void test0() throws Exception {
         AnnotatedInterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext);
-        Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor0.class.getName(), null, null, null, aClass, aMethod);
+        InterceptorInstance inst = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor0.class.getName(), null, null, null, aClass, aMethod);
         
-        assertEquals(TestInterceptor0.class, interceptor.getClass());
+        assertEquals(TestInterceptor0.class, inst.getInterceptor().getClass());
     }
     
     @Test
@@ -80,7 +81,8 @@ public class DefaultInterceptorFactoryTest {
         Object[] args = new Object[] { "arg0" };
         
         AnnotatedInterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext);
-        Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor0.class.getName(), args, null, null, aClass, aMethod);
+        InterceptorInstance inst = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor0.class.getName(), args, null, null, aClass, aMethod);
+        Interceptor interceptor = inst.getInterceptor();
         
         assertEquals(TestInterceptor0.class, interceptor.getClass());
         assertEquals(args[0], getField(interceptor, "field0"));
@@ -99,7 +101,8 @@ public class DefaultInterceptorFactoryTest {
         Object[] args = new Object[] { "arg0", (byte)1, (short)2, (float)3.0 };
 
         AnnotatedInterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext);
-        Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor1.class.getName(), args, null, null, aClass, aMethod);
+        InterceptorInstance inst = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor1.class.getName(), args, null, null, aClass, aMethod);
+        Interceptor interceptor = inst.getInterceptor();
 
         assertEquals(TestInterceptor1.class, interceptor.getClass());
         assertEquals(args[0], getField(interceptor, "field0"));
@@ -113,8 +116,9 @@ public class DefaultInterceptorFactoryTest {
         Object[] args = new Object[] { (byte)1, (short)2, (float)3.0, "arg0" };
         
         AnnotatedInterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext);
-        Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor1.class.getName(), args, null, null, aClass, aMethod);
-
+        InterceptorInstance inst = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor1.class.getName(), args, null, null, aClass, aMethod);
+        Interceptor interceptor = inst.getInterceptor();
+        
         assertEquals(TestInterceptor1.class, interceptor.getClass());
         assertEquals(args[3], getField(interceptor, "field0"));
         assertEquals(args[0], getField(interceptor, "field1"));
@@ -127,7 +131,8 @@ public class DefaultInterceptorFactoryTest {
         Object[] args = new Object[] { (short)2, (float)3.0, "arg0", (byte)1 };
         
         AnnotatedInterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext);
-        Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor1.class.getName(), args, null, null, aClass, aMethod);
+        InterceptorInstance inst = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor1.class.getName(), args, null, null, aClass, aMethod);
+        Interceptor interceptor = inst.getInterceptor();
         
         assertEquals(TestInterceptor1.class, interceptor.getClass());
         assertEquals(args[2], getField(interceptor, "field0"));
@@ -141,7 +146,8 @@ public class DefaultInterceptorFactoryTest {
         Object[] args = new Object[] { (float)3.0, (short)2, (byte)1, "arg0" };
         
         AnnotatedInterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext);
-        Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor1.class.getName(), args, null, null, aClass, aMethod);
+        InterceptorInstance inst = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor1.class.getName(), args, null, null, aClass, aMethod);
+        Interceptor interceptor = inst.getInterceptor();
         
         assertEquals(TestInterceptor1.class, interceptor.getClass());
         assertEquals(args[3], getField(interceptor, "field0"));
@@ -167,7 +173,8 @@ public class DefaultInterceptorFactoryTest {
         Object[] args = new Object[] { "arg0", 1, 2.0, true, 3L };
 
         AnnotatedInterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext);
-        Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor2.class.getName(), args, null, null, aClass, aMethod);
+        InterceptorInstance inst = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor2.class.getName(), args, null, null, aClass, aMethod);
+        Interceptor interceptor = inst.getInterceptor();
         
         assertEquals(TestInterceptor2.class, interceptor.getClass());
         assertEquals(args[0], getField(interceptor, "field0"));
@@ -186,7 +193,8 @@ public class DefaultInterceptorFactoryTest {
         Object[] args = new Object[] { "arg0", 1, 2.0 };
         
         AnnotatedInterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext);
-        Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor2.class.getName(), args, null, null, aClass, aMethod);
+        InterceptorInstance inst = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor2.class.getName(), args, null, null, aClass, aMethod);
+        Interceptor interceptor = inst.getInterceptor();
         
         assertEquals(TestInterceptor2.class, interceptor.getClass());
         assertEquals(args[0], getField(interceptor, "field0"));
@@ -205,7 +213,8 @@ public class DefaultInterceptorFactoryTest {
         Object[] args = new Object[] { "arg0", 1 };
         
         AnnotatedInterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext);
-        Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor2.class.getName(), args, null, null, aClass, aMethod);
+        InterceptorInstance inst = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor2.class.getName(), args, null, null, aClass, aMethod);
+        Interceptor interceptor = inst.getInterceptor();
         
         assertEquals(TestInterceptor2.class, interceptor.getClass());
         assertEquals(args[0], getField(interceptor, "field0"));
@@ -222,7 +231,8 @@ public class DefaultInterceptorFactoryTest {
     @Test
     public void test12() throws Exception {
         AnnotatedInterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext);
-        Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor2.class.getName(), null, null, null, aClass, aMethod);
+        InterceptorInstance inst = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor2.class.getName(), null, null, null, aClass, aMethod);
+        Interceptor interceptor = inst.getInterceptor();
         
         assertEquals(TestInterceptor2.class, interceptor.getClass());
         assertEquals(null, getField(interceptor, "field0"));
@@ -241,7 +251,8 @@ public class DefaultInterceptorFactoryTest {
         Object[] args = new Object[] { "arg0" };
         
         AnnotatedInterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext);
-        Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor2.class.getName(), args, null, null, aClass, aMethod);
+        InterceptorInstance inst = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor2.class.getName(), args, null, null, aClass, aMethod);
+        Interceptor interceptor = inst.getInterceptor();
         
         assertEquals(TestInterceptor2.class, interceptor.getClass());
         assertEquals(args[0], getField(interceptor, "field0"));
@@ -261,7 +272,8 @@ public class DefaultInterceptorFactoryTest {
         Object[] args = new Object[] { ObjectRecipe.byConstructor("java.lang.String", arg0) };
         
         AnnotatedInterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext);
-        Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor0.class.getName(), args, null, null, aClass, aMethod);
+        InterceptorInstance inst = factory.getInterceptor(getClass().getClassLoader(), TestInterceptor0.class.getName(), args, null, null, aClass, aMethod);
+        Interceptor interceptor = inst.getInterceptor();
         
         assertEquals(TestInterceptor0.class, interceptor.getClass());
         assertEquals(arg0, getField(interceptor, "field0"));

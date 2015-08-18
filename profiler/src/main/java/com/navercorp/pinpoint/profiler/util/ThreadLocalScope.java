@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.instrument.InterceptorGroupDefinition;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
-import com.navercorp.pinpoint.profiler.plugin.DefaultInterceptorStack;
+import com.navercorp.pinpoint.profiler.plugin.DefaultInterceptorGroupInvocation;
 
 /**
  * @author emeroad
@@ -38,7 +38,7 @@ public class ThreadLocalScope implements InterceptorGroupInvocation {
         this.scope = new NamedThreadLocal<InterceptorGroupInvocation>(scopeDefinition.getName()) {
             @Override
             protected InterceptorGroupInvocation initialValue() {
-                return new DefaultInterceptorStack(scopeDefinition.getName());
+                return new DefaultInterceptorGroupInvocation(scopeDefinition.getName());
             }
         };
     }

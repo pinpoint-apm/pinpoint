@@ -16,14 +16,24 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import javassist.*;
-import javassist.bytecode.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javassist.CtBehavior;
+import javassist.CtClass;
+import javassist.Modifier;
+import javassist.bytecode.AttributeInfo;
+import javassist.bytecode.CodeAttribute;
+import javassist.bytecode.LocalVariableAttribute;
+import javassist.bytecode.MethodInfo;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author emeroad
@@ -485,6 +495,10 @@ public final class JavaAssistUtils {
             }
             String variablename = localVariableAttribute.variableName(i);
             parameterVariableNames[paramIndex++] = variablename;
+            
+            if (paramIndex == parameterTypes.length) {
+                break;
+            }
         }
         return parameterVariableNames;
     }
