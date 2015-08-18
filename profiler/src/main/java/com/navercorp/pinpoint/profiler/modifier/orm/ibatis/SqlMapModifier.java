@@ -75,11 +75,7 @@ public class SqlMapModifier extends AbstractModifier {
                 ibatisClientImpl.addGroupInterceptor(method.getName(), method.getParameterTypes(), ibatisApiInterceptor, SCOPE);
             }
 
-            byte[] bytes = ibatisClientImpl.toBytecode();
-            
-            Files.write(bytes, new File("class.dump"));
-            
-            return bytes;
+            return ibatisClientImpl.toBytecode();
         } catch (Throwable e) {
             this.logger.warn("{} modifier error. Cause:{}", javassistClassName, e.getMessage(), e);
             return null;
