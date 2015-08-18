@@ -500,6 +500,8 @@
 	                    scope.toApplicationName = htLastLink.toNode.applicationName;
 	                    $fromAgentName.select2('val', '');
 	                    $toAgentName.select2('val', '');
+	                    scope.fromAgentName = '';
+	                    scope.toAgentName = '';
 	
 	                    scope.$broadcast('sidebarTitleDirective.initialize.forServerMap', oSidebarTitleVoService);
 	
@@ -575,7 +577,6 @@
 	                    if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
 	                        oServerMapHintVoService.setHint(htLastLink.toNode.applicationName, htLastLink.filterTargetRpcList)
 	                    }
-	
 	                    scope.$broadcast('serverMapDirective.openFilteredMap', oServerMapFilterVoService, oServerMapHintVoService);
 	                    reset();
 	                };

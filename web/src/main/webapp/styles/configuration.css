@@ -1,0 +1,383 @@
+.tabs-left > .nav-tabs {
+  border-bottom: 0;
+}
+
+.tab-content > .tab-pane,
+.pill-content > .pill-pane {
+  display: none;
+}
+
+.tab-content > .active,
+.pill-content > .active {
+  display: block;
+}
+
+.tabs-left > .nav-tabs > li {
+  float: none;
+}
+
+.tabs-left > .nav-tabs > li > a {
+  min-width: 74px;
+  margin-right: 0;
+  margin-bottom: 3px;
+}
+
+.tabs-left > .nav-tabs {
+  float: left;
+  margin-right: 19px;
+  border-right: 1px solid #ddd;
+}
+
+.tabs-left > .nav-tabs > li > a {
+  margin-right: -1px;
+  -webkit-border-radius: 4px 0 0 4px;
+     -moz-border-radius: 4px 0 0 4px;
+          border-radius: 4px 0 0 4px;
+}
+
+.tabs-left > .nav-tabs > li > a:hover,
+.tabs-left > .nav-tabs > li > a:focus {
+  border-color: #eeeeee #dddddd #eeeeee #eeeeee;
+}
+
+.tabs-left > .nav-tabs .active > a,
+.tabs-left > .nav-tabs .active > a:hover,
+.tabs-left > .nav-tabs .active > a:focus {
+  	border-color: #ddd transparent #ddd #ddd;
+  	*border-right-color: #ffffff;
+}
+
+#pinpoint-configuration .modal-header .modal-title {
+	font-weight: bold;
+	font-size: 22px;
+}
+#pinpoint-configuration .modal-header ul {
+	list-style-type: none;
+	padding: 0px;
+	
+}
+#pinpoint-configuration .modal-header li {
+	float: left;
+	padding: 2px 10px 2px 10px;
+	cursor: pointer;
+}
+#pinpoint-configuration .modal-header li.description {
+	color: #46D030;
+	font-size: 12px;
+}
+#pinpoint-configuration .modal-header li.active {
+	background-color:gray;
+	color: white;
+}
+#pinpoint-configuration .modal-body {
+	background-color: #e9eaed;
+}
+#pinpoint-configuration .modal-body > div {
+	height: 500px;
+}
+	
+
+#pinpoint-configuration .header-blue {
+	background-color: #D0E9FF;
+}
+#pinpoint-configuration .header-sky {
+	background-color: #DAF7FF;
+}
+#pinpoint-configuration .hide-me {
+	display:none;
+}
+
+#pinpoint-configuration .header-orange{ 
+	background-color: #FDE8CB;
+}
+#pinpoint-configuration .some-list {
+	float: left;
+	left: 0px;
+	width: 240px;
+	height: 500px;
+	background-color: #FFF;
+	border: 1px solid #FFF;
+	border-color: #e5e6e9 #dfe0e4 #d0d1d5;
+	border-radius: 3px;
+}
+#pinpoint-configuration .some-list .btn{
+	border-radius: 0px;
+	font-size: 16px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+}
+
+#pinpoint-configuration .some-list-header {
+	text-align: center;
+	vertical-align: middle;
+	font-size: 16px;
+	height: 30px;
+}
+
+#pinpoint-configuration .some-list-header button.btn {
+	padding-top: 4px;
+	padding-bottom: 4px;
+	border:none;
+}
+#pinpoint-configuration .some-list-header .title { 
+	line-height: 30px;
+}
+#pinpoint-configuration .left { 
+	float: left;
+}
+#pinpoint-configuration .right { 
+	float: right;
+}
+#pinpoint-configuration .some-list-content {
+	width: 100%;
+	height: 470px;
+}
+#pinpoint-configuration .some-list-content .wrapper {
+	positoin: absolute;
+	width: 100%;
+	height: 410px;
+	overflow-y: auto;
+}
+#pinpoint-configuration .some-list-content ul { 
+	list-style-type: none;
+	padding:4px 8px 4px 0px;
+}
+#pinpoint-configuration .some-list-content li {
+	cursor: pointer;
+	padding: 8px 0px 0px 4px;
+	border-bottom: 1px solid #F8F8F8;
+}
+#pinpoint-configuration .some-list-content li.remove {
+	background-color: #EFABAB;
+}
+#pinpoint-configuration .some-list-content li.remove span.contents {
+	text-decoration: line-through;
+}
+#pinpoint-configuration .some-list-content li.remove button {
+	margin-top: -7px;
+	padding: 1px 8px 1px 8px;
+}
+#pinpoint-configuration .some-list-content li button.move {
+	margin-top: -7px;
+	padding: 1px 3px 1px 0px;		
+}
+#pinpoint-configuration .some-list-content li.selected {
+	background-color: #000;
+	color: #FFF;
+}
+#pinpoint-configuration .some-list-content li.selected span.remove {
+	color: #FFF;
+}
+#pinpoint-configuration .some-list-content li:hover {
+	background-color: #928484;
+	color: #FFF;
+}
+#pinpoint-configuration .some-list-content li.remove:hover {
+	background-color: #EFABAB;
+	color: #000;
+}
+
+#pinpoint-configuration .some-list-content.move-some-where li span {
+	margin-left: 4px;
+}
+#pinpoint-configuration .some-loading {
+	position:relative;
+	bottom: 1000px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	background: rgba(256, 256, 256, 0.8);
+}
+#pinpoint-configuration .some-alert {
+	position:absolute;
+	bottom: 0px;
+	left: 0px;
+	width: 100%;
+	height: 50px;
+	text-align: center;
+	background: #c9de96;
+	background: linear-gradient(to bottom,  #c9de96 0%,#8ab66b 44%,#398235 100%);
+}
+#pinpoint-configuration .some-alert span.message {
+	position: absolute;
+	padding: 0px 6px 0px 6px;
+	color: #FF0000;
+	width: 100%;
+	left: 0px;
+	top:40px;
+}
+#pinpoint-configuration .some-alert span.close-alert {
+	color: #000;
+	float: right;
+	cursor: pointer;
+	font-size: 16px;
+	font-weight: bold;
+	padding-right: 4px;
+}
+
+#pinpoint-configuration .some-loading.has-not-edit {
+	bottom: 500px;
+}
+#pinpoint-configuration .some-loading div {
+	margin-top: 90%;
+}
+#pinpoint-configuration .some-edit-content {
+	position:relative;
+	bottom: 500px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.7);
+}
+#pinpoint-configuration .some-edit-content > div {
+	padding-top: 70%;
+	text-align:center;
+}
+#pinpoint-configuration .some-edit-content .title-message {
+	color: #46D030;;
+	font-size: 12px;
+	padding-bottom: 4px;
+}
+#pinpoint-configuration .some-edit-content input[type=text] {
+	width: 90%;
+	height: 32px;
+	border: none;
+	font-size: 18px;
+	text-align: center;
+	margin-top: 1px;
+}
+#pinpoint-configuration .some-edit-content input[type=checkbox] {
+	font-size: 30px;
+}
+#pinpoint-configuration .some-edit-content label {
+	font-weight: normal;
+	padding-left: 4px;
+	color: #FFF;
+}
+/*
+#pinpoint-configuration .some-list-content li:nth-child(even) {
+	background-color: #F8F8F8;
+}
+*/
+#pinpoint-configuration .some-list-content li .remove {
+	float: right;
+	color: #AAA;
+	cursor: pointer;
+	line-height: 12px;
+	padding-left: 4px;
+	padding-right: 4px;
+}
+#pinpoint-configuration .some-list-content li .remove:hover {
+	color: red;
+	font-weight: bold;
+}
+#pinpoint-configuration .some-list-content li span.right {
+	margin-top: -2px;
+}
+#pinpoint-configuration .some-list .guide-message {
+	color: #0BAB4E;
+	width: 100%;
+	bottom: -6px;
+	position: relative;
+	font-size: 11px;
+	text-align: center;
+	border-radius: 4px;
+	background-color: #EEE;
+}
+#pinpoint-configuration .some-list .filter-input {
+	position: relative;
+	bottom: -12px;
+	width: 100%;
+}
+#pinpoint-configuration .some-list .filter-input input {
+	width: 66%;
+	border: 0px solid black;
+	border-bottom: 1px solid black;
+}
+#pinpoint-configuration .some-list .filter-input button {
+	float: right;
+	padding : 0px 9px 0px 9px;
+}
+#pinpoint-configuration .pinpoint-user-list {
+	float: right;
+	width: 300px;
+}
+
+/* 테이블 관련 */
+#pinpoint-configuration .tabbable {
+	float: left;
+}
+#pinpoint-configuration .some-table {
+	display: block;
+	width: 100%;
+}
+#pinpoint-configuration .some-table  table {
+	display: block;
+	width: 100%;
+	table-layout: fixed;
+}
+#pinpoint-configuration .some-table .some-list-content thead tr {
+	height: 34px;
+	font-size: 14px;
+	color: #5bc0de;
+	padding-right: 10px;
+	line-height: 32px;
+}
+#pinpoint-configuration .some-table .some-list-content thead th {
+	font-weight: normal !important;
+}
+#pinpoint-configuration .some-table .some-list-content tbody tr {
+	height: 30px;
+	padding-right: 10px;
+	border-bottom: 1px solid #F8F8F8;
+	cursor: pointer;
+}
+#pinpoint-configuration .some-table .some-list-content .wrapper tbody tr:hover {
+	background-color: #928484;
+	color: #FFF;
+}
+#pinpoint-configuration .some-table .some-list-content .wrapper tbody tr td:first-child {
+	text-align: left;
+	padding-left: 4px;
+}
+#pinpoint-configuration .some-table .some-list-content .wrapper tbody tr td:last-child {
+	padding-right: 10px;
+	padding-left: 5px;
+}
+#pinpoint-configuration .some-table .some-list-content .wrapper tbody tr.remove {
+	background-color: #EFABAB;
+	text-decoration: line-through;
+}
+#pinpoint-configuration .some-table .some-list-content .wrapper tbody td.remove {
+	position: absolute;
+	right: 24px;
+}
+#pinpoint-configuration .some-table .filter-input {
+	position: relative;
+	bottom: -6px;
+	width: 100%;
+}
+
+#pinpoint-configuration div.popover {
+	color: #000;
+}
+#pinpoint-configuration div.popover .popover-title{
+	display: none;
+}
+#pinpoint-configuration .some-table .some-list-content th, td {
+	text-align: center;
+	vertical-align: bottom;
+	overflow: hidden;
+}
+#pinpoint-configuration .some-table .some-list-content .remove {
+	color: #AAA;
+	cursor: pointer;
+}
+#pinpoint-configuration .some-table .some-list-content .remove:hover {
+	color: red;
+	font-weight: bold;
+}
+#pinpoint-configuration .some-table .some-list-content input {
+	width: 100%;
+}

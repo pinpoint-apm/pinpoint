@@ -294,6 +294,7 @@
 	                    $http.get(cfg.applicationUrl).success(function (data, status) {
 	                        if (angular.isArray(data) === false || data.length === 0) {
 	                            scope.applications[0].text = 'Application not found.';
+	                            $rootScope.$broadcast("alarmRule.applications.set", scope.applications);
 	                        } else {
 	                            parseApplicationList(data, function () {
 	                                scope.disableApplication = false;
@@ -305,6 +306,7 @@
 	                                        scope.application = oNavbarVoService.getApplication();
 	                                    }
 	                                });
+	                                $rootScope.$broadcast("alarmRule.applications.set", scope.applications);
 	                            });
 	                        }
 	                        scope.hideFakeApplication = true;
@@ -394,7 +396,6 @@
 	                        // ref1 : http://jimhoskins.com/2012/12/17/angularjs-and-apply.html
 	                        // ref2 : http://jsfiddle.net/CDvGy/2/
 	                    });
-	                    console.log( $application.select2 );
 	                };
 	                getMilliSecondByReadablePeriod = function( period ) {
 	                	var time = parseInt( period );
@@ -552,6 +553,10 @@
 	                	$at($at.MAIN, $at.TG_DATE, type);
 	                    scope.periodType = type;
 	                    scope.autoUpdate = false;
+	                };
+	                
+	                scope.showConfig = function() {
+	                	$rootScope.$broadcast("configuration.show");
 	                };
 	
 	                /**

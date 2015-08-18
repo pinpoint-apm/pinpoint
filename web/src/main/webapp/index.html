@@ -56,6 +56,8 @@
     <link rel="stylesheet" href="styles/loading.css?v=${buildTime}">
     <link rel="stylesheet" href="styles/jquery.BigScatterChart.css?v=${buildTime}">
     <link rel="stylesheet" href="styles/xeicon.min.css?v=${buildTime}">
+    <link rel="stylesheet" href="styles/timer.css?v=${buildTime}">
+    <link rel="stylesheet" href="styles/configuration.css?v=${buildTime}">
     <!-- endbuild -->
 
     <!-- build:js scripts/plugins.js -->
@@ -66,7 +68,6 @@
     <script src="components/underscore/underscore-min.js?v=${buildTime}"></script>
     <script src="components/bootstrap/dist/js/bootstrap.min.js?v=${buildTime}"></script>
     <script src="components/gojs/go.js?v=${buildTime}"></script>
-    <!--scirpt src="components/gojs/go-debug.js?v=${buildTime}"></scirpt-->
     <script src="components/select2/select2.min.js?v=${buildTime}"></script>
     <script src="components/select2/select2_locale_ko.js?v=${buildTime}"></script>
     <script src="components/jquery-class/jquery.Class.js?v=${buildTime}"></script>
@@ -96,6 +97,9 @@
     <script src="components/tooltipster/js/jquery.tooltipster.min.js?v=${buildTime}"></script>
     <script src="components/handlebars/handlebars.min.js?v=${buildTime}"></script>
     <script src="components/infiniteCircularScroll/InfiniteCircularScroll.js?v=${buildTime}"></script>
+	<script src="components/bootstrap/js/bootstrap-modal.js?v=${buildTime}"></script>
+	<script src="components/bootstrap/js/bootstrap-tooltip.js?v=${buildTime}"></script>
+	<script src="components/bootstrap/js/bootstrap-popover.js?v=${buildTime}"></script>
     <script src="features/serverMap/jquery.ServerMap2.js?v=${buildTime}"></script>
     <!-- endbuild -->
 
@@ -321,12 +325,259 @@
     </div>
 </div>
 
+<div class="modal fade" id="testModal" tabindex="-1" role="dialog" aria-labelledby="testModalLabel" ng-controller="ConfigurationCtrl">
+  <div class="modal-dialog" role="document" style="width:1000px">
+    <div class="modal-content" id="pinpoint-configuration">
+      <div class="modal-header" style="text-align:center">
+      	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="testModalLabel">Pinpoint Configuration</h4>
+        <ul>
+        	<li ng-class="{true: 'active'}[isGeneral()]" ng-click="setCurrentTab('general')">General</li>
+        	<li ng-class="{true: 'active'}[isAlarm()]" ng-click="setCurrentTab('alarm')">Alarm</li>
+        	<li class="description">{{descriptionOfCurrentTab}}</li>
+        </ul>
+      </div>
+      <div class="modal-body" style="padding-top:50px;">
+      	<div id="config-general" ng-show="isGeneral()" ng-controller="GeneralCtrl">
+      		<div style="text-align:center;font-family:verdana;">
+      			<h1>Add General Setting</h1>
+      		</div>
+      	</div>
+      	<div id="config-alram" ng-show="isAlarm()">
+	       	<div class="some-list" id="userGroupListArea" ng-controller="AlarmUserGroupCtrl">
+	       		<div class="some-list-header header-blue">
+	       			<button class="btn btn-primary left" ng-click="onRefresh()" ng-mouseenter="onEnter('refresh')" ng-mouseleave="onLeave('refresh')"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
+	       			<span class="title" ng-mouseenter="onEnter('title')" ng-mouseleave="onLeave('title')">User Group<span class="total"></span></span>
+	       			<button class="btn btn-primary right" ng-click="onCreate()" ng-mouseenter="onEnter('create')" ng-mouseleave="onLeave('create')"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+	       		</div>
+	       		<div class="some-list-content">
+	       			<div class="wrapper"><ul>
+	       				<li ng-repeat="userGroup in userGroupList" id="{{prefix + userGroup.number}}"><span class="contents">{{userGroup.id}}</span><span class="remove">x</span></li>
+	       			</ul></div>
+	       			<div class="guide-message"></div>
+	       			<div class="filter-input">
+	       				<input type="text" placeholder="Filter user group" ng-keydown="onInputFilter($event)" ng-mouseenter="onEnter('filterInput')" ng-mouseleave="onLeave('filterInput')"/> 
+	       				<button class="btn btn-primary disabled trash" ng-click="onFilterEmpty()" ng-mouseenter="onEnter('filterEmpty')" ng-mouseleave="onLeave('filterEmpty')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+	       				<button class="btn btn-primary" ng-click="onFilterGroup()" style="margin-right:2px" ng-mouseenter="onEnter('filterSearch')" ng-mouseleave="onLeave('filterSearch')"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>	       				
+	       			</div>
+	       		</div>
+	       		<div class="some-edit-content hide-me">
+	       			<div>
+	       				<div class="title-message">Create new alarm group</div>
+		       			<input type="text" placeholder="Create New Alarm Group" ng-keydown="onInputEdit($event)"/>
+		       			<div style="padding-top:1px;">
+		       				<button class="btn btn-primary left" style="margin-left:5%" ng-click="onCancelEdit()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+		       				<button class="btn btn-primary right" style="margin-right:5%" ng-click="onApplyEdit()"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
+		       			</div>
+	       			</div>
+	       		</div>
+				<div class="some-loading  has-not-edit">
+					<div class="timer-loader"></div>
+					<div class="some-alert hide-me">
+						<span class="message"></span>
+						<span class="close-alert" ng-click="onCloseAlert()">X</span>
+					</div>
+				</div>
+	      	</div>
+	      	<div class="tabbable tabs-left" style="padding-left:20px;">
+	          	<ul class="nav nav-tabs">
+	            	<li class="active"><a href="#userListInGroup" data-toggle="tab">Member</a></li>
+	            	<li><a href="#alarmInGroup" data-toggle="tab">Alarm</a></li>
+	          	</ul>
+	          	<div class="tab-content" style="float:left;width:590px;">
+	            	<div class="tab-pane active" id="userListInGroup">
+		            	<div class="some-list" style="width:240px" ng-controller="AlarmGroupMemberCtrl">
+				       		<div class="some-list-header header-sky">
+				       			<button class="btn btn-info left" ng-click="onRefresh()" ng-mouseenter="onEnter('refresh')" ng-mouseleave="onLeave('refresh')"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
+				       			<span class="title" ng-mouseenter="onEnter('title')" ng-mouseleave="onLeave('title')">Group Member<span class="total"></span></span>
+				       			<button class="btn btn-primary right" style="visibility:hidden;"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+				       		</div>
+			            	<div class="some-list-content">
+				       			<div class="wrapper"><ul>
+				       				<li ng-repeat="groupMember in groupMemberList" id="{{prefix + groupMember.memberId}}"><span class="contents">({{groupMember.department}}){{groupMember.name}}</span><span class="remove">x</span></li>
+				       			</ul></div>
+				       			<div class="guide-message"></div>
+				       			<div class="filter-input">
+				       				<input type="text" placeholder="Filter user group" ng-keydown="onInputFilter($event)" ng-mouseenter="onEnter('filterInput')" ng-mouseleave="onLeave('filterInput')"/> 
+				       				<button class="btn btn-primary disabled trash" ng-click="onFilterEmpty()" ng-mouseenter="onEnter('filterEmpty')" ng-mouseleave="onLeave('filterEmpty')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+				       				<button class="btn btn-primary" ng-click="onFilterGroup()" style="margin-right:2px" ng-mouseenter="onEnter('filterSearch')" ng-mouseleave="onLeave('filterSearch')"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+				       			</div>
+				       		</div>
+				       		<div class="some-loading has-not-edit">
+				       			<div class="timer-loader"></div>
+				       			<div class="some-alert hide-me">
+									<span class="message"></span>
+									<span class="close-alert" ng-click="onCloseAlert()">X</span>
+								</div>
+				       		</div>
+			       		</div>
+	            		<div class="some-list" style="float:right;width:300px;" ng-controller="AlarmPinpointUserCtrl">
+				       		<div class="some-list-header header-orange">
+				       			<button class="btn btn-warning left" ng-click="onRefresh()" ng-mouseenter="onEnter('refresh')" ng-mouseleave="onLeave('refresh')"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
+				       			<span class="title" ng-mouseenter="onEnter('title')" ng-mouseleave="onLeave('title')">Pinpoint User<span class="total"></span></span>
+				       			<button class="btn btn-warning right" ng-click="onCreate()" ng-mouseenter="onEnter('create')" ng-mouseleave="onLeave('create')"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+				       		</div>
+				       		<div class="some-list-content move-some-where">
+				       			<div class="wrapper"><ul>
+				       				<li ng-repeat="pinpointUser in pinpointUserList" id="{{'alarmPinpointUser_' + pinpointUser.userId}}">
+				       					<button class="btn btn-warning left move"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></button>
+				       					<span class="contents">{{"("+pinpointUser.department + ")" + pinpointUser.name}}</span>
+				       					<span class="remove">x</span>
+				       				</li>
+				       			
+				       			</ul></div>
+				       			<div class="guide-message"></div>
+				       			<div class="filter-input">
+				       				<input type="text" placeholder="Filter user group" ng-keydown="onInputFilter($event)" ng-mouseenter="onEnter('filterInput')" ng-mouseleave="onLeave('filterInput')"/> 
+				       				<button class="btn btn-warning disabled trash" ng-click="onFilterEmpty()" ng-mouseenter="onEnter('filterEmpty')" ng-mouseleave="onLeave('filterEmpty')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+				       				<button class="btn btn-warning" ng-click="onFilterGroup()" style="margin-right:2px" ng-mouseenter="onEnter('filterSearch')" ng-mouseleave="onLeave('filterSearch')"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>	       				
+				       			</div>
+				       		</div>
+				       		<div class="some-edit-content hide-me" style="width:300px;">
+				       			<div style="padding-top:40%">
+				       				<div class="title-message">Create new pinpoint user</div>
+				       				<input type="text" placeholder="User ID" name="userID"/>
+					       			<input type="text" placeholder="Name" name="name"/>
+					       			<input type="text" placeholder="Department" name="department"/>
+					       			<input type="text" placeholder="Phone" name="phone"/>
+					       			<input type="text" placeholder="Email" name="email"/>
+					       			<div style="padding-top:1px;">
+					       				<button class="btn btn-warning left" style="margin-left:5%" ng-click="onCancelEdit()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+					       				<button class="btn btn-warning right" style="margin-right:5%" ng-click="onApplyEdit()"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
+					       			</div>
+				       			</div>
+				       		</div>
+				       		<div class="some-loading has-not-edit">
+				       			<div class="timer-loader" style="margin-top:72%"></div>
+				       			<div class="some-alert hide-me">
+									<span class="message"></span>
+									<span class="close-alert" ng-click="onCloseAlert()">X</span>
+								</div>
+				       		</div>
+		            	</div>
+		            </div>
+	            	<div class="tab-pane" id="alarmInGroup">
+	            		<div class="some-list some-table" style="width:100%" ng-controller="AlarmRuleCtrl">
+				       		<div class="some-list-header header-sky">
+				       			<button class="btn btn-info left" ng-click="onRefresh()" ng-mouseenter="onEnter('refresh')" ng-mouseleave="onLeave('refresh')"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
+				       			<span class="title" ng-mouseenter="onEnter('title')" ng-mouseleave="onLeave('title')">Alarm Rules<span class="total"></span></span>
+				       			<button class="btn btn-info right" ng-click="onCreate()" ng-mouseenter="onEnter('create')" ng-mouseleave="onLeave('create')"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+				       		</div>
+				       		<div class="some-list-content">
+				       			<div class="wrapper">
+				       				<table>
+				       					<thead>
+				       						<tr>
+					       						<th width="40%">Application Name</th>
+					       						<th width="30%">Rule Name</th>
+					       						<th width="10%">Threshold</th>
+					       						<th width="10%">SMS</th>
+					       						<th width="10%">Email</th>
+					       						<th width="10%">Note</th>
+					       						<th width="10%"></th>
+				       						</tr>
+				       					</thead>
+				       					<tbody>
+				       						<tr ng-repeat="rule in ruleList" id="{{'alarmRule_' + rule.ruleId}}">
+				       							<td>{{rule.applicationId}}</td>
+				       							<td>{{rule.checkerName}}</td>
+				       							<td>{{rule.threshold}}</td>
+				       							<td>{{rule.smsSend ? "TRUE": "FALSE"}}</td>
+				       							<td>{{rule.emailSend ? "TRUE": "FALSE"}}</td>
+				       							<td><span ng-show="rule.notes != '' && rule.notes != null" class="glyphicon glyphicon-eye-open" aria-hidden="true" data-toggle="alarm-popover" data-trigger="hover" data-placement="left" data-content="{{rule.notes}}"></span></td>
+				       							<td><span class="remove">x</span></td>
+				       						</tr>
+				       					</tbody>
+				       				</table>
+				       			</div>
+				       			<div class="guide-message"></div>
+				       			<div class="filter-input">
+				       				<table>
+				       					<colgroup>
+				       						<col width="40%"/>
+				       						<col width="35%"/>
+				       						<col width="25%"/>
+				       					</colgroup>
+				       					<tr>
+				       						<td><input type="text" placeholder="Application name" style="width:98%"/></td>
+				       						<td><input type="text" placeholder="Rule name" style="width:100%"/></td>
+				       						<td>
+				       							<button class="btn btn-info disabled trash" ng-click="onFilterEmpty()" ng-mouseenter="onEnter('filterEmpty')" ng-mouseleave="onLeave('filterEmpty')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+				       							<button class="btn btn-info" ng-click="onFilterGroup()" style="margin-right:2px" ng-mouseenter="onEnter('filterSearch')" ng-mouseleave="onLeave('filterSearch')"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+				       						</td>
+				       					</tr>
+				       				</table>
+				       			</div>
+				       		</div>
+				       		<div class="some-edit-content hide-me" style="width:100%;">
+				       			<div style="padding-top:15%">
+				       				<div class="title-message">Creat new alram rule</div>
+				       				<select name="application" style="width:50%">
+		                                <option ng-repeat="app in applications" value="{{app.text}}">{{app.text}}</option>
+		                            </select>
+					       			<br/><br/>
+					       			<select name="rule" style="width:50%">
+		                                <option ng-repeat="rule in ruleSets" value="{{rule.text}}">{{rule.text}}</option>
+		                            </select>
+					       			<br/><br/>
+					       			<div style="display:inline-block;width:50%;text-align:left;">
+						       			<label>Threshold</label> <input type="number" value="1" placeholder="Threshold" name="threshold" style="width:50px"/>
+						       			<input type="checkbox" placeholder="SMS" name="sms" style="margin-left:30px;"/><label>SMS</label>
+						       			<input type="checkbox" placeholder="Email" name="email" style="margin-left:30px"/><label>Email</label>
+					       			</div>
+					       			<br/><br/>
+					       			<textarea placeholder="Note" name="note" style="width:50%;height:120px"></textarea>
+					       			<div style="padding-top:1px;">
+					       				<button class="btn btn-info left" style="margin-left:25%" ng-click="onCancelEdit()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+					       				<button class="btn btn-info right" style="margin-right:25%" ng-click="onApplyEdit()"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
+					       			</div>
+				       			</div>
+				       		</div>
+				       		<div class="some-loading has-not-edit">
+				       			<div class="timer-loader" style="margin-top:36%"></div>
+				       			<div class="some-alert hide-me">
+									<span class="message"></span>
+									<span class="close-alert" ng-click="onCloseAlert()">X</span>
+								</div>
+				       		</div>
+		            	</div>
+	            	</div>
+	        	</div>
+	        </div>
+	      	<div style="clear:both;display:block;"></div>
+	      </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- build:js({.tmp,app}) scripts/scripts.js -->
 <script src="scripts/app.js?v=${buildTime}"></script>
 <script src="scripts/extra/checkLoginSession.js"></script>
-<script src="pages/main/main.controller.js?v=${buildTime}"></script>
-<script src="pages/inspector/inspector.controller.js?v=${buildTime}"></script>
+
+<script src="common/filters/icon-url.filter.js?v=${buildTime}"></script>
+<script src="common/filters/application-name-to-class-name.filter.js?v=${buildTime}"></script>
+<script src="common/services/time-slider-vo.service.js?v=${buildTime}"></script>
+<script src="common/services/alerts.service.js?v=${buildTime}"></script>
+<script src="common/services/progress-bar.service.js?v=${buildTime}"></script>
+<script src="common/services/navbar-vo.service.js?v=${buildTime}"></script>
+<script src="common/services/transaction-dao.service.js?v=${buildTime}"></script>
+<script src="common/services/location.service.js?v=${buildTime}"></script>
+<script src="common/services/server-map-dao.service.js?v=${buildTime}"></script>
+<script src="common/services/agent-dao.service.js?v=${buildTime}"></script>
+<script src="common/services/sidebar-title-vo.service.js?v=${buildTime}"></script>
+<script src="common/services/filtered-map-util.service.js?v=${buildTime}"></script>
+<script src="common/services/filter.config.js?v=${buildTime}"></script>
+<script src="common/services/server-map-filter-vo.service.js?v=${buildTime}"></script>
+<script src="common/services/alarm-ajax.service.js?v=${buildTime}"></script>
+<script src="common/services/server-map-hint-vo.service.js?v=${buildTime}"></script>
+<script src="common/services/is-visible.service.js?v=${buildTime}"></script>
+<script src="common/services/user-locales.service.js?v=${buildTime}"></script>
+<script src="common/services/help-content.service.js?v=${buildTime}"></script>
+<script src="common/help/help-content-en.js?v=${buildTime}"></script>
+<script src="common/help/help-content-ko.js?v=${buildTime}"></script>
+<script src="common/help/help-content-template.js?v=${buildTime}"></script>
+
 <script src="features/navbar/navbar.directive.js?v=${buildTime}"></script>
 <script src="features/serverMap/server-map.directive.js?v=${buildTime}"></script>
 <script src="features/scatter/scatter.directive.js?v=${buildTime}"></script>
@@ -335,44 +586,32 @@
 <script src="features/serverList/server-list.directive.js?v=${buildTime}"></script>
 <script src="features/agentList/agent-list.directive.js?v=${buildTime}"></script>
 <script src="features/agentInfo/agent-info.directive.js?v=${buildTime}"></script>
-<script src="common/filters/icon-url.filter.js?v=${buildTime}"></script>
-<script src="pages/transactionList/transaction-list.controller.js?v=${buildTime}"></script>
-<script src="pages/transactionDetail/transaction-detail.controller.js?v=${buildTime}"></script>
 <script src="features/timeSlider/time-slider.directive.js?v=${buildTime}"></script>
 <script src="features/transactionTable/transaction-table.directive.js?v=${buildTime}"></script>
 <script src="features/timeline/timeline.directive.js?v=${buildTime}"></script>
-<script src="pages/filteredMap/filtered-map.controller.js?v=${buildTime}"></script>
-<script src="common/services/time-slider-vo.service.js?v=${buildTime}"></script>
-<script src="common/services/alerts.service.js?v=${buildTime}"></script>
-<script src="common/services/progress-bar.service.js?v=${buildTime}"></script>
-<script src="common/services/navbar-vo.service.js?v=${buildTime}"></script>
-<script src="common/services/transaction-dao.service.js?v=${buildTime}"></script>
-<script src="common/services/location.service.js?v=${buildTime}"></script>
-<script src="common/services/server-map-dao.service.js?v=${buildTime}"></script>
-<script src="pages/transactionView/transaction-view.controller.js?v=${buildTime}"></script>
-<script src="common/services/agent-dao.service.js?v=${buildTime}"></script>
 <script src="features/agentChartGroup/agent-chart-group.directive.js?v=${buildTime}"></script>
-<script src="pages/scatterFullScreenMode/scatter-full-screen-mode.controller.js?v=${buildTime}"></script>
 <script src="features/sidebar/title/sidebar-title.directive.js?v=${buildTime}"></script>
-<script src="common/services/sidebar-title-vo.service.js?v=${buildTime}"></script>
-<script src="common/services/filtered-map-util.service.js?v=${buildTime}"></script>
-<script src="common/services/filter.config.js?v=${buildTime}"></script>
-<script src="common/services/server-map-filter-vo.service.js?v=${buildTime}"></script>
 <script src="features/sidebar/filter/filter-information.directive.js?v=${buildTime}"></script>
 <script src="features/distributedCallFlow/distributed-call-flow.directive.js?v=${buildTime}"></script>
-<script src="common/filters/application-name-to-class-name.filter.js?v=${buildTime}"></script>
-<script src="common/services/server-map-hint-vo.service.js?v=${buildTime}"></script>
-<script src="common/services/is-visible.service.js?v=${buildTime}"></script>
-<script src="common/services/user-locales.service.js?v=${buildTime}"></script>
-<script src="common/services/help-content.service.js?v=${buildTime}"></script>
 <script src="features/responseTimeChart/response-time-chart.directive.js?v=${buildTime}"></script>
 <script src="features/loadChart/load-chart.directive.js?v=${buildTime}"></script>
-<script src="common/help/help-content-en.js?v=${buildTime}"></script>
-<script src="common/help/help-content-ko.js?v=${buildTime}"></script>
-<script src="common/help/help-content-template.js?v=${buildTime}"></script>
 <script src="features/jvmMemoryChart/jvm-memory-chart.directive.js?v=${buildTime}"></script>
 <script src="features/cpuLoadChart/cpu-load-chart.directive.js?v=${buildTime}"></script>
 <script src="features/loading/loading.directive.js?v=${buildTime}"></script>
+<script src="features/configuration/general/general.controller.js?v=${buildTime}"></script>
+<script src="features/configuration/alarm/alarm-user-group.controller.js?v=${buildTime}"></script>
+<script src="features/configuration/alarm/alarm-group-member.controller.js?v=${buildTime}"></script>
+<script src="features/configuration/alarm/alarm-pinpoint-user.controller.js?v=${buildTime}"></script>
+<script src="features/configuration/alarm/alarm-rule.controller.js?v=${buildTime}"></script>
+<script src="features/configuration/configuration.controller.js?v=${buildTime}"></script>
+
+<script src="pages/main/main.controller.js?v=${buildTime}"></script>
+<script src="pages/inspector/inspector.controller.js?v=${buildTime}"></script>
+<script src="pages/transactionList/transaction-list.controller.js?v=${buildTime}"></script>
+<script src="pages/transactionDetail/transaction-detail.controller.js?v=${buildTime}"></script>
+<script src="pages/filteredMap/filtered-map.controller.js?v=${buildTime}"></script>
+<script src="pages/transactionView/transaction-view.controller.js?v=${buildTime}"></script>
+<script src="pages/scatterFullScreenMode/scatter-full-screen-mode.controller.js?v=${buildTime}"></script>
 <!-- endbuild -->
 </body>
 </html>
