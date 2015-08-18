@@ -22,18 +22,18 @@ import java.util.List;
 import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.web.alarm.checker.ErrorCountChecker;
-import com.navercorp.pinpoint.web.alarm.checker.ErrorCountToCalleChecker;
+import com.navercorp.pinpoint.web.alarm.checker.ErrorCountToCalleeChecker;
 import com.navercorp.pinpoint.web.alarm.checker.ErrorRateChecker;
-import com.navercorp.pinpoint.web.alarm.checker.ErrorRateToCalleChecker;
+import com.navercorp.pinpoint.web.alarm.checker.ErrorRateToCalleeChecker;
 import com.navercorp.pinpoint.web.alarm.checker.GcCountChecker;
 import com.navercorp.pinpoint.web.alarm.checker.HeapUsageRateChecker;
 import com.navercorp.pinpoint.web.alarm.checker.JvmCpuUsageRateChecker;
 import com.navercorp.pinpoint.web.alarm.checker.ResponseCountChecker;
 import com.navercorp.pinpoint.web.alarm.checker.SlowCountChecker;
-import com.navercorp.pinpoint.web.alarm.checker.SlowCountToCalleChecker;
+import com.navercorp.pinpoint.web.alarm.checker.SlowCountToCalleeChecker;
 import com.navercorp.pinpoint.web.alarm.checker.SlowRateChecker;
-import com.navercorp.pinpoint.web.alarm.checker.SlowRateToCalleChecker;
-import com.navercorp.pinpoint.web.alarm.checker.TotalCountToCalleChecker;
+import com.navercorp.pinpoint.web.alarm.checker.SlowRateToCalleeChecker;
+import com.navercorp.pinpoint.web.alarm.checker.TotalCountToCalleeChecker;
 import com.navercorp.pinpoint.web.alarm.collector.AgentStatDataCollector;
 import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
@@ -80,38 +80,38 @@ public enum CheckerCategory {
         }
     },
     
-    SLOW_COUNT_TO_CALLE("SLOW_COUNT_TO_CALLE", DataCollectorCategory.CALLER_STAT) {
+    SLOW_COUNT_TO_CALLEE("SLOW_COUNT_TO_CALLEE", DataCollectorCategory.CALLER_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
-            return new SlowCountToCalleChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
+            return new SlowCountToCalleeChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
         }
     },
     
-    SLOW_RATE_TO_CALLE("SLOW_RATE_TO_CALLE", DataCollectorCategory.CALLER_STAT) {
+    SLOW_RATE_TO_CALLEE("SLOW_RATE_TO_CALLEE", DataCollectorCategory.CALLER_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
-            return new SlowRateToCalleChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
+            return new SlowRateToCalleeChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
         }
     },
     
-    ERROR_COUNT_TO_CALLE("ERROR_COUNT_TO_CALLE", DataCollectorCategory.CALLER_STAT) {
+    ERROR_COUNT_TO_CALLEE("ERROR_COUNT_TO_CALLEE", DataCollectorCategory.CALLER_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
-            return new ErrorCountToCalleChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
+            return new ErrorCountToCalleeChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
         }
     },
     
-    ERROR_RATE_TO_CALLE("ERROR_RATE_TO_CALLE", DataCollectorCategory.CALLER_STAT) {
+    ERROR_RATE_TO_CALLEE("ERROR_RATE_TO_CALLEE", DataCollectorCategory.CALLER_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
-            return new ErrorRateToCalleChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
+            return new ErrorRateToCalleeChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
         }
     },
     
-    TOTAL_COUNT_TO_CALLE("TOTAL_COUNT_TO_CALLE", DataCollectorCategory.CALLER_STAT) {
+    TOTAL_COUNT_TO_CALLEE("TOTAL_COUNT_TO_CALLEE", DataCollectorCategory.CALLER_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
-            return new TotalCountToCalleChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
+            return new TotalCountToCalleeChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
         }
     },
     

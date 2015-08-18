@@ -28,7 +28,7 @@ import org.junit.Test;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
-import com.navercorp.pinpoint.web.alarm.checker.TotalCountToCalleChecker;
+import com.navercorp.pinpoint.web.alarm.checker.TotalCountToCalleeChecker;
 import com.navercorp.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
@@ -85,7 +85,7 @@ public class TotalCountToCalleCheckerTest {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
         MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.TOTAL_COUNT_TO_CALLE.getName(), 10, "testGroup", false, false, TO_SERVICE_NAME + 1);
-        TotalCountToCalleChecker checker = new TotalCountToCalleChecker(dataCollector, rule);
+        TotalCountToCalleeChecker checker = new TotalCountToCalleeChecker(dataCollector, rule);
         
         checker.check();
         assertTrue(checker.isDetected());
@@ -96,7 +96,7 @@ public class TotalCountToCalleCheckerTest {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
         MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.TOTAL_COUNT_TO_CALLE.getName(), 11, "testGroup", false, false, TO_SERVICE_NAME + 1);
-        TotalCountToCalleChecker checker = new TotalCountToCalleChecker(dataCollector, rule);
+        TotalCountToCalleeChecker checker = new TotalCountToCalleeChecker(dataCollector, rule);
         
         checker.check();
         assertFalse(checker.isDetected());
@@ -107,7 +107,7 @@ public class TotalCountToCalleCheckerTest {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
         MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.TOTAL_COUNT_TO_CALLE.getName(), 10, "testGroup", false, false, TO_SERVICE_NAME + 2);
-        TotalCountToCalleChecker checker = new TotalCountToCalleChecker(dataCollector, rule);
+        TotalCountToCalleeChecker checker = new TotalCountToCalleeChecker(dataCollector, rule);
         
         checker.check();
         assertTrue(checker.isDetected());

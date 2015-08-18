@@ -29,7 +29,7 @@ import org.junit.Test;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
-import com.navercorp.pinpoint.web.alarm.checker.SlowRateToCalleChecker;
+import com.navercorp.pinpoint.web.alarm.checker.SlowRateToCalleeChecker;
 import com.navercorp.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
@@ -86,7 +86,7 @@ public class SlowRateToCalleCheckerTest {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
         MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.SLOW_RATE_TO_CALLE.getName(), 70, "testGroup", false, false, TO_SERVICE_NAME + 1);
-        SlowRateToCalleChecker checker = new SlowRateToCalleChecker(dataCollector, rule);
+        SlowRateToCalleeChecker checker = new SlowRateToCalleeChecker(dataCollector, rule);
         
         checker.check();
         assertTrue(checker.isDetected());
@@ -97,7 +97,7 @@ public class SlowRateToCalleCheckerTest {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
         MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.SLOW_RATE_TO_CALLE.getName(), 71, "testGroup", false, false, TO_SERVICE_NAME + 1);
-        SlowRateToCalleChecker checker = new SlowRateToCalleChecker(dataCollector, rule);
+        SlowRateToCalleeChecker checker = new SlowRateToCalleeChecker(dataCollector, rule);
         
         checker.check();
         assertFalse(checker.isDetected());
@@ -108,7 +108,7 @@ public class SlowRateToCalleCheckerTest {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
         MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.SLOW_RATE_TO_CALLE.getName(), 90, "testGroup", false, false, TO_SERVICE_NAME + 2);
-        SlowRateToCalleChecker checker = new SlowRateToCalleChecker(dataCollector, rule);
+        SlowRateToCalleeChecker checker = new SlowRateToCalleeChecker(dataCollector, rule);
         
         checker.check();
         assertTrue(checker.isDetected());
