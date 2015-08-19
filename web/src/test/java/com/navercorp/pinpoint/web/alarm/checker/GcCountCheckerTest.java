@@ -44,6 +44,7 @@ public class GcCountCheckerTest {
 
 
     private static final String SERVICE_NAME = "local_service";
+    private static final String SERVICE_TYPE = "tomcat";
 
     private static ApplicationIndexDao applicationIndexDao;
     
@@ -109,7 +110,7 @@ public class GcCountCheckerTest {
     
     @Test
     public void checkTest1() {
-        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.GC_COUNT.getName(), 35, "testGroup", false, false, "");
+        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.GC_COUNT.getName(), 35, "testGroup", false, false, "");
         Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
         AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, agentStatDao, applicationIndexDao, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
         AgentChecker checker = new GcCountChecker(collector, rule);
@@ -120,7 +121,7 @@ public class GcCountCheckerTest {
     
     @Test
     public void checkTest2() {
-        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.GC_COUNT.getName(), 36, "testGroup", false, false, "");
+        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.GC_COUNT.getName(), 36, "testGroup", false, false, "");
         Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
         AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, agentStatDao, applicationIndexDao, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
         AgentChecker checker = new GcCountChecker(collector, rule);

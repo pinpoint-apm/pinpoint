@@ -4,9 +4,9 @@
 <mapper namespace="com.navercorp.pinpoint.web.dao.AlarmDao">
 
     <insert id="insertRule" parameterType="Rule" useGeneratedKeys="true" keyProperty="ruleId">
-        INSERT INTO alarm_rule(application_id, checker_name, threshold, user_group_id, sms_send, email_send, notes)
+        INSERT INTO alarm_rule(application_id, service_type, checker_name, threshold, user_group_id, sms_send, email_send, notes)
         VALUES
-            (#{applicationId}, #{checkerName}, #{threshold}, #{userGroupId}, #{smsSend}, #{emailSend}, #{notes})
+            (#{applicationId}, #{serviceType}, #{checkerName}, #{threshold}, #{userGroupId}, #{smsSend}, #{emailSend}, #{notes})
     </insert>
     
     <delete id="deleteRule" parameterType="Rule">
@@ -35,7 +35,7 @@
     
     <update id="updateRule">
         UPDATE alarm_rule
-        SET application_id = #{applicationId}, checker_name = #{checkerName}, threshold = #{threshold}, user_group_id = #{userGroupId}, sms_send = #{smsSend}, email_send = #{emailSend}, notes = #{notes} 
+        SET application_id = #{applicationId}, service_type = #{serviceType}, checker_name = #{checkerName}, threshold = #{threshold}, user_group_id = #{userGroupId}, sms_send = #{smsSend}, email_send = #{emailSend}, notes = #{notes} 
         WHERE rule_id = #{ruleId}
     </update>
 </mapper>

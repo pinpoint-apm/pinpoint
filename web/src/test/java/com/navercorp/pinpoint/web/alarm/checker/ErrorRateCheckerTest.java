@@ -38,7 +38,8 @@ import com.navercorp.pinpoint.web.vo.ResponseTime;
 
 public class ErrorRateCheckerTest {
     
-    private static final String SERVICE_NAME = "local_service"; 
+    private static final String SERVICE_NAME = "local_service";
+    private static final String SERVICE_TYPE = "tomcat";
     
     private static MapResponseDao mockMapResponseDAO;
     
@@ -80,7 +81,7 @@ public class ErrorRateCheckerTest {
     public void checkTest1() {
         Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.ERROR_RATE.getName(), 60, "testGroup", false, false, "");
+        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.ERROR_RATE.getName(), 60, "testGroup", false, false, "");
         ErrorRateChecker filter = new ErrorRateChecker(collector, rule);
     
         filter.check();
@@ -94,7 +95,7 @@ public class ErrorRateCheckerTest {
     public void checkTest2() {
         Application application = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.ERROR_RATE.getName(), 61, "testGroup", false, false, "");
+        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.ERROR_RATE.getName(), 61, "testGroup", false, false, "");
         ErrorRateChecker filter = new ErrorRateChecker(collector, rule);
     
         filter.check();

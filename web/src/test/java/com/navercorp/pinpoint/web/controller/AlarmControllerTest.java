@@ -59,6 +59,8 @@ import com.navercorp.pinpoint.web.dao.AlarmDao;
 public class AlarmControllerTest {
     private final static String APPLICATION_ID = "test-application";
     private final static String APPLICATION_ID_UPDATED = "test-application-tomcat";
+   
+    private final static String SERVICE_TYPE = "tomcat";
     
     private final static String USER_GROUP_ID = "test-pinpoint_group";
     private final static String USER_GROUP_ID_UPDATED = "test-pinpoint_team";
@@ -98,6 +100,7 @@ public class AlarmControllerTest {
     public void insertAndSelectAndDeleteRule() throws Exception {
         String jsonParm = "{" +
                             "\"applicationId\" : \"" + APPLICATION_ID + "\"," + 
+                            "\"serviceType\" : \"" + SERVICE_TYPE + "\"," + 
                             "\"userGroupId\" : \"" + USER_GROUP_ID + "\"," + 
                             "\"checkerName\" : \"" + CHECKER_NAME + "\"," + 
                             "\"threshold\" : " + THRESHOLD + "," + 
@@ -117,10 +120,11 @@ public class AlarmControllerTest {
         Assert.assertEquals(resultMap.get("result"), "SUCCESS");
         Assert.assertNotNull(resultMap.get("ruleId"));
         
-        this.mockMvc.perform(get("/alarmRule.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"userGroupId\" : \"" + USER_GROUP_ID + "\"}"))
+        this.mockMvc.perform(get("/alarmRule.pinpoint?userGroupId=" + USER_GROUP_ID))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$[0]", hasKey("applicationId")))
+                .andExpect(jsonPath("$[0]", hasKey("serviceType")))
                 .andExpect(jsonPath("$[0]", hasKey("userGroupId")))
                 .andExpect(jsonPath("$[0]", hasKey("checkerName")))
                 .andExpect(jsonPath("$[0]", hasKey("threshold")))
@@ -142,6 +146,7 @@ public class AlarmControllerTest {
     public void updateRule() throws Exception {
         String jsonParm = "{" +
                             "\"applicationId\" : \"" + APPLICATION_ID + "\"," + 
+                            "\"serviceType\" : \"" + SERVICE_TYPE + "\"," + 
                             "\"userGroupId\" : \"" + USER_GROUP_ID + "\"," + 
                             "\"checkerName\" : \"" + CHECKER_NAME + "\"," + 
                             "\"threshold\" : " + THRESHOLD + "," + 
@@ -164,6 +169,7 @@ public class AlarmControllerTest {
         String updatedJsonParm = "{" +
                 "\"ruleId\" : \"" + resultMap.get("ruleId") + "\"," + 
                 "\"applicationId\" : \"" + APPLICATION_ID_UPDATED + "\"," + 
+                "\"serviceType\" : \"" + SERVICE_TYPE + "\"," + 
                 "\"userGroupId\" : \"" + USER_GROUP_ID_UPDATED + "\"," + 
                 "\"checkerName\" : \"" + CHECKER_NAME_UPDATED + "\"," + 
                 "\"threshold\" : " + THRESHOLD_UPDATED + "," + 
@@ -179,12 +185,12 @@ public class AlarmControllerTest {
                 .andExpect(jsonPath("$.result").value("SUCCESS"))
                 .andReturn();
         
-//        this.mockMvc.perform(delete("/alarmRule.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"ruleId\" : \"" + resultMap.get("ruleId") + "\"}"))
-//                        .andExpect(status().isOk())
-//                        .andExpect(content().contentType("application/json;charset=UTF-8"))
-//                        .andExpect(jsonPath("$", hasKey("result")))
-//                        .andExpect(jsonPath("$.result").value("SUCCESS"))
-//                        .andReturn();
+        this.mockMvc.perform(delete("/alarmRule.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"ruleId\" : \"" + resultMap.get("ruleId") + "\"}"))
+                        .andExpect(status().isOk())
+                        .andExpect(content().contentType("application/json;charset=UTF-8"))
+                        .andExpect(jsonPath("$", hasKey("result")))
+                        .andExpect(jsonPath("$.result").value("SUCCESS"))
+                        .andReturn();
     }
     
     @Test
@@ -200,5 +206,4 @@ public class AlarmControllerTest {
         List<String> checherList = objectMapper.readValue(content, List.class);
         Assert.assertNotEquals(checherList.size(), 0);
     }
-    
 }
