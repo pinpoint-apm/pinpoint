@@ -44,6 +44,7 @@ public class ReaderTest {
     private static AlarmService alarmService;
     private static DataCollectorFactory dataCollectorFactory;
     private static final String APP_NAME = "app";
+    private static final String SERVICE_TYPE = "tomcat";
     
     @Test
     public void readTest() {
@@ -127,7 +128,7 @@ public class ReaderTest {
                 ruleMap = new HashMap<String, Rule>();
 
                 for(int i = 0; i <=6; i++) {
-                    ruleMap.put(APP_NAME + i, new Rule(APP_NAME + i, CheckerCategory.SLOW_COUNT.getName(), 76, "testGroup", false, false, ""));
+                    ruleMap.put(APP_NAME + i, new Rule(APP_NAME + i, SERVICE_TYPE, CheckerCategory.SLOW_COUNT.getName(), 76, "testGroup", false, false, ""));
                 }
             }
             

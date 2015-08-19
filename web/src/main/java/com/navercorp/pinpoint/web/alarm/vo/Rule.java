@@ -23,7 +23,8 @@ public class Rule {
 
     private String ruleId;
     private String applicationId;
-    private String CheckerName;
+    private String serviceType;
+    private String checkerName;
     private Integer threshold;
     private String userGroupId;
     private boolean smsSend;
@@ -33,9 +34,10 @@ public class Rule {
     public Rule() {
     }
 
-    public Rule(String applicationId, String checkerName, Integer Threshold, String userGroupId, boolean smsSend, boolean emailSend, String notes) {
+    public Rule(String applicationId, String serviceType, String checkerName, Integer Threshold, String userGroupId, boolean smsSend, boolean emailSend, String notes) {
         this.applicationId = applicationId;
-        this.CheckerName = checkerName;
+        this.serviceType = serviceType;
+        this.checkerName = checkerName;
         this.threshold = Threshold;
         this.userGroupId = userGroupId;
         this.smsSend = smsSend;
@@ -51,12 +53,20 @@ public class Rule {
         this.applicationId = applicationId;
     }
 
+    public String getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
+    }
+    
     public String getCheckerName() {
-        return CheckerName;
+        return checkerName;
     }
 
     public void setCheckerName(String checkerName) {
-        CheckerName = checkerName;
+        this.checkerName = checkerName;
     }
 
     public Integer getThreshold() {
