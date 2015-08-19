@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.spring.beans;
+package com.navercorp.pinpoint.plugin.spring.beans;
+
 
 public class Maru implements Comparable<Maru> {
     private static final String staticField;

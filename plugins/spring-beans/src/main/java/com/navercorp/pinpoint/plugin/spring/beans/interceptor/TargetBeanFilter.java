@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.spring.beans.interceptor;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package com.navercorp.pinpoint.plugin.spring.beans.interceptor;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -30,36 +24,30 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansConfig;
+
 /**
  * 
  * @author Jongho Moon <jongho.moon@navercorp.com>
  *
  */
 public class TargetBeanFilter {
-    private static final int CACHE_SIZE = 1024;
-    private static final int CACHE_CONCURRENCY_LEVEL = Runtime.getRuntime().availableProcessors() * 2;
-    private static final Object EXIST = new Object();
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final PLogger logger = PLoggerFactory.getLogger(getClass());
 
     private final List<Pattern> targetNamePatterns;
     private final List<Pattern> targetClassPatterns;
     private final List<String> targetAnnotationNames;
     private final ConcurrentMap<ClassLoader, List<Class<? extends Annotation>>> targetAnnotationMap = new ConcurrentHashMap<ClassLoader, List<Class<? extends Annotation>>>();
 
-    private final Cache<Class<?>, Object> transformed = createCache();
+    private final Cache transformed = new Cache();
+    private final Cache rejected = new Cache();
 
-    private final Cache<Class<?>, Object> rejected = createCache();
-
-    private Cache<Class<?>, Object> createCache() {
-        final CacheBuilder<Object, Object> builder = CacheBuilder.newBuilder();
-        builder.concurrencyLevel(CACHE_CONCURRENCY_LEVEL);
-        builder.maximumSize(CACHE_SIZE);
-        builder.weakKeys();
-        return builder.build();
-    }
-
-    public static TargetBeanFilter of(ProfilerConfig config) {
+    public static TargetBeanFilter of(ProfilerConfig profilerConfig) {
+        SpringBeansConfig config = new SpringBeansConfig(profilerConfig);
+        
         List<String> targetNamePatternStrings = split(config.getSpringBeansNamePatterns());
         List<Pattern> beanNamePatterns = compilePattern(targetNamePatternStrings);
 
@@ -90,7 +78,7 @@ public class TargetBeanFilter {
     }
 
     public boolean isTarget(String beanName, Class<?> clazz) {
-        if (transformed.getIfPresent(clazz) == EXIST) {
+        if (transformed.contains(clazz)) {
             return false;
         }
 
@@ -110,7 +98,7 @@ public class TargetBeanFilter {
     }
 
     private boolean isTarget(Class<?> clazz) {
-        if (rejected.getIfPresent(clazz) == EXIST) {
+        if (rejected.contains(clazz)) {
             return false;
         }
 
@@ -142,12 +130,12 @@ public class TargetBeanFilter {
             }
         }
 
-        rejected.put(clazz, EXIST);
+        rejected.put(clazz);
         return false;
     }
 
     public void addTransformed(Class<?> clazz) {
-        transformed.put(clazz, EXIST);
+        transformed.put(clazz);
     }
 
     private List<Class<? extends Annotation>> getTargetAnnotations(ClassLoader classLoader) {

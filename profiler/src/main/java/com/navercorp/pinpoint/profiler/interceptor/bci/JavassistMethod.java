@@ -27,13 +27,11 @@ import javassist.CtMethod;
 import javassist.Modifier;
 import javassist.NotFoundException;
 import javassist.bytecode.BadBytecode;
-import javassist.bytecode.ByteArray;
 import javassist.bytecode.Bytecode;
 import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.CodeIterator;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
-import javassist.bytecode.LocalVariableAttribute;
 import javassist.compiler.CompileError;
 import javassist.compiler.Javac;
 
@@ -262,26 +260,37 @@ public class JavassistMethod implements InstrumentMethod {
     }
 
     private void addInterceptor0(InterceptorInstance instance, int interceptorId, InterceptPoint point) throws CannotCompileException, NotFoundException {
-        addLocalVariable(InvokeCodeGenerator.getInterceptorInstanceVar(interceptorId), InterceptorInstance.class);
+        StringBuilder initVars = new StringBuilder();
+        
+        String interceptorInstanceVar = InvokeCodeGenerator.getInterceptorInstanceVar(interceptorId);
+        addLocalVariable(interceptorInstanceVar, InterceptorInstance.class);
+        initVars.append(interceptorInstanceVar);
+        initVars.append(" = null;");
         
         if (instance.getGroup() != null) {
-            addLocalVariable(InvokeCodeGenerator.getInterceptorGroupInvocationVar(interceptorId), InterceptorGroupInvocation.class);
+            String interceptorGroupInvocationVar = InvokeCodeGenerator.getInterceptorGroupInvocationVar(interceptorId);
+            addLocalVariable(interceptorGroupInvocationVar, InterceptorGroupInvocation.class);
+            initVars.append(interceptorGroupInvocationVar);
+            initVars.append(" = null;");
+            
             point = InterceptPoint.AROUND;
         }
         
-        int originalCodeOffset = -1;
+        int originalCodeOffset = insertBefore(-1, initVars.toString());
+
+        boolean localVarsInitialized = false;
         
-        switch (point) {
-        case AROUND:
-            originalCodeOffset = addBeforeInterceptor(instance, interceptorId);
-            addAfterInterceptor(instance, interceptorId, originalCodeOffset);
-            break;
-        case BEFORE:
-            addBeforeInterceptor(instance, interceptorId);
-            break;
-        case AFTER:
-            addAfterInterceptor(instance, interceptorId, originalCodeOffset);
-            break;
+        if (point != InterceptPoint.AFTER) {
+            int offset = addBeforeInterceptor(instance, interceptorId, originalCodeOffset);
+            
+            if (offset != -1) {
+                localVarsInitialized = true;
+                originalCodeOffset = offset;
+            }
+        }
+
+        if (point != InterceptPoint.BEFORE) {
+            addAfterInterceptor(instance, interceptorId, localVarsInitialized, originalCodeOffset);
         }
     }
 
@@ -295,7 +304,7 @@ public class JavassistMethod implements InstrumentMethod {
         return null;
     }
 
-    private void addAfterInterceptor(InterceptorInstance instance, int interceptorId, int originalCodeOffset) throws NotFoundException, CannotCompileException {
+    private void addAfterInterceptor(InterceptorInstance instance, int interceptorId, boolean localVarsInitialized, int originalCodeOffset) throws NotFoundException, CannotCompileException {
         Class<?> interceptorClass = instance.getInterceptor().getClass();
         Method interceptorMethod = findMethod(interceptorClass, "after");
 
@@ -305,8 +314,20 @@ public class JavassistMethod implements InstrumentMethod {
             }
             return;
         }
+        
+        
+        InvokeAfterCodeGenerator catchGenerator = new InvokeAfterCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this, instance.getPolicy(), localVarsInitialized, true);
+        String catchCode = catchGenerator.generate();
+        
+        if (isDebug) {
+            logger.debug("addAfterInterceptor catch behavior:{} code:{}", behavior.getLongName(), catchCode);
+        }
+        
+        CtClass throwable = behavior.getDeclaringClass().getClassPool().get("java.lang.Throwable");
+        insertCatch(originalCodeOffset, catchCode, throwable, "$e");
 
-        InvokeAfterCodeGenerator afterGenerator = new InvokeAfterCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this, instance.getPolicy(), originalCodeOffset != -1, false);
+        
+        InvokeAfterCodeGenerator afterGenerator = new InvokeAfterCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this, instance.getPolicy(), localVarsInitialized, false);
         final String afterCode = afterGenerator.generate();
 
         if (isDebug) {
@@ -314,19 +335,9 @@ public class JavassistMethod implements InstrumentMethod {
         }
 
         behavior.insertAfter(afterCode);
-
-        InvokeAfterCodeGenerator catchGenerator = new InvokeAfterCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this, instance.getPolicy(), originalCodeOffset != -1, true);
-        String catchCode = catchGenerator.generate();
-
-        if (isDebug) {
-            logger.debug("addAfterInterceptor catch behavior:{} code:{}", behavior.getLongName(), catchCode);
-        }
-
-        CtClass throwable = behavior.getDeclaringClass().getClassPool().get("java.lang.Throwable");
-        addCatch(originalCodeOffset, catchCode, throwable, "$e");
     }
 
-    private int addBeforeInterceptor(InterceptorInstance instance, int interceptorId) throws CannotCompileException, NotFoundException {
+    private int addBeforeInterceptor(InterceptorInstance instance, int interceptorId, int pos) throws CannotCompileException, NotFoundException {
         Class<?> interceptorClass = instance.getInterceptor().getClass();
         Method interceptorMethod = findMethod(interceptorClass, "before");
 
@@ -344,26 +355,22 @@ public class JavassistMethod implements InstrumentMethod {
             logger.debug("addBeforeInterceptor before behavior:{} code:{}", behavior.getLongName(), beforeCode);
         }
 
-        if (behavior instanceof CtConstructor) {
-            return insertBeforeConstructor(beforeCode);
-        } else {
-            return insertBefore(beforeCode);
-        }
+        return insertBefore(pos, beforeCode);
     }
 
     private void addLocalVariable(String name, Class<?> type) throws CannotCompileException, NotFoundException {
         behavior.addLocalVariable(name, behavior.getDeclaringClass().getClassPool().get(type.getName()));
     }
-
-    private void setLocalVariableLength(int index) {
-        CodeAttribute ca = behavior.getMethodInfo().getCodeAttribute();
-        LocalVariableAttribute va = (LocalVariableAttribute) ca.getAttribute(LocalVariableAttribute.tag);
-        byte[] info = va.get();
-
-        ByteArray.write16bit(ca.iterator().getCodeLength(), info, index * 10 + 4);
+    
+    private int insertBefore(int pos, String src) throws CannotCompileException {
+        if (isConstructor()) {
+            return insertBeforeConstructor(pos, src);
+        } else {
+            return insertBeforeMethod(pos, src);
+        }
     }
 
-    private int insertBefore(String src) throws CannotCompileException {
+    private int insertBeforeMethod(int pos, String src) throws CannotCompileException {
         CtClass cc = behavior.getDeclaringClass();
         CodeAttribute ca = behavior.getMethodInfo().getCodeAttribute();
         if (ca == null)
@@ -386,8 +393,13 @@ public class JavassistMethod implements InstrumentMethod {
 
             if (locals > ca.getMaxLocals())
                 ca.setMaxLocals(locals);
-
-            int pos = iterator.insertEx(b.get());
+            
+            if (pos != -1) { 
+                iterator.insertEx(pos, b.get());
+            } else {
+                pos = iterator.insertEx(b.get());
+            }
+            
             iterator.insert(b.getExceptionTable(), pos);
             behavior.getMethodInfo().rebuildStackMapIf6(cc.getClassPool(), cc.getClassFile2());
             
@@ -401,7 +413,7 @@ public class JavassistMethod implements InstrumentMethod {
         }
     }
     
-    public int insertBeforeConstructor(String src) throws CannotCompileException {
+    private int insertBeforeConstructor(int pos, String src) throws CannotCompileException {
         CtClass cc = behavior.getDeclaringClass();
 
         CodeAttribute ca = behavior.getMethodInfo().getCodeAttribute();
@@ -417,7 +429,11 @@ public class JavassistMethod implements InstrumentMethod {
             ca.setMaxStack(b.getMaxStack());
             ca.setMaxLocals(b.getMaxLocals());
             iterator.skipConstructor();
-            int pos = iterator.insertEx(b.get());
+            if (pos != -1) { 
+                iterator.insertEx(pos, b.get());
+            } else {
+                pos = iterator.insertEx(b.get());
+            }
             iterator.insert(b.getExceptionTable(), pos);
             behavior.getMethodInfo().rebuildStackMapIf6(cc.getClassPool(), cc.getClassFile2());
             
@@ -435,7 +451,7 @@ public class JavassistMethod implements InstrumentMethod {
     }
 
 
-    public void addCatch(int from, String src, CtClass exceptionType, String exceptionName) throws CannotCompileException {
+    private void insertCatch(int from, String src, CtClass exceptionType, String exceptionName) throws CannotCompileException {
         CtClass cc = behavior.getDeclaringClass();
         ConstPool cp = behavior.getMethodInfo().getConstPool();
         CodeAttribute ca = behavior.getMethodInfo().getCodeAttribute();

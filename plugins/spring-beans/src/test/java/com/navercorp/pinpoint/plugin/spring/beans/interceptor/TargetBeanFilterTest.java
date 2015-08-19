@@ -12,9 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.modifier.spring.beans.interceptor;
-
-import static org.junit.Assert.*;
+package com.navercorp.pinpoint.plugin.spring.beans.interceptor;
 
 import java.util.Properties;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.spring.beans;
+package com.navercorp.pinpoint.plugin.spring.beans;
 
 import org.springframework.stereotype.Component;
 

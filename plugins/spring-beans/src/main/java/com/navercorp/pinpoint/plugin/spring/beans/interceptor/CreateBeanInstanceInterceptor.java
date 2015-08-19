@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.spring.beans.interceptor;
+package com.navercorp.pinpoint.plugin.spring.beans.interceptor;
 
 import java.lang.reflect.Method;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventTrigger;
-import com.navercorp.pinpoint.profiler.modifier.Modifier;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 
 /**
  * 
@@ -31,12 +31,11 @@ import com.navercorp.pinpoint.profiler.modifier.Modifier;
 public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     
-    public CreateBeanInstanceInterceptor(RetransformEventTrigger retransformEventTrigger, Modifier modifier, TargetBeanFilter filter) {
-        super(retransformEventTrigger, modifier, filter);
+    public CreateBeanInstanceInterceptor(ProfilerPluginInstrumentContext instrumentContext, PinpointClassFileTransformer transformer, TargetBeanFilter filter) {
+        super(instrumentContext, transformer, filter);
     }
 
-    @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, String beanName) {
         try {
             if (result == null) {
                 return;
@@ -52,8 +51,6 @@ public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInt
                 return;
             }
             
-            String beanName = (String)args[0];
-
             processBean(beanName, bean);
         } catch (Throwable t) {
             logger.warn("Unexpected exception", t);

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.spring.beans;
+package com.navercorp.pinpoint.plugin.spring.beans;
 
 import java.lang.reflect.Method;
 
@@ -25,8 +25,6 @@ import org.springframework.aop.ClassFilter;
 import org.springframework.aop.MethodMatcher;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.AbstractPointcutAdvisor;
-
-import com.navercorp.pinpoint.profiler.modifier.spring.beans.ProxyTarget;
 
 @SuppressWarnings("serial")
 public class TestAdvisor extends AbstractPointcutAdvisor {

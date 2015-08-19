@@ -14,30 +14,28 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.spring.beans.interceptor;
+package com.navercorp.pinpoint.plugin.spring.beans.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.profiler.ProfilerException;
-import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventTrigger;
-import com.navercorp.pinpoint.profiler.modifier.Modifier;
-import com.navercorp.pinpoint.profiler.modifier.ModifierTransformAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 
 /**
  * 
  * @author Jongho Moon <jongho.moon@navercorp.com>
  */
-public abstract class AbstractSpringBeanCreationInterceptor implements SimpleAroundInterceptor {
+public abstract class AbstractSpringBeanCreationInterceptor implements Interceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
 
-    private final RetransformEventTrigger retransformEventTrigger;
-    private final Modifier modifier;
+    private final ProfilerPluginInstrumentContext instrumentContext;
+    private final PinpointClassFileTransformer transformer;
     private final TargetBeanFilter filter;
     
-    protected AbstractSpringBeanCreationInterceptor(RetransformEventTrigger retransformEventTrigger, Modifier modifier, TargetBeanFilter filter) {
-        this.retransformEventTrigger = retransformEventTrigger;
-        this.modifier = modifier;
+    protected AbstractSpringBeanCreationInterceptor(ProfilerPluginInstrumentContext instrumentContext, PinpointClassFileTransformer transformer, TargetBeanFilter filter) {
+        this.instrumentContext = instrumentContext;
+        this.transformer = transformer;
         this.filter = filter;
     }
 
@@ -53,24 +51,12 @@ public abstract class AbstractSpringBeanCreationInterceptor implements SimpleAro
         }
         
         // If you want to trace inherited methods, you have to retranform super classes, too.
-        
-        try {
-            ModifierTransformAdaptor transformAdaptor = new ModifierTransformAdaptor(modifier);
-            retransformEventTrigger.retransform(clazz, transformAdaptor);
-
-            if (logger.isInfoEnabled()) {
-                logger.info("Retransform {}", clazz.getName());
-            }
-        } catch (ProfilerException e) {
-            logger.warn("Fail to retransform: {}", clazz.getName(), e);
-            return;
-        }
+        instrumentContext.retransform(clazz, transformer);
         
         filter.addTransformed(clazz);
-    }
 
-    @Override
-    public final void before(Object target, Object[] args) {
-        // do nothing
+        if (logger.isInfoEnabled()) {
+            logger.info("Retransform {}", clazz.getName());
+        }
     }
 }
