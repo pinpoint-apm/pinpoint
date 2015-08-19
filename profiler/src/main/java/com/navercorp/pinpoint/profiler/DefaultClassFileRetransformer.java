@@ -47,7 +47,7 @@ public class DefaultClassFileRetransformer implements ClassFileRetransformer {
         final ClassFileTransformer transformer = transformerMap.remove(classBeingRedefined);
         if (transformer != null) {
             try {
-                return transformer.transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+                return transformer.transform(loader, classBeingRedefined.getName(), classBeingRedefined, protectionDomain, classfileBuffer);
             } catch (Throwable t) {
                 logger.warn("Failed to retransform {} with {}", className, transformer);
                 return null;

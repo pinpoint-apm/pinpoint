@@ -196,12 +196,6 @@ public class ProfilerConfig {
     private int ningAsyncHttpClientProfileParamDumpSize = 1024;
     private int ningAsyncHttpClientProfileParamSamplingRate = 1;
 
-    // Spring Beans
-    private boolean springBeans = false;
-    private String springBeansNamePatterns = null;
-    private String springBeansClassPatterns = null;
-    private String springBeansAnnotations = null;
-
     // Sampling
     private boolean samplingEnable = true;
     private int samplingRate = 1;
@@ -576,22 +570,6 @@ public class ProfilerConfig {
         return ningAsyncHttpClientProfileParamSamplingRate;
     }
 
-    public boolean isSpringBeansEnabled() {
-        return springBeans;
-    }
-
-    public String getSpringBeansNamePatterns() {
-        return springBeansNamePatterns;
-    }
-
-    public String getSpringBeansClassPatterns() {
-        return springBeansClassPatterns;
-    }
-
-    public String getSpringBeansAnnotations() {
-        return springBeansAnnotations;
-    }
-
     public boolean isIBatisEnabled() {
         return ibatis;
     }
@@ -794,11 +772,6 @@ public class ProfilerConfig {
         this.ibatis = readBoolean("profiler.orm.ibatis", true);
 
         this.mybatis = readBoolean("profiler.orm.mybatis", true);
-
-        this.springBeans = readBoolean("profiler.spring.beans", false);
-        this.springBeansNamePatterns = readString("profiler.spring.beans.name.pattern", null);
-        this.springBeansClassPatterns = readString("profiler.spring.beans.class.pattern", null);
-        this.springBeansAnnotations = readString("profiler.spring.beans.annotation", null);
 
         this.samplingEnable = readBoolean("profiler.sampling.enable", true);
         this.samplingRate = readInt("profiler.sampling.rate", 1);
@@ -1072,14 +1045,6 @@ public class ProfilerConfig {
         builder.append(ningAsyncHttpClientProfileParamDumpSize);
         builder.append(", ningAsyncHttpClientProfileParamSamplingRate=");
         builder.append(ningAsyncHttpClientProfileParamSamplingRate);
-        builder.append(", springBeans=");
-        builder.append(springBeans);
-        builder.append(", springBeansNamePatterns=");
-        builder.append(springBeansNamePatterns);
-        builder.append(", springBeansClassPatterns=");
-        builder.append(springBeansClassPatterns);
-        builder.append(", springBeansAnnotations=");
-        builder.append(springBeansAnnotations);
         builder.append(", samplingEnable=");
         builder.append(samplingEnable);
         builder.append(", samplingRate=");

@@ -77,7 +77,6 @@ public class AsyncEchoTestClient implements EchoTestClient {
 
     @Override
     public void verifyTraces(PluginTestVerifier verifier, String expectedMessage) throws Exception {
-        
         // ********** Asynchronous Traces
         // SpanEvent - Thrift Asynchronous Client Invocation
         ExpectedTrace asyncClientInvocationTrace = event("ASYNC", "Thrift Asynchronous Client Invocation");

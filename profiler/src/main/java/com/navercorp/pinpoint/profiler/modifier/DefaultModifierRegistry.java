@@ -56,7 +56,6 @@ import com.navercorp.pinpoint.profiler.modifier.method.MethodModifier;
 import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.SqlMapModifier;
 import com.navercorp.pinpoint.profiler.modifier.orm.mybatis.MyBatisModifier;
 import com.navercorp.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
-import com.navercorp.pinpoint.profiler.modifier.spring.beans.AbstractAutowireCapableBeanFactoryModifier;
 import com.navercorp.pinpoint.profiler.modifier.spring.orm.ibatis.SqlMapClientTemplateModifier;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
@@ -265,12 +264,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     private void addMyBatisSupport() {
         if (profilerConfig.isMyBatisEnabled()) {
             addModifier(new MyBatisModifier(byteCodeInstrumentor, agent));
-        }
-    }
-
-    public void addSpringBeansModifier() {
-        if (profilerConfig.isSpringBeansEnabled()) {
-            addModifier(AbstractAutowireCapableBeanFactoryModifier.of(byteCodeInstrumentor, agent.getProfilerConfig()));
         }
     }
 

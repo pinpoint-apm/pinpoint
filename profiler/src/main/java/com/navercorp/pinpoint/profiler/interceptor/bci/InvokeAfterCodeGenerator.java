@@ -29,17 +29,17 @@ public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
     private final Method interceptorMethod;
     private final InstrumentClass targetClass;
     private final ExecutionPolicy policy;
-    private final boolean hasBefore;
+    private final boolean localVarsInitialized;
     private final boolean catchClause;
     
-    public InvokeAfterCodeGenerator(int interceptorId, Class<?> interceptorClass, Method interceptorMethod, InstrumentClass targetClass, InstrumentMethod targetMethod, ExecutionPolicy policy, boolean hasBefore, boolean catchCluase) {
+    public InvokeAfterCodeGenerator(int interceptorId, Class<?> interceptorClass, Method interceptorMethod, InstrumentClass targetClass, InstrumentMethod targetMethod, ExecutionPolicy policy, boolean localVarsInitialized, boolean catchCluase) {
         super(interceptorId, interceptorClass, targetMethod, policy);
         
         this.interceptorId = interceptorId;
         this.interceptorMethod = interceptorMethod;
         this.targetClass = targetClass;
         this.policy = policy;
-        this.hasBefore = hasBefore;
+        this.localVarsInitialized = localVarsInitialized;
         this.catchClause = catchCluase;
     }
 
@@ -63,9 +63,11 @@ public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
         
         builder.append("try { ");
 
-        if (!hasBefore) {
+        if (!localVarsInitialized) {
             builder.format("%1$s = %2$s.findInterceptor(%3$d); ", getInterceptorInstanceVar(), getInterceptorRegistryClassName(), interceptorId);
-        } else if (policy != null) {
+        } 
+        
+        if (policy != null) {
             builder.format("if (%1$s.canLeave(%2$s)) { ", getInterceptorGroupInvocationVar(), getExecutionPolicy());
         }
         

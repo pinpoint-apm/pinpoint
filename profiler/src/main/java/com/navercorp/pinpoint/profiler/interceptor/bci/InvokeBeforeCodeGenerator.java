@@ -58,13 +58,6 @@ public class InvokeBeforeCodeGenerator extends InvokeCodeGenerator {
         //     InterceptorInvokerHelper.handleException(t);
         // }
         
-        builder.format("%1$s = null; ", getInterceptorInstanceVar());
-        
-        if (policy != null) {
-            builder.format("%1$s = null;", getInterceptorGroupInvocationVar());
-        }
-        
-        
         builder.append("try { ");
         builder.format("%1$s = %2$s.findInterceptor(%3$d); ", getInterceptorInstanceVar(), getInterceptorRegistryClassName(), interceptorId);
         
