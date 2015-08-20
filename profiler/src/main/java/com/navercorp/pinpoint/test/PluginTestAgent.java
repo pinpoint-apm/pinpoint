@@ -37,6 +37,7 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedSql;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
@@ -621,6 +622,10 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
                 verifySql((ExpectedSql)expect, actualAnnotation);
             } else {
                 Object expectedValue = expect.getValue();
+                
+                if (expectedValue == Expectations.anyAnnotationValue()) {
+                    continue;
+                }
                 
                 if (AnnotationKey.isCachedArgsKey(expectedAnnotationKey.getCode())) {
                     expectedValue = getTestTcpDataSender().getStringId(expectedValue.toString());

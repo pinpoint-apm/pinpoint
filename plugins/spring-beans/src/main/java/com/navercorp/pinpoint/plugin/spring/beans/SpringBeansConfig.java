@@ -21,14 +21,18 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  *
  */
 public class SpringBeansConfig {
+    public static final String SPRING_BEANS_ANNOTATION = "profiler.spring.beans.annotation";
+    public static final String SPRING_BEANS_CLASS_PATTERN = "profiler.spring.beans.class.pattern";
+    public static final String SPRING_BEANS_NAME_PATTERN = "profiler.spring.beans.name.pattern";
+
     private final String springBeansNamePatterns;
     private final String springBeansClassPatterns;
     private final String springBeansAnnotations;
 
     public SpringBeansConfig(ProfilerConfig config) {
-        this.springBeansNamePatterns = config.readString("profiler.spring.beans.name.pattern", null);
-        this.springBeansClassPatterns = config.readString("profiler.spring.beans.class.pattern", null);
-        this.springBeansAnnotations = config.readString("profiler.spring.beans.annotation", null);
+        this.springBeansNamePatterns = config.readString(SPRING_BEANS_NAME_PATTERN, null);
+        this.springBeansClassPatterns = config.readString(SPRING_BEANS_CLASS_PATTERN, null);
+        this.springBeansAnnotations = config.readString(SPRING_BEANS_ANNOTATION, null);
     }
     
     public String getSpringBeansNamePatterns() {

@@ -15,6 +15,11 @@
  */
 package com.navercorp.pinpoint.plugin.httpclient4;
 
+import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
+
+import com.navercorp.pinpoint.common.trace.ServiceType;
+
 
 /**
  * 
@@ -22,6 +27,9 @@ package com.navercorp.pinpoint.plugin.httpclient4;
  *
  */
 public interface HttpClient4Constants {
+    public static final ServiceType HTTP_CLIENT_4 = ServiceType.of(9052, "HTTP_CLIENT_4", NORMAL_SCHEMA, RECORD_STATISTICS);
+    public static final ServiceType HTTP_CLIENT_4_INTERNAL = ServiceType.of(9053, "HTTP_CLIENT_4_INTERNAL", "HTTP_CLIENT_4", NORMAL_SCHEMA);
+
     public static final String METADATA_END_POINT = "endPoint";
     public static final String METADATA_DESTINATION_ID = "destinationId";
     public static final String METADATA_ASYNC_TRACE_ID = "asyncTraceId";

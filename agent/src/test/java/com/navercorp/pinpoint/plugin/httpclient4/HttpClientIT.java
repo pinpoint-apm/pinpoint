@@ -15,17 +15,24 @@ z * Copyright 2014 NAVER Corp.
  */
 package com.navercorp.pinpoint.plugin.httpclient4;
 
-import java.lang.reflect.Method;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 
+import org.apache.http.HttpClientConnection;
+import org.apache.http.HttpRequest;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpRequestExecutor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.test.plugin.Dependency;
@@ -41,7 +48,7 @@ public class HttpClientIT {
     public void test() throws Exception {
         HttpClient httpClient = new DefaultHttpClient();
         try {
-            HttpPost post = new HttpPost("http://google.com");
+            HttpPost post = new HttpPost("http://www.naver.com");
             post.addHeader("Content-Type", "application/json;charset=UTF-8");
 
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
@@ -55,5 +62,18 @@ public class HttpClientIT {
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
+
+        Class<?> connectorClass;
+        
+        try {
+            connectorClass = Class.forName("org.apache.http.impl.conn.ManagedClientConnectionImpl");
+        } catch (ClassNotFoundException e) {
+            connectorClass = Class.forName("org.apache.http.impl.conn.AbstractPooledConnAdapter");
+        }
+        
+        verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", AbstractHttpClient.class.getMethod("execute", HttpUriRequest.class, ResponseHandler.class)));
+        verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", connectorClass.getMethod("open", HttpRoute.class, HttpContext.class, HttpParams.class), annotation("http.internal.display", "www.naver.com:-1")));
+        verifier.verifyTrace(event("HTTP_CLIENT_4", HttpRequestExecutor.class.getMethod("execute", HttpRequest.class, HttpClientConnection.class, HttpContext.class), null, null, "www.naver.com", annotation("http.url", "/"), annotation("http.status.code", 200), annotation("http.io", anyAnnotationValue())));
+        verifier.verifyTraceCount(0);
     }
 }

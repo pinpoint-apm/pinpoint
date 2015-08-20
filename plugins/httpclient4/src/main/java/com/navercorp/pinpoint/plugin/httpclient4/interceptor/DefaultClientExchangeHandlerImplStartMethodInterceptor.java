@@ -29,11 +29,10 @@ import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequest;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
+import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.nio.protocol.HttpAsyncRequestProducer;
 import org.apache.http.protocol.HTTP;
 
-import com.navercorp.pinpoint.bootstrap.FieldAccessor;
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
@@ -42,20 +41,21 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncTraceIdAccessor;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
+import com.navercorp.pinpoint.plugin.httpclient4.RequestProducerGetter;
+import com.navercorp.pinpoint.plugin.httpclient4.ResultFutureGetter;
 
 /**
  * 
@@ -68,9 +68,6 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
 
     private TraceContext traceContext;
     private MethodDescriptor methodDescriptor;
-    private MetadataAccessor asyncTraceIdAccessor;
-    private FieldAccessor requestProducerAccessor;
-    private FieldAccessor resultFutureAccessor;
 
     protected boolean cookie;
     protected DumpType cookieDumpType;
@@ -82,13 +79,9 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
 
     protected boolean statusCode;
 
-    public DefaultClientExchangeHandlerImplStartMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor,
-            @Name(FIELD_REQUEST_PRODUCER) FieldAccessor requestProducerAccessor, @Name(FIELD_RESULT_FUTURE) FieldAccessor resultFutureAccessor) {
+    public DefaultClientExchangeHandlerImplStartMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         setTraceContext(traceContext);
         this.methodDescriptor = methodDescriptor;
-        this.asyncTraceIdAccessor = asyncTraceIdAccessor;
-        this.requestProducerAccessor = requestProducerAccessor;
-        this.resultFutureAccessor = resultFutureAccessor;
     }
 
     @Override
@@ -119,7 +112,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
         // set remote trace
         final TraceId nextId = trace.getTraceId().getNextTraceId();
         recorder.recordNextSpanId(nextId.getSpanId());
-        recorder.recordServiceType(ServiceType.HTTP_CLIENT);
+        recorder.recordServiceType(HttpClient4Constants.HTTP_CLIENT_4);
 
         if (httpRequest != null) {
             httpRequest.setHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
@@ -141,7 +134,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
                 // set asynchronous trace
                 final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
                 recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
-                asyncTraceIdAccessor.set(resultFutureAccessor.get(target), asyncTraceId);
+                ((AsyncTraceIdAccessor)((ResultFutureGetter)target)._$PINPOINT$_getResultFuture())._$PINPOINT$_setAsyncTraceId(asyncTraceId);
                 if (isDebug) {
                     logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
                 }
@@ -153,11 +146,11 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
 
     private HttpRequest getHttpRequest(final Object target) {
         try {
-            if (!requestProducerAccessor.isApplicable(target)) {
+            if (!(target instanceof RequestProducerGetter)) {
                 return null;
             }
 
-            final HttpAsyncRequestProducer requestProducer = requestProducerAccessor.get(target);
+            final HttpAsyncRequestProducer requestProducer = ((RequestProducerGetter)target)._$PINPOINT$_getRequestProducer();
             return requestProducer.generateRequest();
         } catch (Exception e) {
             return null;
@@ -165,17 +158,19 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
     }
 
     private boolean isAsynchronousInvocation(final Object target, final Object[] args) {
-        if (!resultFutureAccessor.isApplicable(target)) {
+        if (!(target instanceof ResultFutureGetter)) {
             logger.debug("Invalid target object. Need field accessor({}).", FIELD_RESULT_FUTURE);
             return false;
         }
+        
+        BasicFuture<?> future = ((ResultFutureGetter)target)._$PINPOINT$_getResultFuture();
 
-        if (resultFutureAccessor.get(target) == null) {
+        if (future == null) {
             logger.debug("Invalid target object. field is null({}).", FIELD_RESULT_FUTURE);
             return false;
         }
 
-        if (!asyncTraceIdAccessor.isApplicable(resultFutureAccessor.get(target))) {
+        if (!(future instanceof AsyncTraceIdAccessor)) {
             logger.debug("Invalid resultFuture field object. Need metadata accessor({}).", METADATA_ASYNC_TRACE_ID);
             return false;
         }
@@ -216,11 +211,11 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
     }
 
     private NameIntValuePair<String> getHost(final Object target) {
-        if (!requestProducerAccessor.isApplicable(target)) {
+        if (!(target instanceof RequestProducerGetter)) {
             return null;
         }
 
-        final org.apache.http.nio.protocol.HttpAsyncRequestProducer producer = requestProducerAccessor.get(target);
+        final HttpAsyncRequestProducer producer = ((RequestProducerGetter)target)._$PINPOINT$_getRequestProducer();
         final HttpHost httpHost = producer.getTarget();
 
         return new NameIntValuePair<String>(httpHost.getHostName(), httpHost.getPort());
