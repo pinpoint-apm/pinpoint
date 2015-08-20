@@ -15,14 +15,18 @@
  */
 package com.navercorp.pinpoint.plugin.user;
 
+import java.security.ProtectionDomain;
+
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 
 /**
  * @author jaehong.kim
@@ -34,12 +38,12 @@ public class UserPlugin implements ProfilerPlugin, UserConstants {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final UserPluginConfig config = new UserPluginConfig(context.getConfig());
-        
-        // add user include methods 
+
+        // add user include methods
         for (String fullQualifiedMethodName : config.getIncludeList()) {
             try {
                 addUserIncludeClass(context, fullQualifiedMethodName);
-                if(logger.isDebugEnabled()) {
+                if (logger.isDebugEnabled()) {
                     logger.debug("Add user include class interceptor {}", fullQualifiedMethodName);
                 }
             } catch (Exception e) {
@@ -51,11 +55,26 @@ public class UserPlugin implements ProfilerPlugin, UserConstants {
     private void addUserIncludeClass(ProfilerPluginSetupContext context, final String fullQualifiedMethodName) {
         final String className = toClassName(fullQualifiedMethodName);
         final String methodName = toMethodName(fullQualifiedMethodName);
-        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder(className);
-        MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethods(MethodFilters.name(methodName));
-        methodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.user.interceptor.UserIncludeMethodInterceptor");
-        context.addClassFileTransformer(classEditorBuilder.build());
+
+        context.addClassFileTransformer(className, new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(methodName))) {
+                    try {
+                        method.addInterceptor("com.navercorp.pinpoint.plugin.user.interceptor.UserIncludeMethodInterceptor");
+                    } catch (Exception e) {
+                        if (logger.isWarnEnabled()) {
+                            logger.warn("Unsupported method " + method, e);
+                        }
+                    }
+                }
+
+                return target.toBytecode();
+            }
+        });
     }
 
     String toClassName(String fullQualifiedMethodName) {
