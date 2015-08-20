@@ -66,7 +66,7 @@ public abstract class SyncEchoTestClient implements EchoTestClient {
         Method receiveBase = TServiceClient.class.getDeclaredMethod("receiveBase", TBase.class, String.class);
         ExpectedAnnotation thriftResult = Expectations.annotation("thrift.result", "echo_result(success:" + expectedMessage + ")");
         
-        verifier.verifyTrace(
+        verifier.verifyDiscreteTrace(
                 event(
                     "THRIFT_CLIENT", // ServiceType
                     sendBase, // Method
