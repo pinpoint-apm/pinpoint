@@ -23,14 +23,14 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 	   ">
 
-    <bean id="remoteService" class="com.navercorp.pinpoint.web.service.AgentServiceImpl">
+    <bean id="agentService" class="com.navercorp.pinpoint.web.service.AgentServiceImpl">
     </bean>
 
     <bean id="activeThreadHandler" class="com.navercorp.pinpoint.web.websocket.ActiveThreadHandler">
         <!-- default value.
         <constructor-arg value="/agent/activeThread" />
         -->
-        <constructor-arg ref="remoteService" />
+        <constructor-arg ref="agentService" />
     </bean>
 
     <bean id="handlerRepository" class="com.navercorp.pinpoint.web.websocket.WebSocketHandlerRepository">
