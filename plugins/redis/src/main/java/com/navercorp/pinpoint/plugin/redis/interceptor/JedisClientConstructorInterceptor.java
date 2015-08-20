@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.plugin.redis.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
+import com.navercorp.pinpoint.plugin.redis.EndPointAccessor;
 import com.navercorp.pinpoint.plugin.redis.RedisConstants;
 
 /**
@@ -36,10 +35,7 @@ public class JedisClientConstructorInterceptor implements SimpleAroundIntercepto
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private MetadataAccessor endPointAccessor;
-
-    public JedisClientConstructorInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, @Name(METADATA_END_POINT) MetadataAccessor endPointAccessor) {
-        this.endPointAccessor = endPointAccessor;
+    public JedisClientConstructorInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
     }
 
     @Override
@@ -64,7 +60,7 @@ public class JedisClientConstructorInterceptor implements SimpleAroundIntercepto
                 // set default port
                 endPoint.append(":").append(6379);
             }
-            endPointAccessor.set(target, endPoint.toString());
+            ((EndPointAccessor)target)._$PINPOINT$_setEndPoint(endPoint.toString());
         } catch (Throwable t) {
             logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
         }
@@ -81,8 +77,8 @@ public class JedisClientConstructorInterceptor implements SimpleAroundIntercepto
             return false;
         }
 
-        if (!endPointAccessor.isApplicable(target)) {
-            logger.debug("Invalid target object. Need metadata accessor({}).", METADATA_DESTINATION_ID);
+        if (!(target instanceof EndPointAccessor)) {
+            logger.debug("Invalid target object. Need field accessor({}).", METADATA_END_POINT);
             return false;
         }
 

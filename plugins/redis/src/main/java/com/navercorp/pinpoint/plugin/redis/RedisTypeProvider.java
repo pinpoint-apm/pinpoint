@@ -18,10 +18,12 @@ package com.navercorp.pinpoint.plugin.redis;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
+import static com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher.*;
+
 public class RedisTypeProvider implements TraceMetadataProvider, RedisConstants{
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(REDIS);
+        context.addServiceType(REDIS, ARGS_MATCHER);
     }
 }

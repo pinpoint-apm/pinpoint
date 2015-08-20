@@ -15,15 +15,18 @@
  */
 package com.navercorp.pinpoint.plugin.redis;
 
+import java.security.ProtectionDomain;
+
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConstructorTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerExceptionHandler;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.plugin.redis.filter.JedisMethodNames;
 import com.navercorp.pinpoint.plugin.redis.filter.JedisPipelineMethodNames;
 import com.navercorp.pinpoint.plugin.redis.filter.NameBasedMethodFilter;
@@ -34,26 +37,6 @@ import com.navercorp.pinpoint.plugin.redis.filter.NameBasedMethodFilter;
  *
  */
 public class RedisPlugin implements ProfilerPlugin, RedisConstants {
-
-    private static final String STRING = "java.lang.String";
-    private static final String INT = "int";
-    private static final String URI = "java.net.URI";
-
-    private static final String JEDIS = "redis.clients.jedis.Jedis";
-    private static final String BINARY_JEDIS = "redis.clients.jedis.BinaryJedis";
-    private static final String JEDIS_CLIENT = "redis.clients.jedis.Client";
-    private static final String JEDIS_PIPELINE_BASE = "redis.clients.jedis.PipelineBase";
-    private static final String JEDIS_MULTIKEY_PIPELINE_BASE = "redis.clients.jedis.MultiKeyPipelineBase";
-    private static final String JEDIS_PIPELINE = "redis.clients.jedis.Pipeline";
-    private static final String JEDIS_SHARD_INFO = "redis.clients.jedis.JedisShardInfo";
-
-    private static final String JEDIS_CONSTRUCTOR_INTERCEPTOR = "com.navercorp.pinpoint.plugin.redis.interceptor.JedisConstructorInterceptor";
-    private static final String JEDIS_METHODS_INTERCEPTOR = "com.navercorp.pinpoint.plugin.redis.interceptor.JedisMethodInterceptor";
-    private static final String JEDIS_CLIENT_CONSTRUCTOR_INTERCEPTOR = "com.navercorp.pinpoint.plugin.redis.interceptor.JedisClientConstructorInterceptor";
-    private static final String JEDIS_PIPELINE_METHODS_INTERCEPTOR = "com.navercorp.pinpoint.plugin.redis.interceptor.JedisPipelineMethodInterceptor";
-    private static final String JEDIS_PIPELINE_SET_CLIENT_METHOD_INTERCEPTOR = "com.navercorp.pinpoint.plugin.redis.interceptor.JedisPipelineSetClientMethodInterceptor";
-    private static final String JEDIS_PIPELINE_CONSTRUCTOR_INTERCEPTOR = "com.navercorp.pinpoint.plugin.redis.interceptor.JedisPipelineConstructorInterceptor";
-
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -65,6 +48,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
         if (enabled) {
             // jedis
             addJedisClassEditors(context, config);
+            addProtocolClassEditor(context, config);
 
             if (pipelineEnabled) {
                 // jedis pipeline
@@ -76,102 +60,164 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
 
     // Jedis & BinaryJedis
     private void addJedisClassEditors(ProfilerPluginSetupContext context, RedisPluginConfig config) {
-        final ClassFileTransformerBuilder classEditorBuilder = addJedisExtendedClassEditor(context, config, BINARY_JEDIS);
-        classEditorBuilder.injectMetadata(METADATA_END_POINT);
-        context.addClassFileTransformer(classEditorBuilder.build());
+        addJedisExtendedClassEditor(context, config, "redis.clients.jedis.BinaryJedis", new TransformHandler() {
 
-        // Jedis extends BinaryJedis
-        context.addClassFileTransformer(addJedisExtendedClassEditor(context, config, JEDIS).build());
-        
-    }
-
-    private ClassFileTransformerBuilder addJedisExtendedClassEditor(ProfilerPluginSetupContext context, RedisPluginConfig config, final String targetClassName) {
-        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder(targetClassName);
-
-        final ConstructorTransformerBuilder constructorEditorBuilderArg1 = classEditorBuilder.editConstructor(STRING);
-        constructorEditorBuilderArg1.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        constructorEditorBuilderArg1.injectInterceptor(JEDIS_CONSTRUCTOR_INTERCEPTOR);
-
-        final ConstructorTransformerBuilder constructorEditorBuilderArg2 = classEditorBuilder.editConstructor(STRING, INT);
-        constructorEditorBuilderArg2.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        constructorEditorBuilderArg2.injectInterceptor(JEDIS_CONSTRUCTOR_INTERCEPTOR);
-
-        final ConstructorTransformerBuilder constructorEditorBuilderArg3 = classEditorBuilder.editConstructor(STRING, INT, INT);
-        constructorEditorBuilderArg3.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        constructorEditorBuilderArg3.injectInterceptor(JEDIS_CONSTRUCTOR_INTERCEPTOR);
-
-        final ConstructorTransformerBuilder constructorEditorBuilderArg4 = classEditorBuilder.editConstructor(URI);
-        constructorEditorBuilderArg4.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        constructorEditorBuilderArg4.injectInterceptor(JEDIS_CONSTRUCTOR_INTERCEPTOR);
-
-        final ConstructorTransformerBuilder constructorEditorBuilderArg5 = classEditorBuilder.editConstructor(JEDIS_SHARD_INFO);
-        constructorEditorBuilderArg5.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        constructorEditorBuilderArg5.injectInterceptor(JEDIS_CONSTRUCTOR_INTERCEPTOR);
-
-        final MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethods(new NameBasedMethodFilter(JedisMethodNames.get()));
-        methodEditorBuilder.exceptionHandler(new MethodTransformerExceptionHandler() {
             @Override
-            public void handle(String targetClassName, String targetMethodName, String[] targetMethodParameterTypes, Throwable exception) throws Exception {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("Unsupported method " + targetClassName + "." + targetMethodName, exception);
-                }
+            public void handle(InstrumentClass target) throws InstrumentException {
+                target.addField(METADATA_END_POINT);
             }
         });
-        methodEditorBuilder.injectInterceptor(JEDIS_METHODS_INTERCEPTOR);
 
-        return classEditorBuilder;
+        // Jedis extends BinaryJedis
+        addJedisExtendedClassEditor(context, config, "redis.clients.jedis.Jedis", null);
+    }
+
+    private void addJedisExtendedClassEditor(ProfilerPluginSetupContext context, final RedisPluginConfig config, final String targetClassName, final TransformHandler handler) {
+        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+                if (handler != null) {
+                    handler.handle(target);
+                }
+
+                final InstrumentMethod constructorEditorBuilderArg1 = target.getConstructor("java.lang.String");
+                if (constructorEditorBuilderArg1 != null) {
+                    constructorEditorBuilderArg1.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisConstructorInterceptor");
+                }
+
+                final InstrumentMethod constructorEditorBuilderArg2 = target.getConstructor("java.lang.String", "int");
+                if (constructorEditorBuilderArg2 != null) {
+                    constructorEditorBuilderArg2.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisConstructorInterceptor");
+                }
+
+                final InstrumentMethod constructorEditorBuilderArg3 = target.getConstructor("java.lang.String", "int", "int");
+                if (constructorEditorBuilderArg3 != null) {
+                    constructorEditorBuilderArg3.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisConstructorInterceptor");
+                }
+
+                final InstrumentMethod constructorEditorBuilderArg4 = target.getConstructor("java.net.URI");
+                if (constructorEditorBuilderArg4 != null) {
+                    constructorEditorBuilderArg4.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisConstructorInterceptor");
+                }
+
+                final InstrumentMethod constructorEditorBuilderArg5 = target.getConstructor("redis.clients.jedis.JedisShardInfo");
+                if (constructorEditorBuilderArg5 != null) {
+                    constructorEditorBuilderArg5.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisConstructorInterceptor");
+                }
+
+                for (InstrumentMethod method : target.getDeclaredMethods(new NameBasedMethodFilter(JedisMethodNames.get()))) {
+                    try {
+                        method.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisMethodInterceptor", config.isIo());
+                    } catch (Exception e) {
+                        if (logger.isWarnEnabled()) {
+                            logger.warn("Unsupported method " + method, e);
+                        }
+                    }
+                }
+
+                return target.toBytecode();
+            }
+        });
     }
 
     // Client
     private void addJedisClientClassEditor(ProfilerPluginSetupContext context, RedisPluginConfig config) {
-        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder(JEDIS_CLIENT);
-        classEditorBuilder.injectMetadata(METADATA_END_POINT);
+        context.addClassFileTransformer("redis.clients.jedis.Client", new PinpointClassFileTransformer() {
 
-        final ConstructorTransformerBuilder constructorEditorBuilderArg1 = classEditorBuilder.editConstructor(STRING);
-        constructorEditorBuilderArg1.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        constructorEditorBuilderArg1.injectInterceptor(JEDIS_CLIENT_CONSTRUCTOR_INTERCEPTOR);
-        
-        final ConstructorTransformerBuilder constructorEditorBuilderArg2 = classEditorBuilder.editConstructor(STRING, INT);
-        constructorEditorBuilderArg2.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        constructorEditorBuilderArg2.injectInterceptor(JEDIS_CLIENT_CONSTRUCTOR_INTERCEPTOR);
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+                target.addField(METADATA_END_POINT);
 
-        context.addClassFileTransformer(classEditorBuilder.build());
+                final InstrumentMethod constructorEditorBuilderArg1 = target.getConstructor("java.lang.String");
+                if (constructorEditorBuilderArg1 != null) {
+                    constructorEditorBuilderArg1.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisClientConstructorInterceptor");
+                }
+
+                final InstrumentMethod constructorEditorBuilderArg2 = target.getConstructor("java.lang.String", "int");
+                if (constructorEditorBuilderArg2 != null) {
+                    constructorEditorBuilderArg2.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisClientConstructorInterceptor");
+                }
+
+                return target.toBytecode();
+            }
+        });
     }
+    
+    
+    private void addProtocolClassEditor(ProfilerPluginSetupContext context, RedisPluginConfig config) {
+        context.addClassFileTransformer("redis.clients.jedis.Protocol", new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+
+                for(InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("sendCommand", "read"))) {
+                    method.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.ProtocolSendCommandAndReadMethodInterceptor");
+                }
+
+                return target.toBytecode();
+            }
+        });
+    }
+
+    
 
     // Pipeline
     private void addJedisPipelineClassEditors(ProfilerPluginSetupContext context, RedisPluginConfig config) {
-        context.addClassFileTransformer(addJedisPipelineBaseExtendedClassEditor(context, config, JEDIS_PIPELINE_BASE).build());
+        addJedisPipelineBaseExtendedClassEditor(context, config, "redis.clients.jedis.PipelineBase", null);
 
         // MultikeyPipellineBase extends PipelineBase
-        context.addClassFileTransformer(addJedisPipelineBaseExtendedClassEditor(context, config, JEDIS_MULTIKEY_PIPELINE_BASE).build());
+        addJedisPipelineBaseExtendedClassEditor(context, config, "redis.clients.jedis.MultiKeyPipelineBase", null);
 
         // Pipeline extends PipelineBase
-        final ClassFileTransformerBuilder classEditorBuilder = addJedisPipelineBaseExtendedClassEditor(context, config, JEDIS_PIPELINE);
-        classEditorBuilder.injectMetadata(METADATA_END_POINT);
-        final MethodTransformerBuilder setClientMethodEditorBuilder = classEditorBuilder.editMethod("setClient", JEDIS_CLIENT);
-        setClientMethodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        setClientMethodEditorBuilder.injectInterceptor(JEDIS_PIPELINE_SET_CLIENT_METHOD_INTERCEPTOR);
+        addJedisPipelineBaseExtendedClassEditor(context, config, "redis.clients.jedis.Pipeline", new TransformHandler() {
 
-        final ConstructorTransformerBuilder constructorEditorBuilder = classEditorBuilder.editConstructor(JEDIS_CLIENT);
-        constructorEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        constructorEditorBuilder.injectInterceptor(JEDIS_PIPELINE_CONSTRUCTOR_INTERCEPTOR);
-        context.addClassFileTransformer(classEditorBuilder.build());
-    }
-
-    private ClassFileTransformerBuilder addJedisPipelineBaseExtendedClassEditor(ProfilerPluginSetupContext context, RedisPluginConfig config, String targetClassName) {
-        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder(targetClassName);
-
-        final MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethods(new NameBasedMethodFilter(JedisPipelineMethodNames.get()));
-        methodEditorBuilder.exceptionHandler(new MethodTransformerExceptionHandler() {
             @Override
-            public void handle(String targetClassName, String targetMethodName, String[] targetMethodParameterTypes, Throwable exception) throws Exception {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("Unsupported method " + targetClassName + "." + targetMethodName, exception);
+            public void handle(InstrumentClass target) throws InstrumentException {
+                target.addField(METADATA_END_POINT);
+
+                final InstrumentMethod setClientMethodEditorBuilder = target.getDeclaredMethod("setClient", "redis.clients.jedis.Client");
+                if (setClientMethodEditorBuilder != null) {
+                    setClientMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisPipelineSetClientMethodInterceptor");
+                }
+
+                final InstrumentMethod constructorEditorBuilder = target.getConstructor("redis.clients.jedis.Client");
+                if (constructorEditorBuilder != null) {
+                    constructorEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisPipelineConstructorInterceptor");
                 }
             }
         });
-        methodEditorBuilder.injectInterceptor(JEDIS_PIPELINE_METHODS_INTERCEPTOR);
+    }
 
-        return classEditorBuilder;
+    private void addJedisPipelineBaseExtendedClassEditor(ProfilerPluginSetupContext context, final RedisPluginConfig config, String targetClassName, final TransformHandler handler) {
+        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+                if (handler != null) {
+                    handler.handle(target);
+                }
+
+                for (InstrumentMethod method : target.getDeclaredMethods(new NameBasedMethodFilter(JedisPipelineMethodNames.get()))) {
+                    try {
+                        method.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisPipelineMethodInterceptor", config.isIo());
+                    } catch (Exception e) {
+                        if (logger.isWarnEnabled()) {
+                            logger.warn("Unsupported method " + method, e);
+                        }
+                    }
+                }
+
+                return target.toBytecode();
+            }
+        });
+    }
+
+    private interface TransformHandler {
+        void handle(InstrumentClass target) throws InstrumentException;
     }
 }

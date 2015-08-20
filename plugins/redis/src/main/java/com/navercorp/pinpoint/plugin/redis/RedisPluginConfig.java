@@ -26,10 +26,12 @@ public class RedisPluginConfig {
 
     private boolean enabled = true;
     private boolean pipelineEnabled = true;
+    private boolean io = true;
 
     public RedisPluginConfig(ProfilerConfig src) {
         enabled = src.readBoolean("profiler.redis", true);
         pipelineEnabled = src.readBoolean("profiler.redis.pipeline", true);
+        io = src.readBoolean("profiler.redis.io", true);
     }
 
     public boolean isEnabled() {
@@ -40,6 +42,10 @@ public class RedisPluginConfig {
         return pipelineEnabled;
     }
 
+    public boolean isIo() {
+        return io;
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -47,6 +53,8 @@ public class RedisPluginConfig {
         builder.append(enabled);
         builder.append(", pipelineEnabled=");
         builder.append(pipelineEnabled);
+        builder.append(", io=");
+        builder.append(io);
         builder.append("}");
         return builder.toString();
     }
