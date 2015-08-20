@@ -36,13 +36,13 @@ public class DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor impleme
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private MethodDescriptor descriptor;
-    private TraceContext traceContext;
-    private ServiceType serviceType = ServiceType.HTTP_CLIENT_INTERNAL;
+    private final MethodDescriptor descriptor;
+    private final TraceContext traceContext;
+    private ServiceType serviceType = HttpClient4Constants.HTTP_CLIENT_4_INTERNAL;
 
     public DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor(TraceContext context, MethodDescriptor methodDescriptor) {
-        setTraceContext(context);
-        setMethodDescriptor(methodDescriptor);
+        this.traceContext = context;
+        this.descriptor = methodDescriptor;
     }
 
     @Override
@@ -92,14 +92,5 @@ public class DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor impleme
         } finally {
             trace.traceBlockEnd();
         }
-    }
-
-    public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.descriptor = descriptor;
-        this.traceContext.cacheApi(descriptor);
-    }
-
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
     }
 }

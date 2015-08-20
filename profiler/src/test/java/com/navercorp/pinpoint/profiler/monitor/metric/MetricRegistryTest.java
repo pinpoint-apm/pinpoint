@@ -26,7 +26,7 @@ public class MetricRegistryTest {
     @Test
     public void testSuccess() {
         MetricRegistry metricRegistry = new MetricRegistry(ServiceType.STAND_ALONE);
-        RpcMetric rpcMetric = metricRegistry.getRpcMetric(ServiceType.HTTP_CLIENT);
+        RpcMetric rpcMetric = metricRegistry.getRpcMetric(ServiceType.ASYNC_HTTP_CLIENT);
 
 
     }

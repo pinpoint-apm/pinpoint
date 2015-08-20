@@ -16,14 +16,11 @@
 
 package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
@@ -34,13 +31,13 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  */
 public class BasicFutureMethodInterceptor extends SpanAsyncEventSimpleAroundInterceptor implements HttpClient4Constants {
 
-    public BasicFutureMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor) {
-        super(traceContext, methodDescriptor, asyncTraceIdAccessor);
+    public BasicFutureMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+        super(traceContext, methodDescriptor);
     }
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncTraceId asyncTraceId, Object target, Object[] args) {
-        recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
+        recorder.recordServiceType(HttpClient4Constants.HTTP_CLIENT_4_INTERNAL);
     }
 
     @Override

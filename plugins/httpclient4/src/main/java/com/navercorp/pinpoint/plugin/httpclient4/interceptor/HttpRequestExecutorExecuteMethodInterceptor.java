@@ -20,22 +20,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URI;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.StatusLine;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
 
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
@@ -61,7 +56,6 @@ import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
@@ -75,21 +69,21 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements SimpleAround
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
-    private MethodDescriptor methodDescriptor;
+    private final TraceContext traceContext;
+    private final MethodDescriptor methodDescriptor;
 
-    private boolean cookie;
-    private DumpType cookieDumpType;
-    private SimpleSampler cookieSampler;
+    private final boolean cookie;
+    private final DumpType cookieDumpType;
+    private final SimpleSampler cookieSampler;
 
-    private boolean entity;
-    private DumpType entityDumpType;
-    private SimpleSampler entitySampler;
+    private final boolean entity;
+    private final DumpType entityDumpType;
+    private final SimpleSampler entitySampler;
 
-    private boolean statusCode;
-    private InterceptorGroup interceptorGroup;
+    private final boolean statusCode;
+    private final InterceptorGroup interceptorGroup;
 
-    private boolean io;
+    private final boolean io;
 
     public HttpRequestExecutorExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup) {
         this.traceContext = traceContext;
@@ -101,12 +95,16 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements SimpleAround
         this.cookieDumpType = profilerConfig.getApacheHttpClient4ProfileCookieDumpType();
         if (cookie) {
             this.cookieSampler = SimpleSamplerFactory.createSampler(cookie, profilerConfig.getApacheHttpClient4ProfileCookieSamplingRate());
+        } else {
+            this.cookieSampler = null;
         }
 
         this.entity = profilerConfig.isApacheHttpClient4ProfileEntity();
         this.entityDumpType = profilerConfig.getApacheHttpClient4ProfileEntityDumpType();
         if (entity) {
             this.entitySampler = SimpleSamplerFactory.createSampler(entity, profilerConfig.getApacheHttpClient4ProfileEntitySamplingRate());
+        } else {
+            this.entitySampler = null;
         }
         this.statusCode = profilerConfig.isApacheHttpClient4ProfileStatusCode();
         this.io = profilerConfig.isApacheHttpClient4ProfileIo();
@@ -138,7 +136,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements SimpleAround
         final SpanEventRecorder recorder = trace.traceBlockBegin();
         TraceId nextId = trace.getTraceId().getNextTraceId();
         recorder.recordNextSpanId(nextId.getSpanId());
-        recorder.recordServiceType(ServiceType.HTTP_CLIENT);
+        recorder.recordServiceType(HttpClient4Constants.HTTP_CLIENT_4);
 
         if (httpRequest != null) {
             httpRequest.setHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());

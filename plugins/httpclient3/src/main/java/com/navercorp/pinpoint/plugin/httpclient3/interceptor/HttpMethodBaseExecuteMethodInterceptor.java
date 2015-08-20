@@ -51,7 +51,6 @@ import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContext;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 
@@ -136,7 +135,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements SimpleAroundInter
         final SpanEventRecorder recorder = trace.traceBlockBegin();
         TraceId nextId = trace.getTraceId().getNextTraceId();
         recorder.recordNextSpanId(nextId.getSpanId());
-        recorder.recordServiceType(ServiceType.HTTP_CLIENT);
+        recorder.recordServiceType(HttpClient3Constants.HTTP_CLIENT_3);
 
         if (httpMethod != null) {
             httpMethod.setRequestHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());

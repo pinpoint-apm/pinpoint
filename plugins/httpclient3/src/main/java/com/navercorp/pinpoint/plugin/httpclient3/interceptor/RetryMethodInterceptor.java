@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 
 /**
@@ -57,7 +56,7 @@ public class RetryMethodInterceptor implements SimpleAroundInterceptor, HttpClie
         }
 
         final SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
+        recorder.recordServiceType(HttpClient3Constants.HTTP_CLIENT_3_INTERNAL);
     }
 
     @Override

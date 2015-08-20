@@ -130,7 +130,7 @@ public class AsyncEchoTestClient implements EchoTestClient {
         // ********** Root trace for Asynchronous traces
         // SpanEvent - TAsyncClientManager.call
         Method call = TAsyncClientManager.class.getDeclaredMethod("call", TAsyncMethodCall.class);
-        verifier.verifyTrace(async("THRIFT_CLIENT_INTERNAL", call, null,
+        verifier.verifyTrace(async(Expectations.event("THRIFT_CLIENT_INTERNAL", call),
                                         asyncClientInvocationTrace,
                                         startTrace,
                                         doConnectingTrace,

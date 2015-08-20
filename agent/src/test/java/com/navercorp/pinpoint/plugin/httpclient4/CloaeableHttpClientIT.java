@@ -15,14 +15,23 @@ z * Copyright 2014 NAVER Corp.
  */
 package com.navercorp.pinpoint.plugin.httpclient4;
 
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
+
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpRequestExecutor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -41,7 +50,7 @@ public class CloaeableHttpClientIT {
     public void test() throws Exception {
         CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
-            HttpGet httpget = new HttpGet("http://google.com");
+            HttpGet httpget = new HttpGet("http://www.naver.com");
             CloseableHttpResponse response = httpclient.execute(httpget);
             try {
                 HttpEntity entity = response.getEntity();
@@ -64,5 +73,10 @@ public class CloaeableHttpClientIT {
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
+        
+        verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", CloseableHttpClient.class.getMethod("execute", HttpUriRequest.class)));
+        verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", PoolingHttpClientConnectionManager.class.getMethod("connect", HttpClientConnection.class, HttpRoute.class, int.class, HttpContext.class), annotation("http.internal.display", "www.naver.com:80")));
+        verifier.verifyTrace(event("HTTP_CLIENT_4", HttpRequestExecutor.class.getMethod("execute", HttpRequest.class, HttpClientConnection.class, HttpContext.class), null, null, "www.naver.com", annotation("http.url", "/"), annotation("http.status.code", 200), annotation("http.io", anyAnnotationValue())));
+        verifier.verifyTraceCount(0);
     }
 }

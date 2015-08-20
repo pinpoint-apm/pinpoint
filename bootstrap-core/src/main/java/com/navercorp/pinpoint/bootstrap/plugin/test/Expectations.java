@@ -16,7 +16,6 @@ package com.navercorp.pinpoint.bootstrap.plugin.test;
 
 import java.lang.reflect.Member;
 
-import com.navercorp.pinpoint.bootstrap.plugin.test.TraceType;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 
 /**
@@ -25,7 +24,14 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
  */
 public final class Expectations {
     
+    private static final Object ANY_ANNOTATION_VALUE = new Object();
+    
+    
     private Expectations() {}
+    
+    public static Object anyAnnotationValue() {
+        return ANY_ANNOTATION_VALUE;
+    }
     
     public static ExpectedTrace root(String serviceType, Member method, String rpc, String endPoint, String remoteAddr, ExpectedAnnotation... annotations) {
         return new ExpectedTrace(TraceType.ROOT, serviceType, method, null, rpc, endPoint, remoteAddr, null, annotations, null);
@@ -47,16 +53,12 @@ public final class Expectations {
         return new ExpectedTrace(TraceType.EVENT, serviceType, null, methodDescriptor, null, null, null, null, annotations, null);
     }
 
-    public static ExpectedTrace event(String serviceType, String methodDescriptor, String rpc, String endPoint, String destinationId, ExpectedAnnotation[] annotations) {
+    public static ExpectedTrace event(String serviceType, String methodDescriptor, String rpc, String endPoint, String destinationId, ExpectedAnnotation... annotations) {
         return new ExpectedTrace(TraceType.EVENT, serviceType, null, methodDescriptor, rpc, endPoint, null, destinationId, annotations, null);
     }
     
-    public static ExpectedTrace async(String serviceType, Member method, String rpc, String endPoint, String destinationId, ExpectedAnnotation[] annotations, ExpectedTrace... asyncTraces) {
-        return new ExpectedTrace(TraceType.EVENT, serviceType, method, null, rpc, endPoint, null, destinationId, annotations, asyncTraces);
-    }
-    
-    public static ExpectedTrace async(String serviceType, Member method, ExpectedAnnotation[] annotations, ExpectedTrace... asyncTraces) {
-        return new ExpectedTrace(TraceType.EVENT, serviceType, method, null, null, null, null, null, annotations, asyncTraces);
+    public static ExpectedTrace async(ExpectedTrace initiator, ExpectedTrace... asyncTraces) {
+        return new ExpectedTrace(initiator.getType(), initiator.getServiceType(), initiator.getMethod(), initiator.getMethodSignature(), initiator.getRpc(), initiator.getEndPoint(), initiator.getRemoteAddr(), initiator.getDestinationId(), initiator.getAnnotations(), asyncTraces);
     }
     
     public static ExpectedAnnotation[] annotations(ExpectedAnnotation... annotations) {
