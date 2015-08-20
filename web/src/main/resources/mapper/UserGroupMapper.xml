@@ -37,6 +37,12 @@
         WHERE user_group_id = #{userGroupId} AND member_id = #{memberId}
     </delete>
     
+    <delete id="deleteMemberByUserGroupId">
+        DELETE
+        FROM user_group_member
+        WHERE user_group_id = #{userGroupId}
+    </delete>
+    
     <select id="selectMemberList" resultType="UserGroupMember">
         SELECT a.user_group_id, a.member_id, b.name, b.department 
         FROM user_group_member a
@@ -48,6 +54,13 @@
         UPDATE user_group_member
         SET user_group_id = #{userGroupId} , member_id = #{memberId} 
         WHERE number = #{number}
+    </update>
+    
+    
+    <update id="updateUserGroupIdOfMember" parameterType="UserGroup">
+        UPDATE user_group_member
+        SET user_group_id = #{id} 
+        WHERE user_group_id = (SELECT id FROM user_group WHERE number = #{number})
     </update>
     
     <select id="selectPhoneNumberOfMember" resultType="String" parameterType="String">

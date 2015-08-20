@@ -72,6 +72,7 @@ public class UserGroupController {
         }
         
         userGroupService.deleteUserGroup(userGroup);
+        userGroupService.deleteMemberByUserGroupId(userGroup.getId());
 
         Map<String, String> result = new HashMap<String, String>();
         result.put("result", "SUCCESS");
@@ -94,6 +95,7 @@ public class UserGroupController {
             return result;
         }
         
+        userGroupService.updateUserGroupIdOfMember(userGroup);
         userGroupService.updateUserGroup(userGroup);
         
         Map<String, String> result = new HashMap<String, String>();

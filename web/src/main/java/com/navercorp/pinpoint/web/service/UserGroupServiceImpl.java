@@ -83,6 +83,16 @@ public class UserGroupServiceImpl implements UserGroupService {
     public List<String> selectEmailOfMember(String userGroupId) {
         return userGroupDao.selectEmailOfMember(userGroupId);
     }
+
+    @Override
+    public void deleteMemberByUserGroupId(String userGroupId) {
+        userGroupDao.deleteMemberByUserGroupId(userGroupId);
+    }
+
+    @Override
+    public void updateUserGroupIdOfMember(UserGroup userGroup) {
+        userGroupDao.updateUserGroupIdOfMember(userGroup);
+    }
     
     
 
