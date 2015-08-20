@@ -44,4 +44,8 @@ public interface UserGroupDao {
 
     List<String> selectEmailOfMember(String userGroupId);
 
+    void deleteMemberByUserGroupId(String userGroupId);
+
+    void updateUserGroupIdOfMember(UserGroup userGroup);
+
 }
