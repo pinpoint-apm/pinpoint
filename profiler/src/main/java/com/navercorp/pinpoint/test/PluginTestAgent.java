@@ -215,7 +215,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
     }
     
     @Override
-    public void verifyDiscreteTraceBlock(ExpectedTrace... expectations) {
+    public void verifyDiscreteTrace(ExpectedTrace... expectations) {
         verifyDiscreteTraceBlock(expectations, null);
     }
         

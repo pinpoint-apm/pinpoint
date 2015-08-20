@@ -32,7 +32,7 @@ public interface PluginTestVerifier {
     public void verifyService(String context, List<String> libs);
     public void verifyTraceCount(int expected);
     public void verifyTrace(ExpectedTrace... expectations);
-    public void verifyDiscreteTraceBlock(ExpectedTrace... expectations);
+    public void verifyDiscreteTrace(ExpectedTrace... expectations);
     public void ignoreServiceType(String... serviceTypes);
     public void printCache(PrintStream out);
     public void printCache();
