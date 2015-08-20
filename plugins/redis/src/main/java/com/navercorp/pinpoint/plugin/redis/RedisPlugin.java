@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.plugin.redis;
 
+import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
@@ -27,9 +28,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
-import com.navercorp.pinpoint.plugin.redis.filter.JedisMethodNames;
-import com.navercorp.pinpoint.plugin.redis.filter.JedisPipelineMethodNames;
-import com.navercorp.pinpoint.plugin.redis.filter.NameBasedMethodFilter;
 
 /**
  * 
@@ -107,7 +105,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
                     constructorEditorBuilderArg5.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisConstructorInterceptor");
                 }
 
-                for (InstrumentMethod method : target.getDeclaredMethods(new NameBasedMethodFilter(JedisMethodNames.get()))) {
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(new int[] { MethodFilters.SYNTHETIC }, JedisMethodNames.get()))) {
                     try {
                         method.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisMethodInterceptor", config.isIo());
                     } catch (Exception e) {
@@ -145,8 +143,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
             }
         });
     }
-    
-    
+
     private void addProtocolClassEditor(ProfilerPluginSetupContext context, RedisPluginConfig config) {
         context.addClassFileTransformer("redis.clients.jedis.Protocol", new PinpointClassFileTransformer() {
 
@@ -154,7 +151,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
             public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
 
-                for(InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("sendCommand", "read"))) {
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(new int[] { Modifier.PRIVATE }, "sendCommand", "read"))) {
                     method.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.ProtocolSendCommandAndReadMethodInterceptor");
                 }
 
@@ -162,8 +159,6 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
             }
         });
     }
-
-    
 
     // Pipeline
     private void addJedisPipelineClassEditors(ProfilerPluginSetupContext context, RedisPluginConfig config) {
@@ -202,7 +197,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
                     handler.handle(target);
                 }
 
-                for (InstrumentMethod method : target.getDeclaredMethods(new NameBasedMethodFilter(JedisPipelineMethodNames.get()))) {
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(new int[] { MethodFilters.SYNTHETIC }, JedisPipelineMethodNames.get()))) {
                     try {
                         method.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisPipelineMethodInterceptor", config.isIo());
                     } catch (Exception e) {
