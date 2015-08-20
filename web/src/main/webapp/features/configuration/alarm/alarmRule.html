@@ -1,0 +1,81 @@
+<div class="some-list some-table" style="width:100%">
+	<div class="some-list-header header-sky">
+		<button class="btn btn-info left" ng-click="onRefresh()" ng-mouseenter="onEnter('refresh')" ng-mouseleave="onLeave('refresh')"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
+		<span class="title" ng-mouseenter="onEnter('title')" ng-mouseleave="onLeave('title')">Alarm Rules<span class="total"></span></span>
+		<button class="btn btn-info right" ng-click="onCreate()" ng-mouseenter="onEnter('create')" ng-mouseleave="onLeave('create')"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+	</div>
+	<div class="some-list-content">
+		<div class="wrapper">
+			<table>
+				<thead>
+					<tr>
+						<th width="40%">Application Name</th>
+						<th width="30%">Rule Name</th>
+						<th width="10%">Threshold</th>
+						<th width="10%">SMS</th>
+						<th width="10%">Email</th>
+						<th width="10%">Note</th>
+						<th width="10%"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="rule in ruleList" id="{{'alarmRule_' + rule.ruleId}}">
+						<td><button class="btn btn-info left edit"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button> {{rule.applicationId}}</td>
+						<td>{{rule.checkerName}}</td>
+						<td>{{rule.threshold}}</td>
+						<td>{{rule.smsSend ? "TRUE": "FALSE"}}</td>
+						<td>{{rule.emailSend ? "TRUE": "FALSE"}}</td>
+						<td><span ng-show="rule.notes != '' && rule.notes != null" class="glyphicon glyphicon-eye-open" aria-hidden="true" data-toggle="alarm-popover" data-trigger="hover" data-placement="left" data-content="{{rule.notes}}"></span></td>
+						<td><span class="remove">x</span></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="guide-message"></div>
+		<div class="filter-input">
+			<table style="display:table;">
+				<tbody>
+					<tr style="width:100%">
+						<td style="width:50%"><input type="text" placeholder="Application name" name="filterApplication"  ng-keydown="onInputFilter($event)" ng-mouseenter="onEnter('filterInputApplication')" ng-mouseleave="onLeave('filterInputApplication')" style="width:98%"/></td>
+						<td style="width:30%"><input type="text" placeholder="Rule name" name="filterRule"  ng-keydown="onInputFilter($event)" ng-mouseenter="onEnter('filterInputRule')" ng-mouseleave="onLeave('filterInputRule')" style="width:100%"/></td>
+						<td style="width:20%;text-align:right">
+							<button class="btn btn-info disabled trash" ng-click="onFilterEmpty()" ng-mouseenter="onEnter('filterEmpty')" ng-mouseleave="onLeave('filterEmpty')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+							<button class="btn btn-info" ng-click="onFilterGroup()" style="margin-right:2px" ng-mouseenter="onEnter('filterSearch')" ng-mouseleave="onLeave('filterSearch')"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<div class="some-edit-content hide-me" style="width:100%;">
+		<div style="padding-top:15%">
+			<div class="title-message">Creat new alram rule</div>
+			<select name="application" style="width:50%">
+                      <option ng-repeat="app in applications" value="{{app.text}}">{{app.text}}</option>
+                  </select>
+			<br/><br/>
+			<select name="rule" style="width:50%">
+                      <option ng-repeat="rule in ruleSets" value="{{rule.text}}">{{rule.text}}</option>
+                  </select>
+			<br/><br/>
+			<div style="display:inline-block;width:50%;text-align:left;">
+ 			<label>Threshold</label> <input type="number" value="1" placeholder="Threshold" name="threshold" style="width:50px"/>
+ 			<input type="checkbox" placeholder="SMS" name="sms" style="margin-left:30px;"/><label>SMS</label>
+ 			<input type="checkbox" placeholder="Email" name="email" style="margin-left:30px"/><label>Email</label>
+			</div>
+			<br/><br/>
+			<textarea placeholder="Note" name="note" style="width:50%;height:120px"></textarea>
+			<div style="padding-top:1px;">
+				<button class="btn btn-info left" style="margin-left:25%" ng-click="onCancelEdit()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+				<button class="btn btn-info right" style="margin-right:25%" ng-click="onApplyEdit()"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
+			</div>
+		</div>
+	</div>
+	<div class="some-loading has-not-edit">
+		<div class="timer-loader" style="margin-top:36%"></div>
+   		<div class="some-alert hide-me">
+			<span class="message"></span>
+			<span class="close-alert" ng-click="onCloseAlert()">X</span>
+		</div>
+   	</div>
+</div>
