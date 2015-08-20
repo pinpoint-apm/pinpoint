@@ -100,6 +100,12 @@
 	border-color: #e5e6e9 #dfe0e4 #d0d1d5;
 	border-radius: 3px;
 }
+#pinpoint-configuration .some-list .outer-wrapper {
+	float: left;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+}
 #pinpoint-configuration .some-list .btn{
 	border-radius: 0px;
 	font-size: 16px;
@@ -157,10 +163,30 @@
 	margin-top: -7px;
 	padding: 1px 8px 1px 8px;
 }
-#pinpoint-configuration .some-list-content li button.move {
-	margin-top: -7px;
-	padding: 1px 3px 1px 0px;		
+#pinpoint-configuration .some-list-content li button.move  {
+	padding: 1px 4px 3px 0px;
+	margin-top: 0px;
+	margin-right: 2px;
+	margin-left: -3px;
+	font-size: 6px;	
+	border-radius: 15px;
 }
+#pinpoint-configuration .some-list-content li button.edit-user {
+	margin-top: 0px;
+	margin-right: 2px;
+	padding: 1px 3px 3px 1px;
+	font-size: 6px;
+	border-radius: 15px;
+}
+
+#pinpoint-configuration .some-list-content li button.edit {
+	margin-top: 0px;
+	margin-right: 2px;
+	padding: 1px 3px 3px 4px;
+	font-size: 6px;
+	border-radius: 15px;
+}
+
 #pinpoint-configuration .some-list-content li.selected {
 	background-color: #000;
 	color: #FFF;
@@ -353,6 +379,14 @@
 	position: absolute;
 	right: 24px;
 }
+#pinpoint-configuration .some-table .some-list-content .wrapper tbody button.edit {
+	margin-top: 0px;
+	margin-right: 2px;
+	padding: 1px 3px 3px 4px;
+	font-size: 6px;
+	border-radius: 15px;
+}
+
 #pinpoint-configuration .some-table .filter-input {
 	position: relative;
 	bottom: -6px;
@@ -365,7 +399,7 @@
 #pinpoint-configuration div.popover .popover-title{
 	display: none;
 }
-#pinpoint-configuration .some-table .some-list-content th, td {
+#pinpoint-configuration .some-table .some-list-content th, #pinpoint-configuration .some-table .some-list-content td {
 	text-align: center;
 	vertical-align: bottom;
 	overflow: hidden;

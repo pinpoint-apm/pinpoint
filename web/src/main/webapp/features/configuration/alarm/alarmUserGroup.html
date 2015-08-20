@@ -1,0 +1,38 @@
+<div class="some-list">
+	<div class="some-list-header header-blue">
+		<button class="btn btn-primary left" ng-click="onRefresh()" ng-mouseenter="onEnter('refresh')" ng-mouseleave="onLeave('refresh')"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
+		<span class="title" ng-mouseenter="onEnter('title')" ng-mouseleave="onLeave('title')">User Group<span class="total"></span></span>
+		<button class="btn btn-primary right" ng-click="onCreate()" ng-mouseenter="onEnter('create')" ng-mouseleave="onLeave('create')"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+	</div>
+	<div class="some-list-content">
+		<div class="wrapper"><ul>
+			<li ng-repeat="userGroup in userGroupList" id="{{prefix + userGroup.number}}">
+				<button class="btn btn-primary left edit"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>
+				<span class="contents">{{userGroup.id}}</span><span class="remove">x</span>
+			</li>
+		</ul></div>
+		<div class="guide-message"></div>
+		<div class="filter-input">
+			<input type="text" placeholder="Filter user group" ng-keydown="onInputFilter($event)" ng-mouseenter="onEnter('filterInput')" ng-mouseleave="onLeave('filterInput')"/> 
+			<button class="btn btn-primary disabled trash" ng-click="onFilterEmpty()" ng-mouseenter="onEnter('filterEmpty')" ng-mouseleave="onLeave('filterEmpty')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+			<button class="btn btn-primary" ng-click="onFilterGroup()" style="margin-right:2px" ng-mouseenter="onEnter('filterSearch')" ng-mouseleave="onLeave('filterSearch')"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>	       				
+		</div>
+	</div>
+	<div class="some-edit-content hide-me">
+		<div>
+			<div class="title-message">Create new alarm group</div>
+			<input type="text" placeholder="Create New Alarm Group" ng-keydown="onInputEdit($event)"/>
+			<div style="padding-top:1px;">
+				<button class="btn btn-primary left" style="margin-left:5%" ng-click="onCancelEdit()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+				<button class="btn btn-primary right" style="margin-right:5%" ng-click="onApplyEdit()"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
+			</div>
+		</div>
+	</div>
+	<div class="some-loading  has-not-edit">
+		<div class="timer-loader"></div>
+		<div class="some-alert hide-me">
+			<span class="message"></span>
+			<span class="close-alert" ng-click="onCloseAlert()">X</span>
+		</div>
+	</div>
+</div>
