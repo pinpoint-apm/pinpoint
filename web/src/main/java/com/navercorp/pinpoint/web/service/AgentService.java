@@ -20,7 +20,8 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
-import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadResponse;
+import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
+import com.navercorp.pinpoint.web.vo.AgentActiveThreadStatusList;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
@@ -32,10 +33,21 @@ import java.util.Map;
  */
 public interface AgentService {
 
-    List<AgentInfoBo> get(String applicationName);
+    AgentInfoBo getAgentInfo(String applicationName, String agentId, long startTimeStamp);
+    AgentInfoBo getAgentInfo(String applicationName, String agentId, long startTimeStamp, boolean checkDB);
+    List<AgentInfoBo> getAgentInfoList(String applicationName);
 
-    Map<String, TActiveThreadResponse> getActiveThreadStatus(List<AgentInfoBo> agentInfoList) throws TException;
+    PinpointRouteResponse invoke(AgentInfoBo agentInfoList, TBase tBase) throws TException;
+    PinpointRouteResponse invoke(AgentInfoBo agentInfoList, TBase tBase, long timeout) throws TException;
+    PinpointRouteResponse invoke(AgentInfoBo agentInfoList, byte[] payload) throws TException;
+    PinpointRouteResponse invoke(AgentInfoBo agentInfoList, byte[] payload, long timeout) throws TException;
 
-    Map<String, TActiveThreadResponse> getActiveThreadStatus(List<AgentInfoBo> agentInfoList, byte[] payload) throws TException;
+    Map<AgentInfoBo, PinpointRouteResponse> invoke(List<AgentInfoBo> agentInfoList, TBase tBase) throws TException;
+    Map<AgentInfoBo, PinpointRouteResponse> invoke(List<AgentInfoBo> agentInfoList, TBase tBase, long timeout) throws TException;
+    Map<AgentInfoBo, PinpointRouteResponse> invoke(List<AgentInfoBo> agentInfoList, byte[] payload) throws TException;
+    Map<AgentInfoBo, PinpointRouteResponse> invoke(List<AgentInfoBo> agentInfoList, byte[] payload, long timeout) throws TException;
+
+    AgentActiveThreadStatusList getActiveThreadStatus(List<AgentInfoBo> agentInfoList) throws TException;
+    AgentActiveThreadStatusList getActiveThreadStatus(List<AgentInfoBo> agentInfoList, byte[] payload) throws TException;
 
 }

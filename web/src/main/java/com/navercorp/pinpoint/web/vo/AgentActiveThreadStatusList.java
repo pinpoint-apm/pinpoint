@@ -25,11 +25,11 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @Author Taejin Koo
@@ -37,26 +37,18 @@ import java.util.Map;
 @JsonSerialize(using = AgentActiveThreadStatusListSerializer.class)
 public class AgentActiveThreadStatusList {
 
-    private final Map<String, TActiveThreadResponse> agentActiveThreadReposioty;
-
-    public AgentActiveThreadStatusList(Map<String, TActiveThreadResponse> agentActiveThreadReposioty) {
-        this.agentActiveThreadReposioty = new HashMap<String, TActiveThreadResponse>();
-    }
+    private final List<AgentActiveThreadStatus> agentActiveThreadRepository;
 
     public AgentActiveThreadStatusList(int initialCapacity) {
-        agentActiveThreadReposioty = new HashMap<String, TActiveThreadResponse>(initialCapacity);
+        agentActiveThreadRepository = new ArrayList<AgentActiveThreadStatus>(initialCapacity);
     }
 
-    public void add(String hostName, TActiveThreadResponse activeThreadStatus) {
-        agentActiveThreadReposioty.put(hostName, activeThreadStatus);
+    public void add(AgentActiveThreadStatus agentActiveThreadStatus) {
+        agentActiveThreadRepository.add(agentActiveThreadStatus);
     }
 
-    public void addAll(Map<String, TActiveThreadResponse> activeThreadStatuses) {
-        agentActiveThreadReposioty.putAll(activeThreadStatuses);
-    }
-
-    public Map<String, TActiveThreadResponse> getAgentActiveThreadReposioty() {
-        return agentActiveThreadReposioty;
+    public List<AgentActiveThreadStatus> getAgentActiveThreadRepository() {
+        return agentActiveThreadRepository;
     }
 
 }
@@ -65,33 +57,34 @@ class AgentActiveThreadStatusListSerializer extends JsonSerializer<AgentActiveTh
 {
     @Override
     public void serialize(AgentActiveThreadStatusList agentActiveThreadStatusList, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
-        Map<String, TActiveThreadResponse> agentActiveThreadReposioty = agentActiveThreadStatusList.getAgentActiveThreadReposioty();
+        List<AgentActiveThreadStatus> agentActiveThreadRepository = agentActiveThreadStatusList.getAgentActiveThreadRepository();
 
         jgen.writeStartObject();
-        for (Map.Entry<String, TActiveThreadResponse> entry : agentActiveThreadReposioty.entrySet()) {
-            List<Integer> activeThreadStatus = entry.getValue().getActiveThreadCount();
-            if (activeThreadStatus == null || activeThreadStatus.size() < 4) {
-                continue;
-            }
 
-            jgen.writeFieldName(entry.getKey());
+        for (AgentActiveThreadStatus agentActiveThread : agentActiveThreadRepository) {
+            jgen.writeFieldName(agentActiveThread.getHostname());
             jgen.writeStartObject();
 
-            jgen.writeFieldName("status");
-            jgen.writeStartArray();
-            jgen.writeNumber(activeThreadStatus.get(0));
-            jgen.writeNumber(activeThreadStatus.get(1));
-            jgen.writeNumber(activeThreadStatus.get(2));
-            jgen.writeNumber(activeThreadStatus.get(3));
-            jgen.writeEndArray();
+            TRouteResult routeResult = agentActiveThread.getRouteResult(TRouteResult.UNKNOWN);
+            jgen.writeNumberField("code", routeResult.getValue());
+            jgen.writeStringField("message", routeResult.name());
 
-            jgen.writeNumberField("code", 0);
-            // will be added codeMessage
+            TActiveThreadResponse activeThreadStatus = agentActiveThread.getActiveThreadStatus();
+            if (activeThreadStatus != null && activeThreadStatus.getActiveThreadCountSize() >= 4) {
+                List<Integer> activeThreadCount = activeThreadStatus.getActiveThreadCount();
+
+                jgen.writeFieldName("status");
+                jgen.writeStartArray();
+                jgen.writeNumber(activeThreadCount.get(0));
+                jgen.writeNumber(activeThreadCount.get(1));
+                jgen.writeNumber(activeThreadCount.get(2));
+                jgen.writeNumber(activeThreadCount.get(3));
+                jgen.writeEndArray();
+            }
 
             jgen.writeEndObject();
         }
 
         jgen.writeEndObject();
-
     }
 }
