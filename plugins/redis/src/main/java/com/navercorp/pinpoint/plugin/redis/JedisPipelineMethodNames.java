@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.redis.filter;
+package com.navercorp.pinpoint.plugin.redis;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Set;
+import java.util.List;
 
 /**
  * JedisPipeline method names
@@ -27,23 +28,17 @@ import java.util.Set;
  *
  */
 public class JedisPipelineMethodNames {
-
-    private static Set<String> names = null;
     
-    public static Set<String> get() {
-        if(names != null) {
-            return names;
-        }
-        
+    public static String[] get() {
         final String[] methodNames = { 
                 "sync",
                 "syncAndReturnAll"
             };
         
-        final Set<String> jedisMethodNames = JedisMethodNames.get();
-        jedisMethodNames.addAll(Arrays.asList(methodNames));
-        names = jedisMethodNames;
-
-        return names;
+        final List<String> names = new ArrayList<String>();
+        names.addAll(Arrays.asList(JedisMethodNames.get()));
+        names.addAll(Arrays.asList(methodNames));
+        
+        return names.toArray(new String[names.size()]);
     }
 }

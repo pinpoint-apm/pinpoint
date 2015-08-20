@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.redis.filter;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+package com.navercorp.pinpoint.plugin.redis;
 
 /**
  * Jedis method names
@@ -27,16 +23,9 @@ import java.util.Set;
  *
  */
 public class JedisMethodNames {
-
-    private static Set<String> names = null;
     
-    
-    public static Set<String> get() {
-        if(names != null) {
-            return names;
-        }
-        
-        final String[] methodNames = { 
+    public static String[] get() {
+        return new String[] { 
                 "get",
                 "type",
                 "append",
@@ -197,8 +186,5 @@ public class JedisMethodNames {
                 "slowlogGetBinary",
                 "info"
             };
-        
-        names = new HashSet<String>(Arrays.asList(methodNames));
-        return names;
     }
 }

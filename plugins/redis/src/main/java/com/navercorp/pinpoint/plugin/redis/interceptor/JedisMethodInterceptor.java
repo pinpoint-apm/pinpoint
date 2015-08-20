@@ -16,12 +16,17 @@
 
 package com.navercorp.pinpoint.plugin.redis.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.plugin.redis.CommandContext;
+import com.navercorp.pinpoint.plugin.redis.EndPointAccessor;
 import com.navercorp.pinpoint.plugin.redis.RedisConstants;
 
 /**
@@ -30,26 +35,59 @@ import com.navercorp.pinpoint.plugin.redis.RedisConstants;
  * @author jaehong.kim
  *
  */
+@Group(value = RedisConstants.REDIS_SCOPE)
 public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin implements RedisConstants {
 
-    private MetadataAccessor endPointAccessor;
+    private InterceptorGroup interceptorGroup;
+    private boolean io;
 
-    public JedisMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, @Name(METADATA_END_POINT) MetadataAccessor endPointAccessor) {
+    public JedisMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup, boolean io) {
         super(traceContext, methodDescriptor);
 
-        this.endPointAccessor = endPointAccessor;
+        this.interceptorGroup = interceptorGroup;
+        this.io = io;
     }
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        final InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
+        if (invocation != null) {
+            final CommandContext callContext = (CommandContext) invocation.getOrCreateAttachment(new AttachmentFactory() {
+                @Override
+                public Object createAttachment() {
+                    return new CommandContext();
+                }
+            });
+            invocation.setAttachment(callContext);
+        }
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         String endPoint = null;
 
-        if (endPointAccessor.isApplicable(target)) {
-            endPoint = endPointAccessor.get(target);
+        if (target instanceof EndPointAccessor) {
+            endPoint = ((EndPointAccessor) target)._$PINPOINT$_getEndPoint();
+        }
+        
+        final InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
+        if (invocation != null && invocation.getAttachment() != null) {
+            final CommandContext commandContext = (CommandContext) invocation.getAttachment();
+            logger.debug("Check command context {}", commandContext);
+            if (io) {
+                final StringBuilder sb = new StringBuilder();
+                sb.append("write=").append(commandContext.getWriteElapsedTime());
+                if (commandContext.isWriteFail()) {
+                    sb.append("(fail)");
+                }
+                sb.append(", read=").append(commandContext.getReadElapsedTime());
+                if (commandContext.isReadFail()) {
+                    sb.append("(fail)");
+                }
+                recorder.recordAttribute(AnnotationKey.ARGS0, sb.toString());
+            }
+            // clear
+            invocation.removeAttachment();
         }
 
         recorder.recordApi(getMethodDescriptor());

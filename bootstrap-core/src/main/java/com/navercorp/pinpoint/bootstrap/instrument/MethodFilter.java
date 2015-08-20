@@ -23,6 +23,6 @@ package com.navercorp.pinpoint.bootstrap.instrument;
 public interface MethodFilter {
     public static final boolean ACCEPT = true;
     public static final boolean REJECT = false;
-    
-    boolean accept(InstrumentMethod method);
+
+    boolean accept(InstrumentMethod method);  
 }
