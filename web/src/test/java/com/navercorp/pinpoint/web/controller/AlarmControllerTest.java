@@ -52,7 +52,7 @@ import com.navercorp.pinpoint.web.dao.AlarmDao;
 /**
  * @author minwoo.jung
  */
-//@Ignore
+@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration(locations = {"classpath:servlet-context.xml", "classpath:applicationContext-web.xml"})
