@@ -16,361 +16,515 @@
 
 package com.navercorp.pinpoint.plugin.thrift;
 
+import java.security.ProtectionDomain;
+import java.util.List;
+
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassConditions;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerSetup;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConstructorTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncCallEndFlagFieldAccessor;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncCallRemoteAddressFieldAccessor;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncMarkerFlagFieldAccessor;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncNextSpanIdFieldAccessor;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncTraceIdFieldAccessor;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.ServerMarkerFlagFieldAccessor;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketAddressFieldAccessor;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
+import com.navercorp.pinpoint.plugin.thrift.field.getter.TNonblockingTransportFieldGetter;
+import com.navercorp.pinpoint.plugin.thrift.field.getter.TTransportFieldGetter;
 
 /**
  * @author HyunGil Jeong
  */
 public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
-    
+
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         ThriftPluginConfig config = new ThriftPluginConfig(context.getConfig());
-        
+
         boolean traceClient = config.traceThriftClient();
         boolean traceProcessor = config.traceThriftProcessor();
         boolean traceCommon = traceClient || traceProcessor;
-        
+
         if (traceClient) {
             addInterceptorsForSynchronousClients(context, config);
             addInterceptorsForAsynchronousClients(context);
         }
-        
+
         if (traceProcessor) {
             addInterceptorsForSynchronousProcessors(context);
             addInterceptorsForAsynchronousProcessors(context);
         }
-        
+
         if (traceCommon) {
             addInterceptorsForRetrievingSocketAddresses(context);
             addTProtocolEditors(context, config);
         }
     }
-    
+
     // Client - synchronous
-    
+
     private void addInterceptorsForSynchronousClients(ProfilerPluginSetupContext context, ThriftPluginConfig config) {
         addTServiceClientEditor(context, config);
     }
-    
+
     private void addTServiceClientEditor(ProfilerPluginSetupContext context, ThriftPluginConfig config) {
-        boolean traceServiceArgs = config.traceThriftServiceArgs();
-        boolean traceServiceResult = config.traceThriftServiceResult();
-        
-        final ClassFileTransformerBuilder classTransformerBuilder = context.getClassFileTransformerBuilder("org.apache.thrift.TServiceClient");
-        classTransformerBuilder.injectMetadata(METADATA_SOCKET);
-        
-        // TServiceClient.sendBase(String, TBase)
-        final MethodTransformerBuilder sendBaseMethodTransformerBuilder = classTransformerBuilder.editMethod("sendBase", "java.lang.String", "org.apache.thrift.TBase");
-        sendBaseMethodTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        sendBaseMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.client.TServiceClientSendBaseInterceptor", traceServiceArgs);
-        
-        // TServiceClient.receiveBase(TBase, String)
-        final MethodTransformerBuilder receiveBaseMethodTransformerBuilder = classTransformerBuilder.editMethod("receiveBase", "org.apache.thrift.TBase", "java.lang.String");
-        receiveBaseMethodTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        receiveBaseMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.client.TServiceClientReceiveBaseInterceptor", traceServiceResult);
-        
-        context.addClassFileTransformer(classTransformerBuilder.build());
+        final boolean traceServiceArgs = config.traceThriftServiceArgs();
+        final boolean traceServiceResult = config.traceThriftServiceResult();
+
+        final String targetClassName = "org.apache.thrift.TServiceClient";
+        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+
+                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+
+                // TServiceClient.sendBase(String, TBase)
+                final InstrumentMethod sendBase = target.getDeclaredMethod("sendBase", "java.lang.String", "org.apache.thrift.TBase");
+                if (sendBase != null) {
+                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.TServiceClientSendBaseInterceptor";
+                    sendBase.addInterceptor(interceptor, traceServiceArgs);
+                }
+
+                // TServiceClient.receiveBase(TBase, String)
+                final InstrumentMethod receiveBase = target.getDeclaredMethod("receiveBase", "org.apache.thrift.TBase", "java.lang.String");
+                if (receiveBase != null) {
+                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.TServiceClientReceiveBaseInterceptor";
+                    receiveBase.addInterceptor(interceptor, traceServiceResult);
+                }
+
+                return target.toBytecode();
+            }
+        });
     }
-    
+
     // Client - asynchronous
-    
+
     private void addInterceptorsForAsynchronousClients(ProfilerPluginSetupContext context) {
         addTAsyncClientManagerEditor(context);
         addTAsyncMethodCallEditor(context);
     }
-    
+
     private void addTAsyncClientManagerEditor(ProfilerPluginSetupContext context) {
-        final ClassFileTransformerBuilder classTransformerBuilder = context.getClassFileTransformerBuilder("org.apache.thrift.async.TAsyncClientManager");
-        classTransformerBuilder.injectMetadata(METADATA_NONBLOCKING_SOCKET_ADDRESS);
-        classTransformerBuilder.injectMetadata(METADATA_ASYNC_TRACE_ID);
-        classTransformerBuilder.injectMetadata(METADATA_ASYNC_NEXT_SPAN_ID);
-        classTransformerBuilder.injectMetadata(METADATA_ASYNC_CALL_REMOTE_ADDRESS);
-        
-        // TAsyncClientManager.call(TAsyncMethodCall)
-        final MethodTransformerBuilder callMethodTransformerBuilder = classTransformerBuilder.editMethod("call", "org.apache.thrift.async.TAsyncMethodCall");
-        callMethodTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        callMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncClientManagerCallInterceptor");
-        
-        context.addClassFileTransformer(classTransformerBuilder.build());
+        final String targetClassName = "org.apache.thrift.async.TAsyncClientManager";
+        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+
+                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+
+                // TAsyncClientManager.call(TAsyncMethodCall)
+                final InstrumentMethod call = target.getDeclaredMethod("call", "org.apache.thrift.async.TAsyncMethodCall");
+                if (call != null) {
+                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncClientManagerCallInterceptor";
+                    call.addInterceptor(interceptor);
+                }
+
+                return target.toBytecode();
+            }
+
+        });
     }
-    
+
     private void addTAsyncMethodCallEditor(ProfilerPluginSetupContext context) {
-        final ClassFileTransformerBuilder classTransformerBuilder = context.getClassFileTransformerBuilder("org.apache.thrift.async.TAsyncMethodCall");
-        classTransformerBuilder.injectMetadata(METADATA_NONBLOCKING_SOCKET_ADDRESS);
-        classTransformerBuilder.injectMetadata(METADATA_ASYNC_MARKER);
-        classTransformerBuilder.injectMetadata(METADATA_ASYNC_TRACE_ID);
-        classTransformerBuilder.injectMetadata(METADATA_ASYNC_NEXT_SPAN_ID);
-        classTransformerBuilder.injectMetadata(METADATA_ASYNC_CALL_REMOTE_ADDRESS);
-        classTransformerBuilder.injectMetadata(METADATA_ASYNC_CALL_END_FLAG);
-        classTransformerBuilder.injectFieldAccessor(FIELD_TRANSPORT_ASYNC_METHOD_CALL);
-        
-        // TAsyncMethodCall(TAsyncClient, TProtocolFactory, TNonblockingTransport, AsyncMethodCallback<T>, boolean)
-        final ConstructorTransformerBuilder constructorTransformerBuilder = classTransformerBuilder.editConstructor(
-                "org.apache.thrift.async.TAsyncClient",
-                "org.apache.thrift.protocol.TProtocolFactory",
-                "org.apache.thrift.transport.TNonblockingTransport",
-                "org.apache.thrift.async.AsyncMethodCallback",
-                "boolean");
-        constructorTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        constructorTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallConstructInterceptor");
-        
-        // TAsyncMethodCall.start(Selector)
-        final MethodTransformerBuilder startMethodTransformerBuilder = classTransformerBuilder.editMethod("start", "java.nio.channels.Selector");
-        startMethodTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        startMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallStartInterceptor");
-        
-        // TAsyncMethodCall.doConnecting(SelectionKey)
-        final MethodTransformerBuilder doConnectingMethodTransformerBuilder = classTransformerBuilder.editMethod("doConnecting", "java.nio.channels.SelectionKey");
-        doConnectingMethodTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        doConnectingMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallInternalMethodInterceptor");
-        
-        // TAsyncMethodCall.doWritingRequestSize()
-        final MethodTransformerBuilder doWritingRequestSizeMethodTransformerBuilder = classTransformerBuilder.editMethod("doWritingRequestSize");
-        doWritingRequestSizeMethodTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        doWritingRequestSizeMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallInternalMethodInterceptor");
-        
-        // TAsyncMethodCall.doWritingRequestBody(SelectionKey)
-        final MethodTransformerBuilder doWritingRequestBodyMethodTransformerBuilder = classTransformerBuilder.editMethod("doWritingRequestBody", "java.nio.channels.SelectionKey");
-        doWritingRequestBodyMethodTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        doWritingRequestBodyMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallDoWritingRequestBodyInterceptor");
-        
-        // TAsyncMethodCall.doReadingResponseSize()
-        final MethodTransformerBuilder doReadingResponseSizeMethodTransformerBuilder = classTransformerBuilder.editMethod("doReadingResponseSize");
-        doReadingResponseSizeMethodTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        doReadingResponseSizeMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallInternalMethodInterceptor");
-        
-        // TAsyncMethodCall.doReadingResponseBody(SelectionKey)
-        final MethodTransformerBuilder doReadingResponseBodyMethodTransformerBuilder = classTransformerBuilder.editMethod("doReadingResponseBody", "java.nio.channels.SelectionKey");
-        doReadingResponseBodyMethodTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        doReadingResponseBodyMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallDoReadingResponseBodyInterceptor");
-        
-        // TAsyncMethodCall.cleanUpAndFireCallback(SelectionKey)
-        final MethodTransformerBuilder cleanUpAndFireCallbackMethodTransformerBuilder = classTransformerBuilder.editMethod("cleanUpAndFireCallback", "java.nio.channels.SelectionKey");
-        cleanUpAndFireCallbackMethodTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        cleanUpAndFireCallbackMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallCleanUpAndFireCallbackInterceptor");
-        
-        // TAsyncMethodCall.onError(Exception)
-        final MethodTransformerBuilder onErrorMethodTransformerBuilder = classTransformerBuilder.editMethod("onError", "java.lang.Exception");
-        onErrorMethodTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        onErrorMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallOnErrorInterceptor");
-        
-        context.addClassFileTransformer(classTransformerBuilder.build());
+        final String targetClassName = "org.apache.thrift.async.TAsyncMethodCall";
+        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+
+                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                target.addField(SocketAddressFieldAccessor.class.getName());
+                target.addField(AsyncMarkerFlagFieldAccessor.class.getName());
+                target.addField(AsyncTraceIdFieldAccessor.class.getName());
+                target.addField(AsyncNextSpanIdFieldAccessor.class.getName());
+                target.addField(AsyncCallEndFlagFieldAccessor.class.getName());
+                target.addField(AsyncCallRemoteAddressFieldAccessor.class.getName());
+                target.addGetter(TNonblockingTransportFieldGetter.class.getName(), T_ASYNC_METHOD_CALL_FIELD_TRANSPORT);
+
+                // TAsyncMethodCall(TAsyncClient, TProtocolFactory, TNonblockingTransport, AsyncMethodCallback<T>, boolean)
+                final InstrumentMethod constructor = target.getConstructor("org.apache.thrift.async.TAsyncClient",
+                        "org.apache.thrift.protocol.TProtocolFactory", "org.apache.thrift.transport.TNonblockingTransport",
+                        "org.apache.thrift.async.AsyncMethodCallback", "boolean");
+                if (constructor != null) {
+                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallConstructInterceptor";
+                    constructor.addInterceptor(interceptor);
+                }
+
+                // TAsyncMethodCall.start(Selector)
+                final InstrumentMethod start = target.getDeclaredMethod("start", "java.nio.channels.Selector");
+                if (start != null) {
+                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallStartInterceptor";
+                    start.addInterceptor(interceptor);
+                }
+
+                // TAsyncMethodCall.doConnecting(SelectionKey)
+                final InstrumentMethod doConnecting = target.getDeclaredMethod("doConnecting", "java.nio.channels.SelectionKey");
+                if (doConnecting != null) {
+                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallInternalMethodInterceptor";
+                    doConnecting.addInterceptor(interceptor);
+                }
+
+                // TAsyncMethodCall.doWritingRequestSize()
+                final InstrumentMethod doWritingRequestSize = target.getDeclaredMethod("doWritingRequestSize");
+                if (doWritingRequestSize != null) {
+                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallInternalMethodInterceptor";
+                    doWritingRequestSize.addInterceptor(interceptor);
+                }
+
+                // TAsyncMethodCall.doWritingRequestBody(SelectionKey)
+                final InstrumentMethod doWritingRequestBody = target.getDeclaredMethod("doWritingRequestBody", "java.nio.channels.SelectionKey");
+                if (doWritingRequestBody != null) {
+                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallDoWritingRequestBodyInterceptor";
+                    doWritingRequestBody.addInterceptor(interceptor);
+                }
+
+                // TAsyncMethodCall.doReadingResponseSize()
+                final InstrumentMethod doReadingResponseSize = target.getDeclaredMethod("doReadingResponseSize");
+                if (doReadingResponseSize != null) {
+                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallInternalMethodInterceptor";
+                    doReadingResponseSize.addInterceptor(interceptor);
+                }
+
+                // TAsyncMethodCall.doReadingResponseBody(SelectionKey)
+                final InstrumentMethod doReadingResponseBody = target.getDeclaredMethod("doReadingResponseBody", "java.nio.channels.SelectionKey");
+                if (doReadingResponseBody != null) {
+                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallDoReadingResponseBodyInterceptor";
+                    doReadingResponseBody.addInterceptor(interceptor);
+                }
+
+                // TAsyncMethodCall.cleanUpAndFireCallback(SelectionKey)
+                final InstrumentMethod cleanUpAndFireCallback = target.getDeclaredMethod("cleanUpAndFireCallback", "java.nio.channels.SelectionKey");
+                if (cleanUpAndFireCallback != null) {
+                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallCleanUpAndFireCallbackInterceptor";
+                    cleanUpAndFireCallback.addInterceptor(interceptor);
+                }
+
+                // TAsyncMethodCall.onError(Exception)
+                final InstrumentMethod onError = target.getDeclaredMethod("onError", "java.lang.Exception");
+                if (onError != null) {
+                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.async.TAsyncMethodCallOnErrorInterceptor";
+                    onError.addInterceptor(interceptor);
+                }
+
+                return target.toBytecode();
+            }
+
+        });
     }
-    
+
     // Processor - synchronous
-    
+
     private void addInterceptorsForSynchronousProcessors(ProfilerPluginSetupContext context) {
         addTBaseProcessorEditor(context);
         addProcessFunctionEditor(context);
     }
-    
+
     private void addTBaseProcessorEditor(ProfilerPluginSetupContext context) {
-        final ClassFileTransformerBuilder classTransformerBuilder = context.getClassFileTransformerBuilder("org.apache.thrift.TBaseProcessor");
-        classTransformerBuilder.injectMetadata(METADATA_SOCKET);
-        
-        // TBaseProcessor.process(TProtocol, TProtocol)
-        final MethodTransformerBuilder processMethodTransformerBuilder = classTransformerBuilder.editMethod("process", "org.apache.thrift.protocol.TProtocol", "org.apache.thrift.protocol.TProtocol");
-        processMethodTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        processMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.server.TBaseProcessorProcessInterceptor");
-        
-        context.addClassFileTransformer(classTransformerBuilder.build());
+        final String targetClassName = "org.apache.thrift.TBaseProcessor";
+        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+
+                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+
+                // TBaseProcessor.process(TProtocol, TProtocol)
+                final InstrumentMethod process = target.getDeclaredMethod("process", "org.apache.thrift.protocol.TProtocol",
+                        "org.apache.thrift.protocol.TProtocol");
+                if (process != null) {
+                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.server.TBaseProcessorProcessInterceptor";
+                    process.addInterceptor(interceptor);
+                }
+
+                return target.toBytecode();
+            }
+
+        });
     }
 
     private void addProcessFunctionEditor(ProfilerPluginSetupContext context) {
-        final ClassFileTransformerBuilder classTransformerBuilder = context.getClassFileTransformerBuilder("org.apache.thrift.ProcessFunction");
-        classTransformerBuilder.injectMetadata(METADATA_SERVER_MARKER);
-        
-        // ProcessFunction.process(int, TProtocol, TProtocol, I)
-        final MethodTransformerBuilder processMethodTransformerBuilder = classTransformerBuilder.editMethod("process", "int", "org.apache.thrift.protocol.TProtocol", "org.apache.thrift.protocol.TProtocol", "java.lang.Object");
-        processMethodTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        processMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.server.ProcessFunctionProcessInterceptor");
-        
-        context.addClassFileTransformer(classTransformerBuilder.build());
+        final String targetClassName = "org.apache.thrift.ProcessFunction";
+        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+
+                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                target.addField(ServerMarkerFlagFieldAccessor.class.getName());
+
+                // ProcessFunction.process(int, TProtocol, TProtocol, I)
+                final InstrumentMethod process = target.getDeclaredMethod("process", "int", "org.apache.thrift.protocol.TProtocol",
+                        "org.apache.thrift.protocol.TProtocol", "java.lang.Object");
+                if (process != null) {
+                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.server.ProcessFunctionProcessInterceptor";
+                    process.addInterceptor(interceptor);
+                }
+
+                return target.toBytecode();
+            }
+
+        });
     }
-    
+
     // Processor - asynchronous
-    
+
     private void addInterceptorsForAsynchronousProcessors(ProfilerPluginSetupContext context) {
         addTBaseAsyncProcessorEditor(context);
     }
-    
+
     private void addTBaseAsyncProcessorEditor(ProfilerPluginSetupContext context) {
-        final ClassFileTransformerBuilder classTransformerBuilder = context.getClassFileTransformerBuilder("org.apache.thrift.TBaseAsyncProcessor");
-        classTransformerBuilder.injectMetadata(METADATA_SOCKET);
-        classTransformerBuilder.injectMetadata(METADATA_SERVER_MARKER);
-        classTransformerBuilder.injectMetadata(METADATA_ASYNC_MARKER);
-        
-        // TBaseAsyncProcessor.process(AbstractNonblockingServer$AsyncFrameBuffer)
-        final MethodTransformerBuilder processMethodTransformerBuilder = classTransformerBuilder.editMethod("process", "org.apache.thrift.server.AbstractNonblockingServer$AsyncFrameBuffer");
-        processMethodTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        processMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.server.async.TBaseAsyncProcessorProcessInterceptor");
-        
-        context.addClassFileTransformer(classTransformerBuilder.build());
+        final String targetClassName = "org.apache.thrift.TBaseAsyncProcessor";
+        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+
+                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                target.addField(ServerMarkerFlagFieldAccessor.class.getName());
+                target.addField(AsyncMarkerFlagFieldAccessor.class.getName());
+
+                // TBaseAsyncProcessor.process(AbstractNonblockingServer$AsyncFrameBuffer)
+                final InstrumentMethod process = target.getDeclaredMethod("process", "org.apache.thrift.server.AbstractNonblockingServer$AsyncFrameBuffer");
+                if (process != null) {
+                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.server.async.TBaseAsyncProcessorProcessInterceptor";
+                    process.addInterceptor(interceptor);
+                }
+
+                return target.toBytecode();
+            }
+
+        });
     }
-    
+
     // Common
-    
+
     private void addInterceptorsForRetrievingSocketAddresses(ProfilerPluginSetupContext context) {
         // injector TTranports
         // TSocket(Socket), TSocket(String, int, int)
-        addTTransportEditor(context,"org.apache.thrift.transport.TSocket",
-                "com.navercorp.pinpoint.plugin.thrift.interceptor.transport.TSocketConstructInterceptor",
-                new String[] {"java.net.Socket"},
-                new String[] {"java.lang.String", "int", "int"});
-        
+        addTTransportEditor(context, "org.apache.thrift.transport.TSocket",
+                "com.navercorp.pinpoint.plugin.thrift.interceptor.transport.TSocketConstructInterceptor", new String[] { "java.net.Socket" }, new String[] {
+                        "java.lang.String", "int", "int" });
+
         // wrapper TTransports
         // TFramedTransport(TTransport), TFramedTransport(TTransport, int)
         addTTransportEditor(context, "org.apache.thrift.transport.TFramedTransport",
                 "com.navercorp.pinpoint.plugin.thrift.interceptor.transport.wrapper.TFramedTransportConstructInterceptor",
-                new String[] {"org.apache.thrift.transport.TTransport"},
-                new String[] {"org.apache.thrift.transport.TTransport", "int"});
+                new String[] { "org.apache.thrift.transport.TTransport" }, new String[] { "org.apache.thrift.transport.TTransport", "int" });
         // TFastFramedTransport(TTransport, int, int)
         addTTransportEditor(context, "org.apache.thrift.transport.TFastFramedTransport",
-                "com.navercorp.pinpoint.plugin.thrift.interceptor.transport.wrapper.TFastFramedTransportConstructInterceptor",
-                new String[] {"org.apache.thrift.transport.TTransport", "int", "int"});
+                "com.navercorp.pinpoint.plugin.thrift.interceptor.transport.wrapper.TFastFramedTransportConstructInterceptor", new String[] {
+                        "org.apache.thrift.transport.TTransport", "int", "int" });
         // TSaslClientTransport(TTransport), TSaslClientTransport(SaslClient, TTransport)
         addTTransportEditor(context, "org.apache.thrift.transport.TSaslClientTransport",
                 "com.navercorp.pinpoint.plugin.thrift.interceptor.transport.wrapper.TSaslTransportConstructInterceptor",
-                new String[] {"org.apache.thrift.transport.TTransport"},
-                new String[] {"javax.security.sasl.SaslClient", "org.apache.thrift.transport.TTransport"});
-        
-        // TMemoryInputTransport - simply inject socket metadata
+                new String[] { "org.apache.thrift.transport.TTransport" }, new String[] { "javax.security.sasl.SaslClient",
+                        "org.apache.thrift.transport.TTransport" });
+
+        // TMemoryInputTransport - simply add socket field
         addTTransportEditor(context, "org.apache.thrift.transport.TMemoryInputTransport");
-        
+        // TIOStreamTransport - simply add socket field
+        addTTransportEditor(context, "org.apache.thrift.transport.TIOStreamTransport");
+
         // nonblocking
         addTNonblockingSocketEditor(context);
         // AbstractNonblockingServer$FrameBuffer(TNonblockingTransport, SelectionKey, AbstractSelectThread)
         addFrameBufferEditor(context);
     }
-    
+
     // Common - transports
-    
-    private void addTTransportEditor(ProfilerPluginSetupContext context, String tTransportClassName) {
-        final ClassFileTransformerBuilder classTransformerBuilder = context.getClassFileTransformerBuilder(tTransportClassName);
-        classTransformerBuilder.injectMetadata(METADATA_SOCKET);
-        context.addClassFileTransformer(classTransformerBuilder.build());
+
+    private void addTTransportEditor(ProfilerPluginSetupContext context, String tTransportFqcn) {
+        final String targetClassName = tTransportFqcn;
+        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+
+                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                target.addField(SocketFieldAccessor.class.getName());
+                return target.toBytecode();
+            }
+
+        });
     }
-    
-    private void addTTransportEditor(ProfilerPluginSetupContext context, String tTransportClassName, String tTransportInterceptorClassName, String[] ... parameterTypeGroups ) {
-        final ClassFileTransformerBuilder classTransformerBuilder = context.getClassFileTransformerBuilder(tTransportClassName);
-        classTransformerBuilder.injectMetadata(METADATA_SOCKET);
-        
-        for (String[] parameterTypeGroup : parameterTypeGroups) {
-            final ConstructorTransformerBuilder constructorTransformerBuilder = classTransformerBuilder.editConstructor(parameterTypeGroup);
-            constructorTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-            constructorTransformerBuilder.injectInterceptor(tTransportInterceptorClassName);
-        }
-        
-        context.addClassFileTransformer(classTransformerBuilder.build());
+
+    private void addTTransportEditor(ProfilerPluginSetupContext context, String tTransportClassName, final String tTransportInterceptorFqcn,
+            final String[]... parameterTypeGroups) {
+        final String targetClassName = tTransportClassName;
+        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+
+                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                target.addField(SocketFieldAccessor.class.getName());
+
+                for (String[] parameterTypeGroup : parameterTypeGroups) {
+                    final InstrumentMethod constructor = target.getConstructor(parameterTypeGroup);
+                    if (constructor != null) {
+                        constructor.addInterceptor(tTransportInterceptorFqcn);
+                    }
+                }
+
+                return target.toBytecode();
+            }
+
+        });
     }
-    
+
     private void addTNonblockingSocketEditor(ProfilerPluginSetupContext context) {
-        final ClassFileTransformerBuilder classTransformerBuilder = context.getClassFileTransformerBuilder("org.apache.thrift.transport.TNonblockingSocket");
-        classTransformerBuilder.injectMetadata(METADATA_SOCKET);
-        classTransformerBuilder.injectMetadata(METADATA_NONBLOCKING_SOCKET_ADDRESS);
+        final String targetClassName = "org.apache.thrift.transport.TNonblockingSocket";
+        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
-        // TNonblockingSocket(SocketChannel, int, SocketAddress)
-        final ConstructorTransformerBuilder constructorTransformerBuilder = classTransformerBuilder.editConstructor("java.nio.channels.SocketChannel", "int", "java.net.SocketAddress");
-        constructorTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        constructorTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.transport.TNonblockingSocketConstructInterceptor");
-        
-        context.addClassFileTransformer(classTransformerBuilder.build());
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+
+                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                target.addField(SocketFieldAccessor.class.getName());
+                target.addField(SocketAddressFieldAccessor.class.getName());
+
+                // TNonblockingSocket(SocketChannel, int, SocketAddress)
+                final InstrumentMethod constructor = target.getConstructor("java.nio.channels.SocketChannel", "int", "java.net.SocketAddress");
+                if (constructor != null) {
+                    String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.transport.TNonblockingSocketConstructInterceptor";
+                    constructor.addInterceptor(interceptor);
+                }
+
+                return target.toBytecode();
+            }
+
+        });
     }
-    
+
     private void addFrameBufferEditor(ProfilerPluginSetupContext context) {
-        final ClassFileTransformerBuilder classTransformerBuilder = context.getClassFileTransformerBuilder("org.apache.thrift.server.AbstractNonblockingServer$FrameBuffer");
-        classTransformerBuilder.injectMetadata(METADATA_SOCKET);
-        classTransformerBuilder.injectFieldAccessor(FIELD_FRAME_BUFFER_IN_TRANSPORT);
+        final String targetClassName = "org.apache.thrift.server.AbstractNonblockingServer$FrameBuffer";
+        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
-        final String[] parameterTypeNames = new String[] {
-                "org.apache.thrift.server.AbstractNonblockingServer",   // inner class - implicit reference to outer class instance
-                "org.apache.thrift.transport.TNonblockingTransport",
-                "java.nio.channels.SelectionKey",
-                "org.apache.thrift.server.AbstractNonblockingServer$AbstractSelectThread"
-        };
-        
-        // [THRIFT-1972] - 0.9.1 added a field for the wrapper around trans_ field, while getting rid of getInputTransport() method
-        classTransformerBuilder.conditional(ClassConditions.hasField(FIELD_FRAME_BUFFER_IN_TRANSPORT_WRAPPER), 
-                new ConditionalClassFileTransformerSetup() {
-                    @Override
-                    public void setup(ConditionalClassFileTransformerBuilder conditional) {
-                        conditional.injectFieldAccessor(FIELD_FRAME_BUFFER_IN_TRANSPORT_WRAPPER);
-                        final ConstructorTransformerBuilder constructorTransformerBuilder = conditional.editConstructor(parameterTypeNames);
-                        constructorTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-                        constructorTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.server.nonblocking.FrameBufferConstructInterceptor");
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+
+                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                target.addField(SocketFieldAccessor.class.getName());
+                target.addGetter(TNonblockingTransportFieldGetter.class.getName(), FRAME_BUFFER_FIELD_TRANS_);
+
+                // [THRIFT-1972] - 0.9.1 added a field for the wrapper around trans_ field, while getting rid of getInputTransport() method
+                if (target.hasField(FRAME_BUFFER_FIELD_IN_TRANS_)) {
+                    target.addGetter(TTransportFieldGetter.class.getName(), FRAME_BUFFER_FIELD_IN_TRANS_);
+                    // AbstractNonblockingServer$FrameBuffer(TNonblockingTransport, SelectionKey, AbstractSelectThread)
+                    final InstrumentMethod constructor = target.getConstructor(
+                            "org.apache.thrift.server.AbstractNonblockingServer", // inner class - implicit reference to outer class instance
+                            "org.apache.thrift.transport.TNonblockingTransport", "java.nio.channels.SelectionKey",
+                            "org.apache.thrift.server.AbstractNonblockingServer$AbstractSelectThread");
+                    if (constructor != null) {
+                        String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.server.nonblocking.FrameBufferConstructInterceptor";
+                        constructor.addInterceptor(interceptor);
                     }
                 }
-        );
-        // 0.8.0, 0.9.0 doesn't have a separate trans_ field - hooking getInputTransport() method
-        classTransformerBuilder.conditional(ClassConditions.hasMethod("getInputTransport", "org.apache.thrift.transport.TTransport"),
-                new ConditionalClassFileTransformerSetup() {
-                    @Override
-                    public void setup(ConditionalClassFileTransformerBuilder conditional) {
-                        final MethodTransformerBuilder getInputTransportMethodTransformerBuilder = conditional.editMethod("getInputTransport");
-                        getInputTransportMethodTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-                        getInputTransportMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.server.nonblocking.FrameBufferGetInputTransportInterceptor");
+
+                // 0.8.0, 0.9.0 doesn't have a separate trans_ field - hook getInputTransport() method
+                if (target.hasMethod("getInputTransport", "org.apache.thrift.transport.TTransport")) {
+                    // AbstractNonblockingServer$FrameBuffer.getInputTransport(TTransport)
+                    final InstrumentMethod getInputTransport = target.getDeclaredMethod("getInputTransport", "org.apache.thrift.transport.TTransport");
+                    if (getInputTransport != null) {
+                        String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.server.nonblocking.FrameBufferGetInputTransportInterceptor";
+                        getInputTransport.addInterceptor(interceptor);
                     }
                 }
-        );
-        
-        context.addClassFileTransformer(classTransformerBuilder.build());
+
+                return target.toBytecode();
+            }
+
+        });
     }
-    
+
     // Common - protocols
-    
+
     private void addTProtocolEditors(ProfilerPluginSetupContext context, ThriftPluginConfig config) {
         addTProtocolInterceptors(context, config, "org.apache.thrift.protocol.TBinaryProtocol");
         addTProtocolInterceptors(context, config, "org.apache.thrift.protocol.TCompactProtocol");
         addTProtocolInterceptors(context, config, "org.apache.thrift.protocol.TJSONProtocol");
     }
-    
-    private void addTProtocolInterceptors(ProfilerPluginSetupContext context, ThriftPluginConfig config, String tProtocolClassName) {
-        final ClassFileTransformerBuilder classTransformerBuilder = context.getClassFileTransformerBuilder(tProtocolClassName);
-        
-        // client
-        if (config.traceThriftClient()) {
-            // TProtocol.writeFieldStop()
-            final MethodTransformerBuilder writeFieldStopMethodTransformerBuilder = classTransformerBuilder.editMethod("writeFieldStop");
-            writeFieldStopMethodTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-            writeFieldStopMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.client.TProtocolWriteFieldStopInterceptor");
-        }
-        
-        // processor
-        if (config.traceThriftProcessor()) {
-            classTransformerBuilder.injectMetadata(METADATA_SERVER_MARKER);
-            // TProtocol.readFieldBegin()
-            final MethodTransformerBuilder readFieldBeginMethodTransformerBuilder = classTransformerBuilder.editMethod("readFieldBegin");
-            readFieldBeginMethodTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-            readFieldBeginMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadFieldBeginInterceptor");
-            
-            // TProtocol.readBool, TProtocol.readBinary, TProtocol.readI16, TProtocol.readI64
-            final MethodTransformerBuilder readTTypeMethodTransformerBuilder = classTransformerBuilder.editMethods(MethodFilters.name("readBool", "readBinary", "readI16", "readI64"));
-            readTTypeMethodTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-            readTTypeMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor");
-            
-            // TProtocol.readMessageEnd()
-            final MethodTransformerBuilder readMessageEndMethodTransformerBuilder = classTransformerBuilder.editMethod("readMessageEnd");
-            readMessageEndMethodTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-            readMessageEndMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor");
-            
-            // for async processors
-            classTransformerBuilder.injectMetadata(METADATA_ASYNC_MARKER);
-            // TProtocol.readMessageBegin()
-            final MethodTransformerBuilder readMessageBeginMethodTransformerBuilder = classTransformerBuilder.editMethod("readMessageBegin");
-            readMessageBeginMethodTransformerBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-            readMessageBeginMethodTransformerBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageBeginInterceptor");
-        }
-        context.addClassFileTransformer(classTransformerBuilder.build());
-    }
 
+    private void addTProtocolInterceptors(ProfilerPluginSetupContext context, ThriftPluginConfig config, String tProtocolClassName) {
+        final boolean traceThriftClient = config.traceThriftClient();
+        final boolean traceThriftProcessor = config.traceThriftProcessor();
+
+        final String targetClassName = tProtocolClassName;
+        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+
+                final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+
+                // client
+                if (traceThriftClient) {
+                    // TProtocol.writeFieldStop()
+                    final InstrumentMethod writeFieldStop = target.getDeclaredMethod("writeFieldStop");
+                    if (writeFieldStop != null) {
+                        String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.client.TProtocolWriteFieldStopInterceptor";
+                        writeFieldStop.addInterceptor(interceptor);
+                    }
+                }
+
+                // processor
+                if (traceThriftProcessor) {
+                    target.addField(ServerMarkerFlagFieldAccessor.class.getName());
+                    // TProtocol.readFieldBegin()
+                    final InstrumentMethod readFieldBegin = target.getDeclaredMethod("readFieldBegin");
+                    if (readFieldBegin != null) {
+                        String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadFieldBeginInterceptor";
+                        readFieldBegin.addInterceptor(interceptor);
+                    }
+                    // TProtocol.readBool, TProtocol.readBinary, TProtocol.readI16, TProtocol.readI64
+                    final List<InstrumentMethod> readTTypes = target.getDeclaredMethods(MethodFilters.name("readBool", "readBinary", "readI16", "readI64"));
+                    if (readTTypes != null) {
+                        String tTypeCommonInterceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor";
+                        for (InstrumentMethod readTType : readTTypes) {
+                            if (readTType != null) {
+                                readTType.addInterceptor(tTypeCommonInterceptor);
+                            }
+                        }
+                    }
+                    // TProtocol.readMessageEnd()
+                    final InstrumentMethod readMessageEnd = target.getDeclaredMethod("readMessageEnd");
+                    if (readMessageEnd != null) {
+                        String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor";
+                        readMessageEnd.addInterceptor(interceptor);
+                    }
+
+                    // for async processors
+                    target.addField(AsyncMarkerFlagFieldAccessor.class.getName());
+                    // TProtocol.readMessageBegin()
+                    final InstrumentMethod readMessageBegin = target.getDeclaredMethod("readMessageBegin");
+                    if (readMessageBegin != null) {
+                        String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageBeginInterceptor";
+                        readMessageBegin.addInterceptor(interceptor);
+                    }
+                }
+
+                return target.toBytecode();
+            }
+
+        });
+    }
 }

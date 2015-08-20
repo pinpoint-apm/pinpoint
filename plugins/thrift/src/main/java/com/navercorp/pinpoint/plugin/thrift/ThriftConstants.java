@@ -50,17 +50,9 @@ public interface ThriftConstants {
     
     public static final String ATTRIBUTE_CONFIG = "thriftPluginConfig";
     
-    public static final String METADATA_SOCKET = "transportSocket";
-    public static final String METADATA_SERVER_MARKER = "serverTraceMarker";
-    public static final String METADATA_ASYNC_MARKER = "asyncMarker";
-    public static final String METADATA_ASYNC_TRACE_ID = "asyncTraceId";
-    public static final String METADATA_ASYNC_NEXT_SPAN_ID = "asyncNextSpanId";
-    public static final String METADATA_ASYNC_CALL_REMOTE_ADDRESS = "asyncCallRemoteAddress";
-    public static final String METADATA_ASYNC_CALL_END_FLAG = "asyncCallEndFlag";
-    public static final String METADATA_NONBLOCKING_SOCKET_ADDRESS = "nonblockingSocketAddress";
-    
-    public static final String FIELD_TRANSPORT_ASYNC_METHOD_CALL = "transport";
-    public static final String FIELD_FRAME_BUFFER_IN_TRANSPORT = "trans_";
-    public static final String FIELD_FRAME_BUFFER_IN_TRANSPORT_WRAPPER = "inTrans_";
+    // field names
+    public static final String T_ASYNC_METHOD_CALL_FIELD_TRANSPORT = "transport";
+    public static final String FRAME_BUFFER_FIELD_TRANS_ = "trans_";
+    public static final String FRAME_BUFFER_FIELD_IN_TRANS_ = "inTrans_";
     
 }

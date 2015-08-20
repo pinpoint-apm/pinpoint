@@ -16,25 +16,19 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.client.async;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncCallEndFlagFieldAccessor;
 
 /**
  * @author HyunGil Jeong
  */
 public class TAsyncMethodCallCleanUpAndFireCallbackInterceptor extends TAsyncMethodCallInternalMethodInterceptor {
     
-    private final MetadataAccessor asyncCallEndFlagAccessor;
-    
     public TAsyncMethodCallCleanUpAndFireCallbackInterceptor(
             TraceContext traceContext,
-            MethodDescriptor methodDescriptor,
-            @Name(METADATA_ASYNC_MARKER) MetadataAccessor asyncMarkerAccessor,
-            @Name(METADATA_ASYNC_CALL_END_FLAG) MetadataAccessor asyncCallEndFlagAccessor) {
-        super(traceContext, methodDescriptor, asyncMarkerAccessor);
-        this.asyncCallEndFlagAccessor = asyncCallEndFlagAccessor;
+            MethodDescriptor methodDescriptor) {
+        super(traceContext, methodDescriptor);
     }
 
     @Override
@@ -45,14 +39,14 @@ public class TAsyncMethodCallCleanUpAndFireCallbackInterceptor extends TAsyncMet
         if (throwable != null) {
             return;
         }
-        this.asyncCallEndFlagAccessor.set(target, Boolean.TRUE);
+        ((AsyncCallEndFlagFieldAccessor)target)._$PINPOINT$_setAsyncCallEndFlag(true);
     }
 
     @Override
     protected boolean validate(Object target) {
-        if (!this.asyncCallEndFlagAccessor.isApplicable(target)) {
+        if (!(target instanceof AsyncCallEndFlagFieldAccessor)) {
             if (isDebug) {
-                logger.debug("Invalid target object. Need metadata accessor({})", METADATA_ASYNC_CALL_END_FLAG);
+                logger.debug("Invalid target object. Need field accessor({}).", AsyncCallEndFlagFieldAccessor.class.getName());
             }
             return false;
         }

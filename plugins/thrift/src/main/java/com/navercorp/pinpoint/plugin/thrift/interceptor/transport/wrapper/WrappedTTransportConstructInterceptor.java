@@ -20,22 +20,19 @@ import java.net.Socket;
 
 import org.apache.thrift.transport.TTransport;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
 
 /**
  * @author HyunGil Jeong
  */
 public abstract class WrappedTTransportConstructInterceptor implements SimpleAroundInterceptor, ThriftConstants {
 
-    private final MetadataAccessor socketAccessor;
-    
-    protected WrappedTTransportConstructInterceptor(
-            @Name(METADATA_SOCKET) MetadataAccessor socketAccessor) {
-        this.socketAccessor = socketAccessor;
-    }
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     @Override
     public final void before(Object target, Object[] args) {
@@ -44,15 +41,32 @@ public abstract class WrappedTTransportConstructInterceptor implements SimpleAro
 
     @Override
     public final void after(Object target, Object[] args, Object result, Throwable throwable) {
-        TTransport wrappedTransport = getWrappedTransport(args);
-        if (wrappedTransport != null && this.socketAccessor.isApplicable(wrappedTransport)) {
-            Socket rootSocket = this.socketAccessor.get(wrappedTransport);
-            if (rootSocket != null) {
-                this.socketAccessor.set(target, rootSocket);
+        if (validateTransport(target)) {
+            TTransport wrappedTransport = getWrappedTransport(args);
+            if (validateTransport(wrappedTransport)) {
+                Socket socket = ((SocketFieldAccessor)wrappedTransport)._$PINPOINT$_getSocket();
+                ((SocketFieldAccessor)target)._$PINPOINT$_setSocket(socket);
             }
         }
     }
-    
+
     protected abstract TTransport getWrappedTransport(Object[] args);
+
+    private boolean validateTransport(Object transport) {
+        if (transport instanceof TTransport) {
+            return validateTransport((TTransport)transport);
+        }
+        return false;
+    }
+
+    private boolean validateTransport(TTransport transport) {
+        if (!(transport instanceof SocketFieldAccessor)) {
+            if (isDebug) {
+                logger.debug("Invalid target object. Need field accessor({}).", SocketFieldAccessor.class.getName());
+            }
+            return false;
+        }
+        return true;
+    }
 
 }

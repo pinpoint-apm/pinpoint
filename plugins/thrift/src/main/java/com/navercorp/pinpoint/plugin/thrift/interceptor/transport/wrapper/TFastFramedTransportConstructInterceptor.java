@@ -18,18 +18,10 @@ package com.navercorp.pinpoint.plugin.thrift.interceptor.transport.wrapper;
 
 import org.apache.thrift.transport.TTransport;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
-
 /**
  * @author HyunGil Jeong
  */
 public class TFastFramedTransportConstructInterceptor extends WrappedTTransportConstructInterceptor {
-    
-    public TFastFramedTransportConstructInterceptor(
-            @Name(METADATA_SOCKET) MetadataAccessor socketAccessor) {
-        super(socketAccessor);
-    }
 
     @Override
     protected TTransport getWrappedTransport(Object[] args) {

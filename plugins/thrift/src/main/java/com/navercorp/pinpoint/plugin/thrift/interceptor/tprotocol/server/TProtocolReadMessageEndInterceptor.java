@@ -18,9 +18,11 @@ package com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server;
 
 import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.*;
 
-import org.apache.thrift.protocol.TProtocol;
+import java.net.Socket;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TTransport;
+
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanId;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
@@ -39,19 +41,22 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContext;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 import com.navercorp.pinpoint.plugin.thrift.ThriftRequestProperty;
+import com.navercorp.pinpoint.plugin.thrift.ThriftUtils;
 import com.navercorp.pinpoint.plugin.thrift.descriptor.ThriftServerEntryMethodDescriptor;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.ServerMarkerFlagFieldAccessor;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
 
 /**
- * This interceptor intercepts the point in which the client message is read, and creates a new trace object
- * to indicate the starting point of a new span.
+ * This interceptor intercepts the point in which the client message is read, and creates a new trace object to indicate the starting point of a new span.
  * <ul>
- *   <li>Synchronous
- *     <p><tt>TBaseProcessorProcessInterceptor</tt> -> <tt>ProcessFunctionProcessInterceptor</tt> -> 
- *        <tt>TProtocolReadFieldBeginInterceptor</tt> <-> <tt>TProtocolReadTTypeInterceptor</tt> -> <b><tt>TProtocolReadMessageEndInterceptor</tt></b>
- *   </li>
- *   <li>Asynchronous
- *     <p><tt>TBaseAsyncProcessorProcessInterceptor</tt> -> <tt>TProtocolReadMessageBeginInterceptor</tt> -> 
- *        <tt>TProtocolReadFieldBeginInterceptor</tt> <-> <tt>TProtocolReadTTypeInterceptor</tt> -> <b><tt>TProtocolReadMessageEndInterceptor</tt></b>
+ * <li>Synchronous
+ * <p>
+ * <tt>TBaseProcessorProcessInterceptor</tt> -> <tt>ProcessFunctionProcessInterceptor</tt> -> <tt>TProtocolReadFieldBeginInterceptor</tt> <->
+ * <tt>TProtocolReadTTypeInterceptor</tt> -> <b><tt>TProtocolReadMessageEndInterceptor</tt></b></li>
+ * <li>Asynchronous
+ * <p>
+ * <tt>TBaseAsyncProcessorProcessInterceptor</tt> -> <tt>TProtocolReadMessageBeginInterceptor</tt> -> <tt>TProtocolReadFieldBeginInterceptor</tt> <->
+ * <tt>TProtocolReadTTypeInterceptor</tt> -> <b><tt>TProtocolReadMessageEndInterceptor</tt></b>
  * </ul>
  * <p>
  * Based on Thrift 0.8.0+
@@ -65,28 +70,23 @@ import com.navercorp.pinpoint.plugin.thrift.descriptor.ThriftServerEntryMethodDe
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadFieldBeginInterceptor TProtocolReadFieldBeginInterceptor
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor
  */
-@Group(value=THRIFT_SERVER_SCOPE, executionPolicy=ExecutionPolicy.INTERNAL)
+@Group(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
 public class TProtocolReadMessageEndInterceptor implements SimpleAroundInterceptor, ThriftConstants {
-    
+
     private final ThriftServerEntryMethodDescriptor thriftServerEntryMethodDescriptor = new ThriftServerEntryMethodDescriptor();
-    
+
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    
+
     private final TraceContext traceContext;
     private final InterceptorGroup group;
-    private final MetadataAccessor serverTraceMarker;
 
-    public TProtocolReadMessageEndInterceptor(
-            TraceContext traceContext,
-            @Name(THRIFT_SERVER_SCOPE) InterceptorGroup group,
-            @Name(METADATA_SERVER_MARKER) MetadataAccessor serverTraceMarker) {
+    public TProtocolReadMessageEndInterceptor(TraceContext traceContext, @Name(THRIFT_SERVER_SCOPE) InterceptorGroup group) {
         this.traceContext = traceContext;
         this.group = group;
-        this.serverTraceMarker = serverTraceMarker;
         this.traceContext.cacheApi(this.thriftServerEntryMethodDescriptor);
     }
-    
+
     @Override
     public void before(Object target, Object[] args) {
         // Do nothing
@@ -97,38 +97,49 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-        if (!shouldTrace(target)) {
+        if (!validate(target)) {
             return;
         }
-        
-        InterceptorGroupInvocation currentTransaction = this.group.getCurrentInvocation();
-        Object attachment = currentTransaction.getAttachment();
-        if (attachment instanceof ThriftClientCallContext) {
-            ThriftClientCallContext clientCallContext = (ThriftClientCallContext)attachment;
-            String methodName = clientCallContext.getMethodName();
-            ThriftRequestProperty parentTraceInfo = clientCallContext.getTraceHeader();
-            try {
-                this.logger.debug("parentTraceInfo : {}", parentTraceInfo);
-                recordTrace(parentTraceInfo, methodName);
-            } catch (Throwable t) {
-                logger.warn("Error creating trace object. Cause:{}", t.getMessage(), t);
+        final boolean shouldTrace = ((ServerMarkerFlagFieldAccessor)target)._$PINPOINT$_getServerMarkerFlag();
+        if (shouldTrace) {
+            InterceptorGroupInvocation currentTransaction = this.group.getCurrentInvocation();
+            Object attachment = currentTransaction.getAttachment();
+            if (attachment instanceof ThriftClientCallContext) {
+                ThriftClientCallContext clientCallContext = (ThriftClientCallContext)attachment;
+                String methodName = clientCallContext.getMethodName();
+                ThriftRequestProperty parentTraceInfo = clientCallContext.getTraceHeader();
+                try {
+                    this.logger.debug("parentTraceInfo : {}", parentTraceInfo);
+                    recordTrace(target, parentTraceInfo, methodName);
+                } catch (Throwable t) {
+                    logger.warn("Error creating trace object. Cause:{}", t.getMessage(), t);
+                }
             }
         }
-    }
-    
-    private boolean shouldTrace(Object target) {
-        if (target instanceof TProtocol) {
-            TProtocol protocol = (TProtocol)target;
-            if (this.serverTraceMarker.isApplicable(protocol) && this.serverTraceMarker.get(protocol) != null) {
-                Boolean tracingServer = this.serverTraceMarker.get(protocol);
-                return tracingServer;
-            }
-        }
-        return false;
     }
 
-    private void recordTrace(ThriftRequestProperty parentTraceInfo, String methodName) {
-        final Trace trace = createTrace(parentTraceInfo, methodName);
+    private boolean validate(Object target) {
+        if (!(target instanceof TProtocol)) {
+            return false;
+        }
+        if (!(target instanceof ServerMarkerFlagFieldAccessor)) {
+            if (isDebug) {
+                logger.debug("Invalid target object. Need field accessor({}).", ServerMarkerFlagFieldAccessor.class.getName());
+            }
+            return false;
+        }
+        TTransport transport = ((TProtocol)target).getTransport();
+        if (!(transport instanceof SocketFieldAccessor)) {
+            if (isDebug) {
+                logger.debug("Invalid target object. Need field accessor({}).", SocketFieldAccessor.class.getName());
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private void recordTrace(Object target, ThriftRequestProperty parentTraceInfo, String methodName) {
+        final Trace trace = createTrace(target, parentTraceInfo, methodName);
         if (trace == null) {
             return;
         }
@@ -139,12 +150,12 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
         recorder.recordServiceType(THRIFT_SERVER_INTERNAL);
     }
 
-    private Trace createTrace(ThriftRequestProperty parentTraceInfo, String methodName) {
+    private Trace createTrace(Object target, ThriftRequestProperty parentTraceInfo, String methodName) {
         // Check if parent trace info is set.
         // If it is, then make a continued trace object (from parent application)
         // If not, make a new trace object (from user cloud)
 
-        // Check sampling flag from client. If the flag is false, do not sample this request. 
+        // Check sampling flag from client. If the flag is false, do not sample this request.
         final boolean shouldSample = checkSamplingFlag(parentTraceInfo);
         if (!shouldSample) {
             // Even if this transaction is not a sampling target, we have to create Trace object to mark 'not sampling'.
@@ -154,14 +165,14 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
             }
             return this.traceContext.disableSampling();
         }
-        
+
         final TraceId traceId = populateTraceIdThriftHeader(parentTraceInfo);
         if (traceId != null) {
             // Parent trace info given
             // TODO Maybe we should decide to trace or not even if the sampling flag is true to prevent too many requests are traced.
             final Trace trace = this.traceContext.continueTraceObject(traceId);
             if (trace.canSampled()) {
-                recordRootSpan(trace, parentTraceInfo);
+                recordRootSpan(trace, parentTraceInfo, target);
                 if (isDebug) {
                     logger.debug("TraceId exists - continue trace. TraceId:{}, method:{}", traceId, methodName);
                 }
@@ -175,7 +186,7 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
             // No parent trace info, start new trace
             final Trace trace = traceContext.newTraceObject();
             if (trace.canSampled()) {
-                recordRootSpan(trace, parentTraceInfo);
+                recordRootSpan(trace, parentTraceInfo, target);
                 if (isDebug) {
                     logger.debug("TraceId does not exist - start new trace. Method:{}", methodName);
                 }
@@ -187,8 +198,8 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
             return trace;
         }
     }
-    
-    private void recordRootSpan(final Trace trace, final ThriftRequestProperty parentTraceInfo) {
+
+    private void recordRootSpan(final Trace trace, final ThriftRequestProperty parentTraceInfo, Object target) {
         // begin root span
         SpanRecorder recorder = trace.getSpanRecorder();
         recorder.recordServiceType(THRIFT_SERVER);
@@ -196,6 +207,10 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
         if (!trace.isRoot()) {
             recordParentInfo(recorder, parentTraceInfo);
         }
+        // record connection information here as the socket may be closed by the time the Span is popped in
+        // TBaseAsyncProcessorProcessInterceptor's after section.
+        TTransport transport = ((TProtocol)target).getTransport();
+        recordConnection(recorder, transport);
     }
 
     private boolean checkSamplingFlag(ThriftRequestProperty parentTraceInfo) {
@@ -222,10 +237,10 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
         long parentSpanId = parentTraceInfo.getParentSpanId(SpanId.NULL);
         long spanId = parentTraceInfo.getSpanId(SpanId.NULL);
         short flags = parentTraceInfo.getFlags((short)0);
-        
+
         return this.traceContext.createTraceId(transactionId, parentSpanId, spanId, flags);
     }
-    
+
     private void recordParentInfo(SpanRecorder recorder, ThriftRequestProperty parentTraceInfo) {
         if (parentTraceInfo == null) {
             return;
@@ -237,4 +252,21 @@ public class TProtocolReadMessageEndInterceptor implements SimpleAroundIntercept
         recorder.recordAcceptorHost(acceptorHost);
     }
     
+    private void recordConnection(SpanRecorder recorder, TTransport transport) {
+        // retrieve connection information
+        String localIpPort = UNKNOWN_ADDRESS;
+        String remoteAddress = UNKNOWN_ADDRESS;
+        Socket socket = ((SocketFieldAccessor)transport)._$PINPOINT$_getSocket();
+        if (socket != null) {
+            localIpPort = ThriftUtils.getHostPort(socket.getLocalSocketAddress());
+            remoteAddress = ThriftUtils.getHost(socket.getRemoteSocketAddress());
+        }
+        if (localIpPort != UNKNOWN_ADDRESS) {
+            recorder.recordEndPoint(localIpPort);
+        }
+        if (remoteAddress != UNKNOWN_ADDRESS) {
+            recorder.recordRemoteAddress(remoteAddress);
+        }
+    }
+
 }

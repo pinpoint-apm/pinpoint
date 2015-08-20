@@ -20,12 +20,11 @@ import java.net.Socket;
 
 import org.apache.thrift.transport.TSocket;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
 
 /**
  * @author HyunGil Jeong
@@ -34,13 +33,6 @@ public class TSocketConstructInterceptor implements SimpleAroundInterceptor, Thr
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    
-    private final MetadataAccessor socketAccessor;
-    
-    public TSocketConstructInterceptor(
-            @Name(METADATA_SOCKET) MetadataAccessor socketAccessor) {
-        this.socketAccessor = socketAccessor;
-    }
 
     @Override
     public void before(Object target, Object[] args) {
@@ -54,7 +46,7 @@ public class TSocketConstructInterceptor implements SimpleAroundInterceptor, Thr
         }
         if (validate(target)) {
             Socket socket = ((TSocket)target).getSocket();
-            this.socketAccessor.set(target, socket);
+            ((SocketFieldAccessor)target)._$PINPOINT$_setSocket(socket);
         }
     }
 
@@ -62,9 +54,9 @@ public class TSocketConstructInterceptor implements SimpleAroundInterceptor, Thr
         if (!(target instanceof TSocket)) {
             return false;
         }
-        if (!this.socketAccessor.isApplicable(target)) {
+        if (!(target instanceof SocketFieldAccessor)) {
             if (isDebug) {
-                logger.debug("Invalid target object. Need metadata accessor ({})", METADATA_SOCKET);
+                logger.debug("Invalid target object. Need field accessor({}).", SocketFieldAccessor.class.getName());
             }
             return false;
         }

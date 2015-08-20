@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.thrift.interceptor.transport.wrapper;
+package com.navercorp.pinpoint.plugin.thrift.field.accessor;
 
-import org.apache.thrift.transport.TTransport;
+import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 
 /**
  * @author HyunGil Jeong
  */
-public class TFramedTransportConstructInterceptor extends WrappedTTransportConstructInterceptor {
-
-    @Override
-    protected TTransport getWrappedTransport(Object[] args) {
-        TTransport wrappedTransport = null;
-        if ((args.length == 1 || args.length == 2) && (args[0] instanceof TTransport)) {
-            wrappedTransport = (TTransport)args[0];
-        }
-        return wrappedTransport;
-    }
+public interface AsyncTraceIdFieldAccessor {
+    public void _$PINPOINT$_setAsyncTraceId(AsyncTraceId asyncTraceId);
+    public AsyncTraceId _$PINPOINT$_getAsyncTraceId();
 }
