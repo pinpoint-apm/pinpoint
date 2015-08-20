@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.collector.cluster;
 
 import javax.annotation.PreDestroy;
 
+import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import org.apache.thrift.TBase;
 import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
@@ -26,17 +28,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.navercorp.pinpoint.collector.cluster.route.DefaultRouteHandler;
 import com.navercorp.pinpoint.collector.cluster.route.RequestEvent;
-import com.navercorp.pinpoint.collector.cluster.route.RouteResult;
-import com.navercorp.pinpoint.collector.cluster.route.RouteStatus;
 import com.navercorp.pinpoint.collector.cluster.route.StreamEvent;
 import com.navercorp.pinpoint.collector.cluster.route.StreamRouteHandler;
 import com.navercorp.pinpoint.rpc.client.MessageListener;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.rpc.packet.stream.BasicStreamPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
-import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
@@ -112,11 +110,11 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
 
         TBase<?, ?> request = deserialize(packet.getPayload());
         if (request == null) {
-            return StreamCreateFailPacket.PACKET_ERROR;
+            return (short) TRouteResult.EMPTY_REQUEST.getValue();
         } else if (request instanceof TCommandTransfer) {
-            return handleStreamRouteCreate((TCommandTransfer)request, packet, streamChannelContext);
+            return (short) handleStreamRouteCreate((TCommandTransfer)request, packet, streamChannelContext).getValue();
         } else {
-            return StreamCreateFailPacket.UNKNWON_ERROR;
+            return (short) TRouteResult.UNKNOWN.getValue();
         }
     }
 
@@ -131,18 +129,10 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
         byte[] payload = ((TCommandTransfer)request).getPayload();
         TBase<?,?> command = deserialize(payload);
 
-        RouteResult routeResult = routeHandler.onRoute(new RequestEvent((TCommandTransfer)request, channel, requestPacket.getRequestId(), command));
+        TCommandTransferResponse response = routeHandler.onRoute(new RequestEvent((TCommandTransfer) request, channel, requestPacket.getRequestId(), command));
+        channel.write(new ResponsePacket(requestPacket.getRequestId(), serialize(response)));
 
-        if (RouteStatus.OK == routeResult.getStatus()) {
-            channel.write(new ResponsePacket(requestPacket.getRequestId(), routeResult.getResponseMessage().getMessage()));
-            return true;
-        } else {
-            TResult result = new TResult(false);
-            result.setMessage(routeResult.getStatus().getReasonPhrase());
-
-            channel.write(new ResponsePacket(requestPacket.getRequestId(), serialize(result)));
-            return false;
-        }
+        return response.getRouteResult() == TRouteResult.OK;
     }
 
     private void handleRouteRequestFail(String message, RequestPacket requestPacket, Channel channel) {
@@ -152,29 +142,12 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
         channel.write(new ResponsePacket(requestPacket.getRequestId(), serialize(tResult)));
     }
 
-    private short handleStreamRouteCreate(TCommandTransfer request, StreamCreatePacket packet, ServerStreamChannelContext streamChannelContext) {
+    private TRouteResult handleStreamRouteCreate(TCommandTransfer request, StreamCreatePacket packet, ServerStreamChannelContext streamChannelContext) {
         byte[] payload = ((TCommandTransfer)request).getPayload();
         TBase<?,?> command = deserialize(payload);
 
-        RouteResult routeResult = streamRouteHandler.onRoute(new StreamEvent((TCommandTransfer)request, streamChannelContext, command));
-
-        RouteStatus status = routeResult.getStatus();
-        switch (status) {
-        case OK:
-            return BasicStreamPacket.SUCCESS;
-        case BAD_REQUEST:
-            return StreamCreateFailPacket.PACKET_ERROR;
-        case NOT_FOUND:
-            return StreamCreateFailPacket.ROUTE_NOT_FOUND;
-        case NOT_ACCEPTABLE:
-            return StreamCreateFailPacket.ROUTE_PACKET_UNSUPPORT;
-        case NOT_ACCEPTABLE_UNKNOWN:
-            return StreamCreateFailPacket.ROUTE_CONNECTION_ERROR;
-        case NOT_ACCEPTABLE_AGENT_TYPE:
-            return StreamCreateFailPacket.ROUTE_TYPE_UNKOWN;
-        default:
-            return StreamCreateFailPacket.UNKNWON_ERROR;
-        }
+        TCommandTransferResponse response = streamRouteHandler.onRoute(new StreamEvent((TCommandTransfer) request, streamChannelContext, command));
+        return response.getRouteResult();
     }
 
     public ClusterPointRepository<TargetClusterPoint> getTargetClusterPointRepository() {

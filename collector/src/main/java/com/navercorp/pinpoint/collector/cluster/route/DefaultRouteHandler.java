@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.cluster.route;
 
+import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,41 +60,53 @@ public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
     }
 
     @Override
-    public RouteResult onRoute(RequestEvent event) {
+    public TCommandTransferResponse onRoute(RequestEvent event) {
         requestFilterChain.doEvent(event);
 
-        RouteResult routeResult = onRoute0(event);
+        TCommandTransferResponse routeResult = onRoute0(event);
 
         responseFilterChain.doEvent(new ResponseEvent(event, event.getRequestId(), routeResult));
 
         return routeResult;
     }
 
-    private RouteResult onRoute0(RequestEvent event) {
+    private TCommandTransferResponse onRoute0(RequestEvent event) {
+        TCommandTransferResponse response = new TCommandTransferResponse();
+
         TBase<?,?> requestObject = event.getRequestObject();
         if (requestObject == null) {
-            return new RouteResult(RouteStatus.BAD_REQUEST);
+            return createResponse(TRouteResult.EMPTY_REQUEST);
         }
 
         TargetClusterPoint clusterPoint = findClusterPoint(event.getDeliveryCommand());
         if (clusterPoint == null) {
-            return new RouteResult(RouteStatus.NOT_FOUND);
+            return createResponse(TRouteResult.AGNET_NOT_FOUND);
         }
 
         TCommandTypeVersion commandVersion = TCommandTypeVersion.getVersion(clusterPoint.gerVersion());
         if (!commandVersion.isSupportCommand(requestObject)) {
-            return new RouteResult(RouteStatus.NOT_ACCEPTABLE);
+            return createResponse(TRouteResult.AGENT_NOT_SUPPORTED_COMMAND);
         }
 
         Future<ResponseMessage> future = clusterPoint.request(event.getDeliveryCommand().getPayload());
         future.await();
         ResponseMessage responseMessage = future.getResult();
-
         if (responseMessage == null) {
-            return new RouteResult(RouteStatus.AGENT_TIMEOUT);
+            return createResponse(TRouteResult.TIMEOUT);
         }
 
-        return new RouteResult(RouteStatus.OK, responseMessage);
+        return createResponse(TRouteResult.OK, responseMessage.getMessage());
+    }
+
+    private TCommandTransferResponse createResponse(TRouteResult result) {
+        return createResponse(result, new byte[0]);
+    }
+
+    private TCommandTransferResponse createResponse(TRouteResult result, byte[] payload) {
+        TCommandTransferResponse response = new TCommandTransferResponse();
+        response.setRouteResult(result);
+        response.setPayload(payload);
+        return response;
     }
 
 }

@@ -57,9 +57,31 @@ struct TActiveThreadResponse {
 struct TCommandEcho {
 	1: string	message
 }
+
+enum TRouteResult {
+	UNKNOWN = -1,
+	OK = 0,
+
+	BAD_REQUEST = 101,
+	TIMEOUT = 111,
+	NOT_ACCEPTABLE = 121,
+	NOT_SUPPORTED_COMMAND = 131,
+
+	AGNET_NOT_FOUND = 201,
+	AGENT_NOT_ACCEPTABLE  = 211,
+	AGENT_NOT_SUPPORTED_COMMAND = 221,
+
+	EMPTY_REQUEST = 301
+}
+
 struct TCommandTransfer {
     1: string	applicationName
     2: string 	agentId
     3: optional i64		startTime
     4: binary 	payload
+}
+struct TCommandTransferResponse {
+	1: TRouteResult routeResult
+	2: binary payload
+	3: optional string message
 }

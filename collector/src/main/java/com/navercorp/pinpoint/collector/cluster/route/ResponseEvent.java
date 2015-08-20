@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.cluster.route;
 
+import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import org.jboss.netty.channel.Channel;
 
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
@@ -27,13 +28,13 @@ public class ResponseEvent extends DefaultRouteEvent {
 
     private final int requestId;
 
-    private final RouteResult routeResult;
+    private final TCommandTransferResponse routeResult;
 
-    public ResponseEvent(RouteEvent routeEvent, int requestId, RouteResult routeResult) {
+    public ResponseEvent(RouteEvent routeEvent, int requestId, TCommandTransferResponse routeResult) {
         this(routeEvent.getDeliveryCommand(), routeEvent.getSourceChannel(), requestId, routeResult);
     }
 
-    public ResponseEvent(TCommandTransfer deliveryCommand, Channel sourceChannel, int requestId, RouteResult routeResult) {
+    public ResponseEvent(TCommandTransfer deliveryCommand, Channel sourceChannel, int requestId, TCommandTransferResponse routeResult) {
         super(deliveryCommand, sourceChannel);
 
         this.requestId = requestId;
@@ -44,7 +45,7 @@ public class ResponseEvent extends DefaultRouteEvent {
         return requestId;
     }
 
-    public RouteResult getRouteResult() {
+    public TCommandTransferResponse getRouteResult() {
         return routeResult;
     }
 
