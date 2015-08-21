@@ -293,7 +293,7 @@ public class JavassistMethod implements InstrumentMethod {
             addAfterInterceptor(instance, interceptorId, localVarsInitialized, originalCodeOffset);
         }
     }
-
+    
     private static final Method findMethod(Class<?> interceptorClass, String name) {
         for (Method m : interceptorClass.getMethods()) {
             if (m.getName().equals(name)) {
