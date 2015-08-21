@@ -7,8 +7,8 @@
 	 * @name alarmGroupMemberDirective
 	 * @class
 	 */	
-	pinpointApp.directive('alarmGroupMemberDirective', [ '$rootScope', 'helpContentTemplate', 'helpContentService', 'AlarmListTemplateService',
-	    function ($rootScope, helpContentTemplate, helpContentService, $alarmListTemplateService) {
+	pinpointApp.directive('alarmGroupMemberDirective', [ '$rootScope', 'helpContentTemplate', 'helpContentService', 'AlarmUtilService', 'AlarmBroadcastService',
+	    function ($rootScope, helpContentTemplate, helpContentService, $alarmUtilService, $alarmBroadcastService) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -24,7 +24,6 @@
 	    			var $elTotal = $element.find(".total");
 	    			var $elLoading = $element.find(".some-loading");
 	    			var $elAlert = $element.find(".some-alert");
-	    			var $elGuideMessage = $element.find(".guide-message");
 	    			var $elFilterInput = $element.find("div.filter-input input");
 	    			var $elFilterEmpty = $element.find("div.filter-input button.trash");
 	    			var $removeTemplate = $([
@@ -62,21 +61,13 @@
 	    					}
 	    				}
 	    			});
-	    			$alarmListTemplateService.setGuideEvent( scope, $elUL, [
-	                  { selector: "span.remove", 			name: "remove" },
-	                  { selector: "button.confirm-cancel", 	name: "removeCancel" },
-	                  { selector: "button.confirm-remove", 	name: "removeConfirm" }
-	    			]);
 	    			function removeConfirm( $el ) {
-	    				$alarmListTemplateService.showLoading( $elLoading, false );
-	    				removeMember( $el.prop("id").split("_")[1] );
+	    				$alarmUtilService.showLoading( $elLoading, false );
+	    				removeMember( $alarmUtilService.extractID( $el ) );
 	    			}
 	    			function removeCancel( $el ) {
 						$el.find("span.right").remove().end().find("span.remove").show().end().removeClass("remove");
 						isRemoving = false;
-	    			}
-	    			function callbackAddUser( bIsSuccess ) {
-	    				scope.$parent.$broadcast( "alarmPinpointUser.configuration.addUserCallback", bIsSuccess );
 	    			}
 	    			function updateFromList( oUser ) {
 	    				if ( scope.groupMemberList != groupMemberList ) {
@@ -114,7 +105,7 @@
 	    			}
 
 	    			function addMember( oUser ) {
-	    				$alarmListTemplateService.sendCRUD( "addMemberInGroup", { "userGroupId": currentUserGroupID, "memberId": oUser.userId }, function( resultData ) {
+	    				$alarmUtilService.sendCRUD( "addMemberInGroup", { "userGroupId": currentUserGroupID, "memberId": oUser.userId }, function( resultData ) {
 	    					// @TODO
 	    					// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
 	    					scope.groupMemberList.push({
@@ -123,33 +114,31 @@
 	    						"name": oUser.name,
 	    						"department": oUser.department
 	    					});
-	    					$alarmListTemplateService.setTotal( $elTotal, groupMemberList.length );
-	    					$alarmListTemplateService.hide( $elLoading );
-	    					callbackAddUser( true );
+	    					$alarmUtilService.setTotal( $elTotal, groupMemberList.length );
+	    					$alarmUtilService.hide( $elLoading );
+	    					$alarmBroadcastService.sendCallbackAddedUser( true );
 	    				}, $elAlert );
 	    			}
 	    			function removeMember( memberID ) {
-	    				$alarmListTemplateService.sendCRUD( "removeMemberInGroup", { "userGroupId": currentUserGroupID, "memberId": memberID }, function( resultData ) {
+	    				$alarmUtilService.sendCRUD( "removeMemberInGroup", { "userGroupId": currentUserGroupID, "memberId": memberID }, function( resultData ) {
 	    					// @TODO
 	    					// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
 	    					scope.$apply(function() {
 	    						removeFromList( memberID );
 	    					});
-	    					$alarmListTemplateService.setTotal( $elTotal, groupMemberList.length );
-	    					$alarmListTemplateService.hide( $elLoading );
+	    					$alarmUtilService.setTotal( $elTotal, groupMemberList.length );
+	    					$alarmUtilService.hide( $elLoading );
 	    					isRemoving = false;
 	    				}, $elAlert );
 	    			}
 	    			function loadList() {
-	    				$alarmListTemplateService.sendCRUD( "getGroupMemberListInGroup", { "userGroupId": currentUserGroupID }, function( resultData ) {
+	    				$alarmUtilService.sendCRUD( "getGroupMemberListInGroup", { "userGroupId": currentUserGroupID }, function( resultData ) {
 	    					// @TODO
 	    					// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
 	    					isLoadedGroupMemberList = true;
 	    					groupMemberList = scope.groupMemberList = resultData;
-	    					$alarmListTemplateService.setTotal( $elTotal, groupMemberList.length );
-	    					$alarmListTemplateService.hide( $elLoading );
-	    					scope.onLeave();
-	    					
+	    					$alarmUtilService.setTotal( $elTotal, groupMemberList.length );
+	    					$alarmUtilService.hide( $elLoading );	    					
 	    				}, $elAlert );		
 	    			};
 	    			function hasUser( userID ) {
@@ -161,7 +150,7 @@
 	    				if ( isRemoving == true ) return;
 	    				
 	    				$elFilterInput.val("");
-	    				$alarmListTemplateService.showLoading( $elLoading, false );
+	    				$alarmUtilService.showLoading( $elLoading, false );
 	    				loadList();
 	    			};
 	    			scope.onInputFilter = function($event) {
@@ -181,13 +170,13 @@
 	    				if ( isRemoving == true ) return;
 	    				var query = $.trim( $elFilterInput.val() );
 	    				if ( query.length != 0 && query.length < 3 ) {
-	    					scope.onEnter("greater2");
+//	    					scope.onEnter("greater2");
 	    					return;
 	    				}
 	    				if ( query == "" ) {
 	    					if ( scope.groupMemberList.length != groupMemberList.length ) {
 	    						scope.groupMemberList = groupMemberList;
-	    						$alarmListTemplateService.unsetFilterBackground( $elWrapper );
+	    						$alarmUtilService.unsetFilterBackground( $elWrapper );
 	    					}
 	    					$elFilterEmpty.addClass("disabled");
 	    				} else {
@@ -199,7 +188,7 @@
 	    						}
 	    					}
 	    					scope.groupMemberList = newFilterGroupMember;
-	    					$alarmListTemplateService.setFilterBackground( $elWrapper );
+	    					$alarmUtilService.setFilterBackground( $elWrapper );
 	    				}
 	    			};
 	    			scope.onFilterEmpty = function() {
@@ -209,15 +198,8 @@
 	    				scope.onFilterGroup();
 	    			};
 	    			scope.onCloseAlert = function() {
-	    				$alarmListTemplateService.closeAlert( $elAlert, $elLoading );
+	    				$alarmUtilService.closeAlert( $elAlert, $elLoading );
 	    			};
-	    			// onEnter, onLeave
-	    			scope.onEnter = function( type ) {
-	    				$alarmListTemplateService.setGuide( $elGuideMessage, "groupMember", type, groupMemberList.length );
-	    			};
-	    			scope.onLeave = function( type ) {
-	    				$alarmListTemplateService.setGuide( $elGuideMessage, "groupMember", "" );
-	    			}
 	    			scope.$on("alarmGroupMember.configuration.load", function( event, userGroupID )  {
 	    				currentUserGroupID = userGroupID;
 //	    				if ( isLoadedGroupMemberList === false ) {
@@ -229,11 +211,11 @@
 	    				groupMemberList = scope.groupMemberList = [];
 	    			});
 	    			scope.$on("alarmGroupMember.configuration.addUser", function( event, oUser )  {
-	    				$alarmListTemplateService.showLoading( $elLoading, false );
+	    				$alarmUtilService.showLoading( $elLoading, false );
 	    				if ( hasUser( oUser.userId ) == false ) {
 	    					addMember( oUser );
 	    				} else {
-	    					$alarmListTemplateService.showAlert( $elAlert, "이미 등록된 사용자입니다.", true );
+	    					$alarmUtilService.showAlert( $elAlert, "이미 등록된 사용자입니다.", true );
 	    				}
 	    			});
 	    			scope.$on("alarmGroupMember.configuration.updateUser", function( event, oUser )  {

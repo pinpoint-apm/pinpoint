@@ -122,7 +122,7 @@
 
 #pinpoint-configuration .some-list-header button.btn {
 	padding-top: 4px;
-	padding-bottom: 4px;
+	padding-bottom: 3px;
 	border:none;
 }
 #pinpoint-configuration .some-list-header .title { 
@@ -141,12 +141,12 @@
 #pinpoint-configuration .some-list-content .wrapper {
 	positoin: absolute;
 	width: 100%;
-	height: 410px;
+	height: 428px;
 	overflow-y: auto;
 }
 #pinpoint-configuration .some-list-content ul { 
 	list-style-type: none;
-	padding:4px 8px 4px 0px;
+	padding:0px 0px 4px 0px;
 }
 #pinpoint-configuration .some-list-content li {
 	cursor: pointer;
@@ -164,12 +164,11 @@
 	padding: 1px 8px 1px 8px;
 }
 #pinpoint-configuration .some-list-content li button.move  {
-	padding: 1px 4px 3px 0px;
-	margin-top: 0px;
+	padding: 3px 2px 3px 0px;
+	margin-top: -8px;
 	margin-right: 2px;
-	margin-left: -3px;
-	font-size: 6px;	
-	border-radius: 15px;
+	margin-left: -8px;
+	border: none;
 }
 #pinpoint-configuration .some-list-content li button.edit-user {
 	margin-top: 0px;
@@ -223,12 +222,12 @@
 	height: 50px;
 	text-align: center;
 	background: #c9de96;
-	background: linear-gradient(to bottom,  #c9de96 0%,#8ab66b 44%,#398235 100%);
+	background: linear-gradient(to bottom, #627d4d 0%,#1f3b08 100%);
 }
 #pinpoint-configuration .some-alert span.message {
 	position: absolute;
 	padding: 0px 6px 0px 6px;
-	color: #FF0000;
+	color: #FFF900;
 	width: 100%;
 	left: 0px;
 	top:40px;
@@ -290,6 +289,8 @@
 	float: right;
 	color: #AAA;
 	cursor: pointer;
+	margin-top: 4px;
+	margin-right: 8px;
 	line-height: 12px;
 	padding-left: 4px;
 	padding-right: 4px;
@@ -301,29 +302,26 @@
 #pinpoint-configuration .some-list-content li span.right {
 	margin-top: -2px;
 }
-#pinpoint-configuration .some-list .guide-message {
-	color: #0BAB4E;
-	width: 100%;
-	bottom: -6px;
+#pinpoint-configuration .some-list .filter-input {
 	position: relative;
-	font-size: 11px;
-	text-align: center;
+	bottom: -16px;
+	width: 100%;
+	border: 1px solid #CECECE;
 	border-radius: 4px;
 	background-color: #EEE;
 }
-#pinpoint-configuration .some-list .filter-input {
-	position: relative;
-	bottom: -12px;
-	width: 100%;
-}
 #pinpoint-configuration .some-list .filter-input input {
 	width: 66%;
-	border: 0px solid black;
-	border-bottom: 1px solid black;
+	border: 0px solid white;
+	padding: 1px 0px 2px 0px;
+	margin-left: 1px;
+	border-radius: 4px;
 }
 #pinpoint-configuration .some-list .filter-input button {
 	float: right;
 	padding : 0px 9px 0px 9px;
+	margin-top: 0px;
+	border-radius: 4px;
 }
 #pinpoint-configuration .pinpoint-user-list {
 	float: right;
@@ -342,6 +340,7 @@
 	display: block;
 	width: 100%;
 	table-layout: fixed;
+	padding-right: 8px;
 }
 #pinpoint-configuration .some-table .some-list-content thead tr {
 	height: 34px;
@@ -389,8 +388,11 @@
 
 #pinpoint-configuration .some-table .filter-input {
 	position: relative;
-	bottom: -6px;
+	bottom: -14px;
 	width: 100%;
+}
+#pinpoint-configuration .some-table .filter-input tbody tr {
+	height: 24px;
 }
 
 #pinpoint-configuration div.popover {
@@ -414,4 +416,5 @@
 }
 #pinpoint-configuration .some-table .some-list-content input {
 	width: 100%;
+	margin-left: -2px;
 }
