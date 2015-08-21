@@ -15,13 +15,14 @@ package com.navercorp.pinpoint.plugin.jdk.http;
  * limitations under the License.
  */
 
-import static com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassConditions.*;
+import java.security.ProtectionDomain;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerSetup;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 
 /**
  * 
@@ -32,27 +33,23 @@ public class JdkHttpPlugin implements ProfilerPlugin {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
+        context.addClassFileTransformer("sun.net.www.protocol.http.HttpURLConnection", new PinpointClassFileTransformer() {
+            
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                
+                target.addGetter(ConnectedGetter.class.getName(), "connected");
 
-        JdkHttpPluginConfig jdkHttpPluginConfig = new JdkHttpPluginConfig(context.getConfig());
-
-        if (jdkHttpPluginConfig.isJdkHttpURLConnectionProfile()) {
-            ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("sun.net.www.protocol.http.HttpURLConnection");
-
-            builder.injectFieldAccessor("connected");
-            builder.injectInterceptor("com.navercorp.pinpoint.plugin.jdk.http.interceptor.HttpURLConnectionInterceptor");
-
-            // JDK 8
-            builder.conditional(hasField("connecting", "boolean"),
-                    new ConditionalClassFileTransformerSetup() {
-                        @Override
-                        public void setup(ConditionalClassFileTransformerBuilder conditional) {
-                            conditional.injectFieldAccessor("connecting");
-                        }
-                    }
-            );
-
-            context.addClassFileTransformer(builder.build());
-        }
+                if (target.hasField("connecting", "boolean")) {
+                    target.addGetter(ConnectingGetter.class.getName(), "connecting");
+                }
+                
+                target.addInterceptor("com.navercorp.pinpoint.plugin.jdk.http.interceptor.HttpURLConnectionInterceptor");
+                
+                return target.toBytecode();
+            }
+        });
     }
 
 }

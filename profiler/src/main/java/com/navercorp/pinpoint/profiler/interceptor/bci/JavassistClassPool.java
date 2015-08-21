@@ -132,4 +132,13 @@ public class JavassistClassPool implements InstrumentClassPool {
         ClassPool classPool = getClassPool(classLoader);
         return hasClass(classBinaryName, classPool);
     }
+
+    @Override
+    public void appendToBootstrapClassPath(String jar) {
+        try {
+            getClassPool(null).appendClassPath(jar);
+        } catch (NotFoundException e) {
+            throw new PinpointException(e);
+        }
+    }
 }

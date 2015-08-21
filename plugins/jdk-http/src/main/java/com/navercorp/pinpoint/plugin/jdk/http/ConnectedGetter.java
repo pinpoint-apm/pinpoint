@@ -12,16 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.instrument;
-
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
+package com.navercorp.pinpoint.plugin.jdk.http;
 
 /**
  * @author Jongho Moon
  *
  */
-public interface InstrumentClassPool {
-    InstrumentClass getClass(ProfilerPluginInstrumentContext pluginContext, ClassLoader classLoader, String classInternalName, byte[] classFileBuffer) throws NotFoundInstrumentException;
-    boolean hasClass(ClassLoader classLoader, String classBinaryName);
-    void appendToBootstrapClassPath(String jar);
+public interface ConnectedGetter {
+    public boolean _$PINPOINT$_isConnected();
 }

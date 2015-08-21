@@ -34,6 +34,7 @@ import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
 import com.navercorp.pinpoint.exception.PinpointException;
 
 /**
@@ -62,10 +63,10 @@ public class JarProfilerPluginClassInjector implements ProfilerPluginClassInject
         }
     }
     
-    public static JarProfilerPluginClassInjector of(Instrumentation instrumentation, URL pluginJar) {
+    public static JarProfilerPluginClassInjector of(Instrumentation instrumentation, InstrumentClassPool classPool, URL pluginJar) {
         try {
             JarFile jarFile = new JarFile(new File(pluginJar.toURI()));
-            return new JarProfilerPluginClassInjector(instrumentation, pluginJar, jarFile);
+            return new JarProfilerPluginClassInjector(instrumentation, classPool, pluginJar, jarFile);
         } catch (Exception e) {
             logger.warn("Failed to get JarFile {}", pluginJar, e);
             return null;
@@ -73,14 +74,16 @@ public class JarProfilerPluginClassInjector implements ProfilerPluginClassInject
     }
     
     private final Instrumentation instrumentation;
+    private final InstrumentClassPool classPool;
     private final AtomicBoolean injectedToRoot = new AtomicBoolean(false);
     private final URL pluginJarURL;
     private final String pluginJarURLExternalForm;
     private final JarFile pluginJar;
     
     
-    private JarProfilerPluginClassInjector(Instrumentation instrumentation, URL pluginJarURL, JarFile pluginJar) {
+    private JarProfilerPluginClassInjector(Instrumentation instrumentation, InstrumentClassPool classPool, URL pluginJarURL, JarFile pluginJar) {
         this.instrumentation = instrumentation;
+        this.classPool = classPool;
         this.pluginJarURL = pluginJarURL;
         this.pluginJarURLExternalForm = pluginJarURL.toExternalForm();
         this.pluginJar = pluginJar;
@@ -106,6 +109,7 @@ public class JarProfilerPluginClassInjector implements ProfilerPluginClassInject
     private Class<?> injectToBootstrapClassLoader(String className) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
         if (injectedToRoot.compareAndSet(false, true)) {
             instrumentation.appendToBootstrapClassLoaderSearch(pluginJar);
+            classPool.appendToBootstrapClassPath(pluginJar.getName());
         }
         
         return Class.forName(className, false, null);

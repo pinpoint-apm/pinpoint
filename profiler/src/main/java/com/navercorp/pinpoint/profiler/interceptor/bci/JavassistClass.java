@@ -355,6 +355,7 @@ public class JavassistClass implements InstrumentClass {
     public void addGetter(String getterTypeName, String fieldName) throws InstrumentException {
         try {
             Class<?> getterType = pluginContext.injectClass(classLoader, getterTypeName);
+            
             GetterDetails getterDetails = new GetterAnalyzer().analyze(getterType);
             
             CtField field = ctClass.getField(fieldName);
@@ -364,6 +365,11 @@ public class JavassistClass implements InstrumentClass {
             }
             
             CtMethod getterMethod = CtNewMethod.getter(getterDetails.getGetter().getName(), field);
+            
+            if (getterMethod.getDeclaringClass() != ctClass) {
+                getterMethod = CtNewMethod.copy(getterMethod, ctClass, null);
+            }
+            
             ctClass.addMethod(getterMethod);
         
             CtClass ctInterface = ctClass.getClassPool().get(getterTypeName);

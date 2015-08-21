@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.plugin.jdk.http.interceptor;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -31,11 +30,12 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Targets;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.plugin.jdk.http.ConnectedGetter;
+import com.navercorp.pinpoint.plugin.jdk.http.ConnectingGetter;
 import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpConstants;
 
 /**
@@ -55,15 +55,11 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
 
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
-    private final FieldAccessor connectedAccessor;
-    private final FieldAccessor connectingAccessor;
     private final InterceptorGroup group;
     
-    public HttpURLConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor, @Name("connected") FieldAccessor connectedAccessor, @Name("connecting") FieldAccessor connectingAccessor, InterceptorGroup group) {
+    public HttpURLConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorGroup group) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
-        this.connectedAccessor = connectedAccessor;
-        this.connectingAccessor = connectingAccessor;
         this.group = group;
     }
 
@@ -79,8 +75,8 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
 
         HttpURLConnection request = (HttpURLConnection) target;
         
-        boolean connected = (Boolean)connectedAccessor.get(target);
-        boolean connecting = connectingAccessor.isApplicable(target) && (Boolean)connectingAccessor.get(target);
+        boolean connected = ((ConnectedGetter)target)._$PINPOINT$_isConnected();
+        boolean connecting = (target instanceof ConnectingGetter)  && ((ConnectingGetter)target)._$PINPOINT$_isConnecting();
         
         if (connected || connecting) {
             return;
