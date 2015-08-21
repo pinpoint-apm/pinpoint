@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.thrift.interceptor.transport.wrapper;
+package com.navercorp.pinpoint.plugin.thrift.field.getter;
 
 import org.apache.thrift.transport.TTransport;
 
 /**
  * @author HyunGil Jeong
  */
-public class TFramedTransportConstructInterceptor extends WrappedTTransportConstructInterceptor {
-
-    @Override
-    protected TTransport getWrappedTransport(Object[] args) {
-        TTransport wrappedTransport = null;
-        if ((args.length == 1 || args.length == 2) && (args[0] instanceof TTransport)) {
-            wrappedTransport = (TTransport)args[0];
-        }
-        return wrappedTransport;
-    }
+public interface TTransportFieldGetter {
+    public TTransport _$PINPOINT$_getTTransport();
 }

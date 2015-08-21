@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.thrift.interceptor.transport.wrapper;
+package com.navercorp.pinpoint.plugin.thrift.field.accessor;
 
-import org.apache.thrift.transport.TTransport;
+import java.net.Socket;
 
 /**
  * @author HyunGil Jeong
  */
-public class TFramedTransportConstructInterceptor extends WrappedTTransportConstructInterceptor {
-
-    @Override
-    protected TTransport getWrappedTransport(Object[] args) {
-        TTransport wrappedTransport = null;
-        if ((args.length == 1 || args.length == 2) && (args[0] instanceof TTransport)) {
-            wrappedTransport = (TTransport)args[0];
-        }
-        return wrappedTransport;
-    }
+public interface SocketFieldAccessor {
+    public void _$PINPOINT$_setSocket(Socket socket);
+    public Socket _$PINPOINT$_getSocket();
 }
