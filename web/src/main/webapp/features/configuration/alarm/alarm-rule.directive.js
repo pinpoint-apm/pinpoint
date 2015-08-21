@@ -8,8 +8,8 @@
 	 * @class
 	 */	
 	
-	pinpointApp.directive('alarmRuleDirective', [ '$rootScope', '$document', 'helpContentTemplate', 'helpContentService', 'AlarmListTemplateService',
-	    function ($rootScope, $document, helpContentTemplate, helpContentService, $alarmListTemplateService) {
+	pinpointApp.directive('alarmRuleDirective', [ '$rootScope', '$document', 'helpContentTemplate', 'helpContentService', 'AlarmUtilService',
+	    function ($rootScope, $document, helpContentTemplate, helpContentService, $alarmUtilService) {
         return {
             restrict: 'EA',
             replace: true,
@@ -22,7 +22,6 @@
     			var $elTotal = $element.find(".total");
     			var $elLoading = $element.find(".some-loading");
     			var $elAlert = $element.find(".some-alert");
-    			var $elGuideMessage = $element.find(".guide-message");
     			var $elFilterInputApplication = $element.find("div.filter-input input[name=filterApplication]");
     			var $elFilterInputRule = $element.find("div.filter-input input[name=filterRule]");
     			var $elFilterEmpty = $element.find("div.filter-input button.trash");
@@ -75,16 +74,17 @@
     				}
     			});
     			
-    			$alarmListTemplateService.setGuideEvent( scope, $elTbody, [
-                  { selector: "tr", 					name: "contents" },
-                  { selector: "span.contents", 			name: "contents" },
-                  { selector: "span.remove", 			name: "remove" },
-                  { selector: "button.confirm-cancel", 	name: "removeCancel" },
-                  { selector: "button.confirm-remove", 	name: "removeConfirm" }
-    			]);
+    			$element.find(".ruleTooltip").tooltipster({
+                	content: function() {
+                		return helpContentTemplate(helpContentService.configuration.alarmRules);
+                	},
+                	offsetY : -105,
+                	position: "left",
+                	trigger: "click"
+                });
     			function removeConfirm( $el ) {
-    				$alarmListTemplateService.showLoading( $elLoading, false );
-    				removeUser( $el.prop("id").split("_")[1] );
+    				$alarmUtilService.showLoading( $elLoading, false );
+    				removeUser( $alarmUtilService.extractID( $el ) );
     			}
     			function removeCancel( $el ) {
     				$el.removeClass("remove")
@@ -159,14 +159,14 @@
     					"emailSend": email,
     					"notes": notes
     				}; 
-    				$alarmListTemplateService.sendCRUD( "createRule", oNewRule, function( resultData ) {
+    				$alarmUtilService.sendCRUD( "createRule", oNewRule, function( resultData ) {
     					// @TODO
     					// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
     					oNewRule.ruleId = resultData.ruleId;
     					ruleList.push(oNewRule);
-    					$alarmListTemplateService.setTotal( $elTotal, ruleList.length );
+    					$alarmUtilService.setTotal( $elTotal, ruleList.length );
     					initPopover();
-    					$alarmListTemplateService.hide( $elLoading, $elEdit );					
+    					$alarmUtilService.hide( $elLoading, $elEdit );					
     				}, $elAlert );
     			}
     			function updateRule( ruleID, application, serviceType, rule, threshold, sms, email, notes ) {
@@ -181,7 +181,7 @@
     					"emailSend": email,
     					"notes": notes
     				}; 
-    				$alarmListTemplateService.sendCRUD( "updateRule", oUpdateRule, function( resultData ) {
+    				$alarmUtilService.sendCRUD( "updateRule", oUpdateRule, function( resultData ) {
     					// @TODO
     					// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
     					for( var i = 0 ; i < ruleList.length ; i++ ) {
@@ -195,12 +195,12 @@
     							ruleList[i].notes = notes;
     						}
     					}
-    					$alarmListTemplateService.hide( $elLoading, $elEdit );
+    					$alarmUtilService.hide( $elLoading, $elEdit );
     					
     				}, $elAlert );
     			}
     			function removeUser( ruleID ) {
-    				$alarmListTemplateService.sendCRUD( "removeRule", { "ruleId": ruleID }, function( resultData ) {
+    				$alarmUtilService.sendCRUD( "removeRule", { "ruleId": ruleID }, function( resultData ) {
     					scope.$apply(function() {
 	    					for( var i = 0 ; i < ruleList.length ; i++ ) {
 	    						if ( ruleList[i].ruleId == ruleID ) {
@@ -209,27 +209,26 @@
 	    						}
 	    					}
     					});
-    					$alarmListTemplateService.setTotal( $elTotal, ruleList.length );
-    					$alarmListTemplateService.hide( $elLoading );
+    					$alarmUtilService.setTotal( $elTotal, ruleList.length );
+    					$alarmUtilService.hide( $elLoading );
     					isRemoving = false;
     				}, $elAlert );
     			}
     			function loadList( isFirst ) {
-    				$alarmListTemplateService.sendCRUD( "getRuleList", { "userGroupId": currentUserGroupID }, function( resultData ) {
+    				$alarmUtilService.sendCRUD( "getRuleList", { "userGroupId": currentUserGroupID }, function( resultData ) {
     					// @TODO
     					// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
     					isLoadedRuleList = true;
     					ruleList = scope.ruleList = resultData;
-    					$alarmListTemplateService.setTotal( $elTotal, ruleList.length );
+    					$alarmUtilService.setTotal( $elTotal, ruleList.length );
     					initPopover();
-    					$alarmListTemplateService.hide( $elLoading );
-    					scope.onLeave();
+    					$alarmUtilService.hide( $elLoading );
     				}, $elAlert );		
     			};
     			function loadRuleSet() {
     				if ( scope.ruleSets.length > 1 ) return;
     				
-    				$alarmListTemplateService.sendCRUD( "getRuleSet", {}, function( resultData ) {
+    				$alarmUtilService.sendCRUD( "getRuleSet", {}, function( resultData ) {
     					// @TODO
     					// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
     					for( var i = 0 ; i < resultData.length ; i++ ) {
@@ -239,9 +238,6 @@
     					}
     				}, $elAlert );			
     			};
-    			function loadGroupMember( userGroupID ) {
-    				scope.$parent.$broadcast( "alarmGroupMember.configuration.load", userGroupID );
-    			}
     			
     			scope.ruleSets = [ {"text": ""} ];
     			scope.onRefresh = function() {
@@ -249,7 +245,7 @@
     				
         			$elFilterInputApplication.val("");
         			$elFilterInputRule.val("");
-    				$alarmListTemplateService.showLoading( $elLoading, false );
+    				$alarmUtilService.showLoading( $elLoading, false );
     				loadList( false );
     			};
     			scope.onCreate = function() {
@@ -263,17 +259,17 @@
     				$elEditCheckboxSMS.prop("checked", "");
     				$elEditCheckboxEmail.prop("checked", "");		
     				$elEditTextareaNotes.val("");
-    				$alarmListTemplateService.show( $elEdit );
+    				$alarmUtilService.show( $elEdit );
     			};
     			scope.onUpdate = function($event) {
     				if ( isRemoving == true ) return;
     				
     				isCreate = false;
     				var $el = $( $event.toElement ).parents("tr");
-    				var ruleID = $el.prop("id").split("_")[1];
+    				var ruleID = $alarmUtilService.extractID( $el );
     				var oRule = searchRule( ruleID );
     				
-    				$elEditGuide.html( "아래 항목을 수정할 수 있습니다." );
+    				$elEditGuide.html( "Update rule data." );
     				$elEditSelectApplication.select2("val", oRule.applicationId +"@" + oRule.serviceType).parent().prop("id", "updateRule_" + ruleID);
     				$elEditSelectRules.select2( "val", oRule.checkerName);
     				$elEditInputThreshold.val( oRule.threshold );
@@ -281,7 +277,7 @@
     				$elEditCheckboxEmail.prop("checked", oRule.emailSend);		
     				$elEditTextareaNotes.val( oRule.notes );
     				
-    				$alarmListTemplateService.show( $elEdit );
+    				$alarmUtilService.show( $elEdit );
     			};
     			scope.onInputFilter = function($event) {
     				if ( isRemoving == true ) return;
@@ -302,13 +298,13 @@
     				var queryRule = $.trim( $elFilterInputRule.val() );
     				
     				if ( (queryApplication.length != 0 && queryApplication.length < 3) || (queryRule.length != 0 && queryRule.length < 3)  ) {
-    					scope.onEnter("greater2");
+//    					scope.onEnter("greater2");
     					return;
     				}
     				if ( queryApplication == "" && queryRule == "" ) {
     					if ( scope.ruleList.length != ruleList.length ) {
     						scope.ruleList = ruleList;
-    						$alarmListTemplateService.unsetFilterBackground( $elWrapper );
+    						$alarmUtilService.unsetFilterBackground( $elWrapper );
     					}
     					$elFilterEmpty.addClass("disabled");
     				} else {
@@ -330,7 +326,7 @@
     						}
     					}
     					scope.ruleList = newFilterRules;
-    					$alarmListTemplateService.setFilterBackground( $elWrapper );
+    					$alarmUtilService.setFilterBackground( $elWrapper );
     				}
     			};
     			scope.onFilterEmpty = function() {
@@ -347,7 +343,7 @@
     				}
     			};
     			scope.onCancelEdit = function() {
-    				$alarmListTemplateService.hide( $elEdit );
+    				$alarmUtilService.hide( $elEdit );
     			};
     			scope.onApplyEdit = function() {
     				var applicationNServiceType = $elEditSelectApplication.select2("val").split("@"); 
@@ -358,32 +354,25 @@
     				var notes = $elEditTextareaNotes.val();
     				
     				if ( applicationNServiceType[0] == "" || ruleID == "" ) {
-    					scope.onEnter("notEmpty");
+//    					scope.onEnter("notEmpty");
     					return;
     				}				
-    				$alarmListTemplateService.showLoading( $elLoading, true );
-    				if ( $alarmListTemplateService.hasDuplicateItem( ruleList, function( rule ) {
+    				$alarmUtilService.showLoading( $elLoading, true );
+    				if ( $alarmUtilService.hasDuplicateItem( ruleList, function( rule ) {
     					return rule.applicationId == applicationNServiceType[0] && rule.ruldId == ruleID;
     				}) && isCreate == true) {
-    					$alarmListTemplateService.showAlert( $elAlert, "동일하게 설정된 ruleSet이 이미 있습니다." );
+    					$alarmUtilService.showAlert( $elAlert, "Exist a same rule set in the lists" );
     					return;
     				}
     				if ( isCreate ) {
     					createRule( applicationNServiceType[0], applicationNServiceType[1], ruleID, threshold, sms, email, notes );
     				} else {
-    					updateRule( $elEditSelectApplication.parent().prop("id").split("_")[1], applicationNServiceType[0], applicationNServiceType[1], ruleID, threshold, sms, email, notes );
+    					updateRule( $alarmUtilService.extractID( $elEditSelectApplication.parent() ), applicationNServiceType[0], applicationNServiceType[1], ruleID, threshold, sms, email, notes );
     				}
     			};
     			scope.onCloseAlert = function() {
-    				$alarmListTemplateService.closeAlert( $elAlert, $elLoading );
+    				$alarmUtilService.closeAlert( $elAlert, $elLoading );
     			};
-    			// onEnter, onLeave
-    			scope.onEnter = function( type ) {
-    				$alarmListTemplateService.setGuide( $elGuideMessage, "rule", type, ruleList.length );
-    			};
-    			scope.onLeave = function( type ) {
-    				$alarmListTemplateService.setGuide( $elGuideMessage, "rule", "" );
-    			}
     			scope.$on("alarmRule.configuration.load", function( event, userGroupID ) {
     				currentUserGroupID = userGroupID;
 //    				if ( isLoadedRuleList === false ) {

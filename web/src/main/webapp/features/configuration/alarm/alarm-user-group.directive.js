@@ -8,8 +8,8 @@
 	 * @class
 	 */	
 	
-	pinpointApp.directive('alarmUserGroupDirective', [ '$rootScope', '$timeout', 'helpContentTemplate', 'helpContentService', 'AlarmListTemplateService',
-	    function ($rootScope, $timeout, helpContentTemplate, helpContentService, $alarmListTemplateService) {
+	pinpointApp.directive('alarmUserGroupDirective', [ '$rootScope', '$timeout', 'helpContentTemplate', 'helpContentService', 'AlarmUtilService', 'AlarmBroadcastService',
+	    function ($rootScope, $timeout, helpContentTemplate, helpContentService, $alarmUtilService, $alarmBroadcastService) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -24,7 +24,7 @@
 	    			var isLoadedUserGroupList = false;
 	    			var userGroupList = scope.userGroupList = [];
 	    			
-	            	function selectGroup( newSelectedGroupNumber ) {
+	            	function addSelectClass( newSelectedGroupNumber ) {
 	    				if ( selectedGroupNumber != "" ) {
 	    					$( "#" + scope.prefix + selectedGroupNumber ).removeClass("selected");
 	    				}
@@ -37,7 +37,6 @@
 	    			var $elTotal = $element.find(".total");
 	    			var $elLoading = $element.find(".some-loading");
 	    			var $elAlert = $element.find(".some-alert");
-	    			var $elGuideMessage = $element.find(".guide-message");
 	    			var $elFilterInput = $element.find("div.filter-input input");
 	    			var $elFilterEmpty = $element.find("div.filter-input button.trash");
 	    			var $elEdit = $element.find(".some-edit-content");
@@ -69,9 +68,7 @@
 	    						isRemoving = true;
 	    	    				$li.addClass("remove").find("span.remove").hide().end().append($removeTemplate);
 	    					} else if ( $target.hasClass("contents") ) {
-	    						if ( isRemoving == true ) return;
-	    	    				selectGroup( $li.prop("id").split("_")[1] );
-	    	    				loadGroupMember( $target.html() );
+	    						selectGroup( $li );
 	    					} else if( $target.hasClass("glyphicon-edit") ) {
 	    						scope.onUpdate( $event );
 	    					} else if ( $target.hasClass("glyphicon-remove") ) {
@@ -80,41 +77,38 @@
 	    						removeConfirm( $li );
 	    					}
 	    				} else if( tagName == "li" ) {
-	    					if ( isRemoving == true ) return;
-		    				selectGroup( $target.prop("id").split("_")[1] );	
+	    					selectGroup( $target );
 	    				}
 	    			});
 	    			
-	    			$alarmListTemplateService.setGuideEvent( scope, $elUL, [
-	                  { selector: "li", 					name: "contents" },
-	                  { selector: "span.contents", 			name: "contents" },
-	                  { selector: "span.remove", 			name: "remove" },
-	                  { selector: "button.confirm-cancel", 	name: "removeCancel" },
-	                  { selector: "button.confirm-remove", 	name: "removeConfirm" }
-	    			]);
 	    			function removeConfirm( $el ) {
-	    				$alarmListTemplateService.showLoading( $elLoading, false );
-	    				removeGroup( $el.prop("id").split("_")[1], $el.find("span.contents").html() );
+	    				$alarmUtilService.showLoading( $elLoading, false );
+	    				removeGroup( $alarmUtilService.extractID( $el ), $el.find("span.contents").html() );
 	    			}
 	    			function removeCancel( $el ) {
 	    				$el.find("span.right").remove().end().find("span.remove").show().end().removeClass("remove");
 	    				isRemoving = false;
 	    			}
+	    			function selectGroup( $el ) {
+	    				if ( isRemoving == true ) return;
+	    				addSelectClass( $alarmUtilService.extractID( $el ) );
+	    				$alarmBroadcastService.sendReloadWithUserGroupID( $el.find("span.contents").html() );
+	    			}
 	    			
 	    			function createGroup( name ) {
-	    				$alarmListTemplateService.sendCRUD( "createUserGroup", { "id": name }, function( resultData ) {
+	    				$alarmUtilService.sendCRUD( "createUserGroup", { "id": name }, function( resultData ) {
 	    					// @TODO
 	    					// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
 	    					userGroupList.push({
 	    						number: resultData.number,
 	    						id: name
 	    					});
-	    					$alarmListTemplateService.setTotal( $elTotal, userGroupList.length );
-	    					$alarmListTemplateService.hide( $elLoading, $elEdit );
+	    					$alarmUtilService.setTotal( $elTotal, userGroupList.length );
+	    					$alarmUtilService.hide( $elLoading, $elEdit );
 	    				}, $elAlert );
 	    			}
 	    			function updateGroup( number, name ) {
-	    				$alarmListTemplateService.sendCRUD( "updateUserGroup", { "number": number, "id": name }, function( resultData ) {
+	    				$alarmUtilService.sendCRUD( "updateUserGroup", { "number": number, "id": name }, function( resultData ) {
 	    					// @TODO
 	    					// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
 	    					for( var i = 0 ; i < userGroupList.length ; i++ ) {
@@ -122,11 +116,11 @@
 	    							userGroupList[i].id = name;
 	    						}
 	    					}
-	    					$alarmListTemplateService.hide( $elLoading, $elEdit );
+	    					$alarmUtilService.hide( $elLoading, $elEdit );
 	    				}, $elAlert );
 	    			}
 	    			function removeGroup( number, name ) {
-	    				$alarmListTemplateService.sendCRUD( "removeUserGroup", { "id": name }, function( resultData ) {
+	    				$alarmUtilService.sendCRUD( "removeUserGroup", { "id": name }, function( resultData ) {
 	    					scope.$apply(function() {
 		    					for( var i = 0 ; i < userGroupList.length ; i++ ) {
 		    						if ( userGroupList[i].number == number ) {
@@ -136,50 +130,40 @@
 		    					}
 		    					if ( userGroupList.length > 0 ) {
 			    					$timeout(function() {
-		    							selectGroup( userGroupList[0].number );
+		    							addSelectClass( userGroupList[0].number );
 		    						});
-			    					loadGroupMember( userGroupList[0].id );
+			    					$alarmBroadcastService.sendReloadWithUserGroup( userGroupList[0].id );
 		    					} else {
-		    						selectNone();
+		    						$alarmBroadcastService.sendSelectionEmpty();
 		    					}
 	    					});	    					
-	    					$alarmListTemplateService.setTotal( $elTotal, userGroupList.length );
-	    					$alarmListTemplateService.hide( $elLoading );
+	    					$alarmUtilService.setTotal( $elTotal, userGroupList.length );
+	    					$alarmUtilService.hide( $elLoading );
 	    					isRemoving = false;					
 	    				}, $elAlert );
 	    			}
 	    			function loadGroupList( isFirst ) {
-	    				$alarmListTemplateService.sendCRUD( "getUserGroupList", {}, function( resultData ) {
+	    				$alarmUtilService.sendCRUD( "getUserGroupList", {}, function( resultData ) {
 	    					// @TODO
 	    					// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
 	    					isLoadedUserGroupList = true;
 	    					userGroupList = scope.userGroupList = resultData;
-	    					$alarmListTemplateService.setTotal( $elTotal, userGroupList.length );
-	    					$alarmListTemplateService.hide( $elLoading );
+	    					$alarmUtilService.setTotal( $elTotal, userGroupList.length );
+	    					$alarmUtilService.hide( $elLoading );
 	    					if ( isFirst ) {
-	    						loadGroupMember( userGroupList[0].id );
-	    						$timeout(function() {
-	    							selectGroup( userGroupList[0].number );
-	    						});
+	    						$alarmBroadcastService.sendInit( userGroupList[0].id );
+	    						selectedGroupNumber = userGroupList[0].number;
 	    					}
-	    					scope.onLeave();					
+	    					$timeout(function() {
+	    						addSelectClass( selectedGroupNumber );
+    						});
 	    				}, $elAlert );			
 	    			};
-	    			function loadGroupMember( userGroupID ) {
-	    				$rootScope.$broadcast( "alarmGroupMember.configuration.load", userGroupID );
-	    				$rootScope.$broadcast( "alarmPinpointUser.configuration.load", userGroupID );
-	    				$rootScope.$broadcast( "alarmRule.configuration.load", userGroupID );
-	    			}
-	    			function selectNone() {
-	    				$rootScope.$broadcast( "alarmGroupMember.configuration.selectNone" );
-	    				$rootScope.$broadcast( "alarmRule.configuration.selectNone" );
-	    			}
-
 	    			scope.onRefresh = function() {
 	    				if ( isRemoving == true ) return;
 	    				
 	    				$elFilterInput.val("");
-	    				$alarmListTemplateService.showLoading( $elLoading, false );
+	    				$alarmUtilService.showLoading( $elLoading, false );
 	    				loadGroupList( false );
 	    			};
 	    			scope.onCreate = function() {
@@ -188,7 +172,7 @@
 	    				isCreate = true;
 	    				$elEditGuide.html( "Create new alarm group" );
 	    				$elEditInput.val("");
-	    				$alarmListTemplateService.show( $elEdit );
+	    				$alarmUtilService.show( $elEdit );
 	    				$elEditInput.focus();
 	    			};
 	    			scope.onUpdate = function($event) {
@@ -196,12 +180,12 @@
 	    				
 	    				isCreate = false;
 	    				var $el = $( $event.toElement ).parents("li");
-	    				var userGroupNumber = $el.prop("id").split("_")[1];
+	    				var userGroupNumber = $alarmUtilService.extractID( $el );
 	    				var userGroupID = $el.find("span.contents").html();
 	    				
-	    				$elEditGuide.html( "\"" + userGroupID + "\"의 새로운 이름을 입력하세요." );
+	    				$elEditGuide.html( "Input new name of \"" + userGroupID + "\"." );
 	    				$elEditInput.val( userGroupID ).prop("id", "updateUserGroup_" + userGroupNumber);
-	    				$alarmListTemplateService.show( $elEdit );
+	    				$alarmUtilService.show( $elEdit );
 	    				$elEditInput.focus().select();
 	    			};
 	    			scope.onInputFilter = function($event) {
@@ -221,13 +205,13 @@
 	    				if ( isRemoving == true ) return;
 	    				var query = $.trim( $elFilterInput.val() );
 	    				if ( query.length != 0 && query.length < 3 ) {
-	    					scope.onEnter("greater2");
+//	    					scope.onEnter("greater2");
 	    					return;
 	    				}
 	    				if ( query == "" ) {
 	    					if ( scope.userGroupList.length != userGroupList.length ) {
 	    						scope.userGroupList = userGroupList;
-	    						$alarmListTemplateService.unsetFilterBackground( $elWrapper );
+	    						$alarmUtilService.unsetFilterBackground( $elWrapper );
 	    					}
 	    					$elFilterEmpty.addClass("disabled");
 	    				} else {
@@ -239,7 +223,7 @@
 	    						}
 	    					}
 	    					scope.userGroupList = newFilterUserGroup;
-	    					$alarmListTemplateService.setFilterBackground( $elWrapper );
+	    					$alarmUtilService.setFilterBackground( $elWrapper );
 	    				}
 	    			};
 	    			scope.onFilterEmpty = function() {
@@ -257,39 +241,31 @@
 	    				}
 	    			};
 	    			scope.onCancelEdit = function() {
-	    				$alarmListTemplateService.hide( $elEdit );
+	    				$alarmUtilService.hide( $elEdit );
 	    			};
 	    			scope.onApplyEdit = function() {
 	    				var groupName = $.trim( $elEditInput.val() );
 	    				if ( groupName == "" ) {
-	    					scope.onEnter("notEmpty");
+//	    					scope.onEnter("notEmpty");
 	    					return;
 	    				}
 	    				
-	    				$alarmListTemplateService.showLoading( $elLoading, true );
-	    				if ( $alarmListTemplateService.hasDuplicateItem( userGroupList, function( userGroup ) {
+	    				$alarmUtilService.showLoading( $elLoading, true );
+	    				if ( $alarmUtilService.hasDuplicateItem( userGroupList, function( userGroup ) {
 	    					return userGroup.id == groupName;
 	    				}) && isCreate == true ) {
-	    					$alarmListTemplateService.showAlert( $elAlert, "동일한 이름을 가진 그룹이 이미 있습니다." );
+	    					$alarmUtilService.showAlert( $elAlert, "Exist a same group name in the lists." );
 	    					return;
 	    				}
 	    				if ( isCreate ) {
 	    					createGroup( groupName );
 	    				} else {
-	    					updateGroup( $elEditInput.prop("id").split("_")[1], groupName );
+	    					updateGroup( $alarmUtilService.extractID( $elEditInput ), groupName );
 	    				}
 	    			};
 	    			scope.onCloseAlert = function() {
-	    				$alarmListTemplateService.closeAlert( $elAlert, $elLoading );
-	    			};
-	    			// onEnter, onLeave
-	    			scope.onEnter = function( type ) {
-	    				$alarmListTemplateService.setGuide( $elGuideMessage, "userGroup", type, userGroupList.length );
-	    			};
-	    			scope.onLeave = function( type ) {
-	    				$alarmListTemplateService.setGuide( $elGuideMessage, "userGroup", "" );
-	    			}
-	    			
+	    				$alarmUtilService.closeAlert( $elAlert, $elLoading );
+	    			};	    			
 	    			scope.$on("alarmUserGroup.configuration.show", function() {
 	    				if ( isLoadedUserGroupList === false ) {
 	    					loadGroupList( true );

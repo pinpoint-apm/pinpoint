@@ -1,7 +1,7 @@
 <div class="some-list" style="width:240px">
 	<div class="some-list-header header-sky">
-		<button class="btn btn-info left" ng-click="onRefresh()" ng-mouseenter="onEnter('refresh')" ng-mouseleave="onLeave('refresh')"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
-		<span class="title" ng-mouseenter="onEnter('title')" ng-mouseleave="onLeave('title')">Group Member<span class="total"></span></span>
+		<button class="btn btn-info left" ng-click="onRefresh()"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
+		<span class="title">Group Member<span class="total"></span></span>
 		<button class="btn btn-primary right" style="visibility:hidden;"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
 	</div>
    	<div class="some-list-content">
@@ -10,11 +10,10 @@
 				<span class="contents">({{groupMember.department}}){{groupMember.name}}</span><span class="remove">x</span>
 			</li>
 		</ul></div>
-		<div class="guide-message"></div>
 		<div class="filter-input">
-			<input type="text" placeholder="Filter user group" ng-keydown="onInputFilter($event)" ng-mouseenter="onEnter('filterInput')" ng-mouseleave="onLeave('filterInput')"/> 
-			<button class="btn btn-primary disabled trash" ng-click="onFilterEmpty()" ng-mouseenter="onEnter('filterEmpty')" ng-mouseleave="onLeave('filterEmpty')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
-			<button class="btn btn-primary" ng-click="onFilterGroup()" style="margin-right:2px" ng-mouseenter="onEnter('filterSearch')" ng-mouseleave="onLeave('filterSearch')"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+			<input type="text" placeholder="Filter user group" ng-keydown="onInputFilter($event)"/> 
+			<button class="btn btn-primary disabled trash" ng-click="onFilterEmpty()"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+			<button class="btn btn-primary" ng-click="onFilterGroup()" style="margin-right:2px"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
 		</div>
 	</div>
 	<div class="some-loading has-not-edit">

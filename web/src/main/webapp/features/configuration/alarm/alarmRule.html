@@ -1,8 +1,8 @@
 <div class="some-list some-table" style="width:100%">
 	<div class="some-list-header header-sky">
-		<button class="btn btn-info left" ng-click="onRefresh()" ng-mouseenter="onEnter('refresh')" ng-mouseleave="onLeave('refresh')"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
-		<span class="title" ng-mouseenter="onEnter('title')" ng-mouseleave="onLeave('title')">Alarm Rules<span class="total"></span></span>
-		<button class="btn btn-info right" ng-click="onCreate()" ng-mouseenter="onEnter('create')" ng-mouseleave="onLeave('create')"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+		<button class="btn btn-info left" ng-click="onRefresh()"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
+		<span class="title">Alarm Rules<span class="total"></span></span>
+		<button class="btn btn-info right" ng-click="onCreate()"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
 	</div>
 	<div class="some-list-content">
 		<div class="wrapper">
@@ -31,16 +31,15 @@
 				</tbody>
 			</table>
 		</div>
-		<div class="guide-message"></div>
 		<div class="filter-input">
-			<table style="display:table;">
+			<table style="display:table;" cellpadding="0" cellspacing="0">
 				<tbody>
 					<tr style="width:100%">
-						<td style="width:50%"><input type="text" placeholder="Application name" name="filterApplication"  ng-keydown="onInputFilter($event)" ng-mouseenter="onEnter('filterInputApplication')" ng-mouseleave="onLeave('filterInputApplication')" style="width:98%"/></td>
-						<td style="width:30%"><input type="text" placeholder="Rule name" name="filterRule"  ng-keydown="onInputFilter($event)" ng-mouseenter="onEnter('filterInputRule')" ng-mouseleave="onLeave('filterInputRule')" style="width:100%"/></td>
+						<td style="width:50%"><input type="text" placeholder="Application name" name="filterApplication"  ng-keydown="onInputFilter($event)" style="width:98%"/></td>
+						<td style="width:30%"><input type="text" placeholder="Rule name" name="filterRule"  ng-keydown="onInputFilter($event)" style="width:100%"/></td>
 						<td style="width:20%;text-align:right">
-							<button class="btn btn-info disabled trash" ng-click="onFilterEmpty()" ng-mouseenter="onEnter('filterEmpty')" ng-mouseleave="onLeave('filterEmpty')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
-							<button class="btn btn-info" ng-click="onFilterGroup()" style="margin-right:2px" ng-mouseenter="onEnter('filterSearch')" ng-mouseleave="onLeave('filterSearch')"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+							<button class="btn btn-info disabled trash" ng-click="onFilterEmpty()"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+							<button class="btn btn-info" ng-click="onFilterGroup()" style="margin-right:2px"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
 						</td>
 					</tr>
 				</tbody>
@@ -54,6 +53,7 @@
                       <option ng-repeat="app in applications" value="{{app.text}}">{{app.text}}</option>
                   </select>
 			<br/><br/>
+			<span class="glyphicon glyphicon-question-sign ruleTooltip" style="cursor:pointer;font-size:20px;color:#FFF;top:159px;left:120px;position:absolute"></span>
 			<select name="rule" style="width:50%">
                       <option ng-repeat="rule in ruleSets" value="{{rule.text}}">{{rule.text}}</option>
                   </select>
