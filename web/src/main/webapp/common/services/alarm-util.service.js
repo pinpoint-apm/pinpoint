@@ -32,10 +32,11 @@
 				height: 300
 			}, 500, function() {});
 		};
-		this.sendCRUD = function( funcName, data, successCallback, $elAlert ) {
+		this.sendCRUD = function( funcName, data, successCallback, failCallback, $elAlert ) {
 			$ajaxService[funcName]( data, function( resultData ) {
 				if ( resultData.errorCode ) {
 					self.showAlert( $elAlert, resultData.errorMessage );
+					failCallback( resultData );
 				} else {
 					successCallback( resultData );
 				}

@@ -43,17 +43,21 @@
 				$scope.currentTab = tab;
 				switch( tab ) {
 					case $constant.menu.GENERAL:
+						$at( $at.MAIN, $at.CLK_GENERAL );
 						$scope.descriptionOfCurrentTab = "Set your option";
 						$scope.$broadcast( "general.configuration.show");
 						break;
 					case $constant.menu.ALARM:
+						$at( $at.MAIN, $at.CLK_ALARM );
 						$scope.descriptionOfCurrentTab = "Set your alarm rules";
 						$scope.$broadcast( "alarmUserGroup.configuration.show");
 						break;
 				}
 			}
 			$scope.$on("configuration.show", function() {
+				$at( $at.MAIN, $at.CLK_CONFIGURATION );
 				$element.modal('show');
+				
 			});
 		}
 	]);

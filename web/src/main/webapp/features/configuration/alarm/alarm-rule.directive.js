@@ -82,6 +82,13 @@
                 	position: "left",
                 	trigger: "click"
                 });
+    			function reset() {
+    				if ( isRemoving == true ) {
+    					$element.find("tr.remove").each( function() {
+    						removeCancel( $(this) );
+    					});
+    				}
+    			}
     			function removeConfirm( $el ) {
     				$alarmUtilService.showLoading( $elLoading, false );
     				removeUser( $alarmUtilService.extractID( $el ) );
@@ -167,7 +174,7 @@
     					$alarmUtilService.setTotal( $elTotal, ruleList.length );
     					initPopover();
     					$alarmUtilService.hide( $elLoading, $elEdit );					
-    				}, $elAlert );
+    				}, function( errorData ) {}, $elAlert );
     			}
     			function updateRule( ruleID, application, serviceType, rule, threshold, sms, email, notes ) {
     				var oUpdateRule = { 
@@ -197,7 +204,7 @@
     					}
     					$alarmUtilService.hide( $elLoading, $elEdit );
     					
-    				}, $elAlert );
+    				}, function( errorData ) {}, $elAlert );
     			}
     			function removeUser( ruleID ) {
     				$alarmUtilService.sendCRUD( "removeRule", { "ruleId": ruleID }, function( resultData ) {
@@ -212,7 +219,7 @@
     					$alarmUtilService.setTotal( $elTotal, ruleList.length );
     					$alarmUtilService.hide( $elLoading );
     					isRemoving = false;
-    				}, $elAlert );
+    				}, function( errorData ) {}, $elAlert );
     			}
     			function loadList( isFirst ) {
     				$alarmUtilService.sendCRUD( "getRuleList", { "userGroupId": currentUserGroupID }, function( resultData ) {
@@ -223,7 +230,7 @@
     					$alarmUtilService.setTotal( $elTotal, ruleList.length );
     					initPopover();
     					$alarmUtilService.hide( $elLoading );
-    				}, $elAlert );		
+    				}, function( errorData ) {}, $elAlert );		
     			};
     			function loadRuleSet() {
     				if ( scope.ruleSets.length > 1 ) return;
@@ -236,13 +243,13 @@
     							"text": resultData[i]
     						});
     					}
-    				}, $elAlert );			
+    				}, function( errorData ) {}, $elAlert );			
     			};
     			
     			scope.ruleSets = [ {"text": ""} ];
     			scope.onRefresh = function() {
     				if ( isRemoving == true ) return;
-    				
+    				$at( $at.MAIN, $at.CLK_ALARM_REFRESH_RULE );
         			$elFilterInputApplication.val("");
         			$elFilterInputRule.val("");
     				$alarmUtilService.showLoading( $elLoading, false );
@@ -298,9 +305,11 @@
     				var queryRule = $.trim( $elFilterInputRule.val() );
     				
     				if ( (queryApplication.length != 0 && queryApplication.length < 3) || (queryRule.length != 0 && queryRule.length < 3)  ) {
-//    					scope.onEnter("greater2");
+    					$alarmUtilService.showLoading( $elLoading, false );
+    					$alarmUtilService.showAlert( $elAlert, "You must enter at least three characters.");
     					return;
     				}
+    				$at( $at.MAIN, $at.CLK_ALARM_FILTER_RULE );
     				if ( queryApplication == "" && queryRule == "" ) {
     					if ( scope.ruleList.length != ruleList.length ) {
     						scope.ruleList = ruleList;
@@ -354,9 +363,11 @@
     				var notes = $elEditTextareaNotes.val();
     				
     				if ( applicationNServiceType[0] == "" || ruleID == "" ) {
-//    					scope.onEnter("notEmpty");
+    					$alarmUtilService.showLoading( $elLoading, true );
+    					$alarmUtilService.showAlert( $elAlert, "Select application name and rule.");	
     					return;
-    				}				
+    				}
+    				
     				$alarmUtilService.showLoading( $elLoading, true );
     				if ( $alarmUtilService.hasDuplicateItem( ruleList, function( rule ) {
     					return rule.applicationId == applicationNServiceType[0] && rule.ruldId == ruleID;
@@ -365,6 +376,7 @@
     					return;
     				}
     				if ( isCreate ) {
+    					$at( $at.MAIN, $at.CLK_ALARM_CREATE_RULE );
     					createRule( applicationNServiceType[0], applicationNServiceType[1], ruleID, threshold, sms, email, notes );
     				} else {
     					updateRule( $alarmUtilService.extractID( $elEditSelectApplication.parent() ), applicationNServiceType[0], applicationNServiceType[1], ruleID, threshold, sms, email, notes );
@@ -375,12 +387,12 @@
     			};
     			scope.$on("alarmRule.configuration.load", function( event, userGroupID ) {
     				currentUserGroupID = userGroupID;
-//    				if ( isLoadedRuleList === false ) {
-    					loadList( true );
-    					loadRuleSet();
-//    				}
+					reset();
+					loadList( true );
+					loadRuleSet();
     			});
     			scope.$on("alarmRule.configuration.selectNone", function( event ) {
+    				reset();
     				currentUserGroupID = "";
     				ruleList = scope.ruleList = [];
     			});

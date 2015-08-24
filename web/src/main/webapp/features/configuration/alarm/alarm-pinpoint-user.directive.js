@@ -119,7 +119,7 @@
     					pinpointUserList.push(oNewUser);
     					$alarmUtilService.setTotal( $elTotal, pinpointUserList.length );
     					$alarmUtilService.hide( $elLoading, $elEdit );
-    				}, $elAlert );
+    				}, function(errorData) {}, $elAlert );
     			}
     			function updateUser( userID, userName, userDepartment, userPhone, userEmail ) {
     				var oUpdateUser = { 
@@ -140,7 +140,7 @@
     					}
     					$alarmUtilService.hide( $elLoading, $elEdit );
     					$alarmBroadcastService.sendUserUpdated( oUpdateUser );
-    				}, $elAlert );
+    				}, function( errorData ) {}, $elAlert );
     			}
     			function removeUser( userID ) {
     				$alarmUtilService.sendCRUD( "removePinpointUser", { "userId": userID }, function( resultData ) {
@@ -156,7 +156,7 @@
     					$alarmUtilService.hide( $elLoading );
     					isRemoving = false;
     					$alarmBroadcastService.sendUserRemoved( userID );
-    				}, $elAlert );
+    				}, function( errorData ) {}, $elAlert );
     			}
     			function loadList( isFirst ) {
     				$alarmUtilService.sendCRUD( "getPinpointUserList", {}, function( resultData ) {
@@ -166,7 +166,7 @@
     					pinpointUserList = scope.pinpointUserList = resultData;
     					$alarmUtilService.setTotal( $elTotal, pinpointUserList.length );
     					$alarmUtilService.hide( $elLoading );
-    				}, $elAlert );			
+    				}, function( errorData ) {}, $elAlert );			
     			};
     			function validateEmail( email ) {
     				var reg = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
@@ -179,7 +179,7 @@
     			
     			scope.onRefresh = function() {
     				if ( isRemoving == true ) return;
-    				
+    				$at( $at.MAIN, $at.CLK_ALARM_REFRESH_PINPOINT_USER );
     				$elFilterInput.val("");
     				$alarmUtilService.showLoading( $elLoading, false );
     				loadList( false );
@@ -232,9 +232,11 @@
     				if ( isRemoving == true ) return;
     				var query = $.trim( $elFilterInput.val() );
     				if ( query.length != 0 && query.length < 3 ) {
-//    					scope.onEnter("greater2");
+    					$alarmUtilService.showLoading( $elLoading, false );
+    					$alarmUtilService.showAlert( $elAlert, "You must enter at least three characters.");
     					return;
     				}
+    				$at( $at.MAIN, $at.CLK_ALARM_FILTER_PINPOINT_USER );
     				if ( query == "" ) {
     					if ( scope.pinpointUserList.length != pinpointUserList.length ) {
     						scope.pinpointUserList = pinpointUserList;
@@ -278,7 +280,8 @@
     				var userEmail = $.trim( $elEditInputEmail.val() );
     				
     				if ( userID == "" || userName == "" ) {
-//    					scope.onEnter("notEmpty");
+    					$alarmUtilService.showLoading( $elLoading, true );
+    					$alarmUtilService.showAlert( $elAlert, "You must input user id and user name.");	
     					return;
     				}
     				// TODO phone - 체크
@@ -300,6 +303,7 @@
     					return;
     				}
     				if ( isCreate ) {
+    					$at( $at.MAIN, $at.CLK_ALARM_CREATE_PINPOINT_USER );
     					createUser( userID, userName, userDepartment, userPhone, userEmail );
     				} else {
     					updateUser( userID, userName, userDepartment, userPhone, userEmail );

@@ -103,6 +103,13 @@
 	    					}
 	    				}
 	    			}
+	    			function reset() {
+	    				if ( isRemoving == true ) {
+	    					$element.find("li.remove").each( function() {
+	    						removeCancel( $(this) );
+	    					});
+	    				}
+	    			}
 
 	    			function addMember( oUser ) {
 	    				$alarmUtilService.sendCRUD( "addMemberInGroup", { "userGroupId": currentUserGroupID, "memberId": oUser.userId }, function( resultData ) {
@@ -117,7 +124,7 @@
 	    					$alarmUtilService.setTotal( $elTotal, groupMemberList.length );
 	    					$alarmUtilService.hide( $elLoading );
 	    					$alarmBroadcastService.sendCallbackAddedUser( true );
-	    				}, $elAlert );
+	    				}, function( errorData ) {}, $elAlert );
 	    			}
 	    			function removeMember( memberID ) {
 	    				$alarmUtilService.sendCRUD( "removeMemberInGroup", { "userGroupId": currentUserGroupID, "memberId": memberID }, function( resultData ) {
@@ -129,7 +136,7 @@
 	    					$alarmUtilService.setTotal( $elTotal, groupMemberList.length );
 	    					$alarmUtilService.hide( $elLoading );
 	    					isRemoving = false;
-	    				}, $elAlert );
+	    				}, function( errorData ) {}, $elAlert );
 	    			}
 	    			function loadList() {
 	    				$alarmUtilService.sendCRUD( "getGroupMemberListInGroup", { "userGroupId": currentUserGroupID }, function( resultData ) {
@@ -139,7 +146,7 @@
 	    					groupMemberList = scope.groupMemberList = resultData;
 	    					$alarmUtilService.setTotal( $elTotal, groupMemberList.length );
 	    					$alarmUtilService.hide( $elLoading );	    					
-	    				}, $elAlert );		
+	    				}, function( errorData ) {}, $elAlert );		
 	    			};
 	    			function hasUser( userID ) {
 	    				return $( "#" + scope.prefix + userID ).length > 0;
@@ -148,7 +155,7 @@
 	    			scope.prefix = "alarmGroupMember_"; 
 	    			scope.onRefresh = function() {
 	    				if ( isRemoving == true ) return;
-	    				
+	    				$at( $at.MAIN, $at.CLK_ALARM_REFRESH_USER );
 	    				$elFilterInput.val("");
 	    				$alarmUtilService.showLoading( $elLoading, false );
 	    				loadList();
@@ -170,9 +177,11 @@
 	    				if ( isRemoving == true ) return;
 	    				var query = $.trim( $elFilterInput.val() );
 	    				if ( query.length != 0 && query.length < 3 ) {
-//	    					scope.onEnter("greater2");
+	    					$alarmUtilService.showLoading( $elLoading, false );
+	    					$alarmUtilService.showAlert( $elAlert, "You must enter at least three characters.");
 	    					return;
 	    				}
+	    				$at( $at.MAIN, $at.CLK_ALARM_FILTER_USER );
 	    				if ( query == "" ) {
 	    					if ( scope.groupMemberList.length != groupMemberList.length ) {
 	    						scope.groupMemberList = groupMemberList;
@@ -200,11 +209,10 @@
 	    			scope.onCloseAlert = function() {
 	    				$alarmUtilService.closeAlert( $elAlert, $elLoading );
 	    			};
-	    			scope.$on("alarmGroupMember.configuration.load", function( event, userGroupID )  {
+	    			scope.$on("alarmGroupMember.configuration.load", function( event, userGroupID )  {	    				
 	    				currentUserGroupID = userGroupID;
-//	    				if ( isLoadedGroupMemberList === false ) {
-	    					loadList();
-//	    				}
+    					reset();
+    					loadList();
 	    			});
 	    			scope.$on("alarmGroupMember.configuration.selectNone", function( event )  {
 	    				currentUserGroupID = "";
@@ -213,18 +221,23 @@
 	    			scope.$on("alarmGroupMember.configuration.addUser", function( event, oUser )  {
 	    				$alarmUtilService.showLoading( $elLoading, false );
 	    				if ( hasUser( oUser.userId ) == false ) {
+	    					$at( $at.MAIN, $at.CLK_ALARM_ADD_USER );
+	    					reset();
 	    					addMember( oUser );
 	    				} else {
-	    					$alarmUtilService.showAlert( $elAlert, "이미 등록된 사용자입니다.", true );
+	    					$alarmUtilService.showAlert( $elAlert, "Exist a same user in the lists.", true );
 	    				}
 	    			});
 	    			scope.$on("alarmGroupMember.configuration.updateUser", function( event, oUser )  {
 	    				if ( hasUser( oUser.userId ) ) {
+	    					reset();
 	    					updateFromList( oUser );
 	    				}
 	    			});
 	    			scope.$on("alarmGroupMember.configuration.removeUser", function( event, userID )  {
+	    				
 	    				if ( hasUser( userID ) ) {
+	    					reset();
 	    					removeFromList( userID );
 	    				}
 	    			});
