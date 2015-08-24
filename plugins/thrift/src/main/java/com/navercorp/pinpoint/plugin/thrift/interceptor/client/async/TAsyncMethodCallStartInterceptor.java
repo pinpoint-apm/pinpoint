@@ -16,15 +16,15 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.client.async;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.thrift.descriptor.ThriftAsyncClientMethodDescriptor;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncMarkerFlagFieldAccessor;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncTraceIdFieldAccessor;
 
 /**
  * @author HyunGil Jeong
@@ -33,18 +33,11 @@ public class TAsyncMethodCallStartInterceptor extends TAsyncMethodCallInternalMe
 
     private final ThriftAsyncClientMethodDescriptor thriftAsyncClientMethodDescriptor = new ThriftAsyncClientMethodDescriptor();
 
-    private final MetadataAccessor asyncTraceIdAccessor;
-   
-    public TAsyncMethodCallStartInterceptor(
-            TraceContext traceContext,
-            MethodDescriptor methodDescriptor,
-            @Name(METADATA_ASYNC_MARKER) MetadataAccessor asyncMarkerAccessor,
-            @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor) {
-        super(traceContext, methodDescriptor, asyncMarkerAccessor);
-        this.asyncTraceIdAccessor = asyncTraceIdAccessor;
+    public TAsyncMethodCallStartInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+        super(traceContext, methodDescriptor);
         this.traceContext.cacheApi(this.thriftAsyncClientMethodDescriptor);
     }
-    
+
     @Override
     public void before(Object target, Object[] args) {
         if (!validate0(target)) {
@@ -52,7 +45,7 @@ public class TAsyncMethodCallStartInterceptor extends TAsyncMethodCallInternalMe
         }
 
         // Retrieve asyncTraceId
-        final AsyncTraceId asyncTraceId = asyncTraceIdAccessor.get(target);
+        final AsyncTraceId asyncTraceId = ((AsyncTraceIdFieldAccessor)target)._$PINPOINT$_getAsyncTraceId();
         Trace trace = traceContext.currentTraceObject();
         // Check if the method was invoked by the same thread or not, probabaly safe not to check but just in case.
         if (trace == null) {
@@ -65,21 +58,21 @@ public class TAsyncMethodCallStartInterceptor extends TAsyncMethodCallInternalMe
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordServiceType(ServiceType.ASYNC);
             recorder.recordApi(this.thriftAsyncClientMethodDescriptor);
-            super.asyncMarkerAccessor.set(target, Boolean.TRUE);
+            ((AsyncMarkerFlagFieldAccessor)target)._$PINPOINT$_setAsyncMarkerFlag(Boolean.TRUE);
         }
         super.before(target, args);
     }
 
     private boolean validate0(Object target) {
-        if (!this.asyncTraceIdAccessor.isApplicable(target) || !(this.asyncTraceIdAccessor.get(target) instanceof AsyncTraceId)) {
+        if (!(target instanceof AsyncTraceIdFieldAccessor)) {
             if (isDebug) {
-                logger.debug("Asynchronous invocation metadata not found");
+                logger.debug("Invalid target object. Need field accessor({}).", AsyncTraceIdFieldAccessor.class.getName());
             }
             return false;
         }
-        if (!this.asyncMarkerAccessor.isApplicable(target)) {
+        if (!(target instanceof AsyncMarkerFlagFieldAccessor)) {
             if (isDebug) {
-                logger.debug("Invalid target object. Need metadata accessor({})", METADATA_ASYNC_MARKER);
+                logger.debug("Invalid target object. Need field accessor({}).", AsyncMarkerFlagFieldAccessor.class.getName());
             }
             return false;
         }

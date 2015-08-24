@@ -44,8 +44,8 @@ public class HttpClientExecuteMethodInternalInterceptor implements SimpleAroundI
     protected final PLogger logger;
     protected final boolean isDebug;
 
-    protected TraceContext traceContext;
-    private InterceptorGroup interceptorGroup;
+    protected final TraceContext traceContext;
+    private final InterceptorGroup interceptorGroup;
 
     public HttpClientExecuteMethodInternalInterceptor(boolean isHasCallbackParam, TraceContext context, InterceptorGroup interceptorGroup) {
         this.logger = PLoggerFactory.getLogger(this.getClass());
@@ -96,7 +96,7 @@ public class HttpClientExecuteMethodInternalInterceptor implements SimpleAroundI
         }
 
         // TODO fix me.
-//        if (trace.getServiceType() != ServiceType.HTTP_CLIENT.getCode()) {
+//        if (trace.getServiceType() != ServiceType.ASYNC_HTTP_CLIENT.getCode()) {
 //            return false;
 //        }
 

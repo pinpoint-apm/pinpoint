@@ -18,13 +18,10 @@ package com.navercorp.pinpoint.plugin.thrift.interceptor.server.async;
 
 import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.THRIFT_SERVER_SCOPE;
 
-import java.net.Socket;
-
 import org.apache.thrift.TBaseAsyncProcessor;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.server.AbstractNonblockingServer.AsyncFrameBuffer;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -41,28 +38,35 @@ import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContext;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 import com.navercorp.pinpoint.plugin.thrift.ThriftUtils;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncMarkerFlagFieldAccessor;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.ServerMarkerFlagFieldAccessor;
 
 /**
  * Entry/exit point for tracing asynchronous processors for Thrift services.
  * <p>
- * Because trace objects cannot be created until the message is read, this interceptor works in tandem with 
- * other interceptors in the tracing pipeline. The actual processing of input messages is not off-loaded to
- * <tt>AsyncProcessFunction</tt> (unlike synchronous processors where <tt>ProcessFunction</tt> does most of the
- * work).
+ * Because trace objects cannot be created until the message is read, this interceptor works in tandem with other interceptors in the tracing pipeline. The
+ * actual processing of input messages is not off-loaded to <tt>AsyncProcessFunction</tt> (unlike synchronous processors where <tt>ProcessFunction</tt> does
+ * most of the work).
  * <ol>
- *   <li><p> {@link com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageBeginInterceptor TProtocolReadMessageBeginInterceptor}
- *   retrieves the method name called by the client.</li></p>
- *   
- *   <li><p> {@link com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadFieldBeginInterceptor TProtocolReadFieldBeginInterceptor},
- *   {@link com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor}
- *   reads the header fields and injects the parent trace object (if any).</li></p>
- *   
- *   <li><p> {@link com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor}
- *   creates the actual root trace object.</li></p>
- * </ol>
+ * <li>
  * <p>
- * <b><tt>TBaseAsyncProcessorProcessInterceptor</tt></b> -> <tt>TProtocolReadMessageBeginInterceptor</tt> -> 
- * <tt>TProtocolReadFieldBeginInterceptor</tt> <-> <tt>TProtocolReadTTypeInterceptor</tt> -> <tt>TProtocolReadMessageEndInterceptor</tt>
+ * {@link com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageBeginInterceptor TProtocolReadMessageBeginInterceptor} retrieves
+ * the method name called by the client.</li>
+ * </p>
+ * 
+ * <li>
+ * <p>
+ * {@link com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadFieldBeginInterceptor TProtocolReadFieldBeginInterceptor},
+ * {@link com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor} reads the header fields
+ * and injects the parent trace object (if any).</li></p>
+ * 
+ * <li>
+ * <p>
+ * {@link com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor} creates the
+ * actual root trace object.</li></p> </ol>
+ * <p>
+ * <b><tt>TBaseAsyncProcessorProcessInterceptor</tt></b> -> <tt>TProtocolReadMessageBeginInterceptor</tt> -> <tt>TProtocolReadFieldBeginInterceptor</tt> <->
+ * <tt>TProtocolReadTTypeInterceptor</tt> -> <tt>TProtocolReadMessageEndInterceptor</tt>
  * <p>
  * Based on Thrift 0.9.1+
  * 
@@ -73,32 +77,20 @@ import com.navercorp.pinpoint.plugin.thrift.ThriftUtils;
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor
  */
-@Group(value=THRIFT_SERVER_SCOPE, executionPolicy=ExecutionPolicy.BOUNDARY)
+@Group(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.BOUNDARY)
 public class TBaseAsyncProcessorProcessInterceptor implements SimpleAroundInterceptor, ThriftConstants {
-    
+
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
     private final InterceptorGroup group;
-    private final MetadataAccessor socketAccessor;
-    private final MetadataAccessor serverTraceMarker;
-    private final MetadataAccessor asyncMarker;
-    
-    public TBaseAsyncProcessorProcessInterceptor(
-            TraceContext traceContext,
-            MethodDescriptor descriptor,
-            @Name(THRIFT_SERVER_SCOPE) InterceptorGroup group,
-            @Name(METADATA_SOCKET) MetadataAccessor socketAccessor,
-            @Name(METADATA_SERVER_MARKER) MetadataAccessor serverTraceMarker,
-            @Name(METADATA_ASYNC_MARKER) MetadataAccessor asyncMarker) {
+
+    public TBaseAsyncProcessorProcessInterceptor(TraceContext traceContext, MethodDescriptor descriptor, @Name(THRIFT_SERVER_SCOPE) InterceptorGroup group) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
         this.group = group;
-        this.socketAccessor = socketAccessor;
-        this.serverTraceMarker = serverTraceMarker;
-        this.asyncMarker = asyncMarker;
     }
 
     @Override
@@ -113,9 +105,9 @@ public class TBaseAsyncProcessorProcessInterceptor implements SimpleAroundInterc
         // Set server markers
         if (args[0] instanceof AsyncFrameBuffer) {
             AsyncFrameBuffer frameBuffer = (AsyncFrameBuffer)args[0];
-            attachMarkersToInputProtocol(frameBuffer.getInputProtocol(), Boolean.TRUE);
+            attachMarkersToInputProtocol(frameBuffer.getInputProtocol(), true);
         }
-        
+
     }
 
     @Override
@@ -126,7 +118,7 @@ public class TBaseAsyncProcessorProcessInterceptor implements SimpleAroundInterc
         // Unset server markers
         if (args[0] instanceof AsyncFrameBuffer) {
             AsyncFrameBuffer frameBuffer = (AsyncFrameBuffer)args[0];
-            attachMarkersToInputProtocol(frameBuffer.getInputProtocol(), Boolean.FALSE);
+            attachMarkersToInputProtocol(frameBuffer.getInputProtocol(), false);
         }
         final Trace trace = this.traceContext.currentRawTraceObject();
         if (trace == null) {
@@ -143,14 +135,33 @@ public class TBaseAsyncProcessorProcessInterceptor implements SimpleAroundInterc
             }
         }
     }
-    
-    private void attachMarkersToInputProtocol(TProtocol iprot, Boolean value) {
-        if (this.serverTraceMarker.isApplicable(iprot) && this.asyncMarker.isApplicable(iprot)) {
-            this.serverTraceMarker.set(iprot, value);
-            this.asyncMarker.set(iprot, value);
+
+    private boolean validateInputProtocol(Object iprot) {
+        if (iprot instanceof TProtocol) {
+            if (!(iprot instanceof ServerMarkerFlagFieldAccessor)) {
+                if (isDebug) {
+                    logger.debug("Invalid target object. Need field accessor({}).", ServerMarkerFlagFieldAccessor.class.getName());
+                }
+                return false;
+            }
+            if (!(iprot instanceof AsyncMarkerFlagFieldAccessor)) {
+                if (isDebug) {
+                    logger.debug("Invalid target object. Need field accessor({}).", AsyncMarkerFlagFieldAccessor.class.getName());
+                }
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private void attachMarkersToInputProtocol(TProtocol iprot, boolean flag) {
+        if (validateInputProtocol(iprot)) {
+            ((ServerMarkerFlagFieldAccessor)iprot)._$PINPOINT$_setServerMarkerFlag(flag);
+            ((AsyncMarkerFlagFieldAccessor)iprot)._$PINPOINT$_setAsyncMarkerFlag(flag);
         }
     }
-    
+
     private void processTraceObject(final Trace trace, Object target, Object[] args, Throwable throwable) {
         // end spanEvent
         try {
@@ -164,32 +175,13 @@ public class TBaseAsyncProcessorProcessInterceptor implements SimpleAroundInterc
         } finally {
             trace.traceBlockEnd();
         }
-        
+
         // end root span
         SpanRecorder recorder = trace.getSpanRecorder();
         String methodUri = getMethodUri(target);
         recorder.recordRpcName(methodUri);
-        // retrieve connection information
-        String localIpPort = UNKNOWN_ADDRESS;
-        String remoteAddress = UNKNOWN_ADDRESS;
-        if (args.length == 1 && args[0] instanceof AsyncFrameBuffer) {
-            AsyncFrameBuffer frameBuffer = (AsyncFrameBuffer)args[0];
-            if (this.socketAccessor.isApplicable(frameBuffer.getInputProtocol().getTransport())) {
-                Socket socket = this.socketAccessor.get(frameBuffer.getInputProtocol().getTransport());
-                if (socket != null) {
-                    localIpPort = ThriftUtils.getHostPort(socket.getLocalSocketAddress());
-                    remoteAddress = ThriftUtils.getHost(socket.getRemoteSocketAddress());
-                }
-            }
-        }
-        if (localIpPort != UNKNOWN_ADDRESS) {
-            recorder.recordEndPoint(localIpPort);
-        }
-        if (remoteAddress != UNKNOWN_ADDRESS) {
-            recorder.recordRemoteAddress(remoteAddress);
-        }
     }
-    
+
     private String getMethodUri(Object target) {
         String methodUri = UNKNOWN_METHOD_URI;
         InterceptorGroupInvocation currentTransaction = this.group.getCurrentInvocation();

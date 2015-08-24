@@ -23,8 +23,8 @@ import java.net.Socket;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TTransport;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -42,12 +42,13 @@ import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 import com.navercorp.pinpoint.plugin.thrift.ThriftRequestProperty;
 import com.navercorp.pinpoint.plugin.thrift.ThriftUtils;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
 
 /**
  * Starting point for tracing synchronous client calls for Thrift services.
  * <p>
- * Note that in order to trace remote agents, trace data must be sent to them.
- * These data are serialized as Thrift fields and attached to the body of the Thrift message by other interceptors down the chain.
+ * Note that in order to trace remote agents, trace data must be sent to them. These data are serialized as Thrift fields and attached to the body of the Thrift
+ * message by other interceptors down the chain.
  * <p>
  * <b><tt>TServiceClientSendBaseInterceptor</tt></b> -> <tt>TProtocolWriteFieldStopInterceptor</tt>
  * <p>
@@ -57,29 +58,23 @@ import com.navercorp.pinpoint.plugin.thrift.ThriftUtils;
  * 
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.client.TProtocolWriteFieldStopInterceptor TProtocolWriteFieldStopInterceptor
  */
-@Group(value=THRIFT_CLIENT_SCOPE, executionPolicy=ExecutionPolicy.BOUNDARY)
+@Group(value = THRIFT_CLIENT_SCOPE, executionPolicy = ExecutionPolicy.BOUNDARY)
 public class TServiceClientSendBaseInterceptor implements SimpleAroundInterceptor, ThriftConstants {
-   
+
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    
+
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
     private final InterceptorGroup group;
-    private final MetadataAccessor socketAccessor;
-    
+
     private final boolean traceServiceArgs;
-    
-    public TServiceClientSendBaseInterceptor(
-            TraceContext traceContext,
-            MethodDescriptor descriptor,
-            @Name(THRIFT_CLIENT_SCOPE) InterceptorGroup group,
-            @Name(METADATA_SOCKET) MetadataAccessor socketAccessor,
+
+    public TServiceClientSendBaseInterceptor(TraceContext traceContext, MethodDescriptor descriptor, @Name(THRIFT_CLIENT_SCOPE) InterceptorGroup group,
             boolean traceServiceArgs) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
         this.group = group;
-        this.socketAccessor = socketAccessor;
         this.traceServiceArgs = traceServiceArgs;
     }
 
@@ -91,6 +86,7 @@ public class TServiceClientSendBaseInterceptor implements SimpleAroundIntercepto
         if (target instanceof TServiceClient) {
             TServiceClient client = (TServiceClient)target;
             TProtocol oprot = client.getOutputProtocol();
+            TTransport transport = oprot.getTransport();
             final Trace trace = traceContext.currentRawTraceObject();
             if (trace == null) {
                 return;
@@ -105,33 +101,37 @@ public class TServiceClientSendBaseInterceptor implements SimpleAroundIntercepto
             } else {
                 SpanEventRecorder recorder = trace.traceBlockBegin();
                 recorder.recordServiceType(THRIFT_CLIENT);
-                
+
                 // retrieve connection information
                 String remoteAddress = UNKNOWN_ADDRESS;
-                if (this.socketAccessor.isApplicable(oprot.getTransport())) {
-                    Socket socket = this.socketAccessor.get(oprot.getTransport());
+                if (transport instanceof SocketFieldAccessor) {
+                    Socket socket = ((SocketFieldAccessor)transport)._$PINPOINT$_getSocket();
                     if (socket != null) {
                         remoteAddress = ThriftUtils.getHostPort(socket.getRemoteSocketAddress());
                     }
+                } else {
+                    if (isDebug) {
+                        logger.debug("Invalid target object. Need field accessor({}).", SocketFieldAccessor.class.getName());
+                    }
                 }
                 recorder.recordDestinationId(remoteAddress);
-                
+
                 String methodName = UNKNOWN_METHOD_NAME;
                 if (args[0] instanceof String) {
                     methodName = (String)args[0];
                 }
                 String serviceName = ThriftUtils.getClientServiceName(client);
-                
+
                 String thriftUrl = getServiceUrl(remoteAddress, serviceName, methodName);
                 recorder.recordAttribute(THRIFT_URL, thriftUrl);
-                
+
                 TraceId nextId = trace.getTraceId().getNextTraceId();
                 recorder.recordNextSpanId(nextId.getSpanId());
-                
+
                 parentTraceInfo.setTraceId(nextId.getTransactionId());
                 parentTraceInfo.setSpanId(nextId.getSpanId());
                 parentTraceInfo.setParentSpanId(nextId.getParentSpanId());
-                
+
                 parentTraceInfo.setFlags(nextId.getFlags());
                 parentTraceInfo.setParentApplicationName(traceContext.getApplicationName());
                 parentTraceInfo.setParentApplicationType(traceContext.getServerTypeCode());
@@ -141,7 +141,7 @@ public class TServiceClientSendBaseInterceptor implements SimpleAroundIntercepto
             currentTransaction.setAttachment(parentTraceInfo);
         }
     }
-    
+
     private String getServiceUrl(String url, String serviceName, String methodName) {
         StringBuilder sb = new StringBuilder();
         sb.append(url).append("/").append(serviceName).append("/").append(methodName);
@@ -153,12 +153,12 @@ public class TServiceClientSendBaseInterceptor implements SimpleAroundIntercepto
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-        
+
         Trace trace = this.traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
-        
+
         try {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             if (this.traceServiceArgs) {

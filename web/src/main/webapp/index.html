@@ -344,41 +344,7 @@
       		</div>
       	</div>
       	<div id="config-alram" ng-show="isAlarm()">
-	       	<div class="some-list" id="userGroupListArea" ng-controller="AlarmUserGroupCtrl">
-	       		<div class="some-list-header header-blue">
-	       			<button class="btn btn-primary left" ng-click="onRefresh()" ng-mouseenter="onEnter('refresh')" ng-mouseleave="onLeave('refresh')"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
-	       			<span class="title" ng-mouseenter="onEnter('title')" ng-mouseleave="onLeave('title')">User Group<span class="total"></span></span>
-	       			<button class="btn btn-primary right" ng-click="onCreate()" ng-mouseenter="onEnter('create')" ng-mouseleave="onLeave('create')"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
-	       		</div>
-	       		<div class="some-list-content">
-	       			<div class="wrapper"><ul>
-	       				<li ng-repeat="userGroup in userGroupList" id="{{prefix + userGroup.number}}"><span class="contents">{{userGroup.id}}</span><span class="remove">x</span></li>
-	       			</ul></div>
-	       			<div class="guide-message"></div>
-	       			<div class="filter-input">
-	       				<input type="text" placeholder="Filter user group" ng-keydown="onInputFilter($event)" ng-mouseenter="onEnter('filterInput')" ng-mouseleave="onLeave('filterInput')"/> 
-	       				<button class="btn btn-primary disabled trash" ng-click="onFilterEmpty()" ng-mouseenter="onEnter('filterEmpty')" ng-mouseleave="onLeave('filterEmpty')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
-	       				<button class="btn btn-primary" ng-click="onFilterGroup()" style="margin-right:2px" ng-mouseenter="onEnter('filterSearch')" ng-mouseleave="onLeave('filterSearch')"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>	       				
-	       			</div>
-	       		</div>
-	       		<div class="some-edit-content hide-me">
-	       			<div>
-	       				<div class="title-message">Create new alarm group</div>
-		       			<input type="text" placeholder="Create New Alarm Group" ng-keydown="onInputEdit($event)"/>
-		       			<div style="padding-top:1px;">
-		       				<button class="btn btn-primary left" style="margin-left:5%" ng-click="onCancelEdit()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
-		       				<button class="btn btn-primary right" style="margin-right:5%" ng-click="onApplyEdit()"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
-		       			</div>
-	       			</div>
-	       		</div>
-				<div class="some-loading  has-not-edit">
-					<div class="timer-loader"></div>
-					<div class="some-alert hide-me">
-						<span class="message"></span>
-						<span class="close-alert" ng-click="onCloseAlert()">X</span>
-					</div>
-				</div>
-	      	</div>
+      		<alarm-user-group-directive></alarm-user-group-directive>
 	      	<div class="tabbable tabs-left" style="padding-left:20px;">
 	          	<ul class="nav nav-tabs">
 	            	<li class="active"><a href="#userListInGroup" data-toggle="tab">Member</a></li>
@@ -386,161 +352,11 @@
 	          	</ul>
 	          	<div class="tab-content" style="float:left;width:590px;">
 	            	<div class="tab-pane active" id="userListInGroup">
-		            	<div class="some-list" style="width:240px" ng-controller="AlarmGroupMemberCtrl">
-				       		<div class="some-list-header header-sky">
-				       			<button class="btn btn-info left" ng-click="onRefresh()" ng-mouseenter="onEnter('refresh')" ng-mouseleave="onLeave('refresh')"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
-				       			<span class="title" ng-mouseenter="onEnter('title')" ng-mouseleave="onLeave('title')">Group Member<span class="total"></span></span>
-				       			<button class="btn btn-primary right" style="visibility:hidden;"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
-				       		</div>
-			            	<div class="some-list-content">
-				       			<div class="wrapper"><ul>
-				       				<li ng-repeat="groupMember in groupMemberList" id="{{prefix + groupMember.memberId}}"><span class="contents">({{groupMember.department}}){{groupMember.name}}</span><span class="remove">x</span></li>
-				       			</ul></div>
-				       			<div class="guide-message"></div>
-				       			<div class="filter-input">
-				       				<input type="text" placeholder="Filter user group" ng-keydown="onInputFilter($event)" ng-mouseenter="onEnter('filterInput')" ng-mouseleave="onLeave('filterInput')"/> 
-				       				<button class="btn btn-primary disabled trash" ng-click="onFilterEmpty()" ng-mouseenter="onEnter('filterEmpty')" ng-mouseleave="onLeave('filterEmpty')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
-				       				<button class="btn btn-primary" ng-click="onFilterGroup()" style="margin-right:2px" ng-mouseenter="onEnter('filterSearch')" ng-mouseleave="onLeave('filterSearch')"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
-				       			</div>
-				       		</div>
-				       		<div class="some-loading has-not-edit">
-				       			<div class="timer-loader"></div>
-				       			<div class="some-alert hide-me">
-									<span class="message"></span>
-									<span class="close-alert" ng-click="onCloseAlert()">X</span>
-								</div>
-				       		</div>
-			       		</div>
-	            		<div class="some-list" style="float:right;width:300px;" ng-controller="AlarmPinpointUserCtrl">
-				       		<div class="some-list-header header-orange">
-				       			<button class="btn btn-warning left" ng-click="onRefresh()" ng-mouseenter="onEnter('refresh')" ng-mouseleave="onLeave('refresh')"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
-				       			<span class="title" ng-mouseenter="onEnter('title')" ng-mouseleave="onLeave('title')">Pinpoint User<span class="total"></span></span>
-				       			<button class="btn btn-warning right" ng-click="onCreate()" ng-mouseenter="onEnter('create')" ng-mouseleave="onLeave('create')"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
-				       		</div>
-				       		<div class="some-list-content move-some-where">
-				       			<div class="wrapper"><ul>
-				       				<li ng-repeat="pinpointUser in pinpointUserList" id="{{'alarmPinpointUser_' + pinpointUser.userId}}">
-				       					<button class="btn btn-warning left move"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></button>
-				       					<span class="contents">{{"("+pinpointUser.department + ")" + pinpointUser.name}}</span>
-				       					<span class="remove">x</span>
-				       				</li>
-				       			
-				       			</ul></div>
-				       			<div class="guide-message"></div>
-				       			<div class="filter-input">
-				       				<input type="text" placeholder="Filter user group" ng-keydown="onInputFilter($event)" ng-mouseenter="onEnter('filterInput')" ng-mouseleave="onLeave('filterInput')"/> 
-				       				<button class="btn btn-warning disabled trash" ng-click="onFilterEmpty()" ng-mouseenter="onEnter('filterEmpty')" ng-mouseleave="onLeave('filterEmpty')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
-				       				<button class="btn btn-warning" ng-click="onFilterGroup()" style="margin-right:2px" ng-mouseenter="onEnter('filterSearch')" ng-mouseleave="onLeave('filterSearch')"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>	       				
-				       			</div>
-				       		</div>
-				       		<div class="some-edit-content hide-me" style="width:300px;">
-				       			<div style="padding-top:40%">
-				       				<div class="title-message">Create new pinpoint user</div>
-				       				<input type="text" placeholder="User ID" name="userID"/>
-					       			<input type="text" placeholder="Name" name="name"/>
-					       			<input type="text" placeholder="Department" name="department"/>
-					       			<input type="text" placeholder="Phone" name="phone"/>
-					       			<input type="text" placeholder="Email" name="email"/>
-					       			<div style="padding-top:1px;">
-					       				<button class="btn btn-warning left" style="margin-left:5%" ng-click="onCancelEdit()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
-					       				<button class="btn btn-warning right" style="margin-right:5%" ng-click="onApplyEdit()"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
-					       			</div>
-				       			</div>
-				       		</div>
-				       		<div class="some-loading has-not-edit">
-				       			<div class="timer-loader" style="margin-top:72%"></div>
-				       			<div class="some-alert hide-me">
-									<span class="message"></span>
-									<span class="close-alert" ng-click="onCloseAlert()">X</span>
-								</div>
-				       		</div>
-		            	</div>
+		            	<alarm-group-member-directive></alarm-group-member-directive>
+	            		<alarm-pinpoint-user-directive></alarm-pinpoint-user-directive>
 		            </div>
 	            	<div class="tab-pane" id="alarmInGroup">
-	            		<div class="some-list some-table" style="width:100%" ng-controller="AlarmRuleCtrl">
-				       		<div class="some-list-header header-sky">
-				       			<button class="btn btn-info left" ng-click="onRefresh()" ng-mouseenter="onEnter('refresh')" ng-mouseleave="onLeave('refresh')"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
-				       			<span class="title" ng-mouseenter="onEnter('title')" ng-mouseleave="onLeave('title')">Alarm Rules<span class="total"></span></span>
-				       			<button class="btn btn-info right" ng-click="onCreate()" ng-mouseenter="onEnter('create')" ng-mouseleave="onLeave('create')"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
-				       		</div>
-				       		<div class="some-list-content">
-				       			<div class="wrapper">
-				       				<table>
-				       					<thead>
-				       						<tr>
-					       						<th width="40%">Application Name</th>
-					       						<th width="30%">Rule Name</th>
-					       						<th width="10%">Threshold</th>
-					       						<th width="10%">SMS</th>
-					       						<th width="10%">Email</th>
-					       						<th width="10%">Note</th>
-					       						<th width="10%"></th>
-				       						</tr>
-				       					</thead>
-				       					<tbody>
-				       						<tr ng-repeat="rule in ruleList" id="{{'alarmRule_' + rule.ruleId}}">
-				       							<td>{{rule.applicationId}}</td>
-				       							<td>{{rule.checkerName}}</td>
-				       							<td>{{rule.threshold}}</td>
-				       							<td>{{rule.smsSend ? "TRUE": "FALSE"}}</td>
-				       							<td>{{rule.emailSend ? "TRUE": "FALSE"}}</td>
-				       							<td><span ng-show="rule.notes != '' && rule.notes != null" class="glyphicon glyphicon-eye-open" aria-hidden="true" data-toggle="alarm-popover" data-trigger="hover" data-placement="left" data-content="{{rule.notes}}"></span></td>
-				       							<td><span class="remove">x</span></td>
-				       						</tr>
-				       					</tbody>
-				       				</table>
-				       			</div>
-				       			<div class="guide-message"></div>
-				       			<div class="filter-input">
-				       				<table>
-				       					<colgroup>
-				       						<col width="40%"/>
-				       						<col width="35%"/>
-				       						<col width="25%"/>
-				       					</colgroup>
-				       					<tr>
-				       						<td><input type="text" placeholder="Application name" style="width:98%"/></td>
-				       						<td><input type="text" placeholder="Rule name" style="width:100%"/></td>
-				       						<td>
-				       							<button class="btn btn-info disabled trash" ng-click="onFilterEmpty()" ng-mouseenter="onEnter('filterEmpty')" ng-mouseleave="onLeave('filterEmpty')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
-				       							<button class="btn btn-info" ng-click="onFilterGroup()" style="margin-right:2px" ng-mouseenter="onEnter('filterSearch')" ng-mouseleave="onLeave('filterSearch')"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
-				       						</td>
-				       					</tr>
-				       				</table>
-				       			</div>
-				       		</div>
-				       		<div class="some-edit-content hide-me" style="width:100%;">
-				       			<div style="padding-top:15%">
-				       				<div class="title-message">Creat new alram rule</div>
-				       				<select name="application" style="width:50%">
-		                                <option ng-repeat="app in applications" value="{{app.text}}">{{app.text}}</option>
-		                            </select>
-					       			<br/><br/>
-					       			<select name="rule" style="width:50%">
-		                                <option ng-repeat="rule in ruleSets" value="{{rule.text}}">{{rule.text}}</option>
-		                            </select>
-					       			<br/><br/>
-					       			<div style="display:inline-block;width:50%;text-align:left;">
-						       			<label>Threshold</label> <input type="number" value="1" placeholder="Threshold" name="threshold" style="width:50px"/>
-						       			<input type="checkbox" placeholder="SMS" name="sms" style="margin-left:30px;"/><label>SMS</label>
-						       			<input type="checkbox" placeholder="Email" name="email" style="margin-left:30px"/><label>Email</label>
-					       			</div>
-					       			<br/><br/>
-					       			<textarea placeholder="Note" name="note" style="width:50%;height:120px"></textarea>
-					       			<div style="padding-top:1px;">
-					       				<button class="btn btn-info left" style="margin-left:25%" ng-click="onCancelEdit()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
-					       				<button class="btn btn-info right" style="margin-right:25%" ng-click="onApplyEdit()"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
-					       			</div>
-				       			</div>
-				       		</div>
-				       		<div class="some-loading has-not-edit">
-				       			<div class="timer-loader" style="margin-top:36%"></div>
-				       			<div class="some-alert hide-me">
-									<span class="message"></span>
-									<span class="close-alert" ng-click="onCloseAlert()">X</span>
-								</div>
-				       		</div>
-		            	</div>
+	            		<alarm-rule-directive></alarm-rule-directive>
 	            	</div>
 	        	</div>
 	        </div>
@@ -550,6 +366,7 @@
     </div>
   </div>
 </div>
+
 
 <!-- build:js({.tmp,app}) scripts/scripts.js -->
 <script src="scripts/app.js?v=${buildTime}"></script>
@@ -570,6 +387,8 @@
 <script src="common/services/filter.config.js?v=${buildTime}"></script>
 <script src="common/services/server-map-filter-vo.service.js?v=${buildTime}"></script>
 <script src="common/services/alarm-ajax.service.js?v=${buildTime}"></script>
+<script src="common/services/alarm-util.service.js?v=${buildTime}"></script>
+<script src="common/services/alarm-communication.service.js?v=${buildTime}"></script>
 <script src="common/services/server-map-hint-vo.service.js?v=${buildTime}"></script>
 <script src="common/services/is-visible.service.js?v=${buildTime}"></script>
 <script src="common/services/user-locales.service.js?v=${buildTime}"></script>
@@ -598,12 +417,12 @@
 <script src="features/jvmMemoryChart/jvm-memory-chart.directive.js?v=${buildTime}"></script>
 <script src="features/cpuLoadChart/cpu-load-chart.directive.js?v=${buildTime}"></script>
 <script src="features/loading/loading.directive.js?v=${buildTime}"></script>
-<script src="features/configuration/general/general.controller.js?v=${buildTime}"></script>
-<script src="features/configuration/alarm/alarm-user-group.controller.js?v=${buildTime}"></script>
-<script src="features/configuration/alarm/alarm-group-member.controller.js?v=${buildTime}"></script>
-<script src="features/configuration/alarm/alarm-pinpoint-user.controller.js?v=${buildTime}"></script>
-<script src="features/configuration/alarm/alarm-rule.controller.js?v=${buildTime}"></script>
 <script src="features/configuration/configuration.controller.js?v=${buildTime}"></script>
+<script src="features/configuration/general/general.controller.js?v=${buildTime}"></script>
+<script src="features/configuration/alarm/alarm-user-group.directive.js?v=${buildTime}"></script>
+<script src="features/configuration/alarm/alarm-group-member.directive.js?v=${buildTime}"></script>
+<script src="features/configuration/alarm/alarm-pinpoint-user.directive.js?v=${buildTime}"></script>
+<script src="features/configuration/alarm/alarm-rule.directive.js?v=${buildTime}"></script>
 
 <script src="pages/main/main.controller.js?v=${buildTime}"></script>
 <script src="pages/inspector/inspector.controller.js?v=${buildTime}"></script>

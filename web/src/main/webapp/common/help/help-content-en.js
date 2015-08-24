@@ -7,6 +7,56 @@
 	 * @name pinpointApp#helpContent-en
 	 */
 	var oHelp = {
+		configuration: {
+			alarmRules: {
+				mainStyle: "",
+				title: "Alarm Rule Type",
+				desc: "The following types of alarm rules are supported by Pinpoint.",
+				category: [{
+					title: "[Type]",
+					items: [{
+						name: "SLOW_COUNT",
+						desc: "Sends an alarm when the number of slow requests sent by the application exceeds the configured threshold."
+					},{
+						name: "SLOW_RATE",
+						desc: "Sends an alarm when the percentage(%) of slow requests sent by the application exceeds the configured threshold."
+					},{
+						name: "ERROR_COUNT",
+						desc: "Sends an alarm when the number of failed requests sent by the application exceeds the configured threshold."
+					},{
+						name: "ERROR_RATE",
+						desc: "Sends an alarm when the percentage(%) of failed requests sent by the application exceeds the configured threshold."
+					},{
+						name: "RESPONSE_COUNT",
+						desc: "Sends an alarm when the number of all requests sent by the application exceeds the configured threshold."
+					},{
+						name: "SLOW_COUNT_TO_CALLEE",
+						desc: "Sends an alarm when the number of slow responses returned by the application exceeds the configured threshold."
+					},{
+						name: "SLOW_RATE_TO_CALLEE",
+						desc: "Sends an alarm when the percentage(%) of slow responses returned by the application exceeds the configured threshold."
+					},{
+						name: "ERROR_COUNT_TO_CALLEE",
+						desc: "Sends an alarm when the number of failed responses returned by the application exceeds the configured threshold."
+					},{
+						name: "ERROR_RATE_TO_CALLEE",
+						desc: "Sends an alarm when the percentage(%) of failed responses returned by the application exceeds the configured threshold."
+					},{
+						name: "TOTAL_COUNT_TO_CALLEE",
+						desc: "Sends an alarm when the number of all remote calls sent to the application exceeds the configured threshold."
+					},{
+						name: "HEAP_USAGE_RATE",
+						desc: "Sends an alarm when the application's heap usage(%) exceeds the configured threshold."
+					},{
+						name: "GC_COUNT",
+						desc: "Sends an alarm when the number of full garbage collections exceeds the configured threshold."
+					},{
+						name: "JVM_CPU_USAGE_RATE",
+						desc: "Sends an alarm when the application's CPU usage(%) exceeds the configured threshold."
+					}]
+				}]
+			}
+		},	
 		navbar : {
 			applicationSelector: {
 				mainStyle: "",

@@ -34,8 +34,8 @@ import com.navercorp.pinpoint.plugin.thrift.ThriftRequestProperty;
 import com.navercorp.pinpoint.plugin.thrift.ThriftHeader;
 
 /**
- * This interceptor writes the trace data directly on the wire to allow remote tracing.
- * Trace data is written AFTER all the data fields of the Thrift message have been written out.
+ * This interceptor writes the trace data directly on the wire to allow remote tracing. Trace data is written AFTER all the data fields of the Thrift message
+ * have been written out.
  * <p>
  * <tt>TServiceClientSendBaseInterceptor</tt> -> <b><tt>TProtocolWriteFieldStopInterceptor</tt></b>
  * <p>
@@ -45,19 +45,18 @@ import com.navercorp.pinpoint.plugin.thrift.ThriftHeader;
  * 
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.client.TServiceClientSendBaseInterceptor TServiceClientSendBaseInterceptor
  */
-@Group(value=THRIFT_CLIENT_SCOPE, executionPolicy=ExecutionPolicy.INTERNAL)
+@Group(value = THRIFT_CLIENT_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
 public class TProtocolWriteFieldStopInterceptor implements SimpleAroundInterceptor, ThriftConstants {
-    
+
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final InterceptorGroup group;
-    
-    public TProtocolWriteFieldStopInterceptor(
-            @Name(THRIFT_CLIENT_SCOPE) InterceptorGroup group) {
+
+    public TProtocolWriteFieldStopInterceptor(@Name(THRIFT_CLIENT_SCOPE) InterceptorGroup group) {
         this.group = group;
     }
-    
+
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
@@ -77,7 +76,7 @@ public class TProtocolWriteFieldStopInterceptor implements SimpleAroundIntercept
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         // Do nothing
     }
-    
+
     private void appendParentTraceInfo(TProtocol oprot) throws TException {
         InterceptorGroupInvocation currentTransaction = this.group.getCurrentInvocation();
         ThriftRequestProperty parentTraceInfo = (ThriftRequestProperty)currentTransaction.getAttachment();

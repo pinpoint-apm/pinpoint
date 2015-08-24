@@ -14,11 +14,14 @@
  */
 package com.navercorp.pinpoint.plugin.spring.beans.interceptor;
 
+import static org.junit.Assert.*;
+
 import java.util.Properties;
 
 import org.junit.Test;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.plugin.spring.beans.SpringBeansConfig;
 
 /**
  * @author Jongho Moon
@@ -29,7 +32,7 @@ public class TargetBeanFilterTest {
     @Test
     public void testClassLoadedByBootClassLoader() {
         Properties properties = new Properties();
-        properties.put("profiler.spring.beans.annotation", "org.springframework.stereotype.Controller,org.springframework.stereotype.Service,org.springframework.stereotype.Repository");
+        properties.put(SpringBeansConfig.SPRING_BEANS_ANNOTATION, "org.springframework.stereotype.Controller,org.springframework.stereotype.Service,org.springframework.stereotype.Repository");
         ProfilerConfig config = new ProfilerConfig(properties);
         
         TargetBeanFilter filter = TargetBeanFilter.of(config);
@@ -43,4 +46,20 @@ public class TargetBeanFilterTest {
         filter.isTarget("someBean", String.class);
     }
 
+    @Test
+    public void test() {
+        Properties properties = new Properties();
+        properties.put(SpringBeansConfig.SPRING_BEANS_NAME_PATTERN, "Target.*");
+        ProfilerConfig config = new ProfilerConfig(properties);
+        
+        TargetBeanFilter filter = TargetBeanFilter.of(config);
+        
+        assertTrue(filter.isTarget("Target0", String.class));
+        
+        filter.addTransformed(String.class);
+        
+        assertFalse(filter.isTarget("Target0", String.class));
+        assertFalse(filter.isTarget("Target1", String.class));
+    }
+    
 }

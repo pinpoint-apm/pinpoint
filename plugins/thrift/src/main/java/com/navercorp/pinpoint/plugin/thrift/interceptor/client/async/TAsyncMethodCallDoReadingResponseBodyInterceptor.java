@@ -16,26 +16,18 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.client.async;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncCallEndFlagFieldAccessor;
 
 /**
  * @author HyunGil Jeong
  */
 public class TAsyncMethodCallDoReadingResponseBodyInterceptor extends TAsyncMethodCallInternalMethodInterceptor {
-    
-    private final MetadataAccessor asyncCallEndFlagAccessor;
 
-    public TAsyncMethodCallDoReadingResponseBodyInterceptor(
-            TraceContext traceContext,
-            MethodDescriptor methodDescriptor,
-            @Name(METADATA_ASYNC_MARKER) MetadataAccessor asyncMarkerAccessor,
-            @Name(METADATA_ASYNC_CALL_END_FLAG) MetadataAccessor asyncCallEndFlagAccessor) {
-        super(traceContext, methodDescriptor, asyncMarkerAccessor);
-        this.asyncCallEndFlagAccessor = asyncCallEndFlagAccessor;
+    public TAsyncMethodCallDoReadingResponseBodyInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+        super(traceContext, methodDescriptor);
     }
 
     @Override
@@ -47,15 +39,15 @@ public class TAsyncMethodCallDoReadingResponseBodyInterceptor extends TAsyncMeth
         if (throwable != null) {
             return;
         }
-        Boolean endAsyncBlock = this.asyncCallEndFlagAccessor.get(target);
-        if (endAsyncBlock != null && endAsyncBlock) {
+        boolean endAsyncBlock = ((AsyncCallEndFlagFieldAccessor)target)._$PINPOINT$_getAsyncCallEndFlag();
+        if (endAsyncBlock) {
             final Trace trace = super.traceContext.currentTraceObject();
             // shouldn't be null
             if (trace == null) {
                 return;
             }
-            
-            if(trace.isAsync() && trace.isRootStack()) {
+
+            if (trace.isAsync() && trace.isRootStack()) {
                 trace.close();
                 super.traceContext.removeTraceObject();
             }
@@ -64,9 +56,9 @@ public class TAsyncMethodCallDoReadingResponseBodyInterceptor extends TAsyncMeth
 
     @Override
     protected boolean validate(Object target) {
-        if (!this.asyncCallEndFlagAccessor.isApplicable(target)) {
+        if (!(target instanceof AsyncCallEndFlagFieldAccessor)) {
             if (isDebug) {
-                logger.debug("Invalid target object. Need metadata accessor({})", METADATA_ASYNC_CALL_END_FLAG);
+                logger.debug("Invalid target object. Need field accessor({}).", AsyncCallEndFlagFieldAccessor.class.getName());
             }
             return false;
         }

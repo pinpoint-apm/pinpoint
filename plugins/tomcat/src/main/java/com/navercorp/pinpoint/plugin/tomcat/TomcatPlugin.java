@@ -14,14 +14,16 @@
  */
 package com.navercorp.pinpoint.plugin.tomcat;
 
-import static com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty.*;
+import java.security.ProtectionDomain;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 
 /**
  * @author Jongho Moon
@@ -50,91 +52,154 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
         addStandardServiceEditor(context);
         addTomcatConnectorEditor(context);
         addWebappLoaderEditor(context);
-        
+
         addAsyncContextImpl(context);
     }
 
     private void addRequestEditor(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.apache.catalina.connector.Request");
-        builder.injectMetadata(METADATA_TRACE);
-        builder.injectMetadata(METADATA_ASYNC);
-        
-        // clear request.
-        MethodTransformerBuilder recycleMethodEditorBuilder = builder.editMethod("recycle");
-        recycleMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestRecycleInterceptor");
-        
-        // trace asynchronous process. 
-        MethodTransformerBuilder startAsyncMethodEditor = builder.editMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
-        startAsyncMethodEditor.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        startAsyncMethodEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestStartAsyncInterceptor");
-        
-        context.addClassFileTransformer(builder.build());
+        context.addClassFileTransformer("org.apache.catalina.connector.Request", new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+                target.addField(METADATA_TRACE);
+                target.addField(METADATA_ASYNC);
+
+                // clear request.
+                InstrumentMethod recycleMethodEditorBuilder = target.getDeclaredMethod("recycle");
+                if (recycleMethodEditorBuilder != null) {
+                    recycleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestRecycleInterceptor");
+                }
+
+                // trace asynchronous process.
+                InstrumentMethod startAsyncMethodEditor = target.getDeclaredMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
+                if (startAsyncMethodEditor != null) {
+                    startAsyncMethodEditor.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestStartAsyncInterceptor");
+                }
+
+                return target.toBytecode();
+            }
+        });
     }
 
     private void addRequestFacadeEditor(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.apache.catalina.connector.RequestFacade");
-        builder.weave("com.navercorp.pinpoint.plugin.tomcat.aspect.RequestFacadeAspect");
-        context.addClassFileTransformer(builder.build());
+        context.addClassFileTransformer("org.apache.catalina.connector.RequestFacade", new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+                if (target != null) {
+                    target.weave("com.navercorp.pinpoint.plugin.tomcat.aspect.RequestFacadeAspect");
+                }
+
+                return target.toBytecode();
+            }
+        });
     }
 
-    private void addStandardHostValveEditor(ProfilerPluginSetupContext context, TomcatConfiguration config) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.apache.catalina.core.StandardHostValve");
-        builder.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor", config.getTomcatExcludeUrlFilter());
-        context.addClassFileTransformer(builder.build());
+    private void addStandardHostValveEditor(ProfilerPluginSetupContext context, final TomcatConfiguration config) {
+        context.addClassFileTransformer("org.apache.catalina.core.StandardHostValve", new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+
+                InstrumentMethod method = target.getDeclaredMethod("invoke", "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response");
+                if (method != null) {
+                    method.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor", config.getTomcatExcludeUrlFilter());
+                }
+
+                return target.toBytecode();
+            }
+        });
     }
 
     private void addStandardServiceEditor(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.apache.catalina.core.StandardService");
-        // Tomcat 6
-        MethodTransformerBuilder startEditor = builder.editMethod("start");
-        startEditor.property(IGNORE_IF_NOT_EXIST);
-        startEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardServiceStartInterceptor");
+        context.addClassFileTransformer("org.apache.catalina.core.StandardService", new PinpointClassFileTransformer() {
 
-        // Tomcat 7
-        MethodTransformerBuilder startInternalEditor = builder.editMethod("startInternal");
-        startInternalEditor.property(IGNORE_IF_NOT_EXIST);
-        startInternalEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardServiceStartInterceptor");
-        
-        context.addClassFileTransformer(builder.build());
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+
+                // Tomcat 6
+                InstrumentMethod startEditor = target.getDeclaredMethod("start");
+                if (startEditor != null) {
+                    startEditor.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardServiceStartInterceptor");
+                }
+
+                // Tomcat 7
+                InstrumentMethod startInternalEditor = target.getDeclaredMethod("startInternal");
+                if (startInternalEditor != null) {
+                    startInternalEditor.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardServiceStartInterceptor");
+                }
+
+                return target.toBytecode();
+            }
+        });
     }
 
     private void addTomcatConnectorEditor(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.apache.catalina.connector.Connector");
+        context.addClassFileTransformer("org.apache.catalina.connector.Connector", new PinpointClassFileTransformer() {
 
-        // Tomcat 6
-        MethodTransformerBuilder initializeEditor = builder.editMethod("initialize");
-        initializeEditor.property(IGNORE_IF_NOT_EXIST);
-        initializeEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.ConnectorInitializeInterceptor");
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
 
-        // Tomcat 7
-        MethodTransformerBuilder initInternalEditor = builder.editMethod("initInternal");
-        initInternalEditor.property(IGNORE_IF_NOT_EXIST);
-        initInternalEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.ConnectorInitializeInterceptor");
-        
-        context.addClassFileTransformer(builder.build());
+                // Tomcat 6
+                InstrumentMethod initializeEditor = target.getDeclaredMethod("initialize");
+                if (initializeEditor != null) {
+                    initializeEditor.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.ConnectorInitializeInterceptor");
+                }
+
+                // Tomcat 7
+                InstrumentMethod initInternalEditor = target.getDeclaredMethod("initInternal");
+                if (initInternalEditor != null) {
+                    initInternalEditor.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.ConnectorInitializeInterceptor");
+                }
+
+                return target.toBytecode();
+            }
+        });
     }
 
     private void addWebappLoaderEditor(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.apache.catalina.loader.WebappLoader");
-        // Tomcat 6 - org.apache.catalina.loader.WebappLoader.start()
-        MethodTransformerBuilder startEditor = builder.editMethod("start");
-        startEditor.property(IGNORE_IF_NOT_EXIST);
-        startEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.WebappLoaderStartInterceptor");
+        context.addClassFileTransformer("org.apache.catalina.loader.WebappLoader", new PinpointClassFileTransformer() {
 
-        // Tomcat 7, 8 - org.apache.catalina.loader.WebappLoader.startInternal()
-        MethodTransformerBuilder startInternalEditor = builder.editMethod("startInternal");
-        startInternalEditor.property(IGNORE_IF_NOT_EXIST);
-        startInternalEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.WebappLoaderStartInterceptor");
-        
-        context.addClassFileTransformer(builder.build());
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+
+                // Tomcat 6 - org.apache.catalina.loader.WebappLoader.start()
+                InstrumentMethod startEditor = target.getDeclaredMethod("start");
+                if (startEditor != null) {
+                    startEditor.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.WebappLoaderStartInterceptor");
+                }
+
+                // Tomcat 7, 8 - org.apache.catalina.loader.WebappLoader.startInternal()
+                InstrumentMethod startInternalEditor = target.getDeclaredMethod("startInternal");
+                if (startInternalEditor != null) {
+                    startInternalEditor.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.WebappLoaderStartInterceptor");
+                }
+
+                return target.toBytecode();
+            }
+        });
     }
-    
+
     private void addAsyncContextImpl(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder classBuilder = context.getClassFileTransformerBuilder("org.apache.catalina.core.AsyncContextImpl");
-        classBuilder.injectMetadata(METADATA_ASYNC_TRACE_ID);
-        MethodTransformerBuilder startEditor = classBuilder.editMethods(MethodFilters.name("dispatch"));
-        startEditor.property(IGNORE_IF_NOT_EXIST);
-        startEditor.injectInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.AsyncContextImplDispatchMethodInterceptor");
-        context.addClassFileTransformer(classBuilder.build());
+        context.addClassFileTransformer("org.apache.catalina.core.AsyncContextImpl", new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+                target.addField(METADATA_ASYNC_TRACE_ID);
+
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("dispatch"))) {
+                    method.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.AsyncContextImplDispatchMethodInterceptor");
+                }
+
+                return target.toBytecode();
+            }
+        });
     }
 }

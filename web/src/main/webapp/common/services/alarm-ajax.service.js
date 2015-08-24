@@ -16,9 +16,9 @@
 		alarmRuleSet: "/alarmRule/checker.pinpoint"
 	});
 	
-	pinpointApp.service('AlarmAjaxService', [ 'AlarmAjaxServiceConfig', function ($config) {
-		this.getUserGroupList = function(callback) {
-			retrieve($config.group, {}, callback);
+	pinpointApp.service('AlarmAjaxService', [ 'AlarmAjaxServiceConfig', '$http', function ($config, $http) {
+		this.getUserGroupList = function(data, callback) {
+			retrieve($config.group, data, callback);
 		};
 		this.createUserGroup = function(data, callback ) {
 			create($config.group, data, callback);
@@ -38,8 +38,8 @@
 		this.removeMemberInGroup = function(data, callback) {
 			remove($config.groupMember, data, callback);
 		};
-		this.getPinpointUserList = function(callback) {
-			retrieve($config.pinpointUser, {}, callback);
+		this.getPinpointUserList = function(data, callback) {
+			retrieve($config.pinpointUser, data, callback);
 		};
 		this.createPinpointUser = function(data, callback ) {
 			create($config.pinpointUser, data, callback);
@@ -62,33 +62,27 @@
 		this.removeRule = function(data, callback ) {
 			remove($config.alarmRule, data, callback);
 		};	
-		this.getRuleSet = function(callback) {
-			retrieve($config.alarmRuleSet, {}, callback);
+		this.getRuleSet = function(data, callback) {
+			retrieve($config.alarmRuleSet, data, callback);
 		}
 		function create(url, data, callback) {
-			$.ajax(url, {
-				type: "POST",
-				data: JSON.stringify(data),
-				contentType: "application/json"
-			}).done(function(result) {
-				callback(result);
-			}).fail(function(error) {
+			$http.post( url, data )
+			.then(function(result) {
+				callback(result.data);
+			}, function(error) {
 				callback(error);
 			});
 		}
 		function update(url, data, callback) {
-			$.ajax(url, {
-				type: "PUT",
-				data: JSON.stringify(data),
-				contentType: "application/json"
-			}).done(function(result) {
-				callback(result);
-			}).fail(function(error) {
+			$http.put(url, data )
+			.then(function(result) {
+				callback(result.data);
+			}, function(error) {
 				callback(error);
 			});
 		}
 		function remove(url, data, callback) {
-			$.ajax(url, {
+			$.ajax( url, {
 				type: "DELETE",
 				data: JSON.stringify(data),
 				contentType: "application/json"
@@ -96,15 +90,22 @@
 				callback(result);
 			}).fail(function(error) {
 				callback(error);
-			});
+			})
+//			$http["delete"](url, data)
+//			.then(function(result) {
+//				callback(result.data);
+//			}, function(error) {
+//				callback(error);
+//			});
 		}
 		function retrieve(url, data, callback) {
-			$.ajax(url, {
-				type: "GET",
-				data: data
-			}).done(function(result) {
-				callback(result);
-			}).fail(function(error) {
+			var query = "?";
+			for( var p in data ) {
+				query += ( query == "?" ? "" : "&" ) + p + "=" + data[p];
+			}
+			$http.get(url + query).then(function(result) {
+				callback(result.data);
+			}, function(error) {
 				callback(error);
 			});
 		}

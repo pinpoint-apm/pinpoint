@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.httpclient3.HostNameGetter;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 import com.navercorp.pinpoint.plugin.httpclient3.PortNumberGetter;
@@ -40,7 +39,7 @@ public class HttpConnectionOpenMethodInterceptor extends SpanEventSimpleAroundIn
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
+        recorder.recordServiceType(HttpClient3Constants.HTTP_CLIENT_3_INTERNAL);
 
         if (target instanceof HostNameGetter && target instanceof PortNumberGetter && target instanceof ProxyHostNameGetter && target instanceof ProxyPortNumberGetter) {
             final StringBuilder sb = new StringBuilder();

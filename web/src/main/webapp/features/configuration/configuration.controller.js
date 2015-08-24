@@ -19,7 +19,6 @@
 			//@TODO
 			//통계 추가할 것.
 			//$at($at.FILTEREDMAP_PAGE);
-			console.log( "init ConfigurationCtrl", $element );
 						
 			$scope.descriptionOfCurrentTab = "Set your option";
 			$scope.currentTab = $constant.menu.GENERAL;
@@ -33,6 +32,11 @@
 					};
 				})(menu);
 			}
+			
+			$($element).on("hidden.bs.modal", function(e) {
+				$scope.currentTab = $constant.menu.GENERAL;
+				$scope.$broadcast("configuration.alarm.initClose");
+			});
 			
 			$scope.setCurrentTab = function( tab ) {
 				if ( $scope.currentTab == tab ) return;

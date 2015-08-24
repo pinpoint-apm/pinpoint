@@ -32,8 +32,8 @@ public class DefaultRpcMetricTest {
     @Test
     public void testAddResponseTime() throws Exception {
 
-        HistogramSchema schema = ServiceType.HTTP_CLIENT.getHistogramSchema();
-        DefaultRpcMetric metric = new DefaultRpcMetric(ServiceType.HTTP_CLIENT);
+        HistogramSchema schema = ServiceType.ASYNC_HTTP_CLIENT.getHistogramSchema();
+        DefaultRpcMetric metric = new DefaultRpcMetric(ServiceType.ASYNC_HTTP_CLIENT);
         metric.addResponseTime("test1", schema.getFastSlot().getSlotTime());
 
         metric.addResponseTime("test2", schema.getSlowSlot().getSlotTime());

@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher.ExactMatcher;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
+import static com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher.*;
+
 /**
  * @author HyunGil Jeong
  */
@@ -29,8 +31,8 @@ public class ThriftTypeProvider implements TraceMetadataProvider, ThriftConstant
     public void setup(TraceMetadataSetupContext context) {
         context.addServiceType(THRIFT_SERVER);
         context.addServiceType(THRIFT_CLIENT, new ExactMatcher(THRIFT_URL));
-        context.addServiceType(THRIFT_SERVER_INTERNAL);
-        context.addServiceType(THRIFT_CLIENT_INTERNAL);
+        context.addServiceType(THRIFT_SERVER_INTERNAL, ARGS_MATCHER);
+        context.addServiceType(THRIFT_CLIENT_INTERNAL, ARGS_MATCHER);
         context.addAnnotationKey(THRIFT_URL);
         context.addAnnotationKey(THRIFT_ARGS);
         context.addAnnotationKey(THRIFT_RESULT);

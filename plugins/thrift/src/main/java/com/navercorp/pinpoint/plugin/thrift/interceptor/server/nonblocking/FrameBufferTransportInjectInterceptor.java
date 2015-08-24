@@ -18,10 +18,15 @@ package com.navercorp.pinpoint.plugin.thrift.interceptor.server.nonblocking;
 
 import java.net.Socket;
 
-import com.navercorp.pinpoint.bootstrap.FieldAccessor;
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
+import org.apache.thrift.transport.TNonblockingTransport;
+import org.apache.thrift.transport.TTransport;
+
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
+import com.navercorp.pinpoint.plugin.thrift.field.getter.TNonblockingTransportFieldGetter;
 
 /**
  * Base interceptor for retrieving the socket information from a TTransport field, and injecting it into a transport wrapping it.
@@ -30,32 +35,67 @@ import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
  */
 public abstract class FrameBufferTransportInjectInterceptor implements SimpleAroundInterceptor, ThriftConstants {
 
-    private final MetadataAccessor socketAccessor;
-    private final FieldAccessor transFieldAccessor;
-    
-    protected FrameBufferTransportInjectInterceptor(
-            MetadataAccessor socketAccessor,
-            FieldAccessor transFieldAccessor) {
-        this.socketAccessor = socketAccessor;
-        this.transFieldAccessor = transFieldAccessor;
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
+
+    @Override
+    public void before(Object target, Object[] args) {
+        // Do nothing
     }
+
+    @Override
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        if (validate0(target, args, result)) {
+            if (isDebug) {
+                logger.afterInterceptor(target, args, result, throwable);
+            }
+            Socket rootSocket = getRootSocket(target);
+            if (rootSocket != null) {
+                TTransport injectionTarget = getInjectionTarget(target, args, result);
+                injectSocket(injectionTarget, rootSocket);
+            }
+        }
+    }
+
+    private boolean validate0(Object target, Object[] args, Object result) {
+        if (!(target instanceof SocketFieldAccessor)) {
+            if (!isDebug) {
+                logger.debug("Invalid target object. Need field accessor({}).", SocketFieldAccessor.class.getName());
+            }
+            return false;
+        }
+        return validate(target, args, result);
+    }
+
+    protected boolean validate(Object target, Object[] args, Object result) {
+        return true;
+    }
+
+    protected abstract TTransport getInjectionTarget(Object target, Object[] args, Object result);
 
     // Retrieve the socket information from the trans_ field of the given instance.
     protected final Socket getRootSocket(Object target) {
-        if (this.transFieldAccessor.isApplicable(target)) {
-            Object trans = this.transFieldAccessor.get(target);
-            if (trans != null && this.socketAccessor.isApplicable(trans)) {
-                Socket rootSocket = this.socketAccessor.get(trans);
-                return rootSocket;
+        TNonblockingTransport inTrans = ((TNonblockingTransportFieldGetter)target)._$PINPOINT$_getTNonblockingTransport();
+        if (inTrans != null) {
+            if (inTrans instanceof SocketFieldAccessor) {
+                return ((SocketFieldAccessor)inTrans)._$PINPOINT$_getSocket();
+            } else {
+                if (isDebug) {
+                    logger.debug("Invalid target object. Need field accessor({}).", SocketFieldAccessor.class.getName());
+                }
             }
         }
         return null;
     }
-    
+
     // Inject the socket information into the given memory-based transport
-    protected final void injectSocket(Object inTrans, Socket rootSocket) {
-        if (inTrans != null && this.socketAccessor.isApplicable(inTrans)) {
-            this.socketAccessor.set(inTrans, rootSocket);
+    protected final void injectSocket(TTransport inTrans, Socket rootSocket) {
+        if (!(inTrans instanceof SocketFieldAccessor)) {
+            if (isDebug) {
+                logger.debug("Invalid target object. Need field accessor({}).", SocketFieldAccessor.class.getName());
+            }
+            return;
         }
+        ((SocketFieldAccessor)inTrans)._$PINPOINT$_setSocket(rootSocket);
     }
 }
