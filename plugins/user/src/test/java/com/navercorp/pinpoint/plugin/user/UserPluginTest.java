@@ -9,10 +9,7 @@ public class UserPluginTest {
     @Test
     public void test() {
         UserPlugin plugin = new UserPlugin();
-        System.out.println(plugin.toClassName("org.apache.commons.pool.impl.GenericKeyedObjectPool.borrowObject"));
-        System.out.println(plugin.toMethodName("org.apache.commons.pool.impl.GenericKeyedObjectPool.borrowObject"));
-        
-        
+        assertEquals("org.apache.commons.pool.impl.GenericKeyedObjectPool", plugin.toClassName("org.apache.commons.pool.impl.GenericKeyedObjectPool.borrowObject"));
+        assertEquals("borrowObject", plugin.toMethodName("org.apache.commons.pool.impl.GenericKeyedObjectPool.borrowObject"));
     }
-
 }
