@@ -14,16 +14,16 @@
  */
 package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncTraceIdAccessor;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
+import com.navercorp.pinpoint.plugin.tomcat.AsyncAccessor;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
 
 /**
@@ -38,22 +38,17 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
 
     private TraceContext traceContext;
     private MethodDescriptor descriptor;
-    private MetadataAccessor asyncAccessor;
-    private MetadataAccessor asyncTraceIdAccessor;
 
-    public RequestStartAsyncInterceptor(TraceContext context, MethodDescriptor descriptor, @Name(METADATA_ASYNC) MetadataAccessor asyncAccessor, @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor) {
+    public RequestStartAsyncInterceptor(TraceContext context, MethodDescriptor descriptor) {
         this.traceContext = context;
-        setMethodDescriptor(descriptor);
-        this.asyncAccessor = asyncAccessor;
-        this.asyncTraceIdAccessor = asyncTraceIdAccessor;
+        this.descriptor = descriptor;
     }
 
     @Override
     public void before(Object target, Object[] args) {
-        if(isDebug) {
-            logger.beforeInterceptor(target, "", descriptor.getMethodName(), "", args);            
+        if (isDebug) {
+            logger.beforeInterceptor(target, "", descriptor.getMethodName(), "", args);
         }
-
 
         final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
@@ -64,8 +59,8 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if(isDebug) {
-            logger.afterInterceptor(target, "", descriptor.getMethodName(), "", args);            
+        if (isDebug) {
+            logger.afterInterceptor(target, "", descriptor.getMethodName(), "", args);
         }
 
         final Trace trace = traceContext.currentTraceObject();
@@ -76,18 +71,18 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
         try {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             if (validate(target, result, throwable)) {
-                asyncAccessor.set(target, Boolean.TRUE);
+                ((AsyncAccessor)target)._$PINPOINT$_setAsync(Boolean.TRUE);
 
                 // make asynchronous trace-id
                 final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
                 recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
                 // result is BasicFuture
-                asyncTraceIdAccessor.set(result, asyncTraceId);
-                if(isDebug) {
-                    logger.debug("Set asyncTraceId metadata {}", asyncTraceId);                    
+                ((AsyncTraceIdAccessor)result)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+                if (isDebug) {
+                    logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
                 }
             }
-            
+
             recorder.recordServiceType(TOMCAT_METHOD);
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
@@ -103,21 +98,16 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
             return false;
         }
 
-        if (!asyncAccessor.isApplicable(target)) {
-            logger.debug("Invalid target object. Need metadata accessor({}).", METADATA_ASYNC);
+        if (!(target instanceof AsyncAccessor)) {
+            logger.debug("Invalid target object. Need field accessor({}).", METADATA_ASYNC);
             return false;
         }
 
-        if (!asyncTraceIdAccessor.isApplicable(result)) {
+        if (!(result instanceof AsyncTraceIdAccessor)) {
             logger.debug("Invalid target object. Need metadata accessor({}).", METADATA_ASYNC_TRACE_ID);
             return false;
         }
 
         return true;
-    }
-    
-    public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.descriptor = descriptor;
-        traceContext.cacheApi(descriptor);
     }
 }
