@@ -35,10 +35,6 @@ public class CubridPlugin implements ProfilerPlugin, CubridConstants {
     public void setup(ProfilerPluginSetupContext context) {
         CubridConfig config = new CubridConfig(context.getConfig());
         
-        if (!config.isProfileCubrid()) {
-            return;
-        }
-
         addCUBRIDConnectionTransformer(context, config);
         addCUBRIDDriverTransformer(context);
         addCUBRIDPreparedStatementTransformer(context, config);

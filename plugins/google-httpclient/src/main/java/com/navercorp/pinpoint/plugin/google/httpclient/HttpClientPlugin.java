@@ -40,10 +40,6 @@ public class HttpClientPlugin implements ProfilerPlugin, HttpClientConstants {
         final HttpClientPluginConfig config = new HttpClientPluginConfig(context.getConfig());
         logger.debug("[GoogleHttpClient] Initialized config={}", config);
 
-        if (!config.isEnable()) {
-            return;
-        }
-
         logger.debug("[GoogleHttpClient] Add HttpRequest class.");
         addHttpRequestClass(context, config);
 

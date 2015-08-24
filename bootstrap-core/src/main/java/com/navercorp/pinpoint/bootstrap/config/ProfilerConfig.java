@@ -137,11 +137,6 @@ public class ProfilerConfig {
     private boolean tomcatHidePinpointHeader = true;
     private Filter<String> tomcatExcludeUrlFilter = new SkipFilter<String>();
 
-    private boolean arucs = true;
-    private boolean arucsKeyTrace = false;
-    private boolean memcached = true;
-    private boolean memcachedKeyTrace = false;
-    
     private boolean ibatis = true;
 
     private boolean mybatis = true;
@@ -213,6 +208,7 @@ public class ProfilerConfig {
 
     private String applicationServerType;
     private List<String> applicationTypeDetectOrder = Collections.emptyList();
+    private List<String> disabledPlugins = Collections.emptyList();
     private boolean log4jLoggingTransactionInfo;
     private boolean logbackLoggingTransactionInfo;
     
@@ -421,22 +417,6 @@ public class ProfilerConfig {
         return tomcatExcludeUrlFilter;
     }
 
-    public boolean isArucs() {
-        return arucs;
-    }
-
-    public boolean isArucsKeyTrace() {
-        return arucsKeyTrace;
-    }
-
-    public boolean isMemcached() {
-        return memcached;
-    }
-
-    public boolean isMemcachedKeyTrace() {
-        return memcachedKeyTrace;
-    }
-    
     //-----------------------------------------
     // http apache client 3
 
@@ -593,6 +573,14 @@ public class ProfilerConfig {
     public List<String> getApplicationTypeDetectOrder() {
         return applicationTypeDetectOrder;
     }
+    
+    public List<String> getDisabledPlugins() {
+        return disabledPlugins;
+    }
+
+    public void setDisabledPlugins(List<String> disabledPlugins) {
+        this.disabledPlugins = disabledPlugins;
+    }
 
     public String getApplicationServerType() {
         return applicationServerType;
@@ -700,11 +688,6 @@ public class ProfilerConfig {
             this.tomcatExcludeUrlFilter = new ExcludeUrlFilter(tomcatExcludeURL);
         }
 
-        this.arucs = readBoolean("profiler.arcus", true);
-        this.arucsKeyTrace = readBoolean("profiler.arcus.keytrace", false);
-        this.memcached = readBoolean("profiler.memcached", true);
-        this.memcachedKeyTrace = readBoolean("profiler.memcached.keytrace", false);
-        
         /**
          * apache http client 3
          */
@@ -791,7 +774,9 @@ public class ProfilerConfig {
         this.applicationServerType = readString("profiler.applicationservertype", null);
 
         // application type detector order
-        this.applicationTypeDetectOrder = readTypeDetectOrder("profiler.type.detect.order");
+        this.applicationTypeDetectOrder = readList("profiler.type.detect.order");
+        
+        this.disabledPlugins = readList("profiler.plugin.disable");
         
         // TODO have to remove        
         // profile package included in order to test "call stack view".
@@ -860,7 +845,7 @@ public class ProfilerConfig {
         return result;
     }
 
-    public List<String> readTypeDetectOrder(String propertyName) {
+    public List<String> readList(String propertyName) {
         String value = properties.getProperty(propertyName);
         if (value == null) {
             return Collections.emptyList();
@@ -967,14 +952,6 @@ public class ProfilerConfig {
         builder.append(tomcatHidePinpointHeader);
         builder.append(", tomcatExcludeUrlFilter=");
         builder.append(tomcatExcludeUrlFilter);
-        builder.append(", arucs=");
-        builder.append(arucs);
-        builder.append(", arucsKeyTrace=");
-        builder.append(arucsKeyTrace);
-        builder.append(", memcached=");
-        builder.append(memcached);
-        builder.append(", memcachedKeyTrace=");
-        builder.append(memcachedKeyTrace);
         builder.append(", ibatis=");
         builder.append(ibatis);
         builder.append(", mybatis=");
@@ -1065,6 +1042,8 @@ public class ProfilerConfig {
         builder.append(applicationServerType);
         builder.append(", applicationTypeDetectOrder=");
         builder.append(applicationTypeDetectOrder);
+        builder.append(", disabledPlugins=");
+        builder.append(disabledPlugins);
         builder.append(", log4jLoggingTransactionInfo=");
         builder.append(log4jLoggingTransactionInfo);
         builder.append(", logbackLoggingTransactionInfo=");
