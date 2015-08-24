@@ -105,7 +105,7 @@
 	    					});
 	    					$alarmUtilService.setTotal( $elTotal, userGroupList.length );
 	    					$alarmUtilService.hide( $elLoading, $elEdit );
-	    				}, $elAlert );
+	    				}, function( errorData ) {}, $elAlert );
 	    			}
 	    			function updateGroup( number, name ) {
 	    				$alarmUtilService.sendCRUD( "updateUserGroup", { "number": number, "id": name }, function( resultData ) {
@@ -117,7 +117,7 @@
 	    						}
 	    					}
 	    					$alarmUtilService.hide( $elLoading, $elEdit );
-	    				}, $elAlert );
+	    				}, function( errorData ) {}, $elAlert );
 	    			}
 	    			function removeGroup( number, name ) {
 	    				$alarmUtilService.sendCRUD( "removeUserGroup", { "id": name }, function( resultData ) {
@@ -140,7 +140,7 @@
 	    					$alarmUtilService.setTotal( $elTotal, userGroupList.length );
 	    					$alarmUtilService.hide( $elLoading );
 	    					isRemoving = false;					
-	    				}, $elAlert );
+	    				}, function( errorData ) {}, $elAlert );
 	    			}
 	    			function loadGroupList( isFirst ) {
 	    				$alarmUtilService.sendCRUD( "getUserGroupList", {}, function( resultData ) {
@@ -157,11 +157,12 @@
 	    					$timeout(function() {
 	    						addSelectClass( selectedGroupNumber );
     						});
-	    				}, $elAlert );			
+	    				}, function( errorData ) {}, $elAlert );			
+
 	    			};
 	    			scope.onRefresh = function() {
 	    				if ( isRemoving == true ) return;
-	    				
+	    				$at( $at.MAIN, $at.CLK_ALARM_REFRESH_USER_GROUP );
 	    				$elFilterInput.val("");
 	    				$alarmUtilService.showLoading( $elLoading, false );
 	    				loadGroupList( false );
@@ -205,9 +206,11 @@
 	    				if ( isRemoving == true ) return;
 	    				var query = $.trim( $elFilterInput.val() );
 	    				if ( query.length != 0 && query.length < 3 ) {
-//	    					scope.onEnter("greater2");
+	    					$alarmUtilService.showLoading( $elLoading, false );
+	    					$alarmUtilService.showAlert( $elAlert, "You must enter at least three characters.");
 	    					return;
 	    				}
+	    				$at( $at.MAIN, $at.CLK_ALARM_FILTER_USER_GROUP );
 	    				if ( query == "" ) {
 	    					if ( scope.userGroupList.length != userGroupList.length ) {
 	    						scope.userGroupList = userGroupList;
@@ -246,7 +249,8 @@
 	    			scope.onApplyEdit = function() {
 	    				var groupName = $.trim( $elEditInput.val() );
 	    				if ( groupName == "" ) {
-//	    					scope.onEnter("notEmpty");
+	    					$alarmUtilService.showLoading( $elLoading, true );
+	    					$alarmUtilService.showAlert( $elAlert, "Input group id.");	    					
 	    					return;
 	    				}
 	    				
@@ -258,6 +262,7 @@
 	    					return;
 	    				}
 	    				if ( isCreate ) {
+	    					$at( $at.MAIN, $at.CLK_ALARM_CREATE_USER_GROUP );
 	    					createGroup( groupName );
 	    				} else {
 	    					updateGroup( $alarmUtilService.extractID( $elEditInput ), groupName );

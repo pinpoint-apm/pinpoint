@@ -50,6 +50,23 @@
 	$at.CLK_REFRESH = "ClickRefresh";
 	$at.CLK_CALLEE_RANGE = "ClickCalleeRange";
 	$at.CLK_CALLER_RANGE = "ClickCallerRange";
+	
+	$at.CLK_CONFIGURATION = "ClickConfiguration";
+	$at.CLK_GENERAL = "ClickConfigurationGeneral";
+	$at.CLK_ALARM = "ClickConfigurationAlarm";
+	$at.CLK_ALARM_CREATE_USER_GROUP = "ClickAlarmCreateUserGroup";
+	$at.CLK_ALARM_REFRESH_USER_GROUP = "ClickAlarmRefreshUserGroup";
+	$at.CLK_ALARM_FILTER_USER_GROUP = "ClickAlarmFilterUserGroup";
+	$at.CLK_ALARM_ADD_USER = "ClickAlarmAddUser";
+	$at.CLK_ALARM_REFRESH_USER = "ClickAlarmRefreshUser";
+	$at.CLK_ALARM_FILTER_USER = "ClickAlarmFilterUser";
+	$at.CLK_ALARM_CREATE_PINPOINT_USER = "ClickAlarmCreatePinpointUser";
+	$at.CLK_ALARM_REFRESH_PINPOINT_USER = "ClickAlarmRefreshPinpointUser";
+	$at.CLK_ALARM_FILTER_PINPOINT_USER = "ClickAlarmFilterPinpointUser";
+	$at.CLK_ALARM_CREATE_RULE = "ClickAlarmCreateUserGroup";
+	$at.CLK_ALARM_REFRESH_RULE = "ClickAlarmRefreshUserGroup";
+	$at.CLK_ALARM_FILTER_RULE = "ClickAlarmFilterUserGroup";
+	
 
 	$at.TG_DATE = "ToggleDate";
 	$at.TG_UPDATE_ON = "ToggleUpdateOn";
