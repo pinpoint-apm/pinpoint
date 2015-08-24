@@ -23,19 +23,12 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  *
  */
 public class RedisPluginConfig {
-
-    private boolean enabled = true;
     private boolean pipelineEnabled = true;
     private boolean io = true;
 
     public RedisPluginConfig(ProfilerConfig src) {
-        enabled = src.readBoolean("profiler.redis", true);
         pipelineEnabled = src.readBoolean("profiler.redis.pipeline", true);
         io = src.readBoolean("profiler.redis.io", true);
-    }
-
-    public boolean isEnabled() {
-        return enabled;
     }
 
     public boolean isPipelineEnabled() {
@@ -49,9 +42,7 @@ public class RedisPluginConfig {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("{enabled=");
-        builder.append(enabled);
-        builder.append(", pipelineEnabled=");
+        builder.append("{pipelineEnabled=");
         builder.append(pipelineEnabled);
         builder.append(", io=");
         builder.append(io);

@@ -14,6 +14,8 @@
  */
 package com.navercorp.pinpoint.plugin.jackson;
 
+import java.security.ProtectionDomain;
+
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -25,8 +27,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
-
-import java.security.ProtectionDomain;
 
 /**
  * @author Sungkook Kim
@@ -111,6 +111,10 @@ public class JacksonPlugin implements ProfilerPlugin, JacksonConstants {
 
                 final InstrumentMethod constructor4 = target.getConstructor("org.codehaus.jackson.map.SerializerFactory");
                 addInterceptor(constructor4, BASIC_METHOD_INTERCEPTOR, group, SERVICE_TYPE);
+
+                final InstrumentMethod constructor5 = target.getConstructor("org.codehaus.jackson.JsonFactory", "org.codehaus.jackson.map.SerializerProvider", "org.codehaus.jackson.map.DeserializerProvider", "org.codehaus.jackson.map.SerializationConfig", "org.codehaus.jackson.map.DeserializationConfig");
+                addInterceptor(constructor5, BASIC_METHOD_INTERCEPTOR, group, SERVICE_TYPE);
+
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValue"))) {
                     addInterceptor(method, BASIC_METHOD_INTERCEPTOR, group, SERVICE_TYPE);

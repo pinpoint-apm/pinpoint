@@ -42,10 +42,6 @@ public class HttpClient4Plugin implements ProfilerPlugin, HttpClient4Constants {
     public void setup(ProfilerPluginSetupContext context) {
         final HttpClient4PluginConfig config = new HttpClient4PluginConfig(context.getConfig());
 
-        if (!config.isApacheHttpClient4Profile()) {
-            return;
-        }
-
         // common
         addHttpRequestExecutorClass(context, config);
         addDefaultHttpRequestRetryHandlerClass(context, config);

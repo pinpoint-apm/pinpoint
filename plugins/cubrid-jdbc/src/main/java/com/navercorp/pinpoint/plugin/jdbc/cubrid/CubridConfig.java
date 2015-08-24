@@ -21,22 +21,16 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  *
  */
 public class CubridConfig {
-    private final boolean profileCubrid;
     private final boolean profileSetAutoCommit;
     private final boolean profileCommit;
     private final boolean profileRollback;
     private final int maxSqlBindValueSize; 
 
     public CubridConfig(ProfilerConfig config) {
-        this.profileCubrid = config.readBoolean("profiler.jdbc.cubrid", true);
         this.profileSetAutoCommit = config.readBoolean("profiler.jdbc.cubrid.setautocommit", false);
         this.profileCommit = config.readBoolean("profiler.jdbc.cubrid.commit", false);
         this.profileRollback = config.readBoolean("profiler.jdbc.cubrid.rollback", false);
         this.maxSqlBindValueSize = config.readInt("profiler.jdbc.maxsqlbindvaluesize", 1024);
-    }
-    
-    public boolean isProfileCubrid() {
-        return profileCubrid;
     }
 
     public boolean isProfileSetAutoCommit() {
@@ -59,7 +53,6 @@ public class CubridConfig {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         
-        sb.append("CubridConfig [profileCubrid=").append(profileCubrid);
         sb.append(", profileSetAutoCommit=").append(profileSetAutoCommit);
         sb.append(", profileCommit=").append(profileCommit);
         sb.append(", profileRollback=").append(profileRollback);

@@ -28,7 +28,6 @@ public class HttpClient4PluginConfig {
     /**
      * apache http client 4
      */
-    private boolean apacheHttpClient4Profile = true;
     private boolean apacheHttpClient4ProfileCookie = false;
     private DumpType apacheHttpClient4ProfileCookieDumpType = DumpType.EXCEPTION;
     private int apacheHttpClient4ProfileCookieSamplingRate = 1;
@@ -46,7 +45,6 @@ public class HttpClient4PluginConfig {
         /**
          * apache http client 4
          */
-        this.apacheHttpClient4Profile = src.readBoolean("profiler.apache.httpclient4", true);
         this.apacheHttpClient4ProfileCookie = src.readBoolean("profiler.apache.httpclient4.cookie", false);
         this.apacheHttpClient4ProfileCookieDumpType = src.readDumpType("profiler.apache.httpclient4.cookie.dumptype", DumpType.EXCEPTION);
         this.apacheHttpClient4ProfileCookieSamplingRate = src.readInt("profiler.apache.httpclient4.cookie.sampling.rate", 1);
@@ -60,10 +58,6 @@ public class HttpClient4PluginConfig {
          * apache nio http client
          */
         this.apacheNIOHttpClient4Profile = src.readBoolean("profiler.apache.nio.httpclient4", true);
-    }
-
-    public boolean isApacheHttpClient4Profile() {
-        return apacheHttpClient4Profile;
     }
 
     public boolean isApacheHttpClient4ProfileCookie() {
@@ -101,9 +95,7 @@ public class HttpClient4PluginConfig {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("{apacheHttpClient4Profile=");
-        builder.append(apacheHttpClient4Profile);
-        builder.append(", apacheHttpClient4ProfileCookie=");
+        builder.append("{apacheHttpClient4ProfileCookie=");
         builder.append(apacheHttpClient4ProfileCookie);
         builder.append(", apacheHttpClient4ProfileCookieDumpType=");
         builder.append(apacheHttpClient4ProfileCookieDumpType);

@@ -38,16 +38,14 @@ public class HttpClient3Plugin implements ProfilerPlugin, HttpClient3Constants {
     public void setup(ProfilerPluginSetupContext context) {
         final HttpClient3PluginConfig config = new HttpClient3PluginConfig(context.getConfig());
 
-        if (config.isApacheHttpClient3Profile()) {
-            // apache http client 3
-            addHttpClient3Class(context, config);
+        // apache http client 3
+        addHttpClient3Class(context, config);
 
-            // apache http client 3 retry
-            addDefaultHttpMethodRetryHandlerClass(context, config);
-            // 3.1.0
-            addHttpConnectionClass(context, config);
-            addHttpMethodBaseClass(context, config);
-        }
+        // apache http client 3 retry
+        addDefaultHttpMethodRetryHandlerClass(context, config);
+        // 3.1.0
+        addHttpConnectionClass(context, config);
+        addHttpMethodBaseClass(context, config);
     }
 
     private void addHttpClient3Class(ProfilerPluginSetupContext context, HttpClient3PluginConfig config) {

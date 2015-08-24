@@ -40,19 +40,16 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final RedisPluginConfig config = new RedisPluginConfig(context.getConfig());
-        final boolean enabled = config.isEnabled();
         final boolean pipelineEnabled = config.isPipelineEnabled();
 
-        if (enabled) {
-            // jedis
-            addJedisClassEditors(context, config);
-            addProtocolClassEditor(context, config);
+        // jedis
+        addJedisClassEditors(context, config);
+        addProtocolClassEditor(context, config);
 
-            if (pipelineEnabled) {
-                // jedis pipeline
-                addJedisClientClassEditor(context, config);
-                addJedisPipelineClassEditors(context, config);
-            }
+        if (pipelineEnabled) {
+            // jedis pipeline
+            addJedisClientClassEditor(context, config);
+            addJedisPipelineClassEditors(context, config);
         }
     }
 
