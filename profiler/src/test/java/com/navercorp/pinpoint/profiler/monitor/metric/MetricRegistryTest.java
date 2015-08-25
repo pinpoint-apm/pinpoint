@@ -42,7 +42,7 @@ public class MetricRegistryTest {
 
         metricRegistry = new MetricRegistry(ServiceType.STAND_ALONE);
         try {
-            metricRegistry.getRpcMetric(ServiceType.IBATIS);
+            metricRegistry.getRpcMetric(ServiceType.ASYNC);
             Assert.fail();
         } catch (Exception e) {
         }

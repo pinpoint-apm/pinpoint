@@ -53,10 +53,8 @@ import com.navercorp.pinpoint.profiler.modifier.db.oracle.PhysicalConnectionModi
 import com.navercorp.pinpoint.profiler.modifier.log.log4j.LoggingEventOfLog4jModifier;
 import com.navercorp.pinpoint.profiler.modifier.log.logback.LoggingEventOfLogbackModifier;
 import com.navercorp.pinpoint.profiler.modifier.method.MethodModifier;
-import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.SqlMapModifier;
 import com.navercorp.pinpoint.profiler.modifier.orm.mybatis.MyBatisModifier;
 import com.navercorp.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
-import com.navercorp.pinpoint.profiler.modifier.spring.orm.ibatis.SqlMapClientTemplateModifier;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 /**
@@ -250,15 +248,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
      * Support ORM(iBatis, myBatis, etc.)
      */
     public void addOrmModifier() {
-        addIBatisSupport();
         addMyBatisSupport();
-    }
-
-    private void addIBatisSupport() {
-        if (profilerConfig.isIBatisEnabled()) {
-            addModifier(new SqlMapModifier(byteCodeInstrumentor, agent));
-            addModifier(new SqlMapClientTemplateModifier(byteCodeInstrumentor, agent));
-        }
     }
 
     private void addMyBatisSupport() {

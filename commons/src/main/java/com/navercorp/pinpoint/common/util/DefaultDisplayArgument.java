@@ -39,10 +39,9 @@ public class DefaultDisplayArgument {
     public static final DisplayArgumentMatcher ORACLE_MATCHER = createArgumentMatcher(ServiceType.ORACLE, AnnotationKey.ARGS0);
     public static final DisplayArgumentMatcher ORACLE_EXECUTE_QUERY_MATCHER = createArgumentMatcher(ServiceType.ORACLE_EXECUTE_QUERY, AnnotationKey.ARGS0);
 
+    // FIXME replaced with IBATIS_SPRING under IBatis Plugin - kept for backwards compatibility
     public static final DisplayArgumentMatcher SPRING_ORM_IBATIS_MATCHER = createArgumentMatcher(ServiceType.SPRING_ORM_IBATIS, AnnotationKey.ARGS0);
 
-
-    public static final DisplayArgumentMatcher IBATIS_MATCHER = createArgumentMatcher(ServiceType.IBATIS, AnnotationKey.ARGS0);
     public static final DisplayArgumentMatcher MYBATIS_MATCHER = createArgumentMatcher(ServiceType.MYBATIS, AnnotationKey.ARGS0);
 
     public static final DisplayArgumentMatcher MEMCACHED_MATCHER = createArgumentMatcher(ServiceType.MEMCACHED, ARGS_MATCHER);
