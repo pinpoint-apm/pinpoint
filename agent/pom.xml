@@ -90,6 +90,16 @@
             <version>2.0.8</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <!-- HTTP Client -->
         <dependency>

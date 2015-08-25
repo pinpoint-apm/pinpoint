@@ -53,7 +53,6 @@ import com.navercorp.pinpoint.profiler.modifier.db.oracle.PhysicalConnectionModi
 import com.navercorp.pinpoint.profiler.modifier.log.log4j.LoggingEventOfLog4jModifier;
 import com.navercorp.pinpoint.profiler.modifier.log.logback.LoggingEventOfLogbackModifier;
 import com.navercorp.pinpoint.profiler.modifier.method.MethodModifier;
-import com.navercorp.pinpoint.profiler.modifier.orm.mybatis.MyBatisModifier;
 import com.navercorp.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
@@ -241,19 +240,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         if (profilerConfig.isJdbcProfileDbcpConnectionClose()) {
             AbstractModifier dbcpPoolModifier = new DBCPPoolGuardConnectionWrapperModifier(byteCodeInstrumentor, agent);
             addModifier(dbcpPoolModifier);
-        }
-    }
-
-    /**
-     * Support ORM(iBatis, myBatis, etc.)
-     */
-    public void addOrmModifier() {
-        addMyBatisSupport();
-    }
-
-    private void addMyBatisSupport() {
-        if (profilerConfig.isMyBatisEnabled()) {
-            addModifier(new MyBatisModifier(byteCodeInstrumentor, agent));
         }
     }
 
