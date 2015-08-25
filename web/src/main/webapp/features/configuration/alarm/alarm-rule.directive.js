@@ -8,8 +8,8 @@
 	 * @class
 	 */	
 	
-	pinpointApp.directive('alarmRuleDirective', [ '$rootScope', '$document', 'helpContentTemplate', 'helpContentService', 'AlarmUtilService',
-	    function ($rootScope, $document, helpContentTemplate, helpContentService, $alarmUtilService) {
+	pinpointApp.directive('alarmRuleDirective', [ '$rootScope', '$document', '$timeout', 'helpContentTemplate', 'helpContentService', 'AlarmUtilService',
+	    function ($rootScope, $document, $timeout, helpContentTemplate, helpContentService, $alarmUtilService) {
         return {
             restrict: 'EA',
             replace: true,
@@ -88,6 +88,10 @@
     						removeCancel( $(this) );
     					});
     				}
+    				scope.onCancelEdit();
+    				$alarmUtilService.unsetFilterBackground( $elWrapper );
+        			$elFilterInputApplication.val("");
+        			$elFilterInputRule.val("");
     			}
     			function removeConfirm( $el ) {
     				$alarmUtilService.showLoading( $elLoading, false );
@@ -172,7 +176,9 @@
     					oNewRule.ruleId = resultData.ruleId;
     					ruleList.push(oNewRule);
     					$alarmUtilService.setTotal( $elTotal, ruleList.length );
-    					initPopover();
+    					$timeout(function() {
+    						initPopover();	
+    					});
     					$alarmUtilService.hide( $elLoading, $elEdit );					
     				}, function( errorData ) {}, $elAlert );
     			}
@@ -203,7 +209,9 @@
     						}
     					}
     					$alarmUtilService.hide( $elLoading, $elEdit );
-    					
+    					$timeout(function() {
+    						initPopover();	
+    					});
     				}, function( errorData ) {}, $elAlert );
     			}
     			function removeUser( ruleID ) {
@@ -228,8 +236,10 @@
     					isLoadedRuleList = true;
     					ruleList = scope.ruleList = resultData;
     					$alarmUtilService.setTotal( $elTotal, ruleList.length );
-    					initPopover();
     					$alarmUtilService.hide( $elLoading );
+    					$timeout(function() {
+    						initPopover();	
+    					});
     				}, function( errorData ) {}, $elAlert );		
     			};
     			function loadRuleSet() {
@@ -250,8 +260,7 @@
     			scope.onRefresh = function() {
     				if ( isRemoving == true ) return;
     				$at( $at.MAIN, $at.CLK_ALARM_REFRESH_RULE );
-        			$elFilterInputApplication.val("");
-        			$elFilterInputRule.val("");
+    				reset();
     				$alarmUtilService.showLoading( $elLoading, false );
     				loadList( false );
     			};
@@ -370,7 +379,7 @@
     				
     				$alarmUtilService.showLoading( $elLoading, true );
     				if ( $alarmUtilService.hasDuplicateItem( ruleList, function( rule ) {
-    					return rule.applicationId == applicationNServiceType[0] && rule.ruldId == ruleID;
+    					return rule.applicationId == applicationNServiceType[0] && rule.checkerName == ruleID;
     				}) && isCreate == true) {
     					$alarmUtilService.showAlert( $elAlert, "Exist a same rule set in the lists" );
     					return;

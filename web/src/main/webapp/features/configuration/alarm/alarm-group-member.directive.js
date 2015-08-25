@@ -7,8 +7,8 @@
 	 * @name alarmGroupMemberDirective
 	 * @class
 	 */	
-	pinpointApp.directive('alarmGroupMemberDirective', [ '$rootScope', 'helpContentTemplate', 'helpContentService', 'AlarmUtilService', 'AlarmBroadcastService',
-	    function ($rootScope, helpContentTemplate, helpContentService, $alarmUtilService, $alarmBroadcastService) {
+	pinpointApp.directive('alarmGroupMemberDirective', [ '$rootScope', '$timeout', 'helpContentTemplate', 'helpContentService', 'AlarmUtilService', 'AlarmBroadcastService',
+	    function ($rootScope, $timeout, helpContentTemplate, helpContentService, $alarmUtilService, $alarmBroadcastService) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -72,7 +72,7 @@
 	    			function updateFromList( oUser ) {
 	    				if ( scope.groupMemberList != groupMemberList ) {
 	    					for( var i = 0 ; i < groupMemberList.length ; i++ ) {
-	    						if ( groupMemberList[i].memberId == oUser.memberId ) {
+	    						if ( groupMemberList[i].memberId == oUser.userId ) {
 	    							groupMemberList[i].name = oUser.name;
 	    							groupMemberList[i].department = oUser.department;
 	    							break;
@@ -80,9 +80,9 @@
 	    					}	
 	    				}
 	    				for( var i = 0 ; i < scope.groupMemberList.length ; i++ ) {
-	    					if ( scope.groupMemberList[i].memberId == oUser.memberId ) {
-	    						groupMemberList[i].name = oUser.name;
-	    						groupMemberList[i].department = oUser.department;
+	    					if ( scope.groupMemberList[i].memberId == oUser.userId ) {
+	    						scope.groupMemberList[i].name = oUser.name;
+	    						scope.groupMemberList[i].department = oUser.department;
 	    						break;
 	    					}
 	    				}
@@ -109,6 +109,8 @@
 	    						removeCancel( $(this) );
 	    					});
 	    				}
+	    				$alarmUtilService.unsetFilterBackground( $elWrapper );
+	    				$elFilterInput.val("");
 	    			}
 
 	    			function addMember( oUser ) {
@@ -226,6 +228,7 @@
 	    					addMember( oUser );
 	    				} else {
 	    					$alarmUtilService.showAlert( $elAlert, "Exist a same user in the lists.", true );
+	    					$alarmBroadcastService.sendCallbackAddedUser( true );
 	    				}
 	    			});
 	    			scope.$on("alarmGroupMember.configuration.updateUser", function( event, oUser )  {
@@ -235,10 +238,11 @@
 	    				}
 	    			});
 	    			scope.$on("alarmGroupMember.configuration.removeUser", function( event, userID )  {
-	    				
 	    				if ( hasUser( userID ) ) {
 	    					reset();
-	    					removeFromList( userID );
+	    					scope.$apply(function() {
+	    						removeFromList( userID );
+	    					});
 	    				}
 	    			});
 	            }

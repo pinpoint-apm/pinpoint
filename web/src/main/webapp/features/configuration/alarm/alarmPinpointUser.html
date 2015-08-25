@@ -15,22 +15,22 @@
 		
 		</ul></div>
 		<div class="filter-input">
-			<input type="text" placeholder="Filter user group" ng-keydown="onInputFilter($event)"/> 
+			<input type="text" placeholder="Filter pinpoint user" ng-keydown="onInputFilter($event)"/> 
 			<button class="btn btn-warning disabled trash" ng-click="onFilterEmpty()"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
 			<button class="btn btn-warning" ng-click="onFilterGroup()" style="margin-right:2px"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>	       				
 		</div>
 	</div>
-	<div class="some-edit-content hide-me" style="width:300px;">
-		<div style="padding-top:40%">
-			<div class="title-message">Create new pinpoint user</div>
-			<input type="text" placeholder="User ID" name="userID"/>
-			<input type="text" placeholder="Name" name="name"/>
-			<input type="text" placeholder="Department" name="department"/>
-			<input type="text" placeholder="Phone" name="phone"/>
-			<input type="text" placeholder="Email" name="email"/>
-			<div style="padding-top:1px;">
-				<button class="btn btn-warning left" style="margin-left:5%" ng-click="onCancelEdit()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
-				<button class="btn btn-warning right" style="margin-right:5%" ng-click="onApplyEdit()"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
+	<div class="some-edit-content pinpoint hide-me" style="width:300px;">
+		<div class="title-message">Create new pinpoint user</div>
+		<div class="edit-wrapper">
+			<div><span class="title">User ID</span><input type="text" placeholder="user id" name="userID"/></div>
+			<div><span class="title">Name</span><input type="text" placeholder="name" name="name"/></div>
+			<div><span class="title">Department</span><input type="text" placeholder="your department" name="department"/></div>
+			<div><span class="title">Phone</span><input type="text" placeholder="only number" name="phone"/></div>
+			<div><span class="title">Email</span><input type="text" placeholder="your@email.com" name="email"/></div>
+			<div style="padding-top:10px;clear:both">
+				<button class="btn btn-warning left" style="margin-left:4px" ng-click="onCancelEdit()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+				<button class="btn btn-warning right" style="margin-right:4px" ng-click="onApplyEdit()"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
 			</div>
 		</div>
 	</div>
