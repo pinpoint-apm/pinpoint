@@ -54,7 +54,7 @@ public class AcceptUrlFilter implements URLPatternFilter {
     public boolean accept(List<SpanBo> acceptSpanList) {
         for (SpanBo spanBo : acceptSpanList) {
             if (logger.isDebugEnabled()) {
-                logger.debug("url:{} rpc:{}", urlPattern, spanBo.getRpc());
+                logger.debug("urlPattern:{} rpc:{}", urlPattern, spanBo.getRpc());
             }
             if (matcher.match(urlPattern, spanBo.getRpc())) {
                 return ACCEPT;

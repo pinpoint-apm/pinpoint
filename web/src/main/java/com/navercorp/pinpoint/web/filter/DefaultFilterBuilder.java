@@ -97,19 +97,19 @@ public class DefaultFilterBuilder implements FilterBuilder {
         if (StringUtils.isEmpty(jsonFilterText)) {
             throw new IllegalArgumentException("json string is empty");
         }
-        final FilterChain chain = new FilterChain();
+
 
         final List<FilterDescriptor> filterDescriptorList = readFilterDescriptor(jsonFilterText);
         final FilterHint hint = readFilterHint(jsonFilterHint);
         logger.debug("filterHint:{}", hint);
 
-        List<LinkFilter> linkFilter = createLinkFilter(jsonFilterText, chain, filterDescriptorList, hint);
-        chain.addAllFilter(linkFilter);
+        List<LinkFilter> linkFilter = createLinkFilter(jsonFilterText, filterDescriptorList, hint);
+        final FilterChain filterChain = new FilterChain(linkFilter);
 
-        return chain;
+        return filterChain;
     }
 
-    private List<LinkFilter> createLinkFilter(String jsonFilterText, FilterChain chain, List<FilterDescriptor> filterDescriptorList, FilterHint hint) {
+    private List<LinkFilter> createLinkFilter(String jsonFilterText, List<FilterDescriptor> filterDescriptorList, FilterHint hint) {
         final List<LinkFilter> result = new ArrayList<>();
         for (FilterDescriptor descriptor : filterDescriptorList) {
             if (!descriptor.isValid()) {

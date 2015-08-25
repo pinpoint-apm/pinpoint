@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.web.filter.responsetime;
 
-import com.navercorp.pinpoint.web.filter.responsetime.ResponseTimeFilter;
 
 /**
  * @author emeroad

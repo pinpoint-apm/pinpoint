@@ -72,7 +72,7 @@ public class FilterDescriptor {
     }
 
 
-      public Long getResponseTo() {
+    public Long getResponseTo() {
         if (toResponseTime == null) {
             return null;
         } else if ("max".equals(toResponseTime)) {
@@ -153,6 +153,7 @@ public class FilterDescriptor {
     public String getUrl() {
         return url;
     }
+
     @JsonSetter(value = "url")
     public void setUrl(String url) {
         this.url = url;
@@ -161,6 +162,7 @@ public class FilterDescriptor {
     public String getFromAgentName() {
         return fromAgentId;
     }
+
     @JsonSetter(value = "fan")
     public void setFromAgentId(String fromAgentId) {
         this.fromAgentId = fromAgentId;
