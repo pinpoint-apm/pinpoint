@@ -255,8 +255,8 @@
 	height: 100%;
 	background: rgba(0, 0, 0, 0.7);
 }
-#pinpoint-configuration .some-edit-content > div {
-	padding-top: 70%;
+#pinpoint-configuration .some-edit-content > div:first-child {
+	padding-top: 50%;
 	text-align:center;
 }
 #pinpoint-configuration .some-edit-content .title-message {
@@ -266,11 +266,17 @@
 }
 #pinpoint-configuration .some-edit-content input[type=text] {
 	width: 90%;
-	height: 32px;
+	height: 28px;
 	border: none;
-	font-size: 18px;
+	font-size: 16px;
 	text-align: center;
 	margin-top: 1px;
+	border-radius: 4px;
+}
+#pinpoint-configuration .some-edit-content input[type=number], #pinpoint-configuration .some-edit-content textarea {
+	font-size: 16px;
+	border-radius: 4px;
+	border: none;
 }
 #pinpoint-configuration .some-edit-content input[type=checkbox] {
 	font-size: 30px;
@@ -279,6 +285,19 @@
 	font-weight: normal;
 	padding-left: 4px;
 	color: #FFF;
+}
+#pinpoint-configuration .some-edit-content.pinpoint .edit-wrapper {
+	text-align: right;
+}
+#pinpoint-configuration .some-edit-content.pinpoint input[type=text] {
+	width: 70%;
+	position:relative;
+	right: 0px;
+	margin-right: 4px;
+}
+#pinpoint-configuration .some-edit-content.pinpoint span.title {
+	color: #FFF;
+	margin-right: 4px;
 }
 /*
 #pinpoint-configuration .some-list-content li:nth-child(even) {

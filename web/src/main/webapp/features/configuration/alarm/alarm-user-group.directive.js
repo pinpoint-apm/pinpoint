@@ -80,6 +80,10 @@
 	    					selectGroup( $target );
 	    				}
 	    			});
+	    			function reset() {
+	    				$alarmUtilService.unsetFilterBackground( $elWrapper );
+	    				$elFilterInput.val("");
+	    			}
 	    			
 	    			function removeConfirm( $el ) {
 	    				$alarmUtilService.showLoading( $elLoading, false );
@@ -103,6 +107,10 @@
 	    						number: resultData.number,
 	    						id: name
 	    					});
+	    					$alarmBroadcastService.sendInit( resultData.number );
+    						$timeout(function() {
+	    						addSelectClass( resultData.number );
+    						});
 	    					$alarmUtilService.setTotal( $elTotal, userGroupList.length );
 	    					$alarmUtilService.hide( $elLoading, $elEdit );
 	    				}, function( errorData ) {}, $elAlert );
@@ -132,7 +140,7 @@
 			    					$timeout(function() {
 		    							addSelectClass( userGroupList[0].number );
 		    						});
-			    					$alarmBroadcastService.sendReloadWithUserGroup( userGroupList[0].id );
+			    					$alarmBroadcastService.sendReloadWithUserGroupID( userGroupList[0].id );
 		    					} else {
 		    						$alarmBroadcastService.sendSelectionEmpty();
 		    					}
@@ -163,7 +171,7 @@
 	    			scope.onRefresh = function() {
 	    				if ( isRemoving == true ) return;
 	    				$at( $at.MAIN, $at.CLK_ALARM_REFRESH_USER_GROUP );
-	    				$elFilterInput.val("");
+	    				reset();
 	    				$alarmUtilService.showLoading( $elLoading, false );
 	    				loadGroupList( false );
 	    			};

@@ -8,8 +8,8 @@
 	 * @class
 	 */	
 	
-	pinpointApp.directive('alarmPinpointUserDirective', [ '$rootScope', 'helpContentTemplate', 'helpContentService', 'AlarmUtilService', 'AlarmBroadcastService',
-	    function ($rootScope, helpContentTemplate, helpContentService, $alarmUtilService, $alarmBroadcastService) {
+	pinpointApp.directive('alarmPinpointUserDirective', [ '$rootScope', '$timeout', 'helpContentTemplate', 'helpContentService', 'AlarmUtilService', 'AlarmBroadcastService',
+	    function ($rootScope, helpContentTemplate, $timeout, helpContentService, $alarmUtilService, $alarmBroadcastService) {
         return {
             restrict: 'EA',
             replace: true,
@@ -76,7 +76,11 @@
     				}
     			});
     			
-    			
+    			function reset() {
+    				scope.onCancelEdit();
+    				$alarmUtilService.unsetFilterBackground( $elWrapper );
+    				$elFilterInput.val("");
+    			}
     			function moveUser( $el ) {
     				$alarmUtilService.showLoading( $elLoading, false );
     				$alarmBroadcastService.sendUserAdd( searchUser( $alarmUtilService.extractID( $el ) ) );
@@ -180,7 +184,7 @@
     			scope.onRefresh = function() {
     				if ( isRemoving == true ) return;
     				$at( $at.MAIN, $at.CLK_ALARM_REFRESH_PINPOINT_USER );
-    				$elFilterInput.val("");
+    				reset();
     				$alarmUtilService.showLoading( $elLoading, false );
     				loadList( false );
     			};
@@ -205,7 +209,7 @@
     				var $el = $( $event.toElement ).parents("li");
     				var oUser = searchUser( $alarmUtilService.extractID( $el ) );
     				
-    				$elEditGuide.html( "Update user data." );
+    				$elEditGuide.html( "Update pinpoint user data." );
     				$elEditInputUserID.prop("disabled", "disabled");
     				$elEditInputUserID.val( oUser.userId );
     				$elEditInputName.val( oUser.name );
@@ -294,7 +298,7 @@
     					$alarmUtilService.showAlert( $elAlert, "Exist a same user id in the lists." );
     					return;
     				}
-    				if ( validatePhone( userPhone ) ) {
+    				if ( validatePhone( userPhone ) == false ) {
     					$alarmUtilService.showAlert( $elAlert, "You can only input numbers." );
     					return;
     				}
