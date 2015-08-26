@@ -19,18 +19,16 @@ package com.navercorp.pinpoint.plugin.mybatis.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.mybatis.MyBatisPlugin;
 
 /**
  * @author HyunGil Jeong
  */
-public class SqlSessionOperationInterceptor extends SpanEventSimpleAroundInterceptor {
+public class SqlSessionOperationInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public SqlSessionOperationInterceptor(TraceContext context, MethodDescriptor descriptor) {
-        super(SqlSessionOperationInterceptor.class);
-        setTraceContext(context);
-        setMethodDescriptor(descriptor);
+        super(context, descriptor);
     }
 
     @Override
