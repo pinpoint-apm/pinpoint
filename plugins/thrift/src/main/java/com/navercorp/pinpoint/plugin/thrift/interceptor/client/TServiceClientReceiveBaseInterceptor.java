@@ -21,7 +21,7 @@ import org.apache.thrift.TBase;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 
@@ -32,16 +32,13 @@ import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
  * 
  * @author HyunGil Jeong
  */
-public class TServiceClientReceiveBaseInterceptor extends SpanEventSimpleAroundInterceptor implements ThriftConstants {
+public class TServiceClientReceiveBaseInterceptor extends SpanEventSimpleAroundInterceptorForPlugin implements ThriftConstants {
 
     private final boolean traceServiceResult;
     
     public TServiceClientReceiveBaseInterceptor(TraceContext context, MethodDescriptor descriptor, boolean traceServiceResult) {
-        super(TServiceClientReceiveBaseInterceptor.class);
+        super(context, descriptor);
         this.traceServiceResult = traceServiceResult;
-        
-        setTraceContext(context);
-        setMethodDescriptor(descriptor);
     }
     
     @Override
