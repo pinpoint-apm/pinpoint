@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricRegistry;
 import com.navercorp.pinpoint.profiler.monitor.metric.RpcMetric;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 

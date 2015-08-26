@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.collector.receiver.tcp;
 import com.navercorp.pinpoint.collector.receiver.UdpDispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.tcp.TCPReceiver;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 import org.slf4j.Logger;

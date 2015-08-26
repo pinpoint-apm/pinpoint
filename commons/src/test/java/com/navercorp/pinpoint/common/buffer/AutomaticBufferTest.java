@@ -59,10 +59,10 @@ public class AutomaticBufferTest {
         buffer.putPadBytes(test, TOTAL_LENGTH);
 
         byte[] result = buffer.getBuffer();
-        junit.framework.Assert.assertEquals(result.length, TOTAL_LENGTH);
-        junit.framework.Assert.assertTrue("check data", Arrays.equals(Arrays.copyOfRange(test, 0, TEST_SIZE), Arrays.copyOfRange(result, 0, TEST_SIZE)));
+        Assert.assertEquals(result.length, TOTAL_LENGTH);
+        Assert.assertTrue("check data", Arrays.equals(Arrays.copyOfRange(test, 0, TEST_SIZE), Arrays.copyOfRange(result, 0, TEST_SIZE)));
         byte[] padBytes = new byte[TOTAL_LENGTH - TEST_SIZE];
-        junit.framework.Assert.assertTrue("check pad", Arrays.equals(Arrays.copyOfRange(padBytes, 0, TEST_SIZE), Arrays.copyOfRange(result, TEST_SIZE, TOTAL_LENGTH)));
+        Assert.assertTrue("check pad", Arrays.equals(Arrays.copyOfRange(padBytes, 0, TEST_SIZE), Arrays.copyOfRange(result, TEST_SIZE, TOTAL_LENGTH)));
 
     }
 
@@ -111,7 +111,7 @@ public class AutomaticBufferTest {
 
         String padString = new String(result, TOTAL_LENGTH - TEST_SIZE, PAD_SIZE, "UTF-8");
         byte[] padBytes = new byte[TOTAL_LENGTH - TEST_SIZE];
-        junit.framework.Assert.assertEquals("check pad", padString, new String(padBytes, Charset.forName("UTF-8")));
+        Assert.assertEquals("check pad", padString, new String(padBytes, Charset.forName("UTF-8")));
 
     }
 

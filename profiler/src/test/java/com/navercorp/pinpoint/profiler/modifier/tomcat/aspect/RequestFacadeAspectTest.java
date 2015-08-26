@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.modifier.tomcat.aspect;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.profiler.modifier.tomcat.aspect.RequestFacadeAspect;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 

@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.common.bo;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 

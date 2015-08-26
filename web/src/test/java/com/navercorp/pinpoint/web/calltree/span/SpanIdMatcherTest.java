@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.calltree.span;
 import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.web.calltree.span.SpanIdMatcher;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 

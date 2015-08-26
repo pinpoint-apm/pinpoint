@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.web.applicationmap.Node;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 

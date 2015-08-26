@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.common.buffer;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 

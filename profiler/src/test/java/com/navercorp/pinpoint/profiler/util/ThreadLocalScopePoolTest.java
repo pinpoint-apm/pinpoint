@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.instrument.DefaultScopeDefinition;
 import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 import com.navercorp.pinpoint.bootstrap.instrument.ScopeDefinition;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class ThreadLocalScopePoolTest {

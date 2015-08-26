@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.common.util.DefaultTimeSlot;
 import com.navercorp.pinpoint.common.util.TimeSlot;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 import org.slf4j.Logger;

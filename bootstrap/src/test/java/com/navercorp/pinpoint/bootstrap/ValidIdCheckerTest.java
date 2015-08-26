@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.bootstrap;
 
 import java.util.regex.Pattern;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 
