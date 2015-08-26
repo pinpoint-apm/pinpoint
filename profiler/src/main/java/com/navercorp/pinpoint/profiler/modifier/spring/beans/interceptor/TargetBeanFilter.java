@@ -16,19 +16,17 @@
 
 package com.navercorp.pinpoint.profiler.modifier.spring.beans.interceptor;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Set;
 import java.util.regex.Pattern;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 /**
  * 
@@ -40,12 +38,9 @@ public class TargetBeanFilter {
     private static final int CACHE_CONCURRENCY_LEVEL = Runtime.getRuntime().availableProcessors() * 2;
     private static final Object EXIST = new Object();
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
     private final List<Pattern> targetNamePatterns;
     private final List<Pattern> targetClassPatterns;
-    private final List<String> targetAnnotationNames;
-    private final ConcurrentMap<ClassLoader, List<Class<? extends Annotation>>> targetAnnotationMap = new ConcurrentHashMap<ClassLoader, List<Class<? extends Annotation>>>();
+    private final Set<String> targetAnnotationNames;
 
     private final Cache<Class<?>, Object> transformed = createCache();
 
@@ -86,7 +81,7 @@ public class TargetBeanFilter {
     private TargetBeanFilter(List<Pattern> targetNamePatterns, List<Pattern> targetClassPatterns, List<String> targetAnnotationNames) {
         this.targetNamePatterns = targetNamePatterns;
         this.targetClassPatterns = targetClassPatterns;
-        this.targetAnnotationNames = targetAnnotationNames;
+        this.targetAnnotationNames = targetAnnotationNames == null ? null : new HashSet<String>(targetAnnotationNames);
     }
 
     public boolean isTarget(String beanName, Class<?> clazz) {
@@ -115,17 +110,15 @@ public class TargetBeanFilter {
         }
 
         if (targetAnnotationNames != null) {
-            List<Class<? extends Annotation>> targetAnnotations = getTargetAnnotations(clazz.getClassLoader());
-
-            for (Class<? extends Annotation> a : targetAnnotations) {
-                if (clazz.isAnnotationPresent(a)) {
+            for (Annotation a : clazz.getAnnotations()) {
+                if (targetAnnotationNames.contains(a.annotationType().getName())) {
                     return true;
                 }
             }
 
             for (Annotation a : clazz.getAnnotations()) {
-                for (Class<? extends Annotation> ac : targetAnnotations) {
-                    if (a.annotationType().isAnnotationPresent(ac)) {
+                for (Annotation ac : a.annotationType().getAnnotations()) {
+                    if (targetAnnotationNames.contains(ac.annotationType().getName())) {
                         return true;
                     }
                 }
@@ -148,40 +141,6 @@ public class TargetBeanFilter {
 
     public void addTransformed(Class<?> clazz) {
         transformed.put(clazz, EXIST);
-    }
-
-    private List<Class<? extends Annotation>> getTargetAnnotations(ClassLoader classLoader) {
-        ClassLoader nonNull = classLoader == null ? ClassLoader.getSystemClassLoader() : classLoader;
-        
-        List<Class<? extends Annotation>> targetAnnotations = targetAnnotationMap.get(nonNull);
-
-        if (targetAnnotations == null) {
-            targetAnnotations = loadTargetAnnotations(nonNull);
-            targetAnnotationMap.put(nonNull, targetAnnotations);
-        }
-
-        return targetAnnotations;
-    }
-
-    private List<Class<? extends Annotation>> loadTargetAnnotations(ClassLoader loader) {
-        if (targetAnnotationNames.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<Class<? extends Annotation>> targetAnnotationClasses = new ArrayList<Class<? extends Annotation>>(targetAnnotationNames.size());
-        for (String targetAnnotationName : targetAnnotationNames) {
-            try {
-                Class<?> clazz = loader.loadClass(targetAnnotationName);
-                Class<? extends Annotation> ac = clazz.asSubclass(Annotation.class);
-                targetAnnotationClasses.add(ac);
-            } catch (ClassNotFoundException e) {
-                logger.warn("Cannot find Spring beans profile target annotation class: {}. This configuration will be ignored.", targetAnnotationName, e);
-            } catch (ClassCastException e) {
-                logger.warn("Given Spring beans profile target annotation class is not subclass of Annotation: {}. This configuration will be ignored.", targetAnnotationName, e);
-            }
-        }
-
-        return targetAnnotationClasses;
     }
 
     private static List<String> split(String values) {

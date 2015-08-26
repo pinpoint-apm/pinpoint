@@ -16,18 +16,20 @@
 
 package com.navercorp.pinpoint.web.service;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.bo.Span;
 import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.util.AnnotationUtils;
 import com.navercorp.pinpoint.common.util.ApiDescription;
 import com.navercorp.pinpoint.common.util.ApiDescriptionParser;
+import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
+import com.navercorp.pinpoint.web.calltree.span.CallTreeNode;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
@@ -36,6 +38,7 @@ import com.navercorp.pinpoint.web.vo.BusinessTransactions;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.TransactionId;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
+import com.navercorp.pinpoint.web.vo.callstacks.RecordFactory;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 
 import org.slf4j.Logger;
@@ -53,7 +56,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     @Autowired
     private TraceDao traceDao;
-    
+
     @Override
     public BusinessTransactions selectBusinessTransactions(List<TransactionId> transactionIdList, String applicationName, Range range, Filter filter) {
         if (transactionIdList == null) {
@@ -69,7 +72,6 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             // TODO range is not used - check the logic again
             throw new NullPointerException("range must not be null");
         }
-
 
         List<List<SpanBo>> traceList;
 
@@ -97,17 +99,18 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     }
 
     @Override
-    public RecordSet createRecordSet(List<SpanAlign> spanAlignList, long focusTimestamp) {
-        if (spanAlignList == null) {
+    public RecordSet createRecordSet(CallTreeIterator callTreeIterator, long focusTimestamp) {
+        if (callTreeIterator == null) {
             throw new NullPointerException("spanAlignList must not be null");
         }
 
         RecordSet recordSet = new RecordSet();
+        final List<SpanAlign> spanAlignList = callTreeIterator.values();
 
         // finds and marks the focusTimestamp.
         // focusTimestamp is needed to determine which span to use as reference when there are more than 2 spans making up a transaction.
         // for cases where focus cannot be found due to an error, a separate marker is needed.
-        // TODO potential error - because server time is used, there may be more than 2 focusTime due to differences in server times.  
+        // TODO potential error - because server time is used, there may be more than 2 focusTime due to differences in server times.
         SpanBo focusTimeSpanBo = findFocusTimeSpanBo(spanAlignList, focusTimestamp);
         // FIXME patched temporarily for cases where focusTimeSpanBo is not found. Need a more complete solution.
         if (focusTimeSpanBo != null) {
@@ -118,7 +121,6 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             recordSet.setApplicationName(applicationName);
         }
 
-
         // find the startTime to use as reference
         long startTime = getStartTime(spanAlignList);
         recordSet.setStartTime(startTime);
@@ -128,7 +130,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         recordSet.setEndTime(endTime);
 
         final SpanAlignPopulate spanAlignPopulate = new SpanAlignPopulate();
-        List<Record> recordList = spanAlignPopulate.populateSpanRecord(spanAlignList);
+        List<Record> recordList = spanAlignPopulate.populateSpanRecord(callTreeIterator);
         logger.debug("RecordList:{}", recordList);
 
         if (focusTimeSpanBo != null) {
@@ -150,7 +152,6 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             }
         }
     }
-
 
     private long getStartTime(List<SpanAlign> spanAlignList) {
         if (spanAlignList == null || spanAlignList.size() == 0) {
@@ -182,7 +183,6 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         }
     }
 
-
     private SpanBo findFocusTimeSpanBo(List<SpanAlign> spanAlignList, long focusTimestamp) {
         SpanBo firstSpan = null;
         for (SpanAlign spanAlign : spanAlignList) {
@@ -200,335 +200,15 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         return firstSpan;
     }
 
-    private static class SpanAlignPopulate {
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-        private final ApiDescriptionParser apiDescriptionParser = new ApiDescriptionParser();
-
-        // spans with id = 0 are regarded as root - start at 1
-        private int idGen = 1;
-        private final Stack<SpanDepth> stack = new Stack<SpanDepth>();
-
-        private int getNextId() {
-            return idGen++;
+    private String getArgument(final SpanAlign align) {
+        if (align.isSpan()) {
+            return getRpcArgument(align.getSpanBo());
         }
 
-        private List<Record> populateSpanRecord(List<SpanAlign> spanAlignList) {
-            if (spanAlignList == null) {
-                throw new NullPointerException("spanAlignList must not be null");
-            }
-            final List<Record> recordList = new ArrayList<Record>(spanAlignList.size() * 2);
-
-            // annotation id has nothing to do with spanAlign's seq and thus may be incremented as long as they don't overlap. 
-            for (int i = 0; i < spanAlignList.size(); i++) {
-                final SpanAlign spanAlign = spanAlignList.get(i);
-                if (i == 0) {
-                    if (!spanAlign.isSpan()) {
-                        throw new IllegalArgumentException("root is not span");
-                    }
-                    final SpanDepth spanDepth = new SpanDepth(spanAlign, getNextId(), spanAlign.getSpanBo().getStartTime());
-                    stack.push(spanDepth);
-                } else {
-                    final SpanDepth lastSpanDepth = stack.getLast();
-                    final int parentDepth = lastSpanDepth.getSpanAlign().getDepth();
-                    final int currentDepth = spanAlign.getDepth();
-                    logger.debug("parentDepth:{} currentDepth:{} sequence:{}", parentDepth, currentDepth, lastSpanDepth.getId());
-
-                    if (parentDepth < spanAlign.getDepth()) {
-                        // push if parentDepth is smaller
-                        final SpanDepth last = stack.getLast();
-                        final long beforeStartTime = getStartTime(last.getSpanAlign());
-                        final SpanDepth spanDepth = new SpanDepth(spanAlign, getNextId(), beforeStartTime);
-                        stack.push(spanDepth);
-                    } else {
-                        if (parentDepth > currentDepth) {
-                            // pop if parentDepth is larger
-                            // difference in depth may be greater than 1, so pop and check the depth repeatedly until appropriate
-                            SpanDepth lastPopSpanDepth;
-                            while (true) {
-                                logger.trace("pop");
-                                lastPopSpanDepth = stack.pop();
-                                SpanDepth popLast = stack.getLast();
-                                if (popLast.getSpanAlign().getDepth() < currentDepth) {
-                                    break;
-                                }
-                            }
-                            final long beforeLastEndTime = getLastTime(lastPopSpanDepth.getSpanAlign());
-                            stack.push(new SpanDepth(spanAlign, getNextId(), beforeLastEndTime));
-                        } else {
-                            // throw away the object right infront if it has the same depth
-                            final SpanDepth before = stack.pop();
-                            final long beforeLastEndTime = getLastTime(before.getSpanAlign());
-                            stack.push(new SpanDepth(spanAlign, getNextId(), beforeLastEndTime));
-                        }
-                    }
-                }
-
-                if (spanAlign.isSpan()) {
-                    SpanBo spanBo = spanAlign.getSpanBo();
-
-                    String argument = getRpcArgument(spanBo);
-
-                    final long begin = spanBo.getStartTime();
-                    final long elapsed = spanBo.getElapsed();
-                    final int spanBoSequence = stack.getLast().getId();
-                    int parentSequence;
-                    final SpanDepth parent = stack.getParent();
-                    if (parent == null) {
-                        // root span
-                        parentSequence = 0;
-                    } else {
-                        parentSequence = parent.getId();
-                    }
-                    logger.debug("spanBoSequence:{}, parentSequence:{}", spanBoSequence, parentSequence);
-
-
-                    String method = AnnotationUtils.findApiAnnotation(spanBo.getAnnotationBoList());
-                    if (method !=  null) {
-                        ApiDescription apiDescription = apiDescriptionParser.parse(method);
-                        Record record = new Record(spanAlign.getDepth(), 
-                                                    spanBoSequence,
-                                                    parentSequence,
-                                                    true,
-                                                    apiDescription.getSimpleMethodDescription(),
-                                                    argument,
-                                                    begin,
-                                                    elapsed,
-                                                    getGap(stack),
-                                                    spanBo.getAgentId(),
-                                                    spanBo.getApplicationId(),
-                                                    spanBo.getServiceType(),
-                                                    null,
-                                                    spanAlign.isHasChild(),
-                                                    false);
-                        record.setSimpleClassName(apiDescription.getSimpleClassName());
-                        record.setFullApiDescription(method);
-                        recordList.add(record);
-                    } else {
-                        AnnotationKey apiMetaDataError = AnnotationUtils.getApiMetaDataError(spanBo.getAnnotationBoList());
-                        Record record = new Record(spanAlign.getDepth(),
-                                                    spanBoSequence,
-                                                    parentSequence,
-                                                    true,
-                                                    apiMetaDataError.getValue(),
-                                                    argument,
-                                                    begin,
-                                                    elapsed,
-                                                    getGap(stack),
-                                                    spanBo.getAgentId(),
-                                                    spanBo.getApplicationId(),
-                                                    spanBo.getServiceType(),
-                                                    null,
-                                                    spanAlign.isHasChild(),
-                                                    false);
-                        record.setSimpleClassName("");
-                        record.setFullApiDescription("");
-                        recordList.add(record);
-                    }
-                    // add exception record
-                    final Record exceptionRecord = getExceptionRecord(spanAlign, spanBoSequence);
-                    if (exceptionRecord != null) {
-                        recordList.add(exceptionRecord);
-                    }
-
-                    List<Record> annotationRecord = createAnnotationRecord(spanAlign.getDepth() + 1, spanBoSequence, spanBo.getAnnotationBoList());
-                    recordList.addAll(annotationRecord);
-                    if (spanBo.getRemoteAddr() != null) {
-                        Record remoteAddress = createParameterRecord(spanAlign.getDepth() + 1, spanBoSequence, "REMOTE_ADDRESS", spanBo.getRemoteAddr());
-                        recordList.add(remoteAddress);
-                    }
-                } else {
-                    SpanEventBo spanEventBo = spanAlign.getSpanEventBo();
-                    SpanBo spanBo = spanAlign.getSpanBo();
-
-                    String argument = getDisplayArgument(spanEventBo);
-                    final int spanBoEventSequence = stack.getLast().getId();
-                    final SpanDepth parent = stack.getParent();
-                    if (parent == null) {
-                        throw new IllegalStateException("parent is null. stack:" + stack);
-                    }
-                    final int parentSequence = parent.getId();
-                    logger.debug("spanBoEventSequence:{}, parentSequence:{}", spanBoEventSequence, parentSequence);
-
-                    final String method = AnnotationUtils.findApiAnnotation(spanEventBo.getAnnotationBoList());
-                    if (method != null) {
-                        ApiDescription apiDescription = apiDescriptionParser.parse(method);
-                        String destinationId = spanEventBo.getDestinationId();
-
-                        long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
-                        long elapsed = spanEventBo.getEndElapsed();
-
-                        // use spanBo's applicationId instead of spanEventBo's destinationId to display the name of the calling application on the call stack.
-                        Record record = new Record(spanAlign.getDepth(), 
-                                                    spanBoEventSequence,
-                                                    parentSequence,
-                                                    true,
-                                                    apiDescription.getSimpleMethodDescription(),
-                                                    argument,
-                                                    begin,
-                                                    elapsed,
-                                                    getGap(stack),
-                                                    spanEventBo.getAgentId(),
-                                                    spanBo.getApplicationId(),
-                                                    spanEventBo.getServiceType(),
-                                                    /* spanEventBo.getDestinationId(), spanEventBo.getServiceType(),*/
-                                                    destinationId,
-                                                    spanAlign.isHasChild(),
-                                                    false);
-                        record.setSimpleClassName(apiDescription.getSimpleClassName());
-                        record.setFullApiDescription(method);
-
-                        recordList.add(record);
-                    } else {
-                        AnnotationKey apiMetaDataError = AnnotationUtils.getApiMetaDataError(spanEventBo.getAnnotationBoList());
-                        String destinationId = spanEventBo.getDestinationId();
-
-                        long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
-                        long elapsed = spanEventBo.getEndElapsed();
-
-                     // use spanBo's applicationId instead of spanEventBo's destinationId to display the name of the calling application on the call stack.
-                        Record record = new Record(spanAlign.getDepth(),
-                                                    spanBoEventSequence,
-                                                    parentSequence,
-                                                    true,
-                                                    apiMetaDataError.getValue(),
-                                                    argument,
-                                                    begin,
-                                                    elapsed,
-                                                    getGap(stack),
-                                                    spanEventBo.getAgentId(),
-                                                    spanBo.getApplicationId(),
-                                                    spanEventBo.getServiceType(),
-                                                    /*spanEventBo.getDestinationId(), spanEventBo.getServiceType(),*/
-                                                    destinationId,
-                                                    spanAlign.isHasChild(),
-                                                    false);
-                        record.setSimpleClassName("");
-                        record.setFullApiDescription(method);
-
-                        recordList.add(record);
-                    }
-                    // add exception record
-                    final Record exceptionRecord = getExceptionRecord(spanAlign, spanBoEventSequence);
-                    if (exceptionRecord != null) {
-                        recordList.add(exceptionRecord);
-                    }
-
-                    List<Record> annotationRecord = createAnnotationRecord(spanAlign.getDepth() + 1, spanBoEventSequence, spanEventBo.getAnnotationBoList());
-                    recordList.addAll(annotationRecord);
-                }
-            }
-            return recordList;
-        }
-
-        private Record getExceptionRecord(SpanAlign spanAlign, int parentSequence) {
-            if (spanAlign.isSpan()) {
-                final SpanBo spanBo = spanAlign.getSpanBo();
-                if (spanBo.hasException()) {
-                    String simpleExceptionClass = getSimpleExceptionName(spanBo.getExceptionClass());
-                    return new Record(spanAlign.getDepth() + 1, 
-                                        getNextId(),
-                                        parentSequence,
-                                        false,
-                                        simpleExceptionClass,
-                                        spanBo.getExceptionMessage(),
-                                        0L,
-                                        0L,
-                                        0,
-                                        null,
-                                        null,
-                                        null,
-                                        null,
-                                        false,
-                                        false);
-                }
-            } else {
-                final SpanEventBo spanEventBo = spanAlign.getSpanEventBo();
-                if (spanEventBo.hasException()) {
-                    String simpleExceptionClass = getSimpleExceptionName(spanEventBo.getExceptionClass());
-                    return new Record(spanAlign.getDepth() + 1, 
-                                        getNextId(),
-                                        parentSequence,
-                                        false,
-                                        simpleExceptionClass,
-                                        spanEventBo.getExceptionMessage(),
-                                        0L,
-                                        0L,
-                                        0,
-                                        null,
-                                        null,
-                                        null,
-                                        null,
-                                        false,
-                                        true);
-                }
-            }
-            return null;
-        }
-
-        private String getSimpleExceptionName(String exceptionClass) {
-            if (exceptionClass == null) {
-                return "";
-            }
-            final int index = exceptionClass.lastIndexOf('.');
-            if (index != -1) {
-                exceptionClass = exceptionClass.substring(index+1, exceptionClass.length());
-            }
-            return exceptionClass;
-        }
-
-
-        private long getGap(Stack<SpanDepth> stack) {
-            SpanDepth last = stack.getLast();
-            final long lastExecuteTime = last.getLastExecuteTime();
-            SpanAlign spanAlign = last.getSpanAlign();
-            if (spanAlign.isSpan()) {
-                return spanAlign.getSpanBo().getStartTime() - lastExecuteTime;
-            } else {
-                return (spanAlign.getSpanBo().getStartTime() + spanAlign.getSpanEventBo().getStartElapsed()) - lastExecuteTime;
-            }
-        }
-
-        private long getLastTime(SpanAlign spanAlign) {
-            final SpanBo spanBo = spanAlign.getSpanBo();
-            if (spanAlign.isSpan()) {
-                return spanBo.getStartTime() + spanBo.getElapsed();
-            } else {
-                SpanEventBo spanEventBo = spanAlign.getSpanEventBo();
-                return spanBo.getStartTime() + spanEventBo.getStartElapsed() + spanEventBo.getEndElapsed();
-            }
-        }
-
-        private long getStartTime(SpanAlign spanAlign) {
-            final SpanBo spanBo = spanAlign.getSpanBo();
-            if (spanAlign.isSpan()) {
-                return spanBo.getStartTime();
-            } else {
-                return spanBo.getStartTime() + spanAlign.getSpanEventBo().getStartElapsed();
-            }
-        }
-
-
-        private List<Record> createAnnotationRecord(int depth, int parentId, List<AnnotationBo> annotationBoList) {
-            List<Record> recordList = new ArrayList<Record>(annotationBoList.size());
-
-            for (AnnotationBo ann : annotationBoList) {
-                AnnotationKey annotation = AnnotationKey.findAnnotationKey(ann.getKey());
-                if (annotation.isViewInRecordSet()) {
-                    Record record = new Record(depth, getNextId(), parentId, false, annotation.getValue(), ann.getValue().toString(), 0L, 0L, 0, null, null, null, null, false, false);
-                    recordList.add(record);
-                }
-            }
-
-            return recordList;
-        }
-
-        private Record createParameterRecord(int depth, int parentId, String method, String argument) {
-            return new Record(depth, getNextId(), parentId, false, method, argument, 0L, 0L, 0, null, null, null, null, false, false);
-        }
+        return getDisplayArgument(align.getSpanEventBo());
     }
 
-    private static String getDisplayArgument(SpanBo spanBo) {
+    private String getDisplayArgument(SpanBo spanBo) {
         AnnotationBo displayArgument = AnnotationUtils.getDisplayArgument(spanBo);
         if (displayArgument == null) {
             return "";
@@ -536,7 +216,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         return Objects.toString(displayArgument.getValue(), "");
     }
 
-    private static String getDisplayArgument(SpanEventBo spanEventBo) {
+    private String getDisplayArgument(SpanEventBo spanEventBo) {
         AnnotationBo displayArgument = AnnotationUtils.getDisplayArgument(spanEventBo);
         if (displayArgument == null) {
             return "";
@@ -544,11 +224,68 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         return Objects.toString(displayArgument.getValue(), "");
     }
 
-    private static String getRpcArgument(SpanBo spanBo) {
+    private String getRpcArgument(SpanBo spanBo) {
         String rpc = spanBo.getRpc();
         if (rpc != null) {
             return rpc;
         }
         return getDisplayArgument(spanBo);
+    }
+    
+    private class SpanAlignPopulate {
+        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+        private final ApiDescriptionParser apiDescriptionParser = new ApiDescriptionParser();
+
+        // spans with id = 0 are regarded as root - start at 1
+        private int idGen = 1;
+        private final Stack<SpanDepth> stack = new Stack<SpanDepth>();
+        private final RecordFactory factory = new RecordFactory();
+
+        private int getNextId() {
+            return idGen++;
+        }
+
+        private List<Record> populateSpanRecord(CallTreeIterator callTreeIterator) {
+            if (callTreeIterator == null) {
+                throw new NullPointerException("spanAlignList must not be null");
+            }
+            final List<Record> recordList = new ArrayList<Record>(callTreeIterator.size() * 2);
+            
+            // annotation id has nothing to do with spanAlign's seq and thus may be incremented as long as they don't overlap.
+            while (callTreeIterator.hasNext()) {
+                final CallTreeNode node = callTreeIterator.next();
+                if (node == null) {
+                    logger.warn("Corrupt CallTree found : {}", callTreeIterator.toString());
+                    throw new IllegalStateException("CallTree corrupted");
+                }
+                final SpanAlign align = node.getValue();
+                final String argument = getArgument(align);
+                final Record record = factory.get(node, argument);
+                recordList.add(record);
+
+                // add exception record.
+                if (align.hasException()) {
+                    final Record exceptionRecord = factory.getException(record.getTab() + 1, record.getId(), align);
+                    if (exceptionRecord != null) {
+                        recordList.add(exceptionRecord);
+                    }
+                }
+
+                // add annotation record.
+                if (align.getAnnotationBoList().size() > 0) {
+                    final List<Record> annotations = factory.getAnnotations(record.getTab() + 1, record.getId(), align);
+                    recordList.addAll(annotations);
+                }
+
+                // add remote record.(span only)
+                if (align.getRemoteAddr() != null) {
+                    final Record remoteAddressRecord = factory.getParameter(record.getTab() + 1, record.getId(), "REMOTE_ADDRESS", align.getRemoteAddr());
+                    recordList.add(remoteAddressRecord);
+                }
+            }
+
+            return recordList;
+        }
     }
 }
