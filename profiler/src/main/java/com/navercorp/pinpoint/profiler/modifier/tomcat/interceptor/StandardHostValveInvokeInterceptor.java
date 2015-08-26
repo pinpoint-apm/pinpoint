@@ -40,6 +40,8 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     private final boolean isTrace = logger.isTraceEnabled();
     private Filter<String> excludeUrlFilter;
 
+    private RemoteAddressResolver<HttpServletRequest> remoteAddressResolver;
+
     public StandardHostValveInvokeInterceptor() {
         super(StandardHostValveInvokeInterceptor.class);
     }
@@ -58,7 +60,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
             final String endPoint = request.getServerName() + ":" + port;
             trace.recordEndPoint(endPoint);
 
-            final String remoteAddr = request.getRemoteAddr();
+            final String remoteAddr = remoteAddressResolver.resolve(request);
             trace.recordRemoteAddress(remoteAddr);
         }
 
@@ -66,6 +68,59 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
             recordParentInfo(trace, request);
         }
     }
+
+    public static class Bypass<T extends HttpServletRequest> implements RemoteAddressResolver<T> {
+
+        @Override
+        public String resolve(T servletRequest) {
+            return servletRequest.getRemoteAddr();
+        }
+    }
+
+    public static class RealIpHeaderResolver<T extends HttpServletRequest> implements RemoteAddressResolver<T> {
+
+        public static final String X_FORWARDED_FOR = "x-forwarded-for";
+        public static final String X_REAL_IP =  "x-real-ip";
+        public static final String UNKNOWN = "unknown";
+
+        private final String realIpHeaderName;
+        private final String emptyHeaderValue;
+
+        public RealIpHeaderResolver() {
+            this(X_FORWARDED_FOR, UNKNOWN);
+        }
+
+        public RealIpHeaderResolver(String realIpHeaderName, String emptyHeaderValue) {
+            if (realIpHeaderName == null) {
+                throw new NullPointerException("realIpHeaderName must not be null");
+            }
+            this.realIpHeaderName = realIpHeaderName;
+            this.emptyHeaderValue = emptyHeaderValue;
+        }
+
+        @Override
+        public String resolve(T httpServletRequest) {
+            final String realIp = httpServletRequest.getHeader(this.realIpHeaderName);
+
+            if (realIp == null || realIp.isEmpty()) {
+                return httpServletRequest.getRemoteAddr();
+            }
+
+            if (emptyHeaderValue != null && emptyHeaderValue.equalsIgnoreCase(realIp)) {
+                return httpServletRequest.getRemoteAddr();
+            }
+
+            final int firstIndex = realIp.indexOf(',');
+            if (firstIndex == -1) {
+                return realIp;
+            } else {
+                return realIp.substring(0, firstIndex);
+            }
+        }
+    }
+
+
+
 
     @Override
     protected Trace createTrace(Object target, Object[] args) {
@@ -218,5 +273,13 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
 
         this.excludeUrlFilter = profilerConfig.getTomcatExcludeUrlFilter();
+
+        final String proxyIpHeader = profilerConfig.getTomcatRealIpHeader();
+        if (proxyIpHeader == null || proxyIpHeader.isEmpty()) {
+            remoteAddressResolver = new Bypass<HttpServletRequest>();
+        } else {
+            final String tomcatRealIpEmptyValue = profilerConfig.getTomcatRealIpEmptyValue();
+            remoteAddressResolver = new RealIpHeaderResolver<HttpServletRequest>(proxyIpHeader, tomcatRealIpEmptyValue);
+        }
     }
 }

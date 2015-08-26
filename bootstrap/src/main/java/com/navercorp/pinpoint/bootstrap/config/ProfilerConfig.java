@@ -38,7 +38,7 @@ public class ProfilerConfig {
     private final Properties properties;
     private final PropertyPlaceholderHelper propertyPlaceholderHelper = new PropertyPlaceholderHelper("${", "}");
 
-    public static interface ValueResolver {
+    public interface ValueResolver {
         String resolve(String value, Properties properties);
     }
 
@@ -130,6 +130,8 @@ public class ProfilerConfig {
 
     private boolean tomcatHidePinpointHeader = true;
     private Filter<String> tomcatExcludeUrlFilter = new SkipFilter<String>();
+    private String tomcatRealIpHeader;
+    private String tomcatRealIpEmptyValue;
 
     private boolean arucs = true;
     private boolean arucsKeyTrace = false;
@@ -419,6 +421,14 @@ public class ProfilerConfig {
         return tomcatExcludeUrlFilter;
     }
 
+    public String getTomcatRealIpHeader() {
+        return tomcatRealIpHeader;
+    }
+
+    public String getTomcatRealIpEmptyValue() {
+        return tomcatRealIpEmptyValue;
+    }
+
     public boolean isArucs() {
         return arucs;
     }
@@ -677,6 +687,8 @@ public class ProfilerConfig {
         if (!tomcatExcludeURL.isEmpty()) {
             this.tomcatExcludeUrlFilter = new ExcludeUrlFilter(tomcatExcludeURL);
         }
+        this.tomcatRealIpHeader = readString("profiler.tomcat.realipheader", null);
+        this.tomcatRealIpEmptyValue = readString("profiler.tomcat.realipemptyvalue", null);
 
         this.arucs = readBoolean("profiler.arcus", true);
         this.arucsKeyTrace = readBoolean("profiler.arcus.keytrace", false);
@@ -923,6 +935,8 @@ public class ProfilerConfig {
         sb.append(", jdbcProfileDbcpConnectionClose=").append(jdbcProfileDbcpConnectionClose);
         sb.append(", tomcatHidePinpointHeader=").append(tomcatHidePinpointHeader);
         sb.append(", tomcatExcludeUrlFilter=").append(tomcatExcludeUrlFilter);
+        sb.append(", tomcatRealIpHeader=").append(tomcatRealIpHeader);
+        sb.append(", tomcatRealIpEmptyValue=").append(tomcatRealIpEmptyValue);
         sb.append(", arucs=").append(arucs);
         sb.append(", arucsKeyTrace=").append(arucsKeyTrace);
         sb.append(", memcached=").append(memcached);
