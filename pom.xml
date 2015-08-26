@@ -45,6 +45,7 @@
         <module>thrift</module>
         <module>test</module>
         <module>web</module>
+        <module>java8-test</module>
     </modules>
 
     <properties>
