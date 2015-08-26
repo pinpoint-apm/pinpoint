@@ -69,7 +69,6 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         }
     }
 
-    // TODO this code have a classLoader problem. CL problem can be solved by #117(Implement profiler plugin system)
     public static class Bypass<T extends HttpServletRequest> implements RemoteAddressResolver<T> {
 
         @Override
@@ -78,46 +77,44 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         }
     }
 
-    public static class Proxy<T extends HttpServletRequest> implements RemoteAddressResolver<T> {
+    public static class RealIpHeaderResolver<T extends HttpServletRequest> implements RemoteAddressResolver<T> {
 
         public static final String X_FORWARDED_FOR = "x-forwarded-for";
+        public static final String X_REAL_IP =  "x-real-ip";
         public static final String UNKNOWN = "unknown";
 
-        private final String proxyHeaderName;
+        private final String realIpHeaderName;
         private final String emptyHeaderValue;
 
-        public Proxy() {
+        public RealIpHeaderResolver() {
             this(X_FORWARDED_FOR, UNKNOWN);
         }
 
-        public Proxy(String proxyHeaderName, String emptyHeaderValue) {
-            if (proxyHeaderName == null) {
-                throw new NullPointerException("proxyHeaderName must not be null");
+        public RealIpHeaderResolver(String realIpHeaderName, String emptyHeaderValue) {
+            if (realIpHeaderName == null) {
+                throw new NullPointerException("realIpHeaderName must not be null");
             }
-            if (emptyHeaderValue == null) {
-                throw new NullPointerException("emptyHeaderValue must not be null");
-            }
-            this.proxyHeaderName = proxyHeaderName;
+            this.realIpHeaderName = realIpHeaderName;
             this.emptyHeaderValue = emptyHeaderValue;
         }
 
         @Override
         public String resolve(T httpServletRequest) {
-            final String proxyHeader = httpServletRequest.getHeader(this.proxyHeaderName);
+            final String realIp = httpServletRequest.getHeader(this.realIpHeaderName);
 
-            if (proxyHeader == null || proxyHeader.isEmpty()) {
+            if (realIp == null || realIp.isEmpty()) {
                 return httpServletRequest.getRemoteAddr();
             }
 
-            if (emptyHeaderValue.equalsIgnoreCase(proxyHeader)) {
+            if (emptyHeaderValue != null && emptyHeaderValue.equalsIgnoreCase(realIp)) {
                 return httpServletRequest.getRemoteAddr();
             }
 
-            final int firstIndex = proxyHeader.indexOf(',');
+            final int firstIndex = realIp.indexOf(',');
             if (firstIndex == -1) {
-                return proxyHeader;
+                return realIp;
             } else {
-                return proxyHeader.substring(0, firstIndex);
+                return realIp.substring(0, firstIndex);
             }
         }
     }
@@ -277,12 +274,12 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
 
         this.excludeUrlFilter = profilerConfig.getTomcatExcludeUrlFilter();
 
-        // TODO read configuration = profilerConfig.getTomcatProxyHeader();
-        boolean proxyHeaderExist = true;
-        if (proxyHeaderExist) {
-            remoteAddressResolver = new Proxy<HttpServletRequest>();
-        } else {
+        final String proxyIpHeader = profilerConfig.getTomcatRealIpHeader();
+        if (proxyIpHeader == null || proxyIpHeader.isEmpty()) {
             remoteAddressResolver = new Bypass<HttpServletRequest>();
+        } else {
+            final String tomcatRealIpEmptyValue = profilerConfig.getTomcatRealIpEmptyValue();
+            remoteAddressResolver = new RealIpHeaderResolver<HttpServletRequest>(proxyIpHeader, tomcatRealIpEmptyValue);
         }
     }
 }

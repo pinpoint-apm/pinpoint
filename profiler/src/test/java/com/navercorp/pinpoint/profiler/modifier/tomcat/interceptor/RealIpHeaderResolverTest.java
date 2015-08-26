@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.modifier.tomcat.interceptor;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,9 +24,9 @@ import javax.servlet.http.HttpServletRequest;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ProxyTest {
+public class RealIpHeaderResolverTest {
 
-    private final String xForwardedFor = StandardHostValveInvokeInterceptor.Proxy.X_FORWARDED_FOR;
+    private final String xForwardedFor = StandardHostValveInvokeInterceptor.RealIpHeaderResolver.X_FORWARDED_FOR;
 
     @Test
     public void testProxyHeader() {
@@ -36,8 +36,8 @@ public class ProxyTest {
         when(mock.getRemoteAddr()).thenReturn("127.0.0.2");
 
 
-        StandardHostValveInvokeInterceptor.Proxy<HttpServletRequest> proxy = new StandardHostValveInvokeInterceptor.Proxy<HttpServletRequest>();
-        String resolve = proxy.resolve(mock);
+        StandardHostValveInvokeInterceptor.RealIpHeaderResolver<HttpServletRequest> realIpHeaderResolver = new StandardHostValveInvokeInterceptor.RealIpHeaderResolver<HttpServletRequest>();
+        String resolve = realIpHeaderResolver.resolve(mock);
         Assert.assertEquals(resolve, "127.0.0.1");
 
 
@@ -50,8 +50,8 @@ public class ProxyTest {
         when(mock.getHeader(xForwardedFor)).thenReturn("127.0.0.1, proxy1, proxy2");
         when(mock.getRemoteAddr()).thenReturn("127.0.0.2");
 
-        StandardHostValveInvokeInterceptor.Proxy<HttpServletRequest> proxy = new StandardHostValveInvokeInterceptor.Proxy<HttpServletRequest>();
-        String resolve = proxy.resolve(mock);
+        StandardHostValveInvokeInterceptor.RealIpHeaderResolver<HttpServletRequest> realIpHeaderResolver = new StandardHostValveInvokeInterceptor.RealIpHeaderResolver<HttpServletRequest>();
+        String resolve = realIpHeaderResolver.resolve(mock);
         Assert.assertEquals(resolve, "127.0.0.1");
 
     }
@@ -63,8 +63,8 @@ public class ProxyTest {
         when(mock.getHeader(xForwardedFor)).thenReturn("127.0.0.1,");
         when(mock.getRemoteAddr()).thenReturn("127.0.0.2");
 
-        StandardHostValveInvokeInterceptor.Proxy<HttpServletRequest> proxy = new StandardHostValveInvokeInterceptor.Proxy<HttpServletRequest>();
-        String resolve = proxy.resolve(mock);
+        StandardHostValveInvokeInterceptor.RealIpHeaderResolver<HttpServletRequest> realIpHeaderResolver = new StandardHostValveInvokeInterceptor.RealIpHeaderResolver<HttpServletRequest>();
+        String resolve = realIpHeaderResolver.resolve(mock);
         Assert.assertEquals(resolve, "127.0.0.1");
     }
 
@@ -75,8 +75,8 @@ public class ProxyTest {
         when(mock.getRemoteAddr()).thenReturn("127.0.0.2");
 
 
-        StandardHostValveInvokeInterceptor.Proxy<HttpServletRequest> proxy = new StandardHostValveInvokeInterceptor.Proxy<HttpServletRequest>();
-        String resolve = proxy.resolve(mock);
+        StandardHostValveInvokeInterceptor.RealIpHeaderResolver<HttpServletRequest> realIpHeaderResolver = new StandardHostValveInvokeInterceptor.RealIpHeaderResolver<HttpServletRequest>();
+        String resolve = realIpHeaderResolver.resolve(mock);
         Assert.assertEquals(resolve, "127.0.0.2");
 
     }
