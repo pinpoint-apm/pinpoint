@@ -29,6 +29,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue1;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.internal.OperationFuture;
 import net.spy.memcached.ops.Operation;
@@ -70,7 +71,7 @@ public class FutureGetInterceptorTest extends BaseInterceptorTest {
         try {
             when(operation.getException()).thenReturn(null);
             when(operation.isCancelled()).thenReturn(false);
-            when(future.__getOperation()).thenReturn(operation);
+            when(future.__getTraceObject1()).thenReturn(operation);
 
             MemcachedNode node = getMockMemcachedNode();
             when(operation.getHandlingNode()).thenReturn(node);
@@ -103,7 +104,7 @@ public class FutureGetInterceptorTest extends BaseInterceptorTest {
             OperationException exception = new OperationException(OperationErrorType.GENERAL, "timed out");
             when(operation.getException()).thenReturn(exception);
             when(operation.isCancelled()).thenReturn(true);
-            when(future.__getOperation()).thenReturn(operation);
+            when(future.__getTraceObject1()).thenReturn(operation);
 
             MemcachedNode node = getMockMemcachedNode();
             when(operation.getHandlingNode()).thenReturn(node);
@@ -115,7 +116,7 @@ public class FutureGetInterceptorTest extends BaseInterceptorTest {
         }
     }
 
-    class MockOperationFuture extends OperationFuture {
+    class MockOperationFuture extends OperationFuture implements ObjectTraceValue1 {
         public MockOperationFuture(CountDownLatch l, AtomicReference oref,
                 long opTimeout) {
             super(l, oref, opTimeout);
@@ -125,7 +126,13 @@ public class FutureGetInterceptorTest extends BaseInterceptorTest {
             return "MEMCACHED";
         }
 
-        public Operation __getOperation() {
+        @Override
+        public void __setTraceObject1(Object value) {
+
+        }
+
+        @Override
+        public Object __getTraceObject1() {
             return null;
         }
     }

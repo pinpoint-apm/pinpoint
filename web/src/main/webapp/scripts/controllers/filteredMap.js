@@ -2,7 +2,7 @@
 
 pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routeParams', '$timeout', 'TimeSliderVo', 'NavbarVo', 'encodeURIComponentFilter', '$window', 'SidebarTitleVo', 'filteredMapUtil', '$rootElement',
     function (cfg, $scope, $routeParams, $timeout, TimeSliderVo, NavbarVo, encodeURIComponentFilter, $window, SidebarTitleVo, filteredMapUtil, $rootElement) {
-
+		$at($at.FILTEREDMAP_PAGE);
         // define private variables
         var oNavbarVo, oTimeSliderVo, bNodeSelected, bNoData, reloadOnlyForNode, reloadOnlyForLink;
 
@@ -185,7 +185,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
                 oSidebarTitleVo.setTitle(node.applicationName);
                 $scope.$broadcast('scatter.showByNode', node);
             } else if (node.unknownNodeGroup) {
-                oSidebarTitleVo.setTitle('Unknown Group');
+            	oSidebarTitleVo.setTitle( node.serviceType.replace( "_", " " ) );
                 $scope.hasScatter = false;
             } else {
                 oSidebarTitleVo.setTitle(node.applicationName);

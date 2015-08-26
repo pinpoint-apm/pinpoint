@@ -32,6 +32,9 @@ pinpointApp.directive('transactionTable', ['$window', function ($window) {
                     scope.transactionReverse = false;
                     element.find('table tbody tr:last-child')[0].scrollIntoView(true);
 //                    $(".transaction-table_wrapper").animate({ scrollTop: element.find('table tbody tr:last-child').offset().top }, 500);
+                } else {
+	                scope.transactionOrderBy = 'elapsed';
+	                scope.transactionReverse = true;
                 }
                 scope.transactionList = scope.transactionList.concat(transactionList);
                 resetIndexToTransactionList();
@@ -53,6 +56,7 @@ pinpointApp.directive('transactionTable', ['$window', function ($window) {
              * @param transaction
              */
             scope.traceByApplication = function (transaction) {
+            	$at($at.CALLSTACK, $at.CLK_TRANSACTION);
                 scope.currentTransaction = transaction;
                 scope.$emit('transactionTable.applicationSelected', transaction);
             };
@@ -84,6 +88,7 @@ pinpointApp.directive('transactionTable', ['$window', function ($window) {
                 } else {
                     scope.transactionReverse = false;
                 }
+                $at($at.CALLSTACK, $at.ST_ + orderKey.charAt(0).toUpperCase() + orderKey.substring(1), scope.transactionReverse ? $at.DESCENDING : $at.ASCENDING );
                 scope.transactionOrderBy = orderKey;
             };
 

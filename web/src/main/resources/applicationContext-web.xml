@@ -53,7 +53,7 @@
     <import resource="classpath:applicationContext-dao-config.xml" />
     <import resource="classpath:applicationContext-scheduler.xml" />
     -->
-    <!--<import resource="classpath:applicationContext-cache.xml" />-->
+    <import resource="classpath:applicationContext-cache.xml" />
 
     <bean id="spanMapper" class="com.navercorp.pinpoint.web.mapper.SpanMapper"></bean>
     <bean id="annotationMapper" class="com.navercorp.pinpoint.web.mapper.AnnotationMapper"></bean>
@@ -83,6 +83,32 @@
 
     <bean id="pinpointSocketManager" class="com.navercorp.pinpoint.web.server.PinpointSocketManager">
     	<constructor-arg ref="config" />
+    </bean>
+        
+    <bean id="spanServiceImpl" class="com.navercorp.pinpoint.web.service.SpanServiceImpl">
+        <property name="sqlMetaDataDao" ref="hbaseSqlMetaDataCompatibility"/>
+    </bean>
+    
+    <bean id="hbaseSqlMetaDataCompatibility" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlMetaDataCompatibility">
+        <property name="hbaseSqlMetaDataDao" ref="hbaseSqlMetaDataDao"/>
+        <property name="hbaseSqlMetaDataPastVersionDao" ref="hbaseSqlMetaDataPastVersionDao"/>
+    </bean>
+    
+    <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlMetaDataDao">
+        <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor2"></property>
+        <property name="sqlMetaDataMapper" ref="sqlMetaDataMapper2"></property>
+    </bean>
+    <bean id="hbaseSqlMetaDataPastVersionDao" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlMetaDataPastVersionDao">
+        <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor"></property>
+        <property name="sqlMetaDataMapper" ref="sqlMetaDataMapper"></property>
+    </bean>
+    
+    <bean id="sqlMetaDataMapper" class="com.navercorp.pinpoint.web.mapper.SqlMetaDataMapper">
+        <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor"></property>
+    </bean>
+    
+    <bean id="sqlMetaDataMapper2" class="com.navercorp.pinpoint.web.mapper.SqlMetaDataMapper">
+        <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor2"></property>
     </bean>
 
 </beans>

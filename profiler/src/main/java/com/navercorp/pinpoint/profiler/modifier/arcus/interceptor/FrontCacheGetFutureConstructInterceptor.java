@@ -17,9 +17,10 @@
 package com.navercorp.pinpoint.profiler.modifier.arcus.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue3Utils;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue4Utils;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.util.MetaObject;
 
 import net.sf.ehcache.Element;
 
@@ -34,8 +35,7 @@ public class FrontCacheGetFutureConstructInterceptor implements SimpleAroundInte
     // TODO This should be extracted from FrontCacheMemcachedClient.
     private static final String DEFAULT_FRONTCACHE_NAME = "front";
 
-    private MetaObject<Object> setCacheName = new MetaObject<Object>("__setCacheName", String.class);
-    private MetaObject<Object> setCacheKey = new MetaObject<Object>("__setCacheKey", String.class);
+
 
     @Override
     public void before(Object target, Object[] args) {
@@ -49,14 +49,24 @@ public class FrontCacheGetFutureConstructInterceptor implements SimpleAroundInte
         }
 
         try {
-            setCacheName.invoke(target, DEFAULT_FRONTCACHE_NAME);
+            setCacheName(target, DEFAULT_FRONTCACHE_NAME);
 
             if (args[0] instanceof Element) {
-                Element element = (Element) args[0];
-                setCacheKey.invoke(target, element.getObjectKey());
+                final Element element = (Element) args[0];
+                setCacheKey(target, element.getObjectKey());
             }
         } catch (Exception e) {
             logger.error("failed to add metadata: {}", e);
         }
+    }
+
+//    __cacheName->ObjectTrace3
+    private void setCacheName(Object target, Object value) {
+        ObjectTraceValue3Utils.__setTraceObject3(target, value);
+    }
+
+//    __cacheKey->ObjectTrace4
+    private void setCacheKey(Object target, Object value) {
+        ObjectTraceValue4Utils.__setTraceObject4(target, value);
     }
 }

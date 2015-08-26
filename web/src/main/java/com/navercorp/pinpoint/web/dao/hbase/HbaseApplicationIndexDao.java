@@ -16,9 +16,10 @@
 
 package com.navercorp.pinpoint.web.dao.hbase;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Scan;
@@ -45,7 +46,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 
     @Autowired
     @Qualifier("applicationNameMapper")
-    private RowMapper<Application> applicationNameMapper;
+    private RowMapper<List<Application>> applicationNameMapper;
 
     @Autowired
     @Qualifier("agentIdMapper")
@@ -55,7 +56,12 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     public List<Application> selectAllApplicationNames() {
         Scan scan = new Scan();
         scan.setCaching(30);
-        return hbaseOperations2.find(HBaseTables.APPLICATION_INDEX, scan, applicationNameMapper);
+        List<List<Application>> results = hbaseOperations2.find(HBaseTables.APPLICATION_INDEX, scan, applicationNameMapper);
+        List<Application> applications = new ArrayList<Application>();
+        for (List<Application> result : results) {
+            applications.addAll(result);
+        }
+        return applications;
     }
 
     @Override
@@ -89,7 +95,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         byte[] rowKey = Bytes.toBytes(applicationName);
         Delete delete = new Delete(rowKey);
         byte[] qualifier = Bytes.toBytes(agentId);
-        delete.deleteColumns(HBaseTables.APPLICATION_INDEX_CF_AGENTS, qualifier);
+        delete.addColumn(HBaseTables.APPLICATION_INDEX_CF_AGENTS, qualifier);
         hbaseOperations2.delete(HBaseTables.APPLICATION_INDEX, delete);
     }
 }

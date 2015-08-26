@@ -16,10 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +29,7 @@ import java.net.SocketException;
 /**
  * @author emeroad
  */
+@Ignore
 public class UdpSocketTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());

@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.navercorp.pinpoint.bootstrap.util.MetaObject;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
 
@@ -38,12 +39,19 @@ import com.navercorp.pinpoint.common.ServiceType;
  * @author emeroad
  */
 public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+    private final MetaObject<Boolean> isConnected = new MetaObject<Boolean>("__isConnected");
+    private final MetaObject<Boolean> isConnecting = new MetaObject<Boolean>("__isConnecting");
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
+    private final boolean hasConnecting;
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
+    
+    public ConnectMethodInterceptor(boolean hasConnecting) {
+        this.hasConnecting = hasConnecting;
+    }
 
     @Override
     public void before(Object target, Object[] args) {
@@ -56,10 +64,13 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
         }
 
         HttpURLConnection request = (HttpURLConnection) target;
-
+        final boolean setRequestHeader = !isConnected.invoke(target) && (!hasConnecting || !isConnecting.invoke(target));
+        
         final boolean sampling = trace.canSampled();
         if (!sampling) {
-            request.setRequestProperty(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
+            if (setRequestHeader) {
+                request.setRequestProperty(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
+            }
             return;
         }
 
@@ -70,15 +81,16 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
         TraceId nextId = trace.getTraceId().getNextTraceId();
         trace.recordNextSpanId(nextId.getSpanId());
 
-
-        request.setRequestProperty(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
-        request.setRequestProperty(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
-        request.setRequestProperty(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
-
-        request.setRequestProperty(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
-        request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-        request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
-
+        if (setRequestHeader) {
+            request.setRequestProperty(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
+            request.setRequestProperty(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
+            request.setRequestProperty(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
+    
+            request.setRequestProperty(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
+            request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
+            request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
+        }
+        
         trace.recordServiceType(ServiceType.JDK_HTTPURLCONNECTOR);
 
         final URL url = request.getURL();

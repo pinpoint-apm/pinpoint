@@ -29,7 +29,7 @@ pinpointApp
                     scope.htLastUnknownNode = false;
 
                     angular.element($window).bind('resize',function(e) {
-                        if (bShown && htLastNode.category === 'UNKNOWN_GROUP') {
+                        if (bShown && /_GROUP$/.test( htLastNode.category ) ) {
                             renderAllChartWhichIsVisible(htLastNode);
                         }
                     });
@@ -63,9 +63,13 @@ pinpointApp
                         scope.nodeOrderByNameClass = '';
                         scope.nodeOrderByCountClass = 'glyphicon-sort-by-order-alt';
                         scope.nodeOrderByDesc = true;
-                        if (!scope.$$phase) {
-                            scope.$digest();
+
+                        if (!(scope.$$phase == '$apply' || scope.$$phase == '$digest') ) {
+                        	if (!(scope.$root.$$phase == '$apply' || scope.$root.$$phase == '$digest') ) {
+                        		scope.$digest();
+                        	}
                         }
+                        
                     };
 
                     /**
@@ -80,13 +84,13 @@ pinpointApp
                         scope.showNodeServers = _.isEmpty(scope.serverList) ? false : true;
                         scope.agentHistogram = node.agentHistogram;
 
-                        if (node.serviceType !== "UNKNOWN_GROUP") {
+                        if ( /_GROUP$/.test( node.serviceType ) === false ) {
                             scope.showNodeResponseSummary = true;
                             scope.showNodeLoad = true;
 
                             renderResponseSummary('forNode', node.applicationName, node.histogram, '100%', '150px');
                             renderLoad('forNode', node.applicationName, node.timeSeriesHistogram, '100%', '220px', true);
-                        } else if (node.serviceType === 'UNKNOWN_GROUP'){
+                        } else if ( /_GROUP$/.test( node.serviceType ) ){
                             scope.showNodeResponseSummaryForUnknown = (scope.oNavbarVo.getPeriod() <= cfg.maxTimeToShowLoadAsDefaultForUnknown) ? false : true;
                             renderAllChartWhichIsVisible(node);
 //                            scope.htLastUnknownNode = angular.copy(node);
@@ -96,8 +100,13 @@ pinpointApp
                                 element.find('[data-toggle="tooltip"]').tooltip('destroy').tooltip();
                             });
                         }
-                        if (!scope.$$phase) {
-                            scope.$digest();
+//                        if (!scope.$$phase) {
+//                            scope.$digest();
+//                        }
+                        if (!(scope.$$phase == '$apply' || scope.$$phase == '$digest') ) {
+                        	if (!(scope.$root.$$phase == '$apply' || scope.$root.$$phase == '$digest') ) {
+                        		scope.$digest();
+                        	}
                         }
                     };
 
@@ -224,6 +233,7 @@ pinpointApp
                      * @param applicationName
                      */
                     scope.renderNodeAgentCharts = function (applicationName) {
+                    	$at($at.MAIN, $at.CLK_SHOW_GRAPH);
                         if (angular.isDefined(htAgentChartRendered[applicationName])) return;
                         htAgentChartRendered[applicationName] = true;
                         renderResponseSummary(null, applicationName, htLastNode.agentHistogram[applicationName], '100%', '150px');
@@ -299,7 +309,7 @@ pinpointApp
                     /**
                      * scope event on nodeInfoDetails.initialize
                      */
-                    scope.$on('nodeInfoDetails.initialize', function (event, e, query, node, mapData, navbarVo, reloadOnly) {
+                    scope.$on('nodeInfoDetails.initialize', function (event, e, query, node, mapData, navbarVo, reloadOnly, searchQuery) {
                         show();
                         // DISABLE node Cache
                         //if (angular.equals(sLastKey, node.key) && !reloadOnly) {
@@ -314,6 +324,7 @@ pinpointApp
                         htLastNode = node;
                         scope.htLastUnknownNode = false;
                         scope.oNavbarVo = navbarVo;
+                        scope.nodeSearch = searchQuery || "";
                         htServermapData = mapData;
                         showDetailInformation(node);
                     });

@@ -20,6 +20,9 @@ package com.navercorp.pinpoint.common.util;
  * @author emeroad
  */
 public interface ParsingResult {
+
+    int ID_NOT_EXIST = 0;
+
     String getSql();
 
     String getOutput();

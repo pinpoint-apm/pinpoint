@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.common.util.DefaultParsingResult;
 import com.navercorp.pinpoint.common.util.ParsingResult;
 import com.navercorp.pinpoint.exception.PinpointException;
 
@@ -40,7 +39,7 @@ public class MetricTrace implements Trace {
 
     private static final int EXCEPTION_MARK = -1;
 
-    private static final ParsingResult PARSING_RESULT = new DefaultParsingResult("", new StringBuilder());
+    private static final ParsingResult PARSING_RESULT = new DefaultParsingResult("");
 
     private final boolean sampling = false;
 
@@ -363,5 +362,10 @@ public class MetricTrace implements Trace {
     @Override
     public int getStackFrameId() {
         return this.getCurrentStackFrame().getStackFrameId();
+    }
+    
+    @Override
+    public ServiceType getServiceType() {
+        return currentStackFrame.getServiceType();
     }
 }

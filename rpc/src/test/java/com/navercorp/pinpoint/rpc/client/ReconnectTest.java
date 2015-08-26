@@ -17,11 +17,14 @@
 package com.navercorp.pinpoint.rpc.client;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,6 +113,45 @@ public class ReconnectTest {
         
         Assert.assertTrue(reconnectPerformed.get());
     }
+    
+    // it takes very long time. 
+    // @Test
+    @Ignore
+    public void reconnectStressTest() throws IOException, InterruptedException {
+        int count = 3;
+        
+        ThreadMXBean tbean = ManagementFactory.getThreadMXBean();
+
+        int threadCount = tbean.getThreadCount();
+        for (int i = 0; i < count; i++) {
+            logger.info((i + 1) + "th's start.");
+            
+            PinpointServerSocket serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort, new TestSeverMessageListener());
+            PinpointSocket socket = socketFactory.connect("localhost", bindPort);
+            PinpointRPCTestUtils.close(serverSocket);
+
+            logger.info("server.close()---------------------------");
+            Thread.sleep(10000);
+
+            serverSocket = PinpointRPCTestUtils.createServerSocket(bindPort, new TestSeverMessageListener());
+            logger.info("bind server---------------------------");
+
+            Thread.sleep(10000);
+            logger.info("request server---------------------------");
+            byte[] randomByte = TestByteUtils.createRandomByte(10);
+            byte[] response = PinpointRPCTestUtils.request(socket, randomByte);
+
+            Assert.assertArrayEquals(randomByte, response);
+
+            PinpointRPCTestUtils.close(socket);
+            PinpointRPCTestUtils.close(serverSocket);
+        }
+        
+        Thread.sleep(10000);
+
+        Assert.assertEquals(threadCount, tbean.getThreadCount());
+    }
+
 
     @Test
     public void scheduledConnect() throws IOException, InterruptedException {

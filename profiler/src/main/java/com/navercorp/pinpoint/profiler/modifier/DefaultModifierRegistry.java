@@ -60,9 +60,13 @@ import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLPreparedStatementJ
 import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLPreparedStatementModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLStatementModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.OracleDriverModifier;
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.OraclePreparedStatementModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.OraclePreparedStatementWrapperModifier;
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.OracleStatementModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.OracleStatementWrapperModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.PhysicalConnectionModifier;
+import com.navercorp.pinpoint.profiler.modifier.log.log4j.LoggingEventOfLog4jModifier;
+import com.navercorp.pinpoint.profiler.modifier.log.logback.LoggingEventOfLogbackModifier;
 import com.navercorp.pinpoint.profiler.modifier.method.MethodModifier;
 import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.SqlMapClientImplModifier;
 import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.SqlMapSessionImplModifier;
@@ -146,8 +150,10 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         }
 
         // JDK HTTPUrlConnector
-        HttpURLConnectionModifier httpURLConnectionModifier = new HttpURLConnectionModifier(byteCodeInstrumentor, agent);
-        addModifier(httpURLConnectionModifier);
+        if (profilerConfig.isJdkHttpURLConnectionProfile()) {
+            HttpURLConnectionModifier httpURLConnectionModifier = new HttpURLConnectionModifier(byteCodeInstrumentor, agent);
+            addModifier(httpURLConnectionModifier);
+        }
 
         // ning async http client
         addModifier(new AsyncHttpClientModifier(byteCodeInstrumentor, agent));
@@ -320,11 +326,15 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         AbstractModifier oracleConnectionModifier = new PhysicalConnectionModifier(byteCodeInstrumentor, agent);
         addModifier(oracleConnectionModifier);
 
-        AbstractModifier oraclePreparedStatementModifier = new OraclePreparedStatementWrapperModifier(byteCodeInstrumentor, agent);
+        AbstractModifier oraclePreparedStatementWrapperModifier = new OraclePreparedStatementWrapperModifier(byteCodeInstrumentor, agent);
+        addModifier(oraclePreparedStatementWrapperModifier);
+        AbstractModifier oraclePreparedStatementModifier = new OraclePreparedStatementModifier(byteCodeInstrumentor, agent);
         addModifier(oraclePreparedStatementModifier);
 
-        AbstractModifier oracleStatement = new OracleStatementWrapperModifier(byteCodeInstrumentor, agent);
-        addModifier(oracleStatement);
+        AbstractModifier oracleStatementWrapperModifier = new OracleStatementWrapperModifier(byteCodeInstrumentor, agent);
+        addModifier(oracleStatementWrapperModifier);
+        AbstractModifier oracleStatementModifier = new OracleStatementModifier(byteCodeInstrumentor, agent);
+        addModifier(oracleStatementModifier);
         //
         // Modifier oracleResultSetModifier = new OracleResultSetModifier(byteCodeInstrumentor, agent);
         // addModifier(oracleResultSetModifier);
@@ -392,6 +402,18 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             addModifier(new JedisPipelineBaseModifier(byteCodeInstrumentor, agent));
             addModifier(new JedisMultiKeyPipelineBaseModifier(byteCodeInstrumentor, agent));
             addModifier(new JedisPipelineModifier(byteCodeInstrumentor, agent));
+        }
+    }
+    
+    public void addLog4jModifier() {
+        if (profilerConfig.isLog4jLoggingTransactionInfo()) {
+            addModifier(new LoggingEventOfLog4jModifier(byteCodeInstrumentor, agent));
+        }
+    }
+
+    public void addLogbackModifier() {
+        if (profilerConfig.isLogbackLoggingTransactionInfo()) {
+            addModifier(new LoggingEventOfLogbackModifier(byteCodeInstrumentor, agent));
         }
     }
 }

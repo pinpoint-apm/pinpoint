@@ -155,7 +155,7 @@ pinpointApp.factory('filteredMapUtil', [ 'filterConfig', 'encodeURIComponentFilt
              */
             getFilteredMapUrlWithFilterVo: function (oNavbarVo, oServerMapFilterVo, oServerMapHintVo) {
                 var newFilter = this.mergeFilters(oNavbarVo, oServerMapFilterVo),
-                    mainApplication = oServerMapFilterVo.getMainApplication() + '@' + oServerMapFilterVo.getMainServiceTypeCode(),
+                    mainApplication = oServerMapFilterVo.getMainApplication() + '@' + oServerMapFilterVo.getMainServiceTypeName(),
                     url = '#/filteredMap/' + mainApplication + '/' + oNavbarVo.getReadablePeriod() + '/' +
                         oNavbarVo.getQueryEndDateTime() + '/' + encodeURIComponentFilter(JSON.stringify(newFilter));
                 if (oNavbarVo.getHint() || oServerMapHintVo.getHint()) {

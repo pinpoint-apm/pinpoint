@@ -12,22 +12,29 @@ In order to build Pinpoint, the following requirements must be met:
 * JAVA_6_HOME environment variable set to JDK 6 home directory.
 * JAVA_7_HOME environment variable set to JDK 7+ home directory.
 
-JDK 7+ and JAVA_7_HOME environment variable are required to build **profiler-optional**. For more information about the optional package, please take a look [here](../profiler-optional/README.md).
-
-QuickStart supports Linux, and OSX.
+QuickStart supports Linux, OSX, and Windows.
 
 
 ## Starting 
-Download Pinpoint with ```git clone https://github.com/naver/pinpoint.git``` or [download](https://github.com/naver/pinpoint/archive/master.zip) the project as a zip file and unzip.
+Download Pinpoint with `git clone https://github.com/naver/pinpoint.gi`` or [download](https://github.com/naver/pinpoint/archive/master.zip) the project as a zip file and unzip.
 
-Install Pinpoint with maven by ```cd pinpoint``` and running ```mvn install -Dmaven.test.skip=true```
+Install Pinpoint with maven by `cd pinpoint` and running `mvn install -Dmaven.test.skip=true`
 
 ### Install & Start HBase
+
 The following script downloads HBase standalone from [Apache download site](http://apache.mirror.cdnetworks.com/hbase/).
 
-**Download & Start** - Run ```quickstart/bin/start-hbase.sh```
+> **For Windows**, you'll have to download HBase manually from [Apache download site](http://apache.mirror.cdnetworks.com/hbase/).
+> 
+> Download `HBase-1.0.1-bin.tar.gz` and unzip it.
+> 
+> Rename the directory to `hbase` so that the final HBase directory looks like `quickstart\hbase\hbase`.
+> 
+> Also note that you should run the scripts below by their corresponding `.cmd` files.
 
-**Initialize Tables** - Run ```quickstart/bin/init-hbase.sh```
+**Download & Start** - Run `quickstart/bin/start-hbase.sh`
+
+**Initialize Tables** - Run `quickstart/bin/init-hbase.sh`
 
 ### Start Pinpoint Daemons
 

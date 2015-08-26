@@ -16,6 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
+import com.navercorp.pinpoint.bootstrap.util.AntPathMatcher;
+import com.navercorp.pinpoint.bootstrap.util.PathMatcher;
+import com.navercorp.pinpoint.bootstrap.util.EqualsPathMatcher;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +29,7 @@ import java.util.List;
  */
 public class ExcludeUrlFilter implements Filter<String> {
 
-    private final List<String> excludeUrlList;
+    private final List<PathMatcher> excludeMatcherList;
 
     public ExcludeUrlFilter(String excludeFormat) {
         this(excludeFormat, ",");
@@ -33,23 +37,31 @@ public class ExcludeUrlFilter implements Filter<String> {
 
     public ExcludeUrlFilter(String excludeFormat, String separator) {
         if (isEmpty(excludeFormat)) {
-            this.excludeUrlList = Collections.emptyList();
+            this.excludeMatcherList = Collections.emptyList();
             return;
         }
         final String[] split = excludeFormat.split(separator);
-        final List<String> buildList = new ArrayList<String>();
-        for (String value : split) {
-            if (isEmpty(value)) {
+        final List<PathMatcher> buildList = new ArrayList<PathMatcher>();
+        for (String path : split) {
+            if (isEmpty(path)) {
                 continue;
             }
-            value = value.trim();
-            if (value.isEmpty()) {
+            path = path.trim();
+            if (path.isEmpty()) {
                 continue;
             }
-            buildList.add(value);
+            final PathMatcher pathMatcher = createPathMatcher(path);
+            buildList.add(pathMatcher);
         }
 
-        this.excludeUrlList = buildList;
+        this.excludeMatcherList = buildList;
+    }
+
+    protected PathMatcher createPathMatcher(String pattern) {
+        if (AntPathMatcher.isAntStylePattern(pattern)) {
+            return new AntPathMatcher(pattern);
+        }
+        return new EqualsPathMatcher(pattern);
     }
 
     private boolean isEmpty(String string) {
@@ -58,8 +70,8 @@ public class ExcludeUrlFilter implements Filter<String> {
 
     @Override
     public boolean filter(String requestURI) {
-        for (String excludeUrl : this.excludeUrlList) {
-            if (excludeUrl.equals(requestURI)) {
+        for (PathMatcher excludePathMatcher : this.excludeMatcherList) {
+            if (excludePathMatcher.isMatched(requestURI)) {
                 return FILTERED;
             }
         }
@@ -69,7 +81,7 @@ public class ExcludeUrlFilter implements Filter<String> {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ExcludeUrlFilter{");
-        sb.append("excludeUrlList=").append(excludeUrlList);
+        sb.append("excludeMatcherList=").append(excludeMatcherList);
         sb.append('}');
         return sb.toString();
     }

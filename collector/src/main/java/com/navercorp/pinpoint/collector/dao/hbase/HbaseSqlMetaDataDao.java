@@ -33,8 +33,9 @@ import org.springframework.stereotype.Repository;
 
 /**
  * @author emeroad
+ * @author minwoo.jung
  */
-@Repository
+//@Repository
 public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -43,7 +44,7 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
     private HbaseOperations2 hbaseTemplate;
 
     @Autowired
-    @Qualifier("metadataRowKeyDistributor")
+    @Qualifier("metadataRowKeyDistributor2")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     @Override
@@ -63,10 +64,9 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
         String sql = sqlMetaData.getSql();
         byte[] sqlBytes = Bytes.toBytes(sql);
 
-        // added sqlBytes into qualifier intentionally not to conflict hashcode
-        put.add(HBaseTables.SQL_METADATA_CF_SQL, sqlBytes, null);
+        put.addColumn(HBaseTables.SQL_METADATA_VER2_CF_SQL, HBaseTables.SQL_METADATA_VER2_CF_SQL_QUALI_SQLSTATEMENT, sqlBytes);
 
-        hbaseTemplate.put(HBaseTables.SQL_METADATA, put);
+        hbaseTemplate.put(HBaseTables.SQL_METADATA_VER2, put);
     }
 
     private byte[] getDistributedKey(byte[] rowKey) {

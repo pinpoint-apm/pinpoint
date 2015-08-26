@@ -74,8 +74,8 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         // Replace test target with a class loaded by TestClassLoader
         // Cannot override getTestClass() which is used to get test class by JUnit because it's final.
         try {
-            // PinpointJunit4ClassRunner -> BlockJUnit4ClassRunner -> ParentRunner.fTestClass
-            Field testClassField = this.getClass().getSuperclass().getSuperclass().getDeclaredField("fTestClass");
+            // PinpointJunit4ClassRunner -> BlockJUnit4ClassRunner -> ParentRunner.testClass
+            Field testClassField = this.getClass().getSuperclass().getSuperclass().getDeclaredField("testClass");
             testClassField.setAccessible(true);
             testClassField.set(this, this.testContext.getTestClass());
         } catch (Exception e) {

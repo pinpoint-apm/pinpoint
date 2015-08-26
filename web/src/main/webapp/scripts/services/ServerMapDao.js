@@ -21,17 +21,24 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
      * @param callback
      */
      this.getServerMapData = function (query, cb) {
+    	var data = {
+            applicationName: query.applicationName,
+            from: query.from,
+            to: query.to,
+            callerRange: query.callerRange || 2,
+            calleeRange: query.calleeRange || 2
+        };
+    	if ( isNaN( parseInt( query.serviceTypeName ) ) ) {
+    		data.serviceTypeName = query.serviceTypeName; 
+    	} else {
+    		data.serviceTypeCode = query.serviceTypeName;
+    	}
         jQuery.ajax({
             type: 'GET',
             url: cfg.serverMapDataUrl,
             cache: false,
             dataType: 'json',
-            data: {
-                applicationName: query.applicationName,
-                serviceTypeCode: query.serviceTypeCode,
-                from: query.from,
-                to: query.to
-            },
+            data: data,
             success: function (result) {
                 if (angular.isFunction(cb)) {
                     cb(null, query, result);
@@ -53,13 +60,17 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
     this.getFilteredServerMapData = function (query, cb) {
         var data = {
             applicationName: query.applicationName,
-            serviceTypeCode: query.serviceTypeCode,
             from: query.from,
             to: query.to,
             originTo: query.originTo,
             filter: query.filter,
             limit: cfg.FILTER_FETCH_LIMIT
         };
+        if ( isNaN( parseInt( query.serviceTypeName ) ) ) {
+    		data.serviceTypeName = query.serviceTypeName; 
+    	} else {
+    		data.serviceTypeCode = query.serviceTypeName;
+    	}
         if (query.hint) {
             data.hint = query.hint;
         }
@@ -447,167 +458,381 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
      * @param applicationMapData
      * @returns {*}
      */
-    this.mergeUnknown = function (mapData) {
-//        SERVERMAP_METHOD_CACHE = {};
-        var applicationMapData = angular.copy(mapData);
+    this.mergeGroup = function (applicationMapData, mergeTypeList) {
+    //this.mergeGroup = function (mapData, mergeTypeList) {
+    	var self = this;
+        //var applicationMapData = angular.copy(mapData);
         var nodes = applicationMapData.nodeDataArray;
         var links = applicationMapData.linkDataArray;
+        var inboundCountMap = self._getInboundCountMap( nodes, links );
 
-        var inboundCountMap = {};
-        nodes.forEach(function (node) {
-            if (!inboundCountMap[node.key]) {
-                inboundCountMap[node.key] = {
-                    "sourceCount": 0,
-                    "totalCallCount": 0
-                };
-            }
+        mergeTypeList.forEach( function( mergeType ) {
+        	var mergeTypeGroup = mergeType + "_GROUP";
+        	
+            var newNodeList = [];
+            var newLinkList = [];
+            var removeNodeIdSet = {};
+            var removeLinkIdSet = {};
+            
+	        nodes.forEach(function (node, nodeIndex) {
+//	            if (node.category === mergeType) {
+//	                return;
+//	            }
+	            var newNode;
+	            var newLink;
+	            var newNodeKey = mergeTypeGroup + "_" + node.key;
+	
+	            var targetNodeCount = 0;
+	            links.forEach(function (link, linkIndex) {
+	                if (link.from == node.key && link.targetInfo.serviceType == mergeType && inboundCountMap[link.to] && inboundCountMap[link.to].toCount == 1) {
+	                	targetNodeCount++;
+	                }
+	            });
+	            if (targetNodeCount < 2) {
+	                return;
+	            }
 
-            links.forEach(function (link) {
+	            links.forEach(function (link, linkIndex) {
+	                if (link.targetInfo.serviceType != mergeType) {
+	                    return;
+	                }
+	                if (inboundCountMap[link.to] && inboundCountMap[link.to].toCount > 1) {
+	                    return;
+	                }
+	
+	                if (link.from == node.key) {
+	                    if (!newNode) {
+	                    	newNode = self._createNewNode( newNodeKey, mergeTypeGroup );
+	                    }
+	                    if (!newLink) {
+	                    	newLink = self._createNewLink( node.key, newNodeKey );
+	                    }
+	                    self._addToSubNode( newNode, self._getNodeByApplicationName(nodes, link.targetInfo.applicationName, mergeType ), function() {} );
+	                    self._mergeLinkData( newLink, link );	
+	                    newLink.unknownLinkGroup.push(link);
+	
+	//                    $.each(link.histogram, function (key, value) {
+	//                        if (newLink.histogram[key]) {
+	//                            newLink.histogram[key] += value;
+	//                        } else {
+	//                            newLink.histogram[key] = value;
+	//                        }
+	//                    });	
+	                    removeNodeIdSet[link.to] = null;
+	                    removeLinkIdSet[link.key] = null;
+	                }
+	            });
+	
+	            if (newNode) {
+	                newNode.unknownNodeGroup.sort(function (e1, e2) {
+	                    return e2.totalCount - e1.totalCount;
+	                });
+	                newNodeList.push(newNode);
+	            }
+	
+	            if (newLink) {
+	                newLink.unknownLinkGroup.sort(function (e1, e2) {
+	                    return e2.totalCount - e1.totalCount;
+	                });
+	                newLinkList.push(newLink);
+	            }
+	        });
+	        self._addToOriginal( nodes, newNodeList );
+	        self._addToOriginal( links, newLinkList );
+	
+	        self._removeByKey( nodes, removeNodeIdSet );
+	        self._removeByKey( links, removeLinkIdSet );
+        });
+        return applicationMapData;
+    };
+    
+    this._addToOriginal = function( array, newData ) {
+    	newData.forEach(function ( d ) {
+            array.push(d);
+        });
+    };
+    /**
+     * in&out bound count map
+     * @param nodes
+     * @returns {}
+     */
+    this._getInboundCountMap = function( nodes, links ) {
+    	var inboundCountMap = {};
+    	nodes.forEach(function (node) {
+    		var countMap = {
+    			toCount : 0,
+    			fromCount : 0,
+    			totalCallCount : 0
+    		};
+    	    links.forEach(function (link) {
                 if (link.to === node.key) {
-                    inboundCountMap[node.key].sourceCount++;
-                    inboundCountMap[node.key].totalCallCount += link.totalCount;
+                    countMap.toCount++;
+                    countMap.totalCallCount += link.totalCount;
+                }
+                if ( link.from === node.key ) {
+            	    countMap.fromCount++;
                 }
             });
+    	    inboundCountMap[node.key] = countMap;
         });
-
-        var newNodeList = [];
-        var newLinkList = [];
-
-        var removeNodeIdSet = {};
-        var removeLinkIdSet = {};
-
-        function getNodeByApplicationName(applicationName) {
-            for(var k in nodes) {
-                if (applicationName === nodes[k].applicationName) {
-                    return nodes[k];
+    	return inboundCountMap;
+    };
+    this._selectMergeTarget = function( nodes, inboundCountMap ) {
+    	var targetNodeList = [];
+		nodes.forEach(function (node, nodeIndex) {
+			if ( inboundCountMap[node.key].fromCount > 0 ) {
+				return;
+			}
+			if ( inboundCountMap[node.key].toCount < 2 ) {
+				return;
+			}
+			targetNodeList.push( node );
+		});
+		return targetNodeList;
+    }
+    this._getFromNodes = function( links, nodeKey ) {
+    	var fromNodeArray = [];
+    	links.forEach( function( link ) {
+			if ( link.to === nodeKey ) {
+				fromNodeArray.push(link.from );
+			}
+		});
+    	return fromNodeArray;
+    };
+    
+    //this.mergeMultiLinkGroup = function( mapData, mergeTypeList ) {
+    this.mergeMultiLinkGroup = function( applicationMapData, mergeTypeList ) {
+    	var self = this,
+        	//applicationMapData = angular.copy(mapData),
+        	nodes = applicationMapData.nodeDataArray,
+        	links = applicationMapData.linkDataArray,
+        	inboundCountMap = this._getInboundCountMap( nodes, links ),
+        	targetNodeList = this._selectMergeTarget( nodes, inboundCountMap ),
+        	skipKeyMap = {},
+			newNodeList = [],
+        	newLinkList = [],
+        	removeNodeIdSet = {},
+        	removeLinkIdSet = {};
+        
+		targetNodeList.forEach(function(node, nodeIndex) {
+			if ( skipKeyMap[node.key] === true && mergeTypeList.indexOf( node.serviceType ) == -1 ) {
+				return;
+			}
+			skipKeyMap[node.key] = true;
+			var mergeTypeGroup = node.serviceType + "_GROUP";
+            var newNode = null;
+            var newLinks = null;
+            var newNodeKey = mergeTypeGroup + "_" + node.key;
+            var fromNodeArray = self._getFromNodes( links, node.key );
+			
+			targetNodeList.forEach( function( innerNode, innerNodeIndex ) {
+				if ( skipKeyMap[innerNode.key] === true || node.serviceType !== innerNode.serviceType || mergeTypeList.indexOf( innerNode.serviceType ) == -1 ) {
+					return;
+				}
+				
+				var fromNodeArrayOfInner = self._getFromNodes( links, innerNode.key );
+				if ( fromNodeArray.length !== fromNodeArrayOfInner.length ) {
+					return;
+				}
+				
+				for( var i = 0 ; i < fromNodeArray.length ; i++ ) {
+					if ( fromNodeArrayOfInner.indexOf( fromNodeArray[i] ) === -1 ) {
+						return;
+					}
+				}
+				
+				skipKeyMap[innerNode.key] = true;
+				if (newNode === null) {
+                    newNode = self._createNewMultiGroupNode( newNodeKey, mergeTypeGroup );
                 }
-            }
-            return false;
-        }
-
-        nodes.forEach(function (node, nodeIndex) {
-            if (node.category === "UNKNOWN") {
-                return;
-            }
-
-            var newNode;
-            var newLink;
-            var newNodeKey = "UNKNOWN_GROUP_" + node.key;
-
-            var unknownCount = 0;
-            links.forEach(function (link, linkIndex) {
-                if (link.from == node.key &&
-                    link.targetInfo.serviceType == "UNKNOWN" &&
-                    inboundCountMap[link.to] && inboundCountMap[link.to].sourceCount == 1) {
-                    unknownCount++;
+                if (newLinks === null) {
+                	newLinks = [];
+                	for( var i = 0 ; i < fromNodeArrayOfInner.length ; i++ ) {
+                		newLinks.push( self._createNewLink( fromNodeArrayOfInner[i], newNodeKey ) );
+                	}
                 }
-            });
-            if (unknownCount < 2) {
-                return;
-            }
-
-            // for each children.
-            links.forEach(function (link, linkIndex) {
-                if (link.targetInfo.serviceType != "UNKNOWN") {
-                    return;
-                }
-                if (inboundCountMap[link.to] && inboundCountMap[link.to].sourceCount > 1) {
-                    return;
-                }
-
-                // branch out from current node.
-                if (link.from == node.key) {
-                    if (!newNode) {
-                        newNode = {
-                            "key": newNodeKey,
-                            "unknownNodeGroup": [],
-                            "serviceType": "UNKNOWN_GROUP",
-                            "category": "UNKNOWN_GROUP"
-                        };
-                    }
-                    if (!newLink) {
-                        newLink = {
-                            "key": node.key + "-" + newNodeKey,
-                            "from": node.key,
-                            "to": newNodeKey,
-                            "sourceInfo": {},
-                            "targetInfo": [],
-                            "totalCount": 0,
-                            "errorCount": 0,
-                            "slowCount": 0,
-                            "hasAlert": false,
-                            "unknownLinkGroup": [],
-                            "histogram": {}
-                        };
-                    }
-
-                    var thisNode = getNodeByApplicationName(link.targetInfo.applicationName);
-                    delete thisNode.category;
-                    newNode.unknownNodeGroup.push(thisNode);
-
-                    link.targetInfo['totalCount'] = link.totalCount;
-                    newLink.totalCount += link.totalCount;
-                    newLink.errorCount += link.errorCount;
-                    newLink.slowCount += link.slowCount;
-                    newLink.sourceInfo = link.sourceInfo;
-                    if (link.hasAlert) {
-                        newLink.hasAlert = link.hasAlert;
-                    }
-                    newLink.unknownLinkGroup.push(link);
-
-//                    $.each(link.histogram, function (key, value) {
-//                        if (newLink.histogram[key]) {
-//                            newLink.histogram[key] += value;
-//                        } else {
-//                            newLink.histogram[key] = value;
-//                        }
-//                    });
-
-                    removeNodeIdSet[link.to] = null;
-                    removeLinkIdSet[link.key] = null;
-                }
-            });
-
-            if (newNode) {
-                newNode.unknownNodeGroup.sort(function (e1, e2) {
-                    return e2.totalCount - e1.totalCount;
+                self._addToSubNode( newNode, innerNode, function( innerNodeKey ) {
+                	removeNodeIdSet[innerNodeKey] = null;
                 });
-                newNodeList.push(newNode);
-            }
+                self._addToSubLink( links, newLinks, innerNode.key, function( linkKey, link ) {
+                	removeLinkIdSet[linkKey] = null;
+                	var aFrom = /(.*)\^(.*)/.exec( link.from );
+                	var aTo = /(.*)\^(.*)/.exec( link.to );
+                	var hasSubGroupNode = false;
+                	var subGroupItem = null;
+                	var groupIndex = 0;
+                	newNode.subGroup.forEach(function( o, index ) {
+                		if ( o.applicationName === aFrom[1] ) {
+                			hasSubGroupNode = true;
+                			subGroupItem = o;
+                			groupIndex = index;
+                		}
+                	});
+                	if ( hasSubGroupNode == false ) {
+                		subGroupItem = {
+	                		applicationName: aFrom[1],
+	                		groups: [],
+	                		isLast : false
+	                	};
+	                	newNode.subGroup.push( subGroupItem );
+	                	groupIndex = newNode.subGroup.length - 1; 
+                	}
+                	subGroupItem.groups.push({
+                		applicationName: aTo[1],
+                		hasAlert: link.hasAlert,
+                		totalCount: link.totalCount,
+                		serviceType : aTo[2],
+                		key : link.to,
+                		idx : groupIndex
+                	});
+                } );
+			});
+			
+			if ( newNode !== null ) {
+				self._addToSubNode( newNode, node, function( nodeKey ) {
+					removeNodeIdSet[nodeKey] = null;
+				});
+			}
+			if ( newLinks !== null ) {
+				self._addToSubLink( links, newLinks, node.key, function( linkKey, link ) {
+					removeLinkIdSet[linkKey] = null;
+					var aFrom = /(.*)\^(.*)/.exec( link.from );
+                	var aTo = /(.*)\^(.*)/.exec( link.to );
+                	var hasSubGroupNode = false;
+                	var subGroupItem = null;
+                	var groupIndex = 0;
+                	newNode.subGroup.forEach(function( o, index ) {
+                		if ( o.applicationName === aFrom[1] ) {
+                			hasSubGroupNode = true;
+                			subGroupItem = o;
+                			groupIndex = index;
+                		}
+                	});
+                	if ( hasSubGroupNode == false ) {
+                		subGroupItem = {
+	                		applicationName: aFrom[1],
+	                		groups: [],
+	                		isLast: false
+	                	};
+	                	newNode.subGroup.push( subGroupItem );
+	                	groupIndex = newNode.subGroup.length - 1;
+                	}
+                	subGroupItem.groups.push({
+                		applicationName: aTo[1],
+                		hasAlert: link.hasAlert,
+                		totalCount: link.totalCount,
+                		serviceType : aTo[2],
+                		key: link.to,
+                		idx : groupIndex
+                	});
+				});
+			}
+			if ( newNode && newNode.subGroup ) {
+				newNode.subGroup[ newNode.subGroup.length - 1].isLast = true;
+			}
+			
+			if ( newNode !== null && newLinks !== null ) {
+				newNodeList.push( newNode );
+				newLinks.forEach( function( nlink ) {
+					newLinkList.push( nlink );
+				});
+			}
+			newNode = null;
+			newLinks = null;
+		});
 
-            if (newLink) {
-                newLink.unknownLinkGroup.sort(function (e1, e2) {
-                    return e2.totalCount - e1.totalCount;
-                });
-                newLinkList.push(newLink);
-            }
-        });
+        self._addToOriginal( nodes, newNodeList );
+        self._addToOriginal( links, newLinkList );
 
-        newNodeList.forEach(function (newNode) {
-            applicationMapData.nodeDataArray.push(newNode);
-        });
+        self._removeByKey( nodes, removeNodeIdSet );
+        self._removeByKey( links, removeLinkIdSet );
 
-        newLinkList.forEach(function (newLink) {
-            applicationMapData.linkDataArray.push(newLink);
-        });
-
-        $.each(removeNodeIdSet, function (key, val) {
+        return applicationMapData;
+    };
+    this._createNewLink = function( fromKey, toKey ) {
+    	return {
+            "key": fromKey + "-" + toKey,
+            "from": fromKey,
+            "to": toKey,
+            "sourceInfo": {},
+            "targetInfo": [],
+            "totalCount": 0,
+            "errorCount": 0,
+            "slowCount": 0,
+            "hasAlert": false,
+            "unknownLinkGroup": [],
+            "histogram": {}
+        };
+    };
+    this._createNewNode = function( key, type ) {
+    	return {
+            "key": key,
+            "unknownNodeGroup": [],
+            "serviceType": type,
+            "category": type,
+            "instanceCount": 0,
+            "isMultiGroup": false,
+            "isCollapse": true
+        };
+    };
+    this._createNewMultiGroupNode = function( key, type ) {
+    	return {
+            "key": key,
+            "unknownNodeGroup": [],
+            "subGroup": [],
+            "serviceType": type,
+            "category": type,
+            "instanceCount": 0,
+            "isMultiGroup": true,
+            "isCollapse": true
+        };
+    };
+    this._removeByKey = function( nodes, removeIdSet ) {
+    	$.each(removeIdSet, function (key, val) {
             nodes.forEach(function (node, i) {
                 if (node.key == key) {
                     nodes.splice(i, 1);
                 }
             });
         });
-
-        $.each(removeLinkIdSet, function (key, val) {
-            links.forEach(function (link, i) {
-                if (link.key === key) {
-                    links.splice(i, 1);
-                }
-            });
-        });
-
-        return applicationMapData;
+    };
+    this._addToSubNode = function( newNode, subNode, fnCall ) {
+        delete subNode.category;
+    	newNode.instanceCount += subNode.instanceCount;
+    	newNode.unknownNodeGroup.push(subNode);
+        fnCall( subNode.key );
+    };
+    this._addToSubLink = function( links, newLinks, nodeKey, fnCall ) {
+    	var self = this;
+	    links.forEach( function( link ) {
+			if ( link.to === nodeKey ) {
+				newLinks.forEach(function( newLink ) {
+					if ( newLink.from == link.from ) {
+						//link.targetInfo['totalCount'] = link.totalCount;
+						self._mergeLinkData( newLink, link );
+		                newLink.unknownLinkGroup.push(link);								
+					}
+				});
+				fnCall( link.key, link );
+			}
+		});
+    };
+    this._mergeLinkData = function( newLink, oldLink ) {
+    	newLink.totalCount += oldLink.totalCount;
+        newLink.errorCount += oldLink.errorCount;
+        newLink.slowCount += oldLink.slowCount;
+        newLink.sourceInfo = oldLink.sourceInfo;
+        if (oldLink.hasAlert) {
+            newLink.hasAlert = oldLink.hasAlert;
+        }
+    };
+    this._getNodeByApplicationName = function( nodes, applicationName, mergeType ) {
+        for(var k in nodes) {
+            if (applicationName === nodes[k].applicationName && mergeType === nodes[k].serviceType ) {
+                return nodes[k];
+            }
+        }
+        return false;
     };
 
     /**
@@ -626,6 +851,17 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
             }
         });
         return foundNode;
+    };
+    this.getLinkNodeDataByNodeKey = function (applicationMapData, key, fromName) {
+        var links = applicationMapData.linkDataArray;
+
+        var foundLink = false;
+        links.forEach(function (link) {
+            if (link.to === key && link.from.indexOf( fromName ) != -1 ) {
+                foundLink = link;
+            }
+        });
+        return foundLink;
     };
 
     /**

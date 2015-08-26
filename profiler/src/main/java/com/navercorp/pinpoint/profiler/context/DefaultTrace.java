@@ -399,6 +399,15 @@ public final class DefaultTrace implements Trace {
         if (parsingResult == null) {
             return;
         }
+        final boolean isNewCache = traceContext.cacheSql(parsingResult);
+        if (isDebug) {
+            if (isNewCache) {
+                logger.debug("update sql cache. parsingResult:{}", parsingResult);
+            } else {
+                logger.debug("cache hit. parsingResult:{}", parsingResult);
+            }
+        }
+
 //        final String sql = parsingResult.getSql();
         final TIntStringStringValue tSqlValue = new TIntStringStringValue(parsingResult.getId());
         final String output = parsingResult.getOutput();
@@ -531,5 +540,10 @@ public final class DefaultTrace implements Trace {
     public int getStackFrameId() {
         return this.getCurrentStackFrame().getStackFrameId();
 
+    }
+    
+    @Override
+    public ServiceType getServiceType() {
+        return currentStackFrame.getServiceType();
     }
 }                                                                                                                            

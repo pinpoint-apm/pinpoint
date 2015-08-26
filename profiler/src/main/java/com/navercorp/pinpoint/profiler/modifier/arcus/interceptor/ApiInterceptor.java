@@ -22,21 +22,19 @@ import java.util.concurrent.Future;
 
 import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
 import com.navercorp.pinpoint.bootstrap.interceptor.*;
-import com.navercorp.pinpoint.bootstrap.util.MetaObject;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue1Utils;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue2Utils;
 import com.navercorp.pinpoint.common.ServiceType;
 
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.ops.Operation;
+import net.spy.memcached.plugin.FrontCacheGetFuture;
 
 /**
  * @author emeroad
  */
 public class ApiInterceptor extends SpanEventSimpleAroundInterceptor implements ParameterExtractorSupport, TargetClassLoader {
 
-
-    private MetaObject<Object> getOperation = new MetaObject<Object>("__getOperation");
-    private MetaObject<Object> getServiceCode = new MetaObject<Object>("__getServiceCode");
-    
     private ParameterExtractor parameterExtractor;
 
     public ApiInterceptor() {
@@ -60,8 +58,8 @@ public class ApiInterceptor extends SpanEventSimpleAroundInterceptor implements 
         }
 
         // find the target node
-        if (result instanceof Future) {
-            Operation op = (Operation) getOperation.invoke(((Future<?>)result));
+        if (result instanceof Future && !(result instanceof FrontCacheGetFuture)) {
+            final Operation op = getOperation(result);
             if (op != null) {
                 MemcachedNode handlingNode = op.getHandlingNode();
                 SocketAddress socketAddress = handlingNode.getSocketAddress();
@@ -75,7 +73,7 @@ public class ApiInterceptor extends SpanEventSimpleAroundInterceptor implements 
         }
 
         // determine the service type
-        String serviceCode = (String) getServiceCode.invoke(target);
+        final String serviceCode = getServiceCode(target);
         if (serviceCode != null) {
             trace.recordDestinationId(serviceCode);
             trace.recordServiceType(ServiceType.ARCUS);
@@ -85,6 +83,23 @@ public class ApiInterceptor extends SpanEventSimpleAroundInterceptor implements 
         }
 
         trace.markAfterTime();
+    }
+
+    private Operation getOperation(Object result) {
+//        __operation -> ObjectTraceValue1.class
+        final Object operationObject = ObjectTraceValue1Utils.__getTraceObject1(result, null);
+        if (operationObject instanceof Operation) {
+            return (Operation) operationObject;
+        }
+        return null;
+    }
+
+    private String getServiceCode(Object target) {
+        final Object serviceCodeObject = ObjectTraceValue2Utils.__getTraceObject2(target, null);
+        if (serviceCodeObject instanceof String) {
+            return (String) serviceCodeObject;
+        }
+        return null;
     }
 
     @Override

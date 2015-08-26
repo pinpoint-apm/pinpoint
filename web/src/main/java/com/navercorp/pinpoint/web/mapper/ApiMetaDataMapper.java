@@ -23,10 +23,13 @@ import java.util.List;
 import com.navercorp.pinpoint.common.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +39,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author emeroad
+ * @author minwoo.jung
  */
 @Component
 public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
@@ -45,6 +49,8 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
     @Autowired
     @Qualifier("metadataRowKeyDistributor")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+    
+    private final static String API_METADATA_CF_API_QUALI_SIGNATURE  = Bytes.toString(HBaseTables.API_METADATA_CF_API_QUALI_SIGNATURE);
 
     @Override
     public List<ApiMetaDataBo> mapRow(Result result, int rowNum) throws Exception {
@@ -54,12 +60,20 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
         final byte[] rowKey = getOriginalKey(result.getRow());
 
         List<ApiMetaDataBo> apiMetaDataList = new ArrayList<ApiMetaDataBo>();
-        KeyValue[] keyList = result.raw();
-        for (KeyValue keyValue : keyList) {
+        for (Cell cell : result.rawCells()) {
             ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo();
             apiMetaDataBo.readRowKey(rowKey);
-            byte[] qualifier = keyValue.getQualifier();
-            Buffer buffer = new FixedBuffer(qualifier);
+
+            byte[] qualifier = CellUtil.cloneQualifier(cell);
+            byte[] value = null;
+            
+            if (API_METADATA_CF_API_QUALI_SIGNATURE.equals(Bytes.toString(qualifier))) {
+                value = CellUtil.cloneValue(cell);
+            } else {
+                value = qualifier;
+            }
+            
+            Buffer buffer = new FixedBuffer(value);
             String apiInfo = buffer.readPrefixedString();
             int lineNumber = buffer.readInt();
             apiMetaDataBo.setApiInfo(apiInfo);

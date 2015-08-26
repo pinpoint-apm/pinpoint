@@ -41,27 +41,34 @@ import com.navercorp.pinpoint.rpc.client.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterManager;
+import com.navercorp.pinpoint.web.util.PinpointWebTestUtils;
 
+/**
+ * @author Taejin Koo
+ */
 public class ZookeeperClusterTest {
 
-    private static final int DEFAULT_ACCEPTOR_PORT = 9995;
-    private static final int DEFAULT_ZOOKEEPER_PORT = 22213;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static final String DEFAULT_IP = NetUtils.getLocalV4Ip();
+    private static final String DEFAULT_IP = PinpointWebTestUtils.getRepresentationLocalV4Ip();
+
+    private static int acceptorPort;
+    private static int zookeeperPort;
 
     private static final String COLLECTOR_NODE_PATH = "/pinpoint-cluster/collector";
     private static final String COLLECTOR_TEST_NODE_PATH = "/pinpoint-cluster/collector/test";
-
-    private static final String CLUSTER_NODE_PATH = "/pinpoint-cluster/web/" + DEFAULT_IP + ":" + DEFAULT_ACCEPTOR_PORT;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static String CLUSTER_NODE_PATH;;
 
     private static TestingServer ts = null;
 
     @BeforeClass
     public static void setUp() throws Exception {
-        ts = createZookeeperServer(DEFAULT_ZOOKEEPER_PORT);
+        acceptorPort = PinpointWebTestUtils.findAvailablePort();
+        zookeeperPort = PinpointWebTestUtils.findAvailablePort(acceptorPort + 1);
+        
+        CLUSTER_NODE_PATH = "/pinpoint-cluster/web/" + DEFAULT_IP + ":" + acceptorPort;
+        
+        ts = createZookeeperServer(zookeeperPort);
     }
 
     @AfterClass
@@ -82,11 +89,11 @@ public class ZookeeperClusterTest {
         ZooKeeper zookeeper = null;
         ZookeeperClusterManager manager = null;
         try {
-            zookeeper = new ZooKeeper(DEFAULT_IP + ":" + DEFAULT_ZOOKEEPER_PORT, 5000, null);
+            zookeeper = new ZooKeeper(DEFAULT_IP + ":" + zookeeperPort, 5000, null);
             createPath(zookeeper, COLLECTOR_TEST_NODE_PATH, true);
             zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1".getBytes(), -1);
 
-            manager = new ZookeeperClusterManager(DEFAULT_IP + ":" + DEFAULT_ZOOKEEPER_PORT, 5000, 60000);
+            manager = new ZookeeperClusterManager(DEFAULT_IP + ":" + zookeeperPort, 5000, 60000);
             Thread.sleep(3000);
 
             List<String> agentList = manager.getRegisteredAgentList("a", "b", 1L);
@@ -119,11 +126,11 @@ public class ZookeeperClusterTest {
         ZooKeeper zookeeper = null;
         ZookeeperClusterManager manager = null;
         try {
-            zookeeper = new ZooKeeper(DEFAULT_IP + ":" + DEFAULT_ZOOKEEPER_PORT, 5000, null);
+            zookeeper = new ZooKeeper(DEFAULT_IP + ":" + zookeeperPort, 5000, null);
             createPath(zookeeper, COLLECTOR_TEST_NODE_PATH, true);
             zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1".getBytes(), -1);
 
-            manager = new ZookeeperClusterManager(DEFAULT_IP + ":" + DEFAULT_ZOOKEEPER_PORT, 5000, 60000);
+            manager = new ZookeeperClusterManager(DEFAULT_IP + ":" + zookeeperPort, 5000, 60000);
             Thread.sleep(3000);
 
             List<String> agentList = manager.getRegisteredAgentList("a", "b", 1L);

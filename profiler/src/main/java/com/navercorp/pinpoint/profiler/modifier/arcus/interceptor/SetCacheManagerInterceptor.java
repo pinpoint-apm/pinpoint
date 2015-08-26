@@ -18,12 +18,12 @@ package com.navercorp.pinpoint.profiler.modifier.arcus.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue2Utils;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.util.MetaObject;
-
-import net.spy.memcached.CacheManager;
+import net.sf.ehcache.CacheManager;
 import net.spy.memcached.MemcachedClient;
+
 
 /**
  * 
@@ -35,23 +35,36 @@ public class SetCacheManagerInterceptor implements SimpleAroundInterceptor, Targ
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private MetaObject<String> getServiceCode = new MetaObject<String>("__getServiceCode");
-    private MetaObject<String> setServiceCode = new MetaObject<String>("__setServiceCode", String.class);
-
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
 
-        CacheManager cm = (CacheManager) args[0];
-        String serviceCode = getServiceCode.invoke(cm);
-
-        setServiceCode.invoke((MemcachedClient) target, serviceCode);
+        final String serviceCode = getServiceCode(args[0]);
+        setServiceCode(target, serviceCode);
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
 
+    }
+
+//    serviceCode->ObjectTraceValue2
+    private String getServiceCode(Object target) {
+        if (target instanceof MemcachedClient) {
+            final Object serviceCodeObject = ObjectTraceValue2Utils.__getTraceObject2(target, null);
+            if (serviceCodeObject instanceof String) {
+                return (String) serviceCodeObject;
+            }
+        }
+        return null;
+    }
+
+
+    private void setServiceCode(Object target, Object value) {
+        if (target instanceof CacheManager) {
+            ObjectTraceValue2Utils.__setTraceObject2(target, value);
+        }
     }
 }

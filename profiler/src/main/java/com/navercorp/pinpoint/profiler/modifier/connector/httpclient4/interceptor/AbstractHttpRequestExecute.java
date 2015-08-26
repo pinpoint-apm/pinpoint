@@ -63,6 +63,8 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
     protected boolean entity;
     protected DumpType entityDumpType;
     protected SimpleSampler entitySampler;
+    
+    protected boolean statusCode;
 
     public AbstractHttpRequestExecute(Class<? extends AbstractHttpRequestExecute> childClazz) {
         this.logger = PLoggerFactory.getLogger(childClazz);
@@ -159,10 +161,12 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
                 recordHttpRequest(trace, httpRequest, throwable);
             }
 
-            Integer statusCode = getStatusCode(result);
-            
-            if (statusCode != null) {
-                trace.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, statusCode);
+            if (statusCode) {
+                Integer statusCodeValue = getStatusCode(result);
+                
+                if (statusCodeValue != null) {
+                    trace.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, statusCodeValue);
+                }
             }
             
             trace.recordApi(descriptor);
@@ -316,6 +320,7 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
         if (entity) {
             this.entitySampler = SimpleSamplerFactory.createSampler(entity, profilerConfig.getApacheHttpClient4ProfileEntitySamplingRate());
         }
+        this.statusCode = profilerConfig.isApacheHttpClient4ProfileStatusCode();
     }
 
     @Override

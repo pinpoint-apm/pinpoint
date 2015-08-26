@@ -40,7 +40,7 @@ public class LinkDataMap {
 
     public void addLinkData(Application sourceApplication, String sourceAgentId, Application destinationApplication, String destinationAgentId, long timestamp, short slotTime, long count) {
         final LinkData linkData = getLinkData(sourceApplication, destinationApplication);
-        linkData.addLinkData(sourceAgentId, sourceApplication.getServiceTypeCode(), destinationAgentId, destinationApplication.getServiceTypeCode(), timestamp, slotTime, count);
+        linkData.addLinkData(sourceAgentId, sourceApplication.getServiceType(), destinationAgentId, destinationApplication.getServiceType(), timestamp, slotTime, count);
     }
 
 
@@ -76,6 +76,15 @@ public class LinkDataMap {
             linkDataMap.put(key, findLink);
         }
         return findLink;
+    }
+
+    // test api
+    public long getTotalCount() {
+        long totalCount = 0;
+        for (LinkData linkData : linkDataMap.values()) {
+            totalCount += linkData.getTotalCount();
+        }
+        return totalCount;
     }
 
     public int size() {

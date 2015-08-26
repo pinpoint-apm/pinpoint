@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
-
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
+
+import com.navercorp.pinpoint.bootstrap.instrument.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
+import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
 
 /**
  * MethodInfo interceptor
@@ -36,16 +36,18 @@ import org.apache.http.HttpResponse;
  *            throws IOException, ClientProtocolException {
  * </pre>
  * @author emeroad
+ * @author minwoo.jung
  */
-public class HttpRequestExecuteInterceptor extends AbstractHttpRequestExecute implements TargetClassLoader {
+public class HttpRequestExecuteInterceptor extends AbstractHttpRequestExecuteWithDivergence implements TargetClassLoader {
 
     private static final int HTTP_HOST_INDEX = 0;
     private static final int HTTP_REQUEST_INDEX = 1;
 
-    public HttpRequestExecuteInterceptor() {
-        super(HttpRequestExecuteInterceptor.class);
+    
+    public HttpRequestExecuteInterceptor(boolean isHasCallbackParam, Scope scope) {
+        super(HttpRequestExecuteInterceptor.class, isHasCallbackParam, scope);
     }
-
+    
     @Override
     protected NameIntValuePair<String> getHost(Object[] args) {
         final Object arg = args[HTTP_HOST_INDEX];
@@ -64,19 +66,4 @@ public class HttpRequestExecuteInterceptor extends AbstractHttpRequestExecute im
         }
         return null;
     }
-    
-    @Override
-    Integer getStatusCode(Object result) {
-        if (result instanceof HttpResponse) {
-            HttpResponse response = (HttpResponse)result;
-            
-            if (response.getStatusLine() != null) {
-                return response.getStatusLine().getStatusCode(); 
-            }
-        }
-        
-        return null;
-    }
-
-
 }

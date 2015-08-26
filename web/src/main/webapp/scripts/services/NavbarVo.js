@@ -16,6 +16,9 @@ pinpointApp.factory('NavbarVo', function () {
         this._sReadablePeriod = false;
         this._sQueryEndDateTime = false;
         
+        this._nCallerRange = false;
+        this._nCalleeRange = false;
+        
         this._sHint = false;
 
         this._sDateTimeFormat = 'YYYY-MM-DD-HH-mm-ss';
@@ -58,10 +61,21 @@ pinpointApp.factory('NavbarVo', function () {
             return self._sApplication.split('@')[0];
         };
 
-        this.getServiceTypeCode = function () {
+        this.getServiceTypeName = function () {
             return self._sApplication.split('@')[1];
         };
-
+        this.getCallerRange = function() {
+        	return self._nCallerRange;
+        };
+        this.getCalleeRange = function() {
+        	return self._nCalleeRange;
+        };
+        this.setCallerRange = function( callerRange ) {
+        	self._nCallerRange = callerRange;
+        };
+        this.setCalleeRange = function( calleeRange ) {
+        	self._nCalleeRange = calleeRange;
+        };
         this.setQueryStartTime = function (queryStartTime) {
             if (angular.isNumber(queryStartTime) && queryStartTime > 0) {
                 self._nQueryStartTime = queryStartTime;

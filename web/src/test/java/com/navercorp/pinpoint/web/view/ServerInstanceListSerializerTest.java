@@ -16,18 +16,18 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
-import com.navercorp.pinpoint.web.applicationmap.ServerBuilder;
-import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
+import java.util.HashSet;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectWriter;
+import com.navercorp.pinpoint.web.applicationmap.ServerInstanceListTest;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.navercorp.pinpoint.common.bo.AgentInfoBo;
+import com.navercorp.pinpoint.web.applicationmap.ServerBuilder;
+import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
 
 /**
  * @author emeroad
@@ -39,18 +39,15 @@ public class ServerInstanceListSerializerTest {
 
     @Test
     public void testSerialize() throws Exception {
-        AgentInfoBo.Builder agentInfoBuilder = new AgentInfoBo.Builder();
-        agentInfoBuilder.agentId("agentId");
-        agentInfoBuilder.serviceType(ServiceType.TOMCAT);
-        agentInfoBuilder.hostName("testcomputer");
+        AgentInfoBo agentInfoBo = ServerInstanceListTest.createAgentInfo("agentId1", "testHost");
 
-        AgentInfoBo agentInfoBo = agentInfoBuilder.build();
+        HashSet<AgentInfoBo> agentInfoBoSet = new HashSet<AgentInfoBo>();
+        agentInfoBoSet.add(agentInfoBo);
 
-        HashSet<AgentInfoBo> set = new HashSet<AgentInfoBo>();
-        set.add(agentInfoBo);
 
         ServerBuilder builder = new ServerBuilder(null);
-        builder.addAgentInfo(set);
+        builder.addAgentInfo(agentInfoBoSet);
+        
         ServerInstanceList serverInstanceList = builder.build();
         ObjectWriter objectWriter = mapper.writerWithDefaultPrettyPrinter();
         String json = objectWriter.writeValueAsString(serverInstanceList);

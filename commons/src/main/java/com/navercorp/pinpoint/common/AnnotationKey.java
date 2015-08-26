@@ -76,7 +76,7 @@ public enum AnnotationKey {
 
     // ARCUS_COMMAND(50, "arcus.command"),
     
-    NPC_URL(60, "npc.url"),
+    NPC_URL(60, "npc.url", true),
     NPC_PARAM(61, "npc.param"),
     NPC_CONNECT_OPTION(62, "npc.connect.options"),
 

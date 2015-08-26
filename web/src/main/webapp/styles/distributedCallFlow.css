@@ -60,6 +60,11 @@
 .slick-row.active {
     background: #DFE8F6;
 }
+.slick-row.entry-point {
+    background: #DFF0D8;
+    color: #1469EB;
+}
+
 
 .slick-cell {
     padding: 0 4px;

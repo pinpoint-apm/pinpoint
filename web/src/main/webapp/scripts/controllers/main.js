@@ -2,7 +2,7 @@
 
 pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$routeParams', 'location', 'NavbarVo', 'encodeURIComponentFilter', '$window', 'SidebarTitleVo', 'filteredMapUtil', '$rootElement', 'helpContent',
     function (cfg, $scope, $timeout, $routeParams, location, NavbarVo, encodeURIComponentFilter, $window, SidebarTitleVo, filteredMapUtil, $rootElement, helpContent) {
-
+		$at($at.MAIN_PAGE);
         // define private variables
         var oNavbarVo, bNodeSelected, bNoData;
 
@@ -146,7 +146,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
         /**
          * scope event on serverMap.nodeClicked
          */
-        $scope.$on('serverMap.nodeClicked', function (event, e, query, node, data) {
+        $scope.$on('serverMap.nodeClicked', function (event, e, query, node, data, searchQuery) {
             bNodeSelected = true;
             var oSidebarTitleVo = new SidebarTitleVo;
             oSidebarTitleVo.setImageType(node.serviceType);
@@ -156,7 +156,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
                 oSidebarTitleVo.setTitle(node.applicationName);
                 $scope.$broadcast('scatter.initializeWithNode', node);
             } else if (node.unknownNodeGroup) {
-                oSidebarTitleVo.setTitle('Unknown Group');
+                oSidebarTitleVo.setTitle( node.serviceType.replace( "_", " " ) );
                 $scope.hasScatter = false;
             } else {
                 oSidebarTitleVo.setTitle(node.applicationName);
@@ -164,7 +164,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             }
             $scope.hasFilter = false;
             $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
-            $scope.$broadcast('nodeInfoDetails.initialize', e, query, node, data, oNavbarVo);
+            $scope.$broadcast('nodeInfoDetails.initialize', e, query, node, data, oNavbarVo, null, searchQuery);
             $scope.$broadcast('linkInfoDetails.hide');
 
             $scope.refreshHelpIcons();
@@ -261,7 +261,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             oSidebarTitleVo
                 .setImageType(node.serviceType);
             if (node.unknownNodeGroup) {
-                oSidebarTitleVo.setTitle('Unknown Group');
+                oSidebarTitleVo.setTitle( node.serviceType.replace( "_", " " ) );
                 $scope.hasScatter = false;
             } else {
                 oSidebarTitleVo.setTitle(node.applicationName);
@@ -353,6 +353,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
          * on after overlay creation
          */
         $scope.onAfterOverlayCreation = function () {
+        	$at($at.MAIN, $at.CLK_HELP);
             $rootElement.find('#copyright').show();
         };
 
@@ -362,5 +363,15 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
         $scope.onBeforeOverlayRemoval = function () {
             $rootElement.find('#copyright').hide();
         };
-
+        $scope.loadingOption = {
+        	hideTip : "init"
+        };
+        $scope.$watch( 'loadingOption.hideTip', function(newValue) {
+        	if ( newValue == "init" ) return;
+    		if ( $window.localStorage ) {
+    			var now = new Date();
+    			now.setDate(now.getDate() + 30);
+        		$window.localStorage.setItem( "__HIDE_LOADING_TIP", newValue ? now.valueOf() : "-" ); 
+        	}
+        });
     } ]);

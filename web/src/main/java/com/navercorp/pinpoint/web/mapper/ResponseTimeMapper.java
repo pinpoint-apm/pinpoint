@@ -19,46 +19,60 @@ package com.navercorp.pinpoint.web.mapper;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
 
 /**
  * @author emeroad
  */
 @Component
 public class ResponseTimeMapper implements RowMapper<ResponseTime> {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Override
     public ResponseTime mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return null;
         }
+
         final byte[] rowKey = result.getRow();
         ResponseTime responseTime = createResponseTime(rowKey);
 
-        for (KeyValue keyValue : result.raw()) {
-            if (!Bytes.equals(keyValue.getFamily(), HBaseTables.MAP_STATISTICS_SELF_CF_COUNTER)) {
-                continue;
+        for (Cell cell : result.rawCells()) {
+            if (CellUtil.matchingFamily(cell, HBaseTables.MAP_STATISTICS_SELF_CF_COUNTER)) {
+                recordColumn(responseTime, cell);
             }
-            byte[] qualifier = keyValue.getQualifier();
 
-            recordColumn(responseTime, qualifier, keyValue.getBuffer(), keyValue.getValueOffset());
+            if (logger.isDebugEnabled()) {
+                logger.debug("unknown column family:{}", Arrays.toString(CellUtil.cloneFamily(cell)));
+            }
         }
         return responseTime;
     }
 
 
 
-    void recordColumn(ResponseTime responseTime, byte[] qualifier, byte[] value, int valueOffset) {
-        short slotNumber = Bytes.toShort(qualifier);
+    void recordColumn(ResponseTime responseTime, Cell cell) {
+        final byte[] qArray = cell.getQualifierArray();
+        final int qOffset = cell.getQualifierOffset();
+        short slotNumber = Bytes.toShort(qArray, qOffset);
+
         // agentId should be added as data.
-        String agentId = Bytes.toString(qualifier, 2, qualifier.length - 2);
-        long count = Bytes.toLong(value, valueOffset);
+        String agentId = Bytes.toString(qArray, qOffset + BytesUtils.SHORT_BYTE_LENGTH, cell.getQualifierLength() - BytesUtils.SHORT_BYTE_LENGTH);
+        long count = Bytes.toLong(cell.getValueArray(), cell.getValueOffset());
         responseTime.addResponseTime(agentId, slotNumber, count);
     }
 

@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.profiler.modifier.connector.jdkhttpconnector;
 
 import java.security.ProtectionDomain;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
@@ -25,16 +28,14 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.jdkhttpconnector.interceptor.ConnectMethodInterceptor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * TODO Fix class loader issue.
  * @author netspider
  * 
  */
 public class HttpURLConnectionModifier extends AbstractModifier {
-
+    private final static String SCOPE = "HttpURLConnectoin";
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public HttpURLConnectionModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
@@ -52,9 +53,27 @@ public class HttpURLConnectionModifier extends AbstractModifier {
 
         try {
             InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
-            ConnectMethodInterceptor connectMethodInterceptor = new ConnectMethodInterceptor();
-            aClass.addInterceptor("connect", null, connectMethodInterceptor);
+            
+            aClass.addGetter("__isConnected", "connected", "boolean");
+            
+            boolean hasConnecting;
+            try {
+                aClass.addGetter("__isConnecting", "connecting", "boolean");
+                hasConnecting = true;
+            } catch (InstrumentException e) {
+                hasConnecting = false;
+            }
 
+            ConnectMethodInterceptor connectMethodInterceptor = new ConnectMethodInterceptor(hasConnecting);
+            aClass.addScopeInterceptor("connect", null, connectMethodInterceptor, SCOPE);
+            
+            ConnectMethodInterceptor getInputStreamInterceptor = new ConnectMethodInterceptor(hasConnecting);
+            aClass.addScopeInterceptor("getInputStream", null, getInputStreamInterceptor, SCOPE);
+            
+            ConnectMethodInterceptor getOutputStreamInterceptor = new ConnectMethodInterceptor(hasConnecting);
+            aClass.addScopeInterceptor("getOutputStream", null, getOutputStreamInterceptor, SCOPE);
+            
+            
             return aClass.toBytecode();
         } catch (InstrumentException e) {
             logger.warn("HttpURLConnectionModifier fail. Caused:", e.getMessage(), e);

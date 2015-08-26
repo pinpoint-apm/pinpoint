@@ -21,10 +21,38 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.*;
-import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtBehavior;
+import javassist.CtClass;
+import javassist.CtConstructor;
+import javassist.CtField;
+import javassist.CtMethod;
+import javassist.CtNewMethod;
+import javassist.NotFoundException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.instrument.DefaultScopeDefinition;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.Scope;
+import com.navercorp.pinpoint.bootstrap.instrument.ScopeDefinition;
+import com.navercorp.pinpoint.bootstrap.instrument.Type;
+import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry;
+import com.navercorp.pinpoint.bootstrap.interceptor.LoggingInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.profiler.interceptor.DebugScopeDelegateSimpleInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.DebugScopeDelegateStaticInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
@@ -32,11 +60,6 @@ import com.navercorp.pinpoint.profiler.interceptor.ScopeDelegateSimpleIntercepto
 import com.navercorp.pinpoint.profiler.interceptor.ScopeDelegateStaticInterceptor;
 import com.navercorp.pinpoint.profiler.util.ApiUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-
-import javassist.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author emeroad
@@ -154,7 +177,7 @@ public class JavaAssistClass implements InstrumentClass {
     @Deprecated
     private void addTraceVariable0(String variableName, String setterName, String getterName, String variableType, String initValue) throws InstrumentException {
         try {
-            CtClass type = instrumentor.getClassPool().get(variableType);
+            CtClass type = getClassPool().get(variableType);
             CtField traceVariable = new CtField(type, variableName, ctClass);
             if (initValue == null) {
                 ctClass.addField(traceVariable);
@@ -200,7 +223,7 @@ public class JavaAssistClass implements InstrumentClass {
         }
 
         try {
-            final CtClass ctValueHandler = instrumentor.getClassPool().get(traceValue.getName());
+            final CtClass ctValueHandler = instrumentor.getClass(traceValue.getClassLoader(), traceValue.getName());
 
             final java.lang.reflect.Method[] declaredMethods = traceValue.getDeclaredMethods();
             final String variableName = FIELD_PREFIX + ctValueHandler.getSimpleName();
@@ -235,8 +258,6 @@ public class JavaAssistClass implements InstrumentClass {
             throw new InstrumentException(traceValue + " implements fail. Cause:" + e.getMessage(), e);
         }
     }
-
-
 
     private boolean checkTraceValueMarker(Class<?> traceValue) {
         for (Class<?> anInterface : traceValue.getInterfaces()) {
@@ -283,7 +304,7 @@ public class JavaAssistClass implements InstrumentClass {
         } else {
             resolveType = setterType;
         }
-        CtClass type = instrumentor.getClassPool().get(resolveType.getName());
+        CtClass type = getClassPool().get(resolveType.getName());
         return new CtField(type, variableName, ctClass);
     }
 
@@ -445,10 +466,10 @@ public class JavaAssistClass implements InstrumentClass {
     private int addInterceptor0(CtBehavior behavior, String methodName, Interceptor interceptor, int interceptorId, Type type) throws InstrumentException, NotFoundInstrumentException {
         try {
             if (interceptor != null) {
-                if(interceptor instanceof StaticAroundInterceptor) {
+                if (interceptor instanceof StaticAroundInterceptor) {
                     StaticAroundInterceptor staticAroundInterceptor = (StaticAroundInterceptor) interceptor;
                     interceptorId = InterceptorRegistry.addInterceptor(staticAroundInterceptor);
-                } else if(interceptor instanceof SimpleAroundInterceptor) {
+                } else if (interceptor instanceof SimpleAroundInterceptor) {
                     SimpleAroundInterceptor simpleAroundInterceptor = (SimpleAroundInterceptor) interceptor;
                     interceptorId = InterceptorRegistry.addSimpleInterceptor(simpleAroundInterceptor);
                 } else {
@@ -495,7 +516,7 @@ public class JavaAssistClass implements InstrumentClass {
         } catch (NotFoundException e) {
             throw new InstrumentException(getInterceptorName(interceptor) + " add fail. Cause:" + e.getMessage(), e);
         } catch (CannotCompileException e) {
-            throw new InstrumentException(getInterceptorName(interceptor) + "add fail. Cause:" + e.getMessage(), e);
+            throw new InstrumentException(getInterceptorName(interceptor) + " add fail. Cause:" + e.getMessage(), e);
         }
     }
 
@@ -571,10 +592,11 @@ public class JavaAssistClass implements InstrumentClass {
     }
 
     @Override
-    public void weaving(String adviceClassName) throws InstrumentException {
+    public void weaving(String adviceClassName, ClassLoader loader) throws InstrumentException {
+        final NamedClassPool classPool = instrumentor.getClassPool(loader);
         CtClass adviceClass;
         try {
-            adviceClass = this.instrumentor.getClassPool().get(adviceClassName);
+            adviceClass = classPool.get(adviceClassName);
         } catch (NotFoundException e) {
             throw new NotFoundInstrumentException(adviceClassName + " not found. Caused:" + e.getMessage(), e);
         }
@@ -636,9 +658,13 @@ public class JavaAssistClass implements InstrumentClass {
         if (isDebug) {
             logger.debug("addAfterInterceptor catch behavior:{} code:{}", behavior.getLongName(), buildCatch);
         }
-        CtClass th = instrumentor.getClassPool().get("java.lang.Throwable");
+        CtClass th = getClassPool().get("java.lang.Throwable");
         behavior.addCatch(buildCatch, th);
 
+    }
+
+    private ClassPool getClassPool() {
+        return ctClass.getClassPool();
     }
 
     private String getTargetIdentifier(CtBehavior behavior) {
@@ -913,12 +939,14 @@ public class JavaAssistClass implements InstrumentClass {
        return null;
    }
 
-    @Override
+   @Override
    public void addGetter(String getterName, String variableName, String variableType) throws InstrumentException {
        try {
-           // FIXME Which is better? getField() or getDeclaredField()? getFiled() seems like better chioce if we want to add getter to child classes.
            CtField traceVariable = ctClass.getField(variableName);
-           CtMethod getterMethod = CtNewMethod.getter(getterName, traceVariable);
+           // CtNewMethod.getter() returns a CtMethod binded to the class which declared the variable.
+           // It makes us cannot add the getter to a child class of the declaring class.
+           // So we use CtNewMethod.make() instead.
+           CtMethod getterMethod = CtNewMethod.make("public " + traceVariable.getType().getName() + " " + getterName + "() { return " + variableName + "; }", ctClass);
            ctClass.addMethod(getterMethod);
        } catch (NotFoundException ex) {
            throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);

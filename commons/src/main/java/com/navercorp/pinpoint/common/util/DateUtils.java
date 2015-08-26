@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import org.springframework.core.NamedThreadLocal;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -27,7 +25,10 @@ import java.util.Date;
  */
 public final class DateUtils {
 
-    private static final NamedThreadLocal<DateFormat> CACHE = new NamedThreadLocal<DateFormat>(DateUtils.class.getName()) {
+    private static final ThreadLocal<DateFormat> CACHE = new ThreadLocal<DateFormat>() {
+        @SuppressWarnings("unused")
+        private final String name = DateUtils.class.getName();
+
         @Override
         protected DateFormat initialValue() {
             return new SimpleDateFormat(FORMAT);

@@ -60,7 +60,7 @@ public class HbaseAgentIdApplicationIndexDao implements AgentIdApplicationIndexD
         byte[] appNameByte = Bytes.toBytes(applicationName);
 
         Put put = new Put(agentIdByte);
-        put.add(AGENTID_APPLICATION_INDEX_CF_APPLICATION, appNameByte, appNameByte);
+        put.addColumn(AGENTID_APPLICATION_INDEX_CF_APPLICATION, appNameByte, appNameByte);
 
         hbaseTemplate.put(AGENTID_APPLICATION_INDEX, put);
     }

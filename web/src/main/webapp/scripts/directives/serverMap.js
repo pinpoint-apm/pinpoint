@@ -3,6 +3,7 @@
 pinpointApp.constant('serverMapConfig', {
     options: {
         "sContainerId": 'servermap',
+        "sOverviewId": 'servermapOverview',
         "sBigFont": "11pt Lato,NanumGothic,ng,dotum,AppleGothic,sans-serif",
         "sSmallFont": "11pt Lato,NanumGothic,ng,dotum,AppleGothic,sans-serif",
         "sImageDir": '/images/servermap/',
@@ -17,7 +18,8 @@ pinpointApp.constant('serverMapConfig', {
                 "fontFamily": "11pt Lato,NanumGothic,ng,dotum,AppleGothic,sans-serif",
                 "fontColor": "#000000",
                 "fontAlign": "center",
-                "margin": 1
+                "margin": 1,
+                "strokeWidth": 1
             },
             "bad": {
                 "backgroundColor": "#ffc9c9",
@@ -25,14 +27,15 @@ pinpointApp.constant('serverMapConfig', {
                 "fontFamily": "11pt Lato,NanumGothic,ng,dotum,AppleGothic,sans-serif",
                 "fontColor": "#FF1300",
                 "fontAlign": "center",
-                "margin": 1
+                "margin": 1,
+                "strokeWidth": 1
             }
         }
     }
 });
 
-pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts', 'ProgressBar', 'SidebarTitleVo', '$filter', 'ServerMapFilterVo', 'encodeURIComponentFilter', 'filteredMapUtil', '$base64', 'ServerMapHintVo', '$timeout',
-    function (cfg, ServerMapDao, Alerts, ProgressBar, SidebarTitleVo, $filter, ServerMapFilterVo, encodeURIComponentFilter, filteredMapUtil, $base64, ServerMapHintVo, $timeout) {
+pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts', 'ProgressBar', 'SidebarTitleVo', '$filter', 'ServerMapFilterVo', 'encodeURIComponentFilter', 'filteredMapUtil', '$base64', 'ServerMapHintVo', '$timeout', '$location',
+    function (cfg, ServerMapDao, Alerts, ProgressBar, SidebarTitleVo, $filter, ServerMapFilterVo, encodeURIComponentFilter, filteredMapUtil, $base64, ServerMapHintVo, $timeout, $location) {
         return {
             restrict: 'EA',
             replace: true,
@@ -42,12 +45,12 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 // define private variables
                 var bUseNodeContextMenu, bUseLinkContextMenu, htLastQuery,
                     bUseBackgroundContextMenu, oServerMap, oAlert, oProgressBar, htLastMapData, htLastLink, htLastNode,
-                    sLastSelection, $fromAgentName, $toAgentName, bIsFilterWizardLoaded;
+                    sLastSelection, $fromAgentName, $toAgentName, bIsFilterWizardLoaded, htLastMergedMapData;
 
                 // define private variables of methods
                 var showServerMap, setNodeContextMenuPosition, reset, emitDataExisting,
                     setLinkContextMenuPosition, setBackgroundContextMenuPosition, serverMapCallback, setLinkOption,
-                    zoomToFit, updateLastSelection, openFilterWizard;
+                    zoomToFit, updateLastSelection, openFilterWizard, searchNode, getMergeArray, extractMergeTypeList;
 
 
                 // bootstrap
@@ -70,17 +73,37 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 htLastLink = {};
                 htLastNode = {};
                 scope.oNavbarVo = null;
-                scope.mergeUnknowns = true;
+                //scope.mergeUnknowns = true;
                 scope.totalRequestCount = true;
                 scope.bShowServerMapStatus = false;
                 scope.linkRouting = cfg.options.htLinkType.sRouting;
                 scope.linkCurve = cfg.options.htLinkType.sCurve;
+                scope.searchNodeQuery = "";
+                scope.searchNodeIndex = 0;
+                scope.searchNodeList = [];
                 $fromAgentName = element.find('.fromAgentName');
                 $toAgentName = element.find('.toAgentName');
                 $fromAgentName.select2();
                 $toAgentName.select2();
                 bIsFilterWizardLoaded = false;
+                scope.mergeTypeList = [];
+                scope.mergeStatus = {};
+                scope.showAntStyleHint = false;
 
+                /**
+                 * extract node serviceType info
+                 * @param serverMapData
+                 */
+                extractMergeTypeList = function( serverMapData ) {
+                	serverMapData.nodeDataArray.forEach( function( o ) {
+                		if ( o.isWas == false && o.serviceType !== "USER" ) {
+                			if ( angular.isUndefined( scope.mergeStatus[o.serviceType] ) ) {
+	                			scope.mergeTypeList.push( o.serviceType );
+	                			scope.mergeStatus[o.serviceType] = true;
+                			}
+                		}
+                	});
+                };
                 /**
                  * reset
                  */
@@ -95,8 +118,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     };
                     scope.includeFailed = null;
                     $('#filterWizard').modal('hide');
-                    if (!scope.$$phase) {
-                        scope.$digest();
+
+                    if (!(scope.$$phase == '$apply' || scope.$$phase == '$digest') ) {
+                    	if (!(scope.$root.$$phase == '$apply' || scope.$root.$$phase == '$digest') ) {
+                    		scope.$digest();
+                    	}
                     }
                 };
 
@@ -108,11 +134,10 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * @param period
                  * @param filterText
                  * @parma hintText
-                 * @param mergeUnknowns
                  * @param linkRouting
                  * @param linkCurve
                  */
-                showServerMap = function (applicationName, serviceTypeCode, to, period, filterText, hintText, mergeUnknowns, linkRouting, linkCurve) {
+                showServerMap = function (applicationName, serviceTypeName, to, period, filterText, hintText, linkRouting, linkCurve) {
                     oProgressBar.startLoading();
                     oAlert.hideError();
                     oAlert.hideWarning();
@@ -124,10 +149,12 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
 
                     htLastQuery = {
                         applicationName: applicationName,
-                        serviceTypeCode: serviceTypeCode,
+                        serviceTypeName: serviceTypeName,
                         from: to - period,
                         to: to,
                         originTo: scope.oNavbarVo.getQueryEndTime(),
+                        callerRange: scope.oNavbarVo.getCallerRange(),
+                        calleeRange: scope.oNavbarVo.getCalleeRange(),
                         period: period,
                         filter: encodeURIComponentFilter(filterText),
                         hint: hintText ? encodeURIComponentFilter(hintText) : false
@@ -151,9 +178,14 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                             htLastMapData.applicationMapData = ServerMapDao.mergeFilteredMapData(htLastMapData.applicationMapData, result.applicationMapData);
                             var serverMapData = ServerMapDao.extractDataFromApplicationMapData(htLastMapData.applicationMapData);
                             serverMapData = ServerMapDao.addFilterProperty(filters, serverMapData);
-                            if (filteredMapUtil.doFiltersHaveUnknownNode(filters)) scope.mergeUnknowns = mergeUnknowns = false;
+                            extractMergeTypeList( serverMapData );
+                            if (filteredMapUtil.doFiltersHaveUnknownNode(filters)) {
+                            	for( var key in scope.mergeStatus ) {
+                            		scope.mergeStatus[key] = false;
+                            	}
+                            }
                             emitDataExisting(htLastMapData);
-                            serverMapCallback(query, serverMapData, mergeUnknowns, linkRouting, linkCurve);
+                            serverMapCallback(query, serverMapData, linkRouting, linkCurve);
                         });
                     } else {
                         ServerMapDao.getServerMapData(htLastQuery, function (err, query, mapData) {
@@ -167,7 +199,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                             emitDataExisting(mapData);
                             htLastMapData = mapData;
                             var serverMapData = ServerMapDao.extractDataFromApplicationMapData(mapData.applicationMapData);
-                            serverMapCallback(query, serverMapData, mergeUnknowns, linkRouting, linkCurve);
+                            extractMergeTypeList( serverMapData );
+                            serverMapCallback(query, serverMapData, linkRouting, linkCurve);
                         });
                     }
                 };
@@ -228,24 +261,33 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     };
                     scope.$digest();
                 };
+                getMergeArray = function() {
+                	var a = [];
+                	for( var key in scope.mergeStatus ) {
+                		if ( scope.mergeStatus[key] === true ) {
+                			a.push( key );
+                		}
+                	}
+                	return a;
+                };
 
                 /**
                  * server map callback
                  * @param query
                  * @param applicationMapData
-                 * @param mergeUnknowns
                  * @param linkRouting
                  * @param linkCurve
                  */
-                serverMapCallback = function (query, applicationMapData, mergeUnknowns, linkRouting, linkCurve) {
-                    var lastCopiedData = applicationMapData;
-                    if (mergeUnknowns) {
-                        lastCopiedData = ServerMapDao.mergeUnknown(applicationMapData);
-                    }
+                serverMapCallback = function (query, applicationMapData, linkRouting, linkCurve) {
+//                	console.log( applicationMapData );
+                	var mergeArray = getMergeArray();
+                	//htLastMergedMapData
+                	htLastMergedMapData = ServerMapDao.mergeMultiLinkGroup( ServerMapDao.mergeGroup(applicationMapData, mergeArray), mergeArray );
 
-//                    ServerMapDao.removeNoneNecessaryDataForHighPerformance(lastCopiedData);
+//                    console.log( htLastMergedMapData );
+//                    ServerMapDao.removeNoneNecessaryDataForHighPerformance(htLastMergedMapData);
                     oProgressBar.setLoading(80);
-                    if (lastCopiedData.nodeDataArray.length === 0) {
+                    if (htLastMergedMapData.nodeDataArray.length === 0) {
                         oProgressBar.stopLoading();
                         if (scope.oNavbarVo.getFilter()) {
                             var aFilter = scope.oNavbarVo.getFilterAsJson();
@@ -275,11 +317,17 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         return;
                     }
 
-                    lastCopiedData.linkDataArray = setLinkOption(lastCopiedData.linkDataArray, linkRouting, linkCurve);
+                    htLastMergedMapData.linkDataArray = setLinkOption(htLastMergedMapData.linkDataArray, linkRouting, linkCurve);
                     oProgressBar.setLoading(90);
 
                     var options = cfg.options;
-                    options.fOnNodeClicked = function (e, node, unknownKey) {
+                    options.fOnNodeSubGroupClicked = function(e, node, nodeKey, fromName) {
+                    	var link = ServerMapDao.getLinkNodeDataByNodeKey(htLastMapData.applicationMapData, nodeKey, fromName);
+                    	link.fromNode = ServerMapDao.getNodeDataByKey(htLastMapData.applicationMapData, link.from);
+                    	link.toNode = ServerMapDao.getNodeDataByKey(htLastMapData.applicationMapData, link.to);
+                    	options.fOnLinkClicked(e, link);
+                    }
+                    options.fOnNodeClicked = function (e, node, unknownKey, searchQuery) {
                         var originalNode;
                         if (angular.isDefined(node.unknownNodeGroup) && !unknownKey) {
                             node.unknownNodeGroup = ServerMapDao.getUnknownNodeDataByUnknownNodeGroup(htLastMapData.applicationMapData, node.unknownNodeGroup);
@@ -291,8 +339,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         }
                         sLastSelection = 'node';
                         htLastNode = node;
-                        scope.$emit("serverMap.nodeClicked", e, htLastQuery, node, lastCopiedData);
+                        scope.$emit("serverMap.nodeClicked", e, htLastQuery, node, htLastMergedMapData, searchQuery);
                         reset();
+                    };
+                    options.fOnNodeDoubleClicked = function(e, node, htData ) {
+                    	e.diagram.zoomToRect( node.actualBounds, 1.2);
                     };
                     options.fOnNodeContextClicked = function (e, node) {
                         reset();
@@ -324,7 +375,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         sLastSelection = 'link';
                         htLastLink = link;
                         reset();
-                        scope.$emit("serverMap.linkClicked", e, htLastQuery, link, lastCopiedData);
+                        scope.$emit("serverMap.linkClicked", e, htLastQuery, link, htLastMergedMapData);
                     };
                     options.fOnLinkContextClicked = function (e, link) {
                         var originalLink = ServerMapDao.getLinkDataByKey(htLastMapData.applicationMapData, link.key);
@@ -361,7 +412,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
 
                     var selectedNode;
                     try {
-                        selectedNode = _.find(lastCopiedData.nodeDataArray, function (node) {
+                        selectedNode = _.find(htLastMergedMapData.nodeDataArray, function (node) {
                             if (node.applicationName === query.applicationName && angular.isUndefined(query.serviceType)) {
                                 return true;
                             } else if (node.applicationName === query.applicationName && node.serviceTypeCode === query.serviceTypeCode) {
@@ -380,11 +431,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
 
                     oProgressBar.setLoading(100);
                     if (oServerMap === null) {
-                        oServerMap = new ServerMap(options);
+                        oServerMap = new ServerMap(options, $location);
                     } else {
                         oServerMap.option(options);
                     }
-                    oServerMap.load(lastCopiedData);
+                    oServerMap.load(htLastMergedMapData);
                     oProgressBar.stopLoading();
 
                     updateLastSelection(selectedNode);
@@ -429,14 +480,16 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         .setImageType2(htLastLink.toNode.serviceType)
                         .setTitle2(htLastLink.toNode.applicationName);
 
+                    scope.fromAgent = htLastLink.fromAgent || [];
+                    scope.toAgent = htLastLink.toAgent || [];
                     scope.sourceInfo = htLastLink.sourceInfo;
-                    scope.sourceHistogram = htLastLink.sourceHistogram;
                     scope.targetInfo = htLastLink.targetInfo;
-                    scope.targetHistogram = htLastLink.toNode.agentHistogram;
                     scope.fromApplicationName = htLastLink.fromNode.applicationName;
                     scope.toApplicationName = htLastLink.toNode.applicationName;
                     $fromAgentName.select2('val', '');
                     $toAgentName.select2('val', '');
+					scope.fromAgentName = '';
+					scope.toAgentName = '';
 
                     scope.$broadcast('sidebarTitle.initialize.forServerMap', oSidebarTitleVo);
 
@@ -497,10 +550,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * passing transaction list
                  */
                 scope.passingTransactionList = function () {
+                	$at($at.CONTEXT, $at.CLK_FILTER_TRANSACTION);
                     var oServerMapFilterVo = new ServerMapFilterVo();
-
                     oServerMapFilterVo
                         .setMainApplication(htLastLink.filterApplicationName)
+                        .setMainServiceTypeName(htLastLink.filterApplicationServiceTypeName)
                         .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode)
                         .setFromApplication(htLastLink.fromNode.applicationName)
                         .setFromServiceType(htLastLink.fromNode.serviceType)
@@ -509,7 +563,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
 
                     var oServerMapHintVo = new ServerMapHintVo();
                     if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
-                        oServerMapHintVo.setHint(htLastLink.toNode.applicationName, htLastLink.filterTargetRpcList)
+                        oServerMapHintVo.setHint(htLastLink.sourceInfo.applicationName, htLastLink.filterTargetRpcList)
                     }
 
                     scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo, oServerMapHintVo);
@@ -520,6 +574,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * open filter wizard
                  */
                 scope.openFilterWizard = function () {
+                	$at($at.CONTEXT, $at.CLK_FILTER_TRANSACTION_WIZARD);
                     openFilterWizard();
                 };
 
@@ -569,6 +624,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     oServerMapFilterVo
                         .setMainApplication(htLastLink.filterApplicationName)
                         .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode)
+                        .setMainServiceTypeName(htLastLink.filterApplicationServiceTypeName)
                         .setFromApplication(htLastLink.fromNode.applicationName)
                         .setFromServiceType(htLastLink.fromNode.serviceType)
                         .setToApplication(htLastLink.toNode.applicationName)
@@ -587,18 +643,19 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
 
                     var oServerMapHintVo = new ServerMapHintVo();
                     if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
-                        oServerMapHintVo.setHint(htLastLink.toNode.applicationName, htLastLink.filterTargetRpcList)
+                        oServerMapHintVo.setHint(htLastLink.sourceInfo.applicationName, htLastLink.filterTargetRpcList)
                     }
                     scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo, oServerMapHintVo);
                     reset();
                 };
-
                 /**
-                 * toggle merge unknowns
+                 * toggle merge group
                  */
-                scope.toggleMergeUnknowns = function () {
-                    scope.mergeUnknowns = (scope.mergeUnknowns) ? false : true;
-                    serverMapCallback(htLastQuery, htLastMapData.applicationMapData, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
+                scope.toggleMergeGroup = function ( mergeType ) {
+                	$at($at.CONTEXT, $at.TG_MERGE_TYPE, mergeType);
+                	scope.mergeStatus[ mergeType ] = !scope.mergeStatus[ mergeType ];
+                    //scope.mergeUnknowns = (scope.mergeUnknowns) ? false : true;
+                    serverMapCallback(htLastQuery, ServerMapDao.extractDataFromApplicationMapData(htLastMapData.applicationMapData), scope.linkRouting, scope.linkCurve);
                     reset();
                 };
 
@@ -607,9 +664,19 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * @param type
                  */
                 scope.toggleLinkLableTextType = function (type) {
+                	if ( type === "tps" ) {
+                		$at($at.CONTEXT, $at.TG_TPS);
+                		scope.totalRequestCount = false;
+                        scope.tps = true;
+                	} else {
+                		$at($at.CONTEXT, $at.TG_CALL_COUNT);
+                		scope.totalRequestCount = true;
+                        scope.tps = false;
+                	}
+
                     scope.totalRequestCount = (type !== 'tps') ? true : false;
                     scope.tps = (type === 'tps') ? true : false;
-                    serverMapCallback(htLastQuery, htLastMapData.applicationMapData, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
+                    serverMapCallback(htLastQuery, htLastMergedMapData, scope.linkRouting, scope.linkCurve);
                     reset();
                 };
 
@@ -618,8 +685,9 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * @param type
                  */
                 scope.toggleLinkRouting = function (type) {
+                	$at($at.CONTEXT, $at.TG_ROUTING, type);
                     scope.linkRouting = cfg.options.htLinkType.sRouting = type;
-                    serverMapCallback(htLastQuery, htLastMapData.applicationMapData, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
+                    serverMapCallback(htLastQuery, htLastMergedMapData, scope.linkRouting, scope.linkCurve);
                     reset();
                 };
 
@@ -628,8 +696,9 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * @param type
                  */
                 scope.toggleLinkCurve = function (type) {
+                	$at($at.CONTEXT, $at.TG_CURVE, type);
                     scope.linkCurve = cfg.options.htLinkType.sCurve = type;
-                    serverMapCallback(htLastQuery, htLastMapData.applicationMapData, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
+                    serverMapCallback(htLastQuery, htLastMergedMapData, scope.linkRouting, scope.linkCurve);
                     reset();
                 };
 
@@ -637,7 +706,9 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * refresh
                  */
                 scope.refresh = function () {
+                	$at($at.CONTEXT, $at.CLK_REFRESH);
                     if (oServerMap) {
+
                         oServerMap.refresh();
                     }
                     reset();
@@ -654,14 +725,14 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     scope.bShowServerMapStatus = true;
                     bUseLinkContextMenu = bUseBackgroundContextMenu = true;
                     bUseNodeContextMenu = false;
-                    showServerMap(navbarVo.getApplicationName(), navbarVo.getServiceTypeCode(), navbarVo.getQueryEndTime(), navbarVo.getQueryPeriod(), navbarVo.getFilter(), navbarVo.getHint(), scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
+                    showServerMap(navbarVo.getApplicationName(), navbarVo.getServiceTypeName(), navbarVo.getQueryEndTime(), navbarVo.getQueryPeriod(), navbarVo.getFilter(), navbarVo.getHint(), scope.linkRouting, scope.linkCurve);
                 });
 
                 /**
                  * scope event on serverMap.fetch
                  */
                 scope.$on('serverMap.fetch', function (event, queryPeriod, queryEndTime) {
-                    showServerMap(scope.oNavbarVo.getApplicationName(), scope.oNavbarVo.getServiceTypeCode(), queryEndTime, queryPeriod, scope.oNavbarVo.getFilter(), scope.oNavbarVo.getHint(), scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
+                    showServerMap(scope.oNavbarVo.getApplicationName(), scope.oNavbarVo.getServiceTypeName(), queryEndTime, queryPeriod, scope.oNavbarVo.getFilter(), scope.oNavbarVo.getHint(), scope.linkRouting, scope.linkCurve);
                 });
 
                 /**
@@ -676,7 +747,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         applicationName: mapData.applicationId
                     };
                     htLastMapData = mapData;
-                    serverMapCallback(htLastQuery, htLastMapData.applicationMapData, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
+                    serverMapCallback(htLastQuery, ServerMapDao.extractDataFromApplicationMapData(htLastMapData.applicationMapData), scope.linkRouting, scope.linkCurve);
                 });
 
                 /**
@@ -690,6 +761,35 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     htLastLink = link;
                     openFilterWizard();
                 });
+
+                scope.searchNodeByEnter = function( $event ) {
+                	if ( $event.keyCode == 13 ) {
+                		scope.searchNode();
+                	}
+                }
+                scope.searchNodeWithCategory = function( index ) {
+                	if (oServerMap) {
+                		scope.searchNodeIndex = index;
+                        oServerMap.searchNode( scope.searchNodeList[index].applicationName, scope.searchNodeList[index].serviceType );
+                    }
+                }
+                scope.searchNode = function() {
+                	if (oServerMap && scope.searchNodeQuery !== "" ) {
+                		$at($at.MAIN, $at.CLK_SEARCH_NODE);
+                		scope.searchNodeIndex = 0;
+                        scope.searchNodeList = oServerMap.searchNode( scope.searchNodeQuery );
+                    }
+                };
+                scope.clearSearchNode = function() {
+                	$at($at.MAIN, $at.CLK_CLEAR_SEARCH);
+                	oServerMap.clearQuery();
+                	scope.searchNodeIndex = 0;
+                	scope.searchNodeQuery = "";
+                	scope.searchNodeList = [];
+                }
+                scope.toggleShowAntStyleHint = function() {
+                	scope.showAntStyleHint = !scope.showAntStyleHint;
+                }
             }
         };
     }]);

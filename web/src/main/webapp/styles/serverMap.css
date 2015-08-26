@@ -17,6 +17,11 @@
 .servermap .servermap-status h6 {
     margin: 0;
 }
+.servermap .servermap-status span.label {
+	float:right;
+	margin:3px;
+	cursor:pointer;
+}
 .servermap .servermap-status .controls .span2:first-child {
     margin-left: 0 !important;
 }
@@ -51,4 +56,39 @@
     -moz-transition: all 0.1s ease;
     -o-transition: all 0.1s ease;
     transition: all 0.1s ease;
+}
+#servermapOverview {
+	width: 15%;
+	height: 15%;
+	position: absolute;
+	right: 16px;
+	bottom: 16px;
+	background-color: rgba(44, 160, 44, 0.2);
+	z-index: 2;
+	border: 1px solid rgb(44, 160, 44);
+}
+#filterWizard .antStyleHint {
+	position: absolute;
+	top: 216px;
+	left: 168px;
+	width: 562px;
+	height: 180px;
+	border: 1px solid #6ACBE5;
+	z-index: 10000;
+	background-color: #A7E3F4;
+	opacity: 0.92;
+	border-radius: 10px;
+	padding: 10px 0px 10px 20px;
+	font-size: 16px;
+	box-shadow: 2px 2px 4px #59A5B9;
+	letter-spacing: 2px;
+}
+#filterWizard .antStyleHint td:first-child{
+	width: 86px;
+	text-align: center;
+	font-weight: bold;
+	padding-right:10px;
+}
+#filterWizard .antStyleHint td p{
+	margin: 0px;
 }

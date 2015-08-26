@@ -82,12 +82,12 @@ public class HbaseTraceDao implements TracesDao {
         byte[] spanId = Bytes.toBytes(spanBo.getSpanId());
 
         long acceptedTime = acceptedTimeService.getAcceptedTime();
-        put.add(TRACES_CF_SPAN, spanId, acceptedTime, spanValue);
+        put.addColumn(TRACES_CF_SPAN, spanId, acceptedTime, spanValue);
 
         List<TAnnotation> annotations = span.getAnnotations();
         if (CollectionUtils.isNotEmpty(annotations)) {
             byte[] bytes = writeAnnotation(annotations);
-            put.add(TRACES_CF_ANNOTATION, spanId, bytes);
+            put.addColumn(TRACES_CF_ANNOTATION, spanId, bytes);
         }
 
         addNestedSpanEvent(put, span);
@@ -111,7 +111,7 @@ public class HbaseTraceDao implements TracesDao {
             SpanEventBo spanEventBo = new SpanEventBo(span, spanEvent);
             byte[] rowId = BytesUtils.add(spanEventBo.getSpanId(), spanEventBo.getSequence());
             byte[] value = spanEventBo.writeValue();
-            put.add(TRACES_CF_TERMINALSPAN, rowId, acceptedTime0, value);
+            put.addColumn(TRACES_CF_TERMINALSPAN, rowId, acceptedTime0, value);
         }
     }
 
@@ -130,7 +130,7 @@ public class HbaseTraceDao implements TracesDao {
             byte[] value = spanEventBo.writeValue();
             byte[] rowId = BytesUtils.add(spanEventBo.getSpanId(), spanEventBo.getSequence());
 
-            put.add(TRACES_CF_TERMINALSPAN, rowId, acceptedTime, value);
+            put.addColumn(TRACES_CF_TERMINALSPAN, rowId, acceptedTime, value);
         }
         hbaseTemplate.put(TRACES, put);
 

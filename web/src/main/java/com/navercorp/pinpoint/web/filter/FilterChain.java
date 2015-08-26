@@ -31,30 +31,25 @@ public class FilterChain implements Filter {
     private final List<Filter> filterList;
 
     public FilterChain() {
-        filterList = new ArrayList<Filter>();
+        this.filterList = new ArrayList<Filter>();
     }
 
     public void addFilter(Filter filter) {
-        filterList.add(filter);
+        if (filter == null) {
+            throw new NullPointerException("filter must not be null");
+        }
+        this.filterList.add(filter);
     }
 
     @Override
     public boolean include(List<SpanBo> transaction) {
         // FIXME how to improve performance without "for loop"
-        for (Filter f : filterList) {
-            if (!f.include(transaction)) {
+        for (Filter filter : filterList) {
+            if (!filter.include(transaction)) {
                 return false;
             }
         }
         return true;
-    }
-
-    public Filter get() {
-        if (filterList.size() == 1) {
-            return filterList.get(0);
-        } else {
-            return this;
-        }
     }
 
     @Override
@@ -64,5 +59,12 @@ public class FilterChain implements Filter {
             sb.append(filterList.get(i).toString());
         }
         return sb.toString();
+    }
+
+    public void addAllFilter(List<LinkFilter> linkFilter) {
+        if (linkFilter == null) {
+            throw new NullPointerException("linkFilter must not be null");
+        }
+        this.filterList.addAll(linkFilter);
     }
 }

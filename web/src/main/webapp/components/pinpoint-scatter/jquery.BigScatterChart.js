@@ -333,6 +333,25 @@ var BigScatterChart = $.Class({
         this._welOverlay.append(this._awelXNumber);
         this._welOverlay.append(this._awelYNumber);
 
+//        this._welDragGuide = $('<div>')
+//        	.css({
+//        		'z-index':10000,
+//                'position': 'absolute',
+//                'width': '56px',
+//                'height': '22px',
+//                'line-height': '22px',
+//                'margin-left': '-28px',
+//                'text-align': 'center',
+//                'color': 'black',
+//                'background': 'yellow',
+//                'border': '1px solid #ccc',
+//                'border-radius': '5px',
+//                'font-weight': 'bold',
+//                'display': 'none'
+//            })
+//            .css(htLabelStyle)
+//            .append($('<span></span>'));
+        
         this._welXGuideNumber = $('<div>')
             .css({
                 'position': 'absolute',
@@ -374,6 +393,7 @@ var BigScatterChart = $.Class({
             .css(htLabelStyle)
             .append($('<span></span>'))
             .append($('<div style="position:absolute;border-top:1px solid red;width:10px;right:-10px;top:9px;"></div>'));
+//        this._welOverlay.append(this._welDragGuide);
         this._welOverlay.append(this._welXGuideNumber);
         this._welOverlay.append(this._welYGuideNumber);
 
@@ -523,6 +543,7 @@ var BigScatterChart = $.Class({
             sYMax = sPrefix + 'ymax';
 
         var fConfigToggle = function (e) {
+        	$at($at.MAIN, $at.CLK_SCATTER_SETTING);
             self._welConfigBg.toggle();
             self._welConfigLayer.toggle();
             $('#' + sYMin).val(self.option('nYMin'));
@@ -593,6 +614,7 @@ var BigScatterChart = $.Class({
 
         // download
         var fDownloadToggle = function (e) {
+        	$at($at.MAIN, $at.CLK_DOWNLOAD_SCATTER);
             var sImageUrl = self.getChartAsPNG();
 //            document.location.href = sImageUrl.replace("image/png", "image/octet-stream");
             $(this).attr({
@@ -655,6 +677,12 @@ var BigScatterChart = $.Class({
         var htCheckBoxImage = this.option('htCheckBoxImage');
         _.each(this._htwelTypeLi, function (welTypeLi, sKey) {
             welTypeLi.click(function (e) {
+            	if ( sKey === "Success" ) {
+            		$at($at.MAIN, $at.TG_SCATTER_SUCCESS, welTypeLi.hasClass('unchecked') ? $at.ON : $at.OFF );
+            	} else {
+            		$at($at.MAIN, $at.TG_SCATTER_FAILED, welTypeLi.hasClass('unchecked') ? $at.ON : $at.OFF );
+            	}
+            	
                 e.preventDefault();
                 self._htwelChartCanvas[sKey].toggle();
                 if (!welTypeLi.hasClass('unchecked')) {
@@ -680,6 +708,7 @@ var BigScatterChart = $.Class({
                 if (_.isFunction(fOnSelect)) {
                     fOnSelect.call(self, htPosition, htXY);
                 }
+                welSelectBox.hide();
             },
             onMove: function (e) {
                 if (!self.option('bUseMouseGuideLine')) {
@@ -720,6 +749,7 @@ var BigScatterChart = $.Class({
     },
 
     _showGuideLine: function () {
+//    	this._welDragGuide.show();
         this._welXGuideNumber.show();
         this._welYGuideNumber.show();
     },
@@ -731,6 +761,10 @@ var BigScatterChart = $.Class({
             nPaddingLeft = this.option('nPaddingLeft'),
             nBubbleSize = this.option('nBubbleSize'),
             nHeight = this.option('nHeight');
+//        this._welDragGuide.css({
+//        	"left": nX - htOffset.left + 35,
+//        	"top": nY - htOffset.top - 30
+//        }).find('span').text("Drag me!");
         this._welXGuideNumber.css('left', nX - htOffset.left);
         this._welXGuideNumber.find('span').text(new Date(this._parseMouseXToXData(nX - htOffset.left - nPaddingLeft - nBubbleSize)).toString("HH:mm:ss"));
         this._welYGuideNumber.css('top', nY - htOffset.top);
@@ -738,6 +772,7 @@ var BigScatterChart = $.Class({
     },
 
     _hideGuideLine: function () {
+//    	this._welDragGuide.hide();
         this._welXGuideNumber.hide();
         this._welYGuideNumber.hide();
     },

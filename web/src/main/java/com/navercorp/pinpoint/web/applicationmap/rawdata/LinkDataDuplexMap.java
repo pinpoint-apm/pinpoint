@@ -101,6 +101,10 @@ public class LinkDataDuplexMap {
         return targetLinkDataMap.getLinkData(findLinkKey);
     }
 
+    public long getTotalCount() {
+        return this.sourceLinkDataMap.getTotalCount() + this.targetLinkDataMap.getTotalCount();
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("LinkDataDuplexMap{");

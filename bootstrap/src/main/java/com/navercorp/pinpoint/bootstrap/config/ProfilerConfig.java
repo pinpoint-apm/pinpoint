@@ -164,11 +164,17 @@ public class ProfilerConfig {
     private boolean apacheHttpClient4ProfileEntity = false;
     private DumpType apacheHttpClient4ProfileEntityDumpType = DumpType.EXCEPTION;
     private int apacheHttpClient4ProfileEntitySamplingRate = 1;
+    private boolean apacheHttpClient4ProfileStatusCode = true;
 
     /**
      * apache nio http client
      */
     private boolean apacheNIOHttpClient4Profile = true;
+
+    /**
+     * jdk httpclient : sun.net.www.protocol.http.HttpURLConnection
+     */
+    private boolean jdkHttpURLConnectionProfile = true;
 
     /**
      * ning async http client
@@ -186,6 +192,10 @@ public class ProfilerConfig {
     private DumpType ningAsyncHttpClientProfileParamDumpType = DumpType.EXCEPTION;
     private int ningAsyncHttpClientProfileParamDumpSize = 1024;
     private int ningAsyncHttpClientProfileParamSamplingRate = 1;
+    
+    //logging
+    private boolean log4jLoggingTransactionInfo;
+    private boolean logbackLoggingTransactionInfo;
 
     // Spring Beans
     private boolean springBeans = false;
@@ -486,11 +496,19 @@ public class ProfilerConfig {
     public int getApacheHttpClient4ProfileEntitySamplingRate() {
         return apacheHttpClient4ProfileEntitySamplingRate;
     }
+    
+    public boolean isApacheHttpClient4ProfileStatusCode() {
+        return apacheHttpClient4ProfileStatusCode;
+    }
 
     //-----------------------------------------
     // org/apache/http/impl/nio/*
     public boolean getApacheNIOHttpClient4Profile() {
         return apacheNIOHttpClient4Profile;
+    }
+
+    public boolean isJdkHttpURLConnectionProfile() {
+        return jdkHttpURLConnectionProfile;
     }
 
     //-----------------------------------------
@@ -689,10 +707,16 @@ public class ProfilerConfig {
         this.apacheHttpClient4ProfileEntityDumpType = readDumpType("profiler.apache.httpclient4.entity.dumptype", DumpType.EXCEPTION);
         this.apacheHttpClient4ProfileEntitySamplingRate = readInt("profiler.apache.httpclient4.entity.sampling.rate", 1);
 
+        this.apacheHttpClient4ProfileStatusCode = readBoolean("profiler.apache.httpclient4.entity.statuscode", true);
         /**
          * apache nio http client
          */
         this.apacheNIOHttpClient4Profile = readBoolean("profiler.apache.nio.httpclient4", true);
+
+        /**
+         * jdk httpclient
+         */
+        this.jdkHttpURLConnectionProfile = readBoolean("profiler.jdk.httpurlconnection", true);
 
         /**
          * ning.async http client
@@ -713,6 +737,16 @@ public class ProfilerConfig {
         this.ningAsyncHttpClientProfileParamDumpSize = readInt("profiler.ning.asynchttpclient.param.dumpsize", 1024);
         this.ningAsyncHttpClientProfileParamSamplingRate = readInt("profiler.asynchttpclient.param.sampling.rate", 1);
 
+        /**
+         * log4j
+         */
+        this.log4jLoggingTransactionInfo = readBoolean("profiler.log4j.logging.transactioninfo", false);
+        
+        /**
+         * logback
+         */
+        this.logbackLoggingTransactionInfo = readBoolean("profiler.logback.logging.transactioninfo", false);
+        
         // redis & nBase-ARC
         this.redis = readBoolean("profiler.redis", true);
         this.redisPipeline = readBoolean("profiler.redis.pipeline", true);
@@ -838,7 +872,14 @@ public class ProfilerConfig {
         }
         return result;
     }
+    
+    public boolean isLog4jLoggingTransactionInfo() {
+        return this.log4jLoggingTransactionInfo;
+    }
 
+    public boolean isLogbackLoggingTransactionInfo() {
+        return this.logbackLoggingTransactionInfo;
+    }
 
     @Override
     public String toString() {
@@ -890,6 +931,13 @@ public class ProfilerConfig {
         sb.append(", mybatis=").append(mybatis);
         sb.append(", redis=").append(redis);
         sb.append(", redisPipeline=").append(redisPipeline);
+        sb.append(", apacheHttpClient3Profile=").append(apacheHttpClient3Profile);
+        sb.append(", apacheHttpClient3ProfileCookie=").append(apacheHttpClient3ProfileCookie);
+        sb.append(", apacheHttpClient3ProfileCookieDumpType=").append(apacheHttpClient3ProfileCookieDumpType);
+        sb.append(", apacheHttpClient3ProfileCookieSamplingRate=").append(apacheHttpClient3ProfileCookieSamplingRate);
+        sb.append(", apacheHttpClient3ProfileEntity=").append(apacheHttpClient3ProfileEntity);
+        sb.append(", apacheHttpClient3ProfileEntityDumpType=").append(apacheHttpClient3ProfileEntityDumpType);
+        sb.append(", apacheHttpClient3ProfileEntitySamplingRate=").append(apacheHttpClient3ProfileEntitySamplingRate);
         sb.append(", apacheHttpClient4Profile=").append(apacheHttpClient4Profile);
         sb.append(", apacheHttpClient4ProfileCookie=").append(apacheHttpClient4ProfileCookie);
         sb.append(", apacheHttpClient4ProfileCookieDumpType=").append(apacheHttpClient4ProfileCookieDumpType);
@@ -897,7 +945,9 @@ public class ProfilerConfig {
         sb.append(", apacheHttpClient4ProfileEntity=").append(apacheHttpClient4ProfileEntity);
         sb.append(", apacheHttpClient4ProfileEntityDumpType=").append(apacheHttpClient4ProfileEntityDumpType);
         sb.append(", apacheHttpClient4ProfileEntitySamplingRate=").append(apacheHttpClient4ProfileEntitySamplingRate);
+        sb.append(", apacheHttpClient4ProfileStatusCode=").append(apacheHttpClient4ProfileStatusCode);
         sb.append(", apacheNIOHttpClient4Profile=").append(apacheNIOHttpClient4Profile);
+        sb.append(", jdkHttpURLConnectionProfile=").append(jdkHttpURLConnectionProfile);
         sb.append(", ningAsyncHttpClientProfile=").append(ningAsyncHttpClientProfile);
         sb.append(", ningAsyncHttpClientProfileCookie=").append(ningAsyncHttpClientProfileCookie);
         sb.append(", ningAsyncHttpClientProfileCookieDumpType=").append(ningAsyncHttpClientProfileCookieDumpType);
@@ -911,6 +961,8 @@ public class ProfilerConfig {
         sb.append(", ningAsyncHttpClientProfileParamDumpType=").append(ningAsyncHttpClientProfileParamDumpType);
         sb.append(", ningAsyncHttpClientProfileParamDumpSize=").append(ningAsyncHttpClientProfileParamDumpSize);
         sb.append(", ningAsyncHttpClientProfileParamSamplingRate=").append(ningAsyncHttpClientProfileParamSamplingRate);
+        sb.append(", log4jLoggingTransactionInfo=").append(log4jLoggingTransactionInfo);
+        sb.append(", logbackLoggingTransactionInfo=").append(logbackLoggingTransactionInfo);
         sb.append(", springBeans=").append(springBeans);
         sb.append(", springBeansNamePatterns='").append(springBeansNamePatterns).append('\'');
         sb.append(", springBeansClassPatterns='").append(springBeansClassPatterns).append('\'');

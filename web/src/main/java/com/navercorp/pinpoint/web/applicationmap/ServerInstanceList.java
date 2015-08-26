@@ -16,12 +16,9 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
+import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +53,19 @@ public class ServerInstanceList {
     public Map<String, List<ServerInstance>> getServerInstanceList() {
         // XXX list sorting problem exist
         return serverInstanceList;
+    }
+
+    public List<String> getAgentIdList() {
+        final Collection<List<ServerInstance>> serverInstanceValueList = this.serverInstanceList.values();
+
+        final List<String> agentList = new ArrayList<String>();
+        for (List<ServerInstance> serverInstanceList : serverInstanceValueList) {
+            for (ServerInstance serverInstance : serverInstanceList) {
+                AgentInfoBo agentInfo = serverInstance.getAgentInfo();
+                agentList.add(agentInfo.getAgentId());
+            }
+        }
+        return agentList;
     }
 
     public int getInstanceCount() {

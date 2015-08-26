@@ -23,9 +23,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.common.HistogramSchema;
 import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.common.util.DefaultParsingResult;
 import com.navercorp.pinpoint.common.util.ParsingResult;
-import com.navercorp.pinpoint.common.util.SqlParser;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
@@ -73,8 +71,7 @@ public class DefaultTraceContext implements TraceContext {
 
     private final MetricRegistry metricRegistry;
 
-    private final SimpleCache<String> sqlCache;
-    private final SqlParser sqlParser = new SqlParser();
+    private final CachingSqlNormalizer cachingSqlNormalizer;
 
     private final SimpleCache<String> apiCache = new SimpleCache<String>();
     private final SimpleCache<String> stringCache = new SimpleCache<String>();
@@ -97,7 +94,7 @@ public class DefaultTraceContext implements TraceContext {
         if (sampler == null) {
             throw new NullPointerException("sampler must not be null");
         }
-        this.sqlCache = new SimpleCache<String>(sqlCacheSize);
+        this.cachingSqlNormalizer = new DefaultCachingSqlNormalizer(sqlCacheSize);
         this.contextServiceType = ServiceType.findServiceType(contextServiceType);
         this.metricRegistry = new MetricRegistry(this.contextServiceType);
 
@@ -246,31 +243,35 @@ public class DefaultTraceContext implements TraceContext {
 
     @Override
     public ParsingResult parseSql(final String sql) {
+        // lazy sql normalization
+        return this.cachingSqlNormalizer.wrapSql(sql);
+    }
 
-        final DefaultParsingResult parsingResult = this.sqlParser.normalizedSql(sql);
-        final String normalizedSql = parsingResult.getSql();
-
-        final Result cachingResult = this.sqlCache.put(normalizedSql);
-        if (cachingResult.isNewValue()) {
+    @Override
+    public boolean cacheSql(ParsingResult parsingResult) {
+        if (parsingResult == null) {
+            return false;
+        }
+        // lazy sql parsing
+        boolean isNewValue = this.cachingSqlNormalizer.normalizedSql(parsingResult);
+        if (isNewValue) {
             if (isDebug) {
                 // TODO logging hit ratio could help debugging
                 logger.debug("NewSQLParsingResult:{}", parsingResult);
             }
-            
-            // isNewValue means that the value is newly cached.  
+
+            // isNewValue means that the value is newly cached.
             // So the sql could be new one. We have to send sql metadata to collector.
             final TSqlMetaData sqlMetaData = new TSqlMetaData();
             sqlMetaData.setAgentId(getAgentId());
             sqlMetaData.setAgentStartTime(getAgentStartTime());
 
-            sqlMetaData.setSqlId(cachingResult.getId());
-            sqlMetaData.setSql(normalizedSql);
+            sqlMetaData.setSqlId(parsingResult.getId());
+            sqlMetaData.setSql(parsingResult.getSql());
 
-            // Need more reliable tcp connection
             this.priorityDataSender.request(sqlMetaData);
         }
-        parsingResult.setId(cachingResult.getId());
-        return parsingResult;
+        return isNewValue;
     }
 
     @Override

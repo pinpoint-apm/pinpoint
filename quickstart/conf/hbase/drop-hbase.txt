@@ -1,0 +1,47 @@
+
+disable 'AgentInfo'
+disable 'AgentStat'
+disable 'ApplicationIndex'
+
+disable 'StringMetaData'
+disable 'ApiMetaData'
+
+disable 'SqlMetaData'
+disable 'SqlMetaData_Ver2'
+
+disable 'ApplicationTraceIndex'
+disable 'Traces'
+
+disable 'ApplicationMapStatisticsCaller'
+disable 'ApplicationMapStatisticsCallee'
+disable 'ApplicationMapStatisticsSelf'
+
+disable 'ApplicationStatistics'
+disable 'HostApplicationMap'
+disable 'HostApplicationMap_Ver2'
+
+
+drop 'AgentInfo'
+drop 'AgentStat'
+drop 'ApplicationIndex'
+
+drop 'StringMetaData'
+drop 'ApiMetaData'
+
+drop 'SqlMetaData'
+drop 'SqlMetaData_Ver2'
+
+drop 'ApplicationTraceIndex'
+drop 'Traces'
+
+drop 'ApplicationMapStatisticsCaller'
+drop 'ApplicationMapStatisticsCallee'
+drop 'ApplicationMapStatisticsSelf'
+
+drop 'ApplicationStatistics'
+drop 'HostApplicationMap'
+drop 'HostApplicationMap_Ver2'
+
+list
+
+exit

@@ -16,7 +16,11 @@
 
 package com.navercorp.pinpoint.web.filter;
 
-import java.util.HashMap;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.navercorp.pinpoint.web.filter.deserializer.FilterHintListJsonDeserializer;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -25,38 +29,79 @@ import java.util.List;
  * @author netspider
  * 
  */
-// FIXME don't know how to implement deserializer like this.
-public class FilterHint extends HashMap<String, List<Object>> {
-
-    private static final long serialVersionUID = -8765645836014210889L;
+@JsonDeserialize(using = FilterHintListJsonDeserializer.class)
+public class FilterHint {
 
     public static final String EMPTY_JSON = "{}";
 
-    public boolean containApplicationHint(String applicationName) {
-        List<Object> list = get(applicationName);
+    private final List<RpcHint> rpcHintList;
 
-        if (list == null) {
-            return false;
-        } else {
-            return !list.isEmpty();
+
+    public FilterHint(List<RpcHint> rpcHintList) {
+        if (rpcHintList == null) {
+            rpcHintList = Collections.emptyList();
         }
+        this.rpcHintList = rpcHintList;
     }
+
+
+    public List<RpcHint> getRpcHintList(String sourceApplicationName) {
+        if (sourceApplicationName == null) {
+            throw new NullPointerException("sourceApplicationName must not be null");
+        }
+        final List<RpcHint> findRpcHintList = new ArrayList<>();
+        for (RpcHint rpcHint : rpcHintList) {
+            // TODO miss serviceType
+            if (rpcHint.getApplicationName().equals(sourceApplicationName)) {
+                findRpcHintList.add(rpcHint);
+            }
+        }
+        return findRpcHintList;
+    }
+
+
+    public boolean containApplicationHint(String applicationName) {
+        for (RpcHint rpcHint : rpcHintList) {
+            if(rpcHint.getApplicationName().equals(applicationName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     public boolean containApplicationEndpoint(String applicationName, String endPoint, int serviceTypeCode) {
         if (!containApplicationHint(applicationName)) {
             return false;
         }
-
-        List<Object> list = get(applicationName);
-
-        for (int i = 0; i < list.size(); i += 2) {
-            if (endPoint.equals(list.get(i))) {
-                if (serviceTypeCode == (Integer) list.get(i + 1)) {
-                    return true;
-                }
-            }
+        
+        if (endPoint == null) {
+            return false;
         }
 
+        for (RpcHint rpcHint : rpcHintList) {
+            if (rpcHint.getApplicationName().equals(applicationName)) {
+                for (RpcType rpcType : rpcHint.getRpcTypeList()) {
+                    if (rpcType.isMatched(endPoint, serviceTypeCode)) {
+                        return true;
+                    }
+                }
+            }
+
+        }
         return false;
+    }
+
+
+    public int size() {
+        return rpcHintList.size();
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("FilterHint{");
+        sb.append("rpcHintList=").append(rpcHintList);
+        sb.append('}');
+        return sb.toString();
     }
 }

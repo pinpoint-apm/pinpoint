@@ -209,4 +209,9 @@ public class MockTrace implements Trace {
     public void traceBlockEnd(int stackId) {
 
     }
+    
+    @Override
+    public ServiceType getServiceType() {
+        return null;
+    }
 }

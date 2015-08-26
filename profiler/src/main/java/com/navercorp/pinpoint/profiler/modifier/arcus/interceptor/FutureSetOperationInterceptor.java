@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.profiler.modifier.arcus.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue1Utils;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.util.MetaObject;
 
 import net.spy.memcached.ops.Operation;
 
@@ -34,16 +34,20 @@ public class FutureSetOperationInterceptor implements SimpleAroundInterceptor, T
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private MetaObject<Object> setOperation = new MetaObject<Object>("__setOperation", Operation.class);
-    
-
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
+        setOperation(target, args[0]);
+    }
 
-        setOperation.invoke(target, (Operation) args[0]);
+    private void setOperation(Object target, Object value) {
+        if (value instanceof Operation) {
+            ObjectTraceValue1Utils.__setTraceObject1(target, value);
+        } else {
+            logger.debug("invalid value type");
+        }
     }
 
     @Override

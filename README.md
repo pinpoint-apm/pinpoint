@@ -1,15 +1,21 @@
 ![Pinpoint](web/src/main/webapp/images/logo.png)
 
+[![Build Status](https://travis-ci.org/naver/pinpoint.svg?branch=1.1.x)](https://travis-ci.org/naver/pinpoint)
+
 **Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java. Modelled after [Google's Dapper paper](http://research.google.com/pubs/pub36356.html), Pinpoint provides a solution to help analyze the overall structure of the system and how components within them are interconnected by tracing transactions across distributed applications.
 
 * Install agents without changing a single line of code
 * Minimal impact on performance (approximately 3% increase in resource usage)
 
+## Latest Release (2015/5/18)
+We're happy to announce the release of Pinpoint **v1.0.5**. <br/>
+Please check release note at (https://github.com/naver/pinpoint/releases/tag/1.0.5)
+
 ## Overview
 Services nowadays often consist of many different components, communicating amongst themselves as well as making API calls to external services. How each and every transaction gets executed is often left as a blackbox. Pinpoint traces transaction flows between these components and provides a clear view to identify problem areas and potential bottlenecks.
 
 * **ServerMap** - Understand the topology of any distributed systems by visualizing how their components are interconnected. Clicking on a node reveals details about the component, such as its current status, and transaction count.
-* **Request/Response Scatter Chart** - Visualize request count and response patterns over time to identify potential problems. Transactions can be selected for additional detail by dragging over the chart.
+* **Request/Response Scatter Chart** - Visualize request count and response patterns over time to identify potential problems. Transactions can be selected for additional detail by **dragging over the chart**.
 
   ![Server Map](doc/img/ss_server-map.png)
 
@@ -43,7 +49,7 @@ Once the components are running, you should be able to visit http://localhost:28
 For details, please refer to the [quick-start guide](quickstart/README.md "Pinpoint quick-start guide").
 
 ## Installation
-**Requirements**
+**Build Requirements**
 
 * JDK 6 installed
 * JDK 7+ installed
@@ -51,12 +57,36 @@ For details, please refer to the [quick-start guide](quickstart/README.md "Pinpo
 * JAVA_6_HOME environment variable set to JDK 6 home directory.
 * JAVA_7_HOME environment variable set to JDK 7+ home directory.
 
+**Prerequisites**
+
+Java version required to run Pinpoint:
+
+Pinpoint Version | Agent | Collector | Web
+---------------- | ----- | --------- | ---
+1.0.x | 6+ | 6+ | 6+
+1.1.x | 6+ | 7+ | 7+
+1.5.x | 6+ | 7+ | 7+
+
+HBase compatibility table:
+
+Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.1.x
+---------------- | ------------ | ------------ | ----------- | -----------
+1.0.x | yes | no | no | no 
+1.1.x | no | not tested | yes | not tested
+1.5.x | no | not tested | yes | not tested
+
+
 **Installation**
 
 To set up your very own Pinpoint instance, take a look at our [installation guide](doc/installation.md).
 
 ## Issues
 For feature requests and bug reports, feel free to post them [here](https://github.com/naver/pinpoint/issues).
+
+
+## User Group
+For Q/A and discussion [here](https://groups.google.com/forum/#!forum/pinpoint_user).
+
 
 ## Wiki
 For roadmap, user guide, documentation.
@@ -67,7 +97,7 @@ We welcome any documentation contribution.
 ## Contribution
 We welcome any and all suggestions. Our development guide is currently WIP so check back often for any updates.
 
-For contributions, please make a pull-request against our ```master``` branch.
+For contributions, please make a pull-request against our `master` branch.
 
 We would love to see additional tracing support for libraries such as [Storm](https://storm.apache.org/), [HBase](http://hbase.apache.org/), as well as profiler support for additional languages (.NET, C++).
 

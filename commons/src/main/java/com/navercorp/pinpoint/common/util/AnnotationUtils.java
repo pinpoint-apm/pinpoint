@@ -109,6 +109,10 @@ public final class AnnotationUtils {
             return findAnnotationBo(list, AnnotationKey.ARGS0);
         }
         
+        if (serviceType == ServiceType.COLLECTOR) {
+            return findAnnotationBo(list, AnnotationKey.ARGS0);
+        }
+        
         return null;
     }
 
