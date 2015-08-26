@@ -78,10 +78,10 @@
 	
 
 #pinpoint-configuration .header-blue {
-	background-color: #D0E9FF;
+	background-color: #EEE;
 }
 #pinpoint-configuration .header-sky {
-	background-color: #DAF7FF;
+	background-color: #EEE;
 }
 #pinpoint-configuration .hide-me {
 	display:none;
@@ -436,4 +436,27 @@
 #pinpoint-configuration .some-table .some-list-content input {
 	width: 100%;
 	margin-left: -2px;
+}
+#config-help .link-title {
+	font-size: 18px;
+	margin-right: 30px;
+}
+#config-help li {
+	list-style: none;
+}
+#config-help li span.glyphicon {
+	margin-right: 4px;
+	margin-top: 4px;
+}
+#config-help a:hover {
+	color: rgb(43, 46, 74);
+}
+#config-help a:link {
+	color: rgb(144, 55, 73);
+}
+#config-help a:visited {
+	color: rgb(232, 69, 69);
+}
+#config-help a:active {
+	color: rgb(83, 53, 74);
 }

@@ -54,6 +54,7 @@
 	$at.CLK_CONFIGURATION = "ClickConfiguration";
 	$at.CLK_GENERAL = "ClickConfigurationGeneral";
 	$at.CLK_ALARM = "ClickConfigurationAlarm";
+	$at.CLK_HELP = "ClickConfigurationHelp";
 	$at.CLK_ALARM_CREATE_USER_GROUP = "ClickAlarmCreateUserGroup";
 	$at.CLK_ALARM_REFRESH_USER_GROUP = "ClickAlarmRefreshUserGroup";
 	$at.CLK_ALARM_FILTER_USER_GROUP = "ClickAlarmFilterUserGroup";

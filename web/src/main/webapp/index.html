@@ -335,15 +335,16 @@
         	<li ng-class="{true: 'active'}[isGeneral()]" ng-click="setCurrentTab('general')">General</li>
         	<li ng-class="{true: 'active'}[isAlarm()]" ng-click="setCurrentTab('alarm')">Alarm</li>
         	<li class="description">{{descriptionOfCurrentTab}}</li>
+        	<li ng-class="{true: 'active'}[isHelp()]" ng-click="setCurrentTab('help')" style="float:right">Help</li>
         </ul>
       </div>
-      <div class="modal-body" style="padding-top:50px;">
+      <div class="modal-body">
       	<div id="config-general" ng-show="isGeneral()" ng-controller="GeneralCtrl">
       		<div style="text-align:center;font-family:verdana;">
       			<h1>Add General Setting</h1>
       		</div>
       	</div>
-      	<div id="config-alram" ng-show="isAlarm()">
+      	<div id="config-alram" ng-show="isAlarm()" style="margin-top:10px;">
       		<alarm-user-group-directive></alarm-user-group-directive>
 	      	<div class="tabbable tabs-left" style="padding-left:20px;">
 	          	<ul class="nav nav-tabs">
@@ -362,6 +363,27 @@
 	        </div>
 	      	<div style="clear:both;display:block;"></div>
 	      </div>
+	    <div id="config-help" ng-show="isHelp()" ng-controller="HelpCtrl">
+      		<div style="font-family:verdana;">
+      			<a href="https://github.com/naver/pinpoint/wiki/FAQ" target="_blank" class="link-title"><i class="xi-clip"></i> FAQ</a>
+      			<a href="https://github.com/naver/pinpoint/issues" class="link-title"><i class="xi-info-circle"></i> Issues</a></h4>
+      			<a href="https://groups.google.com/forum/#!forum/pinpoint_user" class="link-title"><i class="xi-pen"></i> User Group</a>
+      			<hr/>
+      			<h4>English</h4>
+      			<ul>
+      				<li ng-repeat="helpLink in enHelpList">
+      					<a href="{{helpLink.link}}" target="_balnk"><span class="glyphicon glyphicon-file" aria-hidden="true"></span>{{helpLink.title}}</a>
+      				</li>
+      			</ul>
+      			<hr/>
+      			<h4>한글</h4>
+      			<ul>
+      				<li ng-repeat="helpLink in koHelpList">
+      					<a href="{{helpLink.link}}" target="_balnk"><span class="glyphicon glyphicon-file" aria-hidden="true"></span>{{helpLink.title}}</a>
+      				</li>
+      			</ul>
+      		</div>
+      	</div>
       </div>
     </div>
   </div>
@@ -418,6 +440,7 @@
 <script src="features/cpuLoadChart/cpu-load-chart.directive.js?v=${buildTime}"></script>
 <script src="features/loading/loading.directive.js?v=${buildTime}"></script>
 <script src="features/configuration/configuration.controller.js?v=${buildTime}"></script>
+<script src="features/configuration/help/help.controller.js?v=${buildTime}"></script>
 <script src="features/configuration/general/general.controller.js?v=${buildTime}"></script>
 <script src="features/configuration/alarm/alarm-user-group.directive.js?v=${buildTime}"></script>
 <script src="features/configuration/alarm/alarm-group-member.directive.js?v=${buildTime}"></script>
