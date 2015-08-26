@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricRegistry;
 import com.navercorp.pinpoint.profiler.sampler.TrueSampler;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 

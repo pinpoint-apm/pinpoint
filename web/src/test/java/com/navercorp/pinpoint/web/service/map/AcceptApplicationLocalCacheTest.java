@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.web.service.map.AcceptApplicationLocalCache;
 import com.navercorp.pinpoint.web.service.map.RpcApplication;
 import com.navercorp.pinpoint.web.vo.Application;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 

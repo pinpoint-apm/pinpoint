@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.profiler.monitor.metric.DynamicAcceptHistogram;
 import com.navercorp.pinpoint.profiler.monitor.metric.StaticAcceptHistogram;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 import org.slf4j.Logger;

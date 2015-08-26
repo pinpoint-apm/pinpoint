@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.KeyValue;
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.OracleConnectionStringException;
 import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.OracleNetConnectionDescriptorParser;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 import org.slf4j.Logger;

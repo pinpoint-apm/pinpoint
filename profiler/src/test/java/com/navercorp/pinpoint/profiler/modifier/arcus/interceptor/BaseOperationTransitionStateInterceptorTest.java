@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.modifier.arcus.interceptor;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import net.spy.memcached.ops.OperationState;
 import org.junit.Test;
 

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.util;
 
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 

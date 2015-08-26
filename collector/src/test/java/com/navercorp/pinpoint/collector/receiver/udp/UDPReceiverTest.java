@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.collector.receiver.DataReceiver;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.udp.BaseUDPReceiver;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.thrift.TBase;
 import org.junit.Ignore;
