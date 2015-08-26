@@ -22,7 +22,7 @@ import java.util.Arrays;
  */
 public class MethodFilters {
     public static final int SYNTHETIC = 0x00001000;
-    
+
     private MethodFilters() {
     }
 
@@ -38,10 +38,6 @@ public class MethodFilters {
         return new MethodNameFilter(null, names);
     }
 
-    public static MethodFilter name(int[] rejectModifiers, String... names) {
-        return new MethodNameFilter(rejectModifiers, names);
-    }
-    
     public static MethodFilter modifier(int required) {
         return modifier(required, 0);
     }
@@ -62,20 +58,26 @@ public class MethodFilters {
         return new ArgsFilter(types);
     }
 
+    public static MethodFilter chain(MethodFilter... methodFilters) {
+        return new ChaninFilter(methodFilters);
+    }
+
     private static final class MethodNameFilter implements MethodFilter {
         private final String[] names;
-        private final RejectModifiers modifiers;
 
         public MethodNameFilter(int[] rejectModifiers, String[] names) {
             this.names = names;
-            this.modifiers = new RejectModifiers(rejectModifiers);
         }
 
         @Override
         public boolean accept(InstrumentMethod method) {
+            if (names == null) {
+                return REJECT;
+            }
+
             for (String name : names) {
-                if (name.equals(method.getName())) {
-                    return modifiers.accept(method.getModifiers());
+                if (name != null && name.equals(method.getName())) {
+                    return ACCEPT;
                 }
             }
 
@@ -116,7 +118,7 @@ public class MethodFilters {
                 return REJECT;
             }
 
-            return type.equals(paramTypes[index]);
+            return type != null && type.equals(paramTypes[index]);
         }
     }
 
@@ -134,23 +136,26 @@ public class MethodFilters {
         }
     }
 
-    private static class RejectModifiers {
-        private final int[] rejectModifiers;
+    private static final class ChaninFilter implements MethodFilter {
+        private final MethodFilter[] methodFilters;
 
-        public RejectModifiers(int[] rejectModifiers) {
-            this.rejectModifiers = rejectModifiers;
+        public ChaninFilter(MethodFilter[] methodFilters) {
+            this.methodFilters = methodFilters;
         }
 
-        public boolean accept(int modifier) {
-            if (rejectModifiers != null) {
-                for (int rejectModifier : rejectModifiers) {
-                    if (((rejectModifier & modifier) != 0)) {
-                        return false;
-                    }
+        @Override
+        public boolean accept(InstrumentMethod method) {
+            if (methodFilters == null) {
+                return REJECT;
+            }
+
+            for (MethodFilter methodFilter : methodFilters) {
+                if (methodFilter == null || !methodFilter.accept(method)) {
+                    return REJECT;
                 }
             }
 
-            return true;
+            return ACCEPT;
         }
     }
 }
