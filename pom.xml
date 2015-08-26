@@ -45,6 +45,7 @@
         <module>thrift</module>
         <module>test</module>
         <module>web</module>
+        <module>java8-test</module>
     </modules>
 
     <properties>
@@ -776,6 +777,9 @@
                                 </requireEnvironmentVariable>
                                 <requireEnvironmentVariable>
                                     <variableName>JAVA_7_HOME</variableName>
+                                </requireEnvironmentVariable>
+                                <requireEnvironmentVariable>
+                                    <variableName>JAVA_8_HOME</variableName>
                                 </requireEnvironmentVariable>
                             </rules>
                             <fail>true</fail>
