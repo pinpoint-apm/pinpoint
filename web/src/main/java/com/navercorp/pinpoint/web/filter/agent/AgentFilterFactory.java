@@ -15,22 +15,39 @@ public class AgentFilterFactory {
         this.toAgent = toAgent;
     }
 
-    public AgentFilter createFilter() {
-
-        if (isNotBlank(fromAgent) && isNotBlank(toAgent)) {
-            return new FromToAgentFilter(fromAgent, toAgent);
-        }
-        if (isNotBlank(fromAgent)) {
-            return new FromAgentFilter(fromAgent);
-        }
-        if (isNotBlank(toAgent)) {
-            return new ToAgentFilter(toAgent);
-        }
-        return SkipAgentFilter.SKIP_FILTER;
+    public AgentFilter createFromAgentFilter() {
+        return createAgentFilter(fromAgent);
     }
 
-    private static boolean isNotBlank(String toAgent) {
+    public AgentFilter createToAgentFilter() {
+        return createAgentFilter(toAgent);
+    }
+
+    private AgentFilter createAgentFilter(String agentId) {
+        if (StringUtils.isBlank(agentId)) {
+            return SkipAgentFilter.SKIP_FILTER;
+        }
+        return new DefaultAgentFilter(agentId);
+    }
+
+    public boolean fromAgentExist() {
+        return isNotBlank(fromAgent);
+    }
+
+    public boolean toAgentExist() {
+        return isNotBlank(toAgent);
+    }
+
+    private boolean isNotBlank(String toAgent) {
         return StringUtils.isNotBlank(toAgent);
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("AgentFilterFactory{");
+        sb.append("fromAgent='").append(fromAgent).append('\'');
+        sb.append(", toAgent='").append(toAgent).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
 }

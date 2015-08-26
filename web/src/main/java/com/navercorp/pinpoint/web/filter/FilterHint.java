@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Hint for fitering
+ * Hint for filtering
  * 
  * @author netspider
  * 

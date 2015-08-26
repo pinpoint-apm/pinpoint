@@ -28,10 +28,13 @@ import com.navercorp.pinpoint.common.bo.SpanBo;
  */
 public class FilterChain implements Filter {
 
-    private final List<Filter> filterList;
+    private final List<Filter> filterList = new ArrayList<Filter>();
 
     public FilterChain() {
-        this.filterList = new ArrayList<Filter>();
+    }
+
+    public FilterChain(List<LinkFilter> linkFilterList) {
+        this.filterList.addAll(linkFilterList);
     }
 
     public void addFilter(Filter filter) {
@@ -46,25 +49,18 @@ public class FilterChain implements Filter {
         // FIXME how to improve performance without "for loop"
         for (Filter filter : filterList) {
             if (!filter.include(transaction)) {
-                return false;
+                return REJECT;
             }
         }
-        return true;
+        return ACCEPT;
     }
+
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < filterList.size(); i++, sb.append("<br/>")) {
-            sb.append(filterList.get(i).toString());
-        }
+        final StringBuilder sb = new StringBuilder("FilterChain{");
+        sb.append("filterList=").append(filterList);
+        sb.append('}');
         return sb.toString();
-    }
-
-    public void addAllFilter(List<LinkFilter> linkFilter) {
-        if (linkFilter == null) {
-            throw new NullPointerException("linkFilter must not be null");
-        }
-        this.filterList.addAll(linkFilter);
     }
 }

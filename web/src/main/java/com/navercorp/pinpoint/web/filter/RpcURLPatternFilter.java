@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * @author emeroad
  */
-// development class
+// TODO development class
 public class RpcURLPatternFilter implements URLPatternFilter {
 
     private static final Charset UTF8 = Charset.forName("UTF-8");
@@ -46,9 +46,12 @@ public class RpcURLPatternFilter implements URLPatternFilter {
                 if (!event.getServiceType().isRecordStatistics()) {
                     continue;
                 }
-//                http://api.cafe.naver.com/mobile/ArticleList.nhn?moreManageMenus=true&
-//                url pattern ->/mobile/ArticleList.nhn
-                List<AnnotationBo> annotationBoList = event.getAnnotationBoList();
+//                http://api.domain.com/test/ArticleList.do
+//                slice url ->/test/ArticleList.do
+                final List<AnnotationBo> annotationBoList = event.getAnnotationBoList();
+                if (annotationBoList == null) {
+                    continue;
+                }
                 for (AnnotationBo annotationBo : annotationBoList) {
 //                    TODO ?? url format & annotation type detect
                     int key = annotationBo.getKey();

@@ -16,13 +16,17 @@
 
 package com.navercorp.pinpoint.web.filter;
 
-import java.util.List;
-
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.web.filter.FilterDescriptor;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.List;
 
 /**
  * 
@@ -30,51 +34,84 @@ import org.junit.Test;
  * 
  */
 public class FilterDescriptorTest {
-    private final ObjectMapper om = new ObjectMapper();
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    public void convert() {
-        StringBuilder json = new StringBuilder();
-        json.append("[{");
-        json.append("\"fa\" : \"FROM_APPLICATION\"");
-        json.append(", \"fst\" : \"FROM_APPLICATION_TYPE\"");
-        json.append(", \"ta\" : \"TO_APPLICATION\"");
-        json.append(", \"tst\" : \"TO_APPLICATION_TYPE\"");
-        json.append(", \"rf\" : 0");
-        json.append(", \"rt\" : 1000");
-        json.append(", \"ie\" : 1");
-        json.append(", \"url\" : \"/**\"");
-        json.append("}]");
+    public void convert() throws IOException {
 
-        try {
-            List<FilterDescriptor> list = om.readValue(json.toString(), new TypeReference<List<FilterDescriptor>>() {
-            });
+        String jsonString = writeJsonString();
 
-            Assert.assertEquals(1, list.size());
+        FilterDescriptor descriptor = mapper.readValue(jsonString, FilterDescriptor.class);
 
-            FilterDescriptor descriptor = list.get(0);
+        Assert.assertEquals("FROM_APPLICATION", descriptor.getFromApplicationName());
+        Assert.assertEquals("FROM_SERVICE_TYPE", descriptor.getFromServiceType());
+        Assert.assertEquals("FROM_AGENT_ID", descriptor.getFromAgentName());
+        Assert.assertEquals((Long)0L, descriptor.getFromResponseTime());
 
-            Assert.assertEquals("FROM_APPLICATION", descriptor.getFromApplicationName());
-            Assert.assertEquals("FROM_APPLICATION_TYPE", descriptor.getFromServiceType());
-            Assert.assertEquals("TO_APPLICATION", descriptor.getToApplicationName());
-            Assert.assertEquals("TO_APPLICATION_TYPE", descriptor.getToServiceType());
-            Assert.assertEquals(new Long(0L), descriptor.getResponseFrom());
-            Assert.assertEquals(new Long(1000L), descriptor.getResponseTo());
-            Assert.assertEquals(new Boolean(true), descriptor.getIe());
-            Assert.assertEquals("/**", descriptor.getUrlPattern());
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.fail(e.getMessage());
-        }
+        Assert.assertEquals("TO_APPLICATION", descriptor.getToApplicationName());
+        Assert.assertEquals("TO_SERVICE_TYPE", descriptor.getToServiceType());
+        Assert.assertEquals("TO_AGENT_ID", descriptor.getToAgentName());
+        Assert.assertEquals((Long)1000L, descriptor.getResponseTo());
+
+        Assert.assertEquals(Boolean.TRUE, descriptor.getIncludeException());
+        Assert.assertEquals("/**", descriptor.getUrlPattern());
+    }
+
+    private String writeJsonString() throws IOException {
+        StringWriter writer = new StringWriter();
+
+        JsonGenerator json = mapper.getFactory().createGenerator(writer);
+
+//        json.writeStartArray();
+        json.writeStartObject();
+        json.writeStringField("fa", "FROM_APPLICATION");
+        json.writeStringField("fst", "FROM_SERVICE_TYPE");
+        json.writeStringField("fan", "FROM_AGENT_ID");
+        // fromResponseTime
+        json.writeNumberField("rf", 0);
+
+        json.writeStringField("ta", "TO_APPLICATION");
+        json.writeStringField("tst", "TO_SERVICE_TYPE");
+        json.writeStringField("tan", "TO_AGENT_ID");
+        // toResponseTime
+        json.writeNumberField("rt", 1000);
+
+        json.writeNumberField("ie", 1);
+
+        json.writeStringField("url", "/**");
+        json.writeEndObject();
+//        json.writeEndArray();
+
+        json.flush();
+        json.close();
+
+        String jsonString = writer.toString();
+        logger.debug("json:{}", jsonString);
+        return jsonString;
     }
 
     @Test
-    public void invalidJson() {
-        try {
-            om.readValue("INVALID", new TypeReference<List<FilterDescriptor>>() {
-            });
-            Assert.fail();
-        } catch (Exception e) {
-        }
+    public void convert_array() throws IOException {
+
+        String arrayJson = "["+writeJsonString() + "]";
+
+
+        logger.debug("json:{}", arrayJson);
+
+        List<FilterDescriptor> descriptor = mapper.readValue(arrayJson, new TypeReference<List<FilterDescriptor>>() {
+        });
+
+        Assert.assertEquals(1, descriptor.size());
+        Assert.assertNotNull(descriptor.get(0));
+    }
+
+    @Test(expected = IOException.class)
+    public void invalidJson() throws IOException {
+
+        mapper.readValue("INVALID", new TypeReference<List<FilterDescriptor>>() {
+        });
+
     }
 }
