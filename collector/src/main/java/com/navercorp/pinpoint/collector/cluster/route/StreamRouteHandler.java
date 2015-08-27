@@ -16,6 +16,11 @@
 
 package com.navercorp.pinpoint.collector.cluster.route;
 
+import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.SerializerFactory;
+import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +40,7 @@ import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateCode;
 import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author koo.taejin
@@ -48,6 +54,9 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
     private final RouteFilterChain<StreamEvent> streamCreateFilterChain;
     private final RouteFilterChain<ResponseEvent> responseFilterChain;
     private final RouteFilterChain<StreamRouteCloseEvent> streamCloseFilterChain;
+
+    @Autowired
+    private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
 
     public StreamRouteHandler(ClusterPointLocator<TargetClusterPoint> targetClusterPointLocator,
             RouteFilterChain<StreamEvent> streamCreateFilterChain,
@@ -75,27 +84,27 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
     }
 
     @Override
-    public RouteResult onRoute(StreamEvent event) {
+    public TCommandTransferResponse onRoute(StreamEvent event) {
         streamCreateFilterChain.doEvent(event);
 
-        RouteResult routeResult = onRoute0(event);
+        TCommandTransferResponse routeResult = onRoute0(event);
         return routeResult;
     }
 
-    private RouteResult onRoute0(StreamEvent event) {
+    private TCommandTransferResponse onRoute0(StreamEvent event) {
         TBase<?,?> requestObject = event.getRequestObject();
         if (requestObject == null) {
-            return new RouteResult(RouteStatus.BAD_REQUEST);
+            return createResponse(TRouteResult.EMPTY_REQUEST);
         }
 
         TargetClusterPoint clusterPoint = findClusterPoint(event.getDeliveryCommand());
         if (clusterPoint == null) {
-            return new RouteResult(RouteStatus.NOT_FOUND);
+            return createResponse(TRouteResult.AGNET_NOT_FOUND);
         }
 
         TCommandTypeVersion commandVersion = TCommandTypeVersion.getVersion(clusterPoint.gerVersion());
         if (!commandVersion.isSupportCommand(requestObject)) {
-            return new RouteResult(RouteStatus.NOT_ACCEPTABLE);
+            return createResponse(TRouteResult.AGENT_NOT_SUPPORTED_COMMAND);
         }
 
         try {
@@ -108,17 +117,17 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
                 ClientStreamChannelContext producerContext = createStreamChannel((PinpointServerClusterPoint) clusterPoint, event.getDeliveryCommand().getPayload(), routeManager);
                 routeManager.setProducer(producerContext.getStreamChannel());
 
-                return new RouteResult(RouteStatus.OK);
+                return createResponse(TRouteResult.OK);
             } else {
-                return new RouteResult(RouteStatus.NOT_ACCEPTABLE_AGENT_TYPE);
+                return createResponse(TRouteResult.AGENT_NOT_ACCEPTABLE);
             }
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
                 logger.warn("Create StreamChannel(" + clusterPoint  + ") failed. Error:" + e.getMessage(), e);
             }
         }
-        
-        return new RouteResult(RouteStatus.NOT_ACCEPTABLE_UNKNOWN);
+
+        return createResponse(TRouteResult.UNKNOWN);
     }
     
     private ClientStreamChannelContext createStreamChannel(PinpointServerClusterPoint clusterPoint, byte[] payload, ClientStreamChannelMessageListener messageListener) {
@@ -151,12 +160,9 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
         public void handleStreamData(ClientStreamChannelContext producerContext, StreamResponsePacket packet) {
             StreamChannelStateCode stateCode = consumer.getCurrentState();
             if (StreamChannelStateCode.RUN == stateCode) {
-                ResponseMessage responseMessage = new ResponseMessage();
-                responseMessage.setMessage(packet.getPayload());
-
-                responseFilterChain.doEvent(new ResponseEvent(streamEvent, -1, new RouteResult(RouteStatus.OK, responseMessage)));
-
-                consumer.sendData(packet.getPayload());
+                TCommandTransferResponse response = createResponse(TRouteResult.OK, packet.getPayload());
+                responseFilterChain.doEvent(new ResponseEvent(streamEvent, -1, response));
+                consumer.sendData(serialize(response));
             } else {
                 logger.warn("Can route stream data to consumer.(state:{})", stateCode);
                 if (StreamChannelStateCode.OPEN_ARRIVED != stateCode) {
@@ -195,5 +201,21 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
         }
 
     }
+
+    private TCommandTransferResponse createResponse(TRouteResult result) {
+        return createResponse(result, new byte[0]);
+    }
+
+    private TCommandTransferResponse createResponse(TRouteResult result, byte[] payload) {
+        TCommandTransferResponse response = new TCommandTransferResponse();
+        response.setRouteResult(result);
+        response.setPayload(payload);
+        return response;
+    }
+
+    private byte[] serialize(TBase<?,?> result) {
+        return SerializationUtils.serialize(result, commandSerializerFactory, null);
+    }
+
 
 }

@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvoca
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.google.httpclient.HttpClientConstants;
 
 /**
@@ -94,7 +93,7 @@ public class HttpRequestExecuteAsyncMethodInterceptor implements SimpleAroundInt
         try {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(methodDescriptor);
-            recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
+            recorder.recordServiceType(HttpClientConstants.HTTP_CLIENT_INTERNAL);
             recorder.recordException(throwable);
 
             // remove async id.

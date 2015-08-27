@@ -16,39 +16,43 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.client.async;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 
 /**
  * @author HyunGil Jeong
  */
 public class TAsyncMethodCallOnErrorInterceptor extends TAsyncMethodCallInternalMethodInterceptor {
-    
-    public TAsyncMethodCallOnErrorInterceptor(
-            TraceContext traceContext,
-            MethodDescriptor methodDescriptor,
-            @Name(METADATA_ASYNC_MARKER) MetadataAccessor asyncMarkerAccessor) {
-        super(traceContext, methodDescriptor, asyncMarkerAccessor);
+
+    public TAsyncMethodCallOnErrorInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+        super(traceContext, methodDescriptor);
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         super.after(target, args, result, throwable);
-        
+
         // End async trace block
         final Trace trace = super.traceContext.currentTraceObject();
         // shouldn't be null
         if (trace == null) {
             return;
         }
-        
-        if(trace.isAsync() && trace.isRootStack()) {
+
+        if (trace.isAsync() && trace.isRootStack()) {
             trace.close();
             super.traceContext.removeTraceObject();
         }
     }
-    
+
+    @Override
+    public void doInBeforeTrace(SpanEventRecorder recorder, final Object target, final Object[] args) {
+        if (args.length == 1) {
+            recorder.recordAttribute(AnnotationKey.ARGS0, args[0]);
+        }
+    }
+
 }

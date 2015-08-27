@@ -5,7 +5,7 @@ import java.util.Map;
 
 public enum LoggingInfo {
 
-    NOT_LOGGED((byte)0, "LOGGED", "message is logged"),
+    NOT_LOGGED((byte)0, "NOT_LOGGED", "message is not logged"),
     
     LOGGED((byte)1, "LOGGED", "message is logged"),
 

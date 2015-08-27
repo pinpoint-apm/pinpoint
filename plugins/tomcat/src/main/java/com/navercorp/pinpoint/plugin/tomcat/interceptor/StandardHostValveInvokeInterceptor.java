@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.catalina.connector.Request;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Header;
@@ -35,23 +34,22 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.plugin.tomcat.AsyncAccessor;
 import com.navercorp.pinpoint.plugin.tomcat.ServletAsyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.tomcat.ServletSyncMethodDescriptor;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
+import com.navercorp.pinpoint.plugin.tomcat.TraceAccessor;
 
 /**
  * @author emeroad
  * @author jaehong.kim
  */
-@TargetMethod(name = "invoke", paramTypes = { "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response" })
 public class StandardHostValveInvokeInterceptor implements SimpleAroundInterceptor, TomcatConstants {
     public static final ServletSyncMethodDescriptor SERVLET_SYNCHRONOUS_API_TAG = new ServletSyncMethodDescriptor();
     public static final ServletAsyncMethodDescriptor SERVLET_ASYNCHRONOUS_API_TAG = new ServletAsyncMethodDescriptor();
@@ -64,15 +62,11 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
     private TraceContext traceContext;
 
     private Filter<String> excludeUrlFilter;
-    private MetadataAccessor traceAccessor;
-    private MetadataAccessor asyncAccessor;
 
-    public StandardHostValveInvokeInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter, @Name(METADATA_TRACE) MetadataAccessor traceAccessor, @Name(METADATA_ASYNC) MetadataAccessor asyncAccessor) {
+    public StandardHostValveInvokeInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter) {
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
         this.excludeUrlFilter = excludeFilter;
-        this.traceAccessor = traceAccessor;
-        this.asyncAccessor = asyncAccessor;
 
         traceContext.cacheApi(SERVLET_ASYNCHRONOUS_API_TAG);
         traceContext.cacheApi(SERVLET_SYNCHRONOUS_API_TAG);
@@ -176,37 +170,25 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
     }
 
     private void setTraceMetadata(final Request request, final Trace trace) {
-        if (traceAccessor.isApplicable(request)) {
-            traceAccessor.set(request, trace);
+        if (request instanceof TraceAccessor) {
+            ((TraceAccessor)request)._$PINPOINT$_setTrace(trace);
         }
     }
 
     private Trace getTraceMetadata(final Request request) {
-        if (!traceAccessor.isApplicable(request) || traceAccessor.get(request) == null) {
+        if (!(request instanceof TraceAccessor)) {
             return null;
         }
 
-        try {
-            final Trace trace = traceAccessor.get(request);
-            return trace;
-        } catch (ClassCastException e) {
-            logger.warn("Invalid trace metadata({}).", METADATA_TRACE, e);
-            return null;
-        }
+        return ((TraceAccessor)request)._$PINPOINT$_getTrace();
     }
 
     private boolean getAsyncMetadata(final Request request) {
-        if (!asyncAccessor.isApplicable(request) || asyncAccessor.get(request) == null) {
+        if (!(request instanceof AsyncAccessor)) {
             return false;
         }
 
-        try {
-            final Boolean async = asyncAccessor.get(request);
-            return async.booleanValue();
-        } catch (ClassCastException e) {
-            logger.warn("Invalid async metadata({})", METADATA_ASYNC, e);
-            return false;
-        }
+        return ((AsyncAccessor)request)._$PINPOINT$_isAsync();
     }
 
     private boolean isAsynchronousProcess(final Request request) {

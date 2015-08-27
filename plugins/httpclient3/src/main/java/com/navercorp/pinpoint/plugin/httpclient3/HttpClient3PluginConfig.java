@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  */
 public class HttpClient3PluginConfig {
 
-    private boolean apacheHttpClient3Profile = true;
     private boolean apacheHttpClient3ProfileCookie = false;
     private DumpType apacheHttpClient3ProfileCookieDumpType = DumpType.EXCEPTION;
     private int apacheHttpClient3ProfileCookieSamplingRate = 1;
@@ -35,7 +34,6 @@ public class HttpClient3PluginConfig {
     private boolean apacheHttpClient3ProfileIo;
 
     public HttpClient3PluginConfig(ProfilerConfig src) {
-        this.apacheHttpClient3Profile = src.readBoolean("profiler.apache.httpclient3", true);
         this.apacheHttpClient3ProfileCookie = src.readBoolean("profiler.apache.httpclient3.cookie", false);
         this.apacheHttpClient3ProfileCookieDumpType = src.readDumpType("profiler.apache.httpclient3.cookie.dumptype", DumpType.EXCEPTION);
         this.apacheHttpClient3ProfileCookieSamplingRate = src.readInt("profiler.apache.httpclient3.cookie.sampling.rate", 1);
@@ -45,10 +43,6 @@ public class HttpClient3PluginConfig {
         this.apacheHttpClient3ProfileEntitySamplingRate = src.readInt("profiler.apache.httpclient3.entity.sampling.rate", 1);
 
         this.apacheHttpClient3ProfileIo = src.readBoolean("profiler.apache.httpclient3.io", true);
-    }
-
-    public boolean isApacheHttpClient3Profile() {
-        return apacheHttpClient3Profile;
     }
 
     public boolean isApacheHttpClient3ProfileCookie() {
@@ -82,9 +76,7 @@ public class HttpClient3PluginConfig {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("{apacheHttpClient3Profile=");
-        builder.append(apacheHttpClient3Profile);
-        builder.append(", apacheHttpClient3ProfileCookie=");
+        builder.append("{apacheHttpClient3ProfileCookie=");
         builder.append(apacheHttpClient3ProfileCookie);
         builder.append(", apacheHttpClient3ProfileCookieDumpType=");
         builder.append(apacheHttpClient3ProfileCookieDumpType);

@@ -15,7 +15,9 @@
  */
 package com.navercorp.pinpoint.web.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -82,12 +84,18 @@ public class UserController {
     
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public Object getUser(@RequestParam(value="userId", required=false) String userId) {
+    public Object getUser(@RequestParam(value="userId", required=false) String userId, @RequestParam(value="userName", required=false) String userName, @RequestParam(value="department", required=false) String department) {
         try {
-            if(userId == null) {
-                return userService.selectUser();
+            if(userId != null) {
+                List<User> users = new ArrayList<User>(1);
+                users.add(userService.selectUserByUserId(userId));
+                return users;
+            } else if (userName != null) {
+                return userService.selectUserByUserName(userName);
+            } else if (department != null) {
+                return userService.selectUserByDepartment(department);
             } else {
-                return userService.selectUserByUserId(userId);
+                return userService.selectUser();
             }
         } catch (Exception e) {
             logger.error("can't select user", e);

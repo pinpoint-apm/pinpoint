@@ -14,14 +14,14 @@
  */
 package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
+import com.navercorp.pinpoint.plugin.tomcat.AsyncAccessor;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
+import com.navercorp.pinpoint.plugin.tomcat.TraceAccessor;
 
 /**
  * 
@@ -33,32 +33,28 @@ public class RequestRecycleInterceptor implements SimpleAroundInterceptor, Tomca
     private PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     private InstrumentMethod targetMethod;
-    private MetadataAccessor traceAccessor;
-    private MetadataAccessor asyncAccessor;
 
-    public RequestRecycleInterceptor(InstrumentMethod targetMethod, @Name(METADATA_TRACE) MetadataAccessor traceAccessor, @Name(METADATA_ASYNC) MetadataAccessor asyncAccessor) {
+    public RequestRecycleInterceptor(InstrumentMethod targetMethod) {
         this.targetMethod = targetMethod;
-        this.traceAccessor = traceAccessor;
-        this.asyncAccessor = asyncAccessor;
     }
 
     @Override
     public void before(Object target, Object[] args) {
         logger.beforeInterceptor(target, target.getClass().getName(), targetMethod.getName(), "", args);
         try {
-            if (asyncAccessor.isApplicable(target)) {
+            if (target instanceof AsyncAccessor) {
                 // reset
-                asyncAccessor.set(target, Boolean.FALSE);
+                ((AsyncAccessor) target)._$PINPOINT$_setAsync(Boolean.FALSE);
             }
 
-            if (traceAccessor.isApplicable(target) && traceAccessor.get(target) != null) {
-                final Trace trace = traceAccessor.get(target);
+            if (target instanceof TraceAccessor) {
+                final Trace trace = ((TraceAccessor) target)._$PINPOINT$_getTrace();
                 if (trace != null && trace.canSampled()) {
                     // end of root span
                     trace.close();
                 }
                 // reset
-                traceAccessor.set(target, null);
+                ((TraceAccessor) target)._$PINPOINT$_setTrace(null);
             }
         } catch (Throwable t) {
             logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);

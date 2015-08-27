@@ -16,31 +16,24 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.client.async;
 
-import com.navercorp.pinpoint.bootstrap.FieldAccessor;
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
+import java.net.SocketAddress;
+
+import org.apache.thrift.transport.TNonblockingTransport;
+
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketAddressFieldAccessor;
+import com.navercorp.pinpoint.plugin.thrift.field.getter.TNonblockingTransportFieldGetter;
 
 /**
  * @author HyunGil Jeong
  */
 public class TAsyncMethodCallConstructInterceptor implements SimpleAroundInterceptor, ThriftConstants {
-   
+
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    
-    private final MetadataAccessor nonblockingSocketAddressAccessor;
-    private final FieldAccessor transportFieldAccessor;
-    
-    public TAsyncMethodCallConstructInterceptor(
-            @Name(METADATA_NONBLOCKING_SOCKET_ADDRESS) MetadataAccessor nonblockingSocketAddressAccessor,
-            @Name(FIELD_TRANSPORT_ASYNC_METHOD_CALL) FieldAccessor transportFieldAccessor) {
-        this.nonblockingSocketAddressAccessor = nonblockingSocketAddressAccessor;
-        this.transportFieldAccessor = transportFieldAccessor;
-    }
 
     @Override
     public void before(Object target, Object[] args) {
@@ -53,40 +46,34 @@ public class TAsyncMethodCallConstructInterceptor implements SimpleAroundInterce
             logger.afterInterceptor(target, args, result, throwable);
         }
         if (validate(target)) {
-            Object nonblockingTransportObj = this.transportFieldAccessor.get(target);
-            if (validateTransport(nonblockingTransportObj)) {
-                Object socketAddress = this.nonblockingSocketAddressAccessor.get(nonblockingTransportObj);
-                this.nonblockingSocketAddressAccessor.set(target, socketAddress);
+            TNonblockingTransport transport = ((TNonblockingTransportFieldGetter)target)._$PINPOINT$_getTNonblockingTransport();
+            if (validateTransport(transport)) {
+                SocketAddress socketAddress = ((SocketAddressFieldAccessor)transport)._$PINPOINT$_getSocketAddress();
+                ((SocketAddressFieldAccessor)target)._$PINPOINT$_setSocketAddress(socketAddress);
             }
         }
     }
 
     private boolean validate(Object target) {
-        if (!this.transportFieldAccessor.isApplicable(target)) {
+        if (!(target instanceof TNonblockingTransportFieldGetter)) {
             if (isDebug) {
-                logger.debug("Invalid target object. Need field accessor({})", FIELD_TRANSPORT_ASYNC_METHOD_CALL);
+                logger.debug("Invalid target object. Need field accessor({}).", TNonblockingTransportFieldGetter.class.getName());
             }
             return false;
         }
-        if (!this.nonblockingSocketAddressAccessor.isApplicable(target)) {
+        if (!(target instanceof SocketAddressFieldAccessor)) {
             if (isDebug) {
-                logger.debug("Invalid target object. Need field accessor({})", METADATA_NONBLOCKING_SOCKET_ADDRESS);
+                logger.debug("Invalid target object. Need field accessor({}).", SocketAddressFieldAccessor.class.getName());
             }
             return false;
         }
         return true;
     }
-    
+
     private boolean validateTransport(Object nonblockingTransportObj) {
-        if (nonblockingTransportObj == null) {
+        if (!(nonblockingTransportObj instanceof SocketAddressFieldAccessor)) {
             if (isDebug) {
-                logger.debug("Target field object is null.", FIELD_TRANSPORT_ASYNC_METHOD_CALL);
-            }
-            return false;
-        }
-        if (!this.nonblockingSocketAddressAccessor.isApplicable(nonblockingTransportObj)) {
-            if (isDebug) {
-                logger.debug("Invalid transport object. Need metadata accessor({})", METADATA_NONBLOCKING_SOCKET_ADDRESS);
+                logger.debug("Invalid target object. Need field accessor({}).", SocketAddressFieldAccessor.class.getName());
             }
             return false;
         }

@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventListener;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MatchableClassFileTransformer;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.DefaultModifierRegistry;
 import com.navercorp.pinpoint.profiler.modifier.ModifierRegistry;
@@ -154,13 +153,6 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Ret
         // rpc
         modifierRepository.addConnectorModifier();
 
-        // orm
-        modifierRepository.addOrmModifier();
-
-        // spring beans
-        modifierRepository.addSpringBeansModifier();
-
-       
         // log4j
         modifierRepository.addLog4jModifier();
         

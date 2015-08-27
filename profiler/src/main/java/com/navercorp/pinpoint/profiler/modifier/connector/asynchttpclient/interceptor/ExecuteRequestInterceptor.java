@@ -111,7 +111,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
         SpanEventRecorder recorder = trace.currentSpanEventRecorder();
         TraceId nextId = trace.getTraceId().getNextTraceId();
         recorder.recordNextSpanId(nextId.getSpanId());
-        recorder.recordServiceType(ServiceType.HTTP_CLIENT);
+        recorder.recordServiceType(ServiceType.ASYNC_HTTP_CLIENT);
 
         if (httpRequest != null) {
             final FluentCaseInsensitiveStringsMap httpRequestHeaders = httpRequest.getHeaders();

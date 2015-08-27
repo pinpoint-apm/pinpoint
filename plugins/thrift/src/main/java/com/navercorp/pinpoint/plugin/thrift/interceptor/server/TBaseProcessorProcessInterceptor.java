@@ -22,8 +22,8 @@ import java.net.Socket;
 
 import org.apache.thrift.TBaseProcessor;
 import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TTransport;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -40,26 +40,33 @@ import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContext;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 import com.navercorp.pinpoint.plugin.thrift.ThriftUtils;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
 
 /**
  * Entry/exit point for tracing synchronous processors for Thrift services.
  * <p>
- * Because trace objects cannot be created until the message is read, this interceptor merely sends
- * trace objects created by other interceptors in the tracing pipeline:
+ * Because trace objects cannot be created until the message is read, this interceptor merely sends trace objects created by other interceptors in the tracing
+ * pipeline:
  * <ol>
- *   <li><p> {@link com.navercorp.pinpoint.plugin.thrift.interceptor.server.ProcessFunctionProcessInterceptor ProcessFunctionProcessInterceptor}
- *   marks the start of a trace, and sets up the environment for trace data to be injected.</li></p>
- *   
- *   <li><p> {@link com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadFieldBeginInterceptor TProtocolReadFieldBeginInterceptor},
- *   {@link com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor}
- *   reads the header fields and injects the parent trace object (if any).</li></p>
- *   
- *   <li><p> {@link com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor}
- *   creates the actual root trace object.</li></p>
- * </ol>
+ * <li>
  * <p>
- * <b><tt>TBaseProcessorProcessInterceptor</tt></b> -> <tt>ProcessFunctionProcessInterceptor</tt> -> 
- *    <tt>TProtocolReadFieldBeginInterceptor</tt> <-> <tt>TProtocolReadTTypeInterceptor</tt> -> <tt>TProtocolReadMessageEndInterceptor</tt>
+ * {@link com.navercorp.pinpoint.plugin.thrift.interceptor.server.ProcessFunctionProcessInterceptor ProcessFunctionProcessInterceptor} marks the start of a
+ * trace, and sets up the environment for trace data to be injected.</li>
+ * </p>
+ * 
+ * <li>
+ * <p>
+ * {@link com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadFieldBeginInterceptor TProtocolReadFieldBeginInterceptor},
+ * {@link com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor} reads the header fields
+ * and injects the parent trace object (if any).</li></p>
+ * 
+ * <li>
+ * <p>
+ * {@link com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor} creates the
+ * actual root trace object.</li></p> </ol>
+ * <p>
+ * <b><tt>TBaseProcessorProcessInterceptor</tt></b> -> <tt>ProcessFunctionProcessInterceptor</tt> -> <tt>TProtocolReadFieldBeginInterceptor</tt> <->
+ * <tt>TProtocolReadTTypeInterceptor</tt> -> <tt>TProtocolReadMessageEndInterceptor</tt>
  * <p>
  * Based on Thrift 0.8.0+
  * 
@@ -70,33 +77,27 @@ import com.navercorp.pinpoint.plugin.thrift.ThriftUtils;
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor
  */
-@Group(value=THRIFT_SERVER_SCOPE, executionPolicy=ExecutionPolicy.BOUNDARY)
+@Group(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.BOUNDARY)
 public class TBaseProcessorProcessInterceptor implements SimpleAroundInterceptor, ThriftConstants {
-    
+
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
     private final InterceptorGroup group;
-    private final MetadataAccessor socketAccessor;
 
-    public TBaseProcessorProcessInterceptor(
-            TraceContext traceContext,
-            MethodDescriptor descriptor,
-            @Name(THRIFT_SERVER_SCOPE) InterceptorGroup group,
-            @Name(METADATA_SOCKET) MetadataAccessor socketAccessor) {
+    public TBaseProcessorProcessInterceptor(TraceContext traceContext, MethodDescriptor descriptor, @Name(THRIFT_SERVER_SCOPE) InterceptorGroup group) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
         this.group = group;
-        this.socketAccessor = socketAccessor;
     }
 
     @Override
     public void before(Object target, Object[] args) {
         // Do nothing
     }
-    
+
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         final Trace trace = this.traceContext.currentRawTraceObject();
@@ -119,7 +120,7 @@ public class TBaseProcessorProcessInterceptor implements SimpleAroundInterceptor
             }
         }
     }
-    
+
     private void processTraceObject(final Trace trace, Object target, Object[] args, Throwable throwable) {
         // end spanEvent
         try {
@@ -133,7 +134,7 @@ public class TBaseProcessorProcessInterceptor implements SimpleAroundInterceptor
         } finally {
             trace.traceBlockEnd();
         }
-        
+
         // end root span
         SpanRecorder recorder = trace.getSpanRecorder();
         String methodUri = getMethodUri(target);
@@ -143,11 +144,16 @@ public class TBaseProcessorProcessInterceptor implements SimpleAroundInterceptor
         String remoteAddress = UNKNOWN_ADDRESS;
         if (args.length == 2 && args[0] instanceof TProtocol) {
             TProtocol inputProtocol = (TProtocol)args[0];
-            if (this.socketAccessor.isApplicable(inputProtocol.getTransport())) {
-                Socket socket = this.socketAccessor.get(inputProtocol.getTransport());
+            TTransport inputTransport = inputProtocol.getTransport();
+            if (inputTransport instanceof SocketFieldAccessor) {
+                Socket socket = ((SocketFieldAccessor)inputTransport)._$PINPOINT$_getSocket();
                 if (socket != null) {
                     localIpPort = ThriftUtils.getHostPort(socket.getLocalSocketAddress());
                     remoteAddress = ThriftUtils.getHost(socket.getRemoteSocketAddress());
+                }
+            } else {
+                if (isDebug) {
+                    logger.debug("Invalid target object. Need field accessor({}).", SocketFieldAccessor.class.getName());
                 }
             }
         }
@@ -158,7 +164,7 @@ public class TBaseProcessorProcessInterceptor implements SimpleAroundInterceptor
             recorder.recordRemoteAddress(remoteAddress);
         }
     }
-    
+
     private String getMethodUri(Object target) {
         String methodUri = UNKNOWN_METHOD_URI;
         InterceptorGroupInvocation currentTransaction = this.group.getCurrentInvocation();
@@ -176,5 +182,5 @@ public class TBaseProcessorProcessInterceptor implements SimpleAroundInterceptor
         }
         return methodUri;
     }
-    
+
 }

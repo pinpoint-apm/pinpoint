@@ -46,6 +46,8 @@ public interface InstrumentClass {
     List<InstrumentMethod> getDeclaredMethods(MethodFilter filter);
 
     InstrumentMethod getDeclaredMethod(String name, String... parameterTypes);
+
+    List<InstrumentClass> getNestedClasses(ClassFilter filter);    
     
     ClassLoader getClassLoader();
 
@@ -57,6 +59,8 @@ public interface InstrumentClass {
     boolean hasDeclaredMethod(String methodName, String... parameterTypes);
     
     boolean hasMethod(String methodName, String... parameterTypes);
+    
+    boolean hasEnclosingMethod(String methodName, String... parameterTypes);
     
     boolean hasField(String name, String type);
     
@@ -76,7 +80,7 @@ public interface InstrumentClass {
     int addInterceptor(String interceptorClassName, InterceptorGroup group, Object... constructorArgs) throws InstrumentException;
 
     int addInterceptor(String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException;
-
+    
 
     /**
      * You should check that class already have Declared method.
@@ -86,7 +90,6 @@ public interface InstrumentClass {
     
     byte[] toBytecode() throws InstrumentException;
 
-    
     
     
     @Deprecated

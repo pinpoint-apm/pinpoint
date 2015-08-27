@@ -16,11 +16,16 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.navercorp.pinpoint.common.bo.AgentInfoBo;
+import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.command.*;
+import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.SerializerFactory;
+import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
+import com.navercorp.pinpoint.web.server.PinpointSocketManager;
+import com.navercorp.pinpoint.web.service.AgentService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -33,16 +38,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.navercorp.pinpoint.rpc.Future;
-import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.thrift.dto.TResult;
-import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.SerializerFactory;
-import com.navercorp.pinpoint.thrift.util.SerializationUtils;
-import com.navercorp.pinpoint.web.server.PinpointSocketManager;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/command")
@@ -62,101 +60,74 @@ public class CommandController {
     @Autowired
     private PinpointSocketManager socketManager;
 
+    @Autowired
+    private AgentService agentService;
+
     @RequestMapping(value = "/echo", method = RequestMethod.GET)
     public ModelAndView echo(@RequestParam("application") String applicationName, @RequestParam("agent") String agentId,
             @RequestParam("startTimeStamp") long startTimeStamp, @RequestParam("message") String message) throws TException {
 
-        PinpointServer collector = socketManager.getCollector(applicationName, agentId, startTimeStamp);
-
-        if (collector == null) {
+        AgentInfoBo agentInfo = agentService.getAgentInfo(applicationName, agentId, startTimeStamp);
+        if (agentInfo == null) {
             return createResponse(false, String.format("Can't find suitable PinpointServer(%s/%s/%d).", applicationName, agentId, startTimeStamp));
         }
 
         TCommandEcho echo = new TCommandEcho();
         echo.setMessage(message);
 
-        byte[] payload = serialize(echo);
-
-        TCommandTransfer transfer = new TCommandTransfer();
-        transfer.setApplicationName(applicationName);
-        transfer.setAgentId(agentId);
-        transfer.setStartTime(startTimeStamp);
-        transfer.setPayload(payload);
-
-        Future<ResponseMessage> future = collector.request(serialize(transfer));
-        future.await();
-
-        String exceptionMessage = StringUtils.EMPTY;
-
-        ResponseMessage responseMessage = future.getResult();
         try {
-            TBase result = deserialize(responseMessage.getMessage());
-
-            if (result == null) {
-                return createResponse(false, String.format("Can't get message from %s.", collector));
-            } else if (result instanceof TCommandEcho) {
-                return createResponse(true, ((TCommandEcho) result).getMessage());
-            } else if (result instanceof TResult) {
-                return createResponse(false, ((TResult) result).getMessage());
+            PinpointRouteResponse pinpointRouteResponse = agentService.invoke(agentInfo, echo);
+            if (pinpointRouteResponse != null && pinpointRouteResponse.getRouteResult() == TRouteResult.OK) {
+                TBase result = pinpointRouteResponse.getResponse();
+                if (result == null) {
+                    return createResponse(false, "result null.");
+                } else if (result instanceof TCommandEcho) {
+                    return createResponse(true, ((TCommandEcho) result).getMessage());
+                } else if (result instanceof TResult) {
+                    return createResponse(false, ((TResult) result).getMessage());
+                } else {
+                    return createResponse(false, result.toString());
+                }
             } else {
-                return createResponse(false, result.toString());
+                return createResponse(false, "unknown");
             }
-
         } catch (TException e) {
-            exceptionMessage = e.getMessage();
+            return createResponse(false, e.getMessage());
         }
-
-        return createResponse(false, exceptionMessage);
     }
 
     @RequestMapping(value = "/threadDump", method = RequestMethod.GET)
     public ModelAndView echo(@RequestParam("application") String applicationName, @RequestParam("agent") String agentId,
             @RequestParam("startTimeStamp") long startTimeStamp) throws TException {
 
-        PinpointServer collector = socketManager.getCollector(applicationName, agentId, startTimeStamp);
-
-        if (collector == null) {
+        AgentInfoBo agentInfo = agentService.getAgentInfo(applicationName, agentId, startTimeStamp);
+        if (agentInfo == null) {
             return createResponse(false, String.format("Can't find suitable PinpointServer(%s/%s/%d).", applicationName, agentId, startTimeStamp));
         }
 
         TCommandThreadDump threadDump = new TCommandThreadDump();
 
-        byte[] payload = serialize(threadDump);
-
-        TCommandTransfer transfer = new TCommandTransfer();
-        transfer.setApplicationName(applicationName);
-        transfer.setAgentId(agentId);
-        transfer.setStartTime(startTimeStamp);
-        transfer.setPayload(payload);
-
-        Future<ResponseMessage> future = collector.request(serialize(transfer));
-        future.await();
-
-        String exceptionMessage = StringUtils.EMPTY;
-
-        ResponseMessage responseMessage = future.getResult();
         try {
-            TBase result = deserialize(responseMessage.getMessage());
-
-            if (result == null) {
-                return createResponse(false, String.format("Can't get message from %s.", collector));
-            } else if (result instanceof TCommandThreadDumpResponse) {
-                Map<String, String> map = createThreadDump((TCommandThreadDumpResponse) result);
-
-                logger.debug("{}", map.toString());
-
-                return createResponse(true, map);
-            } else if (result instanceof TResult) {
-                return createResponse(false, ((TResult) result).getMessage());
+            PinpointRouteResponse pinpointRouteResponse = agentService.invoke(agentInfo, threadDump);
+            if (pinpointRouteResponse != null && pinpointRouteResponse.getRouteResult() == TRouteResult.OK) {
+                TBase result = pinpointRouteResponse.getResponse();
+                if (result == null) {
+                    return createResponse(false, "result null.");
+                } else if (result instanceof TCommandThreadDumpResponse) {
+                    Map<String, String> map = createThreadDump((TCommandThreadDumpResponse) result);
+                    logger.debug("{}", map.toString());
+                    return createResponse(true, map);
+                } else if (result instanceof TResult) {
+                    return createResponse(false, ((TResult) result).getMessage());
+                } else {
+                    return createResponse(false, result.toString());
+                }
             } else {
-                return createResponse(false, result.toString());
+                return createResponse(false, "unknown");
             }
-
         } catch (TException e) {
-            exceptionMessage = e.getMessage();
+            return createResponse(false, e.getMessage());
         }
-
-        return createResponse(false, exceptionMessage);
     }
 
     private ModelAndView createResponse(boolean success, Object message) {
@@ -253,52 +224,6 @@ public class CommandController {
         }
         sb.append('\n');
         return sb.toString();
-    }
-
-    @RequestMapping(value = "/activeThread", method = RequestMethod.GET)
-    public ModelAndView activeThread(@RequestParam("application") String applicationName, @RequestParam("agent") String agentId,
-                                     @RequestParam("startTimeStamp") long startTimeStamp) throws TException {
-
-        PinpointServer collector = socketManager.getCollector(applicationName, agentId, startTimeStamp);
-        if (collector == null) {
-            return createResponse(false, String.format("Can't find suitable PinpointServer(%s/%s/%d).", applicationName, agentId, startTimeStamp));
-        }
-
-        TActiveThread activeThread = new TActiveThread();
-
-        byte[] payload = serialize(activeThread);
-
-        TCommandTransfer transfer = new TCommandTransfer();
-        transfer.setApplicationName(applicationName);
-        transfer.setAgentId(agentId);
-        transfer.setStartTime(startTimeStamp);
-        transfer.setPayload(payload);
-
-        Future<ResponseMessage> future = collector.request(serialize(transfer));
-        future.await();
-
-        String exceptionMessage = StringUtils.EMPTY;
-
-        ResponseMessage responseMessage = future.getResult();
-        try {
-            TBase result = deserialize(responseMessage.getMessage());
-            if (result instanceof TActiveThreadResponse) {
-                return createResponse(true, ((TActiveThreadResponse) result).getActiveThreadCount());
-            }
-        } catch (TException e) {
-            exceptionMessage = e.getMessage();
-        }
-
-        return createResponse(false, exceptionMessage);
-    }
-
-
-    private byte[] serialize(TBase result) throws TException {
-        return SerializationUtils.serialize(result, commandSerializerFactory);
-    }
-
-    private TBase deserialize(byte[] objectData) throws TException {
-        return SerializationUtils.deserialize(objectData, commandDeserializerFactory);
     }
 
 }

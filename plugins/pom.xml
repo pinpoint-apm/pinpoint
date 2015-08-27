@@ -27,6 +27,9 @@
         <module>arcus</module>
         <module>google-httpclient</module>
         <module>jetty</module>
+        <module>spring-beans</module>
+        <module>ibatis</module>
+        <module>mybatis</module>
     </modules>
 
     <dependencies>
@@ -103,6 +106,21 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-jetty-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-spring-beans-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-ibatis-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-mybatis-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

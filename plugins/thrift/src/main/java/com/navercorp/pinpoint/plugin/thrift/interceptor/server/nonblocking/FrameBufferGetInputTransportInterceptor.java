@@ -16,21 +16,19 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.server.nonblocking;
 
-import java.net.Socket;
+import org.apache.thrift.transport.TTransport;
 
-import com.navercorp.pinpoint.bootstrap.FieldAccessor;
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
 
 /**
  * This interceptor retrieves the socket information from the TTransport field, and attaches it into the frame wrapping the TTransport.
  * <p>
- * Similar to {@link com.navercorp.pinpoint.plugin.thrift.interceptor.server.nonblocking.FrameBufferConstructInterceptor FrameBufferConstructInterceptor},
- * but hooks onto the <tt>getInputTransport()</tt> method for injection.
+ * Similar to {@link com.navercorp.pinpoint.plugin.thrift.interceptor.server.nonblocking.FrameBufferConstructInterceptor FrameBufferConstructInterceptor}, but
+ * hooks onto the <tt>getInputTransport()</tt> method for injection.
  * <p>
- * Based on Thrift 0.8.0, 0.9.0 
+ * Based on Thrift 0.8.0, 0.9.0
  * 
  * @author HyunGil Jeong
  * 
@@ -40,27 +38,24 @@ public class FrameBufferGetInputTransportInterceptor extends FrameBufferTranspor
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    
-    public FrameBufferGetInputTransportInterceptor(
-            @Name(METADATA_SOCKET) MetadataAccessor socketAccessor,
-            @Name(FIELD_FRAME_BUFFER_IN_TRANSPORT) FieldAccessor transFieldAccessor) {
-        super(socketAccessor, transFieldAccessor);
+
+    @Override
+    protected final boolean validate(Object target, Object[] args, Object result) {
+        if (!(result instanceof TTransport)) {
+            return false;
+        }
+        if (!(result instanceof SocketFieldAccessor)) {
+            if (!isDebug) {
+                logger.debug("Invalid target object. Need field accessor({}).", SocketFieldAccessor.class.getName());
+            }
+            return false;
+        }
+        return true;
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        // Do nothing
-    }
-
-    @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result, throwable);
-        }
-        Socket rootSocket = getRootSocket(target);
-        if (rootSocket != null) {
-            injectSocket(result, rootSocket);
-        }
+    protected final TTransport getInjectionTarget(Object target, Object[] args, Object result) {
+        return (TTransport)result;
     }
 
 }

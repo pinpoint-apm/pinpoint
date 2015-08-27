@@ -26,7 +26,7 @@ public class MetricRegistryTest {
     @Test
     public void testSuccess() {
         MetricRegistry metricRegistry = new MetricRegistry(ServiceType.STAND_ALONE);
-        RpcMetric rpcMetric = metricRegistry.getRpcMetric(ServiceType.HTTP_CLIENT);
+        RpcMetric rpcMetric = metricRegistry.getRpcMetric(ServiceType.ASYNC_HTTP_CLIENT);
 
 
     }
@@ -42,7 +42,7 @@ public class MetricRegistryTest {
 
         metricRegistry = new MetricRegistry(ServiceType.STAND_ALONE);
         try {
-            metricRegistry.getRpcMetric(ServiceType.IBATIS);
+            metricRegistry.getRpcMetric(ServiceType.ASYNC);
             Assert.fail();
         } catch (Exception e) {
         }

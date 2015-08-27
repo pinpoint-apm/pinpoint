@@ -34,7 +34,7 @@ public interface ProfilerPluginInstrumentContext {
         
     public <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className);
     
-    public void retransform(Class<?> target, PinpointClassFileTransformer classEditor);
+    public void retransform(Class<?> target, PinpointClassFileTransformer transformer);
     
     @Deprecated
     public MetadataAccessor getMetadataAccessor(String name);

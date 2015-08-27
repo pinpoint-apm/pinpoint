@@ -21,7 +21,6 @@ import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.THRIFT_SERVER_SCO
 import org.apache.thrift.ProcessFunction;
 import org.apache.thrift.protocol.TProtocol;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
@@ -32,13 +31,14 @@ import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContext;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.ServerMarkerFlagFieldAccessor;
 
 /**
- * This interceptor marks the starting point for tracing {@link org.apache.thrift.ProcessFunction ProcessFunction} and creates the 
- * client call context to share with other interceptors within the current scope. 
+ * This interceptor marks the starting point for tracing {@link org.apache.thrift.ProcessFunction ProcessFunction} and creates the client call context to share
+ * with other interceptors within the current scope.
  * <p>
- * <tt>TBaseProcessorProcessInterceptor</tt> -> <b><tt>ProcessFunctionProcessInterceptor</tt></b> -> 
- * <tt>TProtocolReadFieldBeginInterceptor</tt> <-> <tt>TProtocolReadTTypeInterceptor</tt> -> <tt>TProtocolReadMessageEndInterceptor</tt>
+ * <tt>TBaseProcessorProcessInterceptor</tt> -> <b><tt>ProcessFunctionProcessInterceptor</tt></b> -> <tt>TProtocolReadFieldBeginInterceptor</tt> <->
+ * <tt>TProtocolReadTTypeInterceptor</tt> -> <tt>TProtocolReadMessageEndInterceptor</tt>
  * <p>
  * Based on Thrift 0.9.x
  * 
@@ -49,20 +49,16 @@ import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor
  */
-@Group(value=THRIFT_SERVER_SCOPE, executionPolicy=ExecutionPolicy.INTERNAL)
+@Group(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
 public class ProcessFunctionProcessInterceptor implements SimpleAroundInterceptor, ThriftConstants {
-    
+
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final InterceptorGroup group;
-    private final MetadataAccessor serverTraceMarker;
 
-    public ProcessFunctionProcessInterceptor(
-            @Name(THRIFT_SERVER_SCOPE) InterceptorGroup group,
-            @Name(METADATA_SERVER_MARKER) MetadataAccessor serverTraceMarker) {
+    public ProcessFunctionProcessInterceptor(@Name(THRIFT_SERVER_SCOPE) InterceptorGroup group) {
         this.group = group;
-        this.serverTraceMarker = serverTraceMarker;
     }
 
     @Override
@@ -86,11 +82,11 @@ public class ProcessFunctionProcessInterceptor implements SimpleAroundIntercepto
         // When this happens, TProtocol interceptors for clients are triggered since technically they're still within THRIFT_SERVER_SCOPE.
         // We set the marker inside server's input protocol to safeguard against such cases.
         Object iprot = args[1];
-        if (iprot instanceof TProtocol && this.serverTraceMarker.isApplicable(iprot)) {
-            this.serverTraceMarker.set(iprot, Boolean.TRUE);
+        if (validateInputProtocol(iprot)) {
+            ((ServerMarkerFlagFieldAccessor)iprot)._$PINPOINT$_setServerMarkerFlag(true);
         }
     }
-    
+
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
@@ -98,9 +94,23 @@ public class ProcessFunctionProcessInterceptor implements SimpleAroundIntercepto
         }
         // Unset server marker
         Object iprot = args[1];
-        if (iprot instanceof TProtocol && this.serverTraceMarker.isApplicable(iprot)) {
-            this.serverTraceMarker.set(iprot, Boolean.FALSE);
+        if (validateInputProtocol(iprot)) {
+            ((ServerMarkerFlagFieldAccessor)iprot)._$PINPOINT$_setServerMarkerFlag(false);
         }
     }
-    
+
+    private boolean validateInputProtocol(Object iprot) {
+        if (iprot instanceof TProtocol) {
+            if (iprot instanceof ServerMarkerFlagFieldAccessor) {
+                return true;
+            } else {
+                if (isDebug) {
+                    logger.debug("Invalid target object. Need field accessor({}).", ServerMarkerFlagFieldAccessor.class.getName());
+                }
+                return false;
+            }
+        }
+        return false;
+    }
+
 }

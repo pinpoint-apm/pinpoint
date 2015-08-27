@@ -66,6 +66,6 @@ public class HttpRequestIT {
         Method executeMethod = HttpRequest.class.getDeclaredMethod("execute");
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
-        verifier.verifyTrace(Expectations.event("HTTP_CLIENT_INTERNAL", executeMethod));
+        verifier.verifyTrace(Expectations.event("GOOGLE_HTTP_CLIENT_INTERNAL", executeMethod));
     }
 }

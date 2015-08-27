@@ -20,7 +20,6 @@ import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.THRIFT_CLIENT_SCO
 
 import java.net.SocketAddress;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -38,39 +37,28 @@ import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 import com.navercorp.pinpoint.plugin.thrift.ThriftRequestProperty;
 import com.navercorp.pinpoint.plugin.thrift.ThriftUtils;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncCallRemoteAddressFieldAccessor;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncNextSpanIdFieldAccessor;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncTraceIdFieldAccessor;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketAddressFieldAccessor;
 
 /**
  * @author HyunGil Jeong
  */
-@Group(value=THRIFT_CLIENT_SCOPE, executionPolicy=ExecutionPolicy.BOUNDARY)
+@Group(value = THRIFT_CLIENT_SCOPE, executionPolicy = ExecutionPolicy.BOUNDARY)
 public class TAsyncClientManagerCallInterceptor implements SimpleAroundInterceptor, ThriftConstants {
-   
+
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    
+
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
     private final InterceptorGroup group;
-    private final MetadataAccessor asyncTraceIdAccessor;
-    private final MetadataAccessor asyncNextSpanIdAccessor;
-    private final MetadataAccessor asyncCallRemoteAddressAccessor;
-    private final MetadataAccessor nonblockingSocketAddressAccessor;
-    
-    public TAsyncClientManagerCallInterceptor(
-            TraceContext traceContext,
-            MethodDescriptor descriptor,
-            @Name(THRIFT_CLIENT_SCOPE) InterceptorGroup group,
-            @Name(METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor,
-            @Name(METADATA_ASYNC_NEXT_SPAN_ID) MetadataAccessor asyncNextSpanIdAccessor,
-            @Name(METADATA_ASYNC_CALL_REMOTE_ADDRESS) MetadataAccessor asyncCallRemoteAddressAccessor,
-            @Name(METADATA_NONBLOCKING_SOCKET_ADDRESS) MetadataAccessor nonblockingSocketAddressAccessor) {
+
+    public TAsyncClientManagerCallInterceptor(TraceContext traceContext, MethodDescriptor descriptor, @Name(THRIFT_CLIENT_SCOPE) InterceptorGroup group) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
         this.group = group;
-        this.asyncTraceIdAccessor = asyncTraceIdAccessor;
-        this.asyncNextSpanIdAccessor = asyncNextSpanIdAccessor;
-        this.asyncCallRemoteAddressAccessor = asyncCallRemoteAddressAccessor;
-        this.nonblockingSocketAddressAccessor = nonblockingSocketAddressAccessor;
     }
 
     @Override
@@ -78,11 +66,11 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
-        
+
         if (!validate(target, args)) {
             return;
         }
-        
+
         final Trace trace = this.traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
@@ -101,28 +89,28 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
                 Object asyncMethodCallObj = args[0];
                 // inject async trace info to AsyncMethodCall object
                 final AsyncTraceId asyncTraceId = injectAsyncTraceId(asyncMethodCallObj, trace);
-                
+
                 recorder.recordServiceType(THRIFT_CLIENT_INTERNAL);
-                
+
                 // retrieve connection information
                 String remoteAddress = getRemoteAddress(asyncMethodCallObj);
-                
+
                 final TraceId nextId = asyncTraceId.getNextTraceId();
-                
+
                 // Inject nextSpanId as the actual sending of data will be handled asynchronously.
                 final long nextSpanId = nextId.getSpanId();
                 parentTraceInfo.setSpanId(nextSpanId);
-                
+
                 parentTraceInfo.setTraceId(nextId.getTransactionId());
                 parentTraceInfo.setParentSpanId(nextId.getParentSpanId());
-                
+
                 parentTraceInfo.setFlags(nextId.getFlags());
                 parentTraceInfo.setParentApplicationName(this.traceContext.getApplicationName());
                 parentTraceInfo.setParentApplicationType(this.traceContext.getServerTypeCode());
                 parentTraceInfo.setAcceptorHost(remoteAddress);
 
-                this.asyncCallRemoteAddressAccessor.set(asyncMethodCallObj, remoteAddress);
-                this.asyncNextSpanIdAccessor.set(asyncMethodCallObj, nextSpanId);
+                ((AsyncCallRemoteAddressFieldAccessor)asyncMethodCallObj)._$PINPOINT$_setAsyncCallRemoteAddress(remoteAddress);
+                ((AsyncNextSpanIdFieldAccessor)asyncMethodCallObj)._$PINPOINT$_setAsyncNextSpanId(nextSpanId);
             }
             InterceptorGroupInvocation currentTransaction = this.group.getCurrentInvocation();
             currentTransaction.setAttachment(parentTraceInfo);
@@ -136,12 +124,12 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-        
+
         final Trace trace = this.traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
-        
+
         try {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(this.descriptor);
@@ -157,62 +145,56 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
         if (args.length != 1) {
             return false;
         }
-        
+
         Object asyncMethodCallObj = args[0];
         if (asyncMethodCallObj == null) {
             if (isDebug) {
-                logger.debug("Metadata injection target object is null.");
+                logger.debug("Field accessor target object is null.");
             }
             return false;
         }
-        
-        if (!this.asyncTraceIdAccessor.isApplicable(asyncMethodCallObj)) {
+
+        if (!(asyncMethodCallObj instanceof AsyncTraceIdFieldAccessor)) {
             if (isDebug) {
-                logger.debug("Invalid target object. Need metadata accessor({})", METADATA_ASYNC_TRACE_ID);
+                logger.debug("Invalid target object. Need field accessor({}).", AsyncTraceIdFieldAccessor.class.getName());
             }
             return false;
         }
-        
-        if (!this.asyncNextSpanIdAccessor.isApplicable(asyncMethodCallObj)) {
+
+        if (!(asyncMethodCallObj instanceof AsyncNextSpanIdFieldAccessor)) {
             if (isDebug) {
-                logger.debug("Invalid target object. Need metadata accessor({})", METADATA_ASYNC_NEXT_SPAN_ID);
+                logger.debug("Invalid target object. Need field accessor({}).", AsyncNextSpanIdFieldAccessor.class.getName());
             }
             return false;
         }
-        
-        if (!this.asyncCallRemoteAddressAccessor.isApplicable(asyncMethodCallObj)) {
+
+        if (!(asyncMethodCallObj instanceof AsyncCallRemoteAddressFieldAccessor)) {
             if (isDebug) {
-                logger.debug("Invalid target object. Need metadata accessor({})", METADATA_ASYNC_CALL_REMOTE_ADDRESS);
+                logger.debug("Invalid target object. Need field accessor({}).", AsyncCallRemoteAddressFieldAccessor.class.getName());
             }
             return false;
         }
-        
+
         return true;
     }
-    
+
     private AsyncTraceId injectAsyncTraceId(final Object asyncMethodCallObj, final Trace trace) {
         final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
         SpanEventRecorder recorder = trace.currentSpanEventRecorder();
         recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
-        this.asyncTraceIdAccessor.set(asyncMethodCallObj, asyncTraceId);
+        ((AsyncTraceIdFieldAccessor)asyncMethodCallObj)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
         if (isDebug) {
             logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
         }
         return asyncTraceId;
     }
-    
+
     private String getRemoteAddress(Object asyncMethodCallObj) {
-        if (!this.nonblockingSocketAddressAccessor.isApplicable(asyncMethodCallObj)) {
-            if (isDebug) {
-                logger.debug("Invalid TAsyncMethodCall object. Need metadata accessor({})", METADATA_NONBLOCKING_SOCKET_ADDRESS);
-            }
+        if (!(asyncMethodCallObj instanceof SocketAddressFieldAccessor)) {
             return UNKNOWN_ADDRESS;
         }
-        Object socketAddress = this.nonblockingSocketAddressAccessor.get(asyncMethodCallObj);
-        if (socketAddress instanceof SocketAddress) {
-            return ThriftUtils.getHostPort((SocketAddress)socketAddress);
-        }
-        return UNKNOWN_ADDRESS;
+        SocketAddress socketAddress = ((SocketAddressFieldAccessor)asyncMethodCallObj)._$PINPOINT$_getSocketAddress();
+        return ThriftUtils.getHostPort((SocketAddress)socketAddress);
     }
-    
+
 }

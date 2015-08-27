@@ -77,7 +77,6 @@ public class AsyncEchoTestClient implements EchoTestClient {
 
     @Override
     public void verifyTraces(PluginTestVerifier verifier, String expectedMessage) throws Exception {
-        
         // ********** Asynchronous Traces
         // SpanEvent - Thrift Asynchronous Client Invocation
         ExpectedTrace asyncClientInvocationTrace = event("ASYNC", "Thrift Asynchronous Client Invocation");
@@ -131,7 +130,7 @@ public class AsyncEchoTestClient implements EchoTestClient {
         // ********** Root trace for Asynchronous traces
         // SpanEvent - TAsyncClientManager.call
         Method call = TAsyncClientManager.class.getDeclaredMethod("call", TAsyncMethodCall.class);
-        verifier.verifyTrace(async("THRIFT_CLIENT_INTERNAL", call, null,
+        verifier.verifyTrace(async(Expectations.event("THRIFT_CLIENT_INTERNAL", call),
                                         asyncClientInvocationTrace,
                                         startTrace,
                                         doConnectingTrace,

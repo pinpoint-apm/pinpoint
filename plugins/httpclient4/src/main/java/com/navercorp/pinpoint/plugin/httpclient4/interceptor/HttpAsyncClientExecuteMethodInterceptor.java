@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
@@ -37,8 +36,8 @@ public class HttpAsyncClientExecuteMethodInterceptor implements SimpleAroundInte
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    protected TraceContext traceContext;
-    protected MethodDescriptor descriptor;
+    protected final TraceContext traceContext;
+    protected final MethodDescriptor descriptor;
 
     public HttpAsyncClientExecuteMethodInterceptor(TraceContext context, MethodDescriptor descriptor) {
         this.traceContext = context;
@@ -57,7 +56,7 @@ public class HttpAsyncClientExecuteMethodInterceptor implements SimpleAroundInte
         }
 
         SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
+        recorder.recordServiceType(HttpClient4Constants.HTTP_CLIENT_4_INTERNAL);
     }
 
     @Override

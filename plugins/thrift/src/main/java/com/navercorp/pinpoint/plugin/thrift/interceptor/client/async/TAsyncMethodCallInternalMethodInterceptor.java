@@ -16,7 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.client.async;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
+import org.apache.thrift.async.TAsyncMethodCall;
+
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -24,9 +25,9 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncMarkerFlagFieldAccessor;
 
 /**
  * @author HyunGil Jeong
@@ -37,15 +38,10 @@ public class TAsyncMethodCallInternalMethodInterceptor implements SimpleAroundIn
 
     protected final TraceContext traceContext;
     protected final MethodDescriptor methodDescriptor;
-    protected final MetadataAccessor asyncMarkerAccessor;
-    
-    public TAsyncMethodCallInternalMethodInterceptor(
-            TraceContext traceContext,
-            MethodDescriptor methodDescriptor,
-            @Name(METADATA_ASYNC_MARKER) MetadataAccessor asyncMarkerAccessor) {
+
+    public TAsyncMethodCallInternalMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
-        this.asyncMarkerAccessor = asyncMarkerAccessor;
     }
 
     @Override
@@ -53,7 +49,7 @@ public class TAsyncMethodCallInternalMethodInterceptor implements SimpleAroundIn
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
-        
+
         if (!validate(target)) {
             return;
         }
@@ -65,6 +61,7 @@ public class TAsyncMethodCallInternalMethodInterceptor implements SimpleAroundIn
         try {
             trace.traceBlockBegin();
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            recorder.recordServiceType(getServiceType());
             doInBeforeTrace(recorder, target, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -72,9 +69,8 @@ public class TAsyncMethodCallInternalMethodInterceptor implements SimpleAroundIn
             }
         }
     }
-    
+
     protected void doInBeforeTrace(SpanEventRecorder recorder, final Object target, final Object[] args) {
-        recorder.recordServiceType(getServiceType());
     }
 
     @Override
@@ -82,8 +78,8 @@ public class TAsyncMethodCallInternalMethodInterceptor implements SimpleAroundIn
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-        
-        if (!validate(target)) {
+
+        if (!validate0(target)) {
             return;
         }
 
@@ -94,6 +90,8 @@ public class TAsyncMethodCallInternalMethodInterceptor implements SimpleAroundIn
 
         try {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            recorder.recordApi(this.methodDescriptor);
+            recorder.recordException(throwable);
             doInAfterTrace(recorder, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -103,28 +101,27 @@ public class TAsyncMethodCallInternalMethodInterceptor implements SimpleAroundIn
             trace.traceBlockEnd();
         }
     }
-    
+
     protected void doInAfterTrace(SpanEventRecorder recorder, final Object target, final Object[] args, final Object result, Throwable throwable) {
-        recorder.recordApi(this.methodDescriptor);
-        recorder.recordException(throwable);
     }
-    
+
+    private boolean validate0(Object target) {
+        if (!(target instanceof TAsyncMethodCall)) {
+            return false;
+        }
+        if (!(target instanceof AsyncMarkerFlagFieldAccessor)) {
+            if (isDebug) {
+                logger.debug("Invalid target object. Need field accessor({}).", AsyncMarkerFlagFieldAccessor.class.getName());
+            }
+            return false;
+        }
+        return validate(target);
+    }
+
     protected boolean validate(Object target) {
-        if (!this.asyncMarkerAccessor.isApplicable(target)) {
-            if (isDebug) {
-                logger.debug("Invalid target object. Need metadata accessor({})", METADATA_ASYNC_MARKER);
-            }
-            return false;
-        }
-        if (!(this.asyncMarkerAccessor.get(target) instanceof Boolean)) {
-            if (isDebug) {
-                logger.debug("Invalid value for metadata {}", METADATA_ASYNC_MARKER);
-            }
-            return false;
-        }
         return true;
     }
-    
+
     protected ServiceType getServiceType() {
         return THRIFT_CLIENT_INTERNAL;
     }

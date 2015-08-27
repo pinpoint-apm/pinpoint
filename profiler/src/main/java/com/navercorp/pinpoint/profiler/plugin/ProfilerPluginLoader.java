@@ -39,14 +39,20 @@ public class ProfilerPluginLoader {
     
     public List<DefaultProfilerPluginContext> load(URL[] pluginJars) {
         List<DefaultProfilerPluginContext> pluginContexts = new ArrayList<DefaultProfilerPluginContext>(pluginJars.length);
+        List<String> disabled = agent.getProfilerConfig().getDisabledPlugins();
         
         for (URL jar : pluginJars) {
             List<ProfilerPlugin> plugins = PluginLoader.load(ProfilerPlugin.class, new URL[] { jar });
             
             for (ProfilerPlugin plugin : plugins) {
+                if (disabled.contains(plugin.getClass().getName())) {
+                    logger.info("Skip disabled plugin: {}", plugin.getClass().getName());
+                    continue;
+                }
+                
                 logger.info("Loading plugin: {}", plugin.getClass().getName());
                 
-                ProfilerPluginClassInjector classInjector = JarProfilerPluginClassInjector.of(agent.getInstrumentation(), jar);
+                ProfilerPluginClassInjector classInjector = JarProfilerPluginClassInjector.of(agent.getInstrumentation(), agent.getClassPool(), jar);
                 DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(agent, classInjector);
                 plugin.setup(context);
                 context.markInitialized();

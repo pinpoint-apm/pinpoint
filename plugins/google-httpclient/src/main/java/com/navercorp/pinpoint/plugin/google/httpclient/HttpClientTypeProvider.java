@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.plugin.google.httpclient;
 
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
@@ -27,5 +29,6 @@ public class HttpClientTypeProvider implements TraceMetadataProvider, HttpClient
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
+        context.addServiceType(HTTP_CLIENT_INTERNAL, new AnnotationKeyMatcher.ExactMatcher(AnnotationKey.HTTP_INTERNAL_DISPLAY));
     }
 }

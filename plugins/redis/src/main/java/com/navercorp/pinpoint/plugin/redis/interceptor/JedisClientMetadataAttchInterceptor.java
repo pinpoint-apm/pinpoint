@@ -17,13 +17,12 @@ package com.navercorp.pinpoint.plugin.redis.interceptor;
 
 import redis.clients.jedis.Client;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
+import com.navercorp.pinpoint.plugin.redis.EndPointAccessor;
 import com.navercorp.pinpoint.plugin.redis.RedisConstants;
 
 /**
@@ -35,10 +34,7 @@ public abstract class JedisClientMetadataAttchInterceptor implements SimpleAroun
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private MetadataAccessor endPointAccessor;
-
-    public JedisClientMetadataAttchInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, @Name(METADATA_END_POINT) MetadataAccessor endPointAccessor) {
-        this.endPointAccessor = endPointAccessor;
+    public JedisClientMetadataAttchInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
     }
 
     @Override
@@ -52,9 +48,9 @@ public abstract class JedisClientMetadataAttchInterceptor implements SimpleAroun
                 return;
             }
 
-            final String endPoint = endPointAccessor.get(args[0]);
+            final String endPoint = ((EndPointAccessor) args[0])._$PINPOINT$_getEndPoint();
             if (endPoint != null) {
-                endPointAccessor.set(target, endPoint);
+                ((EndPointAccessor) target)._$PINPOINT$_setEndPoint(endPoint);
             }
         } catch (Throwable t) {
             logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
@@ -72,8 +68,13 @@ public abstract class JedisClientMetadataAttchInterceptor implements SimpleAroun
             return false;
         }
 
-        if (!endPointAccessor.isApplicable(target)) {
-            logger.debug("Invalid target object. Need metadata accessor({}).", METADATA_END_POINT);
+        if (!(args[0] instanceof EndPointAccessor)) {
+            logger.debug("Invalid args[0] object. Need field accessor({}).", METADATA_END_POINT);
+            return false;
+        }
+
+        if (!(target instanceof EndPointAccessor)) {
+            logger.debug("Invalid target object. Need field accessor({}).", METADATA_END_POINT);
             return false;
         }
 

@@ -15,17 +15,18 @@
  */
 package com.navercorp.pinpoint.plugin.httpclient4;
 
+import java.security.ProtectionDomain;
+
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncTraceIdAccessor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.BaseClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassConditions;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerSetup;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 
 /**
  * @author netspider
@@ -40,10 +41,6 @@ public class HttpClient4Plugin implements ProfilerPlugin, HttpClient4Constants {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final HttpClient4PluginConfig config = new HttpClient4PluginConfig(context.getConfig());
-
-        if (!config.isApacheHttpClient4Profile()) {
-            return;
-        }
 
         // common
         addHttpRequestExecutorClass(context, config);
@@ -70,174 +67,271 @@ public class HttpClient4Plugin implements ProfilerPlugin, HttpClient4Constants {
     }
 
     private void addHttpRequestExecutorClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.http.protocol.HttpRequestExecutor");
-        final MethodTransformerBuilder executeMethodBuilder = classEditorBuilder.editMethod("execute", "org.apache.http.HttpRequest", "org.apache.http.HttpClientConnection", "org.apache.http.protocol.HttpContext");
-        executeMethodBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        executeMethodBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpRequestExecutorExecuteMethodInterceptor");
+        context.addClassFileTransformer("org.apache.http.protocol.HttpRequestExecutor", new PinpointClassFileTransformer() {
+            
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                
+                InstrumentMethod execute = target.getDeclaredMethod("execute", "org.apache.http.HttpRequest", "org.apache.http.HttpClientConnection", "org.apache.http.protocol.HttpContext");
+                if (execute != null) {
+                    execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpRequestExecutorExecuteMethodInterceptor");
+                }
 
-        final MethodTransformerBuilder doSendRequestMethodBuilder = classEditorBuilder.editMethod("doSendRequest", "org.apache.http.HttpRequest", "org.apache.http.HttpClientConnection", "org.apache.http.protocol.HttpContext");
-        doSendRequestMethodBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        doSendRequestMethodBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodInterceptor");
-
-        final MethodTransformerBuilder doReceiveResponseMethodBuilder = classEditorBuilder.editMethod("doReceiveResponse", "org.apache.http.HttpRequest", "org.apache.http.HttpClientConnection", "org.apache.http.protocol.HttpContext");
-        doReceiveResponseMethodBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        doReceiveResponseMethodBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodInterceptor");
-
-        context.addClassFileTransformer(classEditorBuilder.build());
+                InstrumentMethod doSendRequest = target.getDeclaredMethod("doSendRequest", "org.apache.http.HttpRequest", "org.apache.http.HttpClientConnection", "org.apache.http.protocol.HttpContext");
+                if (doSendRequest != null) {
+                    doSendRequest.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodInterceptor");
+                }
+                
+                InstrumentMethod doReceiveResponse = target.getDeclaredMethod("doReceiveResponse", "org.apache.http.HttpRequest", "org.apache.http.HttpClientConnection", "org.apache.http.protocol.HttpContext");
+                if (doReceiveResponse != null) {
+                    doReceiveResponse.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodInterceptor");
+                }
+                
+                return target.toBytecode();
+            }
+        });
     }
     
     private void addAbstractHttpClient4Class(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.http.impl.client.AbstractHttpClient");
-        // The execute method was moved to CloseableHttpClient class from httpclient 4.0 or later.
-        // Need to check if CloseableHttpClient class exist.
-        classEditorBuilder.conditional(ClassConditions.hasClass("org.apache.http.impl.client.AbstractHttpClient"), new ConditionalClassFileTransformerSetup() {
+        context.addClassFileTransformer("org.apache.http.impl.client.AbstractHttpClient", new PinpointClassFileTransformer() {
+            
             @Override
-            public void setup(ConditionalClassFileTransformerBuilder conditional) {
-                injectHttpClientExecuteMethodWithHttpRequestInterceptor(conditional, false, "org.apache.http.HttpHost", "org.apache.http.HttpRequest");
-                injectHttpClientExecuteMethodWithHttpRequestInterceptor(conditional, false, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.protocol.HttpContext");
-                injectHttpClientExecuteMethodWithHttpRequestInterceptor(conditional, true, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler");
-                injectHttpClientExecuteMethodWithHttpRequestInterceptor(conditional, true, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext");
-
-                injectHttpClientExecuteMethodWithHttpUriRequestInterceptor(conditional, false, "org.apache.http.client.methods.HttpUriRequest");
-                injectHttpClientExecuteMethodWithHttpUriRequestInterceptor(conditional, false, "org.apache.http.client.methods.HttpUriRequest", "org.apache.http.protocol.HttpContext");
-                injectHttpClientExecuteMethodWithHttpUriRequestInterceptor(conditional, true, "org.apache.http.client.methods.HttpUriRequest", "org.apache.http.client.ResponseHandler");
-                injectHttpClientExecuteMethodWithHttpUriRequestInterceptor(conditional, true, "org.apache.http.client.methods.HttpUriRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext");
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                
+                injectHttpClientExecuteMethodWithHttpRequestInterceptor(target, false, "org.apache.http.HttpHost", "org.apache.http.HttpRequest");
+                injectHttpClientExecuteMethodWithHttpRequestInterceptor(target, false, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.protocol.HttpContext");
+                injectHttpClientExecuteMethodWithHttpRequestInterceptor(target, true, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler");
+                injectHttpClientExecuteMethodWithHttpRequestInterceptor(target, true, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext");
+                
+                injectHttpClientExecuteMethodWithHttpUriRequestInterceptor(target, false, "org.apache.http.client.methods.HttpUriRequest");
+                injectHttpClientExecuteMethodWithHttpUriRequestInterceptor(target, false, "org.apache.http.client.methods.HttpUriRequest", "org.apache.http.protocol.HttpContext");
+                injectHttpClientExecuteMethodWithHttpUriRequestInterceptor(target, true, "org.apache.http.client.methods.HttpUriRequest", "org.apache.http.client.ResponseHandler");
+                injectHttpClientExecuteMethodWithHttpUriRequestInterceptor(target, true, "org.apache.http.client.methods.HttpUriRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext");
+                
+                return target.toBytecode();
             }
         });
-
-        context.addClassFileTransformer(classEditorBuilder.build());
     }
 
 
     private void addCloseableHttpClientClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.http.impl.client.CloseableHttpClient");
-        injectHttpClientExecuteMethodWithHttpRequestInterceptor(classEditorBuilder, false, "org.apache.http.HttpHost", "org.apache.http.HttpRequest");
-        injectHttpClientExecuteMethodWithHttpRequestInterceptor(classEditorBuilder, false, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.protocol.HttpContext");
-        injectHttpClientExecuteMethodWithHttpRequestInterceptor(classEditorBuilder, true, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler");
-        injectHttpClientExecuteMethodWithHttpRequestInterceptor(classEditorBuilder, true, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext");
+        context.addClassFileTransformer("org.apache.http.impl.client.CloseableHttpClient", new PinpointClassFileTransformer() {
 
-        injectHttpClientExecuteMethodWithHttpUriRequestInterceptor(classEditorBuilder, false, "org.apache.http.client.methods.HttpUriRequest");
-        injectHttpClientExecuteMethodWithHttpUriRequestInterceptor(classEditorBuilder, false, "org.apache.http.client.methods.HttpUriRequest", "org.apache.http.protocol.HttpContext");
-        injectHttpClientExecuteMethodWithHttpUriRequestInterceptor(classEditorBuilder, true, "org.apache.http.client.methods.HttpUriRequest", "org.apache.http.client.ResponseHandler");
-        injectHttpClientExecuteMethodWithHttpUriRequestInterceptor(classEditorBuilder, true, "org.apache.http.client.methods.HttpUriRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext");
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                
+                injectHttpClientExecuteMethodWithHttpRequestInterceptor(target, false, "org.apache.http.HttpHost", "org.apache.http.HttpRequest");
+                injectHttpClientExecuteMethodWithHttpRequestInterceptor(target, false, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.protocol.HttpContext");
+                injectHttpClientExecuteMethodWithHttpRequestInterceptor(target, true, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler");
+                injectHttpClientExecuteMethodWithHttpRequestInterceptor(target, true, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext");
+                
+                injectHttpClientExecuteMethodWithHttpUriRequestInterceptor(target, false, "org.apache.http.client.methods.HttpUriRequest");
+                injectHttpClientExecuteMethodWithHttpUriRequestInterceptor(target, false, "org.apache.http.client.methods.HttpUriRequest", "org.apache.http.protocol.HttpContext");
+                injectHttpClientExecuteMethodWithHttpUriRequestInterceptor(target, true, "org.apache.http.client.methods.HttpUriRequest", "org.apache.http.client.ResponseHandler");
+                injectHttpClientExecuteMethodWithHttpUriRequestInterceptor(target, true, "org.apache.http.client.methods.HttpUriRequest", "org.apache.http.client.ResponseHandler", "org.apache.http.protocol.HttpContext");
 
-        context.addClassFileTransformer(classEditorBuilder.build());
+                return target.toBytecode();
+            }
+        });
     }
 
-    private void injectHttpClientExecuteMethodWithHttpRequestInterceptor(final BaseClassFileTransformerBuilder classEditorBuilder, boolean isHasCallbackParam, String... parameterTypeNames) {
-        MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethod("execute", parameterTypeNames);
-        methodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodWithHttpRequestInterceptor", isHasCallbackParam);
-        methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodInternalInterceptor", isHasCallbackParam);
+    private void injectHttpClientExecuteMethodWithHttpRequestInterceptor(InstrumentClass target, boolean isHasCallbackParam, String... parameterTypeNames) throws InstrumentException {
+        InstrumentMethod execute = target.getDeclaredMethod("execute", parameterTypeNames);
+        
+        if (execute != null) {
+            execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodWithHttpRequestInterceptor", isHasCallbackParam);
+            execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodInternalInterceptor", isHasCallbackParam);
+        }
     }
 
-    private void injectHttpClientExecuteMethodWithHttpUriRequestInterceptor(final BaseClassFileTransformerBuilder classEditorBuilder, boolean isHasCallbackParam, String... parameterTypeNames) {
-        MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethod("execute", parameterTypeNames);
-        methodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodWithHttpUriRequestInterceptor", isHasCallbackParam);
-        methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodInternalInterceptor", isHasCallbackParam);
+    private void injectHttpClientExecuteMethodWithHttpUriRequestInterceptor(InstrumentClass target, boolean isHasCallbackParam, String... parameterTypeNames) throws InstrumentException {
+        InstrumentMethod execute = target.getDeclaredMethod("execute", parameterTypeNames);
+        
+        if (execute != null) {
+            execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodWithHttpUriRequestInterceptor", isHasCallbackParam);
+            execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodInternalInterceptor", isHasCallbackParam);
+        }
     }
 
     private void addDefaultHttpRequestRetryHandlerClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.http.impl.client.DefaultHttpRequestRetryHandler");
-        MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethod("retryRequest", "java.io.IOException", "int", "org.apache.http.protocol.HttpContext");
-        methodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor");
+        context.addClassFileTransformer("org.apache.http.impl.client.DefaultHttpRequestRetryHandler", new PinpointClassFileTransformer() {
 
-        context.addClassFileTransformer(classEditorBuilder.build());
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                InstrumentMethod retryRequest = target.getDeclaredMethod("retryRequest", "java.io.IOException", "int", "org.apache.http.protocol.HttpContext");
+                
+                if (retryRequest != null) {
+                    retryRequest.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor");
+                }
+                
+                return target.toBytecode();
+            }
+        });
     }
 
     private void addAbstractPooledConnAdapterClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.http.impl.conn.AbstractPooledConnAdapter");
-        final MethodTransformerBuilder executeMethodBuilder = classEditorBuilder.editMethod("open", "org.apache.http.conn.routing.HttpRoute", "org.apache.http.protocol.HttpContext", "org.apache.http.params.HttpParams");
-        executeMethodBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        executeMethodBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.ManagedClientConnectionOpenMethodInterceptor");
-        
-        context.addClassFileTransformer(classEditorBuilder.build());
+        context.addClassFileTransformer("org.apache.http.impl.conn.AbstractPooledConnAdapter", new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                InstrumentMethod open = target.getDeclaredMethod("open", "org.apache.http.conn.routing.HttpRoute", "org.apache.http.protocol.HttpContext", "org.apache.http.params.HttpParams");
+                
+                if (open != null) {
+                    open.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.ManagedClientConnectionOpenMethodInterceptor");
+                }
+                
+                return target.toBytecode();
+            }
+            
+        });
     }
 
     private void addManagedClientConnectionImplClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.http.impl.conn.ManagedClientConnectionImpl");
-        final MethodTransformerBuilder executeMethodBuilder = classEditorBuilder.editMethod("open", "org.apache.http.conn.routing.HttpRoute", "org.apache.http.protocol.HttpContext", "org.apache.http.params.HttpParams");
-        executeMethodBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        executeMethodBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.ManagedClientConnectionOpenMethodInterceptor");
-        
-        context.addClassFileTransformer(classEditorBuilder.build());
+        context.addClassFileTransformer("org.apache.http.impl.conn.ManagedClientConnectionImpl", new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                InstrumentMethod open = target.getDeclaredMethod("open", "org.apache.http.conn.routing.HttpRoute", "org.apache.http.protocol.HttpContext", "org.apache.http.params.HttpParams");
+                
+                if (open != null) {
+                    open.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.ManagedClientConnectionOpenMethodInterceptor");
+                }
+                
+                return target.toBytecode();
+            }
+            
+        });
     }
 
     private void addBasicHttpClientConnectionManagerClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.http.impl.conn.BasicHttpClientConnectionManager");
-        final MethodTransformerBuilder executeMethodBuilder = classEditorBuilder.editMethod("connect", "org.apache.http.HttpClientConnection", "org.apache.http.conn.routing.HttpRoute", "int", "org.apache.http.protocol.HttpContext");
-        executeMethodBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        executeMethodBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientConnectionManagerConnectMethodInterceptor");
-        
-        context.addClassFileTransformer(classEditorBuilder.build());
+        context.addClassFileTransformer("org.apache.http.impl.conn.BasicHttpClientConnectionManager", new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                InstrumentMethod connect = target.getDeclaredMethod("connect", "org.apache.http.HttpClientConnection", "org.apache.http.conn.routing.HttpRoute", "int", "org.apache.http.protocol.HttpContext");
+                
+                if (connect != null) {
+                    connect.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientConnectionManagerConnectMethodInterceptor");
+                }
+                
+                return target.toBytecode();
+            }
+            
+        });
     }
 
     private void addPoolingHttpClientConnectionManagerClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.http.impl.conn.PoolingHttpClientConnectionManager");
-        final MethodTransformerBuilder executeMethodBuilder = classEditorBuilder.editMethod("connect", "org.apache.http.HttpClientConnection", "org.apache.http.conn.routing.HttpRoute", "int", "org.apache.http.protocol.HttpContext");
-        executeMethodBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        executeMethodBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientConnectionManagerConnectMethodInterceptor");
-        
-        context.addClassFileTransformer(classEditorBuilder.build());
+        context.addClassFileTransformer("org.apache.http.impl.conn.PoolingHttpClientConnectionManager", new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                InstrumentMethod connect = target.getDeclaredMethod("connect", "org.apache.http.HttpClientConnection", "org.apache.http.conn.routing.HttpRoute", "int", "org.apache.http.protocol.HttpContext");
+                
+                if (connect != null) {
+                    connect.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientConnectionManagerConnectMethodInterceptor");
+                }
+                
+                return target.toBytecode();
+            }
+            
+        });
     }
 
     private void addClosableHttpAsyncClientClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.http.impl.nio.client.CloseableHttpAsyncClient");
-        // with HttpRequest
-        injectHttpAsyncClientExecuteMethodInterceptor(classEditorBuilder, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.protocol.HttpContext", "org.apache.http.concurrent.FutureCallback");
-        injectHttpAsyncClientExecuteMethodInterceptor(classEditorBuilder, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.concurrent.FutureCallback");
-        injectHttpAsyncClientExecuteMethodInterceptor(classEditorBuilder, "org.apache.http.nio.protocol.HttpAsyncRequestProducer", "org.apache.http.nio.protocol.HttpAsyncResponseConsumer", "org.apache.http.concurrent.FutureCallback");
-        injectHttpAsyncClientExecuteMethodInterceptor(classEditorBuilder, "org.apache.http.client.methods.HttpUriRequest", "org.apache.http.concurrent.FutureCallback");
-        injectHttpAsyncClientExecuteMethodInterceptor(classEditorBuilder, "org.apache.http.client.methods.HttpUriRequest", "org.apache.http.protocol.HttpContext", "org.apache.http.concurrent.FutureCallback");
+        context.addClassFileTransformer("org.apache.http.impl.nio.client.CloseableHttpAsyncClient", new PinpointClassFileTransformer() {
 
-        context.addClassFileTransformer(classEditorBuilder.build());
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+
+                injectHttpAsyncClientExecuteMethodInterceptor(target, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.protocol.HttpContext", "org.apache.http.concurrent.FutureCallback");
+                injectHttpAsyncClientExecuteMethodInterceptor(target, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.concurrent.FutureCallback");
+                injectHttpAsyncClientExecuteMethodInterceptor(target, "org.apache.http.nio.protocol.HttpAsyncRequestProducer", "org.apache.http.nio.protocol.HttpAsyncResponseConsumer", "org.apache.http.concurrent.FutureCallback");
+                injectHttpAsyncClientExecuteMethodInterceptor(target, "org.apache.http.client.methods.HttpUriRequest", "org.apache.http.concurrent.FutureCallback");
+                injectHttpAsyncClientExecuteMethodInterceptor(target, "org.apache.http.client.methods.HttpUriRequest", "org.apache.http.protocol.HttpContext", "org.apache.http.concurrent.FutureCallback");
+                
+                return target.toBytecode();
+            }
+            
+            private void injectHttpAsyncClientExecuteMethodInterceptor(InstrumentClass target, String... parameterTypeNames) throws InstrumentException {
+                InstrumentMethod execute = target.getDeclaredMethod("execute", parameterTypeNames);
+                
+                if (execute != null) {
+                    execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpAsyncClientExecuteMethodInterceptor");
+                }
+            }
+        });
     }
 
-    private void injectHttpAsyncClientExecuteMethodInterceptor(final ClassFileTransformerBuilder classEditorBuilder, String... parameterTypeNames) {
-        MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethod("execute", parameterTypeNames);
-        methodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpAsyncClientExecuteMethodInterceptor");
-    }
 
     private void addDefaultClientExchangeHandlerImplClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.http.impl.nio.client.DefaultClientExchangeHandlerImpl");
-        classEditorBuilder.injectFieldAccessor(FIELD_REQUEST_PRODUCER);
-        classEditorBuilder.injectFieldAccessor(FIELD_RESULT_FUTURE);
+        context.addClassFileTransformer("org.apache.http.impl.nio.client.DefaultClientExchangeHandlerImpl", new PinpointClassFileTransformer() {
 
-        final MethodTransformerBuilder startMethod = classEditorBuilder.editMethod("start");
-        startMethod.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        startMethod.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.DefaultClientExchangeHandlerImplStartMethodInterceptor");
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                
+                target.addGetter(RequestProducerGetter.class.getName(), FIELD_REQUEST_PRODUCER);
+                target.addGetter(ResultFutureGetter.class.getName(), FIELD_RESULT_FUTURE);
 
-        context.addClassFileTransformer(classEditorBuilder.build());
+                InstrumentMethod start = target.getDeclaredMethod("start");
+                
+                if (start != null) {
+                    start.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.DefaultClientExchangeHandlerImplStartMethodInterceptor");
+                }
+                
+                return target.toBytecode();
+            }
+            
+        });
     }
 
     private void addBasicFutureClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        final ClassFileTransformerBuilder classEditorBuilder = context.getClassFileTransformerBuilder("org.apache.http.concurrent.BasicFuture");
-        classEditorBuilder.injectMetadata(METADATA_ASYNC_TRACE_ID);
+        context.addClassFileTransformer("org.apache.http.concurrent.BasicFuture", new PinpointClassFileTransformer() {
 
-        MethodTransformerBuilder methodEditorBuilder = classEditorBuilder.editMethod("get");
-        methodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        methodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureMethodInterceptor");
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
 
-        MethodTransformerBuilder getMethodEditorBuilder = classEditorBuilder.editMethod("get", "long", "java.util.concurrent.TimeUnit");
-        getMethodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        getMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureMethodInterceptor");
-
-        MethodTransformerBuilder completedMethodEditorBuilder = classEditorBuilder.editMethod("completed", "java.lang.Object");
-        completedMethodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        completedMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureMethodInterceptor");
-
-        MethodTransformerBuilder failMethodEditorBuilder = classEditorBuilder.editMethod("failed", "java.lang.Exception");
-        failMethodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        failMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureMethodInterceptor");
-
-        MethodTransformerBuilder cancelMethodEditorBuilder = classEditorBuilder.editMethod("cancel", "boolean");
-        cancelMethodEditorBuilder.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        cancelMethodEditorBuilder.injectInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureMethodInterceptor");
-
-        context.addClassFileTransformer(classEditorBuilder.build());
+                target.addField(AsyncTraceIdAccessor.class.getName());
+                
+                InstrumentMethod get = target.getDeclaredMethod("get");
+                if (get != null) {
+                    get.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureMethodInterceptor");
+                }
+                
+                InstrumentMethod get2 = target.getDeclaredMethod("get", "long", "java.util.concurrent.TimeUnit");
+                if (get2 != null) {
+                    get2.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureMethodInterceptor");
+                }
+                
+                InstrumentMethod completed = target.getDeclaredMethod("completed", "java.lang.Object");
+                if (completed != null) {
+                    completed.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureMethodInterceptor");
+                }
+                
+                InstrumentMethod failed = target.getDeclaredMethod("failed", "java.lang.Exception");
+                if (failed != null) {
+                    failed.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureMethodInterceptor");
+                
+                }
+                
+                InstrumentMethod cancel = target.getDeclaredMethod("cancel", "boolean");
+                if (cancel != null) {
+                    cancel.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.BasicFutureMethodInterceptor");
+                }
+                                
+                return target.toBytecode();
+            }
+            
+        });
     }
-
 }

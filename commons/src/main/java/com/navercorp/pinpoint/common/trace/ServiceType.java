@@ -273,13 +273,15 @@ public class ServiceType {
     // Spring framework
     public static final ServiceType SPRING = of(5050, "SPRING", NORMAL_SCHEMA);
     public static final ServiceType SPRING_MVC = of(5051, "SPRING_MVC", "SPRING", NORMAL_SCHEMA);
-    // FIXME need to define how to handle spring related codes
+    // FIXME replaced with IBATIS_SPRING (5501) under IBatis Plugin - kept for backwards compatibility
     public static final ServiceType SPRING_ORM_IBATIS = of(5061, "SPRING_ORM_IBATIS", "SPRING", NORMAL_SCHEMA);
-    public static final ServiceType SPRING_BEAN = of(5071, "SPRING_BEAN", "SPRING_BEAN", NORMAL_SCHEMA);
+    // FIXME need to define how to handle spring related codes
+//    public static final ServiceType SPRING_BEAN = of(5071, "SPRING_BEAN", "SPRING_BEAN", NORMAL_SCHEMA);
 
     // xBatis
-    public static final ServiceType IBATIS = of(5500, "IBATIS", NORMAL_SCHEMA);
-    public static final ServiceType MYBATIS = of(5510, "MYBATIS", NORMAL_SCHEMA);
+    // 5500 iBatis
+    // 5501 iBatis-Spring
+    // 5510 MyBatis
 
     // DBCP
     public static final ServiceType DBCP = of(6050, "DBCP", NORMAL_SCHEMA);
@@ -294,9 +296,14 @@ public class ServiceType {
     // public static final ServiceType REDIS = of(8200, "REDIS", FAST_SCHEMA, TERMINAL, RECORD_STATISTICS);
 
     // Connector, Client
-    public static final ServiceType HTTP_CLIENT = of(9050, "HTTP_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
-    public static final ServiceType HTTP_CLIENT_INTERNAL = of(9051, "HTTP_CLIENT_INTERNAL", "HTTP_CLIENT", NORMAL_SCHEMA);
+    // 9050 HTTP_CLIENT_3
+    // 9051 HTTP_CLIENT_3_INTERNAL
+    // 9052 HTTP_CLIENT_4
+    // 9053 HTTP_CLIENT_4_INTERNAL
+    // 9054 GOOGLE_HTTP_CLIENT_INTERNAL
 //    public static final ServiceType JDK_HTTPURLCONNECTOR = of(9055, "JDK_HTTPURLCONNECTOR", "JDK_HTTPCONNECTOR", NORMAL_SCHEMA);
+    public static final ServiceType ASYNC_HTTP_CLIENT = of(9056, "ASYNC_HTTP_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
+    public static final ServiceType ASYNC_HTTP_CLIENT_INTERNAL = of(9057, "ASYNC_HTTP_CLIENT_INTERNAL", "ASYNC_HTTP_CLIENT", NORMAL_SCHEMA);
 //    public static final ServiceType NPC_CLIENT = of(9060, "NPC_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
     public static final ServiceType NIMM_CLIENT = of(9070, "NIMM_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
     

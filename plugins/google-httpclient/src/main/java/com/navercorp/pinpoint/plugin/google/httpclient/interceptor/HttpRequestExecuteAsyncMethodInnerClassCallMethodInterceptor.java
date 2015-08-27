@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.google.httpclient.HttpClientConstants;
 
 /**
@@ -43,7 +42,7 @@ public class HttpRequestExecuteAsyncMethodInnerClassCallMethodInterceptor extend
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
+        recorder.recordServiceType(HttpClientConstants.HTTP_CLIENT_INTERNAL);
         recorder.recordException(throwable);
     }
 }

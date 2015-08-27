@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
-import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadResponse;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadStatusList;
 import org.apache.http.NameValuePair;
@@ -182,11 +181,8 @@ public class ActiveThreadHandler extends TextWebSocketHandler implements  Pinpoi
             readLock.lock();
             try {
                 for (Map.Entry<String, List<WebSocketSession>> applicationEntry : applicationGroup.entrySet()) {
-                    List<AgentInfoBo> agentInfoList = agentSerivce.get(applicationEntry.getKey());
-                    Map<String, TActiveThreadResponse> activeThreadStatuses = agentSerivce.getActiveThreadStatus(agentInfoList);
-
-                    AgentActiveThreadStatusList agentActiveThreadStatusList = new AgentActiveThreadStatusList(activeThreadStatuses.size());
-                    agentActiveThreadStatusList.addAll(activeThreadStatuses);
+                    List<AgentInfoBo> agentInfoList = agentSerivce.getAgentInfoList(applicationEntry.getKey());
+                    AgentActiveThreadStatusList agentActiveThreadStatusList = agentSerivce.getActiveThreadStatus(agentInfoList);
                     String textMessage = jsonConverter.writeValueAsString(agentActiveThreadStatusList);
 
                     for (WebSocketSession session : applicationEntry.getValue()) {

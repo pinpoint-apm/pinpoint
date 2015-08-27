@@ -14,14 +14,19 @@
  */
 package com.navercorp.pinpoint.plugin.jackson;
 
-import java.lang.instrument.ClassFileTransformer;
+import java.security.ProtectionDomain;
 
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConstructorTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 
 /**
  * @author Sungkook Kim
@@ -35,85 +40,161 @@ public class JacksonPlugin implements ProfilerPlugin, JacksonConstants {
     private static final String WRITE_VALUE_AS_BYTES_INTERCEPTOR = "com.navercorp.pinpoint.plugin.jackson.interceptor.WriteValueAsBytesInterceptor";
     private static final String WRITE_VALUE_AS_STRING_INTERCEPTOR = "com.navercorp.pinpoint.plugin.jackson.interceptor.WriteValueAsStringInterceptor";
 
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        intercept_ObjectMapper(context);
-        intercept_ObjectReader(context, "com.fasterxml.jackson.databind.ObjectReader");
-        intercept_ObjectWriter(context, "com.fasterxml.jackson.databind.ObjectWriter");
-        
-        intercept_ObjectMapper_1_x(context);
-        intercept_ObjectReader(context, "org.codehaus.jackson.map.ObjectReader");
-        intercept_ObjectWriter(context, "org.codehaus.jackson.map.ObjectWriter");
+        addObjectMapperEditor(context, "com.fasterxml.jackson.databind.ObjectMapper");
+        addObjectReaderEditor(context, "com.fasterxml.jackson.databind.ObjectReader");
+        addObjectWriterEditor(context, "com.fasterxml.jackson.databind.ObjectWriter");
+
+        addObjectMapper_1_X_Editor(context, "org.codehaus.jackson.map.ObjectMapper");
+        addObjectReaderEditor(context, "org.codehaus.jackson.map.ObjectReader");
+        addObjectWriterEditor(context, "org.codehaus.jackson.map.ObjectWriter");
     }
 
-    private void intercept_ObjectMapper(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("com.fasterxml.jackson.databind.ObjectMapper"); 
+    private void addObjectMapperEditor(ProfilerPluginSetupContext context, String clazzName) {
+        context.addClassFileTransformer(clazzName, new PinpointClassFileTransformer() {
 
-        /* constructor */
-        builder.editConstructor().injectInterceptor(BASIC_METHOD_INTERCEPTOR, SERVICE_TYPE).group(GROUP);
-        builder.editConstructor("com.fasterxml.jackson.core.JsonFactory").injectInterceptor(BASIC_METHOD_INTERCEPTOR, SERVICE_TYPE).group(GROUP);
-        builder.editConstructor("com.fasterxml.jackson.core.JsonFactory", "com.fasterxml.jackson.databind.ser.DefaultSerializerProvider", "com.fasterxml.jackson.databind.deser.DefaultDeserializationContext").injectInterceptor(BASIC_METHOD_INTERCEPTOR, SERVICE_TYPE).group(GROUP);
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP);
 
-        /* serialization */
-        builder.editMethods(MethodFilters.name("writeValue")).injectInterceptor(BASIC_METHOD_INTERCEPTOR, SERVICE_TYPE).group(GROUP);
-        builder.editMethods(MethodFilters.name("writeValueAsString")).injectInterceptor(WRITE_VALUE_AS_STRING_INTERCEPTOR).group(GROUP);
-        builder.editMethods(MethodFilters.name("writeValueAsBytes")).injectInterceptor(WRITE_VALUE_AS_BYTES_INTERCEPTOR).group(GROUP);
+                final InstrumentMethod constructor1 = target.getConstructor();
+                addInterceptor(constructor1, BASIC_METHOD_INTERCEPTOR, group, SERVICE_TYPE);
 
-        /* deserialization */
-        builder.editMethods(MethodFilters.name("readValue")).injectInterceptor(READ_VALUE_INTERCEPTOR).group(GROUP);
+                final InstrumentMethod constructor2 = target.getConstructor("com.fasterxml.jackson.core.JsonFactory");
+                addInterceptor(constructor2, BASIC_METHOD_INTERCEPTOR, group, SERVICE_TYPE);
 
-        ClassFileTransformer transformer = builder.build();
-        context.addClassFileTransformer(transformer);
-    }
-    
-    private void intercept_ObjectReader(ProfilerPluginSetupContext context, String className) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder(className); 
+                final InstrumentMethod constructor3 = target.getConstructor("com.fasterxml.jackson.core.JsonFactory", "com.fasterxml.jackson.databind.ser.DefaultSerializerProvider", "com.fasterxml.jackson.databind.deser.DefaultDeserializationContext");
+                addInterceptor(constructor3, BASIC_METHOD_INTERCEPTOR, group, SERVICE_TYPE);
 
-        /* deserialization */
-        builder.editMethods(MethodFilters.name("readValue", "readValues")).injectInterceptor(READ_VALUE_INTERCEPTOR).group(GROUP);
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValue"))) {
+                    addInterceptor(method, BASIC_METHOD_INTERCEPTOR, group, SERVICE_TYPE);
+                }
 
-        ClassFileTransformer transformer = builder.build();
-        context.addClassFileTransformer(transformer);
-    }
-    
-    private void intercept_ObjectWriter(ProfilerPluginSetupContext context, String className) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder(className); 
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsString"))) {
+                    addInterceptor(method, WRITE_VALUE_AS_STRING_INTERCEPTOR, group);
+                }
 
-        /* deserialization */
-        builder.editMethods(MethodFilters.name("writeValue")).injectInterceptor(BASIC_METHOD_INTERCEPTOR, SERVICE_TYPE).group(GROUP);
-        builder.editMethods(MethodFilters.name("writeValueAsString")).injectInterceptor(WRITE_VALUE_AS_STRING_INTERCEPTOR).group(GROUP);
-        builder.editMethods(MethodFilters.name("writeValueAsBytes")).injectInterceptor(WRITE_VALUE_AS_BYTES_INTERCEPTOR).group(GROUP);
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsBytes"))) {
+                    addInterceptor(method, WRITE_VALUE_AS_BYTES_INTERCEPTOR, group);
+                }
 
-        ClassFileTransformer transformer = builder.build();
-        context.addClassFileTransformer(transformer);
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("readValue"))) {
+                    addInterceptor(method, READ_VALUE_INTERCEPTOR, group);
+                }
+
+                return target.toBytecode();
+            }
+
+        });
     }
 
-    
-    private void intercept_ObjectMapper_1_x(ProfilerPluginSetupContext context) {
-        ClassFileTransformerBuilder builder = context.getClassFileTransformerBuilder("org.codehaus.jackson.map.ObjectMapper"); 
+    private void addObjectMapper_1_X_Editor(ProfilerPluginSetupContext context, String clazzName) {
+        context.addClassFileTransformer(clazzName, new PinpointClassFileTransformer() {
 
-        /* constructor */
-        builder.editConstructor().injectInterceptor(BASIC_METHOD_INTERCEPTOR, SERVICE_TYPE).group(GROUP);
-        builder.editConstructor("org.codehaus.jackson.JsonFactory").injectInterceptor(BASIC_METHOD_INTERCEPTOR, SERVICE_TYPE).group(GROUP);
-        builder.editConstructor("org.codehaus.jackson.JsonFactory", "org.codehaus.jackson.map.SerializerProvider", "org.codehaus.jackson.map.DeserializerProvider").injectInterceptor(BASIC_METHOD_INTERCEPTOR, SERVICE_TYPE).group(GROUP);
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP);
 
-        ConstructorTransformerBuilder cb0 = builder.editConstructor("org.codehaus.jackson.map.SerializerFactory");
-        cb0.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        cb0.injectInterceptor(BASIC_METHOD_INTERCEPTOR, SERVICE_TYPE).group(GROUP);
-        
-        ConstructorTransformerBuilder cb1 = builder.editConstructor("org.codehaus.jackson.JsonFactory", "org.codehaus.jackson.map.SerializerProvider", "org.codehaus.jackson.map.DeserializerProvider", "org.codehaus.jackson.map.SerializationConfig", "org.codehaus.jackson.map.DeserializationConfig");
-        cb1.property(MethodTransformerProperty.IGNORE_IF_NOT_EXIST);
-        cb1.injectInterceptor(BASIC_METHOD_INTERCEPTOR, SERVICE_TYPE).group(GROUP);
+                final InstrumentMethod constructor1 = target.getConstructor();
+                addInterceptor(constructor1, BASIC_METHOD_INTERCEPTOR, group, SERVICE_TYPE);
 
-        /* serialization */
-        builder.editMethods(MethodFilters.name("writeValue")).injectInterceptor(BASIC_METHOD_INTERCEPTOR, SERVICE_TYPE).group(GROUP);
-        builder.editMethods(MethodFilters.name("writeValueAsString")).injectInterceptor(WRITE_VALUE_AS_STRING_INTERCEPTOR).group(GROUP);
-        builder.editMethods(MethodFilters.name("writeValueAsBytes")).injectInterceptor(WRITE_VALUE_AS_BYTES_INTERCEPTOR).group(GROUP);
+                final InstrumentMethod constructor2 = target.getConstructor("org.codehaus.jackson.JsonFactory");
+                addInterceptor(constructor2, BASIC_METHOD_INTERCEPTOR, group, SERVICE_TYPE);
 
-        /* deserialization */
-        builder.editMethods(MethodFilters.name("readValue")).injectInterceptor(READ_VALUE_INTERCEPTOR).group(GROUP);
+                final InstrumentMethod constructor3 = target.getConstructor("org.codehaus.jackson.JsonFactory", "org.codehaus.jackson.map.SerializerProvider", "org.codehaus.jackson.map.DeserializerProvider");
+                addInterceptor(constructor3, BASIC_METHOD_INTERCEPTOR, group, SERVICE_TYPE);
 
-        ClassFileTransformer transformer = builder.build();
-        context.addClassFileTransformer(transformer);
+                final InstrumentMethod constructor4 = target.getConstructor("org.codehaus.jackson.map.SerializerFactory");
+                addInterceptor(constructor4, BASIC_METHOD_INTERCEPTOR, group, SERVICE_TYPE);
+
+                final InstrumentMethod constructor5 = target.getConstructor("org.codehaus.jackson.JsonFactory", "org.codehaus.jackson.map.SerializerProvider", "org.codehaus.jackson.map.DeserializerProvider", "org.codehaus.jackson.map.SerializationConfig", "org.codehaus.jackson.map.DeserializationConfig");
+                addInterceptor(constructor5, BASIC_METHOD_INTERCEPTOR, group, SERVICE_TYPE);
+
+
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValue"))) {
+                    addInterceptor(method, BASIC_METHOD_INTERCEPTOR, group, SERVICE_TYPE);
+                }
+
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsString"))) {
+                    addInterceptor(method, WRITE_VALUE_AS_STRING_INTERCEPTOR, group);
+                }
+
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsBytes"))) {
+                    addInterceptor(method, WRITE_VALUE_AS_BYTES_INTERCEPTOR, group);
+                }
+
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("readValue"))) {
+                    addInterceptor(method, READ_VALUE_INTERCEPTOR, group);
+                }
+
+                return target.toBytecode();
+            }
+
+        });
     }
+
+
+    private void addObjectReaderEditor(ProfilerPluginSetupContext context, String clazzName) {
+        context.addClassFileTransformer(clazzName, new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP);
+
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("readValue", "readValues"))) {
+                    addInterceptor(method, READ_VALUE_INTERCEPTOR, group);
+                }
+
+                return target.toBytecode();
+            }
+
+        });
+    }
+
+    private void addObjectWriterEditor(ProfilerPluginSetupContext context, String clazzName) {
+        context.addClassFileTransformer(clazzName, new PinpointClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP);
+
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValue"))) {
+                    addInterceptor(method, BASIC_METHOD_INTERCEPTOR, group, SERVICE_TYPE);
+                }
+
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsString"))) {
+                    addInterceptor(method, WRITE_VALUE_AS_STRING_INTERCEPTOR, group);
+                }
+
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsBytes"))) {
+                    addInterceptor(method, WRITE_VALUE_AS_BYTES_INTERCEPTOR, group);
+                }
+
+                return target.toBytecode();
+            }
+
+        });
+    }
+
+    private boolean addInterceptor(InstrumentMethod method, String interceptorClassName, InterceptorGroup group, Object... constructorArgs) {
+        if (method != null) {
+            try {
+                method.addInterceptor(interceptorClassName, group, constructorArgs);
+                return true;
+            } catch (InstrumentException e) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Unsupported method " + method, e);
+                }
+            }
+        }
+        return false;
+    }
+
 }

@@ -17,15 +17,16 @@
 package com.navercorp.pinpoint.plugin.thrift.interceptor.transport;
 
 import java.net.Socket;
+import java.net.SocketAddress;
 
 import org.apache.thrift.transport.TNonblockingSocket;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketAddressFieldAccessor;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
 
 /**
  * @author HyunGil Jeong
@@ -34,16 +35,6 @@ public class TNonblockingSocketConstructInterceptor implements SimpleAroundInter
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    
-    private final MetadataAccessor socketAccessor;
-    private final MetadataAccessor nonblockingSocketAddressAccessor;
-    
-    public TNonblockingSocketConstructInterceptor(
-            @Name(METADATA_SOCKET) MetadataAccessor socketAccessor,
-            @Name(METADATA_NONBLOCKING_SOCKET_ADDRESS) MetadataAccessor nonblockingSocketAddressAccessor) {
-        this.socketAccessor = socketAccessor;
-        this.nonblockingSocketAddressAccessor = nonblockingSocketAddressAccessor;
-    }
 
     @Override
     public void before(Object target, Object[] args) {
@@ -57,9 +48,11 @@ public class TNonblockingSocketConstructInterceptor implements SimpleAroundInter
         }
         if (validate(target, args)) {
             Socket socket = ((TNonblockingSocket)target).getSocketChannel().socket();
-            this.socketAccessor.set(target, socket);
-            Object socketAddress = args[2];
-            this.nonblockingSocketAddressAccessor.set(target, socketAddress);
+            ((SocketFieldAccessor)target)._$PINPOINT$_setSocket(socket);
+            if (args[2] instanceof SocketAddress) {
+                SocketAddress socketAddress = (SocketAddress)args[2];
+                ((SocketAddressFieldAccessor)target)._$PINPOINT$_setSocketAddress(socketAddress);
+            }
         }
     }
 
@@ -70,15 +63,15 @@ public class TNonblockingSocketConstructInterceptor implements SimpleAroundInter
         if (args.length != 3) {
             return false;
         }
-        if (!this.socketAccessor.isApplicable(target)) {
+        if (!(target instanceof SocketFieldAccessor)) {
             if (isDebug) {
-                logger.debug("Invalid target object. Need metadata accessor ({})", METADATA_SOCKET);
+                logger.debug("Invalid target object. Need field accessor({}).", SocketFieldAccessor.class.getName());
             }
             return false;
         }
-        if (!this.nonblockingSocketAddressAccessor.isApplicable(target)) {
+        if (!(target instanceof SocketAddressFieldAccessor)) {
             if (isDebug) {
-                logger.debug("Invalid target object. Need metadata accessor ({})", METADATA_NONBLOCKING_SOCKET_ADDRESS);
+                logger.debug("Invalid target object. Need field accessor({}).", SocketAddressFieldAccessor.class.getName());
             }
             return false;
         }

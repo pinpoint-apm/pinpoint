@@ -20,9 +20,7 @@ import static com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContext.NONE;
 import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.THRIFT_SERVER_SCOPE;
 
 import org.apache.thrift.protocol.TField;
-import org.apache.thrift.protocol.TProtocol;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
@@ -34,18 +32,20 @@ import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContext;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 import com.navercorp.pinpoint.plugin.thrift.ThriftHeader;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.ServerMarkerFlagFieldAccessor;
 
 /**
- * This interceptor checks each {@link org.apache.thrift.protocol.TField TField} received if it is a Pinpoint trace data.
- * If so, this interceptor leaves a marker for the next interceptor to read actual value of the trace data.  
+ * This interceptor checks each {@link org.apache.thrift.protocol.TField TField} received if it is a Pinpoint trace data. If so, this interceptor leaves a
+ * marker for the next interceptor to read actual value of the trace data.
  * <ul>
- *   <li>Synchronous
- *     <p><tt>TBaseProcessorProcessInterceptor</tt> -> <tt>ProcessFunctionProcessInterceptor</tt> -> 
- *        <b><tt>TProtocolReadFieldBeginInterceptor</tt></b> <-> <tt>TProtocolReadTTypeInterceptor</tt> -> <tt>TProtocolReadMessageEndInterceptor</tt>
- *   </li>
- *   <li>Asynchronous
- *     <p><tt>TBaseAsyncProcessorProcessInterceptor</tt> -> <tt>TProtocolReadMessageBeginInterceptor</tt> -> 
- *        <b><tt>TProtocolReadFieldBeginInterceptor</tt></b> <-> <tt>TProtocolReadTTypeInterceptor</tt> -> <tt>TProtocolReadMessageEndInterceptor</tt>
+ * <li>Synchronous
+ * <p>
+ * <tt>TBaseProcessorProcessInterceptor</tt> -> <tt>ProcessFunctionProcessInterceptor</tt> -> <b><tt>TProtocolReadFieldBeginInterceptor</tt></b> <->
+ * <tt>TProtocolReadTTypeInterceptor</tt> -> <tt>TProtocolReadMessageEndInterceptor</tt></li>
+ * <li>Asynchronous
+ * <p>
+ * <tt>TBaseAsyncProcessorProcessInterceptor</tt> -> <tt>TProtocolReadMessageBeginInterceptor</tt> -> <b><tt>TProtocolReadFieldBeginInterceptor</tt></b> <->
+ * <tt>TProtocolReadTTypeInterceptor</tt> -> <tt>TProtocolReadMessageEndInterceptor</tt>
  * </ul>
  * <p>
  * Based on Thrift 0.8.0+
@@ -59,20 +59,16 @@ import com.navercorp.pinpoint.plugin.thrift.ThriftHeader;
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor
  */
-@Group(value=THRIFT_SERVER_SCOPE, executionPolicy=ExecutionPolicy.INTERNAL)
+@Group(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
 public class TProtocolReadFieldBeginInterceptor implements SimpleAroundInterceptor, ThriftConstants {
-    
+
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final InterceptorGroup group;
-    private final MetadataAccessor serverTraceMarker;
-    
-    public TProtocolReadFieldBeginInterceptor(
-            @Name(THRIFT_SERVER_SCOPE) InterceptorGroup group,
-            @Name(METADATA_SERVER_MARKER) MetadataAccessor serverTraceMarker) {
+
+    public TProtocolReadFieldBeginInterceptor(@Name(THRIFT_SERVER_SCOPE) InterceptorGroup group) {
         this.group = group;
-        this.serverTraceMarker = serverTraceMarker;
     }
 
     @Override
@@ -85,29 +81,30 @@ public class TProtocolReadFieldBeginInterceptor implements SimpleAroundIntercept
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-        if (!shouldTrace(target)) {
+        if (!validate(target)) {
             return;
         }
-
-        InterceptorGroupInvocation currentTransaction = this.group.getCurrentInvocation();
-        Object attachment = currentTransaction.getAttachment();
-        if (attachment instanceof ThriftClientCallContext) {
-            ThriftClientCallContext clientCallContext = (ThriftClientCallContext)attachment;
-            if (result instanceof TField) {
-                handleClientRequest((TField)result, clientCallContext);
+        final boolean shouldTrace = ((ServerMarkerFlagFieldAccessor)target)._$PINPOINT$_getServerMarkerFlag();
+        if (shouldTrace) {
+            InterceptorGroupInvocation currentTransaction = this.group.getCurrentInvocation();
+            Object attachment = currentTransaction.getAttachment();
+            if (attachment instanceof ThriftClientCallContext) {
+                ThriftClientCallContext clientCallContext = (ThriftClientCallContext)attachment;
+                if (result instanceof TField) {
+                    handleClientRequest((TField)result, clientCallContext);
+                }
             }
         }
     }
-    
-    private boolean shouldTrace(Object target) {
-        if (target instanceof TProtocol) {
-            TProtocol protocol = (TProtocol)target;
-            if (this.serverTraceMarker.isApplicable(protocol) && this.serverTraceMarker.get(protocol) != null) {
-                Boolean tracingServer = this.serverTraceMarker.get(protocol);
-                return tracingServer;
+
+    private boolean validate(Object target) {
+        if (!(target instanceof ServerMarkerFlagFieldAccessor)) {
+            if (isDebug) {
+                logger.debug("Invalid target object. Need field accessor({}).", ServerMarkerFlagFieldAccessor.class.getName());
             }
+            return false;
         }
-        return false;
+        return true;
     }
 
     private void handleClientRequest(TField field, ThriftClientCallContext clientCallContext) {
