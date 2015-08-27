@@ -40,8 +40,8 @@
 	    			
 	    			var $elUL = $element.find(".some-list-content ul");
 	    			$elUL.on("click", function($event) {
-	    				var tagName = $event.toElement.tagName.toLowerCase();
-	    				var $target = $($event.toElement);
+	    				var $target = $( $event.toElement || $event.target );
+	    				var tagName = $target.get(0).tagName.toLowerCase();
 	    				var $li = $target.parents("li");
 	    				
 	    				if ( tagName == "button" ) {

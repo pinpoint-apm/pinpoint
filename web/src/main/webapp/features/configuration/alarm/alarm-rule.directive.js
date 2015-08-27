@@ -48,8 +48,8 @@
     			
     			var $elTbody = $element.find(".some-list-content .wrapper tbody");
     			$elTbody.on("click", function($event) {
-    				var tagName = $event.toElement.tagName.toLowerCase();
-    				var $target = $($event.toElement);
+    				var $target = $( $event.toElement || $event.target );
+    				var tagName = $target.get(0).tagName.toLowerCase();
     				var $tr = $target.parents("tr");
     				
     				if ( tagName == "button" ) {
@@ -281,7 +281,7 @@
     				if ( isRemoving == true ) return;
     				
     				isCreate = false;
-    				var $el = $( $event.toElement ).parents("tr");
+    				var $el = $( $event.toElement || $event.target ).parents("tr");
     				var ruleID = $alarmUtilService.extractID( $el );
     				var oRule = searchRule( ruleID );
     				

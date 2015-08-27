@@ -45,8 +45,8 @@
     			
     			var $elUL = $element.find(".some-list-content ul");
     			$elUL.on("click", function( $event ) {
-    				var tagName = $event.toElement.tagName.toLowerCase();
-    				var $target = $($event.toElement);
+    				var $target = $( $event.toElement || $event.target );
+    				var tagName = $target.get(0).tagName.toLowerCase();
     				var $li = $target.parents("li");
     				
     				if ( tagName == "button" ) {
@@ -206,7 +206,7 @@
     				if ( isRemoving == true ) return;
     				
     				isCreate = false;
-    				var $el = $( $event.toElement ).parents("li");
+    				var $el = $( $event.toElement || $event.target ).parents("li");
     				var oUser = searchUser( $alarmUtilService.extractID( $el ) );
     				
     				$elEditGuide.html( "Update pinpoint user data." );
