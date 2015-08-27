@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.plugin.thrift.dto.EchoService;
 /**
  * @author HyunGil Jeong
  */
-public abstract class EchoTestServer<T extends TServer> implements TestEnvironment {
+public abstract class EchoTestServer<T extends TServer> {
 
     protected static class EchoServiceHandler implements EchoService.Iface {
         @Override
@@ -41,14 +41,15 @@ public abstract class EchoTestServer<T extends TServer> implements TestEnvironme
             return message;
         }
     }
-    
+
     protected static class EchoServiceAsyncHandler implements EchoService.AsyncIface {
-        
+
         private final EchoServiceHandler syncHandler = new EchoServiceHandler();
-        
+
         @SuppressWarnings("unchecked")
         @Override
-        public void echo(String message, @SuppressWarnings("rawtypes") AsyncMethodCallback resultHandler) throws TException {
+        public void echo(String message, @SuppressWarnings("rawtypes") AsyncMethodCallback resultHandler)
+                throws TException {
             try {
                 final String echo = this.syncHandler.echo(message);
                 resultHandler.onComplete(echo);
@@ -57,16 +58,19 @@ public abstract class EchoTestServer<T extends TServer> implements TestEnvironme
             }
         }
     }
-    
+
     private final T server;
-    
-    protected EchoTestServer(T server) throws TTransportException {
+
+    protected final TestEnvironment environment;
+
+    protected EchoTestServer(T server, TestEnvironment environment) throws TTransportException {
         if (server == null) {
             throw new IllegalArgumentException("server cannot be null");
         }
         this.server = server;
+        this.environment = environment;
     }
-    
+
     public void start(ExecutorService executor) throws TTransportException, InterruptedException {
         if (this.server.isServing()) {
             return;
@@ -80,19 +84,19 @@ public abstract class EchoTestServer<T extends TServer> implements TestEnvironme
         // give a chance for the server to initialize
         Thread.sleep(500L);
     }
-    
+
     public void stop() {
         this.server.stop();
     }
-    
+
     public void verifyTraces(PluginTestVerifier verifier) throws Exception {
         this.verifyServerTraces(verifier);
     }
-    
+
     protected abstract void verifyServerTraces(PluginTestVerifier verifier) throws Exception;
-    
+
     public abstract SyncEchoTestClient getSynchronousClient() throws TTransportException;
-    
+
     public abstract AsyncEchoTestClient getAsynchronousClient() throws IOException;
-    
+
 }

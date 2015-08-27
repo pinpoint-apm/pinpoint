@@ -20,6 +20,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.concurrent.CountDownLatch;
@@ -37,6 +38,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
+import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
 import com.navercorp.pinpoint.plugin.thrift.dto.EchoService;
 import com.navercorp.pinpoint.plugin.thrift.dto.EchoService.AsyncClient.echo_call;
 
@@ -44,21 +46,25 @@ import com.navercorp.pinpoint.plugin.thrift.dto.EchoService.AsyncClient.echo_cal
  * @author HyunGil Jeong
  */
 public class AsyncEchoTestClient implements EchoTestClient {
-    
+
+    private final TestEnvironment environment;
     private final TNonblockingTransport transport;
     private final EchoService.AsyncClient asyncClient;
     private final TAsyncClientManager asyncClientManager = new TAsyncClientManager();
-    
-    private AsyncEchoTestClient(TNonblockingTransport transport) throws IOException {
-        this.transport = transport;
-        this.asyncClient = new EchoService.AsyncClient(PROTOCOL_FACTORY, this.asyncClientManager, this.transport);
+
+    private AsyncEchoTestClient(TestEnvironment environment) throws IOException {
+        this.environment = environment;
+        this.transport = new TNonblockingSocket(this.environment.getServerIp(), this.environment.getPort());
+        this.asyncClient = new EchoService.AsyncClient(this.environment.getProtocolFactory(), this.asyncClientManager,
+                this.transport);
     }
 
     @Override
     public String echo(String message) throws TException {
         final CountDownLatch latch = new CountDownLatch(1);
         final AsyncEchoResultHolder resultHolder = new AsyncEchoResultHolder();
-        final AsyncMethodCallback<EchoService.AsyncClient.echo_call> callback = new EchoMethodCallback(latch, resultHolder);
+        final AsyncMethodCallback<EchoService.AsyncClient.echo_call> callback = new EchoMethodCallback(latch,
+                resultHolder);
         this.asyncClient.echo(message, callback);
         boolean isInterrupted = false;
         while (true) {
@@ -77,83 +83,79 @@ public class AsyncEchoTestClient implements EchoTestClient {
 
     @Override
     public void verifyTraces(PluginTestVerifier verifier, String expectedMessage) throws Exception {
+        final InetSocketAddress actualServerAddress = this.environment.getServerAddress();
         // ********** Asynchronous Traces
         // SpanEvent - Thrift Asynchronous Client Invocation
         ExpectedTrace asyncClientInvocationTrace = event("ASYNC", "Thrift Asynchronous Client Invocation");
-        
+
         // SpanEvent - TAsyncMethodCall.start
         Method start = TAsyncMethodCall.class.getDeclaredMethod("start", Selector.class);
         ExpectedTrace startTrace = event("THRIFT_CLIENT_INTERNAL", start);
-        
+
         // SpanEvent - TAsyncMethodCall.doConnecting
         Method doConnecting = TAsyncMethodCall.class.getDeclaredMethod("doConnecting", SelectionKey.class);
         ExpectedTrace doConnectingTrace = event("THRIFT_CLIENT_INTERNAL", doConnecting);
-        
+
         // SpanEvent - TAsyncMethodCall.doWritingRequestSize
         Method doWritingRequestSize = TAsyncMethodCall.class.getDeclaredMethod("doWritingRequestSize");
         ExpectedTrace doWritingRequestSizeTrace = event("THRIFT_CLIENT_INTERNAL", doWritingRequestSize);
-        
+
         // SpanEvent - TAsyncMethodCall.doWritingRequestBody
-        Method doWritingRequestBody = TAsyncMethodCall.class.getDeclaredMethod("doWritingRequestBody", SelectionKey.class);
-        ExpectedAnnotation thriftUrl = Expectations.annotation(
-                "thrift.url", SERVER_ADDRESS.getHostName() + ":" + SERVER_ADDRESS.getPort() + "/com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo_call");
-        ExpectedTrace doWritingRequestBodyTrace = event(
-                "THRIFT_CLIENT", // ServiceType
+        Method doWritingRequestBody = TAsyncMethodCall.class.getDeclaredMethod("doWritingRequestBody",
+                SelectionKey.class);
+        ExpectedAnnotation thriftUrl = Expectations.annotation("thrift.url", actualServerAddress.getHostName() + ":"
+                + actualServerAddress.getPort() + "/com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo_call");
+        ExpectedTrace doWritingRequestBodyTrace = event("THRIFT_CLIENT", // ServiceType
                 doWritingRequestBody, // Method
                 null, // rpc
                 null, // endPoint
-                SERVER_ADDRESS.getHostName() + ":" + SERVER_ADDRESS.getPort(), // destinationId
+                actualServerAddress.getHostName() + ":" + actualServerAddress.getPort(), // destinationId
                 thriftUrl // Annotation("thrift.url")
         );
-        
+
         // SpanEvent - TAsyncMethodCall.doReadingResponseSize
         Method doReadingResponseSize = TAsyncMethodCall.class.getDeclaredMethod("doReadingResponseSize");
         ExpectedTrace doReadingResponseSizeTrace = event("THRIFT_CLIENT_INTERNAL", doReadingResponseSize);
-        
+
         // SpanEvent - TAsyncMethodCall.doReadingResponseBody
-        Method doReadingResponseBody = TAsyncMethodCall.class.getDeclaredMethod("doReadingResponseBody", SelectionKey.class);
+        Method doReadingResponseBody = TAsyncMethodCall.class.getDeclaredMethod("doReadingResponseBody",
+                SelectionKey.class);
         ExpectedTrace doReadingResponseBodyTrace = event("THRIFT_CLIENT_INTERNAL", doReadingResponseBody);
-        
+
         // SpanEvent - TAsyncMethodCall.cleanUpAndFireCallback
-        Method cleanUpAndFireCallback = TAsyncMethodCall.class.getDeclaredMethod("cleanUpAndFireCallback", SelectionKey.class);
+        Method cleanUpAndFireCallback = TAsyncMethodCall.class.getDeclaredMethod("cleanUpAndFireCallback",
+                SelectionKey.class);
         ExpectedTrace cleanUpAndFireCallbackTrace = event("THRIFT_CLIENT_INTERNAL", cleanUpAndFireCallback);
-        
+
         // SpanEvent - TServiceClient.receiveBase
         Method receiveBase = TServiceClient.class.getDeclaredMethod("receiveBase", TBase.class, String.class);
-        ExpectedAnnotation thriftResult = Expectations.annotation("thrift.result", "echo_result(success:" + expectedMessage + ")");
-        ExpectedTrace receiveBaseTrace = event(
-                "THRIFT_CLIENT_INTERNAL", // ServiceType
+        ExpectedAnnotation thriftResult = Expectations.annotation("thrift.result", "echo_result(success:"
+                + expectedMessage + ")");
+        ExpectedTrace receiveBaseTrace = event("THRIFT_CLIENT_INTERNAL", // ServiceType
                 receiveBase, // Method
                 thriftResult // Annotation("thrift.result")
         );
-        
+
         // ********** Root trace for Asynchronous traces
         // SpanEvent - TAsyncClientManager.call
         Method call = TAsyncClientManager.class.getDeclaredMethod("call", TAsyncMethodCall.class);
-        verifier.verifyTrace(async(Expectations.event("THRIFT_CLIENT_INTERNAL", call),
-                                        asyncClientInvocationTrace,
-                                        startTrace,
-                                        doConnectingTrace,
-                                        doWritingRequestSizeTrace,
-                                        doWritingRequestBodyTrace,
-                                        doReadingResponseSizeTrace,
-                                        doReadingResponseBodyTrace,
-                                        cleanUpAndFireCallbackTrace,
-                                        receiveBaseTrace));
+        verifier.verifyTrace(async(Expectations.event("THRIFT_CLIENT_INTERNAL", call), asyncClientInvocationTrace,
+                startTrace, doConnectingTrace, doWritingRequestSizeTrace, doWritingRequestBodyTrace,
+                doReadingResponseSizeTrace, doReadingResponseBodyTrace, cleanUpAndFireCallbackTrace, receiveBaseTrace));
     }
-    
+
     private static class AsyncEchoResultHolder {
         private volatile String result;
-        
+
         public void setResult(String result) {
             this.result = result;
         }
-        
+
         public String getResult() {
             return this.result;
         }
     }
-    
+
     @Override
     public void close() {
         if (this.asyncClientManager.isRunning()) {
@@ -163,12 +165,12 @@ public class AsyncEchoTestClient implements EchoTestClient {
             this.transport.close();
         }
     }
-    
+
     private static class EchoMethodCallback implements AsyncMethodCallback<EchoService.AsyncClient.echo_call> {
-        
+
         private final CountDownLatch completeLatch;
         private final AsyncEchoResultHolder resultHolder;
-        
+
         private EchoMethodCallback(final CountDownLatch completeLatch, final AsyncEchoResultHolder resultHolder) {
             this.completeLatch = completeLatch;
             this.resultHolder = resultHolder;
@@ -184,7 +186,7 @@ public class AsyncEchoTestClient implements EchoTestClient {
             } finally {
                 this.completeLatch.countDown();
             }
-            
+
         }
 
         @Override
@@ -195,12 +197,12 @@ public class AsyncEchoTestClient implements EchoTestClient {
                 this.completeLatch.countDown();
             }
         }
-        
+
     }
-    
+
     public static class Client extends AsyncEchoTestClient {
-        public Client() throws IOException {
-            super(new TNonblockingSocket(SERVER_IP, SERVER_PORT));
+        public Client(TestEnvironment environment) throws IOException {
+            super(environment);
         }
     }
 
