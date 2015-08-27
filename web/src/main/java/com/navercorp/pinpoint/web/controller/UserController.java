@@ -82,12 +82,16 @@ public class UserController {
     
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public Object getUser(@RequestParam(value="userId", required=false) String userId) {
+    public Object getUser(@RequestParam(value="userId", required=false) String userId, @RequestParam(value="userName", required=false) String userName, @RequestParam(value="department", required=false) String department) {
         try {
-            if(userId == null) {
-                return userService.selectUser();
-            } else {
+            if(userId != null) {
                 return userService.selectUserByUserId(userId);
+            } else if (userName != null) {
+                return userService.selectUserByUserName(userName);
+            } else if (department != null) {
+                return userService.selectUserByDepartment(department);
+            } else {
+                return userService.selectUser();
             }
         } catch (Exception e) {
             logger.error("can't select user", e);

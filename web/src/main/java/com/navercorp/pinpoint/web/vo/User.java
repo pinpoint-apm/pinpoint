@@ -57,4 +57,10 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
+    
+    public void removeHyphenForPhoneNumber() {
+        if(phoneNumber.contains("-")) {
+            phoneNumber.replace("-", "");
+        }
+    }
 }

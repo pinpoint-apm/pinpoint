@@ -8,6 +8,13 @@
         INSERT INTO user
         VALUES (#{userId}, #{name}, #{department}, #{phoneNumber}, #{email})
     </insert>
+       
+    <insert id="insertUserList">
+        <foreach collection="list" item="User">
+            INSERT INTO user_temp
+            VALUES (#{userId}, #{name}, #{department}, #{phoneNumber}, #{email})
+        </foreach>
+    </insert>
     
     <delete id="deleteUser" parameterType="User">
         DELETE
@@ -24,6 +31,18 @@
         SELECT *
         FROM user
         WHERE user_id = #{userId}
+    </select>
+
+    <select id="selectUserByDepartment" resultType="User">
+        SELECT *
+        FROM user
+        WHERE department = #{department}
+    </select>
+
+    <select id="selectUserByUserName" resultType="User">
+        SELECT *
+        FROM user
+        WHERE name = #{name}
     </select>
     
     <update id="updateUser" parameterType="User">
