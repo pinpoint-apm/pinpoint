@@ -20,7 +20,7 @@ import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class LambdaTest {
+public class LambdaIT {
 
     @Test
     public void test() throws Exception {
@@ -41,7 +41,7 @@ public class LambdaTest {
     }
     
     public static void main(String args[]) throws Exception {
-        new LambdaTest().test();
+        new LambdaIT().test();
     }
     
 }
