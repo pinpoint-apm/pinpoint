@@ -103,6 +103,26 @@ public class UserControllerTest {
                         .andExpect(jsonPath("$[0]", hasKey("email")))
                         .andReturn();
         
+        MvcResult andReturn = this.mockMvc.perform(get("/user.pinpoint?userName=" + USER_NAME).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/json;charset=UTF-8"))
+        .andExpect(jsonPath("$[0]", hasKey("userId")))
+        .andExpect(jsonPath("$[0]", hasKey("name")))
+        .andExpect(jsonPath("$[0]", hasKey("department")))
+        .andExpect(jsonPath("$[0]", hasKey("phoneNumber")))
+        .andExpect(jsonPath("$[0]", hasKey("email")))
+        .andReturn();
+        System.out.println(andReturn.getResponse().getContentAsString());
+        
+        this.mockMvc.perform(get("/user.pinpoint?department=" + USER_DEPARTMENT).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType("application/json;charset=UTF-8"))
+        .andExpect(jsonPath("$[0]", hasKey("userId")))
+        .andExpect(jsonPath("$[0]", hasKey("name")))
+        .andExpect(jsonPath("$[0]", hasKey("department")))
+        .andExpect(jsonPath("$[0]", hasKey("phoneNumber")))
+        .andExpect(jsonPath("$[0]", hasKey("email")))
+        .andReturn();
         
         this.mockMvc.perform(delete("/user.pinpoint").contentType(MediaType.APPLICATION_JSON).content("{\"userId\" : \"" + USER_ID + "\"}"))
                         .andExpect(status().isOk())
