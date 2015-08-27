@@ -23,18 +23,21 @@ import java.util.List;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
+import javassist.CtBehavior;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtField;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
 import javassist.NotFoundException;
+import javassist.bytecode.MethodInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
+import com.navercorp.pinpoint.bootstrap.instrument.ClassFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.DefaultInterceptorGroupDefinition;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
@@ -73,7 +76,7 @@ public class JavassistClass implements InstrumentClass {
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final ProfilerPluginInstrumentContext pluginContext;
-//    private final JavassistClassPool instrumentClassPool;
+    // private final JavassistClassPool instrumentClassPool;
     private final InterceptorRegistryBinder interceptorRegistryBinder;
     private final ClassLoader classLoader;
     private final CtClass ctClass;
@@ -82,15 +85,13 @@ public class JavassistClass implements InstrumentClass {
     private static final String SETTER_PREFIX = "_$PINPOINT$_set";
     private static final String GETTER_PREFIX = "_$PINPOINT$_get";
 
-
-
     public JavassistClass(ProfilerPluginInstrumentContext pluginContext, InterceptorRegistryBinder interceptorRegistryBinder, ClassLoader classLoader, CtClass ctClass) {
         this.pluginContext = pluginContext;
         this.ctClass = ctClass;
         this.interceptorRegistryBinder = interceptorRegistryBinder;
         this.classLoader = classLoader;
     }
-    
+
     public ClassLoader getClassLoader() {
         return classLoader;
     }
@@ -119,10 +120,10 @@ public class JavassistClass implements InstrumentClass {
     public String[] getInterfaces() {
         return this.ctClass.getClassFile2().getInterfaces();
     }
-    
+
     private static CtMethod getCtMethod0(CtClass ctClass, String methodName, String[] parameterTypes) {
         final String jvmSignature = JavaAssistUtils.javaTypeToJvmSignature(parameterTypes);
-       
+
         for (CtMethod method : ctClass.getDeclaredMethods()) {
             if (!method.getName().equals(methodName)) {
                 continue;
@@ -132,17 +133,17 @@ public class JavassistClass implements InstrumentClass {
                 return method;
             }
         }
-        
+
         return null;
     }
-    
+
     private CtMethod getCtMethod(String methodName, String[] parameterTypes) throws NotFoundInstrumentException {
         CtMethod method = getCtMethod0(ctClass, methodName, parameterTypes);
-        
+
         if (method == null) {
             throw new NotFoundInstrumentException(methodName + Arrays.toString(parameterTypes) + " is not found in " + this.getName());
         }
-        
+
         return method;
     }
 
@@ -170,20 +171,20 @@ public class JavassistClass implements InstrumentClass {
                 candidateList.add(method);
             }
         }
-        
+
         return candidateList;
     }
 
     private CtConstructor getCtConstructor(String[] parameterTypes) throws NotFoundInstrumentException {
         CtConstructor constructor = getCtConstructor0(parameterTypes);
-        
+
         if (constructor == null) {
             throw new NotFoundInstrumentException("Constructor" + Arrays.toString(parameterTypes) + " is not found in " + this.getName());
         }
 
         return constructor;
     }
-    
+
     private CtConstructor getCtConstructor0(String[] parameterTypes) {
         final String jvmSignature = JavaAssistUtils.javaTypeToJvmSignature(parameterTypes);
         // constructor return type is void
@@ -194,16 +195,15 @@ public class JavassistClass implements InstrumentClass {
                 return constructor;
             }
         }
-        
+
         return null;
     }
-    
+
     @Override
     public InstrumentMethod getConstructor(String... parameterTypes) {
         CtConstructor constructor = getCtConstructor0(parameterTypes);
         return constructor == null ? null : new JavassistMethod(pluginContext, interceptorRegistryBinder, this, constructor);
     }
-    
 
     @Override
     public boolean hasDeclaredMethod(String methodName, String... args) {
@@ -213,7 +213,7 @@ public class JavassistClass implements InstrumentClass {
     @Override
     public boolean hasMethod(String methodName, String... parameterTypes) {
         final String jvmSignature = JavaAssistUtils.javaTypeToJvmSignature(parameterTypes);
-        
+
         for (CtMethod method : ctClass.getMethods()) {
             if (!method.getName().equals(methodName)) {
                 continue;
@@ -223,11 +223,36 @@ public class JavassistClass implements InstrumentClass {
                 return true;
             }
         }
-        
-        return false;
 
+        return false;
     }
-   
+
+    @Override
+    public boolean hasEnclosingMethod(String methodName, String... parameterTypes) {
+        CtBehavior behavior;
+        try {
+            behavior = ctClass.getEnclosingBehavior();
+        } catch (NotFoundException ignored) {
+            return false;
+        }
+        
+        if(behavior == null) {
+            return false;
+        }
+        
+        final MethodInfo methodInfo = behavior.getMethodInfo2();
+        if (!methodInfo.getName().equals(methodName)) {
+            return false;
+        }
+
+        final String jvmSignature = JavaAssistUtils.javaTypeToJvmSignature(parameterTypes);
+        if (methodInfo.getDescriptor().startsWith(jvmSignature)) {
+            return true;
+        }
+
+        return false;
+    }
+
     @Override
     public boolean hasConstructor(String... parameterTypeArray) {
         final String signature = JavaAssistUtils.javaTypeToJvmSignature(parameterTypeArray, "void");
@@ -238,7 +263,7 @@ public class JavassistClass implements InstrumentClass {
             return false;
         }
     }
-   
+
     @Override
     public boolean hasField(String name, String type) {
         try {
@@ -247,7 +272,7 @@ public class JavassistClass implements InstrumentClass {
         } catch (NotFoundException e) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -259,7 +284,7 @@ public class JavassistClass implements InstrumentClass {
     @Override
     public void weave(String adviceClassName) throws InstrumentException {
         pluginContext.injectClass(classLoader, adviceClassName);
-        
+
         CtClass adviceClass;
         try {
             adviceClass = ctClass.getClassPool().get(adviceClassName);
@@ -279,21 +304,21 @@ public class JavassistClass implements InstrumentClass {
     @Override
     public void addDelegatorMethod(String methodName, String[] args) throws InstrumentException {
         if (getCtMethod0(ctClass, methodName, args) != null) {
-            throw new InstrumentException(getName() + "already have method(" + methodName  +").");
+            throw new InstrumentException(getName() + "already have method(" + methodName + ").");
         }
-        
+
         try {
             final CtClass superClass = ctClass.getSuperclass();
             CtMethod superMethod = getCtMethod0(superClass, methodName, args);
-            
+
             if (superMethod == null) {
                 throw new NotFoundInstrumentException(methodName + Arrays.toString(args) + " is not found in " + superClass.getName());
             }
-            
+
             CtMethod delegatorMethod = CtNewMethod.delegator(superMethod, ctClass);
             ctClass.addMethod(delegatorMethod);
         } catch (NotFoundException ex) {
-            throw new InstrumentException(getName() + "don't have super class(" + getSuperClass()  +"). Cause:" + ex.getMessage(), ex);
+            throw new InstrumentException(getName() + "don't have super class(" + getSuperClass() + "). Cause:" + ex.getMessage(), ex);
         } catch (CannotCompileException ex) {
             throw new InstrumentException(methodName + " addDelegatorMethod fail. Cause:" + ex.getMessage(), ex);
         }
@@ -306,14 +331,13 @@ public class JavassistClass implements InstrumentClass {
             ctClass.detach();
             return bytes;
         } catch (IOException e) {
-            logger.info("IoException class:{} Caused:{}", ctClass.getName(),  e.getMessage(), e);
+            logger.info("IoException class:{} Caused:{}", ctClass.getName(), e.getMessage(), e);
         } catch (CannotCompileException e) {
             logger.info("CannotCompileException class:{} Caused:{}", ctClass.getName(), e.getMessage(), e);
         }
         return null;
     }
 
-    
     @Override
     public void addField(String accessorTypeName) throws InstrumentException {
         addField0(accessorTypeName, null);
@@ -323,13 +347,12 @@ public class JavassistClass implements InstrumentClass {
     public void addField(String accessorTypeName, String initValExp) throws InstrumentException {
         addField0(accessorTypeName, initValExp);
     }
-    
+
     private void addField0(String accessorTypeName, String initValExp) throws InstrumentException {
         try {
             Class<?> accessorType = pluginContext.injectClass(classLoader, accessorTypeName);
             AccessorDetails accessorDetails = new AccessorAnalyzer().analyze(accessorType);
 
-            
             CtField newField = CtField.make("private " + accessorDetails.getFieldType().getName() + " " + FIELD_PREFIX + accessorTypeName.replace('.', '_').replace('$', '_') + ";", ctClass);
 
             if (initValExp == null) {
@@ -355,84 +378,83 @@ public class JavassistClass implements InstrumentClass {
     public void addGetter(String getterTypeName, String fieldName) throws InstrumentException {
         try {
             Class<?> getterType = pluginContext.injectClass(classLoader, getterTypeName);
-            
+
             GetterDetails getterDetails = new GetterAnalyzer().analyze(getterType);
-            
+
             CtField field = ctClass.getField(fieldName);
-            
+
             if (!field.getType().getName().equals(getterDetails.getFieldType().getName())) {
                 throw new IllegalArgumentException("Return type of the getter is different with the field type. getterMethod: " + getterDetails.getGetter() + ", fieldType: " + field.getType().getName());
             }
-            
+
             CtMethod getterMethod = CtNewMethod.getter(getterDetails.getGetter().getName(), field);
-            
+
             if (getterMethod.getDeclaringClass() != ctClass) {
                 getterMethod = CtNewMethod.copy(getterMethod, ctClass, null);
             }
-            
+
             ctClass.addMethod(getterMethod);
-        
+
             CtClass ctInterface = ctClass.getClassPool().get(getterTypeName);
             ctClass.addInterface(ctInterface);
         } catch (Exception e) {
             throw new InstrumentException("Fail to add getter: " + getterTypeName, e);
         }
     }
-    
-    
+
     @Override
     public int addInterceptor(String interceptorClassName, Object... constructorArgs) throws InstrumentException {
         return addInterceptor(interceptorClassName, null, null, constructorArgs);
     }
-    
+
     @Override
     public int addInterceptor(String interceptorClassName, InterceptorGroup group, Object... constructorArgs) throws InstrumentException {
         return addInterceptor(interceptorClassName, group, ExecutionPolicy.BOUNDARY, constructorArgs);
     }
-    
+
     @Override
     public int addInterceptor(String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException {
         Asserts.notNull(interceptorClassName, "interceptorClassName");
-        
+
         int interceptorId = -1;
 
         Class<?> interceptorType = pluginContext.injectClass(classLoader, interceptorClassName);
         Targets targets = interceptorType.getAnnotation(Targets.class);
-        
+
         if (targets != null) {
             for (TargetMethod m : targets.methods()) {
                 interceptorId = addInterceptor0(m, interceptorClassName, group, executionPolicy, constructorArgs);
             }
-            
+
             for (TargetConstructor c : targets.constructors()) {
                 interceptorId = addInterceptor0(c, interceptorClassName, group, executionPolicy, constructorArgs);
             }
-            
+
             for (TargetFilter f : targets.filters()) {
                 interceptorId = addInterceptor0(f, interceptorClassName, group, executionPolicy, constructorArgs);
             }
-            
+
         }
 
         TargetMethod targetMethod = interceptorType.getAnnotation(TargetMethod.class);
         if (targetMethod != null) {
             interceptorId = addInterceptor0(targetMethod, interceptorClassName, group, executionPolicy, constructorArgs);
         }
-        
+
         TargetConstructor targetConstructor = interceptorType.getAnnotation(TargetConstructor.class);
         if (targetConstructor != null) {
             interceptorId = addInterceptor0(targetConstructor, interceptorClassName, group, executionPolicy, constructorArgs);
         }
-        
+
         TargetFilter targetFilter = interceptorType.getAnnotation(TargetFilter.class);
         if (targetFilter != null) {
             interceptorId = addInterceptor0(targetFilter, interceptorClassName, group, executionPolicy, constructorArgs);
         }
-        
+
         if (interceptorId == -1) {
             throw new PinpointException("No target is specified. At least one of @Targets, @TargetMethod, @TargetConstructor, @TargetFilter must present. interceptor: " + interceptorClassName);
         }
-        
+
         return interceptorId;
     }
 
@@ -445,17 +467,17 @@ public class JavassistClass implements InstrumentClass {
         InstrumentMethod method = getDeclaredMethod(m.name(), m.paramTypes());
         return method.addInterceptor(interceptorClassName, group, executionPolicy, constructorArgs);
     }
-        
+
     private int addInterceptor0(TargetFilter annotation, String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException {
         String filterTypeName = annotation.type();
         Asserts.notNull(filterTypeName, "type of @TargetFilter");
-        
+
         AutoBindingObjectFactory filterFactory = new AutoBindingObjectFactory(pluginContext, classLoader, new InterceptorArgumentProvider(pluginContext.getTraceContext(), this));
-        MethodFilter filter = (MethodFilter)filterFactory.createInstance(ObjectRecipe.byConstructor(filterTypeName, (Object[])annotation.constructorArguments()));
-        
+        MethodFilter filter = (MethodFilter) filterFactory.createInstance(ObjectRecipe.byConstructor(filterTypeName, (Object[]) annotation.constructorArguments()));
+
         boolean singleton = annotation.singleton();
         int interceptorId = -1;
-        
+
         for (InstrumentMethod m : getDeclaredMethods(filter)) {
             if (singleton && interceptorId != -1) {
                 m.addInterceptor(interceptorId);
@@ -463,71 +485,33 @@ public class JavassistClass implements InstrumentClass {
                 interceptorId = m.addInterceptor(interceptorClassName, group, executionPolicy, constructorArgs);
             }
         }
-        
+
         if (interceptorId == -1) {
             logger.warn("No methods are intercepted. target: " + ctClass.getName(), ", interceptor: " + interceptorClassName + ", methodFilter: " + filterTypeName);
         }
-        
+
         return interceptorId;
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
-    
     // below methods will be removed soon
     @Override
     public void addGetter(Class<?> interfaceType, String fieldName) throws InstrumentException {
         java.lang.reflect.Method[] methods = interfaceType.getMethods();
-        
+
         if (methods.length != 1) {
             throw new InstrumentException("Getter interface must have only one method: " + interfaceType.getName());
         }
-        
+
         java.lang.reflect.Method getter = methods[0];
-        
+
         if (getter.getParameterTypes().length != 0) {
             throw new InstrumentException("Getter interface method must be no-args and non-void: " + interfaceType.getName());
         }
-        
+
         try {
             CtField field = ctClass.getField(fieldName);
             String expression;
-            
+
             if (field.getType().isPrimitive()) {
                 String fieldType = field.getType().getName();
                 String wrapperType = getWrapperClassName(fieldType);
@@ -535,40 +519,39 @@ public class JavassistClass implements InstrumentClass {
             } else {
                 expression = fieldName;
             }
-            
+
             CtMethod getterMethod = CtNewMethod.make("public " + getter.getReturnType().getName() + " " + getter.getName() + "() { return " + expression + "; }", ctClass);
             ctClass.addMethod(getterMethod);
-        
+
             CtClass ctInterface = ctClass.getClassPool().get(interfaceType.getName());
             ctClass.addInterface(ctInterface);
         } catch (NotFoundException ex) {
             throw new InstrumentException("Failed to add getter. No such field: " + fieldName, ex);
         } catch (Exception e) {
-            // Cannot happen. Reaching here means a bug.   
+            // Cannot happen. Reaching here means a bug.
             throw new InstrumentException("Fail to add getter: " + interfaceType.getName(), e);
         }
     }
 
-    
     @Override
     public void addGetter(FieldAccessor fieldGetter, String fieldName) throws InstrumentException {
         Class<?> interfaceType = fieldGetter.getType();
         java.lang.reflect.Method[] methods = interfaceType.getMethods();
-        
+
         if (methods.length != 1) {
             throw new InstrumentException("Getter interface must have only one method: " + interfaceType.getName());
         }
-        
+
         java.lang.reflect.Method getter = methods[0];
-        
+
         if (getter.getParameterTypes().length != 0) {
             throw new InstrumentException("Getter interface method must be no-args and non-void: " + interfaceType.getName());
         }
-        
+
         try {
             CtField field = ctClass.getField(fieldName);
             String expression;
-            
+
             if (field.getType().isPrimitive()) {
                 String fieldType = field.getType().getName();
                 String wrapperType = getWrapperClassName(fieldType);
@@ -576,20 +559,20 @@ public class JavassistClass implements InstrumentClass {
             } else {
                 expression = fieldName;
             }
-            
+
             CtMethod getterMethod = CtNewMethod.make("public " + getter.getReturnType().getName() + " " + getter.getName() + "() { return " + expression + "; }", ctClass);
             ctClass.addMethod(getterMethod);
-        
+
             CtClass ctInterface = ctClass.getClassPool().get(interfaceType.getName());
             ctClass.addInterface(ctInterface);
         } catch (NotFoundException ex) {
             throw new InstrumentException("Failed to add getter. No such field: " + fieldName, ex);
         } catch (Exception e) {
-            // Cannot happen. Reaching here means a bug.   
+            // Cannot happen. Reaching here means a bug.
             throw new InstrumentException("Fail to add getter: " + interfaceType.getName(), e);
         }
     }
-    
+
     private String getWrapperClassName(String primitiveType) {
         if ("boolean".equals(primitiveType)) {
             return "java.lang.Boolean";
@@ -612,22 +595,21 @@ public class JavassistClass implements InstrumentClass {
         throw new IllegalArgumentException(primitiveType);
     }
 
-    
     @Override
     public void addMetadata(MetadataAccessor metadata, String initialValue) throws InstrumentException {
         addMetadata0(metadata, initialValue);
     };
-    
+
     @Override
     public void addMetadata(MetadataAccessor metadata) throws InstrumentException {
         addMetadata0(metadata, null);
     }
-    
+
     public void addMetadata0(MetadataAccessor metadata, String initValue) throws InstrumentException {
         if (metadata == null) {
             throw new NullPointerException("traceValue must not be null");
         }
-        
+
         try {
             ClassPool classPool = ctClass.getClassPool();
             final CtClass accessorType = classPool.get(metadata.getType().getName());
@@ -635,7 +617,7 @@ public class JavassistClass implements InstrumentClass {
             final CtField field = new CtField(classPool.get(Object.class.getName()), fieldName, ctClass);
 
             ctClass.addInterface(accessorType);
-            
+
             if (initValue == null) {
                 ctClass.addField(field);
             } else {
@@ -648,7 +630,6 @@ public class JavassistClass implements InstrumentClass {
         }
     }
 
-    
     private ClassPool getClassPool() {
         return ctClass.getClassPool();
     }
@@ -718,7 +699,7 @@ public class JavassistClass implements InstrumentClass {
     public void addTraceVariable(String variableName, String setterName, String getterName, String variableType) throws InstrumentException {
         addTraceVariable0(variableName, setterName, getterName, variableType, null);
     }
-    
+
     @Deprecated
     private void addTraceVariable0(String variableName, String setterName, String getterName, String variableType, String initValue) throws InstrumentException {
         try {
@@ -753,12 +734,12 @@ public class JavassistClass implements InstrumentClass {
     public void addTraceValue(Class<?> traceValue, String initValue) throws InstrumentException {
         addTraceValue0(traceValue, initValue);
     }
-    
+
     public void addTraceValue0(Class<?> traceValue, String initValue) throws InstrumentException {
         if (traceValue == null) {
             throw new NullPointerException("traceValue must not be null");
         }
-        
+
         try {
             final CtClass ctValueHandler = ctClass.getClassPool().get(traceValue.getName());
 
@@ -774,7 +755,7 @@ public class JavassistClass implements InstrumentClass {
                     CtMethod setterMethod = CtNewMethod.setter(method.getName(), traceVariableType);
                     ctClass.addMethod(setterMethod);
                     requiredField = true;
-                } else if(isGetter(method)) {
+                } else if (isGetter(method)) {
                     CtMethod getterMethod = CtNewMethod.getter(method.getName(), traceVariableType);
                     ctClass.addMethod(getterMethod);
                     requiredField = true;
@@ -795,7 +776,7 @@ public class JavassistClass implements InstrumentClass {
             throw new InstrumentException(traceValue + " implements fail. Cause:" + e.getMessage(), e);
         }
     }
-    
+
     private boolean isGetter(java.lang.reflect.Method method) {
         return method.getName().startsWith(GETTER_PREFIX);
     }
@@ -822,7 +803,7 @@ public class JavassistClass implements InstrumentClass {
             throw new InstrumentException("getter or setter not found");
         }
         if (getterReturnType != null && setterType != null) {
-            if(!getterReturnType.equals(setterType)) {
+            if (!getterReturnType.equals(setterType)) {
                 throw new InstrumentException("invalid setter or getter parameter");
             }
         }
@@ -841,12 +822,12 @@ public class JavassistClass implements InstrumentClass {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        final JavassistMethod behavior = (JavassistMethod)getConstructor(args);
-        
+        final JavassistMethod behavior = (JavassistMethod) getConstructor(args);
+
         if (behavior == null) {
             throw new NotFoundInstrumentException("Cannot find a constructor with parameter types: " + Arrays.toString(args));
         }
-        
+
         return behavior.addInterceptor0(interceptor, null, InterceptPoint.AROUND);
     }
 
@@ -855,12 +836,12 @@ public class JavassistClass implements InstrumentClass {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        final JavassistMethod behavior = (JavassistMethod)getConstructor(args);
-        
+        final JavassistMethod behavior = (JavassistMethod) getConstructor(args);
+
         if (behavior == null) {
             throw new NotFoundInstrumentException("Cannot find a constructor with parameter types: " + Arrays.toString(args));
         }
-        
+
         return behavior.addInterceptor0(interceptor, null, type);
     }
 
@@ -872,13 +853,13 @@ public class JavassistClass implements InstrumentClass {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        
-        final JavassistMethod behavior = (JavassistMethod)getDeclaredMethod(methodName, args);
-        
+
+        final JavassistMethod behavior = (JavassistMethod) getDeclaredMethod(methodName, args);
+
         if (behavior == null) {
             throw new NotFoundInstrumentException("Cannot find a method " + methodName + " with parameter types: " + Arrays.toString(args));
         }
-        
+
         return behavior.addInterceptor0(interceptor, null, InterceptPoint.AROUND);
     }
 
@@ -887,7 +868,7 @@ public class JavassistClass implements InstrumentClass {
         final InterceptorGroupDefinition groupDefinition = new DefaultInterceptorGroupDefinition(groupName);
         return addGroupInterceptor(methodName, args, interceptor, groupDefinition);
     }
-    
+
     @Override
     public int addGroupInterceptor(String methodName, String[] args, Interceptor interceptor, InterceptorGroupDefinition definition) throws InstrumentException, NotFoundInstrumentException {
         if (methodName == null) {
@@ -899,18 +880,16 @@ public class JavassistClass implements InstrumentClass {
         if (definition == null) {
             throw new NullPointerException("definition must not be null");
         }
-        
-        
-        final JavassistMethod behavior = (JavassistMethod)getDeclaredMethod(methodName, args);
-        
+
+        final JavassistMethod behavior = (JavassistMethod) getDeclaredMethod(methodName, args);
+
         if (behavior == null) {
             throw new NotFoundInstrumentException("Cannot find a method " + methodName + " with parameter types: " + Arrays.toString(args));
         }
-        
+
         InterceptorGroup group = pluginContext.getInterceptorGroup(definition.getName());
         return behavior.addInterceptor0(interceptor, group, InterceptPoint.AROUND);
     }
-
 
     @Override
     public int addGroupInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, String groupName) throws InstrumentException {
@@ -930,42 +909,42 @@ public class JavassistClass implements InstrumentClass {
             throw new NullPointerException("groupDefinition must not be null");
         }
 
-        final JavassistMethod behavior = (JavassistMethod)getDeclaredMethod(methodName, args);
-        
+        final JavassistMethod behavior = (JavassistMethod) getDeclaredMethod(methodName, args);
+
         if (behavior == null) {
             if (logger.isWarnEnabled()) {
                 logger.warn("Method is not declared. class={}, methodName={}, args={}", ctClass.getName(), methodName, Arrays.toString(args));
             }
             return -1;
         }
-        
+
         InterceptorGroup group = pluginContext.getInterceptorGroup(groupDefinition.getName());
         return behavior.addInterceptor0(interceptor, group, InterceptPoint.AROUND);
     }
 
     @Override
     public int reuseInterceptor(String methodName, String[] args, int interceptorId) throws InstrumentException, NotFoundInstrumentException {
-        final JavassistMethod behavior = (JavassistMethod)getDeclaredMethod(methodName, args);
-        
+        final JavassistMethod behavior = (JavassistMethod) getDeclaredMethod(methodName, args);
+
         if (behavior == null) {
             throw new NotFoundInstrumentException("Cannot find a method " + methodName + " with parameter types: " + Arrays.toString(args));
         }
 
         behavior.addInterceptor(interceptorId);
-        
+
         return interceptorId;
     }
 
     @Override
     public int reuseInterceptor(String methodName, String[] args, int interceptorId, InterceptPoint type) throws InstrumentException, NotFoundInstrumentException {
-        final JavassistMethod behavior = (JavassistMethod)getDeclaredMethod(methodName, args);
-        
+        final JavassistMethod behavior = (JavassistMethod) getDeclaredMethod(methodName, args);
+
         if (behavior == null) {
             throw new NotFoundInstrumentException("Cannot find a method " + methodName + " with parameter types: " + Arrays.toString(args));
         }
 
         behavior.addInterceptor0(interceptorId, type);
-        
+
         return interceptorId;
     }
 
@@ -974,9 +953,9 @@ public class JavassistClass implements InstrumentClass {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        
-        final JavassistMethod behavior = (JavassistMethod)getDeclaredMethod(methodName, args);
-        
+
+        final JavassistMethod behavior = (JavassistMethod) getDeclaredMethod(methodName, args);
+
         if (behavior == null) {
             throw new NotFoundInstrumentException("Cannot find a method " + methodName + " with parameter types: " + Arrays.toString(args));
         }
@@ -984,30 +963,28 @@ public class JavassistClass implements InstrumentClass {
         return behavior.addInterceptor0(interceptor, null, type);
     }
 
-
-
     @Override
     public boolean addDebugLogBeforeAfterMethod() {
-//        final String className = this.ctClass.getName();
-//        final LoggingInterceptor loggingInterceptor = new LoggingInterceptor(className);
-//        final int id = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addSimpleInterceptor(loggingInterceptor);
-//        try {
-//            for (CtMethod method : ctClass.getDeclaredMethods()) {
-//                if (method.isEmpty()) {
-//                    if (isDebug) {
-//                        logger.debug("{} is empty.", method.getLongName());
-//                    }
-//                    continue;
-//                }
-//                String methodName = method.getName();
-//                addStaticAroundInterceptor(methodName, id, method);
-//            }
-//            return true;
-//        } catch (Exception e) {
-//            if (logger.isWarnEnabled()) {
-//                logger.warn(e.getMessage(), e);
-//            }
-//        }
+        // final String className = this.ctClass.getName();
+        // final LoggingInterceptor loggingInterceptor = new LoggingInterceptor(className);
+        // final int id = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addSimpleInterceptor(loggingInterceptor);
+        // try {
+        // for (CtMethod method : ctClass.getDeclaredMethods()) {
+        // if (method.isEmpty()) {
+        // if (isDebug) {
+        // logger.debug("{} is empty.", method.getLongName());
+        // }
+        // continue;
+        // }
+        // String methodName = method.getName();
+        // addStaticAroundInterceptor(methodName, id, method);
+        // }
+        // return true;
+        // } catch (Exception e) {
+        // if (logger.isWarnEnabled()) {
+        // logger.warn(e.getMessage(), e);
+        // }
+        // }
         return false;
     }
 
@@ -1018,60 +995,82 @@ public class JavassistClass implements InstrumentClass {
      */
     @Deprecated
     public boolean addDebugLogBeforeAfterConstructor() {
-//        final String className = this.ctClass.getName();
-//        final LoggingInterceptor loggingInterceptor = new LoggingInterceptor(className);
-//        final int id = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addSimpleInterceptor(loggingInterceptor);
-//        try {
-//            for (CtConstructor constructor : ctClass.getConstructors()) {
-//                if (constructor.isEmpty()) {
-//                    if (isDebug) {
-//                        logger.debug("{} is empty.", constructor.getLongName());
-//                    }
-//                    continue;
-//                }
-//                String constructorName = constructor.getName();
-//                addStaticAroundInterceptor(constructorName, id, constructor);
-//            }
-//            return true;
-//        } catch (Exception e) {
-//            if (logger.isWarnEnabled()) {
-//                logger.warn(e.getMessage(), e);
-//            }
-//        }
+        // final String className = this.ctClass.getName();
+        // final LoggingInterceptor loggingInterceptor = new LoggingInterceptor(className);
+        // final int id = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addSimpleInterceptor(loggingInterceptor);
+        // try {
+        // for (CtConstructor constructor : ctClass.getConstructors()) {
+        // if (constructor.isEmpty()) {
+        // if (isDebug) {
+        // logger.debug("{} is empty.", constructor.getLongName());
+        // }
+        // continue;
+        // }
+        // String constructorName = constructor.getName();
+        // addStaticAroundInterceptor(constructorName, id, constructor);
+        // }
+        // return true;
+        // } catch (Exception e) {
+        // if (logger.isWarnEnabled()) {
+        // logger.warn(e.getMessage(), e);
+        // }
+        // }
         return false;
     }
-
 
     public Class<?> toClass() throws InstrumentException {
         try {
             return ctClass.toClass();
         } catch (CannotCompileException e) {
-            throw new InstrumentException( "CannotCompileException class:" + ctClass.getName() + " " + e.getMessage(), e);
+            throw new InstrumentException("CannotCompileException class:" + ctClass.getName() + " " + e.getMessage(), e);
         }
     }
 
+    @Override
+    public InstrumentClass getNestedClass(String className) {
+        CtClass[] nestedClasses;
+        try {
+            nestedClasses = ctClass.getNestedClasses();
+        } catch (NotFoundException ex) {
+            logger.warn("{} NestedClass Not Found {}", className, ex.getMessage(), ex);
+            return null;
+        }
 
-   @Override
-   public InstrumentClass getNestedClass(String className) {
-       CtClass[] nestedClasses;
-       try {
-           nestedClasses = ctClass.getNestedClasses();
-       } catch (NotFoundException ex) {
-           logger.warn("{} NestedClass Not Found {}", className, ex.getMessage(), ex);
-           return null;
-       }
+        if (nestedClasses == null || nestedClasses.length == 0) {
+            return null;
+        }
 
-       if (nestedClasses == null || nestedClasses.length == 0) {
-           return null;
-       }
+        for (CtClass nested : nestedClasses) {
+            if (nested.getName().equals(className)) {
+                return new JavassistClass(pluginContext, interceptorRegistryBinder, classLoader, nested);
+            }
+        }
+        return null;
+    }
 
-       for (CtClass nested : nestedClasses) {
-           if (nested.getName().equals(className)) {
-               return new JavassistClass(pluginContext, interceptorRegistryBinder, classLoader, nested);
-           }
-       }
-       return null;
-   }
+    @Override
+    public List<InstrumentClass> getNestedClasses(ClassFilter filter) {
+        List<InstrumentClass> list = new ArrayList<InstrumentClass>();
+        CtClass[] nestedClasses;
+        try {
+            nestedClasses = ctClass.getNestedClasses();
+        } catch (NotFoundException ex) {
+            return list;
+        }
+
+        if (nestedClasses == null || nestedClasses.length == 0) {
+            return list;
+        }
+
+        for (CtClass nested : nestedClasses) {
+            final InstrumentClass clazz = new JavassistClass(pluginContext, interceptorRegistryBinder, classLoader, nested);
+            if (filter.accept(clazz)) {
+                list.add(clazz);
+            }
+        }
+
+        return list;
+    }
 
     @Override
     public void addGetter(String getterName, String variableName, String variableType) throws InstrumentException {

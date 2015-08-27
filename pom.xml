@@ -45,6 +45,7 @@
         <module>thrift</module>
         <module>test</module>
         <module>web</module>
+        <module>java8-test</module>
     </modules>
 
     <properties>
@@ -361,11 +362,6 @@
                 <!-- Warning. critical bug(DBCP-342) https://issues.apache.org/jira/browse/DBCP-342  -->
                 <!-- suggest dbcp2, but Not compatible with dbcp 1.x -->
                 <version>1.4</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.ibatis</groupId>
-                <artifactId>ibatis-sqlmap</artifactId>
-                <version>2.3.4.726</version>
             </dependency>
             <dependency>
                 <groupId>org.mybatis</groupId>
@@ -781,6 +777,9 @@
                                 </requireEnvironmentVariable>
                                 <requireEnvironmentVariable>
                                     <variableName>JAVA_7_HOME</variableName>
+                                </requireEnvironmentVariable>
+                                <requireEnvironmentVariable>
+                                    <variableName>JAVA_8_HOME</variableName>
                                 </requireEnvironmentVariable>
                             </rules>
                             <fail>true</fail>

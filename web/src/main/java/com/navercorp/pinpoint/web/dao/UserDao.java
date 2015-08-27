@@ -26,11 +26,20 @@ public interface UserDao {
 
     void insertUser(User user);
 
+    void inserUserList(List<User> users);
+
     void deleteUser(User user);
 
     List<User> selectUser();
 
-    void updateUser(User user);
+    List<User> selectUserByDepartment(String department);
 
     User selectUserByUserId(String userId);
+
+    List<User> selectUserByUserName(String userName);
+
+    void updateUser(User user);
+
+
+
 }
