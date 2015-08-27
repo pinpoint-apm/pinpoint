@@ -24,12 +24,33 @@ import org.apache.thrift.protocol.TProtocolFactory;
 /**
  * @author HyunGil Jeong
  */
-public interface TestEnvironment {
+public class TestEnvironment {
 
-    public static final String SERVER_IP = "127.0.0.1";
-    public static final int SERVER_PORT = 9090;
-    public static final InetSocketAddress SERVER_ADDRESS = new InetSocketAddress(SERVER_IP, SERVER_PORT);
+    private static final int MIN_SERVER_PORT = 9091;
+    private static final int MAX_SERVER_PORT = 9099;
 
-    public static final TProtocolFactory PROTOCOL_FACTORY = new TBinaryProtocol.Factory();
-    
+    private static final String SERVER_IP = "127.0.0.1";
+    private static final TProtocolFactory PROTOCOL_FACTORY = new TBinaryProtocol.Factory();
+
+    private final String serverIp = SERVER_IP;
+    private final int port = MIN_SERVER_PORT + (int)(Math.random() * (MAX_SERVER_PORT - MIN_SERVER_PORT) + 1);
+    private final InetSocketAddress serverAddress = new InetSocketAddress(SERVER_IP, this.port);
+    private final TProtocolFactory protocolFactory = PROTOCOL_FACTORY;
+
+    public String getServerIp() {
+        return this.serverIp;
+    }
+
+    public int getPort() {
+        return this.port;
+    }
+
+    public InetSocketAddress getServerAddress() {
+        return this.serverAddress;
+    }
+
+    public TProtocolFactory getProtocolFactory() {
+        return this.protocolFactory;
+    }
+
 }

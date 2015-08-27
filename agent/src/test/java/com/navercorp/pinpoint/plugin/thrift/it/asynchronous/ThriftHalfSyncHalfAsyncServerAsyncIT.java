@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
 import com.navercorp.pinpoint.plugin.thrift.common.server.EchoTestServer;
 import com.navercorp.pinpoint.plugin.thrift.common.server.AsyncEchoTestServer.AsyncEchoTestServerFactory;
 import com.navercorp.pinpoint.plugin.thrift.it.EchoTestRunner;
@@ -44,8 +45,8 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 public class ThriftHalfSyncHalfAsyncServerAsyncIT extends EchoTestRunner<THsHaServer> {
 
     @Override
-    protected EchoTestServer<THsHaServer> createEchoServer() throws TTransportException {
-        return AsyncEchoTestServerFactory.halfSyncHalfAsyncServer();
+    protected EchoTestServer<THsHaServer> createEchoServer(TestEnvironment environment) throws TTransportException {
+        return AsyncEchoTestServerFactory.halfSyncHalfAsyncServer(environment);
     }
 
     @Test
@@ -57,7 +58,7 @@ public class ThriftHalfSyncHalfAsyncServerAsyncIT extends EchoTestRunner<THsHaSe
         // Then
         assertEquals(expectedMessage, result);
     }
-    
+
     @Test
     public void testAsynchronousRpcCall() throws Exception {
         // Given
