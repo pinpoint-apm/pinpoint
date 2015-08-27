@@ -28,10 +28,14 @@ public interface UserService {
 
     void deleteUser(User user);
 
-    List<User> selectUser();
-
     void updateUser(User user);
 
+    List<User> selectUser();
+
     User selectUserByUserId(String userId);
+
+    List<User> selectUserByUserName(String userName);
+
+    List<User> selectUserByDepartment(String department);
 
 }

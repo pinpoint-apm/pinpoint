@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.orm.mybatis.interceptor;
+package com.navercorp.pinpoint.jdk8.lambda;
 
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.modifier.orm.SqlMapOperationInterceptor;
+import org.springframework.stereotype.Controller;
 
-/**
- * @author Hyun Jeong
- * @author netspider
- */
-public class MyBatisSqlMapOperationInterceptor extends SqlMapOperationInterceptor {
-
-    public MyBatisSqlMapOperationInterceptor(ServiceType serviceType) {
-        super(serviceType, MyBatisSqlMapOperationInterceptor.class);
+@Controller
+public class Mozzi {
+    private final int age;
+    
+    public Mozzi(int age) {
+        this.age = age;
     }
 
+    public int getAge() {
+        return age;
+    }
 }

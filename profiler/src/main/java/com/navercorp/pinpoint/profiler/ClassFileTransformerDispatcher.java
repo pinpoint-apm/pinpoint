@@ -153,9 +153,6 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Ret
         // rpc
         modifierRepository.addConnectorModifier();
 
-        // orm
-        modifierRepository.addOrmModifier();
-
         // log4j
         modifierRepository.addLog4jModifier();
         

@@ -56,7 +56,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public User selectUserByUserId(String userId) {
         return userDao.selectUserByUserId(userId);
+    }
 
+    @Override
+    public List<User> selectUserByUserName(String userName) {
+        return userDao.selectUserByUserName(userName);
+    }
+
+    @Override
+    public List<User> selectUserByDepartment(String department) {
+        return userDao.selectUserByDepartment(department);
     }
 
 }

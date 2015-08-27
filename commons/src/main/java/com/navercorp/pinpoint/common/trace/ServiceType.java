@@ -281,7 +281,7 @@ public class ServiceType {
     // xBatis
     // 5500 iBatis
     // 5501 iBatis-Spring
-    public static final ServiceType MYBATIS = of(5510, "MYBATIS", NORMAL_SCHEMA);
+    // 5510 MyBatis
 
     // DBCP
     public static final ServiceType DBCP = of(6050, "DBCP", NORMAL_SCHEMA);
