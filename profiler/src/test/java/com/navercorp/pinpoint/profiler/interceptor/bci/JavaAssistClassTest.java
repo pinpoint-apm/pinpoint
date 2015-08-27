@@ -16,11 +16,15 @@
 
 package com.navercorp.pinpoint.profiler.interceptor.bci;
 
+import static org.junit.Assert.*;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import javassist.bytecode.Descriptor;
@@ -33,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.instrument.ClassFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -63,8 +68,8 @@ public class JavaAssistClassTest {
 
         String testObjectName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject";
 
-//        final CallLoader loader = null; // systemClassLoader
-//        final ClassLoader loader = ClassLoader.getSystemClassLoader();
+        // final CallLoader loader = null; // systemClassLoader
+        // final ClassLoader loader = ClassLoader.getSystemClassLoader();
         InstrumentClass testObject = pool.getClass(null, testObjectName, null);
 
         Assert.assertEquals(testObject.getName(), testObjectName);
@@ -84,7 +89,6 @@ public class JavaAssistClassTest {
         Assert.assertEquals(hierarchyInterfaces[0], "java.lang.Runnable");
         Assert.assertEquals(hierarchyInterfaces[1], "java.lang.Comparable");
     }
-
 
     @Test
     public void testDeclaredMethod() throws InstrumentException {
@@ -124,8 +128,6 @@ public class JavaAssistClassTest {
         }
         Assert.assertEquals(findMethodCount, 1);
     }
-
-
 
     @Test
     public void addTraceValue() throws Exception {
@@ -167,7 +169,6 @@ public class JavaAssistClassTest {
         final Object testObject = testObjectClazz.newInstance();
         Method callA = testObjectClazz.getMethod(methodName);
         callA.invoke(testObject);
-
 
         if (testObject instanceof ObjectTraceValue) {
             ObjectTraceValue objectTraceValue = (ObjectTraceValue) testObject;
@@ -238,15 +239,12 @@ public class JavaAssistClassTest {
         loader.addModifier(testModifier);
         loader.initialize();
 
-
-
         Class<?> testObjectClazz = loader.loadClass(javassistClassName);
         final String methodName = "callA";
         logger.info("class:{}", testObjectClazz.toString());
         final Object testObject = testObjectClazz.newInstance();
         Method callA = testObjectClazz.getMethod(methodName);
         callA.invoke(testObject);
-
 
         Interceptor interceptor = testModifier.getInterceptor(0);
         assertEqualsIntField(interceptor, "call", 1);
@@ -260,7 +258,6 @@ public class JavaAssistClassTest {
 
     private TestClassLoader getTestClassLoader() {
         PLoggerFactory.initialize(new Slf4jLoggerBinder());
-
 
         ProfilerConfig profilerConfig = new ProfilerConfig();
         profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
@@ -280,7 +277,6 @@ public class JavaAssistClassTest {
         Object obj = field.get(target);
         Assert.assertEquals(value, obj);
     }
-
 
     @Test
     public void testBeforeAddInterceptorFormContextClassLoader() throws Exception {
@@ -309,15 +305,12 @@ public class JavaAssistClassTest {
         loader.addModifier(testModifier);
         loader.initialize();
 
-
-
         Class<?> testObjectClazz = loader.loadClass("com.navercorp.pinpoint.profiler.interceptor.bci.TestObjectContextClassLoader");
         final String methodName = "callA";
         logger.info("class:{}", testObjectClazz.toString());
         final Object testObject = testObjectClazz.newInstance();
         Method callA = testObjectClazz.getMethod(methodName);
         callA.invoke(testObject);
-
 
         final Interceptor interceptor = testModifier.getInterceptor(0);
         assertEqualsIntField(interceptor, "call", 1);
@@ -326,7 +319,6 @@ public class JavaAssistClassTest {
         assertEqualsObjectField(interceptor, "args", null);
 
         assertEqualsObjectField(interceptor, "target", testObject);
-
 
     }
 
@@ -365,15 +357,12 @@ public class JavaAssistClassTest {
         loader.addModifier(testModifier);
         loader.initialize();
 
-
-
         Class<?> testObjectClazz = loader.loadClass(testClassObject);
         final String methodName = "callA";
         logger.info("class:{}", testObjectClazz.toString());
         final Object testObject = testObjectClazz.newInstance();
         Method callA = testObjectClazz.getMethod(methodName);
         Object result = callA.invoke(testObject);
-
 
         Interceptor interceptor = testModifier.getInterceptor(0);
         assertEqualsIntField(interceptor, "call", 1);
@@ -383,7 +372,6 @@ public class JavaAssistClassTest {
 
         assertEqualsObjectField(interceptor, "target", testObject);
         assertEqualsObjectField(interceptor, "result", result);
-
 
         final String methodName2 = "callB";
         Method callBMethod = testObject.getClass().getMethod(methodName2);
@@ -433,21 +421,19 @@ public class JavaAssistClassTest {
         loader.addModifier(testModifier);
         loader.initialize();
 
-
-
         Object testObject = loader.loadClass(testClassObject).newInstance();
 
         Method test = testObject.getClass().getMethod("test");
         test.invoke(testObject);
 
-        Method testString = testObject.getClass().getMethod("test", new Class[]{String.class});
+        Method testString = testObject.getClass().getMethod("test", new Class[] { String.class });
         testString.invoke(testObject, "method");
 
         Constructor<?> constructor = testObject.getClass().getConstructor();
         Object o = constructor.newInstance();
 
     }
-    
+
     @Test
     public void testAddGetter() throws Exception {
         final TestClassLoader loader = getTestClassLoader();
@@ -474,11 +460,11 @@ public class JavaAssistClassTest {
         testModifier.setTargetClass(testClassObject);
         loader.addModifier(testModifier);
         loader.initialize();
-        
+
         Object testObject = loader.loadClass(testClassObject).newInstance();
         Assert.assertTrue(accessor0.isApplicable(testObject));
         Assert.assertTrue(accessor1.isApplicable(testObject));
-        
+
         String value = "hehe";
         int intValue = 99;
 
@@ -486,11 +472,46 @@ public class JavaAssistClassTest {
         method.invoke(testObject, value);
 
         Assert.assertEquals(value, accessor0.get(testObject));
-        
+
         Method setIntValue = testObject.getClass().getMethod("setIntValue", int.class);
         setIntValue.invoke(testObject, intValue);
 
         Assert.assertEquals(intValue, accessor1.get(testObject));
-        
+
+    }
+
+
+    @Test
+    public void getNestedClasses() throws Exception {
+        JavassistClassPool pool = new JavassistClassPool(new GlobalInterceptorRegistryBinder(), null);
+        String testObjectName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObjectNestedClass";
+        InstrumentClass testObject = pool.getClass(null, testObjectName, null);
+        Assert.assertEquals(testObject.getName(), testObjectName);
+
+        // find class name condition.
+        final String targetClassName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObjectNestedClass$InstanceInner";
+        for (InstrumentClass c : testObject.getNestedClasses(ClassFilters.name(targetClassName))) {
+            assertEquals(targetClassName, c.getName());
+        }
+
+        // find enclosing method condition.
+        assertEquals(2, testObject.getNestedClasses(ClassFilters.enclosingMethod("annonymousInnerClass")).size());
+
+        // find interface condition.
+        assertEquals(2, testObject.getNestedClasses(ClassFilters.interfaze("java.util.concurrent.Callable")).size());
+
+        // find enclosing method & interface condition.
+        assertEquals(1, testObject.getNestedClasses(ClassFilters.chain(ClassFilters.enclosingMethod("annonymousInnerClass"), ClassFilters.interfaze("java.util.concurrent.Callable"))).size());
+    }
+    
+    @Test
+    public void hasEnclodingMethod() throws Exception {
+        JavassistClassPool pool = new JavassistClassPool(new GlobalInterceptorRegistryBinder(), null);
+        String testObjectName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObjectNestedClass";
+        InstrumentClass testObject = pool.getClass(null, testObjectName, null);
+        Assert.assertEquals(testObject.getName(), testObjectName);
+
+        assertEquals(1, testObject.getNestedClasses(ClassFilters.enclosingMethod("enclosingMethod", "java.lang.String", "int")).size());
+        assertEquals(0, testObject.getNestedClasses(ClassFilters.enclosingMethod("enclosingMethod", "int")).size());
     }
 }

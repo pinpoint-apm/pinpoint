@@ -102,7 +102,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
                     constructorEditorBuilderArg5.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisConstructorInterceptor");
                 }
 
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(new int[] { MethodFilters.SYNTHETIC }, JedisMethodNames.get()))) {
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.name(JedisMethodNames.get()), MethodFilters.modifierNot(MethodFilters.SYNTHETIC)))) {
                     try {
                         method.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisMethodInterceptor", config.isIo());
                     } catch (Exception e) {
@@ -148,7 +148,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
             public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
 
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(new int[] { Modifier.PRIVATE }, "sendCommand", "read"))) {
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.name("sendCommand", "read"), MethodFilters.modifierNot(Modifier.PRIVATE)))) {
                     method.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.ProtocolSendCommandAndReadMethodInterceptor");
                 }
 
@@ -194,7 +194,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
                     handler.handle(target);
                 }
 
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name(new int[] { MethodFilters.SYNTHETIC }, JedisPipelineMethodNames.get()))) {
+                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.name(JedisPipelineMethodNames.get()), MethodFilters.modifierNot(MethodFilters.SYNTHETIC)))) {
                     try {
                         method.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisPipelineMethodInterceptor", config.isIo());
                     } catch (Exception e) {
