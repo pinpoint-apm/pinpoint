@@ -70,8 +70,6 @@ public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
     }
 
     private TCommandTransferResponse onRoute0(RequestEvent event) {
-        TCommandTransferResponse response = new TCommandTransferResponse();
-
         TBase<?,?> requestObject = event.getRequestObject();
         if (requestObject == null) {
             return createResponse(TRouteResult.EMPTY_REQUEST);
@@ -98,12 +96,12 @@ public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
             return createResponse(TRouteResult.EMPTY_RESPONSE);
         }
 
-        byte[] responsePayload = response.getPayload();
+        byte[] responsePayload = responseMessage.getMessage();
         if (responsePayload == null || responsePayload.length == 0) {
             return createResponse(TRouteResult.EMPTY_RESPONSE, new byte[0]);
         }
 
-        return createResponse(TRouteResult.OK, responseMessage.getMessage());
+        return createResponse(TRouteResult.OK, responsePayload);
     }
 
     private TCommandTransferResponse createResponse(TRouteResult result) {
