@@ -10,9 +10,10 @@
     </insert>
        
     <insert id="insertUserList">
-        <foreach collection="list" item="User">
-            INSERT INTO user_temp
-            VALUES (#{userId}, #{name}, #{department}, #{phoneNumber}, #{email})
+            INSERT INTO user
+            VALUES
+        <foreach collection="list" item="User" separator=",">
+             (#{User.userId}, #{User.name}, #{User.department}, #{User.phoneNumber}, #{User.email})
         </foreach>
     </insert>
     
