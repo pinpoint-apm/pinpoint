@@ -1,9 +1,9 @@
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
+import static org.mockito.Mockito.*;
+
 import org.junit.Assert;
 import org.junit.Test;
-
-import static org.mockito.Mockito.mock;
 
 public class DefaultInterceptorRegistryAdaptorTest {
 
@@ -23,7 +23,7 @@ public class DefaultInterceptorRegistryAdaptorTest {
         try {
             InterceptorRegistryAdaptor interceptorRegistry = new DefaultInterceptorRegistryAdaptor(0);
             StaticAroundInterceptor mock = mock(StaticAroundInterceptor.class);
-            interceptorRegistry.addStaticInterceptor(mock);
+            interceptorRegistry.addInterceptor(mock);
             Assert.fail();
         } catch (IndexOutOfBoundsException ignore) {
         }
@@ -32,9 +32,9 @@ public class DefaultInterceptorRegistryAdaptorTest {
     @Test
     public void indexSize_2() {
         InterceptorRegistryAdaptor interceptorRegistry = new DefaultInterceptorRegistryAdaptor(1);
-        interceptorRegistry.addStaticInterceptor(mock(StaticAroundInterceptor.class));
+        interceptorRegistry.addInterceptor(mock(StaticAroundInterceptor.class));
         try {
-            interceptorRegistry.addStaticInterceptor(mock(StaticAroundInterceptor.class));
+            interceptorRegistry.addInterceptor(mock(StaticAroundInterceptor.class));
             Assert.fail();
         } catch (IndexOutOfBoundsException ignore) {
         }
@@ -45,8 +45,8 @@ public class DefaultInterceptorRegistryAdaptorTest {
         StaticAroundInterceptor mock = mock(StaticAroundInterceptor.class);
 
         InterceptorRegistryAdaptor registry = new DefaultInterceptorRegistryAdaptor();
-        int key = registry.addStaticInterceptor(mock);
-        StaticAroundInterceptor find = registry.getStaticInterceptor(key);
+        int key = registry.addInterceptor(mock);
+        Interceptor find = registry.getInterceptor(key);
 
         Assert.assertSame(mock, find);
     }
@@ -56,8 +56,8 @@ public class DefaultInterceptorRegistryAdaptorTest {
         SimpleAroundInterceptor mock = mock(SimpleAroundInterceptor.class);
 
         InterceptorRegistryAdaptor registry = new DefaultInterceptorRegistryAdaptor();
-        int key = registry.addSimpleInterceptor(mock);
-        SimpleAroundInterceptor find = registry.getSimpleInterceptor(key);
+        int key = registry.addInterceptor(mock);
+        Interceptor find = registry.getInterceptor(key);
 
         Assert.assertSame(mock, find);
     }

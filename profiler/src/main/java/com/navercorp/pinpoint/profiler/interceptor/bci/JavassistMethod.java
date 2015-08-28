@@ -45,23 +45,18 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.InterceptPoint;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInstance;
 import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.DefaultInterceptorInstance;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
-import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
 import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.plugin.objectfactory.AutoBindingObjectFactory;
-import com.navercorp.pinpoint.profiler.plugin.objectfactory.InterceptorArgumentProvider;
+import com.navercorp.pinpoint.profiler.plugin.interceptor.AnnotatedInterceptorFactory;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 public class JavassistMethod implements InstrumentMethod {
@@ -145,18 +140,18 @@ public class JavassistMethod implements InstrumentMethod {
         } catch (InstrumentException e) {
             throw e;
         } catch (Exception e) {
-            throw new InstrumentException("Failed to add interceptor " + interceptorClassName + " to " + behavior, e);
+            throw new InstrumentException("Failed to add interceptor " + interceptorClassName + " to " + behavior.getLongName(), e);
         }
     }
 
     @Override
     public void addInterceptor(int interceptorId) throws InstrumentException {
-        InterceptorInstance interceptor = InterceptorRegistry.findInterceptor(interceptorId);
+        Interceptor interceptor = InterceptorRegistry.getInterceptor(interceptorId);
 
         try {
             addInterceptor0(interceptor, interceptorId, InterceptPoint.AROUND);
         } catch (Exception e) {
-            throw new InstrumentException("Failed to add interceptor " + interceptor.getClass().getName() + " to " + behavior, e);
+            throw new InstrumentException("Failed to add interceptor " + interceptor.getClass().getName() + " to " + behavior.getLongName(), e);
         }
     }
 
@@ -203,11 +198,9 @@ public class JavassistMethod implements InstrumentMethod {
     private int addInterceptor0(String interceptorClassName, InterceptorGroup group, ExecutionPolicy policy, Object[] constructorArgs, InterceptPoint type) throws CannotCompileException, NotFoundException, InstrumentException, IllegalArgumentException, SecurityException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         GroupInfo groupInfo = resolveGroupInfo(interceptorClassName, group, policy);
         Interceptor interceptor = createInterceptor(interceptorClassName, groupInfo, constructorArgs);
+        int interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(interceptor);
 
-        DefaultInterceptorInstance holder = new DefaultInterceptorInstance(interceptor, groupInfo.getGroup(), groupInfo.getPolicy());
-        int interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(holder);
-
-        addInterceptor0(holder, interceptorId, type);
+        addInterceptor0(interceptor, interceptorId, type);
 
         return interceptorId;
     }
@@ -225,11 +218,10 @@ public class JavassistMethod implements InstrumentMethod {
             ((ByteCodeMethodDescriptorSupport) interceptor).setMethodDescriptor(descriptor);
         }
 
-        DefaultInterceptorInstance holder = new DefaultInterceptorInstance(interceptor, group, group == null ? null : ExecutionPolicy.BOUNDARY);
-        int interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(holder);
+        int interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(interceptor);
 
         try {
-            addInterceptor0(holder, interceptorId, type);
+            addInterceptor0(interceptor, interceptorId, type);
         } catch (Exception e) {
             throw new InstrumentException(e);
         }
@@ -238,50 +230,38 @@ public class JavassistMethod implements InstrumentMethod {
     }
 
     public void addInterceptor0(int interceptorId, InterceptPoint type) throws InstrumentException {
-        InterceptorInstance interceptor = InterceptorRegistry.findInterceptor(interceptorId);
+        Interceptor interceptor = InterceptorRegistry.getInterceptor(interceptorId);
 
         try {
             addInterceptor0(interceptor, interceptorId, type);
         } catch (Exception e) {
-            throw new InstrumentException("Failed to add interceptor " + interceptor.getClass().getName() + " to " + behavior, e);
+            throw new InstrumentException("Failed to add interceptor " + interceptor.getClass().getName() + " to " + behavior.getLongName(), e);
         }
     }
 
     private Interceptor createInterceptor(String interceptorClassName, GroupInfo groupInfo, Object[] constructorArgs) {
         ClassLoader classLoader = declaringClass.getClassLoader();
-
-        AutoBindingObjectFactory factory = new AutoBindingObjectFactory(pluginContext, classLoader);
-        ObjectRecipe recipe = ObjectRecipe.byConstructor(interceptorClassName, constructorArgs);
-        InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(pluginContext.getTraceContext(), groupInfo.getGroup(), declaringClass, this);
-
-        Interceptor interceptor = (Interceptor) factory.createInstance(recipe, interceptorArgumentProvider);
+        
+        AnnotatedInterceptorFactory factory = new AnnotatedInterceptorFactory(pluginContext);
+        Interceptor interceptor = factory.getInterceptor(classLoader, interceptorClassName, constructorArgs, groupInfo.getGroup(), groupInfo.getPolicy(), declaringClass, this);
 
         return interceptor;
     }
-
-    private void addInterceptor0(InterceptorInstance instance, int interceptorId, InterceptPoint point) throws CannotCompileException, NotFoundException {
+    
+    private void addInterceptor0(Interceptor interceptor, int interceptorId, InterceptPoint point) throws CannotCompileException, NotFoundException {
         StringBuilder initVars = new StringBuilder();
         
-        String interceptorInstanceVar = InvokeCodeGenerator.getInterceptorInstanceVar(interceptorId);
-        addLocalVariable(interceptorInstanceVar, InterceptorInstance.class);
+        String interceptorInstanceVar = InvokeCodeGenerator.getInterceptorVar(interceptorId);
+        addLocalVariable(interceptorInstanceVar, Interceptor.class);
         initVars.append(interceptorInstanceVar);
         initVars.append(" = null;");
-        
-        if (instance.getGroup() != null) {
-            String interceptorGroupInvocationVar = InvokeCodeGenerator.getInterceptorGroupInvocationVar(interceptorId);
-            addLocalVariable(interceptorGroupInvocationVar, InterceptorGroupInvocation.class);
-            initVars.append(interceptorGroupInvocationVar);
-            initVars.append(" = null;");
-            
-            point = InterceptPoint.AROUND;
-        }
         
         int originalCodeOffset = insertBefore(-1, initVars.toString());
 
         boolean localVarsInitialized = false;
         
         if (point != InterceptPoint.AFTER) {
-            int offset = addBeforeInterceptor(instance, interceptorId, originalCodeOffset);
+            int offset = addBeforeInterceptor(interceptor, interceptorId, originalCodeOffset);
             
             if (offset != -1) {
                 localVarsInitialized = true;
@@ -290,7 +270,17 @@ public class JavassistMethod implements InstrumentMethod {
         }
 
         if (point != InterceptPoint.BEFORE) {
-            addAfterInterceptor(instance, interceptorId, localVarsInitialized, originalCodeOffset);
+            addAfterInterceptor(interceptor, interceptorId, localVarsInitialized, originalCodeOffset);
+        }
+    }
+
+    private Class<? extends Interceptor> getLocalVarType(Interceptor interceptor) {
+        if (interceptor instanceof SimpleAroundInterceptor) {
+            return SimpleAroundInterceptor.class;
+        } else if (interceptor instanceof StaticAroundInterceptor) {
+            return StaticAroundInterceptor.class;
+        } else {
+            return interceptor.getClass();
         }
     }
     
@@ -304,11 +294,11 @@ public class JavassistMethod implements InstrumentMethod {
         return null;
     }
 
-    private void addAfterInterceptor(InterceptorInstance instance, int interceptorId, boolean localVarsInitialized, int originalCodeOffset) throws NotFoundException, CannotCompileException {
-        Class<?> interceptorClass = instance.getInterceptor().getClass();
+    private void addAfterInterceptor(Interceptor interceptor, int interceptorId, boolean localVarsInitialized, int originalCodeOffset) throws NotFoundException, CannotCompileException {
+        Class<?> interceptorClass = interceptor.getClass();
         Method interceptorMethod = findMethod(interceptorClass, "after");
 
-        if (interceptorMethod == null && instance.getGroup() == null) {
+        if (interceptorMethod == null) {
             if (isDebug) {
                 logger.debug("Skip adding after interceptor becuase the interceptor doesn't have after method: {}", interceptorClass.getName());
             }
@@ -316,7 +306,7 @@ public class JavassistMethod implements InstrumentMethod {
         }
         
         
-        InvokeAfterCodeGenerator catchGenerator = new InvokeAfterCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this, instance.getPolicy(), localVarsInitialized, true);
+        InvokeAfterCodeGenerator catchGenerator = new InvokeAfterCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this, localVarsInitialized, true);
         String catchCode = catchGenerator.generate();
         
         if (isDebug) {
@@ -327,7 +317,7 @@ public class JavassistMethod implements InstrumentMethod {
         insertCatch(originalCodeOffset, catchCode, throwable, "$e");
 
         
-        InvokeAfterCodeGenerator afterGenerator = new InvokeAfterCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this, instance.getPolicy(), localVarsInitialized, false);
+        InvokeAfterCodeGenerator afterGenerator = new InvokeAfterCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this, localVarsInitialized, false);
         final String afterCode = afterGenerator.generate();
 
         if (isDebug) {
@@ -337,18 +327,18 @@ public class JavassistMethod implements InstrumentMethod {
         behavior.insertAfter(afterCode);
     }
 
-    private int addBeforeInterceptor(InterceptorInstance instance, int interceptorId, int pos) throws CannotCompileException, NotFoundException {
-        Class<?> interceptorClass = instance.getInterceptor().getClass();
+    private int addBeforeInterceptor(Interceptor interceptor, int interceptorId, int pos) throws CannotCompileException, NotFoundException {
+        Class<?> interceptorClass = interceptor.getClass();
         Method interceptorMethod = findMethod(interceptorClass, "before");
 
-        if (interceptorMethod == null && instance.getGroup() == null) {
+        if (interceptorMethod == null) {
             if (isDebug) {
                 logger.debug("Skip adding before interceptor becuase the interceptor doesn't have before method: {}", interceptorClass.getName());
             }
             return -1;
         }
 
-        InvokeBeforeCodeGenerator generator = new InvokeBeforeCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this, instance.getPolicy());
+        InvokeBeforeCodeGenerator generator = new InvokeBeforeCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this);
         String beforeCode = generator.generate();
 
         if (isDebug) {

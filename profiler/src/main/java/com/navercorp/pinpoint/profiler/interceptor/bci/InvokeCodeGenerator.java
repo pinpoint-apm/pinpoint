@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInvokerHelper;
 import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 /**
@@ -32,14 +31,12 @@ public class InvokeCodeGenerator {
     protected final Class<?> interceptorClass;
     protected final InstrumentMethod targetMethod;
     protected final int interceptorId;
-    protected final ExecutionPolicy policy;
     protected final Type type;
     
-    public InvokeCodeGenerator(int interceptorId, Class<?> interceptorClass, InstrumentMethod targetMethod, ExecutionPolicy policy) {
+    public InvokeCodeGenerator(int interceptorId, Class<?> interceptorClass, InstrumentMethod targetMethod) {
         this.interceptorClass = interceptorClass;
         this.targetMethod = targetMethod;
         this.interceptorId = interceptorId;
-        this.policy = policy;
         
         if (SimpleAroundInterceptor.class.isAssignableFrom(interceptorClass)) {
             type = Type.SIMPLE;
@@ -84,10 +81,6 @@ public class InvokeCodeGenerator {
         return "$args";
     }
     
-    protected String getExecutionPolicy() {
-        return ExecutionPolicy.class.getName() + "." + policy.name();
-    }
-    
     protected String getInterceptorInvokerHelperClassName() {
         return InterceptorInvokerHelper.class.getName();
     }
@@ -96,20 +89,11 @@ public class InvokeCodeGenerator {
         return InterceptorRegistry.class.getName();
     }
     
-    protected String getInterceptorInstanceVar() {
-        return getInterceptorInstanceVar(interceptorId);
+    protected String getInterceptorVar() {
+        return getInterceptorVar(interceptorId);
     }
     
-    protected String getInterceptorGroupInvocationVar() {
-        return getInterceptorGroupInvocationVar(interceptorId);
-    }
-    
-    public static String getInterceptorInstanceVar(int interceptorId) {
+    public static String getInterceptorVar(int interceptorId) {
         return "_$PINPOINT$_interceptor" + interceptorId;
     }
-    
-    public static String getInterceptorGroupInvocationVar(int interceptorId) {
-        return "_$PINPOINT$_groupInvocation" + interceptorId;
-    }
-
 }

@@ -18,7 +18,6 @@ import java.lang.reflect.Method;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 
 /**
  * @author Jongho Moon
@@ -28,15 +27,13 @@ public class InvokeBeforeCodeGenerator extends InvokeCodeGenerator {
     private final int interceptorId;
     private final Method interceptorMethod;
     private final InstrumentClass targetClass;
-    private final ExecutionPolicy policy;
     
-    public InvokeBeforeCodeGenerator(int interceptorId, Class<?> interceptorClass, Method interceptorMethod, InstrumentClass targetClass, InstrumentMethod targetMethod, ExecutionPolicy policy) {
-        super(interceptorId, interceptorClass, targetMethod, policy);
+    public InvokeBeforeCodeGenerator(int interceptorId, Class<?> interceptorClass, Method interceptorMethod, InstrumentClass targetClass, InstrumentMethod targetMethod) {
+        super(interceptorId, interceptorClass, targetMethod);
         
         this.interceptorId = interceptorId;
         this.interceptorMethod = interceptorMethod;
         this.targetClass = targetClass;
-        this.policy = policy;
     }
 
     public String generate() {
@@ -46,34 +43,18 @@ public class InvokeBeforeCodeGenerator extends InvokeCodeGenerator {
 
         // try {
         //     _$PINPOINT$_holder13 = InterceptorRegistry.findInterceptor(13);
-        //     _$PINPOINT$_groupInvocation13 = _$PINPOINT$_holder13.getGroup().getCurrentInvocation();
-        //     
-        //     if (_$PINPOINT$_groupInvocation13.tryEnter(ExecutionPolicy.POLICY) {
-        //         (($INTERCEPTOR_TYPE)_$PINPOINT$_holder13.getInterceptor.before($ARGUMENTS);
-        //     } else {
-        //         _$PINPOINT$_groupInvocation13 = null;
-        //         InterceptorInvokerHelper.logSkipBeforeByExecutionPolicy(_$PINPOINT$_holder13, _$PINPOINT$_groupInvocation13, ExecutionPolicy.POLICY);
-        //     }
+        //     (($INTERCEPTOR_TYPE)_$PINPOINT$_holder13.getInterceptor.before($ARGUMENTS);
         // } catch (Throwable t) {
         //     InterceptorInvokerHelper.handleException(t);
         // }
         
         builder.append("try { ");
-        builder.format("%1$s = %2$s.findInterceptor(%3$d); ", getInterceptorInstanceVar(), getInterceptorRegistryClassName(), interceptorId);
-        
-        if (policy != null) {
-            builder.format("%1$s = %2$s.getGroup().getCurrentInvocation();", getInterceptorGroupInvocationVar(), getInterceptorInstanceVar());
-            builder.format("if (%1$s.tryEnter(%2$s)) {", getInterceptorGroupInvocationVar(), getExecutionPolicy());
-        }
+        builder.format("%1$s = %2$s.getInterceptor(%3$d); ", getInterceptorVar(), getInterceptorRegistryClassName(), interceptorId);
         
         if (interceptorMethod != null) {
-            builder.format("((%1$s)%2$s.getInterceptor()).before(", getInterceptorType(), getInterceptorInstanceVar());
+            builder.format("((%1$s)%2$s).before(", getInterceptorType(), getInterceptorVar());
             appendArguments(builder);
             builder.format(");");
-        }
-        
-        if (policy != null) {
-            builder.format(" } else { %1$s.logSkipBeforeByExecutionPolicy(%2$s, %3$s, %4$s); }", getInterceptorInvokerHelperClassName(), getInterceptorInstanceVar(), getInterceptorGroupInvocationVar(), getExecutionPolicy());
         }
         
         builder.format("} catch (java.lang.Throwable _$PINPOINT_EXCEPTION$_) { %1$s.handleException(_$PINPOINT_EXCEPTION$_); }", getInterceptorInvokerHelperClassName());
@@ -120,7 +101,7 @@ public class InvokeBeforeCodeGenerator extends InvokeCodeGenerator {
         int matchNum = Math.min(argNum, interceptorArgNum);
         
         for (; i < matchNum; i++) {
-            builder.append(", $" + (i + 1));
+            builder.append(", ($w)$" + (i + 1));
         }
         
         for (; i < interceptorArgNum; i++) {
