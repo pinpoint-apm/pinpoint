@@ -11,9 +11,9 @@
 	    applicationUrl: '/transactionInfo.pinpoint'
 	});
 	
-	pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope', '$rootScope', '$rootElement', 'AlertsService', 'ProgressBarService', '$timeout', '$routeParams', 'TransactionDaoService', 'AgentDaoService',
-	    function (cfg, $scope, $rootScope, $rootElement, AlertsService, ProgressBarService, $timeout, $routeParams, TransactionDaoService, AgentDaoService) {
-			$at($at.TRANSACTION_VIEW_PAGE);
+	pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope', '$rootScope', '$rootElement', 'AlertsService', 'ProgressBarService', '$timeout', '$routeParams', 'TransactionDaoService', 'AgentDaoService', 'AnalyticsService',
+	    function (cfg, $scope, $rootScope, $rootElement, AlertsService, ProgressBarService, $timeout, $routeParams, TransactionDaoService, AgentDaoService, analyticsService) {
+			analyticsService.send(analyticsService.CONST.TRANSACTION_VIEW_PAGE);
 	        // define private variables
 	        var oAlertService, oProgressBarService;
 	

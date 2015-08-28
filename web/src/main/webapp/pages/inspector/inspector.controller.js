@@ -7,9 +7,9 @@
 	 * @name InspectorCtrl
 	 * @class
 	 */
-	pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', 'locationService', 'NavbarVoService',
-	    function ($scope, $timeout, $routeParams, locationService, NavbarVoService) {
-			$at($at.INSPECTOR_PAGE);
+	pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', 'locationService', 'NavbarVoService', 'AnalyticsService',
+	    function ($scope, $timeout, $routeParams, locationService, NavbarVoService, analyticsService) {
+			analyticsService.send(analyticsService.CONST.INSPECTOR_PAGE);
 	        // define private variables
 	        var oNavbarVoService, oAgent;
 	

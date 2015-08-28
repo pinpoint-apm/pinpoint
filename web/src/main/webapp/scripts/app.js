@@ -51,14 +51,22 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
     angular.extend($modalProvider.defaults, {
         animation: 'am-flip-x'
     });
-
     // Completely disable SCE.  For demonstration purposes only!
     // Do not use in new projects.
 //    $sceProvider.enabled(false);
 }]);
 
-pinpointApp.run([ '$rootScope', '$timeout', '$modal', '$location', '$cookies', '$interval',
-    function ($rootScope, $timeout, $modal, $location, $cookies, $interval) {
+pinpointApp.value("globalConfig", {
+	"sendAllowed": true,
+	"createUserAllowed": true
+});
+
+pinpointApp.run([ '$rootScope', '$timeout', '$modal', '$location', '$cookies', '$interval', '$http', 'globalConfig',
+    function ($rootScope, $timeout, $modal, $location, $cookies, $interval, $http, globalConfig) {
+		$http.get('/configuration.pinpoint').then(function(result) {
+			globalConfig.sendAllowed = result.data.sendUsage;
+			globalConfig.createUserAllowed = result.data.createUserAllowed || true;
+		}, function(error) {});
         if (!isCanvasSupported()) {
             $timeout(function () {
                 $('#supported-browsers').modal();

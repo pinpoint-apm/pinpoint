@@ -11,9 +11,9 @@
 	    applicationUrl: '/transactionInfo.pinpoint'
 	});
 	
-	pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$scope', '$rootScope', '$routeParams', '$timeout', '$rootElement', 'AlertsService', 'ProgressBarService', 'TransactionDaoService', '$window', '$location', 'helpContentTemplate', 'helpContentService',
-	    function (cfg, $scope, $rootScope, $routeParams, $timeout, $rootElement, AlertsService, ProgressBarService, TransactionDaoService, $window, $location, helpContentTemplate, helpContentService) {
-			$at($at.TRANSACTION_DETAIL_PAGE);
+	pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$scope', '$rootScope', '$routeParams', '$timeout', '$rootElement', 'AlertsService', 'ProgressBarService', 'TransactionDaoService', '$window', '$location', 'helpContentTemplate', 'helpContentService', 'AnalyticsService',
+	    function (cfg, $scope, $rootScope, $routeParams, $timeout, $rootElement, AlertsService, ProgressBarService, TransactionDaoService, $window, $location, helpContentTemplate, helpContentService, analyticsService) {
+			analyticsService.send(analyticsService.CONST.TRANSACTION_DETAIL_PAGE);
 	        // define private variables
 	        var oAlertService, oProgressBarService, bShowCallStacksOnce, bIsFirstTimelineView = true;
 	
@@ -145,7 +145,7 @@
 	            $window.open('/#/transactionView/' + $scope.transactionDetail.agentId + '/' + $scope.transactionDetail.transactionId + '/' + $scope.transactionDetail.callStackStart);
 	        };
 	        $scope.$on("transactionDetail.selectDistributedCallFlowRow", function( event, rowId ) {
-	        	$at($at.CALLSTACK, $at.CLK_DISTRIBUTED_CALL_FLOW);
+	        	analyticsService.send(analyticsService.CONST.CALLSTACK, analyticsService.CONST.CLK_DISTRIBUTED_CALL_FLOW);
 	        	$("#traceTabs li:nth-child(1) a").trigger("click");
 	        	$scope.$broadcast('distributedCallFlowDirective.selectRow.forTransactionDetail', rowId);
 	        });
@@ -173,7 +173,7 @@
 	        
 	        $('#traceTabs li a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
 	        	if ( e.target.href.indexOf( "#CallStacks") != -1 ) {
-	        		$at($at.CALLSTACK, $at.CLK_DISTRIBUTED_CALL_FLOW);
+	        		analyticsService.send(analyticsService.CONST.CALLSTACK, analyticsService.CONST.CLK_DISTRIBUTED_CALL_FLOW);
 //	        		$("#traceTabs li:nth-child(5)").show();
 	        	}
 	        });
@@ -182,13 +182,13 @@
 	            e.preventDefault();
 	        });
 	        $("#traceTabs li:nth-child(2) a").bind("click", function (e) {
-	        	$at($at.CALLSTACK, $at.CLK_SERVER_MAP);
+	        	analyticsService.send(analyticsService.CONST.CALLSTACK, analyticsService.CONST.CLK_SERVER_MAP);
 	        	initSearchVar();
 	            $scope.$broadcast('serverMapDirective.initializeWithMapData', $scope.transactionDetail);
 	        });
 	        var testCount = 0;
 	        $("#traceTabs li:nth-child(3) a").bind("click", function (e) {
-	        	$at($at.CALLSTACK, $at.CLK_RPC_TIMELINE);
+	        	analyticsService.send(analyticsService.CONST.CALLSTACK, analyticsService.CONST.CLK_RPC_TIMELINE);
 	        	initSearchVar();
 	        	if (bIsFirstTimelineView){
 	            	$scope.$broadcast('timelineDirective.initialize', $scope.transactionDetail);

@@ -11,8 +11,8 @@
 	    myColors: ["#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034"]
 	});
 	
-	pinpointApp.directive('responseTimeChartDirective', ['responseTimeChartDirectiveConfig', '$timeout',
-        function (cfg, $timeout) {
+	pinpointApp.directive('responseTimeChartDirective', ['responseTimeChartDirectiveConfig', '$timeout', 'AnalyticsService',
+        function (cfg, $timeout, analyticsService) {
             return {
                 template: '<div></div>',
                 replace: true,
@@ -98,7 +98,7 @@
 //                            	$at($at.MAIN, $at.CLK_RESPONSE_GRAPH);
 //                            });
                             oChart.addListener('clickGraphItem', function(event) {
-                            	$at($at.MAIN, $at.CLK_RESPONSE_GRAPH);
+                            	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_RESPONSE_GRAPH);
                             	if ( event.item.category == "Error" ) {
                             		scope.$emit('responseTimeChartDirective.errorClicked' );
                             	}

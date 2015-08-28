@@ -13,7 +13,7 @@
 		var self = this;
 		// from userGroup
 		this.sendInit = function( userGroupID ) {
-			$rootScope.$broadcast( "alarmPinpointUser.configuration.load" );
+			//$rootScope.$broadcast( "alarmPinpointUser.configuration.load" );
 			self.sendReloadWithUserGroupID( userGroupID );
 		};
 		// from userGroup

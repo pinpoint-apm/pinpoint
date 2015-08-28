@@ -7,9 +7,9 @@
 	 * @name FilteredMapCtrl
 	 * @class
 	 */
-	pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routeParams', '$timeout', 'TimeSliderVoService', 'NavbarVoService', '$window', 'SidebarTitleVoService', 'filteredMapUtilService', '$rootElement',
-	    function (cfg, $scope, $routeParams, $timeout, TimeSliderVoService, NavbarVoService, $window, SidebarTitleVoService, filteredMapUtilService, $rootElement) {
-			$at($at.FILTEREDMAP_PAGE);
+	pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routeParams', '$timeout', 'TimeSliderVoService', 'NavbarVoService', '$window', 'SidebarTitleVoService', 'filteredMapUtilService', '$rootElement', 'AnalyticsService',
+	    function (cfg, $scope, $routeParams, $timeout, TimeSliderVoService, NavbarVoService, $window, SidebarTitleVoService, filteredMapUtilService, $rootElement, analyticsService) {
+			analyticsService.send(analyticsService.CONST.FILTEREDMAP_PAGE);
 	        // define private variables
 	        var oNavbarVoService, oTimeSliderVoService, bNodeSelected, bNoData, reloadOnlyForNode, reloadOnlyForLink;
 	

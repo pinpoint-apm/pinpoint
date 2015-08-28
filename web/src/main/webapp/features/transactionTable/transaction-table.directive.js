@@ -7,7 +7,7 @@
 	 * @name transactionTableDirective
 	 * @class
 	 */
-	pinpointApp.directive('transactionTableDirective', ['$window', 'helpContentTemplate', 'helpContentService', function ($window, helpContentTemplate, helpContentService) {
+	pinpointApp.directive('transactionTableDirective', ['$window', 'helpContentTemplate', 'helpContentService', 'AnalyticsService', function ($window, helpContentTemplate, helpContentService, analyticsService) {
 	    return {
 	        restrict: 'EA',
 	        replace: true,
@@ -63,7 +63,7 @@
 	             * @param transaction
 	             */
 	            scope.traceByApplication = function (transaction) {
-	            	$at($at.CALLSTACK, $at.CLK_TRANSACTION);
+	            	analyticsService.send(analyticsService.CONST.CALLSTACK, analyticsService.CONST.CLK_TRANSACTION);
 	                scope.currentTransaction = transaction;
 	                scope.$emit('transactionTableDirective.applicationSelected', transaction);
 	            };
@@ -95,7 +95,7 @@
 	                } else {
 	                    scope.transactionReverse = false;
 	                }
-	                $at($at.CALLSTACK, $at.ST_ + orderKey.charAt(0).toUpperCase() + orderKey.substring(1), scope.transactionReverse ? $at.DESCENDING : $at.ASCENDING );
+	                analyticsService.send(analyticsService.CONST.CALLSTACK, analyticsService.CONST.ST_ + orderKey.charAt(0).toUpperCase() + orderKey.substring(1), scope.transactionReverse ? analyticsService.CONST.DESCENDING : analyticsService.CONST.ASCENDING );
 	                scope.transactionOrderBy = orderKey;
 	            };
 	
