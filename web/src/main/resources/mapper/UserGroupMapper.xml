@@ -65,7 +65,7 @@
     
     <select id="selectPhoneNumberOfMember" resultType="String" parameterType="String">
         SELECT phoneNumber
-        FROM user
+        FROM puser
         WHERE user_id IN (
             SELECT member_id
             FROM user_group_member
@@ -75,7 +75,7 @@
     
     <select id="selectEmailOfMember" resultType="String" parameterType="String">
         SELECT email
-        FROM user
+        FROM puser
         WHERE user_id IN (
             SELECT member_id
             FROM user_group_member

@@ -1,6 +1,6 @@
 DROP TABLE user_group;
 DROP TABLE user_group_member;
-DROP TABLE user;
+DROP TABLE puser;
 DROP TABLE alarm_rule;
 
 CREATE TABLE `user_group` (
@@ -18,7 +18,7 @@ CREATE TABLE `user_group_member` (
 );
 ALTER TABLE user_group_member ADD UNIQUE KEY user_group_id_member_id_idx (`user_group_id`,`member_id`);
 
-CREATE TABLE `user` (
+CREATE TABLE `puser` (
   `number` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, 
   `user_id` VARCHAR(30) NOT NULL,
   `name` VARCHAR(150) NOT NULL,
