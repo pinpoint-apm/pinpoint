@@ -19,9 +19,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -38,6 +41,8 @@ import com.navercorp.pinpoint.web.vo.UserGroupMember;
 @Controller
 @RequestMapping(value = "/userGroup")
 public class UserGroupController {
+    
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
     public static final String USER_GROUP_ID = "userGroupId";
 
@@ -163,4 +168,15 @@ public class UserGroupController {
 //        result.put("result", "SUCCESS");
 //        return result;
 //    }
+    
+    @ExceptionHandler(Exception.class)
+    @ResponseBody
+    public Map<String, String> handleException(Exception e) {
+        logger.error(" Exception occured while trying to CRUD userGroup information", e);
+        
+        Map<String, String> result = new HashMap<String, String>();
+        result.put("errorCode", "500");
+        result.put("errorMessage", "Exception occured while trying to CRUD userGroup information");
+        return result;
+    }
 }

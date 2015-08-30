@@ -5,12 +5,12 @@
 <mapper namespace="com.navercorp.pinpoint.web.dao.UserDao">
 
     <insert id="insertUser" parameterType="User">
-        INSERT INTO user
+        INSERT INTO user (user_id, name, department, phonenumber, email)
         VALUES (#{userId}, #{name}, #{department}, #{phoneNumber}, #{email})
     </insert>
        
     <insert id="insertUserList">
-            INSERT INTO user
+            INSERT INTO user (user_id, name, department, phonenumber, email)
             VALUES
         <foreach collection="list" item="User" separator=",">
              (#{User.userId}, #{User.name}, #{User.department}, #{User.phoneNumber}, #{User.email})
