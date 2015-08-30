@@ -161,12 +161,12 @@ public class UserControllerTest {
         this.mockMvc.perform(get("/user.pinpoint?userId=" + USER_ID).contentType(MediaType.APPLICATION_JSON))
                         .andExpect(status().isOk())
                         .andExpect(content().contentType("application/json;charset=UTF-8"))
-                        .andExpect(jsonPath("$", hasKey("userId")))
-                        .andExpect(jsonPath("$.userId").value(USER_ID))
-                        .andExpect(jsonPath("$", hasKey("name")))
-                        .andExpect(jsonPath("$", hasKey("department")))
-                        .andExpect(jsonPath("$", hasKey("phoneNumber")))
-                        .andExpect(jsonPath("$", hasKey("email")))
+                        .andExpect(jsonPath("$[0]", hasKey("userId")))
+                        .andExpect(jsonPath("$[0].userId").value(USER_ID))
+                        .andExpect(jsonPath("$[0]", hasKey("name")))
+                        .andExpect(jsonPath("$[0]", hasKey("department")))
+                        .andExpect(jsonPath("$[0]", hasKey("phoneNumber")))
+                        .andExpect(jsonPath("$[0]", hasKey("email")))
                         .andReturn();
         
         
