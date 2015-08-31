@@ -67,7 +67,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
         
         this.agent = agent;
         this.byteCodeInstrumentor = byteCodeInstrumentor;
-        this.dynamicTransformerRegistry = new DefaultClassFileRetransformer();
+        this.dynamicTransformerRegistry = new DefaultDynamicTransformerRegistry();
         this.profilerConfig = agent.getProfilerConfig();
         this.modifierRegistry = createModifierRegistry(pluginContexts);
         this.skipFilter = new DefaultClassFileFilter(agentClassLoader);
