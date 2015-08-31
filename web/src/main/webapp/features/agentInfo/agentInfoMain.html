@@ -43,9 +43,7 @@
                             {{info.serviceType}}
                             <span ng-show="info.serverMetaData">
                                 <span ng-show="info.serverMetaData.serverInfo.length">&nbsp;({{info.serverMetaData.serverInfo}})&nbsp;</span>
-                                    <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#serverMetaDataDiv" ng-show="info.serverMetaData.vmArgs.length || info.serverMetaData.serviceInfos.length">
-                                        Details
-                                    </button>
+                                <button type="button" class="btn btn-default btn-xs" ng-click="openDetail()" ng-show="info.serverMetaData.vmArgs.length || info.serverMetaData.serviceInfos.length">Details</button>
                             </span>
                         </td>
                         <td class="text-right"><strong>End Status</strong></td>
@@ -124,7 +122,7 @@
 	                                        </div>
 	                                        <div class="col-md-8 service-libs">
 	                                           <ul class="list-unstyled">
-	                                               <li ng-repeat="serviceLib in currentServiceInfo.serviceLibs">{{serviceLib}}</li>
+	                                               <li ng-repeat="serviceLib in currentServiceInfo.serviceLibs" style="{{hasDuplicate(serviceLib, $index)}}">{{serviceLib}}</li>
 	                                           </ul>
 	                                        </div>
                                         </div>

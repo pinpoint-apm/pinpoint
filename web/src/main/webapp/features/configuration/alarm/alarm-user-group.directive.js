@@ -8,8 +8,8 @@
 	 * @class
 	 */	
 	
-	pinpointApp.directive('alarmUserGroupDirective', [ '$rootScope', '$timeout', 'helpContentTemplate', 'helpContentService', 'AlarmUtilService', 'AlarmBroadcastService',
-	    function ($rootScope, $timeout, helpContentTemplate, helpContentService, $alarmUtilService, $alarmBroadcastService) {
+	pinpointApp.directive('alarmUserGroupDirective', [ '$rootScope', '$timeout', 'helpContentTemplate', 'helpContentService', 'AlarmUtilService', 'AlarmBroadcastService', 'AnalyticsService',
+	    function ($rootScope, $timeout, helpContentTemplate, helpContentService, alarmUtilService, alarmBroadcastService, analyticsService) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -51,8 +51,8 @@
 	    			
 	    			var $elUL = $element.find(".some-list-content ul");
 	    			$elUL.on("click", function($event) {
-	    				var tagName = $event.toElement.tagName.toLowerCase();
-	    				var $target = $($event.toElement);
+	    				var $target = $( $event.toElement || $event.target );
+	    				var tagName = $target.get(0).tagName.toLowerCase();
 	    				var $li = $target.parents("li");
 	    				
 	    				if ( tagName == "button" ) {
@@ -81,13 +81,13 @@
 	    				}
 	    			});
 	    			function reset() {
-	    				$alarmUtilService.unsetFilterBackground( $elWrapper );
+	    				alarmUtilService.unsetFilterBackground( $elWrapper );
 	    				$elFilterInput.val("");
 	    			}
 	    			
 	    			function removeConfirm( $el ) {
-	    				$alarmUtilService.showLoading( $elLoading, false );
-	    				removeGroup( $alarmUtilService.extractID( $el ), $el.find("span.contents").html() );
+	    				alarmUtilService.showLoading( $elLoading, false );
+	    				removeGroup( alarmUtilService.extractID( $el ), $el.find("span.contents").html() );
 	    			}
 	    			function removeCancel( $el ) {
 	    				$el.find("span.right").remove().end().find("span.remove").show().end().removeClass("remove");
@@ -95,28 +95,28 @@
 	    			}
 	    			function selectGroup( $el ) {
 	    				if ( isRemoving == true ) return;
-	    				addSelectClass( $alarmUtilService.extractID( $el ) );
-	    				$alarmBroadcastService.sendReloadWithUserGroupID( $el.find("span.contents").html() );
+	    				addSelectClass( alarmUtilService.extractID( $el ) );
+	    				alarmBroadcastService.sendReloadWithUserGroupID( $el.find("span.contents").html() );
 	    			}
 	    			
 	    			function createGroup( name ) {
-	    				$alarmUtilService.sendCRUD( "createUserGroup", { "id": name }, function( resultData ) {
+	    				alarmUtilService.sendCRUD( "createUserGroup", { "id": name }, function( resultData ) {
 	    					// @TODO
 	    					// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
 	    					userGroupList.push({
 	    						number: resultData.number,
 	    						id: name
 	    					});
-	    					$alarmBroadcastService.sendInit( resultData.number );
+	    					alarmBroadcastService.sendInit( resultData.number );
     						$timeout(function() {
 	    						addSelectClass( resultData.number );
     						});
-	    					$alarmUtilService.setTotal( $elTotal, userGroupList.length );
-	    					$alarmUtilService.hide( $elLoading, $elEdit );
+	    					alarmUtilService.setTotal( $elTotal, userGroupList.length );
+	    					alarmUtilService.hide( $elLoading, $elEdit );
 	    				}, function( errorData ) {}, $elAlert );
 	    			}
 	    			function updateGroup( number, name ) {
-	    				$alarmUtilService.sendCRUD( "updateUserGroup", { "number": number, "id": name }, function( resultData ) {
+	    				alarmUtilService.sendCRUD( "updateUserGroup", { "number": number, "id": name }, function( resultData ) {
 	    					// @TODO
 	    					// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
 	    					for( var i = 0 ; i < userGroupList.length ; i++ ) {
@@ -124,11 +124,11 @@
 	    							userGroupList[i].id = name;
 	    						}
 	    					}
-	    					$alarmUtilService.hide( $elLoading, $elEdit );
+	    					alarmUtilService.hide( $elLoading, $elEdit );
 	    				}, function( errorData ) {}, $elAlert );
 	    			}
 	    			function removeGroup( number, name ) {
-	    				$alarmUtilService.sendCRUD( "removeUserGroup", { "id": name }, function( resultData ) {
+	    				alarmUtilService.sendCRUD( "removeUserGroup", { "id": name }, function( resultData ) {
 	    					scope.$apply(function() {
 		    					for( var i = 0 ; i < userGroupList.length ; i++ ) {
 		    						if ( userGroupList[i].number == number ) {
@@ -140,26 +140,26 @@
 			    					$timeout(function() {
 		    							addSelectClass( userGroupList[0].number );
 		    						});
-			    					$alarmBroadcastService.sendReloadWithUserGroupID( userGroupList[0].id );
+			    					alarmBroadcastService.sendReloadWithUserGroupID( userGroupList[0].id );
 		    					} else {
-		    						$alarmBroadcastService.sendSelectionEmpty();
+		    						alarmBroadcastService.sendSelectionEmpty();
 		    					}
 	    					});	    					
-	    					$alarmUtilService.setTotal( $elTotal, userGroupList.length );
-	    					$alarmUtilService.hide( $elLoading );
+	    					alarmUtilService.setTotal( $elTotal, userGroupList.length );
+	    					alarmUtilService.hide( $elLoading );
 	    					isRemoving = false;					
 	    				}, function( errorData ) {}, $elAlert );
 	    			}
 	    			function loadGroupList( isFirst ) {
-	    				$alarmUtilService.sendCRUD( "getUserGroupList", {}, function( resultData ) {
+	    				alarmUtilService.sendCRUD( "getUserGroupList", {}, function( resultData ) {
 	    					// @TODO
 	    					// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
 	    					isLoadedUserGroupList = true;
 	    					userGroupList = scope.userGroupList = resultData;
-	    					$alarmUtilService.setTotal( $elTotal, userGroupList.length );
-	    					$alarmUtilService.hide( $elLoading );
+	    					alarmUtilService.setTotal( $elTotal, userGroupList.length );
+	    					alarmUtilService.hide( $elLoading );
 	    					if ( isFirst ) {
-	    						$alarmBroadcastService.sendInit( userGroupList[0].id );
+	    						alarmBroadcastService.sendInit( userGroupList[0].id );
 	    						selectedGroupNumber = userGroupList[0].number;
 	    					}
 	    					$timeout(function() {
@@ -170,9 +170,9 @@
 	    			};
 	    			scope.onRefresh = function() {
 	    				if ( isRemoving == true ) return;
-	    				$at( $at.MAIN, $at.CLK_ALARM_REFRESH_USER_GROUP );
+	    				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_REFRESH_USER_GROUP );
 	    				reset();
-	    				$alarmUtilService.showLoading( $elLoading, false );
+	    				alarmUtilService.showLoading( $elLoading, false );
 	    				loadGroupList( false );
 	    			};
 	    			scope.onCreate = function() {
@@ -181,20 +181,20 @@
 	    				isCreate = true;
 	    				$elEditGuide.html( "Create new alarm group" );
 	    				$elEditInput.val("");
-	    				$alarmUtilService.show( $elEdit );
+	    				alarmUtilService.show( $elEdit );
 	    				$elEditInput.focus();
 	    			};
 	    			scope.onUpdate = function($event) {
 	    				if ( isRemoving == true ) return;
 	    				
 	    				isCreate = false;
-	    				var $el = $( $event.toElement ).parents("li");
-	    				var userGroupNumber = $alarmUtilService.extractID( $el );
+	    				var $el = $( $event.toElement || $event.target ).parents("li");
+	    				var userGroupNumber = alarmUtilService.extractID( $el );
 	    				var userGroupID = $el.find("span.contents").html();
 	    				
 	    				$elEditGuide.html( "Input new name of \"" + userGroupID + "\"." );
 	    				$elEditInput.val( userGroupID ).prop("id", "updateUserGroup_" + userGroupNumber);
-	    				$alarmUtilService.show( $elEdit );
+	    				alarmUtilService.show( $elEdit );
 	    				$elEditInput.focus().select();
 	    			};
 	    			scope.onInputFilter = function($event) {
@@ -214,15 +214,15 @@
 	    				if ( isRemoving == true ) return;
 	    				var query = $.trim( $elFilterInput.val() );
 	    				if ( query.length != 0 && query.length < 3 ) {
-	    					$alarmUtilService.showLoading( $elLoading, false );
-	    					$alarmUtilService.showAlert( $elAlert, "You must enter at least three characters.");
+	    					alarmUtilService.showLoading( $elLoading, false );
+	    					alarmUtilService.showAlert( $elAlert, "You must enter at least three characters.");
 	    					return;
 	    				}
-	    				$at( $at.MAIN, $at.CLK_ALARM_FILTER_USER_GROUP );
+	    				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_FILTER_USER_GROUP );
 	    				if ( query == "" ) {
 	    					if ( scope.userGroupList.length != userGroupList.length ) {
 	    						scope.userGroupList = userGroupList;
-	    						$alarmUtilService.unsetFilterBackground( $elWrapper );
+	    						alarmUtilService.unsetFilterBackground( $elWrapper );
 	    					}
 	    					$elFilterEmpty.addClass("disabled");
 	    				} else {
@@ -234,7 +234,7 @@
 	    						}
 	    					}
 	    					scope.userGroupList = newFilterUserGroup;
-	    					$alarmUtilService.setFilterBackground( $elWrapper );
+	    					alarmUtilService.setFilterBackground( $elWrapper );
 	    				}
 	    			};
 	    			scope.onFilterEmpty = function() {
@@ -252,32 +252,32 @@
 	    				}
 	    			};
 	    			scope.onCancelEdit = function() {
-	    				$alarmUtilService.hide( $elEdit );
+	    				alarmUtilService.hide( $elEdit );
 	    			};
 	    			scope.onApplyEdit = function() {
 	    				var groupName = $.trim( $elEditInput.val() );
 	    				if ( groupName == "" ) {
-	    					$alarmUtilService.showLoading( $elLoading, true );
-	    					$alarmUtilService.showAlert( $elAlert, "Input group id.");	    					
+	    					alarmUtilService.showLoading( $elLoading, true );
+	    					alarmUtilService.showAlert( $elAlert, "Input group id.");	    					
 	    					return;
 	    				}
 	    				
-	    				$alarmUtilService.showLoading( $elLoading, true );
-	    				if ( $alarmUtilService.hasDuplicateItem( userGroupList, function( userGroup ) {
+	    				alarmUtilService.showLoading( $elLoading, true );
+	    				if ( alarmUtilService.hasDuplicateItem( userGroupList, function( userGroup ) {
 	    					return userGroup.id == groupName;
 	    				}) && isCreate == true ) {
-	    					$alarmUtilService.showAlert( $elAlert, "Exist a same group name in the lists." );
+	    					alarmUtilService.showAlert( $elAlert, "Exist a same group name in the lists." );
 	    					return;
 	    				}
 	    				if ( isCreate ) {
-	    					$at( $at.MAIN, $at.CLK_ALARM_CREATE_USER_GROUP );
+	    					analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_CREATE_USER_GROUP );
 	    					createGroup( groupName );
 	    				} else {
-	    					updateGroup( $alarmUtilService.extractID( $elEditInput ), groupName );
+	    					updateGroup( alarmUtilService.extractID( $elEditInput ), groupName );
 	    				}
 	    			};
 	    			scope.onCloseAlert = function() {
-	    				$alarmUtilService.closeAlert( $elAlert, $elLoading );
+	    				alarmUtilService.closeAlert( $elAlert, $elLoading );
 	    			};	    			
 	    			scope.$on("alarmUserGroup.configuration.show", function() {
 	    				if ( isLoadedUserGroupList === false ) {

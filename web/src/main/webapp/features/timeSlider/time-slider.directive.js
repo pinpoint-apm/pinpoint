@@ -11,7 +11,7 @@
 	    scaleCount: 10
 	});
 	
-	pinpointApp.directive('timeSliderDirective', [ 'timeSliderDirectiveConfig', '$timeout', function (cfg, $timeout) {
+	pinpointApp.directive('timeSliderDirective', [ 'timeSliderDirectiveConfig', '$timeout', 'AnalyticsService', function (cfg, $timeout, analyticsService) {
 	    return {
 	        restrict: 'EA',
 	        replace: true,
@@ -127,7 +127,7 @@
 	             * scope more
 	             */
 	            scope.more = function () {
-	            	$at($at.CALLSTACK, $at.CLK_MORE);
+	            	analyticsService.send(analyticsService.CONST.CALLSTACK, analyticsService.CONST.CLK_MORE);
 	                scope.$emit('timeSliderDirective.moreClicked', scope.oTimeSliderVoService);
 	            };
 	

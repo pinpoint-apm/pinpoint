@@ -18,9 +18,9 @@
 	    }
 	});
 	
-	pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$routeParams', '$rootScope', '$timeout', '$window', '$http', 'webStorage', 'TimeSliderVoService', 'TransactionDaoService',
-	    function (cfg, $scope, $routeParams, $rootScope, $timeout, $window, $http, webStorage, TimeSliderVoService, oTransactionDaoService) {
-			$at($at.TRANSACTION_LIST_PAGE);
+	pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$routeParams', '$rootScope', '$timeout', '$window', '$http', 'webStorage', 'TimeSliderVoService', 'TransactionDaoService', 'AnalyticsService',
+	    function (cfg, $scope, $routeParams, $rootScope, $timeout, $window, $http, webStorage, TimeSliderVoService, oTransactionDaoService, analyticsService) {
+			analyticsService.send(analyticsService.CONST.TRANSACTION_LIST_PAGE);
 	        // define private variables
 	        var nFetchCount, nLastFetchedIndex, htTransactionInfo, htTransactionData, oTimeSliderVoService;
 	

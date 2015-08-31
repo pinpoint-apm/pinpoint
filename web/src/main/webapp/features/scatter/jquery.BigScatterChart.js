@@ -16,7 +16,8 @@ var BigScatterChart = $.Class({
 	 * @param {Object} option option object
 	 * @param {Service} helpContentService angularjs service object
 	 */			
-    $init: function (htOption, helpContentTemplate, helpContentService, webStorage) {
+    $init: function (htOption, helpContentTemplate, helpContentService, webStorage, analyticsService) {
+    	this.analyticsService = analyticsService;
         this.option({
             'sContainerId': '',
             'sPrefix': 'bigscatterchart-',
@@ -551,7 +552,7 @@ var BigScatterChart = $.Class({
             sYMax = sPrefix + 'ymax';
 
         var fConfigToggle = function (e) {
-        	$at($at.MAIN, $at.CLK_SCATTER_SETTING);
+        	self.analyticsService.send(self.analyticsService.CONST.MAIN, self.analyticsService.CONST.CLK_SCATTER_SETTING);
             self._welConfigBg.toggle();
             self._welConfigLayer.toggle();
             $('#' + sYMin).val(self.option('nYMin'));
@@ -625,7 +626,7 @@ var BigScatterChart = $.Class({
 
         // download
         var fDownloadToggle = function (e) {
-        	$at($at.MAIN, $at.CLK_DOWNLOAD_SCATTER);
+        	self.analyticsService.send(self.analyticsService.CONST.MAIN, self.analyticsService.CONST.CLK_DOWNLOAD_SCATTER);
             var sImageUrl = self.getChartAsPNG();
 //            document.location.href = sImageUrl.replace("image/png", "image/octet-stream");
             $(this).attr({
@@ -689,9 +690,9 @@ var BigScatterChart = $.Class({
         _.each(this._htwelTypeLi, function (welTypeLi, sKey) {
             welTypeLi.click(function (e) {
             	if ( sKey === "Success" ) {
-            		$at($at.MAIN, $at.TG_SCATTER_SUCCESS, welTypeLi.hasClass('unchecked') ? $at.ON : $at.OFF );
+            		self.analyticsService.send(self.analyticsService.CONST.MAIN, self.analyticsService.CONST.TG_SCATTER_SUCCESS, welTypeLi.hasClass('unchecked') ? self.analyticsService.CONST.ON : self.analyticsService.CONST.OFF );
             	} else {
-            		$at($at.MAIN, $at.TG_SCATTER_FAILED, welTypeLi.hasClass('unchecked') ? $at.ON : $at.OFF );
+            		self.analyticsService.send(self.analyticsService.CONST.MAIN, self.analyticsService.CONST.TG_SCATTER_FAILED, welTypeLi.hasClass('unchecked') ? self.analyticsService.CONST.ON : self.analyticsService.CONST.OFF );
             	}
             	
                 e.preventDefault();

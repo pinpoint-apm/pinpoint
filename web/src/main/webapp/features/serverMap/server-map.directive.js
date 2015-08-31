@@ -41,8 +41,8 @@
 	    }
 	});
 	
-	pinpointApp.directive('serverMapDirective', [ 'serverMapDirectiveConfig', 'ServerMapDaoService', 'AlertsService', 'ProgressBarService', 'SidebarTitleVoService', '$filter', 'ServerMapFilterVoService', 'filteredMapUtilService', '$base64', 'ServerMapHintVoService', '$timeout', '$location', '$window', 'helpContentTemplate', 'helpContentService',
-	    function (cfg, ServerMapDaoService, AlertsService, ProgressBarService, SidebarTitleVoService, $filter, ServerMapFilterVoService, filteredMapUtilService, $base64, ServerMapHintVoService, $timeout, $location, $window, helpContentTemplate, helpContentService) {
+	pinpointApp.directive('serverMapDirective', [ 'serverMapDirectiveConfig', 'ServerMapDaoService', 'AlertsService', 'ProgressBarService', 'SidebarTitleVoService', '$filter', 'ServerMapFilterVoService', 'filteredMapUtilService', '$base64', 'ServerMapHintVoService', '$timeout', '$location', '$window', 'helpContentTemplate', 'helpContentService', 'AnalyticsService',
+	    function (cfg, ServerMapDaoService, AlertsService, ProgressBarService, SidebarTitleVoService, $filter, ServerMapFilterVoService, filteredMapUtilService, $base64, ServerMapHintVoService, $timeout, $location, $window, helpContentTemplate, helpContentService, analyticsService) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -443,7 +443,7 @@
 	
 	                    oProgressBarService.setLoading(100);
 	                    if (oServerMap === null) {
-	                        oServerMap = new ServerMap(options, $location);
+	                        oServerMap = new ServerMap(options, $location, analyticsService);
 	                    } else {
 	                        oServerMap.option(options);
 	                    }
@@ -562,7 +562,7 @@
 	                 * passing transaction list
 	                 */
 	                scope.passingTransactionList = function () {
-	                	$at($at.CONTEXT, $at.CLK_FILTER_TRANSACTION);
+	                	analyticsService.send(analyticsService.CONST.CONTEXT, analyticsService.CONST.CLK_FILTER_TRANSACTION);
 	                    var oServerMapFilterVoService = new ServerMapFilterVoService();
 	                    oServerMapFilterVoService
 	                        .setMainApplication(htLastLink.filterApplicationName)
@@ -585,7 +585,7 @@
 	                 * open filter wizard
 	                 */
 	                scope.openFilterWizard = function () {
-	                	$at($at.CONTEXT, $at.CLK_FILTER_TRANSACTION_WIZARD);
+	                	analyticsService.send(analyticsService.CONST.CONTEXT, analyticsService.CONST.CLK_FILTER_TRANSACTION_WIZARD);
 	                    openFilterWizard();
 	                };
 	
@@ -663,7 +663,7 @@
 	                 * toggle merge group
 	                 */
 	                scope.toggleMergeGroup = function ( mergeType ) {
-	                	$at($at.CONTEXT, $at.TG_MERGE_TYPE, mergeType);
+	                	analyticsService.send(analyticsService.CONST.CONTEXT, analyticsService.CONST.TG_MERGE_TYPE, mergeType);
 	                	scope.mergeStatus[ mergeType ] = !scope.mergeStatus[ mergeType ];
 	                    //scope.mergeUnknowns = (scope.mergeUnknowns) ? false : true;
 	                    serverMapCallback(htLastQuery, ServerMapDaoService.extractDataFromApplicationMapData(htLastMapData.applicationMapData), scope.linkRouting, scope.linkCurve);
@@ -676,11 +676,11 @@
 	                 */
 	                scope.toggleLinkLableTextType = function (type) {
 	                	if ( type === "tps" ) {
-	                		$at($at.CONTEXT, $at.TG_TPS);
+	                		analyticsService.send(analyticsService.CONST.CONTEXT, analyticsService.CONST.TG_TPS);
 	                		scope.totalRequestCount = false;
 	                        scope.tps = true;
 	                	} else {
-	                		$at($at.CONTEXT, $at.TG_CALL_COUNT);
+	                		analyticsService.send(analyticsService.CONST.CONTEXT, analyticsService.CONST.TG_CALL_COUNT);
 	                		scope.totalRequestCount = true;
 	                        scope.tps = false;
 	                	}
@@ -696,7 +696,7 @@
 	                 * @param type
 	                 */
 	                scope.toggleLinkRouting = function (type) {
-	                	$at($at.CONTEXT, $at.TG_ROUTING, type);
+	                	analyticsService.send(analyticsService.CONST.CONTEXT, analyticsService.CONST.TG_ROUTING, type);
 	                    scope.linkRouting = cfg.options.htLinkType.sRouting = type;
 	                    serverMapCallback(htLastQuery, htLastMergedMapData, scope.linkRouting, scope.linkCurve);
 	                    reset();
@@ -707,7 +707,7 @@
 	                 * @param type
 	                 */
 	                scope.toggleLinkCurve = function (type) {
-	                	$at($at.CONTEXT, $at.TG_CURVE, type);
+	                	analyticsService.send(analyticsService.CONST.CONTEXT, analyticsService.CONST.TG_CURVE, type);
 	                    scope.linkCurve = cfg.options.htLinkType.sCurve = type;
 	                    serverMapCallback(htLastQuery, htLastMergedMapData, scope.linkRouting, scope.linkCurve);
 	                    reset();
@@ -717,7 +717,7 @@
 	                 * refresh
 	                 */
 	                scope.refresh = function () {
-	                	$at($at.CONTEXT, $at.CLK_REFRESH);
+	                	analyticsService.send(analyticsService.CONST.CONTEXT, analyticsService.CONST.CLK_REFRESH);
 	                    if (oServerMap) {
 	                    	
 	                        oServerMap.refresh();
@@ -790,14 +790,14 @@
 	                }
 	                scope.searchNode = function() {
 	                	if (oServerMap && scope.searchNodeQuery !== "" ) {
-	                		$at($at.MAIN, $at.CLK_SEARCH_NODE);
+	                		analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_SEARCH_NODE);
 	                		scope.searchNodeIndex = 0;
 	                        scope.searchNodeList = oServerMap.searchNode( scope.searchNodeQuery );
 	                        jQuery(element).find(".search-result").show().find(".count").html("Result : " + scope.searchNodeList.length);
 	                    }
 	                };
 	                scope.clearSearchNode = function() {
-	                	$at($at.MAIN, $at.CLK_CLEAR_SEARCH);
+	                	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_CLEAR_SEARCH);
 	                	oServerMap.clearQuery();
 	                	scope.searchNodeIndex = 0;
 	                	scope.searchNodeQuery = "";

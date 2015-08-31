@@ -1,23 +1,27 @@
 <div class="some-list" style="float:right;width:300px;box-shadow:-4px -4px 16px 0px rgba(0,0,0,0.75);">
 	<div class="some-list-header header-orange">
-		<button class="btn btn-warning left" ng-click="onRefresh()"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
 		<span class="title">Pinpoint User<span class="total"></span></span>
-		<button class="btn btn-warning right" ng-click="onCreate()"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+		<button class="btn btn-warning right" ng-click="onCreate()" ng-show="isAllowedCreate"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
 	</div>
 	<div class="some-list-content move-some-where">
-		<div class="wrapper"><ul>
-			<li ng-repeat="pinpointUser in pinpointUserList" id="{{'alarmPinpointUser_' + pinpointUser.userId}}">
-				<button class="btn btn-warning left move"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></button>
-				<button class="btn btn-warning left edit-user"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>
-				<span class="contents">{{"("+pinpointUser.department + ")" + pinpointUser.name}}</span>
-				<span class="remove">x</span>
-			</li>
-		
-		</ul></div>
+		<div class="wrapper">
+			<ul>
+				<li ng-repeat="pinpointUser in pinpointUserList" id="{{'alarmPinpointUser_' + pinpointUser.userId}}">
+					<button class="btn btn-warning left move"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></button>
+					<button class="btn btn-warning left edit-user" ng-show="isAllowedCreate"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>
+					<span class="contents">{{"("+pinpointUser.department + ")" + pinpointUser.name}}</span>
+					<span class="remove">x</span>
+				</li>
+			</ul>
+			<div class="empty-list" ng-show="pinpointUserList.length == 0">Search Pinpoint User</div>
+		</div>
 		<div class="filter-input">
-			<input type="text" placeholder="Filter pinpoint user" ng-keydown="onInputFilter($event)"/> 
-			<button class="btn btn-warning disabled trash" ng-click="onFilterEmpty()"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
-			<button class="btn btn-warning" ng-click="onFilterGroup()" style="margin-right:2px"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>	       				
+			<select>
+				<option value="userName">name</option>
+				<option value="department">department</option>
+			</select>
+			<input type="text" placeholder="Search pinpoint user" ng-keydown="onInputSearch($event)" style="width:50%"/> 
+			<button class="btn btn-warning" ng-click="onSearch()"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>	       				
 		</div>
 	</div>
 	<div class="some-edit-content pinpoint hide-me" style="width:300px;">
@@ -34,7 +38,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="some-loading has-not-edit">
+	<div class="some-loading has-not-edit hide-me">
 		<div class="timer-loader" style="margin-top:72%"></div>
    			<div class="some-alert hide-me">
 			<span class="message"></span>

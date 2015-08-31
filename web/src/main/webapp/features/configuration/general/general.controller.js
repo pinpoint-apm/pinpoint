@@ -16,11 +16,8 @@
 
 	pinpointApp.controller('GeneralCtrl', [ '$scope','$element', 'GeneralConfig',
 	    function ($scope, $element, $constant) {
-			//@TODO
-			//통계 추가할 것.
-			//$at($at.FILTEREDMAP_PAGE);
 			$scope.$on("general.configuration.show", function() {
-				console.log( "general show");
+
 			});
 		}
 	]);

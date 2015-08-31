@@ -8,22 +8,23 @@
 	 * @class
 	 */	
 	
-	pinpointApp.directive('alarmPinpointUserDirective', [ '$rootScope', '$timeout', 'helpContentTemplate', 'helpContentService', 'AlarmUtilService', 'AlarmBroadcastService',
-	    function ($rootScope, helpContentTemplate, $timeout, helpContentService, $alarmUtilService, $alarmBroadcastService) {
+	pinpointApp.directive('alarmPinpointUserDirective', [ '$rootScope', '$timeout', 'helpContentTemplate', 'helpContentService', 'AlarmUtilService', 'AlarmBroadcastService', 'AnalyticsService', 'globalConfig',
+	    function ($rootScope, helpContentTemplate, $timeout, helpContentService, alarmUtilService, alarmBroadcastService, analyticsService, globalConfig) {
         return {
             restrict: 'EA',
             replace: true,
             templateUrl: 'features/configuration/alarm/alarmPinpointUser.html',
             scope: true,
             link: function (scope, element) {
-
             	var $element = $(element);
+            	var $elCreatBtn = $element.find(".some-list-header button");
     			var $elWrapper = $element.find(".wrapper");
+    			var $elEmpty = $element.find(".empty-list");
     			var $elTotal = $element.find(".total");
     			var $elLoading = $element.find(".some-loading");
     			var $elAlert = $element.find(".some-alert");
-    			var $elFilterInput = $element.find("div.filter-input input");
-    			var $elFilterEmpty = $element.find("div.filter-input button.trash");
+    			var $elSearchType = $element.find("select");
+    			var $elSearchInput = $element.find("div.filter-input input");
     			var $elEdit = $element.find(".some-edit-content");
     			var $elEditInputUserID = $elEdit.find("input[name=userID]");
     			var $elEditInputName = $elEdit.find("input[name=name]");
@@ -45,8 +46,8 @@
     			
     			var $elUL = $element.find(".some-list-content ul");
     			$elUL.on("click", function( $event ) {
-    				var tagName = $event.toElement.tagName.toLowerCase();
-    				var $target = $($event.toElement);
+    				var $target = $( $event.toElement || $event.target );
+    				var tagName = $target.get(0).tagName.toLowerCase();
     				var $li = $target.parents("li");
     				
     				if ( tagName == "button" ) {
@@ -78,16 +79,16 @@
     			
     			function reset() {
     				scope.onCancelEdit();
-    				$alarmUtilService.unsetFilterBackground( $elWrapper );
-    				$elFilterInput.val("");
+    				alarmUtilService.unsetFilterBackground( $elWrapper );
+    				$elSearchInput.val("");
     			}
     			function moveUser( $el ) {
-    				$alarmUtilService.showLoading( $elLoading, false );
-    				$alarmBroadcastService.sendUserAdd( searchUser( $alarmUtilService.extractID( $el ) ) );
+    				alarmUtilService.showLoading( $elLoading, false );
+    				alarmBroadcastService.sendUserAdd( searchUser( alarmUtilService.extractID( $el ) ) );
     			}
     			function removeConfirm( $el ) {
-    				$alarmUtilService.showLoading( $elLoading, false );
-    				removeUser( $alarmUtilService.extractID( $el ) );
+    				alarmUtilService.showLoading( $elLoading, false );
+    				removeUser( alarmUtilService.extractID( $el ) );
     			}
     			function removeCancel( $el ) {
     				$el
@@ -117,12 +118,11 @@
     					"phoneNumber": userPhone,
     					"email": userEmail
     				}; 
-    				$alarmUtilService.sendCRUD( "createPinpointUser", oNewUser, function( resultData ) {
-    					// @TODO
-    					// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
-    					pinpointUserList.push(oNewUser);
-    					$alarmUtilService.setTotal( $elTotal, pinpointUserList.length );
-    					$alarmUtilService.hide( $elLoading, $elEdit );
+    				alarmUtilService.sendCRUD( "createPinpointUser", oNewUser, function( resultData ) {
+    					alarmUtilService.hide( $elLoading, $elEdit );
+    					$elSearchType.val( "userName" );
+    					$elSearchInput.val( userName );
+    					scope.onSearch();
     				}, function(errorData) {}, $elAlert );
     			}
     			function updateUser( userID, userName, userDepartment, userPhone, userEmail ) {
@@ -133,7 +133,7 @@
     					"phoneNumber": userPhone,
     					"email": userEmail
     				}; 
-    				$alarmUtilService.sendCRUD( "updatePinpointUser", oUpdateUser, function( resultData ) {
+    				alarmUtilService.sendCRUD( "updatePinpointUser", oUpdateUser, function( resultData ) {
     					for( var i = 0 ; i < pinpointUserList.length ; i++ ) {
     						if ( pinpointUserList[i].userId == userID ) {
     							pinpointUserList[i].name = userName;
@@ -142,12 +142,12 @@
     							pinpointUserList[i].email = userEmail;
     						}
     					}
-    					$alarmUtilService.hide( $elLoading, $elEdit );
-    					$alarmBroadcastService.sendUserUpdated( oUpdateUser );
+    					alarmUtilService.hide( $elLoading, $elEdit );
+    					alarmBroadcastService.sendUserUpdated( oUpdateUser );
     				}, function( errorData ) {}, $elAlert );
     			}
     			function removeUser( userID ) {
-    				$alarmUtilService.sendCRUD( "removePinpointUser", { "userId": userID }, function( resultData ) {
+    				alarmUtilService.sendCRUD( "removePinpointUser", { "userId": userID }, function( resultData ) {
     					scope.$apply(function() {
 	    					for( var i = 0 ; i < pinpointUserList.length ; i++ ) {
 	    						if ( pinpointUserList[i].userId == userID ) {
@@ -156,20 +156,17 @@
 	    						}
 	    					}
     					});
-    					$alarmUtilService.setTotal( $elTotal, pinpointUserList.length );
-    					$alarmUtilService.hide( $elLoading );
+    					alarmUtilService.setTotal( $elTotal, pinpointUserList.length );
+    					alarmUtilService.hide( $elLoading );
     					isRemoving = false;
-    					$alarmBroadcastService.sendUserRemoved( userID );
+    					alarmBroadcastService.sendUserRemoved( userID );
     				}, function( errorData ) {}, $elAlert );
     			}
-    			function loadList( isFirst ) {
-    				$alarmUtilService.sendCRUD( "getPinpointUserList", {}, function( resultData ) {
-    					// @TODO
-    					// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
-    					isLoadedPinpointUserList = true;
+    			function loadList( oParam ) {
+    				alarmUtilService.sendCRUD( "getPinpointUserList", oParam || {}, function( resultData ) {
     					pinpointUserList = scope.pinpointUserList = resultData;
-    					$alarmUtilService.setTotal( $elTotal, pinpointUserList.length );
-    					$alarmUtilService.hide( $elLoading );
+    					alarmUtilService.setTotal( $elTotal, pinpointUserList.length );
+    					alarmUtilService.hide( $elLoading );
     				}, function( errorData ) {}, $elAlert );			
     			};
     			function validateEmail( email ) {
@@ -181,13 +178,7 @@
     			    return reg.test(phone);
     			}
     			
-    			scope.onRefresh = function() {
-    				if ( isRemoving == true ) return;
-    				$at( $at.MAIN, $at.CLK_ALARM_REFRESH_PINPOINT_USER );
-    				reset();
-    				$alarmUtilService.showLoading( $elLoading, false );
-    				loadList( false );
-    			};
+    			scope.isAllowedCreate = globalConfig.createUserAllowed;
     			scope.onCreate = function() {
     				if ( isRemoving == true ) return;
     				
@@ -199,15 +190,15 @@
     				$elEditInputDepartment.val("");
     				$elEditInputPhone.val("");
     				$elEditInputEmail.val("");
-    				$alarmUtilService.show( $elEdit );
+    				alarmUtilService.show( $elEdit );
     				$elEditInputUserID.focus();
     			};
     			scope.onUpdate = function($event) {
     				if ( isRemoving == true ) return;
     				
     				isCreate = false;
-    				var $el = $( $event.toElement ).parents("li");
-    				var oUser = searchUser( $alarmUtilService.extractID( $el ) );
+    				var $el = $( $event.toElement || $event.target ).parents("li");
+    				var oUser = searchUser( alarmUtilService.extractID( $el ) );
     				
     				$elEditGuide.html( "Update pinpoint user data." );
     				$elEditInputUserID.prop("disabled", "disabled");
@@ -216,54 +207,31 @@
     				$elEditInputDepartment.val( oUser.department );
     				$elEditInputPhone.val( oUser.phoneNumber );
     				$elEditInputEmail.val( oUser.email );
-    				$alarmUtilService.show( $elEdit );
+    				alarmUtilService.show( $elEdit );
     				$elEditInputName.focus().select();
     			};
-    			scope.onInputFilter = function($event) {
+    			scope.onInputSearch = function($event) {
     				if ( isRemoving == true ) return;
     				
     				if ( $event.keyCode == 13 ) { // Enter
-    					scope.onFilterGroup();
+    					scope.onSearch();
     					return;
     				}
-    				if ($.trim( $elFilterInput.val() ).length >= 3 ) {
-    					$elFilterEmpty.removeClass("disabled");
-    				} else {
-    					$elFilterEmpty.addClass("disabled");
-    				}
     			};
-    			scope.onFilterGroup = function() {
+    			scope.onSearch = function() {
     				if ( isRemoving == true ) return;
-    				var query = $.trim( $elFilterInput.val() );
+    				var searchType = $elSearchType.val();
+    				var query = $.trim( $elSearchInput.val() );
     				if ( query.length != 0 && query.length < 3 ) {
-    					$alarmUtilService.showLoading( $elLoading, false );
-    					$alarmUtilService.showAlert( $elAlert, "You must enter at least three characters.");
+    					alarmUtilService.showLoading( $elLoading, false );
+    					alarmUtilService.showAlert( $elAlert, "You must enter at least three characters.");
     					return;
     				}
-    				$at( $at.MAIN, $at.CLK_ALARM_FILTER_PINPOINT_USER );
-    				if ( query == "" ) {
-    					if ( scope.pinpointUserList.length != pinpointUserList.length ) {
-    						scope.pinpointUserList = pinpointUserList;
-    						$alarmUtilService.unsetFilterBackground( $elWrapper );
-    					}
-    					$elFilterEmpty.addClass("disabled");
-    				} else {
-    					var newFilterUserGroup = [];
-    					var length = pinpointUserList.length;
-    					for( var i = 0 ; i < pinpointUserList.length ; i++ ) {
-    						if ( pinpointUserList[i].name.indexOf( query ) != -1 || pinpointUserList[i].department.indexOf( query ) != -1 ) {
-    							newFilterUserGroup.push( pinpointUserList[i] );
-    						}
-    					}
-    					scope.pinpointUserList = newFilterUserGroup;
-    					$alarmUtilService.setFilterBackground( $elWrapper );
-    				}
-    			};
-    			scope.onFilterEmpty = function() {
-    				if ( isRemoving == true ) return;
-    				if ( $.trim( $elFilterInput.val() ) == "" ) return;
-    				$elFilterInput.val("");
-    				scope.onFilterGroup();
+    				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_FILTER_PINPOINT_USER );
+    				alarmUtilService.showLoading( $elLoading, false );
+    				var oParam = {};
+    				oParam[searchType] = query;
+    				loadList( oParam );
     			};
     			scope.onInputEdit = function($event) {
     				if ( $event.keyCode == 13 ) { // Enter
@@ -274,7 +242,7 @@
     				}
     			};
     			scope.onCancelEdit = function() {
-    				$alarmUtilService.hide( $elEdit );
+    				alarmUtilService.hide( $elEdit );
     			};
     			scope.onApplyEdit = function() {
     				var userID = $.trim( $elEditInputUserID.val() );
@@ -284,45 +252,42 @@
     				var userEmail = $.trim( $elEditInputEmail.val() );
     				
     				if ( userID == "" || userName == "" ) {
-    					$alarmUtilService.showLoading( $elLoading, true );
-    					$alarmUtilService.showAlert( $elAlert, "You must input user id and user name.");	
+    					alarmUtilService.showLoading( $elLoading, true );
+    					alarmUtilService.showAlert( $elAlert, "You must input user id and user name.");	
     					return;
     				}
-    				// TODO phone - 체크
-    				// TODO email 포맷 체크
-    				
-    				$alarmUtilService.showLoading( $elLoading, true );
-    				if ( $alarmUtilService.hasDuplicateItem( pinpointUserList, function( pinpointUser ) {
+    				alarmUtilService.showLoading( $elLoading, true );
+    				if ( alarmUtilService.hasDuplicateItem( pinpointUserList, function( pinpointUser ) {
     					return pinpointUser.userId == userID;
     				}) && isCreate == true) {
-    					$alarmUtilService.showAlert( $elAlert, "Exist a same user id in the lists." );
+    					alarmUtilService.showAlert( $elAlert, "Exist a same user id in the lists." );
     					return;
     				}
     				if ( validatePhone( userPhone ) == false ) {
-    					$alarmUtilService.showAlert( $elAlert, "You can only input numbers." );
+    					alarmUtilService.showAlert( $elAlert, "You can only input numbers." );
     					return;
     				}
     				if ( validateEmail( userEmail ) == false ) {
-    					$alarmUtilService.showAlert( $elAlert, "Invalid email format." );
+    					alarmUtilService.showAlert( $elAlert, "Invalid email format." );
     					return;
     				}
     				if ( isCreate ) {
-    					$at( $at.MAIN, $at.CLK_ALARM_CREATE_PINPOINT_USER );
+    					analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_CREATE_PINPOINT_USER );
     					createUser( userID, userName, userDepartment, userPhone, userEmail );
     				} else {
     					updateUser( userID, userName, userDepartment, userPhone, userEmail );
     				}
     			};
     			scope.onCloseAlert = function() {
-    				$alarmUtilService.closeAlert( $elAlert, $elLoading );
+    				alarmUtilService.closeAlert( $elAlert, $elLoading );
     			};
-    			scope.$on("alarmPinpointUser.configuration.load", function() {
-    				if ( isLoadedPinpointUserList === false ) {
-    					loadList( true );
-    				}
-    			});
+//    			scope.$on("alarmPinpointUser.configuration.load", function() {
+//    				if ( isLoadedPinpointUserList === false ) {
+//    					loadList( true );
+//    				}
+//    			});
     			scope.$on("alarmPinpointUser.configuration.addUserCallback", function( event ) {
-    				$alarmUtilService.hide( $elLoading );
+    				alarmUtilService.hide( $elLoading );
     			});
             }
         };
