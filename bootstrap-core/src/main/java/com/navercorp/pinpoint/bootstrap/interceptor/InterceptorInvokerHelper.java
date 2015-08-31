@@ -14,8 +14,6 @@
  */
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
@@ -26,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 public class InterceptorInvokerHelper {
     private static boolean propagateException = false;
     private static final PLogger logger = PLoggerFactory.getLogger(InterceptorInvokerHelper.class.getName());
-    private static final boolean debugEnabled = logger.isDebugEnabled();
     
     public static void handleException(Throwable t) {
         if (propagateException) {
@@ -39,17 +36,4 @@ public class InterceptorInvokerHelper {
     public static void setPropagateException(boolean propagate) {
         propagateException = propagate;
     }
-    
-    public static void logSkipBeforeByExecutionPolicy(InterceptorInstance holder, InterceptorGroupInvocation invocation, ExecutionPolicy policy) {
-        if (debugEnabled) {
-            logger.debug("Skip before interceptor due to execution policy: interceptorGroupInvocation: {}, executionPolicy: {}, interceptor: {}", new Object[] {invocation, policy, holder.getInterceptor().getClass().getName()} );
-        }
-    }
-    
-    public static void logSkipAfterByExecutionPolicy(InterceptorInstance holder, InterceptorGroupInvocation invocation, ExecutionPolicy policy) {
-        if (debugEnabled) {
-            logger.debug("Skip after interceptor due to execution policy: interceptorGroupInvocation: {}, executionPolicy: {}, interceptor: {}", new Object[] {invocation, policy, holder.getInterceptor().getClass().getName()} );
-        }
-    }
-
 }

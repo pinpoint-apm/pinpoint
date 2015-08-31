@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor.group;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInstance;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -25,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 /**
  * @author emeroad
  */
-public class GroupedSimpleAroundInterceptor implements SimpleAroundInterceptor, InterceptorInstance {
+public class GroupedSimpleAroundInterceptor implements SimpleAroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final boolean debugEnabled = logger.isDebugEnabled();
 
@@ -65,21 +63,4 @@ public class GroupedSimpleAroundInterceptor implements SimpleAroundInterceptor, 
             }
         }
     }
-
-    @Override
-    public Interceptor getInterceptor() {
-        return delegate;
-    }
-
-    @Override
-    public InterceptorGroup getGroup() {
-        return group;
-    }
-
-    @Override
-    public ExecutionPolicy getPolicy() {
-        return policy;
-    }
-    
-    
 }

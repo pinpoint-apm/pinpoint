@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.gson.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor0;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.plugin.gson.GsonPlugin;
  *
  * @author ChaYoung You
  */
-public class ToJsonInterceptor implements Interceptor {
+public class ToJsonInterceptor implements AroundInterceptor0 {
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
@@ -39,6 +39,7 @@ public class ToJsonInterceptor implements Interceptor {
         this.descriptor = descriptor;
     }
 
+    @Override
     public void before(Object target) {
         if (logger.isDebugEnabled()) {
             logger.beforeInterceptor(target, null);
@@ -52,6 +53,7 @@ public class ToJsonInterceptor implements Interceptor {
         trace.traceBlockBegin();
     }
 
+    @Override
     public void after(Object target, Object result, Throwable throwable) {
         if (logger.isDebugEnabled()) {
             logger.afterInterceptor(target, null, result, throwable);

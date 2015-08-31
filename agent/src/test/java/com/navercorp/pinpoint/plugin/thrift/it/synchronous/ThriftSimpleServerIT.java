@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
 import com.navercorp.pinpoint.plugin.thrift.common.server.EchoTestServer;
 import com.navercorp.pinpoint.plugin.thrift.common.server.SyncEchoTestServer.SyncEchoTestServerFactory;
 import com.navercorp.pinpoint.plugin.thrift.it.EchoTestRunner;
@@ -44,10 +45,10 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 public class ThriftSimpleServerIT extends EchoTestRunner<TSimpleServer> {
 
     @Override
-    protected EchoTestServer<TSimpleServer> createEchoServer() throws TTransportException {
-        return SyncEchoTestServerFactory.simpleServer();
+    protected EchoTestServer<TSimpleServer> createEchoServer(TestEnvironment environment) throws TTransportException {
+        return SyncEchoTestServerFactory.simpleServer(environment);
     }
-    
+
     @Test
     public void testSynchronousRpcCall() throws Exception {
         // Given

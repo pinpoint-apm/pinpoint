@@ -45,14 +45,24 @@ public class DefaultPinpointRouteResponse implements PinpointRouteResponse {
 
     public void parse(DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory) {
         if (!isParsed) {
+            if (payload == null || payload.length == 0) {
+                routeResult = TRouteResult.EMPTY_RESPONSE;
+                return;
+            }
+
             TBase object = deserialize(commandDeserializerFactory, payload, null);
 
             if (object == null) {
-                routeResult = TRouteResult.UNKNOWN;
+                routeResult = TRouteResult.NOT_SUPPORTED_RESPONSE;
             } else if (object instanceof  TCommandTransferResponse) {
                 TCommandTransferResponse commandResponse = (TCommandTransferResponse) object;
-                routeResult = commandResponse.getRouteResult();
                 response = deserialize(commandDeserializerFactory, commandResponse.getPayload(), null);
+                if (response == null) {
+                    routeResult = TRouteResult.NOT_SUPPORTED_RESPONSE;
+                } else {
+                    routeResult = commandResponse.getRouteResult();
+                }
+
             } else {
                 routeResult = TRouteResult.UNKNOWN;
                 response = object;

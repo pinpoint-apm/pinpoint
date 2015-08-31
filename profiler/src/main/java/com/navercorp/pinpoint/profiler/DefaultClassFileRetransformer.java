@@ -17,57 +17,73 @@
 package com.navercorp.pinpoint.profiler;
 
 import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
-import java.security.ProtectionDomain;
-
 import java.util.concurrent.ConcurrentMap;
 
-import com.navercorp.pinpoint.profiler.util.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.navercorp.pinpoint.profiler.util.Maps;
 
-public class DefaultClassFileRetransformer implements ClassFileRetransformer {
+
+public class DefaultClassFileRetransformer implements DynamicTrnasformerRegistry {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-//    private final ConcurrentMap<Class<?>, ClassFileTransformer> transformerMap = new ConcurrentHashMap<Class<?>, ClassFileTransformer>();
-    private final ConcurrentMap<Class<?>, ClassFileTransformer> transformerMap = Maps.newWeakConcurrentMap();
-
-    public DefaultClassFileRetransformer() {
-    }
+    private final ConcurrentMap<TransformerKey, ClassFileTransformer> transformerMap = Maps.newWeakConcurrentMap();
 
     @Override
-    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        if (classBeingRedefined == null) {
-            return null;
-        }
-        logger.info("retransform className:{} cl:{} ", loader, className);
-
-        final ClassFileTransformer transformer = transformerMap.remove(classBeingRedefined);
-        if (transformer != null) {
-            try {
-                return transformer.transform(loader, classBeingRedefined.getName(), classBeingRedefined, protectionDomain, classfileBuffer);
-            } catch (Throwable t) {
-                logger.warn("Failed to retransform {} with {}", className, transformer);
-                return null;
-            }
-        }
-
-        logger.warn("Unexpected retransform request for className:{} cl:{}", className, loader);
-        return null;
-    }
-
-    @Override
-    public void addRetransformEvent(Class<?> target, final ClassFileTransformer transformer) {
-
+    public void onRetransformRequest(Class<?> target, final ClassFileTransformer transformer) {
         if (logger.isInfoEnabled()) {
             logger.info("addRetransformEvent class:{}", target.getName());
         }
 
-        final ClassFileTransformer prev = transformerMap.putIfAbsent(target, transformer);
+        add(target.getClassLoader(), target.getName(), transformer);
+    }
+    
+    @Override
+    public void onTransformRequest(ClassLoader classLoader, String targetClassName, ClassFileTransformer transformer) {
+        if (logger.isInfoEnabled()) {
+            logger.info("addDynamicTransformer classLoader:{] className:{}", classLoader, targetClassName);
+        }
+
+        add(classLoader, targetClassName, transformer);
+    }
+
+    private void add(ClassLoader classLoader, String targetClassName, ClassFileTransformer transformer) {
+        ClassFileTransformer prev = transformerMap.putIfAbsent(new TransformerKey(classLoader, targetClassName.replace('.', '/')), transformer);
+        
         if (prev != null) {
-            throw new ProfilerException("Retransform already requested. target: " + target + ", transformer: " + prev);
+            throw new ProfilerException("Transformer already exists. classLoader: " + classLoader + ", target: " + targetClassName + ", transformer: " + prev);
+        }
+    }
+    
+    @Override
+    public ClassFileTransformer getTransformer(ClassLoader classLoader, String targetClassName) {
+        if (transformerMap.isEmpty()) {
+            return null;
+        }
+        
+        return transformerMap.remove(new TransformerKey(classLoader, targetClassName));
+    }
+    
+    private static final class TransformerKey {
+        private final ClassLoader classLoader;
+        private final String targetClassName;
+        
+        public TransformerKey(ClassLoader classLoader, String targetClassName) {
+            this.classLoader = classLoader;
+            this.targetClassName = targetClassName;
+        }
+
+        @Override
+        public int hashCode() {
+            return classLoader.hashCode() * 31 + targetClassName.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            TransformerKey other = (TransformerKey) obj;
+            return this.classLoader.equals(other.classLoader) && this.targetClassName.equals(other.targetClassName);
         }
     }
 }

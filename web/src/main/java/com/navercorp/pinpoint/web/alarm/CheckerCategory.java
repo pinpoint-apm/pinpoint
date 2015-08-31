@@ -45,91 +45,91 @@ import com.navercorp.pinpoint.web.alarm.vo.Rule;
  */
 public enum CheckerCategory {
 
-    SLOW_COUNT("SLOW_COUNT", DataCollectorCategory.RESPONSE_TIME) {
+    SLOW_COUNT("SLOW COUNT", DataCollectorCategory.RESPONSE_TIME) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
             return new SlowCountChecker((ResponseTimeDataCollector)dataCollector, rule);
         }
     },
     
-    SLOW_RATE("SLOW_RATE", DataCollectorCategory.RESPONSE_TIME) {
+    SLOW_RATE("SLOW RATE", DataCollectorCategory.RESPONSE_TIME) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
             return new SlowRateChecker((ResponseTimeDataCollector)dataCollector, rule);
         }
     },
     
-    ERROR_COUNT("ERROR_COUNT", DataCollectorCategory.RESPONSE_TIME) {
+    ERROR_COUNT("ERROR COUNT", DataCollectorCategory.RESPONSE_TIME) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
             return new ErrorCountChecker((ResponseTimeDataCollector)dataCollector, rule);
         }
     },
     
-    ERROR_RATE("ERROR_RATE", DataCollectorCategory.RESPONSE_TIME) {
+    ERROR_RATE("ERROR RATE", DataCollectorCategory.RESPONSE_TIME) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
             return new ErrorRateChecker((ResponseTimeDataCollector)dataCollector, rule);
         }
     },
     
-    TOTAL_COUNT("TOTAL_COUNT", DataCollectorCategory.RESPONSE_TIME) {
+    TOTAL_COUNT("TOTAL COUNT", DataCollectorCategory.RESPONSE_TIME) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
             return new ResponseCountChecker((ResponseTimeDataCollector)dataCollector, rule);
         }
     },
     
-    SLOW_COUNT_TO_CALLEE("SLOW_COUNT_TO_CALLEE", DataCollectorCategory.CALLER_STAT) {
+    SLOW_COUNT_TO_CALLEE("SLOW COUNT TO CALLEE", DataCollectorCategory.CALLER_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
             return new SlowCountToCalleeChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
         }
     },
     
-    SLOW_RATE_TO_CALLEE("SLOW_RATE_TO_CALLEE", DataCollectorCategory.CALLER_STAT) {
+    SLOW_RATE_TO_CALLEE("SLOW RATE TO CALLEE", DataCollectorCategory.CALLER_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
             return new SlowRateToCalleeChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
         }
     },
     
-    ERROR_COUNT_TO_CALLEE("ERROR_COUNT_TO_CALLEE", DataCollectorCategory.CALLER_STAT) {
+    ERROR_COUNT_TO_CALLEE("ERROR COUNT TO CALLEE", DataCollectorCategory.CALLER_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
             return new ErrorCountToCalleeChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
         }
     },
     
-    ERROR_RATE_TO_CALLEE("ERROR_RATE_TO_CALLEE", DataCollectorCategory.CALLER_STAT) {
+    ERROR_RATE_TO_CALLEE("ERROR RATE TO CALLEE", DataCollectorCategory.CALLER_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
             return new ErrorRateToCalleeChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
         }
     },
     
-    TOTAL_COUNT_TO_CALLEE("TOTAL_COUNT_TO_CALLEE", DataCollectorCategory.CALLER_STAT) {
+    TOTAL_COUNT_TO_CALLEE("TOTAL COUNT TO CALLEE", DataCollectorCategory.CALLER_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
             return new TotalCountToCalleeChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
         }
     },
     
-    HEAP_USAGE_RATE("HEAP_USAGE_RATE", DataCollectorCategory.AGENT_STAT) {
+    HEAP_USAGE_RATE("HEAP USAGE RATE", DataCollectorCategory.AGENT_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
             return new HeapUsageRateChecker((AgentStatDataCollector)dataCollector, rule);
         }
     },
     
-    GC_COUNT("GC_COUNT", DataCollectorCategory.AGENT_STAT) {
+    GC_COUNT("GC COUNT", DataCollectorCategory.AGENT_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
             return new GcCountChecker((AgentStatDataCollector)dataCollector, rule);
         }
     },
     
-    JVM_CPU_USAGE_RATE("JVM_CPU_USAGE_RATE", DataCollectorCategory.AGENT_STAT) {
+    JVM_CPU_USAGE_RATE("JVM CPU USAGE RATE", DataCollectorCategory.AGENT_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
             return new JvmCpuUsageRateChecker((AgentStatDataCollector)dataCollector, rule);

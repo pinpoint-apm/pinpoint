@@ -14,19 +14,10 @@
  */
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-
 /**
  * @author Jongho Moon
  *
  */
-public interface InterceptorInstance {
-
-    public Interceptor getInterceptor();
-
-    public InterceptorGroup getGroup();
-
-    public ExecutionPolicy getPolicy();
-
+public interface AfterInterceptor4 extends Interceptor {
+    void after(Object target, Object result, Throwable throwable, Object arg0, Object arg1, Object arg2, Object arg3);
 }

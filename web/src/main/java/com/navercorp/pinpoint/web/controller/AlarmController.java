@@ -20,9 +20,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -39,6 +42,8 @@ import com.navercorp.pinpoint.web.service.AlarmService;
 @Controller
 @RequestMapping(value="/alarmRule")
 public class AlarmController {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    
     public final static String USER_GROUP_ID = "userGroupId";
 
     @Autowired
@@ -113,6 +118,17 @@ public class AlarmController {
     @ResponseBody
     public List<String> getCheckerName() {
         return CheckerCategory.getNames();
+    }
+    
+    @ExceptionHandler(Exception.class)
+    @ResponseBody
+    public Map<String, String> handleException(Exception e) {
+        logger.error(" Exception occured while trying to CRUD Alarm Rule information", e);
+        
+        Map<String, String> result = new HashMap<String, String>();
+        result.put("errorCode", "500");
+        result.put("errorMessage", "Exception occured while trying to Alarm Rule information");
+        return result;
     }
     
 }

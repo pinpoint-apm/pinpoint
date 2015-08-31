@@ -185,10 +185,26 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
             }
         });
     }
+    
+    @Override
+    public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, final PinpointClassFileTransformer transformer) {
+        agent.getDynamicTransformService().addClassFileTransformer(classLoader, targetClassName, new ClassFileTransformer() {
+
+            @Override
+            public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+                try {
+                    return transformer.transform(DefaultProfilerPluginContext.this, loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+                } catch (InstrumentException e) {
+                    throw new PinpointException(e);
+                }
+            }
+            
+        });
+    }
 
     @Override
     public void retransform(Class<?> target, final PinpointClassFileTransformer transformer) {
-        agent.getRetransformService().retransform(target, new ClassFileTransformer() {
+        agent.getDynamicTransformService().retransform(target, new ClassFileTransformer() {
 
             @Override
             public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {

@@ -41,7 +41,7 @@ public class AgentActiveThreadStatusListTest {
         String hostName1 = "hostName1";
         String hostName2 = "hostName2";
 
-        AgentActiveThreadStatus status1 = new AgentActiveThreadStatus(hostName1, TRouteResult.AGENT_NOT_ACCEPTABLE, null);
+        AgentActiveThreadStatus status1 = new AgentActiveThreadStatus(hostName1, TRouteResult.NOT_ACCEPTABLE, null);
 
         TActiveThreadResponse response = new TActiveThreadResponse();
         response.setActiveThreadCount(Arrays.asList(1, 2, 3, 4));
@@ -59,7 +59,7 @@ public class AgentActiveThreadStatusListTest {
         Assert.assertTrue(map.containsKey(hostName1));
         Assert.assertTrue(map.containsKey(hostName2));
 
-        assertDataWithSerializedJsonString((Map) map.get(hostName1), TRouteResult.AGENT_NOT_ACCEPTABLE, null);
+        assertDataWithSerializedJsonString((Map) map.get(hostName1), TRouteResult.NOT_ACCEPTABLE, null);
         assertDataWithSerializedJsonString((Map) map.get(hostName2), TRouteResult.OK, Arrays.asList(1, 2, 3, 4));
 
     }

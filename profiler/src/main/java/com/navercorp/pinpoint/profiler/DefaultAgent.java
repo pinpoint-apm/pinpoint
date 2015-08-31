@@ -109,7 +109,7 @@ public class DefaultAgent implements Agent {
     
     private final Instrumentation instrumentation;
     private final JavassistClassPool classPool;
-    private final RetransformService retransformService;
+    private final DynamicTransformService dynamicTransformService;
     private final List<DefaultProfilerPluginContext> pluginContexts;
     
 
@@ -153,10 +153,8 @@ public class DefaultAgent implements Agent {
         
         this.profilerConfig = agentOption.getProfilerConfig();
         this.instrumentation = agentOption.getInstrumentation();
-
-        this.retransformService = new RetransformService(instrumentation);
         this.classPool = new JavassistClassPool(interceptorRegistryBinder, agentOption.getBootStrapJarPath());
-        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(this, classPool, retransformService);
+        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(this, classPool);
         
         if (logger.isInfoEnabled()) {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
@@ -165,10 +163,9 @@ public class DefaultAgent implements Agent {
         pluginContexts = loadPlugins(agentOption);
 
         this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, pluginContexts);
-        retransformService.setRetransformEventListener(classFileTransformer);
-        // TODO check retranform support
-        instrumentation.addTransformer(this.classFileTransformer, true);
+        this.dynamicTransformService = new DynamicTransformService(instrumentation, classFileTransformer);
 
+        instrumentation.addTransformer(this.classFileTransformer, true);
 
         String applicationServerTypeString = profilerConfig.getApplicationServerType();
         ServiceType applicationServerType = this.serviceTypeRegistryService.findServiceTypeByName(applicationServerTypeString);
@@ -220,8 +217,8 @@ public class DefaultAgent implements Agent {
         }
     }
     
-    public RetransformService getRetransformService() {
-        return retransformService;
+    public DynamicTransformService getDynamicTransformService() {
+        return dynamicTransformService;
     }
 
     public Instrumentation getInstrumentation() {

@@ -5,48 +5,49 @@
 <mapper namespace="com.navercorp.pinpoint.web.dao.UserDao">
 
     <insert id="insertUser" parameterType="User">
-        INSERT INTO user
+        INSERT INTO puser (user_id, name, department, phonenumber, email)
         VALUES (#{userId}, #{name}, #{department}, #{phoneNumber}, #{email})
     </insert>
        
     <insert id="insertUserList">
-        <foreach collection="list" item="User">
-            INSERT INTO user_temp
-            VALUES (#{userId}, #{name}, #{department}, #{phoneNumber}, #{email})
+            INSERT INTO puser (user_id, name, department, phonenumber, email)
+            VALUES
+        <foreach collection="list" item="User" separator=",">
+             (#{User.userId}, #{User.name}, #{User.department}, #{User.phoneNumber}, #{User.email})
         </foreach>
     </insert>
     
     <delete id="deleteUser" parameterType="User">
         DELETE
-        FROM user
+        FROM puser
         WHERE user_id = #{userId} 
     </delete>
     
     <select id="selectUserList" resultType="User">
         SELECT *
-        FROM user
+        FROM puser
     </select>
 
     <select id="selectUserByUserId" resultType="User">
         SELECT *
-        FROM user
+        FROM puser
         WHERE user_id = #{userId}
     </select>
 
     <select id="selectUserByDepartment" resultType="User">
         SELECT *
-        FROM user
+        FROM puser
         WHERE department = #{department}
     </select>
 
     <select id="selectUserByUserName" resultType="User">
         SELECT *
-        FROM user
+        FROM puser
         WHERE name = #{name}
     </select>
     
     <update id="updateUser" parameterType="User">
-        UPDATE user
+        UPDATE puser
         SET name = #{name}, department = #{department}, phoneNumber = #{phoneNumber}, email = #{email}
         WHERE user_id = #{userId}
     </update>

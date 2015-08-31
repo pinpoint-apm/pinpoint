@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
 import com.navercorp.pinpoint.plugin.thrift.common.server.EchoTestServer;
 import com.navercorp.pinpoint.plugin.thrift.common.server.AsyncEchoTestServer.AsyncEchoTestServerFactory;
 import com.navercorp.pinpoint.plugin.thrift.it.EchoTestRunner;
@@ -44,10 +45,11 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 public class ThriftThreadedSelectorServerAsyncIT extends EchoTestRunner<TThreadedSelectorServer> {
 
     @Override
-    protected EchoTestServer<TThreadedSelectorServer> createEchoServer() throws TTransportException {
-        return AsyncEchoTestServerFactory.threadedSelectorServer();
+    protected EchoTestServer<TThreadedSelectorServer> createEchoServer(TestEnvironment environment)
+            throws TTransportException {
+        return AsyncEchoTestServerFactory.threadedSelectorServer(environment);
     }
-    
+
     @Test
     public void testSynchronousRpcCall() throws Exception {
         // Given
@@ -57,7 +59,7 @@ public class ThriftThreadedSelectorServerAsyncIT extends EchoTestRunner<TThreade
         // Then
         assertEquals(expectedMessage, result);
     }
-    
+
     @Test
     public void testAsynchronousRpcCall() throws Exception {
         // Given

@@ -34,6 +34,8 @@ public interface ProfilerPluginInstrumentContext {
         
     public <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className);
     
+    public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, PinpointClassFileTransformer transformer);
+    
     public void retransform(Class<?> target, PinpointClassFileTransformer transformer);
     
     @Deprecated

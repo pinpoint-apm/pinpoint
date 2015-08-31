@@ -22,12 +22,6 @@
     </bean>
  
  	<batch:job-repository id="jobRepository" data-source="dataSource"/>
- 	
- 	<task:scheduled-tasks scheduler="scheduler">
-    	<task:scheduled ref="batchJobLauncher" method="alarmJob" cron="0 0/2 * * * *" />
-	</task:scheduled-tasks>
-	
-	<task:scheduler id="scheduler" pool-size="1"/>
 	
 	<bean id="jobRegistry"	class="org.springframework.batch.core.configuration.support.MapJobRegistry" />
 	
@@ -47,5 +41,4 @@
     	</constructor-arg>
     </bean>
 	
-	<import resource="classpath:batch/applicationContext-alarmJob.xml" />
 </beans>

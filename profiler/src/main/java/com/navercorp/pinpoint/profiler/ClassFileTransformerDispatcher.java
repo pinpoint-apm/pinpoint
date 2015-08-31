@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventListener;
+import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformRequestListener;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.DefaultModifierRegistry;
@@ -39,7 +39,7 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
  * @author emeroad
  * @author netspider
  */
-public class ClassFileTransformerDispatcher implements ClassFileTransformer, RetransformEventListener {
+public class ClassFileTransformerDispatcher implements ClassFileTransformer, DynamicTransformRequestListener {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -50,7 +50,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Ret
 
     private final DefaultAgent agent;
     private final ByteCodeInstrumentor byteCodeInstrumentor;
-    private final ClassFileRetransformer retransformer;
+    private final DynamicTrnasformerRegistry dynamicTransformerRegistry;
 
     private final ProfilerConfig profilerConfig;
 
@@ -67,7 +67,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Ret
         
         this.agent = agent;
         this.byteCodeInstrumentor = byteCodeInstrumentor;
-        this.retransformer = new DefaultClassFileRetransformer();
+        this.dynamicTransformerRegistry = new DefaultClassFileRetransformer();
         this.profilerConfig = agent.getProfilerConfig();
         this.modifierRegistry = createModifierRegistry(pluginContexts);
         this.skipFilter = new DefaultClassFileFilter(agentClassLoader);
@@ -75,17 +75,20 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Ret
 
     @Override
     public byte[] transform(ClassLoader classLoader, String jvmClassName, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws IllegalClassFormatException {
-        if (classBeingRedefined != null) {
-            return this.retransform(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer);
+        ClassFileTransformer transformer = dynamicTransformerRegistry.getTransformer(classLoader, jvmClassName);
+        
+        if (transformer != null) {
+            return transformUsingTransformer(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
         }
-
+        
         if (skipFilter.doFilter(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer)) {
             return null;
         }
 
         AbstractModifier findModifier = this.modifierRegistry.findModifier(jvmClassName);
+        
         if (findModifier == null) {
-            // TODO For debug
+            // For debug
             // TODO What if a modifier is duplicated?
             if (this.profilerConfig.getProfilableClassFilter().filter(jvmClassName)) {
                 // Added to see if call stack view is OK on a test machine.
@@ -95,6 +98,10 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Ret
             }
         }
 
+        return transformUsingModifier(classLoader, jvmClassName, protectionDomain, classFileBuffer, findModifier);
+    }
+
+    private byte[] transformUsingModifier(ClassLoader classLoader, String jvmClassName, ProtectionDomain protectionDomain, byte[] classFileBuffer, AbstractModifier findModifier) {
         if (isDebug) {
             logger.debug("[transform] cl:{} className:{} Modifier:{}", classLoader, jvmClassName, findModifier.getClass().getName());
         }
@@ -118,13 +125,42 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Ret
         }
     }
 
-    @Override
-    public void addRetransformEvent(Class<?> target, final ClassFileTransformer transformer) {
-        this.retransformer.addRetransformEvent(target, transformer);
+    private byte[] transformUsingTransformer(ClassLoader classLoader, String jvmClassName, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer, ClassFileTransformer transformer) {
+        final String javaClassName = JavaAssistUtils.jvmNameToJavaName(jvmClassName);
+
+        if (isDebug) {
+            if (classBeingRedefined == null) {
+                logger.debug("[transform] classLoader:{} className:{} trnasformer:{}", classLoader, javaClassName, transformer.getClass().getName());
+            } else {
+                logger.debug("[retransform] classLoader:{} className:{} trnasformer:{}", classLoader, javaClassName, transformer.getClass().getName());
+            }
+        }
+
+        try {
+            final Thread thread = Thread.currentThread();
+            final ClassLoader before = getContextClassLoader(thread);
+            thread.setContextClassLoader(this.agentClassLoader);
+            try {
+                return transformer.transform(classLoader, javaClassName, null, protectionDomain, classFileBuffer);
+            } finally {
+                // The context class loader have to be recovered even if it was null.
+                thread.setContextClassLoader(before);
+            }
+        } catch (Throwable e) {
+            logger.error("Transformer:{} threw an exception. cl:{} ctxCl:{} agentCl:{} Cause:{}",
+                    transformer.getClass().getName(), classLoader, Thread.currentThread().getContextClassLoader(), agentClassLoader, e.getMessage(), e);
+            return null;
+        }
     }
 
-    private byte[] retransform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        return retransformer.transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+    @Override
+    public void onRetransformRequest(Class<?> target, final ClassFileTransformer transformer) {
+        this.dynamicTransformerRegistry.onRetransformRequest(target, transformer);
+    }
+
+    @Override
+    public void onTransformRequest(ClassLoader classLoader, String targetClassName, ClassFileTransformer transformer) {
+        this.dynamicTransformerRegistry.onTransformRequest(classLoader, targetClassName, transformer);
     }
 
     private ClassLoader getContextClassLoader(Thread thread) throws Throwable {

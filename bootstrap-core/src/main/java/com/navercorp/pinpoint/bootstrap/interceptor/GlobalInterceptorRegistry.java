@@ -33,15 +33,7 @@ public class GlobalInterceptorRegistry {
 
     }
 
-    public static StaticAroundInterceptor getStaticInterceptor(int key) {
-        return REGISTRY.getStaticInterceptor(key);
-    }
-
-    public static InterceptorInstance findInterceptor(int key) {
-        return REGISTRY.findInterceptor(key);
-    }
-
-    public static SimpleAroundInterceptor getSimpleInterceptor(int key) {
-        return REGISTRY.getSimpleInterceptor(key);
+    public static Interceptor getInterceptor(int key) {
+        return REGISTRY.getInterceptor(key);
     }
 }

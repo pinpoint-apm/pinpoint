@@ -35,14 +35,14 @@ import com.navercorp.pinpoint.plugin.thrift.common.server.EchoTestServer;
 /**
  * @author HyunGil Jeong
  */
-public abstract class EchoTestRunner<T extends TServer> implements TestEnvironment {
+public abstract class EchoTestRunner<T extends TServer> {
 
     private static ExecutorService SERVER_EXECUTOR;
-    
+
     private EchoTestServer<T> echoServer;
-    
+
     PluginTestVerifier verifier;
-    
+
     @BeforeClass
     public static void setUpBeforeClass() throws InterruptedException {
         SERVER_EXECUTOR = Executors.newSingleThreadExecutor();
@@ -50,11 +50,11 @@ public abstract class EchoTestRunner<T extends TServer> implements TestEnvironme
 
     @Before
     public void setUp() throws TTransportException, InterruptedException {
-        this.echoServer = createEchoServer();
+        this.echoServer = createEchoServer(new TestEnvironment());
         this.verifier = PluginTestVerifierHolder.getInstance();
         this.echoServer.start(SERVER_EXECUTOR);
     }
-    
+
     @After
     public void tearDown() {
         if (this.echoServer != null) {
@@ -66,17 +66,17 @@ public abstract class EchoTestRunner<T extends TServer> implements TestEnvironme
     public static void tearDownAfterClass() {
         SERVER_EXECUTOR.shutdown();
     }
-    
+
     protected String invokeEcho(String message) throws Exception {
         final EchoTestClient echoClient = this.echoServer.getSynchronousClient();
         return invokeAndVerify(echoClient, message);
     }
-    
+
     protected String invokeEchoAsync(String message) throws Exception {
         final EchoTestClient echoClient = this.echoServer.getAsynchronousClient();
         return invokeAndVerify(echoClient, message);
     }
-    
+
     private String invokeAndVerify(EchoTestClient echoClient, String message) throws Exception {
         try {
             return echoClient.echo(message);
@@ -87,13 +87,13 @@ public abstract class EchoTestRunner<T extends TServer> implements TestEnvironme
             this.verifyTraces(echoClient, message);
         }
     }
-    
-    protected abstract EchoTestServer<T> createEchoServer() throws TTransportException;
-    
+
+    protected abstract EchoTestServer<T> createEchoServer(TestEnvironment environment) throws TTransportException;
+
     private void verifyTraces(EchoTestClient echoClient, String expectedMessage) throws Exception {
         this.verifier.printCache(System.out);
         echoClient.verifyTraces(this.verifier, expectedMessage);
         this.echoServer.verifyTraces(this.verifier);
     }
-    
+
 }

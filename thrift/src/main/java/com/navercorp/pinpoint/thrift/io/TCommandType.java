@@ -41,6 +41,12 @@ public enum TCommandType {
             return new TCommandTransfer();
         }
     },
+    TRANSFER_RESPONSE((short) 701, TCommandTransferResponse.class) {
+        @Override
+        public TBase newObject() {
+            return new TCommandTransferResponse();
+        }
+    },
     ECHO((short) 710, TCommandEcho.class) {
         @Override
         public TBase newObject() {
