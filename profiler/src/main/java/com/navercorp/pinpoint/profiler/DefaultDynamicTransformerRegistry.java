@@ -17,36 +17,34 @@
 package com.navercorp.pinpoint.profiler;
 
 import java.lang.instrument.ClassFileTransformer;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.profiler.util.Maps;
 
-
-public class DefaultClassFileRetransformer implements DynamicTrnasformerRegistry {
+public class DefaultDynamicTransformerRegistry implements DynamicTrnasformerRegistry {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    private final ConcurrentMap<TransformerKey, ClassFileTransformer> transformerMap = Maps.newWeakConcurrentMap();
+    private final ConcurrentMap<TransformerKey, ClassFileTransformer> transformerMap = new ConcurrentHashMap<TransformerKey, ClassFileTransformer>();
 
     @Override
     public void onRetransformRequest(Class<?> target, final ClassFileTransformer transformer) {
-        if (logger.isInfoEnabled()) {
-            logger.info("addRetransformEvent class:{}", target.getName());
-        }
-
         add(target.getClassLoader(), target.getName(), transformer);
+
+        if (logger.isInfoEnabled()) {
+            logger.info("added retransformer classLoader: {}, class: {}, registry size: {}", target.getClassLoader(), target.getName(), transformerMap.size());
+        }
     }
     
     @Override
     public void onTransformRequest(ClassLoader classLoader, String targetClassName, ClassFileTransformer transformer) {
-        if (logger.isInfoEnabled()) {
-            logger.info("addDynamicTransformer classLoader:{] className:{}", classLoader, targetClassName);
-        }
-
         add(classLoader, targetClassName, transformer);
+
+        if (logger.isInfoEnabled()) {
+            logger.info("added dynamic transformer classLoader: {}, className: {}, registry size: {}", classLoader, targetClassName, transformerMap.size());
+        }
     }
 
     private void add(ClassLoader classLoader, String targetClassName, ClassFileTransformer transformer) {
@@ -63,7 +61,13 @@ public class DefaultClassFileRetransformer implements DynamicTrnasformerRegistry
             return null;
         }
         
-        return transformerMap.remove(new TransformerKey(classLoader, targetClassName));
+        ClassFileTransformer transformer = transformerMap.remove(new TransformerKey(classLoader, targetClassName));
+        
+        if (logger.isDebugEnabled()) {
+            logger.info("removed dynamic transformer classLoader: {}, className: {}, registry size: {}", classLoader, targetClassName, transformerMap.size());
+        }
+        
+        return transformer;
     }
     
     private static final class TransformerKey {
