@@ -30,7 +30,7 @@ public class CheckerCategoryTest {
 
     @Test
     public void createCheckerTest() {
-        CheckerCategory slowCount = CheckerCategory.getValue("slow_count");
+        CheckerCategory slowCount = CheckerCategory.getValue("slow count");
         
         Rule rule = new Rule(null, "", CheckerCategory.SLOW_COUNT.getName(), 75, "testGroup", false, false, "");
         SlowCountChecker checker = (SlowCountChecker) slowCount.createChecker(null, rule);

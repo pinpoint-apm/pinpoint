@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.instrument;
+package com.navercorp.pinpoint.profiler;
 
 import java.lang.instrument.ClassFileTransformer;
+
+import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformRequestListener;
 
 /**
  * @author emeroad
  */
-public interface RetransformEventListener {
-
-//    void addRetransformEvent(RetransformEvent event);
-
-    void addRetransformEvent(Class<?> target, final ClassFileTransformer transformer);
+public interface DynamicTrnasformerRegistry extends DynamicTransformRequestListener {
+    public ClassFileTransformer getTransformer(ClassLoader classLoader, String targetClassName);
 }

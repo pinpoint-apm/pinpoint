@@ -16,22 +16,28 @@
 
 package com.navercorp.pinpoint.profiler.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.DefaultInterceptorRegistryAdaptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.test.util.LoaderUtils;
-import javassist.*;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
+
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.Loader;
+import javassist.NotFoundException;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.navercorp.pinpoint.bootstrap.interceptor.DefaultInterceptorRegistryAdaptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry;
+import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.test.util.LoaderUtils;
 
 /**
  * @author emeroad
@@ -87,7 +93,7 @@ public class InterceptorTest {
                 logger.info("AFTER target: " + target + " args:" + Arrays.toString(args) + " result:" + result + " throwable:" + throwable);
             }
         };
-        int interceptorId = INTERCEPTOR_REGISTRY_ADAPTOR.addSimpleInterceptor(aroundInterceptor);
+        int interceptorId = INTERCEPTOR_REGISTRY_ADAPTOR.addInterceptor(aroundInterceptor);
 
 
         final ClassPool classPool = new ClassPool(true);

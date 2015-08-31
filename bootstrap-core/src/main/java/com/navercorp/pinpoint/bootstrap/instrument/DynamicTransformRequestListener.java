@@ -14,26 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.interceptor;
+package com.navercorp.pinpoint.bootstrap.instrument;
 
+import java.lang.instrument.ClassFileTransformer;
 
 /**
- * for test
  * @author emeroad
  */
-public class GlobalInterceptorRegistry {
-
-    public static final InterceptorRegistryAdaptor REGISTRY = new DefaultInterceptorRegistryAdaptor();
-
-    public static void bind(final InterceptorRegistryAdaptor interceptorRegistryAdaptor, final Object lock) {
-
-    }
-
-    public static void unbind(final Object lock) {
-
-    }
-
-    public static Interceptor getInterceptor(int key) {
-        return REGISTRY.getInterceptor(key);
-    }
+public interface DynamicTransformRequestListener {
+    void onRetransformRequest(Class<?> target, ClassFileTransformer transformer);
+    void onTransformRequest(ClassLoader classLoader, String targetClassName, ClassFileTransformer transformer);
 }

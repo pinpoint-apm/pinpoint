@@ -16,22 +16,22 @@
 
 package com.navercorp.pinpoint.profiler.javaassist;
 
-import com.navercorp.pinpoint.test.util.BytecodeUtils;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLClassLoader;
+
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.LoaderClassPath;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.security.ProtectionDomain;
+import com.navercorp.pinpoint.test.util.BytecodeUtils;
 
 /**
  * @author emeroad
@@ -88,13 +88,11 @@ public class TestBootstrapClass {
     public void testReflection() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         java.lang.ClassLoader contextClassLoader = java.lang.Thread.currentThread().getContextClassLoader();
         java.lang.Class<?> interceptorRegistry = contextClassLoader.loadClass("com.navercorp.pinpoint.bootstrap.interceptor.GlobalInterceptorRegistry");
-        java.lang.reflect.Method getInterceptorMethod = interceptorRegistry.getMethod("getStaticInterceptor", new java.lang.Class[]{int.class});
+        java.lang.reflect.Method getInterceptorMethod = interceptorRegistry.getMethod("getInterceptor", new java.lang.Class[]{int.class});
         java.lang.Object interceptor = getInterceptorMethod.invoke(interceptorRegistry, Integer.valueOf(1));
-
 
         java.lang.reflect.Method beforeMethod = interceptor.getClass().getMethod("before", java.lang.Object.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object[].class);
         beforeMethod.invoke(interceptor, null, null, null, null, null);
-
     }
 
 }
