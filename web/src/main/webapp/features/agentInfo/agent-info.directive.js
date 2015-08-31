@@ -180,7 +180,21 @@
 	                        scope.$broadcast('cpuLoadChartDirective.showCursorAt.forCpuLoad', event.index);
 	                	}
 	                }
-	
+	                
+	                scope.openDetail = function() {
+	                	$('#serverMetaDataDiv').modal({});
+	                };
+	                scope.hasDuplicate = function( libName, index ) {
+	                	var len = scope.currentServiceInfo.serviceLibs.length;
+	                	var bHas = false;
+	                	for( var i = 0 ; i < len ; i++ ) {
+	                		if ( scope.currentServiceInfo.serviceLibs[i] == libName && i != index ) {
+	                			bHas = true;
+	                			break;
+	                		}
+	                	}
+	                	return bHas ? "color:red" : "";
+	                };
 	                /**
 	                 * scope event on jvmMemoryChartDirective.cursorChanged.forHeap
 	                 */

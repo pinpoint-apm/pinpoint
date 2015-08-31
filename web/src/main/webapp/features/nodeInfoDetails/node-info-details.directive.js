@@ -13,8 +13,8 @@
 	    maxTimeToShowLoadAsDefaultForUnknown: 60 * 60 * 12 // 12h
 	});
 	
-	pinpointApp.directive('nodeInfoDetailsDirective', [ 'nodeInfoDetailsDirectiveConfig', '$filter', '$timeout', 'isVisibleService', '$window', 'helpContentTemplate', 'helpContentService',
-        function (cfg, $filter, $timeout, isVisibleService, $window, helpContentTemplate, helpContentService) {
+	pinpointApp.directive('nodeInfoDetailsDirective', [ 'nodeInfoDetailsDirectiveConfig', '$filter', '$timeout', 'isVisibleService', '$window', 'helpContentTemplate', 'helpContentService', 'AnalyticsService',
+        function (cfg, $filter, $timeout, isVisibleService, $window, helpContentTemplate, helpContentService, analyticsService) {
             return {
                 restrict: 'EA',
                 replace: true,
@@ -261,7 +261,7 @@
                      * @param applicationName
                      */
                     scope.renderNodeAgentCharts = function (applicationName) {
-                    	$at($at.MAIN, $at.CLK_SHOW_GRAPH);
+                    	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_SHOW_GRAPH);
                         if (angular.isDefined(htAgentChartRendered[applicationName])) return;
                         htAgentChartRendered[applicationName] = true;
                         renderResponseSummary(null, applicationName, htLastNode.agentHistogram[applicationName], '100%', '150px');

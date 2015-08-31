@@ -7,7 +7,7 @@
 	 * @name timelineDirective
 	 * @class
 	 */
-	pinpointApp.directive('timelineDirective', function () {
+	pinpointApp.directive('timelineDirective', ['AnalyticsService', function (analyticsService) {
 	    return {
 	        restrict: 'EA',
 	        replace: true,
@@ -101,7 +101,7 @@
 	            };
 	            
 	            $(element).on("click", ".clickable-bar", function() {
-	            	$at($at.CALLSTACK, $at.CLK_CALL);
+	            	analyticsService.send(analyticsService.CONST.CALLSTACK, analyticsService.CONST.CLK_CALL);
 	            	scope.$emit( "transactionDetail.selectDistributedCallFlowRow", scope.newCallStacks[parseInt($(this).parent().attr("data-index"))][6] );
                 });
 	            $(element).on("mouseenter", ".timeline-bar-frame", function(event) {
@@ -163,5 +163,5 @@
 	            }
 	        }
 	    };
-	});
+	}]);
 })(jQuery);

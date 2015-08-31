@@ -12,7 +12,7 @@
 	//    myColors: ["#c9e7a5", "#bbcdf0", "#fce0b5", "#f69124", "#f53034"]
 	});
 	
-	pinpointApp.directive('loadChartDirective', ['loadChartDirectiveConfig', '$timeout', function (cfg, $timeout) {
+	pinpointApp.directive('loadChartDirective', ['loadChartDirectiveConfig', '$timeout', 'AnalyticsService', function (cfg, $timeout, analyticsService) {
         return {
             template: '<div></div>',
             replace: true,
@@ -169,7 +169,7 @@
                         }
                         oChart = AmCharts.makeChart(id, options);
                         oChart.addListener("clickGraph", function(e) {
-                        	$at($at.MAIN, $at.CLK_LOAD_GRAPH);
+                        	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_LOAD_GRAPH);
                         });
                     });
                 };

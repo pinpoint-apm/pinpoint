@@ -201,7 +201,12 @@
 	background-color: #EFABAB;
 	color: #000;
 }
-
+#pinpoint-configuration .some-list-content .wrapper .empty-list {
+	text-align: center;
+	margin-top: 50%;
+	color: #AAA;
+	font-size: 22px;
+}
 #pinpoint-configuration .some-list-content.move-some-where li span {
 	margin-left: 4px;
 }

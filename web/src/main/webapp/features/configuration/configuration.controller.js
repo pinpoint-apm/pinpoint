@@ -15,8 +15,8 @@
 	    }
 	});	
 
-	pinpointApp.controller('ConfigurationCtrl', [ '$scope','$element', 'ConfigurationConfig',
-	    function ($scope, $element, $constant) {
+	pinpointApp.controller('ConfigurationCtrl', [ '$scope','$element', 'ConfigurationConfig', 'AnalyticsService',
+	    function ($scope, $element, $constant, analyticsService) {
 
 			var $elBody = $element.find(".modal-body");
 			$scope.descriptionOfCurrentTab = "Set your option";
@@ -42,26 +42,26 @@
 				$scope.currentTab = tab;
 				switch( tab ) {
 					case $constant.menu.GENERAL:
-						$at( $at.MAIN, $at.CLK_GENERAL );
+						analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_GENERAL );
 						$elBody.css("background-color", "#e9eaed");
 						$scope.descriptionOfCurrentTab = "Set your option";
 						$scope.$broadcast( "general.configuration.show");
 						break;
 					case $constant.menu.ALARM:
-						$at( $at.MAIN, $at.CLK_ALARM );
+						analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM );
 						$elBody.css("background-color", "#e9eaed");
 						$scope.descriptionOfCurrentTab = "Set your alarm rules";
 						$scope.$broadcast( "alarmUserGroup.configuration.show");
 						break;
 					case $constant.menu.HELP:
-						$at( $at.MAIN, $at.CLK_HELP );
+						analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_HELP );
 						$elBody.css("background-color", "#FFF");
 						$scope.descriptionOfCurrentTab = "";
 						break;	
 				}
 			}
 			$scope.$on("configuration.show", function() {
-				$at( $at.MAIN, $at.CLK_CONFIGURATION );
+				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_CONFIGURATION );
 				$element.modal('show');
 				
 			});

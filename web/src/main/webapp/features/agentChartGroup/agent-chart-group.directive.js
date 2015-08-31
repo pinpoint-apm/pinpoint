@@ -14,7 +14,8 @@
 	    POINTS_AVG: 3
 	});
 	
-	pinpointApp.directive('agentChartGroupDirective', [ 'agentChartGroupConfig', '$timeout', 'AgentDaoService', function (cfg, $timeout, AgentDaoService) {
+	pinpointApp.directive('agentChartGroupDirective', [ 'agentChartGroupConfig', '$timeout', 'AgentDaoService', 'AnalyticsService', 
+	    function (cfg, $timeout, AgentDaoService, analyticsService) {
 	    return {
 	        restrict: 'EA',
 	        replace: true,
@@ -62,7 +63,7 @@
 	                    activate: function (event, ui) {
 	                        var activatedTabText = ui.newTab.text();
 	                        if (activatedTabText == 'Heap') {
-	                        	$at($at.MIXEDVIEW, $at.CLK_HEAP);
+	                        	analyticsService.send(analyticsService.CONST.MIXEDVIEW, analyticsService.CONST.CLK_HEAP);
 	                            if (htChartCache.Heap === false) {
 	                                showHeapChart(htLastAgentStat);
 	                            } else {
@@ -70,7 +71,7 @@
 	                            }
 	                            return;
 	                        } else if (activatedTabText == 'PermGen') {
-	                        	$at($at.MIXEDVIEW, $at.CLK_PERM_GEN);
+	                        	analyticsService.send(analyticsService.CONST.MIXEDVIEW, analyticsService.CONST.CLK_PERM_GEN);
 	                            if (htChartCache.PermGen === false) {
 	                                showPermGenChart(htLastAgentStat);
 	                            } else {
@@ -78,7 +79,7 @@
 	                            }
 	                            return;
 	                        } else if (activatedTabText == 'CpuLoad') {
-	                        	$at($at.MIXEDVIEW, $at.CLK_CPU_LOAD);
+	                        	analyticsService.send(analyticsService.CONST.MIXEDVIEW, analyticsService.CONST.CLK_CPU_LOAD);
 	                            if (htChartCache.CpuLoad === false) {
 	                                showCpuLoadChart(htLastAgentStat);
 	                            } else {

@@ -13,8 +13,8 @@
 	    periodTypePrefix: '.navbar.periodType'
 	});
 	
-	pinpointApp.directive('navbarDirective', [ 'cfg', '$rootScope', '$http','$document', '$timeout', '$window',  'webStorage', 'helpContentTemplate', 'helpContentService',
-	    function (cfg, $rootScope, $http, $document, $timeout, $window, webStorage, helpContentTemplate, helpContentService) {
+	pinpointApp.directive('navbarDirective', [ 'cfg', '$rootScope', '$http','$document', '$timeout', '$window',  'webStorage', 'helpContentTemplate', 'helpContentService', 'AnalyticsService',
+	    function (cfg, $rootScope, $http, $document, $timeout, $window, webStorage, helpContentTemplate, helpContentService, analyticsService) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -389,7 +389,7 @@
 	                            return m;
 	                        }
 	                    }).on("change", function (e) {
-	                    	$at( $at.MAIN, $at.CLK_APPLICATION );
+	                    	analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_APPLICATION );
 	                        scope.application = e.val;
 	                        scope.$digest();
 	                        broadcast();
@@ -442,7 +442,7 @@
 	                 * @param readablePeriod
 	                 */
 	                scope.setPeriod = function (readablePeriod) {
-	                	$at($at.MAIN, $at.CLK_TIME, readablePeriod);
+	                	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_TIME, readablePeriod);
 	                    scope.periodDelay = true;
 	                    scope.readablePeriod = readablePeriod;
 	                    scope.autoUpdate = false;
@@ -515,13 +515,13 @@
 	                 * @param time
 	                 */
 	                scope.setAutoUpdateTime = function (time) {
-	                	$at($at.MAIN, $at.CLK_UPDATE_TIME, time + "s");
+	                	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_UPDATE_TIME, time + "s");
 	                    scope.timeCountDown = time;
 	                    scope.timeLeft = time;
 	                };
 	                scope.setNodeRange = function(range) {
-	                	$at($at.MAIN, $at.CLK_CALLEE_RANGE, range);
-	                	$at($at.MAIN, $at.CLK_CALLER_RANGE, range);
+	                	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_CALLEE_RANGE, range);
+	                	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_CALLER_RANGE, range);
 	                	scope.range = range;
 	                	setRangeToStorage(scope.application, range);
 	                	broadcast();
@@ -550,7 +550,7 @@
 	                 * @param type
 	                 */
 	                scope.togglePeriod = function (type) {
-	                	$at($at.MAIN, $at.TG_DATE, type);
+	                	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.TG_DATE, type);
 	                    scope.periodType = type;
 	                    scope.autoUpdate = false;
 	                };
@@ -564,7 +564,7 @@
 	                 */
 	                scope.$watch('autoUpdate', function (newVal, oldVal) {
 	                    if (newVal) {
-	                    	$at($at.MAIN, $at.TG_UPDATE_ON);
+	                    	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.TG_UPDATE_ON);
 	                        $timeout(startUpdate, 1000);
 	                    } else {
 	                        resetTimeLeft();
