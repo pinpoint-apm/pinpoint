@@ -19,9 +19,10 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadStatusList;
+import com.navercorp.pinpoint.web.vo.AgentInfo;
+
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
@@ -33,21 +34,21 @@ import java.util.Map;
  */
 public interface AgentService {
 
-    AgentInfoBo getAgentInfo(String applicationName, String agentId, long startTimeStamp);
-    AgentInfoBo getAgentInfo(String applicationName, String agentId, long startTimeStamp, boolean checkDB);
-    List<AgentInfoBo> getAgentInfoList(String applicationName);
+    AgentInfo getAgentInfo(String applicationName, String agentId, long startTimeStamp);
+    AgentInfo getAgentInfo(String applicationName, String agentId, long startTimeStamp, boolean checkDB);
+    List<AgentInfo> getAgentInfoList(String applicationName);
 
-    PinpointRouteResponse invoke(AgentInfoBo agentInfoList, TBase tBase) throws TException;
-    PinpointRouteResponse invoke(AgentInfoBo agentInfoList, TBase tBase, long timeout) throws TException;
-    PinpointRouteResponse invoke(AgentInfoBo agentInfoList, byte[] payload) throws TException;
-    PinpointRouteResponse invoke(AgentInfoBo agentInfoList, byte[] payload, long timeout) throws TException;
+    PinpointRouteResponse invoke(AgentInfo agentInfoList, TBase<?, ?> tBase) throws TException;
+    PinpointRouteResponse invoke(AgentInfo agentInfoList, TBase<?, ?> tBase, long timeout) throws TException;
+    PinpointRouteResponse invoke(AgentInfo agentInfoList, byte[] payload) throws TException;
+    PinpointRouteResponse invoke(AgentInfo agentInfoList, byte[] payload, long timeout) throws TException;
 
-    Map<AgentInfoBo, PinpointRouteResponse> invoke(List<AgentInfoBo> agentInfoList, TBase tBase) throws TException;
-    Map<AgentInfoBo, PinpointRouteResponse> invoke(List<AgentInfoBo> agentInfoList, TBase tBase, long timeout) throws TException;
-    Map<AgentInfoBo, PinpointRouteResponse> invoke(List<AgentInfoBo> agentInfoList, byte[] payload) throws TException;
-    Map<AgentInfoBo, PinpointRouteResponse> invoke(List<AgentInfoBo> agentInfoList, byte[] payload, long timeout) throws TException;
+    Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, TBase<?, ?> tBase) throws TException;
+    Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, TBase<?, ?> tBase, long timeout) throws TException;
+    Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, byte[] payload) throws TException;
+    Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, byte[] payload, long timeout) throws TException;
 
-    AgentActiveThreadStatusList getActiveThreadStatus(List<AgentInfoBo> agentInfoList) throws TException;
-    AgentActiveThreadStatusList getActiveThreadStatus(List<AgentInfoBo> agentInfoList, byte[] payload) throws TException;
+    AgentActiveThreadStatusList getActiveThreadStatus(List<AgentInfo> agentInfoList) throws TException;
+    AgentActiveThreadStatusList getActiveThreadStatus(List<AgentInfo> agentInfoList, byte[] payload) throws TException;
 
 }

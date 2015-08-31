@@ -20,10 +20,13 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
+import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
 import com.navercorp.pinpoint.web.applicationmap.link.ServerMatcher;
+import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -32,48 +35,58 @@ import java.util.Map;
 
 /**
  * @author minwoo.jung
+ * @author HyunGil Jeong
  */
 public class ApplicationAgentListSerializer extends JsonSerializer<ApplicationAgentList> {
 
-    @Autowired(required=false)
+    @Autowired(required = false)
     private MatcherGroup matcherGroup;
 
-
     @Override
-    public void serialize(ApplicationAgentList applicationAgentList, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(ApplicationAgentList applicationAgentList, JsonGenerator jgen, SerializerProvider provider) throws IOException,
+            JsonProcessingException {
         jgen.writeStartObject();
-        Map<String, List<AgentInfoBo>> map = applicationAgentList.getApplicationAgentList();
-      
-        for (Map.Entry<String, List<AgentInfoBo>> entry : map.entrySet()) {
+        Map<String, List<AgentInfo>> map = applicationAgentList.getApplicationAgentList();
+
+        for (Map.Entry<String, List<AgentInfo>> entry : map.entrySet()) {
             jgen.writeFieldName(entry.getKey());
             writeAgentList(jgen, entry.getValue(), getMatcherGroup());
         }
 
-
         jgen.writeEndObject();
     }
-    
-    private void writeAgentList(JsonGenerator jgen, List<AgentInfoBo> agentList, MatcherGroup matcherGroup) throws IOException {
+
+    private void writeAgentList(JsonGenerator jgen, List<AgentInfo> agentList, MatcherGroup matcherGroup) throws IOException {
         jgen.writeStartArray();
-        for (AgentInfoBo agentInfoBo : agentList) {
+        for (AgentInfo agentInfo : agentList) {
             jgen.writeStartObject();
-            jgen.writeStringField("hostName", agentInfoBo.getHostName());
-            jgen.writeStringField("ip", agentInfoBo.getIp());
-            jgen.writeStringField("ports", agentInfoBo.getPorts());
-            jgen.writeStringField("agentId", agentInfoBo.getAgentId());
-            jgen.writeStringField("applicationName", agentInfoBo.getApplicationName());
-            jgen.writeStringField("serviceType", agentInfoBo.getServiceType().toString());
-            jgen.writeNumberField("pid", agentInfoBo.getPid());
-            jgen.writeStringField("version", agentInfoBo.getVersion());
-            jgen.writeNumberField("startTime", agentInfoBo.getStartTime());
-            jgen.writeNumberField("endTimeStamp", agentInfoBo.getEndTimeStamp());
-            jgen.writeNumberField("endStatus", agentInfoBo.getEndStatus());
-            jgen.writeObjectField("serverMetaData", agentInfoBo.getServerMetaData());
+            jgen.writeStringField("applicationName", agentInfo.getApplicationName());
+            jgen.writeStringField("agentId", agentInfo.getAgentId());
+            jgen.writeNumberField("startTime", agentInfo.getStartTimestamp());
+            jgen.writeStringField("hostName", agentInfo.getHostName());
+            jgen.writeStringField("ip", agentInfo.getIp());
+            jgen.writeStringField("ports", agentInfo.getPorts());
+            jgen.writeStringField("serviceType", agentInfo.getServiceType().toString());
+            jgen.writeNumberField("pid", agentInfo.getPid());
+            jgen.writeStringField("version", agentInfo.getVersion());
+            jgen.writeObjectField("serverMetaData", agentInfo.getServerMetaData());
+
+            AgentStatus agentStatus = agentInfo.getStatus();
+            if (agentStatus == null) {
+                jgen.writeNumberField("endTimeStamp", 0);
+                jgen.writeStringField("endStatus", AgentLifeCycleState.UNKNOWN.getDesc());
+            } else {
+                jgen.writeNumberField("endTimeStamp", agentStatus.getEventTimestamp());
+                jgen.writeStringField("endStatus", agentStatus.getState().getDesc());
+            }
+            jgen.writeObjectField("status", agentStatus);
             
-            ServerMatcher serverMatcher = matcherGroup.match(agentInfoBo.getHostName());
+            jgen.writeNumberField("initialStartTime", agentInfo.getInitialStartTimestamp());
+
+            ServerMatcher serverMatcher = matcherGroup.match(agentInfo.getHostName());
             jgen.writeStringField("linkName", serverMatcher.getLinkName());
-            jgen.writeStringField("linkURL", serverMatcher.getLink(agentInfoBo.getHostName()));
-            
+            jgen.writeStringField("linkURL", serverMatcher.getLink(agentInfo.getHostName()));
+
             jgen.writeEndObject();
         }
         jgen.writeEndArray();

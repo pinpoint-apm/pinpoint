@@ -17,14 +17,19 @@
 package com.navercorp.pinpoint.web.controller;
 
 
+import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.AgentStatService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
+import com.navercorp.pinpoint.web.vo.AgentEvent;
+import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStat;
+import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.linechart.agentstat.AgentStatChartGroup;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +45,7 @@ import java.util.List;
 /**
  * @author emeroad
  * @author minwoo.jung
+ * @author HyunGil Jeong
  */
 @Controller
 public class AgentStatController {
@@ -51,6 +57,9 @@ public class AgentStatController {
 
     @Autowired
     private AgentInfoService agentInfoService;
+    
+    @Autowired
+    private AgentEventService agentEventService;
 
     @RequestMapping(value = "/getAgentStat", method = RequestMethod.GET)
     @ResponseBody
@@ -72,12 +81,6 @@ public class AgentStatController {
             logger.info("getAgentStat(agentId={}, from={}, to={}) : {}ms", agentId, from, to, watch.getLastTaskTimeMillis());
         }
 
-        // FIXME dummy
-//        int nPoints = (int) (to - from) / 5000;
-//        if (sampleRate == null) {
-//            sampleRate = nPoints < 300 ? 1 : nPoints / 300;
-//        }
-
         AgentStatChartGroup chartGroup = new AgentStatChartGroup(timeWindow);
         chartGroup.addAgentStats(agentStatList);
         chartGroup.buildCharts();
@@ -85,13 +88,55 @@ public class AgentStatController {
         return chartGroup;
     }
 
-    @RequestMapping(value = "/getAgentList", method = RequestMethod.GET)
+    @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params={"application", "from", "to"})
     @ResponseBody
     public ApplicationAgentList getApplicationAgentList(
             @RequestParam("application") String applicationName,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
+        return this.getApplicationAgentList(applicationName, to);
+    }
+
+    @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params={"application", "timestamp"})
+    @ResponseBody
+    public ApplicationAgentList getApplicationAgentList(
+            @RequestParam("application") String applicationName,
+            @RequestParam("timestamp") long timestamp) {
+        return this.agentInfoService.getApplicationAgentList(applicationName, timestamp);
+    }
+    
+    @RequestMapping(value = "/getAgentInfo", method = RequestMethod.GET)
+    @ResponseBody
+    public AgentInfo getAgentInfo(
+            @RequestParam("agentId") String agentId,
+            @RequestParam("timestamp") long timestamp) {
+        return this.agentInfoService.getAgentInfo(agentId, timestamp);
+    }
+    
+    @RequestMapping(value="/getAgentStatus", method=RequestMethod.GET)
+    @ResponseBody
+    public AgentStatus getAgentStatus(
+            @RequestParam("agentId") String agentId, 
+            @RequestParam("timestamp") long timestamp) {
+        return this.agentInfoService.getAgentStatus(agentId, timestamp);
+    }
+    
+    @RequestMapping(value="/getAgentEvent", method=RequestMethod.GET)
+    @ResponseBody
+    public AgentEvent getAgentEvent(
+            @RequestParam("agentId") String agentId,
+            @RequestParam("eventTimestamp") long eventTimestamp,
+            @RequestParam("eventTypeCode") int eventTypeCode) {
+        return this.agentEventService.getAgentEvent(agentId, eventTimestamp, eventTypeCode);
+    }
+    
+    @RequestMapping(value="/getAgentEvents", method=RequestMethod.GET)
+    @ResponseBody
+    public List<AgentEvent> getAgentEvents(
+            @RequestParam("agentId") String agentId,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to) {
         Range range = new Range(from, to);
-        return new ApplicationAgentList(agentInfoService.getApplicationAgentList(applicationName, range));
+        return this.agentEventService.getAgentEvents(agentId, range);
     }
 }

@@ -85,7 +85,7 @@ public enum AgentEventType {
                 return eventType;
             }
         }
-        return OTHER;
+        return null;
     }
     
     public static Set<AgentEventType> getTypesByCatgory(AgentEventTypeCategory category) {

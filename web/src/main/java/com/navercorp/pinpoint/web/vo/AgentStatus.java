@@ -16,34 +16,109 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.common.bo.AgentLifeCycleBo;
+import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.web.view.AgentLifeCycleStateSerializer;
 
 /**
  * 
  * @author netspider
- * 
+ * @author HyunGil Jeong
  */
 public class AgentStatus {
 
-    private final boolean exists;
-    private final long checkTime;
-    private final AgentInfoBo agentInfo;
+    private String agentId;
 
-    public AgentStatus(AgentInfoBo agentInfoBo) {
-        this.exists = agentInfoBo != null;
-        this.agentInfo = agentInfoBo;
-        this.checkTime = System.currentTimeMillis();
+    @JsonInclude(Include.NON_DEFAULT)
+    private long startTimestamp;
+
+    @JsonInclude(Include.NON_DEFAULT)
+    private long eventTimestamp;
+
+    @JsonSerialize(using = AgentLifeCycleStateSerializer.class)
+    private AgentLifeCycleState state;
+
+    public AgentStatus() {
     }
 
-    public boolean isExists() {
-        return exists;
+    public AgentStatus(AgentLifeCycleBo agentLifeCycleBo) {
+        this.agentId = agentLifeCycleBo.getAgentId();
+        this.startTimestamp = agentLifeCycleBo.getStartTimestamp();
+        this.eventTimestamp = agentLifeCycleBo.getEventTimestamp();
+        this.state = agentLifeCycleBo.getAgentLifeCycleState();
     }
 
-    public AgentInfoBo getAgentInfo() {
-        return agentInfo;
+    public String getAgentId() {
+        return agentId;
     }
 
-    public long getCheckTime() {
-        return checkTime;
+    public void setAgentId(String agentId) {
+        this.agentId = agentId;
+    }
+
+    public long getStartTimestamp() {
+        return startTimestamp;
+    }
+
+    public void setStartTimestamp(long startTimestamp) {
+        this.startTimestamp = startTimestamp;
+    }
+
+    public long getEventTimestamp() {
+        return eventTimestamp;
+    }
+
+    public void setEventTimestamp(long eventTimestamp) {
+        this.eventTimestamp = eventTimestamp;
+    }
+
+    public AgentLifeCycleState getState() {
+        return state;
+    }
+
+    public void setState(AgentLifeCycleState state) {
+        this.state = state;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((agentId == null) ? 0 : agentId.hashCode());
+        result = prime * result + (int)(eventTimestamp ^ (eventTimestamp >>> 32));
+        result = prime * result + (int)(startTimestamp ^ (startTimestamp >>> 32));
+        result = prime * result + ((state == null) ? 0 : state.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        AgentStatus other = (AgentStatus)obj;
+        if (agentId == null) {
+            if (other.agentId != null)
+                return false;
+        } else if (!agentId.equals(other.agentId))
+            return false;
+        if (eventTimestamp != other.eventTimestamp)
+            return false;
+        if (startTimestamp != other.startTimestamp)
+            return false;
+        if (state != other.state)
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "AgentStatus [agentId=" + agentId + ", startTimestamp=" + startTimestamp + ", eventTimestamp=" + eventTimestamp + ", state=" + state + "]";
     }
 }
