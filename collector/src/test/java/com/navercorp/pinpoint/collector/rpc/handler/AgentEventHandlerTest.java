@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
+import org.apache.thrift.TBase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +34,7 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.common.util.concurrent.MoreExecutors;
+import com.navercorp.pinpoint.collector.cluster.route.ResponseEvent;
 import com.navercorp.pinpoint.collector.dao.AgentEventDao;
 import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
 import com.navercorp.pinpoint.common.bo.AgentEventBo;
@@ -40,6 +42,12 @@ import com.navercorp.pinpoint.common.util.AgentEventMessageSerializer;
 import com.navercorp.pinpoint.common.util.AgentEventType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
+import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 
 /**
  * @author HyunGil Jeong
@@ -58,6 +66,9 @@ public class AgentEventHandlerTest {
 
     @Mock
     private AgentEventMessageSerializer agentEventMessageSerializer;
+    
+    @Mock
+    private DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory;
 
     @InjectMocks
     private AgentEventHandler agentEventHandler = new AgentEventHandler();
@@ -86,7 +97,7 @@ public class AgentEventHandlerTest {
         assertEquals(TEST_START_TIMESTAMP, actualAgentEventBo.getStartTimestamp());
         assertEquals(TEST_EVENT_TIMESTAMP, actualAgentEventBo.getEventTimestamp());
         assertEquals(expectedEventType, actualAgentEventBo.getEventType());
-        assertArrayEquals(new byte[0], actualAgentEventBo.getEventBody());
+        assertNull(actualAgentEventBo.getEventBody());
     }
 
     @Test
@@ -96,9 +107,11 @@ public class AgentEventHandlerTest {
         final String expectedMessageBody = "test event message";
         final byte[] expectedMessageBodyBytes = BytesUtils.toBytes(expectedMessageBody);
         ArgumentCaptor<AgentEventBo> argCaptor = ArgumentCaptor.forClass(AgentEventBo.class);
-        when(this.agentEventMessageSerializer.serialize(expectedEventType, expectedMessageBody)).thenReturn(expectedMessageBodyBytes);
+        when(this.agentEventMessageSerializer.serialize(expectedEventType, expectedMessageBody)).thenReturn(
+                expectedMessageBodyBytes);
         // when
-        this.agentEventHandler.handleEvent(this.pinpointServer, TEST_EVENT_TIMESTAMP, expectedEventType, expectedMessageBody);
+        this.agentEventHandler.handleEvent(this.pinpointServer, TEST_EVENT_TIMESTAMP, expectedEventType,
+                expectedMessageBody);
         verify(this.agentEventDao, times(1)).insert(argCaptor.capture());
         // then
         AgentEventBo actualAgentEventBo = argCaptor.getValue();
@@ -110,22 +123,38 @@ public class AgentEventHandlerTest {
     }
 
     @Test
-    public void handler_should_handle_events_with_messages_of_direct_byte_array() throws Exception {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public void handler_should_handle_serialization_of_request_events() throws Exception {
         // given
         final AgentEventType expectedEventType = AgentEventType.USER_THREAD_DUMP;
-        final byte[] expectedMessageBody = BytesUtils.toBytes("some test message");
+        final TCommandThreadDumpResponse expectedThreadDumpResponse = new TCommandThreadDumpResponse();
+        final byte[] expectedThreadDumpResponseBody = new byte[0];
+
+        final TCommandTransfer tCommandTransfer = new TCommandTransfer();
+        tCommandTransfer.setAgentId(TEST_AGENT_ID);
+        tCommandTransfer.setStartTime(TEST_START_TIMESTAMP);
+        
+        final TCommandTransferResponse tCommandTransferResponse = mock(TCommandTransferResponse.class);
+        when(tCommandTransferResponse.getRouteResult()).thenReturn(TRouteResult.OK);
+        when(tCommandTransferResponse.getPayload()).thenReturn(expectedThreadDumpResponseBody);
+
+        final ResponseEvent responseEvent = new ResponseEvent(tCommandTransfer, null, 0, tCommandTransferResponse);
+
         ArgumentCaptor<AgentEventBo> argCaptor = ArgumentCaptor.forClass(AgentEventBo.class);
+        HeaderTBaseDeserializer deserializer = mock(HeaderTBaseDeserializer.class);
+        when(this.deserializerFactory.createDeserializer()).thenReturn(deserializer);
+        when(deserializer.deserialize(expectedThreadDumpResponseBody)).thenReturn((TBase)expectedThreadDumpResponse);
+
         // when
-        this.agentEventHandler.handleEvent(this.pinpointServer, TEST_EVENT_TIMESTAMP, expectedEventType, expectedMessageBody);
+        this.agentEventHandler.handleResponseEvent(responseEvent, TEST_EVENT_TIMESTAMP);
         // then
         verify(this.agentEventDao, times(1)).insert(argCaptor.capture());
-        // then
         AgentEventBo actualAgentEventBo = argCaptor.getValue();
         assertEquals(TEST_AGENT_ID, actualAgentEventBo.getAgentId());
         assertEquals(TEST_START_TIMESTAMP, actualAgentEventBo.getStartTimestamp());
         assertEquals(TEST_EVENT_TIMESTAMP, actualAgentEventBo.getEventTimestamp());
         assertEquals(expectedEventType, actualAgentEventBo.getEventType());
-        assertEquals(expectedMessageBody, actualAgentEventBo.getEventBody());
+        assertEquals(expectedThreadDumpResponseBody, actualAgentEventBo.getEventBody());
     }
 
     private static Map<Object, Object> createTestChannelProperties() {
