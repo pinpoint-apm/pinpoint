@@ -16,32 +16,34 @@
 
 package com.navercorp.pinpoint.profiler;
 
-import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventListener;
-import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventTrigger;
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.Instrumentation;
+import java.lang.instrument.UnmodifiableClassException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.instrument.ClassFileTransformer;
-
-import java.lang.instrument.Instrumentation;
-import java.lang.instrument.UnmodifiableClassException;
+import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformRequestListener;
+import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
+import com.navercorp.pinpoint.common.util.Asserts;
 
 /**
  * @author emeroad
  */
-public class RetransformService implements RetransformEventTrigger {
+public class DynamicTransformService implements DynamicTransformTrigger {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Instrumentation instrumentation;
 
-    private RetransformEventListener retransformEventListener;
+    private DynamicTransformRequestListener dynamicTransformRequestListener;
 
-    public RetransformService(Instrumentation instrumentation) {
-        if (instrumentation == null) {
-            throw new NullPointerException("instrumentation must not be null");
-        }
+    public DynamicTransformService(Instrumentation instrumentation, DynamicTransformRequestListener listener) {
+        Asserts.notNull(instrumentation, "instrumentation");
+        Asserts.notNull(listener, "listener");
+
         this.instrumentation = instrumentation;
+        this.dynamicTransformRequestListener = listener;
     }
 
     @Override
@@ -51,10 +53,18 @@ public class RetransformService implements RetransformEventTrigger {
         }
         assertClass(target);
 
-        this.retransformEventListener.addRetransformEvent(target, transformer);
+        this.dynamicTransformRequestListener.onRetransformRequest(target, transformer);
 
         triggerRetransform(target);
-
+    }
+    
+    @Override
+    public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, ClassFileTransformer transformer) {
+        if (this.logger.isDebugEnabled()) {
+            logger.debug("retransform request classLoader{}, class:{}", classLoader, targetClassName);
+        }
+        
+        this.dynamicTransformRequestListener.onTransformRequest(classLoader, targetClassName, transformer);
     }
 
     private void assertClass(Class<?> target) {
@@ -71,11 +81,11 @@ public class RetransformService implements RetransformEventTrigger {
         }
     }
 
-    public void setRetransformEventListener(RetransformEventListener retransformEventListener) {
+    public void setTransformRequestEventListener(DynamicTransformRequestListener retransformEventListener) {
         if (retransformEventListener == null) {
-            throw new NullPointerException("retransformEventListener must not be null");
+            throw new NullPointerException("dynamicTransformRequestListener must not be null");
         }
-        this.retransformEventListener = retransformEventListener;
+        this.dynamicTransformRequestListener = retransformEventListener;
     }
 
 }

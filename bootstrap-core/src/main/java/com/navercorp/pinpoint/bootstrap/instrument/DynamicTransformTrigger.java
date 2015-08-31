@@ -21,9 +21,7 @@ import java.lang.instrument.ClassFileTransformer;
 /**
  * @author emeroad
  */
-public interface RetransformEventTrigger {
-
-//    void retransform(RetransformEvent event);
-
+public interface DynamicTransformTrigger {
     void retransform(Class<?> target, ClassFileTransformer transformer);
+    void addClassFileTransformer(ClassLoader classLoader, String targetClassName, ClassFileTransformer transformer);
 }

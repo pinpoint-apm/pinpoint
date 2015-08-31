@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument;
 
-import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
@@ -45,10 +44,4 @@ public interface ByteCodeInstrumentor {
 
     @Deprecated
     Interceptor newInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, String interceptorFQCN, Object[] params, Class[] paramClazz) throws InstrumentException;
-    
-    @Deprecated
-    void retransform(Class<?> target, ClassFileTransformer classEditor);
-
-    @Deprecated
-    RetransformEventTrigger getRetransformEventTrigger();
 }

@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.interceptor.bci;
 
-import java.lang.instrument.ClassFileTransformer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -33,14 +32,14 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.DefaultInterceptorGroupDefinition;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InterceptorGroupDefinition;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.RetransformEventTrigger;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
+import com.navercorp.pinpoint.common.util.Asserts;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.util.ScopePool;
@@ -61,21 +60,15 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     private final ScopePool scopePool = new ThreadLocalScopePool();
 
     private final ClassLoadChecker classLoadChecker = new ClassLoadChecker();
-    private final RetransformEventTrigger retransformEventTrigger;
     
     private final DefaultProfilerPluginContext globalContext;
     
-    public JavaAssistByteCodeInstrumentor(Agent agent, JavassistClassPool classPool, RetransformEventTrigger retransformEventTrigger) {
-        if (classPool == null) {
-            throw new NullPointerException("classPool must not be null");
-        }
-        if (retransformEventTrigger == null) {
-            throw new NullPointerException("retransformEventTrigger must not be null");
-        }
+    public JavaAssistByteCodeInstrumentor(Agent agent, JavassistClassPool classPool) {
+        Asserts.notNull(agent, "agent");
+        Asserts.notNull(classPool, "classPool");
         
         this.agent = agent;
         this.classPool = classPool;
-        this.retransformEventTrigger = retransformEventTrigger;
         this.globalContext = new DefaultProfilerPluginContext((DefaultAgent)agent, new LegacyProfilerPluginClassLoader(getClass().getClassLoader()));
     }
 
@@ -241,16 +234,5 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
             throw new InstrumentException(aClass + " instance create fail Cause:" + e.getMessage(), e);
         }
 
-    }
-
-    @Override
-    public void retransform(Class<?> target, ClassFileTransformer transformer) {
-        this.retransformEventTrigger.retransform(target, transformer);
-    }
-
-
-    @Override
-    public RetransformEventTrigger getRetransformEventTrigger() {
-        return retransformEventTrigger;
     }
 }
