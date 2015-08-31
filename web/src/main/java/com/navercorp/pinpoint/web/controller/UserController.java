@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -125,5 +126,15 @@ public class UserController {
         return result;
     }
     
+    @ExceptionHandler(Exception.class)
+    @ResponseBody
+    public Map<String, String> handleException(Exception e) {
+        logger.error(" Exception occured while trying to CRUD user information", e);
+        
+        Map<String, String> result = new HashMap<String, String>();
+        result.put("errorCode", "500");
+        result.put("errorMessage", "Exception occured while trying to CRUD user information");
+        return result;
+    }
     
 }

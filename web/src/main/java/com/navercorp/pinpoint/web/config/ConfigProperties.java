@@ -28,6 +28,13 @@ public class ConfigProperties {
     @Value("#{pinpointWebProps['config.sendUsage'] ?: true}")
     private boolean sendUsage;
     
+    @Value("#{pinpointWebProps['config.editUserInfo'] ?: true}")
+    private boolean editUserInfo;
+    
+    public boolean getEditUserInfo() {
+        return editUserInfo;
+    }
+
     public boolean getSendUsage() {
         return this.sendUsage;
     }

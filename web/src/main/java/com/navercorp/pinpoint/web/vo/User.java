@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.vo;
 
 public class User {
+    private String number;
     private String userId;
     private String name;
     private String department;
@@ -16,6 +17,14 @@ public class User {
         this.department = department;
         this.phoneNumber = phoneNumber;
         this.email = email;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+    
+    public void setNumber(String number) {
+        this.number = number;
     }
 
     public String getUserId() {
@@ -60,7 +69,7 @@ public class User {
     
     public void removeHyphenForPhoneNumber() {
         if(phoneNumber.contains("-")) {
-            phoneNumber.replace("-", "");
+            phoneNumber = phoneNumber.replace("-", "");
         }
     }
 }

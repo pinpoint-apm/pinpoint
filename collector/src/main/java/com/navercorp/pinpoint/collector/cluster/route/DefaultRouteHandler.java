@@ -16,18 +16,17 @@
 
 package com.navercorp.pinpoint.collector.cluster.route;
 
-import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
-import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
-import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
 import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
+import org.apache.thrift.TBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author koo.taejin
@@ -80,19 +79,28 @@ public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
 
         TargetClusterPoint clusterPoint = findClusterPoint(event.getDeliveryCommand());
         if (clusterPoint == null) {
-            return createResponse(TRouteResult.AGNET_NOT_FOUND);
+            return createResponse(TRouteResult.NOT_FOUND);
         }
 
         TCommandTypeVersion commandVersion = TCommandTypeVersion.getVersion(clusterPoint.gerVersion());
         if (!commandVersion.isSupportCommand(requestObject)) {
-            return createResponse(TRouteResult.AGENT_NOT_SUPPORTED_COMMAND);
+            return createResponse(TRouteResult.NOT_SUPPORTED_REQUEST);
         }
 
         Future<ResponseMessage> future = clusterPoint.request(event.getDeliveryCommand().getPayload());
-        future.await();
+        boolean isCompleted = future.await();
+        if (!isCompleted) {
+            return createResponse(TRouteResult.TIMEOUT);
+        }
+
         ResponseMessage responseMessage = future.getResult();
         if (responseMessage == null) {
-            return createResponse(TRouteResult.TIMEOUT);
+            return createResponse(TRouteResult.EMPTY_RESPONSE);
+        }
+
+        byte[] responsePayload = response.getPayload();
+        if (responsePayload == null || responsePayload.length == 0) {
+            return createResponse(TRouteResult.EMPTY_RESPONSE, new byte[0]);
         }
 
         return createResponse(TRouteResult.OK, responseMessage.getMessage());

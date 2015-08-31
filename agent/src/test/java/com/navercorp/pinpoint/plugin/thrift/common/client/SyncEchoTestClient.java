@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.thrift.common.client;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -32,56 +33,59 @@ import org.apache.thrift.transport.TTransportException;
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
+import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
 import com.navercorp.pinpoint.plugin.thrift.dto.EchoService;
 
 /**
  * @author HyunGil Jeong
  */
 public abstract class SyncEchoTestClient implements EchoTestClient {
-    
+
+    private final TestEnvironment environment;
     private final TTransport transport;
-    
-    private SyncEchoTestClient(TTransport transport) throws TTransportException {
+
+    private SyncEchoTestClient(TestEnvironment environment, TTransport transport) throws TTransportException {
+        this.environment = environment;
         this.transport = transport;
         this.transport.open();
     }
-    
+
     @Override
     public final String echo(String message) throws TException {
-        TProtocol protocol = PROTOCOL_FACTORY.getProtocol(transport);
+        TProtocol protocol = this.environment.getProtocolFactory().getProtocol(transport);
         EchoService.Client client = new EchoService.Client(protocol);
         return client.echo(message);
     }
-    
+
     @Override
     public void verifyTraces(PluginTestVerifier verifier, String expectedMessage) throws Exception {
+        final InetSocketAddress actualServerAddress = this.environment.getServerAddress();
         // SpanEvent - TServiceClient.sendBase
         Method sendBase = TServiceClient.class.getDeclaredMethod("sendBase", String.class, TBase.class);
         // refer to com.navercorp.pinpoint.plugin.thrift.ThriftUtils#getClientServiceName
-        ExpectedAnnotation thriftUrl = Expectations.annotation("thrift.url",
-                SERVER_ADDRESS.getHostName() + ":" + SERVER_ADDRESS.getPort() + "/com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo");
-        ExpectedAnnotation thriftArgs = Expectations.annotation("thrift.args", "echo_args(message:" + expectedMessage + ")");
+        ExpectedAnnotation thriftUrl = Expectations.annotation("thrift.url", actualServerAddress.getHostName() + ":"
+                + actualServerAddress.getPort() + "/com/navercorp/pinpoint/plugin/thrift/dto/EchoService/echo");
+        ExpectedAnnotation thriftArgs = Expectations.annotation("thrift.args", "echo_args(message:" + expectedMessage
+                + ")");
 
         // SpanEvent - TServiceClient.receiveBase
         Method receiveBase = TServiceClient.class.getDeclaredMethod("receiveBase", TBase.class, String.class);
-        ExpectedAnnotation thriftResult = Expectations.annotation("thrift.result", "echo_result(success:" + expectedMessage + ")");
-        
-        verifier.verifyDiscreteTrace(
-                event(
-                    "THRIFT_CLIENT", // ServiceType
-                    sendBase, // Method
-                    null, // rpc
-                    null, // endPoint
-                    SERVER_ADDRESS.getHostName() + ":" + SERVER_ADDRESS.getPort(), // destinationId
-                    thriftUrl, // Annotation("thrift.url")
-                    thriftArgs), // Annotation("thrift.args")
-                event(
-                    "THRIFT_CLIENT_INTERNAL", // ServiceType
-                    receiveBase, // Method
-                    thriftResult // Annotation("thrift.result")
-        ));
+        ExpectedAnnotation thriftResult = Expectations.annotation("thrift.result", "echo_result(success:"
+                + expectedMessage + ")");
+
+        verifier.verifyDiscreteTrace(event("THRIFT_CLIENT", // ServiceType
+                sendBase, // Method
+                null, // rpc
+                null, // endPoint
+                actualServerAddress.getHostName() + ":" + actualServerAddress.getPort(), // destinationId
+                thriftUrl, // Annotation("thrift.url")
+                thriftArgs), // Annotation("thrift.args")
+                event("THRIFT_CLIENT_INTERNAL", // ServiceType
+                        receiveBase, // Method
+                        thriftResult // Annotation("thrift.result")
+                ));
     }
-    
+
     @Override
     public void close() {
         if (this.transport.isOpen()) {
@@ -90,14 +94,14 @@ public abstract class SyncEchoTestClient implements EchoTestClient {
     }
 
     public static class Client extends SyncEchoTestClient {
-        public Client() throws TTransportException {
-            super(new TSocket(SERVER_IP, SERVER_PORT));
+        public Client(TestEnvironment environment) throws TTransportException {
+            super(environment, new TSocket(environment.getServerIp(), environment.getPort()));
         }
     }
-    
+
     public static class ClientForNonblockingServer extends SyncEchoTestClient {
-        public ClientForNonblockingServer() throws TTransportException {
-            super(new TFramedTransport(new TSocket(SERVER_IP, SERVER_PORT)));
+        public ClientForNonblockingServer(TestEnvironment environment) throws TTransportException {
+            super(environment, new TFramedTransport(new TSocket(environment.getServerIp(), environment.getPort())));
         }
     }
 }

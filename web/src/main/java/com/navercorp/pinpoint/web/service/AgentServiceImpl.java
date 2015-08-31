@@ -24,7 +24,10 @@ import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.util.ListUtils;
-import com.navercorp.pinpoint.thrift.dto.command.*;
+import com.navercorp.pinpoint.thrift.dto.command.TActiveThread;
+import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
+import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
@@ -228,40 +231,6 @@ public class AgentServiceImpl implements AgentService {
         transferObject.setPayload(payload);
 
         return transferObject;
-    }
-
-    private AgentActiveThreadStatus createAgentActiveThreadStatus(String hostName, byte[] payload) {
-        try {
-            TRouteResult routeResult = TRouteResult.UNKNOWN;
-
-            TBase object = deserialize(payload, null);
-            if (object == null) {
-                return new AgentActiveThreadStatus(hostName, TRouteResult.UNKNOWN, null);
-            }
-
-            if (object instanceof TCommandTransferResponse) {
-                TCommandTransferResponse routeResponse = (TCommandTransferResponse) object;
-                routeResult = routeResponse.getRouteResult();
-                if (routeResult != TRouteResult.OK) {
-                    return new AgentActiveThreadStatus(hostName, routeResult, null);
-                }
-
-                object = deserialize(((TCommandTransferResponse) object).getPayload(), null);
-            }
-
-            if (object == null) {
-                return new AgentActiveThreadStatus(hostName, TRouteResult.UNKNOWN, null);
-            }
-
-            if (object instanceof TActiveThreadResponse) {
-                return new AgentActiveThreadStatus(hostName, routeResult, (TActiveThreadResponse) object);
-            }
-
-        } catch (TException e) {
-            logger.warn(e.getMessage(), e);
-        }
-
-        return new AgentActiveThreadStatus(hostName, TRouteResult.UNKNOWN, null);
     }
 
     private PinpointRouteResponse getResponse(Future<ResponseMessage> future, long timeout) {

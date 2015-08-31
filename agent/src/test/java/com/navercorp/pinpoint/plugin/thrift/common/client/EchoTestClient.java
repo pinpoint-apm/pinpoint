@@ -19,17 +19,16 @@ package com.navercorp.pinpoint.plugin.thrift.common.client;
 import org.apache.thrift.TException;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
-import com.navercorp.pinpoint.plugin.thrift.common.TestEnvironment;
 
 /**
  * @author HyunGil Jeong
  */
-public interface EchoTestClient extends TestEnvironment {
-    
+public interface EchoTestClient {
+
     public String echo(String message) throws TException;
-    
+
     public void verifyTraces(PluginTestVerifier verifier, String expectedMessage) throws Exception;
-    
+
     public void close();
-    
+
 }

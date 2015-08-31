@@ -12,16 +12,18 @@ import java.util.HashMap;
 import org.apache.thrift.TEnum;
 
 public enum TRouteResult implements org.apache.thrift.TEnum {
-  UNKNOWN(-1),
   OK(0),
-  BAD_REQUEST(101),
-  TIMEOUT(111),
-  NOT_ACCEPTABLE(121),
-  NOT_SUPPORTED_COMMAND(131),
-  AGNET_NOT_FOUND(201),
-  AGENT_NOT_ACCEPTABLE(211),
-  AGENT_NOT_SUPPORTED_COMMAND(221),
-  EMPTY_REQUEST(301);
+  BAD_REQUEST(200),
+  EMPTY_REQUEST(201),
+  NOT_SUPPORTED_REQUEST(202),
+  BAD_RESPONSE(210),
+  EMPTY_RESPONSE(211),
+  NOT_SUPPORTED_RESPONSE(212),
+  TIMEOUT(220),
+  NOT_FOUND(230),
+  NOT_ACCEPTABLE(240),
+  NOT_SUPPORTED_SERVICE(241),
+  UNKNOWN(-1);
 
   private final int value;
 
@@ -42,26 +44,30 @@ public enum TRouteResult implements org.apache.thrift.TEnum {
    */
   public static TRouteResult findByValue(int value) { 
     switch (value) {
-      case -1:
-        return UNKNOWN;
       case 0:
         return OK;
-      case 101:
+      case 200:
         return BAD_REQUEST;
-      case 111:
-        return TIMEOUT;
-      case 121:
-        return NOT_ACCEPTABLE;
-      case 131:
-        return NOT_SUPPORTED_COMMAND;
       case 201:
-        return AGNET_NOT_FOUND;
-      case 211:
-        return AGENT_NOT_ACCEPTABLE;
-      case 221:
-        return AGENT_NOT_SUPPORTED_COMMAND;
-      case 301:
         return EMPTY_REQUEST;
+      case 202:
+        return NOT_SUPPORTED_REQUEST;
+      case 210:
+        return BAD_RESPONSE;
+      case 211:
+        return EMPTY_RESPONSE;
+      case 212:
+        return NOT_SUPPORTED_RESPONSE;
+      case 220:
+        return TIMEOUT;
+      case 230:
+        return NOT_FOUND;
+      case 240:
+        return NOT_ACCEPTABLE;
+      case 241:
+        return NOT_SUPPORTED_SERVICE;
+      case -1:
+        return UNKNOWN;
       default:
         return UNKNOWN;
     }
