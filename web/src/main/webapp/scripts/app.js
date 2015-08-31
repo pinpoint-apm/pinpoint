@@ -65,7 +65,7 @@ pinpointApp.run([ '$rootScope', '$timeout', '$modal', '$location', '$cookies', '
     function ($rootScope, $timeout, $modal, $location, $cookies, $interval, $http, globalConfig) {
 		$http.get('/configuration.pinpoint').then(function(result) {
 			globalConfig.sendAllowed = result.data.sendUsage;
-			globalConfig.createUserAllowed = result.data.createUserAllowed || true;
+			globalConfig.createUserAllowed = result.data.editUserInfo || true;
 		}, function(error) {});
         if (!isCanvasSupported()) {
             $timeout(function () {

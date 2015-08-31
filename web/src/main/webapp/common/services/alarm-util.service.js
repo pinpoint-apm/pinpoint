@@ -34,8 +34,8 @@
 		};
 		this.sendCRUD = function( funcName, data, successCallback, failCallback, $elAlert ) {
 			$ajaxService[funcName]( data, function( resultData ) {
-				if ( resultData.errorCode ) {
-					self.showAlert( $elAlert, resultData.errorMessage );
+				if ( resultData.errorCode || resultData.status ) {
+					self.showAlert( $elAlert, resultData.errorMessage || resultData.statusText );
 					failCallback( resultData );
 				} else {
 					successCallback( resultData );
