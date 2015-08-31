@@ -39,7 +39,8 @@ import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
 import com.navercorp.pinpoint.web.server.PinpointSocketManager;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadStatus;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadStatusList;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.AgentInfo;
+
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -51,6 +52,7 @@ import java.util.*;
 
 /**
  * @Author Taejin Koo
+ * @author HyunGil Jeong
  */
 @Service
 public class AgentServiceImpl implements AgentService {
@@ -72,17 +74,16 @@ public class AgentServiceImpl implements AgentService {
 
 
     @Override
-    public AgentInfoBo getAgentInfo(String applicationName, String agentId, long startTimeStamp) {
+    public AgentInfo getAgentInfo(String applicationName, String agentId, long startTimeStamp) {
         return getAgentInfo(applicationName, agentId, startTimeStamp, false);
     }
 
     @Override
-    public AgentInfoBo getAgentInfo(String applicationName, String agentId, long startTimeStamp, boolean checkDB) {
+    public AgentInfo getAgentInfo(String applicationName, String agentId, long startTimeStamp, boolean checkDB) {
         if (checkDB) {
             long currentTime = System.currentTimeMillis();
-            Range range = new Range(currentTime, currentTime);
 
-            Set<AgentInfoBo> agentInfoBos = agentInfoService.selectAgent(applicationName, range);
+            Set<AgentInfoBo> agentInfoBos = agentInfoService.getAgentsByApplicationName(applicationName, currentTime);
             for (AgentInfoBo agentInfo : agentInfoBos) {
                 if (agentInfo == null) {
                     continue;
@@ -97,51 +98,50 @@ public class AgentServiceImpl implements AgentService {
                     continue;
                 }
 
-                return agentInfo;
+                return new AgentInfo(agentInfo);
             }
             return null;
         } else {
-            AgentInfoBo.Builder builder = new AgentInfoBo.Builder();
-            builder.setApplicationName(applicationName);
-            builder.setAgentId(agentId);
-            builder.setStartTime(startTimeStamp);
-            return builder.build();
+            AgentInfo agentInfo = new AgentInfo();
+            agentInfo.setApplicationName(applicationName);
+            agentInfo.setAgentId(agentId);
+            agentInfo.setStartTimestamp(startTimeStamp);
+            return agentInfo;
         }
     }
 
     @Override
-    public List<AgentInfoBo> getAgentInfoList(String applicationName) {
-        List<AgentInfoBo> agentInfoList = new ArrayList<AgentInfoBo>();
+    public List<AgentInfo> getAgentInfoList(String applicationName) {
+        List<AgentInfo> agentInfoList = new ArrayList<AgentInfo>();
 
         long currentTime = System.currentTimeMillis();
-        Range range = new Range(currentTime, currentTime);
 
-        Set<AgentInfoBo> agentInfoBos = agentInfoService.selectAgent(applicationName, range);
-        for (AgentInfoBo agentInfo : agentInfoBos) {
-            ListUtils.addIfValueNotNull(agentInfoList, agentInfo);
+        Set<AgentInfoBo> agentInfoBos = agentInfoService.getAgentsByApplicationName(applicationName, currentTime);
+        for (AgentInfoBo agentInfoBo : agentInfoBos) {
+            ListUtils.addIfValueNotNull(agentInfoList, new AgentInfo(agentInfoBo));
         }
         return agentInfoList;
     }
 
     @Override
-    public PinpointRouteResponse invoke(AgentInfoBo agentInfo, TBase tBase) throws TException {
+    public PinpointRouteResponse invoke(AgentInfo agentInfo, TBase<?, ?> tBase) throws TException {
         byte[] payload = serialize(tBase);
         return invoke(agentInfo, payload);
     }
 
     @Override
-    public PinpointRouteResponse invoke(AgentInfoBo agentInfo, TBase tBase, long timeout) throws TException {
+    public PinpointRouteResponse invoke(AgentInfo agentInfo, TBase<?, ?> tBase, long timeout) throws TException {
         byte[] payload = serialize(tBase);
         return invoke(agentInfo, payload, timeout);
     }
 
     @Override
-    public PinpointRouteResponse invoke(AgentInfoBo agentInfo, byte[] payload) throws TException {
+    public PinpointRouteResponse invoke(AgentInfo agentInfo, byte[] payload) throws TException {
         return invoke(agentInfo, payload, DEFUALT_FUTURE_TIMEOUT);
     }
 
     @Override
-    public PinpointRouteResponse invoke(AgentInfoBo agentInfo, byte[] payload, long timeout) throws TException {
+    public PinpointRouteResponse invoke(AgentInfo agentInfo, byte[] payload, long timeout) throws TException {
         TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
         PinpointServer collector = pinpointSocketManager.getCollector(agentInfo);
 
@@ -151,26 +151,26 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
-    public Map<AgentInfoBo, PinpointRouteResponse> invoke(List<AgentInfoBo> agentInfoList, TBase tBase) throws TException {
+    public Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, TBase<?, ?> tBase) throws TException {
         byte[] payload = serialize(tBase);
         return invoke(agentInfoList, payload);
     }
 
     @Override
-    public Map<AgentInfoBo, PinpointRouteResponse> invoke(List<AgentInfoBo> agentInfoList, TBase tBase, long timeout) throws TException {
+    public Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, TBase<?, ?> tBase, long timeout) throws TException {
         byte[] payload = serialize(tBase);
         return invoke(agentInfoList, payload, timeout);
     }
 
     @Override
-    public Map<AgentInfoBo, PinpointRouteResponse> invoke(List<AgentInfoBo> agentInfoList, byte[] payload) throws TException {
+    public Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, byte[] payload) throws TException {
         return invoke(agentInfoList, payload, DEFUALT_FUTURE_TIMEOUT);
     }
 
     @Override
-    public Map<AgentInfoBo, PinpointRouteResponse> invoke(List<AgentInfoBo> agentInfoList, byte[] payload, long timeout) throws TException {
-        Map<AgentInfoBo, Future<ResponseMessage>> futureMap = new HashMap<AgentInfoBo, Future<ResponseMessage>>();
-        for (AgentInfoBo agentInfo : agentInfoList) {
+    public Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, byte[] payload, long timeout) throws TException {
+        Map<AgentInfo, Future<ResponseMessage>> futureMap = new HashMap<AgentInfo, Future<ResponseMessage>>();
+        for (AgentInfo agentInfo : agentInfoList) {
             TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
             PinpointServer collector = pinpointSocketManager.getCollector(agentInfo);
             Future<ResponseMessage> future = collector.request(serialize(transferObject));
@@ -179,9 +179,9 @@ public class AgentServiceImpl implements AgentService {
 
         long startTime = System.currentTimeMillis();
 
-        Map<AgentInfoBo, PinpointRouteResponse> result = new HashMap<AgentInfoBo, PinpointRouteResponse>();
-        for (Map.Entry<AgentInfoBo, Future<ResponseMessage>> futureEntry : futureMap.entrySet()) {
-            AgentInfoBo agentInfo = futureEntry.getKey();
+        Map<AgentInfo, PinpointRouteResponse> result = new HashMap<AgentInfo, PinpointRouteResponse>();
+        for (Map.Entry<AgentInfo, Future<ResponseMessage>> futureEntry : futureMap.entrySet()) {
+            AgentInfo agentInfo = futureEntry.getKey();
             Future<ResponseMessage> future = futureEntry.getValue();
             PinpointRouteResponse response = getResponse(future, getTimeoutMillis(startTime, timeout));
             result.put(agentInfo, response);
@@ -191,18 +191,18 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
-    public AgentActiveThreadStatusList getActiveThreadStatus(List<AgentInfoBo> agentInfoList) throws TException {
+    public AgentActiveThreadStatusList getActiveThreadStatus(List<AgentInfo> agentInfoList) throws TException {
         byte[] activeThread = serialize(new TActiveThread());
         return getActiveThreadStatus(agentInfoList, activeThread);
     }
 
     @Override
-    public AgentActiveThreadStatusList getActiveThreadStatus(List<AgentInfoBo> agentInfoList, byte[] payload) throws TException {
+    public AgentActiveThreadStatusList getActiveThreadStatus(List<AgentInfo> agentInfoList, byte[] payload) throws TException {
         AgentActiveThreadStatusList agentActiveThreadStatusList = new AgentActiveThreadStatusList(agentInfoList.size());
 
-        Map<AgentInfoBo, PinpointRouteResponse> responseList = invoke(agentInfoList, payload);
-        for (Map.Entry<AgentInfoBo, PinpointRouteResponse> entry : responseList.entrySet()) {
-            AgentInfoBo agentInfo = entry.getKey();
+        Map<AgentInfo, PinpointRouteResponse> responseList = invoke(agentInfoList, payload);
+        for (Map.Entry<AgentInfo, PinpointRouteResponse> entry : responseList.entrySet()) {
+            AgentInfo agentInfo = entry.getKey();
             PinpointRouteResponse response = entry.getValue();
 
             AgentActiveThreadStatus agentActiveThreadStatus = new AgentActiveThreadStatus(agentInfo.getHostName(), response.getRouteResult(), response.getResponse(TActiveThreadResponse.class, null));
@@ -211,23 +211,23 @@ public class AgentServiceImpl implements AgentService {
         return agentActiveThreadStatusList;
     }
 
-    private byte[] serialize(TBase tBase) throws TException {
+    private byte[] serialize(TBase<?, ?> tBase) throws TException {
         return SerializationUtils.serialize(tBase, commandSerializerFactory);
     }
 
-    private TBase deserialize(byte[] objectData) throws TException {
+    private TBase<?, ?> deserialize(byte[] objectData) throws TException {
         return SerializationUtils.deserialize(objectData, commandDeserializerFactory);
     }
 
-    private TBase deserialize(byte[] objectData, TBase defaultValue) throws TException {
+    private TBase<?, ?> deserialize(byte[] objectData, TBase<?, ?> defaultValue) throws TException {
         return SerializationUtils.deserialize(objectData, commandDeserializerFactory, defaultValue);
     }
 
-    private TCommandTransfer createCommandTransferObject(AgentInfoBo agentInfo, byte[] payload) {
+    private TCommandTransfer createCommandTransferObject(AgentInfo agentInfo, byte[] payload) {
         TCommandTransfer transferObject = new TCommandTransfer();
         transferObject.setApplicationName(agentInfo.getApplicationName());
         transferObject.setAgentId(agentInfo.getAgentId());
-        transferObject.setStartTime(agentInfo.getStartTime());
+        transferObject.setStartTime(agentInfo.getStartTimestamp());
         transferObject.setPayload(payload);
 
         return transferObject;

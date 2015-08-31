@@ -81,6 +81,10 @@
     <bean id="pinpointSocketManager" class="com.navercorp.pinpoint.web.server.PinpointSocketManager">
         <constructor-arg ref="config" />
     </bean>
+    
+    <bean id="agentEventMessageDeserializer" class="com.navercorp.pinpoint.common.util.AgentEventMessageDeserializer">
+        <constructor-arg ref="commandHeaderTBaseDeserializerFactory"/>
+    </bean>
 
     <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService"/>
     <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService">

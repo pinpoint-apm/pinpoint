@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.vo;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.web.view.ApplicationAgentListSerializer;
 
 import java.util.List;
@@ -29,13 +28,13 @@ import java.util.SortedMap;
 @JsonSerialize(using = ApplicationAgentListSerializer.class)
 public class ApplicationAgentList {
 
-    SortedMap<String, List<AgentInfoBo>> applicationAgentList;
+    SortedMap<String, List<AgentInfo>> applicationAgentList;
     
-    public ApplicationAgentList(SortedMap<String, List<AgentInfoBo>> applicationAgentList) {
+    public ApplicationAgentList(SortedMap<String, List<AgentInfo>> applicationAgentList) {
         this.applicationAgentList = applicationAgentList;
     }
     
-    public SortedMap<String, List<AgentInfoBo>> getApplicationAgentList() {
+    public SortedMap<String, List<AgentInfo>> getApplicationAgentList() {
         return this.applicationAgentList;
     }
     

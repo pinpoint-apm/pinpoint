@@ -16,19 +16,23 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import java.util.List;
 import java.util.Set;
-import java.util.SortedMap;
 
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
-import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.AgentInfo;
+import com.navercorp.pinpoint.web.vo.AgentStatus;
+import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
 
 /**
  * @author netspider
+ * @author HyunGil Jeong
  */
 public interface AgentInfoService {
-    SortedMap<String, List<AgentInfoBo>> getApplicationAgentList(String applicationName, Range range);
+    ApplicationAgentList getApplicationAgentList(String applicationName, long timestamp);
 
+    Set<AgentInfoBo> getAgentsByApplicationName(String applicationName, long timestamp);
+    
+    AgentInfo getAgentInfo(String agentId, long timestamp);
 
-    Set<AgentInfoBo> selectAgent(String applicationId, Range range);
+    AgentStatus getAgentStatus(String agentId, long timestamp);
 }

@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.command.*;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
@@ -26,6 +25,8 @@ import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
 import com.navercorp.pinpoint.web.server.PinpointSocketManager;
 import com.navercorp.pinpoint.web.service.AgentService;
+import com.navercorp.pinpoint.web.vo.AgentInfo;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -67,7 +68,7 @@ public class CommandController {
     public ModelAndView echo(@RequestParam("application") String applicationName, @RequestParam("agent") String agentId,
             @RequestParam("startTimeStamp") long startTimeStamp, @RequestParam("message") String message) throws TException {
 
-        AgentInfoBo agentInfo = agentService.getAgentInfo(applicationName, agentId, startTimeStamp);
+        AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId, startTimeStamp);
         if (agentInfo == null) {
             return createResponse(false, String.format("Can't find suitable PinpointServer(%s/%s/%d).", applicationName, agentId, startTimeStamp));
         }
@@ -78,7 +79,7 @@ public class CommandController {
         try {
             PinpointRouteResponse pinpointRouteResponse = agentService.invoke(agentInfo, echo);
             if (pinpointRouteResponse != null && pinpointRouteResponse.getRouteResult() == TRouteResult.OK) {
-                TBase result = pinpointRouteResponse.getResponse();
+                TBase<?, ?> result = pinpointRouteResponse.getResponse();
                 if (result == null) {
                     return createResponse(false, "result null.");
                 } else if (result instanceof TCommandEcho) {
@@ -100,7 +101,7 @@ public class CommandController {
     public ModelAndView echo(@RequestParam("application") String applicationName, @RequestParam("agent") String agentId,
             @RequestParam("startTimeStamp") long startTimeStamp) throws TException {
 
-        AgentInfoBo agentInfo = agentService.getAgentInfo(applicationName, agentId, startTimeStamp);
+        AgentInfo agentInfo = agentService.getAgentInfo(applicationName, agentId, startTimeStamp);
         if (agentInfo == null) {
             return createResponse(false, String.format("Can't find suitable PinpointServer(%s/%s/%d).", applicationName, agentId, startTimeStamp));
         }
@@ -110,7 +111,7 @@ public class CommandController {
         try {
             PinpointRouteResponse pinpointRouteResponse = agentService.invoke(agentInfo, threadDump);
             if (pinpointRouteResponse != null && pinpointRouteResponse.getRouteResult() == TRouteResult.OK) {
-                TBase result = pinpointRouteResponse.getResponse();
+                TBase<?, ?> result = pinpointRouteResponse.getResponse();
                 if (result == null) {
                     return createResponse(false, "result null.");
                 } else if (result instanceof TCommandThreadDumpResponse) {

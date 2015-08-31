@@ -113,6 +113,7 @@
 
     <!-- Route Filters -->
     <bean id="loggingRouteFilter" class="com.navercorp.pinpoint.collector.cluster.route.filter.LoggingFilter"/>
+    <bean id="agentEventHandlingFilter" class="com.navercorp.pinpoint.collector.cluster.route.filter.AgentEventHandlingFilter"/>
 
     <!-- Filter Chains -->
     <bean id="requestFilterChain" class="com.navercorp.pinpoint.collector.cluster.route.DefaultRouteFilterChain">
@@ -127,6 +128,7 @@
         <constructor-arg>
             <list value-type="com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter">
                 <ref bean="loggingRouteFilter"/>
+                <ref bean="agentEventHandlingFilter"/>
             </list>
         </constructor-arg>
     </bean>

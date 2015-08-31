@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.rpc.handler;
 
+import static com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType.*;
+
 import java.util.Map;
 import java.util.concurrent.Executor;
 
@@ -27,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.navercorp.pinpoint.collector.dao.AgentLifeCycleDao;
-import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
 import com.navercorp.pinpoint.common.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.util.BytesUtils;
@@ -44,36 +45,39 @@ public class AgentLifeCycleHandler {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Resource(name="agentEventWorker")
+    @Resource(name = "agentEventWorker")
     private Executor executor;
 
     @Autowired
     private AgentLifeCycleDao agentLifeCycleDao;
 
-    public void handleLifeCycleEvent(PinpointServer pinpointServer, long eventTimestamp, AgentLifeCycleState agentLifeCycleState, int eventCounter) {
+    public void handleLifeCycleEvent(PinpointServer pinpointServer, long eventTimestamp,
+            AgentLifeCycleState agentLifeCycleState, int eventCounter) {
         if (pinpointServer == null) {
-            throw new IllegalArgumentException("pinpointServer cannot be null");
+            throw new NullPointerException("pinpointServer may not be null");
         }
         if (agentLifeCycleState == null) {
-            throw new IllegalArgumentException("agentLifeCycleState cannot be null");
+            throw new NullPointerException("agentLifeCycleState may not be null");
         }
         if (eventCounter < 0) {
-            throw new IllegalArgumentException("eventCounter cannot be negative");
+            throw new IllegalArgumentException("eventCounter may not be negative");
         }
         logger.info("handle lifecycle event - pinpointServer:{}, state:{}", pinpointServer, agentLifeCycleState);
 
         Map<Object, Object> channelProperties = pinpointServer.getChannelProperties();
         final Integer socketId = MapUtils.getInteger(channelProperties, SOCKET_ID_KEY);
         if (socketId == null) {
-            logger.debug("socketId not found, agent does not support life cycle management - pinpoingServer:{}", pinpointServer);
+            logger.debug("socketId not found, agent does not support life cycle management - pinpointServer:{}",
+                    pinpointServer);
             return;
         }
 
-        final String agentId = MapUtils.getString(channelProperties, AgentHandshakePropertyType.AGENT_ID.getName());
-        final long startTimestamp = MapUtils.getLong(channelProperties, AgentHandshakePropertyType.START_TIMESTAMP.getName());
+        final String agentId = MapUtils.getString(channelProperties, AGENT_ID.getName());
+        final long startTimestamp = MapUtils.getLong(channelProperties, START_TIMESTAMP.getName());
         final long eventIdentifier = createEventIdentifier(socketId, eventCounter);
 
-        final AgentLifeCycleBo agentLifeCycleBo = new AgentLifeCycleBo(agentId, startTimestamp, eventTimestamp, eventIdentifier, agentLifeCycleState);
+        final AgentLifeCycleBo agentLifeCycleBo = new AgentLifeCycleBo(agentId, startTimestamp, eventTimestamp,
+                eventIdentifier, agentLifeCycleState);
 
         this.executor.execute(new AgentLifeCycleHandlerDispatch(agentLifeCycleBo));
 
@@ -81,10 +85,10 @@ public class AgentLifeCycleHandler {
 
     long createEventIdentifier(int socketId, int eventCounter) {
         if (socketId < 0) {
-            throw new IllegalArgumentException("socketId cannot be less than 0");
+            throw new IllegalArgumentException("socketId may not be less than 0");
         }
         if (eventCounter < 0) {
-            throw new IllegalArgumentException("eventCounter cannot be less than 0");
+            throw new IllegalArgumentException("eventCounter may not be less than 0");
         }
         return ((long)socketId << INTEGER_BIT_COUNT) | eventCounter;
     }
@@ -94,7 +98,7 @@ public class AgentLifeCycleHandler {
 
         private AgentLifeCycleHandlerDispatch(AgentLifeCycleBo agentLifeCycleBo) {
             if (agentLifeCycleBo == null) {
-                throw new IllegalArgumentException("agentLifeCycleBo cannot be null");
+                throw new NullPointerException("agentLifeCycleBo may not be null");
             }
             this.agentLifeCycleBo = agentLifeCycleBo;
         }
