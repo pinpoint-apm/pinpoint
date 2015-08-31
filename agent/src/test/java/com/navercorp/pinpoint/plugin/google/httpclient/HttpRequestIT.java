@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.google.httpclient;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -40,8 +41,10 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 @RunWith(PinpointPluginTestSuite.class)
 @Dependency({ "com.google.http-client:google-http-client:[1.19.0],[1.20.0,)" })
 public class HttpRequestIT {
+    
+    @Ignore
     @Test
-    public void test() throws Exception {
+    public void execute() throws Exception {
         HttpTransport NET_HTTP_TRANSPORT = new NetHttpTransport();
         HttpRequestFactory requestFactory = NET_HTTP_TRANSPORT.createRequestFactory(new HttpRequestInitializer() {
             @Override
@@ -68,4 +71,33 @@ public class HttpRequestIT {
         verifier.printCache();
         verifier.verifyTrace(Expectations.event("GOOGLE_HTTP_CLIENT_INTERNAL", executeMethod));
     }
+    
+    @Test
+    public void executeAsync() throws Exception {
+        HttpTransport NET_HTTP_TRANSPORT = new NetHttpTransport();
+        HttpRequestFactory requestFactory = NET_HTTP_TRANSPORT.createRequestFactory(new HttpRequestInitializer() {
+            @Override
+            public void initialize(HttpRequest request) {
+            }
+        });
+
+        GenericUrl url = new GenericUrl("http://google.com");
+        HttpRequest request = null;
+        HttpResponse response = null;
+        try {
+            request = requestFactory.buildGetRequest(url);
+            response = request.executeAsync().get();
+            response.disconnect();
+        } catch (IOException e) {
+        } finally {
+            if (response != null) {
+                response.disconnect();
+            }
+        }
+
+        Method executeMethod = HttpRequest.class.getDeclaredMethod("execute");
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printCache();
+    }
+
 }

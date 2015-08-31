@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.plugin.google.httpclient;
 
 import java.security.ProtectionDomain;
 
+import com.navercorp.pinpoint.bootstrap.instrument.ClassFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
@@ -43,14 +44,14 @@ public class HttpClientPlugin implements ProfilerPlugin, HttpClientConstants {
         logger.debug("[GoogleHttpClient] Add HttpRequest class.");
         addHttpRequestClass(context, config);
 
-        if (config.isAsync()) {
-            final int max = config.getMaxAnonymousInnerClassNameNumber();
-            for (int i = 1; i <= max; i++) {
-                final String targetClassName = "com.google.api.client.http.HttpRequest$" + i;
-                logger.debug("[GoogleHttpClient] Add {} class.", targetClassName);
-                addHttpRequestExecuteAsyncMethodInnerClass(context, targetClassName);
-            }
-        }
+//        if (config.isAsync()) {
+//            final int max = config.getMaxAnonymousInnerClassNameNumber();
+//            for (int i = 1; i <= max; i++) {
+//                final String targetClassName = "com.google.api.client.http.HttpRequest$" + i;
+//                logger.debug("[GoogleHttpClient] Add {} class.", targetClassName);
+//                addHttpRequestExecuteAsyncMethodInnerClass(context, targetClassName);
+//            }
+//        }
     }
 
     private void addHttpRequestClass(ProfilerPluginSetupContext context, final HttpClientPluginConfig config) {
@@ -60,9 +61,7 @@ public class HttpClientPlugin implements ProfilerPlugin, HttpClientConstants {
             public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 
-                
                 InstrumentMethod execute = target.getDeclaredMethod("execute", new String[] {});
-                
                 if (execute != null) {
                     execute.addInterceptor("com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteMethodInterceptor");
                 }
@@ -70,10 +69,43 @@ public class HttpClientPlugin implements ProfilerPlugin, HttpClientConstants {
                 
                 if (config.isAsync()) {
                     InstrumentMethod executeAsync = target.getDeclaredMethod("executeAsync", "java.util.concurrent.Executor");
-                    
                     if (executeAsync != null) {
                         executeAsync.addInterceptor("com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteAsyncMethodInterceptor");
                     }
+
+                    for(InstrumentClass nestedClass : target.getNestedClasses(ClassFilters.chain(ClassFilters.enclosingMethod("executeAsync", "java.util.concurrent.Executor"), ClassFilters.interfaze("java.util.concurrent.Callable")))) {
+
+                        logger.debug("Find nested class {}", target.getName());
+                        instrumentContext.addClassFileTransformer(loader, nestedClass.getName(), new PinpointClassFileTransformer() {
+                            @Override
+                            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                                logger.debug("Add constuctor interceptor for nested class {}", className);
+                                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                                target.addField(AsyncTraceIdAccessor.class.getName());
+
+                                if (target.hasConstructor("com.google.api.client.http.HttpRequest") && target.hasMethod("call", "com.google.api.client.http.HttpResponse")) {
+                                    logger.debug("Add constuctor interceptor for nested class {}", target.getName());
+                                    InstrumentMethod constructor = target.getConstructor("com.google.api.client.http.HttpRequest");
+                                    constructor.addInterceptor("com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor");
+                                    
+                                    for (InstrumentMethod m : target.getDeclaredMethods(new HttpRequestExceuteAsyncMethodInnerClassMethodFilter())) {
+                                        try {
+                                            logger.debug("Add method interceptor for nested class {}.{}", target.getName(), m.getName());
+                                            m.addInterceptor("com.navercorp.pinpoint.plugin.google.httpclient.interceptor.HttpRequestExecuteAsyncMethodInnerClassCallMethodInterceptor");
+                                        } catch (Throwable t) {
+                                            if (logger.isWarnEnabled()) {
+                                                logger.warn("[GoogleHttpClient] Unsupported method " + className + "." + m.getName(), t);
+                                            }
+                                        }
+                                        
+                                    }
+                                }
+                                
+                                return target.toBytecode();
+                            }
+                        });
+                    }
+                    
                 }
                         
                 return target.toBytecode();
