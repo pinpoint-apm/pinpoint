@@ -16,10 +16,25 @@
 
 package com.navercorp.pinpoint.jdk8.lambda;
 
+import java.util.function.Predicate;
+
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.JvmVersion;
+import com.navercorp.pinpoint.test.plugin.PinpointConfig;
+import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+
+@RunWith(PinpointPluginTestSuite.class)
+@JvmVersion({8})
+@PinpointConfig("pinpoint-lambda-test.config")
+@Dependency({"org.springframework:spring-context:[4.2.0.RELEASE]"})
 public class LambdaIT {
 
     @Test
@@ -30,14 +45,14 @@ public class LambdaIT {
         Morae morae = context.getBean(Morae.class);
         maru.test(morae);
         
-//        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-//        verifier.printCache();
-//        
-//        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Maru.class.getMethod("test", Morae.class)));
-//        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Morae.class.getMethod("test", Predicate.class)));
-//        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Mozzi.class.getMethod("getAge")));
-//        
-//        verifier.verifyTraceCount(0);
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printCache();
+        
+        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Maru.class.getMethod("test", Morae.class)));
+        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Morae.class.getMethod("test", Predicate.class)));
+        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Mozzi.class.getMethod("getAge")));
+        
+        verifier.verifyTraceCount(0);
     }
     
     public static void main(String args[]) throws Exception {
