@@ -66,6 +66,7 @@
                 <configuration>
                     <!-- AbstractPinpointPluginTestSuite needs this to resolve 
                         path of required jars -->
+                    <jvm>${env.JAVA_8_HOME}/bin/java</jvm>
                     <useSystemClassLoader>false</useSystemClassLoader>
                     <failIfNoTests>true</failIfNoTests>
                 </configuration>
