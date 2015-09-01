@@ -34,9 +34,19 @@ public class AgentInformation {
     private final String machineName;
     private final String hostIp;
     private final ServiceType serverType;
-    private final String version;
+    private final String jvmVersion;
+    private final String agentVersion;
 
-    public AgentInformation(String agentId, String applicationName, long startTime, int pid, String machineName, String hostIp, ServiceType serverType, String version) {
+    public AgentInformation(
+            String agentId,
+            String applicationName,
+            long startTime,
+            int pid,
+            String machineName,
+            String hostIp,
+            ServiceType serverType,
+            String jvmVersion,
+            String agentVersion) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -46,7 +56,7 @@ public class AgentInformation {
         if (machineName == null) {
             throw new NullPointerException("machineName must not be null");
         }
-        if (version == null) {
+        if (agentVersion == null) {
             throw new NullPointerException("version must not be null");
         }
         this.agentId = agentId;
@@ -56,10 +66,9 @@ public class AgentInformation {
         this.machineName = machineName;
         this.hostIp = hostIp;
         this.serverType = serverType;
-        this.version = version;
+        this.jvmVersion = jvmVersion;
+        this.agentVersion = agentVersion;
     }
-
-
 
     public String getAgentId() {
         return agentId;
@@ -80,7 +89,7 @@ public class AgentInformation {
     public String getMachineName() {
         return machineName;
     }
-    
+
     public String getHostIp() {
         return hostIp;
     }
@@ -88,12 +97,15 @@ public class AgentInformation {
     public ServiceType getServerType() {
         return serverType;
     }
-
-
-    public String getVersion() {
-        return version;
-    }
     
+    public String getJvmVersion() {
+        return this.jvmVersion;
+    }
+
+    public String getAgentVersion() {
+        return agentVersion;
+    }
+
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<String, Object>();
 
@@ -104,7 +116,7 @@ public class AgentInformation {
         map.put(AgentHandshakePropertyType.PID.getName(), this.pid);
         map.put(AgentHandshakePropertyType.SERVICE_TYPE.getName(), this.serverType.getCode());
         map.put(AgentHandshakePropertyType.START_TIMESTAMP.getName(), this.startTime);
-        map.put(AgentHandshakePropertyType.VERSION.getName(), this.version);
+        map.put(AgentHandshakePropertyType.VERSION.getName(), this.agentVersion);
 
         return map;
     }
@@ -119,7 +131,8 @@ public class AgentInformation {
         sb.append(", machineName='").append(machineName).append('\'');
         sb.append(", hostIp='").append(hostIp).append('\'');
         sb.append(", serverType=").append(serverType);
-        sb.append(", version='").append(version).append('\'');
+        sb.append(", jvmVersion='").append(jvmVersion).append('\'');
+        sb.append(", agentVersion='").append(agentVersion).append('\'');
         sb.append('}');
         return sb.toString();
     }

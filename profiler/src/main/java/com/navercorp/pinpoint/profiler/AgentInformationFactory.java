@@ -21,15 +21,14 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.SystemProperty;
+import com.navercorp.pinpoint.common.util.SystemPropertyKey;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Properties;
-
 
 /**
  * @author emeroad
@@ -54,7 +53,8 @@ public class AgentInformationFactory {
         final String applicationName = getId("pinpoint.applicationName", "UnknownApplicationName", PinpointConstants.APPLICATION_NAME_MAX_LEN);
         final long startTime = RuntimeMXBeanUtils.getVmStartTime();
         final int pid = RuntimeMXBeanUtils.getPid();
-        return new AgentInformation(agentId, applicationName, startTime, pid, machineName, hostIp, serverType, Version.VERSION);
+        final String jvmVersion = JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION);
+        return new AgentInformation(agentId, applicationName, startTime, pid, machineName, hostIp, serverType, jvmVersion, Version.VERSION);
     }
 
     private String getId(String key, String defaultValue, int maxlen) {

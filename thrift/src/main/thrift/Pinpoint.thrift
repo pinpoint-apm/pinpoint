@@ -19,7 +19,8 @@ struct TAgentInfo {
 	5: string	applicationName
 	6: i16	    serviceType
 	7: i32      pid
-	8: string   version;
+	8: string   agentVersion;
+	9: string   vmVersion;
 
 	10: i64	    startTimestamp
 

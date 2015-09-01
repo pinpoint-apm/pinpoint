@@ -35,7 +35,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
+import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.JvmUtils;
+import com.navercorp.pinpoint.common.util.SystemPropertyKey;
 
 import org.apache.thrift.TException;
 import org.junit.Test;
@@ -344,7 +347,8 @@ public class AgentInfoSenderTest {
     }
 
     private AgentInformation getAgentInfo() {
-        AgentInformation agentInfo = new AgentInformation("agentId", "appName", System.currentTimeMillis(), 1111, "hostname", "127.0.0.1", ServiceType.USER, "1");
+        AgentInformation agentInfo = new AgentInformation("agentId", "appName", System.currentTimeMillis(), 1111, "hostname", "127.0.0.1", ServiceType.USER,
+                JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION), Version.VERSION);
         return agentInfo;
     }
 

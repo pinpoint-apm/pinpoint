@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.test;
 
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.JvmUtils;
+import com.navercorp.pinpoint.common.util.SystemPropertyKey;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 
 /**
@@ -31,9 +33,10 @@ public class TestAgentInformation extends AgentInformation {
     private static final String MACHINE_NAME = "test-machine";
     private static final String HOST_IP = "127.0.0.1";
     private static final ServiceType SERVICE_TYPE = ServiceType.TEST_STAND_ALONE;
-    private static final String VERSION = Version.VERSION;
+    private static final String JVM_VERSION = JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION);
+    private static final String AGENT_VERSION = Version.VERSION;
 
     public TestAgentInformation() {
-        super(AGENT_ID, APPLICATION_NAME, System.currentTimeMillis(), PID, MACHINE_NAME, HOST_IP, SERVICE_TYPE, VERSION);
+        super(AGENT_ID, APPLICATION_NAME, System.currentTimeMillis(), PID, MACHINE_NAME, HOST_IP, SERVICE_TYPE, JVM_VERSION, AGENT_VERSION);
     }
 }

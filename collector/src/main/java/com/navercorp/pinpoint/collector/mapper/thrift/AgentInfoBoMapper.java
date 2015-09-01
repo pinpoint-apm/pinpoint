@@ -40,11 +40,12 @@ public class AgentInfoBoMapper implements ThriftBoMapper<AgentInfoBo, TAgentInfo
         final String applicationName = thriftObject.getApplicationName();
         final short serviceType = thriftObject.getServiceType();
         final int pid = thriftObject.getPid();
-        final String version = thriftObject.getVersion();
+        final String vmVersion = thriftObject.getVmVersion();
+        final String agentVersion = thriftObject.getAgentVersion();
         final long startTime = thriftObject.getStartTimestamp();
         final long endTimeStamp = thriftObject.getEndTimestamp();
         final int endStatus = thriftObject.getEndStatus();
-
+        
         AgentInfoBo.Builder builder = new AgentInfoBo.Builder();
         builder.setHostName(hostName);
         builder.setIp(ip);
@@ -54,7 +55,8 @@ public class AgentInfoBoMapper implements ThriftBoMapper<AgentInfoBo, TAgentInfo
         builder.setServiceTypeCode(serviceType);
         builder.setServiceType(registry.findServiceType(serviceType));
         builder.setPid(pid);
-        builder.setVersion(version);
+        builder.setVmVersion(vmVersion);
+        builder.setAgentVersion(agentVersion);
         builder.setStartTime(startTime);
         builder.setEndTimeStamp(endTimeStamp);
         builder.setEndStatus(endStatus);
