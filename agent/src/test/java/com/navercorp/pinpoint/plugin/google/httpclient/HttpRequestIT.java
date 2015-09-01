@@ -17,6 +17,8 @@ package com.navercorp.pinpoint.plugin.google.httpclient;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -42,7 +44,6 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 @Dependency({ "com.google.http-client:google-http-client:[1.19.0],[1.20.0,)" })
 public class HttpRequestIT {
     
-    @Ignore
     @Test
     public void execute() throws Exception {
         HttpTransport NET_HTTP_TRANSPORT = new NetHttpTransport();
@@ -52,7 +53,7 @@ public class HttpRequestIT {
             }
         });
 
-        GenericUrl url = new GenericUrl("http://naver.com");
+        GenericUrl url = new GenericUrl("http://google.com");
         HttpRequest request = null;
         HttpResponse response = null;
         try {
@@ -66,6 +67,7 @@ public class HttpRequestIT {
             }
         }
 
+        
         Method executeMethod = HttpRequest.class.getDeclaredMethod("execute");
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
@@ -80,7 +82,8 @@ public class HttpRequestIT {
             public void initialize(HttpRequest request) {
             }
         });
-
+        
+        
         GenericUrl url = new GenericUrl("http://google.com");
         HttpRequest request = null;
         HttpResponse response = null;
@@ -95,9 +98,13 @@ public class HttpRequestIT {
             }
         }
 
+        Method executeAsyncMethod = HttpRequest.class.getDeclaredMethod("executeAsync", Executor.class);
+        Method callMethod = Callable.class.getDeclaredMethod("call");
         Method executeMethod = HttpRequest.class.getDeclaredMethod("execute");
+        
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
+        // async
+        verifier.verifyTrace(Expectations.async(Expectations.event("GOOGLE_HTTP_CLIENT_INTERNAL", executeAsyncMethod), Expectations.event("ASYNC", "Asynchronous Invocation")));
     }
-
 }
