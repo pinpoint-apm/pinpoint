@@ -21,6 +21,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
@@ -64,9 +69,9 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <jvm>${jdk.home}/bin/java</jvm>
                     <!-- AbstractPinpointPluginTestSuite needs this to resolve 
                         path of required jars -->
-                    <jvm>${env.JAVA_8_HOME}/bin/java</jvm>
                     <useSystemClassLoader>false</useSystemClassLoader>
                     <failIfNoTests>true</failIfNoTests>
                 </configuration>
