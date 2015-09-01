@@ -15,13 +15,11 @@
  */
 package com.navercorp.pinpoint.plugin.google.httpclient.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.plugin.google.httpclient.HttpClientConstants;
 
 /**
@@ -31,8 +29,8 @@ import com.navercorp.pinpoint.plugin.google.httpclient.HttpClientConstants;
  */
 public class HttpRequestExecuteAsyncMethodInnerClassCallMethodInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
 
-    public HttpRequestExecuteAsyncMethodInnerClassCallMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor, @Name(HttpClientConstants.METADATA_ASYNC_TRACE_ID) MetadataAccessor asyncTraceIdAccessor) {
-        super(traceContext, descriptor, asyncTraceIdAccessor);
+    public HttpRequestExecuteAsyncMethodInnerClassCallMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+        super(traceContext, descriptor);
     }
 
     @Override

@@ -28,6 +28,6 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 public interface HttpClientConstants {
     public static final ServiceType HTTP_CLIENT_INTERNAL = ServiceType.of(9054, "GOOGLE_HTTP_CLIENT_INTERNAL", "GOOGLE_HTTP_CLIENT", NORMAL_SCHEMA);
     
-    public static final String METADATA_ASYNC_TRACE_ID = "asyncTraceId";
+    public static final String METADATA_ASYNC_TRACE_ID = "com.navercorp.pinpoint.bootstrap.interceptor.AsyncTraceIdAccessor";
     public static final String EXECUTE_ASYNC_SCOPE = "ExecuteAsyncScope"; 
 }
