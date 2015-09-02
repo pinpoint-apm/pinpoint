@@ -123,7 +123,7 @@
 	                                        </div>
 	                                        <div class="col-md-8 service-libs">
 	                                           <ul class="list-unstyled">
-	                                               <li ng-repeat="serviceLib in currentServiceInfo.serviceLibs" style="{{hasDuplicate(serviceLib, $index)}}">{{serviceLib}}</li>
+	                                               <li ng-repeat="serviceLib in currentServiceInfo.serviceLibs track by $index" style="{{hasDuplicate(serviceLib, $index)}}">{{serviceLib}}</li>
 	                                           </ul>
 	                                        </div>
                                         </div>
