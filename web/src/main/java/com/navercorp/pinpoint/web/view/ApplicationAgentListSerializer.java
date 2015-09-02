@@ -68,7 +68,8 @@ public class ApplicationAgentListSerializer extends JsonSerializer<ApplicationAg
             jgen.writeStringField("ports", agentInfo.getPorts());
             jgen.writeStringField("serviceType", agentInfo.getServiceType().toString());
             jgen.writeNumberField("pid", agentInfo.getPid());
-            jgen.writeStringField("version", agentInfo.getVersion());
+            jgen.writeStringField("vmVersion", agentInfo.getVmVersion());
+            jgen.writeStringField("agentVersion", agentInfo.getAgentVersion());
             jgen.writeObjectField("serverMetaData", agentInfo.getServerMetaData());
 
             AgentStatus agentStatus = agentInfo.getStatus();

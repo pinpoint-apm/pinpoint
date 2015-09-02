@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.bo;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.Comparator;
@@ -50,7 +49,8 @@ public class AgentInfoBo {
     private final short serviceTypeCode;
     private final ServiceType serviceType;
     private final int pid;
-    private final String version;
+    private final String vmVersion;
+    private final String agentVersion;
 
     private final long startTime;
 
@@ -68,7 +68,8 @@ public class AgentInfoBo {
         this.applicationName = builder.applicationName;
         this.serviceTypeCode = builder.serviceTypeCode;
         this.pid = builder.pid;
-        this.version = builder.version;
+        this.vmVersion = builder.vmVersion;
+        this.agentVersion = builder.agentVersion;
         this.startTime = builder.startTime;
         this.endTimeStamp = builder.endTimeStamp;
         this.endStatus = builder.endStatus;
@@ -119,9 +120,13 @@ public class AgentInfoBo {
     public ServiceType getServiceType() {
         return serviceType;
     }
+    
+    public String getVmVersion() {
+        return vmVersion;
+    }
 
-    public String getVersion() {
-        return version;
+    public String getAgentVersion() {
+        return agentVersion;
     }
     
     public ServerMetaDataBo getServerMetaData() {
@@ -136,11 +141,13 @@ public class AgentInfoBo {
         buffer.putPrefixedString(this.getApplicationName());
         buffer.put(this.getServiceTypeCode());
         buffer.put(this.getPid());
-        buffer.putPrefixedString(this.getVersion());
+        buffer.putPrefixedString(this.getAgentVersion());
 
         buffer.put(this.getStartTime());
         buffer.put(this.getEndTimeStamp());
         buffer.put(this.getEndStatus());
+        
+        buffer.putPrefixedString(this.getVmVersion());
 
         return buffer.getBuffer();
     }
@@ -180,7 +187,8 @@ public class AgentInfoBo {
         sb.append(", applicationName='").append(applicationName).append('\'');
         sb.append(", serviceTypeCode=").append(serviceTypeCode);
         sb.append(", pid=").append(pid);
-        sb.append(", version='").append(version).append('\'');
+        sb.append(", vmVersion=").append(vmVersion).append('\'');
+        sb.append(", agentVersion='").append(agentVersion).append('\'');
         sb.append(", startTime=").append(startTime);
         sb.append(", endTimeStamp=").append(endTimeStamp);
         sb.append(", endStatus=").append(endStatus);
@@ -197,7 +205,8 @@ public class AgentInfoBo {
         private short serviceTypeCode;
         private ServiceType serviceType;
         private int pid;
-        private String version;
+        private String vmVersion;
+        private String agentVersion;
 
         private long startTime;
         private long endTimeStamp;
@@ -207,21 +216,6 @@ public class AgentInfoBo {
         private ServerMetaDataBo serverMetaData;
 
         public Builder() {
-        }
-
-        public Builder(final byte[] value) {
-            final Buffer buffer = new FixedBuffer(value);
-            this.hostName = buffer.readPrefixedString();
-            this.ip = buffer.readPrefixedString();
-            this.ports = buffer.readPrefixedString();
-            this.applicationName = buffer.readPrefixedString();
-            this.serviceTypeCode = buffer.readShort();
-            this.pid = buffer.readInt();
-            this.version = buffer.readPrefixedString();
-
-            this.startTime = buffer.readLong();
-            this.endTimeStamp = buffer.readLong();
-            this.endStatus = buffer.readInt();
         }
 
         public void setHostName(String hostName) {
@@ -262,9 +256,13 @@ public class AgentInfoBo {
         public void setPid(int pid) {
             this.pid = pid;
         }
+        
+        public void setVmVersion(String vmVersion) {
+            this.vmVersion = vmVersion;
+        }
 
-        public void setVersion(String version) {
-            this.version = version;
+        public void setAgentVersion(String agentVersion) {
+            this.agentVersion = agentVersion;
         }
 
         public void setStartTime(long startTime) {
@@ -294,8 +292,10 @@ public class AgentInfoBo {
                 this.agentId = "";
             if (this.applicationName == null)
                 this.applicationName = "";
-            if (this.version == null) {
-                this.version = "";
+            if (this.vmVersion == null)
+                this.vmVersion = "";
+            if (this.agentVersion == null) {
+                this.agentVersion = "";
             }
             if (this.serviceType == null) {
                 throw new IllegalStateException("serviceType not set");

@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.bo.ServerMetaDataBo;
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
@@ -132,7 +134,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
                 byte[] serializedAgentInfo = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER);
                 byte[] serializedServerMetaData = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_SERVER_META_DATA);
 
-                final AgentInfoBo.Builder agentInfoBoBuilder = new AgentInfoBo.Builder(serializedAgentInfo);
+                final AgentInfoBo.Builder agentInfoBoBuilder = createBuilderFromValue(serializedAgentInfo);
                 agentInfoBoBuilder.setAgentId(this.agentId);
                 agentInfoBoBuilder.setStartTime(startTime);
                 // TODO fix
@@ -148,6 +150,26 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
             }
 
             return null;
+        }
+        
+        private AgentInfoBo.Builder createBuilderFromValue(byte[] serializedAgentInfo) {
+            final Buffer buffer = new FixedBuffer(serializedAgentInfo);
+            final AgentInfoBo.Builder builder = new AgentInfoBo.Builder();
+            builder.setHostName(buffer.readPrefixedString());
+            builder.setIp(buffer.readPrefixedString());
+            builder.setPorts(buffer.readPrefixedString());
+            builder.setApplicationName(buffer.readPrefixedString());
+            builder.setServiceTypeCode(buffer.readShort());
+            builder.setPid(buffer.readInt());
+            builder.setAgentVersion(buffer.readPrefixedString());
+            builder.setStartTime(buffer.readLong());
+            builder.setEndTimeStamp(buffer.readLong());
+            builder.setEndStatus(buffer.readInt());
+            // FIXME - 2015.09 v1.5.0 added vmVersion (check for compatibility)
+            if (buffer.limit() > 0) {
+                builder.setVmVersion(buffer.readPrefixedString());
+            }
+            return builder;
         }
         
     }
