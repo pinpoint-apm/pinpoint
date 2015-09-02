@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.web.vo.User;
  */
 public interface UserDao {
 
+    void dropAndCreateUserTable();
+
     void insertUser(User user);
 
     void inserUserList(List<User> users);
@@ -39,6 +41,7 @@ public interface UserDao {
     List<User> selectUserByUserName(String userName);
 
     void updateUser(User user);
+
 
 
 

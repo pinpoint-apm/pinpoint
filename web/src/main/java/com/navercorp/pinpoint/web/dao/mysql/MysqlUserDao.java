@@ -77,4 +77,10 @@ public class MysqlUserDao implements UserDao {
     public List<User> selectUserByUserName(String userName) {
         return sqlSessionTemplate.selectList(NAMESPACE + "selectUserByUserName", userName);
     }
+
+    @Override
+    public void dropAndCreateUserTable() {
+        sqlSessionTemplate.selectOne(NAMESPACE + "dropAndCreateUserTable");
+        
+    }
 }

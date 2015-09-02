@@ -68,4 +68,9 @@ public class UserServiceImpl implements UserService {
         return userDao.selectUserByDepartment(department);
     }
 
+    @Override
+    public void dropAndCreateUserTable() {
+        userDao.dropAndCreateUserTable();
+    }
+
 }

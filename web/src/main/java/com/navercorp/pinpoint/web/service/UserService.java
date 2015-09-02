@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.web.vo.User;
  */
 public interface UserService {
 
+    void dropAndCreateUserTable();
+    
     void insertUser(User user);
 
     void deleteUser(User user);

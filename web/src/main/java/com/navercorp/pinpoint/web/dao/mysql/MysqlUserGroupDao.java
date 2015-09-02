@@ -78,7 +78,7 @@ public class MysqlUserGroupDao implements UserGroupDao {
 
     @Override
     public void updateMember(UserGroupMember userGroupMember) {
-        sqlSessionTemplate.delete(NAMESPACE + "updateMember", userGroupMember);
+        sqlSessionTemplate.update(NAMESPACE + "updateMember", userGroupMember);
     }
     
     @Override
