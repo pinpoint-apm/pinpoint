@@ -24,7 +24,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 
 import java.io.IOException;
@@ -69,16 +69,16 @@ class AgentActiveThreadStatusListSerializer extends JsonSerializer<AgentActiveTh
             jgen.writeNumberField("code", routeResult.getValue());
             jgen.writeStringField("message", routeResult.name());
 
-            TActiveThreadResponse activeThreadStatus = agentActiveThread.getActiveThreadStatus();
-            if (activeThreadStatus != null && activeThreadStatus.getActiveThreadCountSize() >= 4) {
-                List<Integer> activeThreadCount = activeThreadStatus.getActiveThreadCount();
+            TCmdActiveThreadCountRes activeThreadCount = agentActiveThread.getActiveThreadCount();
+            if (activeThreadCount != null && activeThreadCount.getActiveThreadCountSize() >= 4) {
+                List<Integer> values = activeThreadCount.getActiveThreadCount();
 
                 jgen.writeFieldName("status");
                 jgen.writeStartArray();
-                jgen.writeNumber(activeThreadCount.get(0));
-                jgen.writeNumber(activeThreadCount.get(1));
-                jgen.writeNumber(activeThreadCount.get(2));
-                jgen.writeNumber(activeThreadCount.get(3));
+                jgen.writeNumber(values.get(0));
+                jgen.writeNumber(values.get(1));
+                jgen.writeNumber(values.get(2));
+                jgen.writeNumber(values.get(3));
                 jgen.writeEndArray();
             }
 

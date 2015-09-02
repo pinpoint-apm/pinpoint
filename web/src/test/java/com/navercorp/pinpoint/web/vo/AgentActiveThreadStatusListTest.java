@@ -20,13 +20,12 @@
 package com.navercorp.pinpoint.web.vo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +42,7 @@ public class AgentActiveThreadStatusListTest {
 
         AgentActiveThreadStatus status1 = new AgentActiveThreadStatus(hostName1, TRouteResult.NOT_ACCEPTABLE, null);
 
-        TActiveThreadResponse response = new TActiveThreadResponse();
+        TCmdActiveThreadCountRes response = new TCmdActiveThreadCountRes();
         response.setActiveThreadCount(Arrays.asList(1, 2, 3, 4));
         AgentActiveThreadStatus status2 = new AgentActiveThreadStatus(hostName2, TRouteResult.OK, response);
 

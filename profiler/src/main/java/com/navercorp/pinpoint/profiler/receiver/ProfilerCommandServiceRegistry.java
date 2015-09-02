@@ -35,6 +35,16 @@ public class ProfilerCommandServiceRegistry implements ProfilerCommandServiceLoc
         profilerCommandServiceRepository = new ConcurrentHashMap<Class<? extends TBase>, ProfilerCommandService>();
     }
 
+    public void addService(ProfilerCommandServiceGroup serviceGroup) {
+        if (serviceGroup == null) {
+            throw new NullPointerException("serviceGroup must not be null");
+        }
+
+        for (ProfilerCommandService service : serviceGroup.getCommandServiceList()) {
+            addService(service);
+        }
+    }
+
     public boolean addService(ProfilerCommandService service) {
         if (service == null) {
             throw new NullPointerException("service must not be null");

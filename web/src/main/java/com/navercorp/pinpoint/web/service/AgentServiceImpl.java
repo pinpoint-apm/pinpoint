@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.util.ListUtils;
-import com.navercorp.pinpoint.thrift.dto.command.TActiveThread;
-import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
+import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
@@ -40,7 +40,6 @@ import com.navercorp.pinpoint.web.server.PinpointSocketManager;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadStatus;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadStatusList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
-
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -192,7 +191,7 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     public AgentActiveThreadStatusList getActiveThreadStatus(List<AgentInfo> agentInfoList) throws TException {
-        byte[] activeThread = serialize(new TActiveThread());
+        byte[] activeThread = serialize(new TCmdActiveThreadCount());
         return getActiveThreadStatus(agentInfoList, activeThread);
     }
 
@@ -205,7 +204,7 @@ public class AgentServiceImpl implements AgentService {
             AgentInfo agentInfo = entry.getKey();
             PinpointRouteResponse response = entry.getValue();
 
-            AgentActiveThreadStatus agentActiveThreadStatus = new AgentActiveThreadStatus(agentInfo.getHostName(), response.getRouteResult(), response.getResponse(TActiveThreadResponse.class, null));
+            AgentActiveThreadStatus agentActiveThreadStatus = new AgentActiveThreadStatus(agentInfo.getHostName(), response.getRouteResult(), response.getResponse(TCmdActiveThreadCountRes.class, null));
             agentActiveThreadStatusList.add(agentActiveThreadStatus);
         }
         return agentActiveThreadStatusList;

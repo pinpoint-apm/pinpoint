@@ -143,6 +143,13 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
         return this.commandServiceRegistry.addService(commandService);
     }
 
+    public void registerCommandService(ProfilerCommandServiceGroup commandServiceGroup) {
+        if (commandServiceGroup == null) {
+            throw new NullPointerException("commandServiceGroup must not be null");
+        }
+        this.commandServiceRegistry.addService(commandServiceGroup);
+    }
+
     private SerializerFactory<HeaderTBaseSerializer> wrappedThreadLocalSerializerFactory(SerializerFactory<HeaderTBaseSerializer> serializerFactory) {
         return new ThreadLocalHeaderTBaseSerializerFactory<HeaderTBaseSerializer>(serializerFactory);
     }

@@ -46,12 +46,27 @@ struct TCommandThreadDumpResponse {
 	1: list<TThreadDump> threadDumps
 }
 
-struct TActiveThread {
+
+struct TCmdActiveThreadCount {
 }
 
-struct TActiveThreadResponse {
+struct TCmdActiveThreadCountRes {
 	1: i32 	histogramSchemaType
 	2: list<i32> activeThreadCount
+}
+
+
+struct TActiveThreadDump {
+	1: i64 execTime
+	2: TThreadDump threadDump
+}
+
+struct TCmdActiveThreadDump {
+	1: optional i64 execTime
+}
+
+struct TCmdActiveThreadDumpRes {
+	1: list<TActiveThreadDump> threadDumps
 }
 
 struct TCommandEcho {
