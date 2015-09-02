@@ -3,7 +3,6 @@ package com.navercorp.pinpoint.web.vo;
 public class UserGroupMember {
     
     private String number;
-
     private String userGroupId;
     private String memberId;
     private String name;

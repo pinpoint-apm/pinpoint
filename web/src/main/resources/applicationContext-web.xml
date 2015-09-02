@@ -24,7 +24,6 @@
 	-->
 
     <context:component-scan base-package="com.navercorp.pinpoint.web.dao.hbase,
-                                         com.navercorp.pinpoint.web.dao.mysql,
                                          com.navercorp.pinpoint.web.service,
                                          com.navercorp.pinpoint.web.mapper,
                                          com.navercorp.pinpoint.web.filter,

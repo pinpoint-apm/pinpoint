@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.web.dao.mysql;
+package com.navercorp.pinpoint.web.dao.memory;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import org.mybatis.spring.SqlSessionTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import com.navercorp.pinpoint.web.dao.UserDao;
@@ -31,56 +33,74 @@ import com.navercorp.pinpoint.web.vo.User;
 @Repository
 public class MysqlUserDao implements UserDao {
 
-    private static final String NAMESPACE = UserDao.class.getPackage().getName() + "." + UserDao.class.getSimpleName() + ".";
-
-    @Autowired
-    @Qualifier("sqlSessionTemplate")
-    private SqlSessionTemplate sqlSessionTemplate;
+    private final Map<String, User> users = new ConcurrentHashMap<String, User>();
+    private final AtomicInteger userNumGenerator  = new AtomicInteger(); 
     
     @Override
     public void insertUser(User user) {
-        sqlSessionTemplate.insert(NAMESPACE + "insertUser", user);
+        String userNumber = String.valueOf(userNumGenerator.getAndIncrement());
+        user.setNumber(userNumber);
+        users.put(user.getUserId(), user);
     }
 
     @Override
     public void inserUserList(List<User> users) {
-        sqlSessionTemplate.insert(NAMESPACE + "insertUserList", users);
+        for (User user : users) {
+            String userNumber = String.valueOf(userNumGenerator.getAndIncrement());
+            user.setNumber(userNumber);
+            this.users.put(user.getUserId(), user);
+        }
     }
 
     @Override
     public void deleteUser(User user) {
-        sqlSessionTemplate.delete(NAMESPACE + "deleteUser", user);
-        
+        users.remove(user.getUserId());
     }
 
     @Override
     public List<User> selectUser() {
-        return sqlSessionTemplate.selectList(NAMESPACE + "selectUserList"); 
+        return new ArrayList<>(users.values());
     }
 
     @Override
     public void updateUser(User user) {
-        sqlSessionTemplate.update(NAMESPACE + "updateUser", user);
+        users.put(user.getUserId(), user);
     }
 
     @Override
     public User selectUserByUserId(String userId) {
-        return sqlSessionTemplate.selectOne(NAMESPACE + "selectUserByUserId", userId);
+        return users.get(userId);
     }
 
     @Override
     public List<User> selectUserByDepartment(String department) {
-        return sqlSessionTemplate.selectList(NAMESPACE + "selectUserByDepartment", department);
+        List<User> userList = new LinkedList<>();
+
+        for (User user : users.values()) {
+            if (department.equals(user.getDepartment())) {
+                userList.add(user);
+            }
+        }
+        
+        return userList;
     }
 
     @Override
     public List<User> selectUserByUserName(String userName) {
-        return sqlSessionTemplate.selectList(NAMESPACE + "selectUserByUserName", userName);
+        List<User> userList = new LinkedList<>();
+
+        for (User user : users.values()) {
+            if (userName.equals(user.getName())) {
+                userList.add(user);
+            }
+        }
+        
+        return userList;
     }
 
     @Override
     public void dropAndCreateUserTable() {
-        sqlSessionTemplate.selectOne(NAMESPACE + "dropAndCreateUserTable");
-        
+        users.clear();
+        userNumGenerator.lazySet(1);
     }
 }

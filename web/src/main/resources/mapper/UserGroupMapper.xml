@@ -46,7 +46,7 @@
     <select id="selectMemberList" resultType="UserGroupMember">
         SELECT a.user_group_id, a.member_id, b.name, b.department 
         FROM user_group_member a
-        INNER JOIN user b ON a.member_id = b.user_id
+        INNER JOIN puser b ON a.member_id = b.user_id
         WHERE a.user_group_id =  #{userGroupId}
     </select>
     

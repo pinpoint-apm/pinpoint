@@ -61,7 +61,6 @@ public class UserGroupServiceImpl implements UserGroupService {
     @Override
     public void deleteMember(UserGroupMember userGroupMember) {
         userGroupDao.deleteMember(userGroupMember); 
-        
     }
 
     @Override
