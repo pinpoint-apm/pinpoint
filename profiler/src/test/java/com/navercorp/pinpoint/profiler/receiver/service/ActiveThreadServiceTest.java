@@ -19,13 +19,13 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.test.TestAgentInformation;
 import com.navercorp.pinpoint.thrift.dto.TResult;
-import com.navercorp.pinpoint.thrift.dto.command.TActiveThread;
-import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
+import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 import org.apache.thrift.TBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -42,21 +42,7 @@ public class ActiveThreadServiceTest {
     private final AtomicInteger idGenerator = new AtomicInteger(0);
 
     @Test
-    public void serviceTest1() {
-        ActiveTraceRepository activeTraceRepository = new ActiveTraceRepository();
-
-        ActiveThreadService service = new ActiveThreadService(activeTraceRepository);
-
-        TBase<?, ?> tBase = service.requestCommandService(null);
-        if (tBase instanceof TResult) {
-            Assert.assertFalse(((TResult) tBase).isSuccess());
-        } else {
-            Assert.fail();;
-        }
-    }
-
-    @Test
-    public void serviceTest2() throws InterruptedException {
+    public void serviceTest1() throws InterruptedException {
         int normalCount = 5;
         ActiveTraceRepository activeTraceRepository = new ActiveTraceRepository();
         addActiveTrace(activeTraceRepository, normalCount);
@@ -65,10 +51,10 @@ public class ActiveThreadServiceTest {
         int fastCount = 3;
         addActiveTrace(activeTraceRepository, fastCount);
 
-        ActiveThreadService service = new ActiveThreadService(activeTraceRepository);
-        TBase<?, ?> tBase = service.requestCommandService(new TActiveThread());
-        if (tBase instanceof TActiveThreadResponse) {
-            List<Integer> activeThreadCount = ((TActiveThreadResponse) tBase).getActiveThreadCount();
+        ActiveThreadCountService service = new ActiveThreadCountService(activeTraceRepository);
+        TBase<?, ?> tBase = service.requestCommandService(new TCmdActiveThreadCount());
+        if (tBase instanceof TCmdActiveThreadCountRes) {
+            List<Integer> activeThreadCount = ((TCmdActiveThreadCountRes) tBase).getActiveThreadCount();
             Assert.assertEquals(activeThreadCount.get(0), new Integer(fastCount));
             Assert.assertEquals(activeThreadCount.get(1), new Integer(normalCount));
         } else {

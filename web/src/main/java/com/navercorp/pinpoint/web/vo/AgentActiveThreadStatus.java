@@ -19,7 +19,7 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 
 /**
@@ -29,12 +29,12 @@ public class AgentActiveThreadStatus {
 
     private final String hostname;
     private final TRouteResult routeResult;
-    private final TActiveThreadResponse activeThreadStatus;
+    private final TCmdActiveThreadCountRes activeThreadCount;
 
-    public AgentActiveThreadStatus(String hostname, TRouteResult routeResult, TActiveThreadResponse activeThreadStatus) {
+    public AgentActiveThreadStatus(String hostname, TRouteResult routeResult, TCmdActiveThreadCountRes activeThreadCount) {
         this.hostname = hostname;
         this.routeResult = routeResult;
-        this.activeThreadStatus = activeThreadStatus;
+        this.activeThreadCount = activeThreadCount;
     }
 
     public String getHostname() {
@@ -52,15 +52,15 @@ public class AgentActiveThreadStatus {
         return routeResult;
     }
 
-    public TActiveThreadResponse getActiveThreadStatus() {
-        return activeThreadStatus;
+    public TCmdActiveThreadCountRes getActiveThreadCount() {
+        return activeThreadCount;
     }
 
-    public TActiveThreadResponse getActiveThreadStatus(TActiveThreadResponse defaultValue) {
-        if (activeThreadStatus == null) {
+    public TCmdActiveThreadCountRes getActiveThreadStatus(TCmdActiveThreadCountRes defaultValue) {
+        if (activeThreadCount == null) {
             return defaultValue;
         }
-        return activeThreadStatus;
+        return activeThreadCount;
     }
 
 }

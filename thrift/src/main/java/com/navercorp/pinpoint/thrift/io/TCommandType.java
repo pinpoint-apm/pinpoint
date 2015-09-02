@@ -65,16 +65,28 @@ public enum TCommandType {
             return new TCommandThreadDumpResponse();
         }
     },
-    ACTIVE_THREAD((short) 730, TActiveThread.class) {
+    ACTIVE_THREAD_COUNT((short) 730, TCmdActiveThreadCount.class) {
         @Override
         public TBase newObject() {
-            return new TActiveThread();
+            return new TCmdActiveThreadCount();
         }
     },
-    ACTIVE_THREAD_RESPONSE((short) 731, TActiveThreadResponse.class) {
+    ACTIVE_THREAD_COUNT_RESPONSE((short) 731, TCmdActiveThreadCountRes.class) {
         @Override
         public TBase newObject() {
-            return new TActiveThreadResponse();
+            return new TCmdActiveThreadCountRes();
+        }
+    },
+    ACTIVE_THREAD_DUMP((short) 740, TCmdActiveThreadDump.class) {
+        @Override
+        public TBase newObject() {
+            return new TCmdActiveThreadDump();
+        }
+    },
+    ACTIVE_THREAD_DUMP_RESPONSE((short) 741, TCmdActiveThreadDumpRes.class) {
+        @Override
+        public TBase newObject() {
+            return new TCmdActiveThreadDumpRes();
         }
     };
 

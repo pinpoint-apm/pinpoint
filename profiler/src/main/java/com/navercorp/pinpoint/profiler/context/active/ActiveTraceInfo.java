@@ -24,10 +24,16 @@ public class ActiveTraceInfo {
 
     private final long id;
     private final long startTime;
+    private final Thread thread;
 
     public ActiveTraceInfo(long id, long startTime) {
+        this(id, startTime, null);
+    }
+
+    public ActiveTraceInfo(long id, long startTime, Thread thread) {
         this.id = id;
         this.startTime = startTime;
+        this.thread = thread;
     }
 
     public long getId() {
@@ -38,12 +44,17 @@ public class ActiveTraceInfo {
         return startTime;
     }
 
+    public Thread getThread() {
+        return thread;
+    }
+
     @Override
     public String toString() {
         StringBuilder toString = new StringBuilder();
         toString.append("ActiveTraceInfo{");
         toString.append("id=").append(id);
         toString.append(", startTime=").append(startTime);
+        toString.append(", thread=").append(thread);
         toString.append("}");
 
         return toString.toString();
