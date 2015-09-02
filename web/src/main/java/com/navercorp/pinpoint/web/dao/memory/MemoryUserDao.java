@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.web.vo.User;
  * @author minwoo.jung
  */
 @Repository
-public class MysqlUserDao implements UserDao {
+public class MemoryUserDao implements UserDao {
 
     private final Map<String, User> users = new ConcurrentHashMap<String, User>();
     private final AtomicInteger userNumGenerator  = new AtomicInteger(); 

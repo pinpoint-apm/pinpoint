@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.web.dao.AlarmDao;
  * @author minwoo.jung
  */
 @Repository
-public class MysqlAlarmDao implements AlarmDao {
+public class MemoryAlarmDao implements AlarmDao {
     
     private final Map<String, Rule> alarmRule = new ConcurrentHashMap<String, Rule>();
     private final AtomicInteger ruleIdGenerator  = new AtomicInteger(); 

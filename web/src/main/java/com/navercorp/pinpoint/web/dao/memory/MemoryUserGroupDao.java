@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.web.vo.UserGroupMember;
  * @author minwoo.jung
  */
 @Repository
-public class MysqlUserGroupDao implements UserGroupDao {
+public class MemoryUserGroupDao implements UserGroupDao {
     
     private final Map<String, UserGroup> userGroups = new ConcurrentHashMap<String, UserGroup>();
     private final Map<String, UserGroupMember> userGroupMembers = new ConcurrentHashMap<String, UserGroupMember>();
