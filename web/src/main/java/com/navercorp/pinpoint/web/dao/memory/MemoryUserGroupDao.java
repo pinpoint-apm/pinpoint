@@ -97,6 +97,9 @@ public class MemoryUserGroupDao implements UserGroupDao {
         
         for (UserGroupMember member : userGroupMembers.values()) {
             if (member.getUserGroupId().equals(userGroupId)) {
+                User user = userDao.selectUserByUserId(member.getMemberId());
+                member.setName(user.getName());
+                member.setDepartment(user.getDepartment());
                 userGroupMemberList.add(member);
             }
         }
