@@ -37,8 +37,8 @@ import com.navercorp.pinpoint.web.cluster.DefaultPinpointRouteResponse;
 import com.navercorp.pinpoint.web.cluster.FailedPinpointRouteResponse;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
 import com.navercorp.pinpoint.web.server.PinpointSocketManager;
-import com.navercorp.pinpoint.web.vo.AgentActiveThreadStatus;
-import com.navercorp.pinpoint.web.vo.AgentActiveThreadStatusList;
+import com.navercorp.pinpoint.web.vo.AgentActiveThreadCount;
+import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -190,21 +190,21 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
-    public AgentActiveThreadStatusList getActiveThreadStatus(List<AgentInfo> agentInfoList) throws TException {
+    public AgentActiveThreadCountList getActiveThreadCount(List<AgentInfo> agentInfoList) throws TException {
         byte[] activeThread = serialize(new TCmdActiveThreadCount());
-        return getActiveThreadStatus(agentInfoList, activeThread);
+        return getActiveThreadCount(agentInfoList, activeThread);
     }
 
     @Override
-    public AgentActiveThreadStatusList getActiveThreadStatus(List<AgentInfo> agentInfoList, byte[] payload) throws TException {
-        AgentActiveThreadStatusList agentActiveThreadStatusList = new AgentActiveThreadStatusList(agentInfoList.size());
+    public AgentActiveThreadCountList getActiveThreadCount(List<AgentInfo> agentInfoList, byte[] payload) throws TException {
+        AgentActiveThreadCountList agentActiveThreadStatusList = new AgentActiveThreadCountList(agentInfoList.size());
 
         Map<AgentInfo, PinpointRouteResponse> responseList = invoke(agentInfoList, payload);
         for (Map.Entry<AgentInfo, PinpointRouteResponse> entry : responseList.entrySet()) {
             AgentInfo agentInfo = entry.getKey();
             PinpointRouteResponse response = entry.getValue();
 
-            AgentActiveThreadStatus agentActiveThreadStatus = new AgentActiveThreadStatus(agentInfo.getHostName(), response.getRouteResult(), response.getResponse(TCmdActiveThreadCountRes.class, null));
+            AgentActiveThreadCount agentActiveThreadStatus = new AgentActiveThreadCount(agentInfo.getHostName(), response.getRouteResult(), response.getResponse(TCmdActiveThreadCountRes.class, null));
             agentActiveThreadStatusList.add(agentActiveThreadStatus);
         }
         return agentActiveThreadStatusList;

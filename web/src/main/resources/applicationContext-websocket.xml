@@ -23,22 +23,19 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 	   ">
 
+    <bean id="handlerRegister" class="com.navercorp.pinpoint.web.websocket.WebSocketHandlerManager">
+    </bean>
+
     <bean id="agentService" class="com.navercorp.pinpoint.web.service.AgentServiceImpl">
     </bean>
 
-    <bean id="activeThreadHandler" class="com.navercorp.pinpoint.web.websocket.ActiveThreadHandler">
+    <bean id="activeThreadHandler" class="com.navercorp.pinpoint.web.websocket.ActiveThreadCountHandler">
         <!-- default value.
         <constructor-arg value="/agent/activeThread" />
         -->
+        <constructor-arg ref="handlerRegister" />
         <constructor-arg ref="agentService" />
     </bean>
 
-    <bean id="handlerRepository" class="com.navercorp.pinpoint.web.websocket.WebSocketHandlerRepository">
-        <constructor-arg>
-            <list>
-                <ref bean="activeThreadHandler" />
-            </list>
-        </constructor-arg>
-    </bean>
 
 </beans>

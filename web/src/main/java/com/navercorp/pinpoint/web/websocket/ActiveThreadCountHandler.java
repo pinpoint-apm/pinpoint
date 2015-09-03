@@ -23,11 +23,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.web.service.AgentService;
-import com.navercorp.pinpoint.web.vo.AgentActiveThreadStatusList;
+import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
-
 import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
@@ -42,6 +40,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -50,7 +49,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * @Author Taejin Koo
  */
-public class ActiveThreadHandler extends TextWebSocketHandler implements  PinpointWebSocketHandler {
+public class ActiveThreadCountHandler extends TextWebSocketHandler implements PinpointWebSocketHandler {
 
     private static final String APPLICATION_NAME_KEY = "applicationName";
     private static final String DEFAULT_REQUEST_MAPPING = "/agent/activeThread";
@@ -64,11 +63,7 @@ public class ActiveThreadHandler extends TextWebSocketHandler implements  Pinpoi
     private final PinpointThreadFactory threadFactory = new PinpointThreadFactory("ActiveThread Handler", true);
     private final TimerFactory timerFactory = new TimerFactory();
 
-    private final Map<String, List<WebSocketSession>> applicationGroup = new HashMap<String, List<WebSocketSession>>();
-
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
-    private final Lock readLock = lock.readLock();
-    private final Lock writeLock = lock.writeLock();
+    private final List<WebSocketSession> sessionRepository = new CopyOnWriteArrayList<WebSocketSession>();
 
     private final ObjectMapper jsonConverter = new ObjectMapper();
 
@@ -76,13 +71,17 @@ public class ActiveThreadHandler extends TextWebSocketHandler implements  Pinpoi
 
     private Timer timer;
 
-    public ActiveThreadHandler(AgentService agentSerivce) {
-        this(DEFAULT_REQUEST_MAPPING, agentSerivce);
+    public ActiveThreadCountHandler(WebSocketHandlerRegister register, AgentService agentSerivce) {
+        this(register, DEFAULT_REQUEST_MAPPING, agentSerivce);
     }
 
-    public ActiveThreadHandler(String requestMapping, AgentService agentSerivce) {
+    public ActiveThreadCountHandler(WebSocketHandlerRegister register, String requestMapping, AgentService agentSerivce) {
         this.requestMapping = requestMapping;
         this.agentSerivce = agentSerivce;
+        this.timer = register.getTimer();
+
+        register.register(this);
+        Timeout timeout = timer.newTimeout(new ActiveThreadTimerTask(), time, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -94,30 +93,7 @@ public class ActiveThreadHandler extends TextWebSocketHandler implements  Pinpoi
     public void afterConnectionEstablished(WebSocketSession newSession) throws Exception {
         logger.info("ConnectionEstablished : {}", newSession);
 
-        List<NameValuePair> params = URLEncodedUtils.parse(newSession.getUri(), "UTF-8");
-        String applicationName = getValue(params, APPLICATION_NAME_KEY);
-        if (applicationName == null) {
-            logger.warn("Connection established refused. required parameter is missiong({}).", APPLICATION_NAME_KEY);
-            newSession.close(CloseStatus.POLICY_VIOLATION);
-        }
-        newSession.getAttributes().put(APPLICATION_NAME_KEY, applicationName);
-
-        writeLock.lock();
-        try {
-            List<WebSocketSession> webSocketSessions = applicationGroup.get(applicationName);
-            if (webSocketSessions == null) {
-                webSocketSessions = new ArrayList<WebSocketSession>();
-                applicationGroup.put(applicationName, webSocketSessions);
-            }
-            webSocketSessions.add(newSession);
-
-            if (timer == null) {
-                timer = timerFactory.createHashedWheelTimer(threadFactory, 100, TimeUnit.MILLISECONDS, 512);
-                Timeout timeout = timer.newTimeout(new ActiveThreadTimerTask(), time, TimeUnit.MILLISECONDS);
-            }
-        } finally {
-            writeLock.unlock();
-        }
+        sessionRepository.add(newSession);
 
         super.afterConnectionEstablished(newSession);
     }
@@ -126,38 +102,20 @@ public class ActiveThreadHandler extends TextWebSocketHandler implements  Pinpoi
     public void afterConnectionClosed(WebSocketSession closeSession, CloseStatus status) throws Exception {
         logger.info("ConnectionClosed : {}, caused : {}", closeSession, status);
 
-        String applicationName = (String) closeSession.getAttributes().get(APPLICATION_NAME_KEY);
-
-        writeLock.lock();
-        try {
-            if (applicationName != null) {
-                List<WebSocketSession> webSocketSessions = applicationGroup.get(applicationName);
-                if (webSocketSessions == null) {
-                    webSocketSessions = new ArrayList<WebSocketSession>();
-                }
-                webSocketSessions.remove(closeSession);
-
-                if (webSocketSessions.size() == 0) {
-                    applicationGroup.remove(applicationName);
-                }
-
-                if (applicationGroup.size() == 0) {
-                    if (timer != null) {
-                        timer.stop();
-                        timer = null;
-                    }
-                }
-            }
-        } finally {
-            writeLock.unlock();
-        }
+        sessionRepository.remove(closeSession);
 
         super.afterConnectionClosed(closeSession, status);
     }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        logger.info("handleTextMessage. session : {}, message : {}.", session, message);
+        logger.info("handleTextMessage. session : {}, message : {}.", session, message.getPayload());
+
+        String request = message.getPayload();
+        if (request != null && request.startsWith(APPLICATION_NAME_KEY + "=")) {
+            String applicationName = request.substring(APPLICATION_NAME_KEY.length() + 1);
+            session.getAttributes().put(APPLICATION_NAME_KEY, applicationName);
+        }
 
         // this method will be checked socket status.
         super.handleTextMessage(session, message);
@@ -177,29 +135,44 @@ public class ActiveThreadHandler extends TextWebSocketHandler implements  Pinpoi
 
         @Override
         public void run(Timeout timeout) throws Exception {
-            logger.info("ActiveThreadTimerTask started.");
+            if (sessionRepository.size() != 0) {
+                logger.info("ActiveThreadTimerTask started.");
 
-            readLock.lock();
-            try {
+                Map<String, List<WebSocketSession>> applicationGroup = new HashMap<String, List<WebSocketSession>>();
+                for (WebSocketSession session : sessionRepository) {
+                    String applicationName = (String) session.getAttributes().get(APPLICATION_NAME_KEY);
+
+                    if (applicationName == null || applicationName.length() == 0) {
+                        continue;
+                    }
+
+                    if (!applicationGroup.containsKey(applicationName)) {
+                        applicationGroup.put(applicationName, new ArrayList<WebSocketSession>());
+                    }
+
+                    applicationGroup.get(applicationName).add(session);
+                }
+
                 for (Map.Entry<String, List<WebSocketSession>> applicationEntry : applicationGroup.entrySet()) {
-                    List<AgentInfo> agentInfoList = agentSerivce.getAgentInfoList(applicationEntry.getKey());
-                    AgentActiveThreadStatusList agentActiveThreadStatusList = agentSerivce.getActiveThreadStatus(agentInfoList);
-                    String textMessage = jsonConverter.writeValueAsString(agentActiveThreadStatusList);
+                    String applicationName = applicationEntry.getKey();
 
+                    List<AgentInfo> agentInfoList = agentSerivce.getAgentInfoList(applicationName);
+                    AgentActiveThreadCountList agentActiveThreadCountList = agentSerivce.getActiveThreadCount(agentInfoList);
+
+                    Map<String, AgentActiveThreadCountList> response = new HashMap<String, AgentActiveThreadCountList>();
+                    response.put(applicationName, agentActiveThreadCountList);
+
+                    String textMessage = jsonConverter.writeValueAsString(response);
                     for (WebSocketSession session : applicationEntry.getValue()) {
                         session.sendMessage(new TextMessage(textMessage));
                     }
                 }
+            }
 
-                if (timer != null) {
-                    timer.newTimeout(new ActiveThreadTimerTask(), time, TimeUnit.MILLISECONDS);
-                }
-
-            } finally {
-                readLock.unlock();
+            if (timer != null) {
+                timer.newTimeout(new ActiveThreadTimerTask(), time, TimeUnit.MILLISECONDS);
             }
         }
-
     }
 
 }

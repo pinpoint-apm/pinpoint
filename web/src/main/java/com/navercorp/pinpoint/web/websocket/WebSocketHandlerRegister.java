@@ -19,22 +19,16 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.jboss.netty.util.Timer;
+import org.springframework.web.socket.WebSocketHandler;
 
 /**
  * @Author Taejin Koo
  */
-public class WebSocketHandlerRepository {
+public interface WebSocketHandlerRegister {
 
-    private final List<PinpointWebSocketHandler> webSocketHandlerRepository;
+    void register(PinpointWebSocketHandler handler);
 
-    public WebSocketHandlerRepository(List<PinpointWebSocketHandler> webSocketHandlerRepository) {
-        this.webSocketHandlerRepository = webSocketHandlerRepository;
-    }
-
-    public List<PinpointWebSocketHandler> getWebSocketHandlerRepository() {
-        return new ArrayList<PinpointWebSocketHandler>(webSocketHandlerRepository);
-    }
+    Timer getTimer();
 
 }

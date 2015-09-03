@@ -26,6 +26,14 @@ public final class ListUtils {
     private ListUtils() {
     }
 
+    public static boolean isEmpty(List list) {
+        if (list == null || list.size() == 0) {
+            return true;
+        }
+
+        return false;
+    }
+
     public static <V> boolean addIfValueNotNull(List<V> list, V value) {
         if (value == null) {
             return false;
