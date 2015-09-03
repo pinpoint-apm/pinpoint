@@ -11,6 +11,7 @@ In order to build Pinpoint, the following requirements must be met:
 * Maven 3.2.x+ installed
 * JAVA_6_HOME environment variable set to JDK 6 home directory.
 * JAVA_7_HOME environment variable set to JDK 7+ home directory.
+* JAVA_8_HOME environment variable set to JDK 8 home directory.
 
 QuickStart supports Linux, OSX, and Windows.
 
