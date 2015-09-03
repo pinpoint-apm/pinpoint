@@ -87,7 +87,7 @@ public interface InstrumentClass {
      * You should check that class already have Declared method.
      * If class already have method, this method throw exception. 
      */
-    void addDelegatorMethod(String methodName, String[] args) throws InstrumentException;
+    InstrumentMethod addDelegatorMethod(String methodName, String... paramTypes) throws InstrumentException;
     
     byte[] toBytecode() throws InstrumentException;
 

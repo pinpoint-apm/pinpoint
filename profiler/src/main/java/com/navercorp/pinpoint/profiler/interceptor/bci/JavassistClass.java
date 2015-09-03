@@ -302,21 +302,23 @@ public class JavassistClass implements InstrumentClass {
     }
 
     @Override
-    public void addDelegatorMethod(String methodName, String[] args) throws InstrumentException {
-        if (getCtMethod0(ctClass, methodName, args) != null) {
+    public InstrumentMethod addDelegatorMethod(String methodName, String... paramTypes) throws InstrumentException {
+        if (getCtMethod0(ctClass, methodName, paramTypes) != null) {
             throw new InstrumentException(getName() + "already have method(" + methodName + ").");
         }
 
         try {
             final CtClass superClass = ctClass.getSuperclass();
-            CtMethod superMethod = getCtMethod0(superClass, methodName, args);
+            CtMethod superMethod = getCtMethod0(superClass, methodName, paramTypes);
 
             if (superMethod == null) {
-                throw new NotFoundInstrumentException(methodName + Arrays.toString(args) + " is not found in " + superClass.getName());
+                throw new NotFoundInstrumentException(methodName + Arrays.toString(paramTypes) + " is not found in " + superClass.getName());
             }
 
             CtMethod delegatorMethod = CtNewMethod.delegator(superMethod, ctClass);
             ctClass.addMethod(delegatorMethod);
+            
+            return new JavassistMethod(pluginContext, interceptorRegistryBinder, this, delegatorMethod);
         } catch (NotFoundException ex) {
             throw new InstrumentException(getName() + "don't have super class(" + getSuperClass() + "). Cause:" + ex.getMessage(), ex);
         } catch (CannotCompileException ex) {
