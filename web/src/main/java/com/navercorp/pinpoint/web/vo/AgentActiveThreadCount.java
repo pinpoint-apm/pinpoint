@@ -25,13 +25,13 @@ import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 /**
  * @Author Taejin Koo
  */
-public class AgentActiveThreadStatus {
+public class AgentActiveThreadCount {
 
     private final String hostname;
     private final TRouteResult routeResult;
     private final TCmdActiveThreadCountRes activeThreadCount;
 
-    public AgentActiveThreadStatus(String hostname, TRouteResult routeResult, TCmdActiveThreadCountRes activeThreadCount) {
+    public AgentActiveThreadCount(String hostname, TRouteResult routeResult, TCmdActiveThreadCountRes activeThreadCount) {
         this.hostname = hostname;
         this.routeResult = routeResult;
         this.activeThreadCount = activeThreadCount;

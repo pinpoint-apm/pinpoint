@@ -34,34 +34,34 @@ import java.util.List;
 /**
  * @Author Taejin Koo
  */
-@JsonSerialize(using = AgentActiveThreadStatusListSerializer.class)
-public class AgentActiveThreadStatusList {
+@JsonSerialize(using = AgentActiveThreadCountListSerializer.class)
+public class AgentActiveThreadCountList {
 
-    private final List<AgentActiveThreadStatus> agentActiveThreadRepository;
+    private final List<AgentActiveThreadCount> agentActiveThreadRepository;
 
-    public AgentActiveThreadStatusList(int initialCapacity) {
-        agentActiveThreadRepository = new ArrayList<AgentActiveThreadStatus>(initialCapacity);
+    public AgentActiveThreadCountList(int initialCapacity) {
+        agentActiveThreadRepository = new ArrayList<AgentActiveThreadCount>(initialCapacity);
     }
 
-    public void add(AgentActiveThreadStatus agentActiveThreadStatus) {
+    public void add(AgentActiveThreadCount agentActiveThreadStatus) {
         agentActiveThreadRepository.add(agentActiveThreadStatus);
     }
 
-    public List<AgentActiveThreadStatus> getAgentActiveThreadRepository() {
+    public List<AgentActiveThreadCount> getAgentActiveThreadRepository() {
         return agentActiveThreadRepository;
     }
 
 }
 
-class AgentActiveThreadStatusListSerializer extends JsonSerializer<AgentActiveThreadStatusList>
+class AgentActiveThreadCountListSerializer extends JsonSerializer<AgentActiveThreadCountList>
 {
     @Override
-    public void serialize(AgentActiveThreadStatusList agentActiveThreadStatusList, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
-        List<AgentActiveThreadStatus> agentActiveThreadRepository = agentActiveThreadStatusList.getAgentActiveThreadRepository();
+    public void serialize(AgentActiveThreadCountList agentActiveThreadStatusList, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+        List<AgentActiveThreadCount> agentActiveThreadRepository = agentActiveThreadStatusList.getAgentActiveThreadRepository();
 
         jgen.writeStartObject();
 
-        for (AgentActiveThreadStatus agentActiveThread : agentActiveThreadRepository) {
+        for (AgentActiveThreadCount agentActiveThread : agentActiveThreadRepository) {
             jgen.writeFieldName(agentActiveThread.getHostname());
             jgen.writeStartObject();
 

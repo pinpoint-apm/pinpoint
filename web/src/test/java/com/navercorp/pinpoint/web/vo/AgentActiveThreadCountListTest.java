@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * @Author Taejin Koo
  */
-public class AgentActiveThreadStatusListTest {
+public class AgentActiveThreadCountListTest {
 
 
     @Test
@@ -40,13 +40,13 @@ public class AgentActiveThreadStatusListTest {
         String hostName1 = "hostName1";
         String hostName2 = "hostName2";
 
-        AgentActiveThreadStatus status1 = new AgentActiveThreadStatus(hostName1, TRouteResult.NOT_ACCEPTABLE, null);
+        AgentActiveThreadCount status1 = new AgentActiveThreadCount(hostName1, TRouteResult.NOT_ACCEPTABLE, null);
 
         TCmdActiveThreadCountRes response = new TCmdActiveThreadCountRes();
         response.setActiveThreadCount(Arrays.asList(1, 2, 3, 4));
-        AgentActiveThreadStatus status2 = new AgentActiveThreadStatus(hostName2, TRouteResult.OK, response);
+        AgentActiveThreadCount status2 = new AgentActiveThreadCount(hostName2, TRouteResult.OK, response);
 
-        AgentActiveThreadStatusList list = new AgentActiveThreadStatusList(5);
+        AgentActiveThreadCountList list = new AgentActiveThreadCountList(5);
         list.add(status1);
         list.add(status2);
 
