@@ -52,11 +52,11 @@ For details, please refer to the [quick-start guide](quickstart/README.md "Pinpo
 **Build Requirements**
 
 * JDK 6 installed
-* JDK 7+ installed
+* JDK 8 installed
 * Maven 3.2.x+ installed
 * JAVA_6_HOME environment variable set to JDK 6 home directory.
-* JAVA_7_HOME environment variable set to JDK 7 home directory.
-* JAVA_8_HOME environment variable set to JDK 8 home directory.
+* JAVA_7_HOME environment variable set to JDK 7+ home directory.
+* JAVA_8_HOME environment variable set to JDK 8+ home directory.
 
 **Prerequisites**
 
