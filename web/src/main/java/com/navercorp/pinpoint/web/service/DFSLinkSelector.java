@@ -192,7 +192,8 @@ public class DFSLinkSelector implements LinkSelector {
                 logger.debug("Application info replaced. {} => {}", linkData, acceptApplicationList);
 
                 AcceptApplication first = acceptApplicationList.iterator().next();
-                final LinkData acceptedLinkData = new LinkData(linkData.getFromApplication(), first.getApplication(), linkData.getLinkCallDataMap());
+                final LinkData acceptedLinkData = new LinkData(linkData.getFromApplication(), first.getApplication());
+                acceptedLinkData.setLinkCallDataMap(linkData.getLinkCallDataMap());
                 return Collections.singletonList(acceptedLinkData);
             } else {
                 // special case - there are more than 2 nodes grouped by a single url
@@ -200,7 +201,8 @@ public class DFSLinkSelector implements LinkSelector {
             }
         } else {
             final Application unknown = new Application(toApplication.getName(), ServiceType.UNKNOWN);
-            final LinkData unknownLinkData = new LinkData(linkData.getFromApplication(), unknown, linkData.getLinkCallDataMap());
+            final LinkData unknownLinkData = new LinkData(linkData.getFromApplication(), unknown);
+            unknownLinkData.setLinkCallDataMap(linkData.getLinkCallDataMap());
             return Collections.singletonList(unknownLinkData);
         }
 
@@ -212,7 +214,8 @@ public class DFSLinkSelector implements LinkSelector {
         List<LinkData> emulationLink = new ArrayList<LinkData>();
         for (AcceptApplication acceptApplication : acceptApplicationList) {
             // linkCallData needs to be modified - remove callHistogram on purpose
-            final LinkData acceptedLinkData = new LinkData(linkData.getFromApplication(), acceptApplication.getApplication(), linkData.getLinkCallDataMap());
+            final LinkData acceptedLinkData = new LinkData(linkData.getFromApplication(), acceptApplication.getApplication());
+            acceptedLinkData.setLinkCallDataMap(linkData.getLinkCallDataMap());
             emulationLink.add(acceptedLinkData);
             traceEmulationLink(acceptedLinkData);
         }
