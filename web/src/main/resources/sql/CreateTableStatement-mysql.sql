@@ -1,7 +1,7 @@
-DROP TABLE user_group;
-DROP TABLE user_group_member;
-DROP TABLE puser;
-DROP TABLE alarm_rule;
+--DROP TABLE user_group;
+--DROP TABLE user_group_member;
+--DROP TABLE puser;
+--DROP TABLE alarm_rule;
 
 CREATE TABLE `user_group` (
     `number` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
