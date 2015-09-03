@@ -61,6 +61,6 @@ public class CpuLoadCollector {
     }
 
     private boolean notCollected(double cpuLoad) {
-        return cpuLoad < 0;
+        return cpuLoad < 0 || Double.isNaN(cpuLoad);
     }
 }
