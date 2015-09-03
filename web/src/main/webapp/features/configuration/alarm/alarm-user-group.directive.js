@@ -107,7 +107,7 @@
 	    						number: resultData.number,
 	    						id: name
 	    					});
-	    					alarmBroadcastService.sendInit( resultData.number );
+	    					alarmBroadcastService.sendInit( name );
     						$timeout(function() {
 	    						addSelectClass( resultData.number );
     						});
@@ -158,13 +158,15 @@
 	    					userGroupList = scope.userGroupList = resultData;
 	    					alarmUtilService.setTotal( $elTotal, userGroupList.length );
 	    					alarmUtilService.hide( $elLoading );
-	    					if ( isFirst ) {
-	    						alarmBroadcastService.sendInit( userGroupList[0].id );
-	    						selectedGroupNumber = userGroupList[0].number;
+	    					if( userGroupList.length > 0 ) {
+		    					if ( isFirst ) {
+		    						alarmBroadcastService.sendInit( userGroupList[0].id );
+		    						selectedGroupNumber = userGroupList[0].number;
+		    					}
+		    					$timeout(function() {
+		    						addSelectClass( selectedGroupNumber );
+	    						});
 	    					}
-	    					$timeout(function() {
-	    						addSelectClass( selectedGroupNumber );
-    						});
 	    				}, function( errorData ) {}, $elAlert );			
 
 	    			};

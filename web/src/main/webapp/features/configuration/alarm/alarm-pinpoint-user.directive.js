@@ -178,7 +178,7 @@
     			    return reg.test(phone);
     			}
     			
-    			scope.isAllowedCreate = globalConfig.createUserAllowed;
+    			scope.isAllowedCreate = globalConfig.editUserInfo;
     			scope.onCreate = function() {
     				if ( isRemoving == true ) return;
     				

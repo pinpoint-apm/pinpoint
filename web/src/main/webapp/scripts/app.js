@@ -56,16 +56,14 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
 //    $sceProvider.enabled(false);
 }]);
 
-pinpointApp.value("globalConfig", {
-	"sendAllowed": true,
-	"createUserAllowed": true
-});
+pinpointApp.value("globalConfig", {});
 
 pinpointApp.run([ '$rootScope', '$timeout', '$modal', '$location', '$cookies', '$interval', '$http', 'globalConfig',
     function ($rootScope, $timeout, $modal, $location, $cookies, $interval, $http, globalConfig) {
 		$http.get('/configuration.pinpoint').then(function(result) {
-			globalConfig.sendAllowed = result.data.sendUsage;
-			globalConfig.createUserAllowed = result.data.editUserInfo || true;
+			for( var p in result.data ) {
+				globalConfig[p] = result.data[p];
+			}
 		}, function(error) {});
         if (!isCanvasSupported()) {
             $timeout(function () {
