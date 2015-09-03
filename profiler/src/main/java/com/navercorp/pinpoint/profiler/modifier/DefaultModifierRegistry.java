@@ -133,10 +133,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             return;
         }
 
-        if (profilerConfig.isJdbcProfileMySql()) {
-            addMySqlDriver();
-        }
-
         if (profilerConfig.isJdbcProfileJtds()) {
             addJtdsDriver();
         }
@@ -151,34 +147,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         if (profilerConfig.isJdbcProfileDbcp()) {
             addDbcpDriver();
         }
-    }
-
-    private void addMySqlDriver() {
-        // TODO In some MySQL drivers Connection is an interface and in the others it's a class. Is this OK?
-
-        AbstractModifier mysqlNonRegisteringDriverModifier = new MySQLNonRegisteringDriverModifier(byteCodeInstrumentor, agent);
-        addModifier(mysqlNonRegisteringDriverModifier);
-
-        // From MySQL driver 5.1.x, backward compatibility is broken.
-        // Driver returns not com.mysql.jdbc.Connection but com.mysql.jdbc.JDBC4Connection which extends com.mysql.jdbc.ConnectionImpl from 5.1.x
-        AbstractModifier mysqlConnectionImplModifier = new MySQLConnectionImplModifier(byteCodeInstrumentor, agent);
-        addModifier(mysqlConnectionImplModifier);
-
-        AbstractModifier mysqlConnectionModifier = new MySQLConnectionModifier(byteCodeInstrumentor, agent);
-        addModifier(mysqlConnectionModifier);
-
-        AbstractModifier mysqlStatementModifier = new MySQLStatementModifier(byteCodeInstrumentor, agent);
-        addModifier(mysqlStatementModifier);
-
-        AbstractModifier mysqlPreparedStatementModifier = new MySQLPreparedStatementModifier(byteCodeInstrumentor, agent);
-        addModifier(mysqlPreparedStatementModifier);
-
-        MySQLPreparedStatementJDBC4Modifier myqlPreparedStatementJDBC4Modifier = new MySQLPreparedStatementJDBC4Modifier(byteCodeInstrumentor, agent);
-        addModifier(myqlPreparedStatementJDBC4Modifier);
-
-//      TODO Need to create result set fetch counter
-//        Modifier mysqlResultSetModifier = new MySQLResultSetModifier(byteCodeInstrumentor, agent);
-//        addModifier(mysqlResultSetModifier);
     }
 
     private void addJtdsDriver() {

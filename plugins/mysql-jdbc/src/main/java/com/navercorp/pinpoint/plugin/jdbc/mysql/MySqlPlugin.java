@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.jdbc.cubrid;
+package com.navercorp.pinpoint.plugin.jdbc.mysql;
 
 import java.security.ProtectionDomain;
 
@@ -23,35 +23,45 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 
 /**
  * @author Jongho Moon
  *
  */
-public class CubridPlugin implements ProfilerPlugin, CubridConstants {
+public class MySqlPlugin implements ProfilerPlugin, MySqlConstants {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        CubridConfig config = new CubridConfig(context.getConfig());
+        MySqlConfig config = new MySqlConfig(context.getConfig());
         
-        addCUBRIDConnectionTransformer(context, config);
-        addCUBRIDDriverTransformer(context);
-        addCUBRIDPreparedStatementTransformer(context, config);
-        addCUBRIDStatementTransformer(context);
+        addConnectionTransformer(context, config);
+        addDriverTransformer(context);
+        addStatementTransformer(context);
+        addPreparedStatementTransformer(context, config);
+        
+        // From MySQL driver 5.1.x, backward compatibility is broken.
+        // Driver returns not com.mysql.jdbc.Connection but com.mysql.jdbc.JDBC4Connection which extends com.mysql.jdbc.ConnectionImpl from 5.1.x
+        addJDBC4PreparedStatementTransformer(context);
     }
-
     
-    private void addCUBRIDConnectionTransformer(ProfilerPluginSetupContext setupContext, final CubridConfig config) {
-        setupContext.addClassFileTransformer("cubrid.jdbc.driver.CUBRIDConnection", new PinpointClassFileTransformer() {
+    private void addConnectionTransformer(ProfilerPluginSetupContext setupContext, final MySqlConfig config) {
+        PinpointClassFileTransformer transformer = new PinpointClassFileTransformer() {
             
             @Override
             public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                
+                if (!target.isInterceptable()) {
+                    return null;
+                }
+                
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_CUBRID);
-                        
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_NAME);
+
+                target.addInterceptor("com.navercorp.pinpoint.plugin.jdbc.mysql.interceptor.MySQLConnectionCreateInterceptor");
                 target.addInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", group);
                 target.addInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor", group);
                 target.addInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementCreateInterceptor", group);
@@ -70,26 +80,29 @@ public class CubridPlugin implements ProfilerPlugin, CubridConstants {
                 
                 return target.toBytecode();
             }
-        });
+        };
+        
+        setupContext.addClassFileTransformer("com.mysql.jdbc.Connection", transformer);
+        setupContext.addClassFileTransformer("com.mysql.jdbc.ConnectionImpl", transformer);
     }
     
-    private void addCUBRIDDriverTransformer(ProfilerPluginSetupContext setupContext) {
-        setupContext.addClassFileTransformer("cubrid.jdbc.driver.CUBRIDDriver", new PinpointClassFileTransformer() {
+    private void addDriverTransformer(ProfilerPluginSetupContext setupContext) {
+        setupContext.addClassFileTransformer("com.mysql.jdbc.NonRegisteringDriver", new PinpointClassFileTransformer() {
             
             @Override
             public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_CUBRID);
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_NAME);
                 
-                target.addInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", group, ExecutionPolicy.ALWAYS, new CubridJdbcUrlParser());
+                target.addInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", group, ExecutionPolicy.ALWAYS, new MySqlJdbcUrlParser(), false);
                 
                 return target.toBytecode();
             }
         });
     }
     
-    private void addCUBRIDPreparedStatementTransformer(ProfilerPluginSetupContext setupContext, final CubridConfig config) {
-        setupContext.addClassFileTransformer("cubrid.jdbc.driver.CUBRIDPreparedStatement", new PinpointClassFileTransformer() {
+    private void addPreparedStatementTransformer(ProfilerPluginSetupContext setupContext, final MySqlConfig config) {
+        setupContext.addClassFileTransformer("com.mysql.jdbc.PreparedStatement", new PinpointClassFileTransformer() {
             
             @Override
             public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -100,32 +113,55 @@ public class CubridPlugin implements ProfilerPlugin, CubridConstants {
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor", "new java.util.HashMap()");
                 
                 int maxBindValueSize = config.getMaxSqlBindValueSize();
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_CUBRID);
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_NAME);
                 
                 target.addInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor", group, maxBindValueSize);
-                target.addInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", group);
+                target.addInterceptor(PreparedStatementBindingMethodFilter.excludes("setRowId", "setNClob", "setSQLXML"), "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", group, ExecutionPolicy.BOUNDARY);
                 
                 return target.toBytecode();
             }
         });
     }
+
+    private void addJDBC4PreparedStatementTransformer(ProfilerPluginSetupContext setupContext) {
+        setupContext.addClassFileTransformer("com.mysql.jdbc.JDBC4PreparedStatement", new PinpointClassFileTransformer() {
+            
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_NAME);
+                
+                target.addInterceptor(PreparedStatementBindingMethodFilter.includes("setRowId", "setNClob", "setSQLXML"), "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", group, ExecutionPolicy.BOUNDARY);
+                
+                return target.toBytecode();
+            }
+        });
+    }
+
     
-    private void addCUBRIDStatementTransformer(ProfilerPluginSetupContext setupContext) {
-        setupContext.addClassFileTransformer("cubrid.jdbc.driver.CUBRIDStatement", new PinpointClassFileTransformer() {
+    private void addStatementTransformer(ProfilerPluginSetupContext setupContext) {
+        PinpointClassFileTransformer transformer = new PinpointClassFileTransformer() {
             
             @Override
             public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 
+                if (!target.isInterceptable()) {
+                    return null;
+                }
+                
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
                 
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_CUBRID);
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_NAME);
 
                 target.addInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor", group);
                 target.addInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor", group);
                 
                 return target.toBytecode();
             }
-        });
+        };
+        
+        setupContext.addClassFileTransformer("com.mysql.jdbc.Statement", transformer);
+        setupContext.addClassFileTransformer("com.mysql.jdbc.StatementImpl", transformer);
     }
 }

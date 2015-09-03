@@ -30,9 +30,6 @@ public class DefaultDisplayArgument {
     public static final DisplayArgumentMatcher UNKNOWN_DB_MATCHER = createArgumentMatcher(ServiceType.UNKNOWN, AnnotationKey.ARGS0);
     public static final DisplayArgumentMatcher UNKNOWN_DB_EXECUTE_QUERY_MATCHER = createArgumentMatcher(ServiceType.UNKNOWN_DB_EXECUTE_QUERY, AnnotationKey.ARGS0);
 
-    public static final DisplayArgumentMatcher MYSQL_MATCHER = createArgumentMatcher(ServiceType.MYSQL, AnnotationKey.ARGS0);
-    public static final DisplayArgumentMatcher MYSQL_EXECUTE_QUERY_MATCHER = createArgumentMatcher(ServiceType.MYSQL_EXECUTE_QUERY, AnnotationKey.ARGS0);
-
     public static final DisplayArgumentMatcher MSSQL_MATCHER = createArgumentMatcher(ServiceType.MSSQL, AnnotationKey.ARGS0);
     public static final DisplayArgumentMatcher MSSQL_EXECUTE_QUERY_MATCHER = createArgumentMatcher(ServiceType.MSSQL_EXECUTE_QUERY, AnnotationKey.ARGS0);
 

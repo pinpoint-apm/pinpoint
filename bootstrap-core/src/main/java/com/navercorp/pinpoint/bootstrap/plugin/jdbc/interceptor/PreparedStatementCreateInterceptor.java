@@ -36,6 +36,7 @@ import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
         @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String" }),
         @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int" }), 
         @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int[]" }),
+        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "java.lang.String[]" }),
         @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int", "int" }),
         @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int", "int", "int" })
 })

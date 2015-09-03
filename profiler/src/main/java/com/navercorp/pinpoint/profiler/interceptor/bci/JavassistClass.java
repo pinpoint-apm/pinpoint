@@ -457,14 +457,24 @@ public class JavassistClass implements InstrumentClass {
 
         return interceptorId;
     }
-
+    
     private int addInterceptor0(TargetConstructor c, String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException {
         InstrumentMethod constructor = getConstructor(c.value());
+        
+        if (constructor == null) {
+            throw new NotFoundInstrumentException("Cannot find constructor with parameter types: " + Arrays.toString(c.value()));
+        }
+        
         return constructor.addInterceptor(interceptorClassName, group, executionPolicy, constructorArgs);
     }
 
     private int addInterceptor0(TargetMethod m, String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException {
         InstrumentMethod method = getDeclaredMethod(m.name(), m.paramTypes());
+
+        if (method == null) {
+            throw new NotFoundInstrumentException("Cannot find method " + m.name() + " with parameter types: " + Arrays.toString(m.paramTypes()));
+        }
+
         return method.addInterceptor(interceptorClassName, group, executionPolicy, constructorArgs);
     }
 
@@ -488,6 +498,26 @@ public class JavassistClass implements InstrumentClass {
 
         if (interceptorId == -1) {
             logger.warn("No methods are intercepted. target: " + ctClass.getName(), ", interceptor: " + interceptorClassName + ", methodFilter: " + filterTypeName);
+        }
+
+        return interceptorId;
+    }
+    
+
+    @Override
+    public int addInterceptor(MethodFilter filter, String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException {
+        int interceptorId = -1;
+
+        for (InstrumentMethod m : getDeclaredMethods(filter)) {
+            if (interceptorId != -1) {
+                m.addInterceptor(interceptorId);
+            } else {
+                interceptorId = m.addInterceptor(interceptorClassName, group, executionPolicy, constructorArgs);
+            }
+        }
+
+        if (interceptorId == -1) {
+            logger.warn("No methods are intercepted. target: " + ctClass.getName(), ", interceptor: " + interceptorClassName + ", methodFilter: " + filter.getClass().getName());
         }
 
         return interceptorId;
