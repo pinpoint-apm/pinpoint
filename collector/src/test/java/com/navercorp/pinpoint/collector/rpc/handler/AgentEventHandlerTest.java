@@ -42,6 +42,7 @@ import com.navercorp.pinpoint.common.util.AgentEventMessageSerializer;
 import com.navercorp.pinpoint.common.util.AgentEventType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
@@ -66,7 +67,7 @@ public class AgentEventHandlerTest {
 
     @Mock
     private AgentEventMessageSerializer agentEventMessageSerializer;
-    
+
     @Mock
     private DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory;
 
@@ -133,10 +134,10 @@ public class AgentEventHandlerTest {
         final TCommandTransfer tCommandTransfer = new TCommandTransfer();
         tCommandTransfer.setAgentId(TEST_AGENT_ID);
         tCommandTransfer.setStartTime(TEST_START_TIMESTAMP);
-        
-        final TCommandTransferResponse tCommandTransferResponse = mock(TCommandTransferResponse.class);
-        when(tCommandTransferResponse.getRouteResult()).thenReturn(TRouteResult.OK);
-        when(tCommandTransferResponse.getPayload()).thenReturn(expectedThreadDumpResponseBody);
+
+        final TCommandTransferResponse tCommandTransferResponse = new TCommandTransferResponse();
+        tCommandTransferResponse.setRouteResult(TRouteResult.OK);
+        tCommandTransferResponse.setPayload(expectedThreadDumpResponseBody);
 
         final ResponseEvent responseEvent = new ResponseEvent(tCommandTransfer, null, 0, tCommandTransferResponse);
 
@@ -144,17 +145,43 @@ public class AgentEventHandlerTest {
         HeaderTBaseDeserializer deserializer = mock(HeaderTBaseDeserializer.class);
         when(this.deserializerFactory.createDeserializer()).thenReturn(deserializer);
         when(deserializer.deserialize(expectedThreadDumpResponseBody)).thenReturn((TBase)expectedThreadDumpResponse);
-
         // when
         this.agentEventHandler.handleResponseEvent(responseEvent, TEST_EVENT_TIMESTAMP);
         // then
-        verify(this.agentEventDao, times(1)).insert(argCaptor.capture());
+        verify(this.agentEventDao, atLeast(1)).insert(argCaptor.capture());
         AgentEventBo actualAgentEventBo = argCaptor.getValue();
         assertEquals(TEST_AGENT_ID, actualAgentEventBo.getAgentId());
         assertEquals(TEST_START_TIMESTAMP, actualAgentEventBo.getStartTimestamp());
         assertEquals(TEST_EVENT_TIMESTAMP, actualAgentEventBo.getEventTimestamp());
         assertEquals(expectedEventType, actualAgentEventBo.getEventType());
-        assertEquals(expectedThreadDumpResponseBody, actualAgentEventBo.getEventBody());
+        assertArrayEquals(expectedThreadDumpResponseBody, actualAgentEventBo.getEventBody());
+    }
+
+    @Test
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public void handler_should_ignore_request_events_with_unsupported_message_types() throws Exception {
+        // given
+        final TCommandEcho mismatchingResponse = new TCommandEcho();
+        final byte[] mismatchingResponseBody = new byte[0];
+
+        final TCommandTransfer tCommandTransfer = new TCommandTransfer();
+        tCommandTransfer.setAgentId(TEST_AGENT_ID);
+        tCommandTransfer.setStartTime(TEST_START_TIMESTAMP);
+
+        final TCommandTransferResponse tCommandTransferResponse = new TCommandTransferResponse();
+        tCommandTransferResponse.setRouteResult(TRouteResult.OK);
+        tCommandTransferResponse.setPayload(mismatchingResponseBody);
+
+        final ResponseEvent responseEvent = new ResponseEvent(tCommandTransfer, null, 0, tCommandTransferResponse);
+
+        ArgumentCaptor<AgentEventBo> argCaptor = ArgumentCaptor.forClass(AgentEventBo.class);
+        HeaderTBaseDeserializer deserializer = mock(HeaderTBaseDeserializer.class);
+        when(this.deserializerFactory.createDeserializer()).thenReturn(deserializer);
+        when(deserializer.deserialize(mismatchingResponseBody)).thenReturn((TBase)mismatchingResponse);
+        // when
+        this.agentEventHandler.handleResponseEvent(responseEvent, TEST_EVENT_TIMESTAMP);
+        // then
+        verify(this.agentEventDao, never()).insert(argCaptor.capture());
     }
 
     private static Map<Object, Object> createTestChannelProperties() {
