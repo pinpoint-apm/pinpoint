@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.navercorp.pinpoint.collector.manage.ClusterManager;
+import com.navercorp.pinpoint.rpc.util.ListUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,9 @@ public class JMXCollectorManagerList {
     @Autowired
     private HandlerManager handlerManager;
 
+    @Autowired
+    private ClusterManager clusterManager;
+
     public List<CollectorManager> getSupportList() {
         if (!isActive) {
             logger.warn("not activing jmx api for admin.");
@@ -49,9 +54,8 @@ public class JMXCollectorManagerList {
         
         List<CollectorManager> supportManagerList = new ArrayList<CollectorManager>();
 
-        if (handlerManager != null) {
-            supportManagerList.add(handlerManager);
-        }
+        ListUtils.addIfValueNotNull(supportManagerList, handlerManager);
+        ListUtils.addIfValueNotNull(supportManagerList, clusterManager);
 
         return supportManagerList;
     }
