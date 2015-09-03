@@ -571,7 +571,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
             throw new AssertionError("Expected an instance of " + expected.type.getSimpleName() + " but was " + actual.getType().getName() +". expected: " + expected + ", was: " + actual);
         }
         
-        if (expected.serviceType.getCode() != actual.getServiceType()) {
+        if (!equals(expected.serviceType.getCode(), actual.getServiceType())) {
             throw new AssertionError("Expected a " + expected.type.getSimpleName() + " with serviceType[" + expected.serviceType.getCode() + "] but was [" + actual.getServiceType() + "]. expected: " + expected + ", was: " + actual);
         }
         

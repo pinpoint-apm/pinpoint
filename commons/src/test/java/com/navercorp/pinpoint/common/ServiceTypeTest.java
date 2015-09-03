@@ -18,13 +18,13 @@ package com.navercorp.pinpoint.common;
 
 import java.util.List;
 
-import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public class ServiceTypeTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -32,10 +32,10 @@ public class ServiceTypeTest {
     @Test
     public void findDesc() {
         DefaultServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService();
-        String desc = "MYSQL";
-        List<ServiceType> mysqlList = serviceTypeRegistryService.findDesc(desc);
+        String desc = "UNKNOWN_DB";
+        List<ServiceType> serviceTypeList = serviceTypeRegistryService.findDesc(desc);
         boolean find = false;
-        for (ServiceType serviceType : mysqlList) {
+        for (ServiceType serviceType : serviceTypeList) {
             if(serviceType.getDesc().equals(desc)) {
                 find = true;
             }
@@ -43,7 +43,7 @@ public class ServiceTypeTest {
         Assert.assertTrue(find);
 
         try {
-            mysqlList.add(ServiceType.ORACLE);
+            serviceTypeList.add(ServiceType.INTERNAL_METHOD);
             Assert.fail();
         } catch (Exception e) {
         }

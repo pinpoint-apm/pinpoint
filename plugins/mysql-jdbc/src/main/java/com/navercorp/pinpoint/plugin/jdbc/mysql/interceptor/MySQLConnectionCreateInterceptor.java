@@ -14,29 +14,37 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.db.mysql.interceptor;
+package com.navercorp.pinpoint.plugin.jdbc.mysql.interceptor;
+
+import java.util.Arrays;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.*;
-import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
+import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetConstructor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.plugin.jdbc.mysql.MySqlConstants;
 
 /**
  * @author emeroad
  */
-public class MySQLConnectionCreateInterceptor implements SimpleAroundInterceptor, TraceContextSupport {
+@TargetConstructor({ "java.lang.String", "int", "java.util.Properties", "java.lang.String", "java.lang.String" })
+public class MySQLConnectionCreateInterceptor implements SimpleAroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
+    private final TraceContext traceContext;
 
+    public MySQLConnectionCreateInterceptor(TraceContext traceContext) {
+        this.traceContext = traceContext;
+    }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
@@ -50,16 +58,16 @@ public class MySQLConnectionCreateInterceptor implements SimpleAroundInterceptor
         final String hostToConnectTo = getString(args[0]);
         final Integer portToConnectTo = getInteger(args[1]);
         final String databaseId = getString(args[3]);
-        // In case of loadbalance, connectUrl is modified. 
-//        final String url = getString(args[4]);
+        // In case of loadbalance, connectUrl is modified.
+        // final String url = getString(args[4]);
         DatabaseInfo databaseInfo = null;
         if (hostToConnectTo != null && portToConnectTo != null && databaseId != null) {
             // It's dangerous to use this url directly
-            databaseInfo = traceContext.createDatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, hostToConnectTo, portToConnectTo, databaseId);
+            databaseInfo = createDatabaseInfo(hostToConnectTo, portToConnectTo, databaseId);
             if (InterceptorUtils.isSuccess(throwable)) {
                 // Set only if connection is success.
-                if (target instanceof DatabaseInfoTraceValue) {
-                    ((DatabaseInfoTraceValue)target)._$PINPOINT$_setTraceDatabaseInfo(databaseInfo);
+                if (target instanceof DatabaseInfoAccessor) {
+                    ((DatabaseInfoAccessor) target)._$PINPOINT$_setDatabaseInfo(databaseInfo);
                 }
             }
         }
@@ -72,10 +80,20 @@ public class MySQLConnectionCreateInterceptor implements SimpleAroundInterceptor
         SpanEventRecorder recorder = trace.currentSpanEventRecorder();
         // We must do this if current transaction is being recorded.
         if (databaseInfo != null) {
-            recorder.recordServiceType(databaseInfo.getExecuteQueryType());
+            recorder.recordServiceType(databaseInfo.getType());
             recorder.recordEndPoint(databaseInfo.getMultipleHost());
             recorder.recordDestinationId(databaseInfo.getDatabaseId());
         }
+
+    }
+    
+    private DatabaseInfo createDatabaseInfo(String url, Integer port, String databaseId) {
+        if (url.indexOf(':') == -1) {
+            url += ":" + port;
+        }
+
+        DatabaseInfo databaseInfo = new DefaultDatabaseInfo(MySqlConstants.MYSQL, MySqlConstants.MYSQL_EXECUTE_QUERY, url, url, Arrays.asList(url), databaseId);
+        return databaseInfo;
 
     }
 
@@ -97,11 +115,4 @@ public class MySQLConnectionCreateInterceptor implements SimpleAroundInterceptor
     public void before(Object target, Object[] args) {
 
     }
-
-
-    @Override
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
-    }
-
 }

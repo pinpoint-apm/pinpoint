@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe.ByConstructor;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe.ByStaticFactoryMethod;
@@ -31,6 +34,9 @@ import com.navercorp.pinpoint.exception.PinpointException;
  *
  */
 public class AutoBindingObjectFactory {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
+    
     private final ProfilerPluginInstrumentContext pluginContext;
     private final ClassLoader classLoader;
     private final List<ArgumentProvider> commonProviders;
@@ -65,6 +71,10 @@ public class AutoBindingObjectFactory {
         Constructor<?> constructor = resolver.getResolvedConstructor();
         Object[] resolvedArguments = resolver.getResolvedArguments();
         
+        if (isDebug) {
+            logger.debug("Create insatnce by constructor {}, with arguments {}", constructor, Arrays.toString(resolvedArguments));
+        }
+        
         try {
             return constructor.newInstance(resolvedArguments);
         } catch (Exception e) {
@@ -81,7 +91,11 @@ public class AutoBindingObjectFactory {
         
         Method method = resolver.getResolvedMethod();
         Object[] resolvedArguments = resolver.getResolvedArguments();
-        
+
+        if (isDebug) {
+            logger.debug("Create insatnce by static factory method {}, with arguments {}", method, Arrays.toString(resolvedArguments));
+        }
+
         try {
             return method.invoke(null, resolvedArguments);
         } catch (Exception e) {

@@ -14,33 +14,27 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.db.mysql;
+package com.navercorp.pinpoint.plugin.jdbc.mysql;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.modifier.db.ConnectionStringParser;
-import com.navercorp.pinpoint.profiler.modifier.db.DefaultDatabaseInfo;
-import com.navercorp.pinpoint.profiler.modifier.db.JDBCUrlParser;
-import com.navercorp.pinpoint.profiler.modifier.db.StringMaker;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
 
 /**
  * @author emeroad
  */
-public class MySqlConnectionStringParser implements ConnectionStringParser {
+public class MySqlJdbcUrlParser extends JdbcUrlParser implements MySqlConstants {
 
     // jdbc:mysql:loadbalance://10.22.33.44:3306,10.22.33.55:3306/MySQL?characterEncoding=UTF-8
     private static final String JDBC_MYSQL_LOADBALANCE = "jdbc:mysql:loadbalance:";
 
     @Override
-    public DatabaseInfo parse(String url) {
-        if (url == null) {
-            return JDBCUrlParser.createUnknownDataBase(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, null);
-        }
-
+    public DatabaseInfo doParse(String url) {
         if (isLoadbalanceUrl(url)) {
             return parseLoadbalancedUrl(url);
         }
@@ -62,7 +56,8 @@ public class MySqlConnectionStringParser implements ConnectionStringParser {
 
         String databaseId = maker.next().afterLast('/').before('?').value();
         String normalizedUrl = maker.clear().before('?').value();
-        return new DefaultDatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
+        
+        return new DefaultDatabaseInfo(MYSQL, MYSQL_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
     }
 
     private boolean isLoadbalanceUrl(String url) {
@@ -82,6 +77,6 @@ public class MySqlConnectionStringParser implements ConnectionStringParser {
 
         String databaseId = maker.next().afterLast('/').before('?').value();
         String normalizedUrl = maker.clear().before('?').value();
-        return new DefaultDatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
+        return new DefaultDatabaseInfo(MYSQL, MYSQL_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
     }
 }
