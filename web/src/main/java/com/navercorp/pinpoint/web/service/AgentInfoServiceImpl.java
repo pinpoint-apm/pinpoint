@@ -78,19 +78,19 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             if (agentInfoBo == null) {
                 continue;
             }
-            
+
             final AgentInfo agentInfo = new AgentInfo(agentInfoBo);
-            
+
             final AgentStatus currentStatus = this.getAgentStatus(agentId, Long.MAX_VALUE);
             agentInfo.setStatus(currentStatus);
-            
+
             final AgentInfoBo initialAgentInfo = this.agentInfoDao.getInitialAgentInfo(agentId);
             if (initialAgentInfo != null) {
                 agentInfo.setInitialStartTimestamp(initialAgentInfo.getStartTime());
             }
 
             String hostname = agentInfoBo.getHostName();
-            
+
             if (result.containsKey(hostname)) {
                 result.get(hostname).add(agentInfo);
             } else {
@@ -110,19 +110,21 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public Set<AgentInfoBo> getAgentsByApplicationName(String applicationName, long timestamp) {
+    public Set<AgentInfo> getAgentsByApplicationName(String applicationName, long timestamp) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
 
         List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
-        Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
+        Set<AgentInfo> agentSet = new HashSet<AgentInfo>();
         for (String agentId : agentIds) {
             // TODO Temporarily scans for the most recent AgentInfo row starting from range's to value.
             // (As we do not yet have a way to accurately record the agent's lifecycle.)
-            AgentInfoBo info = this.agentInfoDao.getAgentInfo(agentId, timestamp);
-            if (info != null) {
-                agentSet.add(info);
+            AgentInfoBo agentInfoBo = this.agentInfoDao.getAgentInfo(agentId, timestamp);
+            if (agentInfoBo != null) {
+                AgentInfo agentInfo = new AgentInfo(agentInfoBo);
+                agentInfo.setStatus(this.getAgentStatus(agentId, timestamp));
+                agentSet.add(agentInfo);
             }
         }
         return agentSet;
@@ -155,7 +157,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         }
         AgentLifeCycleBo agentLifeCycleBo = this.agentLifeCycleDao.getAgentLifeCycle(agentId, timestamp);
         if (agentLifeCycleBo == null) {
-            AgentStatus agentStatus = new AgentStatus(); 
+            AgentStatus agentStatus = new AgentStatus();
             agentStatus.setAgentId(agentId);
             agentStatus.setState(AgentLifeCycleState.UNKNOWN);
             return agentStatus;

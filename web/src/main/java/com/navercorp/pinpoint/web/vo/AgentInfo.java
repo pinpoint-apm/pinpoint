@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.bo.ServerMetaDataBo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * @author HyunGil Jeong
@@ -43,7 +44,7 @@ public class AgentInfo {
     private String hostName;
     private String ip;
     private String ports;
-    private String serviceType;
+    private ServiceType serviceType;
     private int pid;
     private String vmVersion;
     private String agentVersion;
@@ -65,7 +66,7 @@ public class AgentInfo {
         this.hostName = agentInfoBo.getHostName();
         this.ip = agentInfoBo.getIp();
         this.ports = agentInfoBo.getPorts();
-        this.serviceType = agentInfoBo.getServiceType().getName();
+        this.serviceType = agentInfoBo.getServiceType();
         this.pid = agentInfoBo.getPid();
         this.vmVersion = agentInfoBo.getVmVersion();
         this.agentVersion = agentInfoBo.getAgentVersion();
@@ -120,11 +121,11 @@ public class AgentInfo {
         this.ports = ports;
     }
 
-    public String getServiceType() {
+    public ServiceType getServiceType() {
         return serviceType;
     }
 
-    public void setServiceType(String serviceType) {
+    public void setServiceType(ServiceType serviceType) {
         this.serviceType = serviceType;
     }
 
@@ -181,18 +182,7 @@ public class AgentInfo {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((agentId == null) ? 0 : agentId.hashCode());
-        result = prime * result + ((agentVersion == null) ? 0 : agentVersion.hashCode());
-        result = prime * result + ((applicationName == null) ? 0 : applicationName.hashCode());
-        result = prime * result + ((hostName == null) ? 0 : hostName.hashCode());
-        result = prime * result + (int)(initialStartTimestamp ^ (initialStartTimestamp >>> 32));
-        result = prime * result + ((ip == null) ? 0 : ip.hashCode());
-        result = prime * result + pid;
-        result = prime * result + ((ports == null) ? 0 : ports.hashCode());
-        result = prime * result + ((serverMetaData == null) ? 0 : serverMetaData.hashCode());
         result = prime * result + ((serviceType == null) ? 0 : serviceType.hashCode());
-        result = prime * result + (int)(startTimestamp ^ (startTimestamp >>> 32));
-        result = prime * result + ((status == null) ? 0 : status.hashCode());
-        result = prime * result + ((vmVersion == null) ? 0 : vmVersion.hashCode());
         return result;
     }
 
@@ -210,56 +200,10 @@ public class AgentInfo {
                 return false;
         } else if (!agentId.equals(other.agentId))
             return false;
-        if (agentVersion == null) {
-            if (other.agentVersion != null)
-                return false;
-        } else if (!agentVersion.equals(other.agentVersion))
-            return false;
-        if (applicationName == null) {
-            if (other.applicationName != null)
-                return false;
-        } else if (!applicationName.equals(other.applicationName))
-            return false;
-        if (hostName == null) {
-            if (other.hostName != null)
-                return false;
-        } else if (!hostName.equals(other.hostName))
-            return false;
-        if (initialStartTimestamp != other.initialStartTimestamp)
-            return false;
-        if (ip == null) {
-            if (other.ip != null)
-                return false;
-        } else if (!ip.equals(other.ip))
-            return false;
-        if (pid != other.pid)
-            return false;
-        if (ports == null) {
-            if (other.ports != null)
-                return false;
-        } else if (!ports.equals(other.ports))
-            return false;
-        if (serverMetaData == null) {
-            if (other.serverMetaData != null)
-                return false;
-        } else if (!serverMetaData.equals(other.serverMetaData))
-            return false;
         if (serviceType == null) {
             if (other.serviceType != null)
                 return false;
         } else if (!serviceType.equals(other.serviceType))
-            return false;
-        if (startTimestamp != other.startTimestamp)
-            return false;
-        if (status == null) {
-            if (other.status != null)
-                return false;
-        } else if (!status.equals(other.status))
-            return false;
-        if (vmVersion == null) {
-            if (other.vmVersion != null)
-                return false;
-        } else if (!vmVersion.equals(other.vmVersion))
             return false;
         return true;
     }
