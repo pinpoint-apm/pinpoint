@@ -81,7 +81,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
             final AgentInfo agentInfo = new AgentInfo(agentInfoBo);
 
-            final AgentStatus currentStatus = this.getAgentStatus(agentId, Long.MAX_VALUE);
+            final AgentStatus currentStatus = this.getAgentStatus(agentId, timestamp);
             agentInfo.setStatus(currentStatus);
 
             final AgentInfoBo initialAgentInfo = this.agentInfoDao.getInitialAgentInfo(agentId);

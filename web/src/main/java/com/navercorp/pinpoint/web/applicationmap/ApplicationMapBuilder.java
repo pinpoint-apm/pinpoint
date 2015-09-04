@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.applicationmap.histogram.*;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.*;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
@@ -45,6 +46,34 @@ public class ApplicationMapBuilder {
         }
 
         this.range = range;
+    }
+    
+    /**
+     * Returns an application map with a single node containing the application's agents that were running.
+     */
+    public ApplicationMap build(Application application, AgentInfoService agentInfoService) {
+        NodeList nodeList = new NodeList();
+        LinkList emptyLinkList = new LinkList();
+        
+        Node node = new Node(application);
+        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationName(application.getName(), range.getTo());
+        for (Iterator<AgentInfo> iterator = agentInfos.iterator(); iterator.hasNext();) {
+            AgentInfo agentInfo = iterator.next();
+            if (!isAgentRunning(agentInfo)) {
+                iterator.remove();
+            }
+        }
+        if (agentInfos.isEmpty()) {
+            return new ApplicationMap(range, nodeList, emptyLinkList);
+        } else {
+            ServerBuilder serverBuilder = new ServerBuilder();
+            serverBuilder.addAgentInfo(agentInfos);
+            ServerInstanceList serverInstanceList = serverBuilder.build();
+            node.setServerInstanceList(serverInstanceList);
+            node.setNodeHistogram(new NodeHistogram(application, range));
+            nodeList.addNode(node);
+            return new ApplicationMap(range, nodeList, emptyLinkList);
+        }
     }
 
     public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService,
@@ -400,12 +429,10 @@ public class ApplicationMapBuilder {
         }
 
     }
-
+    
     /**
-     * Filters AgentInfo by whether they actually have response data. This is only a temporary solution until we
-     * implement agent life cycle management.
-     * 
-     * FIXME Use the actual agent status (once implemented) to filter out AgentInfo
+     * Filters AgentInfo by whether they actually have response data.
+     * For agents that do not have response data, check their status and include those that were alive.
      */
     private Set<AgentInfo> filterAgentInfoByResponseData(Set<AgentInfo> agentList, Node node) {
         Set<AgentInfo> filteredAgentInfo = new HashSet<AgentInfo>();
@@ -416,10 +443,20 @@ public class ApplicationMapBuilder {
             String agentId = agentInfo.getAgentId();
             if (agentHistogramMap.containsKey(agentId)) {
                 filteredAgentInfo.add(agentInfo);
+            } else {
+                if (isAgentRunning(agentInfo)) {
+                    filteredAgentInfo.add(agentInfo);
+                }
             }
         }
 
         return filteredAgentInfo;
     }
+    
+    private boolean isAgentRunning(AgentInfo agentInfo) {
+        return agentInfo.getStatus().getState() == AgentLifeCycleState.RUNNING;
+    }
+    
+    
 
 }
