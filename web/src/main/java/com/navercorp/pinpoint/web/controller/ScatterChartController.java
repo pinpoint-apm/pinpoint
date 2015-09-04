@@ -16,9 +16,7 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -48,7 +46,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
- *
  * @author netspider
  * @author emeroad
  */
@@ -73,12 +70,12 @@ public class ScatterChartController {
     @Deprecated
     @RequestMapping(value = "/scatterpopup", method = RequestMethod.GET)
     public String scatterPopup(Model model,
-                                @RequestParam("application") String applicationName,
-                                @RequestParam("from") long from,
-                                @RequestParam("to") long to,
-                                @RequestParam("period") long period,
-                                @RequestParam("usePeriod") boolean usePeriod,
-                                @RequestParam(value = "filter", required = false) String filterText) {
+                               @RequestParam("application") String applicationName,
+                               @RequestParam("from") long from,
+                               @RequestParam("to") long to,
+                               @RequestParam("period") long period,
+                               @RequestParam("usePeriod") boolean usePeriod,
+                               @RequestParam(value = "filter", required = false) String filterText) {
         model.addAttribute("applicationName", applicationName);
         model.addAttribute("from", from);
         model.addAttribute("to", to);
@@ -89,38 +86,36 @@ public class ScatterChartController {
     }
 
     /**
-     *
      * @param applicationName
      * @param from
      * @param to
-     * @param limit
-     *            max number of data return. if the requested data exceed this limit, we need additional calls to
-     *                         fetch the rest of the data
+     * @param limit           max number of data return. if the requested data exceed this limit, we need additional calls to
+     *                        fetch the rest of the data
      * @return
      */
     @RequestMapping(value = "/getScatterData", method = RequestMethod.GET)
     public ModelAndView getScatterData(
-                                @RequestParam("application") String applicationName,
-                                @RequestParam("from") long from,
-                                @RequestParam("to") long to,
-                                @RequestParam("limit") int limit,
-                                @RequestParam(value = "filter", required = false) String filterText,
-                                @RequestParam(value = "_callback", required = false) String jsonpCallback,
-                                @RequestParam(value = "v", required = false, defaultValue = "2") int version) {
+            @RequestParam("application") String applicationName,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestParam("limit") int limit,
+            @RequestParam(value = "filter", required = false) String filterText,
+            @RequestParam(value = "_callback", required = false) String jsonpCallback,
+            @RequestParam(value = "v", required = false, defaultValue = "2") int version) {
         limit = LimitUtils.checkRange(limit);
 
         StopWatch watch = new StopWatch();
         watch.start("selectScatterData");
 
-                // TODO range check verification exception occurs. "from" is bigger than "to"
+        // TODO range check verification exception occurs. "from" is bigger than "to"
         final Range range = Range.createUncheckedRange(from, to);
         logger.debug("fetch scatter data. {}, LIMIT={}, FILTER={}", range, limit, filterText);
 
         ModelAndView mv;
         if (filterText == null) {
-            mv = selectScatterData(applicationName, range, limit, jsonpCallback);
+            mv = selectScatterData(applicationName, range, limit, jsonpCallback, version);
         } else {
-            mv = selectFilterScatterDataData(applicationName, range, filterText, limit, jsonpCallback);
+            mv = selectFilterScatterDataData(applicationName, range, filterText, limit, jsonpCallback, version);
         }
 
         watch.stop();
@@ -130,14 +125,14 @@ public class ScatterChartController {
         return mv;
     }
 
-    private ModelAndView selectFilterScatterDataData(String applicationName, Range range, String filterText, int limit, String jsonpCallback) {
+    private ModelAndView selectFilterScatterDataData(String applicationName, Range range, String filterText, int limit, String jsonpCallback, int version) {
 
         final LimitedScanResult<List<TransactionId>> limitedScanResult = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
 
         final List<TransactionId> traceIdList = limitedScanResult.getScanData();
         logger.trace("submitted transactionId count={}", traceIdList.size());
 
-                // TODO just need sorted?  we need range check with tree-based structure.
+        // TODO just need sorted?  we need range check with tree-based structure.
         SortedSet<TransactionId> traceIdSet = new TreeSet<TransactionId>(traceIdList);
         logger.debug("unified traceIdSet size={}", traceIdSet.size());
 
@@ -154,10 +149,10 @@ public class ScatterChartController {
         } else {
             resultRange = new Range(limitedScanResult.getLimitedTime(), range.getTo());
         }
-        return createModelAndView(resultRange, jsonpCallback, scatterData);
+        return createModelAndView(resultRange, jsonpCallback, scatterData, version);
     }
 
-    private ModelAndView selectScatterData(String applicationName, Range range, int limit, String jsonpCallback) {
+    private ModelAndView selectScatterData(String applicationName, Range range, int limit, String jsonpCallback, int version) {
 
         final List<Dot> scatterData = scatter.selectScatterData(applicationName, range, limit);
         Range resultRange;
@@ -166,15 +161,30 @@ public class ScatterChartController {
         } else {
             resultRange = new Range(scatterData.get(scatterData.size() - 1).getAcceptedTime(), range.getTo());
         }
-        return createModelAndView(resultRange, jsonpCallback, scatterData);
+        return createModelAndView(resultRange, jsonpCallback, scatterData, version);
     }
 
-    private ModelAndView createModelAndView(Range range, String jsonpCallback, List<Dot> scatterData) {
+    private ModelAndView createModelAndView(Range range, String jsonpCallback, List<Dot> scatterData, int version) {
         ModelAndView mv = new ModelAndView();
         mv.addObject("resultFrom", range.getFrom());
         mv.addObject("resultTo", range.getTo());
         mv.addObject("scatterIndex", ScatterIndex.MATA_DATA);
-        mv.addObject("scatter", scatterData);
+        if(version <= 2) {
+            mv.addObject("scatter", scatterData);
+        } else {
+            final Map<String, List<Dot>> scatterAgentData = new HashMap<String, List<Dot>>();
+            for(Dot dot : scatterData) {
+                List<Dot> list = scatterAgentData.get(dot.getAgentId());
+                if(list == null) {
+                    list = new ArrayList<Dot>();
+                    scatterAgentData.put(dot.getAgentId(), list);
+                }
+                list.add(dot);
+            }
+
+            mv.addObject("scatter", scatterAgentData);
+        }
+
         if (jsonpCallback == null) {
             mv.setViewName("jsonView");
         } else {
@@ -192,12 +202,12 @@ public class ScatterChartController {
      */
     @RequestMapping(value = "/getLastScatterData", method = RequestMethod.GET)
     public ModelAndView getLastScatterData(
-                                    @RequestParam("application") String applicationName,
-                                    @RequestParam("period") long period,
-                                    @RequestParam("limit") int limit,
-                                    @RequestParam(value = "filter", required = false) String filterText,
-                                    @RequestParam(value = "_callback", required = false) String jsonpCallback,
-                                    @RequestParam(value = "v", required = false, defaultValue = "1") int version) {
+            @RequestParam("application") String applicationName,
+            @RequestParam("period") long period,
+            @RequestParam("limit") int limit,
+            @RequestParam(value = "filter", required = false) String filterText,
+            @RequestParam(value = "_callback", required = false) String jsonpCallback,
+            @RequestParam(value = "v", required = false, defaultValue = "1") int version) {
         limit = LimitUtils.checkRange(limit);
 
         long to = TimeUtils.getDelayLastTime();
@@ -223,8 +233,8 @@ public class ScatterChartController {
             List<SpanBo> metadata = scatter.selectTransactionMetadata(query);
             model.addAttribute("metadata", metadata);
         }
-        
-        
+
+
         return "transactionmetadata";
     }
 
@@ -249,7 +259,7 @@ public class ScatterChartController {
 
     /**
      * transaction list query for selected points in scatter chart
-     *
+     * <p>
      * <pre>
      * TEST URL = http://localhost:7080/transactionmetadata2.pinpoint?application=FRONT-WEB&from=1394432299032&to=1394433498269&responseFrom=100&responseTo=200&responseOffset=100&limit=10
      * </pre>
@@ -261,16 +271,16 @@ public class ScatterChartController {
      */
     @RequestMapping(value = "/transactionmetadata2", method = RequestMethod.GET)
     public String getTransaction(Model model,
-                                @RequestParam("application") String applicationName,
-                                @RequestParam("from") long from,
-                                @RequestParam("to") long to,
-                                @RequestParam("responseFrom") int responseFrom,
-                                @RequestParam("responseTo") int responseTo,
-                                @RequestParam("limit") int limit,
-                                @RequestParam(value = "offsetTime", required = false, defaultValue = "-1") long offsetTime,
-                                @RequestParam(value = "offsetTransactionId", required = false) String offsetTransactionId,
-                                @RequestParam(value = "offsetTransactionElapsed", required = false, defaultValue = "-1") int offsetTransactionElapsed,
-                                @RequestParam(value = "filter", required = false) String filterText) {
+                                 @RequestParam("application") String applicationName,
+                                 @RequestParam("from") long from,
+                                 @RequestParam("to") long to,
+                                 @RequestParam("responseFrom") int responseFrom,
+                                 @RequestParam("responseTo") int responseTo,
+                                 @RequestParam("limit") int limit,
+                                 @RequestParam(value = "offsetTime", required = false, defaultValue = "-1") long offsetTime,
+                                 @RequestParam(value = "offsetTransactionId", required = false) String offsetTransactionId,
+                                 @RequestParam(value = "offsetTransactionElapsed", required = false, defaultValue = "-1") int offsetTransactionElapsed,
+                                 @RequestParam(value = "filter", required = false) String filterText) {
 
         limit = LimitUtils.checkRange(limit);
 
