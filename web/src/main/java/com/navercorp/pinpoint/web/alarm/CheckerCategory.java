@@ -122,12 +122,12 @@ public enum CheckerCategory {
         }
     },
     
-    GC_COUNT("GC COUNT", DataCollectorCategory.AGENT_STAT) {
-        @Override
-        public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
-            return new GcCountChecker((AgentStatDataCollector)dataCollector, rule);
-        }
-    },
+//    GC_COUNT("GC COUNT", DataCollectorCategory.AGENT_STAT) {
+//        @Override
+//        public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
+//            return new GcCountChecker((AgentStatDataCollector)dataCollector, rule);
+//        }
+//    },
     
     JVM_CPU_USAGE_RATE("JVM CPU USAGE RATE", DataCollectorCategory.AGENT_STAT) {
         @Override

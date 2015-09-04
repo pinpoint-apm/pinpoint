@@ -31,6 +31,10 @@ import java.net.URLEncoder;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * @author minwoo.jung<minwoo.jung@navercorp.com>
+ *
+ */
 public class JobFailListener implements JobExecutionListener {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final String mexServerUrl;
