@@ -16,10 +16,11 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
+import com.navercorp.pinpoint.web.vo.AgentInfo;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,17 +30,18 @@ import java.util.Set;
 /**
  * @author emeroad
  * @author minwoo.jung
+ * @author HyunGil Jeong
  */
 public class ServerBuilder {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final AgentHistogramList agentHistogramList;
-    private final Set<AgentInfoBo> agentSet;
+    private final Set<AgentInfo> agentSet;
 
     public ServerBuilder() {
         this.agentHistogramList = new AgentHistogramList();
-        this.agentSet = new HashSet<AgentInfoBo>();
+        this.agentSet = new HashSet<AgentInfo>();
     }
 
     public void addCallHistogramList(AgentHistogramList agentHistogramList) {
@@ -49,11 +51,11 @@ public class ServerBuilder {
         this.agentHistogramList.addAgentHistogram(agentHistogramList);
     }
 
-    public void addAgentInfo(Set<AgentInfoBo> agentInfoBo) {
-        if (agentInfoBo == null) {
+    public void addAgentInfo(Set<AgentInfo> agentInfo) {
+        if (agentInfo == null) {
             return;
         }
-        this.agentSet.addAll(agentInfoBo);
+        this.agentSet.addAll(agentInfo);
     }
 
     public void addServerInstance(ServerBuilder copy) {
@@ -63,8 +65,6 @@ public class ServerBuilder {
         addCallHistogramList(copy.agentHistogramList);
         addAgentInfo(copy.agentSet);
     }
-
-
 
     private String getHostName(String instanceName) {
         final int pos = instanceName.indexOf(':');
@@ -93,17 +93,15 @@ public class ServerBuilder {
         return serverInstanceList;
     }
 
-    public ServerInstanceList buildPhysicalServer(final Set<AgentInfoBo> agentSet) {
+    public ServerInstanceList buildPhysicalServer(final Set<AgentInfo> agentSet) {
         final ServerInstanceList serverInstanceList = new ServerInstanceList();
-        for (AgentInfoBo agent : agentSet) {
+        for (AgentInfo agent : agentSet) {
             final ServerInstance serverInstance = new ServerInstance(agent);
             serverInstanceList.addServerInstance(serverInstance);
 
         }
         return serverInstanceList;
     }
-
-
 
     public ServerInstanceList build() {
         if (!agentSet.isEmpty()) {
@@ -116,6 +114,5 @@ public class ServerBuilder {
             return buildLogicalServer(agentHistogramList);
         }
     }
-
 
 }

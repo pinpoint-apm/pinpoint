@@ -44,7 +44,8 @@ import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 @Repository
 public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
     
-    private static final int NUM_LIFE_CYCLES_TO_SCAN = 1;
+    private static final int SCAN_CACHING_SIZE = 20;
+    private static final int NUM_LIFE_CYCLES_TO_MATCH = 1;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -66,7 +67,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
 
         Scan scan = new Scan();
         scan.setMaxVersions(1);
-        scan.setCaching(NUM_LIFE_CYCLES_TO_SCAN);
+        scan.setCaching(SCAN_CACHING_SIZE);
 
         long fromTime = TimeUtils.reverseTimeMillis(timestamp);
 
@@ -79,7 +80,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         scan.addColumn(HBaseTables.AGENT_LIFECYCLE_CF_STATUS, HBaseTables.AGENT_LIFECYCLE_CF_STATUS_QUALI_STATES);
 
         try {
-            List<AgentLifeCycleBo> agentLifeCycles = this.hbaseOperations2.find(HBaseTables.AGENT_LIFECYCLE, scan, new AgentLifeCycleResultsExtractor());
+            List<AgentLifeCycleBo> agentLifeCycles = this.hbaseOperations2.find(HBaseTables.AGENT_LIFECYCLE, scan, new AgentLifeCycleResultsExtractor(timestamp));
             if (agentLifeCycles.isEmpty()) {
                 logger.debug("agentLifeCycle not found for agentId={}, timestamp={}", agentId, timestamp);
                 return null;
@@ -95,14 +96,25 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
     }
 
     private class AgentLifeCycleResultsExtractor implements ResultsExtractor<List<AgentLifeCycleBo>> {
+        
+        private final long timestamp;
+        
+        private AgentLifeCycleResultsExtractor(long timestamp) {
+            this.timestamp = timestamp;
+        }
 
         @Override
         public List<AgentLifeCycleBo> extractData(ResultScanner results) throws Exception {
             int found = 0;
+            int matchCnt = 0;
             List<AgentLifeCycleBo> agentLifeCycles = new ArrayList<AgentLifeCycleBo>();
             for (Result result : results) {
-                agentLifeCycles.add(agentLifeCycleMapper.mapRow(result, found++));
-                if (found >= NUM_LIFE_CYCLES_TO_SCAN) {
+                AgentLifeCycleBo agentLifeCycle = agentLifeCycleMapper.mapRow(result, found++);
+                if (agentLifeCycle.getEventTimestamp() < timestamp) {
+                    agentLifeCycles.add(agentLifeCycle);
+                    ++matchCnt;
+                }
+                if (matchCnt >= NUM_LIFE_CYCLES_TO_MATCH) {
                     break;
                 }
             }

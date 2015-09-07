@@ -18,14 +18,14 @@ package com.navercorp.pinpoint.web.applicationmap;
 
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.vo.AgentInfo;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static org.junit.Assert.*;
 
 /**
  * @author emeroad
@@ -35,15 +35,15 @@ public class ServerInstanceListTest {
     @Test
     public void testGetAgentIdList() throws Exception {
 
-        AgentInfoBo agentInfoBo1 = createAgentInfo("agentId1", "testHost");
-        AgentInfoBo agentInfoBo2 = createAgentInfo("agentId2", "testHost");
+        AgentInfo agentInfo1 = createAgentInfo("agentId1", "testHost");
+        AgentInfo agentInfo2 = createAgentInfo("agentId2", "testHost");
 
-        Set<AgentInfoBo> agentInfoBoSet = new HashSet<AgentInfoBo>();
-        agentInfoBoSet.add(agentInfoBo1);
-        agentInfoBoSet.add(agentInfoBo2);
+        Set<AgentInfo> agentInfoSet = new HashSet<AgentInfo>();
+        agentInfoSet.add(agentInfo1);
+        agentInfoSet.add(agentInfo2);
 
         ServerBuilder builder = new ServerBuilder();
-        builder.addAgentInfo(agentInfoBoSet);
+        builder.addAgentInfo(agentInfoSet);
         ServerInstanceList serverInstanceList = builder.build();
         List<String> agentIdList = serverInstanceList.getAgentIdList();
 
@@ -52,7 +52,7 @@ public class ServerInstanceListTest {
         Assert.assertEquals(agentIdList.get(1), "agentId2");
     }
 
-    public static AgentInfoBo createAgentInfo(String agentId, String hostName) {
+    public static AgentInfo createAgentInfo(String agentId, String hostName) {
         AgentInfoBo.Builder agentInfoBuilder = new AgentInfoBo.Builder();
         agentInfoBuilder.setAgentId(agentId);
 
@@ -63,6 +63,6 @@ public class ServerInstanceListTest {
 
         agentInfoBuilder.setHostName(hostName);
 
-        return agentInfoBuilder.build();
+        return new AgentInfo(agentInfoBuilder.build());
     }
 }

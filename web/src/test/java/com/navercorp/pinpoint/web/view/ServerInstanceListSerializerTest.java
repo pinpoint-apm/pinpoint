@@ -19,14 +19,15 @@ package com.navercorp.pinpoint.web.view;
 import java.util.HashSet;
 
 import com.navercorp.pinpoint.web.applicationmap.ServerInstanceListTest;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.web.applicationmap.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
+import com.navercorp.pinpoint.web.vo.AgentInfo;
 
 
 /**
@@ -42,13 +43,13 @@ public class ServerInstanceListSerializerTest {
         mapper.afterPropertiesSet();
 
 
-        AgentInfoBo agentInfoBo = ServerInstanceListTest.createAgentInfo("agentId1", "testHost");
+        AgentInfo agentInfo = ServerInstanceListTest.createAgentInfo("agentId1", "testHost");
 
-        HashSet<AgentInfoBo> agentInfoBoSet = new HashSet<AgentInfoBo>();
-        agentInfoBoSet.add(agentInfoBo);
+        HashSet<AgentInfo> agentInfoSet = new HashSet<AgentInfo>();
+        agentInfoSet.add(agentInfo);
 
         ServerBuilder builder = new ServerBuilder();
-        builder.addAgentInfo(agentInfoBoSet);
+        builder.addAgentInfo(agentInfoSet);
 
         ServerInstanceList serverInstanceList = builder.build();
         ObjectWriter objectWriter = mapper.writerWithDefaultPrettyPrinter();

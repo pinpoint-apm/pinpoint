@@ -85,6 +85,9 @@ public class MapServiceImpl implements MapService {
         watch.start("ApplicationMap MapBuilding(Response) Time");
         ApplicationMapBuilder builder = new ApplicationMapBuilder(range);
         ApplicationMap map = builder.build(linkDataDuplexMap, agentInfoService, this.mapResponseDao);
+        if (map.getNodes().isEmpty()) {
+            map = builder.build(sourceApplication, agentInfoService);
+        }
         watch.stop();
         if (logger.isInfoEnabled()) {
             logger.info("ApplicationMap BuildTime: {}", watch.prettyPrint());

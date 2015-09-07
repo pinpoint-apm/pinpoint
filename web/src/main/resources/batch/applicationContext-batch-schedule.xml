@@ -12,7 +12,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
  	<task:scheduled-tasks scheduler="scheduler">
-    	<task:scheduled ref="batchJobLauncher" method="alarmJob" cron="0 0/2 * * * *" />
+    	<task:scheduled ref="batchJobLauncher" method="alarmJob" cron="0 0/3 * * * *" />
 	</task:scheduled-tasks>
 	
 	<task:scheduler id="scheduler" pool-size="1"/>
