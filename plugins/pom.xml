@@ -30,6 +30,7 @@
         <module>spring-beans</module>
         <module>ibatis</module>
         <module>mybatis</module>
+        <module>okhttp</module>
     </modules>
 
     <dependencies>
@@ -121,6 +122,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-mybatis-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-okhttp-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

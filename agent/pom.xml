@@ -137,6 +137,12 @@
             <artifactId>commons-httpclient</artifactId>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.squareup.okhttp</groupId>
+            <artifactId>okhttp</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
