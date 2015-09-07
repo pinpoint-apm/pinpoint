@@ -15,43 +15,40 @@
 				category: [{
 					title: "[Type]",
 					items: [{
-						name: "SLOW_COUNT",
+						name: "SLOW COUNT",
 						desc: "Sends an alarm when the number of slow requests sent by the application exceeds the configured threshold."
 					},{
-						name: "SLOW_RATE",
+						name: "SLOW RATE",
 						desc: "Sends an alarm when the percentage(%) of slow requests sent by the application exceeds the configured threshold."
 					},{
-						name: "ERROR_COUNT",
+						name: "ERROR COUNT",
 						desc: "Sends an alarm when the number of failed requests sent by the application exceeds the configured threshold."
 					},{
-						name: "ERROR_RATE",
+						name: "ERROR RATE",
 						desc: "Sends an alarm when the percentage(%) of failed requests sent by the application exceeds the configured threshold."
 					},{
-						name: "RESPONSE_COUNT",
+						name: "TOTAL COUNT",
 						desc: "Sends an alarm when the number of all requests sent by the application exceeds the configured threshold."
 					},{
-						name: "SLOW_COUNT_TO_CALLEE",
+						name: "SLOW COUNT TO CALLEE",
 						desc: "Sends an alarm when the number of slow responses returned by the application exceeds the configured threshold."
 					},{
-						name: "SLOW_RATE_TO_CALLEE",
+						name: "SLOW RATE TO CALLEE",
 						desc: "Sends an alarm when the percentage(%) of slow responses returned by the application exceeds the configured threshold."
 					},{
-						name: "ERROR_COUNT_TO_CALLEE",
+						name: "ERROR COUNT TO CALLEE",
 						desc: "Sends an alarm when the number of failed responses returned by the application exceeds the configured threshold."
 					},{
-						name: "ERROR_RATE_TO_CALLEE",
+						name: "ERROR RATE TO CALLEE",
 						desc: "Sends an alarm when the percentage(%) of failed responses returned by the application exceeds the configured threshold."
 					},{
-						name: "TOTAL_COUNT_TO_CALLEE",
+						name: "TOTAL COUNT TO CALLEE",
 						desc: "Sends an alarm when the number of all remote calls sent to the application exceeds the configured threshold."
 					},{
-						name: "HEAP_USAGE_RATE",
+						name: "HEAP USAGE RATE",
 						desc: "Sends an alarm when the application's heap usage(%) exceeds the configured threshold."
 					},{
-						name: "GC_COUNT",
-						desc: "Sends an alarm when the number of full garbage collections exceeds the configured threshold."
-					},{
-						name: "JVM_CPU_USAGE_RATE",
+						name: "JVM CPU USAGE RATE",
 						desc: "Sends an alarm when the application's CPU usage(%) exceeds the configured threshold."
 					}]
 				}]
