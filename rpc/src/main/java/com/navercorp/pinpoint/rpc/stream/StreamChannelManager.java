@@ -92,12 +92,12 @@ public class StreamChannelManager {
         }
 
         // the order of below code is very important.
-        newStreamChannel.changeStateOpenAwait();
+        newStreamChannel.changeStateConnectAwait();
         newStreamChannel.sendCreate(payload);
 
         newStreamChannel.awaitOpen(3000);
 
-        if (newStreamChannel.checkState(StreamChannelStateCode.RUN)) {
+        if (newStreamChannel.checkState(StreamChannelStateCode.CONNECTED)) {
             logger.info("Open streamChannel initialization completed. Channel:{}, StreamChannelContext:{} ", channel, newStreamChannelContext);
             return newStreamChannelContext;
         } else {
@@ -197,7 +197,7 @@ public class StreamChannelManager {
             code = streamChannelMessageListener.handleStreamCreate(streamChannelContext, (StreamCreatePacket) packet);
 
             if (code == 0) {
-                streamChannel.changeStateRun();
+                streamChannel.changeStateConnected();
                 streamChannel.sendCreateSuccess();
             }
         }
@@ -210,13 +210,14 @@ public class StreamChannelManager {
     private short registerStreamChannel(ServerStreamChannelContext streamChannelContext) {
         int streamChannelId = streamChannelContext.getStreamId();
         ServerStreamChannel streamChannel = streamChannelContext.getStreamChannel();
+        streamChannel.changeStateOpen();
 
         if (channelMap.putIfAbsent(streamChannelId, streamChannelContext) != null) {
             streamChannel.changeStateClose();
             return StreamCreateFailPacket.ID_DUPLICATED;
         }
 
-        if (!streamChannel.changeStateOpenArrived()) {
+        if (!streamChannel.changeStateConnectArrived()) {
             streamChannel.changeStateClose();
             channelMap.remove(streamChannelId);
 
@@ -228,7 +229,7 @@ public class StreamChannelManager {
 
     private void handleCreateSuccess(ClientStreamChannelContext streamChannelContext, StreamCreateSuccessPacket packet) {
         StreamChannel streamChannel = streamChannelContext.getStreamChannel();
-        streamChannel.changeStateRun();
+        streamChannel.changeStateConnected();
     }
 
     private void handleCreateFail(ClientStreamChannelContext streamChannelContext, StreamCreateFailPacket packet) {
@@ -242,12 +243,12 @@ public class StreamChannelManager {
 
         StreamChannelStateCode currentCode = streamChannel.getCurrentState();
 
-        if (StreamChannelStateCode.RUN == currentCode) {
+        if (StreamChannelStateCode.CONNECTED == currentCode) {
             context.getClientStreamChannelMessageListener().handleStreamData(context, packet);
-        } else if (StreamChannelStateCode.OPEN_AWAIT == currentCode) {
+        } else if (StreamChannelStateCode.CONNECT_AWAIT == currentCode) {
             // may happen in the timing
         } else {
-            clearResourceAndSendClose(streamChannelId, StreamClosePacket.STATE_NOT_RUN);
+            clearResourceAndSendClose(streamChannelId, StreamClosePacket.STATE_NOT_CONNECTED);
         }
     }
 
@@ -265,8 +266,8 @@ public class StreamChannelManager {
         int streamChannelId = packet.getStreamChannelId();
 
         StreamChannel streamChannel = streamChannelContext.getStreamChannel();
-        if (!streamChannel.checkState(StreamChannelStateCode.RUN)) {
-            clearResourceAndSendClose(streamChannelId, StreamClosePacket.STATE_NOT_RUN);
+        if (!streamChannel.checkState(StreamChannelStateCode.CONNECTED)) {
+            clearResourceAndSendClose(streamChannelId, StreamClosePacket.STATE_NOT_CONNECTED);
             return;
         }
 

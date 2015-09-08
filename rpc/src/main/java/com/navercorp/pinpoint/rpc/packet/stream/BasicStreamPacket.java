@@ -32,7 +32,7 @@ public abstract class BasicStreamPacket implements StreamPacket {
     public static final short ID_NOT_FOUND = 113;
 
     public static final short STATE_ERROR = 120;
-    public static final short STATE_NOT_RUN = 121;
+    public static final short STATE_NOT_CONNECTED = 121;
     public static final short STATE_ILLEGAL = 129;
 
     public static final short TYPE_ERROR = 130;
