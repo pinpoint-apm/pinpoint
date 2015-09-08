@@ -27,29 +27,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.ClassNameMatcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.MultiClassNameMatcher;
 import com.navercorp.pinpoint.profiler.modifier.connector.asynchttpclient.AsyncHttpClientModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridConnectionModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridDriverModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridPreparedStatementModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridResultSetModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridStatementModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.dbcp.DBCPBasicDataSourceModifier;
 import com.navercorp.pinpoint.profiler.modifier.db.dbcp.DBCPPoolGuardConnectionWrapperModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.jtds.Jdbc2ConnectionModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.jtds.Jdbc4_1ConnectionModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.jtds.JtdsDriverModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.jtds.JtdsPreparedStatementModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.jtds.JtdsResultSetModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.jtds.JtdsStatementModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLConnectionImplModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLConnectionModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLNonRegisteringDriverModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLPreparedStatementJDBC4Modifier;
-import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLPreparedStatementModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLStatementModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.oracle.OracleDriverModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.oracle.OraclePreparedStatementModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.oracle.OracleStatementModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.oracle.PhysicalConnectionModifier;
 import com.navercorp.pinpoint.profiler.modifier.log.log4j.LoggingEventOfLog4jModifier;
 import com.navercorp.pinpoint.profiler.modifier.log.logback.LoggingEventOfLogbackModifier;
 import com.navercorp.pinpoint.profiler.modifier.method.MethodModifier;
@@ -133,32 +112,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             return;
         }
 
-        if (profilerConfig.isJdbcProfileOracle()) {
-            addOracleDriver();
-        }
-
         if (profilerConfig.isJdbcProfileDbcp()) {
             addDbcpDriver();
         }
-    }
-
-    private void addOracleDriver() {
-        AbstractModifier oracleDriverModifier = new OracleDriverModifier(byteCodeInstrumentor, agent);
-        addModifier(oracleDriverModifier);
-
-        // TODO Intercepting PhysicalConnection makes view ugly.
-        // We'd better intercept top-level classes T4C, T2C and OCI each to makes view more readable.
-        AbstractModifier oracleConnectionModifier = new PhysicalConnectionModifier(byteCodeInstrumentor, agent);
-        addModifier(oracleConnectionModifier);
-
-        AbstractModifier oraclePreparedStatementModifier = new OraclePreparedStatementModifier(byteCodeInstrumentor, agent);
-        addModifier(oraclePreparedStatementModifier);
-
-        AbstractModifier oracleStatementModifier = new OracleStatementModifier(byteCodeInstrumentor, agent);
-        addModifier(oracleStatementModifier);
-        //
-        // Modifier oracleResultSetModifier = new OracleResultSetModifier(byteCodeInstrumentor, agent);
-        // addModifier(oracleResultSetModifier);
     }
 
     private void addDbcpDriver() {

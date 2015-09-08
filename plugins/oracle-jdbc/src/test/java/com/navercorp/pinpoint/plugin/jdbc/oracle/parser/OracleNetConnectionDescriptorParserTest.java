@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.db.oracle.parser;
-
-import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.Description;
-import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.KeyValue;
-import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.OracleConnectionStringException;
-import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.OracleNetConnectionDescriptorParser;
+package com.navercorp.pinpoint.plugin.jdbc.oracle.parser;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.Description;
+import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.KeyValue;
+import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.OracleConnectionStringException;
+import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.OracleNetConnectionDescriptorParser;
 
 
 /**

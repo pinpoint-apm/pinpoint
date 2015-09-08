@@ -160,6 +160,11 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
             return null;
         }
     }
+    
+    @Override
+    public boolean exist(ClassLoader classLoader, String className) {
+        return agent.getClassPool().hasClass(classLoader, className);
+    }
 
     @Override
     public void addClassFileTransformer(final String targetClassName, final PinpointClassFileTransformer transformer) {

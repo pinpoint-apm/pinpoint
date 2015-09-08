@@ -111,11 +111,6 @@ public class ProfilerConfig {
     private int jdbcMaxSqlBindValueSize = 1024;
     private boolean jdbcProfile = true;
 
-    private boolean jdbcProfileOracle = true;
-    private boolean jdbcProfileOracleSetAutoCommit = false;
-    private boolean jdbcProfileOracleCommit = false;
-    private boolean jdbcProfileOracleRollback = false;
-
     private boolean jdbcProfileDbcp = true;
     private boolean jdbcProfileDbcpConnectionClose = false;
 
@@ -290,24 +285,6 @@ public class ProfilerConfig {
     public int getJdbcMaxSqlBindValueSize() {
         return jdbcMaxSqlBindValueSize;
     }
-
-    // oracle start -----------------------------------------------------
-    public boolean isJdbcProfileOracle() {
-        return jdbcProfileOracle;
-    }
-
-    public boolean isJdbcProfileOracleSetAutoCommit() {
-        return jdbcProfileOracleSetAutoCommit;
-    }
-
-    public boolean isJdbcProfileOracleCommit() {
-        return jdbcProfileOracleCommit;
-    }
-
-    public boolean isJdbcProfileOracleRollback() {
-        return jdbcProfileOracleRollback;
-    }
-    // oracle end -----------------------------------------------------
 
     public boolean isSamplingEnable() {
         return samplingEnable;
@@ -587,11 +564,6 @@ public class ProfilerConfig {
         this.jdbcSqlCacheSize = readInt("profiler.jdbc.sqlcachesize", 1024);
         this.jdbcMaxSqlBindValueSize = readInt("profiler.jdbc.maxsqlbindvaluesize", 1024);
 
-        this.jdbcProfileOracle = readBoolean("profiler.jdbc.oracle", true);
-        this.jdbcProfileOracleSetAutoCommit = readBoolean("profiler.jdbc.oracle.setautocommit", false);
-        this.jdbcProfileOracleCommit = readBoolean("profiler.jdbc.oracle.commit", false);
-        this.jdbcProfileOracleRollback = readBoolean("profiler.jdbc.oracle.rollback", false);
-
         this.jdbcProfileDbcp = readBoolean("profiler.jdbc.dbcp", true);
         this.jdbcProfileDbcpConnectionClose = readBoolean("profiler.jdbc.dbcp.connectionclose", false);
 
@@ -826,14 +798,6 @@ public class ProfilerConfig {
         builder.append(jdbcMaxSqlBindValueSize);
         builder.append(", jdbcProfile=");
         builder.append(jdbcProfile);
-        builder.append(", jdbcProfileOracle=");
-        builder.append(jdbcProfileOracle);
-        builder.append(", jdbcProfileOracleSetAutoCommit=");
-        builder.append(jdbcProfileOracleSetAutoCommit);
-        builder.append(", jdbcProfileOracleCommit=");
-        builder.append(jdbcProfileOracleCommit);
-        builder.append(", jdbcProfileOracleRollback=");
-        builder.append(jdbcProfileOracleRollback);
         builder.append(", jdbcProfileDbcp=");
         builder.append(jdbcProfileDbcp);
         builder.append(", jdbcProfileDbcpConnectionClose=");

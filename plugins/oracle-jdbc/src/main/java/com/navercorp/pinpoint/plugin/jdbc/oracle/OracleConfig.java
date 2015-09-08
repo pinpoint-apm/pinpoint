@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.jdbc.cubrid;
+package com.navercorp.pinpoint.plugin.jdbc.oracle;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
@@ -20,16 +20,16 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  * @author Jongho Moon
  *
  */
-public class CubridConfig {
+public class OracleConfig {
     private final boolean profileSetAutoCommit;
     private final boolean profileCommit;
     private final boolean profileRollback;
     private final int maxSqlBindValueSize; 
 
-    public CubridConfig(ProfilerConfig config) {
-        this.profileSetAutoCommit = config.readBoolean("profiler.jdbc.cubrid.setautocommit", false);
-        this.profileCommit = config.readBoolean("profiler.jdbc.cubrid.commit", false);
-        this.profileRollback = config.readBoolean("profiler.jdbc.cubrid.rollback", false);
+    public OracleConfig(ProfilerConfig config) {
+        this.profileSetAutoCommit = config.readBoolean("profiler.jdbc.oracle.setautocommit", false);
+        this.profileCommit = config.readBoolean("profiler.jdbc.oracle.commit", false);
+        this.profileRollback = config.readBoolean("profiler.jdbc.oracle.rollback", false);
         this.maxSqlBindValueSize = config.readInt("profiler.jdbc.maxsqlbindvaluesize", 1024);
     }
 
@@ -51,7 +51,6 @@ public class CubridConfig {
 
     @Override
     public String toString() {
-        return "CubridConfig [profileSetAutoCommit=" + profileSetAutoCommit + ", profileCommit=" + profileCommit + ", profileRollback=" + profileRollback + ", maxSqlBindValueSize=" + maxSqlBindValueSize + "]";
+        return "OracleConfig [profileSetAutoCommit=" + profileSetAutoCommit + ", profileCommit=" + profileCommit + ", profileRollback=" + profileRollback + ", maxSqlBindValueSize=" + maxSqlBindValueSize + "]";
     }
-
 }

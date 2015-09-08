@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.db.oracle.parser;
+package com.navercorp.pinpoint.plugin.jdbc.oracle.parser;
 
 
 import org.junit.Assert;
-
 import org.junit.Test;
 
-import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.OracleNetConnectionDescriptorTokenizer;
-import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.Token;
+import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.OracleNetConnectionDescriptorTokenizer;
+import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.Token;
 
 /**
  * @author emeroad

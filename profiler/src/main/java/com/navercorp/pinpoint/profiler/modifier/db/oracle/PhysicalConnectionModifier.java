@@ -16,8 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.modifier.db.oracle;
 
+import java.security.ProtectionDomain;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.bootstrap.Agent;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
@@ -26,12 +30,9 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.interceptor.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.security.ProtectionDomain;
+import com.navercorp.pinpoint.profiler.modifier.db.interceptor.ConnectionCloseInterceptor;
+import com.navercorp.pinpoint.profiler.modifier.db.interceptor.PreparedStatementCreateInterceptor;
+import com.navercorp.pinpoint.profiler.modifier.db.interceptor.StatementCreateInterceptor;
 
 /**
  * @author emeroad
@@ -100,19 +101,19 @@ public class PhysicalConnectionModifier extends AbstractModifier {
             Interceptor preparedStatementCreateInterceptor6 = new PreparedStatementCreateInterceptor();
             oracleConnection.addGroupInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int", "int"}, preparedStatementCreateInterceptor6, OracleScope.SCOPE_NAME);
 
-            final ProfilerConfig profilerConfig = this.getProfilerConfig();
-            if (profilerConfig.isJdbcProfileOracleSetAutoCommit()) {
-                Interceptor setAutocommit = new TransactionSetAutoCommitInterceptor();
-                oracleConnection.addGroupInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit, OracleScope.SCOPE_NAME);
-            }
-            if (profilerConfig.isJdbcProfileOracleCommit()) {
-                Interceptor commit = new TransactionCommitInterceptor();
-                oracleConnection.addGroupInterceptor("commit", null, commit, OracleScope.SCOPE_NAME);
-            }
-            if (profilerConfig.isJdbcProfileOracleRollback()) {
-                Interceptor rollback = new TransactionRollbackInterceptor();
-                oracleConnection.addGroupInterceptor("rollback", null, rollback, OracleScope.SCOPE_NAME);
-            }
+//            final ProfilerConfig profilerConfig = this.getProfilerConfig();
+//            if (profilerConfig.isJdbcProfileOracleSetAutoCommit()) {
+//                Interceptor setAutocommit = new TransactionSetAutoCommitInterceptor();
+//                oracleConnection.addGroupInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit, OracleScope.SCOPE_NAME);
+//            }
+//            if (profilerConfig.isJdbcProfileOracleCommit()) {
+//                Interceptor commit = new TransactionCommitInterceptor();
+//                oracleConnection.addGroupInterceptor("commit", null, commit, OracleScope.SCOPE_NAME);
+//            }
+//            if (profilerConfig.isJdbcProfileOracleRollback()) {
+//                Interceptor rollback = new TransactionRollbackInterceptor();
+//                oracleConnection.addGroupInterceptor("rollback", null, rollback, OracleScope.SCOPE_NAME);
+//            }
 
             if (this.logger.isInfoEnabled()) {
                 this.logger.info("{} class is converted.", javassistClassName);
