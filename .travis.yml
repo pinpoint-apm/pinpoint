@@ -6,4 +6,4 @@ jdk:
 
 env: JAVA_6_HOME=/usr/lib/jvm/java-6-openjdk-amd64 JAVA_7_HOME=/usr/lib/jvm/java-7-oracle JAVA_8_HOME=/usr/lib/jvm/java-8-oracle
 
-script: mvn test -Ptest
+script: mvn test | grep -Fv 'DEBUG'
