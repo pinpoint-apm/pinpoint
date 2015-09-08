@@ -153,13 +153,13 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
         @Override
         public void handleStreamData(ClientStreamChannelContext producerContext, StreamResponsePacket packet) {
             StreamChannelStateCode stateCode = consumer.getCurrentState();
-            if (StreamChannelStateCode.RUN == stateCode) {
+            if (StreamChannelStateCode.CONNECTED == stateCode) {
                 TCommandTransferResponse response = createResponse(TRouteResult.OK, packet.getPayload());
                 responseFilterChain.doEvent(new ResponseEvent(streamEvent, -1, response));
                 consumer.sendData(serialize(response));
             } else {
                 logger.warn("Can route stream data to consumer.(state:{})", stateCode);
-                if (StreamChannelStateCode.OPEN_ARRIVED != stateCode) {
+                if (StreamChannelStateCode.CONNECT_ARRIVED != stateCode) {
                     close();
                 }
             }
