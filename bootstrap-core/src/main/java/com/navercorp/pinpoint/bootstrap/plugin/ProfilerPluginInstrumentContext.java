@@ -30,6 +30,8 @@ public interface ProfilerPluginInstrumentContext {
     
     public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classfileBuffer);
     
+    public boolean exist(ClassLoader classLoader, String className);
+    
     public InterceptorGroup getInterceptorGroup(String name);
         
     public <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className);

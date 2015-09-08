@@ -14,32 +14,34 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jdbc.oracle;
+package com.navercorp.pinpoint.profiler.modifier.db.oracle;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
-import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.Description;
-import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.KeyValue;
-import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.OracleConnectionStringException;
-import com.navercorp.pinpoint.plugin.jdbc.oracle.parser.OracleNetConnectionDescriptorParser;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.profiler.modifier.db.ConnectionStringParser;
+import com.navercorp.pinpoint.profiler.modifier.db.DefaultDatabaseInfo;
+import com.navercorp.pinpoint.profiler.modifier.db.JDBCUrlParser;
+import com.navercorp.pinpoint.profiler.modifier.db.StringMaker;
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.Description;
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.KeyValue;
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.OracleConnectionStringException;
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.OracleNetConnectionDescriptorParser;
 
 /**
  * @author emeroad
  */
-public class OracleJdbcUrlParser extends JdbcUrlParser {
+public class OracleConnectionStringParser implements ConnectionStringParser {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public DatabaseInfo doParse(String url) {
+    public DatabaseInfo parse(String url) {
         StringMaker maker = new StringMaker(url);
         maker.after("jdbc:oracle:").after(":");
         String description = maker.after('@').value().trim();
@@ -85,15 +87,15 @@ public class OracleJdbcUrlParser extends JdbcUrlParser {
 //                parser.getDriverType();
             return createOracleDatabaseInfo(keyValue, url);
         } catch (OracleConnectionStringException ex) {
-            logger.warn("OracleConnectionString parse error. url: " + url + " Caused: " + ex.getMessage(), ex);
+            logger.warn("OracleConnectionString parse error. url:{} Caused:", url, ex.getMessage(), ex);
 
             // Log error and just create unknownDataBase
-            return UnKnownDatabaseInfo.createUnknownDataBase(OracleConstants.ORACLE, OracleConstants.ORACLE_EXECUTE_QUERY, url);
+            return JDBCUrlParser.createUnknownDataBase(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, url);
         } catch (Throwable ex) {
             // If we throw exception more precisely later, catch OracleConnectionStringException only. 
-            logger.warn("OracleConnectionString parse error. url: " + url + " Caused: " + ex.getMessage(), ex);
+            logger.warn("OracleConnectionString parse error. url:{} Caused:", url, ex.getMessage(), ex);
             // Log error and just create unknownDataBase
-            return UnKnownDatabaseInfo.createUnknownDataBase(OracleConstants.ORACLE, OracleConstants.ORACLE_EXECUTE_QUERY, url);
+            return JDBCUrlParser.createUnknownDataBase(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, url);
         }
     }
 
@@ -108,7 +110,7 @@ public class OracleJdbcUrlParser extends JdbcUrlParser {
 
         List<String> hostList = new ArrayList<String>(1);
         hostList.add(host + ":" + port);
-        return new DefaultDatabaseInfo(OracleConstants.ORACLE, OracleConstants.ORACLE_EXECUTE_QUERY, url, url, hostList, databaseId);
+        return new DefaultDatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, url, url, hostList, databaseId);
     }
 
     private DatabaseInfo createOracleDatabaseInfo(KeyValue keyValue, String url) {
@@ -116,7 +118,7 @@ public class OracleJdbcUrlParser extends JdbcUrlParser {
         Description description = new Description(keyValue);
         List<String> jdbcHost = description.getJdbcHost();
 
-        return new DefaultDatabaseInfo(OracleConstants.ORACLE, OracleConstants.ORACLE_EXECUTE_QUERY, url, url, jdbcHost, description.getDatabaseId());
+        return new DefaultDatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, url, url, jdbcHost, description.getDatabaseId());
 
     }
 }

@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.db;
+package com.navercorp.pinpoint.plugin.jdbc.oracle;
 
-import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.modifier.db.JDBCUrlParser;
+import java.net.URI;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 
 /**
  * @author emeroad
@@ -33,7 +31,7 @@ import java.net.URI;
 public class JDBCUrlParserTest {
 
     private Logger logger = LoggerFactory.getLogger(JDBCUrlParserTest.class);
-    private JDBCUrlParser jdbcUrlParser = new JDBCUrlParser();
+    private OracleJdbcUrlParser jdbcUrlParser = new OracleJdbcUrlParser();
 
     @Test
     public void testURIParse() throws Exception {
@@ -61,7 +59,7 @@ public class JDBCUrlParserTest {
         //    jdbc:oracle:thin:@hostname:port:SID
 //      "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE";
         DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:oracle:thin:@hostname:port:SID");
-        Assert.assertEquals(dbInfo.getType(), ServiceType.ORACLE);
+        Assert.assertEquals(dbInfo.getType(), OracleConstants.ORACLE);
         Assert.assertEquals(dbInfo.getHost().get(0), "hostname:port");
         Assert.assertEquals(dbInfo.getDatabaseId(), "SID");
         Assert.assertEquals(dbInfo.getUrl(), "jdbc:oracle:thin:@hostname:port:SID");
@@ -73,7 +71,7 @@ public class JDBCUrlParserTest {
         //    jdbc:oracle:thin:@hostname:port:SID
 //      "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE";
         DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE");
-        Assert.assertEquals(dbInfo.getType(), ServiceType.ORACLE);
+        Assert.assertEquals(dbInfo.getType(), OracleConstants.ORACLE);
         Assert.assertEquals(dbInfo.getHost().get(0), "localhost:1521");
         Assert.assertEquals(dbInfo.getDatabaseId(), "XE");
         Assert.assertEquals(dbInfo.getUrl(), "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE");
@@ -85,7 +83,7 @@ public class JDBCUrlParserTest {
         //    jdbc:oracle:thin:@hostname:port:SID
 //      "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE";
         DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:oracle:thin:@hostname:port/serviceName");
-        Assert.assertEquals(dbInfo.getType(), ServiceType.ORACLE);
+        Assert.assertEquals(dbInfo.getType(), OracleConstants.ORACLE);
         Assert.assertEquals(dbInfo.getHost().get(0), "hostname:port");
         Assert.assertEquals(dbInfo.getDatabaseId(), "serviceName");
         Assert.assertEquals(dbInfo.getUrl(), "jdbc:oracle:thin:@hostname:port/serviceName");
@@ -103,7 +101,7 @@ public class JDBCUrlParserTest {
                 "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.5) (PORT=1522))" +
                 "(CONNECT_DATA=(SERVICE_NAME=service)))";
         DatabaseInfo dbInfo = jdbcUrlParser.parse(rac);
-        Assert.assertEquals(dbInfo.getType(), ServiceType.ORACLE);
+        Assert.assertEquals(dbInfo.getType(), OracleConstants.ORACLE);
         Assert.assertEquals(dbInfo.getHost().get(0), "1.2.3.4:1521");
         Assert.assertEquals(dbInfo.getHost().get(1), "1.2.3.5:1522");
 

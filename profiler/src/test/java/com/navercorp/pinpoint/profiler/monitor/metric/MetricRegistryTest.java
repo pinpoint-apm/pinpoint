@@ -35,7 +35,7 @@ public class MetricRegistryTest {
     public void testFalse() {
         MetricRegistry metricRegistry = null;
         try {
-            metricRegistry = new MetricRegistry(ServiceType.ORACLE);
+            metricRegistry = new MetricRegistry(ServiceType.UNKNOWN_DB);
             Assert.fail();
         } catch (Exception e) {
         }

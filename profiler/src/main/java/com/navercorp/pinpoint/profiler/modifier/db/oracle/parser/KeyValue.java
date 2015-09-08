@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jdbc.oracle.parser;
+package com.navercorp.pinpoint.profiler.modifier.db.oracle.parser;
 
 import java.util.ArrayList;
 import java.util.Collections;

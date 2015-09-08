@@ -14,11 +14,27 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jdbc.oracle.parser;
+package com.navercorp.pinpoint.profiler.modifier.db.oracle.parser;
+
+import com.navercorp.pinpoint.exception.PinpointException;
 
 /**
  * @author emeroad
  */
-public enum DriverType {
-    THIN, OCI
+public class OracleConnectionStringException extends PinpointException {
+
+    public OracleConnectionStringException() {
+    }
+
+    public OracleConnectionStringException(String message) {
+        super(message);
+    }
+
+    public OracleConnectionStringException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public OracleConnectionStringException(Throwable cause) {
+        super(cause);
+    }
 }
