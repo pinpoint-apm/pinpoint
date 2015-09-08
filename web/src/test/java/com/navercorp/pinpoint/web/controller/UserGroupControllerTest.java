@@ -25,9 +25,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -60,8 +62,12 @@ public class UserGroupControllerTest {
     
     private final static String TEST_USER_GROUP_ID = "testUserGroup";
     private final static String TEST_USER_GROUP_ID_UPDATED = "testUserGroupUpdated";
+
+    private final static String TEST_USER_GROUP_ID2 = "testUserGroup2";
+    private final static String TEST_USER_GROUP_ID3 = "testUserGroup3";
     
     private final static String TEST_USER_GROUP_MEMBER_ID = "naver01";
+    private final static String TEST_USER_GROUP_MEMBER_ID2 = "naver02";
     private final static String TEST_USER_GROUP_MEMBER_ID_UPDATE = "naver010";
     
     
@@ -86,11 +92,36 @@ public class UserGroupControllerTest {
         userGroupDao.deleteMember(new UserGroupMember(TEST_USER_GROUP_ID, TEST_USER_GROUP_MEMBER_ID_UPDATE));
         
         userDao.insertUser(user);
+
+        //for selectUserGroupByUserId test
+        userGroupDao.createUserGroup(new UserGroup("", TEST_USER_GROUP_ID2));
+        userGroupDao.createUserGroup(new UserGroup("", TEST_USER_GROUP_ID3));
+        userGroupDao.insertMember(new UserGroupMember(TEST_USER_GROUP_ID2, TEST_USER_GROUP_MEMBER_ID2));
+        userGroupDao.insertMember(new UserGroupMember(TEST_USER_GROUP_ID3, TEST_USER_GROUP_MEMBER_ID2));
     }
     
     @After
     public void after(){
         userDao.deleteUser(user);
+        
+        //for selectUserGroupByUserId test
+        userGroupDao.deleteMember(new UserGroupMember(TEST_USER_GROUP_ID2, TEST_USER_GROUP_MEMBER_ID2));
+        userGroupDao.deleteMember(new UserGroupMember(TEST_USER_GROUP_ID3, TEST_USER_GROUP_MEMBER_ID2));
+        userGroupDao.deleteUserGroup(new UserGroup("", TEST_USER_GROUP_ID2));
+        userGroupDao.deleteUserGroup(new UserGroup("", TEST_USER_GROUP_ID3));
+    }
+    
+    @Test
+    public void selectUserGroupByUserId() throws Exception {
+        MvcResult result = this.mockMvc.perform(get("/userGroup.pinpoint?userId=" + TEST_USER_GROUP_MEMBER_ID2).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andReturn();
+        
+        String content = result.getResponse().getContentAsString();
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Map> checherList = objectMapper.readValue(content, List.class);
+        Assert.assertEquals(checherList.size(), 2);
     }
 
     @Test

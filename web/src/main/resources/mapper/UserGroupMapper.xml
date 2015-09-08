@@ -13,6 +13,15 @@
         SELECT *
         FROM user_group
     </select>
+    
+    <select id="selectUserGroupListByUserId" resultType="UserGroup">
+        SELECT *
+        FROM user_group
+        WHERE id IN (   SELECT DISTINCT(user_group_id)
+                        FROM user_group_member
+                        WHERE member_id = #{userId}
+                    )
+    </select>
 
     <delete id="deleteUserGroup" parameterType="UserGroup">
         DELETE

@@ -52,6 +52,11 @@ public class MysqlUserGroupDao implements UserGroupDao {
     }
 
     @Override
+    public List<UserGroup> selectUserGroupByUserId(String userId) {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectUserGroupListByUserId", userId);
+    }
+
+    @Override
     public void updateUserGroup(UserGroup userGroup) {
         sqlSessionTemplate.update(NAMESPACE + "updateUserGroup", userGroup);
     }
@@ -101,6 +106,7 @@ public class MysqlUserGroupDao implements UserGroupDao {
         sqlSessionTemplate.update(NAMESPACE + "updateUserGroupIdOfMember", userGroup);
         
     }
+
 
 
 }
