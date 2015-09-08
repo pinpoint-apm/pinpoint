@@ -133,41 +133,13 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             return;
         }
 
-        if (profilerConfig.isJdbcProfileJtds()) {
-            addJtdsDriver();
-        }
-
         if (profilerConfig.isJdbcProfileOracle()) {
             addOracleDriver();
         }
-//        if (profilerConfig.isJdbcProfileCubrid()) {
-//            addCubridDriver();
-//        }
 
         if (profilerConfig.isJdbcProfileDbcp()) {
             addDbcpDriver();
         }
-    }
-
-    private void addJtdsDriver() {
-        JtdsDriverModifier jtdsDriverModifier = new JtdsDriverModifier(byteCodeInstrumentor, agent);
-        addModifier(jtdsDriverModifier);
-
-        AbstractModifier jdbc2ConnectionModifier = new Jdbc2ConnectionModifier(byteCodeInstrumentor, agent);
-        addModifier(jdbc2ConnectionModifier);
-
-        AbstractModifier jdbc4_1ConnectionModifier = new Jdbc4_1ConnectionModifier(byteCodeInstrumentor, agent);
-        addModifier(jdbc4_1ConnectionModifier);
-
-        AbstractModifier mssqlStatementModifier = new JtdsStatementModifier(byteCodeInstrumentor, agent);
-        addModifier(mssqlStatementModifier);
-
-        AbstractModifier mssqlPreparedStatementModifier = new JtdsPreparedStatementModifier(byteCodeInstrumentor, agent);
-        addModifier(mssqlPreparedStatementModifier);
-
-        AbstractModifier mssqlResultSetModifier = new JtdsResultSetModifier(byteCodeInstrumentor, agent);
-        addModifier(mssqlResultSetModifier);
-
     }
 
     private void addOracleDriver() {
@@ -187,16 +159,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         //
         // Modifier oracleResultSetModifier = new OracleResultSetModifier(byteCodeInstrumentor, agent);
         // addModifier(oracleResultSetModifier);
-    }
-
-    private void addCubridDriver() {
-        // TODO Cubrid doesn't have connection impl too. Check it out.
-        addModifier(new CubridConnectionModifier(byteCodeInstrumentor, agent));
-        addModifier(new CubridDriverModifier(byteCodeInstrumentor, agent));
-        addModifier(new CubridStatementModifier(byteCodeInstrumentor, agent));
-        addModifier(new CubridPreparedStatementModifier(byteCodeInstrumentor, agent));
-        addModifier(new CubridResultSetModifier(byteCodeInstrumentor, agent));
-//        addModifier(new CubridUStatementModifier(byteCodeInstrumentor, agent));
     }
 
     private void addDbcpDriver() {

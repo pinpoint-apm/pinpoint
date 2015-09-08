@@ -85,19 +85,19 @@ public abstract class JtdsConnectionModifier extends AbstractModifier {
             Interceptor preparedStatementCreateInterceptor6 = new PreparedStatementCreateInterceptor();
             jtdsConnection.addGroupInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int", "int"}, preparedStatementCreateInterceptor6, SCOPE_NAME);
 
-            final ProfilerConfig profilerConfig = this.getProfilerConfig();
-            if (profilerConfig.isJdbcProfileJtdsSetAutoCommit()) {
-                Interceptor setAutocommit = new TransactionSetAutoCommitInterceptor();
-                jtdsConnection.addGroupInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit, SCOPE_NAME);
-            }
-            if (profilerConfig.isJdbcProfileJtdsCommit()) {
-                Interceptor commit = new TransactionCommitInterceptor();
-                jtdsConnection.addGroupInterceptor("commit", null, commit, SCOPE_NAME);
-            }
-            if (profilerConfig.isJdbcProfileJtdsRollback()) {
-                Interceptor rollback = new TransactionRollbackInterceptor();
-                jtdsConnection.addGroupInterceptor("rollback", null, rollback, SCOPE_NAME);
-            }
+//            final ProfilerConfig profilerConfig = this.getProfilerConfig();
+//            if (profilerConfig.isJdbcProfileJtdsSetAutoCommit()) {
+//                Interceptor setAutocommit = new TransactionSetAutoCommitInterceptor();
+//                jtdsConnection.addGroupInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit, SCOPE_NAME);
+//            }
+//            if (profilerConfig.isJdbcProfileJtdsCommit()) {
+//                Interceptor commit = new TransactionCommitInterceptor();
+//                jtdsConnection.addGroupInterceptor("commit", null, commit, SCOPE_NAME);
+//            }
+//            if (profilerConfig.isJdbcProfileJtdsRollback()) {
+//                Interceptor rollback = new TransactionRollbackInterceptor();
+//                jtdsConnection.addGroupInterceptor("rollback", null, rollback, SCOPE_NAME);
+//            }
 
             if (this.logger.isInfoEnabled()) {
                 this.logger.info("{} class is converted.", javassistClassName);

@@ -89,19 +89,19 @@ public class CubridConnectionModifier extends AbstractModifier {
             Interceptor preparedStatementCreateInterceptor6 = new PreparedStatementCreateInterceptor();
             cubridConnection.addGroupInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int", "int"}, preparedStatementCreateInterceptor6, CubridScope.SCOPE_NAME);
 
-            final ProfilerConfig profilerConfig = this.getProfilerConfig();
-            if (profilerConfig.isJdbcProfileCubridSetAutoCommit()) {
-                Interceptor setAutoCommit = new TransactionSetAutoCommitInterceptor();
-                cubridConnection.addGroupInterceptor("setAutoCommit", new String[]{"boolean"}, setAutoCommit, CubridScope.SCOPE_NAME);
-            }
-            if (profilerConfig.isJdbcProfileCubridCommit()) {
-                Interceptor commit = new TransactionCommitInterceptor();
-                cubridConnection.addGroupInterceptor("commit", null, commit, CubridScope.SCOPE_NAME);
-            }
-            if (profilerConfig.isJdbcProfileCubridRollback()) {
-                Interceptor rollback = new TransactionRollbackInterceptor();
-                cubridConnection.addGroupInterceptor("rollback", null, rollback, CubridScope.SCOPE_NAME);
-            }
+//            final ProfilerConfig profilerConfig = this.getProfilerConfig();
+//            if (profilerConfig.isJdbcProfileCubridSetAutoCommit()) {
+//                Interceptor setAutoCommit = new TransactionSetAutoCommitInterceptor();
+//                cubridConnection.addGroupInterceptor("setAutoCommit", new String[]{"boolean"}, setAutoCommit, CubridScope.SCOPE_NAME);
+//            }
+//            if (profilerConfig.isJdbcProfileCubridCommit()) {
+//                Interceptor commit = new TransactionCommitInterceptor();
+//                cubridConnection.addGroupInterceptor("commit", null, commit, CubridScope.SCOPE_NAME);
+//            }
+//            if (profilerConfig.isJdbcProfileCubridRollback()) {
+//                Interceptor rollback = new TransactionRollbackInterceptor();
+//                cubridConnection.addGroupInterceptor("rollback", null, rollback, CubridScope.SCOPE_NAME);
+//            }
 
             if (this.logger.isInfoEnabled()) {
                 this.logger.info("{} class is converted.", javassistClassName);

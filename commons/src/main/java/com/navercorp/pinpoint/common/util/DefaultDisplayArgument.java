@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.common.util;
 
+import static com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher.*;
+
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-
-import static com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher.*;
 
 /**
  * @author emeroad
@@ -29,9 +29,6 @@ public class DefaultDisplayArgument {
 
     public static final DisplayArgumentMatcher UNKNOWN_DB_MATCHER = createArgumentMatcher(ServiceType.UNKNOWN, AnnotationKey.ARGS0);
     public static final DisplayArgumentMatcher UNKNOWN_DB_EXECUTE_QUERY_MATCHER = createArgumentMatcher(ServiceType.UNKNOWN_DB_EXECUTE_QUERY, AnnotationKey.ARGS0);
-
-    public static final DisplayArgumentMatcher MSSQL_MATCHER = createArgumentMatcher(ServiceType.MSSQL, AnnotationKey.ARGS0);
-    public static final DisplayArgumentMatcher MSSQL_EXECUTE_QUERY_MATCHER = createArgumentMatcher(ServiceType.MSSQL_EXECUTE_QUERY, AnnotationKey.ARGS0);
 
     public static final DisplayArgumentMatcher ORACLE_MATCHER = createArgumentMatcher(ServiceType.ORACLE, AnnotationKey.ARGS0);
     public static final DisplayArgumentMatcher ORACLE_EXECUTE_QUERY_MATCHER = createArgumentMatcher(ServiceType.ORACLE_EXECUTE_QUERY, AnnotationKey.ARGS0);

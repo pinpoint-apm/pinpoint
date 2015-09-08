@@ -14,28 +14,34 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jdbc.jtds;
+package com.navercorp.pinpoint.profiler.modifier.db.jtds;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultDatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParser;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.profiler.modifier.db.ConnectionStringParser;
+import com.navercorp.pinpoint.profiler.modifier.db.DefaultDatabaseInfo;
+import com.navercorp.pinpoint.profiler.modifier.db.JDBCUrlParser;
+import com.navercorp.pinpoint.profiler.modifier.db.StringMaker;
 
 /**
  * @author emeroad
  */
-public class JtdsJdbcUrlParser extends JdbcUrlParser implements JtdsConstants {
+public class JtdsConnectionStringParser implements ConnectionStringParser {
 
     public static final int DEFAULT_PORT = 1433;
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Override
-    public DatabaseInfo doParse(String url) {
+    public DatabaseInfo parse(String url) {
         if (url == null) {
-            return UnKnownDatabaseInfo.createUnknownDataBase(MSSQL, MSSQL_EXECUTE_QUERY, null);
+            return JDBCUrlParser.createUnknownDataBase(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, null);
         }
 
 //        jdbc:jtds:sqlserver://10.xx.xx.xx:1433;DatabaseName=CAFECHAT;sendStringParametersAsUnicode=false;useLOBs=false;loginTimeout=3
@@ -66,7 +72,7 @@ public class JtdsJdbcUrlParser extends JdbcUrlParser implements JtdsConstants {
 
         String normalizedUrl = maker.clear().before(";").value();
 
-        return new DefaultDatabaseInfo(MSSQL, MSSQL_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
+        return new DefaultDatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
     }
 
 
