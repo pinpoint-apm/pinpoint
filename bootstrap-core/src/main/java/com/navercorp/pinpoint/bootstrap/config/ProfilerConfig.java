@@ -111,25 +111,10 @@ public class ProfilerConfig {
     private int jdbcMaxSqlBindValueSize = 1024;
     private boolean jdbcProfile = true;
 
-    private boolean jdbcProfileMySql = true;
-    private boolean jdbcProfileMySqlSetAutoCommit = false;
-    private boolean jdbcProfileMySqlCommit = false;
-    private boolean jdbcProfileMySqlRollback = false;
-
-    private boolean jdbcProfileJtds = true;
-    private boolean jdbcProfileJtdsSetAutoCommit = false;
-    private boolean jdbcProfileJtdsCommit = false;
-    private boolean jdbcProfileJtdsRollback = false;
-
     private boolean jdbcProfileOracle = true;
     private boolean jdbcProfileOracleSetAutoCommit = false;
     private boolean jdbcProfileOracleCommit = false;
     private boolean jdbcProfileOracleRollback = false;
-
-    private boolean jdbcProfileCubrid = true;
-    private boolean jdbcProfileCubridSetAutoCommit = false;
-    private boolean jdbcProfileCubridCommit = false;
-    private boolean jdbcProfileCubridRollback = false;
 
     private boolean jdbcProfileDbcp = true;
     private boolean jdbcProfileDbcpConnectionClose = false;
@@ -306,40 +291,6 @@ public class ProfilerConfig {
         return jdbcMaxSqlBindValueSize;
     }
 
-    // mysql start -----------------------------------------------------
-    public boolean isJdbcProfileMySql() {
-        return jdbcProfileMySql;
-    }
-
-    public boolean isJdbcProfileMySqlSetAutoCommit() {
-        return jdbcProfileMySqlSetAutoCommit;
-    }
-
-    public boolean isJdbcProfileMySqlCommit() {
-        return jdbcProfileMySqlCommit;
-    }
-
-    public boolean isJdbcProfileMySqlRollback() {
-        return jdbcProfileMySqlRollback;
-    }
-    // mysql end-----------------------------------------------------
-
-    public boolean isJdbcProfileJtds() {
-        return jdbcProfileJtds;
-    }
-
-    public boolean isJdbcProfileJtdsSetAutoCommit() {
-        return jdbcProfileJtdsSetAutoCommit;
-    }
-
-    public boolean isJdbcProfileJtdsCommit() {
-        return jdbcProfileJtdsCommit;
-    }
-
-    public boolean isJdbcProfileJtdsRollback() {
-        return jdbcProfileJtdsRollback;
-    }
-
     // oracle start -----------------------------------------------------
     public boolean isJdbcProfileOracle() {
         return jdbcProfileOracle;
@@ -357,24 +308,6 @@ public class ProfilerConfig {
         return jdbcProfileOracleRollback;
     }
     // oracle end -----------------------------------------------------
-
-    // cubrid start -----------------------------------------------------
-    public boolean isJdbcProfileCubrid() {
-        return jdbcProfileCubrid;
-    }
-
-    public boolean isJdbcProfileCubridSetAutoCommit() {
-        return jdbcProfileCubridSetAutoCommit;
-    }
-
-    public boolean isJdbcProfileCubridCommit() {
-        return jdbcProfileCubridCommit;
-    }
-
-    public boolean isJdbcProfileCubridRollback() {
-        return jdbcProfileCubridRollback;
-    }
-    // cubrid end -----------------------------------------------------
 
     public boolean isSamplingEnable() {
         return samplingEnable;
@@ -654,29 +587,10 @@ public class ProfilerConfig {
         this.jdbcSqlCacheSize = readInt("profiler.jdbc.sqlcachesize", 1024);
         this.jdbcMaxSqlBindValueSize = readInt("profiler.jdbc.maxsqlbindvaluesize", 1024);
 
-        this.jdbcProfileMySql = readBoolean("profiler.jdbc.mysql", true);
-        this.jdbcProfileMySqlSetAutoCommit = readBoolean("profiler.jdbc.mysql.setautocommit", false);
-        this.jdbcProfileMySqlCommit = readBoolean("profiler.jdbc.mysql.commit", false);
-        this.jdbcProfileMySqlRollback = readBoolean("profiler.jdbc.mysql.rollback", false);
-
-
-        this.jdbcProfileJtds = readBoolean("profiler.jdbc.jtds", true);
-        this.jdbcProfileJtdsSetAutoCommit = readBoolean("profiler.jdbc.jtds.setautocommit", false);
-        this.jdbcProfileJtdsCommit = readBoolean("profiler.jdbc.jtds.commit", false);
-        this.jdbcProfileJtdsRollback = readBoolean("profiler.jdbc.jtds.rollback", false);
-
-
         this.jdbcProfileOracle = readBoolean("profiler.jdbc.oracle", true);
         this.jdbcProfileOracleSetAutoCommit = readBoolean("profiler.jdbc.oracle.setautocommit", false);
         this.jdbcProfileOracleCommit = readBoolean("profiler.jdbc.oracle.commit", false);
         this.jdbcProfileOracleRollback = readBoolean("profiler.jdbc.oracle.rollback", false);
-
-
-        this.jdbcProfileCubrid = readBoolean("profiler.jdbc.cubrid", true);
-        this.jdbcProfileCubridSetAutoCommit = readBoolean("profiler.jdbc.cubrid.setautocommit", false);
-        this.jdbcProfileCubridCommit = readBoolean("profiler.jdbc.cubrid.commit", false);
-        this.jdbcProfileCubridRollback = readBoolean("profiler.jdbc.cubrid.rollback", false);
-
 
         this.jdbcProfileDbcp = readBoolean("profiler.jdbc.dbcp", true);
         this.jdbcProfileDbcpConnectionClose = readBoolean("profiler.jdbc.dbcp.connectionclose", false);
@@ -912,22 +826,6 @@ public class ProfilerConfig {
         builder.append(jdbcMaxSqlBindValueSize);
         builder.append(", jdbcProfile=");
         builder.append(jdbcProfile);
-        builder.append(", jdbcProfileMySql=");
-        builder.append(jdbcProfileMySql);
-        builder.append(", jdbcProfileMySqlSetAutoCommit=");
-        builder.append(jdbcProfileMySqlSetAutoCommit);
-        builder.append(", jdbcProfileMySqlCommit=");
-        builder.append(jdbcProfileMySqlCommit);
-        builder.append(", jdbcProfileMySqlRollback=");
-        builder.append(jdbcProfileMySqlRollback);
-        builder.append(", jdbcProfileJtds=");
-        builder.append(jdbcProfileJtds);
-        builder.append(", jdbcProfileJtdsSetAutoCommit=");
-        builder.append(jdbcProfileJtdsSetAutoCommit);
-        builder.append(", jdbcProfileJtdsCommit=");
-        builder.append(jdbcProfileJtdsCommit);
-        builder.append(", jdbcProfileJtdsRollback=");
-        builder.append(jdbcProfileJtdsRollback);
         builder.append(", jdbcProfileOracle=");
         builder.append(jdbcProfileOracle);
         builder.append(", jdbcProfileOracleSetAutoCommit=");
@@ -936,14 +834,6 @@ public class ProfilerConfig {
         builder.append(jdbcProfileOracleCommit);
         builder.append(", jdbcProfileOracleRollback=");
         builder.append(jdbcProfileOracleRollback);
-        builder.append(", jdbcProfileCubrid=");
-        builder.append(jdbcProfileCubrid);
-        builder.append(", jdbcProfileCubridSetAutoCommit=");
-        builder.append(jdbcProfileCubridSetAutoCommit);
-        builder.append(", jdbcProfileCubridCommit=");
-        builder.append(jdbcProfileCubridCommit);
-        builder.append(", jdbcProfileCubridRollback=");
-        builder.append(jdbcProfileCubridRollback);
         builder.append(", jdbcProfileDbcp=");
         builder.append(jdbcProfileDbcp);
         builder.append(", jdbcProfileDbcpConnectionClose=");

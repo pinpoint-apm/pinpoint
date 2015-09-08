@@ -18,6 +18,7 @@
         <module>jackson</module>
         <module>cubrid-jdbc</module>
         <module>mysql-jdbc</module>
+        <module>jtds</module>
         <module>jdk-http</module>
 		<module>json-lib</module>
         <module>redis</module>
@@ -56,6 +57,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-mysql-jdbc-driver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-jtds-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -108,19 +108,19 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
             Interceptor preparedStatementCreateInterceptor6 = new PreparedStatementCreateInterceptor();
             mysqlConnection.addGroupInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int", "int"}, preparedStatementCreateInterceptor6, MYSQLScope.SCOPE_NAME);
 
-            final ProfilerConfig profilerConfig = this.getProfilerConfig();
-            if (profilerConfig.isJdbcProfileMySqlSetAutoCommit()) {
-                Interceptor setAutocommit = new TransactionSetAutoCommitInterceptor();
-                mysqlConnection.addGroupInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit, MYSQLScope.SCOPE_NAME);
-            }
-            if (profilerConfig.isJdbcProfileMySqlCommit()) {
-                Interceptor commit = new TransactionCommitInterceptor();
-                mysqlConnection.addGroupInterceptor("commit", null, commit, MYSQLScope.SCOPE_NAME);
-            }
-            if (profilerConfig.isJdbcProfileMySqlRollback()) {
-                Interceptor rollback = new TransactionRollbackInterceptor();
-                mysqlConnection.addGroupInterceptor("rollback", null, rollback, MYSQLScope.SCOPE_NAME);
-            }
+//            final ProfilerConfig profilerConfig = this.getProfilerConfig();
+//            if (profilerConfig.isJdbcProfileMySqlSetAutoCommit()) {
+//                Interceptor setAutocommit = new TransactionSetAutoCommitInterceptor();
+//                mysqlConnection.addGroupInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit, MYSQLScope.SCOPE_NAME);
+//            }
+//            if (profilerConfig.isJdbcProfileMySqlCommit()) {
+//                Interceptor commit = new TransactionCommitInterceptor();
+//                mysqlConnection.addGroupInterceptor("commit", null, commit, MYSQLScope.SCOPE_NAME);
+//            }
+//            if (profilerConfig.isJdbcProfileMySqlRollback()) {
+//                Interceptor rollback = new TransactionRollbackInterceptor();
+//                mysqlConnection.addGroupInterceptor("rollback", null, rollback, MYSQLScope.SCOPE_NAME);
+//            }
             if (this.logger.isInfoEnabled()) {
                 this.logger.info("{} class is converted.", javassistClassName);
             }
