@@ -8,15 +8,15 @@ alarm batch는 기본적으로 3분에 한번씩 동작이 된다. 최근 5분�
 ## 1. Alarm 기능 사용 방법
 
 1) 설정 화면으로 이동
-	- ![alarm_figure01.gif](img/alarm/alarm_figure01.gif)
+![alarm_figure01.gif](img/alarm/alarm_figure01.gif)
 2) user를 등록 
-	- ![alarm_figure02.gif](img/alarm/alarm_figure02.gif)
+![alarm_figure02.gif](img/alarm/alarm_figure02.gif)
 3) userGroup을 생성
-	- ![alarm_figure03.gif](img/alarm/alarm_figure03.gif)
+![alarm_figure03.gif](img/alarm/alarm_figure03.gif)
 4) userGroup에 member를 등록
-	- ![alarm_figure04.gif](img/alarm/alarm_figure04.gif)
+![alarm_figure04.gif](img/alarm/alarm_figure04.gif)
 5) alarm rule을 등록 
-	- ![alarm_figure05.gif](img/alarm/alarm_figure05.gif)
+![alarm_figure05.gif](img/alarm/alarm_figure05.gif)
 
 alarm rule에 대한 설명은 아래를 참고하시오. 
 
