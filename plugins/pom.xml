@@ -31,6 +31,7 @@
         <module>google-httpclient</module>
         <module>jetty</module>
         <module>spring-beans</module>
+        <module>spring-boot</module>
         <module>ibatis</module>
         <module>mybatis</module>
     </modules>
@@ -129,6 +130,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-spring-beans-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-spring-boot-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
