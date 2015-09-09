@@ -83,6 +83,16 @@ public class ConfigControllerTest {
                                         .andReturn();
         String content = result.getResponse().getContentAsString();
         System.out.println(content);
+        
+        result = this.mockMvc.perform(get("/configuration.pinpoint").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andExpect(jsonPath("$", hasKey("showActiveThread")))
+                .andExpect(jsonPath("$", hasKey("editUserInfo")))
+                .andExpect(jsonPath("$", hasKey("sendUsage")))
+                .andReturn();
+        content = result.getResponse().getContentAsString();
+        System.out.println(content);
     }
 
 }

@@ -16,9 +16,11 @@
 package com.navercorp.pinpoint.web.dao.memory;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -57,6 +59,27 @@ public class MemoryUserGroupDao implements UserGroupDao {
     @Override
     public List<UserGroup> selectUserGroup() {
         return new ArrayList<>(userGroups.values());
+    }
+    
+
+    @Override
+    public List<UserGroup> selectUserGroupByUserId(String userId) {
+        Set<String> userGroupNames = new HashSet<String>();
+        
+        for (UserGroupMember member : userGroupMembers.values()) {
+            if (member.getMemberId().equals(userId)) {
+                userGroupNames.add(member.getUserGroupId());
+            }
+        }
+        
+        List<UserGroup> groups = new LinkedList<>();
+        for(UserGroup userGroup : userGroups.values()) {
+            if (userGroupNames.contains(userGroup.getId())) {
+                groups.add(userGroup);
+            }
+        }
+        
+        return groups;
     }
 
     @Override
@@ -171,6 +194,5 @@ public class MemoryUserGroupDao implements UserGroupDao {
             }
         }
     }
-
 
 }
