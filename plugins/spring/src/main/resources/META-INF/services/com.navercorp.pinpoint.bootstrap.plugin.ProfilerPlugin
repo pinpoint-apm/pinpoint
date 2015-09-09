@@ -1,1 +1,2 @@
 com.navercorp.pinpoint.plugin.spring.beans.SpringBeansPlugin
+com.navercorp.pinpoint.plugin.spring.web.SpringWebMvcPlugin

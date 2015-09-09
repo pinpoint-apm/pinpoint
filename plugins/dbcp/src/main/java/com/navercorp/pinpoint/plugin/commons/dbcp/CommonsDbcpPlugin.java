@@ -36,22 +36,34 @@ public class CommonsDbcpPlugin implements ProfilerPlugin {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("org.apache.commons.dbcp.BasicDataSource", new PinpointClassFileTransformer() {
-            
-            @Override
-            public byte[] transform(ProfilerPluginInstrumentContext pluginContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = pluginContext.getInstrumentClass(loader, className, classfileBuffer);
-                target.addInterceptor("com.navercorp.pinpoint.plugin.commons.dbcp.interceptor.DataSourceGetConnectionInterceptor");
-                return target.toBytecode();
-            }
-        });
+        addBasicDataSourceTransformer(context);
         
+        boolean profileClose = context.getConfig().readBoolean("profiler.jdbc.dbcp.connectionclose", false);
+        
+        if (profileClose) {
+            addPoolGuardConnectionWrapperTransformer(context);
+        }
+    }
+
+    private void addPoolGuardConnectionWrapperTransformer(ProfilerPluginSetupContext context) {
         context.addClassFileTransformer("org.apache.commons.dbcp.PoolingDataSource$PoolGuardConnectionWrapper", new PinpointClassFileTransformer() {
             
             @Override
             public byte[] transform(ProfilerPluginInstrumentContext pluginContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = pluginContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addInterceptor("com.navercorp.pinpoint.plugin.commons.dbcp.interceptor.DataSourceCloseInterceptor");
+                return target.toBytecode();
+            }
+        });
+    }
+
+    private void addBasicDataSourceTransformer(ProfilerPluginSetupContext context) {
+        context.addClassFileTransformer("org.apache.commons.dbcp.BasicDataSource", new PinpointClassFileTransformer() {
+            
+            @Override
+            public byte[] transform(ProfilerPluginInstrumentContext pluginContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                InstrumentClass target = pluginContext.getInstrumentClass(loader, className, classfileBuffer);
+                target.addInterceptor("com.navercorp.pinpoint.plugin.commons.dbcp.interceptor.DataSourceGetConnectionInterceptor");
                 return target.toBytecode();
             }
         });

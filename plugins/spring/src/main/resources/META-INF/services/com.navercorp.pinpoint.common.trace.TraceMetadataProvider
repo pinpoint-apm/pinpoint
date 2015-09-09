@@ -1,1 +1,2 @@
 com.navercorp.pinpoint.plugin.spring.beans.SpringBeansTraceMetadataProvider
+com.navercorp.pinpoint.plugin.spring.web.SpringWebMvcTraceMetadataProvider
