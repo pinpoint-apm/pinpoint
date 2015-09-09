@@ -9,7 +9,7 @@
 
 ## Latest Release (2015/9/9)
 We're happy to announce the release of Pinpoint **v1.1.1**. <br/>
-Please check release note at (https://github.com/naver/pinpoint/releases/tag/1.1.1)
+Please check release note at (https://github.com/naver/pinpoint/releases/tag/1.1.1)<br/>
 We're now focusing on developing **v1.5.0**.
 
 ## Overview
