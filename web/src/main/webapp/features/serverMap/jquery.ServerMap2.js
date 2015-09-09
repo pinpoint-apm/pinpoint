@@ -63,6 +63,7 @@
                     'QUEUE_GROUP': 'QUEUE.png',
                     'STAND_ALONE': 'STAND_ALONE.png',
                     'STAND_ALONE_GROUP': 'STAND_ALONE.png',
+                    'SPRING_BOOT': 'SPRING_BOOT.png',
                     'TOMCAT': 'TOMCAT.png',
                     'TOMCAT_GROUP': 'TOMCAT.png',
                     'UNDEFINED': 'UNDEFINED.png',
