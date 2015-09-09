@@ -129,7 +129,7 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-spring-beans-plugin</artifactId>
+            <artifactId>pinpoint-spring-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
