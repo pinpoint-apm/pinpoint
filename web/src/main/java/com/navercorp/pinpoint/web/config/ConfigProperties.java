@@ -51,7 +51,10 @@ public class ConfigProperties {
         StringBuilder sb = new StringBuilder("WebProperties{");
         sb.append("sendUsage=").append(sendUsage);
         sb.append(", showActiveThread=").append(showActiveThread);
+        sb.append(", editUserInfo=").append(editUserInfo);
         sb.append("}");
         return sb.toString();
     }
+    
+    
 }

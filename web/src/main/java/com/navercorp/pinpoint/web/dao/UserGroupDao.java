@@ -28,6 +28,8 @@ public interface UserGroupDao {
     
     List<UserGroup> selectUserGroup();
     
+    List<UserGroup> selectUserGroupByUserId(String userId);
+
     void updateUserGroup(UserGroup userGroup);
     
     void deleteUserGroup(UserGroup userGroup);
@@ -47,5 +49,6 @@ public interface UserGroupDao {
     void deleteMemberByUserGroupId(String userGroupId);
 
     void updateUserGroupIdOfMember(UserGroup userGroup);
+
 
 }
