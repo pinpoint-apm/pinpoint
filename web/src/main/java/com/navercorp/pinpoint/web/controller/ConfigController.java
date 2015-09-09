@@ -16,8 +16,13 @@
 
 package com.navercorp.pinpoint.web.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -35,7 +40,20 @@ public class ConfigController {
     
     @RequestMapping(value="/configuration", method=RequestMethod.GET)
     @ResponseBody
-    public ConfigProperties getProperties() {
-        return this.webProperties;
+    public Map<String, Object> getProperties(@RequestHeader(value="SSO_USER", required=false) String userId, @RequestHeader(value="EMPNM", required=false) String userName, @RequestHeader(value="DEPTNM", required=false) String department) {
+        Map<String, Object> result = new HashMap<String, Object>();
+        result.put("sendUsage", webProperties.getSendUsage());
+        
+        if (!StringUtils.isEmpty(userId)) {
+            result.put("userId", userId);
+        }
+        if (!StringUtils.isEmpty(userName)) {
+            result.put("userName", userName);
+        }
+        if (!StringUtils.isEmpty(department)) {
+            result.put("userDepartment", department);
+        }
+        
+        return result;
     }
 }
