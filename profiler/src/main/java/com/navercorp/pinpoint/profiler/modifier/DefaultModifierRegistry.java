@@ -105,18 +105,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         addModifier(springServletModifier);
     }
 
-    public void addJdbcModifier() {
-        // TODO Can we check if JDBC driver exists here?
-
-        if (!profilerConfig.isJdbcProfile()) {
-            return;
-        }
-
-        if (profilerConfig.isJdbcProfileDbcp()) {
-            addDbcpDriver();
-        }
-    }
-
     private void addDbcpDriver() {
 
         // TODO Cubrid doesn't have connection impl too. Check it out.

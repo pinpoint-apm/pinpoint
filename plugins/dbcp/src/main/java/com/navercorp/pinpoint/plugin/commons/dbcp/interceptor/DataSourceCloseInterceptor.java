@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
+package com.navercorp.pinpoint.plugin.commons.dbcp.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.interceptor.*;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
+import com.navercorp.pinpoint.plugin.commons.dbcp.CommonsDbcpPlugin;
 
 /**
  * Maybe we should trace get of Datasource.
  * @author emeroad
  */
-public class DataSourceCloseInterceptor extends SpanEventSimpleAroundInterceptor {
+@Group(CommonsDbcpPlugin.DBCP_GROUP)
+@TargetMethod(name="close")
+public class DataSourceCloseInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
-
-
-    public DataSourceCloseInterceptor() {
-        super(DataSourceCloseInterceptor.class);
+    public DataSourceCloseInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+        super(traceContext, descriptor);
     }
 
     @Override
@@ -39,7 +42,7 @@ public class DataSourceCloseInterceptor extends SpanEventSimpleAroundInterceptor
 
     @Override
     public void doInAfterTrace(SpanEventRecorder trace, Object target, Object[] args, Object result, Throwable throwable) {
-        trace.recordServiceType(ServiceType.UNKNOWN);
+        trace.recordServiceType(CommonsDbcpPlugin.DBCP_SERVICE_TYPE);
         trace.recordApi(getMethodDescriptor());
         trace.recordException(throwable);
     }

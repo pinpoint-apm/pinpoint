@@ -19,6 +19,7 @@
         <module>cubrid-jdbc</module>
         <module>mysql-jdbc</module>
         <module>jtds</module>
+        <module>dbcp</module>
         <module>oracle-jdbc</module>
         <module>jdk-http</module>
 		<module>json-lib</module>
@@ -68,6 +69,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-oracle-jdbc-driver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-commons-dbcp-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

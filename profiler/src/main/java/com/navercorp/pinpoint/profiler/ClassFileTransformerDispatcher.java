@@ -183,9 +183,6 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
 
         modifierRepository.addTomcatModifier();
 
-        // jdbc
-        modifierRepository.addJdbcModifier();
-
         // rpc
         modifierRepository.addConnectorModifier();
 

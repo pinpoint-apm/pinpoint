@@ -284,7 +284,7 @@ public class ServiceType {
     // 5510 MyBatis
 
     // DBCP
-    public static final ServiceType DBCP = of(6050, "DBCP", NORMAL_SCHEMA);
+//    public static final ServiceType DBCP = of(6050, "DBCP", NORMAL_SCHEMA);
 
     // USER INCLUDE
     public static final ServiceType USER_INCLUDE = of(7010, "USER_INCLUDE", NORMAL_SCHEMA);
