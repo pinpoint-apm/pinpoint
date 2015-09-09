@@ -137,23 +137,37 @@
 	    					isRemoving = false;
 	    				}, function( errorData ) {}, $elAlert );
 	    			}
-	    			function loadList() {
+	    			function loadList( willBeAddedUser ) {
 	    				alarmUtilService.sendCRUD( "getGroupMemberListInGroup", { "userGroupId": currentUserGroupID }, function( resultData ) {
 	    					// @TODO
 	    					// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
 	    					isLoadedGroupMemberList = true;
 	    					groupMemberList = scope.groupMemberList = resultData;
 	    					alarmUtilService.setTotal( $elTotal, groupMemberList.length );
-	    					alarmUtilService.hide( $elLoading );	    					
+	    					alarmUtilService.hide( $elLoading );
+	    					
+	    					if ( angular.isDefined( willBeAddedUser ) ) {
+	    						addMember( willBeAddedUser );
+	    					}
 	    				}, function( errorData ) {}, $elAlert );		
 	    			};
 	    			function hasUser( userID ) {
 	    				return $( "#" + scope.prefix + userID ).length > 0;
 	    			}
+	    			function selectedUserGroupID() {
+	    				if ( currentUserGroupID == "" ) {
+		    				alarmUtilService.showLoading( $elLoading, false );
+	    					alarmUtilService.showAlert( $elAlert, "Not selected User Group.", true );
+	    					return false;
+	    				}
+    					return true;
+	    			}
 	    			
 	    			scope.prefix = "alarmGroupMember_"; 
 	    			scope.onRefresh = function() {
 	    				if ( isRemoving == true ) return;
+	    				
+	    				if ( selectedUserGroupID() == false ) return;
 	    				analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_REFRESH_USER );
 	    				$elFilterInput.val("");
 	    				alarmUtilService.showLoading( $elLoading, false );
@@ -174,6 +188,7 @@
 	    			};
 	    			scope.onFilterGroup = function() {
 	    				if ( isRemoving == true ) return;
+	    				if ( selectedUserGroupID() == false ) return;
 	    				var query = $.trim( $elFilterInput.val() );
 	    				if ( query.length != 0 && query.length < 3 ) {
 	    					alarmUtilService.showLoading( $elLoading, false );
@@ -208,16 +223,21 @@
 	    			scope.onCloseAlert = function() {
 	    				alarmUtilService.closeAlert( $elAlert, $elLoading );
 	    			};
-	    			scope.$on("alarmGroupMember.configuration.load", function( event, userGroupID )  {	    				
+	    			scope.$on("alarmGroupMember.configuration.load", function( event, userGroupID, willBeAddedUser )  {	    				
 	    				currentUserGroupID = userGroupID;
     					reset();
-    					loadList();
+    					loadList( willBeAddedUser );
 	    			});
 	    			scope.$on("alarmGroupMember.configuration.selectNone", function( event )  {
 	    				currentUserGroupID = "";
 	    				groupMemberList = scope.groupMemberList = [];
 	    			});
 	    			scope.$on("alarmGroupMember.configuration.addUser", function( event, oUser )  {
+	    				
+	    				if ( selectedUserGroupID() == false ) {
+	    					alarmBroadcastService.sendCallbackAddedUser( false );
+	    					return;
+	    				}
 	    				alarmUtilService.showLoading( $elLoading, false );
 	    				if ( hasUser( oUser.userId ) == false ) {
 	    					analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_ALARM_ADD_USER );
