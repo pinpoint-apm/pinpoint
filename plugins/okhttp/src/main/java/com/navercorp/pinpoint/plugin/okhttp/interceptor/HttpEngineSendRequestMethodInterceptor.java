@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.plugin.okhttp.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -25,6 +26,10 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
+import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
+import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
+import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.okhttp.ConnectionGetter;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
@@ -45,10 +50,29 @@ public class HttpEngineSendRequestMethodInterceptor implements SimpleAroundInter
     private MethodDescriptor methodDescriptor;
     private InterceptorGroup interceptorGroup;
 
+    private final boolean cookie;
+    private final DumpType cookieDumpType;
+    private final SimpleSampler cookieSampler;
+
+    private final boolean entity;
+    private final DumpType entityDumpType;
+    private final SimpleSampler entitySampler;
+
+    private final boolean statusCode;
+
+
     public HttpEngineSendRequestMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
         this.interceptorGroup = interceptorGroup;
+
+        cookie = true;
+        cookieDumpType = DumpType.EXCEPTION;
+        cookieSampler = SimpleSamplerFactory.createSampler(cookie, 1);
+        entity = true;
+        entityDumpType = DumpType.EXCEPTION;
+        entitySampler = SimpleSamplerFactory.createSampler(entity, 1);
+        statusCode = true;
     }
 
     @Override
@@ -63,6 +87,10 @@ public class HttpEngineSendRequestMethodInterceptor implements SimpleAroundInter
         }
 
         if (!validate(target)) {
+            return;
+        }
+
+        if(!trace.canSampled()) {
             return;
         }
 
@@ -105,12 +133,6 @@ public class HttpEngineSendRequestMethodInterceptor implements SimpleAroundInter
         return true;
     }
 
-    private String getHost(HttpUrl url) {
-        return url.port() != HttpUrl.defaultPort(url.scheme())
-                ? url.host() + ":" + url.port()
-                : url.host();
-    }
-
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
@@ -135,6 +157,7 @@ public class HttpEngineSendRequestMethodInterceptor implements SimpleAroundInter
             if (request != null) {
                 recorder.recordAttribute(AnnotationKey.HTTP_URL, request.httpUrl().toString());
                 recorder.recordDestinationId(request.httpUrl().host() + ":" + request.httpUrl().port());
+                recordRequest(trace, request, throwable);
             }
 
             // clear attachment.
@@ -144,6 +167,29 @@ public class HttpEngineSendRequestMethodInterceptor implements SimpleAroundInter
             }
         } finally {
             trace.traceBlockEnd();
+        }
+    }
+
+
+    private void recordRequest(Trace trace, Request request, Throwable throwable) {
+        final boolean isException = InterceptorUtils.isThrowable(throwable);
+        if (cookie) {
+            if (DumpType.ALWAYS == cookieDumpType) {
+                recordCookie(request, trace);
+            } else if (DumpType.EXCEPTION == cookieDumpType && isException) {
+                recordCookie(request, trace);
+            }
+        }
+    }
+
+    private void recordCookie(Request request, Trace trace) {
+        for(String cookie : request.headers("Cookie")) {
+            if(cookieSampler.isSampling()) {
+                final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+                recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(cookie, 1024));
+            }
+
+            return;
         }
     }
 }

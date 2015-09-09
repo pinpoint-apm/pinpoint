@@ -33,6 +33,7 @@ public interface OkHttpConstants {
     public static final String BASIC_METHOD_INTERCEPTOR = "com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor";
     public static final String METADATA_ASYNC_TRACE_ID = "com.navercorp.pinpoint.bootstrap.interceptor.AsyncTraceIdAccessor";
     public static final String SEND_REQUEST_SCOPE = "SendRequestScope";
+    public static final String CALL_SCOPE = "CallScope";
 
     public static final String FIELD_USER_REQUEST = "userRequest";
     public static final String FIELD_USER_RESPONSE = "userResponse";

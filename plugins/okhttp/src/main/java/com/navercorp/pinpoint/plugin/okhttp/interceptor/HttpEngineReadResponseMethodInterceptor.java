@@ -63,6 +63,7 @@ public class HttpEngineReadResponseMethodInterceptor implements SimpleAroundInte
         }
 
         SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.recordServiceType(OK_HTTP_CLIENT_INTERNAL);
     }
 
     private boolean validate(Object target) {

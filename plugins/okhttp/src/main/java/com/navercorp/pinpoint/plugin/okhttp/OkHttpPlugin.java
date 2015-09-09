@@ -19,6 +19,7 @@ import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncTraceIdAccessor;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -56,7 +57,7 @@ public class OkHttpPlugin implements ProfilerPlugin, OkHttpConstants {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("execute", "enqueue", "cancel"))) {
-                    method.addInterceptor(BASIC_METHOD_INTERCEPTOR, OK_HTTP_CLIENT_INTERNAL);
+                    method.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.CallMethodInterceptor");
                 }
 
                 return target.toBytecode();
