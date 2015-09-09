@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.profiler.modifier.servlet;
 
 import java.security.ProtectionDomain;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
@@ -29,9 +32,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.ServiceTypeSupport;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -57,10 +57,10 @@ public class SpringFrameworkServletModifier extends AbstractModifier {
 
         try {
             Interceptor doGetInterceptor = new MethodInterceptor();
-            setServiceType(doGetInterceptor, ServiceType.SPRING_MVC);
+            setServiceType(doGetInterceptor, ServiceType.UNKNOWN);
 
             Interceptor doPostInterceptor = new MethodInterceptor();
-            setServiceType(doPostInterceptor, ServiceType.SPRING_MVC);
+            setServiceType(doPostInterceptor, ServiceType.UNKNOWN);
 
 
 

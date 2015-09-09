@@ -8,8 +8,8 @@
         <version>1.5.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pinpoint-spring-beans-plugin</artifactId>
-    <name>pinpoint-spring-beans-plugin</name>
+    <artifactId>pinpoint-spring-plugin</artifactId>
+    <name>pinpoint-spring-plugin</name>
     <packaging>jar</packaging>
 
     <dependencies>

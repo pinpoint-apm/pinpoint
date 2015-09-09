@@ -272,7 +272,7 @@ public class ServiceType {
 
     // Spring framework
     public static final ServiceType SPRING = of(5050, "SPRING", NORMAL_SCHEMA);
-    public static final ServiceType SPRING_MVC = of(5051, "SPRING_MVC", "SPRING", NORMAL_SCHEMA);
+//    public static final ServiceType SPRING_MVC = of(5051, "SPRING_MVC", "SPRING", NORMAL_SCHEMA);
     // FIXME replaced with IBATIS_SPRING (5501) under IBatis Plugin - kept for backwards compatibility
     public static final ServiceType SPRING_ORM_IBATIS = of(5061, "SPRING_ORM_IBATIS", "SPRING", NORMAL_SCHEMA);
     // FIXME need to define how to handle spring related codes
