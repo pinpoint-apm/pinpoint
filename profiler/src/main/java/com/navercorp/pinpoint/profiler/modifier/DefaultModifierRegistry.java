@@ -27,12 +27,9 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.ClassNameMatcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.MultiClassNameMatcher;
 import com.navercorp.pinpoint.profiler.modifier.connector.asynchttpclient.AsyncHttpClientModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.dbcp.DBCPBasicDataSourceModifier;
-import com.navercorp.pinpoint.profiler.modifier.db.dbcp.DBCPPoolGuardConnectionWrapperModifier;
 import com.navercorp.pinpoint.profiler.modifier.log.log4j.LoggingEventOfLog4jModifier;
 import com.navercorp.pinpoint.profiler.modifier.log.logback.LoggingEventOfLogbackModifier;
 import com.navercorp.pinpoint.profiler.modifier.method.MethodModifier;
-import com.navercorp.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 /**
@@ -98,23 +95,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     public void addConnectorModifier() {
         // ning async http client
         addModifier(new AsyncHttpClientModifier(byteCodeInstrumentor, agent));
-    }
-
-    public void addTomcatModifier() {
-        SpringFrameworkServletModifier springServletModifier = new SpringFrameworkServletModifier(byteCodeInstrumentor, agent);
-        addModifier(springServletModifier);
-    }
-
-    private void addDbcpDriver() {
-
-        // TODO Cubrid doesn't have connection impl too. Check it out.
-        AbstractModifier dbcpBasicDataSourceModifier = new DBCPBasicDataSourceModifier(byteCodeInstrumentor, agent);
-        addModifier(dbcpBasicDataSourceModifier);
-
-        if (profilerConfig.isJdbcProfileDbcpConnectionClose()) {
-            AbstractModifier dbcpPoolModifier = new DBCPPoolGuardConnectionWrapperModifier(byteCodeInstrumentor, agent);
-            addModifier(dbcpPoolModifier);
-        }
     }
 
     public void addLog4jModifier() {

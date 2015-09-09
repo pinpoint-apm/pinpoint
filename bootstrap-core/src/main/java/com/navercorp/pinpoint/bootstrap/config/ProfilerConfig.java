@@ -108,11 +108,6 @@ public class ProfilerConfig {
     private int callStackMaxDepth = 512;
     
     private int jdbcSqlCacheSize = 1024;
-    private int jdbcMaxSqlBindValueSize = 1024;
-    private boolean jdbcProfile = true;
-
-    private boolean jdbcProfileDbcp = true;
-    private boolean jdbcProfileDbcpConnectionClose = false;
 
     private boolean tomcatHidePinpointHeader = true;
     private Filter<String> tomcatExcludeUrlFilter = new SkipFilter<String>();
@@ -274,16 +269,8 @@ public class ProfilerConfig {
         return profileEnable;
     }
 
-    public boolean isJdbcProfile() {
-        return jdbcProfile;
-    }
-
     public int getJdbcSqlCacheSize() {
         return jdbcSqlCacheSize;
-    }
-
-    public int getJdbcMaxSqlBindValueSize() {
-        return jdbcMaxSqlBindValueSize;
     }
 
     public boolean isSamplingEnable() {
@@ -309,14 +296,6 @@ public class ProfilerConfig {
 
     public long getAgentInfoSendRetryInterval() {
         return agentInfoSendRetryInterval;
-    }
-
-    public boolean isJdbcProfileDbcp() {
-        return jdbcProfileDbcp;
-    }
-
-    public boolean isJdbcProfileDbcpConnectionClose() {
-        return jdbcProfileDbcpConnectionClose;
     }
 
     public boolean isTomcatHidePinpointHeader() {
@@ -559,14 +538,7 @@ public class ProfilerConfig {
         }
         
         // JDBC
-        this.jdbcProfile = readBoolean("profiler.jdbc", true);
-
         this.jdbcSqlCacheSize = readInt("profiler.jdbc.sqlcachesize", 1024);
-        this.jdbcMaxSqlBindValueSize = readInt("profiler.jdbc.maxsqlbindvaluesize", 1024);
-
-        this.jdbcProfileDbcp = readBoolean("profiler.jdbc.dbcp", true);
-        this.jdbcProfileDbcpConnectionClose = readBoolean("profiler.jdbc.dbcp.connectionclose", false);
-
 
         this.tomcatHidePinpointHeader = readBoolean("profiler.tomcat.hidepinpointheader", true);
         final String tomcatExcludeURL = readString("profiler.tomcat.excludeurl", "");
@@ -794,14 +766,6 @@ public class ProfilerConfig {
         builder.append(callStackMaxDepth);
         builder.append(", jdbcSqlCacheSize=");
         builder.append(jdbcSqlCacheSize);
-        builder.append(", jdbcMaxSqlBindValueSize=");
-        builder.append(jdbcMaxSqlBindValueSize);
-        builder.append(", jdbcProfile=");
-        builder.append(jdbcProfile);
-        builder.append(", jdbcProfileDbcp=");
-        builder.append(jdbcProfileDbcp);
-        builder.append(", jdbcProfileDbcpConnectionClose=");
-        builder.append(jdbcProfileDbcpConnectionClose);
         builder.append(", tomcatHidePinpointHeader=");
         builder.append(tomcatHidePinpointHeader);
         builder.append(", tomcatExcludeUrlFilter=");

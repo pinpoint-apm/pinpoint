@@ -139,6 +139,6 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
     @Override
     public void setTraceContext(TraceContext traceContext) {
         this.traceContext = traceContext;
-        this.maxSqlBindValueLength = traceContext.getProfilerConfig().getJdbcMaxSqlBindValueSize();
+//        this.maxSqlBindValueLength = traceContext.getProfilerConfig().getJdbcMaxSqlBindValueSize();
     }
 }
