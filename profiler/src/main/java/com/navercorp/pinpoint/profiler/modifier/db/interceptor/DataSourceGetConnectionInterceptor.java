@@ -14,30 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.commons.dbcp.interceptor;
+package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Targets;
-import com.navercorp.pinpoint.plugin.commons.dbcp.CommonsDbcpPlugin;
+import com.navercorp.pinpoint.bootstrap.interceptor.*;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * Maybe we should trace get of Datasource.
  * @author emeroad
  */
-@Group(CommonsDbcpPlugin.DBCP_GROUP)
-@Targets(methods={
-        @TargetMethod(name="getConnection"),
-        @TargetMethod(name="getConnection", paramTypes={"java.lang.String", "java.lang.String"})
-})
-public class DataSourceGetConnectionInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+public class DataSourceGetConnectionInterceptor extends SpanEventSimpleAroundInterceptor {
 
-    public DataSourceGetConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        super(traceContext, descriptor);
+//    private final DepthScope scope = JDBCScope.SCOPE;
+
+    public DataSourceGetConnectionInterceptor() {
+        super(DataSourceGetConnectionInterceptor.class);
     }
 
     @Override
@@ -46,7 +38,7 @@ public class DataSourceGetConnectionInterceptor extends SpanEventSimpleAroundInt
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(CommonsDbcpPlugin.DBCP_SERVICE_TYPE);
+        recorder.recordServiceType(ServiceType.UNKNOWN);
         if (args == null) {
 //          getConnection() without any arguments
             recorder.recordApi(getMethodDescriptor());
