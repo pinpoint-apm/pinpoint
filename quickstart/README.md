@@ -76,4 +76,6 @@ You can feed trace data to Pinpoint using the TestApp UI, and check them using P
 
 Pinpoint Web uses Mysql to persist users, user groups, and alarm configurations.<br/>
 However Quickstart uses MockDAO to reduce memory usage.<br/>
-Therefore if you want to use Mysql for Quickstart, please refer to Pinpoint Web's [applicationContext-datasource.xml](../web/src/main/resources/applicationContext-datasource.xml), [jdbc.properties](../web/src/main/resources/jdbc.properties).  
+Therefore if you want to use Mysql for Quickstart, please refer to Pinpoint Web's [applicationContext-dao-config.xml
+](../web/src/main/resources/applicationContext-dao-config.xml
+), [jdbc.properties](../web/src/main/resources/jdbc.properties).  
