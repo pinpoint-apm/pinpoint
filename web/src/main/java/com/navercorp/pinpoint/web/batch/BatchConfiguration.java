@@ -51,7 +51,7 @@ public class BatchConfiguration{
                 properties.load(resource.getInputStream());
                 
                 return Boolean.valueOf(properties.getProperty("batch.enable").trim());
-            } catch (IOException e) {
+            } catch (Exception e) {
                 logger.error("Exception occurred while batch configuration" , e);
             }
             
