@@ -53,6 +53,7 @@ struct TCmdActiveThreadCount {
 struct TCmdActiveThreadCountRes {
 	1: i32 	histogramSchemaType
 	2: list<i32> activeThreadCount
+	3: optional i64 timeStamp
 }
 
 

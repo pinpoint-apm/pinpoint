@@ -70,17 +70,23 @@ class AgentActiveThreadCountListSerializer extends JsonSerializer<AgentActiveThr
             jgen.writeStringField("message", routeResult.name());
 
             TCmdActiveThreadCountRes activeThreadCount = agentActiveThread.getActiveThreadCount();
-            if (activeThreadCount != null && activeThreadCount.getActiveThreadCountSize() >= 4) {
-                List<Integer> values = activeThreadCount.getActiveThreadCount();
+            long timeStamp = System.currentTimeMillis();
+            if (activeThreadCount != null) {
+                timeStamp = activeThreadCount.getTimeStamp();
 
-                jgen.writeFieldName("status");
-                jgen.writeStartArray();
-                jgen.writeNumber(values.get(0));
-                jgen.writeNumber(values.get(1));
-                jgen.writeNumber(values.get(2));
-                jgen.writeNumber(values.get(3));
-                jgen.writeEndArray();
+                if (activeThreadCount.getActiveThreadCountSize() >= 4) {
+                    List<Integer> values = activeThreadCount.getActiveThreadCount();
+
+                    jgen.writeFieldName("status");
+                    jgen.writeStartArray();
+                    jgen.writeNumber(values.get(0));
+                    jgen.writeNumber(values.get(1));
+                    jgen.writeNumber(values.get(2));
+                    jgen.writeNumber(values.get(3));
+                    jgen.writeEndArray();
+                }
             }
+            jgen.writeNumberField("timeStamp", timeStamp);
 
             jgen.writeEndObject();
         }
