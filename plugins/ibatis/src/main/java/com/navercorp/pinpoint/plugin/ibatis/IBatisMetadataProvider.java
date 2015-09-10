@@ -16,8 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.ibatis;
 
-import static com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher.*;
-
+import com.navercorp.pinpoint.common.trace.AnnotationKeyMatchers;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
@@ -28,7 +27,7 @@ public class IBatisMetadataProvider implements TraceMetadataProvider {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(IBatisPlugin.IBATIS, ARGS_MATCHER);
-        context.addServiceType(IBatisPlugin.IBATIS_SPRING, ARGS_MATCHER);
+        context.addServiceType(IBatisPlugin.IBATIS, AnnotationKeyMatchers.ARGS_MATCHER);
+        context.addServiceType(IBatisPlugin.IBATIS_SPRING, AnnotationKeyMatchers.ARGS_MATCHER);
     }
 }

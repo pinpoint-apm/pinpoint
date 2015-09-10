@@ -15,7 +15,7 @@
 package com.navercorp.pinpoint.plugin.jdbc.jtds;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyMatchers;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
@@ -27,8 +27,8 @@ public class JtdsTypeProvider implements TraceMetadataProvider, JtdsConstants {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(MSSQL, new AnnotationKeyMatcher.ExactMatcher(AnnotationKey.ARGS0));
-        context.addServiceType(MSSQL_EXECUTE_QUERY, new AnnotationKeyMatcher.ExactMatcher(AnnotationKey.ARGS0));
+        context.addServiceType(MSSQL, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
+        context.addServiceType(MSSQL_EXECUTE_QUERY, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
     }
 
 }

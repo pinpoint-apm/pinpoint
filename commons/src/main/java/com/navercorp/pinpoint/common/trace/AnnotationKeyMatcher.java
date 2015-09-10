@@ -21,46 +21,4 @@ package com.navercorp.pinpoint.common.trace;
 public interface AnnotationKeyMatcher {
 
     public boolean matches(int code);
-    
-    public static class ExactMatcher implements AnnotationKeyMatcher {
-        private final int code;
-        
-        public ExactMatcher(AnnotationKey key) {
-            this.code = key.getCode();
-        }
-
-        @Override
-        public boolean matches(int code) {
-            return this.code == code;
-        }
-
-        @Override
-        public String toString() {
-            return "ExactMatcher(" + code + ")";
-        }
-    }
-    
-    public static final AnnotationKeyMatcher NOTHING_MATCHER = new AnnotationKeyMatcher() {
-        @Override
-        public boolean matches(int code) {
-            return false;
-        }
-
-        @Override
-        public String toString() {
-            return "NOTHING_MATCHER";
-        }
-    };
-    
-    public static final AnnotationKeyMatcher ARGS_MATCHER = new AnnotationKeyMatcher() {
-        @Override
-        public boolean matches(int code) {
-            return AnnotationKey.isArgsKey(code);
-        }
-
-        @Override
-        public String toString() {
-            return "ARGS_MATCHER";
-        }
-    };
 }

@@ -21,7 +21,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyMatchers;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
@@ -60,7 +60,7 @@ public class StaticFieldLookUpTest {
         StaticFieldLookUp<DisplayArgumentMatcher> staticFieldLookUp = new StaticFieldLookUp<DisplayArgumentMatcher>(DefaultDisplayArgument.class, DisplayArgumentMatcher.class);
         List<DisplayArgumentMatcher> lookup = staticFieldLookUp.lookup();
 
-        DisplayArgumentMatcher notExist = new DisplayArgumentMatcher(ServiceType.UNDEFINED, AnnotationKeyMatcher.NOTHING_MATCHER);
+        DisplayArgumentMatcher notExist = new DisplayArgumentMatcher(ServiceType.UNDEFINED, AnnotationKeyMatchers.NOTHING_MATCHER);
         Assert.assertFalse(findType(lookup, notExist));
     }
 

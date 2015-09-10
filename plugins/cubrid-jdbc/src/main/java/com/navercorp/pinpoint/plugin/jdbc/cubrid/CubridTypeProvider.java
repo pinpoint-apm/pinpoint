@@ -15,7 +15,7 @@
 package com.navercorp.pinpoint.plugin.jdbc.cubrid;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyMatchers;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
@@ -27,8 +27,8 @@ public class CubridTypeProvider implements TraceMetadataProvider, CubridConstant
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(CUBRID, new AnnotationKeyMatcher.ExactMatcher(AnnotationKey.ARGS0));
-        context.addServiceType(CUBRID_EXECUTE_QUERY, new AnnotationKeyMatcher.ExactMatcher(AnnotationKey.ARGS0));
+        context.addServiceType(CUBRID, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
+        context.addServiceType(CUBRID_EXECUTE_QUERY, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
     }
 
 }

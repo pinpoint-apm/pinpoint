@@ -15,7 +15,7 @@
 package com.navercorp.pinpoint.plugin.jdbc.mysql;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyMatchers;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
@@ -27,8 +27,8 @@ public class MySqlTypeProvider implements TraceMetadataProvider, MySqlConstants 
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(MYSQL, new AnnotationKeyMatcher.ExactMatcher(AnnotationKey.ARGS0));
-        context.addServiceType(MYSQL_EXECUTE_QUERY, new AnnotationKeyMatcher.ExactMatcher(AnnotationKey.ARGS0));
+        context.addServiceType(MYSQL, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
+        context.addServiceType(MYSQL_EXECUTE_QUERY, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
     }
 
 }
