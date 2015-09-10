@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 @RunWith(PinpointPluginTestSuite.class)
 @Dependency({"com.squareup.okhttp:okhttp:[2.5.0]"})
 public class OkHttpClientIT {
-    @Ignore
+
     @Test
     public void execute() throws Exception {
         Request request = new Request.Builder().url("http://google.com").build();
@@ -55,6 +55,7 @@ public class OkHttpClientIT {
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
+
 
         Method enqueueMethod = Call.class.getDeclaredMethod("enqueue", com.squareup.okhttp.Callback.class);
         verifier.verifyTrace(Expectations.event("OK_HTTP_CLIENT_INTERNAL", enqueueMethod));

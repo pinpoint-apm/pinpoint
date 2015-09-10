@@ -31,10 +31,7 @@ import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.plugin.okhttp.ConnectionGetter;
-import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
-import com.navercorp.pinpoint.plugin.okhttp.UserRequestGetter;
-import com.navercorp.pinpoint.plugin.okhttp.UserResponseGetter;
+import com.navercorp.pinpoint.plugin.okhttp.*;
 import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.Request;
 
@@ -53,26 +50,22 @@ public class HttpEngineSendRequestMethodInterceptor implements SimpleAroundInter
     private final boolean cookie;
     private final DumpType cookieDumpType;
     private final SimpleSampler cookieSampler;
-
-    private final boolean entity;
-    private final DumpType entityDumpType;
-    private final SimpleSampler entitySampler;
-
     private final boolean statusCode;
 
-
-    public HttpEngineSendRequestMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup) {
+    public HttpEngineSendRequestMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorGroup interceptorGroup, OkHttpPluginConfig config) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
         this.interceptorGroup = interceptorGroup;
 
-        cookie = true;
-        cookieDumpType = DumpType.EXCEPTION;
-        cookieSampler = SimpleSamplerFactory.createSampler(cookie, 1);
-        entity = true;
-        entityDumpType = DumpType.EXCEPTION;
-        entitySampler = SimpleSamplerFactory.createSampler(entity, 1);
-        statusCode = true;
+        this.cookie = config.isCookie();
+        this.cookieDumpType = config.getCookieDumpType();
+        if(cookie) {
+            cookieSampler = SimpleSamplerFactory.createSampler(cookie, config.getCookieSamplingRate());
+        } else {
+            this.cookieSampler = null;
+        }
+
+        statusCode = config.isStatusCode();
     }
 
     @Override

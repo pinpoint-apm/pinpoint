@@ -41,10 +41,12 @@ public class HttpEngineReadResponseMethodInterceptor implements SimpleAroundInte
     private TraceContext traceContext;
     private MethodDescriptor methodDescriptor;
     private InterceptorGroup interceptorGroup;
+    private final boolean statusCode;
 
-    public HttpEngineReadResponseMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    public HttpEngineReadResponseMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, boolean statusCode) {
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;
+        this.statusCode = statusCode;
     }
 
     @Override
@@ -105,9 +107,11 @@ public class HttpEngineReadResponseMethodInterceptor implements SimpleAroundInte
             recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);
 
-            Response response = ((UserResponseGetter)target)._$PINPOINT$_getUserResponse();
-            if(response != null) {
-                recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, response.code());
+            if (statusCode) {
+                Response response = ((UserResponseGetter) target)._$PINPOINT$_getUserResponse();
+                if (response != null) {
+                    recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, response.code());
+                }
             }
         } finally {
             trace.traceBlockEnd();

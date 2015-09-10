@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AsyncTraceIdAccessor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
@@ -106,7 +107,7 @@ public class OkHttpPlugin implements ProfilerPlugin, OkHttpConstants {
         });
     }
 
-    private void addHttpEngine(ProfilerPluginSetupContext context, final OkHttpPluginConfig config) {
+    private void addHttpEngine(final ProfilerPluginSetupContext context, final OkHttpPluginConfig config) {
         context.addClassFileTransformer("com.squareup.okhttp.internal.http.HttpEngine", new PinpointClassFileTransformer() {
 
             @Override
@@ -119,7 +120,8 @@ public class OkHttpPlugin implements ProfilerPlugin, OkHttpConstants {
                 InstrumentMethod sendRequestMethod = target.getDeclaredMethod("sendRequest");
                 if(sendRequestMethod != null) {
                     logger.debug("[OkHttp] Add HttpEngine.sendRequest interceptor.");
-                    sendRequestMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.HttpEngineSendRequestMethodInterceptor");
+                    final ObjectRecipe objectRecipe = ObjectRecipe.byConstructor("com.navercorp.pinpoint.plugin.okhttp.OkHttpPluginConfig", context.getConfig());
+                    sendRequestMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.HttpEngineSendRequestMethodInterceptor", objectRecipe);
                 }
 
                 InstrumentMethod connectMethod = target.getDeclaredMethod("connect");
@@ -131,7 +133,7 @@ public class OkHttpPlugin implements ProfilerPlugin, OkHttpConstants {
                 InstrumentMethod readResponseMethod = target.getDeclaredMethod("readResponse");
                 if(readResponseMethod != null) {
                     logger.debug("[OkHttp] Add HttpEngine.connect interceptor.");
-                    readResponseMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.HttpEngineReadResponseMethodInterceptor");
+                    readResponseMethod.addInterceptor("com.navercorp.pinpoint.plugin.okhttp.interceptor.HttpEngineReadResponseMethodInterceptor", config.isStatusCode());
                 }
 
                 return target.toBytecode();
@@ -157,5 +159,4 @@ public class OkHttpPlugin implements ProfilerPlugin, OkHttpConstants {
             }
         });
     }
-
 }
