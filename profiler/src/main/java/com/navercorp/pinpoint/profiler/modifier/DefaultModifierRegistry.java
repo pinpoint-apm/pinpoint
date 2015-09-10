@@ -92,11 +92,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         addModifier(methodModifier);
     }
 
-    public void addConnectorModifier() {
-        // ning async http client
-        addModifier(new AsyncHttpClientModifier(byteCodeInstrumentor, agent));
-    }
-
     public void addLog4jModifier() {
         if (profilerConfig.isLog4jLoggingTransactionInfo()) {
             addModifier(new LoggingEventOfLog4jModifier(byteCodeInstrumentor, agent));

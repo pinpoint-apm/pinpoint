@@ -181,9 +181,6 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
 
         modifierRepository.addMethodModifier();
 
-        // rpc
-        modifierRepository.addConnectorModifier();
-
         // log4j
         modifierRepository.addLog4jModifier();
         
