@@ -14,32 +14,33 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.connector.asynchttpclient.interceptor;
+package com.navercorp.pinpoint.plugin.ning.asynchttpclient.interceptor;
 
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
-import com.navercorp.pinpoint.bootstrap.config.DumpType;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientPlugin;
+import com.navercorp.pinpoint.plugin.ning.asynchttpclient.NingAsyncHttpClientPluginConfig;
 import com.ning.http.client.FluentCaseInsensitiveStringsMap;
 import com.ning.http.client.FluentStringsMap;
 import com.ning.http.client.Part;
@@ -53,29 +54,29 @@ import com.ning.http.client.cookie.Cookie;
  * @author netspider
  * 
  */
-public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
+@TargetMethod(name="executeRequest", paramTypes= { "com.ning.http.client.Request", "com.ning.http.client.AsyncHandler" })
+public class ExecuteRequestInterceptor implements SimpleAroundInterceptor {
 
-    protected final PLogger logger = PLoggerFactory.getLogger(ExecuteRequestInterceptor.class);
-    protected final boolean isDebug = logger.isDebugEnabled();
+    private final PLogger logger = PLoggerFactory.getLogger(ExecuteRequestInterceptor.class);
+    private final boolean isDebug = logger.isDebugEnabled();
 
-    protected TraceContext traceContext;
-    protected MethodDescriptor descriptor;
+    private final TraceContext traceContext;
+    private final MethodDescriptor descriptor;
+    private final NingAsyncHttpClientPluginConfig config;
+    
+    private final SimpleSampler cookieSampler;
+    private final SimpleSampler entitySampler;
+    private final SimpleSampler paramSampler;
 
-    protected boolean dumpCookie;
-    protected DumpType cookieDumpType;
-    protected SimpleSampler cookieSampler;
-    protected int cookieDumpSize;
-
-    protected boolean dumpEntity;
-    protected DumpType entityDumpType;
-    protected SimpleSampler entitySampler;
-    protected int entityDumpSize;
-
-    protected boolean dumpParam;
-    protected DumpType paramDumpType;
-    protected SimpleSampler paramSampler;
-    protected int paramDumpSize;
-
+    public ExecuteRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+        this.traceContext = traceContext;
+        this.descriptor = descriptor;
+        this.config = new NingAsyncHttpClientPluginConfig(traceContext.getProfilerConfig());
+        
+        this.cookieSampler = config.isProfileCookie() ? SimpleSamplerFactory.createSampler(true, config.getCookieSamplingRate()) : null;
+        this.entitySampler = config.isProfileEntity() ? SimpleSamplerFactory.createSampler(true, config.getEntitySamplingRate()) : null;
+        this.paramSampler = config.isProfileParam() ? SimpleSamplerFactory.createSampler(true, config.getParamSamplingRate()) : null;
+    }
 
     @Override
     public void before(Object target, Object[] args) {
@@ -111,7 +112,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
         SpanEventRecorder recorder = trace.currentSpanEventRecorder();
         TraceId nextId = trace.getTraceId().getNextTraceId();
         recorder.recordNextSpanId(nextId.getSpanId());
-        recorder.recordServiceType(ServiceType.ASYNC_HTTP_CLIENT);
+        recorder.recordServiceType(NingAsyncHttpClientPlugin.ASYNC_HTTP_CLIENT);
 
         if (httpRequest != null) {
             final FluentCaseInsensitiveStringsMap httpRequestHeaders = httpRequest.getHeaders();
@@ -186,25 +187,40 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 
     private void recordHttpRequest(SpanEventRecorder recorder, com.ning.http.client.Request httpRequest, Throwable throwable) {
         final boolean isException = InterceptorUtils.isThrowable(throwable);
-        if (dumpCookie) {
-            if (DumpType.ALWAYS == cookieDumpType) {
+        if (config.isProfileCookie()) {
+            switch (config.getCookieDumpType()) {
+            case ALWAYS:
                 recordCookie(httpRequest, recorder);
-            } else if (DumpType.EXCEPTION == cookieDumpType && isException) {
-                recordCookie(httpRequest, recorder);
+                break;
+            case EXCEPTION:
+                if (isException) {
+                    recordCookie(httpRequest, recorder);
+                }
+                break;
             }
         }
-        if (dumpEntity) {
-            if (DumpType.ALWAYS == entityDumpType) {
+        if (config.isProfileEntity()) {
+            switch (config.getEntityDumpType()) {
+            case ALWAYS:
                 recordEntity(httpRequest, recorder);
-            } else if (DumpType.EXCEPTION == entityDumpType && isException) {
-                recordEntity(httpRequest, recorder);
+                break;
+            case EXCEPTION:
+                if (isException) {
+                    recordEntity(httpRequest, recorder);
+                }
+                break;
             }
         }
-        if (dumpParam) {
-            if (DumpType.ALWAYS == paramDumpType) {
+        if (config.isProfileParam()) {
+            switch (config.getParamDumpType()) {
+            case ALWAYS:
                 recordParam(httpRequest, recorder);
-            } else if (DumpType.EXCEPTION == paramDumpType && isException) {
-                recordParam(httpRequest, recorder);
+                break;
+            case EXCEPTION:
+                if (isException) {
+                    recordParam(httpRequest, recorder);
+                }
+                break;
             }
         }
     }
@@ -217,7 +233,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
                 return;
             }
 
-            StringBuilder sb = new StringBuilder(cookieDumpSize * 2);
+            StringBuilder sb = new StringBuilder(config.getCookieDumpSize() * 2);
             Iterator<Cookie> iterator = cookies.iterator();
             while (iterator.hasNext()) {
                 Cookie cookie = iterator.next();
@@ -226,7 +242,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
                     sb.append(",");
                 }
             }
-            recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(sb.toString(), cookieDumpSize));
+            recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(sb.toString(), config.getCookieDumpSize()));
         }
     }
 
@@ -249,7 +265,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
     protected void recordNonMultipartData(final com.ning.http.client.Request httpRequest, final SpanEventRecorder recorder) {
         final String stringData = httpRequest.getStringData();
         if (stringData != null) {
-            recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(stringData, entityDumpSize));
+            recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(stringData, config.getEntityDumpSize()));
             return;
         }
 
@@ -281,7 +297,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
     protected void recordMultipartData(final com.ning.http.client.Request httpRequest, final SpanEventRecorder recorder) {
         List<Part> parts = httpRequest.getParts();
         if (parts != null && parts.isEmpty()) {
-            StringBuilder sb = new StringBuilder(entityDumpSize * 2);
+            StringBuilder sb = new StringBuilder(config.getEntityDumpSize() * 2);
             Iterator<Part> iterator = parts.iterator();
             while (iterator.hasNext()) {
                 Part part = iterator.next();
@@ -312,7 +328,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
                     sb.append("=STRING");
                 }
 
-                if (sb.length() >= entityDumpSize) {
+                if (sb.length() >= config.getEntityDumpSize()) {
                     break;
                 }
 
@@ -320,7 +336,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
                     sb.append(",");
                 }
             }
-            recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(sb.toString(), entityDumpSize));
+            recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(sb.toString(), config.getEntityDumpSize()));
         }
     }
 
@@ -334,8 +350,8 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
         if (paramSampler.isSampling()) {
             FluentStringsMap requestParams = httpRequest.getParams();
             if (requestParams != null) {
-                String params = paramsToString(requestParams, paramDumpSize);
-                recorder.recordAttribute(AnnotationKey.HTTP_PARAM, StringUtils.drop(params, paramDumpSize));
+                String params = paramsToString(requestParams, config.getParamDumpSize());
+                recorder.recordAttribute(AnnotationKey.HTTP_PARAM, StringUtils.drop(params, config.getParamDumpSize()));
             }
         }
     }
@@ -373,38 +389,5 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
             }
         }
         return result.toString();
-    }
-
-    @Override
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
-
-        final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
-        this.dumpCookie = profilerConfig.isNingAsyncHttpClientProfileCookie();
-        this.cookieDumpType = profilerConfig.getNingAsyncHttpClientProfileCookieDumpType();
-        this.cookieDumpSize = profilerConfig.getNingAsyncHttpClientProfileCookieDumpSize();
-        if (dumpCookie) {
-            this.cookieSampler = SimpleSamplerFactory.createSampler(dumpCookie, profilerConfig.getNingAsyncHttpClientProfileCookieSamplingRate());
-        }
-
-        this.dumpEntity = profilerConfig.isNingAsyncHttpClientProfileEntity();
-        this.entityDumpType = profilerConfig.getNingAsyncHttpClientProfileEntityDumpType();
-        this.entityDumpSize = profilerConfig.getNingAsyncHttpClientProfileEntityDumpSize();
-        if (dumpEntity) {
-            this.entitySampler = SimpleSamplerFactory.createSampler(dumpEntity, profilerConfig.getNingAsyncHttpClientProfileEntitySamplingRate());
-        }
-
-        this.dumpParam = profilerConfig.isNingAsyncHttpClientProfileParam();
-        this.paramDumpType = profilerConfig.getNingAsyncHttpClientProfileParamDumpType();
-        this.paramDumpSize = profilerConfig.getNingAsyncHttpClientProfileParamDumpSize();
-        if (dumpParam) {
-            this.paramSampler = SimpleSamplerFactory.createSampler(dumpParam, profilerConfig.getNingAsyncHttpClientProfileParamSamplingRate());
-        }
-    }
-
-    @Override
-    public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.descriptor = descriptor;
-        traceContext.cacheApi(descriptor);
     }
 }

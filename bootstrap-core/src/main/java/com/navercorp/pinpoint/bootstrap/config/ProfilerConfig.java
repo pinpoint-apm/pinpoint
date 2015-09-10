@@ -149,23 +149,6 @@ public class ProfilerConfig {
      */
     private boolean apacheNIOHttpClient4Profile = true;
 
-    /**
-     * ning async http client
-     */
-    private boolean ningAsyncHttpClientProfile = true;
-    private boolean ningAsyncHttpClientProfileCookie = false;
-    private DumpType ningAsyncHttpClientProfileCookieDumpType = DumpType.EXCEPTION;
-    private int ningAsyncHttpClientProfileCookieDumpSize = 1024;
-    private int ningAsyncHttpClientProfileCookieSamplingRate = 1;
-    private boolean ningAsyncHttpClientProfileEntity = false;
-    private DumpType ningAsyncHttpClientProfileEntityDumpType = DumpType.EXCEPTION;
-    private int ningAsyncHttpClientProfileEntityDumpSize = 1024;
-    private int ningAsyncHttpClientProfileEntitySamplingRate = 1;
-    private boolean ningAsyncHttpClientProfileParam = false;
-    private DumpType ningAsyncHttpClientProfileParamDumpType = DumpType.EXCEPTION;
-    private int ningAsyncHttpClientProfileParamDumpSize = 1024;
-    private int ningAsyncHttpClientProfileParamSamplingRate = 1;
-
     // Sampling
     private boolean samplingEnable = true;
     private int samplingRate = 1;
@@ -385,60 +368,6 @@ public class ProfilerConfig {
         return apacheNIOHttpClient4Profile;
     }
 
-    //-----------------------------------------
-    // com/ning/http/client/AsyncHttpClient
-    public boolean isNingAsyncHttpClientProfile() {
-        return ningAsyncHttpClientProfile;
-    }
-
-    public boolean isNingAsyncHttpClientProfileCookie() {
-        return ningAsyncHttpClientProfileCookie;
-    }
-
-    public DumpType getNingAsyncHttpClientProfileCookieDumpType() {
-        return ningAsyncHttpClientProfileCookieDumpType;
-    }
-
-    public int getNingAsyncHttpClientProfileCookieDumpSize() {
-        return ningAsyncHttpClientProfileCookieDumpSize;
-    }
-
-    public int getNingAsyncHttpClientProfileCookieSamplingRate() {
-        return ningAsyncHttpClientProfileCookieSamplingRate;
-    }
-
-    public boolean isNingAsyncHttpClientProfileEntity() {
-        return ningAsyncHttpClientProfileEntity;
-    }
-
-    public DumpType getNingAsyncHttpClientProfileEntityDumpType() {
-        return ningAsyncHttpClientProfileEntityDumpType;
-    }
-
-    public int getNingAsyncHttpClientProfileEntityDumpSize() {
-        return ningAsyncHttpClientProfileEntityDumpSize;
-    }
-
-    public int getNingAsyncHttpClientProfileEntitySamplingRate() {
-        return ningAsyncHttpClientProfileEntitySamplingRate;
-    }
-
-    public boolean isNingAsyncHttpClientProfileParam() {
-        return ningAsyncHttpClientProfileParam;
-    }
-
-    public DumpType getNingAsyncHttpClientProfileParamDumpType() {
-        return ningAsyncHttpClientProfileParamDumpType;
-    }
-
-    public int getNingAsyncHttpClientProfileParamDumpSize() {
-        return ningAsyncHttpClientProfileParamDumpSize;
-    }
-
-    public int getNingAsyncHttpClientProfileParamSamplingRate() {
-        return ningAsyncHttpClientProfileParamSamplingRate;
-    }
-
     public boolean isIBatisEnabled() {
         return ibatis;
     }
@@ -577,25 +506,6 @@ public class ProfilerConfig {
          */
         this.apacheNIOHttpClient4Profile = readBoolean("profiler.apache.nio.httpclient4", true);
 
-        /**
-         * ning.async http client
-         */
-        this.ningAsyncHttpClientProfile = readBoolean("profiler.ning.asynchttpclient", true);
-        this.ningAsyncHttpClientProfileCookie = readBoolean("profiler.ning.asynchttpclient.cookie", false);
-        this.ningAsyncHttpClientProfileCookieDumpType = readDumpType("profiler.ning.asynchttpclient.cookie.dumptype", DumpType.EXCEPTION);
-        this.ningAsyncHttpClientProfileCookieDumpSize = readInt("profiler.ning.asynchttpclient.cookie.dumpsize", 1024);
-        this.ningAsyncHttpClientProfileCookieSamplingRate = readInt("profiler.ning.asynchttpclient.cookie.sampling.rate", 1);
-
-        this.ningAsyncHttpClientProfileEntity = readBoolean("profiler.ning.asynchttpclient.entity", false);
-        this.ningAsyncHttpClientProfileEntityDumpType = readDumpType("profiler.ning.asynchttpclient.entity.dumptype", DumpType.EXCEPTION);
-        this.ningAsyncHttpClientProfileEntityDumpSize = readInt("profiler.ning.asynchttpclient.entity.dumpsize", 1024);
-        this.ningAsyncHttpClientProfileEntitySamplingRate = readInt("profiler.asynchttpclient.entity.sampling.rate", 1);
-
-        this.ningAsyncHttpClientProfileParam = readBoolean("profiler.ning.asynchttpclient.param", false);
-        this.ningAsyncHttpClientProfileParamDumpType = readDumpType("profiler.ning.asynchttpclient.param.dumptype", DumpType.EXCEPTION);
-        this.ningAsyncHttpClientProfileParamDumpSize = readInt("profiler.ning.asynchttpclient.param.dumpsize", 1024);
-        this.ningAsyncHttpClientProfileParamSamplingRate = readInt("profiler.asynchttpclient.param.sampling.rate", 1);
-        
         /**
          * log4j
          */
@@ -814,32 +724,6 @@ public class ProfilerConfig {
         builder.append(apacheHttpClient4ProfileIo);
         builder.append(", apacheNIOHttpClient4Profile=");
         builder.append(apacheNIOHttpClient4Profile);
-        builder.append(", ningAsyncHttpClientProfile=");
-        builder.append(ningAsyncHttpClientProfile);
-        builder.append(", ningAsyncHttpClientProfileCookie=");
-        builder.append(ningAsyncHttpClientProfileCookie);
-        builder.append(", ningAsyncHttpClientProfileCookieDumpType=");
-        builder.append(ningAsyncHttpClientProfileCookieDumpType);
-        builder.append(", ningAsyncHttpClientProfileCookieDumpSize=");
-        builder.append(ningAsyncHttpClientProfileCookieDumpSize);
-        builder.append(", ningAsyncHttpClientProfileCookieSamplingRate=");
-        builder.append(ningAsyncHttpClientProfileCookieSamplingRate);
-        builder.append(", ningAsyncHttpClientProfileEntity=");
-        builder.append(ningAsyncHttpClientProfileEntity);
-        builder.append(", ningAsyncHttpClientProfileEntityDumpType=");
-        builder.append(ningAsyncHttpClientProfileEntityDumpType);
-        builder.append(", ningAsyncHttpClientProfileEntityDumpSize=");
-        builder.append(ningAsyncHttpClientProfileEntityDumpSize);
-        builder.append(", ningAsyncHttpClientProfileEntitySamplingRate=");
-        builder.append(ningAsyncHttpClientProfileEntitySamplingRate);
-        builder.append(", ningAsyncHttpClientProfileParam=");
-        builder.append(ningAsyncHttpClientProfileParam);
-        builder.append(", ningAsyncHttpClientProfileParamDumpType=");
-        builder.append(ningAsyncHttpClientProfileParamDumpType);
-        builder.append(", ningAsyncHttpClientProfileParamDumpSize=");
-        builder.append(ningAsyncHttpClientProfileParamDumpSize);
-        builder.append(", ningAsyncHttpClientProfileParamSamplingRate=");
-        builder.append(ningAsyncHttpClientProfileParamSamplingRate);
         builder.append(", samplingEnable=");
         builder.append(samplingEnable);
         builder.append(", samplingRate=");

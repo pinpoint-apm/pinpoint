@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import static com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher.*;
-
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyMatchers;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
@@ -33,16 +32,13 @@ public class DefaultDisplayArgument {
     // FIXME replaced with IBATIS_SPRING under IBatis Plugin - kept for backwards compatibility
     public static final DisplayArgumentMatcher SPRING_ORM_IBATIS_MATCHER = createArgumentMatcher(ServiceType.SPRING_ORM_IBATIS, AnnotationKey.ARGS0);
 
-    public static final DisplayArgumentMatcher MEMCACHED_MATCHER = createArgumentMatcher(ServiceType.MEMCACHED, ARGS_MATCHER);
+    public static final DisplayArgumentMatcher MEMCACHED_MATCHER = createArgumentMatcher(ServiceType.MEMCACHED, AnnotationKeyMatchers.ARGS_MATCHER);
     
-    public static final DisplayArgumentMatcher HTTP_CLIENT_MATCHER = createArgumentMatcher(ServiceType.ASYNC_HTTP_CLIENT, AnnotationKey.HTTP_URL);
-    public static final DisplayArgumentMatcher HTTP_CLIENT_INTERNAL_MATCHER = createArgumentMatcher(ServiceType.ASYNC_HTTP_CLIENT_INTERNAL, AnnotationKey.HTTP_INTERNAL_DISPLAY);
-
     public static final DisplayArgumentMatcher COLLECTOR_MATCHER = createArgumentMatcher(ServiceType.COLLECTOR, AnnotationKey.ARGS0);
 
 
     private static AnnotationKeyMatcher createMatcher(AnnotationKey displayArgument) {
-        return new AnnotationKeyMatcher.ExactMatcher(displayArgument);
+        return AnnotationKeyMatchers.exact(displayArgument);
     }
 
     private static DisplayArgumentMatcher createArgumentMatcher(ServiceType serviceType, AnnotationKey annotationKey) {
