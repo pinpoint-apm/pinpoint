@@ -80,6 +80,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService {
         TCmdActiveThreadCountRes response = new TCmdActiveThreadCountRes();
         response.setHistogramSchemaType(histogramSchema.getTypeCode());
         response.setActiveThreadCount(activeThreadCount);
+        response.setTimeStamp(System.currentTimeMillis());
 
         return response;
     }
