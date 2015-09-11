@@ -243,6 +243,12 @@ public class ServiceType {
     public static final ServiceType STAND_ALONE = of(1000, "STAND_ALONE", NORMAL_SCHEMA, RECORD_STATISTICS);
     public static final ServiceType TEST_STAND_ALONE = of(1005, "TEST_STAND_ALONE", NORMAL_SCHEMA, RECORD_STATISTICS);
 
+    // TOMCAT 1010
+    // TOMCAT_METHOD 1011
+    
+    // JETTY 1020
+    // JETTY_METHOD 1021
+
     /**
      * Database shown only as xxx_EXECUTE_QUERY at the statistics info section in the server map
      */

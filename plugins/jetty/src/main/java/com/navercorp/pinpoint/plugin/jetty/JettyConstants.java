@@ -21,9 +21,9 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public interface JettyConstants {
     public static final String TYPE_NAME = "JETTY";
-    /*following two need fixing*/
-    public static final ServiceType JETTY = ServiceType.of(1110, "JETTY", NORMAL_SCHEMA, RECORD_STATISTICS);
-    public static final ServiceType JETTY_METHOD = ServiceType.of(1111, "JETTY_METHOD", NORMAL_SCHEMA);
+
+    public static final ServiceType JETTY = ServiceType.of(1020, "JETTY", NORMAL_SCHEMA, RECORD_STATISTICS);
+    public static final ServiceType JETTY_METHOD = ServiceType.of(1021, "JETTY_METHOD", NORMAL_SCHEMA);
 
     public static final String METADATA_TRACE = "trace";
     public static final String METADATA_ASYNC = "async";

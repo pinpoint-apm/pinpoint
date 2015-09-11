@@ -28,8 +28,7 @@ public class JettyConfiguration {
 
         if (!jettyExcludeURL.isEmpty()) {
             this.jettyExcludeUrlFilter = new ExcludeUrlFilter(jettyExcludeURL);
-        }
-        else{
+        } else{
             this.jettyExcludeUrlFilter = new  SkipFilter<String>();
         }
     }
