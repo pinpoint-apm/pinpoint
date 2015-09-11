@@ -13,45 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.modifier.log.log4j.interceptor;
+package com.navercorp.pinpoint.plugin.log4j.interceptor;
 
 import org.apache.log4j.MDC;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
-import com.navercorp.pinpoint.profiler.modifier.log.MdcKey;
+import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor0;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetConstructor;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Targets;
 
 /**
  * @author minwoo.jung
  */
-public class LoggingEventOfLog4jInterceptor implements SimpleAroundInterceptor, TraceContextSupport, TargetClassLoader {
 
-    private TraceContext traceContext;
-
-    @Override
-    public void before(Object target, Object[] args) {
-        Trace trace = traceContext.currentTraceObject();
-        
-        if (trace == null) {
-            MDC.remove(MdcKey.TRANSACTION_ID);
-            MDC.remove(MdcKey.SPAN_ID);
-            return;
-        } else {
-            MDC.put(MdcKey.TRANSACTION_ID, trace.getTraceId().getTransactionId());
-            MDC.put(MdcKey.SPAN_ID, String.valueOf(trace.getTraceId().getSpanId()));
-        }
-    }
-
-    @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-    }
-
-    @Override
-    public void setTraceContext(TraceContext traceContext) {
+@Targets(constructors={
+        @TargetConstructor({"java.lang.String", "org.apache.log4j.Category", "org.apache.log4j.Priority", "java.lang.Object", "java.lang.Throwable"}),
+        @TargetConstructor({"java.lang.String", "org.apache.log4j.Category", "long", "org.apache.log4j.Priority", "java.lang.Object", "java.lang.Throwable"}),
+        @TargetConstructor({"java.lang.String", "org.apache.log4j.Category", "long", "org.apache.log4j.Level", "java.lang.Object", "java.lang.String", "org.apache.log4j.spi.ThrowableInformation", "java.lang.String", "org.apache.log4j.spi.LocationInfo", "java.util.Map"})
+})
+public class LoggingEventOfLog4jInterceptor implements BeforeInterceptor0 {
+    private static final String TRANSACTION_ID = "PtxId";
+    private static final String SPAN_ID = "PspanId";
+    
+    private final TraceContext traceContext;
+    
+    public LoggingEventOfLog4jInterceptor(TraceContext traceContext) {
         this.traceContext = traceContext;
     }
 
+    @Override
+    public void before(Object target) {
+        Trace trace = traceContext.currentTraceObject();
+        
+        if (trace == null) {
+            MDC.remove(TRANSACTION_ID);
+            MDC.remove(SPAN_ID);
+            return;
+        } else {
+            MDC.put(TRANSACTION_ID, trace.getTraceId().getTransactionId());
+            MDC.put(SPAN_ID, String.valueOf(trace.getTraceId().getSpanId()));
+        }
+    }
 }
