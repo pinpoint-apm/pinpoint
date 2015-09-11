@@ -26,8 +26,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.ClassNameMatcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.MultiClassNameMatcher;
-import com.navercorp.pinpoint.profiler.modifier.connector.asynchttpclient.AsyncHttpClientModifier;
-import com.navercorp.pinpoint.profiler.modifier.log.log4j.LoggingEventOfLog4jModifier;
 import com.navercorp.pinpoint.profiler.modifier.log.logback.LoggingEventOfLogbackModifier;
 import com.navercorp.pinpoint.profiler.modifier.method.MethodModifier;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
@@ -90,14 +88,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     public void addMethodModifier() {
         MethodModifier methodModifier = new MethodModifier(byteCodeInstrumentor, agent);
         addModifier(methodModifier);
-    }
-
-    public void addLog4jModifier() {
-        if (profilerConfig.isLog4jLoggingTransactionInfo()) {
-            addModifier(new LoggingEventOfLog4jModifier(byteCodeInstrumentor, agent));
-//            addModifier(new Nelo2AsyncAppenderModifier(byteCodeInstrumentor, agent));
-//            addModifier(new NeloAppenderModifier(byteCodeInstrumentor, agent));
-        }
     }
 
     public void addLogbackModifier() {
