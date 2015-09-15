@@ -13,45 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.modifier.log.logback.interceptor;
+package com.navercorp.pinpoint.plugin.logback.interceptor;
 
 import org.slf4j.MDC;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
-import com.navercorp.pinpoint.profiler.modifier.log.MdcKey;
+import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor0;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetConstructor;
+import com.navercorp.pinpoint.bootstrap.plugin.annotation.Targets;
 
 /**
  * @author minwoo.jung
  */
-public class LoggingEventOfLogbackInterceptor implements SimpleAroundInterceptor, TraceContextSupport, TargetClassLoader {
+@Targets(constructors={
+        @TargetConstructor({}),
+        @TargetConstructor({"java.lang.String", "ch.qos.logback.classic.Logger", "ch.qos.logback.classic.Level", "java.lang.String", "java.lang.Throwable", "java.lang.Object[]"})
+})
+public class LoggingEventOfLogbackInterceptor implements BeforeInterceptor0 {
+    private static final String TRANSACTION_ID = "PtxId";
+    private static final String SPAN_ID = "PspanId";
 
-    private TraceContext traceContext;
+    private final TraceContext traceContext;
 
-    @Override
-    public void before(Object target, Object[] args) {
-        Trace trace = traceContext.currentTraceObject();
-        
-        if (trace == null) {
-            MDC.remove(MdcKey.TRANSACTION_ID);
-            MDC.remove(MdcKey.SPAN_ID);
-            return;
-        } else {
-            MDC.put(MdcKey.TRANSACTION_ID, trace.getTraceId().getTransactionId());
-            MDC.put(MdcKey.SPAN_ID, String.valueOf(trace.getTraceId().getSpanId()));
-        }
-    }
-
-    @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-    }
-
-    @Override
-    public void setTraceContext(TraceContext traceContext) {
+    public LoggingEventOfLogbackInterceptor(TraceContext traceContext) {
         this.traceContext = traceContext;
     }
 
+    @Override
+    public void before(Object target) {
+        Trace trace = traceContext.currentTraceObject();
+        
+        if (trace == null) {
+            MDC.remove(TRANSACTION_ID);
+            MDC.remove(SPAN_ID);
+            return;
+        } else {
+            MDC.put(TRANSACTION_ID, trace.getTraceId().getTransactionId());
+            MDC.put(SPAN_ID, String.valueOf(trace.getTraceId().getSpanId()));
+        }
+    }
 }
