@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 
 @RunWith(PinpointPluginTestSuite.class)
-@Dependency({"log4j:log4j:[1.2.17]"})
+@Dependency({"log4j:log4j:[1.1.3],[1.2.17,)"})
 public class Log4jIT {
 
     @Test
