@@ -13,24 +13,25 @@ z * Copyright 2014 NAVER Corp.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.log4j;
+package com.navercorp.pinpoint.plugin.logback;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.MDC;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 
 @RunWith(PinpointPluginTestSuite.class)
-@Dependency({"log4j:log4j:[1.2.16,)"})
-public class Log4jIT {
+@Dependency({"ch.qos.logback:logback-classic:[1.0.13],[1.1.3,)", "org.slf4j:slf4j-api:1.7.12"})
+public class LogbackIT {
 
     @Test
     public void test() throws Exception {
-        Logger logger = Logger.getLogger(getClass());
+        Logger logger = LoggerFactory.getLogger(getClass());
         logger.error("maru");
         
         Assert.assertNotNull(MDC.get("PtxId"));

@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.log4j;
+package com.navercorp.pinpoint.plugin.logback;
+
+import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
 
 import java.security.ProtectionDomain;
 
@@ -25,34 +27,39 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
-public class Log4jPlugin implements ProfilerPlugin {
+public class LogbackPlugin implements ProfilerPlugin {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     
+    public static final ServiceType GSON_SERVICE_TYPE = ServiceType.of(5010, "GSON", NORMAL_SCHEMA);
+    public static final AnnotationKey GSON_ANNOTATION_KEY_JSON_LENGTH = new AnnotationKey(9000, "gson.json.length");
+
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("org.apache.log4j.spi.LoggingEvent", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("ch.qos.logback.classic.spi.LoggingEvent", new PinpointClassFileTransformer() {
             
             @Override
             public byte[] transform(ProfilerPluginInstrumentContext pluginContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass mdcClass = pluginContext.getInstrumentClass(loader, "org.apache.log4j.MDC", null);
+                InstrumentClass mdcClass = pluginContext.getInstrumentClass(loader, "org.slf4j.MDC", null);
                 
                 if (mdcClass == null) {
-                    logger.warn("modify fail. Because org.apache.log4j.MDC does not exist.");
+                    logger.warn("modify fail. Because org.slf4j.MDC does not exist.");
                     return null;
                 }
                 
-                if (!mdcClass.hasMethod("put", "java.lang.String", "java.lang.Object")) {
-                    logger.warn("modify fail. Because put method does not exist at org.apache.log4j.MDC class.");
+                if (!mdcClass.hasMethod("put", "java.lang.String", "java.lang.String")) {
+                    logger.warn("modify fail. Because put method does not exist at org.slf4j.MDC class.");
                     return null;
                 }
                 if (!mdcClass.hasMethod("remove", "java.lang.String")) {
-                    logger.warn("modify fail. Because remove method does not exist at org.apache.log4j.MDC class.");
+                    logger.warn("modify fail. Because remove method does not exist at org.slf4j.MDC class.");
                     return null;
                 }
                 
                 InstrumentClass target = pluginContext.getInstrumentClass(loader, className, classfileBuffer);
-                target.addInterceptor("com.navercorp.pinpoint.plugin.log4j.interceptor.LoggingEventOfLog4jInterceptor");
+                target.addInterceptor("com.navercorp.pinpoint.plugin.logback.interceptor.LoggingEventOfLogbackInterceptor");
                 
                 return target.toBytecode();
             }

@@ -37,6 +37,7 @@
         <module>mybatis</module>
         <module>okhttp</module>
         <module>log4j</module>
+        <module>logback</module>
     </modules>
 
     <dependencies>
@@ -163,6 +164,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-log4j-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-logback-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
