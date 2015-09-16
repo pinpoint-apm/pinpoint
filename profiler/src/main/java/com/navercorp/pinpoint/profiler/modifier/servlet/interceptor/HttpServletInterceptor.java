@@ -16,8 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.modifier.servlet.interceptor;
 
-import java.util.Enumeration;
-
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -32,9 +31,10 @@ import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.profiler.context.*;
+import com.navercorp.pinpoint.profiler.context.SpanId;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
 
 /**
  * @author emeroad
@@ -47,6 +47,7 @@ public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCode
 
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
+    private boolean parameter;
 
 /*    
     java.lang.IllegalStateException: already Trace Object exist.
@@ -154,9 +155,12 @@ public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCode
             traceContext.detachTraceObject();
 
             HttpServletRequest request = (HttpServletRequest) args[0];
-            String parameters = getRequestParameter(request);
-            if (parameters != null && parameters.length() > 0) {
-                trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+
+            if (parameter) {
+                String parameters = getRequestParameter(request);
+                if (parameters != null && parameters.length() > 0) {
+                    trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+                }
             }
 
 
@@ -233,5 +237,7 @@ public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCode
     @Override
     public void setTraceContext(TraceContext traceContext) {
         this.traceContext = traceContext;
+        ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
+        this.parameter = profilerConfig.isServletProfileParameter();
     }
 }
