@@ -101,6 +101,8 @@ public class ProfilerConfig {
 
     private boolean tcpDataSenderCommandAcceptEnable = false;
 
+    private boolean servletProfileParameter = false;
+
     private int jdbcSqlCacheSize = 1024;
     private int jdbcMaxSqlBindValueSize = 1024;
     private boolean jdbcProfile = true;
@@ -296,6 +298,10 @@ public class ProfilerConfig {
 
     public boolean isProfileEnable() {
         return profileEnable;
+    }
+
+    public boolean isServletProfileParameter() {
+        return servletProfileParameter;
     }
 
     public boolean isJdbcProfile() {
@@ -647,6 +653,8 @@ public class ProfilerConfig {
         this.statDataSenderChunkSize = readInt("profiler.statdatasender.chunk.size", 1024 * 16);
 
         this.tcpDataSenderCommandAcceptEnable = readBoolean("profiler.tcpdatasender.command.accept.enable", false);
+
+        this.servletProfileParameter = readBoolean("profiler.servlet.parameter", false);
 
         // JDBC
         this.jdbcProfile = readBoolean("profiler.jdbc", true);
