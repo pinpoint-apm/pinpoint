@@ -16,18 +16,14 @@
 
 package com.navercorp.pinpoint.profiler.modifier;
 
+import java.lang.instrument.ClassFileTransformer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.navercorp.pinpoint.bootstrap.Agent;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.ClassNameMatcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.MultiClassNameMatcher;
-import com.navercorp.pinpoint.profiler.modifier.log.logback.LoggingEventOfLogbackModifier;
-import com.navercorp.pinpoint.profiler.modifier.method.MethodModifier;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 /**
@@ -37,62 +33,40 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
  * @author Minwoo Jung
  * @author jaehong.kim
  */
-public class DefaultModifierRegistry implements ModifierRegistry {
+public class DefaultTransformerRegistry implements TransformerRegistry {
 
     // No concurrent issue because only one thread put entries to the map and get operations are started AFTER the map is completely build.
     // Set the map size big intentionally to keep hash collision low.
-    private final Map<String, AbstractModifier> registry = new HashMap<String, AbstractModifier>(512);
-
-    private final ByteCodeInstrumentor byteCodeInstrumentor;
-    private final ProfilerConfig profilerConfig;
-    private final Agent agent;
-
-    public DefaultModifierRegistry(Agent agent, ByteCodeInstrumentor byteCodeInstrumentor) {
-        this.agent = agent;
-        this.byteCodeInstrumentor = byteCodeInstrumentor;
-        this.profilerConfig = agent.getProfilerConfig();
-    }
+    private final Map<String, ClassFileTransformer> registry = new HashMap<String, ClassFileTransformer>(512);
 
     @Override
-    public AbstractModifier findModifier(String className) {
+    public ClassFileTransformer findTransformer(String className) {
         return registry.get(className);
     }
-
-    public void addModifier(AbstractModifier modifier) {
-        final Matcher matcher = modifier.getMatcher();
+    
+    public void addTransformer(Matcher matcher, ClassFileTransformer transformer) {
         // TODO extract matcher process
         if (matcher instanceof ClassNameMatcher) {
             final ClassNameMatcher classNameMatcher = (ClassNameMatcher)matcher;
             String className = classNameMatcher.getClassName();
-            addModifier0(modifier, className);
+            addModifier0(transformer, className);
         } else if (matcher instanceof MultiClassNameMatcher) {
             final MultiClassNameMatcher classNameMatcher = (MultiClassNameMatcher)matcher;
             List<String> classNameList = classNameMatcher.getClassNames();
             for (String className : classNameList) {
-                addModifier0(modifier, className);
+                addModifier0(transformer, className);
             }
         } else {
             throw new IllegalArgumentException("unsupported matcher :" + matcher);
         }
     }
 
-    private void addModifier0(AbstractModifier modifier, String className) {
-        // check jvmClassName
-        final String checkJvmClassName = JavaAssistUtils.javaNameToJvmName(className);
-        AbstractModifier old = registry.put(checkJvmClassName, modifier);
+    private void addModifier0(ClassFileTransformer transformer, String className) {
+        final String jvmClassName = JavaAssistUtils.javaNameToJvmName(className);
+        ClassFileTransformer old = registry.put(jvmClassName, transformer);
+        
         if (old != null) {
-            throw new IllegalStateException("Modifier already exist. className:" + checkJvmClassName + " new:" + modifier.getClass() + " old:" + old.getClass());
-        }
-    }
-
-    public void addMethodModifier() {
-        MethodModifier methodModifier = new MethodModifier(byteCodeInstrumentor, agent);
-        addModifier(methodModifier);
-    }
-
-    public void addLogbackModifier() {
-        if (profilerConfig.isLogbackLoggingTransactionInfo()) {
-            addModifier(new LoggingEventOfLogbackModifier(byteCodeInstrumentor, agent));
+            throw new IllegalStateException("Transformer already exist. className:" + jvmClassName + " new:" + transformer.getClass() + " old:" + old.getClass());
         }
     }
 }

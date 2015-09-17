@@ -14,33 +14,46 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4;
+package com.navercorp.pinpoint.plugin.httpclient4;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
+import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 
-public class DefaultHttpRequestRetryHandlerModifierTest extends BasePinpointTest {
+@RunWith(PinpointPluginTestSuite.class)
+@Dependency({ "org.apache.httpcomponents:httpclient:[4.3],[4.3.1],[4.3.2],[4.3.3],[4.3.4],[4.4],[4.4.1],[4.5]" })
+public class DefaultHttpRequestRetryHandlerModifierIT {
 
-    // move to HttpClient4 plugin
-    @Ignore
     @Test
-    public void test() {
+    public void test() throws Exception {
         DefaultHttpRequestRetryHandler retryHandler = new DefaultHttpRequestRetryHandler();
         IOException iOException = new IOException();
         HttpContext context = new BasicHttpContext();
         
         assertTrue(retryHandler.retryRequest(iOException, 1, context));
         assertTrue(retryHandler.retryRequest(iOException, 2, context));
-        assertEquals(2, getCurrentSpanEvents().size());
+        
+        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+        verifier.printCache();
+        
+        verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", DefaultHttpRequestRetryHandler.class.getMethod("retryRequest", IOException.class, int.class, HttpContext.class),
+                annotation("http.internal.display", IOException.class.getName() + ", 1"), annotation("RETURN_DATA", true)));
+        
+        verifier.verifyTrace(event("HTTP_CLIENT_4_INTERNAL", DefaultHttpRequestRetryHandler.class.getMethod("retryRequest", IOException.class, int.class, HttpContext.class),
+                annotation("http.internal.display", IOException.class.getName() + ", 2"), annotation("RETURN_DATA", true)));
+
+        verifier.verifyTraceCount(0);
     }
 }

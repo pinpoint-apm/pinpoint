@@ -49,7 +49,7 @@ public class TestContext implements Closeable {
 
     public TestContext() {
         this.mockAgent = createMockAgent();
-        this.classLoader = TestClassLoaderFactory.createTestClassLoader(this.mockAgent.getProfilerConfig(), this.mockAgent.getByteCodeInstrumentor(), this.mockAgent.getClassFileTransformer());
+        this.classLoader = TestClassLoaderFactory.createTestClassLoader(mockAgent);
         this.classLoader.initialize();
         try {
             this.baseTestClass = classLoader.loadClass(BASE_TEST_CLASS_NAME);

@@ -16,11 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.modifier;
 
+import java.lang.instrument.ClassFileTransformer;
+
 /**
  * @author emeroad
  */
-public interface ModifierRegistry {
+public interface TransformerRegistry {
 
-    AbstractModifier findModifier(String className);
+    ClassFileTransformer findTransformer(String className);
 
 }

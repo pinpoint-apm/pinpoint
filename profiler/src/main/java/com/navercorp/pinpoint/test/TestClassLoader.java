@@ -16,36 +16,43 @@
 
 package com.navercorp.pinpoint.test;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
-import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
+import java.lang.instrument.IllegalClassFormatException;
+import java.security.ProtectionDomain;
+import java.util.ArrayList;
+import java.util.List;
 
 import javassist.CannotCompileException;
+import javassist.ClassPool;
 import javassist.Loader;
 import javassist.NotFoundException;
 
-import java.lang.instrument.ClassFileTransformer;
-import java.util.ArrayList;
-import java.util.List;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.MatchableClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.common.util.Asserts;
+import com.navercorp.pinpoint.profiler.DefaultAgent;
+import com.navercorp.pinpoint.profiler.interceptor.bci.LegacyProfilerPluginClassLoader;
+import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 
 /**
  * @author emeroad
  * @author hyungil.jeong
  */
 public class TestClassLoader extends Loader {
-    private ProfilerConfig profilerConfig;
-    private ByteCodeInstrumentor instrumentor;
-    private InstrumentTranslator instrumentTranslator;
+    private final DefaultAgent agent;
+    private final InstrumentTranslator instrumentTranslator;
+    private final DefaultProfilerPluginContext context;
     private final List<String> delegateClass;
 
-    public TestClassLoader(ProfilerConfig profilerConfig, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileTransformer classFileTransformer) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("agent must not be null");
-        }
-        this.profilerConfig = profilerConfig;
-        this.instrumentor = byteCodeInstrumentor;
-        this.instrumentTranslator = new InstrumentTranslator(this, classFileTransformer);
+    public TestClassLoader(DefaultAgent agent) {
+        Asserts.notNull(agent, "agent");
+        
+        this.agent = agent;
+        this.context = new DefaultProfilerPluginContext(agent, new LegacyProfilerPluginClassLoader(getClass().getClassLoader()));
+        this.instrumentTranslator = new InstrumentTranslator(this, agent.getClassFileTransformerDispatcher());
         this.delegateClass = new ArrayList<String>();
     }
 
@@ -75,21 +82,28 @@ public class TestClassLoader extends Loader {
     }
 
     public ProfilerConfig getProfilerConfig() {
-        return profilerConfig;
+        return agent.getProfilerConfig();
     }
 
-    public ByteCodeInstrumentor getInstrumentor() {
-        if (this.instrumentor == null) {
-            throw new IllegalStateException("TestClassLoader is not initialized.");
-        }
-        return instrumentor;
-    }
-
-    public void addModifier(AbstractModifier modifier) {
-        if (this.instrumentTranslator == null) {
-            throw new IllegalStateException("TestClassLoader is not initialized.");
-        }
-        this.instrumentTranslator.addModifier(modifier);
+    public void addTransformer(final String targetClassName, final PinpointClassFileTransformer transformer) {
+        MatchableClassFileTransformer wrapper = new MatchableClassFileTransformer() {
+            
+            @Override
+            public Matcher getMatcher() {
+                return Matchers.newClassNameMatcher(targetClassName);
+            }
+            
+            @Override
+            public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+                try {
+                    return transformer.transform(context, loader, targetClassName, classBeingRedefined, protectionDomain, classfileBuffer);
+                } catch (InstrumentException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+        
+        this.instrumentTranslator.addTransformer(wrapper);
     }
 
     private void addDefaultDelegateLoadingOf() {
@@ -120,7 +134,8 @@ public class TestClassLoader extends Loader {
 
     private void addTranslator() {
         try {
-            addTranslator(((JavaAssistByteCodeInstrumentor)instrumentor).getClassPool(this), instrumentTranslator);
+            ClassPool classPool = agent.getClassPool().getClassPool(this);
+            addTranslator(classPool, instrumentTranslator);
         } catch (NotFoundException e) {
             throw new RuntimeException(e.getMessage(), e);
         } catch (CannotCompileException e) {

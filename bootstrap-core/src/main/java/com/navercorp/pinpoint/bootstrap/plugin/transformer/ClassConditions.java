@@ -15,8 +15,7 @@
 package com.navercorp.pinpoint.bootstrap.plugin.transformer;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 
 /**
  * @author Jongho Moon
@@ -66,7 +65,7 @@ public class ClassConditions {
         }
 
         @Override
-        public boolean check(ProfilerPluginSetupContext context, ClassLoader classLoader, InstrumentClass target) {
+        public boolean check(ProfilerPluginInstrumentContext context, ClassLoader classLoader, InstrumentClass target) {
             return target.hasField(name, type);
         }
 
@@ -86,7 +85,7 @@ public class ClassConditions {
         }
 
         @Override
-        public boolean check(ProfilerPluginSetupContext context, ClassLoader classLoader, InstrumentClass target) {
+        public boolean check(ProfilerPluginInstrumentContext context, ClassLoader classLoader, InstrumentClass target) {
             return target.hasMethod(name, paramTypes);
         }
 
@@ -117,7 +116,7 @@ public class ClassConditions {
         }
 
         @Override
-        public boolean check(ProfilerPluginSetupContext context, ClassLoader classLoader, InstrumentClass target) {
+        public boolean check(ProfilerPluginInstrumentContext context, ClassLoader classLoader, InstrumentClass target) {
             return target.hasDeclaredMethod(name, paramTypes);
         }
 
@@ -145,7 +144,7 @@ public class ClassConditions {
         }
 
         @Override
-        public boolean check(ProfilerPluginSetupContext context, ClassLoader classLoader, InstrumentClass target) {
+        public boolean check(ProfilerPluginInstrumentContext context, ClassLoader classLoader, InstrumentClass target) {
             return !super.check(context, classLoader, target);
         }
     }
@@ -158,7 +157,7 @@ public class ClassConditions {
         }
 
         @Override
-        public boolean check(ProfilerPluginSetupContext context, ClassLoader classLoader, InstrumentClass target) {
+        public boolean check(ProfilerPluginInstrumentContext context, ClassLoader classLoader, InstrumentClass target) {
             return target.hasConstructor(paramTypes);
         }
 
@@ -185,13 +184,8 @@ public class ClassConditions {
         }
 
         @Override
-        public boolean check(ProfilerPluginSetupContext context, ClassLoader classLoader, InstrumentClass target) {
-            try {
-                context.getByteCodeInstrumentor().getClass(classLoader, name, null);
-            } catch (InstrumentException e) {
-                return false;
-            }
-            return true;
+        public boolean check(ProfilerPluginInstrumentContext context, ClassLoader classLoader, InstrumentClass target) {
+            return context.exist(classLoader, name);
         }
 
         @Override

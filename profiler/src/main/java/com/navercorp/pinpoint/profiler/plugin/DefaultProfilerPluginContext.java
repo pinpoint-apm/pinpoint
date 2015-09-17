@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
@@ -94,11 +93,6 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
         }
         
         return context;
-    }
-
-    @Override
-    public ByteCodeInstrumentor getByteCodeInstrumentor() {
-        return agent.getByteCodeInstrumentor();
     }
 
     @Override

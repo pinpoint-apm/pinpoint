@@ -16,11 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue.BindValueUtils;
 
 public class BindValueUtilsTest {
 

@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -35,6 +34,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
+import com.navercorp.pinpoint.profiler.interceptor.bci.JavassistClassPool;
 import com.navercorp.pinpoint.profiler.plugin.transformer.DefaultClassFileTransformerBuilder;
 import com.navercorp.pinpoint.test.TestProfilerPluginClassLoader;
 
@@ -43,7 +43,7 @@ public class DefaultClassEditorBuilderTest {
 
     @Test
     public void test() throws Exception {
-        InstrumentClassPool pool = mock(InstrumentClassPool.class);
+        JavassistClassPool pool = mock(JavassistClassPool.class);
         TraceContext traceContext = mock(TraceContext.class);
         InstrumentClass aClass = mock(InstrumentClass.class);
         InstrumentMethod aMethod = mock(InstrumentMethod.class);

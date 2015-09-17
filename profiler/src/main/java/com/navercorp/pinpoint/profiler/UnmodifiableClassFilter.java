@@ -21,11 +21,11 @@ import java.security.ProtectionDomain;
 /**
  * @author emeroad
  */
-public class DefaultClassFileFilter implements ClassFileFilter {
+public class UnmodifiableClassFilter implements ClassFileFilter {
 
     private final ClassLoader agentLoader;
 
-    public DefaultClassFileFilter(ClassLoader agentLoader) {
+    public UnmodifiableClassFilter(ClassLoader agentLoader) {
         if (agentLoader == null) {
             throw new NullPointerException("agentLoader must not be null");
         }
@@ -33,7 +33,7 @@ public class DefaultClassFileFilter implements ClassFileFilter {
     }
 
     @Override
-    public boolean doFilter(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) {
+    public boolean accept(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) {
         // fast skip java classes
         if (className.startsWith("java")) {
             if (className.startsWith("/", 4) || className.startsWith("x/", 4)) {
@@ -50,6 +50,7 @@ public class DefaultClassFileFilter implements ClassFileFilter {
         if (className.startsWith("com/navercorp/pinpoint/")) {
             return SKIP;
         }
+        
         return CONTINUE;
     }
 }
