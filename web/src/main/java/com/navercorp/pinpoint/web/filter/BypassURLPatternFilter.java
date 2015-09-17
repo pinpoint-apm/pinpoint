@@ -16,25 +16,16 @@
 
 package com.navercorp.pinpoint.web.filter;
 
-import java.util.List;
-
 import com.navercorp.pinpoint.common.bo.SpanBo;
 
+import java.util.List;
+
 /**
- *
- * @author netspider
  * @author emeroad
  */
-public interface Filter {
-    boolean ACCEPT = true;
-    boolean REJECT = false;
-
-    Filter NONE = new Filter() {
-        @Override
-        public boolean include(List<SpanBo> transaction) {
-            return ACCEPT;
-        }
-    };
-
-    boolean include(List<SpanBo> transaction);
+public class BypassURLPatternFilter implements URLPatternFilter {
+    @Override
+    public boolean accept(List<SpanBo> spanBoList) {
+        return ACCEPT;
+    }
 }

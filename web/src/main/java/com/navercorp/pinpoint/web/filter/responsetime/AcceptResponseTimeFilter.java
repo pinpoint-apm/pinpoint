@@ -14,27 +14,21 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.filter;
-
-import java.util.List;
-
-import com.navercorp.pinpoint.common.bo.SpanBo;
+package com.navercorp.pinpoint.web.filter.responsetime;
 
 /**
- *
- * @author netspider
  * @author emeroad
  */
-public interface Filter {
-    boolean ACCEPT = true;
-    boolean REJECT = false;
+public class AcceptResponseTimeFilter implements ResponseTimeFilter {
+    @Override
+    public boolean accept(long elapsed) {
+        return ACCEPT;
+    }
 
-    Filter NONE = new Filter() {
-        @Override
-        public boolean include(List<SpanBo> transaction) {
-            return ACCEPT;
-        }
-    };
-
-    boolean include(List<SpanBo> transaction);
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("AcceptResponseTimeFilter{");
+        sb.append('}');
+        return sb.toString();
+    }
 }

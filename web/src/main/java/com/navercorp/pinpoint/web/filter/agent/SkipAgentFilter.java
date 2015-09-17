@@ -14,27 +14,26 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.filter;
-
-import java.util.List;
-
-import com.navercorp.pinpoint.common.bo.SpanBo;
+package com.navercorp.pinpoint.web.filter.agent;
 
 /**
- *
- * @author netspider
  * @author emeroad
  */
-public interface Filter {
-    boolean ACCEPT = true;
-    boolean REJECT = false;
+public class SkipAgentFilter implements AgentFilter {
+    public static final AgentFilter SKIP_FILTER = new SkipAgentFilter();
 
-    Filter NONE = new Filter() {
-        @Override
-        public boolean include(List<SpanBo> transaction) {
-            return ACCEPT;
-        }
-    };
+    public SkipAgentFilter() {
+    }
 
-    boolean include(List<SpanBo> transaction);
+    @Override
+    public boolean accept(String agentId) {
+        return ACCEPT;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("SkipAgentFilter{");
+        sb.append('}');
+        return sb.toString();
+    }
 }
