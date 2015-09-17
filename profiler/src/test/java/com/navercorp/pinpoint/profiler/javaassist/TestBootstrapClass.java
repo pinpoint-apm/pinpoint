@@ -87,7 +87,7 @@ public class TestBootstrapClass {
     @Test
     public void testReflection() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         java.lang.ClassLoader contextClassLoader = java.lang.Thread.currentThread().getContextClassLoader();
-        java.lang.Class<?> interceptorRegistry = contextClassLoader.loadClass("com.navercorp.pinpoint.bootstrap.interceptor.GlobalInterceptorRegistry");
+        java.lang.Class<?> interceptorRegistry = contextClassLoader.loadClass("com.navercorp.pinpoint.bootstrap.interceptor.registry.GlobalInterceptorRegistry");
         java.lang.reflect.Method getInterceptorMethod = interceptorRegistry.getMethod("getInterceptor", new java.lang.Class[]{int.class});
         java.lang.Object interceptor = getInterceptorMethod.invoke(interceptorRegistry, Integer.valueOf(1));
 

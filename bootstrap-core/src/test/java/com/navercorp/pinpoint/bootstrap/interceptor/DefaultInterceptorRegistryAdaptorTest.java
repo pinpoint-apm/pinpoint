@@ -5,6 +5,9 @@ import static org.mockito.Mockito.*;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.registry.DefaultInterceptorRegistryAdaptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistryAdaptor;
+
 public class DefaultInterceptorRegistryAdaptorTest {
 
     @Test

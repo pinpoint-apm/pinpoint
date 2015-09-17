@@ -20,12 +20,12 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.plugin.arcus.filter.ArcusMethodFilter;
 import com.navercorp.pinpoint.plugin.arcus.filter.FrontCacheMemcachedMethodFilter;
 
@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.plugin.arcus.filter.FrontCacheMemcachedMethodFilte
  *
  */
 public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
-    private static final String ASYNC_TRACE_ID_ACCESSOR = "com.navercorp.pinpoint.bootstrap.interceptor.AsyncTraceIdAccessor";
+    private static final String ASYNC_TRACE_ID_ACCESSOR = "com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor";
     private static final String OPERATION_ACCESSOR = "com.navercorp.pinpoint.plugin.arcus.OperationAccessor";
     private static final String CACHE_KEY_ACCESSOR = "com.navercorp.pinpoint.plugin.arcus.CacheKeyAccessor";
     private static final String CACHE_NAME_ACCESSOR = "com.navercorp.pinpoint.plugin.arcus.CacheNameAccessor";
@@ -79,7 +79,7 @@ public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
         context.addClassFileTransformer("net.spy.memcached.ArcusClient", new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(PinpointInstrument context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
 
                 if (target.hasMethod("addOp", "java.lang.String", "net.spy.memcached.ops.Operation")) {
@@ -109,7 +109,7 @@ public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
         context.addClassFileTransformer("net.spy.memcached.CacheManager", new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(PinpointInstrument context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(SERVICE_CODE_ACCESSOR);
                 target.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.CacheManagerConstructInterceptor");
@@ -123,7 +123,7 @@ public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
         context.addClassFileTransformer("net.spy.memcached.protocol.BaseOperationImpl", new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(PinpointInstrument context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(SERVICE_CODE_ACCESSOR);
                 return target.toBytecode();
@@ -136,7 +136,7 @@ public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
         context.addClassFileTransformer("net.spy.memcached.plugin.FrontCacheGetFuture", new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(PinpointInstrument context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
 
                 target.addField(CACHE_NAME_ACCESSOR);
@@ -159,7 +159,7 @@ public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
         context.addClassFileTransformer("net.spy.memcached.plugin.FrontCacheMemcachedClient", new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(PinpointInstrument context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
                 boolean traceKey = config.isMemcachedKeyTrace();
 
@@ -183,7 +183,7 @@ public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
         context.addClassFileTransformer("net.spy.memcached.MemcachedClient", new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(PinpointInstrument context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
 
                 if (target.hasDeclaredMethod("addOp", new String[] { "java.lang.String", "net.spy.memcached.ops.Operation" })) {
@@ -212,7 +212,7 @@ public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
     private static final PinpointClassFileTransformer FUTURE_TRANSFORMER = new PinpointClassFileTransformer() {
 
         @Override
-        public byte[] transform(ProfilerPluginInstrumentContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+        public byte[] transform(PinpointInstrument context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
 
             target.addField(OPERATION_ACCESSOR);
@@ -236,7 +236,7 @@ public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
     private static final PinpointClassFileTransformer INTERNAL_FUTURE_TRANSFORMER = new PinpointClassFileTransformer() {
 
         @Override
-        public byte[] transform(ProfilerPluginInstrumentContext context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+        public byte[] transform(PinpointInstrument context, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = context.getInstrumentClass(loader, className, classfileBuffer);
 
             target.addField(ASYNC_TRACE_ID_ACCESSOR);

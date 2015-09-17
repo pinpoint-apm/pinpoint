@@ -26,12 +26,12 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformRequestListener;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MatchableClassFileTransformer;
-import com.navercorp.pinpoint.profiler.interceptor.bci.LegacyProfilerPluginClassLoader;
-import com.navercorp.pinpoint.profiler.modifier.DefaultTransformerRegistry;
-import com.navercorp.pinpoint.profiler.modifier.TransformerRegistry;
+import com.navercorp.pinpoint.profiler.instrument.LegacyProfilerPluginClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.transformer.DebugTransformer;
+import com.navercorp.pinpoint.profiler.instrument.transformer.DefaultTransformerRegistry;
+import com.navercorp.pinpoint.profiler.instrument.transformer.TransformerRegistry;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
-import com.navercorp.pinpoint.profiler.transformer.DebugTransformer;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 /**
@@ -58,7 +58,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
             throw new NullPointerException("agent must not be null");
         }
         
-        this.globalContext = new DefaultProfilerPluginContext(agent, new LegacyProfilerPluginClassLoader(getClass().getClassLoader()));
+        this.globalContext = new DefaultProfilerPluginContext(agent, new LegacyProfilerPluginClassInjector(getClass().getClassLoader()));
         this.debugTargetFilter = agent.getProfilerConfig().getProfilableClassFilter();
         this.debugTransformer = new DebugTransformer(globalContext);
 
