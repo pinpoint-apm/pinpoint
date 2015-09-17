@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.transformer;
+package com.navercorp.pinpoint.bootstrap.interceptor.group;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
-
-public interface ClassCondition {
-    boolean check(ProfilerPluginInstrumentContext context, ClassLoader classLoader, InstrumentClass target);
+/**
+ * @author emeroad
+ */
+public interface AttachmentFactory {
+    Object createAttachment();
 }

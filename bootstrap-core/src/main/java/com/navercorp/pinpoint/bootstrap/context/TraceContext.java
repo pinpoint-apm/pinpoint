@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.bootstrap.context;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * @author emeroad
@@ -67,10 +66,6 @@ public interface TraceContext {
     ParsingResult parseSql(String sql);
 
     boolean cacheSql(ParsingResult parsingResult);
-
-    DatabaseInfo parseJdbcUrl(String sql);
-
-    DatabaseInfo createDatabaseInfo(ServiceType type, ServiceType executeQueryType, String url, int port, String databaseId);
 
     TraceId createTraceId(String transactionId, long parentSpanID, long spanID, short flags);
 

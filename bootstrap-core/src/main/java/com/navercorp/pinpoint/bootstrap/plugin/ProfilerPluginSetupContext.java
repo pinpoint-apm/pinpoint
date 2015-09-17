@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.bootstrap.plugin;
 import java.lang.instrument.ClassFileTransformer;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
 import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 
@@ -57,13 +56,6 @@ public interface ProfilerPluginSetupContext {
     @Deprecated
 
     public void addClassFileTransformer(ClassFileTransformer transformer);
-    /**
-     * Get {@link ByteCodeInstrumentor}
-     * 
-     * @return {@link ByteCodeInstrumentor}
-     */
-    @Deprecated
-    public ByteCodeInstrumentor getByteCodeInstrumentor();
     
     /**
      * Get a {@link ClassFileTransformerBuilder}.

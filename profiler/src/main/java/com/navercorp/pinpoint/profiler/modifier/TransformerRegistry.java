@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.transformer;
+package com.navercorp.pinpoint.profiler.modifier;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
+import java.lang.instrument.ClassFileTransformer;
 
-public interface ClassCondition {
-    boolean check(ProfilerPluginInstrumentContext context, ClassLoader classLoader, InstrumentClass target);
+/**
+ * @author emeroad
+ */
+public interface TransformerRegistry {
+
+    ClassFileTransformer findTransformer(String className);
+
 }

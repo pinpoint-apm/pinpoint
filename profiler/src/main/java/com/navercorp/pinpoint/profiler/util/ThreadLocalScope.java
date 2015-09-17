@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.instrument.InterceptorGroupDefinition;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.profiler.plugin.DefaultInterceptorGroupInvocation;

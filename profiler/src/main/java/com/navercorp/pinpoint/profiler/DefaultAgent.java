@@ -16,14 +16,22 @@
 
 package com.navercorp.pinpoint.profiler;
 
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.Instrumentation;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
 import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInvokerHelper;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
@@ -39,7 +47,6 @@ import com.navercorp.pinpoint.profiler.context.storage.SpanStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.interceptor.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.navercorp.pinpoint.profiler.interceptor.bci.JavassistClassPool;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
@@ -60,15 +67,6 @@ import com.navercorp.pinpoint.rpc.ClassPreLoader;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.client.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.Instrumentation;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 
 /**
  * @author emeroad
@@ -81,7 +79,6 @@ public class DefaultAgent implements Agent {
 
     private final PLoggerBinder binder;
 
-    private final JavaAssistByteCodeInstrumentor byteCodeInstrumentor;
     private final ClassFileTransformerDispatcher classFileTransformer;
     
     private final ProfilerConfig profilerConfig;
@@ -153,7 +150,6 @@ public class DefaultAgent implements Agent {
         this.profilerConfig = agentOption.getProfilerConfig();
         this.instrumentation = agentOption.getInstrumentation();
         this.classPool = new JavassistClassPool(interceptorRegistryBinder, agentOption.getBootStrapJarPath());
-        this.byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor(this, classPool);
         
         if (logger.isInfoEnabled()) {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
@@ -161,7 +157,7 @@ public class DefaultAgent implements Agent {
 
         pluginContexts = loadPlugins(agentOption);
 
-        this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, pluginContexts);
+        this.classFileTransformer = new ClassFileTransformerDispatcher(this, pluginContexts);
         this.dynamicTransformService = new DynamicTransformService(instrumentation, classFileTransformer);
 
         instrumentation.addTransformer(this.classFileTransformer, true);
@@ -224,15 +220,11 @@ public class DefaultAgent implements Agent {
         return instrumentation;
     }
 
-    public ByteCodeInstrumentor getByteCodeInstrumentor() {
-        return byteCodeInstrumentor;
-    }
-
-    public ClassFileTransformer getClassFileTransformer() {
+    public ClassFileTransformerDispatcher getClassFileTransformerDispatcher() {
         return classFileTransformer;
     }
     
-    public InstrumentClassPool getClassPool() {
+    public JavassistClassPool getClassPool() {
         return classPool;
     }
 

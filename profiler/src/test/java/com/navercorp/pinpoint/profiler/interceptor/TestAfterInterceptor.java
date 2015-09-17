@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
+import com.navercorp.pinpoint.profiler.interceptor.bci.TestInterceptors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,5 +52,7 @@ public class TestAfterInterceptor implements StaticAroundInterceptor, TargetClas
         this.args = args;
         call++;
         this.result = result;
+        
+        TestInterceptors.add(this);
     }
 }

@@ -17,9 +17,13 @@
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.*;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.context.TraceType;
 
 /**
  * @author emeroad
@@ -109,17 +113,7 @@ public class MockTraceContext implements TraceContext {
     public boolean cacheSql(ParsingResult parsingResult) {
         return false;
     }
-
-    @Override
-    public DatabaseInfo parseJdbcUrl(String sql) {
-        return null;
-    }
-
-    @Override
-    public DatabaseInfo createDatabaseInfo(ServiceType type, ServiceType executeQueryType, String url, int port, String databaseId) {
-        return null;
-    }
-
+    
     @Override
     public TraceId createTraceId(String transactionId, long parentSpanID, long spanID, short flags) {
         return null;
