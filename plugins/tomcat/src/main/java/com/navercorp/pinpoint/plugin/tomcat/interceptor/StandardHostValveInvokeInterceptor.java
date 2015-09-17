@@ -16,20 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
-import java.util.Enumeration;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.catalina.connector.Request;
-
 import com.navercorp.pinpoint.bootstrap.config.Filter;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Header;
-import com.navercorp.pinpoint.bootstrap.context.SpanId;
-import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -40,11 +28,11 @@ import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.plugin.tomcat.AsyncAccessor;
-import com.navercorp.pinpoint.plugin.tomcat.ServletAsyncMethodDescriptor;
-import com.navercorp.pinpoint.plugin.tomcat.ServletSyncMethodDescriptor;
-import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
-import com.navercorp.pinpoint.plugin.tomcat.TraceAccessor;
+import com.navercorp.pinpoint.plugin.tomcat.*;
+import org.apache.catalina.connector.Request;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
 
 /**
  * @author emeroad
@@ -60,6 +48,8 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
 
     private MethodDescriptor methodDescriptor;
     private TraceContext traceContext;
+    private boolean getParameter;
+    private boolean postParameter;
 
     private Filter<String> excludeUrlFilter;
 
@@ -67,7 +57,8 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
         this.excludeUrlFilter = excludeFilter;
-
+        this.getParameter = traceContext.getProfilerConfig().isTomcatProfileGetParameter();
+        this.postParameter = traceContext.getProfilerConfig().isTomcatProfilePostParameter();
         traceContext.cacheApi(SERVLET_ASYNCHRONOUS_API_TAG);
         traceContext.cacheApi(SERVLET_SYNCHRONOUS_API_TAG);
     }
@@ -254,9 +245,17 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
         try {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             final HttpServletRequest request = (HttpServletRequest) args[0];
-            final String parameters = getRequestParameter(request, 64, 512);
-            if (parameters != null && parameters.length() > 0) {
-                recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+
+            if ("GET".equalsIgnoreCase(request.getMethod()) && getParameter) {
+                final String parameters = getRequestParameter(request, 64, 512);
+                if (parameters != null && parameters.length() > 0) {
+                    recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+                }
+            } else if ("POST".equalsIgnoreCase(request.getMethod()) && postParameter) {
+                final String parameters = getRequestParameter(request, 64, 512);
+                if (parameters != null && parameters.length() > 0) {
+                    recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+                }
             }
 
             recorder.recordApi(methodDescriptor);

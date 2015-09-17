@@ -16,6 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
+import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
+import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
+import com.navercorp.pinpoint.common.util.PropertyUtils;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
@@ -24,10 +28,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
-import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
-import com.navercorp.pinpoint.common.util.PropertyUtils;
 
 /**
  * @author emeroad
@@ -118,6 +118,9 @@ public class ProfilerConfig {
 
     private boolean redis = true;
     private boolean redisPipeline = true;
+
+    private boolean tomcatProfileGetParameter = false;
+    private boolean tomcatProfilePostParameter = false;
 
     /**
      * apache http client 3
@@ -384,6 +387,14 @@ public class ProfilerConfig {
         return redisPipeline;
     }
 
+    public boolean isTomcatProfileGetParameter() {
+        return tomcatProfileGetParameter;
+    }
+
+    public boolean isTomcatProfilePostParameter() {
+        return tomcatProfilePostParameter;
+    }
+
     public Filter<String> getProfilableClassFilter() {
         return profilableClassFilter;
     }
@@ -474,6 +485,8 @@ public class ProfilerConfig {
         if (!tomcatExcludeURL.isEmpty()) {
             this.tomcatExcludeUrlFilter = new ExcludeUrlFilter(tomcatExcludeURL);
         }
+        this.tomcatProfileGetParameter = readBoolean("profiler.tomcat.getparameter", false);
+        this.tomcatProfilePostParameter = readBoolean("profiler.tomcat.postparameter", false);
 
         /**
          * apache http client 3
