@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.interceptor.http;
+package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
 /**
  * @author minwoo.jung

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.plugin.transformer;
+package com.navercorp.pinpoint.profiler.plugin.xml.transformer;
 
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 
@@ -23,11 +23,11 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 @Deprecated
 public interface BaseClassFileTransformerBuilder {
 
-    public void injectFieldAccessor(String fieldName);
+    public void injectGetter(String getterTypeName, String fieldName);
 
-    public void injectMetadata(String name);
+    public void injectField(String accessorTypeName);
 
-    public void injectMetadata(String name, String initialValueType);
+    public void injectField(String accessorTypeName, String initialValueType);
 
     public InterceptorBuilder injectInterceptor(String className, Object... constructorArgs);
 

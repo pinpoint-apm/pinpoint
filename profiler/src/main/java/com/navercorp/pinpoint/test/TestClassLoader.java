@@ -30,12 +30,12 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MatchableClassFileTransformer;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.common.util.Asserts;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
-import com.navercorp.pinpoint.profiler.interceptor.bci.LegacyProfilerPluginClassLoader;
+import com.navercorp.pinpoint.profiler.instrument.LegacyProfilerPluginClassInjector;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MatchableClassFileTransformer;
 
 /**
  * @author emeroad
@@ -51,7 +51,7 @@ public class TestClassLoader extends Loader {
         Asserts.notNull(agent, "agent");
         
         this.agent = agent;
-        this.context = new DefaultProfilerPluginContext(agent, new LegacyProfilerPluginClassLoader(getClass().getClassLoader()));
+        this.context = new DefaultProfilerPluginContext(agent, new LegacyProfilerPluginClassInjector(getClass().getClassLoader()));
         this.instrumentTranslator = new InstrumentTranslator(this, agent.getClassFileTransformerDispatcher());
         this.delegateClass = new ArrayList<String>();
     }

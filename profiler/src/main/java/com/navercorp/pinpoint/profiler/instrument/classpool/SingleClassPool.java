@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.interceptor.bci;
+package com.navercorp.pinpoint.profiler.instrument.classpool;
 
 import javassist.ClassPath;
 import javassist.LoaderClassPath;

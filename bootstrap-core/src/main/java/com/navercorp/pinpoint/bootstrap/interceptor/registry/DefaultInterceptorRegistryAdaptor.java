@@ -1,6 +1,9 @@
-package com.navercorp.pinpoint.bootstrap.interceptor;
+package com.navercorp.pinpoint.bootstrap.interceptor.registry;
 
 import java.util.concurrent.atomic.AtomicInteger;
+
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.LoggingInterceptor;
 
 /**
  * @author emeroad

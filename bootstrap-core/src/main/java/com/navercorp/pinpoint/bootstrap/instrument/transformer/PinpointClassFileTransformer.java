@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.transformer;
+package com.navercorp.pinpoint.bootstrap.instrument.transformer;
 
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
 
 
 public interface PinpointClassFileTransformer {
-    public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException;
+    public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException;
 }

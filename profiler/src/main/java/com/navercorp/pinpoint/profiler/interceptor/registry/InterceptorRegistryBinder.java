@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.interceptor;
+package com.navercorp.pinpoint.profiler.interceptor.registry;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistryAdaptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistryAdaptor;
 
 /**
  * @author emeroad

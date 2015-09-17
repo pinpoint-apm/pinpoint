@@ -16,14 +16,13 @@
 package com.navercorp.pinpoint.plugin.okhttp.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.okhttp.*;

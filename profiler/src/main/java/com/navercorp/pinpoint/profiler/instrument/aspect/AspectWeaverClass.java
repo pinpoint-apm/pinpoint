@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.interceptor.bci;
+package com.navercorp.pinpoint.profiler.instrument.aspect;
 
-import com.navercorp.pinpoint.bootstrap.plugin.aspect.Aspect;
-import com.navercorp.pinpoint.bootstrap.plugin.aspect.JointPoint;
-import com.navercorp.pinpoint.bootstrap.plugin.aspect.PointCut;
+import com.navercorp.pinpoint.bootstrap.instrument.aspect.Aspect;
+import com.navercorp.pinpoint.bootstrap.instrument.aspect.JointPoint;
+import com.navercorp.pinpoint.bootstrap.instrument.aspect.PointCut;
+import com.navercorp.pinpoint.profiler.instrument.interceptor.CodeBuilder;
 
 import javassist.*;
 import javassist.expr.ExprEditor;

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.plugin;
+package com.navercorp.pinpoint.profiler.instrument;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +41,7 @@ import com.navercorp.pinpoint.exception.PinpointException;
  * @author Jongho Moon
  *
  */
-public class JarProfilerPluginClassInjector implements ProfilerPluginClassInjector {
+public class JarProfilerPluginClassInjector implements ClassInjector {
     private static final Logger logger = LoggerFactory.getLogger(JarProfilerPluginClassInjector.class);
 
     private static final Method ADD_URL;

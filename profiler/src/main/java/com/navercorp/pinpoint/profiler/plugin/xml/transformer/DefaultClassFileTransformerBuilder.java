@@ -14,34 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin.transformer;
+package com.navercorp.pinpoint.profiler.plugin.xml.transformer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.FieldAccessor;
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassCondition;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConditionalClassFileTransformerSetup;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ConstructorTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.InterceptorBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MatchableClassFileTransformer;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerExceptionHandler;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerProperty;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
-import com.navercorp.pinpoint.profiler.plugin.FieldAccessorInjector;
-import com.navercorp.pinpoint.profiler.plugin.MetadataInitializationStrategy.ByConstructor;
-import com.navercorp.pinpoint.profiler.plugin.MetadataInjector;
-import com.navercorp.pinpoint.profiler.plugin.overrideMethodInjector;
-import com.navercorp.pinpoint.profiler.plugin.interceptor.AnnotatedInterceptorInjector;
-import com.navercorp.pinpoint.profiler.plugin.interceptor.TargetAnnotatedInterceptorInjector;
+import com.navercorp.pinpoint.profiler.plugin.xml.FieldInjector;
+import com.navercorp.pinpoint.profiler.plugin.xml.GetterInjector;
+import com.navercorp.pinpoint.profiler.plugin.xml.OverrideMethodInjector;
+import com.navercorp.pinpoint.profiler.plugin.xml.FieldInitializationStrategy.ByConstructor;
+import com.navercorp.pinpoint.profiler.plugin.xml.interceptor.AnnotatedInterceptorInjector;
+import com.navercorp.pinpoint.profiler.plugin.xml.interceptor.TargetAnnotatedInterceptorInjector;
 
 public class DefaultClassFileTransformerBuilder implements ClassFileTransformerBuilder, ConditionalClassFileTransformerBuilder, RecipeBuilder<ClassRecipe> {
 
@@ -71,26 +59,23 @@ public class DefaultClassFileTransformerBuilder implements ClassFileTransformerB
     }
     
     @Override
-    public void injectFieldAccessor(String fieldName) {
-        FieldAccessor snooper = pluginContext.getFieldAccessor(fieldName);
-        recipes.add(new FieldAccessorInjector(snooper, fieldName));
+    public void injectGetter(String getterTyepName, String fieldName) {
+        recipes.add(new GetterInjector(getterTyepName, fieldName));
     }
     
     @Override
-    public void injectMetadata(String name) {
-        MetadataAccessor accessor = pluginContext.getMetadataAccessor(name);
-        recipes.add(new MetadataInjector(name, accessor));
+    public void injectField(String accessorTypeName) {
+        recipes.add(new FieldInjector(accessorTypeName));
     }
     
     @Override
-    public void injectMetadata(String name, String initialValueType) {
-        MetadataAccessor accessor = pluginContext.getMetadataAccessor(name);
-        recipes.add(new MetadataInjector(name, accessor, new ByConstructor(initialValueType)));
+    public void injectField(String accessorTypeName, String initialValueType) {
+        recipes.add(new FieldInjector(accessorTypeName, new ByConstructor(initialValueType)));
     }
     
     @Override
     public void overrideMethodToDelegate(String name, String... paramTypes) {
-        recipes.add(new overrideMethodInjector(name, paramTypes));
+        recipes.add(new OverrideMethodInjector(name, paramTypes));
     }
     
     @Override

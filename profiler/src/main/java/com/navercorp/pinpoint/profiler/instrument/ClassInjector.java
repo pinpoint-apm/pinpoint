@@ -12,13 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.plugin;
+package com.navercorp.pinpoint.profiler.instrument;
 
 /**
  * @author Jongho Moon
  *
  */
-public interface ProfilerPluginClassInjector {
+public interface ClassInjector {
 
     public <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className);
 

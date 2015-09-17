@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.interceptor.bci;
+package com.navercorp.pinpoint.profiler.instrument;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -29,14 +29,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginClassInjector;
 
 /**
  * @author Jongho Moon
  *
  */
-public class LegacyProfilerPluginClassLoader implements ProfilerPluginClassInjector {
-    private static final Logger logger = LoggerFactory.getLogger(LegacyProfilerPluginClassLoader.class);
+public class LegacyProfilerPluginClassInjector implements ClassInjector {
+    private static final Logger logger = LoggerFactory.getLogger(LegacyProfilerPluginClassInjector.class);
 
     private static final Method DEFINE_CLASS;
     
@@ -51,7 +50,7 @@ public class LegacyProfilerPluginClassLoader implements ProfilerPluginClassInjec
     
     private final ClassLoader sourceClassLoader;
     
-    public LegacyProfilerPluginClassLoader(ClassLoader sourceClassLoader) {
+    public LegacyProfilerPluginClassInjector(ClassLoader sourceClassLoader) {
         if (sourceClassLoader == null) {
             throw new NullPointerException("sourceClassLoader must not be null");
         }

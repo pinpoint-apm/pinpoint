@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin.transformer;
+package com.navercorp.pinpoint.profiler.plugin.xml.transformer;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerExceptionHandler;
 
 public class ConstructorTransformer implements MethodTransformer {
     private final Logger logger = LoggerFactory.getLogger(getClass());

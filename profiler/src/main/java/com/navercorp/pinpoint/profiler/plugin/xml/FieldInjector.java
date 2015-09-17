@@ -14,38 +14,36 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin;
+package com.navercorp.pinpoint.profiler.plugin.xml;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.plugin.MetadataInitializationStrategy.ByConstructor;
-import com.navercorp.pinpoint.profiler.plugin.transformer.ClassRecipe;
+import com.navercorp.pinpoint.profiler.plugin.xml.FieldInitializationStrategy.ByConstructor;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.ClassRecipe;
 
-public class MetadataInjector implements ClassRecipe {
-    private final String name;
-    private final MetadataAccessor metadataHolder;
-    private final MetadataInitializationStrategy strategy;
+public class FieldInjector implements ClassRecipe {
+    private final String accessorTypeName;
+    private final FieldInitializationStrategy strategy;
     
-    public MetadataInjector(String name, MetadataAccessor metadataHolder) {
-        this(name, metadataHolder, null);
+    
+    public FieldInjector(String accessorTypeName) {
+        this(accessorTypeName, null);
     }
     
-    public MetadataInjector(String name, MetadataAccessor metadataHolder, MetadataInitializationStrategy strategy) {
-        this.name = name;
-        this.metadataHolder = metadataHolder;
+    public FieldInjector(String accessorTypeName, FieldInitializationStrategy strategy) {
+        this.accessorTypeName = accessorTypeName;
         this.strategy = strategy;
     }
 
     @Override
     public void edit(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
         if (strategy == null) {
-            target.addTraceValue(metadataHolder.getType());
+            target.addField(accessorTypeName);
         } else {
             if (strategy instanceof ByConstructor) {
                 String javaExpression = "new " + ((ByConstructor)strategy).getClassName() + "();";
-                target.addTraceValue(metadataHolder.getType(), javaExpression);
+                target.addField(accessorTypeName, javaExpression);
             } else {
                 throw new PinpointException("Unsupported strategy: " + strategy);
             }
@@ -55,8 +53,8 @@ public class MetadataInjector implements ClassRecipe {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("MetadataInjector[name=");
-        builder.append(name);
+        builder.append("FieldInjector[accessorType=");
+        builder.append(accessorTypeName);
         
         if (strategy != null) {
             builder.append(", initialize=");

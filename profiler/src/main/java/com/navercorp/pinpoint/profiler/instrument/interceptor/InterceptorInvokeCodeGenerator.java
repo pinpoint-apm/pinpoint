@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.interceptor.bci;
+package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -20,9 +20,9 @@ import java.lang.reflect.Modifier;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInvokerHelper;
-import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 /**

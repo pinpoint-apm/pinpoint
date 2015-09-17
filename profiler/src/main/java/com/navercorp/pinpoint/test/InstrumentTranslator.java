@@ -34,8 +34,8 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.ClassNameMatcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.MultiClassNameMatcher;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.ClassFileTransformerDispatcher;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 /**

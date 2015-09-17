@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin.interceptor;
+package com.navercorp.pinpoint.profiler.interceptor.factory;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
 import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor0;
 import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor1;
 import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor2;
@@ -39,6 +40,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor5;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedInterceptor0;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedInterceptor1;
@@ -50,15 +52,13 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedSimpleAroundInt
 import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedStaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
-import com.navercorp.pinpoint.profiler.plugin.objectfactory.AutoBindingObjectFactory;
-import com.navercorp.pinpoint.profiler.plugin.objectfactory.InterceptorArgumentProvider;
+import com.navercorp.pinpoint.profiler.objectfactory.AutoBindingObjectFactory;
+import com.navercorp.pinpoint.profiler.objectfactory.InterceptorArgumentProvider;
 
 public class AnnotatedInterceptorFactory implements InterceptorFactory {
-    private final ProfilerPluginInstrumentContext pluginContext;
+    private final PinpointInstrument pluginContext;
     
-    public AnnotatedInterceptorFactory(ProfilerPluginInstrumentContext pluginContext) {
+    public AnnotatedInterceptorFactory(PinpointInstrument pluginContext) {
         this.pluginContext = pluginContext;
     }
 

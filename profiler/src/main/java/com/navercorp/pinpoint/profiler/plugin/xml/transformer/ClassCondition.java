@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.transformer;
+package com.navercorp.pinpoint.profiler.plugin.xml.transformer;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
 
 public interface ClassCondition {
-    boolean check(ProfilerPluginInstrumentContext context, ClassLoader classLoader, InstrumentClass target);
+    boolean check(PinpointInstrument context, ClassLoader classLoader, InstrumentClass target);
 }

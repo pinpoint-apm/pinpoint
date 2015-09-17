@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.interceptor.bci;
+package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
 import java.util.Formatter;
 

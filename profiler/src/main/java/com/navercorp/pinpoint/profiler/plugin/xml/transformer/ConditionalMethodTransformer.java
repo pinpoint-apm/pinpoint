@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin.transformer;
+package com.navercorp.pinpoint.profiler.plugin.xml.transformer;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassCondition;
+import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
 
 public class ConditionalMethodTransformer implements MethodTransformer {
-    private final ProfilerPluginInstrumentContext context;
+    private final PinpointInstrument context;
     private final ClassCondition condition;
     private final MethodTransformer delegate;
     
-    public ConditionalMethodTransformer(ProfilerPluginInstrumentContext context, ClassCondition condition, MethodTransformer delegate) {
+    public ConditionalMethodTransformer(PinpointInstrument context, ClassCondition condition, MethodTransformer delegate) {
         this.context = context;
         this.condition = condition;
         this.delegate = delegate;

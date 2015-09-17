@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.modifier;
+package com.navercorp.pinpoint.profiler.instrument.transformer;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.util.HashMap;

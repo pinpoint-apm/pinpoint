@@ -12,14 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.plugin.interceptor;
+package com.navercorp.pinpoint.profiler.plugin.xml.interceptor;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.profiler.plugin.transformer.MethodRecipe;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MethodRecipe;
 
 /**
  * @author Jongho Moon

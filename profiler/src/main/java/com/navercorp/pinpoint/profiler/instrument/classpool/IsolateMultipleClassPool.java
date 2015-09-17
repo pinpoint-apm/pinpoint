@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.interceptor.bci;
-
-import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
-import com.navercorp.pinpoint.profiler.util.Maps;
-import javassist.ClassPath;
-import javassist.LoaderClassPath;
+package com.navercorp.pinpoint.profiler.instrument.classpool;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javassist.ClassPath;
+import javassist.LoaderClassPath;
+
+import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
+import com.navercorp.pinpoint.profiler.util.Maps;
 
 /**
  * @author emeroad
@@ -50,11 +51,11 @@ public class IsolateMultipleClassPool implements MultipleClassPool {
         }
     };
 
-    interface ClassPoolHandler {
+    public interface ClassPoolHandler {
         void handleClassPool(NamedClassPool classPool);
     }
 
-    interface EventListener {
+    public interface EventListener {
         void onCreateClassPool(ClassLoader classLoader, NamedClassPool classPool);
     }
 

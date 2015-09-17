@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.plugin.interceptor;
+package com.navercorp.pinpoint.profiler.plugin.xml.interceptor;
 
 import java.util.Arrays;
 
@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
-import com.navercorp.pinpoint.profiler.plugin.transformer.MethodRecipe;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MethodRecipe;
 
 /**
  * @author Jongho Moon

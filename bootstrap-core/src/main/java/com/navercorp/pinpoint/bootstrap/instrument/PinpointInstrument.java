@@ -12,20 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.instrument;
 
 import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 
 /**
  * @author Jongho Moon
  *
  */
-public interface ProfilerPluginInstrumentContext {
+public interface PinpointInstrument {
     public TraceContext getTraceContext();
     
     public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classfileBuffer);

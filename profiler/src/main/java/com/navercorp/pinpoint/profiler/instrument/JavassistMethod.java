@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.interceptor.bci;
+package com.navercorp.pinpoint.profiler.instrument;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -38,39 +38,36 @@ import javassist.compiler.Javac;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
-import com.navercorp.pinpoint.bootstrap.interceptor.InterceptPoint;
+import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
-import com.navercorp.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
-import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.plugin.interceptor.AnnotatedInterceptorFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry;
+import com.navercorp.pinpoint.profiler.context.DefaultMethodDescriptor;
+import com.navercorp.pinpoint.profiler.instrument.interceptor.InvokeAfterCodeGenerator;
+import com.navercorp.pinpoint.profiler.instrument.interceptor.InvokeBeforeCodeGenerator;
+import com.navercorp.pinpoint.profiler.instrument.interceptor.InvokeCodeGenerator;
+import com.navercorp.pinpoint.profiler.interceptor.factory.AnnotatedInterceptorFactory;
+import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 public class JavassistMethod implements InstrumentMethod {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final ProfilerPluginInstrumentContext pluginContext;
+    private final PinpointInstrument pluginContext;
     private final InterceptorRegistryBinder interceptorRegistryBinder;
 
     private final CtBehavior behavior;
     private final InstrumentClass declaringClass;
     private final MethodDescriptor descriptor;
 
-    public JavassistMethod(ProfilerPluginInstrumentContext pluginContext, InterceptorRegistryBinder interceptorRegistryBinder, InstrumentClass declaringClass, CtBehavior behavior) {
+    public JavassistMethod(PinpointInstrument pluginContext, InterceptorRegistryBinder interceptorRegistryBinder, InstrumentClass declaringClass, CtBehavior behavior) {
         this.pluginContext = pluginContext;
         this.interceptorRegistryBinder = interceptorRegistryBinder;
         this.behavior = behavior;
@@ -136,7 +133,7 @@ public class JavassistMethod implements InstrumentMethod {
     @Override
     public int addInterceptor(String interceptorClassName, InterceptorGroup group, ExecutionPolicy policy, Object... constructorArgs) throws InstrumentException {
         try {
-            return addInterceptor0(interceptorClassName, group, policy, constructorArgs, InterceptPoint.AROUND);
+            return addInterceptor0(interceptorClassName, group, policy, constructorArgs);
         } catch (InstrumentException e) {
             throw e;
         } catch (Exception e) {
@@ -149,7 +146,7 @@ public class JavassistMethod implements InstrumentMethod {
         Interceptor interceptor = InterceptorRegistry.getInterceptor(interceptorId);
 
         try {
-            addInterceptor0(interceptor, interceptorId, InterceptPoint.AROUND);
+            addInterceptor0(interceptor, interceptorId);
         } catch (Exception e) {
             throw new InstrumentException("Failed to add interceptor " + interceptor.getClass().getName() + " to " + behavior.getLongName(), e);
         }
@@ -195,48 +192,14 @@ public class JavassistMethod implements InstrumentMethod {
         }
     }
 
-    private int addInterceptor0(String interceptorClassName, InterceptorGroup group, ExecutionPolicy policy, Object[] constructorArgs, InterceptPoint type) throws CannotCompileException, NotFoundException, InstrumentException, IllegalArgumentException, SecurityException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+    private int addInterceptor0(String interceptorClassName, InterceptorGroup group, ExecutionPolicy policy, Object[] constructorArgs) throws CannotCompileException, NotFoundException, InstrumentException, IllegalArgumentException, SecurityException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         GroupInfo groupInfo = resolveGroupInfo(interceptorClassName, group, policy);
         Interceptor interceptor = createInterceptor(interceptorClassName, groupInfo, constructorArgs);
         int interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(interceptor);
 
-        addInterceptor0(interceptor, interceptorId, type);
+        addInterceptor0(interceptor, interceptorId);
 
         return interceptorId;
-    }
-
-    public int addInterceptor0(Interceptor interceptor, InterceptorGroup group, InterceptPoint type) throws InstrumentException {
-        if (!(interceptor instanceof StaticAroundInterceptor) && !(interceptor instanceof SimpleAroundInterceptor)) {
-            throw new InstrumentException("unsupported interceptor type:" + interceptor);
-        }
-
-        if (interceptor instanceof TraceContextSupport) {
-            final TraceContext traceContext = pluginContext.getTraceContext();
-            ((TraceContextSupport) interceptor).setTraceContext(traceContext);
-        }
-        if (interceptor instanceof ByteCodeMethodDescriptorSupport) {
-            ((ByteCodeMethodDescriptorSupport) interceptor).setMethodDescriptor(descriptor);
-        }
-
-        int interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(interceptor);
-
-        try {
-            addInterceptor0(interceptor, interceptorId, type);
-        } catch (Exception e) {
-            throw new InstrumentException(e);
-        }
-
-        return interceptorId;
-    }
-
-    public void addInterceptor0(int interceptorId, InterceptPoint type) throws InstrumentException {
-        Interceptor interceptor = InterceptorRegistry.getInterceptor(interceptorId);
-
-        try {
-            addInterceptor0(interceptor, interceptorId, type);
-        } catch (Exception e) {
-            throw new InstrumentException("Failed to add interceptor " + interceptor.getClass().getName() + " to " + behavior.getLongName(), e);
-        }
     }
 
     private Interceptor createInterceptor(String interceptorClassName, GroupInfo groupInfo, Object[] constructorArgs) {
@@ -248,7 +211,7 @@ public class JavassistMethod implements InstrumentMethod {
         return interceptor;
     }
     
-    private void addInterceptor0(Interceptor interceptor, int interceptorId, InterceptPoint point) throws CannotCompileException, NotFoundException {
+    private void addInterceptor0(Interceptor interceptor, int interceptorId) throws CannotCompileException, NotFoundException {
         StringBuilder initVars = new StringBuilder();
         
         String interceptorInstanceVar = InvokeCodeGenerator.getInterceptorVar(interceptorId);
@@ -260,28 +223,14 @@ public class JavassistMethod implements InstrumentMethod {
 
         boolean localVarsInitialized = false;
         
-        if (point != InterceptPoint.AFTER) {
-            int offset = addBeforeInterceptor(interceptor, interceptorId, originalCodeOffset);
-            
-            if (offset != -1) {
-                localVarsInitialized = true;
-                originalCodeOffset = offset;
-            }
+        int offset = addBeforeInterceptor(interceptor, interceptorId, originalCodeOffset);
+        
+        if (offset != -1) {
+            localVarsInitialized = true;
+            originalCodeOffset = offset;
         }
 
-        if (point != InterceptPoint.BEFORE) {
-            addAfterInterceptor(interceptor, interceptorId, localVarsInitialized, originalCodeOffset);
-        }
-    }
-
-    private Class<? extends Interceptor> getLocalVarType(Interceptor interceptor) {
-        if (interceptor instanceof SimpleAroundInterceptor) {
-            return SimpleAroundInterceptor.class;
-        } else if (interceptor instanceof StaticAroundInterceptor) {
-            return StaticAroundInterceptor.class;
-        } else {
-            return interceptor.getClass();
-        }
+        addAfterInterceptor(interceptor, interceptorId, localVarsInitialized, originalCodeOffset);
     }
     
     private static final Method findMethod(Class<?> interceptorClass, String name) {

@@ -16,19 +16,18 @@
 
 package com.navercorp.pinpoint.profiler.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.navercorp.pinpoint.profiler.interceptor.bci.TestInterceptors;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
+import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
+import com.navercorp.pinpoint.profiler.interceptor.bci.TestInterceptors;
 
 /**
  * @author emeroad
  */
-public class TestAfterInterceptor implements StaticAroundInterceptor, TargetClassLoader {
+public class TestAfterInterceptor implements StaticAroundInterceptor {
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     public int call = 0;

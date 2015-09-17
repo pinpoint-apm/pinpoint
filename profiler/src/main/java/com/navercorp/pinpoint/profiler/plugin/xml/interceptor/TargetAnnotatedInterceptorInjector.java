@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.plugin.interceptor;
+package com.navercorp.pinpoint.profiler.plugin.xml.interceptor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,23 +21,23 @@ import java.util.List;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetFilter;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Targets;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetConstructor;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetFilter;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Targets;
 import com.navercorp.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.profiler.objectfactory.AutoBindingObjectFactory;
+import com.navercorp.pinpoint.profiler.objectfactory.InterceptorArgumentProvider;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
-import com.navercorp.pinpoint.profiler.plugin.objectfactory.AutoBindingObjectFactory;
-import com.navercorp.pinpoint.profiler.plugin.objectfactory.InterceptorArgumentProvider;
-import com.navercorp.pinpoint.profiler.plugin.transformer.ClassCookBook;
-import com.navercorp.pinpoint.profiler.plugin.transformer.ClassRecipe;
-import com.navercorp.pinpoint.profiler.plugin.transformer.ConstructorTransformer;
-import com.navercorp.pinpoint.profiler.plugin.transformer.DedicatedMethodTransformer;
-import com.navercorp.pinpoint.profiler.plugin.transformer.FilteringMethodTransformer;
-import com.navercorp.pinpoint.profiler.plugin.transformer.MethodRecipe;
-import com.navercorp.pinpoint.profiler.plugin.transformer.MethodTransformer;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.ClassCookBook;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.ClassRecipe;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.ConstructorTransformer;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.DedicatedMethodTransformer;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.FilteringMethodTransformer;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MethodRecipe;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MethodTransformer;
 
 /**
  * @author Jongho Moon

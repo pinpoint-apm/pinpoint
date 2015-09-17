@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin.objectfactory;
+package com.navercorp.pinpoint.profiler.objectfactory;
 
 // TODO move package
 public abstract class Option {

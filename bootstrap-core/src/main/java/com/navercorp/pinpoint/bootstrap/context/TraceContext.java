@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.bootstrap.context;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 
 /**
  * @author emeroad

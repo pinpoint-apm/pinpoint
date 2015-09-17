@@ -29,24 +29,26 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MatchableClassFileTransformer;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
-import com.navercorp.pinpoint.profiler.plugin.transformer.DefaultClassFileTransformerBuilder;
+import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
+import com.navercorp.pinpoint.profiler.interceptor.group.DefaultInterceptorGroup;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.ClassFileTransformerBuilder;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.DefaultClassFileTransformerBuilder;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.profiler.util.NameValueList;
 
-public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, ProfilerPluginInstrumentContext {
+public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, PinpointInstrument {
     private final DefaultAgent agent;
-    private final ProfilerPluginClassInjector classInjector;
+    private final ClassInjector classInjector;
     
     private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
     private final List<ClassFileTransformer> classTransformers = new ArrayList<ClassFileTransformer>();
@@ -60,17 +62,15 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     
     private boolean initialized = false;
     
-    public DefaultProfilerPluginContext(DefaultAgent agent, ProfilerPluginClassInjector classInjector) {
+    public DefaultProfilerPluginContext(DefaultAgent agent, ClassInjector classInjector) {
         this.agent = agent;
         this.classInjector = classInjector;
     }
 
-    @Override
     public ClassFileTransformerBuilder getClassFileTransformerBuilder(String targetClassName) {
         return new DefaultClassFileTransformerBuilder(this, targetClassName);
     }
     
-    @Override
     public void addClassFileTransformer(ClassFileTransformer transformer) {
         if (initialized) {
             throw new IllegalStateException("Context already initialized");

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.interceptor;
+package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.profiler.util.ApiUtils;
 
 import java.util.Arrays;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.interceptor.tracevalue;
+package com.navercorp.pinpoint.profiler.interceptor.bci;
 
 
 import java.util.Map;
@@ -22,8 +22,7 @@ import java.util.Map;
 /**
  * @author emeroad
  */
-public interface BindValueTraceValue extends TraceValue {
+public interface BindValueTraceValue {
     void _$PINPOINT$_setTraceBindValue(Map<Integer, String> value);
-
     Map<Integer, String> _$PINPOINT$_getTraceBindValue();
 }

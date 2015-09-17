@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.plugin.objectfactory;
+package com.navercorp.pinpoint.profiler.objectfactory;
 
 import java.lang.annotation.Annotation;
 import java.util.List;

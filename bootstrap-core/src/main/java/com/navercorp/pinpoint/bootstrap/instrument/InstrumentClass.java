@@ -18,10 +18,6 @@ package com.navercorp.pinpoint.bootstrap.instrument;
 
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.FieldAccessor;
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
-import com.navercorp.pinpoint.bootstrap.interceptor.InterceptPoint;
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 
@@ -90,89 +86,4 @@ public interface InstrumentClass {
     InstrumentMethod addDelegatorMethod(String methodName, String... paramTypes) throws InstrumentException;
     
     byte[] toBytecode() throws InstrumentException;
-
-    
-    
-    @Deprecated
-    void addGetter(Class<?> getterType, String fieldName) throws InstrumentException;
-    
-    @Deprecated
-    void addMetadata(MetadataAccessor metadata, String initialValue) throws InstrumentException;
-    
-    @Deprecated
-    void addMetadata(MetadataAccessor metadata) throws InstrumentException;
-    
-    @Deprecated
-    void addGetter(FieldAccessor getter, String fieldName) throws InstrumentException;
-    
-    @Deprecated
-    void addTraceValue(Class<?> accessorType, String initialValue) throws InstrumentException;
-    
-    @Deprecated
-    void addTraceValue(Class<?> accessorType) throws InstrumentException;
-
-    @Deprecated
-    void addGetter(String getterName, String fieldName, String fieldType) throws InstrumentException;
-    
-    
-    @Deprecated
-    int addConstructorInterceptor(String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
-
-    @Deprecated
-    int addConstructorInterceptor(String[] args, Interceptor interceptor, InterceptPoint type) throws InstrumentException, NotFoundInstrumentException;
-
-    @Deprecated
-    int addInterceptor(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
-    
-    @Deprecated
-    int addInterceptor(String methodName, String[] args, Interceptor interceptor, InterceptPoint type) throws InstrumentException, NotFoundInstrumentException;
-
-    @Deprecated
-    int reuseInterceptor(String methodName, String[] args, int interceptorId) throws InstrumentException, NotFoundInstrumentException;
-
-    @Deprecated
-    int reuseInterceptor(String methodName, String[] args, int interceptorId, InterceptPoint type) throws InstrumentException, NotFoundInstrumentException;
-    
-    
-    @Deprecated
-    int addGroupInterceptor(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException, NotFoundInstrumentException;
-    
-    @Deprecated
-    int addGroupInterceptor(String methodName, String[] args, Interceptor interceptor, InterceptorGroupDefinition scopeDefinition) throws InstrumentException;
-    
-    @Deprecated
-    int addGroupInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException;
-    
-    @Deprecated
-    int addGroupInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, InterceptorGroupDefinition scopeDefinition) throws InstrumentException;
-    
-    @Deprecated
-    InstrumentClass getNestedClass(String className);
-
-    @Deprecated
-    boolean addDebugLogBeforeAfterMethod();
-
-    @Deprecated
-    boolean addDebugLogBeforeAfterConstructor();
-
-    @Deprecated
-    Class<?> toClass() throws InstrumentException;
-    
-    @Deprecated
-    boolean insertCodeAfterConstructor(String[] args, String code);
-    
-    @Deprecated
-    boolean insertCodeBeforeConstructor(String[] args, String code);
-    
-    @Deprecated
-    boolean insertCodeBeforeMethod(String methodName, String[] args, String code);
-    
-    @Deprecated
-    boolean insertCodeAfterMethod(String methodName, String[] args, String code);
-    
-    @Deprecated
-    void addTraceVariable(String variableName, String setterName, String getterName, String variableType, String initValue) throws InstrumentException;
-
-    @Deprecated
-    void addTraceVariable(String variableName, String setterName, String getterName, String variableType) throws InstrumentException;
 }

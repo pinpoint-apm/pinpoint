@@ -14,34 +14,33 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin;
+package com.navercorp.pinpoint.profiler.plugin.xml;
 
-import com.navercorp.pinpoint.bootstrap.FieldAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.profiler.plugin.transformer.ClassRecipe;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.ClassRecipe;
 
 /**
  * 
  * @author Jongho Moon <jongho.moon@navercorp.com>
  *
  */
-public class FieldAccessorInjector implements ClassRecipe {
-    private final FieldAccessor accessor;
+public class GetterInjector implements ClassRecipe {
+    private final String getterTypeName;
     private final String fieldName;
     
-    public FieldAccessorInjector(FieldAccessor accessor, String fieldName) {
-        this.accessor = accessor;
+    public GetterInjector(String getterTypeName, String fieldName) {
+        this.getterTypeName = getterTypeName;
         this.fieldName = fieldName;
     }
 
     @Override
     public void edit(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
-        target.addGetter(accessor.getType(), fieldName);
+        target.addGetter(getterTypeName, fieldName);
     }
 
     @Override
     public String toString() {
-        return "FieldAccessorInjector[field=" + fieldName + "]";
+        return "GetterInjector [getterTypeName=" + getterTypeName + ", fieldName=" + fieldName + "]";
     }
 }

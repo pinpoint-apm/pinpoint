@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin;
+package com.navercorp.pinpoint.profiler.util;
 
 import java.lang.annotation.Annotation;
 

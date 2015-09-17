@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.interceptor.tracevalue;
+package com.navercorp.pinpoint.profiler.interceptor.bci;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 
 /**
  * @author emeroad
  */
-public interface DatabaseInfoTraceValue extends TraceValue {
+public interface DatabaseInfoTraceValue {
     void _$PINPOINT$_setTraceDatabaseInfo(DatabaseInfo value);
-
     DatabaseInfo _$PINPOINT$_getTraceDatabaseInfo();
-
 }

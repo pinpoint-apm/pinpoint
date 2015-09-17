@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.redis.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 
 /**
  * Jedis pipeline (redis client) setClient method interceptor

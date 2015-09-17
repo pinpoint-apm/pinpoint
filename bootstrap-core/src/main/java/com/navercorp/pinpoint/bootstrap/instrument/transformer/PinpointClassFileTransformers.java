@@ -12,13 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.bootstrap.plugin.transformer;
+package com.navercorp.pinpoint.bootstrap.instrument.transformer;
 
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
 
 /**
  * @author Jongho Moon
@@ -30,7 +30,7 @@ public class PinpointClassFileTransformers {
         return new PinpointClassFileTransformer() {
             
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addInterceptor(interceptorClassName, constructorArgs);
                 return target.toBytecode();
@@ -42,7 +42,7 @@ public class PinpointClassFileTransformers {
         return new PinpointClassFileTransformer() {
             
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(fieldAccessorClassName);
                 return target.toBytecode();

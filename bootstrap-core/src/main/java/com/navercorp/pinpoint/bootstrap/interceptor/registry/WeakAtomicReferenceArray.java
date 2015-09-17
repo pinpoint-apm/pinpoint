@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.interceptor;
+package com.navercorp.pinpoint.bootstrap.interceptor.registry;
 
 import java.util.concurrent.atomic.AtomicReferenceArray;
 

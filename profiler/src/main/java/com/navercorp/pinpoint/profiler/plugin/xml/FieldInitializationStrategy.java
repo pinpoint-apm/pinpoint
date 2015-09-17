@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin;
+package com.navercorp.pinpoint.profiler.plugin.xml;
 
-public interface MetadataInitializationStrategy {
-    public static final class ByConstructor implements MetadataInitializationStrategy {
+public interface FieldInitializationStrategy {
+    public static final class ByConstructor implements FieldInitializationStrategy {
         private final String className;
 
         public ByConstructor(String className) {

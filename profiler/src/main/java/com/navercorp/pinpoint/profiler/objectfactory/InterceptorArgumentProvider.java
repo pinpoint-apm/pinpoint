@@ -12,19 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.plugin.objectfactory;
+package com.navercorp.pinpoint.profiler.objectfactory;
 
 import java.lang.annotation.Annotation;
 
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.NoCache;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.NoCache;
 import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.plugin.TypeUtils;
+import com.navercorp.pinpoint.profiler.util.TypeUtils;
 
 /**
  * @author Jongho Moon

@@ -22,8 +22,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
-import java.util.Collections;
-import java.util.Map;
 
 import javassist.bytecode.Descriptor;
 
@@ -39,18 +37,15 @@ import com.navercorp.pinpoint.bootstrap.instrument.ClassFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.BindValueTraceValue;
-import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
-import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.IntTraceValue;
-import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
-import com.navercorp.pinpoint.profiler.interceptor.GlobalInterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.instrument.JavassistClassPool;
+import com.navercorp.pinpoint.profiler.interceptor.registry.GlobalInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.test.MockAgent;
 import com.navercorp.pinpoint.test.TestClassLoader;
@@ -141,7 +136,7 @@ public class JavaAssistClassTest {
         loader.addTransformer(javassistClassName, new PinpointClassFileTransformer() {
             
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 try {
                     logger.info("modify cl:{}", loader);
 
@@ -170,44 +165,26 @@ public class JavaAssistClassTest {
         final Object testObject = testObjectClazz.newInstance();
         Method callA = testObjectClazz.getMethod(methodName);
         callA.invoke(testObject);
+        
+        Class<?> objectTraceValue = loader.loadClass(ObjectTraceValue.class.getName());
+        Assert.assertTrue("ObjectTraceValue implements fail", objectTraceValue.isInstance(testObject));
+        objectTraceValue.getMethod("_$PINPOINT$_setTraceObject", Object.class).invoke(testObject, "a");
+        Object get = objectTraceValue.getMethod("_$PINPOINT$_getTraceObject").invoke(testObject);
+        Assert.assertEquals("a", get);
+        
 
-        if (testObject instanceof ObjectTraceValue) {
-            ObjectTraceValue objectTraceValue = (ObjectTraceValue) testObject;
-            objectTraceValue._$PINPOINT$_setTraceObject("a");
-            Object get = objectTraceValue._$PINPOINT$_getTraceObject();
-            Assert.assertEquals("a", get);
-        } else {
-            Assert.fail("ObjectTraceValue implements fail");
-        }
+        Class<?> intTraceValue = loader.loadClass(IntTraceValue.class.getName());
+        Assert.assertTrue("IntTraceValue implements fail", intTraceValue.isInstance(testObject));
+        intTraceValue.getMethod("_$PINPOINT$_setTraceInt", int.class).invoke(testObject, 1);
+        int a = (Integer)intTraceValue.getMethod("_$PINPOINT$_getTraceInt").invoke(testObject);
+        Assert.assertEquals(1, a);
 
-        if (testObject instanceof IntTraceValue) {
-            IntTraceValue intTraceValue = (IntTraceValue) testObject;
-            intTraceValue._$PINPOINT$_setTraceInt(1);
-            int a = intTraceValue._$PINPOINT$_getTraceInt();
-            Assert.assertEquals(1, a);
-        } else {
-            Assert.fail("IntTraceValue implements fail");
-        }
-
-        if (testObject instanceof DatabaseInfoTraceValue) {
-            DatabaseInfoTraceValue databaseInfoTraceValue = (DatabaseInfoTraceValue) testObject;
-            databaseInfoTraceValue._$PINPOINT$_setTraceDatabaseInfo(UnKnownDatabaseInfo.INSTANCE);
-            DatabaseInfo databaseInfo = databaseInfoTraceValue._$PINPOINT$_getTraceDatabaseInfo();
-            Assert.assertSame(UnKnownDatabaseInfo.INSTANCE, databaseInfo);
-        } else {
-            Assert.fail("DatabaseInfoTraceValue implements fail");
-        }
-
-        if (testObject instanceof BindValueTraceValue) {
-            BindValueTraceValue bindValueTraceValue = (BindValueTraceValue) testObject;
-            Map<Integer, String> integerStringMap = Collections.emptyMap();
-            bindValueTraceValue._$PINPOINT$_setTraceBindValue(integerStringMap);
-            Map<Integer, String> bindValueMap = bindValueTraceValue._$PINPOINT$_getTraceBindValue();
-            Assert.assertSame(integerStringMap, bindValueMap);
-        } else {
-            Assert.fail("BindValueTraceValue implements fail");
-        }
-
+        
+        Class<?> databaseTraceValue = loader.loadClass(DatabaseInfoTraceValue.class.getName());
+        Assert.assertTrue("DatabaseInfoTraceValue implements fail", databaseTraceValue.isInstance(testObject));
+        databaseTraceValue.getMethod("_$PINPOINT$_setTraceDatabaseInfo", DatabaseInfo.class).invoke(testObject, UnKnownDatabaseInfo.INSTANCE);
+        Object databaseInfo = databaseTraceValue.getMethod("_$PINPOINT$_getTraceDatabaseInfo").invoke(testObject);
+        Assert.assertSame(UnKnownDatabaseInfo.INSTANCE, databaseInfo);
     }
 
     @Test
@@ -218,7 +195,7 @@ public class JavaAssistClassTest {
         loader.addTransformer(javassistClassName, new PinpointClassFileTransformer() {
             
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 try {
                     logger.info("modify className:{} cl:{}", className, classLoader);
 
@@ -289,7 +266,7 @@ public class JavaAssistClassTest {
         loader.addTransformer(testClassObject, new PinpointClassFileTransformer() {
             
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 try {
                     logger.info("modify cl:{}", classLoader);
                     InstrumentClass aClass = instrumentContext.getInstrumentClass(classLoader, testClassObject, classfileBuffer);
@@ -354,7 +331,7 @@ public class JavaAssistClassTest {
         loader.addTransformer(targetClassName, new PinpointClassFileTransformer() {
             
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 try {
                     logger.info("modify cl:{}", classLoader);
                     InstrumentClass aClass = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);

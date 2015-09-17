@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.interceptor.tracevalue;
+package com.navercorp.pinpoint.profiler.interceptor.bci;
+
 
 /**
  * @author emeroad
  */
-public interface ObjectTraceValue extends TraceValue {
+public interface ObjectTraceValue {
 
     void _$PINPOINT$_setTraceObject(Object value);
 

@@ -1,4 +1,6 @@
-package com.navercorp.pinpoint.bootstrap.interceptor;
+package com.navercorp.pinpoint.bootstrap.interceptor.registry;
+
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 
 
 /**

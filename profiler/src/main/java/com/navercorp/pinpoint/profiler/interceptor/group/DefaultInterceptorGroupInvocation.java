@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.profiler.plugin;
+package com.navercorp.pinpoint.profiler.interceptor.group;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.group.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;

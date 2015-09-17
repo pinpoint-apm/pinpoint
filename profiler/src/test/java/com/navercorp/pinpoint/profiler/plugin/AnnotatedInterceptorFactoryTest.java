@@ -28,17 +28,17 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
 import com.navercorp.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.profiler.interceptor.factory.AnnotatedInterceptorFactory;
 import com.navercorp.pinpoint.profiler.plugin.TestInterceptors.TestInterceptor0;
 import com.navercorp.pinpoint.profiler.plugin.TestInterceptors.TestInterceptor1;
 import com.navercorp.pinpoint.profiler.plugin.TestInterceptors.TestInterceptor2;
-import com.navercorp.pinpoint.profiler.plugin.interceptor.AnnotatedInterceptorFactory;
 
 public class AnnotatedInterceptorFactoryTest {
     private final DefaultProfilerPluginContext pluginContext = mock(DefaultProfilerPluginContext.class);

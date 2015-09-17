@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.plugin.transformer;
+package com.navercorp.pinpoint.profiler.plugin.xml.transformer;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassCondition;
+import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
 
 public class ConditionalClassRecipe implements ClassRecipe {
-    private final ProfilerPluginInstrumentContext context;
+    private final PinpointInstrument context;
     private final ClassCondition condition;
     private final ClassRecipe delegate;
     
-    public ConditionalClassRecipe(ProfilerPluginInstrumentContext context, ClassCondition condition, ClassRecipe delegate) {
+    public ConditionalClassRecipe(PinpointInstrument context, ClassCondition condition, ClassRecipe delegate) {
         this.context = context;
         this.condition = condition;
         this.delegate = delegate;

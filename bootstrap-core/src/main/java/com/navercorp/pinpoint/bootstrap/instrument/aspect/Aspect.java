@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.aspect;
+package com.navercorp.pinpoint.bootstrap.instrument.aspect;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

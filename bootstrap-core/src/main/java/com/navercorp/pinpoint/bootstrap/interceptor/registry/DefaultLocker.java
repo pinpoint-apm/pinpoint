@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.bootstrap.interceptor;
+package com.navercorp.pinpoint.bootstrap.interceptor.registry;
 
 import java.util.concurrent.atomic.AtomicReference;
 

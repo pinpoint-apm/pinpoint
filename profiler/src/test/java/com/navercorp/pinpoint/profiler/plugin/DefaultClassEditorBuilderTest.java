@@ -23,19 +23,18 @@ import java.lang.instrument.ClassFileTransformer;
 
 import org.junit.Test;
 
-import com.navercorp.pinpoint.bootstrap.FieldAccessor;
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MethodTransformerBuilder;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
-import com.navercorp.pinpoint.profiler.interceptor.bci.JavassistClassPool;
-import com.navercorp.pinpoint.profiler.plugin.transformer.DefaultClassFileTransformerBuilder;
+import com.navercorp.pinpoint.profiler.instrument.JavassistClassPool;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.DefaultClassFileTransformerBuilder;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MethodTransformerBuilder;
+import com.navercorp.pinpoint.profiler.util.TypeUtils;
 import com.navercorp.pinpoint.test.TestProfilerPluginClassLoader;
 
 public class DefaultClassEditorBuilderTest {
@@ -69,8 +68,8 @@ public class DefaultClassEditorBuilderTest {
         
         
         DefaultClassFileTransformerBuilder builder = new DefaultClassFileTransformerBuilder(context, "TargetClass");
-        builder.injectMetadata("a", "java.util.HashMap");
-        builder.injectFieldAccessor("someField");
+        builder.injectField("some.accessor.Type", "java.util.HashMap");
+        builder.injectGetter("some.getter.Type", "someField");
         
         MethodTransformerBuilder ib = builder.editMethod(methodName, parameterTypeNames);
         ib.injectInterceptor("com.navercorp.pinpoint.profiler.plugin.TestInterceptor", "provided");
@@ -80,7 +79,7 @@ public class DefaultClassEditorBuilderTest {
         transformer.transform(classLoader, className, null, null, classFileBuffer);
         
         verify(aMethod).addInterceptor(eq("com.navercorp.pinpoint.profiler.plugin.TestInterceptor"), (InterceptorGroup)isNull(), (ExecutionPolicy)isNull(), eq("provided"));
-        verify(aClass).addTraceValue(MetadataAccessor.get(0).getType(), "new java.util.HashMap();");
-        verify(aClass).addGetter(FieldAccessor.get(0).getType(), "someField");
+        verify(aClass).addField("some.accessor.Type", "new java.util.HashMap();");
+        verify(aClass).addGetter("some.getter.Type", "someField");
     }
 }

@@ -20,18 +20,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Specify the target constructor of the annotated interceptor.
+ * Provides name of auto binded parameter.
+ * 
+ * Some auto binded parameter types should be identified by name. 
  * 
  * @author Jongho Moon
  *
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface TargetConstructor {
-    /**
-     * Target constructor's parameter types.
-     * 
-     * @return
-     */
-    public String[] value() default {};
+@Target(ElementType.PARAMETER)
+public @interface Name {
+    public String value();
 }

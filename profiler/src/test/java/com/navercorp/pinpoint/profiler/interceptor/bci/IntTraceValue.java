@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.interceptor.tracevalue;
+package com.navercorp.pinpoint.profiler.interceptor.bci;
+
 
 /**
  * @author emeroad
  */
-public interface IntTraceValue extends TraceValue {
+public interface IntTraceValue {
     void _$PINPOINT$_setTraceInt(int value);
-
     int _$PINPOINT$_getTraceInt();
 }

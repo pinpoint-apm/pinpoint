@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.exception;
 /**
  * @author emeroad
  */
+@SuppressWarnings("serial")
 public class PinpointException extends RuntimeException {
     public PinpointException() {
     }
