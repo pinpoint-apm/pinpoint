@@ -44,7 +44,7 @@ public class MemoryUserDao implements UserDao {
     }
 
     @Override
-    public void inserUserList(List<User> users) {
+    public void insertUserList(List<User> users) {
         for (User user : users) {
             String userNumber = String.valueOf(userNumGenerator.getAndIncrement());
             user.setNumber(userNumber);

@@ -49,6 +49,4 @@ public interface UserGroupDao {
     void deleteMemberByUserGroupId(String userGroupId);
 
     void updateUserGroupIdOfMember(UserGroup userGroup);
-
-
 }

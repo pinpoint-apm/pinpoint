@@ -28,7 +28,7 @@ public interface UserDao {
 
     void insertUser(User user);
 
-    void inserUserList(List<User> users);
+    void insertUserList(List<User> users);
 
     void deleteUser(User user);
 
