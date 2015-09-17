@@ -164,7 +164,8 @@ public class HttpMethodBaseExecuteMethodInterceptor implements SimpleAroundInter
 
     private String getHost(HttpMethod httpMethod) {
         try {
-            return httpMethod.getURI().getHost();
+            URI url = httpMethod.getURI();
+            return getEndpoint(url.getHost(), url.getPort());
         } catch (URIException e) {
             logger.error("Fail get URI", e);
         }

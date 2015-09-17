@@ -148,8 +148,13 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements SimpleAround
             httpRequest.setHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
             final NameIntValuePair<String> host = getHost();
             if (host != null) {
-                logger.debug("Get host {}", host.getName());
-                httpRequest.setHeader(Header.HTTP_HOST.toString(), host.getName());
+                final StringBuilder hostStringBuilder = new StringBuilder(host.getName());
+                if (host.getValue() > 0) {
+                    hostStringBuilder.append(":").append(host.getValue()); 
+                }
+                final String hostString = hostStringBuilder.toString();
+                logger.debug("Get host {}", hostString);
+                httpRequest.setHeader(Header.HTTP_HOST.toString(), hostString);
             }
         }
 

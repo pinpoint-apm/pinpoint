@@ -122,9 +122,9 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor {
             putHeader(httpRequestHeaders, Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
             putHeader(httpRequestHeaders, Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
             putHeader(httpRequestHeaders, Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
-            final String host = httpRequest.getURI().getHost();
-            if(host != null) {
-                putHeader(httpRequestHeaders, Header.HTTP_HOST.toString(), host);
+            final String hostString = getEndpoint(httpRequest.getURI().getHost(), httpRequest.getURI().getPort());
+            if(hostString != null) {
+                putHeader(httpRequestHeaders, Header.HTTP_HOST.toString(), hostString);
             }
         }
     }
