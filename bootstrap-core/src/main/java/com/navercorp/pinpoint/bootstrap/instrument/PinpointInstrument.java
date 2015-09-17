@@ -14,8 +14,6 @@
  */
 package com.navercorp.pinpoint.bootstrap.instrument;
 
-import com.navercorp.pinpoint.bootstrap.FieldAccessor;
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
@@ -38,10 +36,4 @@ public interface PinpointInstrument {
     public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, PinpointClassFileTransformer transformer);
     
     public void retransform(Class<?> target, PinpointClassFileTransformer transformer);
-    
-    @Deprecated
-    public MetadataAccessor getMetadataAccessor(String name);
-    
-    @Deprecated
-    public FieldAccessor getFieldAccessor(String name);
 }

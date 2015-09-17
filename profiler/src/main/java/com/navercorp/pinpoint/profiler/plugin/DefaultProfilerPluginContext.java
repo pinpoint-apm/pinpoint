@@ -22,8 +22,6 @@ import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.FieldAccessor;
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
@@ -53,12 +51,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
     private final List<ClassFileTransformer> classTransformers = new ArrayList<ClassFileTransformer>();
     
-    private final NameValueList<MetadataAccessor> metadataAccessors = new NameValueList<MetadataAccessor>();
-    private final NameValueList<FieldAccessor> fieldSnoopers = new NameValueList<FieldAccessor>();
     private final NameValueList<InterceptorGroup> interceptorGroups = new NameValueList<InterceptorGroup>();
-    
-    private int metadataAccessorIndex = 0;
-    private int fieldSnooperIndex = 0;
     
     private boolean initialized = false;
     
@@ -93,46 +86,6 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
         }
         
         return context;
-    }
-
-    @Override
-    public MetadataAccessor getMetadataAccessor(String name) {
-        MetadataAccessor accessor = metadataAccessors.get(name);
-        
-        if (accessor != null) {
-            return accessor;
-        }
-        
-        try {
-            accessor = MetadataAccessor.get(metadataAccessorIndex);
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new IllegalStateException("Cannot allocate MetadataAccessor. Exceeded max:" + metadataAccessorIndex);
-        }
-
-        metadataAccessors.add(name, accessor);
-        metadataAccessorIndex++;
-        
-        return accessor;
-    }
-
-    @Override
-    public FieldAccessor getFieldAccessor(String name) {
-        FieldAccessor snooper = fieldSnoopers.get(name);
-        
-        if (snooper != null) {
-            return snooper;
-        }
-        
-        try {
-            snooper = FieldAccessor.get(fieldSnooperIndex);
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new IllegalStateException("Cannot allocate FieldAccessor. Exceeded max:" + fieldSnooperIndex);
-        }
-        
-        fieldSnoopers.add(name, snooper);
-        fieldSnooperIndex++;
-        
-        return snooper;
     }
         
     @Override
