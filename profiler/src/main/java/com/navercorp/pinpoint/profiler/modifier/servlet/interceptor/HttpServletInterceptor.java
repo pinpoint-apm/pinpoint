@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.modifier.servlet.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -47,7 +46,6 @@ public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCode
 
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
-    private boolean parameter;
 
 /*    
     java.lang.IllegalStateException: already Trace Object exist.
@@ -156,13 +154,10 @@ public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCode
 
             HttpServletRequest request = (HttpServletRequest) args[0];
 
-            if (parameter) {
-                String parameters = getRequestParameter(request);
-                if (parameters != null && parameters.length() > 0) {
-                    trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
-                }
+            String parameters = getRequestParameter(request);
+            if (parameters != null && parameters.length() > 0) {
+                trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
             }
-
 
             trace.recordApi(descriptor);
 
@@ -237,7 +232,5 @@ public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCode
     @Override
     public void setTraceContext(TraceContext traceContext) {
         this.traceContext = traceContext;
-        ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
-        this.parameter = profilerConfig.isServletProfileParameter();
     }
 }

@@ -101,8 +101,6 @@ public class ProfilerConfig {
 
     private boolean tcpDataSenderCommandAcceptEnable = false;
 
-    private boolean servletProfileParameter = false;
-
     private int jdbcSqlCacheSize = 1024;
     private int jdbcMaxSqlBindValueSize = 1024;
     private boolean jdbcProfile = true;
@@ -134,6 +132,7 @@ public class ProfilerConfig {
     private Filter<String> tomcatExcludeUrlFilter = new SkipFilter<String>();
     private String tomcatRealIpHeader;
     private String tomcatRealIpEmptyValue;
+    private Filter<String> tomcatExcludeProfileMethodFilter = new SkipFilter<String>();
 
     private boolean arucs = true;
     private boolean arucsKeyTrace = false;
@@ -300,10 +299,6 @@ public class ProfilerConfig {
         return profileEnable;
     }
 
-    public boolean isServletProfileParameter() {
-        return servletProfileParameter;
-    }
-
     public boolean isJdbcProfile() {
         return jdbcProfile;
     }
@@ -433,6 +428,10 @@ public class ProfilerConfig {
 
     public String getTomcatRealIpEmptyValue() {
         return tomcatRealIpEmptyValue;
+    }
+
+    public Filter<String> getTomcatExcludeProfileMethodFilter() {
+        return tomcatExcludeProfileMethodFilter;
     }
 
     public boolean isArucs() {
@@ -654,8 +653,6 @@ public class ProfilerConfig {
 
         this.tcpDataSenderCommandAcceptEnable = readBoolean("profiler.tcpdatasender.command.accept.enable", false);
 
-        this.servletProfileParameter = readBoolean("profiler.servlet.parameter", false);
-
         // JDBC
         this.jdbcProfile = readBoolean("profiler.jdbc", true);
 
@@ -697,6 +694,12 @@ public class ProfilerConfig {
         }
         this.tomcatRealIpHeader = readString("profiler.tomcat.realipheader", null);
         this.tomcatRealIpEmptyValue = readString("profiler.tomcat.realipemptyvalue", null);
+
+        final String tomcatExcludeProfileMethod = readString("profiler.tomcat.excludemethod", "");
+        if (!tomcatExcludeProfileMethod.isEmpty()) {
+            this.tomcatExcludeProfileMethodFilter = new ExcludeMethodFilter(tomcatExcludeProfileMethod);
+        }
+
 
         this.arucs = readBoolean("profiler.arcus", true);
         this.arucsKeyTrace = readBoolean("profiler.arcus.keytrace", false);
@@ -945,6 +948,7 @@ public class ProfilerConfig {
         sb.append(", tomcatExcludeUrlFilter=").append(tomcatExcludeUrlFilter);
         sb.append(", tomcatRealIpHeader=").append(tomcatRealIpHeader);
         sb.append(", tomcatRealIpEmptyValue=").append(tomcatRealIpEmptyValue);
+        sb.append(", tomcatExcludeProfileMethodFilter=").append(tomcatExcludeProfileMethodFilter);
         sb.append(", arucs=").append(arucs);
         sb.append(", arucsKeyTrace=").append(arucsKeyTrace);
         sb.append(", memcached=").append(memcached);
