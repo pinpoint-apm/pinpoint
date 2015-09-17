@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
  * @author Jongho Moon
  *
  */
-@Deprecated
 public interface BaseClassFileTransformerBuilder {
 
     public void injectGetter(String getterTypeName, String fieldName);

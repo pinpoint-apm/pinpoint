@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.plugin.xml.transformer;
  * @author Jongho Moon
  *
  */
-@Deprecated
 public interface ConditionalClassFileTransformerBuilder extends BaseClassFileTransformerBuilder {
 
 }
