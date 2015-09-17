@@ -97,6 +97,8 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
         final URL url = request.getURL();
         final String host = url.getHost();
         final int port = url.getPort();
+        // TODO How to represent protocol?
+        String endpoint = getEndpoint(host, port);
 
         request.setRequestProperty(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
         request.setRequestProperty(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
@@ -106,13 +108,10 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
         request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
         request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
         if(host != null) {
-            request.setRequestProperty(Header.HTTP_HOST.toString(), host);
+            request.setRequestProperty(Header.HTTP_HOST.toString(), endpoint);
         }
 
         recorder.recordServiceType(SERVICE_TYPE);
-
-        // TODO How to represent protocol?
-        String endpoint = getEndpoint(host, port);
         
         // Don't record end point because it's same with destination id.
         recorder.recordDestinationId(endpoint);
