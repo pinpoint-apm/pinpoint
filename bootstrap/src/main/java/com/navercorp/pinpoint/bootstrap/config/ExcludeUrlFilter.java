@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.bootstrap.config;
 import com.navercorp.pinpoint.bootstrap.util.AntPathMatcher;
 import com.navercorp.pinpoint.bootstrap.util.PathMatcher;
 import com.navercorp.pinpoint.bootstrap.util.EqualsPathMatcher;
+import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,20 +37,13 @@ public class ExcludeUrlFilter implements Filter<String> {
     }
 
     public ExcludeUrlFilter(String excludeFormat, String separator) {
-        if (isEmpty(excludeFormat)) {
+        if (StringUtils.isEmpty(excludeFormat)) {
             this.excludeMatcherList = Collections.emptyList();
             return;
         }
-        final String[] split = excludeFormat.split(separator);
-        final List<PathMatcher> buildList = new ArrayList<PathMatcher>();
-        for (String path : split) {
-            if (isEmpty(path)) {
-                continue;
-            }
-            path = path.trim();
-            if (path.isEmpty()) {
-                continue;
-            }
+        final List<String> splitList = StringUtils.splitAndTrim(excludeFormat, separator);
+        final List<PathMatcher> buildList = new ArrayList<PathMatcher>(splitList.size());
+        for (String path : splitList) {
             final PathMatcher pathMatcher = createPathMatcher(path);
             buildList.add(pathMatcher);
         }
@@ -62,10 +56,6 @@ public class ExcludeUrlFilter implements Filter<String> {
             return new AntPathMatcher(pattern);
         }
         return new EqualsPathMatcher(pattern);
-    }
-
-    private boolean isEmpty(String string) {
-        return string == null || string.isEmpty();
     }
 
     @Override
