@@ -16,21 +16,22 @@
 
 package com.navercorp.pinpoint.profiler.modifier.tomcat.interceptor;
 
-import java.util.Enumeration;
-
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.*;
-import com.navercorp.pinpoint.bootstrap.interceptor.*;
+import com.navercorp.pinpoint.bootstrap.interceptor.RemoteAddressResolver;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.profiler.context.*;
+import com.navercorp.pinpoint.profiler.context.SpanId;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
 
 /**
  * @author emeroad
@@ -39,6 +40,8 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
 
     private final boolean isTrace = logger.isTraceEnabled();
     private Filter<String> excludeUrlFilter;
+
+    private Filter<String> excludeProfileMethodFilter;
 
     private RemoteAddressResolver<HttpServletRequest> remoteAddressResolver;
 
@@ -197,9 +200,11 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     protected void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
         if (trace.canSampled()) {
             final HttpServletRequest request = (HttpServletRequest) args[0];
-            final String parameters = getRequestParameter(request, 64, 512);
-            if (parameters != null && parameters.length() > 0) {
-                trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+            if (!excludeProfileMethodFilter.filter(request.getMethod())) {
+                final String parameters = getRequestParameter(request, 64, 512);
+                if (parameters != null && parameters.length() > 0) {
+                    trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+                }
             }
 
             trace.recordApi(getMethodDescriptor());
@@ -273,6 +278,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
 
         this.excludeUrlFilter = profilerConfig.getTomcatExcludeUrlFilter();
+        this.excludeProfileMethodFilter = profilerConfig.getTomcatExcludeProfileMethodFilter();
 
         final String proxyIpHeader = profilerConfig.getTomcatRealIpHeader();
         if (proxyIpHeader == null || proxyIpHeader.isEmpty()) {
@@ -281,5 +287,6 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
             final String tomcatRealIpEmptyValue = profilerConfig.getTomcatRealIpEmptyValue();
             remoteAddressResolver = new RealIpHeaderResolver<HttpServletRequest>(proxyIpHeader, tomcatRealIpEmptyValue);
         }
+
     }
 }

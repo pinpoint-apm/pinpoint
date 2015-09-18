@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.modifier.servlet.interceptor;
 
-import java.util.Enumeration;
-
 import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -32,9 +30,10 @@ import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
-import com.navercorp.pinpoint.profiler.context.*;
+import com.navercorp.pinpoint.profiler.context.SpanId;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
 
 /**
  * @author emeroad
@@ -154,11 +153,11 @@ public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCode
             traceContext.detachTraceObject();
 
             HttpServletRequest request = (HttpServletRequest) args[0];
+
             String parameters = getRequestParameter(request);
             if (parameters != null && parameters.length() > 0) {
                 trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
             }
-
 
             trace.recordApi(descriptor);
 
