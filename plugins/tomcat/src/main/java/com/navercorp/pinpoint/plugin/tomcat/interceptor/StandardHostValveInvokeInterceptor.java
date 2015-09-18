@@ -16,8 +16,20 @@
 
 package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
+import java.util.Enumeration;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.catalina.connector.Request;
+
 import com.navercorp.pinpoint.bootstrap.config.Filter;
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.bootstrap.context.SpanId;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -28,11 +40,11 @@ import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.plugin.tomcat.*;
-import org.apache.catalina.connector.Request;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Enumeration;
+import com.navercorp.pinpoint.plugin.tomcat.AsyncAccessor;
+import com.navercorp.pinpoint.plugin.tomcat.ServletAsyncMethodDescriptor;
+import com.navercorp.pinpoint.plugin.tomcat.ServletSyncMethodDescriptor;
+import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
+import com.navercorp.pinpoint.plugin.tomcat.TraceAccessor;
 
 /**
  * @author emeroad
