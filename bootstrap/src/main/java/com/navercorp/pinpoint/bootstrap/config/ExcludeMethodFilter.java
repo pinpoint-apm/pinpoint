@@ -1,7 +1,10 @@
 package com.navercorp.pinpoint.bootstrap.config;
 
+import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class ExcludeMethodFilter implements Filter<String> {
@@ -12,27 +15,15 @@ public class ExcludeMethodFilter implements Filter<String> {
     }
 
     public ExcludeMethodFilter(String excludeFormat, String separator) {
-        if (excludeFormat == null || excludeFormat.isEmpty()) {
+        if (StringUtils.isEmpty(separator)) {
             this.excludeMethods = Collections.emptySet();
             return;
         }
-
-        final String[] split = excludeFormat.split(separator);
+        final List<String> splitList = StringUtils.splitAndTrim(excludeFormat, separator);
         this.excludeMethods = new HashSet<String>();
-        for (String method : split) {
-            if (isEmpty(method)) {
-                continue;
-            }
-            method = method.trim();
-            if (method.isEmpty()) {
-                continue;
-            }
-            excludeMethods.add(method.toUpperCase());
+        for (String method : splitList) {
+            this.excludeMethods.add(method.toUpperCase());
         }
-    }
-
-    private boolean isEmpty(String string) {
-        return string == null || string.isEmpty();
     }
 
     @Override
