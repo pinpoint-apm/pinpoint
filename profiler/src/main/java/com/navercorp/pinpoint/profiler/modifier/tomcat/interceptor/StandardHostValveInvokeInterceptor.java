@@ -41,7 +41,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     private final boolean isTrace = logger.isTraceEnabled();
     private Filter<String> excludeUrlFilter;
 
-    private Filter<String> excludeProfileMethod;
+    private Filter<String> excludeProfileMethodFilter;
 
     private RemoteAddressResolver<HttpServletRequest> remoteAddressResolver;
 
@@ -200,7 +200,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     protected void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
         if (trace.canSampled()) {
             final HttpServletRequest request = (HttpServletRequest) args[0];
-            if (!excludeProfileMethod.filter(request.getMethod())) {
+            if (!excludeProfileMethodFilter.filter(request.getMethod())) {
                 final String parameters = getRequestParameter(request, 64, 512);
                 if (parameters != null && parameters.length() > 0) {
                     trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
@@ -278,7 +278,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
 
         this.excludeUrlFilter = profilerConfig.getTomcatExcludeUrlFilter();
-        this.excludeProfileMethod  = profilerConfig.getTomcatExcludeProfileMethodFilter();
+        this.excludeProfileMethodFilter = profilerConfig.getTomcatExcludeProfileMethodFilter();
 
         final String proxyIpHeader = profilerConfig.getTomcatRealIpHeader();
         if (proxyIpHeader == null || proxyIpHeader.isEmpty()) {

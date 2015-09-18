@@ -27,7 +27,7 @@ public class ExcludeMethodFilter implements Filter<String> {
             if (method.isEmpty()) {
                 continue;
             }
-            excludeMethods.add(method);
+            excludeMethods.add(method.toUpperCase());
         }
     }
 
