@@ -62,11 +62,13 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
     private TraceContext traceContext;
 
     private Filter<String> excludeUrlFilter;
+	private Filter<String> excludeProfileMethodFilter;
 
     public StandardHostValveInvokeInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter) {
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
         this.excludeUrlFilter = excludeFilter;
+		this.excludeProfileMethodFilter = traceContext.getProfilerConfig().getTomcatExcludeProfileMethodFilter();
 
         traceContext.cacheApi(SERVLET_ASYNCHRONOUS_API_TAG);
         traceContext.cacheApi(SERVLET_SYNCHRONOUS_API_TAG);
@@ -254,9 +256,12 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
         try {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             final HttpServletRequest request = (HttpServletRequest) args[0];
-            final String parameters = getRequestParameter(request, 64, 512);
-            if (parameters != null && parameters.length() > 0) {
-                recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+
+            if (!excludeProfileMethodFilter.filter(request.getMethod())) {
+                final String parameters = getRequestParameter(request, 64, 512);
+                if (parameters != null && parameters.length() > 0) {
+                    recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+                }
             }
 
             recorder.recordApi(methodDescriptor);

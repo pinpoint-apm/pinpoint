@@ -16,6 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
+import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
+import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
+import com.navercorp.pinpoint.common.util.PropertyUtils;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
@@ -24,10 +28,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
-import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
-import com.navercorp.pinpoint.common.util.PropertyUtils;
 
 /**
  * @author emeroad
@@ -111,6 +111,7 @@ public class ProfilerConfig {
 
     private boolean tomcatHidePinpointHeader = true;
     private Filter<String> tomcatExcludeUrlFilter = new SkipFilter<String>();
+	private Filter<String> tomcatExcludeProfileMethodFilter = new SkipFilter<String>();
 
     private boolean ibatis = true;
 
@@ -289,7 +290,11 @@ public class ProfilerConfig {
         return tomcatExcludeUrlFilter;
     }
 
-    //-----------------------------------------
+	public Filter<String> getTomcatExcludeProfileMethodFilter() {
+		return tomcatExcludeProfileMethodFilter;
+	}
+
+	//-----------------------------------------
     // http apache client 3
 
     public boolean isApacheHttpClient3Profile() {
@@ -474,6 +479,11 @@ public class ProfilerConfig {
         if (!tomcatExcludeURL.isEmpty()) {
             this.tomcatExcludeUrlFilter = new ExcludeUrlFilter(tomcatExcludeURL);
         }
+
+		final String tomcatExcludeProfileMethod = readString("profiler.tomcat.excludemethod", "");
+		if (!tomcatExcludeProfileMethod.isEmpty()) {
+			this.tomcatExcludeProfileMethodFilter = new ExcludeMethodFilter(tomcatExcludeProfileMethod);
+		}
 
         /**
          * apache http client 3
@@ -680,6 +690,8 @@ public class ProfilerConfig {
         builder.append(tomcatHidePinpointHeader);
         builder.append(", tomcatExcludeUrlFilter=");
         builder.append(tomcatExcludeUrlFilter);
+        builder.append(", tomcatExcludeProfileMethodFilter=");
+        builder.append(tomcatExcludeProfileMethodFilter);
         builder.append(", ibatis=");
         builder.append(ibatis);
         builder.append(", mybatis=");
