@@ -23,10 +23,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 
 
 public class SpanSimpleAroundInterceptorTest {
@@ -40,8 +39,7 @@ public class SpanSimpleAroundInterceptorTest {
         MockTrace mockTrace = new MockTrace();
         context.setTrace(mockTrace);
 
-        TestSpanSimpleAroundInterceptor interceptor = new TestSpanSimpleAroundInterceptor();
-        interceptor.setTraceContext(context);
+        TestSpanSimpleAroundInterceptor interceptor = new TestSpanSimpleAroundInterceptor(context);
 
         checkSpanInterceptor(context, interceptor);
     }
@@ -53,14 +51,13 @@ public class SpanSimpleAroundInterceptorTest {
         MockTrace mockTrace = new MockTrace();
         context.setTrace(mockTrace);
 
-        TestSpanSimpleAroundInterceptor interceptor = new TestSpanSimpleAroundInterceptor() {
+        TestSpanSimpleAroundInterceptor interceptor = new TestSpanSimpleAroundInterceptor(context) {
             @Override
             protected void doInBeforeTrace(SpanRecorder trace, Object target, Object[] args) {
                 touchBefore();
                 throw new RuntimeException();
             }
         };
-        interceptor.setTraceContext(context);
 
         checkSpanInterceptor(context, interceptor);
     }
@@ -72,14 +69,13 @@ public class SpanSimpleAroundInterceptorTest {
         MockTrace mockTrace = new MockTrace();
         context.setTrace(mockTrace);
 
-        TestSpanSimpleAroundInterceptor interceptor = new TestSpanSimpleAroundInterceptor() {
+        TestSpanSimpleAroundInterceptor interceptor = new TestSpanSimpleAroundInterceptor(context) {
             @Override
             protected void doInAfterTrace(SpanRecorder trace, Object target, Object[] args, Object result, Throwable throwable) {
                 touchAfter();
                 throw new RuntimeException();
             }
         };
-        interceptor.setTraceContext(context);
 
         checkSpanInterceptor(context, interceptor);
     }
@@ -91,7 +87,7 @@ public class SpanSimpleAroundInterceptorTest {
         MockTrace mockTrace = new MockTrace();
         context.setTrace(mockTrace);
 
-        TestSpanSimpleAroundInterceptor interceptor = new TestSpanSimpleAroundInterceptor() {
+        TestSpanSimpleAroundInterceptor interceptor = new TestSpanSimpleAroundInterceptor(context) {
             @Override
             protected void doInBeforeTrace(SpanRecorder recorder, Object target, Object[] args) {
                 touchBefore();
@@ -104,7 +100,6 @@ public class SpanSimpleAroundInterceptorTest {
                 throw new RuntimeException();
             }
         };
-        interceptor.setTraceContext(context);
 
         checkSpanInterceptor(context, interceptor);
     }
@@ -117,8 +112,7 @@ public class SpanSimpleAroundInterceptorTest {
         MockTrace mockTrace = new MockTrace();
         context.setTrace(mockTrace);
 
-        TestSpanSimpleAroundInterceptor interceptor = new TestSpanSimpleAroundInterceptor();
-        interceptor.setTraceContext(context);
+        TestSpanSimpleAroundInterceptor interceptor = new TestSpanSimpleAroundInterceptor(context);
 
         checkTraceCreateFailInterceptor(context, interceptor);
     }
@@ -165,13 +159,13 @@ public class SpanSimpleAroundInterceptorTest {
         private int beforeTouchCount;
         private int afterTouchCount;
 
-        public TestSpanSimpleAroundInterceptor() {
-            super(TestSpanSimpleAroundInterceptor.class);
+        public TestSpanSimpleAroundInterceptor(TraceContext traceContext) {
+            super(traceContext, null, TestSpanSimpleAroundInterceptor.class);
         }
 
         @Override
         protected Trace createTrace(Object target, Object[] args) {
-            return getTraceContext().newTraceObject();
+            return traceContext.newTraceObject();
         }
 
         @Override

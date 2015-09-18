@@ -20,8 +20,8 @@ import org.slf4j.MDC;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor0;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetConstructor;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Targets;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Targets;
 
 /**
  * @author minwoo.jung

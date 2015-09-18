@@ -43,7 +43,7 @@ public class MysqlUserDao implements UserDao {
     }
 
     @Override
-    public void inserUserList(List<User> users) {
+    public void insertUserList(List<User> users) {
         sqlSessionTemplate.insert(NAMESPACE + "insertUserList", users);
     }
 

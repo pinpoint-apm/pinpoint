@@ -14,9 +14,9 @@
  */
 package com.navercorp.pinpoint.plugin.jetty;
 
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformers;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformers;
 
 public class JettyPlugin implements ProfilerPlugin, JettyConstants{
 

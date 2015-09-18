@@ -24,6 +24,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.registry.WeakAtomicReferenceArray;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;

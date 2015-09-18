@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.plugin.spring.beans.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 
 /**
  * 
@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTran
 public class PostProcessorInterceptor extends AbstractSpringBeanCreationInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     
-    public PostProcessorInterceptor(ProfilerPluginInstrumentContext instrumentContext, PinpointClassFileTransformer transformer, TargetBeanFilter filter) {
+    public PostProcessorInterceptor(PinpointInstrument instrumentContext, PinpointClassFileTransformer transformer, TargetBeanFilter filter) {
         super(instrumentContext, transformer, filter);
     }
 

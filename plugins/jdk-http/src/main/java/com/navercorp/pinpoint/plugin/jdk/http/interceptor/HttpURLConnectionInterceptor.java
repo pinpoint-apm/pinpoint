@@ -20,18 +20,18 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Targets;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Targets;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.jdk.http.ConnectedGetter;
@@ -97,6 +97,8 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
         final URL url = request.getURL();
         final String host = url.getHost();
         final int port = url.getPort();
+        // TODO How to represent protocol?
+        String endpoint = getEndpoint(host, port);
 
         request.setRequestProperty(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
         request.setRequestProperty(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
@@ -106,13 +108,10 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
         request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
         request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
         if(host != null) {
-            request.setRequestProperty(Header.HTTP_HOST.toString(), host);
+            request.setRequestProperty(Header.HTTP_HOST.toString(), endpoint);
         }
 
         recorder.recordServiceType(SERVICE_TYPE);
-
-        // TODO How to represent protocol?
-        String endpoint = getEndpoint(host, port);
         
         // Don't record end point because it's same with destination id.
         recorder.recordDestinationId(endpoint);

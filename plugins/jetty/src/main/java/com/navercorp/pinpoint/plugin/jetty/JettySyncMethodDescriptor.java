@@ -14,7 +14,7 @@
  */
 package com.navercorp.pinpoint.plugin.jetty;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.MethodType;
 
 public class JettySyncMethodDescriptor implements MethodDescriptor{

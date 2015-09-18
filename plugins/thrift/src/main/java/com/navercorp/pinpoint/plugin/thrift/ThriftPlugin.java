@@ -23,10 +23,10 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncCallEndFlagFieldAccessor;
 import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncCallRemoteAddressFieldAccessor;
 import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncMarkerFlagFieldAccessor;
@@ -81,7 +81,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
@@ -117,7 +117,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
@@ -140,7 +140,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
@@ -235,7 +235,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
@@ -259,7 +259,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
@@ -290,7 +290,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
@@ -352,7 +352,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
@@ -369,7 +369,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
@@ -393,7 +393,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
@@ -418,7 +418,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
@@ -471,7 +471,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);

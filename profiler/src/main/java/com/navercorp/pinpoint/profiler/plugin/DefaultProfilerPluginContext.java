@@ -22,56 +22,48 @@ import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.navercorp.pinpoint.bootstrap.FieldAccessor;
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MatchableClassFileTransformer;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
-import com.navercorp.pinpoint.profiler.plugin.transformer.DefaultClassFileTransformerBuilder;
+import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
+import com.navercorp.pinpoint.profiler.interceptor.group.DefaultInterceptorGroup;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.ClassFileTransformerBuilder;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.DefaultClassFileTransformerBuilder;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.profiler.util.NameValueList;
 
-public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, ProfilerPluginInstrumentContext {
+public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, PinpointInstrument {
     private final DefaultAgent agent;
-    private final ProfilerPluginClassInjector classInjector;
+    private final ClassInjector classInjector;
     
     private final List<ApplicationTypeDetector> serverTypeDetectors = new ArrayList<ApplicationTypeDetector>();
     private final List<ClassFileTransformer> classTransformers = new ArrayList<ClassFileTransformer>();
     
-    private final NameValueList<MetadataAccessor> metadataAccessors = new NameValueList<MetadataAccessor>();
-    private final NameValueList<FieldAccessor> fieldSnoopers = new NameValueList<FieldAccessor>();
     private final NameValueList<InterceptorGroup> interceptorGroups = new NameValueList<InterceptorGroup>();
-    
-    private int metadataAccessorIndex = 0;
-    private int fieldSnooperIndex = 0;
     
     private boolean initialized = false;
     
-    public DefaultProfilerPluginContext(DefaultAgent agent, ProfilerPluginClassInjector classInjector) {
+    public DefaultProfilerPluginContext(DefaultAgent agent, ClassInjector classInjector) {
         this.agent = agent;
         this.classInjector = classInjector;
     }
 
-    @Override
     public ClassFileTransformerBuilder getClassFileTransformerBuilder(String targetClassName) {
         return new DefaultClassFileTransformerBuilder(this, targetClassName);
     }
     
-    @Override
     public void addClassFileTransformer(ClassFileTransformer transformer) {
         if (initialized) {
             throw new IllegalStateException("Context already initialized");
@@ -94,51 +86,6 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
         }
         
         return context;
-    }
-
-    @Override
-    public ByteCodeInstrumentor getByteCodeInstrumentor() {
-        return agent.getByteCodeInstrumentor();
-    }
-
-    @Override
-    public MetadataAccessor getMetadataAccessor(String name) {
-        MetadataAccessor accessor = metadataAccessors.get(name);
-        
-        if (accessor != null) {
-            return accessor;
-        }
-        
-        try {
-            accessor = MetadataAccessor.get(metadataAccessorIndex);
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new IllegalStateException("Cannot allocate MetadataAccessor. Exceeded max:" + metadataAccessorIndex);
-        }
-
-        metadataAccessors.add(name, accessor);
-        metadataAccessorIndex++;
-        
-        return accessor;
-    }
-
-    @Override
-    public FieldAccessor getFieldAccessor(String name) {
-        FieldAccessor snooper = fieldSnoopers.get(name);
-        
-        if (snooper != null) {
-            return snooper;
-        }
-        
-        try {
-            snooper = FieldAccessor.get(fieldSnooperIndex);
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new IllegalStateException("Cannot allocate FieldAccessor. Exceeded max:" + fieldSnooperIndex);
-        }
-        
-        fieldSnoopers.add(name, snooper);
-        fieldSnooperIndex++;
-        
-        return snooper;
     }
         
     @Override
