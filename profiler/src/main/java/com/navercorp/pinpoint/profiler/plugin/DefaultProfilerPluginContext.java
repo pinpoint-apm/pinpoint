@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
@@ -44,7 +44,7 @@ import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MatchableClassFile
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import com.navercorp.pinpoint.profiler.util.NameValueList;
 
-public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, PinpointInstrument {
+public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext, Instrumentor {
     private final DefaultAgent agent;
     private final ClassInjector classInjector;
     

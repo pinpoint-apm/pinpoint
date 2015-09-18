@@ -23,7 +23,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe.ByConstructor;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe.ByStaticFactoryMethod;
@@ -37,11 +37,11 @@ public class AutoBindingObjectFactory {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     
-    private final PinpointInstrument pluginContext;
+    private final Instrumentor pluginContext;
     private final ClassLoader classLoader;
     private final List<ArgumentProvider> commonProviders;
     
-    public AutoBindingObjectFactory(PinpointInstrument pluginContext, ClassLoader classLoader, ArgumentProvider... argumentProviders) {
+    public AutoBindingObjectFactory(Instrumentor pluginContext, ClassLoader classLoader, ArgumentProvider... argumentProviders) {
         this.pluginContext = pluginContext;
         this.classLoader = classLoader;
         this.commonProviders = new ArrayList<ArgumentProvider>(Arrays.asList(argumentProviders));

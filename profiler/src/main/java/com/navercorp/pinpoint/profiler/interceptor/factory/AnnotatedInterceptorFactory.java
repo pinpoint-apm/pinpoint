@@ -18,19 +18,22 @@ package com.navercorp.pinpoint.profiler.interceptor.factory;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor0;
 import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor1;
 import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor2;
 import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor3;
 import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor4;
 import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor5;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor0;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor1;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor2;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor3;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor4;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor5;
+import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor0;
 import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor1;
 import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor2;
@@ -38,17 +41,16 @@ import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor3;
 import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor4;
 import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor5;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedInterceptor0;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedInterceptor1;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedInterceptor2;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedInterceptor3;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedInterceptor4;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedInterceptor5;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedStaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
@@ -56,9 +58,9 @@ import com.navercorp.pinpoint.profiler.objectfactory.AutoBindingObjectFactory;
 import com.navercorp.pinpoint.profiler.objectfactory.InterceptorArgumentProvider;
 
 public class AnnotatedInterceptorFactory implements InterceptorFactory {
-    private final PinpointInstrument pluginContext;
+    private final Instrumentor pluginContext;
     
-    public AnnotatedInterceptorFactory(PinpointInstrument pluginContext) {
+    public AnnotatedInterceptorFactory(Instrumentor pluginContext) {
         this.pluginContext = pluginContext;
     }
 
@@ -90,8 +92,8 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
     }
     
     private Interceptor wrapByGroup(Interceptor interceptor, InterceptorGroup group, ExecutionPolicy policy) {
-        if (interceptor instanceof SimpleAroundInterceptor) {
-            return new GroupedSimpleAroundInterceptor((SimpleAroundInterceptor)interceptor, group, policy);
+        if (interceptor instanceof AroundInterceptor) {
+            return new GroupedInterceptor((AroundInterceptor)interceptor, (AroundInterceptor)interceptor, group, policy);
         } else if (interceptor instanceof StaticAroundInterceptor) {
             return new GroupedStaticAroundInterceptor((StaticAroundInterceptor)interceptor, group, policy);
         } else if (interceptor instanceof AroundInterceptor5) {
@@ -130,6 +132,10 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
             return new GroupedInterceptor0((BeforeInterceptor0)interceptor, null, group, policy);
         } else if (interceptor instanceof AfterInterceptor0) {
             return new GroupedInterceptor0(null, (AfterInterceptor0)interceptor, group, policy);
+        } else if (interceptor instanceof BeforeInterceptor) {
+            return new GroupedInterceptor((BeforeInterceptor)interceptor, null, group, policy);
+        } else if (interceptor instanceof AfterInterceptor) {
+            return new GroupedInterceptor(null, (AfterInterceptor)interceptor, group, policy);
         }
         
         throw new IllegalArgumentException("Unexpected interceptor type: " + interceptor.getClass());

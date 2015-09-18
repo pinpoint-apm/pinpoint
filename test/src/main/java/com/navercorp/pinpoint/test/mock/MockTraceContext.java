@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceType;
 public class MockTraceContext implements TraceContext {
 
     private Trace trace;
+    private final ProfilerConfig config = new ProfilerConfig();
 
     public void setTrace(Trace trace) {
         this.trace = trace;
@@ -126,7 +127,7 @@ public class MockTraceContext implements TraceContext {
 
     @Override
     public ProfilerConfig getProfilerConfig() {
-        return null;
+        return config;
     }
 
     @Override

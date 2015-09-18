@@ -21,7 +21,7 @@ import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
@@ -49,7 +49,7 @@ public class CommonsDbcpPlugin implements ProfilerPlugin {
         context.addClassFileTransformer("org.apache.commons.dbcp.PoolingDataSource$PoolGuardConnectionWrapper", new PinpointClassFileTransformer() {
             
             @Override
-            public byte[] transform(PinpointInstrument pluginContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor pluginContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = pluginContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addInterceptor("com.navercorp.pinpoint.plugin.commons.dbcp.interceptor.DataSourceCloseInterceptor");
                 return target.toBytecode();
@@ -61,7 +61,7 @@ public class CommonsDbcpPlugin implements ProfilerPlugin {
         context.addClassFileTransformer("org.apache.commons.dbcp.BasicDataSource", new PinpointClassFileTransformer() {
             
             @Override
-            public byte[] transform(PinpointInstrument pluginContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor pluginContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = pluginContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addInterceptor("com.navercorp.pinpoint.plugin.commons.dbcp.interceptor.DataSourceGetConnectionInterceptor");
                 return target.toBytecode();

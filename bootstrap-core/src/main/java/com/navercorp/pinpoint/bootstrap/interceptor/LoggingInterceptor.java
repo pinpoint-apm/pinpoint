@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 /**
  * @author emeroad
  */
-public class LoggingInterceptor implements StaticAroundInterceptor, SimpleAroundInterceptor, Interceptor {
+public class LoggingInterceptor implements StaticAroundInterceptor, AroundInterceptor {
 
     private final Logger logger;
 
@@ -39,7 +39,7 @@ public class LoggingInterceptor implements StaticAroundInterceptor, SimpleAround
     }
 
     @Override
-    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, String className, String methodName, String parameterDescription, Object result, Throwable throwable, Object[] args) {
         if (logger.isLoggable(Level.FINE)) {
             logger.fine("after " + defaultString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result + " Throwable:" + throwable);
         }
@@ -53,7 +53,7 @@ public class LoggingInterceptor implements StaticAroundInterceptor, SimpleAround
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (logger.isLoggable(Level.FINE)) {
             logger.fine("after " + defaultString(target) + " args:" + Arrays.toString(args) + " result:" + result + " Throwable:" + throwable);
         }

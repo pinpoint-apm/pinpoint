@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -55,7 +55,7 @@ import com.ning.http.client.cookie.Cookie;
  * 
  */
 @TargetMethod(name="executeRequest", paramTypes= { "com.ning.http.client.Request", "com.ning.http.client.AsyncHandler" })
-public class ExecuteRequestInterceptor implements SimpleAroundInterceptor {
+public class ExecuteRequestInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(ExecuteRequestInterceptor.class);
     private final boolean isDebug = logger.isDebugEnabled();
@@ -136,7 +136,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor {
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             // Do not log result
             logger.afterInterceptor(target, args);

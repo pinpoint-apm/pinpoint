@@ -101,7 +101,7 @@ public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
 
     private void appendArguments(CodeBuilder builder) {
         switch (type) {
-        case SIMPLE:
+        case ARRAY_ARGS:
             appendSimpleAfterArguments(builder);
             break;
         case STATIC:
@@ -114,11 +114,11 @@ public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
     }
 
     private void appendSimpleAfterArguments(CodeBuilder builder) {
-        builder.format("%1$s, %2$s, %3$s, %4$s", getTarget(), getArguments(), getReturnValue(), getException());
+        builder.format("%1$s, %2$s, %3$s, %4$s", getTarget(), getReturnValue(), getException(), getArguments());
     }
 
     private void appendStaticAfterArguments(CodeBuilder builder) {
-        builder.format("%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, %6$s, %7$s", getTarget(), targetClass.getName(), targetMethod.getName(), getParameterTypes(), getArguments(), getReturnValue(), getException());
+        builder.format("%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, %6$s, %7$s", getTarget(), targetClass.getName(), targetMethod.getName(), getParameterTypes(), getReturnValue(), getException(), getArguments());
     }
     
     private void appendCustomAfterArguments(CodeBuilder builder) {

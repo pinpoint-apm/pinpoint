@@ -42,7 +42,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
@@ -60,14 +60,14 @@ public class JavassistMethod implements InstrumentMethod {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final PinpointInstrument pluginContext;
+    private final Instrumentor pluginContext;
     private final InterceptorRegistryBinder interceptorRegistryBinder;
 
     private final CtBehavior behavior;
     private final InstrumentClass declaringClass;
     private final MethodDescriptor descriptor;
 
-    public JavassistMethod(PinpointInstrument pluginContext, InterceptorRegistryBinder interceptorRegistryBinder, InstrumentClass declaringClass, CtBehavior behavior) {
+    public JavassistMethod(Instrumentor pluginContext, InterceptorRegistryBinder interceptorRegistryBinder, InstrumentClass declaringClass, CtBehavior behavior) {
         this.pluginContext = pluginContext;
         this.interceptorRegistryBinder = interceptorRegistryBinder;
         this.behavior = behavior;

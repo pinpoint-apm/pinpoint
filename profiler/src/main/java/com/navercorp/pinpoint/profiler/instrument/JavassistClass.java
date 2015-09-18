@@ -41,7 +41,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetFilter;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
@@ -69,7 +69,7 @@ public class JavassistClass implements InstrumentClass {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final PinpointInstrument pluginContext;
+    private final Instrumentor pluginContext;
     // private final JavassistClassPool instrumentClassPool;
     private final InterceptorRegistryBinder interceptorRegistryBinder;
     private final ClassLoader classLoader;
@@ -79,7 +79,7 @@ public class JavassistClass implements InstrumentClass {
     private static final String SETTER_PREFIX = "_$PINPOINT$_set";
     private static final String GETTER_PREFIX = "_$PINPOINT$_get";
 
-    public JavassistClass(PinpointInstrument pluginContext, InterceptorRegistryBinder interceptorRegistryBinder, ClassLoader classLoader, CtClass ctClass) {
+    public JavassistClass(Instrumentor pluginContext, InterceptorRegistryBinder interceptorRegistryBinder, ClassLoader classLoader, CtClass ctClass) {
         this.pluginContext = pluginContext;
         this.ctClass = ctClass;
         this.interceptorRegistryBinder = interceptorRegistryBinder;

@@ -38,7 +38,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
@@ -58,7 +58,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author jaehong.kim
  */
 @Group(HttpClient4Constants.HTTP_CLIENT4_SCOPE)
-public abstract class AbstractHttpClientExecuteMethodInterceptor implements SimpleAroundInterceptor, HttpClient4Constants {
+public abstract class AbstractHttpClientExecuteMethodInterceptor implements AroundInterceptor, HttpClient4Constants {
     protected final PLogger logger;
     protected final boolean isDebug;
 
@@ -121,7 +121,7 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Simp
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args);
         }

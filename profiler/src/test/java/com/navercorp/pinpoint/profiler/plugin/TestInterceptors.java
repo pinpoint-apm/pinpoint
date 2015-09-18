@@ -20,11 +20,11 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 
 public class TestInterceptors {
     
-    private static class AbstractInterceptor implements SimpleAroundInterceptor {
+    private static class AbstractInterceptor implements AroundInterceptor {
         
         @Override
         public void before(Object target, Object[] args) {
@@ -33,7 +33,7 @@ public class TestInterceptors {
         }
         
         @Override
-        public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        public void after(Object target, Object result, Throwable throwable, Object[] args) {
             // TODO Auto-generated method stub
             
         }

@@ -34,7 +34,7 @@ import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.DefaultInterceptorRegistryAdaptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry;
 import com.navercorp.pinpoint.test.util.LoaderUtils;
@@ -81,7 +81,7 @@ public class InterceptorTest {
     //    @Deprecated
 //    @Test
     public void interceptor() throws NotFoundException, CannotCompileException, IllegalAccessException, InstantiationException, IOException, ClassNotFoundException, NoSuchMethodException {
-        SimpleAroundInterceptor aroundInterceptor = new SimpleAroundInterceptor() {
+        AroundInterceptor aroundInterceptor = new AroundInterceptor() {
 
             @Override
             public void before(Object target, Object[] args) {
@@ -89,7 +89,7 @@ public class InterceptorTest {
             }
 
             @Override
-            public void after(Object target, Object[] args, Object result, Throwable throwable) {
+            public void after(Object target, Object result, Throwable throwable, Object[] args) {
                 logger.info("AFTER target: " + target + " args:" + Arrays.toString(args) + " result:" + result + " throwable:" + throwable);
             }
         };
@@ -105,7 +105,7 @@ public class InterceptorTest {
         logger.debug("longName:{}", hello.getLongName());
         logger.debug("name:{}", hello.getName());
 
-        String interceptorClassName = SimpleAroundInterceptor.class.getName();
+        String interceptorClassName = AroundInterceptor.class.getName();
         CtClass interceptor = classPool.get(interceptorClassName);
         hello.addLocalVariable("interceptor", interceptor);
 

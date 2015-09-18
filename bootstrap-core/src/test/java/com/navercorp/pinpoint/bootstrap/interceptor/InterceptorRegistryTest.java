@@ -45,7 +45,7 @@ public class InterceptorRegistryTest {
     @Test
     public void testSimpleInterceptor() throws Exception {
 
-        SimpleAroundInterceptor simpleAroundInterceptor = mock(SimpleAroundInterceptor.class);
+        AroundInterceptor simpleAroundInterceptor = mock(AroundInterceptor.class);
         when(registryAdaptor.getInterceptor(0)).thenReturn(simpleAroundInterceptor);
 
 

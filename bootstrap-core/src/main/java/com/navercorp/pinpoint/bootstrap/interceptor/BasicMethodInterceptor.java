@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author netspider
  * @author emeroad
  */
-public class BasicMethodInterceptor implements SimpleAroundInterceptor {
+public class BasicMethodInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(BasicMethodInterceptor.class);
     private final boolean isDebug = logger.isDebugEnabled();
@@ -64,7 +64,7 @@ public class BasicMethodInterceptor implements SimpleAroundInterceptor {
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args);
         }

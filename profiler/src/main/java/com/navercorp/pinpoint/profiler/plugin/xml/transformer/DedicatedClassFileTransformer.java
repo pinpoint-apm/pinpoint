@@ -20,20 +20,20 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 public class DedicatedClassFileTransformer implements MatchableClassFileTransformer {
-    private final PinpointInstrument context;
+    private final Instrumentor context;
 
     private final String targetClassName;
     private final ClassRecipe recipe;
     
     
-    public DedicatedClassFileTransformer(PinpointInstrument context, String targetClassName, ClassRecipe recipe) {
+    public DedicatedClassFileTransformer(Instrumentor context, String targetClassName, ClassRecipe recipe) {
         this.context = context;
         this.targetClassName = targetClassName;
         this.recipe = recipe;

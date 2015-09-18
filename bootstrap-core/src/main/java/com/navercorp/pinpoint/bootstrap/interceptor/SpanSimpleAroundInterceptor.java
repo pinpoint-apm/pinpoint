@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
  * @author emeroad
  * @author jaehong.kim
  */
-public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterceptor {
+public abstract class SpanSimpleAroundInterceptor implements AroundInterceptor {
     protected final PLogger logger;
     protected final boolean isDebug;
 
@@ -71,7 +71,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
     protected abstract Trace createTrace(final Object target, final Object[] args);
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }

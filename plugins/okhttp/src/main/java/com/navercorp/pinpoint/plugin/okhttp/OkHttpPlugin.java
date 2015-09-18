@@ -53,7 +53,7 @@ public class OkHttpPlugin implements ProfilerPlugin, OkHttpConstants {
         context.addClassFileTransformer("com.squareup.okhttp.Call", new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("execute", "enqueue", "cancel"))) {
@@ -69,7 +69,7 @@ public class OkHttpPlugin implements ProfilerPlugin, OkHttpConstants {
         context.addClassFileTransformer("com.squareup.okhttp.Dispatcher", new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
 
                 for(InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("execute", "cancel"))) {
@@ -91,7 +91,7 @@ public class OkHttpPlugin implements ProfilerPlugin, OkHttpConstants {
         context.addClassFileTransformer("com.squareup.okhttp.Call$AsyncCall", new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(AsyncTraceIdAccessor.class.getName());
 
@@ -110,7 +110,7 @@ public class OkHttpPlugin implements ProfilerPlugin, OkHttpConstants {
         context.addClassFileTransformer("com.squareup.okhttp.internal.http.HttpEngine", new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addGetter(UserRequestGetter.class.getName(), FIELD_USER_REQUEST);
                 target.addGetter(UserResponseGetter.class.getName(), FIELD_USER_RESPONSE);
@@ -144,7 +144,7 @@ public class OkHttpPlugin implements ProfilerPlugin, OkHttpConstants {
         context.addClassFileTransformer("com.squareup.okhttp.Request$Builder", new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addGetter(HttpUrlGetter.class.getName(), FIELD_HTTP_URL);
 

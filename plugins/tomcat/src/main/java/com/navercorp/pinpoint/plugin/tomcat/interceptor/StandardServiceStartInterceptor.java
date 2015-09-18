@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 import org.apache.catalina.util.ServerInfo;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
  * @author emeroad
  * @author hyungil.jeong
  */
-public class StandardServiceStartInterceptor implements SimpleAroundInterceptor {
+public class StandardServiceStartInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -44,7 +44,7 @@ public class StandardServiceStartInterceptor implements SimpleAroundInterceptor 
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }

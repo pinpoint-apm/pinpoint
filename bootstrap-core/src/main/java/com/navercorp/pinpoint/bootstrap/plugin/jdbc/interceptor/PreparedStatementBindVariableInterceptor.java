@@ -48,7 +48,7 @@ public class PreparedStatementBindVariableInterceptor implements StaticAroundInt
     }
 
     @Override
-    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, String className, String methodName, String parameterDescription, Object result, Throwable throwable, Object[] args) {
 
         if (isDebug) {
             logger.afterInterceptor(target, className, methodName, parameterDescription, args, result, throwable);

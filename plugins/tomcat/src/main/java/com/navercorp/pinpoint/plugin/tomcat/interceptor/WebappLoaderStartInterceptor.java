@@ -31,14 +31,14 @@ import org.apache.catalina.Host;
 import org.apache.catalina.loader.WebappLoader;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
  * @author hyungil.jeong
  */
-public class WebappLoaderStartInterceptor implements SimpleAroundInterceptor {
+public class WebappLoaderStartInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     
@@ -54,7 +54,7 @@ public class WebappLoaderStartInterceptor implements SimpleAroundInterceptor {
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         // target should be an instance of WebappLoader.
         if (target instanceof WebappLoader) {
             WebappLoader webappLoader = (WebappLoader)target;

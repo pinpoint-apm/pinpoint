@@ -22,7 +22,7 @@ import redis.clients.jedis.JedisShardInfo;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.redis.EndPointAccessor;
@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.plugin.redis.RedisConstants;
  * @author jaehong.kim
  *
  */
-public class JedisConstructorInterceptor implements SimpleAroundInterceptor, RedisConstants {
+public class JedisConstructorInterceptor implements AroundInterceptor, RedisConstants {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -99,6 +99,6 @@ public class JedisConstructorInterceptor implements SimpleAroundInterceptor, Red
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
     }
 }

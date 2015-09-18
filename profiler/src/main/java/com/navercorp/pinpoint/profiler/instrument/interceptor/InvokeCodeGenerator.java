@@ -17,8 +17,9 @@ package com.navercorp.pinpoint.profiler.instrument.interceptor;
 import java.lang.reflect.Modifier;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorInvokerHelper;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
@@ -38,8 +39,8 @@ public class InvokeCodeGenerator {
         this.targetMethod = targetMethod;
         this.interceptorId = interceptorId;
         
-        if (SimpleAroundInterceptor.class.isAssignableFrom(interceptorClass)) {
-            type = Type.SIMPLE;
+        if (BeforeInterceptor.class.isAssignableFrom(interceptorClass) || AfterInterceptor.class.isAssignableFrom(interceptorClass)) {
+            type = Type.ARRAY_ARGS;
         } else if (StaticAroundInterceptor.class.isAssignableFrom(interceptorClass)) {
             type = Type.STATIC;
         } else {
@@ -48,20 +49,11 @@ public class InvokeCodeGenerator {
     }
 
     protected enum Type {
-        SIMPLE, STATIC, CUSTOM
+        ARRAY_ARGS, STATIC, CUSTOM
     }
 
     protected String getInterceptorType() {
-        switch (type) {
-        case SIMPLE:
-            return SimpleAroundInterceptor.class.getName();
-        case STATIC:
-            return StaticAroundInterceptor.class.getName();
-        case CUSTOM:
-            return interceptorClass.getName();
-        }
-
-        return null;
+        return interceptorClass.getName();
     }
 
     protected String getParameterTypes() {

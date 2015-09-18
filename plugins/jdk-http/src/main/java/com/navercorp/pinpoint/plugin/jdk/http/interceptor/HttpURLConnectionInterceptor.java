@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Targets;
@@ -48,7 +48,7 @@ import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpConstants;
         @TargetMethod(name="getInputStream"),
         @TargetMethod(name="getOutputStream")
 })
-public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, JdkHttpConstants {
+public class HttpURLConnectionInterceptor implements AroundInterceptor, JdkHttpConstants {
     private static final Object TRACE_BLOCK_BEGIN_MARKER = new Object();
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -130,7 +130,7 @@ public class HttpURLConnectionInterceptor implements SimpleAroundInterceptor, Jd
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             // do not log result
             logger.afterInterceptor(target, args);

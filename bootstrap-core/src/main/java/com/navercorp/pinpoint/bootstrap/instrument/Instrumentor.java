@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
  * @author Jongho Moon
  *
  */
-public interface PinpointInstrument {
+public interface Instrumentor {
     public TraceContext getTraceContext();
     
     public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classfileBuffer);
