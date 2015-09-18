@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
-import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
@@ -54,7 +54,7 @@ public class JsonLibPlugin implements ProfilerPlugin, JsonLibConstants {
         context.addClassFileTransformer(clazzName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
                 InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP);
 
@@ -77,7 +77,7 @@ public class JsonLibPlugin implements ProfilerPlugin, JsonLibConstants {
         context.addClassFileTransformer(clazzName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
                 InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP);
 
@@ -103,7 +103,7 @@ public class JsonLibPlugin implements ProfilerPlugin, JsonLibConstants {
         context.addClassFileTransformer(clazzName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
                 InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP);
 

@@ -17,14 +17,14 @@
 package com.navercorp.pinpoint.profiler.plugin.xml.transformer;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 
 public class ConditionalClassRecipe implements ClassRecipe {
-    private final PinpointInstrument context;
+    private final Instrumentor context;
     private final ClassCondition condition;
     private final ClassRecipe delegate;
     
-    public ConditionalClassRecipe(PinpointInstrument context, ClassCondition condition, ClassRecipe delegate) {
+    public ConditionalClassRecipe(Instrumentor context, ClassCondition condition, ClassRecipe delegate) {
         this.context = context;
         this.condition = condition;
         this.delegate = delegate;

@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.ClassFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -49,7 +49,7 @@ public class HttpClientPlugin implements ProfilerPlugin, HttpClientConstants {
         context.addClassFileTransformer("com.google.api.client.http.HttpRequest", new PinpointClassFileTransformer() {
             
             @Override
-            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 
                 InstrumentMethod execute = target.getDeclaredMethod("execute", new String[] {});
@@ -67,7 +67,7 @@ public class HttpClientPlugin implements ProfilerPlugin, HttpClientConstants {
                         logger.debug("Find nested class {}", target.getName());
                         instrumentContext.addClassFileTransformer(loader, nestedClass.getName(), new PinpointClassFileTransformer() {
                             @Override
-                            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                                 target.addField(AsyncTraceIdAccessor.class.getName());
 

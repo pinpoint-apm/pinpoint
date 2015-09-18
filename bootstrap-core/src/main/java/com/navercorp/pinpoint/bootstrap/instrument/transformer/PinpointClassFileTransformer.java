@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.bootstrap.instrument.transformer;
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 
 
 public interface PinpointClassFileTransformer {
-    public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException;
+    public byte[] transform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException;
 }

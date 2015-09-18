@@ -40,7 +40,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
@@ -62,7 +62,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author jaehong.kim
  */
 @Group(value = HttpClient4Constants.HTTP_CLIENT4_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
-public class HttpRequestExecutorExecuteMethodInterceptor implements SimpleAroundInterceptor, HttpClient4Constants {
+public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterceptor, HttpClient4Constants {
     private static final int HTTP_REQUEST_INDEX = 1;
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -189,7 +189,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements SimpleAround
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args);
         }

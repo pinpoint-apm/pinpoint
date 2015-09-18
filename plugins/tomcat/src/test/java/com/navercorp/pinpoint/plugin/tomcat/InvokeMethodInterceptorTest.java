@@ -81,10 +81,10 @@ public class InvokeMethodInterceptorTest {
         StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>());
 
         interceptor.before("target", new Object[]{request, response});
-        interceptor.after("target", new Object[]{request, response}, new Object(), null);
+        interceptor.after("target", new Object(), null, new Object[]{request, response});
 
         interceptor.before("target", new Object[]{request, response});
-        interceptor.after("target", new Object[]{request, response}, new Object(), null);
+        interceptor.after("target", new Object(), null, new Object[]{request, response});
     }
 
     @Test
@@ -103,10 +103,10 @@ public class InvokeMethodInterceptorTest {
         TraceContext traceContext = new MockTraceContext();
         StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>());
         interceptor.before("target",  new Object[]{request, response});
-        interceptor.after("target", new Object[]{request, response}, new Object(), null);
+        interceptor.after("target", new Object(), null, new Object[]{request, response});
 
         interceptor.before("target", new Object[]{request, response});
-        interceptor.after("target", new Object[]{request, response}, new Object(), null);
+        interceptor.after("target", new Object(), null, new Object[]{request, response});
     }
 
     @Test
@@ -126,9 +126,9 @@ public class InvokeMethodInterceptorTest {
         StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>());
 
         interceptor.before("target", new Object[]{request, response});
-        interceptor.after("target", new Object[]{request, response}, new Object(), null);
+        interceptor.after("target", new Object(), null, new Object[]{request, response});
 
         interceptor.before("target", new Object[]{request, response});
-        interceptor.after("target", new Object[]{request, response}, new Object(), null);
+        interceptor.after("target", new Object(), null, new Object[]{request, response});
     }
 }

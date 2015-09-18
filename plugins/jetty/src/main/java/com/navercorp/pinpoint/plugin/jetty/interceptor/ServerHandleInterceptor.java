@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -42,7 +42,7 @@ import com.navercorp.pinpoint.plugin.jetty.JettyConstants;
 import com.navercorp.pinpoint.plugin.jetty.JettySyncMethodDescriptor;
 
 @TargetMethod(name = "handle", paramTypes = { "org.eclipse.jetty.server.HttpChannel" })
-public class ServerHandleInterceptor implements SimpleAroundInterceptor, JettyConstants {
+public class ServerHandleInterceptor implements AroundInterceptor, JettyConstants {
 
     public static final JettySyncMethodDescriptor JETTY_SYNC_API_TAG = new JettySyncMethodDescriptor();
 
@@ -147,7 +147,7 @@ public class ServerHandleInterceptor implements SimpleAroundInterceptor, JettyCo
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }

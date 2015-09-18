@@ -15,7 +15,7 @@
 package com.navercorp.pinpoint.profiler.plugin.xml.transformer;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 
 /**
  * @author Jongho Moon
@@ -65,7 +65,7 @@ public class ClassConditions {
         }
 
         @Override
-        public boolean check(PinpointInstrument context, ClassLoader classLoader, InstrumentClass target) {
+        public boolean check(Instrumentor context, ClassLoader classLoader, InstrumentClass target) {
             return target.hasField(name, type);
         }
 
@@ -85,7 +85,7 @@ public class ClassConditions {
         }
 
         @Override
-        public boolean check(PinpointInstrument context, ClassLoader classLoader, InstrumentClass target) {
+        public boolean check(Instrumentor context, ClassLoader classLoader, InstrumentClass target) {
             return target.hasMethod(name, paramTypes);
         }
 
@@ -116,7 +116,7 @@ public class ClassConditions {
         }
 
         @Override
-        public boolean check(PinpointInstrument context, ClassLoader classLoader, InstrumentClass target) {
+        public boolean check(Instrumentor context, ClassLoader classLoader, InstrumentClass target) {
             return target.hasDeclaredMethod(name, paramTypes);
         }
 
@@ -144,7 +144,7 @@ public class ClassConditions {
         }
 
         @Override
-        public boolean check(PinpointInstrument context, ClassLoader classLoader, InstrumentClass target) {
+        public boolean check(Instrumentor context, ClassLoader classLoader, InstrumentClass target) {
             return !super.check(context, classLoader, target);
         }
     }
@@ -157,7 +157,7 @@ public class ClassConditions {
         }
 
         @Override
-        public boolean check(PinpointInstrument context, ClassLoader classLoader, InstrumentClass target) {
+        public boolean check(Instrumentor context, ClassLoader classLoader, InstrumentClass target) {
             return target.hasConstructor(paramTypes);
         }
 
@@ -184,7 +184,7 @@ public class ClassConditions {
         }
 
         @Override
-        public boolean check(PinpointInstrument context, ClassLoader classLoader, InstrumentClass target) {
+        public boolean check(Instrumentor context, ClassLoader classLoader, InstrumentClass target) {
             return context.exist(classLoader, name);
         }
 

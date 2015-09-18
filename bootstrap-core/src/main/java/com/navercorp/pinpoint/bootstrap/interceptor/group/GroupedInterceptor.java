@@ -16,23 +16,27 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor.group;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
  * @author emeroad
  */
-public class GroupedSimpleAroundInterceptor implements SimpleAroundInterceptor {
+public class GroupedInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final boolean debugEnabled = logger.isDebugEnabled();
 
-    private final SimpleAroundInterceptor delegate;
+    private final BeforeInterceptor before;
+    private final AfterInterceptor after;
     private final InterceptorGroup group;
     private final ExecutionPolicy policy;
 
-    public GroupedSimpleAroundInterceptor(SimpleAroundInterceptor delegate, InterceptorGroup group, ExecutionPolicy policy) {
-        this.delegate = delegate;
+    public GroupedInterceptor(BeforeInterceptor before, AfterInterceptor after, InterceptorGroup group, ExecutionPolicy policy) {
+        this.before = before;
+        this.after = after;
         this.group = group;
         this.policy = policy;
     }
@@ -42,24 +46,28 @@ public class GroupedSimpleAroundInterceptor implements SimpleAroundInterceptor {
         InterceptorGroupInvocation transaction = group.getCurrentInvocation();
         
         if (transaction.tryEnter(policy)) {
-            delegate.before(target, args);
+            if (before != null) {
+                before.before(target, args);
+            }
         } else {
             if (debugEnabled) {
-                logger.debug("tryBefore() returns false: interceptorGroupTransaction: {}, executionPoint: {}. Skip interceptor {}", new Object[] {transaction, policy, delegate.getClass()} );
+                logger.debug("tryBefore() returns false: interceptorGroupTransaction: {}, executionPoint: {}. Skip interceptor {}", new Object[] {transaction, policy, before == null ? null : before.getClass()} );
             }
         }
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         InterceptorGroupInvocation transaction = group.getCurrentInvocation();
         
         if (transaction.canLeave(policy)) {
-            delegate.after(target, args, result, throwable);
+            if (after != null) {
+                after.after(target, result, throwable, args);
+            }
             transaction.leave(policy);
         } else {
             if (debugEnabled) {
-                logger.debug("tryAfter() returns false: interceptorGroupTransaction: {}, executionPoint: {}. Skip interceptor {}", new Object[] {transaction, policy, delegate.getClass()} );
+                logger.debug("tryAfter() returns false: interceptorGroupTransaction: {}, executionPoint: {}. Skip interceptor {}", new Object[] {transaction, policy, after == null ? null : after.getClass()} );
             }
         }
     }

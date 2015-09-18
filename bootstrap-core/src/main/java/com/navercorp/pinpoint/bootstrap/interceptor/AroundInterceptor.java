@@ -19,9 +19,6 @@ package com.navercorp.pinpoint.bootstrap.interceptor;
 /**
  * @author emeroad
  */
-public interface SimpleAroundInterceptor extends Interceptor {
+public interface AroundInterceptor extends BeforeInterceptor, AfterInterceptor {
 
-    void before(Object target, Object[] args);
-
-    void after(Object target, Object[] args, Object result, Throwable throwable);
 }

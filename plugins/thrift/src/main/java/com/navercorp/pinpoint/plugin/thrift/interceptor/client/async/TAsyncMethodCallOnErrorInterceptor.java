@@ -32,8 +32,8 @@ public class TAsyncMethodCallOnErrorInterceptor extends TAsyncMethodCallInternal
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        super.after(target, args, result, throwable);
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
+        super.after(target, result, throwable, args);
 
         // End async trace block
         final Trace trace = super.traceContext.currentTraceObject();

@@ -66,7 +66,7 @@ public class InvokeBeforeCodeGenerator extends InvokeCodeGenerator {
 
     private void appendArguments(CodeBuilder builder) {
         switch (type) {
-        case SIMPLE:
+        case ARRAY_ARGS:
             appendSimpleBeforeArguments(builder);
             break;
         case STATIC:

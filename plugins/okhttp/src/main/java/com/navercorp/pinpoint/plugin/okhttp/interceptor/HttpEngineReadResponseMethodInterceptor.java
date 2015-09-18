@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.plugin.okhttp.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.*;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -33,7 +33,7 @@ import com.squareup.okhttp.Response;
 /**
  * @author jaehong.kim
  */
-public class HttpEngineReadResponseMethodInterceptor implements SimpleAroundInterceptor, OkHttpConstants {
+public class HttpEngineReadResponseMethodInterceptor implements AroundInterceptor, OkHttpConstants {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -87,7 +87,7 @@ public class HttpEngineReadResponseMethodInterceptor implements SimpleAroundInte
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args);
         }

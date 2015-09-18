@@ -56,7 +56,7 @@ public class DefaultInterceptorRegistryAdaptorTest {
 
     @Test
      public void addSimpleInterceptor() {
-        SimpleAroundInterceptor mock = mock(SimpleAroundInterceptor.class);
+        AroundInterceptor mock = mock(AroundInterceptor.class);
 
         InterceptorRegistryAdaptor registry = new DefaultInterceptorRegistryAdaptor();
         int key = registry.addInterceptor(mock);

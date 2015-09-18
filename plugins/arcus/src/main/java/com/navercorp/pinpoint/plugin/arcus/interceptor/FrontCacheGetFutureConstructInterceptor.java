@@ -16,7 +16,7 @@ package com.navercorp.pinpoint.plugin.arcus.interceptor;
 
 import net.sf.ehcache.Element;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.plugin.arcus.CacheNameAccessor;
  * @author harebox
  */
 @TargetConstructor("net.sf.ehcache.Element")
-public class FrontCacheGetFutureConstructInterceptor implements SimpleAroundInterceptor, ArcusConstants {
+public class FrontCacheGetFutureConstructInterceptor implements AroundInterceptor, ArcusConstants {
 
     // TODO This should be extracted from FrontCacheMemcachedClient.
     private static final String DEFAULT_FRONTCACHE_NAME = "front";
@@ -42,7 +42,7 @@ public class FrontCacheGetFutureConstructInterceptor implements SimpleAroundInte
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }

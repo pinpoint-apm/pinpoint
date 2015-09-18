@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
  * @author jaehong.kim
  */
 @Group(value=HttpClient3Constants.HTTP_CLIENT3_METHOD_BASE_SCOPE, executionPolicy=ExecutionPolicy.ALWAYS)
-public class HttpMethodBaseRequestAndResponseMethodInterceptor implements SimpleAroundInterceptor, HttpClient3Constants {
+public class HttpMethodBaseRequestAndResponseMethodInterceptor implements AroundInterceptor, HttpClient3Constants {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -73,7 +73,7 @@ public class HttpMethodBaseRequestAndResponseMethodInterceptor implements Simple
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, methodDescriptor.getClassName(), methodDescriptor.getMethodName(), "", args, result, throwable);
         }

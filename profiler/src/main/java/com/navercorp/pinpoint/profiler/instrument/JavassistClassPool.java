@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
 import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.instrument.classpool.IsolateMultipleClassPool;
 import com.navercorp.pinpoint.profiler.instrument.classpool.MultipleClassPool;
@@ -104,7 +104,7 @@ public class JavassistClassPool implements InstrumentClassPool {
     }
     
     @Override
-    public InstrumentClass getClass(PinpointInstrument pluginContext, ClassLoader classLoader, String jvmInternalClassName, byte[] classFileBuffer) throws NotFoundInstrumentException {
+    public InstrumentClass getClass(Instrumentor pluginContext, ClassLoader classLoader, String jvmInternalClassName, byte[] classFileBuffer) throws NotFoundInstrumentException {
         CtClass cc = getClass(classLoader, jvmInternalClassName);
         return new JavassistClass(pluginContext, interceptorRegistryBinder, classLoader, cc);
     }

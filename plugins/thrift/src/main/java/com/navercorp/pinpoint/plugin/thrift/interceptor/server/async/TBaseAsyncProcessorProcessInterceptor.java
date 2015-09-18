@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
@@ -78,7 +78,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.ServerMarkerFlagField
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor
  */
 @Group(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.BOUNDARY)
-public class TBaseAsyncProcessorProcessInterceptor implements SimpleAroundInterceptor, ThriftConstants {
+public class TBaseAsyncProcessorProcessInterceptor implements AroundInterceptor, ThriftConstants {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -111,7 +111,7 @@ public class TBaseAsyncProcessorProcessInterceptor implements SimpleAroundInterc
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }

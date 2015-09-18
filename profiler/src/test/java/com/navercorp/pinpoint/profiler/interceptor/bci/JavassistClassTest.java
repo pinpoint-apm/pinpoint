@@ -37,7 +37,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.ClassFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -53,8 +53,8 @@ import com.navercorp.pinpoint.test.TestClassLoader;
 /**
  * @author emeroad
  */
-public class JavaAssistClassTest {
-    private Logger logger = LoggerFactory.getLogger(JavaAssistClassTest.class.getName());
+public class JavassistClassTest {
+    private Logger logger = LoggerFactory.getLogger(JavassistClassTest.class.getName());
     
     @Before
     public void clear() {
@@ -136,7 +136,7 @@ public class JavaAssistClassTest {
         loader.addTransformer(javassistClassName, new PinpointClassFileTransformer() {
             
             @Override
-            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 try {
                     logger.info("modify cl:{}", loader);
 
@@ -195,7 +195,7 @@ public class JavaAssistClassTest {
         loader.addTransformer(javassistClassName, new PinpointClassFileTransformer() {
             
             @Override
-            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 try {
                     logger.info("modify className:{} cl:{}", className, classLoader);
 
@@ -266,7 +266,7 @@ public class JavaAssistClassTest {
         loader.addTransformer(testClassObject, new PinpointClassFileTransformer() {
             
             @Override
-            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 try {
                     logger.info("modify cl:{}", classLoader);
                     InstrumentClass aClass = instrumentContext.getInstrumentClass(classLoader, testClassObject, classfileBuffer);
@@ -331,7 +331,7 @@ public class JavaAssistClassTest {
         loader.addTransformer(targetClassName, new PinpointClassFileTransformer() {
             
             @Override
-            public byte[] transform(PinpointInstrument instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 try {
                     logger.info("modify cl:{}", classLoader);
                     InstrumentClass aClass = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);

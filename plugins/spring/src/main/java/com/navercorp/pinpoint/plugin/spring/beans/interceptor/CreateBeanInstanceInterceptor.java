@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.spring.beans.interceptor;
 
 import java.lang.reflect.Method;
 
-import com.navercorp.pinpoint.bootstrap.instrument.PinpointInstrument;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     
-    public CreateBeanInstanceInterceptor(PinpointInstrument instrumentContext, PinpointClassFileTransformer transformer, TargetBeanFilter filter) {
+    public CreateBeanInstanceInterceptor(Instrumentor instrumentContext, PinpointClassFileTransformer transformer, TargetBeanFilter filter) {
         super(instrumentContext, transformer, filter);
     }
 

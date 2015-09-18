@@ -21,7 +21,7 @@ import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.THRIFT_SERVER_SCO
 import org.apache.thrift.ProcessFunction;
 import org.apache.thrift.protocol.TProtocol;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
@@ -50,7 +50,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.ServerMarkerFlagField
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor
  */
 @Group(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
-public class ProcessFunctionProcessInterceptor implements SimpleAroundInterceptor, ThriftConstants {
+public class ProcessFunctionProcessInterceptor implements AroundInterceptor, ThriftConstants {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -88,7 +88,7 @@ public class ProcessFunctionProcessInterceptor implements SimpleAroundIntercepto
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
