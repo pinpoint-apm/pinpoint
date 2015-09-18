@@ -111,6 +111,7 @@ public class ProfilerConfig {
 
     private boolean tomcatHidePinpointHeader = true;
     private Filter<String> tomcatExcludeUrlFilter = new SkipFilter<String>();
+	private Filter<String> tomcatExcludeProfileMethodFilter = new SkipFilter<String>();
 
     private boolean ibatis = true;
 
@@ -118,9 +119,6 @@ public class ProfilerConfig {
 
     private boolean redis = true;
     private boolean redisPipeline = true;
-
-    private boolean tomcatProfileGetParameter = false;
-    private boolean tomcatProfilePostParameter = false;
 
     /**
      * apache http client 3
@@ -292,7 +290,11 @@ public class ProfilerConfig {
         return tomcatExcludeUrlFilter;
     }
 
-    //-----------------------------------------
+	public Filter<String> getTomcatExcludeProfileMethodFilter() {
+		return tomcatExcludeProfileMethodFilter;
+	}
+
+	//-----------------------------------------
     // http apache client 3
 
     public boolean isApacheHttpClient3Profile() {
@@ -387,14 +389,6 @@ public class ProfilerConfig {
         return redisPipeline;
     }
 
-    public boolean isTomcatProfileGetParameter() {
-        return tomcatProfileGetParameter;
-    }
-
-    public boolean isTomcatProfilePostParameter() {
-        return tomcatProfilePostParameter;
-    }
-
     public Filter<String> getProfilableClassFilter() {
         return profilableClassFilter;
     }
@@ -485,8 +479,11 @@ public class ProfilerConfig {
         if (!tomcatExcludeURL.isEmpty()) {
             this.tomcatExcludeUrlFilter = new ExcludeUrlFilter(tomcatExcludeURL);
         }
-        this.tomcatProfileGetParameter = readBoolean("profiler.tomcat.getparameter", false);
-        this.tomcatProfilePostParameter = readBoolean("profiler.tomcat.postparameter", false);
+
+		final String tomcatExcludeProfileMethod = readString("profiler.tomcat.excludemethod", "");
+		if (!tomcatExcludeProfileMethod.isEmpty()) {
+			this.tomcatExcludeProfileMethodFilter = new ExcludeMethodFilter(tomcatExcludeProfileMethod);
+		}
 
         /**
          * apache http client 3
@@ -693,6 +690,8 @@ public class ProfilerConfig {
         builder.append(tomcatHidePinpointHeader);
         builder.append(", tomcatExcludeUrlFilter=");
         builder.append(tomcatExcludeUrlFilter);
+        builder.append(", tomcatExcludeProfileMethodFilter=");
+        builder.append(tomcatExcludeProfileMethodFilter);
         builder.append(", ibatis=");
         builder.append(ibatis);
         builder.append(", mybatis=");

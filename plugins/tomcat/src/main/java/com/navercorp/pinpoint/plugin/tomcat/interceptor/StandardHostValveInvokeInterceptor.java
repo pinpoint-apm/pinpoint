@@ -48,17 +48,16 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
 
     private MethodDescriptor methodDescriptor;
     private TraceContext traceContext;
-    private boolean getParameter;
-    private boolean postParameter;
 
     private Filter<String> excludeUrlFilter;
+	private Filter<String> excludeProfileMethodFilter;
 
     public StandardHostValveInvokeInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter) {
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
         this.excludeUrlFilter = excludeFilter;
-        this.getParameter = traceContext.getProfilerConfig().isTomcatProfileGetParameter();
-        this.postParameter = traceContext.getProfilerConfig().isTomcatProfilePostParameter();
+		this.excludeProfileMethodFilter = traceContext.getProfilerConfig().getTomcatExcludeProfileMethodFilter();
+
         traceContext.cacheApi(SERVLET_ASYNCHRONOUS_API_TAG);
         traceContext.cacheApi(SERVLET_SYNCHRONOUS_API_TAG);
     }
@@ -246,12 +245,7 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             final HttpServletRequest request = (HttpServletRequest) args[0];
 
-            if ("GET".equalsIgnoreCase(request.getMethod()) && getParameter) {
-                final String parameters = getRequestParameter(request, 64, 512);
-                if (parameters != null && parameters.length() > 0) {
-                    recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
-                }
-            } else if ("POST".equalsIgnoreCase(request.getMethod()) && postParameter) {
+            if (!excludeProfileMethodFilter.filter(request.getMethod())) {
                 final String parameters = getRequestParameter(request, 64, 512);
                 if (parameters != null && parameters.length() > 0) {
                     recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
