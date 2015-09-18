@@ -16,13 +16,6 @@
 
 package com.navercorp.pinpoint.test;
 
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.UndeclaredThrowableException;
-
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,8 +34,8 @@ public class TestClassLoaderFactory {
 
     private static final String ATLASSIAN_CLOVER = "com_atlassian_clover.Clover";
 
-    public static TestClassLoader createTestClassLoader(ProfilerConfig profilerConfig, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileTransformer classFileTransformer) {
-        final TestClassLoader testClassLoader = new TestClassLoader(profilerConfig, byteCodeInstrumentor, classFileTransformer);
+    public static TestClassLoader createTestClassLoader(DefaultAgent agent) {
+        final TestClassLoader testClassLoader = new TestClassLoader(agent);
         checkClover(testClassLoader, CENQUA_CLOVER);
         checkClover(testClassLoader, ATLASSIAN_CLOVER);
         return testClassLoader;

@@ -17,12 +17,12 @@
 package com.navercorp.pinpoint.web.filter;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,7 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * 
+ *
  * @author netspider
  * @author emeroad
  */
@@ -44,10 +44,10 @@ public class DefaultFilterBuilder implements FilterBuilder {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private ObjectMapper jsonObjectMapper;
+    private ObjectMapper mapper;
 
     @Autowired
-    private ServiceTypeRegistryService registry;
+    private ServiceTypeRegistryService serviceTypeRegistryService;
 
     @Override
     public Filter build(String filterText) {
@@ -55,14 +55,12 @@ public class DefaultFilterBuilder implements FilterBuilder {
             return Filter.NONE;
         }
 
-        try {
-            filterText = URLDecoder.decode(filterText, "UTF-8");
-            logger.debug("build filter from string. {}", filterText);
-        } catch (Exception e) {
-            throw new IllegalArgumentException(filterText);
-        }
+        filterText = decode(filterText);
+        logger.debug("build filter from string. {}", filterText);
+
         return makeFilterFromJson(filterText);
     }
+
 
     @Override
     public Filter build(String filterText, String filterHint) {
@@ -70,25 +68,29 @@ public class DefaultFilterBuilder implements FilterBuilder {
             return Filter.NONE;
         }
 
-        try {
-            filterText = URLDecoder.decode(filterText, "UTF-8");
-            logger.debug("build filter from string. {}", filterText);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("invalid filter text. " + filterText);
-        }
+        filterText = decode(filterText);
+        logger.debug("build filter from string. {}", filterText);
+
 
         if (!StringUtils.isEmpty(filterHint)) {
-            try {
-                filterHint = URLDecoder.decode(filterHint, "UTF-8");
-                logger.debug("build filter hint from string. {}", filterHint);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("invalid filter hint. " + filterHint);
-            }
+            filterHint = decode(filterHint);
         } else {
             filterHint = FilterHint.EMPTY_JSON;
         }
+        logger.debug("build filter hint from string. {}", filterHint);
 
         return makeFilterFromJson(filterText, filterHint);
+    }
+
+    private String decode(String value) {
+        if (value ==null) {
+            return null;
+        }
+        try {
+            return URLDecoder.decode(value, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException("UTF8 decodeFail. value:" + value);
+        }
     }
 
     private Filter makeFilterFromJson(String jsonFilterText) {
@@ -99,72 +101,45 @@ public class DefaultFilterBuilder implements FilterBuilder {
         if (StringUtils.isEmpty(jsonFilterText)) {
             throw new IllegalArgumentException("json string is empty");
         }
-        FilterChain chain = new FilterChain();
-        try {
-            List<FilterDescriptor> list = jsonObjectMapper.readValue(jsonFilterText, new TypeReference<List<FilterDescriptor>>() {
-            });
 
-            FilterHint hint = jsonObjectMapper.readValue(jsonFilterHint, new TypeReference<FilterHint>() {
-            });
 
-            for (FilterDescriptor descriptor : list) {
-                if (!descriptor.isValid()) {
-                    throw new IllegalArgumentException("invalid json " + jsonFilterText);
-                }
+        final List<FilterDescriptor> filterDescriptorList = readFilterDescriptor(jsonFilterText);
+        final FilterHint hint = readFilterHint(jsonFilterHint);
+        logger.debug("filterHint:{}", hint);
 
-                logger.debug("FilterDescriptor={}", descriptor);
+        List<LinkFilter> linkFilter = createLinkFilter(jsonFilterText, filterDescriptorList, hint);
+        final FilterChain filterChain = new FilterChain(linkFilter);
 
-                FromToResponseFilter fromToResponseFilter = createFromToResponseFilter(descriptor, hint);
-                chain.addFilter(fromToResponseFilter);
+        return filterChain;
+    }
 
-                if (descriptor.isSetUrl()) {
-                    FromToFilter fromToFilter = createFromToFilter(descriptor);
-                    Filter urlPatternFilter = new URLPatternFilter(fromToFilter, descriptor.getUrlPattern());
-                    chain.addFilter(urlPatternFilter);
-                }
+    private List<LinkFilter> createLinkFilter(String jsonFilterText, List<FilterDescriptor> filterDescriptorList, FilterHint hint) {
+        final List<LinkFilter> result = new ArrayList<>();
+        for (FilterDescriptor descriptor : filterDescriptorList) {
+            if (!descriptor.isValid()) {
+                throw new IllegalArgumentException("invalid json " + jsonFilterText);
             }
+
+            logger.debug("FilterDescriptor={}", descriptor);
+            final LinkFilter linkFilter = new LinkFilter(descriptor, hint, serviceTypeRegistryService);
+            result.add(linkFilter);
+        }
+        return result;
+    }
+
+    private FilterHint readFilterHint(String jsonFilterHint) {
+        try {
+            return mapper.readValue(jsonFilterHint, FilterHint.class);
         } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new RuntimeException("FilterHint read fail. error:" + e.getMessage(), e);
         }
-        return chain.get();
     }
 
-    @SuppressWarnings("deprecation")
-    private FromToResponseFilter createFromToResponseFilter(FilterDescriptor descriptor, FilterHint hint) {
-        if (descriptor == null) {
-            throw new NullPointerException("methodDescriptor must not be null");
+    private List<FilterDescriptor> readFilterDescriptor(String jsonFilterText)  {
+        try {
+            return mapper.readValue(jsonFilterText, new TypeReference<List<FilterDescriptor>>() {});
+        } catch (IOException e) {
+            throw new RuntimeException("FilterDescriptor read fail. error:" + e.getMessage(), e);
         }
-        List<ServiceType> fromServiceType = registry.findDesc(descriptor.getFromServiceType());
-        if (fromServiceType == null) {
-            throw new IllegalArgumentException("fromServiceCode not found. fromServiceType:" + descriptor.getFromServiceType());
-        }
-        String fromApplicationName = descriptor.getFromApplicationName();
-        String fromAgentName = descriptor.getFromAgentName();
-
-        List<ServiceType> toServiceType = registry.findDesc(descriptor.getToServiceType());
-        if (toServiceType == null) {
-            throw new IllegalArgumentException("toServiceType not found. fromServiceType:" + descriptor.getToServiceType());
-        }
-        String toApplicationName = descriptor.getToApplicationName();
-        String toAgentName = descriptor.getToAgentName();
-        Long fromResponseTime = descriptor.getResponseFrom();
-        Long toResponseTime = descriptor.getResponseTo();
-        Boolean includeFailed = descriptor.getIncludeException();
-        return new FromToResponseFilter(fromServiceType, fromApplicationName, fromAgentName, toServiceType, toApplicationName, toAgentName,fromResponseTime, toResponseTime, includeFailed, hint, this.registry);
-    }
-
-    @SuppressWarnings("deprecation")
-    private FromToFilter createFromToFilter(FilterDescriptor descriptor) {
-
-        final List<ServiceType> fromServiceTypeList = registry.findDesc(descriptor.getFromServiceType());
-        if (fromServiceTypeList == null) {
-            throw new IllegalArgumentException("fromServiceCode not found. fromServiceType:" + descriptor.getFromServiceType());
-        }
-        final List<ServiceType> toServiceTypeList = registry.findDesc(descriptor.getToServiceType());
-        if (toServiceTypeList == null) {
-            throw new IllegalArgumentException("toServiceTypeList not found. toServiceType:" + descriptor.getToServiceType());
-        }
-
-        return new FromToFilter(fromServiceTypeList, descriptor.getFromApplicationName(), toServiceTypeList, descriptor.getToApplicationName());
     }
 }

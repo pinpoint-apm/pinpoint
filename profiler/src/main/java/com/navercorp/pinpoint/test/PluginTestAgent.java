@@ -52,7 +52,7 @@ import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
-import com.navercorp.pinpoint.profiler.interceptor.DefaultInterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
@@ -661,7 +661,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         
         InstrumentClass ic;
         try {
-            ic = getByteCodeInstrumentor().getClass(clazz.getClassLoader(), clazz.getName(), null);
+            ic = getClassPool().getClass(clazz.getClassLoader(), clazz.getName(), null);
         } catch (InstrumentException e) {
             throw new RuntimeException("Cannot get instrumentClass " + clazz.getName(), e);
         }

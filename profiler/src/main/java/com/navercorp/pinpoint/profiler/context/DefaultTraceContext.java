@@ -17,13 +17,21 @@
 package com.navercorp.pinpoint.profiler.context;
 
 
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.*;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
-import com.navercorp.pinpoint.common.util.SqlParser;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.context.TraceType;
+import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
@@ -32,20 +40,12 @@ import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.metadata.LRUCache;
 import com.navercorp.pinpoint.profiler.metadata.Result;
 import com.navercorp.pinpoint.profiler.metadata.SimpleCache;
-import com.navercorp.pinpoint.profiler.modifier.db.DefaultDatabaseInfo;
-import com.navercorp.pinpoint.profiler.modifier.db.JDBCUrlParser;
 import com.navercorp.pinpoint.profiler.sampler.TrueSampler;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
 import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author emeroad
@@ -69,8 +69,6 @@ public class DefaultTraceContext implements TraceContext {
 
     private final SimpleCache<String> apiCache = new SimpleCache<String>();
     private final SimpleCache<String> stringCache = new SimpleCache<String>();
-
-    private final JDBCUrlParser jdbcUrlParser = new JDBCUrlParser();
 
     private ProfilerConfig profilerConfig;
     
@@ -293,20 +291,6 @@ public class DefaultTraceContext implements TraceContext {
         }
         return isNewValue;
     }
-
-    @Override
-     public DatabaseInfo parseJdbcUrl(final String url) {
-        return this.jdbcUrlParser.parse(url);
-    }
-
-    @Override
-    public DatabaseInfo createDatabaseInfo(ServiceType type, ServiceType executeQueryType, String url, int port, String databaseId) {
-        List<String> host = new ArrayList<String>();
-        host.add(url + ":" + port);
-        DatabaseInfo databaseInfo = new DefaultDatabaseInfo(type, executeQueryType, url, url, host, databaseId);
-        return databaseInfo;
-    }
-
 
     public void setPriorityDataSender(final EnhancedDataSender priorityDataSender) {
         this.priorityDataSender = priorityDataSender;

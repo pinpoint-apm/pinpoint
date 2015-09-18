@@ -246,8 +246,8 @@ public class ServiceType {
     // TOMCAT 1010
     // TOMCAT_METHOD 1011
     
-    // JETTY 1020
-    // JETTY_METHOD 1021
+    // JETTY 1030
+    // JETTY_METHOD 1031
 
     /**
      * Database shown only as xxx_EXECUTE_QUERY at the statistics info section in the server map

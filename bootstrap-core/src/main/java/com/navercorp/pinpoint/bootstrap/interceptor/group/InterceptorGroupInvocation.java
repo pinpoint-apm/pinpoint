@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor.group;
 
-import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
 
 /**
  * 

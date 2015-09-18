@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.common.plugin.PluginLoader;
 import com.navercorp.pinpoint.profiler.DefaultAgent;
+import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.JarProfilerPluginClassInjector;
 
 /**
  * @author Jongho Moon
@@ -52,7 +54,7 @@ public class ProfilerPluginLoader {
                 
                 logger.info("Loading plugin: {}", plugin.getClass().getName());
                 
-                ProfilerPluginClassInjector classInjector = JarProfilerPluginClassInjector.of(agent.getInstrumentation(), agent.getClassPool(), jar);
+                ClassInjector classInjector = JarProfilerPluginClassInjector.of(agent.getInstrumentation(), agent.getClassPool(), jar);
                 DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(agent, classInjector);
                 plugin.setup(context);
                 context.markInitialized();
