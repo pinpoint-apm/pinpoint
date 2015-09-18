@@ -79,7 +79,7 @@ public final class StringUtils {
         }
         if (str.length() > length) {
             StringBuilder buffer = new StringBuilder(length + 10);
-            buffer.append(str.substring(0, length));
+            buffer.append(str, 0, length);
             appendDropMessage(buffer, str.length());
             return buffer.toString();
         } else {
@@ -95,7 +95,7 @@ public final class StringUtils {
             return;
         }
         if (str.length() > length) {
-            builder.append(str.substring(0, length));
+            builder.append(str, 0, length);
             appendDropMessage(builder, str.length());
         } else {
             builder.append(str);
