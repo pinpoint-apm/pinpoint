@@ -2,7 +2,7 @@
 // Adapted from Modernizr
 
 function waitFor(testFx, onReady, timeOutMillis) {
-  var maxtimeOutMillis = timeOutMillis ? timeOutMillis :  5001 //< Default Max Timout is 5s
+  var maxtimeOutMillis = timeOutMillis ? timeOutMillis :  5001 //< Default Max Timeout is 5s
     , start = new Date().getTime()
     , condition = false
     , interval = setInterval(function () {
