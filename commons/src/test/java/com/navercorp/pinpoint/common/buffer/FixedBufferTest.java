@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.common.buffer;
 
 import com.google.common.primitives.Ints;
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -330,15 +328,21 @@ public class FixedBufferTest {
         checkUnsignedByte(0);
     }
 
+    /**
+    * bound 1->0
+    * bound 2->128
+    * bound 3->16384
+    * bound 4->2097152
+    * bound 5->268435456
+    */
     @Test
     public void testPutVar32() throws Exception {
         checkVarInt(Integer.MAX_VALUE, 5);
         checkVarInt(25, 1);
         checkVarInt(100, 1);
 
-        checkVarInt(Integer.MIN_VALUE, 10);
+        checkVarInt(Integer.MIN_VALUE, -1);
 
-        checkVarInt(0, -1);
         checkVarInt(Integer.MAX_VALUE / 2, -1);
         checkVarInt(Integer.MAX_VALUE / 10, -1);
         checkVarInt(Integer.MAX_VALUE / 10000, -1);
@@ -347,10 +351,30 @@ public class FixedBufferTest {
         checkVarInt(Integer.MIN_VALUE / 10, -1);
         checkVarInt(Integer.MIN_VALUE / 10000, -1);
 
+
+        checkVarInt(0, -1);
+        checkVarInt(127, -1);
+        checkVarInt(128, -1);
+        checkVarInt(16383, -1);
+        checkVarInt(16384, -1);
+        checkVarInt(268435455, -1);
+        checkVarInt(268435456, -1);
+
     }
 
     private void checkVarInt(int v, int offset) {
-        Buffer buffer = new FixedBuffer(32);
+        checkVarInt_bufferSize(v, offset, 32);
+        if (v >= 0) {
+            final int bufferSize = BytesUtils.computeVar32Size(v);
+            checkVarInt_bufferSize(v, offset, bufferSize);
+        } else {
+            final int bufferSize = BytesUtils.computeVar64Size(v);
+            checkVarInt_bufferSize(v, offset, bufferSize);
+        }
+    }
+
+    private void checkVarInt_bufferSize(int v, int offset, int bufferSize) {
+        final Buffer buffer = new FixedBuffer(bufferSize);
         buffer.putVar(v);
         if (offset != -1) {
             Assert.assertEquals(buffer.getOffset(), offset);
@@ -474,7 +498,6 @@ public class FixedBufferTest {
 
     @Test
     public void testPutVar64() throws Exception {
-        checkVarLong(0);
         checkVarLong(1);
         checkVarLong(-1);
 
@@ -495,10 +518,26 @@ public class FixedBufferTest {
         checkVarLong(9981);
         checkVarLong(127);
         checkVarLong(-127);
+
+        checkVarLong(0L);
+        checkVarLong(127L);
+        checkVarLong(128L);
+        checkVarLong(16383L);
+        checkVarLong(16384L);
+        checkVarLong(268435455L);
+        checkVarLong(268435456L);
+        checkVarLong(34359738367L);
+        checkVarLong(34359738368L);
     }
 
     private void checkVarLong(long v) {
-        Buffer buffer = new FixedBuffer(32);
+        checkVarLong_bufferSize(v, 32);
+        final int bufferSize = BytesUtils.computeVar64Size(v);
+        checkVarLong_bufferSize(v, bufferSize);
+    }
+
+    private void checkVarLong_bufferSize(long v, int bufferSize) {
+        final Buffer buffer = new FixedBuffer(bufferSize);
         buffer.putVar(v);
 
         buffer.setOffset(0);

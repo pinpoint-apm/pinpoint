@@ -56,6 +56,12 @@ public class AnnotationTranscoderTest {
 
         typeCode(2L);
         typeCode(-22342342L);
+        typeCode(268435455L);
+        typeCode(268435456L);
+        typeCode(34359738367L);
+        typeCode(34359738368L);
+        typeCode(Long.MAX_VALUE);
+        typeCode(Long.MIN_VALUE);
 
         typeCode(3f);
         typeCode(123.3f);

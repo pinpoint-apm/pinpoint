@@ -21,6 +21,8 @@ import static org.junit.Assert.*;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.transport.TMemoryBuffer;
@@ -296,5 +298,113 @@ public class BytesUtilsTest {
             testByte2[i] = (byte) testStr.charAt(i);
         }
         Assert.assertEquals(" YeeYee!", BytesUtils.toStringAndRightTrim(testByte2, 10, 10));
+    }
+
+    /**
+     * bound 1->0
+     * bound 2->128
+     * bound 3->16384
+     * bound 4->2097152
+     * bound 5->268435456
+     */
+//    @Test
+    public void testBoundaryValueVar32() {
+        int boundSize = 0;
+        for (int i =0; i< Integer.MAX_VALUE; i++) {
+            final int size = BytesUtils.computeVar32Size(i);
+            if (size> boundSize) {
+                boundSize = size;
+                logger.debug("bound {}->{}", boundSize, i);
+            }
+
+        }
+    }
+
+    /**
+     * bound 1->0
+     * bound 2->128
+     * bound 3->16384
+     * bound 4->2097152
+     * bound 5->268435456
+     * bound 6->34359738368
+     * bound 7->?
+     * bound 8->?
+     * bound 9->?
+     * bound 10->?
+     */
+//    @Test
+    public void testBoundaryValueVar64() {
+        int boundSize = 0;
+        for (long i =0; i< Long.MAX_VALUE; i++) {
+            final int size = BytesUtils.computeVar64Size(i);
+            if (size> boundSize) {
+                boundSize = size;
+                logger.debug("bound {}->{}", boundSize, i);
+            }
+        }
+    }
+
+    @Test
+    public void testVar32() {
+
+        assertVar32(127);
+        assertVar32(128);
+
+        assertVar32(16383);
+        assertVar32(16384);
+
+        assertVar32(2097151);
+        assertVar32(2097152);
+
+        assertVar32(268435455);
+        assertVar32(268435456);
+        assertVar32(Integer.MAX_VALUE);
+        assertVar32(Integer.MIN_VALUE);
+    }
+
+    private void assertVar32(int value) {
+        final int computeBufferSize = BytesUtils.computeVar32Size(value);
+        final byte[] bytes = new byte[computeBufferSize];
+        BytesUtils.writeVar32(value, bytes, 0);
+
+        final Buffer buffer = new FixedBuffer(bytes);
+        final int varInt = buffer.readVarInt();
+        Assert.assertEquals("check value", value, varInt);
+        Assert.assertEquals("check buffer size", buffer.getOffset(), computeBufferSize);
+    }
+
+    @Test
+    public void testVar64() {
+
+        assertVar64(127);
+        assertVar64(128);
+
+        assertVar64(16383);
+        assertVar64(16384);
+
+        assertVar64(2097151);
+        assertVar64(2097152);
+
+        assertVar64(268435455);
+        assertVar64(268435456);
+
+        assertVar64(34359738367L);
+        assertVar64(34359738368L);
+
+
+        assertVar64(Integer.MAX_VALUE-1);
+        assertVar64(Integer.MAX_VALUE);
+        assertVar64(Integer.MIN_VALUE);
+    }
+
+    private void assertVar64(long value) {
+        final int computeBufferSize = BytesUtils.computeVar64Size(value);
+        final byte[] bytes = new byte[computeBufferSize];
+        BytesUtils.writeVar64(value, bytes, 0);
+
+        final Buffer buffer = new FixedBuffer(bytes);
+        final long varInt = buffer.readVarLong();
+        Assert.assertEquals("check value", value, varInt);
+        Assert.assertEquals("check buffer size", buffer.getOffset(), computeBufferSize);
     }
 }

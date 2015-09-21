@@ -165,13 +165,6 @@ public final class BytesUtils {
         return offset;
     }
 
-    public static byte writeShort1(final short value) {
-        return (byte) (value >> 8);
-    }
-
-    public static byte writeShort2(final short value) {
-        return (byte) (value);
-    }
 
     public static int writeShort(final short value, final byte[] buf, int offset) {
         if (buf == null) {
@@ -227,6 +220,38 @@ public final class BytesUtils {
         }
     }
 
+    public static byte[] intToSVar32(int value) {
+        return intToVar32(intToZigZag(value));
+    }
+
+    public static byte[] intToVar32(int value) {
+        final int bufferSize = BytesUtils.computeVar32Size(value);
+        final byte[] buffer = new byte[bufferSize];
+        writeVar64(value, buffer, 0);
+        return buffer;
+    }
+
+    /**
+     * copy google protocol buffer
+     * https://github.com/google/protobuf/blob/master/java/src/main/java/com/google/protobuf/CodedOutputStream.java
+     */
+    public static int computeVar32Size(final int value) {
+        if ((value & (0xffffffff <<  7)) == 0) return 1;
+        if ((value & (0xffffffff << 14)) == 0) return 2;
+        if ((value & (0xffffffff << 21)) == 0) return 3;
+        if ((value & (0xffffffff << 28)) == 0) return 4;
+        return 5;
+    }
+
+
+    public static int writeSVar64(final int value, final byte[] buf, final int offset) {
+        return writeVar64(longToZigZag(value), buf, offset);
+    }
+
+    /**
+     * copy google protocol buffer
+     * https://github.com/google/protobuf/blob/master/java/src/main/java/com/google/protobuf/CodedOutputStream.java
+     */
     public static int writeVar64(long value, final byte[] buf, int offset) {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
@@ -243,6 +268,34 @@ public final class BytesUtils {
                 value >>>= 7;
             }
         }
+    }
+
+    public static byte[] longToSVar64(long value) {
+        return longToVar64(longToZigZag(value));
+    }
+
+    public static byte[] longToVar64(long value) {
+        final int bufferSize = BytesUtils.computeVar64Size(value);
+        final byte[] buffer = new byte[bufferSize];
+        writeVar64(value, buffer, 0);
+        return buffer;
+    }
+
+    /**
+     * copy google protocol buffer
+     * https://github.com/google/protobuf/blob/master/java/src/main/java/com/google/protobuf/CodedOutputStream.java
+     */
+    public static int computeVar64Size(final long value) {
+        if ((value & (0xffffffffffffffffL <<  7)) == 0) return 1;
+        if ((value & (0xffffffffffffffffL << 14)) == 0) return 2;
+        if ((value & (0xffffffffffffffffL << 21)) == 0) return 3;
+        if ((value & (0xffffffffffffffffL << 28)) == 0) return 4;
+        if ((value & (0xffffffffffffffffL << 35)) == 0) return 5;
+        if ((value & (0xffffffffffffffffL << 42)) == 0) return 6;
+        if ((value & (0xffffffffffffffffL << 49)) == 0) return 7;
+        if ((value & (0xffffffffffffffffL << 56)) == 0) return 8;
+        if ((value & (0xffffffffffffffffL << 63)) == 0) return 9;
+        return 10;
     }
 
 
