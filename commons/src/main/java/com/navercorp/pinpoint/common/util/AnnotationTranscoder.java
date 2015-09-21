@@ -51,6 +51,8 @@ public class AnnotationTranscoder {
     static final byte CODE_INT_STRING = 20;
     static final byte CODE_INT_STRING_STRING = 21;
 
+    private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
+
 
     public Object getMappingValue(TAnnotation annotation) {
         final TAnnotationValue value = annotation.getValue();
@@ -139,20 +141,16 @@ public class AnnotationTranscoder {
             case CODE_STRING:
                 return encodeString((String) o);
             case CODE_INT: {
-                final Buffer buffer = new FixedBuffer(BytesUtils.VINT_MAX_SIZE);
-                buffer.putSVar((Integer)o);
-                return buffer.getBuffer();
+                return BytesUtils.intToSVar32((Integer) o);
             }
             case CODE_BOOLEAN_TRUE: {
-                return new byte[0];
+                return EMPTY_BYTE_ARRAY;
             }
             case CODE_BOOLEAN_FALSE: {
-                return new byte[0];
+                return EMPTY_BYTE_ARRAY;
             }
             case CODE_LONG: {
-                final Buffer buffer = new FixedBuffer(BytesUtils.VLONG_MAX_SIZE);
-                buffer.putSVar((Long)o);
-                return buffer.getBuffer();
+                return BytesUtils.longToSVar64((Long) o);
             }
             case CODE_BYTE: {
                 final byte[] bytes = new byte[1];
@@ -160,17 +158,15 @@ public class AnnotationTranscoder {
                 return bytes;
             }
             case CODE_SHORT: {
-                final Buffer buffer = new FixedBuffer(BytesUtils.VINT_MAX_SIZE);
-                buffer.putSVar((Short) o);
-                return buffer.getBuffer();
+                return BytesUtils.intToSVar32((Short) o);
             }
             case CODE_FLOAT: {
-                final byte[] buffer = new byte[4];
+                final byte[] buffer = new byte[BytesUtils.INT_BYTE_LENGTH];
                 BytesUtils.writeInt(Float.floatToRawIntBits((Float) o), buffer, 0);
                 return buffer;
             }
             case CODE_DOUBLE: {
-                final byte[] buffer = new byte[8];
+                final byte[] buffer = new byte[BytesUtils.LONG_BYTE_LENGTH];
                 BytesUtils.writeLong(Double.doubleToRawLongBits((Double) o), buffer, 0);
                 return buffer;
             }
