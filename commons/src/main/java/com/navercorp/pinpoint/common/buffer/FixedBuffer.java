@@ -246,43 +246,64 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public int readVarInt() {
-        final byte[] buffer = this.buffer;
-        int offset = this.offset;
         // borrowing the protocol buffer's concept of variable-length encoding
-        int result;
-        byte v = buffer[offset++];
-        if (v >= 0) {
-            this.offset = offset;
-            return v;
-        }
-        result = v & 0x7f;
-        if ((v = buffer[offset++]) >= 0) {
-            result |= v << 7;
-        } else {
-            result |= (v & 0x7f) << 7;
-            if ((v = buffer[offset++]) >= 0) {
-                result |= v << 14;
+        // copy https://github.com/google/protobuf 2.6.1
+        // CodedInputStream.java -> int readRawVarint32()
+
+        // See implementation notes for readRawVarint64
+        fastpath: {
+            int pos = this.offset;
+            final int bufferSize = this.buffer.length;
+            if (bufferSize == pos) {
+                break fastpath;
+            }
+
+            final byte[] buffer = this.buffer;
+            int x;
+            if ((x = buffer[pos++]) >= 0) {
+                this.offset = pos;
+                return x;
+            } else if (bufferSize - pos < 9) {
+                break fastpath;
+            } else if ((x ^= (buffer[pos++] << 7)) < 0) {
+                x ^= (~0 << 7);
+            } else if ((x ^= (buffer[pos++] << 14)) >= 0) {
+                x ^= (~0 << 7) ^ (~0 << 14);
+            } else if ((x ^= (buffer[pos++] << 21)) < 0) {
+                x ^= (~0 << 7) ^ (~0 << 14) ^ (~0 << 21);
             } else {
-                result |= (v & 0x7f) << 14;
-                if ((v = buffer[offset++]) >= 0) {
-                    result |= v << 21;
-                } else {
-                    result |= (v & 0x7f) << 21;
-                    result |= (v = buffer[offset++]) << 28;
-                    if (v < 0) {
-                        for (int i = 0; i < 5; i++) {
-                            if (buffer[offset++] >= 0) {
-                                this.offset = offset;
-                                return result;
-                            }
-                        }
-                        throw new IllegalArgumentException("invalid varInt. start offset:" +  this.offset + " readOffset:" + offset);
-                    }
+                int y = buffer[pos++];
+                x ^= y << 28;
+                x ^= (~0 << 7) ^ (~0 << 14) ^ (~0 << 21) ^ (~0 << 28);
+                if (y < 0 &&
+                        buffer[pos++] < 0 &&
+                        buffer[pos++] < 0 &&
+                        buffer[pos++] < 0 &&
+                        buffer[pos++] < 0 &&
+                        buffer[pos++] < 0) {
+                    break fastpath;  // Will throw malformedVarint()
                 }
             }
+            this.offset = pos;
+            return x;
         }
-        this.offset = offset;
-        return result;
+        return (int) readVar64SlowPath();
+    }
+
+    /** Variant of readRawVarint64 for when uncomfortably close to the limit. */
+    /* Visible for testing */
+    long readVar64SlowPath() {
+        int copyOffset = this.offset;
+        long result = 0;
+        for (int shift = 0; shift < 64; shift += 7) {
+            final byte b = this.buffer[copyOffset++];;
+            result |= (long) (b & 0x7F) << shift;
+            if ((b & 0x80) == 0) {
+                this.offset = copyOffset;
+                return result;
+            }
+        }
+        throw new IllegalArgumentException("invalid varLong. start offset:" +  this.offset + " readOffset:" + offset);
     }
 
     public int readSVarInt() {
@@ -309,21 +330,65 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public long readVarLong() {
-        final byte[] buffer = this.buffer;
-        int offset = this.offset;
+        // borrowing the protocol buffer's concept of variable-length encoding
+        // copy https://github.com/google/protobuf 2.6.1
+        // CodedInputStream.java -> long readRawVarint64() throws IOException
 
-        int shift = 0;
-        long result = 0;
-        while (shift < 64) {
-            final byte v = buffer[offset++];
-            result |= (long)(v & 0x7F) << shift;
-            if ((v & 0x80) == 0) {
-                this.offset = offset;
-                return result;
+        // Implementation notes:
+        //
+        // Optimized for one-byte values, expected to be common.
+        // The particular code below was selected from various candidates
+        // empirically, by winning VarintBenchmark.
+        //
+        // Sign extension of (signed) Java bytes is usually a nuisance, but
+        // we exploit it here to more easily obtain the sign of bytes read.
+        // Instead of cleaning up the sign extension bits by masking eagerly,
+        // we delay until we find the final (positive) byte, when we clear all
+        // accumulated bits with one xor.  We depend on javac to constant fold.
+        fastpath: {
+            int pos = offset;
+            int bufferSize = this.buffer.length;
+            if (bufferSize == pos) {
+                break fastpath;
             }
-            shift += 7;
+
+            final byte[] buffer = this.buffer;
+            long x;
+            int y;
+            if ((y = buffer[pos++]) >= 0) {
+                this.offset = pos;
+                return y;
+            } else if (bufferSize - pos < 9) {
+                break fastpath;
+            } else if ((x = y ^ (buffer[pos++] << 7)) < 0L) {
+                x ^= (~0L << 7);
+            } else if ((x ^= (buffer[pos++] << 14)) >= 0L) {
+                x ^= (~0L << 7) ^ (~0L << 14);
+            } else if ((x ^= (buffer[pos++] << 21)) < 0L) {
+                x ^= (~0L << 7) ^ (~0L << 14) ^ (~0L << 21);
+            } else if ((x ^= ((long) buffer[pos++] << 28)) >= 0L) {
+                x ^= (~0L << 7) ^ (~0L << 14) ^ (~0L << 21) ^ (~0L << 28);
+            } else if ((x ^= ((long) buffer[pos++] << 35)) < 0L) {
+                x ^= (~0L << 7) ^ (~0L << 14) ^ (~0L << 21) ^ (~0L << 28) ^ (~0L << 35);
+            } else if ((x ^= ((long) buffer[pos++] << 42)) >= 0L) {
+                x ^= (~0L << 7) ^ (~0L << 14) ^ (~0L << 21) ^ (~0L << 28) ^ (~0L << 35) ^ (~0L << 42);
+            } else if ((x ^= ((long) buffer[pos++] << 49)) < 0L) {
+                x ^= (~0L << 7) ^ (~0L << 14) ^ (~0L << 21) ^ (~0L << 28) ^ (~0L << 35) ^ (~0L << 42)
+                        ^ (~0L << 49);
+            } else {
+                x ^= ((long) buffer[pos++] << 56);
+                x ^= (~0L << 7) ^ (~0L << 14) ^ (~0L << 21) ^ (~0L << 28) ^ (~0L << 35) ^ (~0L << 42)
+                        ^ (~0L << 49) ^ (~0L << 56);
+                if (x < 0L) {
+                    if (buffer[pos++] < 0L) {
+                        break fastpath;  // Will throw malformedVarint()
+                    }
+                }
+            }
+            this.offset = pos;
+            return x;
         }
-        throw new IllegalArgumentException("invalid varLong. start offset:" +  this.offset + " readOffset:" + offset);
+        return readVar64SlowPath();
     }
 
     @Override
