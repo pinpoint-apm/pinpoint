@@ -151,10 +151,10 @@ public class BytesUtilsTest {
     @Test
     public void compactProtocolVint() throws TException {
         TMemoryBuffer tMemoryBuffer = writeVInt32(BytesUtils.zigzagToInt(64));
-        logger.debug("length:{}", tMemoryBuffer.length());
+        logger.trace("length:{}", tMemoryBuffer.length());
 
         TMemoryBuffer tMemoryBuffer2 = writeVInt32(64);
-        logger.debug("length:{}", tMemoryBuffer2.length());
+        logger.trace("length:{}", tMemoryBuffer2.length());
 
     }
 
@@ -248,20 +248,20 @@ public class BytesUtilsTest {
         try {
             BytesUtils.writeLong(1234, null, 0);
             fail("null pointer accessed");
-        } catch (Exception e) {
+        } catch (Exception ignore) {
 
         }
         byte[] such_long = new byte[13];
         try {
             BytesUtils.writeLong(1234, such_long, -1);
             fail("negative offset did not catched");
-        } catch (Exception e) {
+        } catch (Exception ignore) {
 
         }
         try {
             BytesUtils.writeLong(2222, such_long, 9);
             fail("index out of range exception did not catched");
-        } catch (Exception e) {
+        } catch (Exception ignore) {
 
         }
         BytesUtils.writeLong(-1l, such_long, 2);
@@ -272,9 +272,8 @@ public class BytesUtilsTest {
 
     @Test
     public void testTrimRight() {
-        String testStr = new String();
         // no space
-        testStr = "Shout-out! EE!";
+        String testStr = "Shout-out! EE!";
         Assert.assertEquals("Shout-out! EE!", BytesUtils.trimRight(testStr));
         // right spaced
         testStr = "Shout-out! YeeYee!       ";
@@ -283,9 +282,8 @@ public class BytesUtilsTest {
 
     @Test
     public void testByteTrimRight() {
-        String testStr = new String();
         // no space
-        testStr = "Shout-out! EE!";
+        String testStr = "Shout-out! EE!";
         byte[] testByte1 = new byte[testStr.length()];
         for (int i = 0; i < testByte1.length; i++) {
             testByte1[i] = (byte) testStr.charAt(i);
@@ -358,8 +356,17 @@ public class BytesUtilsTest {
 
         assertVar32(268435455);
         assertVar32(268435456);
+        assertVar32(Integer.MAX_VALUE-1);
         assertVar32(Integer.MAX_VALUE);
         assertVar32(Integer.MIN_VALUE);
+        assertVar32(Integer.MIN_VALUE+1);
+
+        assertVar32(-127);
+        assertVar32(-128);
+        assertVar32(-16383);
+        assertVar32(-16384);
+        assertVar32(-268435455);
+        assertVar32(-268435456);
     }
 
     private void assertVar32(int value) {
@@ -371,6 +378,16 @@ public class BytesUtilsTest {
         final int varInt = buffer.readVarInt();
         Assert.assertEquals("check value", value, varInt);
         Assert.assertEquals("check buffer size", buffer.getOffset(), computeBufferSize);
+
+        final int varInt_ByteUtils1 = BytesUtils.bytesToVar32(buffer.getBuffer(), 0);
+        Assert.assertEquals("check value", value, varInt_ByteUtils1);
+
+        final byte[] max_buffer = new byte[BytesUtils.VLONG_MAX_SIZE];
+        BytesUtils.writeVar32(value, max_buffer, 0);
+        final int varInt_ByteUtils2 = BytesUtils.bytesToVar32(max_buffer, 0);
+        Assert.assertEquals("check value", value, varInt_ByteUtils2);
+
+
     }
 
     @Test
@@ -392,9 +409,17 @@ public class BytesUtilsTest {
         assertVar64(34359738368L);
 
 
-        assertVar64(Integer.MAX_VALUE-1);
-        assertVar64(Integer.MAX_VALUE);
-        assertVar64(Integer.MIN_VALUE);
+        assertVar64(Long.MAX_VALUE-1);
+        assertVar64(Long.MAX_VALUE);
+        assertVar64(Long.MIN_VALUE);
+        assertVar64(Long.MIN_VALUE+1);
+
+        assertVar64(-127);
+        assertVar64(-128);
+        assertVar64(-2097151);
+        assertVar64(-2097152);
+        assertVar64(-34359738367L);
+        assertVar64(-34359738368L);
     }
 
     private void assertVar64(long value) {
@@ -403,8 +428,44 @@ public class BytesUtilsTest {
         BytesUtils.writeVar64(value, bytes, 0);
 
         final Buffer buffer = new FixedBuffer(bytes);
-        final long varInt = buffer.readVarLong();
-        Assert.assertEquals("check value", value, varInt);
+        final long varLong = buffer.readVarLong();
+        Assert.assertEquals("check value", value, varLong);
         Assert.assertEquals("check buffer size", buffer.getOffset(), computeBufferSize);
+
+        final long varLong_ByteUtils1 = BytesUtils.bytesToVar64(buffer.getBuffer(), 0);
+        Assert.assertEquals("check value", value, varLong_ByteUtils1);
+
+        final byte[] max_buffer = new byte[BytesUtils.VLONG_MAX_SIZE];
+        BytesUtils.writeVar64(value, max_buffer, 0);
+        final long varLong_ByteUtils2 = BytesUtils.bytesToVar64(max_buffer, 0);
+        Assert.assertEquals("check value", value, varLong_ByteUtils2);
+    }
+
+    @Test
+    public void testCheckBound() {
+        final int bufferSize = 10;
+
+        BytesUtils.checkBound(bufferSize, 0);
+        BytesUtils.checkBound(bufferSize, 2);
+        BytesUtils.checkBound(bufferSize, bufferSize - 1);
+
+        try {
+            BytesUtils.checkBound(bufferSize, bufferSize);
+            Assert.fail("bound check fail");
+        } catch (Exception ignore) {
+        }
+
+        try {
+            BytesUtils.checkBound(bufferSize, -1);
+            Assert.fail("bound check fail");
+        } catch (Exception ignore) {
+        }
+
+        try {
+            BytesUtils.bytesToSVar32(new byte[10], 10);
+            Assert.fail("bound check fail");
+        } catch (Exception e) {
+        }
+
     }
 }
