@@ -72,18 +72,16 @@ public class AnnotationTranscoder {
             case CODE_BOOLEAN_FALSE:
                 return Boolean.FALSE;
             case CODE_INT: {
-                final Buffer buffer = new FixedBuffer(data);
-                return buffer.readSVarInt();
+                return BytesUtils.bytesToSVar32(data, 0);
             }
             case CODE_LONG: {
-                final Buffer buffer = new FixedBuffer(data);
-                return buffer.readSVarLong();
+                return BytesUtils.bytesToSVar64(data, 0);
             }
             case CODE_BYTE:
                 return data[0];
             case CODE_SHORT:
-                final Buffer buffer = new FixedBuffer(data);
-                return (short)buffer.readSVarInt();
+                // need short casting
+                return (short)BytesUtils.bytesToSVar32(data, 0);
             case CODE_FLOAT:
                 return Float.intBitsToFloat(BytesUtils.bytesToInt(data, 0));
             case CODE_DOUBLE:

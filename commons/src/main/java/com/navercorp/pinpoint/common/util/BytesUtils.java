@@ -139,6 +139,141 @@ public final class BytesUtils {
         return v;
     }
 
+
+     public static int bytesToSVar32(final byte[] buffer, final int offset) {
+        return zigzagToInt(bytesToVar32(buffer, offset));
+    }
+
+    public static int bytesToVar32(final byte[] buffer, final int offset) {
+        if (buffer == null) {
+            throw new NullPointerException("buffer must not be null");
+        }
+        checkBound(buffer.length, offset);
+
+        // borrowing the protocol buffer's concept of variable-length encoding
+        // copy https://github.com/google/protobuf 2.6.1
+        // CodedInputStream.java -> int readRawVarint32()
+
+        // See implementation notes for readRawVarint64
+        fastpath: {
+            int pos = offset;
+            final int bufferSize = buffer.length;
+            if (bufferSize == pos) {
+                break fastpath;
+            }
+
+            int x;
+            if ((x = buffer[pos++]) >= 0) {
+                return x;
+            } else if (bufferSize - pos < 9) {
+                break fastpath;
+            } else if ((x ^= (buffer[pos++] << 7)) < 0) {
+                x ^= (~0 << 7);
+            } else if ((x ^= (buffer[pos++] << 14)) >= 0) {
+                x ^= (~0 << 7) ^ (~0 << 14);
+            } else if ((x ^= (buffer[pos++] << 21)) < 0) {
+                x ^= (~0 << 7) ^ (~0 << 14) ^ (~0 << 21);
+            } else {
+                int y = buffer[pos++];
+                x ^= y << 28;
+                x ^= (~0 << 7) ^ (~0 << 14) ^ (~0 << 21) ^ (~0 << 28);
+                if (y < 0 &&
+                        buffer[pos++] < 0 &&
+                        buffer[pos++] < 0 &&
+                        buffer[pos++] < 0 &&
+                        buffer[pos++] < 0 &&
+                        buffer[pos] < 0) {
+                    break fastpath;  // Will throw malformedVarint()
+                }
+            }
+
+            return x;
+        }
+        return (int) readVar64SlowPath(buffer, offset);
+    }
+
+    public static long bytesToSVar64(final byte[] buffer, final int offset) {
+        return zigzagToLong(bytesToVar64(buffer, offset));
+    }
+
+    public static long bytesToVar64(final byte[] buffer, final int offset) {
+        if (buffer == null) {
+            throw new NullPointerException("buffer must not be null");
+        }
+        checkBound(buffer.length, offset);
+        // borrowing the protocol buffer's concept of variable-length encoding
+        // copy https://github.com/google/protobuf 2.6.1
+        // CodedInputStream.java -> int readRawVarint32()
+
+        // Implementation notes:
+        //
+        // Optimized for one-byte values, expected to be common.
+        // The particular code below was selected from various candidates
+        // empirically, by winning VarintBenchmark.
+        //
+        // Sign extension of (signed) Java bytes is usually a nuisance, but
+        // we exploit it here to more easily obtain the sign of bytes read.
+        // Instead of cleaning up the sign extension bits by masking eagerly,
+        // we delay until we find the final (positive) byte, when we clear all
+        // accumulated bits with one xor.  We depend on javac to constant fold.
+        fastpath: {
+            int pos = offset;
+            int bufferSize = buffer.length;
+            if (bufferSize == pos) {
+                break fastpath;
+            }
+
+            long x;
+            int y;
+            if ((y = buffer[pos++]) >= 0) {
+                return y;
+            } else if (bufferSize - pos < 9) {
+                break fastpath;
+            } else if ((x = y ^ (buffer[pos++] << 7)) < 0L) {
+                x ^= (~0L << 7);
+            } else if ((x ^= (buffer[pos++] << 14)) >= 0L) {
+                x ^= (~0L << 7) ^ (~0L << 14);
+            } else if ((x ^= (buffer[pos++] << 21)) < 0L) {
+                x ^= (~0L << 7) ^ (~0L << 14) ^ (~0L << 21);
+            } else if ((x ^= ((long) buffer[pos++] << 28)) >= 0L) {
+                x ^= (~0L << 7) ^ (~0L << 14) ^ (~0L << 21) ^ (~0L << 28);
+            } else if ((x ^= ((long) buffer[pos++] << 35)) < 0L) {
+                x ^= (~0L << 7) ^ (~0L << 14) ^ (~0L << 21) ^ (~0L << 28) ^ (~0L << 35);
+            } else if ((x ^= ((long) buffer[pos++] << 42)) >= 0L) {
+                x ^= (~0L << 7) ^ (~0L << 14) ^ (~0L << 21) ^ (~0L << 28) ^ (~0L << 35) ^ (~0L << 42);
+            } else if ((x ^= ((long) buffer[pos++] << 49)) < 0L) {
+                x ^= (~0L << 7) ^ (~0L << 14) ^ (~0L << 21) ^ (~0L << 28) ^ (~0L << 35) ^ (~0L << 42)
+                        ^ (~0L << 49);
+            } else {
+                x ^= ((long) buffer[pos++] << 56);
+                x ^= (~0L << 7) ^ (~0L << 14) ^ (~0L << 21) ^ (~0L << 28) ^ (~0L << 35) ^ (~0L << 42)
+                        ^ (~0L << 49) ^ (~0L << 56);
+                if (x < 0L) {
+                    if (buffer[pos] < 0L) {
+                        break fastpath;  // Will throw malformedVarint()
+                    }
+                }
+            }
+            return x;
+        }
+        return readVar64SlowPath(buffer, offset);
+    }
+
+    /** Variant of readRawVarint64 for when uncomfortably close to the limit. */
+    /* Visible for testing */
+    static long readVar64SlowPath(final byte[] buffer, int offset) {
+
+        long result = 0;
+        for (int shift = 0; shift < 64; shift += 7) {
+            final byte b = buffer[offset++];;
+            result |= (long) (b & 0x7F) << shift;
+            if ((b & 0x80) == 0) {
+                return result;
+            }
+        }
+        throw new IllegalArgumentException("invalid varLong. start offset:" +  offset + " readOffset:" + offset);
+    }
+
     public static short bytesToShort(final byte byte1, final byte byte2) {
         return (short) (((byte1 & 0xff) << 8) | ((byte2 & 0xff)));
     }
@@ -206,9 +341,7 @@ public final class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
-        if (offset < 0) {
-            throw new IndexOutOfBoundsException("negative offset:" + offset);
-        }
+        checkBound(buf.length, offset);
         while (true) {
             if ((value & ~0x7F) == 0) {
                 buf[offset++] = (byte)value;
@@ -256,9 +389,8 @@ public final class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
-        if (offset < 0) {
-            throw new IndexOutOfBoundsException("negative offset:" + offset);
-        }
+        checkBound(buf.length, offset);
+
         while (true) {
             if ((value & ~0x7FL) == 0) {
                 buf[offset++] = (byte)value;
@@ -267,6 +399,15 @@ public final class BytesUtils {
                 buf[offset++] = (byte)(((int)value & 0x7F) | 0x80);
                 value >>>= 7;
             }
+        }
+    }
+
+    static void checkBound(final int bufferLength, final int offset) {
+        if (offset < 0) {
+            throw new IndexOutOfBoundsException("negative offset:" + offset);
+        }
+        if (offset >= bufferLength) {
+            throw new IndexOutOfBoundsException("invalid offset:" + offset + " bufferLength:" + bufferLength);
         }
     }
 
@@ -345,6 +486,9 @@ public final class BytesUtils {
     }
 
     public static byte[] add(final byte[] preFix, final short postfix) {
+        if (preFix == null) {
+            throw new NullPointerException("preFix must not be null");
+        }
         byte[] buf = new byte[preFix.length + SHORT_BYTE_LENGTH];
         System.arraycopy(preFix, 0, buf, 0, preFix.length);
         writeShort(postfix, buf, preFix.length);
@@ -352,6 +496,9 @@ public final class BytesUtils {
     }
     
     public static byte[] add(final byte[] preFix, final int postfix) {
+        if (preFix == null) {
+            throw new NullPointerException("preFix must not be null");
+        }
         byte[] buf = new byte[preFix.length + INT_BYTE_LENGTH];
         System.arraycopy(preFix, 0, buf, 0, preFix.length);
         writeInt(postfix, buf, preFix.length);
