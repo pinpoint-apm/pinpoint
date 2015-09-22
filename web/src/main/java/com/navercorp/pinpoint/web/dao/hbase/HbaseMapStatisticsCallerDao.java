@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
 
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.client.Scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,22 +62,30 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
     @Autowired
     private RangeFactory rangeFactory;
 
+    @Autowired
+    @Qualifier("statisticsCallerRowKeyDistributor")
+    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+
     @Override
     public LinkDataMap selectCaller(Application callerApplication, Range range) {
         Scan scan = createScan(callerApplication, range);
-        //final List<LinkDataMap> foundList = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, mapStatisticsCallerMapper);
+        //final List<LinkDataMap> linkDataMap = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, mapStatisticsCallerMapper);
 
         final TimeWindow timeWindow = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
         final ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<LinkDataMap>(mapStatisticsCallerMapper, new MapStatisticsTimeWindowReducer(timeWindow));
-        final LinkDataMap foundList = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, resultExtractor);
-        logger.debug("Caller data. {}, {}", foundList, range);
+        //final LinkDataMap linkDataMap = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, resultExtractor);
+        LinkDataMap linkDataMap = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, rowKeyDistributorByHashPrefix, resultExtractor);
+        logger.debug("Caller data. {}, {}", linkDataMap, range);
         
-        if (foundList == null) {
+        if (linkDataMap == null || linkDataMap.size() == 0) {
             logger.debug("There's no caller data. {}, {}", callerApplication, range);
-            return new LinkDataMap();
+            linkDataMap = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, resultExtractor);
+            if(linkDataMap == null) {
+                return new LinkDataMap();
+            }
         }
 
-        return foundList;
+        return linkDataMap;
     }
 
     private LinkDataMap merge(List<LinkDataMap> foundList) {
