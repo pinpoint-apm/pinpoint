@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import com.navercorp.pinpoint.rpc.client.PinpointClient;
+import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.jboss.netty.util.Timer;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -30,9 +32,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.rpc.client.PinpointClientSocketHandshaker;
-import com.navercorp.pinpoint.rpc.client.PinpointSocket;
-import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
+import com.navercorp.pinpoint.rpc.client.PinpointClientHandshaker;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
@@ -64,11 +64,11 @@ public class HandshakeTest {
     public void handshakeTest1() throws InterruptedException {
         PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new AlwaysHandshakeSuccessListener());
 
-        PinpointSocketFactory clientSocketFactory1 = PinpointRPCTestUtils.createSocketFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
-        PinpointSocketFactory clientSocketFactory2 = PinpointRPCTestUtils.createSocketFactory(PinpointRPCTestUtils.getParams(), null);
+        PinpointClientFactory clientFactory1 = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
+        PinpointClientFactory clientFactory2 = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), null);
         try {
-            PinpointSocket socket = clientSocketFactory1.connect("127.0.0.1", bindPort);
-            PinpointSocket socket2 = clientSocketFactory2.connect("127.0.0.1", bindPort);
+            PinpointClient client = clientFactory1.connect("127.0.0.1", bindPort);
+            PinpointClient client2 = clientFactory2.connect("127.0.0.1", bindPort);
 
             Thread.sleep(500);
 
@@ -77,10 +77,10 @@ public class HandshakeTest {
                 Assert.fail();
             }
 
-            PinpointRPCTestUtils.close(socket, socket2);
+            PinpointRPCTestUtils.close(client, client2);
         } finally {
-            clientSocketFactory1.release();
-            clientSocketFactory2.release();
+            clientFactory1.release();
+            clientFactory2.release();
 
             PinpointRPCTestUtils.close(serverAcceptor);
         }
@@ -92,10 +92,10 @@ public class HandshakeTest {
 
         Map params = PinpointRPCTestUtils.getParams();
         
-        PinpointSocketFactory clientSocketFactory1 = PinpointRPCTestUtils.createSocketFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
+        PinpointClientFactory clientFactory1 = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
 
         try {
-            PinpointSocket socket = clientSocketFactory1.connect("127.0.0.1", bindPort);
+            PinpointClient client = clientFactory1.connect("127.0.0.1", bindPort);
             Thread.sleep(500);
 
             PinpointServer writableServer = getWritableServer("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()), serverAcceptor.getWritableServerList());
@@ -104,9 +104,9 @@ public class HandshakeTest {
             writableServer = getWritableServer("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()) + 1, serverAcceptor.getWritableServerList());
             Assert.assertNull(writableServer);
 
-            PinpointRPCTestUtils.close(socket);
+            PinpointRPCTestUtils.close(client);
         } finally {
-            clientSocketFactory1.release();
+            clientFactory1.release();
             PinpointRPCTestUtils.close(serverAcceptor);
         }
     }
@@ -116,7 +116,7 @@ public class HandshakeTest {
         int retryInterval = 100;
         int maxHandshakeCount = 10;
 
-        PinpointClientSocketHandshaker handshaker = new PinpointClientSocketHandshaker(timer, retryInterval, maxHandshakeCount);
+        PinpointClientHandshaker handshaker = new PinpointClientHandshaker(timer, retryInterval, maxHandshakeCount);
         handshaker.handshakeComplete(null);
 
         Assert.assertEquals(null, handshaker.getHandshakeResult());
@@ -129,7 +129,7 @@ public class HandshakeTest {
         int retryInterval = 100;
         int maxHandshakeCount = 10;
 
-        PinpointClientSocketHandshaker handshaker = new PinpointClientSocketHandshaker(timer, retryInterval, maxHandshakeCount);
+        PinpointClientHandshaker handshaker = new PinpointClientHandshaker(timer, retryInterval, maxHandshakeCount);
         handshaker.handshakeAbort();
 
         Assert.assertTrue(handshaker.isFinished());

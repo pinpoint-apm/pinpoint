@@ -22,6 +22,8 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.List;
 
+import com.navercorp.pinpoint.rpc.client.PinpointClient;
+import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.junit.Assert;
 
 import org.apache.curator.test.TestingServer;
@@ -37,8 +39,6 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.client.MessageListener;
-import com.navercorp.pinpoint.rpc.client.PinpointSocket;
-import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.web.config.WebConfig;
@@ -149,8 +149,8 @@ public class ClusterTest {
     public void clusterTest3() throws Exception {
         ts.restart();
 
-        PinpointSocketFactory factory = null;
-        PinpointSocket socket = null;
+        PinpointClientFactory clientFactory = null;
+        PinpointClient client = null;
 
         ZooKeeper zookeeper = null;
         try {
@@ -161,17 +161,17 @@ public class ClusterTest {
 
             Assert.assertEquals(0, socketManager.getCollectorList().size());
 
-            factory = new PinpointSocketFactory();
-            factory.setMessageListener(new SimpleListener());
+            clientFactory = new PinpointClientFactory();
+            clientFactory.setMessageListener(new SimpleListener());
 
-            socket = factory.connect(DEFAULT_IP, acceptorPort);
+            client = clientFactory.connect(DEFAULT_IP, acceptorPort);
 
             Thread.sleep(1000);
 
             Assert.assertEquals(1, socketManager.getCollectorList().size());
 
         } finally {
-            closePinpointSocket(factory, socket);
+            closePinpointSocket(clientFactory, client);
 
             if (zookeeper != null) {
                 zookeeper.close();
@@ -212,13 +212,13 @@ public class ClusterTest {
         }
     }
 
-    private void closePinpointSocket(PinpointSocketFactory factory, PinpointSocket socket) {
-        if (socket != null) {
-            socket.close();
+    private void closePinpointSocket(PinpointClientFactory clientFactory, PinpointClient client) {
+        if (client != null) {
+            client.close();
         }
 
-        if (factory != null) {
-            factory.release();
+        if (clientFactory != null) {
+            clientFactory.release();
         }
     }
 

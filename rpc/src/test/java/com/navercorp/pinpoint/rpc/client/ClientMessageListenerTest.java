@@ -50,10 +50,10 @@ public class ClientMessageListenerTest {
         PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new AlwaysHandshakeSuccessListener());
 
         EchoClientListener echoMessageListener = new EchoClientListener();
-        PinpointSocketFactory clientSocketFactory = PinpointRPCTestUtils.createSocketFactory(PinpointRPCTestUtils.getParams(), echoMessageListener);
+        PinpointClientFactory clientSocketFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), echoMessageListener);
 
         try {
-            PinpointSocket socket = clientSocketFactory.connect("127.0.0.1", bindPort);
+            PinpointClient client = clientSocketFactory.connect("127.0.0.1", bindPort);
             Thread.sleep(500);
 
             List<PinpointServer> writableServerList = serverAcceptor.getWritableServerList();
@@ -65,7 +65,7 @@ public class ClientMessageListenerTest {
             assertSendMessage(writableServer, "simple", echoMessageListener);
             assertRequestMessage(writableServer, "request", echoMessageListener);
 
-            PinpointRPCTestUtils.close(socket);
+            PinpointRPCTestUtils.close(client);
         } finally {
             clientSocketFactory.release();
             PinpointRPCTestUtils.close(serverAcceptor);
@@ -77,14 +77,14 @@ public class ClientMessageListenerTest {
         PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new AlwaysHandshakeSuccessListener());
 
         EchoClientListener echoMessageListener1 = PinpointRPCTestUtils.createEchoClientListener();
-        PinpointSocketFactory clientSocketFactory1 = PinpointRPCTestUtils.createSocketFactory(PinpointRPCTestUtils.getParams(), echoMessageListener1);
+        PinpointClientFactory clientSocketFactory1 = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), echoMessageListener1);
 
         EchoClientListener echoMessageListener2 = PinpointRPCTestUtils.createEchoClientListener();
-        PinpointSocketFactory clientSocketFactory2 = PinpointRPCTestUtils.createSocketFactory(PinpointRPCTestUtils.getParams(), echoMessageListener2);
+        PinpointClientFactory clientSocketFactory2 = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), echoMessageListener2);
 
         try {
-            PinpointSocket socket = clientSocketFactory1.connect("127.0.0.1", bindPort);
-            PinpointSocket socket2 = clientSocketFactory2.connect("127.0.0.1", bindPort);
+            PinpointClient client = clientSocketFactory1.connect("127.0.0.1", bindPort);
+            PinpointClient client2 = clientSocketFactory2.connect("127.0.0.1", bindPort);
 
             Thread.sleep(500);
 
@@ -102,7 +102,7 @@ public class ClientMessageListenerTest {
             Assert.assertEquals(1, echoMessageListener1.getRequestPacketRepository().size());
             Assert.assertEquals(1, echoMessageListener2.getRequestPacketRepository().size());
 
-            PinpointRPCTestUtils.close(socket, socket2);
+            PinpointRPCTestUtils.close(client, client2);
         } finally {
             clientSocketFactory1.release();
             clientSocketFactory2.release();

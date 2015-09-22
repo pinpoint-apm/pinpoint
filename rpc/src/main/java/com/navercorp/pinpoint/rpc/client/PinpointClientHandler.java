@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
  * @author emeroad
  * @author netspider
  */
-public interface SocketHandler {
+public interface PinpointClientHandler {
 
     void setConnectSocketAddress(SocketAddress address);
 
@@ -37,7 +37,7 @@ public interface SocketHandler {
 
     ConnectFuture getConnectFuture();
     
-    void setPinpointSocket(PinpointSocket pinpointSocket);
+    void setPinpointClient(PinpointClient pinpointClient);
 
     void sendSync(byte[] bytes);
 

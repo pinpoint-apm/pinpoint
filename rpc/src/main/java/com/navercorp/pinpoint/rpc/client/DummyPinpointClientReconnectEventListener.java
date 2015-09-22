@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-public interface PinpointSocketReconnectEventListener {
+public class DummyPinpointClientReconnectEventListener implements PinpointClientReconnectEventListener {
 
-    /*
-        there is no event except "reconnect" currently.
-        when additional events are needed, it will be useful to pass with Event
-    */
-    void reconnectPerformed(PinpointSocket socket);
+    @Override
+    public void reconnectPerformed(PinpointClient client) {
+
+    }
 
 }

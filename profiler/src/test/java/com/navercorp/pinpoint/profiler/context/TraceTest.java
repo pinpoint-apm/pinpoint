@@ -17,17 +17,12 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.context.DefaultTrace;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.rpc.client.PinpointSocketReconnectEventListener;
+import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
 import com.navercorp.pinpoint.test.TestAgentInformation;
 
 import org.apache.thrift.TBase;
@@ -104,12 +99,12 @@ public class TraceTest {
         }
 
         @Override
-        public boolean addReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
+        public boolean addReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
             return false;
         }
 
         @Override
-        public boolean removeReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
+        public boolean removeReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
             return false;
         }
 

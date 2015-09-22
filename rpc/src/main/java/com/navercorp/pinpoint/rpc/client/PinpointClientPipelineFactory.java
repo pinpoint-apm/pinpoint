@@ -31,15 +31,15 @@ import java.util.concurrent.TimeUnit;
  * @author emeroad
  * @author koo.taejin
  */
-public class SocketClientPipelineFactory implements ChannelPipelineFactory {
+public class PinpointClientPipelineFactory implements ChannelPipelineFactory {
 
-    private final PinpointSocketFactory pinpointSocketFactory;
+    private final PinpointClientFactory pinpointClientFactory;
 
-    public SocketClientPipelineFactory(PinpointSocketFactory pinpointSocketFactory) {
-        if (pinpointSocketFactory == null) {
-            throw new NullPointerException("pinpointSocketFactory must not be null");
+    public PinpointClientPipelineFactory(PinpointClientFactory pinpointClientFactory) {
+        if (pinpointClientFactory == null) {
+            throw new NullPointerException("pinpointClientFactory must not be null");
         }
-        this.pinpointSocketFactory = pinpointSocketFactory;
+        this.pinpointClientFactory = pinpointClientFactory;
     }
 
 
@@ -49,13 +49,13 @@ public class SocketClientPipelineFactory implements ChannelPipelineFactory {
         pipeline.addLast("encoder", new PacketEncoder());
         pipeline.addLast("decoder", new PacketDecoder());
         
-        long pingDelay = pinpointSocketFactory.getPingDelay();
-        long enableWorkerPacketDelay = pinpointSocketFactory.getEnableWorkerPacketDelay();
-        long timeoutMillis = pinpointSocketFactory.getTimeoutMillis();
+        long pingDelay = pinpointClientFactory.getPingDelay();
+        long enableWorkerPacketDelay = pinpointClientFactory.getEnableWorkerPacketDelay();
+        long timeoutMillis = pinpointClientFactory.getTimeoutMillis();
         
-        PinpointSocketHandler pinpointSocketHandler = new PinpointSocketHandler(pinpointSocketFactory, pingDelay, enableWorkerPacketDelay, timeoutMillis);
-        pipeline.addLast("writeTimeout", new WriteTimeoutHandler(pinpointSocketHandler.getChannelTimer(), 3000, TimeUnit.MILLISECONDS));
-        pipeline.addLast("socketHandler", pinpointSocketHandler);
+        DefaultPinpointClientHandler defaultPinpointClientHandler = new DefaultPinpointClientHandler(pinpointClientFactory, pingDelay, enableWorkerPacketDelay, timeoutMillis);
+        pipeline.addLast("writeTimeout", new WriteTimeoutHandler(defaultPinpointClientHandler.getChannelTimer(), 3000, TimeUnit.MILLISECONDS));
+        pipeline.addLast("socketHandler", defaultPinpointClientHandler);
         
         return pipeline;
     }
