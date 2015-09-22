@@ -27,7 +27,7 @@ CREATE TABLE `puser` (
   `email` VARCHAR(100),
   PRIMARY KEY (`number`)
 );
-ALTER TABLE USER ADD UNIQUE KEY user_id_idx (`user_id`);
+ALTER TABLE puser ADD UNIQUE KEY user_id_idx (`user_id`);
 
 CREATE TABLE `alarm_rule` (
   `rule_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
