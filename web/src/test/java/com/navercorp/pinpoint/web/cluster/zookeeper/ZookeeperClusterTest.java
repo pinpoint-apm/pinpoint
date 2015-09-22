@@ -37,8 +37,8 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.client.MessageListener;
-import com.navercorp.pinpoint.rpc.client.PinpointSocket;
-import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
+import com.navercorp.pinpoint.rpc.client.PinpointClient;
+import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.web.util.PinpointWebTestUtils;
@@ -199,13 +199,13 @@ public class ZookeeperClusterTest {
         }
     }
 
-    private void closePinpointSocket(PinpointSocketFactory factory, PinpointSocket socket) {
-        if (socket != null) {
-            socket.close();
+    private void closeResources(PinpointClientFactory clientFactory, PinpointClient client) {
+        if (client != null) {
+            client.close();
         }
 
-        if (factory != null) {
-            factory.release();
+        if (clientFactory != null) {
+            clientFactory.release();
         }
     }
 

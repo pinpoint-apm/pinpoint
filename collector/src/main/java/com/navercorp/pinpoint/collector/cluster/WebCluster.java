@@ -22,13 +22,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.client.MessageListener;
-import com.navercorp.pinpoint.rpc.client.PinpointSocket;
-import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
+import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
 
@@ -38,24 +38,24 @@ import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
 public class WebCluster implements Cluster {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final PinpointSocketFactory factory;
+    private final PinpointClientFactory clientFactory;
 
-    private final Map<InetSocketAddress, PinpointSocket> clusterRepository = new HashMap<InetSocketAddress, PinpointSocket>();
+    private final Map<InetSocketAddress, PinpointClient> clusterRepository = new HashMap<InetSocketAddress, PinpointClient>();
 
     public WebCluster(String id, MessageListener messageListener) {
         this(id, messageListener, DisabledServerStreamChannelMessageListener.INSTANCE);
     }
 
     public WebCluster(String id, MessageListener messageListener, ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
-        this.factory = new PinpointSocketFactory();
-        this.factory.setTimeoutMillis(1000 * 5);
-        this.factory.setMessageListener(messageListener);
-        this.factory.setServerStreamChannelMessageListener(serverStreamChannelMessageListener);
+        this.clientFactory = new PinpointClientFactory();
+        this.clientFactory.setTimeoutMillis(1000 * 5);
+        this.clientFactory.setMessageListener(messageListener);
+        this.clientFactory.setServerStreamChannelMessageListener(serverStreamChannelMessageListener);
         
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put("id", id);
 
-        factory.setProperties(properties);
+        clientFactory.setProperties(properties);
     }
 
     // Not safe for use by multiple threads.
@@ -67,8 +67,8 @@ public class WebCluster implements Cluster {
             return;
         }
 
-        PinpointSocket socket = createPinpointSocket(address);
-        clusterRepository.put(address, socket);
+        PinpointClient client = createPinpointClient(address);
+        clusterRepository.put(address, client);
 
         logger.info("localhost -> {} connect completed.", address);
     }
@@ -77,7 +77,7 @@ public class WebCluster implements Cluster {
     public void disconnectPoint(InetSocketAddress address) {
         logger.info("localhost -> {} disconnect started.", address);
 
-        PinpointSocket socket = clusterRepository.remove(address);
+        PinpointClient socket = clusterRepository.remove(address);
         if (socket != null) {
             socket.close();
             logger.info("localhost -> {} disconnect completed.", address);
@@ -86,24 +86,24 @@ public class WebCluster implements Cluster {
         }
     }
 
-    private PinpointSocket createPinpointSocket(InetSocketAddress address) {
+    private PinpointClient createPinpointClient(InetSocketAddress address) {
         String host = address.getHostName();
         int port = address.getPort();
 
-        PinpointSocket socket = null;
+        PinpointClient client = null;
         for (int i = 0; i < 3; i++) {
             try {
-                socket = factory.connect(host, port);
+                client = clientFactory.connect(host, port);
                 logger.info("tcp connect success:{}/{}", host, port);
-                return socket;
+                return client;
             } catch (PinpointSocketException e) {
                 logger.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
             }
         }
         logger.warn("change background tcp connect mode  {}/{} ", host, port);
-        socket = factory.scheduledConnect(host, port);
+        client = clientFactory.scheduledConnect(host, port);
 
-        return socket;
+        return client;
     }
 
     public List<InetSocketAddress> getWebClusterList() {
@@ -111,14 +111,14 @@ public class WebCluster implements Cluster {
     }
 
     public void close() {
-        for (PinpointSocket socket : clusterRepository.values()) {
-            if (socket != null) {
-                socket.close();
+        for (PinpointClient client : clusterRepository.values()) {
+            if (client != null) {
+                client.close();
             }
         }
 
-        if (factory != null) {
-            factory.release();
+        if (clientFactory != null) {
+            clientFactory.release();
         }
     }
 

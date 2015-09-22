@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.rpc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.rpc.client.PinpointSocket;
-import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
+import com.navercorp.pinpoint.rpc.client.PinpointClient;
+import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 
 /**
@@ -39,15 +39,15 @@ public final class ClassPreLoader {
 
     public static void preload(int port) {
         PinpointServerAcceptor serverAcceptor = null;
-        PinpointSocket socket = null;
-        PinpointSocketFactory socketFactory = null;
+        PinpointClient client = null;
+        PinpointClientFactory clientFactory = null;
         try {
             serverAcceptor = new PinpointServerAcceptor();
             serverAcceptor.bind("127.0.0.1", port);
 
-            socketFactory = new PinpointSocketFactory();
-            socket = socketFactory.connect("127.0.0.1", port);
-            socket.sendSync(new byte[0]);
+            clientFactory = new PinpointClientFactory();
+            client = clientFactory.connect("127.0.0.1", port);
+            client.sendSync(new byte[0]);
 
 
         } catch (Exception ex) {
@@ -63,17 +63,17 @@ public final class ClassPreLoader {
                 throw new PinpointSocketException(ex.getMessage(), ex);
             }
         } finally {
-            if (socket != null) {
+            if (client != null) {
                 try {
-                    socket.close();
+                    client.close();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
 
-            if(socketFactory != null) {
+            if(clientFactory != null) {
                 try {
-                    socketFactory.release();
+                    clientFactory.release();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

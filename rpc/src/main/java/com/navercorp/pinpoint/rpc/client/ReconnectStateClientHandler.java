@@ -32,7 +32,7 @@ import java.net.SocketAddress;
  * @author emeroad
  * @author netspider
  */
-public class ReconnectStateSocketHandler implements SocketHandler {
+public class ReconnectStateClientHandler implements PinpointClientHandler {
 
     private static final ConnectFuture failedConnectFuture = new ConnectFuture();
     static {
@@ -56,7 +56,7 @@ public class ReconnectStateSocketHandler implements SocketHandler {
     }
     
     @Override
-    public void setPinpointSocket(PinpointSocket pinpointSocket) {
+    public void setPinpointClient(PinpointClient pinpointClient) {
     }
 
     @Override

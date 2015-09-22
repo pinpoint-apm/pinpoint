@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +32,7 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.MessageListener;
-import com.navercorp.pinpoint.rpc.client.PinpointSocket;
-import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
+import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
 import com.navercorp.pinpoint.rpc.packet.PingPacket;
@@ -105,12 +105,12 @@ public final class PinpointRPCTestUtils {
         }
     }
     
-    public static PinpointSocketFactory createSocketFactory(Map param) {
-        return createSocketFactory(param, null);
+    public static PinpointClientFactory createClientFactory(Map param) {
+        return createClientFactory(param, null);
     }
     
-    public static PinpointSocketFactory createSocketFactory(Map param, MessageListener messageListener) {
-        PinpointSocketFactory socketFactory = new PinpointSocketFactory();
+    public static PinpointClientFactory createClientFactory(Map param, MessageListener messageListener) {
+        PinpointClientFactory socketFactory = new PinpointClientFactory();
         socketFactory.setProperties(param);
 
         if (messageListener != null) {
@@ -126,19 +126,19 @@ public final class PinpointRPCTestUtils {
         return future.getResult().getMessage();
     }
 
-    public static byte[] request(PinpointSocket pinpointSocket, byte[] message) {
-        Future<ResponseMessage> future = pinpointSocket.request(message);
+    public static byte[] request(PinpointClient client, byte[] message) {
+        Future<ResponseMessage> future = client.request(message);
         future.await();
         return future.getResult().getMessage();
     }
 
-    public static void close(PinpointSocket socket, PinpointSocket... sockets) {
-        if (socket != null) {
-            socket.close();
+    public static void close(PinpointClient client, PinpointClient... clients) {
+        if (client != null) {
+            client.close();
         }
         
-        if (sockets != null) {
-            for (PinpointSocket eachSocket : sockets) {
+        if (clients != null) {
+            for (PinpointClient eachSocket : clients) {
                 if (eachSocket != null) {
                     eachSocket.close();
                 }

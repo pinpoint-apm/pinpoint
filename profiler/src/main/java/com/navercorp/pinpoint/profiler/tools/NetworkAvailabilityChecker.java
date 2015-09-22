@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.tools;
 
 import java.util.Collections;
 
+import com.navercorp.pinpoint.rpc.client.PinpointClient;
+import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,8 +28,6 @@ import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
-import com.navercorp.pinpoint.rpc.client.PinpointSocket;
-import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
 
 /**
  * 
@@ -50,8 +50,8 @@ public class NetworkAvailabilityChecker implements PinpointTools {
         DataSender udpSpanSender = null;
         DataSender tcpSender = null;
 
-        PinpointSocketFactory socketFactory = null;
-        PinpointSocket socket = null;
+        PinpointClientFactory clientFactory = null;
+        PinpointClient client = null;
         try {
             ProfilerConfig profilerConfig = ProfilerConfig.load(configPath);
 
@@ -65,10 +65,10 @@ public class NetworkAvailabilityChecker implements PinpointTools {
 
             String collectorTcpIp = profilerConfig.getCollectorTcpServerIp();
             int collectorTcpPort = profilerConfig.getCollectorTcpServerPort();
-            socketFactory = createPinpointSocketFactory();
-            socket = createPinpointSocket(collectorTcpIp, collectorTcpPort, socketFactory);
+            clientFactory = createPinpointClientFactory();
+            client = createPinpointClient(collectorTcpIp, collectorTcpPort, clientFactory);
 
-            tcpSender = new TcpDataSender(socket);
+            tcpSender = new TcpDataSender(client);
 
             boolean udpSenderResult = udpStatSender.isNetworkAvailable();
             boolean udpSpanSenderResult = udpSpanSender.isNetworkAvailable();
@@ -89,11 +89,11 @@ public class NetworkAvailabilityChecker implements PinpointTools {
             closeDataSender(tcpSender);
             System.out.println("END.");
 
-            if (socket != null) {
-                socket.close();
+            if (client != null) {
+                client.close();
             }
-            if (socketFactory != null) {
-                socketFactory.release();
+            if (clientFactory != null) {
+                clientFactory.release();
             }
         }
     }
@@ -114,23 +114,22 @@ public class NetworkAvailabilityChecker implements PinpointTools {
         }
     }
     
-    private static PinpointSocketFactory createPinpointSocketFactory() {
-        PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
-        pinpointSocketFactory.setTimeoutMillis(1000 * 5);
-        pinpointSocketFactory.setProperties(Collections.<String, Object>emptyMap());
+    private static PinpointClientFactory createPinpointClientFactory() {
+        PinpointClientFactory pinpointClientFactory = new PinpointClientFactory();
+        pinpointClientFactory.setTimeoutMillis(1000 * 5);
+        pinpointClientFactory.setProperties(Collections.<String, Object>emptyMap());
 
-        return pinpointSocketFactory;
+        return pinpointClientFactory;
     }
 
     
-    private static PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
-
+    private static PinpointClient createPinpointClient(String host, int port, PinpointClientFactory factory) {
         RuntimeException lastException = null;
         for (int i = 0; i < 3; i++) {
             try {
-                PinpointSocket socket = factory.connect(host, port);
+                PinpointClient pinpointClient = factory.connect(host, port);
                 LOGGER.info("tcp connect success:{}/{}", host, port);
-                return socket;
+                return pinpointClient;
             } catch (PinpointSocketException e) {
                 LOGGER.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
                 lastException = e;

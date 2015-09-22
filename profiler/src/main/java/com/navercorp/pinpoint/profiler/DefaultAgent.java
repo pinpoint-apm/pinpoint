@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.profiler;
 
-import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,8 +65,7 @@ import com.navercorp.pinpoint.profiler.util.ApplicationServerTypeResolver;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.rpc.ClassPreLoader;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
-import com.navercorp.pinpoint.rpc.client.PinpointSocket;
-import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
+import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 
 /**
  * @author emeroad
@@ -88,8 +87,8 @@ public class DefaultAgent implements Agent {
 
     private final TraceContext traceContext;
 
-    private PinpointSocketFactory factory;
-    private PinpointSocket socket;
+    private PinpointClientFactory clientFactory;
+    private PinpointClient client;
     private final EnhancedDataSender tcpDataSender;
 
     private final DataSender statDataSender;
@@ -304,48 +303,48 @@ public class DefaultAgent implements Agent {
         return serverMetaDataHolder;
     }
 
-    protected PinpointSocketFactory createPinpointSocketFactory(CommandDispatcher commandDispatcher) {
-        PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
-        pinpointSocketFactory.setTimeoutMillis(1000 * 5);
+    protected PinpointClientFactory createPinpointClientFactory(CommandDispatcher commandDispatcher) {
+        PinpointClientFactory pinpointClientFactory = new PinpointClientFactory();
+        pinpointClientFactory.setTimeoutMillis(1000 * 5);
 
         Map<String, Object> properties = this.agentInformation.toMap();
         
         boolean isSupportServerMode = this.profilerConfig.isTcpDataSenderCommandAcceptEnable();
         
         if (isSupportServerMode) {
-            pinpointSocketFactory.setMessageListener(commandDispatcher);
-            pinpointSocketFactory.setServerStreamChannelMessageListener(commandDispatcher);
+            pinpointClientFactory.setMessageListener(commandDispatcher);
+            pinpointClientFactory.setServerStreamChannelMessageListener(commandDispatcher);
 
             properties.put(AgentHandshakePropertyType.SUPPORT_SERVER.getName(), true);
         } else {
             properties.put(AgentHandshakePropertyType.SUPPORT_SERVER.getName(), false);
         }
 
-        pinpointSocketFactory.setProperties(properties);
-        return pinpointSocketFactory;
+        pinpointClientFactory.setProperties(properties);
+        return pinpointClientFactory;
     }
 
-    protected PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
-        PinpointSocket socket = null;
+    protected PinpointClient createPinpointClient(String host, int port, PinpointClientFactory factory) {
+        PinpointClient client = null;
         for (int i = 0; i < 3; i++) {
             try {
-                socket = factory.connect(host, port);
+                client = factory.connect(host, port);
                 logger.info("tcp connect success:{}/{}", host, port);
-                return socket;
+                return client;
             } catch (PinpointSocketException e) {
                 logger.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
             }
         }
         logger.warn("change background tcp connect mode  {}/{} ", host, port);
-        socket = factory.scheduledConnect(host, port);
+        client = factory.scheduledConnect(host, port);
 
-        return socket;
+        return client;
     }
 
     protected EnhancedDataSender createTcpDataSender(CommandDispatcher commandDispatcher) {
-        this.factory = createPinpointSocketFactory(commandDispatcher);
-        this.socket = createPinpointSocket(this.profilerConfig.getCollectorTcpServerIp(), this.profilerConfig.getCollectorTcpServerPort(), factory);
-        return new TcpDataSender(socket);
+        this.clientFactory = createPinpointClientFactory(commandDispatcher);
+        this.client = createPinpointClient(this.profilerConfig.getCollectorTcpServerIp(), this.profilerConfig.getCollectorTcpServerPort(), clientFactory);
+        return new TcpDataSender(client);
     }
 
     protected DataSender createUdpStatDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
@@ -424,11 +423,11 @@ public class DefaultAgent implements Agent {
         if (this.tcpDataSender != null) {
             this.tcpDataSender.stop();
         }
-        if (this.socket != null) {
-            this.socket.close();
+        if (this.client != null) {
+            this.client.close();
         }
-        if (this.factory != null) {
-            this.factory.release();
+        if (this.clientFactory != null) {
+            this.clientFactory.release();
         }
     }
 
