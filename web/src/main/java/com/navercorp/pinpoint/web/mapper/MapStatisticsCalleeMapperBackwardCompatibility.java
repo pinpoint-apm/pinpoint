@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
@@ -33,7 +33,6 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -42,8 +41,9 @@ import org.springframework.stereotype.Component;
  * @author netspider
  * 
  */
+@Deprecated
 @Component
-public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
+public class MapStatisticsCalleeMapperBackwardCompatibility implements RowMapper<LinkDataMap> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -55,15 +55,11 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
     @Autowired
     private ApplicationFactory applicationFactory;
 
-    @Autowired
-    @Qualifier("statisticsCalleeRowKeyDistributor")
-    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
-
-    public MapStatisticsCalleeMapper() {
+    public MapStatisticsCalleeMapperBackwardCompatibility() {
         this(SkipLinkFilter.FILTER);
     }
 
-    public MapStatisticsCalleeMapper(LinkFilter filter) {
+    public MapStatisticsCalleeMapperBackwardCompatibility(LinkFilter filter) {
         if (filter == null) {
             throw new NullPointerException("filter must not be null");
         }
@@ -77,9 +73,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
         }
         logger.debug("mapRow:{}", rowNum);
 
-        final byte[] rowKey = getOriginalKey(result.getRow());
-
-        final Buffer row = new FixedBuffer(rowKey);
+        final Buffer row = new FixedBuffer(result.getRow());
         final Application calleeApplication = readCalleeApplication(row);
         final long timestamp = TimeUtils.recoveryTimeMillis(row.readLong());
 
@@ -132,9 +126,5 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
         short calleeServiceType = row.readShort();
 
         return this.applicationFactory.createApplication(calleeApplicationName, calleeServiceType);
-    }
-
-    private byte[] getOriginalKey(byte[] rowKey) {
-        return rowKeyDistributorByHashPrefix.getOriginalKey(rowKey);
     }
 }

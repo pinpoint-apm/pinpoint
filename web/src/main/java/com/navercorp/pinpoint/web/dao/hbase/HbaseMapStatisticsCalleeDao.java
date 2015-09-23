@@ -56,6 +56,10 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
     private HbaseOperations2 hbaseOperations2;
 
     @Autowired
+    @Qualifier("mapStatisticsCalleeMapperBackwardCompatibility")
+    private RowMapper<LinkDataMap> mapStatisticsCalleeMapperBackwardCompatibility;
+
+    @Autowired
     @Qualifier("mapStatisticsCalleeMapper")
     private RowMapper<LinkDataMap> mapStatisticsCalleeMapper;
 
@@ -74,17 +78,19 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
-        Scan scan = createScan(calleeApplication, range);
-        //List<LinkDataMap> linkDataMap = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, scan, mapStatisticsCalleeMapper);
+        final Scan scan = createScan(calleeApplication, range);
         final TimeWindow timeWindow = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
-        final ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<LinkDataMap>(mapStatisticsCalleeMapper, new MapStatisticsTimeWindowReducer(timeWindow));
-        //LinkDataMap linkDataMap = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, scan, resultExtractor);
+        // find distributed key.
+        ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<LinkDataMap>(mapStatisticsCalleeMapper, new MapStatisticsTimeWindowReducer(timeWindow));
         LinkDataMap linkDataMap = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, scan, rowKeyDistributorByHashPrefix, resultExtractor);
+        logger.debug("Callee data. {}, {}", linkDataMap, range);
 
         if (linkDataMap == null || linkDataMap.size() ==0) {
-            logger.debug("There's no caller data. {}, {}", calleeApplication, range);
-            // backward compatible
+            logger.debug("There's no callee data. {}, {}", calleeApplication, range);
+            // backward compatibility - non distributed.
+            resultExtractor = new RowMapReduceResultExtractor<LinkDataMap>(mapStatisticsCalleeMapperBackwardCompatibility, new MapStatisticsTimeWindowReducer(timeWindow));
             linkDataMap = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, scan, resultExtractor);
+            logger.debug("Callee data. {}, {}", linkDataMap, range);
             if(linkDataMap == null) {
                 return new LinkDataMap();
             }
@@ -92,17 +98,6 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
         return linkDataMap;
     }
-
-    private LinkDataMap merge(List<LinkDataMap> foundListList) {
-        final LinkDataMap result = new LinkDataMap();
-
-        for (LinkDataMap foundList : foundListList) {
-            result.addLinkDataMap(foundList);
-        }
-
-        return result;
-    }
-
 
     /**
      * statistics information used when a link between nodes is clicked at the server map
@@ -128,7 +123,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
 
         final LinkFilter filter = new DefaultLinkFilter(callerApplication, calleeApplication);
-        RowMapper<LinkDataMap> mapper = new MapStatisticsCalleeMapper(filter);
+        RowMapper<LinkDataMap> mapper = new MapStatisticsCalleeMapperBackwardCompatibility(filter);
         return hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, scan, mapper);
     }
 

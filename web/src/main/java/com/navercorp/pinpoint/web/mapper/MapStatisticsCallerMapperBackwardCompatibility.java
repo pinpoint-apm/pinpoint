@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
+import java.util.*;
+
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
@@ -26,7 +28,7 @@ import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -35,11 +37,8 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
 
 /**
  * rowkey = caller col = callee
@@ -47,8 +46,9 @@ import java.util.Arrays;
  * @author netspider
  * 
  */
+@Deprecated
 @Component
-public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
+public class MapStatisticsCallerMapperBackwardCompatibility implements RowMapper<LinkDataMap> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -60,15 +60,11 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
     @Autowired
     private ApplicationFactory applicationFactory;
 
-    @Autowired
-    @Qualifier("statisticsCallerRowKeyDistributor")
-    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
-
-    public MapStatisticsCallerMapper() {
+    public MapStatisticsCallerMapperBackwardCompatibility() {
         this(SkipLinkFilter.FILTER);
     }
 
-    public MapStatisticsCallerMapper(LinkFilter filter) {
+    public MapStatisticsCallerMapperBackwardCompatibility(LinkFilter filter) {
         if (filter == null) {
             throw new NullPointerException("filter must not be null");
         }
@@ -82,9 +78,7 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
         }
         logger.debug("mapRow:{}", rowNum);
 
-        final byte[] rowKey = getOriginalKey(result.getRow());
-
-        final Buffer row = new FixedBuffer(rowKey);
+        final Buffer row = new FixedBuffer(result.getRow());
         final Application caller = readCallerApplication(row);
         final long timestamp = TimeUtils.recoveryTimeMillis(row.readLong());
 
@@ -174,7 +168,4 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
         return this.applicationFactory.createApplication(callerApplicationName, callerServiceType);
     }
 
-    private byte[] getOriginalKey(byte[] rowKey) {
-        return rowKeyDistributorByHashPrefix.getOriginalKey(rowKey);
-    }
 }
