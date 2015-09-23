@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import org.jboss.netty.channel.Channel;
+import com.navercorp.pinpoint.rpc.MessageListener;
+import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
-import com.navercorp.pinpoint.rpc.packet.SendPacket;
 
 public class SimpleLoggingMessageListener implements MessageListener {
     
@@ -31,14 +30,14 @@ public class SimpleLoggingMessageListener implements MessageListener {
     public static final SimpleLoggingMessageListener LISTENER = new SimpleLoggingMessageListener();
 
     @Override
-    public void handleSend(SendPacket sendPacket, Channel channel) {
-        logger.info("handlerSend {} {}", sendPacket, channel);
+    public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
+        logger.info("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
     }
 
     @Override
-    public void handleRequest(RequestPacket requestPacket, Channel channel) {
-        channel.write(new ResponsePacket(requestPacket.getRequestId(), new byte[0]));
-        logger.info("handlerRequest {} {}", requestPacket, channel);
+    public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
+        logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
+        pinpointSocket.response(requestPacket, new byte[0]);
     }
 
 }

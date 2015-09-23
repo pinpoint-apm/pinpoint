@@ -16,6 +16,20 @@
 
 package com.navercorp.pinpoint.rpc.util;
 
+import com.navercorp.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.MessageListener;
+import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.client.PinpointClient;
+import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+import com.navercorp.pinpoint.rpc.packet.*;
+import com.navercorp.pinpoint.rpc.server.AgentHandshakePropertyType;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
+import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
+import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -23,26 +37,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
-import org.jboss.netty.channel.Channel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.rpc.Future;
-import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.rpc.client.MessageListener;
-import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
-import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.rpc.server.AgentHandshakePropertyType;
-import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 
 public final class PinpointRPCTestUtils {
     
@@ -186,19 +180,19 @@ public final class PinpointRPCTestUtils {
     public static class EchoServerListener implements ServerMessageListener {
         private final List<SendPacket> sendPacketRepository = new ArrayList<SendPacket>();
         private final List<RequestPacket> requestPacketRepository = new ArrayList<RequestPacket>();
-        
+
         @Override
-        public void handleSend(SendPacket sendPacket, PinpointServer pinpointServer) {
+        public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
+            logger.info("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
             sendPacketRepository.add(sendPacket);
         }
 
         @Override
-        public void handleRequest(RequestPacket requestPacket, PinpointServer pinpointServer) {
-            requestPacketRepository.add(requestPacket);
+        public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
+            logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
 
-            logger.info("handlerRequest {}", requestPacket);
-            
-            pinpointServer.response(requestPacket, requestPacket.getPayload());
+            requestPacketRepository.add(requestPacket);
+            pinpointSocket.response(requestPacket, requestPacket.getPayload());
         }
 
         @Override
@@ -218,7 +212,7 @@ public final class PinpointRPCTestUtils {
         private final List<RequestPacket> requestPacketRepository = new ArrayList<RequestPacket>();
 
         @Override
-        public void handleSend(SendPacket sendPacket, Channel channel) {
+        public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
             sendPacketRepository.add(sendPacket);
 
             byte[] payload = sendPacket.getPayload();
@@ -226,13 +220,13 @@ public final class PinpointRPCTestUtils {
         }
 
         @Override
-        public void handleRequest(RequestPacket requestPacket, Channel channel) {
+        public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
             requestPacketRepository.add(requestPacket);
 
             byte[] payload = requestPacket.getPayload();
             logger.debug(new String(payload));
 
-            channel.write(new ResponsePacket(requestPacket.getRequestId(), requestPacket.getPayload()));
+            pinpointSocket.response(requestPacket, payload);
         }
 
         public List<SendPacket> getSendPacketRepository() {

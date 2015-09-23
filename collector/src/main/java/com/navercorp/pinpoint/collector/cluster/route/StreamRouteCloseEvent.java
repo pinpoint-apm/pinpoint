@@ -29,7 +29,7 @@ public class StreamRouteCloseEvent extends DefaultRouteEvent {
     private final ServerStreamChannelContext consumerContext;
 
     public StreamRouteCloseEvent(TCommandTransfer deliveryCommand, ClientStreamChannelContext producerContext, ServerStreamChannelContext consumerContext) {
-        super(deliveryCommand, consumerContext.getStreamChannel().getChannel());
+        super(deliveryCommand, consumerContext.getStreamChannel().getChannel().getRemoteAddress());
 
         this.producerContext = producerContext;
         this.consumerContext = consumerContext;

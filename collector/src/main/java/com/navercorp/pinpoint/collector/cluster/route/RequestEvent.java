@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.collector.cluster.route;
 
-import org.apache.thrift.TBase;
-import org.jboss.netty.channel.Channel;
-
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
+import org.apache.thrift.TBase;
+
+import java.net.SocketAddress;
 
 /**
  * @author koo.taejin
@@ -31,11 +31,11 @@ public class RequestEvent extends DefaultRouteEvent {
     private final TBase requestObject;
 
     public RequestEvent(RouteEvent routeEvent, int requestId, TBase requestObject) {
-        this(routeEvent.getDeliveryCommand(), routeEvent.getSourceChannel(), requestId, requestObject);
+        this(routeEvent.getDeliveryCommand(), routeEvent.getRemoteAddress(), requestId, requestObject);
     }
 
-    public RequestEvent(TCommandTransfer deliveryCommand, Channel sourceChannel, int requestId, TBase requestObject) {
-        super(deliveryCommand, sourceChannel);
+    public RequestEvent(TCommandTransfer deliveryCommand, SocketAddress remoteAddress, int requestId, TBase requestObject) {
+        super(deliveryCommand, remoteAddress);
 
         this.requestId = requestId;
         this.requestObject = requestObject;
@@ -54,7 +54,7 @@ public class RequestEvent extends DefaultRouteEvent {
         final StringBuilder sb = new StringBuilder();
         sb.append(this.getClass().getSimpleName());
         sb.append("{");
-        sb.append("{sourceChannel=").append(getSourceChannel()).append(",");
+        sb.append("{remoteAddress=").append(getRemoteAddress()).append(",");
         sb.append("applicationName=").append(getDeliveryCommand().getApplicationName()).append(",");
         sb.append("agentId=").append(getDeliveryCommand().getAgentId()).append(",");
         sb.append("startTimeStamp=").append(getDeliveryCommand().getStartTime());

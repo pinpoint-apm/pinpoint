@@ -183,7 +183,7 @@ public class DefaultPinpointServer implements PinpointServer {
     }
 
     @Override
-    public Future request(byte[] payload) {
+    public Future<ResponseMessage> request(byte[] payload) {
         AssertUtils.assertNotNull(payload, "payload may not be null.");
         if (!isEnableDuplexCommunication()) {
             throw new IllegalStateException("Request fail. Error: Illegal State. pinpointServer:" + toString());

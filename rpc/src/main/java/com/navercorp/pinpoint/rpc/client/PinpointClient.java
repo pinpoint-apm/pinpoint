@@ -16,20 +16,18 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.rpc.DefaultFuture;
-import com.navercorp.pinpoint.rpc.Future;
-import com.navercorp.pinpoint.rpc.PinpointSocketException;
-import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.*;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
 import com.navercorp.pinpoint.rpc.util.AssertUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.SocketAddress;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 /**
@@ -37,7 +35,7 @@ import com.navercorp.pinpoint.rpc.util.AssertUtils;
  * @author koo.taejin
  * @author netspider
  */
-public class PinpointClient {
+public class PinpointClient implements PinpointSocket {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -110,17 +108,35 @@ public class PinpointClient {
         return pinpointClientHandler.sendAsync(bytes);
     }
 
+    @Override
     public void send(byte[] bytes) {
         ensureOpen();
         pinpointClientHandler.send(bytes);
     }
 
 
+    @Override
     public Future<ResponseMessage> request(byte[] bytes) {
         if (pinpointClientHandler == null) {
             return returnFailureFuture();
         }
         return pinpointClientHandler.request(bytes);
+    }
+
+    @Override
+    public void response(RequestPacket requestPacket, byte[] payload) {
+        response(requestPacket.getRequestId(), payload);
+    }
+
+    @Override
+    public void response(int requestId, byte[] payload) {
+        ensureOpen();
+        pinpointClientHandler.response(requestId, payload);
+    }
+
+    @Override
+    public SocketAddress getRemoteAddress() {
+        return pinpointClientHandler.getRemoteAddress();
     }
 
     public ClientStreamChannelContext createStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {

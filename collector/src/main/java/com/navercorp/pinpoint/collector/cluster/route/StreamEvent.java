@@ -34,7 +34,7 @@ public class StreamEvent extends DefaultRouteEvent {
     }
 
     public StreamEvent(TCommandTransfer deliveryCommand, ServerStreamChannelContext streamChannelContext, TBase requestObject) {
-        super(deliveryCommand, streamChannelContext.getStreamChannel().getChannel());
+        super(deliveryCommand, streamChannelContext.getStreamChannel().getChannel().getRemoteAddress());
 
         this.streamChannelContext = streamChannelContext;
         this.requestObject = requestObject;
@@ -57,7 +57,7 @@ public class StreamEvent extends DefaultRouteEvent {
         final StringBuilder sb = new StringBuilder();
         sb.append(this.getClass().getSimpleName());
         sb.append("{");
-        sb.append("{sourceChannel=").append(getSourceChannel()).append(",");
+        sb.append("{remoteAddress=").append(getRemoteAddress()).append(",");
         sb.append("applicationName=").append(getDeliveryCommand().getApplicationName()).append(",");
         sb.append("agentId=").append(getDeliveryCommand().getAgentId()).append(",");
         sb.append("startTimeStamp=").append(getDeliveryCommand().getStartTime());

@@ -94,6 +94,11 @@ public class ReconnectStateClientHandler implements PinpointClientHandler {
     }
 
     @Override
+    public void response(int requestId, byte[] payload) {
+
+    }
+
+    @Override
     public ClientStreamChannelContext createStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
         throw new UnsupportedOperationException();
     }
@@ -120,6 +125,11 @@ public class ReconnectStateClientHandler implements PinpointClientHandler {
     @Override
     public boolean isSupportServerMode() {
         return false;
+    }
+
+    @Override
+    public SocketAddress getRemoteAddress() {
+        return null;
     }
 
 }

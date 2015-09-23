@@ -14,17 +14,24 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.rpc.server;
+package com.navercorp.pinpoint.rpc;
 
-import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.rpc.server.handler.HandshakerHandler;
-import com.navercorp.pinpoint.rpc.server.handler.PingHandler;
+
+import java.net.SocketAddress;
 
 /**
- * @author emeroad
+ * @Author Taejin Koo
  */
-public interface ServerMessageListener extends MessageListener, HandshakerHandler, PingHandler {
+public interface PinpointSocket {
+
+    void send(byte[] payload);
+
+    Future<ResponseMessage> request(byte[] payload);
+
+    void response(RequestPacket requestPacket, byte[] payload);
+    void response(int requestId, byte[] payload);
+
+    SocketAddress getRemoteAddress();
 
 }

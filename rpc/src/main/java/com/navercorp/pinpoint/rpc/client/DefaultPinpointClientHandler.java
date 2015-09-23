@@ -16,20 +16,17 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import java.net.SocketAddress;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelHandler;
+import com.navercorp.pinpoint.rpc.*;
+import com.navercorp.pinpoint.rpc.client.ConnectFuture.Result;
+import com.navercorp.pinpoint.rpc.common.SocketStateChangeResult;
+import com.navercorp.pinpoint.rpc.common.SocketStateCode;
+import com.navercorp.pinpoint.rpc.packet.*;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
+import com.navercorp.pinpoint.rpc.stream.*;
+import com.navercorp.pinpoint.rpc.util.ClassUtils;
+import com.navercorp.pinpoint.rpc.util.IDGenerator;
+import com.navercorp.pinpoint.rpc.util.TimerFactory;
+import org.jboss.netty.channel.*;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
@@ -37,34 +34,11 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.rpc.ChannelWriteCompleteListenableFuture;
-import com.navercorp.pinpoint.rpc.ChannelWriteFailListenableFuture;
-import com.navercorp.pinpoint.rpc.DefaultFuture;
-import com.navercorp.pinpoint.rpc.Future;
-import com.navercorp.pinpoint.rpc.PinpointSocketException;
-import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.rpc.client.ConnectFuture.Result;
-import com.navercorp.pinpoint.rpc.common.SocketStateChangeResult;
-import com.navercorp.pinpoint.rpc.common.SocketStateCode;
-import com.navercorp.pinpoint.rpc.packet.ClientClosePacket;
-import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.navercorp.pinpoint.rpc.packet.Packet;
-import com.navercorp.pinpoint.rpc.packet.PacketType;
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
-import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
-import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
-import com.navercorp.pinpoint.rpc.util.ClassUtils;
-import com.navercorp.pinpoint.rpc.util.IDGenerator;
-import com.navercorp.pinpoint.rpc.util.TimerFactory;
+import java.net.SocketAddress;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author emeroad
@@ -273,11 +247,13 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         logger.debug("{} sendPing() completed.", objectUniqName);
     }
 
+    @Override
     public void send(byte[] bytes) {
         ChannelFuture future = send0(bytes);
         future.addListener(sendWriteFailFutureListener);
     }
 
+    @Override
     public Future sendAsync(byte[] bytes) {
         ChannelFuture channelFuture = send0(bytes);
         final ChannelWriteCompleteListenableFuture future = new ChannelWriteCompleteListenableFuture(timeoutMillis);
@@ -285,9 +261,26 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         return future ;
     }
 
+    @Override
     public void sendSync(byte[] bytes) {
         ChannelFuture write = send0(bytes);
         await(write);
+    }
+
+    @Override
+    public void response(int requestId, byte[] payload) {
+        if (payload == null) {
+            throw new NullPointerException("bytes");
+        }
+
+        ensureOpen();
+        ResponsePacket response = new ResponsePacket(requestId, payload);
+        write0(response);
+    }
+
+    @Override
+    public SocketAddress getRemoteAddress() {
+        return connectSocketAddress;
     }
 
     private void await(ChannelFuture channelFuture) {
@@ -380,10 +373,10 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
                     return;
                 // have to handle a request message through connector
                 case PacketType.APPLICATION_REQUEST:
-                    this.messageListener.handleRequest((RequestPacket) message, e.getChannel());
+                    this.messageListener.handleRequest((RequestPacket) message, pinpointClient);
                     return;
                 case PacketType.APPLICATION_SEND:
-                    this.messageListener.handleSend((SendPacket) message, e.getChannel());
+                    this.messageListener.handleSend((SendPacket) message, pinpointClient);
                     return;
                 case PacketType.APPLICATION_STREAM_CREATE:
                 case PacketType.APPLICATION_STREAM_CLOSE:
