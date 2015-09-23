@@ -50,11 +50,11 @@ public class GsonPlugin implements ProfilerPlugin {
                 InterceptorGroup group = pluginContext.getInterceptorGroup(GSON_GROUP); 
                 
                 for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("fromJson"))) {
-                    m.addInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.FromJsonInterceptor", group);
+                    m.addGroupedInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.FromJsonInterceptor", group);
                 }
                 
                 for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("toJson"))) {
-                    m.addInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.ToJsonInterceptor", group);
+                    m.addGroupedInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.ToJsonInterceptor", group);
                 }
                 
                 return target.toBytecode();

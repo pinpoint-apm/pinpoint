@@ -53,7 +53,7 @@ public class AnnotatedInterceptorInjector implements MethodRecipe {
 
     int inject(InstrumentMethod targetMethod) throws InstrumentException {
         InterceptorGroup group = groupName == null ? null : pluginContext.getInterceptorGroup(groupName);
-        return targetMethod.addInterceptor(interceptorClassName, group, executionPolicy, providedArguments);
+        return targetMethod.addGroupedInterceptor(interceptorClassName, group, executionPolicy, providedArguments);
     }
 
     @Override

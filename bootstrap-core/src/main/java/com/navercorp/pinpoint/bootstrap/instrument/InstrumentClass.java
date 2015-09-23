@@ -73,11 +73,13 @@ public interface InstrumentClass {
     
     int addInterceptor(String interceptorClassName, Object... constructorArgs) throws InstrumentException;
     
-    int addInterceptor(String interceptorClassName, InterceptorGroup group, Object... constructorArgs) throws InstrumentException;
+    int addInterceptor(MethodFilter filter, String interceptorClassName, Object... constructorArgs) throws InstrumentException;
 
-    int addInterceptor(String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException;
+    int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group, Object... constructorArgs) throws InstrumentException;
+
+    int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException;
     
-    int addInterceptor(MethodFilter filter, String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException;
+    int addGroupedInterceptor(MethodFilter filter, String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException;
 
     /**
      * You should check that class already have Declared method.

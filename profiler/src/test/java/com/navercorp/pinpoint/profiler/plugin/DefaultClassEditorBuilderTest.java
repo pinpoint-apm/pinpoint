@@ -78,7 +78,7 @@ public class DefaultClassEditorBuilderTest {
         
         transformer.transform(classLoader, className, null, null, classFileBuffer);
         
-        verify(aMethod).addInterceptor(eq("com.navercorp.pinpoint.profiler.plugin.TestInterceptor"), (InterceptorGroup)isNull(), (ExecutionPolicy)isNull(), eq("provided"));
+        verify(aMethod).addGroupedInterceptor(eq("com.navercorp.pinpoint.profiler.plugin.TestInterceptor"), (InterceptorGroup)isNull(), (ExecutionPolicy)isNull(), eq("provided"));
         verify(aClass).addField("some.accessor.Type", "new java.util.HashMap();");
         verify(aClass).addGetter("some.getter.Type", "someField");
     }

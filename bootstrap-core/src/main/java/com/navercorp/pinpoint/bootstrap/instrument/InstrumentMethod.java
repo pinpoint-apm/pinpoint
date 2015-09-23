@@ -38,9 +38,9 @@ public interface InstrumentMethod {
     
     int addInterceptor(String interceptorClassName, Object... constructorArgs) throws InstrumentException;
     
-    int addInterceptor(String interceptorClassName, InterceptorGroup group, Object... constructorArgs) throws InstrumentException;
+    int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group, Object... constructorArgs) throws InstrumentException;
 
-    int addInterceptor(String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException;
+    int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException;
     
     void addInterceptor(int interceptorId) throws InstrumentException;
 }

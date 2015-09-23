@@ -122,16 +122,16 @@ public class JavassistMethod implements InstrumentMethod {
 
     @Override
     public int addInterceptor(String interceptorClassName, Object... constructorArgs) throws InstrumentException {
-        return addInterceptor(interceptorClassName, null, null, constructorArgs);
+        return addGroupedInterceptor(interceptorClassName, null, null, constructorArgs);
     }
 
     @Override
-    public int addInterceptor(String interceptorClassName, InterceptorGroup group, Object... constructorArgs) throws InstrumentException {
-        return addInterceptor(interceptorClassName, group, null, constructorArgs);
+    public int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group, Object... constructorArgs) throws InstrumentException {
+        return addGroupedInterceptor(interceptorClassName, group, null, constructorArgs);
     }
 
     @Override
-    public int addInterceptor(String interceptorClassName, InterceptorGroup group, ExecutionPolicy policy, Object... constructorArgs) throws InstrumentException {
+    public int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group, ExecutionPolicy policy, Object... constructorArgs) throws InstrumentException {
         try {
             return addInterceptor0(interceptorClassName, group, policy, constructorArgs);
         } catch (InstrumentException e) {

@@ -21,12 +21,12 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.BeforeInterceptor0;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Targets;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructors;
 
 /**
  * @author minwoo.jung
  */
-@Targets(constructors={
+@TargetConstructors({
         @TargetConstructor({}),
         @TargetConstructor({"java.lang.String", "ch.qos.logback.classic.Logger", "ch.qos.logback.classic.Level", "java.lang.String", "java.lang.Throwable", "java.lang.Object[]"})
 })
