@@ -22,9 +22,10 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetConstructors;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetFilter;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Targets;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
 import com.navercorp.pinpoint.exception.PinpointException;
@@ -74,19 +75,17 @@ public class TargetAnnotatedInterceptorInjector implements ClassRecipe {
     private ClassRecipe createMethodEditor(ClassLoader classLoader, Class<?> interceptorType, InstrumentClass targetClass, AnnotatedInterceptorInjector injector) {
         List<MethodTransformer> editors = new ArrayList<MethodTransformer>();
         
-        Targets targets = interceptorType.getAnnotation(Targets.class);
-        
-        if (targets != null) {
-            for (TargetMethod m : targets.methods()) {
+        TargetMethods targetMethods = interceptorType.getAnnotation(TargetMethods.class);
+        if (targetMethods != null) {
+            for (TargetMethod m : targetMethods.value()) {
                 editors.add(createDedicatedMethodEditor(m, injector));
             }
-            
-            for (TargetConstructor c : targets.constructors()) {
+        }
+
+        TargetConstructors targetConstructors = interceptorType.getAnnotation(TargetConstructors.class);
+        if (targetConstructors != null) {
+            for (TargetConstructor c : targetConstructors.value()) {
                 editors.add(createConstructorEditor(c, injector));
-            }
-            
-            for (TargetFilter f : targets.filters()) {
-                editors.add(createFilteredMethodEditor(f, targetClass, injector, classLoader));
             }
         }
 

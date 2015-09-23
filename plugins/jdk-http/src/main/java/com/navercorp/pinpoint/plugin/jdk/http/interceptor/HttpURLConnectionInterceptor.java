@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Targets;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -43,7 +43,7 @@ import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpConstants;
  * @author emeroad
  */
 @Group("HttpURLConnection")
-@Targets(methods={
+@TargetMethods({
         @TargetMethod(name="connect"),
         @TargetMethod(name="getInputStream"),
         @TargetMethod(name="getOutputStream")

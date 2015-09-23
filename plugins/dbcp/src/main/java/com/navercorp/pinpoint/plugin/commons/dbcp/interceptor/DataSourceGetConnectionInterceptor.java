@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Targets;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
 import com.navercorp.pinpoint.plugin.commons.dbcp.CommonsDbcpPlugin;
 
 /**
@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.plugin.commons.dbcp.CommonsDbcpPlugin;
  * @author emeroad
  */
 @Group(CommonsDbcpPlugin.DBCP_GROUP)
-@Targets(methods={
+@TargetMethods({
         @TargetMethod(name="getConnection"),
         @TargetMethod(name="getConnection", paramTypes={"java.lang.String", "java.lang.String"})
 })

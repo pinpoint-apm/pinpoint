@@ -94,7 +94,7 @@ public class IBatisPlugin implements ProfilerPlugin {
                 final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(methodFilter);
                 for (InstrumentMethod methodToTrace : methodsToTrace) {
                     String sqlMapOperationInterceptor = "com.navercorp.pinpoint.plugin.ibatis.interceptor.SqlMapOperationInterceptor";
-                    methodToTrace.addInterceptor(sqlMapOperationInterceptor, group, ExecutionPolicy.BOUNDARY,
+                    methodToTrace.addGroupedInterceptor(sqlMapOperationInterceptor, group, ExecutionPolicy.BOUNDARY,
                             serviceType);
                 }
 

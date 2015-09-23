@@ -27,19 +27,6 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface Targets {
-    /**
-     * target methods
-     */
-    TargetMethod[] methods() default {};
-    
-    /**
-     * target constructors
-     */
-    TargetConstructor[] constructors() default {};
-    
-    /**
-     * target method filters
-     */
-    TargetFilter[] filters() default {};
+public @interface TargetConstructors {
+    TargetConstructor[] value();
 }

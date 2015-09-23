@@ -186,7 +186,7 @@ public class JacksonPlugin implements ProfilerPlugin, JacksonConstants {
     private boolean addInterceptor(InstrumentMethod method, String interceptorClassName, InterceptorGroup group, Object... constructorArgs) {
         if (method != null) {
             try {
-                method.addInterceptor(interceptorClassName, group, constructorArgs);
+                method.addGroupedInterceptor(interceptorClassName, group, constructorArgs);
                 return true;
             } catch (InstrumentException e) {
                 if (logger.isWarnEnabled()) {

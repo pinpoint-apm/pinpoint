@@ -73,7 +73,7 @@ public class MyBatisPlugin implements ProfilerPlugin {
                     final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(methodFilter);
                     for (InstrumentMethod methodToTrace : methodsToTrace) {
                         String sqlSessionOperationInterceptor = "com.navercorp.pinpoint.plugin.mybatis.interceptor.SqlSessionOperationInterceptor";
-                        methodToTrace.addInterceptor(sqlSessionOperationInterceptor, group, ExecutionPolicy.BOUNDARY);
+                        methodToTrace.addGroupedInterceptor(sqlSessionOperationInterceptor, group, ExecutionPolicy.BOUNDARY);
                     }
                     
                     return target.toBytecode();
