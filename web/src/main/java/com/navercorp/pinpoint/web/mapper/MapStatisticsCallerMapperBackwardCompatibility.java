@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
 
-import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -35,33 +34,27 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
 /**
  * rowkey = caller col = callee
- *
+ * 
  * @author netspider
- *
+ * 
  */
 @Component
-public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
+public class MapStatisticsCallerMapperBackwardCompatibility implements RowMapper<LinkDataMap> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final LinkFilter filter;
 
-    public MapStatisticsCallerMapper() {
+    public MapStatisticsCallerMapperBackwardCompatibility() {
         this(SkipLinkFilter.FILTER);
     }
 
-    @Autowired
-    @Qualifier("statisticsCallerRowKeyDistributor")
-    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
-
-    public MapStatisticsCallerMapper(LinkFilter filter) {
+    public MapStatisticsCallerMapperBackwardCompatibility(LinkFilter filter) {
         if (filter == null) {
             throw new NullPointerException("filter must not be null");
         }
@@ -75,8 +68,7 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
         }
         logger.debug("mapRow:{}", rowNum);
 
-        final byte[] rowKey = getOriginalKey(result.getRow());
-        final Buffer row = new FixedBuffer(rowKey);
+        final Buffer row = new FixedBuffer(result.getRow());
         final Application caller = readCallerApplication(row);
         final long timestamp = TimeUtils.recoveryTimeMillis(row.readLong());
 
@@ -164,9 +156,5 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
         String callerApplicationName = row.read2PrefixedString();
         short callerServiceType = row.readShort();
         return new Application(callerApplicationName, callerServiceType);
-    }
-
-    private byte[] getOriginalKey(byte[] rowKey) {
-        return rowKeyDistributorByHashPrefix.getOriginalKey(rowKey);
     }
 }

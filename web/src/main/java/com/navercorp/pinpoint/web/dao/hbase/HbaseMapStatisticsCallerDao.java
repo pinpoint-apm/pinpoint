@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
 
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.client.Scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,34 +56,49 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
     private HbaseOperations2 hbaseOperations2;
 
     @Autowired
+    @Qualifier("mapStatisticsCallerMapperBackwardCompatibility")
+    private RowMapper<LinkDataMap> mapStatisticsCallerMapperBackwardCompatibility;
+
+    @Autowired
     @Qualifier("mapStatisticsCallerMapper")
     private RowMapper<LinkDataMap> mapStatisticsCallerMapper;
 
     @Autowired
     private RangeFactory rangeFactory;
 
+    @Autowired
+    @Qualifier("statisticsCallerRowKeyDistributor")
+    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+
     @Override
     public LinkDataMap selectCaller(Application callerApplication, Range range) {
-        Scan scan = createScan(callerApplication, range);
+        if (callerApplication == null) {
+            throw new NullPointerException("callerApplication must not be null");
+        }
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
+
+        final Scan scan = createScan(callerApplication, range);
         final TimeWindow timeWindow = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
-        final ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<LinkDataMap>(mapStatisticsCallerMapper, new MapStatisticsTimeWindowReducer(timeWindow));
-        final LinkDataMap foundList = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, resultExtractor);
-        logger.debug("Caller data. {}, {}", foundList, range);
+        // find distributed key.
+        ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<LinkDataMap>(mapStatisticsCallerMapper, new MapStatisticsTimeWindowReducer(timeWindow));
+        LinkDataMap linkDataMap = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, rowKeyDistributorByHashPrefix, resultExtractor);
+        logger.debug("Caller data. {}, {}", linkDataMap, range);
 
-        if (foundList == null) {
+        if (linkDataMap == null || linkDataMap.size() == 0) {
             logger.debug("There's no caller data. {}, {}", callerApplication, range);
-            return new LinkDataMap();
+
+            // backward compatibility - non distributed.
+            resultExtractor = new RowMapReduceResultExtractor<LinkDataMap>(mapStatisticsCallerMapperBackwardCompatibility, new MapStatisticsTimeWindowReducer(timeWindow));
+            linkDataMap = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, resultExtractor);
+            logger.debug("Caller data. {}, {}", linkDataMap, range);
+            if(linkDataMap == null) {
+                return new LinkDataMap();
+            }
         }
 
-        return foundList;
-    }
-
-    private LinkDataMap merge(List<LinkDataMap> foundList) {
-        final LinkDataMap result = new LinkDataMap();
-        for (LinkDataMap foundData : foundList) {
-            result.addLinkDataMap(foundData);
-        }
-        return result;
+        return linkDataMap;
     }
 
     /**
@@ -109,7 +125,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         Scan scan = createScan(callerApplication, range);
 
         final LinkFilter filter = new DefaultLinkFilter(callerApplication, calleeApplication);
-        RowMapper<LinkDataMap> mapper = new MapStatisticsCallerMapper(filter);
+        RowMapper<LinkDataMap> mapper = new MapStatisticsCallerMapperBackwardCompatibility(filter);
         return hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, mapper);
     }
 
