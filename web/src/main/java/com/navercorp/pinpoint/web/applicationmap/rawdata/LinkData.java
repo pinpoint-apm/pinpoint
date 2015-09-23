@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
 
 import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import org.slf4j.Logger;
@@ -36,23 +37,13 @@ public class LinkData {
     private final Application toApplication;
 
     private LinkCallDataMap linkCallDataMap;
+    private final TimeWindow timeWindow;
 
     public LinkData(Application fromApplication, Application toApplication) {
-        if (fromApplication == null) {
-            throw new NullPointerException("fromApplication must not be null");
-        }
-        if (toApplication == null) {
-            throw new NullPointerException("toApplication must not be null");
-        }
-
-        this.fromApplication = fromApplication;
-        this.toApplication = toApplication;
-
-        this.linkCallDataMap = new LinkCallDataMap();
+        this(fromApplication, toApplication, null);
     }
 
-    // deliberately not implemented as a copy constructor
-    public LinkData(Application fromApplication, Application toApplication, LinkCallDataMap linkCallDataMap) {
+    public LinkData(Application fromApplication, Application toApplication, TimeWindow timeWindow) {
         if (fromApplication == null) {
             throw new NullPointerException("fromApplication must not be null");
         }
@@ -61,8 +52,8 @@ public class LinkData {
         }
         this.fromApplication = fromApplication;
         this.toApplication = toApplication;
-
-        this.linkCallDataMap = linkCallDataMap;
+        this.timeWindow = timeWindow;
+        this.linkCallDataMap = new LinkCallDataMap(timeWindow);
     }
 
     /**
@@ -80,9 +71,8 @@ public class LinkData {
     }
 
     public void resetLinkData() {
-        this.linkCallDataMap = new LinkCallDataMap();
+        this.linkCallDataMap = new LinkCallDataMap(timeWindow);
     }
-
 
     public Application getFromApplication() {
         return this.fromApplication;
@@ -95,6 +85,10 @@ public class LinkData {
 
     public LinkCallDataMap getLinkCallDataMap() {
         return  this.linkCallDataMap;
+    }
+
+    public void setLinkCallDataMap(LinkCallDataMap linkCallDataMap) {
+        this.linkCallDataMap = linkCallDataMap;
     }
 
     public AgentHistogramList getTargetList() {

@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.MapStatisticsCalleeDao;
 import com.navercorp.pinpoint.web.mapper.*;
+import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
@@ -33,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.hadoop.hbase.ResultsExtractor;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -67,13 +70,16 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
             throw new NullPointerException("range must not be null");
         }
         Scan scan = createScan(calleeApplication, range);
-        List<LinkDataMap> foundListList = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, scan, mapStatisticsCalleeMapper);
+        final TimeWindow timeWindow = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
+        final ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<LinkDataMap>(mapStatisticsCalleeMapper, new MapStatisticsTimeWindowReducer(timeWindow));
+        LinkDataMap foundListList = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, scan, resultExtractor);
 
-        if (foundListList.isEmpty()) {
+        if (foundListList == null) {
             logger.debug("There's no caller data. {}, {}", calleeApplication, range);
+            return new LinkDataMap();
         }
 
-        return merge(foundListList);
+        return foundListList;
     }
 
     private LinkDataMap merge(List<LinkDataMap> foundListList) {
