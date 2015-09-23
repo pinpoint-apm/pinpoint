@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.arcus.ArcusConstants;
 import com.navercorp.pinpoint.plugin.arcus.OperationAccessor;
 import com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor;
@@ -72,7 +71,7 @@ public class FutureGetInterceptor extends SpanAsyncEventSimpleAroundInterceptor 
             recorder.recordServiceType(ARCUS_FUTURE_GET);
         } else {
             recorder.recordDestinationId("MEMCACHED");
-            recorder.recordServiceType(ServiceType.MEMCACHED_FUTURE_GET);
+            recorder.recordServiceType(MEMCACHED_FUTURE_GET);
         }
 
         if (op != null) {

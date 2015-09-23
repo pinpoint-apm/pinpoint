@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.plugin.user.UserConstants;
 import com.navercorp.pinpoint.plugin.user.UserIncludeMethodDescriptor;
 
 /**
@@ -91,7 +92,7 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
         try {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
-            recorder.recordServiceType(ServiceType.USER_INCLUDE);
+            recorder.recordServiceType(UserConstants.USER_INCLUDE);
             recorder.recordException(throwable);
         } finally {
             trace.traceBlockEnd();

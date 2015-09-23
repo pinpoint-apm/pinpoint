@@ -29,5 +29,7 @@ public class ArcusTypeProvider implements TraceMetadataProvider, ArcusConstants 
         context.addServiceType(ARCUS, AnnotationKeyMatchers.ARGS_MATCHER);
         context.addServiceType(ARCUS_FUTURE_GET);
         context.addServiceType(ARCUS_EHCACHE_FUTURE_GET);
+        context.addServiceType(MEMCACHED, AnnotationKeyMatchers.ARGS_MATCHER);
+        context.addServiceType(MEMCACHED_FUTURE_GET);
     }
 }

@@ -31,7 +31,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.arcus.ArcusConstants;
 import com.navercorp.pinpoint.plugin.arcus.OperationAccessor;
 import com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor;
@@ -150,11 +149,11 @@ public class ApiInterceptor implements AroundInterceptor, ArcusConstants {
                     recorder.recordServiceType(ARCUS);
                 } else {
                     recorder.recordDestinationId("MEMCACHED");
-                    recorder.recordServiceType(ServiceType.MEMCACHED);
+                    recorder.recordServiceType(MEMCACHED);
                 }
             } else {
                 recorder.recordDestinationId("MEMCACHED");
-                recorder.recordServiceType(ServiceType.MEMCACHED);
+                recorder.recordServiceType(MEMCACHED);
             }
 
             try {
