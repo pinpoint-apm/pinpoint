@@ -40,7 +40,7 @@ public class ProfilerConfig {
     private final Properties properties;
     private final PropertyPlaceholderHelper propertyPlaceholderHelper = new PropertyPlaceholderHelper("${", "}");
 
-    public static interface ValueResolver {
+    public interface ValueResolver {
         String resolve(String value, Properties properties);
     }
 
@@ -111,7 +111,9 @@ public class ProfilerConfig {
 
     private boolean tomcatHidePinpointHeader = true;
     private Filter<String> tomcatExcludeUrlFilter = new SkipFilter<String>();
-	private Filter<String> tomcatExcludeProfileMethodFilter = new SkipFilter<String>();
+    private String tomcatRealIpHeader;
+    private String tomcatRealIpEmptyValue;
+    private Filter<String> tomcatExcludeProfileMethodFilter = new SkipFilter<String>();
 
     private boolean ibatis = true;
 
@@ -290,11 +292,19 @@ public class ProfilerConfig {
         return tomcatExcludeUrlFilter;
     }
 
-	public Filter<String> getTomcatExcludeProfileMethodFilter() {
-		return tomcatExcludeProfileMethodFilter;
-	}
+    public String getTomcatRealIpHeader() {
+        return tomcatRealIpHeader;
+    }
 
-	//-----------------------------------------
+    public String getTomcatRealIpEmptyValue() {
+        return tomcatRealIpEmptyValue;
+    }
+
+    public Filter<String> getTomcatExcludeProfileMethodFilter() {
+        return tomcatExcludeProfileMethodFilter;
+    }
+
+    //-----------------------------------------
     // http apache client 3
 
     public boolean isApacheHttpClient3Profile() {
@@ -479,11 +489,13 @@ public class ProfilerConfig {
         if (!tomcatExcludeURL.isEmpty()) {
             this.tomcatExcludeUrlFilter = new ExcludeUrlFilter(tomcatExcludeURL);
         }
+        this.tomcatRealIpHeader = readString("profiler.tomcat.realipheader", null);
+        this.tomcatRealIpEmptyValue = readString("profiler.tomcat.realipemptyvalue", null);
 
-		final String tomcatExcludeProfileMethod = readString("profiler.tomcat.excludemethod", "");
-		if (!tomcatExcludeProfileMethod.isEmpty()) {
-			this.tomcatExcludeProfileMethodFilter = new ExcludeMethodFilter(tomcatExcludeProfileMethod);
-		}
+        final String tomcatExcludeProfileMethod = readString("profiler.tomcat.excludemethod", "");
+        if (!tomcatExcludeProfileMethod.isEmpty()) {
+            this.tomcatExcludeProfileMethodFilter = new ExcludeMethodFilter(tomcatExcludeProfileMethod);
+        }
 
         /**
          * apache http client 3
