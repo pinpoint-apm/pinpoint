@@ -16,18 +16,14 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.packet.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-import com.navercorp.pinpoint.rpc.packet.SendPacket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author emeroad
@@ -40,15 +36,15 @@ public class TestSeverMessageListener implements ServerMessageListener {
     private List<byte[]> sendMessageList = new ArrayList<byte[]>();
 
     @Override
-    public void handleSend(SendPacket sendPacket, PinpointServer pinpointServer) {
-        logger.debug("sendPacket:{} channel:{}", sendPacket, pinpointServer);
+    public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
+        logger.debug("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
     }
 
     @Override
-    public void handleRequest(RequestPacket requestPacket, PinpointServer pinpointServer) {
-        logger.debug("requestPacket:{} channel:{}", requestPacket, pinpointServer);
+    public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
+        logger.debug("handleRequest packet:{} remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
 
-        pinpointServer.response(requestPacket, requestPacket.getPayload());
+        pinpointSocket.response(requestPacket, requestPacket.getPayload());
     }
 
     @Override

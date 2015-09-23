@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
-import com.navercorp.pinpoint.rpc.client.MessageListener;
+import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;

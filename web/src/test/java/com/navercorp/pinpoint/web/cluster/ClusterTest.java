@@ -16,34 +16,28 @@
 
 package com.navercorp.pinpoint.web.cluster;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.util.List;
-
+import com.navercorp.pinpoint.common.util.NetUtils;
+import com.navercorp.pinpoint.rpc.MessageListener;
+import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import org.junit.Assert;
-
-import org.apache.curator.test.TestingServer;
-import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.ZooKeeper;
-import org.jboss.netty.channel.Channel;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.common.util.NetUtils;
-import com.navercorp.pinpoint.rpc.client.MessageListener;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.web.config.WebConfig;
 import com.navercorp.pinpoint.web.server.PinpointSocketManager;
 import com.navercorp.pinpoint.web.util.PinpointWebTestUtils;
+import org.apache.curator.test.TestingServer;
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.ZooKeeper;
+import org.junit.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.List;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Taejin Koo
@@ -223,16 +217,17 @@ public class ClusterTest {
     }
 
     class SimpleListener implements MessageListener {
+
         @Override
-        public void handleSend(SendPacket sendPacket, Channel channel) {
+        public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
 
         }
 
         @Override
-        public void handleRequest(RequestPacket requestPacket, Channel channel) {
-            // TODO Auto-generated method stub
+        public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
 
         }
+
     }
 
 }

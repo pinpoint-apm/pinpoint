@@ -24,6 +24,7 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.Map;
 
+import com.navercorp.pinpoint.rpc.PinpointSocket;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.junit.Assert;
@@ -234,16 +235,16 @@ public class ControlPacketServerTest {
     }
 
     class SimpleListener implements ServerMessageListener {
-        @Override
-        public void handleSend(SendPacket sendPacket, PinpointServer pinpointServer) {
 
+        @Override
+        public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
+            logger.info("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
         }
 
         @Override
-        public void handleRequest(RequestPacket requestPacket, PinpointServer pinpointServer) {
-            logger.info("handlerRequest {} {}", requestPacket, pinpointServer);
-            
-            pinpointServer.response(requestPacket, requestPacket.getPayload());
+        public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
+            logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
+            pinpointSocket.response(requestPacket, requestPacket.getPayload());
         }
 
         @Override

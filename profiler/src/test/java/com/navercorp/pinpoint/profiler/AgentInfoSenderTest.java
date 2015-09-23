@@ -40,6 +40,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.SystemPropertyKey;
 
+import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.apache.thrift.TException;
@@ -369,20 +370,18 @@ public class AgentInfoSenderTest {
         }
 
         @Override
-        public void handleSend(SendPacket sendPacket, PinpointServer pinpointServer) {
-            logger.info("handleSend:{}", sendPacket);
-
+        public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
+            logger.info("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
         }
 
         @Override
-        public void handleRequest(RequestPacket requestPacket, PinpointServer pinpointServer) {
-            int requestCount = this.requestCount.incrementAndGet();
+        public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
+            logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
 
+            int requestCount = this.requestCount.incrementAndGet();
             if (requestCount < successCondition) {
                 return;
             }
-
-            logger.info("handleRequest~~~:{}", requestPacket);
 
             try {
                 HeaderTBaseSerializer serializer = HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer();
@@ -392,7 +391,7 @@ public class AgentInfoSenderTest {
 
                 this.successCount.incrementAndGet();
 
-                pinpointServer.response(requestPacket, resultBytes);
+                pinpointSocket.response(requestPacket, resultBytes);
             } catch (TException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

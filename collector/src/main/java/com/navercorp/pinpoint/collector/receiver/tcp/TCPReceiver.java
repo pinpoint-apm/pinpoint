@@ -16,29 +16,6 @@
 
 package com.navercorp.pinpoint.collector.receiver.tcp;
 
-import java.net.InetAddress;
-import java.net.SocketAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
@@ -49,26 +26,32 @@ import com.navercorp.pinpoint.common.util.AgentEventType;
 import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
+import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.packet.*;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
+import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 import com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
-import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
-import com.navercorp.pinpoint.thrift.io.L4Packet;
-import com.navercorp.pinpoint.thrift.io.SerializerFactory;
-import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseSerializerFactory;
+import com.navercorp.pinpoint.thrift.io.*;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.thrift.TBase;
+import org.apache.thrift.TException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
+import java.net.InetAddress;
+import java.net.SocketAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.*;
 
 /**
  * @author emeroad
@@ -162,15 +145,6 @@ public class TCPReceiver {
         // take care when attaching message handlers as events are generated from the IO thread.
         // pass them to a separate queue and handle them in a different thread.
         this.serverAcceptor.setMessageListener(new ServerMessageListener() {
-            @Override
-            public void handleSend(SendPacket sendPacket, PinpointServer pinpointServer) {
-                receive(sendPacket, pinpointServer);
-            }
-
-            @Override
-            public void handleRequest(RequestPacket requestPacket, PinpointServer pinpointServer) {
-                requestResponse(requestPacket, pinpointServer);
-            }
 
             @Override
             public HandshakeResponseCode handleHandshake(Map properties) {
@@ -192,6 +166,16 @@ public class TCPReceiver {
             }
 
             @Override
+            public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
+                receive(sendPacket, pinpointSocket);
+            }
+
+            @Override
+            public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
+                requestResponse(requestPacket, pinpointSocket);
+            }
+
+            @Override
             public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
                 recordPing(pingPacket, pinpointServer);
             }
@@ -200,18 +184,18 @@ public class TCPReceiver {
 
     }
 
-    private void receive(SendPacket sendPacket, PinpointServer pinpointServer) {
+    private void receive(SendPacket sendPacket, PinpointSocket pinpointSocket) {
         try {
-            worker.execute(new Dispatch(sendPacket.getPayload(), pinpointServer.getRemoteAddress()));
+            worker.execute(new Dispatch(sendPacket.getPayload(), pinpointSocket.getRemoteAddress()));
         } catch (RejectedExecutionException e) {
             // cause is clear - full stack trace not necessary 
             logger.warn("RejectedExecutionException Caused:{}", e.getMessage());
         }
     }
 
-    private void requestResponse(RequestPacket requestPacket, PinpointServer pinpointServer) {
+    private void requestResponse(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
         try {
-            worker.execute(new RequestResponseDispatch(requestPacket, pinpointServer));
+            worker.execute(new RequestResponseDispatch(requestPacket, pinpointSocket));
         } catch (RejectedExecutionException e) {
             // cause is clear - full stack trace not necessary
             logger.warn("RejectedExecutionException Caused:{}", e.getMessage());
@@ -269,22 +253,22 @@ public class TCPReceiver {
 
     private class RequestResponseDispatch implements Runnable {
         private final RequestPacket requestPacket;
-        private final PinpointServer pinpointServer;
+        private final PinpointSocket pinpointSocket;
 
 
-        private RequestResponseDispatch(RequestPacket requestPacket, PinpointServer pinpointServer) {
+        private RequestResponseDispatch(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
             if (requestPacket == null) {
                 throw new NullPointerException("requestPacket");
             }
             this.requestPacket = requestPacket;
-            this.pinpointServer = pinpointServer;
+            this.pinpointSocket = pinpointSocket;
         }
 
         @Override
         public void run() {
 
             byte[] bytes = requestPacket.getPayload();
-            SocketAddress remoteAddress = pinpointServer.getRemoteAddress();
+            SocketAddress remoteAddress = pinpointSocket.getRemoteAddress();
             try {
                 TBase<?, ?> tBase = SerializationUtils.deserialize(bytes, deserializerFactory);
                 if (tBase instanceof L4Packet) {
@@ -297,7 +281,7 @@ public class TCPReceiver {
                 TBase result = dispatchHandler.dispatchRequestMessage(tBase);
                 if (result != null) {
                     byte[] resultBytes = SerializationUtils.serialize(result, serializerFactory);
-                    pinpointServer.response(requestPacket, resultBytes);
+                    pinpointSocket.response(requestPacket, resultBytes);
                 }
             } catch (TException e) {
                 if (logger.isWarnEnabled()) {

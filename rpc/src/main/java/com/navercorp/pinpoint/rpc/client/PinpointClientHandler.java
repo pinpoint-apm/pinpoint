@@ -49,6 +49,8 @@ public interface PinpointClientHandler {
 
     Future<ResponseMessage> request(byte[] bytes);
 
+    void response(int requestId, byte[] payload);
+
     ClientStreamChannelContext createStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener);
 
     StreamChannelContext findStreamChannel(int streamChannelId);
@@ -60,5 +62,7 @@ public interface PinpointClientHandler {
     boolean isSupportServerMode();
     
     SocketStateCode getCurrentStateCode();
+
+    SocketAddress getRemoteAddress();
 
 }

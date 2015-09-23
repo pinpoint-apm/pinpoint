@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.junit.Assert;
@@ -58,20 +59,20 @@ public class TcpDataSenderTest {
     public void serverStart() {
         serverAcceptor = new PinpointServerAcceptor();
         serverAcceptor.setMessageListener(new ServerMessageListener() {
-            
+
             @Override
-            public void handleSend(SendPacket sendPacket, PinpointServer pinpointServer) {
-                logger.info("handleSend:{}", sendPacket);
+            public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
+                logger.info("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
                 if (sendLatch != null) {
                     sendLatch.countDown();
                 }
             }
 
             @Override
-            public void handleRequest(RequestPacket requestPacket, PinpointServer pinpointServer) {
-                logger.info("handleRequest:{}", requestPacket);
+            public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
+                logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
             }
-            
+
             @Override
             public HandshakeResponseCode handleHandshake(Map arg0) {
                 return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;

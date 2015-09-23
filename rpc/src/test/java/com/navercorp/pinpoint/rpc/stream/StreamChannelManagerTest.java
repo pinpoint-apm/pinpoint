@@ -30,7 +30,7 @@ import org.junit.Test;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.RecordedStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.TestByteUtils;
-import com.navercorp.pinpoint.rpc.client.MessageListener;
+import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.client.SimpleLoggingMessageListener;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;

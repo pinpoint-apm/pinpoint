@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.rpc.client;
-
-import org.jboss.netty.channel.Channel;
+package com.navercorp.pinpoint.rpc;
 
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
@@ -26,8 +24,8 @@ import com.navercorp.pinpoint.rpc.packet.SendPacket;
  */
 public interface MessageListener {
 
-    void handleSend(SendPacket sendPacket, Channel channel);
+    void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket);
 
-    void handleRequest(RequestPacket requestPacket, Channel channel);
+    void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket);
 
 }

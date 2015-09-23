@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.cluster;
 
 import javax.annotation.PreDestroy;
 
+import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import org.apache.thrift.TBase;
@@ -30,7 +31,7 @@ import com.navercorp.pinpoint.collector.cluster.route.DefaultRouteHandler;
 import com.navercorp.pinpoint.collector.cluster.route.RequestEvent;
 import com.navercorp.pinpoint.collector.cluster.route.StreamEvent;
 import com.navercorp.pinpoint.collector.cluster.route.StreamRouteHandler;
-import com.navercorp.pinpoint.rpc.client.MessageListener;
+import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
@@ -86,27 +87,28 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
     }
 
     @Override
-    public void handleSend(SendPacket packet, Channel channel) {
-        logger.info("Message received {}. channel:{}, packet:{}.", packet.getClass().getSimpleName(), channel, packet);
+    public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
+        logger.info("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
     }
 
     @Override
-    public void handleRequest(RequestPacket packet, Channel channel) {
-        logger.info("Message received {}. channel:{}, packet:{}.", packet.getClass().getSimpleName(), channel, packet);
+    public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
+        logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
 
-        TBase<?, ?> request = deserialize(packet.getPayload());
+        TBase<?, ?> request = deserialize(requestPacket.getPayload());
         if (request == null) {
-            handleRouteRequestFail("Protocol decoding failed.", packet, channel);
+            handleRouteRequestFail("Protocol decoding failed.", requestPacket, pinpointSocket);
         } else if (request instanceof TCommandTransfer) {
-            handleRouteRequest((TCommandTransfer)request, packet, channel);
+            handleRouteRequest((TCommandTransfer)request, requestPacket, pinpointSocket);
         } else {
-            handleRouteRequestFail("Unknown error.", packet, channel);
+            handleRouteRequestFail("Unknown error.", requestPacket, pinpointSocket);
         }
+
     }
 
     @Override
     public short handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
-        logger.info("Message received {}. streamChannel:{}, packet:{}.", packet.getClass().getSimpleName(), streamChannelContext, packet);
+        logger.info("handleStreamCreate packet:{}, streamChannel:{}", packet, streamChannelContext);
 
         TBase<?, ?> request = deserialize(packet.getPayload());
         if (request == null) {
@@ -120,26 +122,26 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
 
     @Override
     public void handleStreamClose(ServerStreamChannelContext streamChannelContext, StreamClosePacket packet) {
-        logger.info("Message received {}. streamChannel:{}, packet:{}.", packet.getClass().getSimpleName(), streamChannelContext, packet);
+        logger.info("handleStreamClose packet:{}, streamChannel:{}", packet, streamChannelContext);
 
         streamRouteHandler.close(streamChannelContext);
     }
 
-    private boolean handleRouteRequest(TCommandTransfer request, RequestPacket requestPacket, Channel channel) {
+    private boolean handleRouteRequest(TCommandTransfer request, RequestPacket requestPacket, PinpointSocket pinpointSocket) {
         byte[] payload = ((TCommandTransfer)request).getPayload();
         TBase<?,?> command = deserialize(payload);
 
-        TCommandTransferResponse response = routeHandler.onRoute(new RequestEvent((TCommandTransfer) request, channel, requestPacket.getRequestId(), command));
-        channel.write(new ResponsePacket(requestPacket.getRequestId(), serialize(response)));
+        TCommandTransferResponse response = routeHandler.onRoute(new RequestEvent((TCommandTransfer) request, pinpointSocket.getRemoteAddress(), requestPacket.getRequestId(), command));
+        pinpointSocket.response(requestPacket, serialize(response));
 
         return response.getRouteResult() == TRouteResult.OK;
     }
 
-    private void handleRouteRequestFail(String message, RequestPacket requestPacket, Channel channel) {
+    private void handleRouteRequestFail(String message, RequestPacket requestPacket, PinpointSocket pinpointSocket) {
         TResult tResult = new TResult(false);
         tResult.setMessage(message);
 
-        channel.write(new ResponsePacket(requestPacket.getRequestId(), serialize(tResult)));
+        pinpointSocket.response(requestPacket, serialize(tResult));
     }
 
     private TRouteResult handleStreamRouteCreate(TCommandTransfer request, StreamCreatePacket packet, ServerStreamChannelContext streamChannelContext) {

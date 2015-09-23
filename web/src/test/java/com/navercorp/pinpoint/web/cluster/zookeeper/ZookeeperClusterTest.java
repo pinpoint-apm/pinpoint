@@ -16,32 +16,26 @@
 
 package com.navercorp.pinpoint.web.cluster.zookeeper;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.junit.Assert;
-
-import org.apache.curator.test.TestingServer;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.ZooDefs.Ids;
-import org.apache.zookeeper.ZooKeeper;
-import org.jboss.netty.channel.Channel;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.common.util.NetUtils;
-import com.navercorp.pinpoint.rpc.client.MessageListener;
+import com.navercorp.pinpoint.rpc.MessageListener;
+import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.web.util.PinpointWebTestUtils;
+import org.apache.curator.test.TestingServer;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.ZooDefs.Ids;
+import org.apache.zookeeper.ZooKeeper;
+import org.junit.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * @author Taejin Koo
@@ -210,16 +204,17 @@ public class ZookeeperClusterTest {
     }
 
     class SimpleListener implements MessageListener {
+
         @Override
-        public void handleSend(SendPacket sendPacket, Channel channel) {
+        public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
 
         }
 
         @Override
-        public void handleRequest(RequestPacket requestPacket, Channel channel) {
-            // TODO Auto-generated method stub
+        public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
 
         }
+
     }
 
     public void createPath(ZooKeeper zookeeper, String path, boolean createEndNode) throws PinpointZookeeperException, InterruptedException, KeeperException {
