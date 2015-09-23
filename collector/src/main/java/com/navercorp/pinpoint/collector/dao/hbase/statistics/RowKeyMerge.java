@@ -58,8 +58,10 @@ public class RowKeyMerge {
         RowKey rowKey = rowKeyEntry.getKey();
         byte[] key = null;
         if(rowKeyDistributorByHashPrefix == null) {
+            // backward compatibility.
             key = rowKey.getRowKey();
         } else {
+            // distributed key.
             key = rowKeyDistributorByHashPrefix.getDistributedKey(rowKey.getRowKey());
         }
         final Increment increment = new Increment(key);
