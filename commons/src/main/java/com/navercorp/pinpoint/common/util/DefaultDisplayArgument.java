@@ -31,8 +31,6 @@ public class DefaultDisplayArgument {
 
     // FIXME replaced with IBATIS_SPRING under IBatis Plugin - kept for backwards compatibility
     public static final DisplayArgumentMatcher SPRING_ORM_IBATIS_MATCHER = createArgumentMatcher(ServiceType.SPRING_ORM_IBATIS, AnnotationKey.ARGS0);
-
-    public static final DisplayArgumentMatcher MEMCACHED_MATCHER = createArgumentMatcher(ServiceType.MEMCACHED, AnnotationKeyMatchers.ARGS_MATCHER);
     
     public static final DisplayArgumentMatcher COLLECTOR_MATCHER = createArgumentMatcher(ServiceType.COLLECTOR, AnnotationKey.ARGS0);
 

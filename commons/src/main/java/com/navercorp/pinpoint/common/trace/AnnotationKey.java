@@ -18,14 +18,79 @@ package com.navercorp.pinpoint.common.trace;
 
 import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
-
-import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
-import com.navercorp.pinpoint.common.util.apache.IntHashMap;
-
 /**
+ * AnnotaionKey sandbox is from 900 to 999. These values will not be assigned to anything.
+ * 
+ * <table>
+ * <tr><td>-1</td><td>args[0]</td></tr>
+ * <tr><td>-2</td><td>args[1]</td></tr>
+ * <tr><td>-3</td><td>args[2]</td></tr>
+ * <tr><td>-4</td><td>args[3]</td></tr>
+ * <tr><td>-5</td><td>args[4]</td></tr>
+ * <tr><td>-6</td><td>args[5]</td></tr>
+ * <tr><td>-7</td><td>args[6]</td></tr>
+ * <tr><td>-8</td><td>args[7]</td></tr>
+ * <tr><td>-9</td><td>args[8]</td></tr>
+ * <tr><td>-10</td><td>args[9]</td></tr>
+ * <tr><td>-11</td><td>args[N]</td></tr>
+ * <tr><td>-30</td><td>cached_args[0]</td></tr>
+ * <tr><td>-31</td><td>cached_args[1]</td></tr>
+ * <tr><td>-32</td><td>cached_args[2]</td></tr>
+ * <tr><td>-33</td><td>cached_args[3]</td></tr>
+ * <tr><td>-34</td><td>cached_args[4]</td></tr>
+ * <tr><td>-35</td><td>cached_args[5]</td></tr>
+ * <tr><td>-36</td><td>cached_args[6]</td></tr>
+ * <tr><td>-37</td><td>cached_args[7]</td></tr>
+ * <tr><td>-38</td><td>cached_args[8]</td></tr>
+ * <tr><td>-39</td><td>cached_args[9]</td></tr>
+ * <tr><td>-40</td><td>cached_args[N]</td></tr>
+ * <tr><td>-50</td><td>Exception</td></tr>
+ * <tr><td>-51</td><td>ExceptionClass</td></tr>
+ * <tr><td>-100</td><td>Asynchronous Invocation</td></tr>
+ * <tr><td>-9999</td><td>UNKNOWN</td></tr>
+ * 
+ * <tr><td>12</td><td>API</td></tr>
+ * <tr><td>13</td><td>API_METADATA</td></tr>
+ * <tr><td>14</td><td>RETURN_DATA</td></tr>
+ * <tr><td>15</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>16</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>17</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>20</td><td>SQL-ID</td></tr>
+ * <tr><td>21</td><td>SQL</td></tr>
+ * <tr><td>22</td><td>SQL-METADATA</td></tr>
+ * <tr><td>23</td><td>SQL-PARAM</td></tr>
+ * <tr><td>24</td><td>SQL-BindValue</td></tr>
+ * <tr><td>30</td><td>STRING_ID</td></tr>
+ * <tr><td>40</td><td>http.url</td></tr>
+ * <tr><td>41</td><td>http.param</td></tr>
+ * <tr><td>42</td><td>http.entity</td></tr>
+ * <tr><td>45</td><td>http.cookie</td></tr>
+ * <tr><td>46</td><td>http.status.code</td></tr>
+ * <tr><td>48</td><td>http.internal.display</td></tr>
+ * <tr><td>49</td><td>http.io</td></tr>
+ * <tr><td>50</td><td>arcus.command</td></tr>
+ * <tr><td>60</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>61</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>62</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>70</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>71</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>72</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>73</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>80</td><td>thrift.url</td></tr>
+ * <tr><td>81</td><td>thrift.args</td></tr>
+ * <tr><td>82</td><td>thrift.result</td></tr>
+ * <tr><td>9000</td><td>gson.json.length</td></tr>
+ * <tr><td>9001</td><td>jackson.json.length</td></tr>
+ * <tr><td>9002</td><td>json-lib.json.length</td></tr>
+ * <tr><td>10015</td><td>API-TAG</td></tr>
+ * <tr><td>10000010</td><td>API-METADATA-ERROR</td></tr>
+ * <tr><td>10000011</td><td>API-METADATA-AGENT-INFO-NOT-FOUND</td></tr>
+ * <tr><td>10000012</td><td>API-METADATA-IDENTIFIER-CHECK_ERROR</td></tr>
+ * <tr><td>10000013</td><td>API-METADATA-NOT-FOUND</td></tr>
+ * <tr><td>10000014</td><td>API-METADATA-DID-COLLSION</td></tr>
+ * </table>
+ * 
+ * 
  * @author netspider
  * @author emeroad
  * @author Jongho Moon
@@ -120,24 +185,6 @@ public class AnnotationKey {
     public static final AnnotationKey HTTP_IO = new AnnotationKey(49, "http.io", VIEW_IN_RECORD_SET);
     // post method parameter of httpclient
 
-
-    // ARCUS_COMMAND(50, "arcus.command");
-    
-//    public static final AnnotationKey NPC_URL = new AnnotationKey(60, "npc.url");
-//    public static final AnnotationKey NPC_PARAM = new AnnotationKey(61, "npc.param");
-//    public static final AnnotationKey NPC_CONNECT_OPTION = new AnnotationKey(62, "npc.connect.options");
-
-    public static final AnnotationKey NIMM_OBJECT_NAME = new AnnotationKey(70, "nimm.objectName");
-    public static final AnnotationKey NIMM_METHOD_NAME = new AnnotationKey(71, "nimm.methodName");
-    public static final AnnotationKey NIMM_PARAM = new AnnotationKey(72, "nimm.param");
-    public static final AnnotationKey NIMM_CONNECT_OPTION = new AnnotationKey(73, "nimm.connect.options");
-
-    
-    // 9000 gson.json.length
-    // 9001 jackson.json.length
-    // 9002 json-lib.json.length
-
-  
     public static final AnnotationKey ARGS0 = new AnnotationKey(-1, "args[0]");
     public static final AnnotationKey ARGS1 = new AnnotationKey(-2, "args[1]");
     public static final AnnotationKey ARGS2 = new AnnotationKey(-3, "args[2]");
