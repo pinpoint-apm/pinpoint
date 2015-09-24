@@ -131,7 +131,7 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     public PinpointRouteResponse invoke(AgentInfo agentInfo, byte[] payload) throws TException {
-        return invoke(agentInfo, payload, DEFUALT_FUTURE_TIMEOUT);
+        return invoke(agentInfo, payload, DEFAULT_FUTURE_TIMEOUT);
     }
 
     @Override
@@ -161,7 +161,7 @@ public class AgentServiceImpl implements AgentService {
     @Override
     public Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, byte[] payload)
             throws TException {
-        return invoke(agentInfoList, payload, DEFUALT_FUTURE_TIMEOUT);
+        return invoke(agentInfoList, payload, DEFAULT_FUTURE_TIMEOUT);
     }
 
     @Override
