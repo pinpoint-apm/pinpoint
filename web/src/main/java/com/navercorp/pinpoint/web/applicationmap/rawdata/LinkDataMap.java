@@ -18,20 +18,20 @@ package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
 import java.util.*;
 
+import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
 
 public class LinkDataMap {
     private final Map<LinkKey, LinkData> linkDataMap = new HashMap<LinkKey, LinkData>();
+    private TimeWindow timeWindow;
 
     public LinkDataMap() {
+        this(null);
     }
 
-    public LinkDataMap(LinkDataMap copyLinkDataMap) {
-        if (copyLinkDataMap == null) {
-            throw new NullPointerException("copyLinkDataMap must not be null");
-        }
-        addLinkDataMap(copyLinkDataMap);
+    public LinkDataMap(TimeWindow timeWindow) {
+        this.timeWindow = timeWindow;
     }
 
     public Collection<LinkData> getLinkDataList() {
@@ -72,7 +72,7 @@ public class LinkDataMap {
         final LinkKey key = new LinkKey(fromApplication, toApplication);
         LinkData findLink = linkDataMap.get(key);
         if (findLink == null) {
-            findLink = new LinkData(fromApplication, toApplication);
+            findLink = new LinkData(fromApplication, toApplication, timeWindow);
             linkDataMap.put(key, findLink);
         }
         return findLink;
@@ -96,5 +96,13 @@ public class LinkDataMap {
             throw new NullPointerException("findLinkKey must not be null");
         }
         return this.linkDataMap.get(findLinkKey);
+    }
+
+    public TimeWindow getTimeWindow() {
+        return timeWindow;
+    }
+
+    public void setTimeWindow(TimeWindow timeWindow) {
+        this.timeWindow = timeWindow;
     }
 }

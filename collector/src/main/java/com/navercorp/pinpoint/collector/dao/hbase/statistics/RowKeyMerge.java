@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
 import com.navercorp.pinpoint.collector.util.ConcurrentCounterMap;
 
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.client.Increment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,7 @@ public class RowKeyMerge {
         this.family = Arrays.copyOf(family, family.length);
     }
 
-    public  List<Increment> createBulkIncrement(Map<RowInfo, ConcurrentCounterMap.LongAdder> data) {
+    public  List<Increment> createBulkIncrement(Map<RowInfo, ConcurrentCounterMap.LongAdder> data, RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         if (data.isEmpty()) {
             return Collections.emptyList();
         }
@@ -47,15 +48,23 @@ public class RowKeyMerge {
 
         List<Increment> incrementList = new ArrayList<Increment>();
         for (Map.Entry<RowKey, List<ColumnName>> rowKeyEntry : rowkeyMerge.entrySet()) {
-            Increment increment = createIncrement(rowKeyEntry);
+            Increment increment = createIncrement(rowKeyEntry, rowKeyDistributorByHashPrefix);
             incrementList.add(increment);
         }
         return incrementList;
     }
 
-    private Increment createIncrement(Map.Entry<RowKey, List<ColumnName>> rowKeyEntry) {
+    private Increment createIncrement(Map.Entry<RowKey, List<ColumnName>> rowKeyEntry, RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         RowKey rowKey = rowKeyEntry.getKey();
-        final Increment increment = new Increment(rowKey.getRowKey());
+        byte[] key = null;
+        if(rowKeyDistributorByHashPrefix == null) {
+            // backward compatibility.
+            key = rowKey.getRowKey();
+        } else {
+            // distributed key.
+            key = rowKeyDistributorByHashPrefix.getDistributedKey(rowKey.getRowKey());
+        }
+        final Increment increment = new Increment(key);
         for(ColumnName columnName : rowKeyEntry.getValue()) {
             increment.addColumn(family, columnName.getColumnName(), columnName.getCallCount());
         }

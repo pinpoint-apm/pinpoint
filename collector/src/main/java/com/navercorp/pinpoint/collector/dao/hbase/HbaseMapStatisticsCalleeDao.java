@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.util.TimeSlot;
 
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.client.Increment;
 import org.slf4j.Logger;
@@ -61,6 +62,10 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
     @Autowired
     @Qualifier("calleeMerge")
     private RowKeyMerge rowKeyMerge;
+
+    @Autowired
+    @Qualifier("statisticsCalleeRowKeyDistributor")
+    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     private final boolean useBulk;
 
@@ -106,7 +111,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
             RowInfo rowInfo = new DefaultRowInfo(calleeRowKey, callerColumnName);
             counter.increment(rowInfo, 1L);
         } else {
-            final byte[] rowKey = calleeRowKey.getRowKey();
+            final byte[] rowKey = getDistributedKey(calleeRowKey.getRowKey());
 
             // column name is the name of caller app.
             byte[] columnName = callerColumnName.getColumnName();
@@ -133,7 +138,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         }
 
         Map<RowInfo, ConcurrentCounterMap.LongAdder> remove = this.counter.remove();
-        List<Increment> merge = rowKeyMerge.createBulkIncrement(remove);
+        List<Increment> merge = rowKeyMerge.createBulkIncrement(remove, rowKeyDistributorByHashPrefix);
         if (!merge.isEmpty()) {
             if (logger.isDebugEnabled()) {
                 logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
@@ -141,5 +146,9 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
             hbaseTemplate.increment(MAP_STATISTICS_CALLER, merge);
         }
 
+    }
+
+    private byte[] getDistributedKey(byte[] rowKey) {
+        return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
     }
 }

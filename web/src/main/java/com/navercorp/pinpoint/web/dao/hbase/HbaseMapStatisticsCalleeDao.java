@@ -24,15 +24,19 @@ import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.MapStatisticsCalleeDao;
 import com.navercorp.pinpoint.web.mapper.*;
+import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
 
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.client.Scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.hadoop.hbase.ResultsExtractor;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -52,11 +56,19 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
     private HbaseOperations2 hbaseOperations2;
 
     @Autowired
+    @Qualifier("mapStatisticsCalleeMapperBackwardCompatibility")
+    private RowMapper<LinkDataMap> mapStatisticsCalleeMapperBackwardCompatibility;
+
+    @Autowired
     @Qualifier("mapStatisticsCalleeMapper")
     private RowMapper<LinkDataMap> mapStatisticsCalleeMapper;
 
     @Autowired
     private RangeFactory rangeFactory;
+
+    @Autowired
+    @Qualifier("statisticsCalleeRowKeyDistributor")
+    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     @Override
     public LinkDataMap selectCallee(Application calleeApplication, Range range) {
@@ -66,26 +78,26 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
-        Scan scan = createScan(calleeApplication, range);
-        List<LinkDataMap> foundListList = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, scan, mapStatisticsCalleeMapper);
+        final Scan scan = createScan(calleeApplication, range);
+        final TimeWindow timeWindow = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
+        // find distributed key.
+        ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<LinkDataMap>(mapStatisticsCalleeMapper, new MapStatisticsTimeWindowReducer(timeWindow));
+        LinkDataMap linkDataMap = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, scan, rowKeyDistributorByHashPrefix, resultExtractor);
+        logger.debug("Callee data. {}, {}", linkDataMap, range);
 
-        if (foundListList.isEmpty()) {
-            logger.debug("There's no caller data. {}, {}", calleeApplication, range);
+        if (linkDataMap == null || linkDataMap.size() ==0) {
+            logger.debug("There's no callee data. {}, {}", calleeApplication, range);
+            // backward compatibility - non distributed.
+            resultExtractor = new RowMapReduceResultExtractor<LinkDataMap>(mapStatisticsCalleeMapperBackwardCompatibility, new MapStatisticsTimeWindowReducer(timeWindow));
+            linkDataMap = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, scan, resultExtractor);
+            logger.debug("Callee data. {}, {}", linkDataMap, range);
+            if(linkDataMap == null) {
+                return new LinkDataMap();
+            }
         }
 
-        return merge(foundListList);
+        return linkDataMap;
     }
-
-    private LinkDataMap merge(List<LinkDataMap> foundListList) {
-        final LinkDataMap result = new LinkDataMap();
-
-        for (LinkDataMap foundList : foundListList) {
-            result.addLinkDataMap(foundList);
-        }
-
-        return result;
-    }
-
 
     /**
      * statistics information used when a link between nodes is clicked at the server map
@@ -111,7 +123,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
 
         final LinkFilter filter = new DefaultLinkFilter(callerApplication, calleeApplication);
-        RowMapper<LinkDataMap> mapper = new MapStatisticsCalleeMapper(filter);
+        RowMapper<LinkDataMap> mapper = new MapStatisticsCalleeMapperBackwardCompatibility(filter);
         return hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, scan, mapper);
     }
 
