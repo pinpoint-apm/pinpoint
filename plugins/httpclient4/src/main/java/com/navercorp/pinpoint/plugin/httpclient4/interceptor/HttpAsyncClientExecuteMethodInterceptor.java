@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author jaehong.kim
  */
 @Group(HttpClient4Constants.HTTP_CLIENT4_SCOPE)
-public class HttpAsyncClientExecuteMethodInterceptor implements AroundInterceptor, HttpClient4Constants {
+public class HttpAsyncClientExecuteMethodInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();

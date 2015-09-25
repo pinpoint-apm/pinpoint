@@ -26,7 +26,10 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author jaehong.kim
  *
  */
-public interface HttpClient4Constants {
+public final class HttpClient4Constants {
+    private HttpClient4Constants() {
+    }
+
     public static final ServiceType HTTP_CLIENT_4 = ServiceType.of(9052, "HTTP_CLIENT_4", NORMAL_SCHEMA, RECORD_STATISTICS);
     public static final ServiceType HTTP_CLIENT_4_INTERNAL = ServiceType.of(9053, "HTTP_CLIENT_4_INTERNAL", "HTTP_CLIENT_4", NORMAL_SCHEMA);
 

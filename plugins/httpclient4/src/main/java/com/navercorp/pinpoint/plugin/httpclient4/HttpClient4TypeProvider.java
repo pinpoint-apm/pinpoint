@@ -25,11 +25,11 @@ import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
  * @author jaehong.kim
  *
  */
-public class HttpClient4TypeProvider implements TraceMetadataProvider, HttpClient4Constants{
+public class HttpClient4TypeProvider implements TraceMetadataProvider {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(HTTP_CLIENT_4, AnnotationKeyMatchers.exact(AnnotationKey.HTTP_URL));
-        context.addServiceType(HTTP_CLIENT_4_INTERNAL, AnnotationKeyMatchers.exact(AnnotationKey.HTTP_INTERNAL_DISPLAY));
+        context.addServiceType(HttpClient4Constants.HTTP_CLIENT_4, AnnotationKeyMatchers.exact(AnnotationKey.HTTP_URL));
+        context.addServiceType(HttpClient4Constants.HTTP_CLIENT_4_INTERNAL, AnnotationKeyMatchers.exact(AnnotationKey.HTTP_INTERNAL_DISPLAY));
     }
 }

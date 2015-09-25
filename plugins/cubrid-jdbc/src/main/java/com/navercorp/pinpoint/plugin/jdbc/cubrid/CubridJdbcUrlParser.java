@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 /**
  * @author emeroad
  */
-public class CubridJdbcUrlParser extends JdbcUrlParser implements CubridConstants {
+public class CubridJdbcUrlParser extends JdbcUrlParser {
     public static final String DEFAULT_HOSTNAME = "localhost";
     public static final int DEFAULT_PORT = 30000;
     public static final String DEFAULT_USER = "public";
@@ -42,13 +42,13 @@ public class CubridJdbcUrlParser extends JdbcUrlParser implements CubridConstant
     @Override
     public DatabaseInfo doParse(String url) {
         if (url == null) {
-            return UnKnownDatabaseInfo.createUnknownDataBase(CUBRID, CUBRID_EXECUTE_QUERY, null);
+            return UnKnownDatabaseInfo.createUnknownDataBase(CubridConstants.CUBRID, CubridConstants.CUBRID_EXECUTE_QUERY, null);
         }
 
         final Matcher matcher = PATTERN.matcher(url);
         if (!matcher.find()) {
             logger.warn("Cubrid connectionString parse fail. url:{}", url);
-            return UnKnownDatabaseInfo.createUnknownDataBase(CUBRID, CUBRID_EXECUTE_QUERY, url);
+            return UnKnownDatabaseInfo.createUnknownDataBase(CubridConstants.CUBRID, CubridConstants.CUBRID_EXECUTE_QUERY, url);
         }
 
         String host = matcher.group(2);
@@ -95,7 +95,7 @@ public class CubridJdbcUrlParser extends JdbcUrlParser implements CubridConstant
 
         // skip alt host
 
-        return new DefaultDatabaseInfo(CUBRID, CUBRID_EXECUTE_QUERY, url, normalizedUrl, hostList, db);
+        return new DefaultDatabaseInfo(CubridConstants.CUBRID, CubridConstants.CUBRID_EXECUTE_QUERY, url, normalizedUrl, hostList, db);
     }
 
 

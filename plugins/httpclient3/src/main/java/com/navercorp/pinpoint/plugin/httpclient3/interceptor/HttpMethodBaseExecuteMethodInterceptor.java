@@ -58,7 +58,7 @@ import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
  * @author Minwoo Jung
  */
 @Group(value = HttpClient3Constants.HTTP_CLIENT3_METHOD_BASE_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
-public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor, HttpClient3Constants {
+public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();

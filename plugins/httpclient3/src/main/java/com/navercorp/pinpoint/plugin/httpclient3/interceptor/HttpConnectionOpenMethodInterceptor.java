@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.plugin.httpclient3.ProxyPortNumberGetter;
 /**
  * @author jaehong.kim
  */
-public class HttpConnectionOpenMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin implements HttpClient3Constants {
+public class HttpConnectionOpenMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public HttpConnectionOpenMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);

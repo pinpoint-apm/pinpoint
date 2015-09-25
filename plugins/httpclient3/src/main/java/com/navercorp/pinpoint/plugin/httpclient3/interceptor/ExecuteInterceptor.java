@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
  * @author jaehong.kim
  */
 @Group(HttpClient3Constants.HTTP_CLIENT3_SCOPE)
-public class ExecuteInterceptor implements AroundInterceptor, HttpClient3Constants {
+public class ExecuteInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();

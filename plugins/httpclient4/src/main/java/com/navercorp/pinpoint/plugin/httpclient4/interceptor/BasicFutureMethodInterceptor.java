@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author jaehong.kim
  * 
  */
-public class BasicFutureMethodInterceptor extends SpanAsyncEventSimpleAroundInterceptor implements HttpClient4Constants {
+public class BasicFutureMethodInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
 
     public BasicFutureMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);

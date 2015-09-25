@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
  * @author Jongho Moon
  *
  */
-public class CubridPlugin implements ProfilerPlugin, CubridConstants {
+public class CubridPlugin implements ProfilerPlugin {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
@@ -50,7 +50,7 @@ public class CubridPlugin implements ProfilerPlugin, CubridConstants {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_CUBRID);
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(CubridConstants.GROUP_CUBRID);
                         
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", group);
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor", group);
@@ -79,7 +79,7 @@ public class CubridPlugin implements ProfilerPlugin, CubridConstants {
             @Override
             public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_CUBRID);
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(CubridConstants.GROUP_CUBRID);
                 
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", group, ExecutionPolicy.ALWAYS, new CubridJdbcUrlParser());
                 
@@ -100,7 +100,7 @@ public class CubridPlugin implements ProfilerPlugin, CubridConstants {
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor", "new java.util.HashMap()");
                 
                 int maxBindValueSize = config.getMaxSqlBindValueSize();
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_CUBRID);
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(CubridConstants.GROUP_CUBRID);
                 
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor", group, maxBindValueSize);
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", group);
@@ -119,7 +119,7 @@ public class CubridPlugin implements ProfilerPlugin, CubridConstants {
                 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
                 
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_CUBRID);
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(CubridConstants.GROUP_CUBRID);
 
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor", group);
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor", group);

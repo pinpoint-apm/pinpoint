@@ -19,5 +19,5 @@ package com.navercorp.pinpoint.plugin.httpclient3;
  *
  */
 public interface ProxyPortNumberGetter {
-    public int _$PINPOINT$_getProxyPortNumber();
+    int _$PINPOINT$_getProxyPortNumber();
 }

@@ -34,7 +34,7 @@ import com.navercorp.pinpoint.plugin.google.httpclient.HttpClientConstants;
  *
  */
 @Group(value = HttpClientConstants.EXECUTE_ASYNC_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
-public class HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor implements AroundInterceptor, HttpClientConstants {
+public class HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -69,7 +69,7 @@ public class HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor imple
 
     private boolean validate(final Object target, final Object[] args) {
         if (!(target instanceof AsyncTraceIdAccessor)) {
-            logger.debug("Invalid target object. Need field accessor({}).", METADATA_ASYNC_TRACE_ID);
+            logger.debug("Invalid target object. Need field accessor({}).", HttpClientConstants.METADATA_ASYNC_TRACE_ID);
             return false;
         }
 
