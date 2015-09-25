@@ -162,7 +162,7 @@
             	            .append("line")
             	            .attr("class", "guideLine")
             	            .attr("x1", 0)
-            	            .attr("y1", 0)
+            	            .attr("y1", 10)
             	            .attr("x2", 0)
             	            .attr("y2", height);
 
@@ -198,7 +198,7 @@
             	        tooltipDate = svg.append("text")
             	            .attr("x", "29%")
             	            .attr("y", "6px")
-            	            .attr("fill", "#AAA")
+            	            .attr("fill", "#000")
             	            .attr("text-anchor", "middle")
             	            .attr("font-size", "14px")
             	            .text("");
@@ -208,7 +208,7 @@
             	        if ( index === -1 ) return a;
             	        for( var i = 0 ; i < aInnerStack.length ; i++ ) {
             	            a.push( {
-            	                y: aInnerStack[i][index].y,
+            	                y: aInnerStack[i][index] ? aInnerStack[i][index].y : 0,
             	                d: aInnerStack[i][index].d
             	            });
             	        }
