@@ -139,7 +139,7 @@
 	height: 470px;
 }
 #pinpoint-configuration .some-list-content .wrapper {
-	position: absolute;
+	position: relative;
 	width: 100%;
 	height: 428px;
 	overflow-y: auto;

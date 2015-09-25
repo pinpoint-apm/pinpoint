@@ -41,8 +41,8 @@
 	    }
 	});
 	
-	pinpointApp.directive('serverMapDirective', [ 'serverMapDirectiveConfig', 'ServerMapDaoService', 'AlertsService', 'ProgressBarService', 'SidebarTitleVoService', '$filter', 'ServerMapFilterVoService', 'filteredMapUtilService', '$base64', 'ServerMapHintVoService', '$timeout', '$location', '$window', 'helpContentTemplate', 'helpContentService', 'AnalyticsService',
-	    function (cfg, ServerMapDaoService, AlertsService, ProgressBarService, SidebarTitleVoService, $filter, ServerMapFilterVoService, filteredMapUtilService, $base64, ServerMapHintVoService, $timeout, $location, $window, helpContentTemplate, helpContentService, analyticsService) {
+	pinpointApp.directive('serverMapDirective', [ 'serverMapDirectiveConfig', '$rootScope', 'ServerMapDaoService', 'AlertsService', 'ProgressBarService', 'SidebarTitleVoService', '$filter', 'ServerMapFilterVoService', 'filteredMapUtilService', '$base64', 'ServerMapHintVoService', '$timeout', '$location', '$window', 'helpContentTemplate', 'helpContentService', 'AnalyticsService',
+	    function (cfg, $rootScope, ServerMapDaoService, AlertsService, ProgressBarService, SidebarTitleVoService, $filter, ServerMapFilterVoService, filteredMapUtilService, $base64, ServerMapHintVoService, $timeout, $location, $window, helpContentTemplate, helpContentService, analyticsService) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -352,6 +352,7 @@
 	                        sLastSelection = 'node';
 	                        htLastNode = node;
 	                        scope.$emit("serverMapDirective.nodeClicked", e, htLastQuery, node, htLastMergedMapData, searchQuery);
+	                        $rootScope.$broadcast("realtimeChartController.initialize", node.isWas, node.applicationName );
 	                        reset();
 	                    };
 	                    options.fOnNodeDoubleClicked = function(e, node, htData ) {
