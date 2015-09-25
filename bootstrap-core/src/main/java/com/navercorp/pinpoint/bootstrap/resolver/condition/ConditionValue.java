@@ -21,6 +21,6 @@ package com.navercorp.pinpoint.bootstrap.resolver.condition;
  */
 public interface ConditionValue<V> {
 
-    public V getValue();
+    V getValue();
     
 }

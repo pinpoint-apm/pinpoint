@@ -21,6 +21,6 @@ import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
  *
  */
 public interface DatabaseInfoAccessor {
-    public void _$PINPOINT$_setDatabaseInfo(DatabaseInfo info);
-    public DatabaseInfo _$PINPOINT$_getDatabaseInfo();
+    void _$PINPOINT$_setDatabaseInfo(DatabaseInfo info);
+    DatabaseInfo _$PINPOINT$_getDatabaseInfo();
 }

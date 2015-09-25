@@ -21,6 +21,6 @@ import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
  *
  */
 public interface ParsingResultAccessor {
-    public void _$PINPOINT$_setParsingResult(ParsingResult result);
-    public ParsingResult _$PINPOINT$_getParsingResult();
+    void _$PINPOINT$_setParsingResult(ParsingResult result);
+    ParsingResult _$PINPOINT$_getParsingResult();
 }

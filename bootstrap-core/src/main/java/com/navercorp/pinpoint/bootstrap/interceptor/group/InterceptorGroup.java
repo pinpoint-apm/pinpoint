@@ -20,6 +20,6 @@ package com.navercorp.pinpoint.bootstrap.interceptor.group;
  *
  */
 public interface InterceptorGroup {
-    public String getName();
-    public InterceptorGroupInvocation getCurrentInvocation();
+    String getName();
+    InterceptorGroupInvocation getCurrentInvocation();
 }

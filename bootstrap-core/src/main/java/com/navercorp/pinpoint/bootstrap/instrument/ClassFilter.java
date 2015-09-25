@@ -21,8 +21,8 @@ package com.navercorp.pinpoint.bootstrap.instrument;
  * @author jaehong.kim
  */
 public interface ClassFilter {
-    public static final boolean ACCEPT = true;
-    public static final boolean REJECT = false;
+    boolean ACCEPT = true;
+    boolean REJECT = false;
 
     boolean accept(InstrumentClass clazz);  
 }

@@ -26,17 +26,17 @@ import com.navercorp.pinpoint.common.trace.LoggingInfo;
  *
  */
 public interface PluginTestVerifier {
-    public void verifyServerType(String expected);
-    public void verifyServerInfo(String expected);
-    public void verifyConnector(String protocol, int port);
-    public void verifyService(String context, List<String> libs);
-    public void verifyTraceCount(int expected);
-    public void verifyTrace(ExpectedTrace... expectations);
-    public void verifyDiscreteTrace(ExpectedTrace... expectations);
-    public void ignoreServiceType(String... serviceTypes);
-    public void printCache(PrintStream out);
-    public void printCache();
-    public void initialize(boolean initializeTraceObject);
-    public void cleanUp(boolean detachTraceObject);
-    public void verifyIsLoggingTransactionInfo(LoggingInfo loggingInfo);
+    void verifyServerType(String expected);
+    void verifyServerInfo(String expected);
+    void verifyConnector(String protocol, int port);
+    void verifyService(String context, List<String> libs);
+    void verifyTraceCount(int expected);
+    void verifyTrace(ExpectedTrace... expectations);
+    void verifyDiscreteTrace(ExpectedTrace... expectations);
+    void ignoreServiceType(String... serviceTypes);
+    void printCache(PrintStream out);
+    void printCache();
+    void initialize(boolean initializeTraceObject);
+    void cleanUp(boolean detachTraceObject);
+    void verifyIsLoggingTransactionInfo(LoggingInfo loggingInfo);
 }
