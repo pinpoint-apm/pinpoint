@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.rpc.packet.*;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
-import com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler;
+import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.thrift.io.*;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
@@ -84,7 +84,7 @@ public class TCPReceiver {
     private AgentLifeCycleHandler agentLifeCycleHandler;
     
     @Resource(name="channelStateChangeEventHandlers")
-    private List<ChannelStateChangeEventHandler> channelStateChangeEventHandlers = Collections.emptyList();
+    private List<ServerStateChangeEventHandler> channelStateChangeEventHandlers = Collections.emptyList();
 
     public TCPReceiver(CollectorConfiguration configuration, DispatchHandler dispatchHandler) {
         this(configuration, dispatchHandler, new PinpointServerAcceptor(), null);
@@ -137,7 +137,7 @@ public class TCPReceiver {
 
     @PostConstruct
     public void start() {
-        for (ChannelStateChangeEventHandler channelStateChangeEventHandler : this.channelStateChangeEventHandlers) {
+        for (ServerStateChangeEventHandler channelStateChangeEventHandler : this.channelStateChangeEventHandlers) {
             serverAcceptor.addStateChangeEventHandler(channelStateChangeEventHandler);
         }
         

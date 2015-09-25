@@ -16,21 +16,20 @@
 
 package com.navercorp.pinpoint.collector.rpc.handler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.common.util.AgentEventType;
 import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler;
+import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author HyunGil Jeong
  */
-public class AgentLifeCycleChangeEventHandler implements ChannelStateChangeEventHandler {
+public class AgentLifeCycleChangeEventHandler implements ServerStateChangeEventHandler {
 
     public static final ManagedAgentLifeCycle STATE_NOT_MANAGED = null;
 

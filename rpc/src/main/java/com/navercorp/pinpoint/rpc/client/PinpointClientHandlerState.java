@@ -16,12 +16,17 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
+import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.StateChangeEventListener;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.rpc.common.SocketState;
 import com.navercorp.pinpoint.rpc.common.SocketStateChangeResult;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
+
+import java.util.List;
 
 /**
  * @author Taejin Koo
@@ -30,11 +35,15 @@ public class PinpointClientHandlerState {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final String objectUniqName;
+    private final DefaultPinpointClientHandler clientHandler;
+    private final List<StateChangeEventListener> stateChangeEventListeners;
+
     private final SocketState state;
     
-    public PinpointClientHandlerState(String objectUniqName) {
-        this.objectUniqName = objectUniqName;
+    public PinpointClientHandlerState(DefaultPinpointClientHandler clientHandler, List<StateChangeEventListener> stateChangeEventListeners) {
+        this.clientHandler = clientHandler;
+        this.stateChangeEventListeners = stateChangeEventListeners;
+
         this.state = new SocketState();
     }
 
@@ -104,15 +113,30 @@ public class PinpointClientHandlerState {
     }
     
     private SocketStateChangeResult to(SocketStateCode nextState) {
-        logger.debug("{} stateTo() started. to:{}", objectUniqName, nextState);
+        String objectName = clientHandler.getObjectName();
+        PinpointSocket pinpointSocket = clientHandler.getPinpointClient();
+
+        logger.debug("{} stateTo() started. to:{}", objectName, nextState);
 
         SocketStateChangeResult stateChangeResult = state.changeState(nextState);
+        if (stateChangeResult.isChange()) {
+            executeChangeEventHandler(pinpointSocket, nextState);
+        }
 
-        logger.info("{} stateTo() completed. {}", objectUniqName, stateChangeResult);
-
+        logger.info("{} stateTo() completed. {}", objectName, stateChangeResult);
         return stateChangeResult;
     }
-    
+
+    private void executeChangeEventHandler(PinpointSocket pinpointSocket, SocketStateCode nextState) {
+        for (StateChangeEventListener eachListener : this.stateChangeEventListeners) {
+            try {
+                eachListener.eventPerformed(pinpointSocket, nextState);
+            } catch (Exception e) {
+                eachListener.exceptionCaught(pinpointSocket, nextState, e);
+            }
+        }
+    }
+
     boolean isBeforeConnected(SocketStateCode currentStateCode) {
         return SocketStateCode.isBeforeConnected(currentStateCode);
     }
@@ -156,7 +180,7 @@ public class PinpointClientHandlerState {
         
         return false;
     }
-    
+
     SocketStateCode getCurrentStateCode() {
         return state.getCurrentState();
     }

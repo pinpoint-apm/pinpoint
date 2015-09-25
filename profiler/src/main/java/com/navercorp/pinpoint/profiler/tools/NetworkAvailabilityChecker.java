@@ -16,18 +16,17 @@
 
 package com.navercorp.pinpoint.profiler.tools;
 
-import java.util.Collections;
-
-import com.navercorp.pinpoint.rpc.client.PinpointClient;
-import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
-import com.navercorp.pinpoint.rpc.PinpointSocketException;
+import com.navercorp.pinpoint.rpc.client.PinpointClient;
+import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
 
 /**
  * 
@@ -66,7 +65,7 @@ public class NetworkAvailabilityChecker implements PinpointTools {
             String collectorTcpIp = profilerConfig.getCollectorTcpServerIp();
             int collectorTcpPort = profilerConfig.getCollectorTcpServerPort();
             clientFactory = createPinpointClientFactory();
-            client = createPinpointClient(collectorTcpIp, collectorTcpPort, clientFactory);
+            client = ClientFactoryUtils.createPinpointClient(collectorTcpIp, collectorTcpPort, clientFactory);
 
             tcpSender = new TcpDataSender(client);
 
@@ -122,20 +121,4 @@ public class NetworkAvailabilityChecker implements PinpointTools {
         return pinpointClientFactory;
     }
 
-    
-    private static PinpointClient createPinpointClient(String host, int port, PinpointClientFactory factory) {
-        RuntimeException lastException = null;
-        for (int i = 0; i < 3; i++) {
-            try {
-                PinpointClient pinpointClient = factory.connect(host, port);
-                LOGGER.info("tcp connect success:{}/{}", host, port);
-                return pinpointClient;
-            } catch (PinpointSocketException e) {
-                LOGGER.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
-                lastException = e;
-            }
-        }
-        throw lastException;
-    }
-    
 }

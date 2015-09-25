@@ -23,6 +23,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
+import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +65,6 @@ import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
 import com.navercorp.pinpoint.profiler.util.ApplicationServerTypeResolver;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.rpc.ClassPreLoader;
-import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 
 /**
@@ -324,26 +324,9 @@ public class DefaultAgent implements Agent {
         return pinpointClientFactory;
     }
 
-    protected PinpointClient createPinpointClient(String host, int port, PinpointClientFactory factory) {
-        PinpointClient client = null;
-        for (int i = 0; i < 3; i++) {
-            try {
-                client = factory.connect(host, port);
-                logger.info("tcp connect success:{}/{}", host, port);
-                return client;
-            } catch (PinpointSocketException e) {
-                logger.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
-            }
-        }
-        logger.warn("change background tcp connect mode  {}/{} ", host, port);
-        client = factory.scheduledConnect(host, port);
-
-        return client;
-    }
-
     protected EnhancedDataSender createTcpDataSender(CommandDispatcher commandDispatcher) {
         this.clientFactory = createPinpointClientFactory(commandDispatcher);
-        this.client = createPinpointClient(this.profilerConfig.getCollectorTcpServerIp(), this.profilerConfig.getCollectorTcpServerPort(), clientFactory);
+        this.client = ClientFactoryUtils.createPinpointClient(this.profilerConfig.getCollectorTcpServerIp(), this.profilerConfig.getCollectorTcpServerPort(), clientFactory);
         return new TcpDataSender(client);
     }
 

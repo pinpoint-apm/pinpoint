@@ -16,13 +16,14 @@
 
 package com.navercorp.pinpoint.rpc.server.handler;
 
+import com.navercorp.pinpoint.rpc.StateChangeEventListener;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 
 /**
  * @author koo.taejin
  */
-public interface ChannelStateChangeEventHandler {
+public interface ServerStateChangeEventHandler extends StateChangeEventListener<PinpointServer> {
 
     void eventPerformed(PinpointServer pinpointServer, SocketStateCode stateCode) throws Exception;
     

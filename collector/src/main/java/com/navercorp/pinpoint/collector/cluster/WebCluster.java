@@ -23,10 +23,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
@@ -67,7 +67,7 @@ public class WebCluster implements Cluster {
             return;
         }
 
-        PinpointClient client = createPinpointClient(address);
+        PinpointClient client = ClientFactoryUtils.createPinpointClient(address, clientFactory);
         clusterRepository.put(address, client);
 
         logger.info("localhost -> {} connect completed.", address);
@@ -84,26 +84,6 @@ public class WebCluster implements Cluster {
         } else {
             logger.info("localhost -> {} already disconnected.", address);
         }
-    }
-
-    private PinpointClient createPinpointClient(InetSocketAddress address) {
-        String host = address.getHostName();
-        int port = address.getPort();
-
-        PinpointClient client = null;
-        for (int i = 0; i < 3; i++) {
-            try {
-                client = clientFactory.connect(host, port);
-                logger.info("tcp connect success:{}/{}", host, port);
-                return client;
-            } catch (PinpointSocketException e) {
-                logger.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
-            }
-        }
-        logger.warn("change background tcp connect mode  {}/{} ", host, port);
-        client = clientFactory.scheduledConnect(host, port);
-
-        return client;
     }
 
     public List<InetSocketAddress> getWebClusterList() {

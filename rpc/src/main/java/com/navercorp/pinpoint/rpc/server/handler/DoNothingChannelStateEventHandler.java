@@ -25,11 +25,11 @@ import com.navercorp.pinpoint.rpc.server.PinpointServer;
 /**
  * @author koo.taejin
  */
-public class DoNothingChannelStateEventHandler implements ChannelStateChangeEventHandler {
+public class DoNothingChannelStateEventHandler implements ServerStateChangeEventHandler {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public static final ChannelStateChangeEventHandler INSTANCE = new DoNothingChannelStateEventHandler();
+    public static final ServerStateChangeEventHandler INSTANCE = new DoNothingChannelStateEventHandler();
 
     @Override
     public void eventPerformed(PinpointServer pinpointServer, SocketStateCode stateCode) {
