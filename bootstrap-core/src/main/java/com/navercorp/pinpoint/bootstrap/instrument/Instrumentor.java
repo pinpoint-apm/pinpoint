@@ -23,17 +23,17 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
  *
  */
 public interface Instrumentor {
-    public TraceContext getTraceContext();
+    TraceContext getTraceContext();
     
-    public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classfileBuffer);
+    InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classfileBuffer);
     
-    public boolean exist(ClassLoader classLoader, String className);
+    boolean exist(ClassLoader classLoader, String className);
     
-    public InterceptorGroup getInterceptorGroup(String name);
+    InterceptorGroup getInterceptorGroup(String name);
         
-    public <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className);
+    <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className);
     
-    public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, PinpointClassFileTransformer transformer);
+    void addClassFileTransformer(ClassLoader classLoader, String targetClassName, PinpointClassFileTransformer transformer);
     
-    public void retransform(Class<?> target, PinpointClassFileTransformer transformer);
+    void retransform(Class<?> target, PinpointClassFileTransformer transformer);
 }

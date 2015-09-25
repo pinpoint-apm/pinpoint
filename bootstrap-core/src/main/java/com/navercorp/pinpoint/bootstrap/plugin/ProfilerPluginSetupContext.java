@@ -31,14 +31,14 @@ public interface ProfilerPluginSetupContext {
      * 
      * @return {@link ProfilerConfig}
      */
-    public ProfilerConfig getConfig();
+    ProfilerConfig getConfig();
 
     /**
      * Add a {@link ApplicationTypeDetector} to Pinpoint agent.
      * 
      * @param detectors
      */
-    public void addApplicationTypeDetector(ApplicationTypeDetector... detectors);
+    void addApplicationTypeDetector(ApplicationTypeDetector... detectors);
     
-    public void addClassFileTransformer(String targetClassName, PinpointClassFileTransformer transformer);
+    void addClassFileTransformer(String targetClassName, PinpointClassFileTransformer transformer);
 }

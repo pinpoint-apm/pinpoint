@@ -35,9 +35,9 @@ public interface ServerMetaDataHolder {
     
     void publishServerMetaData();
     
-    public interface ServerMetaDataListener {
+    interface ServerMetaDataListener {
         
-        public void publishServerMetaData(ServerMetaData serverMetaData);
+        void publishServerMetaData(ServerMetaData serverMetaData);
         
     }
 }

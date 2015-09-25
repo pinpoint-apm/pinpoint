@@ -21,6 +21,6 @@ package com.navercorp.pinpoint.bootstrap.resolver.condition;
  */
 public interface Condition<T> {
 
-    public boolean check(T condition);
+    boolean check(T condition);
     
 }
