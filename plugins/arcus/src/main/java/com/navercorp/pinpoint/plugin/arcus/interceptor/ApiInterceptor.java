@@ -40,7 +40,7 @@ import com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor;
  * @author jaehong.kim
  */
 @Group(ArcusConstants.ARCUS_SCOPE)
-public class ApiInterceptor implements AroundInterceptor, ArcusConstants {
+public class ApiInterceptor implements AroundInterceptor {
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
 
@@ -146,14 +146,14 @@ public class ApiInterceptor implements AroundInterceptor, ArcusConstants {
                 String serviceCode = ((ServiceCodeAccessor)target)._$PINPOINT$_getServiceCode();
                 if (serviceCode != null) {
                     recorder.recordDestinationId(serviceCode);
-                    recorder.recordServiceType(ARCUS);
+                    recorder.recordServiceType(ArcusConstants.ARCUS);
                 } else {
                     recorder.recordDestinationId("MEMCACHED");
-                    recorder.recordServiceType(MEMCACHED);
+                    recorder.recordServiceType(ArcusConstants.MEMCACHED);
                 }
             } else {
                 recorder.recordDestinationId("MEMCACHED");
-                recorder.recordServiceType(MEMCACHED);
+                recorder.recordServiceType(ArcusConstants.MEMCACHED);
             }
 
             try {

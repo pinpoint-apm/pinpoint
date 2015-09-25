@@ -22,14 +22,14 @@ import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
  * @author Jongho Moon
  *
  */
-public class ArcusTypeProvider implements TraceMetadataProvider, ArcusConstants {
+public class ArcusTypeProvider implements TraceMetadataProvider {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(ARCUS, AnnotationKeyMatchers.ARGS_MATCHER);
-        context.addServiceType(ARCUS_FUTURE_GET);
-        context.addServiceType(ARCUS_EHCACHE_FUTURE_GET);
-        context.addServiceType(MEMCACHED, AnnotationKeyMatchers.ARGS_MATCHER);
-        context.addServiceType(MEMCACHED_FUTURE_GET);
+        context.addServiceType(ArcusConstants.ARCUS, AnnotationKeyMatchers.ARGS_MATCHER);
+        context.addServiceType(ArcusConstants.ARCUS_FUTURE_GET);
+        context.addServiceType(ArcusConstants.ARCUS_EHCACHE_FUTURE_GET);
+        context.addServiceType(ArcusConstants.MEMCACHED, AnnotationKeyMatchers.ARGS_MATCHER);
+        context.addServiceType(ArcusConstants.MEMCACHED_FUTURE_GET);
     }
 }

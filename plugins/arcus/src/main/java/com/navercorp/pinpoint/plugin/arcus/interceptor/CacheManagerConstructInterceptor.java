@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor;
  * @author emeroad
  */
 @TargetConstructor({"java.lang.String", "java.lang.String", "net.spy.memcached.ConnectionFactoryBuilder", "java.util.concurrent.CountDownLatch", "int", "int"})
-public class CacheManagerConstructInterceptor implements AroundInterceptor, ArcusConstants {
+public class CacheManagerConstructInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();

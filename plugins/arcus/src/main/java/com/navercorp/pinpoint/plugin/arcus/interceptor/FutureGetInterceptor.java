@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor;
  * @author jaehong.kim
  */
 @Group(ArcusConstants.ARCUS_FUTURE_SCOPE)
-public class FutureGetInterceptor extends SpanAsyncEventSimpleAroundInterceptor implements ArcusConstants {
+public class FutureGetInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
 
     public FutureGetInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext) {
         super(traceContext, methodDescriptor);
@@ -68,10 +68,10 @@ public class FutureGetInterceptor extends SpanAsyncEventSimpleAroundInterceptor 
         String serviceCode = ((ServiceCodeAccessor)op)._$PINPOINT$_getServiceCode();
         if (serviceCode != null) {
             recorder.recordDestinationId(serviceCode);
-            recorder.recordServiceType(ARCUS_FUTURE_GET);
+            recorder.recordServiceType(ArcusConstants.ARCUS_FUTURE_GET);
         } else {
             recorder.recordDestinationId("MEMCACHED");
-            recorder.recordServiceType(MEMCACHED_FUTURE_GET);
+            recorder.recordServiceType(ArcusConstants.MEMCACHED_FUTURE_GET);
         }
 
         if (op != null) {

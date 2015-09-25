@@ -22,7 +22,10 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 
 
 
-public interface ArcusConstants {
+public final class ArcusConstants {
+    private ArcusConstants() {
+    }
+
     public static final ServiceType ARCUS = ServiceType.of(8100, "ARCUS", FAST_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
     public static final ServiceType ARCUS_FUTURE_GET = ServiceType.of(8101, "ARCUS_FUTURE_GET", "ARCUS", FAST_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
     public static final ServiceType ARCUS_EHCACHE_FUTURE_GET = ServiceType.of(8102, "ARCUS_EHCACHE_FUTURE_GET", "ARCUS-EHCACHE", FAST_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);

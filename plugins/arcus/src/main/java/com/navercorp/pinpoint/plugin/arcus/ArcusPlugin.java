@@ -34,7 +34,7 @@ import com.navercorp.pinpoint.plugin.arcus.filter.FrontCacheMemcachedMethodFilte
  * @author jaehong.kim
  *
  */
-public class ArcusPlugin implements ProfilerPlugin, ArcusConstants {
+public class ArcusPlugin implements ProfilerPlugin {
     private static final String ASYNC_TRACE_ID_ACCESSOR = "com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor";
     private static final String OPERATION_ACCESSOR = "com.navercorp.pinpoint.plugin.arcus.OperationAccessor";
     private static final String CACHE_KEY_ACCESSOR = "com.navercorp.pinpoint.plugin.arcus.CacheKeyAccessor";

@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor;
  * @author emeroad
  */
 @TargetMethod(name="setCacheManager", paramTypes="net.spy.memcached.CacheManager")
-public class SetCacheManagerInterceptor implements BeforeInterceptor, ArcusConstants {
+public class SetCacheManagerInterceptor implements BeforeInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
