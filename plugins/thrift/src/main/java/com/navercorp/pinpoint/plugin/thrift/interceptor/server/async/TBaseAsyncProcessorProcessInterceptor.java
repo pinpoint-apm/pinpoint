@@ -78,7 +78,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.ServerMarkerFlagField
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor
  */
 @Group(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.BOUNDARY)
-public class TBaseAsyncProcessorProcessInterceptor implements AroundInterceptor, ThriftConstants {
+public class TBaseAsyncProcessorProcessInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -183,7 +183,7 @@ public class TBaseAsyncProcessorProcessInterceptor implements AroundInterceptor,
     }
 
     private String getMethodUri(Object target) {
-        String methodUri = UNKNOWN_METHOD_URI;
+        String methodUri = ThriftConstants.UNKNOWN_METHOD_URI;
         InterceptorGroupInvocation currentTransaction = this.group.getCurrentInvocation();
         Object attachment = currentTransaction.getAttachment();
         if (attachment instanceof ThriftClientCallContext && target instanceof TBaseAsyncProcessor) {

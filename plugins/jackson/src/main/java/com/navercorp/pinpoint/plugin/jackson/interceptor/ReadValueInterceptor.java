@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.plugin.jackson.JacksonConstants;
  * @see JacksonPlugin#intercept_ObjectMapper(com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext)
  * @author Sungkook Kim
  */
-public class ReadValueInterceptor implements AroundInterceptor, JacksonConstants {
+public class ReadValueInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -53,7 +53,7 @@ public class ReadValueInterceptor implements AroundInterceptor, JacksonConstants
         }
 
         SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.recordServiceType(SERVICE_TYPE);
+        recorder.recordServiceType(JacksonConstants.SERVICE_TYPE);
     }
 
     @Override
@@ -76,11 +76,11 @@ public class ReadValueInterceptor implements AroundInterceptor, JacksonConstants
             
             if (arg != null) {
                 if (arg instanceof String) {
-                    recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((String) arg).length());
+                    recorder.recordAttribute(JacksonConstants.ANNOTATION_KEY_LENGTH_VALUE, ((String) arg).length());
                 } else if (arg instanceof byte[]) {
-                    recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte[]) arg).length);
+                    recorder.recordAttribute(JacksonConstants.ANNOTATION_KEY_LENGTH_VALUE, ((byte[]) arg).length);
                 } else if (arg instanceof File) {
-                    recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((File) arg).length());
+                    recorder.recordAttribute(JacksonConstants.ANNOTATION_KEY_LENGTH_VALUE, ((File) arg).length());
                 }
             }
         } finally {

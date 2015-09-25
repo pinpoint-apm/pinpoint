@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 /**
  * @author HyunGil Jeong
  */
-public class SpringBootPlugin implements ProfilerPlugin, SpringBootConstants {
+public class SpringBootPlugin implements ProfilerPlugin {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {

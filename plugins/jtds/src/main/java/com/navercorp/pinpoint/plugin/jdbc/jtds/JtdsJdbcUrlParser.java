@@ -28,14 +28,14 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 /**
  * @author emeroad
  */
-public class JtdsJdbcUrlParser extends JdbcUrlParser implements JtdsConstants {
+public class JtdsJdbcUrlParser extends JdbcUrlParser {
 
     public static final int DEFAULT_PORT = 1433;
 
     @Override
     public DatabaseInfo doParse(String url) {
         if (url == null) {
-            return UnKnownDatabaseInfo.createUnknownDataBase(MSSQL, MSSQL_EXECUTE_QUERY, null);
+            return UnKnownDatabaseInfo.createUnknownDataBase(JtdsConstants.MSSQL, JtdsConstants.MSSQL_EXECUTE_QUERY, null);
         }
 
 //        jdbc:jtds:sqlserver://10.xx.xx.xx:1433;DatabaseName=CAFECHAT;sendStringParametersAsUnicode=false;useLOBs=false;loginTimeout=3
@@ -66,7 +66,7 @@ public class JtdsJdbcUrlParser extends JdbcUrlParser implements JtdsConstants {
 
         String normalizedUrl = maker.clear().before(";").value();
 
-        return new DefaultDatabaseInfo(MSSQL, MSSQL_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
+        return new DefaultDatabaseInfo(JtdsConstants.MSSQL, JtdsConstants.MSSQL_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
     }
 
 

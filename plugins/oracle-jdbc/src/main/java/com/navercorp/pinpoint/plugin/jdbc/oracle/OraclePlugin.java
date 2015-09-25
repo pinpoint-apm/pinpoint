@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
  * @author Jongho Moon
  *
  */
-public class OraclePlugin implements ProfilerPlugin, OracleConstants {
+public class OraclePlugin implements ProfilerPlugin {
 
     private static final String CLASS_STATEMENT_WRAPPER = "oracle.jdbc.driver.OracleStatementWrapper";
     private static final String CLASS_STATEMENT = "oracle.jdbc.driver.OracleStatement";
@@ -55,7 +55,7 @@ public class OraclePlugin implements ProfilerPlugin, OracleConstants {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_ORACLE);
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(OracleConstants.GROUP_ORACLE);
                         
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", group);
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor", group);
@@ -84,7 +84,7 @@ public class OraclePlugin implements ProfilerPlugin, OracleConstants {
             @Override
             public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_ORACLE);
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(OracleConstants.GROUP_ORACLE);
                 
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", group, ExecutionPolicy.ALWAYS, new OracleJdbcUrlParser());
                 
@@ -111,7 +111,7 @@ public class OraclePlugin implements ProfilerPlugin, OracleConstants {
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor", "new java.util.HashMap()");
                 
                 int maxBindValueSize = config.getMaxSqlBindValueSize();
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_ORACLE);
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(OracleConstants.GROUP_ORACLE);
                 
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor", group, maxBindValueSize);
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", group);
@@ -139,7 +139,7 @@ public class OraclePlugin implements ProfilerPlugin, OracleConstants {
                 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
                 
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_ORACLE);
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(OracleConstants.GROUP_ORACLE);
 
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor", group);
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor", group);

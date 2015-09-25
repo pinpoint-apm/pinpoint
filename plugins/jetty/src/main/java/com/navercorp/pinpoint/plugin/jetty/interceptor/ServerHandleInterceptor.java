@@ -42,7 +42,7 @@ import com.navercorp.pinpoint.plugin.jetty.JettyConstants;
 import com.navercorp.pinpoint.plugin.jetty.JettySyncMethodDescriptor;
 
 @TargetMethod(name = "handle", paramTypes = { "org.eclipse.jetty.server.HttpChannel" })
-public class ServerHandleInterceptor implements AroundInterceptor, JettyConstants {
+public class ServerHandleInterceptor implements AroundInterceptor {
 
     public static final JettySyncMethodDescriptor JETTY_SYNC_API_TAG = new JettySyncMethodDescriptor();
 
@@ -80,7 +80,7 @@ public class ServerHandleInterceptor implements AroundInterceptor, JettyConstant
             }
             // ------------------------------------------------------
             SpanEventRecorder recorder = trace.traceBlockBegin();
-            recorder.recordServiceType(JETTY_METHOD);
+            recorder.recordServiceType(JettyConstants.JETTY_METHOD);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("before. Caused:{}", th.getMessage(), th);

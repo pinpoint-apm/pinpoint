@@ -33,7 +33,7 @@ import com.squareup.okhttp.Request;
  * @author jaehong.kim
  */
 @Group(value = OkHttpConstants.SEND_REQUEST_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
-public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor, OkHttpConstants {
+public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 

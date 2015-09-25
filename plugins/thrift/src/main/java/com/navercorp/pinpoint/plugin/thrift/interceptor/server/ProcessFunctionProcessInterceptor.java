@@ -50,7 +50,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.ServerMarkerFlagField
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor
  */
 @Group(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
-public class ProcessFunctionProcessInterceptor implements AroundInterceptor, ThriftConstants {
+public class ProcessFunctionProcessInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -70,7 +70,7 @@ public class ProcessFunctionProcessInterceptor implements AroundInterceptor, Thr
         if (args.length != 4) {
             return;
         }
-        String methodName = UNKNOWN_METHOD_NAME;
+        String methodName = ThriftConstants.UNKNOWN_METHOD_NAME;
         if (target instanceof ProcessFunction) {
             ProcessFunction<?, ?> processFunction = (ProcessFunction<?, ?>)target;
             methodName = processFunction.getMethodName();

@@ -6,5 +6,5 @@ import com.squareup.okhttp.Request;
  * Created by nbp on 2015-09-08.
  */
 public interface UserRequestGetter {
-    public Request _$PINPOINT$_getUserRequest();
+    Request _$PINPOINT$_getUserRequest();
 }

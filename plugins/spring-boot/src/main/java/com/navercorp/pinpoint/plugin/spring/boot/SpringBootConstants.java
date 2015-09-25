@@ -24,7 +24,10 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 /**
  * @author HyunGil Jeong
  */
-public interface SpringBootConstants {
+public final class SpringBootConstants {
+    private SpringBootConstants() {
+    }
+
     public static final String NAME = "SPRING_BOOT";
     public static final ServiceType SERVICE_TYPE = ServiceType.of(1210, NAME, NORMAL_SCHEMA, RECORD_STATISTICS);
 

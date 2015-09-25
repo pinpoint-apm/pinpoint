@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.plugin.tomcat.TraceAccessor;
  * @author jaehong.kim
  *
  */
-public class RequestRecycleInterceptor implements AroundInterceptor, TomcatConstants {
+public class RequestRecycleInterceptor implements AroundInterceptor {
 
     private PLogger logger = PLoggerFactory.getLogger(this.getClass());
 

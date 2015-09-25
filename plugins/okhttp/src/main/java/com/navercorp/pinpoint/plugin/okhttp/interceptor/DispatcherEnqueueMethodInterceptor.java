@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
  * @author jaehong.kim
  *
  */
-public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor, OkHttpConstants{
+public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -81,7 +81,7 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor, Ok
 
     private boolean validate(Object[] args) {
         if (args == null || args.length < 1 || !(args[0] instanceof AsyncTraceIdAccessor)) {
-            logger.debug("Invalid args[0] object {}. Need field accessor({}).", args, METADATA_ASYNC_TRACE_ID);
+            logger.debug("Invalid args[0] object {}. Need field accessor({}).", args, OkHttpConstants.METADATA_ASYNC_TRACE_ID);
             return false;
         }
 

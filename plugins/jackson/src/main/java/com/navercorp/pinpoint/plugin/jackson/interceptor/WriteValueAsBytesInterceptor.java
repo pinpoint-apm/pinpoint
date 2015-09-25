@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.plugin.jackson.JacksonPlugin;
  * @see JacksonPlugin#intercept_ObjectMapper(com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext)
  * @author Sungkook Kim
  */
-public class WriteValueAsBytesInterceptor implements AroundInterceptor, JacksonConstants {
+public class WriteValueAsBytesInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -51,7 +51,7 @@ public class WriteValueAsBytesInterceptor implements AroundInterceptor, JacksonC
         }
 
         SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.recordServiceType(SERVICE_TYPE);
+        recorder.recordServiceType(JacksonConstants.SERVICE_TYPE);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class WriteValueAsBytesInterceptor implements AroundInterceptor, JacksonC
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
-            recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte []) result).length);
+            recorder.recordAttribute(JacksonConstants.ANNOTATION_KEY_LENGTH_VALUE, ((byte []) result).length);
         } finally {
             trace.traceBlockEnd();
         }

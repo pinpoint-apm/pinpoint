@@ -20,6 +20,6 @@ package com.navercorp.pinpoint.plugin.thrift.field.accessor;
  * @author HyunGil Jeong
  */
 public interface AsyncCallRemoteAddressFieldAccessor {
-    public void _$PINPOINT$_setAsyncCallRemoteAddress(String asyncCallRemoteAddress);
-    public String _$PINPOINT$_getAsyncCallRemoteAddress();
+    void _$PINPOINT$_setAsyncCallRemoteAddress(String asyncCallRemoteAddress);
+    String _$PINPOINT$_getAsyncCallRemoteAddress();
 }

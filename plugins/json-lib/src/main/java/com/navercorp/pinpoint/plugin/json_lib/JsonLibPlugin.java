@@ -34,7 +34,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
  * @author Sangyoon Lee
  *
  */
-public class JsonLibPlugin implements ProfilerPlugin, JsonLibConstants {
+public class JsonLibPlugin implements ProfilerPlugin {
     private static final String BASIC_INTERCEPTOR = BasicMethodInterceptor.class.getName();
     private static final String PARSING_INTERCEPTOR = "com.navercorp.pinpoint.plugin.json_lib.interceptor.ParsingInterceptor";
     private static final String TO_STRING_INTERCEPTOR = "com.navercorp.pinpoint.plugin.json_lib.interceptor.ToStringInterceptor";
@@ -63,7 +63,7 @@ public class JsonLibPlugin implements ProfilerPlugin, JsonLibConstants {
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toJava"))) {
-                    addInterceptor(method, BASIC_INTERCEPTOR, group, SERVICE_TYPE);
+                    addInterceptor(method, BASIC_INTERCEPTOR, group, JsonLibConstants.SERVICE_TYPE);
                 }
 
                 return target.toBytecode();
@@ -86,7 +86,7 @@ public class JsonLibPlugin implements ProfilerPlugin, JsonLibConstants {
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toBean"))) {
-                    addInterceptor(method, BASIC_INTERCEPTOR, group, SERVICE_TYPE);
+                    addInterceptor(method, BASIC_INTERCEPTOR, group, JsonLibConstants.SERVICE_TYPE);
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toString"))) {
@@ -112,15 +112,15 @@ public class JsonLibPlugin implements ProfilerPlugin, JsonLibConstants {
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toArray"))) {
-                    addInterceptor(method, BASIC_INTERCEPTOR, group, SERVICE_TYPE);
+                    addInterceptor(method, BASIC_INTERCEPTOR, group, JsonLibConstants.SERVICE_TYPE);
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toList"))) {
-                    addInterceptor(method, BASIC_INTERCEPTOR, group, SERVICE_TYPE);
+                    addInterceptor(method, BASIC_INTERCEPTOR, group, JsonLibConstants.SERVICE_TYPE);
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toCollection"))) {
-                    addInterceptor(method, BASIC_INTERCEPTOR, group, SERVICE_TYPE);
+                    addInterceptor(method, BASIC_INTERCEPTOR, group, JsonLibConstants.SERVICE_TYPE);
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toString"))) {

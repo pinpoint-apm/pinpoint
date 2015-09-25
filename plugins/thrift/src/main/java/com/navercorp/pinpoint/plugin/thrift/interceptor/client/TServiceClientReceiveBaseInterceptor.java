@@ -32,7 +32,7 @@ import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
  * 
  * @author HyunGil Jeong
  */
-public class TServiceClientReceiveBaseInterceptor extends SpanEventSimpleAroundInterceptorForPlugin implements ThriftConstants {
+public class TServiceClientReceiveBaseInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     private final boolean traceServiceResult;
     
@@ -43,7 +43,7 @@ public class TServiceClientReceiveBaseInterceptor extends SpanEventSimpleAroundI
     
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        recorder.recordServiceType(THRIFT_CLIENT_INTERNAL);
+        recorder.recordServiceType(ThriftConstants.THRIFT_CLIENT_INTERNAL);
     }
     
     @Override
@@ -52,7 +52,7 @@ public class TServiceClientReceiveBaseInterceptor extends SpanEventSimpleAroundI
         if (throwable == null && this.traceServiceResult) {
             if (args.length == 2 && (args[0] instanceof TBase)) {
                 String resultString = getResult((TBase<?, ?>)args[0]);
-                recorder.recordAttribute(THRIFT_RESULT, resultString);
+                recorder.recordAttribute(ThriftConstants.THRIFT_RESULT, resultString);
             }
         } else {
             recorder.recordException(throwable);

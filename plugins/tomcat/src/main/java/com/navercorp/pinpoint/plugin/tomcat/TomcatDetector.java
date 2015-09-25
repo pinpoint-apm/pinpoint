@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author HyunGil Jeong
  *
  */
-public class TomcatDetector implements ApplicationTypeDetector, TomcatConstants {
+public class TomcatDetector implements ApplicationTypeDetector {
     
     private static final String REQUIRED_MAIN_CLASS = "org.apache.catalina.startup.Bootstrap";
     
@@ -33,7 +33,7 @@ public class TomcatDetector implements ApplicationTypeDetector, TomcatConstants 
     
     @Override
     public ServiceType getApplicationType() {
-        return TOMCAT;
+        return TomcatConstants.TOMCAT;
     }
 
     @Override

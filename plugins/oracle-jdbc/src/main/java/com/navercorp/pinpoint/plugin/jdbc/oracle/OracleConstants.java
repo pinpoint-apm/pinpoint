@@ -23,7 +23,10 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author Jongho Moon
  *
  */
-public interface OracleConstants {
+public final class OracleConstants {
+    private OracleConstants() {
+    }
+
     public static final String GROUP_ORACLE = "GROUP_ORACLE";
     
     public static final ServiceType ORACLE = ServiceType.of(2300, "ORACLE", NORMAL_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);

@@ -48,7 +48,7 @@ import com.navercorp.pinpoint.plugin.jdk.http.JdkHttpConstants;
         @TargetMethod(name="getInputStream"),
         @TargetMethod(name="getOutputStream")
 })
-public class HttpURLConnectionInterceptor implements AroundInterceptor, JdkHttpConstants {
+public class HttpURLConnectionInterceptor implements AroundInterceptor {
     private static final Object TRACE_BLOCK_BEGIN_MARKER = new Object();
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -111,7 +111,7 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor, JdkHttpC
             request.setRequestProperty(Header.HTTP_HOST.toString(), endpoint);
         }
 
-        recorder.recordServiceType(SERVICE_TYPE);
+        recorder.recordServiceType(JdkHttpConstants.SERVICE_TYPE);
         
         // Don't record end point because it's same with destination id.
         recorder.recordDestinationId(endpoint);

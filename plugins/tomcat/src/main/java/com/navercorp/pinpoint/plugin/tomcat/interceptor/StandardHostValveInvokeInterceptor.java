@@ -44,7 +44,7 @@ import com.navercorp.pinpoint.plugin.tomcat.TraceAccessor;
  * @author emeroad
  * @author jaehong.kim
  */
-public class StandardHostValveInvokeInterceptor implements AroundInterceptor, TomcatConstants {
+public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     public static final ServletSyncMethodDescriptor SERVLET_SYNCHRONOUS_API_TAG = new ServletSyncMethodDescriptor();
     public static final ServletAsyncMethodDescriptor SERVLET_ASYNCHRONOUS_API_TAG = new ServletAsyncMethodDescriptor();
 
@@ -96,7 +96,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor, To
             }
             // ------------------------------------------------------
             SpanEventRecorder recorder = trace.traceBlockBegin();
-            recorder.recordServiceType(TOMCAT_METHOD);
+            recorder.recordServiceType(TomcatConstants.TOMCAT_METHOD);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("BEFORE. Caused:{}", th.getMessage(), th);

@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
 /**
  * @author HyunGil Jeong
  */
-public class TNonblockingSocketConstructInterceptor implements AroundInterceptor, ThriftConstants {
+public class TNonblockingSocketConstructInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();

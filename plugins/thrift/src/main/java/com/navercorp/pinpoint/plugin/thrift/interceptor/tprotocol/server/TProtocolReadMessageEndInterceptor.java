@@ -71,7 +71,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor
  */
 @Group(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
-public class TProtocolReadMessageEndInterceptor implements AroundInterceptor, ThriftConstants {
+public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
 
     private final ThriftServerEntryMethodDescriptor thriftServerEntryMethodDescriptor = new ThriftServerEntryMethodDescriptor();
 
@@ -147,7 +147,7 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor, Th
             return;
         }
         SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.recordServiceType(THRIFT_SERVER_INTERNAL);
+        recorder.recordServiceType(ThriftConstants.THRIFT_SERVER_INTERNAL);
     }
 
     private Trace createTrace(Object target, ThriftRequestProperty parentTraceInfo, String methodName) {
@@ -202,7 +202,7 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor, Th
     private void recordRootSpan(final Trace trace, final ThriftRequestProperty parentTraceInfo, Object target) {
         // begin root span
         SpanRecorder recorder = trace.getSpanRecorder();
-        recorder.recordServiceType(THRIFT_SERVER);
+        recorder.recordServiceType(ThriftConstants.THRIFT_SERVER);
         recorder.recordApi(this.thriftServerEntryMethodDescriptor);
         if (!trace.isRoot()) {
             recordParentInfo(recorder, parentTraceInfo);
@@ -254,17 +254,17 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor, Th
     
     private void recordConnection(SpanRecorder recorder, TTransport transport) {
         // retrieve connection information
-        String localIpPort = UNKNOWN_ADDRESS;
-        String remoteAddress = UNKNOWN_ADDRESS;
+        String localIpPort = ThriftConstants.UNKNOWN_ADDRESS;
+        String remoteAddress = ThriftConstants.UNKNOWN_ADDRESS;
         Socket socket = ((SocketFieldAccessor)transport)._$PINPOINT$_getSocket();
         if (socket != null) {
             localIpPort = ThriftUtils.getHostPort(socket.getLocalSocketAddress());
             remoteAddress = ThriftUtils.getHost(socket.getRemoteSocketAddress());
         }
-        if (localIpPort != UNKNOWN_ADDRESS) {
+        if (localIpPort != ThriftConstants.UNKNOWN_ADDRESS) {
             recorder.recordEndPoint(localIpPort);
         }
-        if (remoteAddress != UNKNOWN_ADDRESS) {
+        if (remoteAddress != ThriftConstants.UNKNOWN_ADDRESS) {
             recorder.recordRemoteAddress(remoteAddress);
         }
     }

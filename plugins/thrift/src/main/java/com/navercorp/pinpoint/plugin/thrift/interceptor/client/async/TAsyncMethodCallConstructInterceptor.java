@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.getter.TNonblockingTransportFi
 /**
  * @author HyunGil Jeong
  */
-public class TAsyncMethodCallConstructInterceptor implements AroundInterceptor, ThriftConstants {
+public class TAsyncMethodCallConstructInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();

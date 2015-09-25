@@ -24,7 +24,10 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author jaehong.kim
  *
  */
-public interface TomcatConstants {
+public final class TomcatConstants {
+    private TomcatConstants() {
+    }
+
     public static final String TYPE_NAME = "TOMCAT";
     public static final ServiceType TOMCAT = ServiceType.of(1010, "TOMCAT", NORMAL_SCHEMA, RECORD_STATISTICS);
     public static final ServiceType TOMCAT_METHOD = ServiceType.of(1011, "TOMCAT_METHOD", NORMAL_SCHEMA);

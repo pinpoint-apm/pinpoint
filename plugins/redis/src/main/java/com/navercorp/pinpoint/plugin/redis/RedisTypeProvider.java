@@ -19,10 +19,10 @@ import com.navercorp.pinpoint.common.trace.AnnotationKeyMatchers;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
-public class RedisTypeProvider implements TraceMetadataProvider, RedisConstants{
+public class RedisTypeProvider implements TraceMetadataProvider {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(REDIS, AnnotationKeyMatchers.ARGS_MATCHER);
+        context.addServiceType(RedisConstants.REDIS, AnnotationKeyMatchers.ARGS_MATCHER);
     }
 }

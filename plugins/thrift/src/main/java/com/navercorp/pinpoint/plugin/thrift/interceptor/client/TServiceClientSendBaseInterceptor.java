@@ -59,7 +59,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.client.TProtocolWriteFieldStopInterceptor TProtocolWriteFieldStopInterceptor
  */
 @Group(value = THRIFT_CLIENT_SCOPE, executionPolicy = ExecutionPolicy.BOUNDARY)
-public class TServiceClientSendBaseInterceptor implements AroundInterceptor, ThriftConstants {
+public class TServiceClientSendBaseInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -100,10 +100,10 @@ public class TServiceClientSendBaseInterceptor implements AroundInterceptor, Thr
                 parentTraceInfo.setShouldSample(shouldSample);
             } else {
                 SpanEventRecorder recorder = trace.traceBlockBegin();
-                recorder.recordServiceType(THRIFT_CLIENT);
+                recorder.recordServiceType(ThriftConstants.THRIFT_CLIENT);
 
                 // retrieve connection information
-                String remoteAddress = UNKNOWN_ADDRESS;
+                String remoteAddress = ThriftConstants.UNKNOWN_ADDRESS;
                 if (transport instanceof SocketFieldAccessor) {
                     Socket socket = ((SocketFieldAccessor)transport)._$PINPOINT$_getSocket();
                     if (socket != null) {
@@ -116,14 +116,14 @@ public class TServiceClientSendBaseInterceptor implements AroundInterceptor, Thr
                 }
                 recorder.recordDestinationId(remoteAddress);
 
-                String methodName = UNKNOWN_METHOD_NAME;
+                String methodName = ThriftConstants.UNKNOWN_METHOD_NAME;
                 if (args[0] instanceof String) {
                     methodName = (String)args[0];
                 }
                 String serviceName = ThriftUtils.getClientServiceName(client);
 
                 String thriftUrl = getServiceUrl(remoteAddress, serviceName, methodName);
-                recorder.recordAttribute(THRIFT_URL, thriftUrl);
+                recorder.recordAttribute(ThriftConstants.THRIFT_URL, thriftUrl);
 
                 TraceId nextId = trace.getTraceId().getNextTraceId();
                 recorder.recordNextSpanId(nextId.getSpanId());
@@ -163,7 +163,7 @@ public class TServiceClientSendBaseInterceptor implements AroundInterceptor, Thr
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             if (this.traceServiceArgs) {
                 if (args.length == 2 && (args[1] instanceof TBase)) {
-                    recorder.recordAttribute(THRIFT_ARGS, getMethodArgs((TBase<?, ?>)args[1]));
+                    recorder.recordAttribute(ThriftConstants.THRIFT_ARGS, getMethodArgs((TBase<?, ?>)args[1]));
                 }
             }
             recorder.recordApi(descriptor);

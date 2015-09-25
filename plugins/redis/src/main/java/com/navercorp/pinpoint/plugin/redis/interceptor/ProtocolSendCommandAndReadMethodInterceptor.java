@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.plugin.redis.RedisConstants;
  *
  */
 @Group(value = RedisConstants.REDIS_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
-public class ProtocolSendCommandAndReadMethodInterceptor implements AroundInterceptor, RedisConstants {
+public class ProtocolSendCommandAndReadMethodInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();

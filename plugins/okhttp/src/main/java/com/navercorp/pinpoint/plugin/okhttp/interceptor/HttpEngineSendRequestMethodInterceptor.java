@@ -38,7 +38,7 @@ import com.squareup.okhttp.Request;
  * @author jaehong.kim
  */
 @Group(OkHttpConstants.SEND_REQUEST_SCOPE)
-public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor, OkHttpConstants {
+public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -90,7 +90,7 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
         try {
             final TraceId nextId = trace.getTraceId().getNextTraceId();
             recorder.recordNextSpanId(nextId.getSpanId());
-            recorder.recordServiceType(OK_HTTP_CLIENT);
+            recorder.recordServiceType(OkHttpConstants.OK_HTTP_CLIENT);
 
             InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
             if (invocation != null) {
@@ -108,17 +108,17 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
 
     private boolean validate(Object target) {
         if (!(target instanceof UserRequestGetter)) {
-            logger.debug("Invalid target object. Need field accessor({}).", FIELD_USER_REQUEST);
+            logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_USER_REQUEST);
             return false;
         }
 
         if (!(target instanceof UserResponseGetter)) {
-            logger.debug("Invalid target object. Need field accessor({}).", FIELD_USER_RESPONSE);
+            logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_USER_RESPONSE);
             return false;
         }
 
         if (!(target instanceof ConnectionGetter)) {
-            logger.debug("Invalid target object. Need field accessor({}).", FIELD_CONNECTION);
+            logger.debug("Invalid target object. Need field accessor({}).", OkHttpConstants.FIELD_CONNECTION);
             return false;
         }
 

@@ -22,11 +22,11 @@ import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
  * @author jaehong.kim
  *
  */
-public class TomcatTypeProvider implements TraceMetadataProvider, TomcatConstants {
+public class TomcatTypeProvider implements TraceMetadataProvider {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(TOMCAT);
-        context.addServiceType(TOMCAT_METHOD);
+        context.addServiceType(TomcatConstants.TOMCAT);
+        context.addServiceType(TomcatConstants.TOMCAT_METHOD);
     }
 }

@@ -28,7 +28,9 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 /**
  * @author HyunGil Jeong
  */
-public interface ThriftConstants {
+public final class ThriftConstants {
+    private ThriftConstants() {
+    }
 
     public static final ServiceType THRIFT_SERVER = ServiceType.of(1100, "THRIFT_SERVER", NORMAL_SCHEMA, RECORD_STATISTICS);
     public static final ServiceType THRIFT_CLIENT = ServiceType.of(9100, "THRIFT_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);

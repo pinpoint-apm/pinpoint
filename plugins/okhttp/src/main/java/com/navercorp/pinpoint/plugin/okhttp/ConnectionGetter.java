@@ -6,5 +6,5 @@ import com.squareup.okhttp.Connection;
  * Created by nbp on 2015-09-08.
  */
 public interface ConnectionGetter {
-    public Connection _$PINPOINT$_getConnection();
+    Connection _$PINPOINT$_getConnection();
 }

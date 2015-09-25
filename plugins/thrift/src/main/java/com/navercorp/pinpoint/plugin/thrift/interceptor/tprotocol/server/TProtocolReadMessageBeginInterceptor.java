@@ -48,7 +48,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncMarkerFlagFieldA
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor
  */
 @Group(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
-public class TProtocolReadMessageBeginInterceptor implements AroundInterceptor, ThriftConstants {
+public class TProtocolReadMessageBeginInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -74,7 +74,7 @@ public class TProtocolReadMessageBeginInterceptor implements AroundInterceptor, 
         }
         final boolean shouldTrace = ((AsyncMarkerFlagFieldAccessor)target)._$PINPOINT$_getAsyncMarkerFlag();
         if (shouldTrace) {
-            String methodName = UNKNOWN_METHOD_NAME;
+            String methodName = ThriftConstants.UNKNOWN_METHOD_NAME;
             if (result instanceof TMessage) {
                 TMessage message = (TMessage)result;
                 methodName = message.name;

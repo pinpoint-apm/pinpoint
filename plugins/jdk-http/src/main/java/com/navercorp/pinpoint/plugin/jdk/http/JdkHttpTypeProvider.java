@@ -23,11 +23,11 @@ import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
  * @author Jongho Moon
  *
  */
-public class JdkHttpTypeProvider implements TraceMetadataProvider, JdkHttpConstants {
+public class JdkHttpTypeProvider implements TraceMetadataProvider {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(SERVICE_TYPE, AnnotationKeyMatchers.exact(AnnotationKey.HTTP_URL));
+        context.addServiceType(JdkHttpConstants.SERVICE_TYPE, AnnotationKeyMatchers.exact(AnnotationKey.HTTP_URL));
     }
 
 }

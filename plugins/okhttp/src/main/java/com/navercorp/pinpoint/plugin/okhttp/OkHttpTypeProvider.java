@@ -25,11 +25,11 @@ import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
  * @author jaehong.kim
  *
  */
-public class OkHttpTypeProvider implements TraceMetadataProvider, OkHttpConstants {
+public class OkHttpTypeProvider implements TraceMetadataProvider {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(OK_HTTP_CLIENT, AnnotationKeyMatchers.exact(AnnotationKey.HTTP_URL));
-        context.addServiceType(OK_HTTP_CLIENT_INTERNAL, AnnotationKeyMatchers.exact(AnnotationKey.HTTP_INTERNAL_DISPLAY));
+        context.addServiceType(OkHttpConstants.OK_HTTP_CLIENT, AnnotationKeyMatchers.exact(AnnotationKey.HTTP_URL));
+        context.addServiceType(OkHttpConstants.OK_HTTP_CLIENT_INTERNAL, AnnotationKeyMatchers.exact(AnnotationKey.HTTP_INTERNAL_DISPLAY));
     }
 }

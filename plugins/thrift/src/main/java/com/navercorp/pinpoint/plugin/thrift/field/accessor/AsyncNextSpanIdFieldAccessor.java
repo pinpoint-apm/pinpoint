@@ -20,6 +20,6 @@ package com.navercorp.pinpoint.plugin.thrift.field.accessor;
  * @author HyunGil Jeong
  */
 public interface AsyncNextSpanIdFieldAccessor {
-    public void _$PINPOINT$_setAsyncNextSpanId(long asyncNextSpanId);
-    public long _$PINPOINT$_getAsyncNextSpanId();
+    void _$PINPOINT$_setAsyncNextSpanId(long asyncNextSpanId);
+    long _$PINPOINT$_getAsyncNextSpanId();
 }

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.client.async;
 
+import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 import org.apache.thrift.async.TAsyncMethodCall;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
@@ -49,7 +50,7 @@ public class TAsyncMethodCallDoWritingRequestBodyInterceptor extends TAsyncMetho
 
         String methodUri = ThriftUtils.getAsyncMethodCallName((TAsyncMethodCall<?>)target);
         String thriftUrl = remoteAddress + "/" + methodUri;
-        recorder.recordAttribute(THRIFT_URL, thriftUrl);
+        recorder.recordAttribute(ThriftConstants.THRIFT_URL, thriftUrl);
     }
 
     @Override
@@ -101,6 +102,6 @@ public class TAsyncMethodCallDoWritingRequestBodyInterceptor extends TAsyncMetho
 
     @Override
     protected ServiceType getServiceType() {
-        return THRIFT_CLIENT;
+        return ThriftConstants.THRIFT_CLIENT;
     }
 }

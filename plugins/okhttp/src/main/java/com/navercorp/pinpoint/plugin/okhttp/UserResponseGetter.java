@@ -6,5 +6,5 @@ import com.squareup.okhttp.Response;
  * Created by nbp on 2015-09-08.
  */
 public interface UserResponseGetter {
-    public Response _$PINPOINT$_getUserResponse();
+    Response _$PINPOINT$_getUserResponse();
 }

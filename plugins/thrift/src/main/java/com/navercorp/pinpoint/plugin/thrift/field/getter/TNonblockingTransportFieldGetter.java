@@ -22,5 +22,5 @@ import org.apache.thrift.transport.TNonblockingTransport;
  * @author HyunGil Jeong
  */
 public interface TNonblockingTransportFieldGetter {
-    public TNonblockingTransport _$PINPOINT$_getTNonblockingTransport();
+    TNonblockingTransport _$PINPOINT$_getTNonblockingTransport();
 }
