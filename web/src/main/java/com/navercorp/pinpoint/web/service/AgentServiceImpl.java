@@ -53,7 +53,7 @@ import java.util.*;
 @Service
 public class AgentServiceImpl implements AgentService {
 
-    private static final long DEFUALT_FUTURE_TIMEOUT = 3000;
+    private static final long DEFAULT_FUTURE_TIMEOUT = 3000;
 
     @Autowired
     private AgentInfoService agentInfoService;
@@ -131,7 +131,7 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     public PinpointRouteResponse invoke(AgentInfo agentInfo, byte[] payload) throws TException {
-        return invoke(agentInfo, payload, DEFUALT_FUTURE_TIMEOUT);
+        return invoke(agentInfo, payload, DEFAULT_FUTURE_TIMEOUT);
     }
 
     @Override
@@ -161,7 +161,7 @@ public class AgentServiceImpl implements AgentService {
     @Override
     public Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, byte[] payload)
             throws TException {
-        return invoke(agentInfoList, payload, DEFUALT_FUTURE_TIMEOUT);
+        return invoke(agentInfoList, payload, DEFAULT_FUTURE_TIMEOUT);
     }
 
     @Override
@@ -234,7 +234,7 @@ public class AgentServiceImpl implements AgentService {
     }
 
     private PinpointRouteResponse getResponse(Future<ResponseMessage> future, long timeout) {
-        boolean completed = future.await(DEFUALT_FUTURE_TIMEOUT);
+        boolean completed = future.await(DEFAULT_FUTURE_TIMEOUT);
         if (completed) {
             DefaultPinpointRouteResponse response = new DefaultPinpointRouteResponse(future.getResult().getMessage());
             response.parse(commandDeserializerFactory);
