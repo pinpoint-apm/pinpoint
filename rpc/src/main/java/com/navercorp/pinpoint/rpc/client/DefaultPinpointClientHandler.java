@@ -69,7 +69,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     
     private final Timer channelTimer;
 
-    private final PinpointClientFactory pinpointClientFactory;
+    private final PinpointClientFactory clientFactory;
     private SocketAddress connectSocketAddress;
     private volatile PinpointClient pinpointClient;
 
@@ -89,12 +89,12 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     
     private final String objectUniqName;
     
-    public DefaultPinpointClientHandler(PinpointClientFactory pinpointClientFactory) {
-        this(pinpointClientFactory, DEFAULT_PING_DELAY, DEFAULT_ENABLE_WORKER_PACKET_DELAY, DEFAULT_TIMEOUTMILLIS);
+    public DefaultPinpointClientHandler(PinpointClientFactory clientFactory) {
+        this(clientFactory, DEFAULT_PING_DELAY, DEFAULT_ENABLE_WORKER_PACKET_DELAY, DEFAULT_TIMEOUTMILLIS);
     }
 
-    public DefaultPinpointClientHandler(PinpointClientFactory pinpointClientFactory, long pingDelay, long handshakeRetryInterval, long timeoutMillis) {
-        if (pinpointClientFactory == null) {
+    public DefaultPinpointClientHandler(PinpointClientFactory clientFactory, long pingDelay, long handshakeRetryInterval, long timeoutMillis) {
+        if (clientFactory == null) {
             throw new NullPointerException("pinpointClientFactory must not be null");
         }
         
@@ -102,20 +102,20 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         timer.start();
         
         this.channelTimer = timer;
-        this.pinpointClientFactory = pinpointClientFactory;
+        this.clientFactory = clientFactory;
         this.requestManager = new RequestManager(timer, timeoutMillis);
         this.pingDelay = pingDelay;
         this.timeoutMillis = timeoutMillis;
         
-        this.messageListener = pinpointClientFactory.getMessageListener(SimpleLoggingMessageListener.LISTENER);
-        this.serverStreamChannelMessageListener = pinpointClientFactory.getServerStreamChannelMessageListener(DisabledServerStreamChannelMessageListener.INSTANCE);
+        this.messageListener = clientFactory.getMessageListener(SimpleLoggingMessageListener.LISTENER);
+        this.serverStreamChannelMessageListener = clientFactory.getServerStreamChannelMessageListener(DisabledServerStreamChannelMessageListener.INSTANCE);
         
         this.objectUniqName = ClassUtils.simpleClassNameAndHashCodeString(this);
         this.handshaker = new PinpointClientHandshaker(channelTimer, (int) handshakeRetryInterval, maxHandshakeCount);
         
-        this.socketId = pinpointClientFactory.issueNewSocketId();
+        this.socketId = clientFactory.issueNewSocketId();
         this.pingIdGenerator = new AtomicInteger(0);
-        this.state = new PinpointClientHandlerState(this.objectUniqName);
+        this.state = new PinpointClientHandlerState(this, clientFactory.getStateChangeEventListeners());
     }
 
     public void setPinpointClient(PinpointClient pinpointClient) {
@@ -165,7 +165,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         registerPing();
 
         Map<String, Object> handshakeData = new HashMap<String, Object>();
-        handshakeData.putAll(pinpointClientFactory.getProperties());
+        handshakeData.putAll(clientFactory.getProperties());
         handshakeData.put("socketId", socketId);
         
         handshaker.handshakeStart(channel, handshakeData);
@@ -540,7 +540,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         logger.info("{} channelClosed() started.", objectUniqName); 
         
         try {
-            boolean factoryReleased = pinpointClientFactory.isReleased();
+            boolean factoryReleased = clientFactory.isReleased();
             
             boolean needReconnect = false;
             SocketStateCode currentStateCode = state.getCurrentStateCode();
@@ -559,7 +559,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
             }
 
             if (needReconnect) {
-                pinpointClientFactory.reconnect(this.pinpointClient, this.connectSocketAddress);
+                clientFactory.reconnect(this.pinpointClient, this.connectSocketAddress);
             }
         } finally {
             closeResources();
@@ -610,7 +610,15 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     public boolean isSupportServerMode() {
         return messageListener != SimpleLoggingMessageListener.LISTENER;
     }
-    
+
+    protected PinpointClient getPinpointClient() {
+        return pinpointClient;
+    }
+
+    protected String getObjectName() {
+        return objectUniqName;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder(objectUniqName);

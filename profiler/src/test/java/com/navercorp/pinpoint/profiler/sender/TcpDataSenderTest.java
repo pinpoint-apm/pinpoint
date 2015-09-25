@@ -16,31 +16,26 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import org.junit.Assert;
+import com.navercorp.pinpoint.rpc.packet.*;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
+import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
+import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
+import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
+import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.rpc.PinpointSocketException;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author emeroad
@@ -99,7 +94,7 @@ public class TcpDataSenderTest {
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
         
-        PinpointClient client = createPinpointClient(HOST, PORT, clientFactory);
+        PinpointClient client = ClientFactoryUtils.createPinpointClient(HOST, PORT, clientFactory);
         
         TcpDataSender sender = new TcpDataSender(client);
         try {
@@ -129,21 +124,5 @@ public class TcpDataSenderTest {
 
         return clientFactory;
     }
-    
-    private PinpointClient createPinpointClient(String host, int port, PinpointClientFactory clientFactory) {
-        PinpointClient client = null;
-        for (int i = 0; i < 3; i++) {
-            try {
-                client = clientFactory.connect(host, port);
-                logger.info("tcp connect success:{}/{}", host, port);
-                return client;
-            } catch (PinpointSocketException e) {
-                logger.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
-            }
-        }
-        logger.warn("change background tcp connect mode  {}/{} ", host, port);
-        client = clientFactory.scheduledConnect(host, port);
 
-        return client;
-    }
 }

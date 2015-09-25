@@ -16,10 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.util;
 
-import com.navercorp.pinpoint.rpc.Future;
-import com.navercorp.pinpoint.rpc.MessageListener;
-import com.navercorp.pinpoint.rpc.PinpointSocket;
-import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.*;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.packet.*;
@@ -104,14 +101,15 @@ public final class PinpointRPCTestUtils {
     }
     
     public static PinpointClientFactory createClientFactory(Map param, MessageListener messageListener) {
-        PinpointClientFactory socketFactory = new PinpointClientFactory();
-        socketFactory.setProperties(param);
+        PinpointClientFactory clientFactory = new PinpointClientFactory();
+        clientFactory.setProperties(param);
+        clientFactory.addStateChangeEventListener(LoggingStateChangeEventListener.getInstance());
 
         if (messageListener != null) {
-            socketFactory.setMessageListener(messageListener);
+            clientFactory.setMessageListener(messageListener);
         }
         
-        return socketFactory;
+        return clientFactory;
     }
 
     public static byte[] request(PinpointServer writableServer, byte[] message) {

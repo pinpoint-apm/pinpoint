@@ -16,22 +16,6 @@
 
 package com.navercorp.pinpoint.profiler;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Random;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
@@ -39,30 +23,31 @@ import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.SystemPropertyKey;
-
+import com.navercorp.pinpoint.profiler.context.DefaultServerMetaData;
+import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
+import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+import com.navercorp.pinpoint.rpc.packet.*;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
+import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
+import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
+import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
+import com.navercorp.pinpoint.thrift.dto.TResult;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import org.apache.thrift.TException;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.profiler.context.DefaultServerMetaData;
-import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
-import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
-import com.navercorp.pinpoint.rpc.PinpointSocketException;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.thrift.dto.TResult;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class AgentInfoSenderTest {
 
@@ -82,7 +67,7 @@ public class AgentInfoSenderTest {
         PinpointServerAcceptor serverAcceptor = createServerAcceptor(serverListener);
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
-        PinpointClient pinpointClient = createPinpointClient(HOST, PORT, clientFactory);
+        PinpointClient pinpointClient = ClientFactoryUtils.createPinpointClient(HOST, PORT, clientFactory);
 
         TcpDataSender sender = new TcpDataSender(pinpointClient);
         AgentInfoSender agentInfoSender = new AgentInfoSender(sender, agentInfoSendRetryIntervalMs, getAgentInfo());
@@ -109,7 +94,7 @@ public class AgentInfoSenderTest {
         PinpointServerAcceptor serverAcceptor = createServerAcceptor(serverListener);
 
         PinpointClientFactory socketFactory = createPinpointClientFactory();
-        PinpointClient pinpointClient = createPinpointClient(HOST, PORT, socketFactory);
+        PinpointClient pinpointClient = ClientFactoryUtils.createPinpointClient(HOST, PORT, socketFactory);
 
         TcpDataSender dataSender = new TcpDataSender(pinpointClient);
         AgentInfoSender agentInfoSender = new AgentInfoSender(dataSender, agentInfoSendRetryIntervalMs, getAgentInfo());
@@ -133,7 +118,7 @@ public class AgentInfoSenderTest {
         ResponseServerMessageListener serverListener = new ResponseServerMessageListener(requestCount, successCount);
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
-        PinpointClient pinpointClient = createPinpointClient(HOST, PORT, clientFactory);
+        PinpointClient pinpointClient = ClientFactoryUtils.createPinpointClient(HOST, PORT, clientFactory);
 
         TcpDataSender dataSender = new TcpDataSender(pinpointClient);
         AgentInfoSender agentInfoSender = new AgentInfoSender(dataSender, agentInfoSendRetryIntervalMs, getAgentInfo());
@@ -164,7 +149,7 @@ public class AgentInfoSenderTest {
         PinpointServerAcceptor serverAcceptor = createServerAcceptor(serverListener);
 
         PinpointClientFactory socketFactory = createPinpointClientFactory();
-        PinpointClient pinpointClient = createPinpointClient(HOST, PORT, socketFactory);
+        PinpointClient pinpointClient = ClientFactoryUtils.createPinpointClient(HOST, PORT, socketFactory);
 
         TcpDataSender dataSender = new TcpDataSender(pinpointClient);
         AgentInfoSender agentInfoSender = new AgentInfoSender(dataSender, agentInfoSendRetryIntervalMs, getAgentInfo());
@@ -191,7 +176,7 @@ public class AgentInfoSenderTest {
         PinpointServerAcceptor serverAcceptor = createServerAcceptor(serverListener);
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
-        PinpointClient pinpointClient = createPinpointClient(HOST, PORT, clientFactory);
+        PinpointClient pinpointClient = ClientFactoryUtils.createPinpointClient(HOST, PORT, clientFactory);
 
         TcpDataSender sender = new TcpDataSender(pinpointClient);
         AgentInfoSender agentInfoSender = new AgentInfoSender(sender, agentInfoSendRetryIntervalMs, getAgentInfo());
@@ -233,7 +218,7 @@ public class AgentInfoSenderTest {
         PinpointServerAcceptor serverAcceptor = createServerAcceptor(delayedServerListener);
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
-        PinpointClient pinpointClient = createPinpointClient(HOST, PORT, clientFactory);
+        PinpointClient pinpointClient = ClientFactoryUtils.createPinpointClient(HOST, PORT, clientFactory);
 
         TcpDataSender sender = new TcpDataSender(pinpointClient);
         AgentInfoSender agentInfoSender = new AgentInfoSender(sender, agentInfoSendRetryIntervalMs, getAgentInfo());
@@ -283,7 +268,7 @@ public class AgentInfoSenderTest {
         ResponseServerMessageListener serverListener = new ResponseServerMessageListener(requestCount, successCount, expectedTriesUntilSuccess);
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
-        PinpointClient pinpointClient = createPinpointClient(HOST, PORT, clientFactory);
+        PinpointClient pinpointClient = ClientFactoryUtils.createPinpointClient(HOST, PORT, clientFactory);
 
         TcpDataSender dataSender = new TcpDataSender(pinpointClient);
         AgentInfoSender agentInfoSender = new AgentInfoSender(dataSender, agentInfoSendRetryIntervalMs, getAgentInfo());
@@ -415,24 +400,6 @@ public class AgentInfoSenderTest {
         clientFactory.setProperties(Collections.<String, Object>emptyMap());
 
         return clientFactory;
-    }
-
-    
-    private PinpointClient createPinpointClient(String host, int port, PinpointClientFactory factory) {
-        PinpointClient pinpointClient = null;
-        for (int i = 0; i < 3; i++) {
-            try {
-                pinpointClient = factory.connect(host, port);
-                logger.info("tcp connect success:{}/{}", host, port);
-                return pinpointClient;
-            } catch (PinpointSocketException e) {
-                logger.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
-            }
-        }
-        logger.warn("change background tcp connect mode  {}/{} ", host, port);
-        pinpointClient = factory.scheduledConnect(host, port);
-        
-        return pinpointClient;
     }
 
 }

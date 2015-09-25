@@ -19,15 +19,14 @@ package com.navercorp.pinpoint.rpc.client;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.navercorp.pinpoint.rpc.MessageListener;
+import com.navercorp.pinpoint.rpc.StateChangeEventListener;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -84,7 +83,9 @@ public class PinpointClientFactory {
     private long timeoutMillis = DEFAULT_TIMEOUTMILLIS;
     
     private MessageListener messageListener = SimpleLoggingMessageListener.LISTENER;
+    private List<StateChangeEventListener> stateChangeEventListeners = new ArrayList<StateChangeEventListener>();
     private ServerStreamChannelMessageListener serverStreamChannelMessageListener = DisabledServerStreamChannelMessageListener.INSTANCE;
+
     
     static {
         LoggerFactorySetup.setupSlf4jLoggerFactory();
@@ -206,9 +207,13 @@ public class PinpointClientFactory {
     }
 
     public PinpointClient connect(String host, int port) throws PinpointSocketException {
-        SocketAddress address = new InetSocketAddress(host, port);
-        ChannelFuture connectFuture = bootstrap.connect(address);
-        PinpointClientHandler pinpointClientHandler = getSocketHandler(connectFuture, address);
+        InetSocketAddress connectAddress = new InetSocketAddress(host, port);
+        return connect(connectAddress);
+    }
+
+    public PinpointClient connect(InetSocketAddress connectAddress) throws PinpointSocketException {
+        ChannelFuture connectFuture = bootstrap.connect(connectAddress);
+        PinpointClientHandler pinpointClientHandler = getSocketHandler(connectFuture, connectAddress);
 
         PinpointClient pinpointClient = new PinpointClient(pinpointClientHandler);
         traceSocket(pinpointClient);
@@ -234,9 +239,13 @@ public class PinpointClientFactory {
     }
 
     public PinpointClient scheduledConnect(String host, int port) {
+        InetSocketAddress connectAddress = new InetSocketAddress(host, port);
+        return scheduledConnect(connectAddress);
+    }
+
+    public PinpointClient scheduledConnect(InetSocketAddress connectAddress) {
         PinpointClient pinpointClient = new PinpointClient(new ReconnectStateClientHandler());
-        SocketAddress address = new InetSocketAddress(host, port);
-        reconnect(pinpointClient, address);
+        reconnect(pinpointClient, connectAddress);
         return pinpointClient;
     }
 
@@ -432,6 +441,14 @@ public class PinpointClientFactory {
         AssertUtils.assertNotNull(messageListener, "messageListener must not be null");
 
         this.serverStreamChannelMessageListener = serverStreamChannelMessageListener;
+    }
+
+    public List<StateChangeEventListener> getStateChangeEventListeners() {
+        return new ArrayList<StateChangeEventListener>(stateChangeEventListeners);
+    }
+
+    public void addStateChangeEventListener(StateChangeEventListener stateChangeEventListener) {
+        this.stateChangeEventListeners.add(stateChangeEventListener);
     }
 
     boolean isReleased() {
