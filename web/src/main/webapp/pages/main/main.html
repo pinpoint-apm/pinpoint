@@ -5,7 +5,7 @@
 <div class="main-container" ng-class="getMainContainerClass()">
     <div class="main">
         <server-map-directive></server-map-directive>
-        <div ng-controller="RealtimeChartCtrl" class="realtime" style="position:relative;width:98%;height:180px;left:1%;bottom:184px;z-index:10;background-color:white;border-radius:6px;border:2px solid #64a71a" ng-show="showRealtime">
+        <div ng-controller="RealtimeChartCtrl" class="realtime" style="position:relative;width:98%;height:180px;left:1%;bottom:184px;z-index:10;background-color:#F0F3F4;border-radius:6px;border:2px solid #64a71a" ng-show="showRealtime">
 			<style>
 				.chart-title {
 					color: white;
@@ -21,11 +21,13 @@
 					margin-right: 6px;
 				}
 				.agent-sum-chart {
-					top: 30px;
+					top: 28px;
 					left: 0px;
 					width: 280px;
+					cursor: crosshair;
 					position: relative;
 					text-align: center;
+					background-color: #FFF;
 				}
 				.agent-sum-chart div {
 					font-weight: bold;
@@ -39,26 +41,25 @@
 					overflow-y: auto;
 					margin-left: 280px;
 					margin-right: 6px;
-					border-radius: 6px;
-					background-color: #EEE;
 				}
 				.agent-chart {
 					float: left;
-					width: 122px;
+					width: 120px;
 					height: 70px;
 					margin: 1px 2px 1px 4px;
-					background-color: #EEE;
-					border: 1px solid #64a71a;
+					background-color: #FFF;
+					box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.75);
 				}
 				.agent-chart > div {
-					font-size: 10px;
-					text-align: center;
-					overflow: hidden;
-					text-overflow: ellipsis;
-					white-space: nowrap;
-					word-wrap :normal;
-					background-color: rgba(154,222,162,1);
 					color: #000;
+					padding: 1px;
+					overflow: hidden;
+					font-size: 10px;
+					word-wrap: normal;
+					text-align: center;
+					white-space: nowrap;
+					text-overflow: ellipsis;
+					background-color: #7ED321;
 				}
 				.agent-sum-chart svg {
 		          font: 10px sans-serif;
