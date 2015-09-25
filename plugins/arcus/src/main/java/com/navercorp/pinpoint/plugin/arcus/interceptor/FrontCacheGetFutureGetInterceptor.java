@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.plugin.arcus.CacheNameAccessor;
  * @author harebox
  */
 @Group(ArcusConstants.ARCUS_SCOPE)
-public class FrontCacheGetFutureGetInterceptor implements AroundInterceptor, ArcusConstants {
+public class FrontCacheGetFutureGetInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -75,7 +75,7 @@ public class FrontCacheGetFutureGetInterceptor implements AroundInterceptor, Arc
                 recorder.recordDestinationId(cacheName);
             }
 
-            recorder.recordServiceType(ARCUS_EHCACHE_FUTURE_GET);
+            recorder.recordServiceType(ArcusConstants.ARCUS_EHCACHE_FUTURE_GET);
         } finally {
             trace.traceBlockEnd();
         }

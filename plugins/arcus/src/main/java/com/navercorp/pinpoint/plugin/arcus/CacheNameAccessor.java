@@ -19,6 +19,6 @@ package com.navercorp.pinpoint.plugin.arcus;
  *
  */
 public interface CacheNameAccessor {
-    public void _$PINPOINT$_setCacheName(String serviceCode);
-    public String _$PINPOINT$_getCacheName();
+    void _$PINPOINT$_setCacheName(String serviceCode);
+    String _$PINPOINT$_getCacheName();
 }

@@ -19,6 +19,6 @@ package com.navercorp.pinpoint.plugin.arcus;
  *
  */
 public interface CacheKeyAccessor {
-    public void _$PINPOINT$_setCacheKey(Object serviceCode);
-    public Object _$PINPOINT$_getCacheKey();
+    void _$PINPOINT$_setCacheKey(Object serviceCode);
+    Object _$PINPOINT$_getCacheKey();
 }

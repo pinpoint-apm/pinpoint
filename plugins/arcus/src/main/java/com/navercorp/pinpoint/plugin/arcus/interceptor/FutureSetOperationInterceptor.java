@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.plugin.arcus.OperationAccessor;
  * @author harebox
  * @author emeroad
  */
-public class FutureSetOperationInterceptor implements AroundInterceptor, ArcusConstants {
+public class FutureSetOperationInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
