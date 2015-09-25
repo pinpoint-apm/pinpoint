@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
  * @author jaehong.kim
  *
  */
-public class RequestStartAsyncInterceptor implements AroundInterceptor, TomcatConstants {
+public class RequestStartAsyncInterceptor implements AroundInterceptor {
 
     private PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private boolean isDebug = logger.isDebugEnabled();
@@ -83,7 +83,7 @@ public class RequestStartAsyncInterceptor implements AroundInterceptor, TomcatCo
                 }
             }
 
-            recorder.recordServiceType(TOMCAT_METHOD);
+            recorder.recordServiceType(TomcatConstants.TOMCAT_METHOD);
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
         } catch (Throwable t) {
@@ -99,12 +99,12 @@ public class RequestStartAsyncInterceptor implements AroundInterceptor, TomcatCo
         }
 
         if (!(target instanceof AsyncAccessor)) {
-            logger.debug("Invalid target object. Need field accessor({}).", METADATA_ASYNC);
+            logger.debug("Invalid target object. Need field accessor({}).", TomcatConstants.METADATA_ASYNC);
             return false;
         }
 
         if (!(result instanceof AsyncTraceIdAccessor)) {
-            logger.debug("Invalid target object. Need metadata accessor({}).", METADATA_ASYNC_TRACE_ID);
+            logger.debug("Invalid target object. Need metadata accessor({}).", TomcatConstants.METADATA_ASYNC_TRACE_ID);
             return false;
         }
 

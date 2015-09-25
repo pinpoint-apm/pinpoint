@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
  * @author jaehong.kim
  *
  */
-public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
+public class TomcatPlugin implements ProfilerPlugin {
 
     /*
      * (non-Javadoc)
@@ -62,8 +62,8 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
             @Override
             public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(METADATA_TRACE);
-                target.addField(METADATA_ASYNC);
+                target.addField(TomcatConstants.METADATA_TRACE);
+                target.addField(TomcatConstants.METADATA_ASYNC);
 
                 // clear request.
                 InstrumentMethod recycleMethodEditorBuilder = target.getDeclaredMethod("recycle");
@@ -192,7 +192,7 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
             @Override
             public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(METADATA_ASYNC_TRACE_ID);
+                target.addField(TomcatConstants.METADATA_ASYNC_TRACE_ID);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("dispatch"))) {
                     method.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.AsyncContextImplDispatchMethodInterceptor");

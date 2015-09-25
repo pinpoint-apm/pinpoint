@@ -23,10 +23,10 @@ import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
  * @author jaehong.kim
  *
  */
-public class UserTypeProvider implements TraceMetadataProvider, UserConstants{
+public class UserTypeProvider implements TraceMetadataProvider {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(USER_INCLUDE);
+        context.addServiceType(UserConstants.USER_INCLUDE);
     }
 }

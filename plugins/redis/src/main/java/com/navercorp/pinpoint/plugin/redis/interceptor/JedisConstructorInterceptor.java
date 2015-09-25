@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.plugin.redis.RedisConstants;
  * @author jaehong.kim
  *
  */
-public class JedisConstructorInterceptor implements AroundInterceptor, RedisConstants {
+public class JedisConstructorInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -91,7 +91,7 @@ public class JedisConstructorInterceptor implements AroundInterceptor, RedisCons
         }
 
         if (!(target instanceof EndPointAccessor)) {
-            logger.debug("Invalid target object. Need field accessor({}).", METADATA_END_POINT);
+            logger.debug("Invalid target object. Need field accessor({}).", RedisConstants.METADATA_END_POINT);
             return false;
         }
 

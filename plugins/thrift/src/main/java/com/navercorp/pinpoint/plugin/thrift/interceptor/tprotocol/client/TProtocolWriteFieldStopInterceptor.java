@@ -46,7 +46,7 @@ import com.navercorp.pinpoint.plugin.thrift.ThriftHeader;
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.client.TServiceClientSendBaseInterceptor TServiceClientSendBaseInterceptor
  */
 @Group(value = THRIFT_CLIENT_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
-public class TProtocolWriteFieldStopInterceptor implements AroundInterceptor, ThriftConstants {
+public class TProtocolWriteFieldStopInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();

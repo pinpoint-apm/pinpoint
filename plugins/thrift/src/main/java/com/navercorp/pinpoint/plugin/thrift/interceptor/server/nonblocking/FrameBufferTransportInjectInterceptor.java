@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.getter.TNonblockingTransportFi
  * 
  * @author HyunGil Jeong
  */
-public abstract class FrameBufferTransportInjectInterceptor implements AroundInterceptor, ThriftConstants {
+public abstract class FrameBufferTransportInjectInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();

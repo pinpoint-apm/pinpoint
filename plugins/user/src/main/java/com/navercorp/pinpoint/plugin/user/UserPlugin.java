@@ -32,7 +32,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
  * @author jaehong.kim
  *
  */
-public class UserPlugin implements ProfilerPlugin, UserConstants {
+public class UserPlugin implements ProfilerPlugin {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     @Override

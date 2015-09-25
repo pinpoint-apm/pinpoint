@@ -19,7 +19,10 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
-public interface JettyConstants {
+public final class JettyConstants {
+    private JettyConstants() {
+    }
+
     public static final String TYPE_NAME = "JETTY";
 
     public static final ServiceType JETTY = ServiceType.of(1030, "JETTY", NORMAL_SCHEMA, RECORD_STATISTICS);

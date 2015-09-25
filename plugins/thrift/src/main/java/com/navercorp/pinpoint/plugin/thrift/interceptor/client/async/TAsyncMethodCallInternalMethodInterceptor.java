@@ -32,7 +32,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncMarkerFlagFieldA
 /**
  * @author HyunGil Jeong
  */
-public class TAsyncMethodCallInternalMethodInterceptor implements AroundInterceptor, ThriftConstants {
+public class TAsyncMethodCallInternalMethodInterceptor implements AroundInterceptor {
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
 
@@ -123,7 +123,7 @@ public class TAsyncMethodCallInternalMethodInterceptor implements AroundIntercep
     }
 
     protected ServiceType getServiceType() {
-        return THRIFT_CLIENT_INTERNAL;
+        return ThriftConstants.THRIFT_CLIENT_INTERNAL;
     }
 
 }

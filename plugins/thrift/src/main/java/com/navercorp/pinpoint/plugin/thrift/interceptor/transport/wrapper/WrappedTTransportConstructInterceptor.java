@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
 /**
  * @author HyunGil Jeong
  */
-public abstract class WrappedTTransportConstructInterceptor implements AroundInterceptor, ThriftConstants {
+public abstract class WrappedTTransportConstructInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();

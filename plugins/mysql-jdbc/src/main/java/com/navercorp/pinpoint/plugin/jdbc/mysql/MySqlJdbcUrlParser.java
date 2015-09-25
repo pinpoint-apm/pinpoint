@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
 /**
  * @author emeroad
  */
-public class MySqlJdbcUrlParser extends JdbcUrlParser implements MySqlConstants {
+public class MySqlJdbcUrlParser extends JdbcUrlParser {
 
     // jdbc:mysql:loadbalance://10.22.33.44:3306,10.22.33.55:3306/MySQL?characterEncoding=UTF-8
     private static final String JDBC_MYSQL_LOADBALANCE = "jdbc:mysql:loadbalance:";
@@ -57,7 +57,7 @@ public class MySqlJdbcUrlParser extends JdbcUrlParser implements MySqlConstants 
         String databaseId = maker.next().afterLast('/').before('?').value();
         String normalizedUrl = maker.clear().before('?').value();
         
-        return new DefaultDatabaseInfo(MYSQL, MYSQL_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
+        return new DefaultDatabaseInfo(MySqlConstants.MYSQL, MySqlConstants.MYSQL_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
     }
 
     private boolean isLoadbalanceUrl(String url) {
@@ -77,6 +77,6 @@ public class MySqlJdbcUrlParser extends JdbcUrlParser implements MySqlConstants 
 
         String databaseId = maker.next().afterLast('/').before('?').value();
         String normalizedUrl = maker.clear().before('?').value();
-        return new DefaultDatabaseInfo(MYSQL, MYSQL_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
+        return new DefaultDatabaseInfo(MySqlConstants.MYSQL, MySqlConstants.MYSQL_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
     }
 }

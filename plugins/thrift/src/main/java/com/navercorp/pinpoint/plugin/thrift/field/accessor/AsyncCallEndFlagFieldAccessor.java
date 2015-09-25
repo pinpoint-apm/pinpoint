@@ -20,6 +20,6 @@ package com.navercorp.pinpoint.plugin.thrift.field.accessor;
  * @author HyunGil Jeong
  */
 public interface AsyncCallEndFlagFieldAccessor {
-    public void _$PINPOINT$_setAsyncCallEndFlag(boolean flag);
-    public boolean _$PINPOINT$_getAsyncCallEndFlag();
+    void _$PINPOINT$_setAsyncCallEndFlag(boolean flag);
+    boolean _$PINPOINT$_getAsyncCallEndFlag();
 }

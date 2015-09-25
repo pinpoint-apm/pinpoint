@@ -24,6 +24,9 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author jaehong.kim
  *
  */
-public interface UserConstants {
+public final class UserConstants {
+    private UserConstants() {
+    }
+
     public static final ServiceType USER_INCLUDE = ServiceType.of(7010, "USER_INCLUDE", NORMAL_SCHEMA);
 }

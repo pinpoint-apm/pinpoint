@@ -46,7 +46,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketAddressFieldAcc
  * @author HyunGil Jeong
  */
 @Group(value = THRIFT_CLIENT_SCOPE, executionPolicy = ExecutionPolicy.BOUNDARY)
-public class TAsyncClientManagerCallInterceptor implements AroundInterceptor, ThriftConstants {
+public class TAsyncClientManagerCallInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -90,7 +90,7 @@ public class TAsyncClientManagerCallInterceptor implements AroundInterceptor, Th
                 // inject async trace info to AsyncMethodCall object
                 final AsyncTraceId asyncTraceId = injectAsyncTraceId(asyncMethodCallObj, trace);
 
-                recorder.recordServiceType(THRIFT_CLIENT_INTERNAL);
+                recorder.recordServiceType(ThriftConstants.THRIFT_CLIENT_INTERNAL);
 
                 // retrieve connection information
                 String remoteAddress = getRemoteAddress(asyncMethodCallObj);
@@ -191,7 +191,7 @@ public class TAsyncClientManagerCallInterceptor implements AroundInterceptor, Th
 
     private String getRemoteAddress(Object asyncMethodCallObj) {
         if (!(asyncMethodCallObj instanceof SocketAddressFieldAccessor)) {
-            return UNKNOWN_ADDRESS;
+            return ThriftConstants.UNKNOWN_ADDRESS;
         }
         SocketAddress socketAddress = ((SocketAddressFieldAccessor)asyncMethodCallObj)._$PINPOINT$_getSocketAddress();
         return ThriftUtils.getHostPort((SocketAddress)socketAddress);

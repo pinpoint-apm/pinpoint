@@ -22,5 +22,5 @@ import org.apache.thrift.transport.TTransport;
  * @author HyunGil Jeong
  */
 public interface TTransportFieldGetter {
-    public TTransport _$PINPOINT$_getTTransport();
+    TTransport _$PINPOINT$_getTTransport();
 }

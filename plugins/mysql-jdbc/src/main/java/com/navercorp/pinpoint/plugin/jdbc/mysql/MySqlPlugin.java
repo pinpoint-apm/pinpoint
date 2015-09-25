@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMeth
  * @author Jongho Moon
  *
  */
-public class MySqlPlugin implements ProfilerPlugin, MySqlConstants {
+public class MySqlPlugin implements ProfilerPlugin {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
@@ -59,7 +59,7 @@ public class MySqlPlugin implements ProfilerPlugin, MySqlConstants {
                 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_NAME);
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(MySqlConstants.GROUP_NAME);
 
                 target.addInterceptor("com.navercorp.pinpoint.plugin.jdbc.mysql.interceptor.MySQLConnectionCreateInterceptor");
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", group);
@@ -92,7 +92,7 @@ public class MySqlPlugin implements ProfilerPlugin, MySqlConstants {
             @Override
             public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_NAME);
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(MySqlConstants.GROUP_NAME);
                 
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", group, ExecutionPolicy.ALWAYS, new MySqlJdbcUrlParser(), false);
                 
@@ -113,7 +113,7 @@ public class MySqlPlugin implements ProfilerPlugin, MySqlConstants {
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor", "new java.util.HashMap()");
                 
                 int maxBindValueSize = config.getMaxSqlBindValueSize();
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_NAME);
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(MySqlConstants.GROUP_NAME);
                 
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor", group, maxBindValueSize);
                 target.addGroupedInterceptor(PreparedStatementBindingMethodFilter.excludes("setRowId", "setNClob", "setSQLXML"), "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", group, ExecutionPolicy.BOUNDARY);
@@ -129,7 +129,7 @@ public class MySqlPlugin implements ProfilerPlugin, MySqlConstants {
             @Override
             public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_NAME);
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(MySqlConstants.GROUP_NAME);
                 
                 target.addGroupedInterceptor(PreparedStatementBindingMethodFilter.includes("setRowId", "setNClob", "setSQLXML"), "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", group, ExecutionPolicy.BOUNDARY);
                 
@@ -152,7 +152,7 @@ public class MySqlPlugin implements ProfilerPlugin, MySqlConstants {
                 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
                 
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP_NAME);
+                InterceptorGroup group = instrumentContext.getInterceptorGroup(MySqlConstants.GROUP_NAME);
 
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor", group);
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor", group);

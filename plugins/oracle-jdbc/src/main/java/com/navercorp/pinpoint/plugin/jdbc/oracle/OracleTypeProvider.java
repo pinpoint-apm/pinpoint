@@ -23,12 +23,12 @@ import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
  * @author Jongho Moon
  *
  */
-public class OracleTypeProvider implements TraceMetadataProvider, OracleConstants {
+public class OracleTypeProvider implements TraceMetadataProvider {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(ORACLE, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
-        context.addServiceType(ORACLE_EXECUTE_QUERY, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
+        context.addServiceType(OracleConstants.ORACLE, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
+        context.addServiceType(OracleConstants.ORACLE_EXECUTE_QUERY, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
     }
 
 }

@@ -18,7 +18,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFile
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
-public class JettyPlugin implements ProfilerPlugin, JettyConstants{
+public class JettyPlugin implements ProfilerPlugin {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {

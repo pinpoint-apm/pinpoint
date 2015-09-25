@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
  * @author jaehong.kim
  *
  */
-public class OkHttpPlugin implements ProfilerPlugin, OkHttpConstants {
+public class OkHttpPlugin implements ProfilerPlugin {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -74,7 +74,7 @@ public class OkHttpPlugin implements ProfilerPlugin, OkHttpConstants {
 
                 for(InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("execute", "cancel"))) {
                     logger.debug("[OkHttp] Add Dispatcher.execute | cancel interceptor.");
-                    method.addInterceptor(BASIC_METHOD_INTERCEPTOR, OK_HTTP_CLIENT_INTERNAL);
+                    method.addInterceptor(OkHttpConstants.BASIC_METHOD_INTERCEPTOR, OkHttpConstants.OK_HTTP_CLIENT_INTERNAL);
                 }
                 InstrumentMethod enqueueMethod = target.getDeclaredMethod("enqueue", "com.squareup.okhttp.Call$AsyncCall");
                 if(enqueueMethod != null) {
@@ -112,9 +112,9 @@ public class OkHttpPlugin implements ProfilerPlugin, OkHttpConstants {
             @Override
             public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
-                target.addGetter(UserRequestGetter.class.getName(), FIELD_USER_REQUEST);
-                target.addGetter(UserResponseGetter.class.getName(), FIELD_USER_RESPONSE);
-                target.addGetter(ConnectionGetter.class.getName(), FIELD_CONNECTION);
+                target.addGetter(UserRequestGetter.class.getName(), OkHttpConstants.FIELD_USER_REQUEST);
+                target.addGetter(UserResponseGetter.class.getName(), OkHttpConstants.FIELD_USER_RESPONSE);
+                target.addGetter(ConnectionGetter.class.getName(), OkHttpConstants.FIELD_CONNECTION);
 
                 InstrumentMethod sendRequestMethod = target.getDeclaredMethod("sendRequest");
                 if(sendRequestMethod != null) {
@@ -146,7 +146,7 @@ public class OkHttpPlugin implements ProfilerPlugin, OkHttpConstants {
             @Override
             public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
-                target.addGetter(HttpUrlGetter.class.getName(), FIELD_HTTP_URL);
+                target.addGetter(HttpUrlGetter.class.getName(), OkHttpConstants.FIELD_HTTP_URL);
 
                 InstrumentMethod buildMethod = target.getDeclaredMethod("build");
                 if(buildMethod != null) {

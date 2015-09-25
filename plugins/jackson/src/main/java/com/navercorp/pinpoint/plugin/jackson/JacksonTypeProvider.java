@@ -21,12 +21,12 @@ import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
  * @author Sungkook Kim
  *
  */
-public class JacksonTypeProvider implements TraceMetadataProvider, JacksonConstants {
+public class JacksonTypeProvider implements TraceMetadataProvider {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(SERVICE_TYPE);
+        context.addServiceType(JacksonConstants.SERVICE_TYPE);
         
-        context.addAnnotationKey(ANNOTATION_KEY_LENGTH_VALUE);
+        context.addAnnotationKey(JacksonConstants.ANNOTATION_KEY_LENGTH_VALUE);
     }
 }

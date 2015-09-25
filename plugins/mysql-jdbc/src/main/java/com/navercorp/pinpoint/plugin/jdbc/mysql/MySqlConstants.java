@@ -23,7 +23,10 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author Jongho Moon
  *
  */
-public interface MySqlConstants {
+public final class MySqlConstants {
+    private MySqlConstants() {
+    }
+
     public static final String GROUP_NAME = "MYSQL_JDBC";
     
     public static final ServiceType MYSQL = ServiceType.of(2100, "MYSQL", NORMAL_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);

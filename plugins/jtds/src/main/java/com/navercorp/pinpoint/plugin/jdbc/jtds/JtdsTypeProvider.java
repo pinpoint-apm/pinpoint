@@ -23,12 +23,12 @@ import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
  * @author Jongho Moon
  *
  */
-public class JtdsTypeProvider implements TraceMetadataProvider, JtdsConstants {
+public class JtdsTypeProvider implements TraceMetadataProvider {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(MSSQL, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
-        context.addServiceType(MSSQL_EXECUTE_QUERY, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
+        context.addServiceType(JtdsConstants.MSSQL, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
+        context.addServiceType(JtdsConstants.MSSQL_EXECUTE_QUERY, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
     }
 
 }

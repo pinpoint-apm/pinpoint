@@ -78,7 +78,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor
  */
 @Group(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.BOUNDARY)
-public class TBaseProcessorProcessInterceptor implements AroundInterceptor, ThriftConstants {
+public class TBaseProcessorProcessInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -140,8 +140,8 @@ public class TBaseProcessorProcessInterceptor implements AroundInterceptor, Thri
         String methodUri = getMethodUri(target);
         recorder.recordRpcName(methodUri);
         // retrieve connection information
-        String localIpPort = UNKNOWN_ADDRESS;
-        String remoteAddress = UNKNOWN_ADDRESS;
+        String localIpPort = ThriftConstants.UNKNOWN_ADDRESS;
+        String remoteAddress = ThriftConstants.UNKNOWN_ADDRESS;
         if (args.length == 2 && args[0] instanceof TProtocol) {
             TProtocol inputProtocol = (TProtocol)args[0];
             TTransport inputTransport = inputProtocol.getTransport();
@@ -157,16 +157,16 @@ public class TBaseProcessorProcessInterceptor implements AroundInterceptor, Thri
                 }
             }
         }
-        if (localIpPort != UNKNOWN_ADDRESS) {
+        if (localIpPort != ThriftConstants.UNKNOWN_ADDRESS) {
             recorder.recordEndPoint(localIpPort);
         }
-        if (remoteAddress != UNKNOWN_ADDRESS) {
+        if (remoteAddress != ThriftConstants.UNKNOWN_ADDRESS) {
             recorder.recordRemoteAddress(remoteAddress);
         }
     }
 
     private String getMethodUri(Object target) {
-        String methodUri = UNKNOWN_METHOD_URI;
+        String methodUri = ThriftConstants.UNKNOWN_METHOD_URI;
         InterceptorGroupInvocation currentTransaction = this.group.getCurrentInvocation();
         Object attachment = currentTransaction.getAttachment();
         if (attachment instanceof ThriftClientCallContext && target instanceof TBaseProcessor) {

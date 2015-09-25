@@ -30,7 +30,7 @@ import com.squareup.okhttp.Connection;
  * @author jaehong.kim
  */
 @Group(OkHttpConstants.CALL_SCOPE)
-public class CallMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin implements OkHttpConstants {
+public class CallMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public CallMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
@@ -43,7 +43,7 @@ public class CallMethodInterceptor extends SpanEventSimpleAroundInterceptorForPl
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(OK_HTTP_CLIENT_INTERNAL);
+        recorder.recordServiceType(OkHttpConstants.OK_HTTP_CLIENT_INTERNAL);
         recorder.recordException(throwable);
     }
 }

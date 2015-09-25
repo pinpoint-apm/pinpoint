@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 /**
  * @author HyunGil Jeong
  */
-public class SpringBootDetector implements ApplicationTypeDetector, SpringBootConstants {
+public class SpringBootDetector implements ApplicationTypeDetector {
 
     @Override
     public ServiceType getApplicationType() {
@@ -33,7 +33,7 @@ public class SpringBootDetector implements ApplicationTypeDetector, SpringBootCo
     @Override
     public boolean detect(ConditionProvider provider) {
         String bootstrapMainClass = provider.getMainClass();
-        return bootstrapMainClass.startsWith(BOOTSTRAP_MAIN_PREFIX);
+        return bootstrapMainClass.startsWith(SpringBootConstants.BOOTSTRAP_MAIN_PREFIX);
     }
 
 }

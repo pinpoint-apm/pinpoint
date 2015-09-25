@@ -34,7 +34,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
  * @author Jongho Moon
  *
  */
-public class BeanMethodTransformer implements PinpointClassFileTransformer, SpringBeansConstants {
+public class BeanMethodTransformer implements PinpointClassFileTransformer {
     private static final int REQUIRED_ACCESS_FLAG = Modifier.PUBLIC;
     private static final int REJECTED_ACCESS_FLAG = Modifier.ABSTRACT |  Modifier.NATIVE | Modifier.STATIC;
     private static final MethodFilter METHOD_FILTER = MethodFilters.modifier(REQUIRED_ACCESS_FLAG, REJECTED_ACCESS_FLAG);
@@ -64,7 +64,7 @@ public class BeanMethodTransformer implements PinpointClassFileTransformer, Spri
                     logger.trace("### c={}, m={}, params={}", new Object[] {className, method.getName(), Arrays.toString(method.getParameterTypes())});
                 }
 
-                method.addInterceptor(BasicMethodInterceptor.class.getName(), SERVICE_TYPE);
+                method.addInterceptor(BasicMethodInterceptor.class.getName(), SpringBeansConstants.SERVICE_TYPE);
             }
 
             return target.toBytecode();

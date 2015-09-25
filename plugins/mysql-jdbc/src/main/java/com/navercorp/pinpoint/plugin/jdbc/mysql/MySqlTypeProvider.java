@@ -23,12 +23,12 @@ import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
  * @author Jongho Moon
  *
  */
-public class MySqlTypeProvider implements TraceMetadataProvider, MySqlConstants {
+public class MySqlTypeProvider implements TraceMetadataProvider {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(MYSQL, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
-        context.addServiceType(MYSQL_EXECUTE_QUERY, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
+        context.addServiceType(MySqlConstants.MYSQL, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
+        context.addServiceType(MySqlConstants.MYSQL_EXECUTE_QUERY, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
     }
 
 }

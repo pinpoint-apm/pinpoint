@@ -23,7 +23,10 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author Jongho Moon
  *
  */
-public interface JtdsConstants {
+public final class JtdsConstants {
+    private JtdsConstants() {
+    }
+
     public static final String GROUP_JTDS = "JTDS";
     
     public static final ServiceType MSSQL = ServiceType.of(2200, "MSSQL", "MSSQLSERVER", NORMAL_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);

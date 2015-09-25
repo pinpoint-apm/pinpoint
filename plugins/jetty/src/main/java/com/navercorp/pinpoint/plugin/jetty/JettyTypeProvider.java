@@ -17,11 +17,11 @@ package com.navercorp.pinpoint.plugin.jetty;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
-public class JettyTypeProvider implements TraceMetadataProvider, JettyConstants {
+public class JettyTypeProvider implements TraceMetadataProvider {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(JETTY);
-        context.addServiceType(JETTY_METHOD);
+        context.addServiceType(JettyConstants.JETTY);
+        context.addServiceType(JettyConstants.JETTY_METHOD);
     }
 }

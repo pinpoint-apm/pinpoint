@@ -34,7 +34,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
  * @author jaehong.kim
  *
  */
-public class RedisPlugin implements ProfilerPlugin, RedisConstants {
+public class RedisPlugin implements ProfilerPlugin {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -59,7 +59,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
 
             @Override
             public void handle(InstrumentClass target) throws InstrumentException {
-                target.addField(METADATA_END_POINT);
+                target.addField(RedisConstants.METADATA_END_POINT);
             }
         });
 
@@ -124,7 +124,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
             @Override
             public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(METADATA_END_POINT);
+                target.addField(RedisConstants.METADATA_END_POINT);
 
                 final InstrumentMethod constructorEditorBuilderArg1 = target.getConstructor("java.lang.String");
                 if (constructorEditorBuilderArg1 != null) {
@@ -169,7 +169,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
 
             @Override
             public void handle(InstrumentClass target) throws InstrumentException {
-                target.addField(METADATA_END_POINT);
+                target.addField(RedisConstants.METADATA_END_POINT);
 
                 final InstrumentMethod setClientMethodEditorBuilder = target.getDeclaredMethod("setClient", "redis.clients.jedis.Client");
                 if (setClientMethodEditorBuilder != null) {

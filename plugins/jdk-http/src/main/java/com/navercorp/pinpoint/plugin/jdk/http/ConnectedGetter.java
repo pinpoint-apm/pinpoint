@@ -19,5 +19,5 @@ package com.navercorp.pinpoint.plugin.jdk.http;
  *
  */
 public interface ConnectedGetter {
-    public boolean _$PINPOINT$_isConnected();
+    boolean _$PINPOINT$_isConnected();
 }

@@ -28,7 +28,7 @@ import com.squareup.okhttp.Connection;
 /**
  * @author jaehong.kim
  */
-public class HttpEngineConnectMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin implements OkHttpConstants {
+public class HttpEngineConnectMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public HttpEngineConnectMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
@@ -50,7 +50,7 @@ public class HttpEngineConnectMethodInterceptor extends SpanEventSimpleAroundInt
             }
         }
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(OK_HTTP_CLIENT_INTERNAL);
+        recorder.recordServiceType(OkHttpConstants.OK_HTTP_CLIENT_INTERNAL);
         recorder.recordException(throwable);
     }
 }

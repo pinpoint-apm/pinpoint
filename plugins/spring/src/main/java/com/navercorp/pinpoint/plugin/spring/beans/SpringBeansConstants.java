@@ -22,6 +22,9 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author Jongho Moon
  *
  */
-public interface SpringBeansConstants {
+public final class SpringBeansConstants {
+    private SpringBeansConstants() {
+    }
+
     public static final ServiceType SERVICE_TYPE = ServiceType.of(5071, "SPRING_BEAN", "SPRING_BEAN", NORMAL_SCHEMA);
 }

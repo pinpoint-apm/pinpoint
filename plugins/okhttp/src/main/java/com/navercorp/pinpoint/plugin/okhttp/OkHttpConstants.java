@@ -26,7 +26,10 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author jaehong.kim
  *
  */
-public interface OkHttpConstants {
+public final class OkHttpConstants {
+    private OkHttpConstants() {
+    }
+
     public static final ServiceType OK_HTTP_CLIENT = ServiceType.of(9058, "OK_HTTP_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
     public static final ServiceType OK_HTTP_CLIENT_INTERNAL = ServiceType.of(9059, "OK_HTTP_CLIENT_INTERNAL", "OK_HTTP_CLIENT", NORMAL_SCHEMA);
 

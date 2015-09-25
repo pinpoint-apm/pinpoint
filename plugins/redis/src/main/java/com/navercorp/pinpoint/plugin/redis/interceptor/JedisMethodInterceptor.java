@@ -36,7 +36,7 @@ import com.navercorp.pinpoint.plugin.redis.RedisConstants;
  *
  */
 @Group(value = RedisConstants.REDIS_SCOPE)
-public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin implements RedisConstants {
+public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     private InterceptorGroup interceptorGroup;
     private boolean io;
@@ -92,8 +92,8 @@ public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptorForP
 
         recorder.recordApi(getMethodDescriptor());
         recorder.recordEndPoint(endPoint != null ? endPoint : "Unknown");
-        recorder.recordDestinationId(REDIS.getName());
-        recorder.recordServiceType(REDIS);
+        recorder.recordDestinationId(RedisConstants.REDIS.getName());
+        recorder.recordServiceType(RedisConstants.REDIS);
         recorder.recordException(throwable);
     }
 }
