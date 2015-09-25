@@ -32,7 +32,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
  * @author jaehong.kim
  *
  */
-public class HttpClient3Plugin implements ProfilerPlugin, HttpClient3Constants {
+public class HttpClient3Plugin implements ProfilerPlugin {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {

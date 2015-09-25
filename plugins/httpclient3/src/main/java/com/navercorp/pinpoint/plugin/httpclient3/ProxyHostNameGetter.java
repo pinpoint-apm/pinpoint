@@ -19,5 +19,5 @@ package com.navercorp.pinpoint.plugin.httpclient3;
  *
  */
 public interface ProxyHostNameGetter {
-    public String _$PINPOINT$_getProxyHostName();
+    String _$PINPOINT$_getProxyHostName();
 }

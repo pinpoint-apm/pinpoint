@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
  * @author jaehong.kim
  *
  */
-public class HttpClient4Plugin implements ProfilerPlugin, HttpClient4Constants {
+public class HttpClient4Plugin implements ProfilerPlugin {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -279,8 +279,8 @@ public class HttpClient4Plugin implements ProfilerPlugin, HttpClient4Constants {
             public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 
-                target.addGetter(RequestProducerGetter.class.getName(), FIELD_REQUEST_PRODUCER);
-                target.addGetter(ResultFutureGetter.class.getName(), FIELD_RESULT_FUTURE);
+                target.addGetter(RequestProducerGetter.class.getName(), HttpClient4Constants.FIELD_REQUEST_PRODUCER);
+                target.addGetter(ResultFutureGetter.class.getName(), HttpClient4Constants.FIELD_RESULT_FUTURE);
 
                 InstrumentMethod start = target.getDeclaredMethod("start");
                 

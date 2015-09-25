@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author Minwoo Jung
  * @author jaehong.kim
  */
-public class DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor implements AroundInterceptor, HttpClient4Constants {
+public class DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();

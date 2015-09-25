@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 /**
  * @author jaehong.kim
  */
-public class HttpClientConnectionManagerConnectMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin implements HttpClient4Constants {
+public class HttpClientConnectionManagerConnectMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public HttpClientConnectionManagerConnectMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);

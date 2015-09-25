@@ -58,7 +58,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author jaehong.kim
  */
 @Group(HttpClient4Constants.HTTP_CLIENT4_SCOPE)
-public abstract class AbstractHttpClientExecuteMethodInterceptor implements AroundInterceptor, HttpClient4Constants {
+public abstract class AbstractHttpClientExecuteMethodInterceptor implements AroundInterceptor {
     protected final PLogger logger;
     protected final boolean isDebug;
 

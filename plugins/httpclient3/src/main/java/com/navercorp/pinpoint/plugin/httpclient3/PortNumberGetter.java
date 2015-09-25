@@ -19,5 +19,5 @@ package com.navercorp.pinpoint.plugin.httpclient3;
  *
  */
 public interface PortNumberGetter {
-    public int _$PINPOINT$_getPortNumber();
+    int _$PINPOINT$_getPortNumber();
 }

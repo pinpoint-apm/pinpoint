@@ -62,7 +62,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.ResultFutureGetter;
  * @author jaehong.kim
  *
  */
-public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements AroundInterceptor, HttpClient4Constants {
+public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -165,19 +165,19 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
 
     private boolean isAsynchronousInvocation(final Object target, final Object[] args) {
         if (!(target instanceof ResultFutureGetter)) {
-            logger.debug("Invalid target object. Need field accessor({}).", FIELD_RESULT_FUTURE);
+            logger.debug("Invalid target object. Need field accessor({}).", HttpClient4Constants.FIELD_RESULT_FUTURE);
             return false;
         }
         
         BasicFuture<?> future = ((ResultFutureGetter)target)._$PINPOINT$_getResultFuture();
 
         if (future == null) {
-            logger.debug("Invalid target object. field is null({}).", FIELD_RESULT_FUTURE);
+            logger.debug("Invalid target object. field is null({}).", HttpClient4Constants.FIELD_RESULT_FUTURE);
             return false;
         }
 
         if (!(future instanceof AsyncTraceIdAccessor)) {
-            logger.debug("Invalid resultFuture field object. Need metadata accessor({}).", METADATA_ASYNC_TRACE_ID);
+            logger.debug("Invalid resultFuture field object. Need metadata accessor({}).", HttpClient4Constants.METADATA_ASYNC_TRACE_ID);
             return false;
         }
 

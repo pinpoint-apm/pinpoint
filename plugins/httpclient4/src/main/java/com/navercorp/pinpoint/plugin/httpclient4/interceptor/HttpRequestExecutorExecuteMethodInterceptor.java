@@ -62,7 +62,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author jaehong.kim
  */
 @Group(value = HttpClient4Constants.HTTP_CLIENT4_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
-public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterceptor, HttpClient4Constants {
+public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterceptor {
     private static final int HTTP_REQUEST_INDEX = 1;
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

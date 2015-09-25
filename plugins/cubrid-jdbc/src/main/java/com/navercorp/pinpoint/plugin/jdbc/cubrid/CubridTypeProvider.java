@@ -23,12 +23,12 @@ import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
  * @author Jongho Moon
  *
  */
-public class CubridTypeProvider implements TraceMetadataProvider, CubridConstants {
+public class CubridTypeProvider implements TraceMetadataProvider {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(CUBRID, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
-        context.addServiceType(CUBRID_EXECUTE_QUERY, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
+        context.addServiceType(CubridConstants.CUBRID, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
+        context.addServiceType(CubridConstants.CUBRID_EXECUTE_QUERY, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
     }
 
 }

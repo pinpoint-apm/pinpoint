@@ -22,5 +22,5 @@ import org.apache.http.concurrent.BasicFuture;
  */
 public interface ResultFutureGetter {
     @SuppressWarnings("rawtypes")
-    public BasicFuture _$PINPOINT$_getResultFuture();
+    BasicFuture _$PINPOINT$_getResultFuture();
 }

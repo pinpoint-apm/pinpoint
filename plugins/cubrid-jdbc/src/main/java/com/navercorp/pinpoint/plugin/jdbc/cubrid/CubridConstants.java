@@ -23,7 +23,10 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author Jongho Moon
  *
  */
-public interface CubridConstants {
+public final class CubridConstants {
+    private CubridConstants() {
+    }
+
     public static final String GROUP_CUBRID = "GROUP_CUBRID";
     
     public static final ServiceType CUBRID = ServiceType.of(2400, "CUBRID", NORMAL_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
