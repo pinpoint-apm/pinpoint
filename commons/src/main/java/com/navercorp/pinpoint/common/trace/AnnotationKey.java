@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.common.trace;
 import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
 
 /**
- * AnnotaionKey sandbox is from 900 to 999. These values will not be assigned to anything.
+ * AnnotationKey sandbox is from 900 to 999. These values will not be assigned to anything.
  * 
  * <table>
  * <tr><td>-1</td><td>args[0]</td></tr>
