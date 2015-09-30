@@ -14,22 +14,30 @@
     <modules>
         <module>httpclient3</module>
         <module>httpclient4</module>
+        <module>ning-asynchttpclient</module>
         <module>gson</module>
         <module>jackson</module>
         <module>cubrid-jdbc</module>
+        <module>mysql-jdbc</module>
+        <module>jtds</module>
+        <module>dbcp</module>
+        <module>oracle-jdbc</module>
         <module>jdk-http</module>
 		<module>json-lib</module>
         <module>redis</module>
-        <module>servlet</module>
 		<module>tomcat</module>
         <module>thrift</module>
         <module>user</module>
         <module>arcus</module>
         <module>google-httpclient</module>
         <module>jetty</module>
-        <module>spring-beans</module>
+        <module>spring</module>
+        <module>spring-boot</module>
         <module>ibatis</module>
         <module>mybatis</module>
+        <module>okhttp</module>
+        <module>log4j</module>
+        <module>logback</module>
     </modules>
 
     <dependencies>
@@ -45,6 +53,11 @@
         </dependency> 
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-ning-asynchttpclient-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency> 
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-gson-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -55,17 +68,32 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-mysql-jdbc-driver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-jtds-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-oracle-jdbc-driver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-commons-dbcp-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-jdk-http-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-redis-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-servlet-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -110,7 +138,12 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-spring-beans-plugin</artifactId>
+            <artifactId>pinpoint-spring-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-spring-boot-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -121,6 +154,21 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-mybatis-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-okhttp-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-log4j-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-logback-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

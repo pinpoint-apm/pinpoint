@@ -31,14 +31,13 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
 import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor;
-import com.navercorp.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
+import com.navercorp.pinpoint.profiler.context.DefaultMethodDescriptor;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.test.mock.MockTraceContext;
 
@@ -82,10 +81,10 @@ public class InvokeMethodInterceptorTest {
         StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>());
 
         interceptor.before("target", new Object[]{request, response});
-        interceptor.after("target", new Object[]{request, response}, new Object(), null);
+        interceptor.after("target", new Object(), null, new Object[]{request, response});
 
         interceptor.before("target", new Object[]{request, response});
-        interceptor.after("target", new Object[]{request, response}, new Object(), null);
+        interceptor.after("target", new Object(), null, new Object[]{request, response});
     }
 
     @Test
@@ -104,10 +103,10 @@ public class InvokeMethodInterceptorTest {
         TraceContext traceContext = new MockTraceContext();
         StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>());
         interceptor.before("target",  new Object[]{request, response});
-        interceptor.after("target", new Object[]{request, response}, new Object(), null);
+        interceptor.after("target", new Object(), null, new Object[]{request, response});
 
         interceptor.before("target", new Object[]{request, response});
-        interceptor.after("target", new Object[]{request, response}, new Object(), null);
+        interceptor.after("target", new Object(), null, new Object[]{request, response});
     }
 
     @Test
@@ -127,9 +126,9 @@ public class InvokeMethodInterceptorTest {
         StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor(traceContext, descriptor, new SkipFilter<String>());
 
         interceptor.before("target", new Object[]{request, response});
-        interceptor.after("target", new Object[]{request, response}, new Object(), null);
+        interceptor.after("target", new Object(), null, new Object[]{request, response});
 
         interceptor.before("target", new Object[]{request, response});
-        interceptor.after("target", new Object[]{request, response}, new Object(), null);
+        interceptor.after("target", new Object(), null, new Object[]{request, response});
     }
 }

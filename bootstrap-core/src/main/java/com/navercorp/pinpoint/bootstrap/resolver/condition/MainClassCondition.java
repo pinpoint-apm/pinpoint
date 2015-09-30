@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.resolver.condition;
 
+import java.io.IOException;
 import java.util.jar.JarFile;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -88,21 +89,28 @@ public class MainClassCondition implements Condition<String>, ConditionValue<Str
         if (javaCommand.isEmpty()) {
             logger.warn("Error retrieving main class from [{}]", property.getClass().getName());
             return NOT_FOUND;
-        } else if (javaCommand.endsWith(".jar")) {
-            return extractMainClassFromJar(javaCommand);
         } else {
-            return javaCommand;
+            try {
+                JarFile executableArchive = new JarFile(javaCommand);
+                return extractMainClassFromArchive(executableArchive);
+            } catch (IOException e) {
+                // If it's not a valid java archive, VM shouldn't start in the first place.
+                // Thus this would simply be a main class
+                return javaCommand;
+            } catch (Exception e) {
+                // fail-safe, application shouldn't not start because of this
+                logger.warn("Error retrieving main class from java command : [{}]", javaCommand, e);
+                return NOT_FOUND;
+            }
         }
     }
 
-    private String extractMainClassFromJar(String jarName) {
-        try {
-            JarFile bootstrapJar = new JarFile(jarName);
-            return bootstrapJar.getManifest().getMainAttributes().getValue(MANIFEST_MAIN_CLASS_KEY);
-        } catch (Throwable t) {
-            logger.warn("Error retrieveing main class from jar file : [{}]", jarName, t);
+    private String extractMainClassFromArchive(JarFile bootstrapJar) throws IOException {
+        String mainClassFromManifest = bootstrapJar.getManifest().getMainAttributes().getValue(MANIFEST_MAIN_CLASS_KEY);
+        if (mainClassFromManifest == null) {
             return NOT_FOUND;
         }
+        return mainClassFromManifest;
     }
 
 }

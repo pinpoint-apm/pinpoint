@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.httpclient3.HostNameGetter;
@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.plugin.httpclient3.ProxyPortNumberGetter;
 /**
  * @author jaehong.kim
  */
-public class HttpConnectionOpenMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin implements HttpClient3Constants {
+public class HttpConnectionOpenMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public HttpConnectionOpenMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);

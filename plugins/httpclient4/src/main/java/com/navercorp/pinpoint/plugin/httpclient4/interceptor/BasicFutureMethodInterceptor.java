@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author jaehong.kim
  * 
  */
-public class BasicFutureMethodInterceptor extends SpanAsyncEventSimpleAroundInterceptor implements HttpClient4Constants {
+public class BasicFutureMethodInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
 
     public BasicFutureMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);

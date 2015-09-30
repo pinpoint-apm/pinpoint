@@ -20,7 +20,7 @@ import java.net.Socket;
 
 import org.apache.thrift.transport.TTransport;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
 /**
  * @author HyunGil Jeong
  */
-public abstract class WrappedTTransportConstructInterceptor implements SimpleAroundInterceptor, ThriftConstants {
+public abstract class WrappedTTransportConstructInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -40,7 +40,7 @@ public abstract class WrappedTTransportConstructInterceptor implements SimpleAro
     }
 
     @Override
-    public final void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public final void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (validateTransport(target)) {
             TTransport wrappedTransport = getWrappedTransport(args);
             if (validateTransport(wrappedTransport)) {

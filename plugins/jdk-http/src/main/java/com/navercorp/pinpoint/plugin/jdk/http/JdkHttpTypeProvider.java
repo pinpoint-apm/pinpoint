@@ -15,19 +15,19 @@
 package com.navercorp.pinpoint.plugin.jdk.http;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyMatchers;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher.ExactMatcher;
 
 /**
  * @author Jongho Moon
  *
  */
-public class JdkHttpTypeProvider implements TraceMetadataProvider, JdkHttpConstants {
+public class JdkHttpTypeProvider implements TraceMetadataProvider {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(SERVICE_TYPE, new ExactMatcher(AnnotationKey.HTTP_URL));
+        context.addServiceType(JdkHttpConstants.SERVICE_TYPE, AnnotationKeyMatchers.exact(AnnotationKey.HTTP_URL));
     }
 
 }

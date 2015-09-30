@@ -52,7 +52,7 @@ import com.navercorp.pinpoint.profiler.DefaultAgent;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
-import com.navercorp.pinpoint.profiler.interceptor.DefaultInterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
@@ -571,7 +571,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
             throw new AssertionError("Expected an instance of " + expected.type.getSimpleName() + " but was " + actual.getType().getName() +". expected: " + expected + ", was: " + actual);
         }
         
-        if (expected.serviceType.getCode() != actual.getServiceType()) {
+        if (!equals(expected.serviceType.getCode(), actual.getServiceType())) {
             throw new AssertionError("Expected a " + expected.type.getSimpleName() + " with serviceType[" + expected.serviceType.getCode() + "] but was [" + actual.getServiceType() + "]. expected: " + expected + ", was: " + actual);
         }
         
@@ -661,7 +661,7 @@ public class PluginTestAgent extends DefaultAgent implements PluginTestVerifier 
         
         InstrumentClass ic;
         try {
-            ic = getByteCodeInstrumentor().getClass(clazz.getClassLoader(), clazz.getName(), null);
+            ic = getClassPool().getClass(clazz.getClassLoader(), clazz.getName(), null);
         } catch (InstrumentException e) {
             throw new RuntimeException("Cannot get instrumentClass " + clazz.getName(), e);
         }

@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.plugin.tomcat.aspect;
 
 import com.navercorp.pinpoint.bootstrap.context.Header;
-import com.navercorp.pinpoint.bootstrap.plugin.aspect.Aspect;
-import com.navercorp.pinpoint.bootstrap.plugin.aspect.JointPoint;
-import com.navercorp.pinpoint.bootstrap.plugin.aspect.PointCut;
+import com.navercorp.pinpoint.bootstrap.instrument.aspect.Aspect;
+import com.navercorp.pinpoint.bootstrap.instrument.aspect.JointPoint;
+import com.navercorp.pinpoint.bootstrap.instrument.aspect.PointCut;
 
 import java.util.Enumeration;
 

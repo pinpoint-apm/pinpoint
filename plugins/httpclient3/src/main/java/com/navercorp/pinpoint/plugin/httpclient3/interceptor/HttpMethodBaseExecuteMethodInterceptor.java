@@ -32,19 +32,19 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
@@ -58,7 +58,7 @@ import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
  * @author Minwoo Jung
  */
 @Group(value = HttpClient3Constants.HTTP_CLIENT3_METHOD_BASE_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
-public class HttpMethodBaseExecuteMethodInterceptor implements SimpleAroundInterceptor, HttpClient3Constants {
+public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -164,7 +164,8 @@ public class HttpMethodBaseExecuteMethodInterceptor implements SimpleAroundInter
 
     private String getHost(HttpMethod httpMethod) {
         try {
-            return httpMethod.getURI().getHost();
+            URI url = httpMethod.getURI();
+            return getEndpoint(url.getHost(), url.getPort());
         } catch (URIException e) {
             logger.error("Fail get URI", e);
         }
@@ -173,7 +174,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements SimpleAroundInter
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args);
         }

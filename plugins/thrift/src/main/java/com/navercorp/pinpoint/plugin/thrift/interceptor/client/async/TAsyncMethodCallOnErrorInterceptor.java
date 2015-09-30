@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.client.async;
 
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 
 /**
@@ -32,8 +32,8 @@ public class TAsyncMethodCallOnErrorInterceptor extends TAsyncMethodCallInternal
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        super.after(target, args, result, throwable);
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
+        super.after(target, result, throwable, args);
 
         // End async trace block
         final Trace trace = super.traceContext.currentTraceObject();

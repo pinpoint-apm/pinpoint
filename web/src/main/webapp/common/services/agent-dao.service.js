@@ -154,8 +154,8 @@
 	                    time: moment(pointsJvmCpuLoad[i].timestamp).toString('YYYY-MM-dd HH:mm:ss'),
 	                    maxCpuLoad: 100
 	                };
-	                var jvmCpuLoad = agentStat.charts['CPU_LOAD_JVM'].points[i].maxVal.toFixed(2);
-	                var systemCpuLoad = agentStat.charts['CPU_LOAD_SYSTEM'].points[i].maxVal.toFixed(2);
+	                var jvmCpuLoad = typeof agentStat.charts['CPU_LOAD_JVM'].points[i].maxVal == "number" ? agentStat.charts['CPU_LOAD_JVM'].points[i].maxVal.toFixed(2) : 0.00;
+	                var systemCpuLoad = typeof agentStat.charts['CPU_LOAD_SYSTEM'].points[i].maxVal == "number" ? agentStat.charts['CPU_LOAD_SYSTEM'].points[i].maxVal.toFixed(2) : 0.00;
 	                if (!(jvmCpuLoad < 0)) {
 	                    thisData.jvmCpuLoad = jvmCpuLoad;
 	                }

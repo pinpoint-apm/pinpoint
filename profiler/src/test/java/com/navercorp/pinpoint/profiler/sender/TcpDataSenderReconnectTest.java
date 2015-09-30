@@ -16,25 +16,21 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import java.util.Collections;
-import java.util.Map;
-
+import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.client.PinpointClient;
+import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+import com.navercorp.pinpoint.rpc.packet.*;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
+import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
+import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
+import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
+import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.rpc.PinpointSocketException;
-import com.navercorp.pinpoint.rpc.client.PinpointSocket;
-import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * @author emeroad
@@ -51,18 +47,18 @@ public class TcpDataSenderReconnectTest {
     public PinpointServerAcceptor serverAcceptorStart() {
         PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
         serverAcceptor.setMessageListener(new ServerMessageListener() {
-            
+
             @Override
-            public void handleSend(SendPacket sendPacket, PinpointServer pinpointServer) {
-                logger.info("handleSend:{}", sendPacket);
+            public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
+                logger.info("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
                 send++;
             }
 
             @Override
-            public void handleRequest(RequestPacket requestPacket, PinpointServer pinpointServer) {
-                logger.info("handleRequest:{}", requestPacket);
+            public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
+                logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
             }
-            
+
             @Override
             public HandshakeResponseCode handleHandshake(Map properties) {
                 return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
@@ -82,10 +78,10 @@ public class TcpDataSenderReconnectTest {
     public void connectAndSend() throws InterruptedException {
         PinpointServerAcceptor oldAcceptor = serverAcceptorStart();
 
-        PinpointSocketFactory socketFactory = createPinpointSocketFactory();
-        PinpointSocket socket = createPinpointSocket(HOST, PORT, socketFactory);
+        PinpointClientFactory clientFactory = createPinpointClientFactory();
+        PinpointClient client = ClientFactoryUtils.createPinpointClient(HOST, PORT, clientFactory);
 
-        TcpDataSender sender = new TcpDataSender(socket);
+        TcpDataSender sender = new TcpDataSender(client);
         Thread.sleep(500);
         oldAcceptor.close();
 
@@ -102,33 +98,16 @@ public class TcpDataSenderReconnectTest {
         sender.stop();
 
         serverAcceptor.close();
-        socket.close();
-        socketFactory.release();
+        client.close();
+        clientFactory.release();
     }
     
-    private PinpointSocketFactory createPinpointSocketFactory() {
-        PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
-        pinpointSocketFactory.setTimeoutMillis(1000 * 5);
-        pinpointSocketFactory.setProperties(Collections.EMPTY_MAP);
+    private PinpointClientFactory createPinpointClientFactory() {
+        PinpointClientFactory clientFactory = new PinpointClientFactory();
+        clientFactory.setTimeoutMillis(1000 * 5);
+        clientFactory.setProperties(Collections.EMPTY_MAP);
 
-        return pinpointSocketFactory;
+        return clientFactory;
     }
 
-    
-    private PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
-        PinpointSocket socket = null;
-        for (int i = 0; i < 3; i++) {
-            try {
-                socket = factory.connect(host, port);
-                logger.info("tcp connect success:{}/{}", host, port);
-                return socket;
-            } catch (PinpointSocketException e) {
-                logger.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
-            }
-        }
-        logger.warn("change background tcp connect mode  {}/{} ", host, port);
-        socket = factory.scheduledConnect(host, port);
-
-        return socket;
-    }
 }

@@ -20,10 +20,103 @@ import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 /**
+ * 
+ * 
+ * <h3>Pinpoint Internal (~ 999)</h3>
+ * 
+ * <table>
+ * <tr><td>-1</td><td>UNDEFINED</td></tr>
+ * <tr><td>1</td><td>UNKNOWN</td></tr>
+ * <tr><td>2</td><td>USER</td></tr>
+ * <tr><td>3</td><td>UNKNOWN_GROUP</td></tr>
+ * <tr><td>5</td><td>TEST</td></tr>
+ * <tr><td>7</td><td>COLLECTOR</td></tr>
+ * <tr><td>100</td><td>ASYNC</td></tr>
+ * </table>
+ * 
+ * 
+ * <h3>Server (1000 ~ 1899)</h3>
+ * 
+ * <table>
+ * <tr><td>1000</td><td>STAND_ALONE</td></tr>
+ * <tr><td>1005</td><td>TEST_STAND_ALONE</td></tr>
+ * <tr><td>1010</td><td>TOMCAT</td></tr>
+ * <tr><td>1011</td><td>TOMCAT_METHOD</td></tr>
+ * <tr><td>1020</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>1021</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>1030</td><td>JETTY</td></tr>
+ * <tr><td>1031</td><td>JETTY_METHOD</td></tr>
+ * <tr><td>1100</td><td>THRIFT_SERVER</td></tr>
+ * <tr><td>1101</td><td>THRIFT_SERVER_INTERNAL</td></tr>
+ * </table>
+ * 
+ * <h3>Server Sandbox (1900 ~ 1999)</h3>
+ * 
+ * 
+ * <h3>Library (2000 ~ 8999)</h3>
+ * <table>
+ * <tr><td>2050</td><td>UNKNOWN_DB</td></tr>
+ * <tr><td>2051</td><td>UNKNOWN_DB_EXECUTE_QUERY</td></tr>
+ * <tr><td>2100</td><td>MYSQL</td></tr>
+ * <tr><td>2101</td><td>MYSQL_EXECUTE_QUERY</td></tr>
+ * <tr><td>2200</td><td>MSSQL</td></tr>
+ * <tr><td>2201</td><td>MSSQL_EXECUTE_QUERY</td></tr>
+ * <tr><td>2300</td><td>ORACLE</td></tr>
+ * <tr><td>2301</td><td>ORACLE_EXECUTE_QUERY</td></tr>
+ * <tr><td>2400</td><td>CUBRID</td></tr>
+ * <tr><td>2401</td><td>CUBRID_EXECUTE_QUERY</td></tr>
+ * <tr><td>5000</td><td>INTERNAL_METHOD</td></tr>
+ * <tr><td>5010</td><td>GSON</td></tr>
+ * <tr><td>5011</td><td>JACKSON</td></tr>
+ * <tr><td>5012</td><td>JSON-LIB</td></tr>
+ * <tr><td>5050</td><td>SPRING</td></tr>
+ * <tr><td>5051</td><td>SPRING_MVC</td></tr>
+ * <tr><td>5061</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>5071</td><td>SPRING_BEAN</td></tr>
+ * <tr><td>5500</td><td>IBATIS</td></tr>
+ * <tr><td>5501</td><td>IBATIS-SPRING</td></tr>
+ * <tr><td>5510</td><td>MYBATIS</td></tr>
+ * <tr><td>6050</td><td>DBCP</td></tr>
+ * <tr><td>7010</td><td>USER_INCLUDE</td></tr>
+ * <tr><td>8050</td><td>MEMCACHED</td></tr>
+ * <tr><td>8051</td><td>MEMCACHED_FUTURE_GET</td></tr>
+ * <tr><td>8100</td><td>ARCUS</td></tr>
+ * <tr><td>8101</td><td>ARCUS_FUTURE_GET</td></tr>
+ * <tr><td>8102</td><td>ARCUS_EHCACHE_FUTURE_GET</td></tr>
+ * <tr><td>8103</td><td>ARCUS_INTERNAL</td></tr>
+ * <tr><td>8200</td><td>REDIS</td></tr>
+ * <tr><td>8250</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>8251</td><td><i>RESERVED</i></td></tr>
+ * </table>
+ * 
+ * 
+ * <h3>RPC (9000 ~ 9899)</h3>
+ * <table>
+ * <tr><td>9050</td><td>HTTP_CLIENT_3</td></tr>
+ * <tr><td>9051</td><td>HTTP_CLIENT_3_INTERNAL</td></tr>
+ * <tr><td>9052</td><td>HTTP_CLIENT_4</td></tr>
+ * <tr><td>9053</td><td>HTTP_CLIENT_4_INTERNAL</td></tr>
+ * <tr><td>9054</td><td>GOOGLE_HTTP_CLIENT_INTERNAL</td></tr>
+ * <tr><td>9055</td><td>JDK_HTTPURLCONNECTOR</td></tr>
+ * <tr><td>9056</td><td>ASYNC_HTTP_CLIENT</td></tr>
+ * <tr><td>9057</td><td>ASYNC_HTTP_CLIENT_INTERNAL</td></tr>
+ * <tr><td>9058</td><td>OK_HTTP_CLIENT</td></tr>
+ * <tr><td>9059</td><td>OK_HTTP_CLIENT_INTERNAL</td></tr>
+ * <tr><td>9060</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>9070</td><td><i>RESERVED</i></td></tr>
+ * <tr><td>9100</td><td>THRIFT_CLIENT</td></tr>
+ * <tr><td>9101</td><td>THRIFT_CLIENT_INTERNAL</td></tr>
+ * </table>
+ * 
+ * <h3>RPC Sandbox (9900 ~ 9999)</h3>
+ * 
+ * <h3>Library Sandbox (10000 ~ 10999)</h3>
+ * 
+ * <tr><td></td><td></td></tr>
+ * 
  * @author emeroad
  * @author netspider
  * @author Jongho Moon
- * 
  */
 public class ServiceType {
     private final short code;
@@ -218,6 +311,9 @@ public class ServiceType {
         return true;
     }
 
+    public static boolean isWas(final short code) {
+        return ServiceTypeCategory.SERVER.contains(code);
+    }
 
 
     // Undefined Service Code
@@ -243,6 +339,7 @@ public class ServiceType {
     public static final ServiceType STAND_ALONE = of(1000, "STAND_ALONE", NORMAL_SCHEMA, RECORD_STATISTICS);
     public static final ServiceType TEST_STAND_ALONE = of(1005, "TEST_STAND_ALONE", NORMAL_SCHEMA, RECORD_STATISTICS);
 
+
     /**
      * Database shown only as xxx_EXECUTE_QUERY at the statistics info section in the server map
      */
@@ -250,66 +347,16 @@ public class ServiceType {
     public static final ServiceType UNKNOWN_DB = of(2050, "UNKNOWN_DB", NORMAL_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
     public static final ServiceType UNKNOWN_DB_EXECUTE_QUERY = of(2051, "UNKNOWN_DB_EXECUTE_QUERY", "UNKNOWN_DB", NORMAL_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
 
-    public static final ServiceType MYSQL = of(2100, "MYSQL", NORMAL_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
-    public static final ServiceType MYSQL_EXECUTE_QUERY = of(2101, "MYSQL_EXECUTE_QUERY", "MYSQL", NORMAL_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
-
-    public static final ServiceType MSSQL = of(2200, "MSSQL", "MSSQLSERVER", NORMAL_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
-    public static final ServiceType MSSQL_EXECUTE_QUERY = of(2201, "MSSQL_EXECUTE_QUERY", "MSSQLSERVER", NORMAL_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
-
-    public static final ServiceType ORACLE = of(2300, "ORACLE", NORMAL_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
-    public static final ServiceType ORACLE_EXECUTE_QUERY = of(2301, "ORACLE_EXECUTE_QUERY", "ORACLE", NORMAL_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
-
-//    public static final ServiceType CUBRID = of(2400, "CUBRID", NORMAL_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
-//    public static final ServiceType CUBRID_EXECUTE_QUERY = of(2401, "CUBRID_EXECUTE_QUERY", "CUBRID", NORMAL_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
-
     // Internal method
     // FIXME it's not clear to put internal method here. but do that for now.
     public static final ServiceType INTERNAL_METHOD = of(5000, "INTERNAL_METHOD", NORMAL_SCHEMA);
     
-    // 5010 gson
-    // 5011 jackson
-    // 5012 json-lib
 
     // Spring framework
     public static final ServiceType SPRING = of(5050, "SPRING", NORMAL_SCHEMA);
-    public static final ServiceType SPRING_MVC = of(5051, "SPRING_MVC", "SPRING", NORMAL_SCHEMA);
+//    public static final ServiceType SPRING_MVC = of(5051, "SPRING_MVC", "SPRING", NORMAL_SCHEMA);
     // FIXME replaced with IBATIS_SPRING (5501) under IBatis Plugin - kept for backwards compatibility
     public static final ServiceType SPRING_ORM_IBATIS = of(5061, "SPRING_ORM_IBATIS", "SPRING", NORMAL_SCHEMA);
     // FIXME need to define how to handle spring related codes
 //    public static final ServiceType SPRING_BEAN = of(5071, "SPRING_BEAN", "SPRING_BEAN", NORMAL_SCHEMA);
-
-    // xBatis
-    // 5500 iBatis
-    // 5501 iBatis-Spring
-    // 5510 MyBatis
-
-    // DBCP
-    public static final ServiceType DBCP = of(6050, "DBCP", NORMAL_SCHEMA);
-
-    // USER INCLUDE
-    public static final ServiceType USER_INCLUDE = of(7010, "USER_INCLUDE", NORMAL_SCHEMA);
-
-    public static final ServiceType MEMCACHED = of(8050, "MEMCACHED", FAST_SCHEMA, TERMINAL, RECORD_STATISTICS);
-    public static final ServiceType MEMCACHED_FUTURE_GET = of(8051, "MEMCACHED_FUTURE_GET", "MEMCACHED", FAST_SCHEMA, TERMINAL);
-
-    // Redis
-    // public static final ServiceType REDIS = of(8200, "REDIS", FAST_SCHEMA, TERMINAL, RECORD_STATISTICS);
-
-    // Connector, Client
-    // 9050 HTTP_CLIENT_3
-    // 9051 HTTP_CLIENT_3_INTERNAL
-    // 9052 HTTP_CLIENT_4
-    // 9053 HTTP_CLIENT_4_INTERNAL
-    // 9054 GOOGLE_HTTP_CLIENT_INTERNAL
-//    public static final ServiceType JDK_HTTPURLCONNECTOR = of(9055, "JDK_HTTPURLCONNECTOR", "JDK_HTTPCONNECTOR", NORMAL_SCHEMA);
-    public static final ServiceType ASYNC_HTTP_CLIENT = of(9056, "ASYNC_HTTP_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
-    public static final ServiceType ASYNC_HTTP_CLIENT_INTERNAL = of(9057, "ASYNC_HTTP_CLIENT_INTERNAL", "ASYNC_HTTP_CLIENT", NORMAL_SCHEMA);
-//    public static final ServiceType NPC_CLIENT = of(9060, "NPC_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
-    public static final ServiceType NIMM_CLIENT = of(9070, "NIMM_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
-    
-
-
-    public static boolean isWas(final short code) {
-        return ServiceTypeCategory.SERVER.contains(code);
-    }
 }

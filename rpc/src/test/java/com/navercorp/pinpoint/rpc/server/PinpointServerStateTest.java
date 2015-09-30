@@ -21,13 +21,13 @@ import java.net.Socket;
 import java.util.List;
 import java.util.Map;
 
+import com.navercorp.pinpoint.rpc.client.PinpointClient;
+import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.rpc.client.PinpointSocket;
-import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.control.ProtocolException;
 import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
@@ -49,27 +49,27 @@ public class PinpointServerStateTest {
     @Test
     public void closeByPeerTest() throws InterruptedException {
         PinpointServerAcceptor serverAcceptor = null;
-        PinpointSocket pinpointSocket = null;
-        PinpointSocketFactory clientSocketFactory = null;
+        PinpointClient client = null;
+        PinpointClientFactory clientFactory = null;
         try {
             serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, PinpointRPCTestUtils.createEchoServerListener());
 
-            clientSocketFactory = PinpointRPCTestUtils.createSocketFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
-            pinpointSocket = clientSocketFactory.connect("127.0.0.1", bindPort);
+            clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
+            client = clientFactory.connect("127.0.0.1", bindPort);
             Thread.sleep(1000);
 
             List<PinpointServer> pinpointServerList = serverAcceptor.getWritableServerList();
             PinpointServer pinpointServer = pinpointServerList.get(0);
             Assert.assertEquals(SocketStateCode.RUN_DUPLEX, pinpointServer.getCurrentStateCode());
 
-            pinpointSocket.close();
+            client.close();
             Thread.sleep(1000);
 
             Assert.assertEquals(SocketStateCode.CLOSED_BY_CLIENT, pinpointServer.getCurrentStateCode());
         } finally {
-            PinpointRPCTestUtils.close(pinpointSocket);
-            if (clientSocketFactory != null) {
-                clientSocketFactory.release();
+            PinpointRPCTestUtils.close(client);
+            if (clientFactory != null) {
+                clientFactory.release();
             }
             PinpointRPCTestUtils.close(serverAcceptor);
         }
@@ -78,13 +78,13 @@ public class PinpointServerStateTest {
     @Test
     public void closeTest() throws InterruptedException {
         PinpointServerAcceptor serverAcceptor = null;
-        PinpointSocket pinpointSocket = null;
-        PinpointSocketFactory clientSocketFactory = null;
+        PinpointClient client = null;
+        PinpointClientFactory clientFactory = null;
         try {
             serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, PinpointRPCTestUtils.createEchoServerListener());
 
-            clientSocketFactory = PinpointRPCTestUtils.createSocketFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
-            pinpointSocket = clientSocketFactory.connect("127.0.0.1", bindPort);
+            clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
+            client = clientFactory.connect("127.0.0.1", bindPort);
             Thread.sleep(1000);
 
             List<PinpointServer> pinpointServerList = serverAcceptor.getWritableServerList();
@@ -96,9 +96,9 @@ public class PinpointServerStateTest {
 
             Assert.assertEquals(SocketStateCode.CLOSED_BY_SERVER, pinpointServer.getCurrentStateCode());
         } finally {
-            PinpointRPCTestUtils.close(pinpointSocket);
-            if (clientSocketFactory != null) {
-                clientSocketFactory.release();
+            PinpointRPCTestUtils.close(client);
+            if (clientFactory != null) {
+                clientFactory.release();
             }
             PinpointRPCTestUtils.close(serverAcceptor);
         }
@@ -131,13 +131,13 @@ public class PinpointServerStateTest {
     @Test
     public void unexpectedCloseTest() throws InterruptedException, IOException, ProtocolException {
         PinpointServerAcceptor serverAcceptor = null;
-        PinpointSocket pinpointSocket = null;
-        PinpointSocketFactory clientSocketFactory = null;
+        PinpointClient client = null;
+        PinpointClientFactory clientFactory = null;
         try {
             serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, PinpointRPCTestUtils.createEchoServerListener());
 
-            clientSocketFactory = PinpointRPCTestUtils.createSocketFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
-            pinpointSocket = clientSocketFactory.connect("127.0.0.1", bindPort);
+            clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
+            client = clientFactory.connect("127.0.0.1", bindPort);
             Thread.sleep(1000);
 
             List<PinpointServer> pinpointServerList = serverAcceptor.getWritableServerList();
@@ -149,9 +149,9 @@ public class PinpointServerStateTest {
 
             Assert.assertEquals(SocketStateCode.UNEXPECTED_CLOSE_BY_SERVER, pinpointServer.getCurrentStateCode());
         } finally {
-            PinpointRPCTestUtils.close(pinpointSocket);
-            if (clientSocketFactory != null) {
-                clientSocketFactory.release();
+            PinpointRPCTestUtils.close(client);
+            if (clientFactory != null) {
+                clientFactory.release();
             }
             PinpointRPCTestUtils.close(serverAcceptor);
         }

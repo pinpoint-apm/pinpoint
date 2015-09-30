@@ -15,13 +15,13 @@
 package com.navercorp.pinpoint.test;
 
 import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.ClassInjector;
 
 /**
  * @author Jongho Moon
  *
  */
-public class TestProfilerPluginClassLoader implements ProfilerPluginClassInjector {
+public class TestProfilerPluginClassLoader implements ClassInjector {
 
     @SuppressWarnings("unchecked")
     @Override

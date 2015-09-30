@@ -24,19 +24,19 @@ import org.apache.thrift.TBaseProcessor;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransport;
 
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContext;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 import com.navercorp.pinpoint.plugin.thrift.ThriftUtils;
@@ -78,7 +78,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor
  */
 @Group(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.BOUNDARY)
-public class TBaseProcessorProcessInterceptor implements SimpleAroundInterceptor, ThriftConstants {
+public class TBaseProcessorProcessInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -99,7 +99,7 @@ public class TBaseProcessorProcessInterceptor implements SimpleAroundInterceptor
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         final Trace trace = this.traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
@@ -140,8 +140,8 @@ public class TBaseProcessorProcessInterceptor implements SimpleAroundInterceptor
         String methodUri = getMethodUri(target);
         recorder.recordRpcName(methodUri);
         // retrieve connection information
-        String localIpPort = UNKNOWN_ADDRESS;
-        String remoteAddress = UNKNOWN_ADDRESS;
+        String localIpPort = ThriftConstants.UNKNOWN_ADDRESS;
+        String remoteAddress = ThriftConstants.UNKNOWN_ADDRESS;
         if (args.length == 2 && args[0] instanceof TProtocol) {
             TProtocol inputProtocol = (TProtocol)args[0];
             TTransport inputTransport = inputProtocol.getTransport();
@@ -157,16 +157,16 @@ public class TBaseProcessorProcessInterceptor implements SimpleAroundInterceptor
                 }
             }
         }
-        if (localIpPort != UNKNOWN_ADDRESS) {
+        if (localIpPort != ThriftConstants.UNKNOWN_ADDRESS) {
             recorder.recordEndPoint(localIpPort);
         }
-        if (remoteAddress != UNKNOWN_ADDRESS) {
+        if (remoteAddress != ThriftConstants.UNKNOWN_ADDRESS) {
             recorder.recordRemoteAddress(remoteAddress);
         }
     }
 
     private String getMethodUri(Object target) {
-        String methodUri = UNKNOWN_METHOD_URI;
+        String methodUri = ThriftConstants.UNKNOWN_METHOD_URI;
         InterceptorGroupInvocation currentTransaction = this.group.getCurrentInvocation();
         Object attachment = currentTransaction.getAttachment();
         if (attachment instanceof ThriftClientCallContext && target instanceof TBaseProcessor) {

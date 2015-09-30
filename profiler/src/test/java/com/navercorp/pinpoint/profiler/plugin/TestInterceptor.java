@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 
 @Group(DefaultClassEditorBuilderTest.SCOPE_NAME)
-public class TestInterceptor implements SimpleAroundInterceptor {
+public class TestInterceptor implements AroundInterceptor {
     private final String field;
     
     public TestInterceptor(String field) {
@@ -34,7 +34,7 @@ public class TestInterceptor implements SimpleAroundInterceptor {
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         // TODO Auto-generated method stub
 
     }

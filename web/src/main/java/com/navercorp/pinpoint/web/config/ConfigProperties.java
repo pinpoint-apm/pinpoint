@@ -30,7 +30,10 @@ public class ConfigProperties {
     
     @Value("#{pinpointWebProps['config.editUserInfo'] ?: true}")
     private boolean editUserInfo;
-    
+
+    @Value("#{pinpointWebProps['config.show.activeThread'] ?: false}")
+    private boolean showActiveThread;
+
     public boolean getEditUserInfo() {
         return editUserInfo;
     }
@@ -39,11 +42,19 @@ public class ConfigProperties {
         return this.sendUsage;
     }
 
+    public boolean isShowActiveThread() {
+        return showActiveThread;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("WebProperties{");
         sb.append("sendUsage=").append(sendUsage);
+        sb.append(", showActiveThread=").append(showActiveThread);
+        sb.append(", editUserInfo=").append(editUserInfo);
         sb.append("}");
         return sb.toString();
     }
+    
+    
 }

@@ -21,7 +21,7 @@ import java.net.SocketAddress;
 
 import org.apache.thrift.transport.TNonblockingSocket;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
 /**
  * @author HyunGil Jeong
  */
-public class TNonblockingSocketConstructInterceptor implements SimpleAroundInterceptor, ThriftConstants {
+public class TNonblockingSocketConstructInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -42,7 +42,7 @@ public class TNonblockingSocketConstructInterceptor implements SimpleAroundInter
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }

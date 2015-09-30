@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.thrift.descriptor;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.MethodType;
 
 /**

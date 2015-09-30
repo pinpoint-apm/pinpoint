@@ -18,15 +18,13 @@ package com.navercorp.pinpoint.test.mock;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
-import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.TraceType;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 
 /**
  * @author emeroad
@@ -35,6 +33,7 @@ import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 public class MockTraceContext implements TraceContext {
 
     private Trace trace;
+    private final ProfilerConfig config = new ProfilerConfig();
 
     public void setTrace(Trace trace) {
         this.trace = trace;
@@ -117,16 +116,6 @@ public class MockTraceContext implements TraceContext {
     }
 
     @Override
-    public DatabaseInfo parseJdbcUrl(String sql) {
-        return null;
-    }
-
-    @Override
-    public DatabaseInfo createDatabaseInfo(ServiceType type, ServiceType executeQueryType, String url, int port, String databaseId) {
-        return null;
-    }
-
-    @Override
     public TraceId createTraceId(String transactionId, long parentSpanID, long spanID, short flags) {
         return null;
     }
@@ -138,7 +127,7 @@ public class MockTraceContext implements TraceContext {
 
     @Override
     public ProfilerConfig getProfilerConfig() {
-        return null;
+        return config;
     }
 
     @Override

@@ -178,7 +178,7 @@
     			    return reg.test(phone);
     			}
     			
-    			scope.isAllowedCreate = globalConfig.createUserAllowed;
+    			scope.isAllowedCreate = globalConfig.editUserInfo;
     			scope.onCreate = function() {
     				if ( isRemoving == true ) return;
     				
@@ -281,11 +281,13 @@
     			scope.onCloseAlert = function() {
     				alarmUtilService.closeAlert( $elAlert, $elLoading );
     			};
-//    			scope.$on("alarmPinpointUser.configuration.load", function() {
-//    				if ( isLoadedPinpointUserList === false ) {
-//    					loadList( true );
-//    				}
-//    			});
+    			scope.$on("alarmPinpointUser.configuration.load", function( event, department ) {
+    				if ( isLoadedPinpointUserList === false ) {
+    					loadList( department == "" ? {} : {
+    						department: department
+    					});
+    				}
+    			});
     			scope.$on("alarmPinpointUser.configuration.addUserCallback", function( event ) {
     				alarmUtilService.hide( $elLoading );
     			});

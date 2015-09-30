@@ -25,6 +25,8 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -42,20 +44,29 @@ public abstract class StreamChannel {
     private final StreamChannelState state;
     private final CountDownLatch openLatch = new CountDownLatch(1);
 
+    private final List<StreamChannelStateChangeEventHandler> stateChangeEventHandlers = new CopyOnWriteArrayList<StreamChannelStateChangeEventHandler>();
+
     public StreamChannel(Channel channel, int streamId, StreamChannelManager streamChannelManager) {
         this.channel = channel;
         this.streamChannelId = streamId;
         this.streamChannelManager = streamChannelManager;
 
+        stateChangeEventHandlers.add(new LoggingStreamChannelStateChangeEventHandler());
+
         this.state = new StreamChannelState();
     }
 
-    boolean changeStateRun() {
-        try {
-            boolean result = state.changeStateRun();
+    public void addStateChangeEventHandler(StreamChannelStateChangeEventHandler stateChangeEventHandler) {
+        stateChangeEventHandlers.add(stateChangeEventHandler);
+    }
 
-            logger.info(makeStateChangeMessage(StreamChannelStateCode.RUN, result));
-            return result;
+    boolean changeStateOpen() {
+        return changeStateTo(StreamChannelStateCode.OPEN);
+    }
+
+    boolean changeStateConnected() {
+        try {
+            return changeStateTo(StreamChannelStateCode.CONNECTED);
         } finally {
             openLatch.countDown();
         }
@@ -66,11 +77,7 @@ public abstract class StreamChannel {
             if (checkState(StreamChannelStateCode.CLOSED)) {
                 return true;
             }
-
-            boolean result = state.changeStateClose();
-
-            logger.info(makeStateChangeMessage(StreamChannelStateCode.CLOSED, result));
-            return result;
+            return changeStateTo(StreamChannelStateCode.CLOSED);
         } finally {
             openLatch.countDown();
         }
@@ -101,14 +108,14 @@ public abstract class StreamChannel {
     }
 
     public ChannelFuture sendPing(int requestId) {
-        assertState(StreamChannelStateCode.RUN);
+        assertState(StreamChannelStateCode.CONNECTED);
 
         StreamPingPacket packet = new StreamPingPacket(streamChannelId, requestId);
         return this.channel.write(packet);
     }
 
     public ChannelFuture sendPong(int requestId) {
-        assertState(StreamChannelStateCode.RUN);
+        assertState(StreamChannelStateCode.CONNECTED);
 
         StreamPongPacket packet = new StreamPongPacket(streamChannelId, requestId);
         return this.channel.write(packet);
@@ -128,27 +135,6 @@ public abstract class StreamChannel {
 
     protected StreamChannelState getState() {
         return state;
-    }
-
-    protected String makeStateChangeMessage(StreamChannelStateCode change, boolean result) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(this.getClass().getSimpleName());
-
-        sb.append(" change state to ");
-        sb.append(change.name());
-        sb.append("(");
-        sb.append(result ? "SUCCESS" : "FAIL");
-        sb.append(")");
-
-        sb.append("[Channel:");
-        sb.append(channel);
-
-        sb.append(", StreamId:");
-        sb.append(getStreamId());
-
-        sb.append(".");
-
-        return sb.toString();
     }
 
     public boolean isServer() {
@@ -178,6 +164,27 @@ public abstract class StreamChannel {
         }
     }
 
+    protected boolean changeStateTo(StreamChannelStateCode nextState) {
+        StreamChannelStateCode currentState = getCurrentState();
+
+        boolean isChanged = state.changeStateTo(currentState, nextState);
+        if (!isChanged && (getCurrentState() != StreamChannelStateCode.ILLEGAL_STATE)) {
+            changeStateTo(StreamChannelStateCode.ILLEGAL_STATE);
+        }
+
+        if (isChanged) {
+            for (StreamChannelStateChangeEventHandler h : stateChangeEventHandlers) {
+                try {
+                    h.eventPerformed(this, currentState, nextState);
+                } catch (Exception e) {
+                    h.exceptionCaught(this, currentState, nextState, e);
+                }
+            }
+        }
+
+        return isChanged;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -194,8 +201,8 @@ public abstract class StreamChannel {
 
         sb.append("].");
 
-        // TODO fix -> super.toString();
         return sb.toString();
     }
+
 
 }

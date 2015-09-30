@@ -27,12 +27,12 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
@@ -84,7 +84,7 @@ public class IBatisPlugin implements ProfilerPlugin {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader,
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader,
                     String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
                     byte[] classfileBuffer) throws InstrumentException {
 
@@ -94,7 +94,7 @@ public class IBatisPlugin implements ProfilerPlugin {
                 final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(methodFilter);
                 for (InstrumentMethod methodToTrace : methodsToTrace) {
                     String sqlMapOperationInterceptor = "com.navercorp.pinpoint.plugin.ibatis.interceptor.SqlMapOperationInterceptor";
-                    methodToTrace.addInterceptor(sqlMapOperationInterceptor, group, ExecutionPolicy.BOUNDARY,
+                    methodToTrace.addGroupedInterceptor(sqlMapOperationInterceptor, group, ExecutionPolicy.BOUNDARY,
                             serviceType);
                 }
 

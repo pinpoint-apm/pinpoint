@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.util.TimeSlot;
 
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.client.Increment;
 import org.slf4j.Logger;
@@ -58,6 +59,10 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
     @Autowired
     @Qualifier("callerMerge")
     private RowKeyMerge rowKeyMerge;
+
+    @Autowired
+    @Qualifier("statisticsCallerRowKeyDistributor")
+    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     @Autowired
     private TimeSlot timeSlot;
@@ -102,7 +107,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
             RowInfo rowInfo = new DefaultRowInfo(callerRowKey, calleeColumnName);
             this.counter.increment(rowInfo, 1L);
         } else {
-            final byte[] rowKey = callerRowKey.getRowKey();
+            final byte[] rowKey = getDistributedKey(callerRowKey.getRowKey());
             // column name is the name of caller app.
             byte[] columnName = calleeColumnName.getColumnName();
             increment(rowKey, columnName, 1L);
@@ -119,7 +124,6 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         hbaseTemplate.incrementColumnValue(MAP_STATISTICS_CALLEE, rowKey, MAP_STATISTICS_CALLEE_CF_VER2_COUNTER, columnName, increment);
     }
 
-
     @Override
     public void flushAll() {
         if (!useBulk) {
@@ -127,13 +131,16 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         }
         // update statistics by rowkey and column for now. need to update it by rowkey later.
         Map<RowInfo,ConcurrentCounterMap.LongAdder> remove = this.counter.remove();
-        List<Increment> merge = rowKeyMerge.createBulkIncrement(remove);
+        List<Increment> merge = rowKeyMerge.createBulkIncrement(remove, rowKeyDistributorByHashPrefix);
         if (!merge.isEmpty()) {
             if (logger.isDebugEnabled()) {
                 logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
             }
             hbaseTemplate.increment(MAP_STATISTICS_CALLEE, merge);
         }
+    }
 
+    private byte[] getDistributedKey(byte[] rowKey) {
+        return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
     }
 }

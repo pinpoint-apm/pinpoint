@@ -20,14 +20,14 @@ import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.THRIFT_SERVER_SCO
 
 import org.apache.thrift.protocol.TMessage;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContext;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncMarkerFlagFieldAccessor;
@@ -48,7 +48,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncMarkerFlagFieldA
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor
  */
 @Group(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
-public class TProtocolReadMessageBeginInterceptor implements SimpleAroundInterceptor, ThriftConstants {
+public class TProtocolReadMessageBeginInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -65,7 +65,7 @@ public class TProtocolReadMessageBeginInterceptor implements SimpleAroundInterce
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
@@ -74,7 +74,7 @@ public class TProtocolReadMessageBeginInterceptor implements SimpleAroundInterce
         }
         final boolean shouldTrace = ((AsyncMarkerFlagFieldAccessor)target)._$PINPOINT$_getAsyncMarkerFlag();
         if (shouldTrace) {
-            String methodName = UNKNOWN_METHOD_NAME;
+            String methodName = ThriftConstants.UNKNOWN_METHOD_NAME;
             if (result instanceof TMessage) {
                 TMessage message = (TMessage)result;
                 methodName = message.name;

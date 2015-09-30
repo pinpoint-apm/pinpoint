@@ -18,14 +18,13 @@ import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
-public class JettyDetector implements ApplicationTypeDetector, JettyConstants {
+public class JettyDetector implements ApplicationTypeDetector {
 
     private static final String REQUIRED_MAIN_CLASS = "org.eclipse.jetty.start.Main";
 
-
     @Override
     public ServiceType getApplicationType() {
-        return JETTY;
+        return JettyConstants.JETTY;
     }
 
     @Override

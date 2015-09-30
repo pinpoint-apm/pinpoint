@@ -32,8 +32,8 @@ public class TestAroundInterceptor implements StaticAroundInterceptor {
     }
 
     @Override
-    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
-        after.after(target, className, methodName, parameterDescription, args, result, throwable);
+    public void after(Object target, String className, String methodName, String parameterDescription, Object result, Throwable throwable, Object[] args) {
+        after.after(target, className, methodName, parameterDescription, result, throwable, args);
     }
 
 

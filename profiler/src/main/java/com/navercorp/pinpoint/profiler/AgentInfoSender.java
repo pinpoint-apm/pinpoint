@@ -99,7 +99,8 @@ public class AgentInfoSender implements ServerMetaDataListener {
         agentInfo.setPid(this.agentInformation.getPid());
         agentInfo.setStartTimestamp(this.agentInformation.getStartTime());
         agentInfo.setServiceType(this.agentInformation.getServerType().getCode());
-        agentInfo.setVersion(Version.VERSION);
+        agentInfo.setVmVersion(this.agentInformation.getJvmVersion());
+        agentInfo.setAgentVersion(Version.VERSION);
         return agentInfo;
     }
     
@@ -118,7 +119,8 @@ public class AgentInfoSender implements ServerMetaDataListener {
         agentInfo.setPid(this.agentInformation.getPid());
         agentInfo.setStartTimestamp(this.agentInformation.getStartTime());
         agentInfo.setServiceType(this.agentInformation.getServerType().getCode());
-        agentInfo.setVersion(Version.VERSION);
+        agentInfo.setVmVersion(this.agentInformation.getJvmVersion());
+        agentInfo.setAgentVersion(Version.VERSION);
         agentInfo.setServerMetaData(createTServiceInfo(serverMetaData));
         return agentInfo;
     }

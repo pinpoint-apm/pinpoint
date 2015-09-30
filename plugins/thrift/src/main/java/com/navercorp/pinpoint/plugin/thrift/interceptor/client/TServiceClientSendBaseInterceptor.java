@@ -25,19 +25,19 @@ import org.apache.thrift.TServiceClient;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TTransport;
 
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 import com.navercorp.pinpoint.plugin.thrift.ThriftRequestProperty;
@@ -59,7 +59,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.client.TProtocolWriteFieldStopInterceptor TProtocolWriteFieldStopInterceptor
  */
 @Group(value = THRIFT_CLIENT_SCOPE, executionPolicy = ExecutionPolicy.BOUNDARY)
-public class TServiceClientSendBaseInterceptor implements SimpleAroundInterceptor, ThriftConstants {
+public class TServiceClientSendBaseInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -100,10 +100,10 @@ public class TServiceClientSendBaseInterceptor implements SimpleAroundIntercepto
                 parentTraceInfo.setShouldSample(shouldSample);
             } else {
                 SpanEventRecorder recorder = trace.traceBlockBegin();
-                recorder.recordServiceType(THRIFT_CLIENT);
+                recorder.recordServiceType(ThriftConstants.THRIFT_CLIENT);
 
                 // retrieve connection information
-                String remoteAddress = UNKNOWN_ADDRESS;
+                String remoteAddress = ThriftConstants.UNKNOWN_ADDRESS;
                 if (transport instanceof SocketFieldAccessor) {
                     Socket socket = ((SocketFieldAccessor)transport)._$PINPOINT$_getSocket();
                     if (socket != null) {
@@ -116,14 +116,14 @@ public class TServiceClientSendBaseInterceptor implements SimpleAroundIntercepto
                 }
                 recorder.recordDestinationId(remoteAddress);
 
-                String methodName = UNKNOWN_METHOD_NAME;
+                String methodName = ThriftConstants.UNKNOWN_METHOD_NAME;
                 if (args[0] instanceof String) {
                     methodName = (String)args[0];
                 }
                 String serviceName = ThriftUtils.getClientServiceName(client);
 
                 String thriftUrl = getServiceUrl(remoteAddress, serviceName, methodName);
-                recorder.recordAttribute(THRIFT_URL, thriftUrl);
+                recorder.recordAttribute(ThriftConstants.THRIFT_URL, thriftUrl);
 
                 TraceId nextId = trace.getTraceId().getNextTraceId();
                 recorder.recordNextSpanId(nextId.getSpanId());
@@ -149,7 +149,7 @@ public class TServiceClientSendBaseInterceptor implements SimpleAroundIntercepto
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
@@ -163,7 +163,7 @@ public class TServiceClientSendBaseInterceptor implements SimpleAroundIntercepto
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             if (this.traceServiceArgs) {
                 if (args.length == 2 && (args[1] instanceof TBase)) {
-                    recorder.recordAttribute(THRIFT_ARGS, getMethodArgs((TBase<?, ?>)args[1]));
+                    recorder.recordAttribute(ThriftConstants.THRIFT_ARGS, getMethodArgs((TBase<?, ?>)args[1]));
                 }
             }
             recorder.recordApi(descriptor);

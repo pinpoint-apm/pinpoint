@@ -21,12 +21,11 @@ import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.ops.Operation;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.plugin.arcus.ArcusConstants;
 import com.navercorp.pinpoint.plugin.arcus.OperationAccessor;
 import com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor;
@@ -36,7 +35,7 @@ import com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor;
  * @author jaehong.kim
  */
 @Group(ArcusConstants.ARCUS_FUTURE_SCOPE)
-public class FutureGetInterceptor extends SpanAsyncEventSimpleAroundInterceptor implements ArcusConstants {
+public class FutureGetInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
 
     public FutureGetInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext) {
         super(traceContext, methodDescriptor);
@@ -69,10 +68,10 @@ public class FutureGetInterceptor extends SpanAsyncEventSimpleAroundInterceptor 
         String serviceCode = ((ServiceCodeAccessor)op)._$PINPOINT$_getServiceCode();
         if (serviceCode != null) {
             recorder.recordDestinationId(serviceCode);
-            recorder.recordServiceType(ARCUS_FUTURE_GET);
+            recorder.recordServiceType(ArcusConstants.ARCUS_FUTURE_GET);
         } else {
             recorder.recordDestinationId("MEMCACHED");
-            recorder.recordServiceType(ServiceType.MEMCACHED_FUTURE_GET);
+            recorder.recordServiceType(ArcusConstants.MEMCACHED_FUTURE_GET);
         }
 
         if (op != null) {

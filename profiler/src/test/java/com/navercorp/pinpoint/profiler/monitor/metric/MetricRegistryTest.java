@@ -16,26 +16,28 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric;
 
+import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public class MetricRegistryTest {
-
+    private static final ServiceType ASYNC_HTTP_CLIENT = ServiceType.of(9056, "ASYNC_HTTP_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
+    
     @Test
     public void testSuccess() {
         MetricRegistry metricRegistry = new MetricRegistry(ServiceType.STAND_ALONE);
-        RpcMetric rpcMetric = metricRegistry.getRpcMetric(ServiceType.ASYNC_HTTP_CLIENT);
-
-
+        RpcMetric rpcMetric = metricRegistry.getRpcMetric(ASYNC_HTTP_CLIENT);
     }
 
     @Test
     public void testFalse() {
         MetricRegistry metricRegistry = null;
         try {
-            metricRegistry = new MetricRegistry(ServiceType.ORACLE);
+            metricRegistry = new MetricRegistry(ServiceType.UNKNOWN_DB);
             Assert.fail();
         } catch (Exception e) {
         }

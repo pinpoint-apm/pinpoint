@@ -23,10 +23,10 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncCallEndFlagFieldAccessor;
 import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncCallRemoteAddressFieldAccessor;
 import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncMarkerFlagFieldAccessor;
@@ -41,7 +41,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.getter.TTransportFieldGetter;
 /**
  * @author HyunGil Jeong
  */
-public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
+public class ThriftPlugin implements ProfilerPlugin {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
@@ -81,7 +81,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
@@ -117,7 +117,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
@@ -140,7 +140,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
@@ -150,7 +150,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
                 target.addField(AsyncNextSpanIdFieldAccessor.class.getName());
                 target.addField(AsyncCallEndFlagFieldAccessor.class.getName());
                 target.addField(AsyncCallRemoteAddressFieldAccessor.class.getName());
-                target.addGetter(TNonblockingTransportFieldGetter.class.getName(), T_ASYNC_METHOD_CALL_FIELD_TRANSPORT);
+                target.addGetter(TNonblockingTransportFieldGetter.class.getName(), ThriftConstants.T_ASYNC_METHOD_CALL_FIELD_TRANSPORT);
 
                 // TAsyncMethodCall(TAsyncClient, TProtocolFactory, TNonblockingTransport, AsyncMethodCallback<T>, boolean)
                 final InstrumentMethod constructor = target.getConstructor("org.apache.thrift.async.TAsyncClient",
@@ -235,7 +235,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
@@ -259,7 +259,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
@@ -290,7 +290,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
@@ -352,7 +352,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
@@ -369,7 +369,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
@@ -393,7 +393,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
@@ -418,16 +418,16 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(SocketFieldAccessor.class.getName());
-                target.addGetter(TNonblockingTransportFieldGetter.class.getName(), FRAME_BUFFER_FIELD_TRANS_);
+                target.addGetter(TNonblockingTransportFieldGetter.class.getName(), ThriftConstants.FRAME_BUFFER_FIELD_TRANS_);
 
                 // [THRIFT-1972] - 0.9.1 added a field for the wrapper around trans_ field, while getting rid of getInputTransport() method
-                if (target.hasField(FRAME_BUFFER_FIELD_IN_TRANS_)) {
-                    target.addGetter(TTransportFieldGetter.class.getName(), FRAME_BUFFER_FIELD_IN_TRANS_);
+                if (target.hasField(ThriftConstants.FRAME_BUFFER_FIELD_IN_TRANS_)) {
+                    target.addGetter(TTransportFieldGetter.class.getName(), ThriftConstants.FRAME_BUFFER_FIELD_IN_TRANS_);
                     // AbstractNonblockingServer$FrameBuffer(TNonblockingTransport, SelectionKey, AbstractSelectThread)
                     final InstrumentMethod constructor = target.getConstructor(
                             "org.apache.thrift.server.AbstractNonblockingServer", // inner class - implicit reference to outer class instance
@@ -471,7 +471,7 @@ public class ThriftPlugin implements ProfilerPlugin, ThriftConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);

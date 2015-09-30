@@ -22,7 +22,7 @@ import org.junit.Test;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
-import com.navercorp.pinpoint.profiler.plugin.DefaultInterceptorGroupInvocation;
+import com.navercorp.pinpoint.profiler.interceptor.group.DefaultInterceptorGroupInvocation;
 
 
 public class DefaultScopeTest {

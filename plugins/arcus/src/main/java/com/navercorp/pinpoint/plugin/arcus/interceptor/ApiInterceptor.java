@@ -21,17 +21,16 @@ import java.util.concurrent.Future;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.ops.Operation;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncTraceIdAccessor;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.arcus.ArcusConstants;
 import com.navercorp.pinpoint.plugin.arcus.OperationAccessor;
 import com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor;
@@ -41,7 +40,7 @@ import com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor;
  * @author jaehong.kim
  */
 @Group(ArcusConstants.ARCUS_SCOPE)
-public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
+public class ApiInterceptor implements AroundInterceptor {
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
 
@@ -106,7 +105,7 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
@@ -147,14 +146,14 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ArcusConstants {
                 String serviceCode = ((ServiceCodeAccessor)target)._$PINPOINT$_getServiceCode();
                 if (serviceCode != null) {
                     recorder.recordDestinationId(serviceCode);
-                    recorder.recordServiceType(ARCUS);
+                    recorder.recordServiceType(ArcusConstants.ARCUS);
                 } else {
                     recorder.recordDestinationId("MEMCACHED");
-                    recorder.recordServiceType(ServiceType.MEMCACHED);
+                    recorder.recordServiceType(ArcusConstants.MEMCACHED);
                 }
             } else {
                 recorder.recordDestinationId("MEMCACHED");
-                recorder.recordServiceType(ServiceType.MEMCACHED);
+                recorder.recordServiceType(ArcusConstants.MEMCACHED);
             }
 
             try {

@@ -16,23 +16,22 @@ package com.navercorp.pinpoint.plugin.jetty.interceptor;
 
 import java.util.Enumeration;
 
+import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.Request;
 
-import com.navercorp.pinpoint.bootstrap.MetadataAccessor;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanId;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
@@ -42,10 +41,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.jetty.JettyConstants;
 import com.navercorp.pinpoint.plugin.jetty.JettySyncMethodDescriptor;
 
-import org.eclipse.jetty.server.HttpChannel;
-
 @TargetMethod(name = "handle", paramTypes = { "org.eclipse.jetty.server.HttpChannel" })
-public class ServerHandleInterceptor implements SimpleAroundInterceptor, JettyConstants{
+public class ServerHandleInterceptor implements AroundInterceptor {
 
     public static final JettySyncMethodDescriptor JETTY_SYNC_API_TAG = new JettySyncMethodDescriptor();
 
@@ -56,14 +53,12 @@ public class ServerHandleInterceptor implements SimpleAroundInterceptor, JettyCo
     private final MethodDescriptor methodDescriptor;
     private final TraceContext traceContext;
     private final Filter<String> excludeUrlFilter;
-    private final MetadataAccessor traceAccessor;
 
-    public ServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter, @Name(METADATA_TRACE) MetadataAccessor traceAccessor) {
+    public ServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter) {
 
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
         this.excludeUrlFilter = excludeFilter;
-        this.traceAccessor = traceAccessor;
 
         traceContext.cacheApi(JETTY_SYNC_API_TAG);
     }
@@ -85,7 +80,7 @@ public class ServerHandleInterceptor implements SimpleAroundInterceptor, JettyCo
             }
             // ------------------------------------------------------
             SpanEventRecorder recorder = trace.traceBlockBegin();
-            recorder.recordServiceType(JETTY_METHOD);
+            recorder.recordServiceType(JettyConstants.JETTY_METHOD);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("before. Caused:{}", th.getMessage(), th);
@@ -152,7 +147,7 @@ public class ServerHandleInterceptor implements SimpleAroundInterceptor, JettyCo
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
@@ -198,8 +193,8 @@ public class ServerHandleInterceptor implements SimpleAroundInterceptor, JettyCo
     }
 
     private void setTraceMetadata(final Request request, final Trace trace) {
-        if(traceAccessor.isApplicable(request)) {
-            traceAccessor.set(request, trace);            
+        if (request instanceof TraceAccessor) {
+            ((TraceAccessor)request)._$PINPOINT$_setTrace(trace);            
         }
     }
 

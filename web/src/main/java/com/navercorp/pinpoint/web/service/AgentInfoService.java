@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.service;
 
 import java.util.Set;
 
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
@@ -30,7 +29,7 @@ import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
 public interface AgentInfoService {
     ApplicationAgentList getApplicationAgentList(String applicationName, long timestamp);
 
-    Set<AgentInfoBo> getAgentsByApplicationName(String applicationName, long timestamp);
+    Set<AgentInfo> getAgentsByApplicationName(String applicationName, long timestamp);
     
     AgentInfo getAgentInfo(String agentId, long timestamp);
 

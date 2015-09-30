@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -26,7 +27,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
  * @author emeroad
  * @author jaehong.kim
  */
-public abstract class SpanEventSimpleAroundInterceptorForPlugin implements SimpleAroundInterceptor {
+public abstract class SpanEventSimpleAroundInterceptorForPlugin implements AroundInterceptor {
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
 
@@ -72,7 +73,7 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Simpl
     protected abstract void doInBeforeTrace(final SpanEventRecorder recorder, final Object target, final Object[] args);
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logAfterInterceptor(target, args, result, throwable);
         }

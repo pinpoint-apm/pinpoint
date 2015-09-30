@@ -96,17 +96,16 @@ public class ActiveTraceRepository implements ActiveTraceLocator {
     @Override
     public List<ActiveTraceInfo> collect() {
         List<ActiveTraceInfo> collectData = new ArrayList<ActiveTraceInfo>();
-        final Collection<Trace> copy = this.activeTraceInfoMap.values();
-        for (Trace trace : copy) {
+        final Collection<Trace> copied = this.activeTraceInfoMap.values();
+        for (Trace trace : copied) {
             final long startTime = trace.getStartTime();
             // not started
             if (startTime > 0) {
                 // clear Trace reference
-                ActiveTraceInfo activeTraceInfo = new ActiveTraceInfo(trace.getId(), startTime);
+                ActiveTraceInfo activeTraceInfo = new ActiveTraceInfo(trace.getId(), startTime, trace.getBindThread());
                 collectData.add(activeTraceInfo);
             }
         }
         return collectData;
     }
-
 }

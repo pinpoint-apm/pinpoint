@@ -18,10 +18,6 @@ package com.navercorp.pinpoint.web.applicationmap;
 
 import java.util.*;
 
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
 import com.navercorp.pinpoint.web.applicationmap.link.ServerMatcher;
@@ -31,11 +27,10 @@ import com.navercorp.pinpoint.web.view.ServerInstanceListSerializer;
  * @author emeroad
  * @author netspider
  * @author minwoo.jung
+ * @author HyunGil Jeong
  */
 @JsonSerialize(using = ServerInstanceListSerializer.class)
 public class ServerInstanceList {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Map<String, List<ServerInstance>> serverInstanceList = new TreeMap<String, List<ServerInstance>>();
 
@@ -53,8 +48,7 @@ public class ServerInstanceList {
         final List<String> agentList = new ArrayList<String>();
         for (List<ServerInstance> serverInstanceList : serverInstanceValueList) {
             for (ServerInstance serverInstance : serverInstanceList) {
-                AgentInfoBo agentInfo = serverInstance.getAgentInfo();
-                agentList.add(agentInfo.getAgentId());
+                agentList.add(serverInstance.getName());
             }
         }
         return agentList;

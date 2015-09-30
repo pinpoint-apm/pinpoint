@@ -16,49 +16,23 @@
 
 package com.navercorp.pinpoint.web.filter;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * 
+ *
  * @author netspider
- * 
+ *
  */
 public class FilterDescriptor {
 
     /**
-     * from application name
+     * from application
      */
-    private String fa = null;
-
-    /**
-     * from service type
-     */
-    private String fst = null;
-
-    /**
-     * to application name
-     */
-    private String ta = null;
-
-    /**
-     * to service type
-     */
-    private String tst = null;
-
-    /**
-     * response time from
-     */
-    private Long rf = null;
-
-    /**
-     * response time to
-     */
-    private String rt = null;
-
-    /**
-     * include exception
-     */
-    private Boolean ie = null;
+    private String fromApplicationName = null;
+    private String fromServiceType = null;
+    private String fromAgentId = null;
+    private Long fromResponseTime = null;
 
     /**
      * requested url
@@ -66,159 +40,157 @@ public class FilterDescriptor {
     private String url = null;
 
     /**
-     * from agent name
+     * to application
      */
-    private String fan = null;
+    private String toApplicationName = null;
+    private String toServiceType = null;
+    private String toAgentId = null;
+    private String toResponseTime = null;
 
     /**
-     * to agent name
+     * include exception
      */
-    private String tan = null;
+    private Boolean includeException = null;
+
+    public FilterDescriptor() {
+    }
 
     public boolean isValid() {
         return isValidFromToInfo() && isValidFromToResponseTime();
     }
 
     public boolean isValidFromToInfo() {
-        return !(StringUtils.isEmpty(fa) || StringUtils.isEmpty(fst) || StringUtils.isEmpty(ta) || StringUtils.isEmpty(tst));
+        return !(StringUtils.isEmpty(fromApplicationName) || StringUtils.isEmpty(fromServiceType) || StringUtils.isEmpty(toApplicationName) || StringUtils.isEmpty(toServiceType));
     }
 
     public boolean isValidFromToResponseTime() {
-        return !((rf == null && !StringUtils.isEmpty(rt)) || (rf != null && StringUtils.isEmpty(rt)));
+        return !((fromResponseTime == null && !StringUtils.isEmpty(toResponseTime)) || (fromResponseTime != null && StringUtils.isEmpty(toResponseTime)));
     }
 
     public boolean isSetUrl() {
         return !StringUtils.isEmpty(url);
     }
 
-    public String getFromApplicationName() {
-        return fa;
-    }
-
-    public String getFromServiceType() {
-        return fst;
-    }
-
-    public String getToApplicationName() {
-        return ta;
-    }
-
-    public String getToServiceType() {
-        return tst;
-    }
-
-    public Long getResponseFrom() {
-        return rf;
-    }
 
     public Long getResponseTo() {
-        if (rt == null) {
+        if (toResponseTime == null) {
             return null;
-        } else if ("max".equals(rt)) {
+        } else if ("max".equals(toResponseTime)) {
             return Long.MAX_VALUE;
         } else {
-            return Long.valueOf(rt);
+            return Long.valueOf(toResponseTime);
         }
     }
 
-    public Boolean getIncludeException() {
-        return ie;
-    }
 
     public String getUrlPattern() {
         return url;
     }
 
-    public String getFa() {
-        return fa;
+    public String getFromApplicationName() {
+        return fromApplicationName;
     }
 
-    public void setFa(String fa) {
-        this.fa = fa;
+    @JsonSetter(value = "fa")
+    public void setFromApplicationName(String fromApplicationName) {
+        this.fromApplicationName = fromApplicationName;
     }
 
-    public String getFst() {
-        return fst;
+    public String getFromServiceType() {
+        return fromServiceType;
     }
 
-    public void setFst(String fst) {
-        this.fst = fst;
+    @JsonSetter(value = "fst")
+    public void setFromServiceType(String fromServiceType) {
+        this.fromServiceType = fromServiceType;
     }
 
-    public String getTa() {
-        return ta;
+    public String getToApplicationName() {
+        return toApplicationName;
     }
 
-    public void setTa(String ta) {
-        this.ta = ta;
+    @JsonSetter(value = "ta")
+    public void setToApplicationName(String toApplicationName) {
+        this.toApplicationName = toApplicationName;
     }
 
-    public String getTst() {
-        return tst;
+    public String getToServiceType() {
+        return toServiceType;
     }
 
-    public void setTst(String tst) {
-        this.tst = tst;
+    @JsonSetter(value = "tst")
+    public void setToServiceType(String toServiceType) {
+        this.toServiceType = toServiceType;
     }
 
-    public Long getRf() {
-        return rf;
+    public Long getFromResponseTime() {
+        return fromResponseTime;
     }
 
-    public void setRf(Long rf) {
-        this.rf = rf;
+    @JsonSetter(value = "rf")
+    public void setFromResponseTime(Long fromResponseTime) {
+        this.fromResponseTime = fromResponseTime;
     }
 
-    public String getRt() {
-        return rt;
+    public String getToResponseTime() {
+        return toResponseTime;
     }
 
-    public void setRt(String rt) {
-        this.rt = rt;
+    @JsonSetter(value = "rt")
+    public void setToResponseTime(String toResponseTime) {
+        this.toResponseTime = toResponseTime;
     }
 
-    public Boolean getIe() {
-        return ie;
+    public Boolean getIncludeException() {
+        return includeException;
     }
 
-    public void setIe(Boolean ie) {
-        this.ie = ie;
+    @JsonSetter(value = "ie")
+    public void setIncludeException(Boolean includeException) {
+        this.includeException = includeException;
     }
 
     public String getUrl() {
         return url;
     }
 
+    @JsonSetter(value = "url")
     public void setUrl(String url) {
         this.url = url;
     }
 
-    public String getFan() {
-        return fan;
-    }
-
     public String getFromAgentName() {
-        return fan;
+        return fromAgentId;
     }
 
-    public void setFan(String fan) {
-        this.fan = fan;
-    }
-
-    public String getTan() {
-        return tan;
+    @JsonSetter(value = "fan")
+    public void setFromAgentId(String fromAgentId) {
+        this.fromAgentId = fromAgentId;
     }
 
     public String getToAgentName() {
-        return tan;
+        return toAgentId;
     }
 
-    public void setTan(String tan) {
-        this.tan = tan;
+    @JsonSetter(value = "tan")
+    public void setToAgentId(String toAgentId) {
+        this.toAgentId = toAgentId;
     }
 
     @Override
     public String toString() {
-        return "FilterDescriptor [fa=" + fa + ", fst=" + fst + ", ta=" + ta + ", tst=" + tst + ", rf=" + rf + ", rt=" + rt + ", ie=" + ie + ", url=" + url + ", fan=" + fan + ", tan=" + tan + "]";
+        final StringBuilder sb = new StringBuilder("FilterDescriptor{");
+        sb.append("fromApplicationName='").append(fromApplicationName).append('\'');
+        sb.append(", fromServiceType='").append(fromServiceType).append('\'');
+        sb.append(", toApplicationName='").append(toApplicationName).append('\'');
+        sb.append(", toServiceType='").append(toServiceType).append('\'');
+        sb.append(", fromResponseTime=").append(fromResponseTime);
+        sb.append(", toResponseTime='").append(toResponseTime).append('\'');
+        sb.append(", includeException=").append(includeException);
+        sb.append(", url='").append(url).append('\'');
+        sb.append(", fromAgentId='").append(fromAgentId).append('\'');
+        sb.append(", toAgentId='").append(toAgentId).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 }

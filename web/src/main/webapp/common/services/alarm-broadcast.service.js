@@ -12,13 +12,15 @@
 	pinpointApp.service('AlarmBroadcastService', [ '$rootScope', function ($rootScope) {
 		var self = this;
 		// from userGroup
-		this.sendInit = function( userGroupID ) {
-			//$rootScope.$broadcast( "alarmPinpointUser.configuration.load" );
-			self.sendReloadWithUserGroupID( userGroupID );
+		this.sendInit = function( userGroupID, willBeAddedUser ) {
+			self.sendReloadWithUserGroupID( userGroupID, willBeAddedUser );
 		};
+		this.sendLoadPinpointUser = function( userDepartment ) {
+			$rootScope.$broadcast( "alarmPinpointUser.configuration.load", userDepartment );
+		}
 		// from userGroup
-		this.sendReloadWithUserGroupID = function( userGroupID ) {
-			$rootScope.$broadcast( "alarmGroupMember.configuration.load", userGroupID );
+		this.sendReloadWithUserGroupID = function( userGroupID, willBeAddedUser ) {
+			$rootScope.$broadcast( "alarmGroupMember.configuration.load", userGroupID, willBeAddedUser );
 			$rootScope.$broadcast( "alarmRule.configuration.load", userGroupID );
 		};
 		// from userGroup

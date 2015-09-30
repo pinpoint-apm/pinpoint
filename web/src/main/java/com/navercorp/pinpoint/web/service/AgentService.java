@@ -20,7 +20,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
-import com.navercorp.pinpoint.web.vo.AgentActiveThreadStatusList;
+import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 
 import org.apache.thrift.TBase;
@@ -48,7 +48,7 @@ public interface AgentService {
     Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, byte[] payload) throws TException;
     Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, byte[] payload, long timeout) throws TException;
 
-    AgentActiveThreadStatusList getActiveThreadStatus(List<AgentInfo> agentInfoList) throws TException;
-    AgentActiveThreadStatusList getActiveThreadStatus(List<AgentInfo> agentInfoList, byte[] payload) throws TException;
+    AgentActiveThreadCountList getActiveThreadCount(List<AgentInfo> agentInfoList) throws TException;
+    AgentActiveThreadCountList getActiveThreadCount(List<AgentInfo> agentInfoList, byte[] payload) throws TException;
 
 }

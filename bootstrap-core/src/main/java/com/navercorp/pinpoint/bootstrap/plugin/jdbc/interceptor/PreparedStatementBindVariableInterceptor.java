@@ -21,9 +21,9 @@ import java.util.Map;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetFilter;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetFilter;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue.BindValueConverter;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
@@ -48,7 +48,7 @@ public class PreparedStatementBindVariableInterceptor implements StaticAroundInt
     }
 
     @Override
-    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, String className, String methodName, String parameterDescription, Object result, Throwable throwable, Object[] args) {
 
         if (isDebug) {
             logger.afterInterceptor(target, className, methodName, parameterDescription, args, result, throwable);

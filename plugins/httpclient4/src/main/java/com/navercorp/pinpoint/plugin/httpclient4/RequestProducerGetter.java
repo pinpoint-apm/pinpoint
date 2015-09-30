@@ -21,5 +21,5 @@ import org.apache.http.nio.protocol.HttpAsyncRequestProducer;
  *
  */
 public interface RequestProducerGetter {
-    public HttpAsyncRequestProducer _$PINPOINT$_getRequestProducer();
+    HttpAsyncRequestProducer _$PINPOINT$_getRequestProducer();
 }

@@ -357,11 +357,9 @@
             </dependency>
 
             <dependency>
-                <groupId>commons-dbcp</groupId>
-                <artifactId>commons-dbcp</artifactId>
-                <!-- Warning. critical bug(DBCP-342) https://issues.apache.org/jira/browse/DBCP-342  -->
-                <!-- suggest dbcp2, but Not compatible with dbcp 1.x -->
-                <version>1.4</version>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-dbcp2</artifactId>
+                <version>2.1.1</version>
             </dependency>
             <dependency>
                 <groupId>org.mybatis</groupId>
@@ -466,6 +464,12 @@
                 <groupId>com.google.http-client</groupId>
                 <artifactId>google-http-client</artifactId>
                 <version>1.20.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.squareup.okhttp</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>2.5.0</version>
             </dependency>
 
             <dependency>

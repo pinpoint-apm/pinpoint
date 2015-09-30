@@ -294,7 +294,7 @@ var QUnit = {
 	},
 
 	/**
-	 * Specify the number of expected assertions to gurantee that failed test (no assertions are run at all) don't slip through.
+	 * Specify the number of expected assertions to guarantee that failed test (no assertions are run at all) don't slip through.
 	 */
 	expect: function(asserts) {
 		config.current.expected = asserts;
@@ -1001,7 +1001,7 @@ QUnit.equiv = function () {
 		// for string, boolean, number and null
 		function useStrictEquality(b, a) {
 			if (b instanceof a.constructor || a instanceof b.constructor) {
-				// to catch short annotaion VS 'new' annotation of a
+				// to catch short annotation VS 'new' annotation of a
 				// declaration
 				// e.g. var i = 1;
 				// var j = new Number(1);

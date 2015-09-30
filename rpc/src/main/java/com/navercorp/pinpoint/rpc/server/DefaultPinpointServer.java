@@ -16,21 +16,6 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
-import java.lang.reflect.Array;
-import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.navercorp.pinpoint.rpc.ChannelWriteFailListenableFuture;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
@@ -40,29 +25,24 @@ import com.navercorp.pinpoint.rpc.common.CyclicStateChecker;
 import com.navercorp.pinpoint.rpc.common.SocketStateChangeResult;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.control.ProtocolException;
-import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
-import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.navercorp.pinpoint.rpc.packet.Packet;
-import com.navercorp.pinpoint.rpc.packet.PacketType;
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
-import com.navercorp.pinpoint.rpc.packet.PongPacket;
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
-import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.rpc.packet.ServerClosePacket;
+import com.navercorp.pinpoint.rpc.packet.*;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
-import com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.server.handler.DoNothingChannelStateEventHandler;
+import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
-import com.navercorp.pinpoint.rpc.util.AssertUtils;
-import com.navercorp.pinpoint.rpc.util.ClassUtils;
-import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
-import com.navercorp.pinpoint.rpc.util.IDGenerator;
-import com.navercorp.pinpoint.rpc.util.ListUtils;
+import com.navercorp.pinpoint.rpc.util.*;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.SocketAddress;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Taejin Koo
@@ -79,7 +59,7 @@ public class DefaultPinpointServer implements PinpointServer {
 
     private final ServerMessageListener messageListener;
 
-    private final List<ChannelStateChangeEventHandler> stateChangeEventListeners;
+    private final List<ServerStateChangeEventHandler> stateChangeEventListeners;
 
     private final StreamChannelManager streamChannelManager;
 
@@ -97,7 +77,7 @@ public class DefaultPinpointServer implements PinpointServer {
         this(channel, serverConfig, null);
     }
 
-    public DefaultPinpointServer(Channel channel, PinpointServerConfig serverConfig, ChannelStateChangeEventHandler... stateChangeEventListeners) {
+    public DefaultPinpointServer(Channel channel, PinpointServerConfig serverConfig, ServerStateChangeEventHandler... stateChangeEventListeners) {
         this.channel = channel;
 
         this.messageListener = serverConfig.getMessageListener();
@@ -105,10 +85,10 @@ public class DefaultPinpointServer implements PinpointServer {
         StreamChannelManager streamChannelManager = new StreamChannelManager(channel, IDGenerator.createEvenIdGenerator(), serverConfig.getStreamMessageListener());
         this.streamChannelManager = streamChannelManager;
 
-        this.stateChangeEventListeners = new ArrayList<ChannelStateChangeEventHandler>();
-        List<ChannelStateChangeEventHandler> configuredStateChangeEventHandlers = serverConfig.getStateChangeEventHandlers();
+        this.stateChangeEventListeners = new ArrayList<ServerStateChangeEventHandler>();
+        List<ServerStateChangeEventHandler> configuredStateChangeEventHandlers = serverConfig.getStateChangeEventHandlers();
         if (configuredStateChangeEventHandlers != null) {
-            for (ChannelStateChangeEventHandler configuredStateChangeEventHandler : configuredStateChangeEventHandlers) {
+            for (ServerStateChangeEventHandler configuredStateChangeEventHandler : configuredStateChangeEventHandlers) {
                 ListUtils.addIfValueNotNull(this.stateChangeEventListeners, configuredStateChangeEventHandler);
             }
         }
@@ -183,7 +163,7 @@ public class DefaultPinpointServer implements PinpointServer {
     }
 
     @Override
-    public Future request(byte[] payload) {
+    public Future<ResponseMessage> request(byte[] payload) {
         AssertUtils.assertNotNull(payload, "payload may not be null.");
         if (!isEnableDuplexCommunication()) {
             throw new IllegalStateException("Request fail. Error: Illegal State. pinpointServer:" + toString());

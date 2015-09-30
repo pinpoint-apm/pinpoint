@@ -52,8 +52,7 @@ import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.client.WriteFailFutureListener;
 import com.navercorp.pinpoint.rpc.packet.PingPacket;
 import com.navercorp.pinpoint.rpc.packet.ServerClosePacket;
-import com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler;
-import com.navercorp.pinpoint.rpc.server.handler.DoNothingChannelStateEventHandler;
+import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.util.AssertUtils;
@@ -84,7 +83,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
     private ServerMessageListener messageListener = SimpleLoggingServerMessageListener.LISTENER;
     private ServerStreamChannelMessageListener serverStreamChannelMessageListener = DisabledServerStreamChannelMessageListener.INSTANCE;
-    private List<ChannelStateChangeEventHandler> stateChangeEventHandler = new ArrayList<ChannelStateChangeEventHandler>();
+    private List<ServerStateChangeEventHandler> stateChangeEventHandler = new ArrayList<ServerStateChangeEventHandler>();
 
     private final Timer healthCheckTimer;
     private final Timer requestManagerTimer;
@@ -203,11 +202,11 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     @Override
-    public List<ChannelStateChangeEventHandler> getStateChangeEventHandlers() {
+    public List<ServerStateChangeEventHandler> getStateChangeEventHandlers() {
         return stateChangeEventHandler;
     }
 
-    public void addStateChangeEventHandler(ChannelStateChangeEventHandler stateChangeEventHandler) {
+    public void addStateChangeEventHandler(ServerStateChangeEventHandler stateChangeEventHandler) {
         AssertUtils.assertNotNull(stateChangeEventHandler, "stateChangeEventHandler must not be null");
 
         this.stateChangeEventHandler.add(stateChangeEventHandler);

@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.client.async;
 
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncCallEndFlagFieldAccessor;
 
 /**
@@ -32,8 +32,8 @@ public class TAsyncMethodCallCleanUpAndFireCallbackInterceptor extends TAsyncMet
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        super.after(target, args, result, throwable);
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
+        super.after(target, result, throwable, args);
 
         // Set a flag to end async trace block if this method completed successfully
         if (throwable != null) {

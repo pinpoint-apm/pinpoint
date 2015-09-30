@@ -70,7 +70,12 @@
     <bean id="handlerManager" class="com.navercorp.pinpoint.collector.manage.HandlerManager">
     </bean>
 
-	<!-- DispatchHandler-related Beans -->
+    <bean id="clusterManager" class="com.navercorp.pinpoint.collector.manage.ClusterManager">
+        <constructor-arg ref="collectorConfiguration"/>
+        <constructor-arg ref="targetClusterPointRepository"/>
+    </bean>
+
+    <!-- DispatchHandler-related Beans -->
     <bean id="tcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.TcpDispatchHandler"/>
     <bean id="tcpDispatchHandlerWrapper" class="com.navercorp.pinpoint.collector.receiver.DispatchHandlerWrapper">
     	<constructor-arg ref="tcpDispatchHandler"/>
@@ -186,7 +191,7 @@
     <!-- TCPReceiver related Beans -->
     <bean id="serverAcceptor" class="com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor"/>
 
-    <util:list id="channelStateChangeEventHandlers" value-type="com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler">
+    <util:list id="channelStateChangeEventHandlers" value-type="com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler">
         <ref bean="agentLifeCycleChangeEventHandler"/> 
     </util:list>
 

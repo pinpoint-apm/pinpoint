@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.test;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.DefaultInterceptorRegistryAdaptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry;
-import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistryAdaptor;
-import com.navercorp.pinpoint.profiler.interceptor.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.bootstrap.interceptor.registry.DefaultInterceptorRegistryAdaptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry;
+import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistryAdaptor;
+import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 
 /**
  * @author emeroad

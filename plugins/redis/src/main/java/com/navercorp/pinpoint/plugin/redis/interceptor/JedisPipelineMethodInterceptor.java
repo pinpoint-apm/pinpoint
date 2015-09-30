@@ -16,14 +16,14 @@
 
 package com.navercorp.pinpoint.plugin.redis.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.redis.CommandContext;
 import com.navercorp.pinpoint.plugin.redis.EndPointAccessor;
@@ -36,7 +36,7 @@ import com.navercorp.pinpoint.plugin.redis.RedisConstants;
  *
  */
 @Group(value = RedisConstants.REDIS_SCOPE)
-public class JedisPipelineMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin implements RedisConstants {
+public class JedisPipelineMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
     
     private InterceptorGroup interceptorGroup;
     private boolean io;
@@ -91,8 +91,8 @@ public class JedisPipelineMethodInterceptor extends SpanEventSimpleAroundInterce
         
         recorder.recordApi(getMethodDescriptor());
         recorder.recordEndPoint(endPoint != null ? endPoint : "Unknown");
-        recorder.recordDestinationId(REDIS.getName());
-        recorder.recordServiceType(REDIS);
+        recorder.recordDestinationId(RedisConstants.REDIS.getName());
+        recorder.recordServiceType(RedisConstants.REDIS);
         recorder.recordException(throwable);
     }
 }

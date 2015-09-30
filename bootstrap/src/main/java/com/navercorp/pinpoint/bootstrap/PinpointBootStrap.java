@@ -58,8 +58,8 @@ public class PinpointBootStrap {
     }
 
     private static void loadBootstrapCoreLib(Instrumentation instrumentation) {
+        // 1st find boot-strap.jar
         final ClassPathResolver classPathResolver = new ClassPathResolver();
-
         boolean agentJarNotFound = classPathResolver.findAgentJar();
         if (!agentJarNotFound) {
             logger.severe("pinpoint-bootstrap-x.x.x(-SNAPSHOT).jar Fnot found.");
@@ -67,7 +67,7 @@ public class PinpointBootStrap {
             return;
         }
 
-        // 2st find boot-strap-core.jar
+        // 2nd find boot-strap-core.jar
         final String bootStrapCoreJar = classPathResolver.getBootStrapCoreJar();
         if (bootStrapCoreJar == null) {
             logger.severe("pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar not found");

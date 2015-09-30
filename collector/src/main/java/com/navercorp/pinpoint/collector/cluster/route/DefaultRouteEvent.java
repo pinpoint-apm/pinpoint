@@ -20,6 +20,8 @@ import org.jboss.netty.channel.Channel;
 
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 
+import java.net.SocketAddress;
+
 /**
  * @author koo.taejin
  */
@@ -27,11 +29,11 @@ public class DefaultRouteEvent implements RouteEvent {
 
     private final TCommandTransfer deliveryCommand;
 
-    private final Channel sourceChannel;
+    private final SocketAddress remoteAddress;
 
-    public DefaultRouteEvent(TCommandTransfer deliveryCommand, Channel sourceChannel) {
+    public DefaultRouteEvent(TCommandTransfer deliveryCommand, SocketAddress remoteAddress) {
         this.deliveryCommand = deliveryCommand;
-        this.sourceChannel = sourceChannel;
+        this.remoteAddress = remoteAddress;
     }
 
     @Override
@@ -40,8 +42,8 @@ public class DefaultRouteEvent implements RouteEvent {
     }
 
     @Override
-    public Channel getSourceChannel() {
-        return sourceChannel;
+    public SocketAddress getRemoteAddress() {
+        return remoteAddress;
     }
 
     @Override
@@ -49,7 +51,7 @@ public class DefaultRouteEvent implements RouteEvent {
         final StringBuilder sb = new StringBuilder();
         sb.append(this.getClass().getSimpleName());
         sb.append("{");
-        sb.append("{sourceChannel=").append(sourceChannel).append(",");
+        sb.append("{remoteAddress=").append(remoteAddress).append(",");
         sb.append("applicationName=").append(deliveryCommand.getApplicationName()).append(",");
         sb.append("agentId=").append(deliveryCommand.getAgentId()).append(",");
         sb.append("startTimeStamp=").append(deliveryCommand.getStartTime());

@@ -20,6 +20,6 @@ package com.navercorp.pinpoint.plugin.thrift.field.accessor;
  * @author HyunGil Jeong
  */
 public interface ServerMarkerFlagFieldAccessor {
-    public void _$PINPOINT$_setServerMarkerFlag(boolean flag);
-    public boolean _$PINPOINT$_getServerMarkerFlag();
+    void _$PINPOINT$_setServerMarkerFlag(boolean flag);
+    boolean _$PINPOINT$_getServerMarkerFlag();
 }

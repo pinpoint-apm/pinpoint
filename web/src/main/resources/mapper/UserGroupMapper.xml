@@ -13,6 +13,15 @@
         SELECT *
         FROM user_group
     </select>
+    
+    <select id="selectUserGroupListByUserId" resultType="UserGroup">
+        SELECT *
+        FROM user_group
+        WHERE id IN (   SELECT DISTINCT(user_group_id)
+                        FROM user_group_member
+                        WHERE member_id = #{userId}
+                    )
+    </select>
 
     <delete id="deleteUserGroup" parameterType="UserGroup">
         DELETE
@@ -46,7 +55,7 @@
     <select id="selectMemberList" resultType="UserGroupMember">
         SELECT a.user_group_id, a.member_id, b.name, b.department 
         FROM user_group_member a
-        INNER JOIN user b ON a.member_id = b.user_id
+        INNER JOIN puser b ON a.member_id = b.user_id
         WHERE a.user_group_id =  #{userGroupId}
     </select>
     

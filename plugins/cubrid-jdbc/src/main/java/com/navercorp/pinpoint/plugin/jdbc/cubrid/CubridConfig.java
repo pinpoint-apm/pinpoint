@@ -51,14 +51,7 @@ public class CubridConfig {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        
-        sb.append(", profileSetAutoCommit=").append(profileSetAutoCommit);
-        sb.append(", profileCommit=").append(profileCommit);
-        sb.append(", profileRollback=").append(profileRollback);
-        sb.append(", maxSqlBindValueSize=").append(maxSqlBindValueSize);
-        sb.append("]");
+        return "CubridConfig [profileSetAutoCommit=" + profileSetAutoCommit + ", profileCommit=" + profileCommit + ", profileRollback=" + profileRollback + ", maxSqlBindValueSize=" + maxSqlBindValueSize + "]";
+    }
 
-        return sb.toString();
-    };
 }

@@ -27,12 +27,12 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
@@ -63,7 +63,7 @@ public class MyBatisPlugin implements ProfilerPlugin {
             context.addClassFileTransformer(sqlSession, new PinpointClassFileTransformer() {
 
                 @Override
-                public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader loader,
+                public byte[] transform(Instrumentor instrumentContext, ClassLoader loader,
                         String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
                         byte[] classfileBuffer) throws InstrumentException {
                     
@@ -73,7 +73,7 @@ public class MyBatisPlugin implements ProfilerPlugin {
                     final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(methodFilter);
                     for (InstrumentMethod methodToTrace : methodsToTrace) {
                         String sqlSessionOperationInterceptor = "com.navercorp.pinpoint.plugin.mybatis.interceptor.SqlSessionOperationInterceptor";
-                        methodToTrace.addInterceptor(sqlSessionOperationInterceptor, group, ExecutionPolicy.BOUNDARY);
+                        methodToTrace.addGroupedInterceptor(sqlSessionOperationInterceptor, group, ExecutionPolicy.BOUNDARY);
                     }
                     
                     return target.toBytecode();

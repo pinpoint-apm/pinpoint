@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -26,15 +27,16 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
  * @author emeroad
  * @author jaehong.kim
  */
-public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public abstract class SpanSimpleAroundInterceptor implements AroundInterceptor {
     protected final PLogger logger;
     protected final boolean isDebug;
 
-    private MethodDescriptor methodDescriptor;
+    protected final MethodDescriptor methodDescriptor;
+    protected final TraceContext traceContext;
 
-    private TraceContext traceContext;
-
-    protected SpanSimpleAroundInterceptor(Class<? extends SpanSimpleAroundInterceptor> childClazz) {
+    protected SpanSimpleAroundInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, Class<? extends SpanSimpleAroundInterceptor> childClazz) {
+        this.traceContext = traceContext;
+        this.methodDescriptor = methodDescriptor;
         this.logger = PLoggerFactory.getLogger(childClazz);
         this.isDebug = logger.isDebugEnabled();
     }
@@ -69,7 +71,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
     protected abstract Trace createTrace(final Object target, final Object[] args);
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
@@ -102,24 +104,5 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
 
     protected void deleteTrace(final Trace trace, final Object target, final Object[] args, final Object result, Throwable throwable) {
         trace.close();
-    }
-
-    @Override
-    public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.methodDescriptor = descriptor;
-        this.traceContext.cacheApi(descriptor);
-    }
-
-    public MethodDescriptor getMethodDescriptor() {
-        return methodDescriptor;
-    }
-
-    @Override
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
-    }
-
-    public TraceContext getTraceContext() {
-        return traceContext;
     }
 }

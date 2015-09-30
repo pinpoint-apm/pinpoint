@@ -29,57 +29,22 @@ public class StreamChannelState {
         currentStateReference.set(StreamChannelStateCode.NEW);
     }
 
-    public boolean changeStateOpen() {
-        boolean result = currentStateReference.compareAndSet(StreamChannelStateCode.NEW, StreamChannelStateCode.OPEN);
-        if (!result) {
-            changeStateIllegal();
-        }
-        return result;
-    }
-
-    public boolean changeStateOpenAwait() {
-        boolean result = currentStateReference.compareAndSet(StreamChannelStateCode.OPEN, StreamChannelStateCode.OPEN_AWAIT);
-        if (!result) {
-            changeStateIllegal();
-        }
-        return result;
-    }
-
-    public boolean changeStateOpenArrived() {
-        boolean result = currentStateReference.compareAndSet(StreamChannelStateCode.NEW, StreamChannelStateCode.OPEN_ARRIVED);
-        if (!result) {
-            changeStateIllegal();
-        }
-        return result;
-    }
-
-    public boolean changeStateRun() {
-        StreamChannelStateCode currentState = this.currentStateReference.get();
-
-        StreamChannelStateCode nextState = StreamChannelStateCode.RUN;
-        if (!nextState.canChangeState(currentState)) {
-            changeStateIllegal();
-            return false;
-        }
-
-        return currentStateReference.compareAndSet(currentState, StreamChannelStateCode.RUN);
-    }
-
-    public boolean changeStateClose() {
-        if (currentStateReference.get() == StreamChannelStateCode.CLOSED) {
-            return false;
-        }
-
-        currentStateReference.set(StreamChannelStateCode.CLOSED);
-        return true;
-    }
-
-    private void changeStateIllegal() {
-        currentStateReference.set(StreamChannelStateCode.ILLEGAL_STATE);
-    }
-
     public StreamChannelStateCode getCurrentState() {
         return currentStateReference.get();
     }
+
+    boolean changeStateTo(StreamChannelStateCode nextState) {
+        return changeStateTo(currentStateReference.get(), nextState);
+    }
+
+    boolean changeStateTo(StreamChannelStateCode currentState, StreamChannelStateCode nextState) {
+        if (!nextState.canChangeState(currentState)) {
+            return false;
+        }
+
+        boolean isChanged = currentStateReference.compareAndSet(currentState, nextState);
+        return isChanged;
+    }
+
 
 }

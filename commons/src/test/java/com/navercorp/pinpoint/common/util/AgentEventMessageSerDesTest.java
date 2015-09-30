@@ -27,6 +27,7 @@ import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.junit.Test;
 
+import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TMonitorInfo;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
@@ -45,7 +46,7 @@ import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
  */
 public class AgentEventMessageSerDesTest {
 
-    private static final String TEST_PINPOINT_VERSION = "1.0.3-SNAPSHOT";
+    private static final String TEST_PINPOINT_VERSION = Version.VERSION;
 
     private final TProtocolFactory protocolFactory = new TCompactProtocol.Factory();
     private final TCommandRegistry commandTbaseRegistry = new TCommandRegistry(TCommandTypeVersion.getVersion(TEST_PINPOINT_VERSION));

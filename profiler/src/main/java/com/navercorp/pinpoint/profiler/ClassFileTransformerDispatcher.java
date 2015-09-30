@@ -24,15 +24,14 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformRequestListener;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.MatchableClassFileTransformer;
-import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
-import com.navercorp.pinpoint.profiler.modifier.DefaultModifierRegistry;
-import com.navercorp.pinpoint.profiler.modifier.ModifierRegistry;
-import com.navercorp.pinpoint.profiler.plugin.ClassFileTransformerAdaptor;
+import com.navercorp.pinpoint.profiler.instrument.LegacyProfilerPluginClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.transformer.DebugTransformer;
+import com.navercorp.pinpoint.profiler.instrument.transformer.DefaultTransformerRegistry;
+import com.navercorp.pinpoint.profiler.instrument.transformer.TransformerRegistry;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
+import com.navercorp.pinpoint.profiler.plugin.xml.transformer.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 /**
@@ -40,37 +39,33 @@ import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
  * @author netspider
  */
 public class ClassFileTransformerDispatcher implements ClassFileTransformer, DynamicTransformRequestListener {
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final ClassLoader agentClassLoader = this.getClass().getClassLoader();
 
-    private final ModifierRegistry modifierRegistry;
-
-    private final DefaultAgent agent;
-    private final ByteCodeInstrumentor byteCodeInstrumentor;
+    private final TransformerRegistry transformerRegistry;
     private final DynamicTrnasformerRegistry dynamicTransformerRegistry;
-
-    private final ProfilerConfig profilerConfig;
-
-    private final ClassFileFilter skipFilter;
     
-    public ClassFileTransformerDispatcher(DefaultAgent agent, ByteCodeInstrumentor byteCodeInstrumentor, List<DefaultProfilerPluginContext> pluginContexts) {
+    private final DefaultProfilerPluginContext globalContext;    
+    private final Filter<String> debugTargetFilter;
+    private final DebugTransformer debugTransformer;
+
+    private final ClassFileFilter unmodifiableFilter;
+    
+    public ClassFileTransformerDispatcher(DefaultAgent agent, List<DefaultProfilerPluginContext> pluginContexts) {
         if (agent == null) {
             throw new NullPointerException("agent must not be null");
         }
-        if (byteCodeInstrumentor == null) {
-            throw new NullPointerException("byteCodeInstrumentor must not be null");
-        }
-
         
-        this.agent = agent;
-        this.byteCodeInstrumentor = byteCodeInstrumentor;
+        this.globalContext = new DefaultProfilerPluginContext(agent, new LegacyProfilerPluginClassInjector(getClass().getClassLoader()));
+        this.debugTargetFilter = agent.getProfilerConfig().getProfilableClassFilter();
+        this.debugTransformer = new DebugTransformer(globalContext);
+
+        this.unmodifiableFilter = new UnmodifiableClassFilter(agentClassLoader);
+        
+        this.transformerRegistry = createTransformerRegistry(pluginContexts);
         this.dynamicTransformerRegistry = new DefaultDynamicTransformerRegistry();
-        this.profilerConfig = agent.getProfilerConfig();
-        this.modifierRegistry = createModifierRegistry(pluginContexts);
-        this.skipFilter = new DefaultClassFileFilter(agentClassLoader);
     }
 
     @Override
@@ -78,54 +73,30 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
         ClassFileTransformer transformer = dynamicTransformerRegistry.getTransformer(classLoader, jvmClassName);
         
         if (transformer != null) {
-            return transformUsingTransformer(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
+            return transform0(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
         }
         
-        if (skipFilter.doFilter(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer)) {
+        if (!unmodifiableFilter.accept(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer)) {
             return null;
         }
 
-        AbstractModifier findModifier = this.modifierRegistry.findModifier(jvmClassName);
+        transformer = this.transformerRegistry.findTransformer(jvmClassName);
         
-        if (findModifier == null) {
+        if (transformer == null) {
             // For debug
             // TODO What if a modifier is duplicated?
-            if (this.profilerConfig.getProfilableClassFilter().filter(jvmClassName)) {
+            if (this.debugTargetFilter.filter(jvmClassName)) {
                 // Added to see if call stack view is OK on a test machine.
-                findModifier = this.modifierRegistry.findModifier("*");
+                transformer = debugTransformer;
             } else {
                 return null;
             }
         }
 
-        return transformUsingModifier(classLoader, jvmClassName, protectionDomain, classFileBuffer, findModifier);
+        return transform0(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
     }
 
-    private byte[] transformUsingModifier(ClassLoader classLoader, String jvmClassName, ProtectionDomain protectionDomain, byte[] classFileBuffer, AbstractModifier findModifier) {
-        if (isDebug) {
-            logger.debug("[transform] cl:{} className:{} Modifier:{}", classLoader, jvmClassName, findModifier.getClass().getName());
-        }
-        final String javaClassName = JavaAssistUtils.jvmNameToJavaName(jvmClassName);
-
-        try {
-            final Thread thread = Thread.currentThread();
-            final ClassLoader before = getContextClassLoader(thread);
-            thread.setContextClassLoader(this.agentClassLoader);
-            try {
-                return findModifier.modify(classLoader, javaClassName, protectionDomain, classFileBuffer);
-            } finally {
-                // The context class loader have to be recovered even if it was null.
-                thread.setContextClassLoader(before);
-            }
-        }
-        catch (Throwable e) {
-            logger.error("Modifier:{} modify fail. cl:{} ctxCl:{} agentCl:{} Cause:{}",
-                    findModifier.getMatcher(), classLoader, Thread.currentThread().getContextClassLoader(), agentClassLoader, e.getMessage(), e);
-            return null;
-        }
-    }
-
-    private byte[] transformUsingTransformer(ClassLoader classLoader, String jvmClassName, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer, ClassFileTransformer transformer) {
+    private byte[] transform0(ClassLoader classLoader, String jvmClassName, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer, ClassFileTransformer transformer) {
         final String javaClassName = JavaAssistUtils.jvmNameToJavaName(jvmClassName);
 
         if (isDebug) {
@@ -141,7 +112,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
             final ClassLoader before = getContextClassLoader(thread);
             thread.setContextClassLoader(this.agentClassLoader);
             try {
-                return transformer.transform(classLoader, javaClassName, null, protectionDomain, classFileBuffer);
+                return transformer.transform(classLoader, javaClassName, classBeingRedefined, protectionDomain, classFileBuffer);
             } finally {
                 // The context class loader have to be recovered even if it was null.
                 thread.setContextClassLoader(before);
@@ -176,42 +147,22 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
         }
     }
 
-    private ModifierRegistry createModifierRegistry(List<DefaultProfilerPluginContext> pluginContexts) {
-        DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(agent, byteCodeInstrumentor);
+    private TransformerRegistry createTransformerRegistry(List<DefaultProfilerPluginContext> pluginContexts) {
+        DefaultTransformerRegistry registry = new DefaultTransformerRegistry();
 
-        modifierRepository.addMethodModifier();
-
-        modifierRepository.addTomcatModifier();
-
-        // jdbc
-        modifierRepository.addJdbcModifier();
-
-        // rpc
-        modifierRepository.addConnectorModifier();
-
-        // log4j
-        modifierRepository.addLog4jModifier();
-        
-        // logback
-        modifierRepository.addLogbackModifier();
-        
-        loadEditorsFromPlugins(modifierRepository, pluginContexts);
-        
-        return modifierRepository;
-    }
-
-    private void loadEditorsFromPlugins(DefaultModifierRegistry modifierRepository, List<DefaultProfilerPluginContext> pluginContexts) {
         for (DefaultProfilerPluginContext pluginContext : pluginContexts) {
             for (ClassFileTransformer transformer : pluginContext.getClassEditors()) {
                 if (transformer instanceof MatchableClassFileTransformer) {
                     MatchableClassFileTransformer t = (MatchableClassFileTransformer)transformer;
                     logger.info("Registering class file transformer {} for {} ", t, t.getMatcher());
-                    modifierRepository.addModifier(new ClassFileTransformerAdaptor(byteCodeInstrumentor, t));
+                    registry.addTransformer(t.getMatcher(), t);
                 } else {
                     logger.warn("Ignore class file transformer {}", transformer);
                 }
             }
         }
+        
+        return registry;
     }
 
 }

@@ -8,8 +8,8 @@
 	 * @class
 	 */	
 	
-	pinpointApp.directive('alarmUserGroupDirective', [ '$rootScope', '$timeout', 'helpContentTemplate', 'helpContentService', 'AlarmUtilService', 'AlarmBroadcastService', 'AnalyticsService',
-	    function ($rootScope, $timeout, helpContentTemplate, helpContentService, alarmUtilService, alarmBroadcastService, analyticsService) {
+	pinpointApp.directive('alarmUserGroupDirective', [ '$rootScope', '$timeout', 'helpContentTemplate', 'helpContentService', 'AlarmUtilService', 'AlarmBroadcastService', 'AnalyticsService', 'globalConfig',
+	    function ($rootScope, $timeout, helpContentTemplate, helpContentService, alarmUtilService, alarmBroadcastService, analyticsService, globalConfig) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
@@ -23,6 +23,7 @@
 	    			var isRemoving = false;
 	    			var isLoadedUserGroupList = false;
 	    			var userGroupList = scope.userGroupList = [];
+	    			var hasAuthority = angular.isDefined( globalConfig.userId );
 	    			
 	            	function addSelectClass( newSelectedGroupNumber ) {
 	    				if ( selectedGroupNumber != "" ) {
@@ -107,9 +108,19 @@
 	    						number: resultData.number,
 	    						id: name
 	    					});
-	    					alarmBroadcastService.sendInit( resultData.number );
+
+	    					if ( hasAuthority ) {	    						
+		    					alarmBroadcastService.sendInit( name, {
+	    							userId: globalConfig.userId,
+	    							name: globalConfig.userName,
+	    							department: globalConfig.userDepartment 
+	    						});
+	    					} else {
+	    						alarmBroadcastService.sendInit( name );
+	    					}
+	    					
     						$timeout(function() {
-	    						addSelectClass( resultData.number );
+    							addSelectClass( resultData.number );
     						});
 	    					alarmUtilService.setTotal( $elTotal, userGroupList.length );
 	    					alarmUtilService.hide( $elLoading, $elEdit );
@@ -151,20 +162,25 @@
 	    				}, function( errorData ) {}, $elAlert );
 	    			}
 	    			function loadGroupList( isFirst ) {
-	    				alarmUtilService.sendCRUD( "getUserGroupList", {}, function( resultData ) {
+	    				alarmUtilService.sendCRUD( "getUserGroupList", hasAuthority ? { "userId" : globalConfig.userId } : {}, function( resultData ) {
 	    					// @TODO
 	    					// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
 	    					isLoadedUserGroupList = true;
 	    					userGroupList = scope.userGroupList = resultData;
 	    					alarmUtilService.setTotal( $elTotal, userGroupList.length );
 	    					alarmUtilService.hide( $elLoading );
-	    					if ( isFirst ) {
-	    						alarmBroadcastService.sendInit( userGroupList[0].id );
-	    						selectedGroupNumber = userGroupList[0].number;
+	    					if( userGroupList.length > 0 ) {
+		    					if ( isFirst ) {
+		    						alarmBroadcastService.sendInit( userGroupList[0].id );
+		    						selectedGroupNumber = userGroupList[0].number;
+		    					}
+		    					$timeout(function() {
+		    						addSelectClass( selectedGroupNumber );
+	    						});
 	    					}
-	    					$timeout(function() {
-	    						addSelectClass( selectedGroupNumber );
-    						});
+	    					if ( hasAuthority ) {
+	    						alarmBroadcastService.sendLoadPinpointUser( globalConfig.userDepartment );
+	    					}
 	    				}, function( errorData ) {}, $elAlert );			
 
 	    			};

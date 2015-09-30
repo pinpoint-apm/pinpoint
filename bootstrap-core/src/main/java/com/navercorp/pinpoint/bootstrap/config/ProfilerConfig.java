@@ -16,6 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
+import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
+import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
+import com.navercorp.pinpoint.common.util.PropertyUtils;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
@@ -24,10 +28,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
-import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
-import com.navercorp.pinpoint.common.util.PropertyUtils;
 
 /**
  * @author emeroad
@@ -40,7 +40,7 @@ public class ProfilerConfig {
     private final Properties properties;
     private final PropertyPlaceholderHelper propertyPlaceholderHelper = new PropertyPlaceholderHelper("${", "}");
 
-    public static interface ValueResolver {
+    public interface ValueResolver {
         String resolve(String value, Properties properties);
     }
 
@@ -108,34 +108,12 @@ public class ProfilerConfig {
     private int callStackMaxDepth = 512;
     
     private int jdbcSqlCacheSize = 1024;
-    private int jdbcMaxSqlBindValueSize = 1024;
-    private boolean jdbcProfile = true;
-
-    private boolean jdbcProfileMySql = true;
-    private boolean jdbcProfileMySqlSetAutoCommit = false;
-    private boolean jdbcProfileMySqlCommit = false;
-    private boolean jdbcProfileMySqlRollback = false;
-
-    private boolean jdbcProfileJtds = true;
-    private boolean jdbcProfileJtdsSetAutoCommit = false;
-    private boolean jdbcProfileJtdsCommit = false;
-    private boolean jdbcProfileJtdsRollback = false;
-
-    private boolean jdbcProfileOracle = true;
-    private boolean jdbcProfileOracleSetAutoCommit = false;
-    private boolean jdbcProfileOracleCommit = false;
-    private boolean jdbcProfileOracleRollback = false;
-
-    private boolean jdbcProfileCubrid = true;
-    private boolean jdbcProfileCubridSetAutoCommit = false;
-    private boolean jdbcProfileCubridCommit = false;
-    private boolean jdbcProfileCubridRollback = false;
-
-    private boolean jdbcProfileDbcp = true;
-    private boolean jdbcProfileDbcpConnectionClose = false;
 
     private boolean tomcatHidePinpointHeader = true;
     private Filter<String> tomcatExcludeUrlFilter = new SkipFilter<String>();
+    private String tomcatRealIpHeader;
+    private String tomcatRealIpEmptyValue;
+    private Filter<String> tomcatExcludeProfileMethodFilter = new SkipFilter<String>();
 
     private boolean ibatis = true;
 
@@ -173,23 +151,6 @@ public class ProfilerConfig {
      * apache nio http client
      */
     private boolean apacheNIOHttpClient4Profile = true;
-
-    /**
-     * ning async http client
-     */
-    private boolean ningAsyncHttpClientProfile = true;
-    private boolean ningAsyncHttpClientProfileCookie = false;
-    private DumpType ningAsyncHttpClientProfileCookieDumpType = DumpType.EXCEPTION;
-    private int ningAsyncHttpClientProfileCookieDumpSize = 1024;
-    private int ningAsyncHttpClientProfileCookieSamplingRate = 1;
-    private boolean ningAsyncHttpClientProfileEntity = false;
-    private DumpType ningAsyncHttpClientProfileEntityDumpType = DumpType.EXCEPTION;
-    private int ningAsyncHttpClientProfileEntityDumpSize = 1024;
-    private int ningAsyncHttpClientProfileEntitySamplingRate = 1;
-    private boolean ningAsyncHttpClientProfileParam = false;
-    private DumpType ningAsyncHttpClientProfileParamDumpType = DumpType.EXCEPTION;
-    private int ningAsyncHttpClientProfileParamDumpSize = 1024;
-    private int ningAsyncHttpClientProfileParamSamplingRate = 1;
 
     // Sampling
     private boolean samplingEnable = true;
@@ -294,87 +255,9 @@ public class ProfilerConfig {
         return profileEnable;
     }
 
-    public boolean isJdbcProfile() {
-        return jdbcProfile;
-    }
-
     public int getJdbcSqlCacheSize() {
         return jdbcSqlCacheSize;
     }
-
-    public int getJdbcMaxSqlBindValueSize() {
-        return jdbcMaxSqlBindValueSize;
-    }
-
-    // mysql start -----------------------------------------------------
-    public boolean isJdbcProfileMySql() {
-        return jdbcProfileMySql;
-    }
-
-    public boolean isJdbcProfileMySqlSetAutoCommit() {
-        return jdbcProfileMySqlSetAutoCommit;
-    }
-
-    public boolean isJdbcProfileMySqlCommit() {
-        return jdbcProfileMySqlCommit;
-    }
-
-    public boolean isJdbcProfileMySqlRollback() {
-        return jdbcProfileMySqlRollback;
-    }
-    // mysql end-----------------------------------------------------
-
-    public boolean isJdbcProfileJtds() {
-        return jdbcProfileJtds;
-    }
-
-    public boolean isJdbcProfileJtdsSetAutoCommit() {
-        return jdbcProfileJtdsSetAutoCommit;
-    }
-
-    public boolean isJdbcProfileJtdsCommit() {
-        return jdbcProfileJtdsCommit;
-    }
-
-    public boolean isJdbcProfileJtdsRollback() {
-        return jdbcProfileJtdsRollback;
-    }
-
-    // oracle start -----------------------------------------------------
-    public boolean isJdbcProfileOracle() {
-        return jdbcProfileOracle;
-    }
-
-    public boolean isJdbcProfileOracleSetAutoCommit() {
-        return jdbcProfileOracleSetAutoCommit;
-    }
-
-    public boolean isJdbcProfileOracleCommit() {
-        return jdbcProfileOracleCommit;
-    }
-
-    public boolean isJdbcProfileOracleRollback() {
-        return jdbcProfileOracleRollback;
-    }
-    // oracle end -----------------------------------------------------
-
-    // cubrid start -----------------------------------------------------
-    public boolean isJdbcProfileCubrid() {
-        return jdbcProfileCubrid;
-    }
-
-    public boolean isJdbcProfileCubridSetAutoCommit() {
-        return jdbcProfileCubridSetAutoCommit;
-    }
-
-    public boolean isJdbcProfileCubridCommit() {
-        return jdbcProfileCubridCommit;
-    }
-
-    public boolean isJdbcProfileCubridRollback() {
-        return jdbcProfileCubridRollback;
-    }
-    // cubrid end -----------------------------------------------------
 
     public boolean isSamplingEnable() {
         return samplingEnable;
@@ -401,20 +284,24 @@ public class ProfilerConfig {
         return agentInfoSendRetryInterval;
     }
 
-    public boolean isJdbcProfileDbcp() {
-        return jdbcProfileDbcp;
-    }
-
-    public boolean isJdbcProfileDbcpConnectionClose() {
-        return jdbcProfileDbcpConnectionClose;
-    }
-
     public boolean isTomcatHidePinpointHeader() {
         return tomcatHidePinpointHeader;
     }
 
     public Filter<String> getTomcatExcludeUrlFilter() {
         return tomcatExcludeUrlFilter;
+    }
+
+    public String getTomcatRealIpHeader() {
+        return tomcatRealIpHeader;
+    }
+
+    public String getTomcatRealIpEmptyValue() {
+        return tomcatRealIpEmptyValue;
+    }
+
+    public Filter<String> getTomcatExcludeProfileMethodFilter() {
+        return tomcatExcludeProfileMethodFilter;
     }
 
     //-----------------------------------------
@@ -494,60 +381,6 @@ public class ProfilerConfig {
     // org/apache/http/impl/nio/*
     public boolean getApacheNIOHttpClient4Profile() {
         return apacheNIOHttpClient4Profile;
-    }
-
-    //-----------------------------------------
-    // com/ning/http/client/AsyncHttpClient
-    public boolean isNingAsyncHttpClientProfile() {
-        return ningAsyncHttpClientProfile;
-    }
-
-    public boolean isNingAsyncHttpClientProfileCookie() {
-        return ningAsyncHttpClientProfileCookie;
-    }
-
-    public DumpType getNingAsyncHttpClientProfileCookieDumpType() {
-        return ningAsyncHttpClientProfileCookieDumpType;
-    }
-
-    public int getNingAsyncHttpClientProfileCookieDumpSize() {
-        return ningAsyncHttpClientProfileCookieDumpSize;
-    }
-
-    public int getNingAsyncHttpClientProfileCookieSamplingRate() {
-        return ningAsyncHttpClientProfileCookieSamplingRate;
-    }
-
-    public boolean isNingAsyncHttpClientProfileEntity() {
-        return ningAsyncHttpClientProfileEntity;
-    }
-
-    public DumpType getNingAsyncHttpClientProfileEntityDumpType() {
-        return ningAsyncHttpClientProfileEntityDumpType;
-    }
-
-    public int getNingAsyncHttpClientProfileEntityDumpSize() {
-        return ningAsyncHttpClientProfileEntityDumpSize;
-    }
-
-    public int getNingAsyncHttpClientProfileEntitySamplingRate() {
-        return ningAsyncHttpClientProfileEntitySamplingRate;
-    }
-
-    public boolean isNingAsyncHttpClientProfileParam() {
-        return ningAsyncHttpClientProfileParam;
-    }
-
-    public DumpType getNingAsyncHttpClientProfileParamDumpType() {
-        return ningAsyncHttpClientProfileParamDumpType;
-    }
-
-    public int getNingAsyncHttpClientProfileParamDumpSize() {
-        return ningAsyncHttpClientProfileParamDumpSize;
-    }
-
-    public int getNingAsyncHttpClientProfileParamSamplingRate() {
-        return ningAsyncHttpClientProfileParamSamplingRate;
     }
 
     public boolean isIBatisEnabled() {
@@ -649,43 +482,19 @@ public class ProfilerConfig {
         }
         
         // JDBC
-        this.jdbcProfile = readBoolean("profiler.jdbc", true);
-
         this.jdbcSqlCacheSize = readInt("profiler.jdbc.sqlcachesize", 1024);
-        this.jdbcMaxSqlBindValueSize = readInt("profiler.jdbc.maxsqlbindvaluesize", 1024);
-
-        this.jdbcProfileMySql = readBoolean("profiler.jdbc.mysql", true);
-        this.jdbcProfileMySqlSetAutoCommit = readBoolean("profiler.jdbc.mysql.setautocommit", false);
-        this.jdbcProfileMySqlCommit = readBoolean("profiler.jdbc.mysql.commit", false);
-        this.jdbcProfileMySqlRollback = readBoolean("profiler.jdbc.mysql.rollback", false);
-
-
-        this.jdbcProfileJtds = readBoolean("profiler.jdbc.jtds", true);
-        this.jdbcProfileJtdsSetAutoCommit = readBoolean("profiler.jdbc.jtds.setautocommit", false);
-        this.jdbcProfileJtdsCommit = readBoolean("profiler.jdbc.jtds.commit", false);
-        this.jdbcProfileJtdsRollback = readBoolean("profiler.jdbc.jtds.rollback", false);
-
-
-        this.jdbcProfileOracle = readBoolean("profiler.jdbc.oracle", true);
-        this.jdbcProfileOracleSetAutoCommit = readBoolean("profiler.jdbc.oracle.setautocommit", false);
-        this.jdbcProfileOracleCommit = readBoolean("profiler.jdbc.oracle.commit", false);
-        this.jdbcProfileOracleRollback = readBoolean("profiler.jdbc.oracle.rollback", false);
-
-
-        this.jdbcProfileCubrid = readBoolean("profiler.jdbc.cubrid", true);
-        this.jdbcProfileCubridSetAutoCommit = readBoolean("profiler.jdbc.cubrid.setautocommit", false);
-        this.jdbcProfileCubridCommit = readBoolean("profiler.jdbc.cubrid.commit", false);
-        this.jdbcProfileCubridRollback = readBoolean("profiler.jdbc.cubrid.rollback", false);
-
-
-        this.jdbcProfileDbcp = readBoolean("profiler.jdbc.dbcp", true);
-        this.jdbcProfileDbcpConnectionClose = readBoolean("profiler.jdbc.dbcp.connectionclose", false);
-
 
         this.tomcatHidePinpointHeader = readBoolean("profiler.tomcat.hidepinpointheader", true);
         final String tomcatExcludeURL = readString("profiler.tomcat.excludeurl", "");
         if (!tomcatExcludeURL.isEmpty()) {
             this.tomcatExcludeUrlFilter = new ExcludeUrlFilter(tomcatExcludeURL);
+        }
+        this.tomcatRealIpHeader = readString("profiler.tomcat.realipheader", null);
+        this.tomcatRealIpEmptyValue = readString("profiler.tomcat.realipemptyvalue", null);
+
+        final String tomcatExcludeProfileMethod = readString("profiler.tomcat.excludemethod", "");
+        if (!tomcatExcludeProfileMethod.isEmpty()) {
+            this.tomcatExcludeProfileMethodFilter = new ExcludeMethodFilter(tomcatExcludeProfileMethod);
         }
 
         /**
@@ -719,25 +528,6 @@ public class ProfilerConfig {
          */
         this.apacheNIOHttpClient4Profile = readBoolean("profiler.apache.nio.httpclient4", true);
 
-        /**
-         * ning.async http client
-         */
-        this.ningAsyncHttpClientProfile = readBoolean("profiler.ning.asynchttpclient", true);
-        this.ningAsyncHttpClientProfileCookie = readBoolean("profiler.ning.asynchttpclient.cookie", false);
-        this.ningAsyncHttpClientProfileCookieDumpType = readDumpType("profiler.ning.asynchttpclient.cookie.dumptype", DumpType.EXCEPTION);
-        this.ningAsyncHttpClientProfileCookieDumpSize = readInt("profiler.ning.asynchttpclient.cookie.dumpsize", 1024);
-        this.ningAsyncHttpClientProfileCookieSamplingRate = readInt("profiler.ning.asynchttpclient.cookie.sampling.rate", 1);
-
-        this.ningAsyncHttpClientProfileEntity = readBoolean("profiler.ning.asynchttpclient.entity", false);
-        this.ningAsyncHttpClientProfileEntityDumpType = readDumpType("profiler.ning.asynchttpclient.entity.dumptype", DumpType.EXCEPTION);
-        this.ningAsyncHttpClientProfileEntityDumpSize = readInt("profiler.ning.asynchttpclient.entity.dumpsize", 1024);
-        this.ningAsyncHttpClientProfileEntitySamplingRate = readInt("profiler.asynchttpclient.entity.sampling.rate", 1);
-
-        this.ningAsyncHttpClientProfileParam = readBoolean("profiler.ning.asynchttpclient.param", false);
-        this.ningAsyncHttpClientProfileParamDumpType = readDumpType("profiler.ning.asynchttpclient.param.dumptype", DumpType.EXCEPTION);
-        this.ningAsyncHttpClientProfileParamDumpSize = readInt("profiler.ning.asynchttpclient.param.dumpsize", 1024);
-        this.ningAsyncHttpClientProfileParamSamplingRate = readInt("profiler.asynchttpclient.param.sampling.rate", 1);
-        
         /**
          * log4j
          */
@@ -908,50 +698,12 @@ public class ProfilerConfig {
         builder.append(callStackMaxDepth);
         builder.append(", jdbcSqlCacheSize=");
         builder.append(jdbcSqlCacheSize);
-        builder.append(", jdbcMaxSqlBindValueSize=");
-        builder.append(jdbcMaxSqlBindValueSize);
-        builder.append(", jdbcProfile=");
-        builder.append(jdbcProfile);
-        builder.append(", jdbcProfileMySql=");
-        builder.append(jdbcProfileMySql);
-        builder.append(", jdbcProfileMySqlSetAutoCommit=");
-        builder.append(jdbcProfileMySqlSetAutoCommit);
-        builder.append(", jdbcProfileMySqlCommit=");
-        builder.append(jdbcProfileMySqlCommit);
-        builder.append(", jdbcProfileMySqlRollback=");
-        builder.append(jdbcProfileMySqlRollback);
-        builder.append(", jdbcProfileJtds=");
-        builder.append(jdbcProfileJtds);
-        builder.append(", jdbcProfileJtdsSetAutoCommit=");
-        builder.append(jdbcProfileJtdsSetAutoCommit);
-        builder.append(", jdbcProfileJtdsCommit=");
-        builder.append(jdbcProfileJtdsCommit);
-        builder.append(", jdbcProfileJtdsRollback=");
-        builder.append(jdbcProfileJtdsRollback);
-        builder.append(", jdbcProfileOracle=");
-        builder.append(jdbcProfileOracle);
-        builder.append(", jdbcProfileOracleSetAutoCommit=");
-        builder.append(jdbcProfileOracleSetAutoCommit);
-        builder.append(", jdbcProfileOracleCommit=");
-        builder.append(jdbcProfileOracleCommit);
-        builder.append(", jdbcProfileOracleRollback=");
-        builder.append(jdbcProfileOracleRollback);
-        builder.append(", jdbcProfileCubrid=");
-        builder.append(jdbcProfileCubrid);
-        builder.append(", jdbcProfileCubridSetAutoCommit=");
-        builder.append(jdbcProfileCubridSetAutoCommit);
-        builder.append(", jdbcProfileCubridCommit=");
-        builder.append(jdbcProfileCubridCommit);
-        builder.append(", jdbcProfileCubridRollback=");
-        builder.append(jdbcProfileCubridRollback);
-        builder.append(", jdbcProfileDbcp=");
-        builder.append(jdbcProfileDbcp);
-        builder.append(", jdbcProfileDbcpConnectionClose=");
-        builder.append(jdbcProfileDbcpConnectionClose);
         builder.append(", tomcatHidePinpointHeader=");
         builder.append(tomcatHidePinpointHeader);
         builder.append(", tomcatExcludeUrlFilter=");
         builder.append(tomcatExcludeUrlFilter);
+        builder.append(", tomcatExcludeProfileMethodFilter=");
+        builder.append(tomcatExcludeProfileMethodFilter);
         builder.append(", ibatis=");
         builder.append(ibatis);
         builder.append(", mybatis=");
@@ -996,32 +748,6 @@ public class ProfilerConfig {
         builder.append(apacheHttpClient4ProfileIo);
         builder.append(", apacheNIOHttpClient4Profile=");
         builder.append(apacheNIOHttpClient4Profile);
-        builder.append(", ningAsyncHttpClientProfile=");
-        builder.append(ningAsyncHttpClientProfile);
-        builder.append(", ningAsyncHttpClientProfileCookie=");
-        builder.append(ningAsyncHttpClientProfileCookie);
-        builder.append(", ningAsyncHttpClientProfileCookieDumpType=");
-        builder.append(ningAsyncHttpClientProfileCookieDumpType);
-        builder.append(", ningAsyncHttpClientProfileCookieDumpSize=");
-        builder.append(ningAsyncHttpClientProfileCookieDumpSize);
-        builder.append(", ningAsyncHttpClientProfileCookieSamplingRate=");
-        builder.append(ningAsyncHttpClientProfileCookieSamplingRate);
-        builder.append(", ningAsyncHttpClientProfileEntity=");
-        builder.append(ningAsyncHttpClientProfileEntity);
-        builder.append(", ningAsyncHttpClientProfileEntityDumpType=");
-        builder.append(ningAsyncHttpClientProfileEntityDumpType);
-        builder.append(", ningAsyncHttpClientProfileEntityDumpSize=");
-        builder.append(ningAsyncHttpClientProfileEntityDumpSize);
-        builder.append(", ningAsyncHttpClientProfileEntitySamplingRate=");
-        builder.append(ningAsyncHttpClientProfileEntitySamplingRate);
-        builder.append(", ningAsyncHttpClientProfileParam=");
-        builder.append(ningAsyncHttpClientProfileParam);
-        builder.append(", ningAsyncHttpClientProfileParamDumpType=");
-        builder.append(ningAsyncHttpClientProfileParamDumpType);
-        builder.append(", ningAsyncHttpClientProfileParamDumpSize=");
-        builder.append(ningAsyncHttpClientProfileParamDumpSize);
-        builder.append(", ningAsyncHttpClientProfileParamSamplingRate=");
-        builder.append(ningAsyncHttpClientProfileParamSamplingRate);
         builder.append(", samplingEnable=");
         builder.append(samplingEnable);
         builder.append(", samplingRate=");

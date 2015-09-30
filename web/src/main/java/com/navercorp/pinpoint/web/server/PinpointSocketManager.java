@@ -16,35 +16,28 @@
 
 package com.navercorp.pinpoint.web.server;
 
+import com.navercorp.pinpoint.common.util.NetUtils;
+import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.packet.*;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
+import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
+import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
+import com.navercorp.pinpoint.web.cluster.ClusterManager;
+import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterManager;
+import com.navercorp.pinpoint.web.config.WebConfig;
+import com.navercorp.pinpoint.web.vo.AgentInfo;
+import org.apache.zookeeper.KeeperException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.net.SocketException;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
-
-import org.apache.zookeeper.KeeperException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.common.util.NetUtils;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-import com.navercorp.pinpoint.rpc.packet.SendPacket;
-import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.web.cluster.ClusterManager;
-import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterManager;
-import com.navercorp.pinpoint.web.config.WebConfig;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
 
 /**
  * @author koo.taejin
@@ -179,14 +172,16 @@ public class PinpointSocketManager {
     }
 
     private class PinpointSocketManagerHandler implements ServerMessageListener {
+
         @Override
-        public void handleSend(SendPacket sendPacket, PinpointServer pinpointServer) {
-            logger.warn("Unsupported send received {} {}", sendPacket, pinpointServer);
+        public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
+            logger.warn("Unsupported handleSend method packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
+
         }
 
         @Override
-        public void handleRequest(RequestPacket requestPacket, PinpointServer pinpointServer) {
-            logger.warn("Unsupported request received {} {}", requestPacket, pinpointServer);
+        public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
+            logger.warn("Unsupported handleRequest method packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
         }
 
         @Override

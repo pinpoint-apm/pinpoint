@@ -15,17 +15,17 @@
  */
 package com.navercorp.pinpoint.plugin.google.httpclient.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncTraceIdAccessor;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.plugin.google.httpclient.HttpClientConstants;
 
 /**
@@ -34,7 +34,7 @@ import com.navercorp.pinpoint.plugin.google.httpclient.HttpClientConstants;
  *
  */
 @Group(value = HttpClientConstants.EXECUTE_ASYNC_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
-public class HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor implements SimpleAroundInterceptor, HttpClientConstants {
+public class HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -69,7 +69,7 @@ public class HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor imple
 
     private boolean validate(final Object target, final Object[] args) {
         if (!(target instanceof AsyncTraceIdAccessor)) {
-            logger.debug("Invalid target object. Need field accessor({}).", METADATA_ASYNC_TRACE_ID);
+            logger.debug("Invalid target object. Need field accessor({}).", HttpClientConstants.METADATA_ASYNC_TRACE_ID);
             return false;
         }
 
@@ -77,7 +77,7 @@ public class HttpRequestExecuteAsyncMethodInnerClassConstructorInterceptor imple
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args);
         }

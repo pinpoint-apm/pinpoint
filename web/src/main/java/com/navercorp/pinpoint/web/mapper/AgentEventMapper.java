@@ -48,6 +48,9 @@ public class AgentEventMapper implements RowMapper<List<AgentEventBo>> {
         for (Cell cell : result.rawCells()) {
             byte[] qualifier = CellUtil.cloneQualifier(cell);
             final AgentEventType eventType = AgentEventType.getTypeByCode(BytesUtils.bytesToInt(qualifier, 0));
+            if (eventType == null) {
+                continue;
+            }
             
             byte[] value = CellUtil.cloneValue(cell);
             final Buffer buffer = new FixedBuffer(value);

@@ -35,13 +35,13 @@ import com.navercorp.pinpoint.collector.cluster.zookeeper.job.UpdateJob;
 import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.rpc.server.handler.ChannelStateChangeEventHandler;
+import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 
 /**
  * @author koo.taejin
  */
-public class ZookeeperProfilerClusterManager implements ChannelStateChangeEventHandler  {
+public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHandler {
 
     private static final Charset charset = Charset.forName("UTF-8");
 

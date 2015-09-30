@@ -21,8 +21,8 @@ package com.navercorp.pinpoint.bootstrap.instrument;
  * @author emeroad
  */
 public interface MethodFilter {
-    public static final boolean ACCEPT = true;
-    public static final boolean REJECT = false;
+    boolean ACCEPT = true;
+    boolean REJECT = false;
 
     boolean accept(InstrumentMethod method);  
 }

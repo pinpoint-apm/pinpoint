@@ -20,17 +20,17 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 
 /**
  * @author Jongho Moon
  * @author jaehong.kim
  *
  */
-public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
+public class TomcatPlugin implements ProfilerPlugin {
 
     /*
      * (non-Javadoc)
@@ -60,10 +60,10 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
         context.addClassFileTransformer("org.apache.catalina.connector.Request", new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(METADATA_TRACE);
-                target.addField(METADATA_ASYNC);
+                target.addField(TomcatConstants.METADATA_TRACE);
+                target.addField(TomcatConstants.METADATA_ASYNC);
 
                 // clear request.
                 InstrumentMethod recycleMethodEditorBuilder = target.getDeclaredMethod("recycle");
@@ -86,7 +86,7 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
         context.addClassFileTransformer("org.apache.catalina.connector.RequestFacade", new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
                 if (target != null) {
                     target.weave("com.navercorp.pinpoint.plugin.tomcat.aspect.RequestFacadeAspect");
@@ -101,7 +101,7 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
         context.addClassFileTransformer("org.apache.catalina.core.StandardHostValve", new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 InstrumentMethod method = target.getDeclaredMethod("invoke", "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response");
@@ -118,7 +118,7 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
         context.addClassFileTransformer("org.apache.catalina.core.StandardService", new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 // Tomcat 6
@@ -142,7 +142,7 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
         context.addClassFileTransformer("org.apache.catalina.connector.Connector", new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 // Tomcat 6
@@ -166,7 +166,7 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
         context.addClassFileTransformer("org.apache.catalina.loader.WebappLoader", new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 // Tomcat 6 - org.apache.catalina.loader.WebappLoader.start()
@@ -190,9 +190,9 @@ public class TomcatPlugin implements ProfilerPlugin, TomcatConstants {
         context.addClassFileTransformer("org.apache.catalina.core.AsyncContextImpl", new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(METADATA_ASYNC_TRACE_ID);
+                target.addField(TomcatConstants.METADATA_ASYNC_TRACE_ID);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("dispatch"))) {
                     method.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.AsyncContextImplDispatchMethodInterceptor");

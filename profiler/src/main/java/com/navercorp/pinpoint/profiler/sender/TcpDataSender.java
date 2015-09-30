@@ -33,8 +33,8 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.rpc.client.PinpointSocket;
-import com.navercorp.pinpoint.rpc.client.PinpointSocketReconnectEventListener;
+import com.navercorp.pinpoint.rpc.client.PinpointClient;
+import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
@@ -55,7 +55,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         ChannelBuffers.buffer(2);
     }
 
-    private final PinpointSocket socket;
+    private final PinpointClient client;
     private final Timer timer;
     
     private final AtomicBoolean fireState = new AtomicBoolean(false);
@@ -69,8 +69,8 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
 
     private AsyncQueueingExecutor<Object> executor;
 
-    public TcpDataSender(PinpointSocket socket) {
-        this.socket = socket;
+    public TcpDataSender(PinpointClient client) {
+        this.client = client;
         this.timer = createTimer();
         writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", "host", -1);
         this.executor = createAsyncQueueingExecutor(1024 * 5, "Pinpoint-TcpDataExecutor");
@@ -105,13 +105,13 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
     }
 
     @Override
-    public boolean addReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
-        return this.socket.addPinpointSocketReconnectEventListener(eventListener);
+    public boolean addReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
+        return this.client.addPinpointClientReconnectEventListener(eventListener);
     }
 
     @Override
-    public boolean removeReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
-        return this.socket.removePinpointSocketReconnectEventListener(eventListener);
+    public boolean removeReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
+        return this.client.removePinpointClientReconnectEventListener(eventListener);
     }
 
     @Override
@@ -159,7 +159,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
     }
 
     private void doSend(byte[] copy) {
-        Future write = this.socket.sendAsync(copy);
+        Future write = this.client.sendAsync(copy);
         write.setListener(writeFailFutureListener);
     }
 
@@ -218,7 +218,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
     }
 
     private void doRequest(final byte[] requestPacket, FutureListener futureListener) {
-        final Future<ResponseMessage> response = this.socket.request(requestPacket);
+        final Future<ResponseMessage> response = this.client.request(requestPacket);
         response.setListener(futureListener);
     }
 
@@ -237,9 +237,9 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
 
     @Override
     public boolean isNetworkAvailable() {
-        if (this.socket == null) {
+        if (this.client == null) {
             return false;
         }
-        return this.socket.isConnected();
+        return this.client.isConnected();
     }
 }

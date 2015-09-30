@@ -22,47 +22,45 @@ import java.util.List;
 import com.navercorp.pinpoint.common.bo.SpanBo;
 
 /**
- * 
+ *
  * @author netspider
- * 
+ *
  */
 public class FilterChain implements Filter {
 
-    private final List<Filter> filterList;
+    private final List<Filter> filterList = new ArrayList<Filter>();
 
     public FilterChain() {
-        filterList = new ArrayList<Filter>();
+    }
+
+    public FilterChain(List<LinkFilter> linkFilterList) {
+        this.filterList.addAll(linkFilterList);
     }
 
     public void addFilter(Filter filter) {
-        filterList.add(filter);
+        if (filter == null) {
+            throw new NullPointerException("filter must not be null");
+        }
+        this.filterList.add(filter);
     }
 
     @Override
     public boolean include(List<SpanBo> transaction) {
         // FIXME how to improve performance without "for loop"
-        for (Filter f : filterList) {
-            if (!f.include(transaction)) {
-                return false;
+        for (Filter filter : filterList) {
+            if (!filter.include(transaction)) {
+                return REJECT;
             }
         }
-        return true;
+        return ACCEPT;
     }
 
-    public Filter get() {
-        if (filterList.size() == 1) {
-            return filterList.get(0);
-        } else {
-            return this;
-        }
-    }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < filterList.size(); i++, sb.append("<br/>")) {
-            sb.append(filterList.get(i).toString());
-        }
+        final StringBuilder sb = new StringBuilder("FilterChain{");
+        sb.append("filterList=").append(filterList);
+        sb.append('}');
         return sb.toString();
     }
 }

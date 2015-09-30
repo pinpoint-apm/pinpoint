@@ -17,13 +17,13 @@
 package com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Targets;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
@@ -32,10 +32,11 @@ import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 /**
  * @author emeroad
  */
-@Targets(methods={
+@TargetMethods({
         @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String" }),
         @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int" }), 
         @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int[]" }),
+        @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "java.lang.String[]" }),
         @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int", "int" }),
         @TargetMethod(name="prepareStatement", paramTypes={ "java.lang.String", "int", "int", "int" })
 })

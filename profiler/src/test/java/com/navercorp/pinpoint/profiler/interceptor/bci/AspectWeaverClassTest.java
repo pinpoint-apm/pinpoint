@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.interceptor.bci;
 
+import com.navercorp.pinpoint.profiler.instrument.aspect.AspectWeaverClass;
 import com.navercorp.pinpoint.test.util.LoaderUtils;
 
 import javassist.*;
-import org.junit.Assert;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Method;

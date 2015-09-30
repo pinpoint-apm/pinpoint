@@ -23,6 +23,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry;
+import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistryAdaptor;
+
 public class InterceptorRegistryTest {
 
     private InterceptorRegistryAdaptor registryAdaptor;
@@ -42,7 +45,7 @@ public class InterceptorRegistryTest {
     @Test
     public void testSimpleInterceptor() throws Exception {
 
-        SimpleAroundInterceptor simpleAroundInterceptor = mock(SimpleAroundInterceptor.class);
+        AroundInterceptor simpleAroundInterceptor = mock(AroundInterceptor.class);
         when(registryAdaptor.getInterceptor(0)).thenReturn(simpleAroundInterceptor);
 
 

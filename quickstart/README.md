@@ -7,10 +7,11 @@ Pinpoint QuickStart provides a sample TestApp for the Agent to attach itself to,
 In order to build Pinpoint, the following requirements must be met:
 
 * JDK 6 installed
-* JDK 7+ installed
+* JDK 8 installed
 * Maven 3.2.x+ installed
 * JAVA_6_HOME environment variable set to JDK 6 home directory.
 * JAVA_7_HOME environment variable set to JDK 7+ home directory.
+* JAVA_8_HOME environment variable set to JDK 8+ home directory.
 
 QuickStart supports Linux, OSX, and Windows.
 
@@ -70,3 +71,11 @@ You can feed trace data to Pinpoint using the TestApp UI, and check them using P
 **Web UI** - Run `quickstart/bin/stop-web.sh`
 
 **TestApp** - Run `quickstart/bin/stop-testapp.sh`
+
+## Extra
+
+Pinpoint Web uses Mysql to persist users, user groups, and alarm configurations.<br/>
+However Quickstart uses MockDAO to reduce memory usage.<br/>
+Therefore if you want to use Mysql for Quickstart, please refer to Pinpoint Web's [applicationContext-dao-config.xml
+](../web/src/main/resources/applicationContext-dao-config.xml
+), [jdbc.properties](../web/src/main/resources/jdbc.properties).  

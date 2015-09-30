@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric;
 
+import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
+
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.monitor.metric.DefaultRpcMetric;
@@ -28,12 +31,13 @@ import java.util.List;
 
 
 public class DefaultRpcMetricTest {
-
+    private static final ServiceType ASYNC_HTTP_CLIENT = ServiceType.of(9056, "ASYNC_HTTP_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
+    
     @Test
     public void testAddResponseTime() throws Exception {
 
-        HistogramSchema schema = ServiceType.ASYNC_HTTP_CLIENT.getHistogramSchema();
-        DefaultRpcMetric metric = new DefaultRpcMetric(ServiceType.ASYNC_HTTP_CLIENT);
+        HistogramSchema schema = ASYNC_HTTP_CLIENT.getHistogramSchema();
+        DefaultRpcMetric metric = new DefaultRpcMetric(ASYNC_HTTP_CLIENT);
         metric.addResponseTime("test1", schema.getFastSlot().getSlotTime());
 
         metric.addResponseTime("test2", schema.getSlowSlot().getSlotTime());

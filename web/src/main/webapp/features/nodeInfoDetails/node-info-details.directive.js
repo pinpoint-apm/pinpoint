@@ -95,7 +95,8 @@
                         	var instanceList = scope.serverList[p].instanceList;
                         	for( var p2 in instanceList ) {
                         		scope.serverCount++;
-                        		if ( scope.agentHistogram[instanceList[p2].name].Error > 0 ) {
+                        		if (( scope.agentHistogram[instanceList[p2].name] ) &&
+                        		    ( scope.agentHistogram[instanceList[p2].name].Error > 0 )) {
                         			scope.errorServerCount++;
                         		}
                         	}

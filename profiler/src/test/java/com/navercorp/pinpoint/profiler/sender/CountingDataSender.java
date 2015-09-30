@@ -18,10 +18,9 @@ package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.rpc.client.PinpointSocketReconnectEventListener;
+import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
 
 import org.apache.thrift.TBase;
 
@@ -59,12 +58,12 @@ public class CountingDataSender implements EnhancedDataSender {
     }
 
     @Override
-    public boolean addReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
+    public boolean addReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
         return false;
     }
 
     @Override
-    public boolean removeReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
+    public boolean removeReconnectEventListener(PinpointClientReconnectEventListener eventListener) {
         return false;
     }
 

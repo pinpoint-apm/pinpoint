@@ -33,17 +33,17 @@ import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.nio.protocol.HttpAsyncRequestProducer;
 import org.apache.http.protocol.HTTP;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncTraceIdAccessor;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
@@ -62,7 +62,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.ResultFutureGetter;
  * @author jaehong.kim
  *
  */
-public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements SimpleAroundInterceptor, HttpClient4Constants {
+public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -125,7 +125,13 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
             httpRequest.setHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
             final NameIntValuePair<String> host = getHost(target);
             if (host != null) {
-                httpRequest.setHeader(Header.HTTP_HOST.toString(), host.getName());
+                final StringBuilder hostStringBuilder = new StringBuilder(host.getName());
+                if (host.getValue() > 0) {
+                    hostStringBuilder.append(":").append(host.getValue()); 
+                }
+                final String hostString = hostStringBuilder.toString();
+                logger.debug("Get host {}", hostString);
+                httpRequest.setHeader(Header.HTTP_HOST.toString(), hostString);
             }
         }
 
@@ -159,19 +165,19 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
 
     private boolean isAsynchronousInvocation(final Object target, final Object[] args) {
         if (!(target instanceof ResultFutureGetter)) {
-            logger.debug("Invalid target object. Need field accessor({}).", FIELD_RESULT_FUTURE);
+            logger.debug("Invalid target object. Need field accessor({}).", HttpClient4Constants.FIELD_RESULT_FUTURE);
             return false;
         }
         
         BasicFuture<?> future = ((ResultFutureGetter)target)._$PINPOINT$_getResultFuture();
 
         if (future == null) {
-            logger.debug("Invalid target object. field is null({}).", FIELD_RESULT_FUTURE);
+            logger.debug("Invalid target object. field is null({}).", HttpClient4Constants.FIELD_RESULT_FUTURE);
             return false;
         }
 
         if (!(future instanceof AsyncTraceIdAccessor)) {
-            logger.debug("Invalid resultFuture field object. Need metadata accessor({}).", METADATA_ASYNC_TRACE_ID);
+            logger.debug("Invalid resultFuture field object. Need metadata accessor({}).", HttpClient4Constants.METADATA_ASYNC_TRACE_ID);
             return false;
         }
 
@@ -179,7 +185,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements S
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args);
         }

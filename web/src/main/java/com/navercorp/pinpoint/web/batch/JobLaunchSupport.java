@@ -33,6 +33,10 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
+/**
+ * @author minwoo.jung<minwoo.jung@navercorp.com>
+ *
+ */
 public class JobLaunchSupport implements InitializingBean {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());

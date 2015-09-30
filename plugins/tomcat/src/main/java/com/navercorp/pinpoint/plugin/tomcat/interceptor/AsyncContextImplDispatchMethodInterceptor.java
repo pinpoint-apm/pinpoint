@@ -15,11 +15,11 @@
 package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
 
 /**
@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
  *
  */
 @Group(TomcatConstants.TOMCAT_SERVLET_ASYNC_SCOPE)
-public class AsyncContextImplDispatchMethodInterceptor extends SpanAsyncEventSimpleAroundInterceptor implements TomcatConstants {
+public class AsyncContextImplDispatchMethodInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
 
     public AsyncContextImplDispatchMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
@@ -36,7 +36,7 @@ public class AsyncContextImplDispatchMethodInterceptor extends SpanAsyncEventSim
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncTraceId asyncTraceId, Object target, Object[] args) {
-        recorder.recordServiceType(TOMCAT_METHOD);
+        recorder.recordServiceType(TomcatConstants.TOMCAT_METHOD);
     }
 
     @Override

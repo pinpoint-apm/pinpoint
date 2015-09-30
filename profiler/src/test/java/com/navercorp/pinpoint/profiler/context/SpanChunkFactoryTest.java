@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.JvmUtils;
+import com.navercorp.pinpoint.common.util.SystemPropertyKey;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
@@ -35,7 +37,8 @@ import java.util.List;
 public class SpanChunkFactoryTest {
     @Test
     public void create() {
-        AgentInformation agentInformation = new AgentInformation("agentId", "applicationName", 0,0, "machineName", "127.0.0.1", ServiceType.STAND_ALONE, Version.VERSION);
+        AgentInformation agentInformation = new AgentInformation("agentId", "applicationName", 0,0, "machineName", "127.0.0.1", ServiceType.STAND_ALONE,
+                JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION), Version.VERSION);
         SpanChunkFactory spanChunkFactory = new SpanChunkFactory(agentInformation);
 
         try {

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
+import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.LinkKey;
 
 import java.util.Collection;
@@ -32,17 +33,15 @@ public class LinkCallDataMap {
 //    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Map<LinkKey, LinkCallData> linkDataMap = new HashMap<LinkKey, LinkCallData>();
+    private final TimeWindow timeWindow;
 
     public LinkCallDataMap() {
+        this(null);
     }
 
-    public LinkCallDataMap(LinkCallDataMap copyLinkCallDataMap) {
-        if (copyLinkCallDataMap == null) {
-            throw new NullPointerException("copyLinkCallDataMap must not be null");
-        }
-        addLinkDataMap(copyLinkCallDataMap);
+    public LinkCallDataMap(TimeWindow timeWindow) {
+        this.timeWindow = timeWindow;
     }
-
 
     public void addCallData(String sourceAgentId, ServiceType sourceServiceType, String targetId, ServiceType targetServiceType, Collection<TimeHistogram> timeHistogramList) {
         LinkKey linkKey = createLinkKey(sourceAgentId, sourceServiceType, targetId, targetServiceType);
@@ -78,7 +77,7 @@ public class LinkCallDataMap {
         final Map<LinkKey, LinkCallData> rawCallDataMap = this.linkDataMap;
         LinkCallData linkCallData = rawCallDataMap.get(key);
         if (linkCallData == null) {
-            linkCallData = new LinkCallData(key);
+            linkCallData = new LinkCallData(key, timeWindow);
             rawCallDataMap.put(key, linkCallData);
         }
         return linkCallData;

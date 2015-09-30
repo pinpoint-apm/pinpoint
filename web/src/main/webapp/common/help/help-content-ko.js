@@ -15,43 +15,40 @@
 				category: [{
 					title: "[항목]",
 					items: [{
-						name: "SLOW_COUNT",
+						name: "SLOW COUNT",
 						desc: "application 내에서 외부서버를 호출한 요청 중 slow 호출의 개수가 임계치를 초과한 경우 알람이 전송된다."
 					},{
-						name: "SLOW_RATE",
+						name: "SLOW RATE",
 						desc: "application 내에서 외부서버를 호출한 요청 중 slow 호출의 비율(%)이 임계치를 초과한 경우 알람이 전송된다."
 					},{
-						name: "ERROR_COUNT",
+						name: "ERROR COUNT",
 						desc: "application 내에서 외부서버를 호출한 요청 중 error 가 발생한 호출의 개수가 임계치를 초과한 경우 알람이 전송된다."
 					},{
-						name: "ERROR_RATE",
+						name: "ERROR RATE",
 						desc: "application 내에서 외부서버를 호출한 요청 중 error 가 발생한 호출의 비율이 임계치를 초과한 경우 알람이 전송된다."
 					},{
-						name: "RESPONSE_COUNT",
+						name: "TOTAL COUNT",
 						desc: "application 내에서 외부서버를 호출한 요청의 개수가 임계치를 초과한 경우 알람이 전송된다."
 					},{
-						name: "SLOW_COUNT_TO_CALLEE",
+						name: "SLOW COUNT TO CALLEE",
 						desc: "외부에서 application을 호출한 요청 중에 외부서버로 응답을 늦게 준 요청의 개수가 임계치를 초과한 경우 알람이 전송된다."
 					},{
-						name: "SLOW_RATE_TO_CALLEE",
+						name: "SLOW RATE TO CALLEE",
 						desc: "외부에서 application을 호출한 요청 중에 외부서버로 응답을 늦게 준 요청의 비율(%)이 임계치를 초과한 경우 알람이 전송된다."
 					},{
-						name: "ERROR_COUNT_TO_CALLEE",
+						name: "ERROR COUNT TO CALLEE",
 						desc: "외부에서 application을 호출한 요청 중에 에러가 발생한 요청의 개수가 임계치를 초과한 경우 알람이 전송된다."
 					},{
-						name: "ERROR_RATE_TO_CALLEE",
+						name: "ERROR RATE TO CALLEE",
 						desc: "외부에서 application을 호출한 요청 중에 에러가 발생한 요청의 비율(%)이 임계치를 초과한 경우 알람이 전송된다."
 					},{
-						name: "TOTAL_COUNT_TO_CALLEE",
+						name: "TOTAL COUNT TO CALLEE",
 						desc: "외부에서 application을 호출한 요청 개수가 임계치를 초과한 경우 알람이 전송된다."
 					},{
-						name: "HEAP_USAGE_RATE",
+						name: "HEAP USAGE RATE",
 						desc: "heap의 사용률이 임계치를 초과한 경우 알람이 전송된다."
 					},{
-						name: "GC_COUNT",
-						desc: " GC가 수행된 개수가 임계치를 초과한 경우 알람이 전송된다."
-					},{
-						name: "JVM_CPU_USAGE_RATE",
+						name: "JVM CPU USAGE RATE",
 						desc: "applicaiton의 CPU 사용률이 임계치를 초과한 경우 알람이 전송된다."
 					}]
 				}]

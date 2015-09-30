@@ -1,9 +1,108 @@
 <!-- Add your site or application content here -->
 <navbar-directive></navbar-directive>
 <!-- Add your site or application content here -->
+
 <div class="main-container" ng-class="getMainContainerClass()">
     <div class="main">
         <server-map-directive></server-map-directive>
+        <div ng-controller="RealtimeChartCtrl" class="realtime" style="position:relative;width:98%;height:180px;left:1%;bottom:184px;z-index:10;background-color:#F0F3F4;border-radius:6px;border:2px solid #64a71a" ng-show="showRealtime">
+			<style>
+				.chart-title {
+					color: white;
+					width: 100%;
+					padding: 2px 0px 2px 6px;
+					position: absolute;
+					border-radius: 3px 3px 0px 0px;
+					background-color: #7ED321;
+				}
+				.chart-close {
+					float: right;
+					cursor: pointer;
+					margin-right: 6px;
+				}
+				.agent-sum-chart {
+					top: 28px;
+					left: 0px;
+					width: 280px;
+					cursor: crosshair;
+					position: relative;
+					text-align: center;
+					background-color: #FFF;
+				}
+				.agent-sum-chart div {
+					font-weight: bold;
+					margin-bottom: 4px;
+				}
+				.agent-chart-list {
+					top: -119px;
+					height: 150px;
+					padding: 2px 4px 2px 4px;
+					position: relative;
+					overflow-y: auto;
+					margin-left: 280px;
+					margin-right: 6px;
+				}
+				.agent-chart {
+					float: left;
+					width: 120px;
+					height: 70px;
+					margin: 1px 2px 1px 4px;
+					background-color: #FFF;
+					box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.75);
+				}
+				.agent-chart > div {
+					color: #000;
+					padding: 1px;
+					overflow: hidden;
+					font-size: 10px;
+					word-wrap: normal;
+					text-align: center;
+					white-space: nowrap;
+					text-overflow: ellipsis;
+					background-color: #7ED321;
+				}
+				.agent-sum-chart svg {
+		          font: 10px sans-serif;
+		          display: block;
+		        }
+		        .agent-chart-list svg {
+		          font: 8px sans-serif;
+		          display: block;
+		        }
+		
+		        .agent-sum-chart .axis path, .axis line, .agent-chart-list .axis path, .axis line {
+		          fill: none;
+		          stroke: #000;
+		          shape-rendering: crispEdges;
+		        }
+				.agent-sum-chart .guideLine, .agent-chart-list .guideLine  {
+					fill: none;
+					stroke: #000;
+					shape-rendering: crispEdges;
+				}
+		
+		        .agent-sum-chart .x.axis area, .agent-chart-list .x.axis area {
+		            shape-rendering: auto;
+		        }
+		        .agent-sum-chart .area, .agent-chart-list .area {
+		            stroke: none;
+		            stroke-width: 1.5px;
+		        }
+		        .agent-chart-list text {
+		        	font-size: 8px;
+		        }
+						
+			</style>
+		
+			<div class="chart-title">
+				<span>Realtime Active Thread Chart</span>
+				<span class="chart-close glyphicon glyphicon-remove" aria-hidden="true" ng-click="closePopup()"></span>
+			</div>
+			<div class="agent-sum-chart">
+				<div>{{currentApplicationName}} ({{agentCount == 0 ? "..." : agentCount}})</div>
+			</div>
+			<div class="agent-chart-list"></div>
+		</div>
     </div>
     <div class="sidebar" ng-class="sidebar" loading-directive="sidebarLoading" loading-message="Loading...">
         <sidebar-title-directive namespace="forMain"></sidebar-title-directive>

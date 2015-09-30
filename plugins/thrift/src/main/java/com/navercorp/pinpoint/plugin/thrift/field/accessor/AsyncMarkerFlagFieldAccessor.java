@@ -20,6 +20,6 @@ package com.navercorp.pinpoint.plugin.thrift.field.accessor;
  * @author HyunGil Jeong
  */
 public interface AsyncMarkerFlagFieldAccessor {
-    public void _$PINPOINT$_setAsyncMarkerFlag(boolean flag);
-    public boolean _$PINPOINT$_getAsyncMarkerFlag();
+    void _$PINPOINT$_setAsyncMarkerFlag(boolean flag);
+    boolean _$PINPOINT$_getAsyncMarkerFlag();
 }

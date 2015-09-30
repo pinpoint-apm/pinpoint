@@ -15,11 +15,11 @@
 package com.navercorp.pinpoint.plugin.arcus.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanAsyncEventSimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.plugin.arcus.ArcusConstants;
 
 /**
@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.plugin.arcus.ArcusConstants;
  * @author jaehong.kim
  */
 @Group(ArcusConstants.ARCUS_FUTURE_SCOPE)
-public class FutureInternalMethodInterceptor extends SpanAsyncEventSimpleAroundInterceptor implements ArcusConstants {
+public class FutureInternalMethodInterceptor extends SpanAsyncEventSimpleAroundInterceptor {
 
     public FutureInternalMethodInterceptor(MethodDescriptor methodDescriptor, TraceContext traceContext) {
         super(traceContext, methodDescriptor);
@@ -39,7 +39,7 @@ public class FutureInternalMethodInterceptor extends SpanAsyncEventSimpleAroundI
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(ARCUS_INTERNAL);
+        recorder.recordServiceType(ArcusConstants.ARCUS_INTERNAL);
         recorder.recordException(throwable);
         recorder.recordApi(methodDescriptor);
     }

@@ -14,12 +14,8 @@
  */
 package com.navercorp.pinpoint.bootstrap.plugin;
 
-import java.lang.instrument.ClassFileTransformer;
-
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.ClassFileTransformerBuilder;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 
 /**
  *  Provides attributes and objects to interceptors.
@@ -35,45 +31,14 @@ public interface ProfilerPluginSetupContext {
      * 
      * @return {@link ProfilerConfig}
      */
-    public ProfilerConfig getConfig();
+    ProfilerConfig getConfig();
 
     /**
      * Add a {@link ApplicationTypeDetector} to Pinpoint agent.
      * 
      * @param detectors
      */
-    public void addApplicationTypeDetector(ApplicationTypeDetector... detectors);
+    void addApplicationTypeDetector(ApplicationTypeDetector... detectors);
     
-    public void addClassFileTransformer(String targetClassName, PinpointClassFileTransformer transformer);
-
-
-    
-    
-    /**
-     * Add a {@link ClassEditor} to Pinpoint agent.
-     * 
-     * @param classEditor
-     */
-    @Deprecated
-
-    public void addClassFileTransformer(ClassFileTransformer transformer);
-    /**
-     * Get {@link ByteCodeInstrumentor}
-     * 
-     * @return {@link ByteCodeInstrumentor}
-     */
-    @Deprecated
-    public ByteCodeInstrumentor getByteCodeInstrumentor();
-    
-    /**
-     * Get a {@link ClassFileTransformerBuilder}.
-     * 
-     * By using returned {@link ClassFileTransformerBuilder} you can create a {@link ClassFileTransformer} easily.
-     * You have to register resulting {@link ClassFileTransformer} by {@link #addClassFileTransformer(ClassFileTransformer)} to make it works.
-     *
-     * @param targetClassName target class name
-     * @return {@link ClassFileTransformerBuilder}
-     */
-    @Deprecated
-    public ClassFileTransformerBuilder getClassFileTransformerBuilder(String targetClassName);
+    void addClassFileTransformer(String targetClassName, PinpointClassFileTransformer transformer);
 }

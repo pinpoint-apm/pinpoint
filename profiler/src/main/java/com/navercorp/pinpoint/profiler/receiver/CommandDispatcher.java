@@ -16,17 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.receiver;
 
-import org.apache.thrift.TBase;
-import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.protocol.TProtocolFactory;
-import org.jboss.netty.channel.Channel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.navercorp.pinpoint.common.Version;
-import com.navercorp.pinpoint.rpc.client.MessageListener;
+import com.navercorp.pinpoint.rpc.MessageListener;
+import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
@@ -35,17 +28,13 @@ import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.util.AssertUtils;
 import com.navercorp.pinpoint.thrift.dto.TResult;
-import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
-import com.navercorp.pinpoint.thrift.io.SerializerFactory;
-import com.navercorp.pinpoint.thrift.io.TCommandRegistry;
-import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
-import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseSerializerFactory;
+import com.navercorp.pinpoint.thrift.io.*;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
+import org.apache.thrift.TBase;
+import org.apache.thrift.protocol.TCompactProtocol;
+import org.apache.thrift.protocol.TProtocolFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Taejin Koo
@@ -81,22 +70,22 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
     }
 
     @Override
-    public void handleSend(SendPacket sendPacket, Channel channel) {
-        logger.info("MessageReceive {} {}", sendPacket, channel);
+    public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
+        logger.info("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
     }
 
     @Override
-    public void handleRequest(RequestPacket requestPacket, Channel channel) {
-        logger.info("MessageReceive {} {}", requestPacket, channel);
+    public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
+        logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
 
         final TBase<?, ?> request = SerializationUtils.deserialize(requestPacket.getPayload(), deserializerFactory, null);
-        logger.debug("MessageReceive {} {}", request, channel);
+        logger.debug("handleRequest request:{}, remote:{}", request, pinpointSocket.getRemoteAddress());
 
         TBase response;
         if (request == null) {
             final TResult tResult = new TResult(false);
             tResult.setMessage("Unsupported ServiceTypeInfo.");
-            
+
             response = tResult;
         } else {
             final ProfilerRequestCommandService service = commandServiceRegistry.getRequestService(request);
@@ -109,10 +98,10 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
                 response = service.requestCommandService(request);
             }
         }
-        
+
         final byte[] payload = SerializationUtils.serialize(response, serializerFactory, null);
         if (payload != null) {
-            channel.write(new ResponsePacket(requestPacket.getRequestId(), payload));
+            pinpointSocket.response(requestPacket, payload);
         }
     }
 
@@ -141,6 +130,13 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
             throw new NullPointerException("commandService must not be null");
         }
         return this.commandServiceRegistry.addService(commandService);
+    }
+
+    public void registerCommandService(ProfilerCommandServiceGroup commandServiceGroup) {
+        if (commandServiceGroup == null) {
+            throw new NullPointerException("commandServiceGroup must not be null");
+        }
+        this.commandServiceRegistry.addService(commandServiceGroup);
     }
 
     private SerializerFactory<HeaderTBaseSerializer> wrappedThreadLocalSerializerFactory(SerializerFactory<HeaderTBaseSerializer> serializerFactory) {

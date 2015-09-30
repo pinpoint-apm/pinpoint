@@ -21,19 +21,19 @@ import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.THRIFT_CLIENT_SCO
 import java.net.SocketAddress;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 import com.navercorp.pinpoint.plugin.thrift.ThriftRequestProperty;
 import com.navercorp.pinpoint.plugin.thrift.ThriftUtils;
@@ -46,7 +46,7 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketAddressFieldAcc
  * @author HyunGil Jeong
  */
 @Group(value = THRIFT_CLIENT_SCOPE, executionPolicy = ExecutionPolicy.BOUNDARY)
-public class TAsyncClientManagerCallInterceptor implements SimpleAroundInterceptor, ThriftConstants {
+public class TAsyncClientManagerCallInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -90,7 +90,7 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
                 // inject async trace info to AsyncMethodCall object
                 final AsyncTraceId asyncTraceId = injectAsyncTraceId(asyncMethodCallObj, trace);
 
-                recorder.recordServiceType(THRIFT_CLIENT_INTERNAL);
+                recorder.recordServiceType(ThriftConstants.THRIFT_CLIENT_INTERNAL);
 
                 // retrieve connection information
                 String remoteAddress = getRemoteAddress(asyncMethodCallObj);
@@ -120,7 +120,7 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
@@ -191,7 +191,7 @@ public class TAsyncClientManagerCallInterceptor implements SimpleAroundIntercept
 
     private String getRemoteAddress(Object asyncMethodCallObj) {
         if (!(asyncMethodCallObj instanceof SocketAddressFieldAccessor)) {
-            return UNKNOWN_ADDRESS;
+            return ThriftConstants.UNKNOWN_ADDRESS;
         }
         SocketAddress socketAddress = ((SocketAddressFieldAccessor)asyncMethodCallObj)._$PINPOINT$_getSocketAddress();
         return ThriftUtils.getHostPort((SocketAddress)socketAddress);

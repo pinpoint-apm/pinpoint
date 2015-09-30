@@ -35,21 +35,20 @@ import org.apache.http.protocol.HTTP;
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
-import com.navercorp.pinpoint.bootstrap.interceptor.http.HttpCallContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
@@ -63,7 +62,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author jaehong.kim
  */
 @Group(value = HttpClient4Constants.HTTP_CLIENT4_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
-public class HttpRequestExecutorExecuteMethodInterceptor implements SimpleAroundInterceptor, HttpClient4Constants {
+public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterceptor {
     private static final int HTTP_REQUEST_INDEX = 1;
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -149,8 +148,13 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements SimpleAround
             httpRequest.setHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
             final NameIntValuePair<String> host = getHost();
             if (host != null) {
-                logger.debug("Get host {}", host.getName());
-                httpRequest.setHeader(Header.HTTP_HOST.toString(), host.getName());
+                final StringBuilder hostStringBuilder = new StringBuilder(host.getName());
+                if (host.getValue() > 0) {
+                    hostStringBuilder.append(":").append(host.getValue()); 
+                }
+                final String hostString = hostStringBuilder.toString();
+                logger.debug("Get host {}", hostString);
+                httpRequest.setHeader(Header.HTTP_HOST.toString(), hostString);
             }
         }
 
@@ -185,7 +189,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements SimpleAround
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args);
         }

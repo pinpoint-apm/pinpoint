@@ -19,5 +19,5 @@ package com.navercorp.pinpoint.plugin.httpclient3;
  *
  */
 public interface HostNameGetter {
-    public String _$PINPOINT$_getHostName();
+    String _$PINPOINT$_getHostName();
 }

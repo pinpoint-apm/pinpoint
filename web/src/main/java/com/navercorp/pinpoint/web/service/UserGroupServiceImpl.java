@@ -44,6 +44,11 @@ public class UserGroupServiceImpl implements UserGroupService {
     }
 
     @Override
+    public List<UserGroup> selectUserGroupByUserId(String userId) {
+        return userGroupDao.selectUserGroupByUserId(userId);
+    }
+
+    @Override
     public void updateUserGroup(UserGroup userGroup) {
         userGroupDao.updateUserGroup(userGroup);
     }
@@ -61,7 +66,6 @@ public class UserGroupServiceImpl implements UserGroupService {
     @Override
     public void deleteMember(UserGroupMember userGroupMember) {
         userGroupDao.deleteMember(userGroupMember); 
-        
     }
 
     @Override
@@ -93,8 +97,5 @@ public class UserGroupServiceImpl implements UserGroupService {
     public void updateUserGroupIdOfMember(UserGroup userGroup) {
         userGroupDao.updateUserGroupIdOfMember(userGroup);
     }
-    
-    
-
 
 }

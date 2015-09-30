@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.plugin.httpclient3;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyMatchers;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
@@ -25,11 +25,11 @@ import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
  * @author jaehong.kim
  *
  */
-public class HttpClient3TypeProvider implements TraceMetadataProvider, HttpClient3Constants{
+public class HttpClient3TypeProvider implements TraceMetadataProvider {
 
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(HTTP_CLIENT_3, new AnnotationKeyMatcher.ExactMatcher(AnnotationKey.HTTP_URL));
-        context.addServiceType(HTTP_CLIENT_3_INTERNAL, new AnnotationKeyMatcher.ExactMatcher(AnnotationKey.HTTP_INTERNAL_DISPLAY));
+        context.addServiceType(HttpClient3Constants.HTTP_CLIENT_3, AnnotationKeyMatchers.exact(AnnotationKey.HTTP_URL));
+        context.addServiceType(HttpClient3Constants.HTTP_CLIENT_3_INTERNAL, AnnotationKeyMatchers.exact(AnnotationKey.HTTP_INTERNAL_DISPLAY));
     }
 }

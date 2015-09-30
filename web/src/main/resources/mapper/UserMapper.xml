@@ -4,6 +4,10 @@
 
 <mapper namespace="com.navercorp.pinpoint.web.dao.UserDao">
 
+    <select id="dropAndCreateUserTable">
+        TRUNCATE puser;
+    </select>
+    
     <insert id="insertUser" parameterType="User">
         INSERT INTO puser (user_id, name, department, phonenumber, email)
         VALUES (#{userId}, #{name}, #{department}, #{phoneNumber}, #{email})

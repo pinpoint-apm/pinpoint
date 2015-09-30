@@ -28,7 +28,7 @@ import org.apache.thrift.async.TAsyncMethodCall;
 /**
  * @author HyunGil Jeong
  */
-public class ThriftUtils implements ThriftConstants {
+public class ThriftUtils {
     
     private static final Pattern DOT_PATTERN = Pattern.compile("\\.");
 
@@ -47,7 +47,7 @@ public class ThriftUtils implements ThriftConstants {
      */
     public static String getProcessorNameAsUri(TBaseProcessor<?> processor) {
         String actualProcessorName = processor.getClass().getName();
-        return convertDotPathToUriPath(PROCESSOR_PATTERN.matcher(actualProcessorName).replaceAll("."));
+        return convertDotPathToUriPath(ThriftConstants.PROCESSOR_PATTERN.matcher(actualProcessorName).replaceAll("."));
     }
     
     /**
@@ -56,7 +56,7 @@ public class ThriftUtils implements ThriftConstants {
      */
     public static String getAsyncProcessorNameAsUri(TBaseAsyncProcessor<?> asyncProcessor) {
         String actualAsyncProcessorName = asyncProcessor.getClass().getName();
-        return convertDotPathToUriPath(ASYNC_PROCESSOR_PATTERN.matcher(actualAsyncProcessorName).replaceAll("."));
+        return convertDotPathToUriPath(ThriftConstants.ASYNC_PROCESSOR_PATTERN.matcher(actualAsyncProcessorName).replaceAll("."));
     }
     
     /**
@@ -65,7 +65,7 @@ public class ThriftUtils implements ThriftConstants {
      */
     public static String getClientServiceName(TServiceClient client) {
         String clientClassName = client.getClass().getName();
-        return convertDotPathToUriPath(CLIENT_PATTERN.split(clientClassName)[0]);
+        return convertDotPathToUriPath(ThriftConstants.CLIENT_PATTERN.split(clientClassName)[0]);
     }
     
     /**
@@ -74,7 +74,7 @@ public class ThriftUtils implements ThriftConstants {
      */
     public static String getAsyncMethodCallName(TAsyncMethodCall<?> asyncMethodCall) {
         String asyncMethodCallClassName = asyncMethodCall.getClass().getName();
-        return convertDotPathToUriPath(ASYNC_METHOD_CALL_PATTERN.matcher(asyncMethodCallClassName).replaceAll("."));
+        return convertDotPathToUriPath(ThriftConstants.ASYNC_METHOD_CALL_PATTERN.matcher(asyncMethodCallClassName).replaceAll("."));
     }
 
     /**

@@ -20,18 +20,12 @@ import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.*;
 import org.apache.catalina.connector.Request;
 
 import com.navercorp.pinpoint.bootstrap.config.Filter;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Header;
-import com.navercorp.pinpoint.bootstrap.context.SpanId;
-import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
@@ -50,7 +44,7 @@ import com.navercorp.pinpoint.plugin.tomcat.TraceAccessor;
  * @author emeroad
  * @author jaehong.kim
  */
-public class StandardHostValveInvokeInterceptor implements SimpleAroundInterceptor, TomcatConstants {
+public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     public static final ServletSyncMethodDescriptor SERVLET_SYNCHRONOUS_API_TAG = new ServletSyncMethodDescriptor();
     public static final ServletAsyncMethodDescriptor SERVLET_ASYNCHRONOUS_API_TAG = new ServletAsyncMethodDescriptor();
 
@@ -62,14 +56,27 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
     private TraceContext traceContext;
 
     private Filter<String> excludeUrlFilter;
+	private Filter<String> excludeProfileMethodFilter;
+
+    private RemoteAddressResolver<HttpServletRequest> remoteAddressResolver;
 
     public StandardHostValveInvokeInterceptor(TraceContext traceContext, MethodDescriptor descriptor, Filter<String> excludeFilter) {
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
         this.excludeUrlFilter = excludeFilter;
+        this.excludeProfileMethodFilter = traceContext.getProfilerConfig().getTomcatExcludeProfileMethodFilter();
 
         traceContext.cacheApi(SERVLET_ASYNCHRONOUS_API_TAG);
         traceContext.cacheApi(SERVLET_SYNCHRONOUS_API_TAG);
+
+        ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
+        final String proxyIpHeader = profilerConfig.getTomcatRealIpHeader();
+        if (proxyIpHeader == null || proxyIpHeader.isEmpty()) {
+            remoteAddressResolver = new Bypass<HttpServletRequest>();
+        } else {
+            final String tomcatRealIpEmptyValue = profilerConfig.getTomcatRealIpEmptyValue();
+            remoteAddressResolver = new RealIpHeaderResolver<HttpServletRequest>(proxyIpHeader, tomcatRealIpEmptyValue);
+        }
     }
 
     @Override
@@ -89,10 +96,60 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
             }
             // ------------------------------------------------------
             SpanEventRecorder recorder = trace.traceBlockBegin();
-            recorder.recordServiceType(TOMCAT_METHOD);
+            recorder.recordServiceType(TomcatConstants.TOMCAT_METHOD);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
+            }
+        }
+    }
+
+    public static class Bypass<T extends HttpServletRequest> implements RemoteAddressResolver<T> {
+
+        @Override
+        public String resolve(T servletRequest) {
+            return servletRequest.getRemoteAddr();
+        }
+    }
+
+    public static class RealIpHeaderResolver<T extends HttpServletRequest> implements RemoteAddressResolver<T> {
+
+        public static final String X_FORWARDED_FOR = "x-forwarded-for";
+        public static final String X_REAL_IP =  "x-real-ip";
+        public static final String UNKNOWN = "unknown";
+
+        private final String realIpHeaderName;
+        private final String emptyHeaderValue;
+
+        public RealIpHeaderResolver() {
+            this(X_FORWARDED_FOR, UNKNOWN);
+        }
+
+        public RealIpHeaderResolver(String realIpHeaderName, String emptyHeaderValue) {
+            if (realIpHeaderName == null) {
+                throw new NullPointerException("realIpHeaderName must not be null");
+            }
+            this.realIpHeaderName = realIpHeaderName;
+            this.emptyHeaderValue = emptyHeaderValue;
+        }
+
+        @Override
+        public String resolve(T httpServletRequest) {
+            final String realIp = httpServletRequest.getHeader(this.realIpHeaderName);
+
+            if (realIp == null || realIp.isEmpty()) {
+                return httpServletRequest.getRemoteAddr();
+            }
+
+            if (emptyHeaderValue != null && emptyHeaderValue.equalsIgnoreCase(realIp)) {
+                return httpServletRequest.getRemoteAddr();
+            }
+
+            final int firstIndex = realIp.indexOf(',');
+            if (firstIndex == -1) {
+                return realIp;
+            } else {
+                return realIp.substring(0, firstIndex);
             }
         }
     }
@@ -210,7 +267,7 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
         final String endPoint = request.getServerName() + ":" + port;
         recorder.recordEndPoint(endPoint);
 
-        final String remoteAddr = request.getRemoteAddr();
+        final String remoteAddr =  remoteAddressResolver.resolve(request);
         recorder.recordRemoteAddress(remoteAddr);
 
         if (!recorder.isRoot()) {
@@ -235,7 +292,7 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
@@ -254,9 +311,12 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
         try {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             final HttpServletRequest request = (HttpServletRequest) args[0];
-            final String parameters = getRequestParameter(request, 64, 512);
-            if (parameters != null && parameters.length() > 0) {
-                recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+
+            if (!excludeProfileMethodFilter.filter(request.getMethod())) {
+                final String parameters = getRequestParameter(request, 64, 512);
+                if (parameters != null && parameters.length() > 0) {
+                    recorder.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+                }
             }
 
             recorder.recordApi(methodDescriptor);

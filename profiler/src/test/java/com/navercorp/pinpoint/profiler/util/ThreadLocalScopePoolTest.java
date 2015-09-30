@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.profiler.util;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.bootstrap.instrument.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.instrument.DefaultInterceptorGroupDefinition;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 

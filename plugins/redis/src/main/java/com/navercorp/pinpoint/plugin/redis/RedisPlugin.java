@@ -22,19 +22,19 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer;
 
 /**
  * 
  * @author jaehong.kim
  *
  */
-public class RedisPlugin implements ProfilerPlugin, RedisConstants {
+public class RedisPlugin implements ProfilerPlugin {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -59,7 +59,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
 
             @Override
             public void handle(InstrumentClass target) throws InstrumentException {
-                target.addField(METADATA_END_POINT);
+                target.addField(RedisConstants.METADATA_END_POINT);
             }
         });
 
@@ -71,7 +71,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
                 if (handler != null) {
                     handler.handle(target);
@@ -122,9 +122,9 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
         context.addClassFileTransformer("redis.clients.jedis.Client", new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(METADATA_END_POINT);
+                target.addField(RedisConstants.METADATA_END_POINT);
 
                 final InstrumentMethod constructorEditorBuilderArg1 = target.getConstructor("java.lang.String");
                 if (constructorEditorBuilderArg1 != null) {
@@ -145,7 +145,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
         context.addClassFileTransformer("redis.clients.jedis.Protocol", new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.name("sendCommand", "read"), MethodFilters.modifierNot(Modifier.PRIVATE)))) {
@@ -169,7 +169,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
 
             @Override
             public void handle(InstrumentClass target) throws InstrumentException {
-                target.addField(METADATA_END_POINT);
+                target.addField(RedisConstants.METADATA_END_POINT);
 
                 final InstrumentMethod setClientMethodEditorBuilder = target.getDeclaredMethod("setClient", "redis.clients.jedis.Client");
                 if (setClientMethodEditorBuilder != null) {
@@ -188,7 +188,7 @@ public class RedisPlugin implements ProfilerPlugin, RedisConstants {
         context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
 
             @Override
-            public byte[] transform(ProfilerPluginInstrumentContext instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
                 if (handler != null) {
                     handler.handle(target);

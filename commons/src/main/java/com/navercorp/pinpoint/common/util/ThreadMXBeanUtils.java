@@ -19,6 +19,9 @@ package com.navercorp.pinpoint.common.util;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,6 +36,8 @@ public final class ThreadMXBeanUtils {
     private static final boolean SYNCHRONIZER_USAGE_SUPPORT;
     // check support -> getWaitedTime(), getBlockedTime()
     private static final boolean CONTENTION_MONITORING_SUPPORT;
+
+    private static final int DEFAULT_STACK_TRACE_MAX_DEPTH = 32;
 
     private ThreadMXBeanUtils() {
     }
@@ -70,6 +75,43 @@ public final class ThreadMXBeanUtils {
 //            log??
 //            return new ThreadInfo[]{};
 //        }
+    }
+
+    public static ThreadInfo findThread(Thread thread) {
+        return findThread(thread.getId());
+    }
+
+    public static ThreadInfo findThread(Thread thread, int stackTraceMaxDepth) {
+        return findThread(thread.getId(), stackTraceMaxDepth);
+    }
+
+    public static ThreadInfo findThread(long id) {
+        return findThread(id, DEFAULT_STACK_TRACE_MAX_DEPTH);
+    }
+
+    public static ThreadInfo findThread(long id, int stackTraceMaxDepth) {
+        if (stackTraceMaxDepth <= 0) {
+            return THREAD_MX_BEAN.getThreadInfo(id);
+        } else {
+            return THREAD_MX_BEAN.getThreadInfo(id, stackTraceMaxDepth);
+        }
+    }
+
+    public static List<ThreadInfo> findThread(String threadName) {
+        Asserts.notNull(threadName, "threadName may not be null.");
+
+        ThreadInfo[] threadInfos = dumpAllThread();
+        if (threadInfos == null) {
+            return Collections.emptyList();
+        }
+
+        ArrayList<ThreadInfo> threadInfoList = new ArrayList<ThreadInfo>(1);
+        for (ThreadInfo threadInfo : threadInfos) {
+            if (threadName.equals(threadInfo.getThreadName())) {
+                threadInfoList.add(threadInfo);
+            }
+        }
+        return threadInfoList;
     }
 
     public static boolean findThreadName(ThreadInfo[] threadInfos, String threadName) {

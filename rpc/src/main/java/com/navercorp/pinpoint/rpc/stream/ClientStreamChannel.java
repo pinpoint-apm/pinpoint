@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
-
-import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 
 /**
  * @author koo.taejin
@@ -31,24 +30,14 @@ public class ClientStreamChannel extends StreamChannel {
     }
 
     public ChannelFuture sendCreate(byte[] payload) {
-        assertState(StreamChannelStateCode.OPEN_AWAIT);
+        assertState(StreamChannelStateCode.CONNECT_AWAIT);
 
         StreamCreatePacket packet = new StreamCreatePacket(getStreamId(), payload);
         return this.getChannel().write(packet);
     }
 
-    boolean changeStateOpen() {
-        boolean result = getState().changeStateOpen();
-
-        logger.info(makeStateChangeMessage(StreamChannelStateCode.OPEN, result));
-        return result;
-    }
-
-    boolean changeStateOpenAwait() {
-        boolean result = getState().changeStateOpenAwait();
-
-        logger.info(makeStateChangeMessage(StreamChannelStateCode.OPEN_AWAIT, result));
-        return result;
+    boolean changeStateConnectAwait() {
+        return changeStateTo(StreamChannelStateCode.CONNECT_AWAIT);
     }
 
 }

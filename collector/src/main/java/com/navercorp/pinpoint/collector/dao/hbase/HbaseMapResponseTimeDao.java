@@ -124,13 +124,12 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
         // update statistics by rowkey and column for now. need to update it by rowkey later.
         Map<RowInfo,ConcurrentCounterMap.LongAdder> remove = this.counter.remove();
-        List<Increment> merge = rowKeyMerge.createBulkIncrement(remove);
+        List<Increment> merge = rowKeyMerge.createBulkIncrement(remove, null);
         if (!merge.isEmpty()) {
             if (logger.isDebugEnabled()) {
                 logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
             }
             hbaseTemplate.increment(MAP_STATISTICS_SELF, merge);
         }
-
     }
 }

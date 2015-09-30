@@ -16,11 +16,11 @@ package com.navercorp.pinpoint.plugin.jackson.interceptor;
 
 import java.io.File;
 
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.jackson.JacksonConstants;
@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.plugin.jackson.JacksonConstants;
  * @see JacksonPlugin#intercept_ObjectMapper(com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext)
  * @author Sungkook Kim
  */
-public class ReadValueInterceptor implements SimpleAroundInterceptor, JacksonConstants {
+public class ReadValueInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -53,11 +53,11 @@ public class ReadValueInterceptor implements SimpleAroundInterceptor, JacksonCon
         }
 
         SpanEventRecorder recorder = trace.traceBlockBegin();
-        recorder.recordServiceType(SERVICE_TYPE);
+        recorder.recordServiceType(JacksonConstants.SERVICE_TYPE);
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, args);
         }
@@ -76,11 +76,11 @@ public class ReadValueInterceptor implements SimpleAroundInterceptor, JacksonCon
             
             if (arg != null) {
                 if (arg instanceof String) {
-                    recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((String) arg).length());
+                    recorder.recordAttribute(JacksonConstants.ANNOTATION_KEY_LENGTH_VALUE, ((String) arg).length());
                 } else if (arg instanceof byte[]) {
-                    recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((byte[]) arg).length);
+                    recorder.recordAttribute(JacksonConstants.ANNOTATION_KEY_LENGTH_VALUE, ((byte[]) arg).length);
                 } else if (arg instanceof File) {
-                    recorder.recordAttribute(ANNOTATION_KEY_LENGTH_VALUE, ((File) arg).length());
+                    recorder.recordAttribute(JacksonConstants.ANNOTATION_KEY_LENGTH_VALUE, ((File) arg).length());
                 }
             }
         } finally {

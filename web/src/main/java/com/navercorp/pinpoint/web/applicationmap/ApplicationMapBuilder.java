@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.applicationmap.histogram.*;
-import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.*;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
@@ -33,6 +32,7 @@ import java.util.*;
 /**
  * @author emeroad
  * @author minwoo.jung
+ * @author HyunGil Jeong
  */
 public class ApplicationMapBuilder {
 
@@ -47,8 +47,37 @@ public class ApplicationMapBuilder {
 
         this.range = range;
     }
+    
+    /**
+     * Returns an application map with a single node containing the application's agents that were running.
+     */
+    public ApplicationMap build(Application application, AgentInfoService agentInfoService) {
+        NodeList nodeList = new NodeList();
+        LinkList emptyLinkList = new LinkList();
+        
+        Node node = new Node(application);
+        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationName(application.getName(), range.getTo());
+        for (Iterator<AgentInfo> iterator = agentInfos.iterator(); iterator.hasNext();) {
+            AgentInfo agentInfo = iterator.next();
+            if (!isAgentRunning(agentInfo)) {
+                iterator.remove();
+            }
+        }
+        if (agentInfos.isEmpty()) {
+            return new ApplicationMap(range, nodeList, emptyLinkList);
+        } else {
+            ServerBuilder serverBuilder = new ServerBuilder();
+            serverBuilder.addAgentInfo(agentInfos);
+            ServerInstanceList serverInstanceList = serverBuilder.build();
+            node.setServerInstanceList(serverInstanceList);
+            node.setNodeHistogram(new NodeHistogram(application, range));
+            nodeList.addNode(node);
+            return new ApplicationMap(range, nodeList, emptyLinkList);
+        }
+    }
 
-    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService, NodeHistogramDataSource nodeHistogramDataSource) {
+    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService,
+            NodeHistogramDataSource nodeHistogramDataSource) {
         if (linkDataDuplexMap == null) {
             throw new NullPointerException("linkDataMap must not be null");
         }
@@ -59,7 +88,6 @@ public class ApplicationMapBuilder {
         NodeList nodeList = buildNode(linkDataDuplexMap);
         LinkList linkList = buildLink(nodeList, linkDataDuplexMap);
 
-
         appendNodeResponseTime(nodeList, linkList, nodeHistogramDataSource);
         appendAgentInfo(nodeList, linkDataDuplexMap, agentInfoService);
 
@@ -67,8 +95,8 @@ public class ApplicationMapBuilder {
         return map;
     }
 
-
-    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService, final MapResponseDao mapResponseDao) {
+    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService,
+            final MapResponseDao mapResponseDao) {
         NodeHistogramDataSource responseSource = new NodeHistogramDataSource() {
             @Override
             public NodeHistogram createNodeHistogram(Application application) {
@@ -80,7 +108,8 @@ public class ApplicationMapBuilder {
         return this.build(linkDataDuplexMap, agentInfoService, responseSource);
     }
 
-    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService, final ResponseHistogramBuilder mapHistogramSummary) {
+    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService,
+            final ResponseHistogramBuilder mapHistogramSummary) {
         NodeHistogramDataSource responseSource = new NodeHistogramDataSource() {
             @Override
             public NodeHistogram createNodeHistogram(Application application) {
@@ -95,7 +124,6 @@ public class ApplicationMapBuilder {
     public interface NodeHistogramDataSource {
         NodeHistogram createNodeHistogram(Application application);
     }
-
 
     private NodeList buildNode(LinkDataDuplexMap linkDataDuplexMap) {
         NodeList nodeList = new NodeList();
@@ -122,7 +150,6 @@ public class ApplicationMapBuilder {
             } else {
                 logger.warn("found rpc fromNode linkData:{}", linkData);
             }
-
 
             final Application toApplication = linkData.getToApplication();
             // FROM -> TO : TO is either a CLIENT or a node
@@ -217,7 +244,6 @@ public class ApplicationMapBuilder {
         }
     }
 
-
     private void createTargetLink(NodeList nodeList, LinkList linkList, LinkDataMap linkDataMap) {
 
         for (LinkData linkData : linkDataMap.getLinkDataList()) {
@@ -238,20 +264,21 @@ public class ApplicationMapBuilder {
                 // check if "to" node exists
                 if (!nodeList.containsNode(toNode.getApplication())) {
                     final Link link = addLink(linkList, fromNode, toNode, CreateType.Target);
-                    if(link != null) {
+                    if (link != null) {
                         logger.debug("createRpcTargetLink:{}", link);
                     }
                 }
             } else {
                 final Link link = addLink(linkList, fromNode, toNode, CreateType.Target);
-                if(link != null) {
+                if (link != null) {
                     logger.debug("createTargetLink:{}", link);
                 }
             }
         }
     }
 
-    public void appendNodeResponseTime(NodeList nodeList, LinkList linkList, NodeHistogramDataSource nodeHistogramDataSource) {
+    public void appendNodeResponseTime(NodeList nodeList, LinkList linkList,
+            NodeHistogramDataSource nodeHistogramDataSource) {
         if (nodeHistogramDataSource == null) {
             throw new NullPointerException("nodeHistogramDataSource must not be null");
         }
@@ -265,7 +292,7 @@ public class ApplicationMapBuilder {
                 final NodeHistogram nodeHistogram = nodeHistogramDataSource.createNodeHistogram(wasNode);
                 node.setNodeHistogram(nodeHistogram);
 
-            } else if(nodeType.isTerminal() || nodeType.isUnknown()) {
+            } else if (nodeType.isTerminal() || nodeType.isUnknown()) {
                 final NodeHistogram nodeHistogram = createTerminalNodeHistogram(node, linkList);
                 node.setNodeHistogram(nodeHistogram);
             } else if (nodeType.isUser()) {
@@ -353,7 +380,8 @@ public class ApplicationMapBuilder {
         return nodeHistogram;
     }
 
-    public void appendAgentInfo(NodeList nodeList, LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService) {
+    public void appendAgentInfo(NodeList nodeList, LinkDataDuplexMap linkDataDuplexMap,
+            AgentInfoService agentInfoService) {
         for (Node node : nodeList.getNodeList()) {
             appendServerInfo(node, linkDataDuplexMap, agentInfoService);
         }
@@ -363,7 +391,7 @@ public class ApplicationMapBuilder {
     private void appendServerInfo(Node node, LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService) {
         final ServiceType nodeServiceType = node.getServiceType();
         if (nodeServiceType.isUnknown()) {
-            // we do not know the server info for unknown nodes 
+            // we do not know the server info for unknown nodes
             return;
         }
 
@@ -379,7 +407,8 @@ public class ApplicationMapBuilder {
             ServerInstanceList serverInstanceList = builder.build();
             node.setServerInstanceList(serverInstanceList);
         } else if (nodeServiceType.isWas()) {
-            Set<AgentInfoBo> agentList = agentInfoService.getAgentsByApplicationName(node.getApplication().getName(), range.getTo());
+            Set<AgentInfo> agentList = agentInfoService.getAgentsByApplicationName(node.getApplication().getName(),
+                    range.getTo());
             if (agentList.isEmpty()) {
                 logger.warn("agentInfo not found. applicationName:{}", node.getApplication());
                 // avoid NPE
@@ -395,31 +424,39 @@ public class ApplicationMapBuilder {
             // agentSet exists if the destination is a WAS, and has agent installed
             node.setServerInstanceList(serverInstanceList);
         } else {
-            // add empty information 
+            // add empty information
             node.setServerInstanceList(new ServerInstanceList());
         }
 
     }
-
+    
     /**
-     * Filters AgentInfo by whether they actually have response data. 
-     * This is only a temporary solution until we implement agent life cycle management.
-     * FIXME Use the actual agent status (once implemented) to filter out AgentInfo
+     * Filters AgentInfo by whether they actually have response data.
+     * For agents that do not have response data, check their status and include those that were alive.
      */
-    private Set<AgentInfoBo> filterAgentInfoByResponseData(Set<AgentInfoBo> agentList, Node node) {
-        Set<AgentInfoBo> filteredAgentInfo = new HashSet<AgentInfoBo>();
+    private Set<AgentInfo> filterAgentInfoByResponseData(Set<AgentInfo> agentList, Node node) {
+        Set<AgentInfo> filteredAgentInfo = new HashSet<AgentInfo>();
 
         NodeHistogram nodeHistogram = node.getNodeHistogram();
         Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
-        for (AgentInfoBo agentInfoBo : agentList) {
-            String agentId = agentInfoBo.getAgentId();
+        for (AgentInfo agentInfo : agentList) {
+            String agentId = agentInfo.getAgentId();
             if (agentHistogramMap.containsKey(agentId)) {
-                filteredAgentInfo.add(agentInfoBo);
+                filteredAgentInfo.add(agentInfo);
+            } else {
+                if (isAgentRunning(agentInfo)) {
+                    filteredAgentInfo.add(agentInfo);
+                }
             }
         }
 
         return filteredAgentInfo;
     }
-
+    
+    private boolean isAgentRunning(AgentInfo agentInfo) {
+        return agentInfo.getStatus().getState() == AgentLifeCycleState.RUNNING;
+    }
+    
+    
 
 }

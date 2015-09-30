@@ -32,7 +32,7 @@ public interface ApplicationTypeDetector {
      * @see ServiceType#isWas()
      * @see com.navercorp.pinpoint.common.trace.ServiceTypeCategory#SERVER
      */
-    public ServiceType getApplicationType();
+    ServiceType getApplicationType();
     
     /**
      * Checks whether the provided conditions satisfy the requirements given by the plugins implementing this class.
@@ -45,5 +45,5 @@ public interface ApplicationTypeDetector {
      * @return <tt>true</tt> if the provided conditions satisfy the requirements, <tt>false</tt> if otherwise
      * @see ConditionProvider
      */
-    public boolean detect(ConditionProvider provider);
+    boolean detect(ConditionProvider provider);
 }

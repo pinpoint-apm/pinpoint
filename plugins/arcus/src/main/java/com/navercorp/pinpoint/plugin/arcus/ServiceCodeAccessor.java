@@ -19,6 +19,6 @@ package com.navercorp.pinpoint.plugin.arcus;
  *
  */
 public interface ServiceCodeAccessor {
-    public void _$PINPOINT$_setServiceCode(String serviceCode);
-    public String _$PINPOINT$_getServiceCode();
+    void _$PINPOINT$_setServiceCode(String serviceCode);
+    String _$PINPOINT$_getServiceCode();
 }

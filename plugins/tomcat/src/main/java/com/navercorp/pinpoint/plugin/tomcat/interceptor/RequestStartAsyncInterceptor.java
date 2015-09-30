@@ -14,13 +14,13 @@
  */
 package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncTraceIdAccessor;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.tomcat.AsyncAccessor;
@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
  * @author jaehong.kim
  *
  */
-public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, TomcatConstants {
+public class RequestStartAsyncInterceptor implements AroundInterceptor {
 
     private PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private boolean isDebug = logger.isDebugEnabled();
@@ -58,7 +58,7 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         if (isDebug) {
             logger.afterInterceptor(target, "", descriptor.getMethodName(), "", args);
         }
@@ -83,7 +83,7 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
                 }
             }
 
-            recorder.recordServiceType(TOMCAT_METHOD);
+            recorder.recordServiceType(TomcatConstants.TOMCAT_METHOD);
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
         } catch (Throwable t) {
@@ -99,12 +99,12 @@ public class RequestStartAsyncInterceptor implements SimpleAroundInterceptor, To
         }
 
         if (!(target instanceof AsyncAccessor)) {
-            logger.debug("Invalid target object. Need field accessor({}).", METADATA_ASYNC);
+            logger.debug("Invalid target object. Need field accessor({}).", TomcatConstants.METADATA_ASYNC);
             return false;
         }
 
         if (!(result instanceof AsyncTraceIdAccessor)) {
-            logger.debug("Invalid target object. Need metadata accessor({}).", METADATA_ASYNC_TRACE_ID);
+            logger.debug("Invalid target object. Need metadata accessor({}).", TomcatConstants.METADATA_ASYNC_TRACE_ID);
             return false;
         }
 

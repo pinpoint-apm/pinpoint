@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.rpc.server;
 
 import java.util.Map;
 
+import com.navercorp.pinpoint.rpc.PinpointSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,13 +38,13 @@ public class SimpleLoggingServerMessageListener implements ServerMessageListener
     public static final SimpleLoggingServerMessageListener LISTENER = new SimpleLoggingServerMessageListener();
 
     @Override
-    public void handleSend(SendPacket sendPacket, PinpointServer pinpointServer) {
-        logger.info("handlerSend {} {}", sendPacket, pinpointServer);
+    public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
+        logger.info("handleSend packet:{}, remote:{}", sendPacket, pinpointSocket.getRemoteAddress());
     }
 
     @Override
-    public void handleRequest(RequestPacket requestPacket, PinpointServer pinpointServer) {
-        logger.info("handlerRequest {} {}", requestPacket, pinpointServer);
+    public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
+        logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
     }
 
     @Override

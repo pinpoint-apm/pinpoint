@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.bo.ServerMetaDataBo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * @author HyunGil Jeong
@@ -43,9 +44,10 @@ public class AgentInfo {
     private String hostName;
     private String ip;
     private String ports;
-    private String serviceType;
+    private ServiceType serviceType;
     private int pid;
-    private String version;
+    private String vmVersion;
+    private String agentVersion;
     private ServerMetaDataBo serverMetaData;
 
     @JsonInclude(Include.NON_DEFAULT)
@@ -64,9 +66,10 @@ public class AgentInfo {
         this.hostName = agentInfoBo.getHostName();
         this.ip = agentInfoBo.getIp();
         this.ports = agentInfoBo.getPorts();
-        this.serviceType = agentInfoBo.getServiceType().getName();
+        this.serviceType = agentInfoBo.getServiceType();
         this.pid = agentInfoBo.getPid();
-        this.version = agentInfoBo.getVersion();
+        this.vmVersion = agentInfoBo.getVmVersion();
+        this.agentVersion = agentInfoBo.getAgentVersion();
         this.serverMetaData = agentInfoBo.getServerMetaData();
     }
 
@@ -118,11 +121,11 @@ public class AgentInfo {
         this.ports = ports;
     }
 
-    public String getServiceType() {
+    public ServiceType getServiceType() {
         return serviceType;
     }
 
-    public void setServiceType(String serviceType) {
+    public void setServiceType(ServiceType serviceType) {
         this.serviceType = serviceType;
     }
 
@@ -133,13 +136,21 @@ public class AgentInfo {
     public void setPid(int pid) {
         this.pid = pid;
     }
-
-    public String getVersion() {
-        return version;
+    
+    public String getVmVersion() {
+        return vmVersion;
+    }
+    
+    public void setVmVersion(String vmVersion) {
+        this.vmVersion = vmVersion;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
+    public String getAgentVersion() {
+        return agentVersion;
+    }
+
+    public void setAgentVersion(String agentVersion) {
+        this.agentVersion = agentVersion;
     }
 
     public ServerMetaDataBo getServerMetaData() {
@@ -171,17 +182,7 @@ public class AgentInfo {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((agentId == null) ? 0 : agentId.hashCode());
-        result = prime * result + ((applicationName == null) ? 0 : applicationName.hashCode());
-        result = prime * result + ((hostName == null) ? 0 : hostName.hashCode());
-        result = prime * result + (int)(initialStartTimestamp ^ (initialStartTimestamp >>> 32));
-        result = prime * result + ((ip == null) ? 0 : ip.hashCode());
-        result = prime * result + pid;
-        result = prime * result + ((ports == null) ? 0 : ports.hashCode());
-        result = prime * result + ((serverMetaData == null) ? 0 : serverMetaData.hashCode());
         result = prime * result + ((serviceType == null) ? 0 : serviceType.hashCode());
-        result = prime * result + (int)(startTimestamp ^ (startTimestamp >>> 32));
-        result = prime * result + ((status == null) ? 0 : status.hashCode());
-        result = prime * result + ((version == null) ? 0 : version.hashCode());
         return result;
     }
 
@@ -199,60 +200,21 @@ public class AgentInfo {
                 return false;
         } else if (!agentId.equals(other.agentId))
             return false;
-        if (applicationName == null) {
-            if (other.applicationName != null)
-                return false;
-        } else if (!applicationName.equals(other.applicationName))
-            return false;
-        if (hostName == null) {
-            if (other.hostName != null)
-                return false;
-        } else if (!hostName.equals(other.hostName))
-            return false;
-        if (initialStartTimestamp != other.initialStartTimestamp)
-            return false;
-        if (ip == null) {
-            if (other.ip != null)
-                return false;
-        } else if (!ip.equals(other.ip))
-            return false;
-        if (pid != other.pid)
-            return false;
-        if (ports == null) {
-            if (other.ports != null)
-                return false;
-        } else if (!ports.equals(other.ports))
-            return false;
-        if (serverMetaData == null) {
-            if (other.serverMetaData != null)
-                return false;
-        } else if (!serverMetaData.equals(other.serverMetaData))
-            return false;
         if (serviceType == null) {
             if (other.serviceType != null)
                 return false;
         } else if (!serviceType.equals(other.serviceType))
-            return false;
-        if (startTimestamp != other.startTimestamp)
-            return false;
-        if (status == null) {
-            if (other.status != null)
-                return false;
-        } else if (!status.equals(other.status))
-            return false;
-        if (version == null) {
-            if (other.version != null)
-                return false;
-        } else if (!version.equals(other.version))
             return false;
         return true;
     }
 
     @Override
     public String toString() {
-        return "AgentInfo [applicationName=" + applicationName + ", agentId=" + agentId + ", startTimestamp=" + startTimestamp + ", hostName=" + hostName
-                + ", ip=" + ip + ", ports=" + ports + ", serviceType=" + serviceType + ", pid=" + pid + ", version=" + version + ", serverMetaData="
-                + serverMetaData + ", initialStartTimestamp=" + initialStartTimestamp + ", status=" + status + "]";
+        return "AgentInfo [applicationName=" + applicationName + ", agentId=" + agentId + ", startTimestamp="
+                + startTimestamp + ", hostName=" + hostName + ", ip=" + ip + ", ports=" + ports + ", serviceType="
+                + serviceType + ", pid=" + pid + ", vmVersion=" + vmVersion + ", agentVersion=" + agentVersion
+                + ", serverMetaData=" + serverMetaData + ", initialStartTimestamp=" + initialStartTimestamp
+                + ", status=" + status + "]";
     }
 
 }

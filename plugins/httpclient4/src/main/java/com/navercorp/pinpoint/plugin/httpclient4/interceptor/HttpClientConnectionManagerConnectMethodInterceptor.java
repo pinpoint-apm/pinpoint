@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
 import org.apache.http.conn.routing.HttpRoute;
 
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 /**
  * @author jaehong.kim
  */
-public class HttpClientConnectionManagerConnectMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin implements HttpClient4Constants {
+public class HttpClientConnectionManagerConnectMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public HttpClientConnectionManagerConnectMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);

@@ -21,14 +21,14 @@ import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.THRIFT_CLIENT_SCO
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.plugin.annotation.Name;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 import com.navercorp.pinpoint.plugin.thrift.ThriftRequestProperty;
 import com.navercorp.pinpoint.plugin.thrift.ThriftHeader;
@@ -46,7 +46,7 @@ import com.navercorp.pinpoint.plugin.thrift.ThriftHeader;
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.client.TServiceClientSendBaseInterceptor TServiceClientSendBaseInterceptor
  */
 @Group(value = THRIFT_CLIENT_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
-public class TProtocolWriteFieldStopInterceptor implements SimpleAroundInterceptor, ThriftConstants {
+public class TProtocolWriteFieldStopInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -73,7 +73,7 @@ public class TProtocolWriteFieldStopInterceptor implements SimpleAroundIntercept
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Object target, Object result, Throwable throwable, Object[] args) {
         // Do nothing
     }
 

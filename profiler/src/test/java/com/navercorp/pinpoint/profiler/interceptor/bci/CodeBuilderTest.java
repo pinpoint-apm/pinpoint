@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.interceptor.bci;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.profiler.interceptor.bci.CodeBuilder;
+import com.navercorp.pinpoint.profiler.instrument.interceptor.CodeBuilder;
 
 /**
  * @author emeroad

@@ -79,7 +79,7 @@ public class PinpointStarter {
             return;
         }
         
-        // 2st find boot-strap-core.jar
+        // 2nd find boot-strap-core.jar
         final String bootStrapCoreJar = classPathResolver.getBootStrapCoreJar();
         if (bootStrapCoreJar == null) {
             logger.severe("pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar not found");

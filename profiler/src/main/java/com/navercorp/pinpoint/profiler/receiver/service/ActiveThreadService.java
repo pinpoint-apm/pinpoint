@@ -19,99 +19,38 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.navercorp.pinpoint.common.trace.HistogramSchema;
-import com.navercorp.pinpoint.common.trace.HistogramSlot;
-import com.navercorp.pinpoint.common.trace.SlotType;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceInfo;
+import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
-import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
-import com.navercorp.pinpoint.rpc.util.ClassUtils;
-import com.navercorp.pinpoint.thrift.dto.TResult;
-import com.navercorp.pinpoint.thrift.dto.command.TActiveThread;
-import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadResponse;
-import org.apache.thrift.TBase;
+import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandService;
+import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceGroup;
+import com.navercorp.pinpoint.thrift.dto.command.TMonitorInfo;
+import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
+import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
 
-import java.util.*;
+import java.lang.management.LockInfo;
+import java.lang.management.MonitorInfo;
+import java.lang.management.ThreadInfo;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * @author Taejin Koo
+ * @Author Taejin Koo
  */
-public class ActiveThreadService implements ProfilerRequestCommandService {
+public class ActiveThreadService implements ProfilerCommandServiceGroup {
 
-    private static final List<SlotType> ACTIVE_THREAD_SLOTS_ORDER = new ArrayList<SlotType>();
-    static {
-        ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.FAST);
-        ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.NORMAL);
-        ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.SLOW);
-        ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.VERY_SLOW);
-        ACTIVE_THREAD_SLOTS_ORDER.add(SlotType.ERROR);
-    }
-
-    private final ActiveTraceLocator activeTraceLocator;
-    private final int activeThreadSlotsCount;
-    private final HistogramSchema histogramSchema = HistogramSchema.NORMAL_SCHEMA;
+    private final List<ProfilerCommandService> serviceList;
 
     public ActiveThreadService(ActiveTraceLocator activeTraceLocator) {
-        if (activeTraceLocator == null) {
-            throw new NullPointerException("activeTraceLocator");
-        }
-        this.activeTraceLocator = activeTraceLocator;
-        this.activeThreadSlotsCount = ACTIVE_THREAD_SLOTS_ORDER.size();
+        serviceList = new ArrayList<ProfilerCommandService>();
+        serviceList.add(new ActiveThreadCountService(activeTraceLocator));
+        serviceList.add(new ActiveThreadDumpService(activeTraceLocator));
+
+        // will be added ActiveThreadTraceService
     }
 
     @Override
-    public TBase<?, ?> requestCommandService(TBase tBase) {
-        if (tBase == null || !(tBase instanceof TActiveThread)) {
-            TResult fail = new TResult();
-            fail.setSuccess(false);
-            fail.setMessage("Expected object type error. expected:" + getCommandClazz() + ", but was:" + ClassUtils.simpleClassName(tBase));
-            return fail;
-        }
-
-        Map<SlotType, IntAdder> mappedSlot = new LinkedHashMap<SlotType, IntAdder>(activeThreadSlotsCount);
-        for (SlotType slotType : ACTIVE_THREAD_SLOTS_ORDER) {
-            mappedSlot.put(slotType, new IntAdder(0));
-        }
-
-        long currentTime = System.currentTimeMillis();
-
-        List<ActiveTraceInfo> activeTraceInfoCollect = activeTraceLocator.collect();
-        for (ActiveTraceInfo activeTraceInfo : activeTraceInfoCollect) {
-            HistogramSlot slot = histogramSchema.findHistogramSlot((int) (System.currentTimeMillis() - activeTraceInfo.getStartTime()));
-            mappedSlot.get(slot.getSlotType()).incrementAndGet();
-        }
-
-        List<Integer> activeThreadCount = new ArrayList<Integer>(activeThreadSlotsCount);
-        for (IntAdder statusCount : mappedSlot.values()) {
-            activeThreadCount.add(statusCount.get());
-        }
-
-        TActiveThreadResponse response = new TActiveThreadResponse();
-        response.setHistogramSchemaType(histogramSchema.getTypeCode());
-        response.setActiveThreadCount(activeThreadCount);
-
-        return response;
-    }
-
-    @Override
-    public Class<? extends TBase> getCommandClazz() {
-        return TActiveThread.class;
-    }
-
-    private static class IntAdder {
-        private int value = 0;
-
-        public IntAdder(int defaultValue) {
-            this.value = defaultValue;
-        }
-
-        public int incrementAndGet() {
-            return ++value;
-        }
-
-        public int get() {
-            return this.value;
-        }
+    public List<ProfilerCommandService> getCommandServiceList() {
+        return serviceList;
     }
 
 }

@@ -45,6 +45,7 @@ public class UserGroupController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
     public static final String USER_GROUP_ID = "userGroupId";
+    public static final String USER_ID = "userId";
 
     @Autowired
     UserGroupService userGroupService;
@@ -86,7 +87,11 @@ public class UserGroupController {
     
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public List<UserGroup> getUserGroup() {
+    public List<UserGroup> getUserGroup(@RequestParam(value=USER_ID, required=false) String userId) {
+        
+        if(userId != null) {
+            return userGroupService.selectUserGroupByUserId(userId);
+        }
         return userGroupService.selectUserGroup();
     }
     
