@@ -144,12 +144,16 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     public void bind(String host, int port) throws PinpointSocketException {
+        InetSocketAddress bindAddress = new InetSocketAddress(host, port);
+        bind(bindAddress);
+    }
+
+    public void bind(InetSocketAddress bindAddress) throws PinpointSocketException {
         if (released) {
             return;
         }
 
-        InetSocketAddress address = new InetSocketAddress(host, port);
-        this.serverChannel = bootstrap.bind(address);
+        this.serverChannel = bootstrap.bind(bindAddress);
         sendPing();
     }
 

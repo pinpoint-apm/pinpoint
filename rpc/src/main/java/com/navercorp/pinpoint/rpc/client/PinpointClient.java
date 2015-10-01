@@ -177,6 +177,7 @@ public class PinpointClient implements PinpointSocket {
         pinpointClientHandler.sendPing();
     }
 
+    @Override
     public void close() {
         synchronized (this) {
             if (closed) {

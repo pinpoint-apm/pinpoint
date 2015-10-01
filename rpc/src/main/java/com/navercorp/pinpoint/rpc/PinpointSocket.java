@@ -34,4 +34,6 @@ public interface PinpointSocket {
 
     SocketAddress getRemoteAddress();
 
+    void close();
+
 }
