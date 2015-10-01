@@ -14,8 +14,6 @@
  */
 package com.navercorp.pinpoint.plugin.spring.web;
 
-import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
-
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
@@ -32,7 +30,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  *
  */
 public class SpringWebMvcPlugin implements ProfilerPlugin {
-    public static final ServiceType SPRING_MVC = ServiceType.of(5051, "SPRING_MVC", "SPRING", NORMAL_SCHEMA);
+    public static final ServiceType SPRING_MVC = ServiceType.of(5051, "SPRING_MVC", "SPRING");
     
     @Override
     public void setup(ProfilerPluginSetupContext context) {

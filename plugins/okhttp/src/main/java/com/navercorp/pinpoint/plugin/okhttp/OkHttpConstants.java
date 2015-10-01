@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.plugin.okhttp;
 
-import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -30,8 +29,8 @@ public final class OkHttpConstants {
     private OkHttpConstants() {
     }
 
-    public static final ServiceType OK_HTTP_CLIENT = ServiceType.of(9058, "OK_HTTP_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
-    public static final ServiceType OK_HTTP_CLIENT_INTERNAL = ServiceType.of(9059, "OK_HTTP_CLIENT_INTERNAL", "OK_HTTP_CLIENT", NORMAL_SCHEMA);
+    public static final ServiceType OK_HTTP_CLIENT = ServiceType.of(9058, "OK_HTTP_CLIENT", RECORD_STATISTICS);
+    public static final ServiceType OK_HTTP_CLIENT_INTERNAL = ServiceType.of(9059, "OK_HTTP_CLIENT_INTERNAL", "OK_HTTP_CLIENT");
 
     public static final String BASIC_METHOD_INTERCEPTOR = "com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor";
     public static final String METADATA_ASYNC_TRACE_ID = "com.navercorp.pinpoint.bootstrap.interceptor.AsyncTraceIdAccessor";

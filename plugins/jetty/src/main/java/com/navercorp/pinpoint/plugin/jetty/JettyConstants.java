@@ -14,7 +14,6 @@
  */
 package com.navercorp.pinpoint.plugin.jetty;
 
-import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -25,8 +24,8 @@ public final class JettyConstants {
 
     public static final String TYPE_NAME = "JETTY";
 
-    public static final ServiceType JETTY = ServiceType.of(1030, "JETTY", NORMAL_SCHEMA, RECORD_STATISTICS);
-    public static final ServiceType JETTY_METHOD = ServiceType.of(1031, "JETTY_METHOD", NORMAL_SCHEMA);
+    public static final ServiceType JETTY = ServiceType.of(1030, "JETTY", RECORD_STATISTICS);
+    public static final ServiceType JETTY_METHOD = ServiceType.of(1031, "JETTY_METHOD");
 
     public static final String METADATA_TRACE = "trace";
     public static final String METADATA_ASYNC = "async";
