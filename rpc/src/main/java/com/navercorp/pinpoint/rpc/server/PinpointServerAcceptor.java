@@ -153,6 +153,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
             return;
         }
 
+        logger.info("bind() {}", bindAddress);
         this.serverChannel = bootstrap.bind(bindAddress);
         sendPing();
     }
