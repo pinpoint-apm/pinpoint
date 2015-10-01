@@ -42,7 +42,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
@@ -118,6 +117,15 @@ public class ExecuteInterceptor implements TraceContextSupport, ByteCodeMethodDe
             httpMethod.setRequestHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
             httpMethod.setRequestHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
             httpMethod.setRequestHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
+            try {
+                URI uri = httpMethod.getURI();
+                final String hostString = getEndpoint(uri.getHost(), uri.getPort());
+                if(hostString != null) {
+                    httpMethod.setRequestHeader(Header.HTTP_HOST.toString(), hostString);
+                }
+            } catch (URIException e) {
+                logger.error("Failed to get URI", e);
+            }
         }
     }
 

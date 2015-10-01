@@ -188,8 +188,12 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     private void recordParentInfo(RecordableTrace trace, HttpServletRequest request) {
         String parentApplicationName = request.getHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString());
         if (parentApplicationName != null) {
-            trace.recordAcceptorHost(NetworkUtils.getHostFromURL(request.getRequestURL().toString()));
-
+            final String host = request.getHeader(Header.HTTP_HOST.toString());
+            if (host != null) {
+                trace.recordAcceptorHost(host);
+            } else {
+                trace.recordAcceptorHost(NetworkUtils.getHostFromURL(request.getRequestURL().toString()));
+            }
             final String type = request.getHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString());
             final short parentApplicationType = NumberUtils.parseShort(type, ServiceType.UNDEFINED.getCode());
             trace.recordParentApplication(parentApplicationName, parentApplicationType);
