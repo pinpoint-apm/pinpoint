@@ -32,20 +32,11 @@ import java.util.Map;
  */
 public interface PinpointServer extends PinpointSocket {
 
-    void send(byte[] payload);
-
-    Future<ResponseMessage> request(byte[] payload);
-    
-    void response(RequestPacket requestPacket, byte[] payload);
-    void response(int requestId, byte[] payload);
-
     ClientStreamChannelContext createStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener);
 
     void messageReceived(Object message);
 
     SocketStateCode getCurrentStateCode();
-
-    SocketAddress getRemoteAddress();
 
     Map<Object, Object> getChannelProperties();
     

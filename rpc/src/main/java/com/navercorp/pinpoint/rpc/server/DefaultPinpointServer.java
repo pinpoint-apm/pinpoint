@@ -455,7 +455,12 @@ public class DefaultPinpointServer implements PinpointServer {
     public SocketStateCode getCurrentStateCode() {
         return state.getCurrentStateCode();
     }
-    
+
+    @Override
+    public void close() {
+        stop();
+    }
+
     @Override
     public String toString() {
         StringBuilder log = new StringBuilder(32);
