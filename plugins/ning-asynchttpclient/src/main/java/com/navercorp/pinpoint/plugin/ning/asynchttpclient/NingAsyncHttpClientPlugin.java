@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.plugin.ning.asynchttpclient;
 
-import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 import java.security.ProtectionDomain;
@@ -36,8 +35,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  *
  */
 public class NingAsyncHttpClientPlugin implements ProfilerPlugin {
-    public static final ServiceType ASYNC_HTTP_CLIENT = ServiceType.of(9056, "ASYNC_HTTP_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
-    public static final ServiceType ASYNC_HTTP_CLIENT_INTERNAL = ServiceType.of(9057, "ASYNC_HTTP_CLIENT_INTERNAL", "ASYNC_HTTP_CLIENT", NORMAL_SCHEMA);
+    public static final ServiceType ASYNC_HTTP_CLIENT = ServiceType.of(9056, "ASYNC_HTTP_CLIENT", RECORD_STATISTICS);
+    public static final ServiceType ASYNC_HTTP_CLIENT_INTERNAL = ServiceType.of(9057, "ASYNC_HTTP_CLIENT_INTERNAL", "ASYNC_HTTP_CLIENT");
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {

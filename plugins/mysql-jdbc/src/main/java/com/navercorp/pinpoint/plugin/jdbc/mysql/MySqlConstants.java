@@ -14,7 +14,6 @@
  */
 package com.navercorp.pinpoint.plugin.jdbc.mysql;
 
-import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -29,6 +28,6 @@ public final class MySqlConstants {
 
     public static final String GROUP_NAME = "MYSQL_JDBC";
     
-    public static final ServiceType MYSQL = ServiceType.of(2100, "MYSQL", NORMAL_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
-    public static final ServiceType MYSQL_EXECUTE_QUERY = ServiceType.of(2101, "MYSQL_EXECUTE_QUERY", "MYSQL", NORMAL_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
+    public static final ServiceType MYSQL = ServiceType.of(2100, "MYSQL", TERMINAL, INCLUDE_DESTINATION_ID);
+    public static final ServiceType MYSQL_EXECUTE_QUERY = ServiceType.of(2101, "MYSQL_EXECUTE_QUERY", "MYSQL", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
 }

@@ -41,7 +41,8 @@ public class StaticFieldLookUpTest {
         StaticFieldLookUp<ServiceType> staticFieldLookUp = new StaticFieldLookUp<ServiceType>(ServiceType.class, ServiceType.class);
         List<ServiceType> lookup = staticFieldLookUp.lookup();
 
-        ServiceType notExist = new ServiceType(Short.MIN_VALUE, "test", "test", HistogramSchema.NORMAL_SCHEMA);
+        final int SERVER_CATEGORY_MAX = 1999;
+        ServiceType notExist = ServiceType.of(SERVER_CATEGORY_MAX, "test", "test");
         Assert.assertFalse(findType(lookup, notExist));
     }
 

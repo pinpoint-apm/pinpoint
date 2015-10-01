@@ -14,7 +14,6 @@
  */
 package com.navercorp.pinpoint.plugin.jdbc.cubrid;
 
-import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -29,6 +28,6 @@ public final class CubridConstants {
 
     public static final String GROUP_CUBRID = "GROUP_CUBRID";
     
-    public static final ServiceType CUBRID = ServiceType.of(2400, "CUBRID", NORMAL_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
-    public static final ServiceType CUBRID_EXECUTE_QUERY = ServiceType.of(2401, "CUBRID_EXECUTE_QUERY", "CUBRID", NORMAL_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
+    public static final ServiceType CUBRID = ServiceType.of(2400, "CUBRID", TERMINAL, INCLUDE_DESTINATION_ID);
+    public static final ServiceType CUBRID_EXECUTE_QUERY = ServiceType.of(2401, "CUBRID_EXECUTE_QUERY", "CUBRID", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
 }

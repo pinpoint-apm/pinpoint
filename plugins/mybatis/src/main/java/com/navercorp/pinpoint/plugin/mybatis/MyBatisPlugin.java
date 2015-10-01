@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.mybatis;
 
-import static com.navercorp.pinpoint.common.trace.HistogramSchema.NORMAL_SCHEMA;
-
 import java.security.ProtectionDomain;
 import java.util.List;
 
@@ -40,7 +38,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  */
 public class MyBatisPlugin implements ProfilerPlugin {
 
-    public static final ServiceType MYBATIS = ServiceType.of(5510, "MYBATIS", NORMAL_SCHEMA);
+    public static final ServiceType MYBATIS = ServiceType.of(5510, "MYBATIS");
 
     private static final String MYBATIS_SCOPE = "MYBATIS_SCOPE";
 

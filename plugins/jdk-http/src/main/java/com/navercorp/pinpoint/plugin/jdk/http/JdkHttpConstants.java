@@ -14,8 +14,6 @@
  */
 package com.navercorp.pinpoint.plugin.jdk.http;
 
-import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
-
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
@@ -26,5 +24,5 @@ public final class JdkHttpConstants {
     private JdkHttpConstants() {
     }
 
-    public static final ServiceType SERVICE_TYPE = ServiceType.of(9055, "JDK_HTTPURLCONNECTOR", "JDK_HTTPCONNECTOR", NORMAL_SCHEMA);
+    public static final ServiceType SERVICE_TYPE = ServiceType.of(9055, "JDK_HTTPURLCONNECTOR", "JDK_HTTPCONNECTOR");
 }

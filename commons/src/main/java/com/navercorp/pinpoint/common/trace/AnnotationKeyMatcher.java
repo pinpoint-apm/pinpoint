@@ -20,5 +20,5 @@ package com.navercorp.pinpoint.common.trace;
  */
 public interface AnnotationKeyMatcher {
 
-    public boolean matches(int code);
+    boolean matches(int code);
 }
