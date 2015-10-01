@@ -39,6 +39,7 @@ import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.AnnotationKey;
 import com.navercorp.pinpoint.common.ServiceType;
+
 import org.apache.http.*;
 import org.apache.http.protocol.HTTP;
 
@@ -229,6 +230,11 @@ public abstract class AbstractHttpRequestExecuteWithDivergence implements TraceC
             httpRequest.setHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
             httpRequest.setHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
             httpRequest.setHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
+            final NameIntValuePair<String> host = getHost(args);
+            if (host != null) {
+                final String hostString = getEndpoint(host.getName(), host.getValue());
+                httpRequest.setHeader(Header.HTTP_HOST.toString(), hostString);
+            }
         }
     }
 

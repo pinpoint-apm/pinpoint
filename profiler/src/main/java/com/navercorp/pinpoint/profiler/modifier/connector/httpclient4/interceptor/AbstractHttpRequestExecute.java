@@ -116,6 +116,11 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
             httpRequest.setHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
             httpRequest.setHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
             httpRequest.setHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
+            final NameIntValuePair<String> host = getHost(args);
+            if (host != null) {
+                final String hostString = getEndpoint(host.getName(), host.getValue());
+                httpRequest.setHeader(Header.HTTP_HOST.toString(), hostString);
+            }
         }
     }
 
