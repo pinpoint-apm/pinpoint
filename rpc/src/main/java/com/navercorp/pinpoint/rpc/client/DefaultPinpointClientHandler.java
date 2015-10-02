@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.rpc.*;
 import com.navercorp.pinpoint.rpc.client.ConnectFuture.Result;
+import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.common.SocketStateChangeResult;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.packet.*;
@@ -88,6 +89,9 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     private final ConnectFuture connectFuture = new ConnectFuture();
     
     private final String objectUniqName;
+
+    private final ClusterOption localClusterOption;
+    private ClusterOption remoteClusterOption = ClusterOption.DISABLE_CLUSTER_OPTION;
     
     public DefaultPinpointClientHandler(PinpointClientFactory clientFactory) {
         this(clientFactory, DEFAULT_PING_DELAY, DEFAULT_ENABLE_WORKER_PACKET_DELAY, DEFAULT_TIMEOUTMILLIS);
@@ -116,6 +120,8 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         this.socketId = clientFactory.issueNewSocketId();
         this.pingIdGenerator = new AtomicInteger(0);
         this.state = new PinpointClientHandlerState(this, clientFactory.getStateChangeEventListeners());
+
+        this.localClusterOption = clientFactory.getClusterOption();
     }
 
     public void setPinpointClient(PinpointClient pinpointClient) {
@@ -167,7 +173,11 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         Map<String, Object> handshakeData = new HashMap<String, Object>();
         handshakeData.putAll(clientFactory.getProperties());
         handshakeData.put("socketId", socketId);
-        
+
+        if (localClusterOption.isEnable()) {
+            handshakeData.put("cluster", localClusterOption.getProperties());
+        }
+
         handshaker.handshakeStart(channel, handshakeData);
         
         connectFuture.setResult(Result.SUCCESS);
@@ -419,6 +429,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
             if (code == HandshakeResponseCode.SUCCESS || code == HandshakeResponseCode.ALREADY_KNOWN) {
                 state.toRunSimplex();
             } else if (code == HandshakeResponseCode.DUPLEX_COMMUNICATION || code == HandshakeResponseCode.ALREADY_DUPLEX_COMMUNICATION) {
+                remoteClusterOption = handshaker.getClusterOption();
                 state.toRunDuplex();
             } else if (code == HandshakeResponseCode.SIMPLEX_COMMUNICATION || code == HandshakeResponseCode.ALREADY_SIMPLEX_COMMUNICATION) {
                 state.toRunSimplex();

@@ -16,11 +16,17 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
+import com.navercorp.pinpoint.rpc.cluster.Role;
+import com.navercorp.pinpoint.rpc.util.*;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
@@ -34,10 +40,6 @@ import com.navercorp.pinpoint.rpc.control.ProtocolException;
 import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
 import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.navercorp.pinpoint.rpc.util.AssertUtils;
-import com.navercorp.pinpoint.rpc.util.ClassUtils;
-import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
-import com.navercorp.pinpoint.rpc.util.MapUtils;
 
 public class PinpointClientHandshaker {
 
@@ -59,6 +61,7 @@ public class PinpointClientHandshaker {
     
     private final Object lock = new Object();
     private final AtomicReference<HandshakeResponseCode> handshakeResult = new AtomicReference<HandshakeResponseCode>(null);
+    private final AtomicReference<ClusterOption> clusterOption = new AtomicReference<ClusterOption>(null);
     
     private String simpleName;
     
@@ -153,36 +156,83 @@ public class PinpointClientHandshaker {
                 this.state.set(STATE_FINISHED);
                 return false;
             }
-            
-            HandshakeResponseCode code = getHandshakeResponseCode(message);
+
+            Map handshakeResponse = decode(message);
+
+            HandshakeResponseCode code = getResponseCode(handshakeResponse);
             handshakeResult.compareAndSet(null, code);
+
+            ClusterOption clusterOption = getClusterOption(handshakeResponse);
+            this.clusterOption.compareAndSet(null, clusterOption);
+
             logger.info("{} handshakeComplete method completed. handshakeResult:{} / {}", simpleClassNameAndHashCodeString(), code, handshakeResult.get());
             return true;
         }
     }
 
-    private HandshakeResponseCode getHandshakeResponseCode(ControlHandshakeResponsePacket message) {
+    private Map decode(ControlHandshakeResponsePacket message) {
         byte[] payload = message.getPayload();
         if (payload == null) {
-            return HandshakeResponseCode.PROTOCOL_ERROR;
+            return Collections.EMPTY_MAP;
         }
-        
+
         try {
             Map result = (Map) ControlMessageEncodingUtils.decode(payload);
-
-            int code = MapUtils.getInteger(result, ControlHandshakeResponsePacket.CODE, -1);
-            int subCode = MapUtils.getInteger(result, ControlHandshakeResponsePacket.SUB_CODE, -1);
-            
-            return HandshakeResponseCode.getValue(code, subCode);
+            return result;
         } catch (ProtocolException e) {
-            logger.warn(e.getMessage(), e);
+
         }
-        
-        return HandshakeResponseCode.UNKNOWN_CODE;
+
+        return Collections.EMPTY_MAP;
     }
-    
+
+    private HandshakeResponseCode getResponseCode(Map handshakeResponse) {
+        if (handshakeResponse == Collections.EMPTY_MAP) {
+            return HandshakeResponseCode.PROTOCOL_ERROR;
+        }
+
+        int code = MapUtils.getInteger(handshakeResponse, ControlHandshakeResponsePacket.CODE, -1);
+        int subCode = MapUtils.getInteger(handshakeResponse, ControlHandshakeResponsePacket.SUB_CODE, -1);
+
+        return HandshakeResponseCode.getValue(code, subCode);
+    }
+
+    private ClusterOption getClusterOption(Map handshakeResponse) {
+        if (handshakeResponse == Collections.EMPTY_MAP) {
+            return ClusterOption.DISABLE_CLUSTER_OPTION;
+        }
+
+        Map cluster = (Map) handshakeResponse.get(ControlHandshakeResponsePacket.CLUSTER);
+        if (cluster == null) {
+            return ClusterOption.DISABLE_CLUSTER_OPTION;
+        }
+
+        String id = MapUtils.getString(cluster, "id", "");
+        List<Role> roles = getRoles((List) cluster.get("roles"));
+
+        if (StringUtils.isEmpty(id)) {
+            return ClusterOption.DISABLE_CLUSTER_OPTION;
+        } else {
+            return new ClusterOption(true, id, roles);
+        }
+    }
+
+    private List<Role> getRoles(List roleNames) {
+        List<Role> roles = new ArrayList<Role>();
+        for (Object roleName : roleNames) {
+            if (roleName instanceof String && !StringUtils.isEmpty((String) roleName)) {
+                roles.add(Role.getValue((String) roleName));
+            }
+        }
+        return roles;
+    }
+
     public HandshakeResponseCode getHandshakeResult() {
         return handshakeResult.get();
+    }
+
+    public ClusterOption getClusterOption() {
+        return clusterOption.get();
     }
 
     public void handshakeAbort() {

@@ -142,6 +142,7 @@ public enum SocketStateCode {
             case UNEXPECTED_CLOSE_BY_SERVER:
             case ERROR_UNKNOWN:
             case ERROR_ILLEGAL_STATE_CHANGE:
+            case ERROR_SYNC_STATE_SESSION:
                 return true;
             default:
                 return false;

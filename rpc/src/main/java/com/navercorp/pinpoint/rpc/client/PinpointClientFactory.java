@@ -27,6 +27,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.StateChangeEventListener;
+import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
+import com.navercorp.pinpoint.rpc.cluster.Role;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -81,7 +83,9 @@ public class PinpointClientFactory {
     private long pingDelay = DEFAULT_PING_DELAY;
     private long enableWorkerPacketDelay = DEFAULT_ENABLE_WORKER_PACKET_DELAY;
     private long timeoutMillis = DEFAULT_TIMEOUTMILLIS;
-    
+
+    private ClusterOption clusterOption = ClusterOption.DISABLE_CLUSTER_OPTION;
+
     private MessageListener messageListener = SimpleLoggingMessageListener.LISTENER;
     private List<StateChangeEventListener> stateChangeEventListeners = new ArrayList<StateChangeEventListener>();
     private ServerStreamChannelMessageListener serverStreamChannelMessageListener = DisabledServerStreamChannelMessageListener.INSTANCE;
@@ -405,6 +409,18 @@ public class PinpointClientFactory {
         AssertUtils.assertNotNull(properties, "agentProperties must not be null");
 
         this.properties = Collections.unmodifiableMap(agentProperties);
+    }
+
+    public ClusterOption getClusterOption() {
+        return clusterOption;
+    }
+
+    public void setClusterOption(String id, List<Role> roles) {
+        this.clusterOption = new ClusterOption(true, id, roles);
+    }
+
+    public void setClusterOption(ClusterOption clusterOption) {
+        this.clusterOption = clusterOption;
     }
 
     public MessageListener getMessageListener() {

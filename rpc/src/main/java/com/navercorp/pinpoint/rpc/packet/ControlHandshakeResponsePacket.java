@@ -26,6 +26,8 @@ public class ControlHandshakeResponsePacket extends ControlPacket {
 
     public static final String CODE = "code";
     public static final String SUB_CODE = "subCode";
+
+    public static final String CLUSTER = "cluster";
     
     public ControlHandshakeResponsePacket(byte[] payload) {
         super(payload);
