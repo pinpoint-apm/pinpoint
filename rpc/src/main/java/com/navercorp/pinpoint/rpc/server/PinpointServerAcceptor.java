@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -88,6 +89,8 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     private final Timer healthCheckTimer;
     private final Timer requestManagerTimer;
 
+    private final ClusterOption clusterOption;
+
     private long defaultRequestTimeout = DEFAULT_TIMEOUTMILLIS;
 
     static {
@@ -95,6 +98,10 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     public PinpointServerAcceptor() {
+        this(ClusterOption.DISABLE_CLUSTER_OPTION);
+    }
+
+    public PinpointServerAcceptor(ClusterOption clusterOption) {
         ServerBootstrap bootstrap = createBootStrap(1, WORKER_COUNT);
         setOptions(bootstrap);
         addPipeline(bootstrap);
@@ -102,6 +109,8 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
         this.healthCheckTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-HealthCheckTimer", 50, TimeUnit.MILLISECONDS, 512);
         this.requestManagerTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-RequestManager", 50, TimeUnit.MILLISECONDS, 512);
+
+        this.clusterOption = clusterOption;
     }
 
     private ServerBootstrap createBootStrap(int bossCount, int workerCount) {
@@ -236,6 +245,11 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     @Override
     public Timer getRequestManagerTimer() {
         return requestManagerTimer;
+    }
+
+    @Override
+    public ClusterOption getClusterOption() {
+        return clusterOption;
     }
 
     private void sendPing() {
