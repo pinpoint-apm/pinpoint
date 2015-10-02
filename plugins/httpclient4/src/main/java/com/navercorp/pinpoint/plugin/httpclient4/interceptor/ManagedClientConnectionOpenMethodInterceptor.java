@@ -41,12 +41,12 @@ public class ManagedClientConnectionOpenMethodInterceptor extends SpanEventSimpl
             final StringBuilder sb = new StringBuilder();
             if(route.getProxyHost() != null) {
                 sb.append(route.getProxyHost().getHostName());
-                if(route.getProxyHost().getPort() != -1) {
+                if(route.getProxyHost().getPort() > 0) {
                     sb.append(":").append(route.getProxyHost().getPort());
                 }
             } else {
                 sb.append(route.getTargetHost().getHostName());
-                if(route.getTargetHost().getPort() != -1) {
+                if(route.getTargetHost().getPort() > 0) {
                     sb.append(":").append(route.getTargetHost().getPort());
                 }
             }
