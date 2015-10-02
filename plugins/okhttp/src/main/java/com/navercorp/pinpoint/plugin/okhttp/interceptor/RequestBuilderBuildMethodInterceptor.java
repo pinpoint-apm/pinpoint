@@ -87,13 +87,29 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
             if (target instanceof HttpUrlGetter) {
                 final HttpUrl url = ((HttpUrlGetter) target)._$PINPOINT$_getHttpUrl();
                 if (url != null) {
-                    builder.header(Header.HTTP_HOST.toString(), url.host());
+                    final String endpoint = getEndpoint(url.host(), url.port());
+                    builder.header(Header.HTTP_HOST.toString(), endpoint);
                 }
             }
         } catch (Throwable t) {
             logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
         }
     }
+
+    private String getEndpoint(String host, int port) {
+        if (host == null) {
+            return "UnknownHttpClient";
+        }
+        if (port < 0) {
+            return host;
+        }
+        final StringBuilder sb = new StringBuilder(host.length() + 8);
+        sb.append(host);
+        sb.append(':');
+        sb.append(port);
+        return sb.toString();
+    }
+
 
     @Override
     public void after(Object target, Object result, Throwable throwable, Object[] args) {

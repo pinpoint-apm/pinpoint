@@ -148,7 +148,8 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
             Request request = ((UserRequestGetter) target)._$PINPOINT$_getUserRequest();
             if (request != null) {
                 recorder.recordAttribute(AnnotationKey.HTTP_URL, request.httpUrl().toString());
-                recorder.recordDestinationId(request.httpUrl().host() + ":" + request.httpUrl().port());
+                final String endpoint = getEndpoint(request.httpUrl().host(), request.httpUrl().port());
+                recorder.recordDestinationId(endpoint);
                 recordRequest(trace, request, throwable);
             }
 
@@ -162,6 +163,19 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
         }
     }
 
+    private String getEndpoint(String host, int port) {
+        if (host == null) {
+            return "UnknownHttpClient";
+        }
+        if (port < 0) {
+            return host;
+        }
+        final StringBuilder sb = new StringBuilder(host.length() + 8);
+        sb.append(host);
+        sb.append(':');
+        sb.append(port);
+        return sb.toString();
+    }
 
     private void recordRequest(Trace trace, Request request, Throwable throwable) {
         final boolean isException = InterceptorUtils.isThrowable(throwable);
