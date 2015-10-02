@@ -40,11 +40,15 @@ public class ManagedClientConnectionOpenMethodInterceptor extends SpanEventSimpl
             final HttpRoute route = (HttpRoute) args[0];
             final StringBuilder sb = new StringBuilder();
             if(route.getProxyHost() != null) {
-                sb.append(route.getProxyHost().getHostName()).append(":");
-                sb.append(route.getProxyHost().getPort());
+                sb.append(route.getProxyHost().getHostName());
+                if(route.getProxyHost().getPort() != -1) {
+                    sb.append(":").append(route.getProxyHost().getPort());
+                }
             } else {
-                sb.append(route.getTargetHost().getHostName()).append(":");
-                sb.append(route.getTargetHost().getPort());
+                sb.append(route.getTargetHost().getHostName());
+                if(route.getTargetHost().getPort() != -1) {
+                    sb.append(":").append(route.getTargetHost().getPort());
+                }
             }
             recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, sb.toString());
         }
