@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
@@ -148,7 +147,7 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
             Request request = ((UserRequestGetter) target)._$PINPOINT$_getUserRequest();
             if (request != null) {
                 recorder.recordAttribute(AnnotationKey.HTTP_URL, request.httpUrl().toString());
-                final String endpoint = getEndpoint(request.httpUrl().host(), request.httpUrl().port());
+                final String endpoint = getDestinationId(request.httpUrl());
                 recorder.recordDestinationId(endpoint);
                 recordRequest(trace, request, throwable);
             }
@@ -163,17 +162,17 @@ public class HttpEngineSendRequestMethodInterceptor implements AroundInterceptor
         }
     }
 
-    private String getEndpoint(String host, int port) {
-        if (host == null) {
+    private String getDestinationId(HttpUrl httpUrl) {
+        if (httpUrl == null || httpUrl.host() == null) {
             return "UnknownHttpClient";
         }
-        if (port < 0) {
-            return host;
+        if (httpUrl.port() == HttpUrl.defaultPort(httpUrl.scheme())) {
+            return httpUrl.host();
         }
-        final StringBuilder sb = new StringBuilder(host.length() + 8);
-        sb.append(host);
+        final StringBuilder sb = new StringBuilder();
+        sb.append(httpUrl.host());
         sb.append(':');
-        sb.append(port);
+        sb.append(httpUrl.port());
         return sb.toString();
     }
 

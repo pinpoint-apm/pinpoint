@@ -87,7 +87,8 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
             if (target instanceof HttpUrlGetter) {
                 final HttpUrl url = ((HttpUrlGetter) target)._$PINPOINT$_getHttpUrl();
                 if (url != null) {
-                    final String endpoint = getEndpoint(url.host(), url.port());
+                    final String endpoint = getDestinationId(url);
+                    logger.debug("Set HTTP_HOST {}", endpoint);
                     builder.header(Header.HTTP_HOST.toString(), endpoint);
                 }
             }
@@ -96,20 +97,19 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
         }
     }
 
-    private String getEndpoint(String host, int port) {
-        if (host == null) {
+    private String getDestinationId(HttpUrl httpUrl) {
+        if (httpUrl == null || httpUrl.host() == null) {
             return "UnknownHttpClient";
         }
-        if (port < 0) {
-            return host;
+        if (httpUrl.port() == HttpUrl.defaultPort(httpUrl.scheme())) {
+            return httpUrl.host();
         }
-        final StringBuilder sb = new StringBuilder(host.length() + 8);
-        sb.append(host);
+        final StringBuilder sb = new StringBuilder();
+        sb.append(httpUrl.host());
         sb.append(':');
-        sb.append(port);
+        sb.append(httpUrl.port());
         return sb.toString();
     }
-
 
     @Override
     public void after(Object target, Object result, Throwable throwable, Object[] args) {
