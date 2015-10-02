@@ -622,6 +622,16 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         return messageListener != SimpleLoggingMessageListener.LISTENER;
     }
 
+    @Override
+    public ClusterOption getLocalClusterOption() {
+        return localClusterOption;
+    }
+
+    @Override
+    public ClusterOption getRemoteClusterOption() {
+        return remoteClusterOption;
+    }
+
     protected PinpointClient getPinpointClient() {
         return pinpointClient;
     }

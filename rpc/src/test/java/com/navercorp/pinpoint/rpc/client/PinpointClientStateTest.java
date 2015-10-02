@@ -16,22 +16,21 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.List;
-
+import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.common.SocketStateCode;
+import com.navercorp.pinpoint.rpc.server.DefaultPinpointServer;
+import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
+import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.rpc.common.SocketStateCode;
-import com.navercorp.pinpoint.rpc.server.DefaultPinpointServer;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.List;
 
 /**
  * @author Taejin Koo
@@ -149,8 +148,8 @@ public class PinpointClientStateTest {
             handler = connect(clientFactory);
             Thread.sleep(1000);
 
-            List<PinpointServer> pinpointServerList = serverAcceptor.getWritableServerList();
-            PinpointServer pinpointServer = pinpointServerList.get(0);
+            List<PinpointSocket> pinpointServerList = serverAcceptor.getWritableSocketList();
+            PinpointSocket pinpointServer = pinpointServerList.get(0);
             Assert.assertEquals(SocketStateCode.RUN_DUPLEX, handler.getCurrentStateCode());
 
             ((DefaultPinpointServer) pinpointServer).stop(true);

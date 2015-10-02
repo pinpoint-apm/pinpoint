@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.web.cluster.connection.WebClusterConnectionManager;
 import com.navercorp.pinpoint.web.config.WebConfig;
-import com.navercorp.pinpoint.web.server.PinpointSocketManager;
 import com.navercorp.pinpoint.web.util.PinpointWebTestUtils;
 import org.apache.curator.test.TestingServer;
 import org.apache.zookeeper.KeeperException;
@@ -60,7 +60,7 @@ public class ClusterTest {
     
     private static TestingServer ts = null;
 
-    static PinpointSocketManager socketManager;
+    static WebClusterConnectionManager clusterConnectionManager;
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -80,8 +80,8 @@ public class ClusterTest {
         when(config.getClusterZookeeperRetryInterval()).thenReturn(60000);
         when(config.getClusterZookeeperSessionTimeout()).thenReturn(3000);
 
-        socketManager = new PinpointSocketManager(config);
-        socketManager.start();
+        clusterConnectionManager = new WebClusterConnectionManager(config);
+        clusterConnectionManager.start();
 
         ts = createZookeeperServer(zookeeperPort);
     }
@@ -89,7 +89,7 @@ public class ClusterTest {
     @AfterClass
     public static void tearDown() throws Exception {
         closeZookeeperServer(ts);
-        socketManager.stop();
+        clusterConnectionManager.stop();
     }
 
     @Before
@@ -153,7 +153,7 @@ public class ClusterTest {
             zookeeper = new ZooKeeper(zookeeperAddress, 5000, null);
             getNodeAndCompareContents(zookeeper);
 
-            Assert.assertEquals(0, socketManager.getCollectorList().size());
+            Assert.assertEquals(0, clusterConnectionManager.getClusterList().size());
 
             clientFactory = new PinpointClientFactory();
             clientFactory.setMessageListener(new SimpleListener());
@@ -162,7 +162,7 @@ public class ClusterTest {
 
             Thread.sleep(1000);
 
-            Assert.assertEquals(1, socketManager.getCollectorList().size());
+            Assert.assertEquals(1, clusterConnectionManager.getClusterList().size());
 
         } finally {
             closePinpointSocket(clientFactory, client);
