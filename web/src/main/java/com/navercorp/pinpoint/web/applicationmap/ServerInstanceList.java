@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.applicationmap;
 
 import java.util.*;
 
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,8 +60,7 @@ public class ServerInstanceList {
         final List<String> agentList = new ArrayList<String>();
         for (List<ServerInstance> serverInstanceList : serverInstanceValueList) {
             for (ServerInstance serverInstance : serverInstanceList) {
-                AgentInfoBo agentInfo = serverInstance.getAgentInfo();
-                agentList.add(agentInfo.getAgentId());
+                agentList.add(serverInstance.getName());
             }
         }
         return agentList;

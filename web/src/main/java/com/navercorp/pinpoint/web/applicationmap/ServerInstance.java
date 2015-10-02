@@ -37,9 +37,6 @@ public class ServerInstance {
 
     private final ServerType serverType;
 
-    private final AgentInfoBo agentInfo;
-
-
     // it is better for something else to inject this.
     // it's difficult to do that since it is new'ed within logic
     private static final MatcherGroup MATCHER_GROUP = new MatcherGroup();
@@ -53,7 +50,6 @@ public class ServerInstance {
         this.hostName = agentInfo.getHostName();
         this.name = agentInfo.getAgentId();
         this.serviceType = agentInfo.getServiceType();
-        this.agentInfo = agentInfo;
         this.serverType = ServerType.Physical;
         this.match = MATCHER_GROUP.match(hostName);
     }
@@ -71,7 +67,6 @@ public class ServerInstance {
         this.hostName = hostName;
         this.name = physicalName;
         this.serviceType = serviceType;
-        this.agentInfo = null;
         this.serverType = ServerType.Logical;
         this.match = MATCHER_GROUP.match(hostName);
     }
@@ -96,11 +91,6 @@ public class ServerInstance {
         return serverType;
     }
 
-    @JsonProperty("agentInfo")
-    public AgentInfoBo getAgentInfo() {
-        return agentInfo;
-    }
-
     @JsonProperty("linkName")
     public String getLinkName() {
         return match.getLinkName();
@@ -119,7 +109,6 @@ public class ServerInstance {
             return false;
         }
     }
-
 
     @Override
     public boolean equals(Object o) {
