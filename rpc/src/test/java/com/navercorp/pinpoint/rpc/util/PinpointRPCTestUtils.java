@@ -112,7 +112,7 @@ public final class PinpointRPCTestUtils {
         return clientFactory;
     }
 
-    public static byte[] request(PinpointServer writableServer, byte[] message) {
+    public static byte[] request(PinpointSocket writableServer, byte[] message) {
         Future<ResponseMessage> future = writableServer.request(message);
         future.await();
         return future.getResult().getMessage();

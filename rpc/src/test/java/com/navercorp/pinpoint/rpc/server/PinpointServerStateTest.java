@@ -21,6 +21,7 @@ import java.net.Socket;
 import java.util.List;
 import java.util.Map;
 
+import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -58,14 +59,20 @@ public class PinpointServerStateTest {
             client = clientFactory.connect("127.0.0.1", bindPort);
             Thread.sleep(1000);
 
-            List<PinpointServer> pinpointServerList = serverAcceptor.getWritableServerList();
-            PinpointServer pinpointServer = pinpointServerList.get(0);
-            Assert.assertEquals(SocketStateCode.RUN_DUPLEX, pinpointServer.getCurrentStateCode());
+            List<PinpointSocket> pinpointServerList = serverAcceptor.getWritableSocketList();
+            PinpointSocket pinpointServer = pinpointServerList.get(0);
 
-            client.close();
-            Thread.sleep(1000);
+            if (pinpointServer instanceof  PinpointServer) {
+                Assert.assertEquals(SocketStateCode.RUN_DUPLEX, ((PinpointServer) pinpointServer).getCurrentStateCode());
 
-            Assert.assertEquals(SocketStateCode.CLOSED_BY_CLIENT, pinpointServer.getCurrentStateCode());
+                client.close();
+                Thread.sleep(1000);
+
+                Assert.assertEquals(SocketStateCode.CLOSED_BY_CLIENT, ((PinpointServer)pinpointServer).getCurrentStateCode());
+            } else {
+                Assert.fail();
+            }
+
         } finally {
             PinpointRPCTestUtils.close(client);
             if (clientFactory != null) {
@@ -87,14 +94,14 @@ public class PinpointServerStateTest {
             client = clientFactory.connect("127.0.0.1", bindPort);
             Thread.sleep(1000);
 
-            List<PinpointServer> pinpointServerList = serverAcceptor.getWritableServerList();
-            PinpointServer pinpointServer = pinpointServerList.get(0);
-            Assert.assertEquals(SocketStateCode.RUN_DUPLEX, pinpointServer.getCurrentStateCode());
+            List<PinpointSocket> pinpointServerList = serverAcceptor.getWritableSocketList();
+            PinpointSocket pinpointServer = pinpointServerList.get(0);
+            Assert.assertEquals(SocketStateCode.RUN_DUPLEX, ((PinpointServer) pinpointServer).getCurrentStateCode());
 
             serverAcceptor.close();
             Thread.sleep(1000);
 
-            Assert.assertEquals(SocketStateCode.CLOSED_BY_SERVER, pinpointServer.getCurrentStateCode());
+            Assert.assertEquals(SocketStateCode.CLOSED_BY_SERVER, ((PinpointServer)pinpointServer).getCurrentStateCode());
         } finally {
             PinpointRPCTestUtils.close(client);
             if (clientFactory != null) {
@@ -115,14 +122,19 @@ public class PinpointServerStateTest {
             socket.getOutputStream().flush();
             Thread.sleep(1000);
 
-            List<PinpointServer> pinpointServerList = serverAcceptor.getWritableServerList();
-            PinpointServer pinpointServer = pinpointServerList.get(0);
-            Assert.assertEquals(SocketStateCode.RUN_DUPLEX, pinpointServer.getCurrentStateCode());
+            List<PinpointSocket> pinpointServerList = serverAcceptor.getWritableSocketList();
+            PinpointSocket pinpointServer = pinpointServerList.get(0);
+            if (!(pinpointServer instanceof  PinpointServer)) {
+                socket.close();
+                Assert.fail();
+            }
+
+            Assert.assertEquals(SocketStateCode.RUN_DUPLEX, ((PinpointServer)pinpointServer).getCurrentStateCode());
 
             socket.close();
             Thread.sleep(1000);
 
-            Assert.assertEquals(SocketStateCode.UNEXPECTED_CLOSE_BY_CLIENT, pinpointServer.getCurrentStateCode());
+            Assert.assertEquals(SocketStateCode.UNEXPECTED_CLOSE_BY_CLIENT, ((PinpointServer)pinpointServer).getCurrentStateCode());
         } finally {
             PinpointRPCTestUtils.close(serverAcceptor);
         }
@@ -140,14 +152,15 @@ public class PinpointServerStateTest {
             client = clientFactory.connect("127.0.0.1", bindPort);
             Thread.sleep(1000);
 
-            List<PinpointServer> pinpointServerList = serverAcceptor.getWritableServerList();
-            PinpointServer pinpointServer = pinpointServerList.get(0);
-            Assert.assertEquals(SocketStateCode.RUN_DUPLEX, pinpointServer.getCurrentStateCode());
+            List<PinpointSocket> pinpointServerList = serverAcceptor.getWritableSocketList();
+            PinpointSocket pinpointServer = pinpointServerList.get(0);
+
+            Assert.assertEquals(SocketStateCode.RUN_DUPLEX, ((PinpointServer) pinpointServer).getCurrentStateCode());
 
             ((DefaultPinpointServer)pinpointServer).stop(true);
             Thread.sleep(1000);
 
-            Assert.assertEquals(SocketStateCode.UNEXPECTED_CLOSE_BY_SERVER, pinpointServer.getCurrentStateCode());
+            Assert.assertEquals(SocketStateCode.UNEXPECTED_CLOSE_BY_SERVER, ((PinpointServer)pinpointServer).getCurrentStateCode());
         } finally {
             PinpointRPCTestUtils.close(client);
             if (clientFactory != null) {

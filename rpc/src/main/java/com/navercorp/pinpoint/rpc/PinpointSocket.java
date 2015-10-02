@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.rpc;
 
+import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 
 import java.net.SocketAddress;
@@ -35,5 +36,8 @@ public interface PinpointSocket {
     SocketAddress getRemoteAddress();
 
     void close();
+
+    ClusterOption getLocalClusterOption();
+    ClusterOption getRemoteClusterOption();
 
 }

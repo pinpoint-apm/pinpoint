@@ -491,7 +491,17 @@ public class DefaultPinpointServer implements PinpointServer {
     String getObjectUniqName() {
         return objectUniqName;
     }
-    
+
+    @Override
+    public ClusterOption getLocalClusterOption() {
+        return localClusterOption;
+    }
+
+    @Override
+    public ClusterOption getRemoteClusterOption() {
+        return remoteClusterOption;
+    }
+
     @Override
     public SocketStateCode getCurrentStateCode() {
         return state.getCurrentStateCode();

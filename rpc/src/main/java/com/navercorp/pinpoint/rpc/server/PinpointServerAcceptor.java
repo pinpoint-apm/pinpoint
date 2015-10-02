@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
@@ -329,8 +330,8 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
         }
     }
     
-    public List<PinpointServer> getWritableServerList() {
-        List<PinpointServer> pinpointServerList = new ArrayList<PinpointServer>();
+    public List<PinpointSocket> getWritableSocketList() {
+        List<PinpointSocket> pinpointServerList = new ArrayList<PinpointSocket>();
 
         for (Channel channel : channelGroup) {
             DefaultPinpointServer pinpointServer = (DefaultPinpointServer) channel.getAttachment();

@@ -20,8 +20,8 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import com.navercorp.pinpoint.web.cluster.DefaultPinpointRouteResponse;
 import com.navercorp.pinpoint.web.cluster.FailedPinpointRouteResponse;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
-import com.navercorp.pinpoint.web.server.PinpointSocketManager;
+import com.navercorp.pinpoint.web.cluster.connection.WebClusterConnectionManager;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCount;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
@@ -59,7 +59,7 @@ public class AgentServiceImpl implements AgentService {
     private AgentInfoService agentInfoService;
 
     @Autowired
-    private PinpointSocketManager pinpointSocketManager;
+    private WebClusterConnectionManager clusterConnectionManager;
 
     @Autowired
     private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
@@ -137,9 +137,9 @@ public class AgentServiceImpl implements AgentService {
     @Override
     public PinpointRouteResponse invoke(AgentInfo agentInfo, byte[] payload, long timeout) throws TException {
         TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
-        PinpointServer collector = pinpointSocketManager.getCollector(agentInfo);
+        PinpointSocket socket = clusterConnectionManager.getSocket(agentInfo);
 
-        Future<ResponseMessage> future = collector.request(serialize(transferObject));
+        Future<ResponseMessage> future = socket.request(serialize(transferObject));
         PinpointRouteResponse response = getResponse(future, timeout);
         return response;
     }
@@ -170,8 +170,8 @@ public class AgentServiceImpl implements AgentService {
         Map<AgentInfo, Future<ResponseMessage>> futureMap = new HashMap<AgentInfo, Future<ResponseMessage>>();
         for (AgentInfo agentInfo : agentInfoList) {
             TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
-            PinpointServer collector = pinpointSocketManager.getCollector(agentInfo);
-            Future<ResponseMessage> future = collector.request(serialize(transferObject));
+            PinpointSocket socket = clusterConnectionManager.getSocket(agentInfo);
+            Future<ResponseMessage> future = socket.request(serialize(transferObject));
             futureMap.put(agentInfo, future);
         }
 
