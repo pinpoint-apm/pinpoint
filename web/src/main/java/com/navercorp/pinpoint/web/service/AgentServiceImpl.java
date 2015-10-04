@@ -41,6 +41,8 @@ import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,6 +56,8 @@ import java.util.*;
 public class AgentServiceImpl implements AgentService {
 
     private static final long DEFAULT_FUTURE_TIMEOUT = 3000;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private AgentInfoService agentInfoService;
@@ -171,8 +175,12 @@ public class AgentServiceImpl implements AgentService {
         for (AgentInfo agentInfo : agentInfoList) {
             TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
             PinpointSocket socket = clusterConnectionManager.getSocket(agentInfo);
-            Future<ResponseMessage> future = socket.request(serialize(transferObject));
-            futureMap.put(agentInfo, future);
+            if (socket != null) {
+                Future<ResponseMessage> future = socket.request(serialize(transferObject));
+                futureMap.put(agentInfo, future);
+            } else {
+                futureMap.put(agentInfo, null);
+            }
         }
 
         long startTime = System.currentTimeMillis();
@@ -208,6 +216,7 @@ public class AgentServiceImpl implements AgentService {
                     response.getRouteResult(), response.getResponse(TCmdActiveThreadCountRes.class, null));
             agentActiveThreadStatusList.add(agentActiveThreadStatus);
         }
+
         return agentActiveThreadStatusList;
     }
 
@@ -234,6 +243,10 @@ public class AgentServiceImpl implements AgentService {
     }
 
     private PinpointRouteResponse getResponse(Future<ResponseMessage> future, long timeout) {
+        if (future == null) {
+            return new FailedPinpointRouteResponse(TRouteResult.NOT_FOUND, null);
+        }
+
         boolean completed = future.await(DEFAULT_FUTURE_TIMEOUT);
         if (completed) {
             DefaultPinpointRouteResponse response = new DefaultPinpointRouteResponse(future.getResult().getMessage());
