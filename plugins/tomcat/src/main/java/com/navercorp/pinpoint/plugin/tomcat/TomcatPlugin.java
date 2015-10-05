@@ -25,6 +25,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFile
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
+
 /**
  * @author Jongho Moon
  * @author jaehong.kim
@@ -106,7 +108,7 @@ public class TomcatPlugin implements ProfilerPlugin {
 
                 InstrumentMethod method = target.getDeclaredMethod("invoke", "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response");
                 if (method != null) {
-                    method.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor", config.getTomcatExcludeUrlFilter());
+                    method.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor", va(config.getTomcatExcludeUrlFilter()));
                 }
 
                 return target.toBytecode();

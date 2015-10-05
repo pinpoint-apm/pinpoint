@@ -137,7 +137,7 @@ public class JsonLibPlugin implements ProfilerPlugin {
     private boolean addInterceptor(InstrumentMethod method, String interceptorClassName, InterceptorGroup group, Object... constructorArgs) {
         if (method != null && isPublicMethod(method)) {
             try {
-                method.addGroupedInterceptor(interceptorClassName, group, constructorArgs);
+                method.addGroupedInterceptor(interceptorClassName, constructorArgs, group);
                 return true;
             } catch (InstrumentException e) {
                 if (logger.isWarnEnabled()) {

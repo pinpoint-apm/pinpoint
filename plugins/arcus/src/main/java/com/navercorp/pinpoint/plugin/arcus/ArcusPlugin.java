@@ -29,6 +29,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.plugin.arcus.filter.ArcusMethodFilter;
 import com.navercorp.pinpoint.plugin.arcus.filter.FrontCacheMemcachedMethodFilter;
 
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
+
 /**
  * 
  * @author jaehong.kim
@@ -89,7 +91,7 @@ public class ArcusPlugin implements ProfilerPlugin {
 
                     for (InstrumentMethod m : target.getDeclaredMethods(new ArcusMethodFilter())) {
                         try {
-                            m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", traceKey);
+                            m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", va(traceKey));
                         } catch (Exception e) {
                             if (logger.isWarnEnabled()) {
                                 logger.warn("Unsupported method " + className + "." + m.getName(), e);
@@ -165,7 +167,7 @@ public class ArcusPlugin implements ProfilerPlugin {
 
                 for (InstrumentMethod m : target.getDeclaredMethods(new FrontCacheMemcachedMethodFilter())) {
                     try {
-                        m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", traceKey);
+                        m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", va(traceKey));
                     } catch (Exception e) {
                         if (logger.isWarnEnabled()) {
                             logger.warn("Unsupported method " + className + "." + m.getName(), e);
@@ -195,7 +197,7 @@ public class ArcusPlugin implements ProfilerPlugin {
 
                 for (InstrumentMethod m : target.getDeclaredMethods(new FrontCacheMemcachedMethodFilter())) {
                     try {
-                        m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", traceKey);
+                        m.addInterceptor("com.navercorp.pinpoint.plugin.arcus.interceptor.ApiInterceptor", va(traceKey));
                     } catch (Exception e) {
                         if (logger.isWarnEnabled()) {
                             logger.warn("Unsupported method " + className + "." + m.getName(), e);

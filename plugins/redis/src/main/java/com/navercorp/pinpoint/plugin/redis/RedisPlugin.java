@@ -29,6 +29,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
+
 /**
  * 
  * @author jaehong.kim
@@ -104,7 +106,7 @@ public class RedisPlugin implements ProfilerPlugin {
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.name(JedisMethodNames.get()), MethodFilters.modifierNot(MethodFilters.SYNTHETIC)))) {
                     try {
-                        method.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisMethodInterceptor", config.isIo());
+                        method.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisMethodInterceptor", va(config.isIo()));
                     } catch (Exception e) {
                         if (logger.isWarnEnabled()) {
                             logger.warn("Unsupported method " + method, e);
@@ -196,7 +198,7 @@ public class RedisPlugin implements ProfilerPlugin {
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.chain(MethodFilters.name(JedisPipelineMethodNames.get()), MethodFilters.modifierNot(MethodFilters.SYNTHETIC)))) {
                     try {
-                        method.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisPipelineMethodInterceptor", config.isIo());
+                        method.addInterceptor("com.navercorp.pinpoint.plugin.redis.interceptor.JedisPipelineMethodInterceptor", va(config.isIo()));
                     } catch (Exception e) {
                         if (logger.isWarnEnabled()) {
                             logger.warn("Unsupported method " + method, e);
