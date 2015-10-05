@@ -83,7 +83,6 @@ public class CollectorConfiguration implements InitializingBean {
     private String clusterAddress;
     private int clusterSessionTimeout;
 
-    private boolean clusterListenEnable;
     private String clusterListenIp;
     private int clusterListenPort;
 
@@ -246,14 +245,6 @@ public class CollectorConfiguration implements InitializingBean {
         this.clusterSessionTimeout = clusterSessionTimeout;
     }
 
-    public boolean isClusterListenEnable() {
-        return clusterListenEnable;
-    }
-
-    public void setClusterListenEnable(boolean clusterListenEnable) {
-        this.clusterListenEnable = clusterListenEnable;
-    }
-
     public String getClusterListenIp() {
         return clusterListenIp;
     }
@@ -332,7 +323,6 @@ public class CollectorConfiguration implements InitializingBean {
         this.clusterAddress = readString(properties, "cluster.zookeeper.address", "");
         this.clusterSessionTimeout = readInt(properties, "cluster.zookeeper.sessiontimeout", -1);
 
-        this.clusterListenEnable = readBoolean(properties, "cluster.listen.enable");
         this.clusterListenIp = readString(properties, "cluster.listen.ip", "");
         this.clusterListenPort = readInt(properties, "cluster.listen.port", -1);
     }
@@ -391,7 +381,6 @@ public class CollectorConfiguration implements InitializingBean {
         sb.append(", clusterEnable=").append(clusterEnable);
         sb.append(", clusterAddress=").append(clusterAddress);
         sb.append(", clusterSessionTimeout=").append(clusterSessionTimeout);
-        sb.append(", clusterListenEnable=").append(clusterListenEnable);
         sb.append(", clusterListenIp=").append(clusterListenIp);
         sb.append(", clusterListenPort=").append(clusterListenPort);
 
