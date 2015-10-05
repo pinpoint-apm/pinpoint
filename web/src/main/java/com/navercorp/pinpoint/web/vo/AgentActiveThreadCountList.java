@@ -69,7 +69,7 @@ class AgentActiveThreadCountListSerializer extends JsonSerializer<AgentActiveThr
         jgen.writeStartObject();
 
         for (AgentActiveThreadCount agentActiveThread : agentActiveThreadRepository) {
-            jgen.writeFieldName(agentActiveThread.getHostname());
+            jgen.writeFieldName(agentActiveThread.getAgentId());
             jgen.writeStartObject();
 
             TRouteResult routeResult = agentActiveThread.getRouteResult(TRouteResult.UNKNOWN);
