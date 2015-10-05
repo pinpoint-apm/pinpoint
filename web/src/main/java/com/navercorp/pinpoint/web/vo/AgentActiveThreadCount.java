@@ -63,4 +63,13 @@ public class AgentActiveThreadCount {
         return activeThreadCount;
     }
 
+    @Override
+    public String toString() {
+        return "AgentActiveThreadCount{" +
+                "hostname='" + hostname + '\'' +
+                ", routeResult=" + routeResult +
+                ", activeThreadCount=" + activeThreadCount +
+                '}';
+    }
+
 }

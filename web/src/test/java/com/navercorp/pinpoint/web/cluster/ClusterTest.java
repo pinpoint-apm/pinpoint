@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+import com.navercorp.pinpoint.rpc.client.SimpleMessageListener;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.web.cluster.connection.WebClusterConnectionManager;
@@ -156,7 +157,7 @@ public class ClusterTest {
             Assert.assertEquals(0, clusterConnectionManager.getClusterList().size());
 
             clientFactory = new PinpointClientFactory();
-            clientFactory.setMessageListener(new SimpleListener());
+            clientFactory.setMessageListener(SimpleMessageListener.INSTANCE);
 
             client = clientFactory.connect(DEFAULT_IP, acceptorPort);
 
@@ -214,20 +215,6 @@ public class ClusterTest {
         if (clientFactory != null) {
             clientFactory.release();
         }
-    }
-
-    class SimpleListener implements MessageListener {
-
-        @Override
-        public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-
-        }
-
-        @Override
-        public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-
-        }
-
     }
 
 }

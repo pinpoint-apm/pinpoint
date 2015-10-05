@@ -58,7 +58,7 @@ public class WebClusterConnector implements WebClusterConnectionProvider {
 
         clientFactory.setTimeoutMillis(1000 * 5);
         clientFactory.setMessageListener(UnsupportOperationMessageListener.getInstance());
-        clientFactory.addStateChangeEventListener(LoggingStateChangeEventListener.getInstance());
+        clientFactory.addStateChangeEventListener(LoggingStateChangeEventListener.INSTANCE);
         clientFactory.setProperties(Collections.EMPTY_MAP);
 
         ClusterOption clusterOption = new ClusterOption(true, WebUtils.getServerIdentifier(), Role.CALLER);

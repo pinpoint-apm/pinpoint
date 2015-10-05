@@ -22,7 +22,6 @@ package com.navercorp.pinpoint.web.cluster.connection;
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.web.cluster.ClusterManager;
 import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterManager;
