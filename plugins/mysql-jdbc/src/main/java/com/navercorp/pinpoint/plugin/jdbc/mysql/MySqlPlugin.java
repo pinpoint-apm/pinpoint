@@ -26,6 +26,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
 
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
+
 /**
  * @author Jongho Moon
  *
@@ -94,7 +96,7 @@ public class MySqlPlugin implements ProfilerPlugin {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 InterceptorGroup group = instrumentContext.getInterceptorGroup(MySqlConstants.GROUP_NAME);
                 
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", group, ExecutionPolicy.ALWAYS, new MySqlJdbcUrlParser(), false);
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", va(new MySqlJdbcUrlParser(), false), group, ExecutionPolicy.ALWAYS);
                 
                 return target.toBytecode();
             }
@@ -115,7 +117,7 @@ public class MySqlPlugin implements ProfilerPlugin {
                 int maxBindValueSize = config.getMaxSqlBindValueSize();
                 InterceptorGroup group = instrumentContext.getInterceptorGroup(MySqlConstants.GROUP_NAME);
                 
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor", group, maxBindValueSize);
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor", va(maxBindValueSize), group);
                 target.addGroupedInterceptor(PreparedStatementBindingMethodFilter.excludes("setRowId", "setNClob", "setSQLXML"), "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", group, ExecutionPolicy.BOUNDARY);
                 
                 return target.toBytecode();

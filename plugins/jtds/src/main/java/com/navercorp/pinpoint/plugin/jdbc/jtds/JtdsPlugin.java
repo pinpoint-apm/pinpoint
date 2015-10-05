@@ -25,6 +25,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
+
 /**
  * @author Jongho Moon
  *
@@ -84,7 +86,7 @@ public class JtdsPlugin implements ProfilerPlugin {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 InterceptorGroup group = instrumentContext.getInterceptorGroup(JtdsConstants.GROUP_JTDS);
                 
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", group, ExecutionPolicy.ALWAYS, new JtdsJdbcUrlParser());
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", va(new JtdsJdbcUrlParser()), group, ExecutionPolicy.ALWAYS);
                 
                 return target.toBytecode();
             }
@@ -105,7 +107,7 @@ public class JtdsPlugin implements ProfilerPlugin {
                 int maxBindValueSize = config.getMaxSqlBindValueSize();
                 InterceptorGroup group = instrumentContext.getInterceptorGroup(JtdsConstants.GROUP_JTDS);
                 
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor", group, maxBindValueSize);
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor", va(maxBindValueSize), group);
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", group);
                 
                 return target.toBytecode();

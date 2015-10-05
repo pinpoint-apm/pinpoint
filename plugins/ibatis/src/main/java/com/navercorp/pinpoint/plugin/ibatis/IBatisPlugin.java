@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.ibatis;
 
 import static com.navercorp.pinpoint.common.trace.HistogramSchema.NORMAL_SCHEMA;
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 import java.security.ProtectionDomain;
 import java.util.List;
@@ -94,8 +95,8 @@ public class IBatisPlugin implements ProfilerPlugin {
                 final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(methodFilter);
                 for (InstrumentMethod methodToTrace : methodsToTrace) {
                     String sqlMapOperationInterceptor = "com.navercorp.pinpoint.plugin.ibatis.interceptor.SqlMapOperationInterceptor";
-                    methodToTrace.addGroupedInterceptor(sqlMapOperationInterceptor, group, ExecutionPolicy.BOUNDARY,
-                            serviceType);
+                    methodToTrace.addGroupedInterceptor(sqlMapOperationInterceptor, va(serviceType), group, ExecutionPolicy.BOUNDARY
+                    );
                 }
 
                 return target.toBytecode();

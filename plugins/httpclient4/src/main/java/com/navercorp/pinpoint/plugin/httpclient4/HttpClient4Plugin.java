@@ -28,6 +28,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
+
 /**
  * @author netspider
  * @author emeroad
@@ -142,8 +144,8 @@ public class HttpClient4Plugin implements ProfilerPlugin {
         InstrumentMethod execute = target.getDeclaredMethod("execute", parameterTypeNames);
         
         if (execute != null) {
-            execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodWithHttpRequestInterceptor", isHasCallbackParam);
-            execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodInternalInterceptor", isHasCallbackParam);
+            execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodWithHttpRequestInterceptor", va(isHasCallbackParam));
+            execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodInternalInterceptor", va(isHasCallbackParam));
         }
     }
 
@@ -151,8 +153,8 @@ public class HttpClient4Plugin implements ProfilerPlugin {
         InstrumentMethod execute = target.getDeclaredMethod("execute", parameterTypeNames);
         
         if (execute != null) {
-            execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodWithHttpUriRequestInterceptor", isHasCallbackParam);
-            execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodInternalInterceptor", isHasCallbackParam);
+            execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodWithHttpUriRequestInterceptor", va(isHasCallbackParam));
+            execute.addInterceptor("com.navercorp.pinpoint.plugin.httpclient4.interceptor.HttpClientExecuteMethodInternalInterceptor", va(isHasCallbackParam));
         }
     }
 

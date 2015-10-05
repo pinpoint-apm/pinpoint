@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
@@ -64,7 +65,7 @@ public class DefaultClassEditorBuilderTest {
         when(aMethod.getName()).thenReturn(methodName);
         when(aMethod.getParameterTypes()).thenReturn(parameterTypeNames);
         when(aMethod.getDescriptor()).thenReturn(aDescriptor);
-        when(aClass.addInterceptor(eq(methodName), eq(parameterTypeNames), isA(Interceptor.class))).thenReturn(0);
+        when(aClass.addInterceptor(eq(methodName), va(eq(parameterTypeNames)))).thenReturn(0);
         
         
         DefaultClassFileTransformerBuilder builder = new DefaultClassFileTransformerBuilder(context, "TargetClass");
@@ -78,7 +79,7 @@ public class DefaultClassEditorBuilderTest {
         
         transformer.transform(classLoader, className, null, null, classFileBuffer);
         
-        verify(aMethod).addGroupedInterceptor(eq("com.navercorp.pinpoint.profiler.plugin.TestInterceptor"), (InterceptorGroup)isNull(), (ExecutionPolicy)isNull(), eq("provided"));
+        verify(aMethod).addGroupedInterceptor(eq("com.navercorp.pinpoint.profiler.plugin.TestInterceptor"), eq(va("provided")), (InterceptorGroup)isNull(), (ExecutionPolicy)isNull());
         verify(aClass).addField("some.accessor.Type", "new java.util.HashMap();");
         verify(aClass).addGetter("some.getter.Type", "someField");
     }
