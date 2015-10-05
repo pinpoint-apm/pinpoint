@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.ibatis;
 
-import static com.navercorp.pinpoint.common.trace.HistogramSchema.NORMAL_SCHEMA;
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 import java.security.ProtectionDomain;
