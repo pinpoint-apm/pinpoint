@@ -27,18 +27,18 @@ import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
  */
 public class AgentActiveThreadCount {
 
-    private final String hostname;
+    private final String agentId;
     private final TRouteResult routeResult;
     private final TCmdActiveThreadCountRes activeThreadCount;
 
-    public AgentActiveThreadCount(String hostname, TRouteResult routeResult, TCmdActiveThreadCountRes activeThreadCount) {
-        this.hostname = hostname;
+    public AgentActiveThreadCount(String agentId, TRouteResult routeResult, TCmdActiveThreadCountRes activeThreadCount) {
+        this.agentId = agentId;
         this.routeResult = routeResult;
         this.activeThreadCount = activeThreadCount;
     }
 
-    public String getHostname() {
-        return hostname;
+    public String getAgentId() {
+        return agentId;
     }
 
     public TRouteResult getRouteResult() {
@@ -66,7 +66,7 @@ public class AgentActiveThreadCount {
     @Override
     public String toString() {
         return "AgentActiveThreadCount{" +
-                "hostname='" + hostname + '\'' +
+                "agentId='" + agentId + '\'' +
                 ", routeResult=" + routeResult +
                 ", activeThreadCount=" + activeThreadCount +
                 '}';

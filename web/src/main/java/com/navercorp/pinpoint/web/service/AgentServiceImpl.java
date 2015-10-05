@@ -216,7 +216,7 @@ public class AgentServiceImpl implements AgentService {
             AgentInfo agentInfo = entry.getKey();
             PinpointRouteResponse response = entry.getValue();
 
-            AgentActiveThreadCount agentActiveThreadStatus = new AgentActiveThreadCount(agentInfo.getHostName(),
+            AgentActiveThreadCount agentActiveThreadStatus = new AgentActiveThreadCount(agentInfo.getAgentId(),
                     response.getRouteResult(), response.getResponse(TCmdActiveThreadCountRes.class, null));
             agentActiveThreadStatusList.add(agentActiveThreadStatus);
         }
