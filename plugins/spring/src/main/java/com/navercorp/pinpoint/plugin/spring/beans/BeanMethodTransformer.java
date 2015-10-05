@@ -30,6 +30,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
+
 /**
  * @author Jongho Moon
  *
@@ -64,7 +66,7 @@ public class BeanMethodTransformer implements PinpointClassFileTransformer {
                     logger.trace("### c={}, m={}, params={}", new Object[] {className, method.getName(), Arrays.toString(method.getParameterTypes())});
                 }
 
-                method.addInterceptor(BasicMethodInterceptor.class.getName(), SpringBeansConstants.SERVICE_TYPE);
+                method.addInterceptor(BasicMethodInterceptor.class.getName(), va(SpringBeansConstants.SERVICE_TYPE));
             }
 
             return target.toBytecode();

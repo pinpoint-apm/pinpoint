@@ -38,6 +38,8 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
 import com.navercorp.pinpoint.plugin.thrift.field.getter.TNonblockingTransportFieldGetter;
 import com.navercorp.pinpoint.plugin.thrift.field.getter.TTransportFieldGetter;
 
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
+
 /**
  * @author HyunGil Jeong
  */
@@ -90,14 +92,14 @@ public class ThriftPlugin implements ProfilerPlugin {
                 final InstrumentMethod sendBase = target.getDeclaredMethod("sendBase", "java.lang.String", "org.apache.thrift.TBase");
                 if (sendBase != null) {
                     String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.TServiceClientSendBaseInterceptor";
-                    sendBase.addInterceptor(interceptor, traceServiceArgs);
+                    sendBase.addInterceptor(interceptor, va(traceServiceArgs));
                 }
 
                 // TServiceClient.receiveBase(TBase, String)
                 final InstrumentMethod receiveBase = target.getDeclaredMethod("receiveBase", "org.apache.thrift.TBase", "java.lang.String");
                 if (receiveBase != null) {
                     String interceptor = "com.navercorp.pinpoint.plugin.thrift.interceptor.client.TServiceClientReceiveBaseInterceptor";
-                    receiveBase.addInterceptor(interceptor, traceServiceResult);
+                    receiveBase.addInterceptor(interceptor, va(traceServiceResult));
                 }
 
                 return target.toBytecode();

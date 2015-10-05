@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
  */
 public class PinpointClassFileTransformers {
 
-    public static PinpointClassFileTransformer addInterceptor(final String interceptorClassName, final Object... constructorArgs) {
+    public static PinpointClassFileTransformer addInterceptor(final String interceptorClassName, final Object[] constructorArgs) {
         return new PinpointClassFileTransformer() {
             
             @Override

@@ -121,17 +121,32 @@ public class JavassistMethod implements InstrumentMethod {
     }
 
     @Override
-    public int addInterceptor(String interceptorClassName, Object... constructorArgs) throws InstrumentException {
-        return addGroupedInterceptor(interceptorClassName, null, null, constructorArgs);
+    public int addInterceptor(String interceptorClassName) throws InstrumentException {
+        return addGroupedInterceptor(interceptorClassName, null, null, null);
     }
 
     @Override
-    public int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group, Object... constructorArgs) throws InstrumentException {
-        return addGroupedInterceptor(interceptorClassName, group, null, constructorArgs);
+    public int addInterceptor(String interceptorClassName, Object[] constructorArgs) throws InstrumentException {
+        return addGroupedInterceptor(interceptorClassName, constructorArgs, null, null);
     }
 
     @Override
-    public int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group, ExecutionPolicy policy, Object... constructorArgs) throws InstrumentException {
+    public int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group) throws InstrumentException {
+        return addGroupedInterceptor(interceptorClassName, null, group, null);
+    }
+
+    @Override
+    public int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy) throws InstrumentException {
+        return addGroupedInterceptor(interceptorClassName, null, group, executionPolicy);
+    }
+
+    @Override
+    public int addGroupedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorGroup group) throws InstrumentException {
+        return addGroupedInterceptor(interceptorClassName, constructorArgs, group, null);
+    }
+
+    @Override
+    public int addGroupedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorGroup group, ExecutionPolicy policy) throws InstrumentException {
         try {
             return addInterceptor0(interceptorClassName, group, policy, constructorArgs);
         } catch (InstrumentException e) {

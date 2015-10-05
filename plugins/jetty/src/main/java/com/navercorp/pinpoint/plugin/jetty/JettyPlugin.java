@@ -18,6 +18,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFile
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
+
 public class JettyPlugin implements ProfilerPlugin {
 
     @Override
@@ -30,7 +32,7 @@ public class JettyPlugin implements ProfilerPlugin {
     }
 
     private void addServerInterceptor(ProfilerPluginSetupContext context, JettyConfiguration config){
-        context.addClassFileTransformer("org.eclipse.jetty.server.Server", PinpointClassFileTransformers.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.ServerHandleInterceptor", config.getJettyExcludeUrlFilter()));
+        context.addClassFileTransformer("org.eclipse.jetty.server.Server", PinpointClassFileTransformers.addInterceptor("com.navercorp.pinpoint.plugin.jetty.interceptor.ServerHandleInterceptor", va(config.getJettyExcludeUrlFilter())));
     }
     
     private void addRequestEditor(ProfilerPluginSetupContext context) {
