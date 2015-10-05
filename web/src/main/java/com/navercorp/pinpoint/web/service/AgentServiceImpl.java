@@ -143,7 +143,11 @@ public class AgentServiceImpl implements AgentService {
         TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
         PinpointSocket socket = clusterConnectionManager.getSocket(agentInfo);
 
-        Future<ResponseMessage> future = socket.request(serialize(transferObject));
+        Future<ResponseMessage> future = null;
+        if (socket != null) {
+            future = socket.request(serialize(transferObject));
+        }
+
         PinpointRouteResponse response = getResponse(future, timeout);
         return response;
     }
