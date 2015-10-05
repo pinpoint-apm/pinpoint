@@ -111,7 +111,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         this.pingDelay = pingDelay;
         this.timeoutMillis = timeoutMillis;
         
-        this.messageListener = clientFactory.getMessageListener(SimpleLoggingMessageListener.LISTENER);
+        this.messageListener = clientFactory.getMessageListener(SimpleMessageListener.INSTANCE);
         this.serverStreamChannelMessageListener = clientFactory.getServerStreamChannelMessageListener(DisabledServerStreamChannelMessageListener.INSTANCE);
         
         this.objectUniqName = ClassUtils.simpleClassNameAndHashCodeString(this);
@@ -619,7 +619,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
     @Override
     public boolean isSupportServerMode() {
-        return messageListener != SimpleLoggingMessageListener.LISTENER;
+        return messageListener != SimpleMessageListener.INSTANCE;
     }
 
     @Override

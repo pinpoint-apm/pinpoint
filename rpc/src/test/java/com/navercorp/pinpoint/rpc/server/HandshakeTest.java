@@ -20,8 +20,6 @@ import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientHandshaker;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import org.jboss.netty.util.Timer;
@@ -62,7 +60,7 @@ public class HandshakeTest {
     // simple test
     @Test
     public void handshakeTest1() throws InterruptedException {
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new AlwaysHandshakeSuccessListener());
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_INSTANCE);
 
         PinpointClientFactory clientFactory1 = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
         PinpointClientFactory clientFactory2 = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), null);
@@ -88,7 +86,7 @@ public class HandshakeTest {
 
     @Test
     public void handshakeTest2() throws InterruptedException {
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new AlwaysHandshakeSuccessListener());
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_INSTANCE);
 
         Map params = PinpointRPCTestUtils.getParams();
         
@@ -180,15 +178,6 @@ public class HandshakeTest {
         } else {
             logger.warn("Ambiguous Channel Context {}, {}, {} (Valid Agent list={}).", applicationName, agentId, startTimeMillis, result);
             return null;
-        }
-    }
-
-    private class AlwaysHandshakeSuccessListener extends SimpleLoggingServerMessageListener {
-        @Override
-        public HandshakeResponseCode handleHandshake(Map properties) {
-            logger.info("handleEnableWorker {}", properties);
-            return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
-
         }
     }
 

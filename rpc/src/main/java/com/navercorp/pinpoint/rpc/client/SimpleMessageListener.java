@@ -14,24 +14,31 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.rpc;
+package com.navercorp.pinpoint.rpc.client;
 
-import com.navercorp.pinpoint.rpc.packet.*;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
+import com.navercorp.pinpoint.rpc.MessageListener;
+import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-
-/**
- * @author emeroad
- */
-public class RequestResponseServerMessageListener implements ServerMessageListener {
-
+public class SimpleMessageListener implements MessageListener {
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public static final RequestResponseServerMessageListener LISTENER = new RequestResponseServerMessageListener();
+    public static final SimpleMessageListener INSTANCE = new SimpleMessageListener();
+    public static final SimpleMessageListener ECHO_INSTANCE = new SimpleMessageListener(true);
+
+    private final boolean echo;
+
+    public SimpleMessageListener() {
+        this(false);
+    }
+
+    public SimpleMessageListener(boolean echo) {
+        this.echo = echo;
+    }
 
     @Override
     public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
@@ -41,18 +48,12 @@ public class RequestResponseServerMessageListener implements ServerMessageListen
     @Override
     public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
         logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
-        pinpointSocket.response(requestPacket, requestPacket.getPayload());
-    }
 
-    @Override
-    public HandshakeResponseCode handleHandshake(Map properties) {
-        logger.info("handle handShake {}", properties);
-        return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
-    }
-
-    @Override
-    public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
-        logger.info("ping received {} {} ", pingPacket, pinpointServer);
+        if (echo) {
+            pinpointSocket.response(requestPacket, requestPacket.getPayload());
+        } else {
+            pinpointSocket.response(requestPacket, new byte[0]);
+        }
     }
 
 }

@@ -19,13 +19,13 @@ package com.navercorp.pinpoint.rpc.stream;
 import com.navercorp.pinpoint.rpc.*;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import com.navercorp.pinpoint.rpc.client.SimpleLoggingMessageListener;
+import com.navercorp.pinpoint.rpc.client.SimpleMessageListener;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
-import com.navercorp.pinpoint.rpc.server.TestSeverMessageListener;
+import com.navercorp.pinpoint.rpc.server.SimpleServerMessageListener;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -49,7 +49,7 @@ public class StreamChannelManagerTest {
     public void streamSuccessTest1() throws IOException, InterruptedException {
         SimpleStreamBO bo = new SimpleStreamBO();
 
-        PinpointServerAcceptor serverAcceptor = createServerFactory(new TestSeverMessageListener(), new ServerListener(bo));
+        PinpointServerAcceptor serverAcceptor = createServerFactory(SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE, new ServerListener(bo));
         serverAcceptor.bind("localhost", bindPort);
 
         PinpointClientFactory clientFactory = createSocketFactory();
@@ -84,7 +84,7 @@ public class StreamChannelManagerTest {
     public void streamSuccessTest2() throws IOException, InterruptedException {
         SimpleStreamBO bo = new SimpleStreamBO();
 
-        PinpointServerAcceptor serverAcceptor = createServerFactory(new TestSeverMessageListener(), new ServerListener(bo));
+        PinpointServerAcceptor serverAcceptor = createServerFactory(SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE, new ServerListener(bo));
         serverAcceptor.bind("localhost", bindPort);
 
         PinpointClientFactory clientFactory = createSocketFactory();
@@ -134,12 +134,12 @@ public class StreamChannelManagerTest {
 
     @Test
     public void streamSuccessTest3() throws IOException, InterruptedException {
-        PinpointServerAcceptor serverAcceptor = createServerFactory(new TestSeverMessageListener(), null);
+        PinpointServerAcceptor serverAcceptor = createServerFactory(SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE, null);
         serverAcceptor.bind("localhost", bindPort);
 
         SimpleStreamBO bo = new SimpleStreamBO();
 
-        PinpointClientFactory clientFactory = createSocketFactory(new TestListener(), new ServerListener(bo));
+        PinpointClientFactory clientFactory = createSocketFactory(SimpleMessageListener.INSTANCE, new ServerListener(bo));
 
         try {
             PinpointClient client = clientFactory.connect("127.0.0.1", bindPort);
@@ -180,7 +180,7 @@ public class StreamChannelManagerTest {
 
     @Test(expected = PinpointSocketException.class)
     public void streamClosedTest1() throws IOException, InterruptedException {
-        PinpointServerAcceptor serverAcceptor = createServerFactory(new TestSeverMessageListener(), null);
+        PinpointServerAcceptor serverAcceptor = createServerFactory(SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE, null);
         serverAcceptor.bind("localhost", bindPort);
 
         PinpointClientFactory clientFactory = createSocketFactory();
@@ -206,7 +206,7 @@ public class StreamChannelManagerTest {
     public void streamClosedTest2() throws IOException, InterruptedException {
         SimpleStreamBO bo = new SimpleStreamBO();
 
-        PinpointServerAcceptor serverAcceptor = createServerFactory(new TestSeverMessageListener(), new ServerListener(bo));
+        PinpointServerAcceptor serverAcceptor = createServerFactory(SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE, new ServerListener(bo));
         serverAcceptor.bind("localhost", bindPort);
 
         PinpointClientFactory clientFactory = createSocketFactory();
@@ -240,12 +240,12 @@ public class StreamChannelManagerTest {
     // ServerStreamChannel first close.
     @Test(expected = PinpointSocketException.class)
     public void streamClosedTest3() throws IOException, InterruptedException {
-        PinpointServerAcceptor serverAcceptor = createServerFactory(new TestSeverMessageListener(), null);
+        PinpointServerAcceptor serverAcceptor = createServerFactory(SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE, null);
         serverAcceptor.bind("localhost", bindPort);
 
         SimpleStreamBO bo = new SimpleStreamBO();
 
-        PinpointClientFactory clientFactory = createSocketFactory(new TestListener(), new ServerListener(bo));
+        PinpointClientFactory clientFactory = createSocketFactory(SimpleMessageListener.INSTANCE, new ServerListener(bo));
 
         PinpointClient client = clientFactory.connect("127.0.0.1", bindPort);
         try {
@@ -310,10 +310,6 @@ public class StreamChannelManagerTest {
         clientFactory.setServerStreamChannelMessageListener(serverStreamChannelMessageListener);
 
         return clientFactory;
-    }
-
-    class TestListener extends SimpleLoggingMessageListener {
-
     }
 
     private void sendRandomBytes(SimpleStreamBO bo) {

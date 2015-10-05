@@ -103,7 +103,7 @@ public final class PinpointRPCTestUtils {
     public static PinpointClientFactory createClientFactory(Map param, MessageListener messageListener) {
         PinpointClientFactory clientFactory = new PinpointClientFactory();
         clientFactory.setProperties(param);
-        clientFactory.addStateChangeEventListener(LoggingStateChangeEventListener.getInstance());
+        clientFactory.addStateChangeEventListener(LoggingStateChangeEventListener.INSTANCE);
 
         if (messageListener != null) {
             clientFactory.setMessageListener(messageListener);

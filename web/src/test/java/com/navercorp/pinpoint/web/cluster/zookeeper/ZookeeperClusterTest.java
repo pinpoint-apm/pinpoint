@@ -18,12 +18,8 @@ package com.navercorp.pinpoint.web.cluster.zookeeper;
 
 import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.common.util.NetUtils;
-import com.navercorp.pinpoint.rpc.MessageListener;
-import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.web.util.PinpointWebTestUtils;
 import org.apache.curator.test.TestingServer;
 import org.apache.zookeeper.CreateMode;
@@ -201,20 +197,6 @@ public class ZookeeperClusterTest {
         if (clientFactory != null) {
             clientFactory.release();
         }
-    }
-
-    class SimpleListener implements MessageListener {
-
-        @Override
-        public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-
-        }
-
-        @Override
-        public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-
-        }
-
     }
 
     public void createPath(ZooKeeper zookeeper, String path, boolean createEndNode) throws PinpointZookeeperException, InterruptedException, KeeperException {

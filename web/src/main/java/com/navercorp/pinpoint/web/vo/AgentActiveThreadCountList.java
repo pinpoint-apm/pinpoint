@@ -51,6 +51,13 @@ public class AgentActiveThreadCountList {
         return agentActiveThreadRepository;
     }
 
+
+    @Override
+    public String toString() {
+        return "AgentActiveThreadCountList{" +
+                "agentActiveThreadRepository=" + agentActiveThreadRepository +
+                '}';
+    }
 }
 
 class AgentActiveThreadCountListSerializer extends JsonSerializer<AgentActiveThreadCountList>

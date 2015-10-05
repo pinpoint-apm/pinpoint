@@ -83,7 +83,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
     private final PinpointServerChannelHandler nettyChannelHandler = new PinpointServerChannelHandler();
 
-    private ServerMessageListener messageListener = SimpleLoggingServerMessageListener.LISTENER;
+    private ServerMessageListener messageListener = SimpleServerMessageListener.SIMPLEX_INSTANCE;
     private ServerStreamChannelMessageListener serverStreamChannelMessageListener = DisabledServerStreamChannelMessageListener.INSTANCE;
     private List<ServerStateChangeEventHandler> stateChangeEventHandler = new ArrayList<ServerStateChangeEventHandler>();
 
