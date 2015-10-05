@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.ConnectFuture.Result;
+import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
@@ -129,6 +130,16 @@ public class ReconnectStateClientHandler implements PinpointClientHandler {
 
     @Override
     public SocketAddress getRemoteAddress() {
+        return null;
+    }
+
+    @Override
+    public ClusterOption getLocalClusterOption() {
+        return null;
+    }
+
+    @Override
+    public ClusterOption getRemoteClusterOption() {
         return null;
     }
 

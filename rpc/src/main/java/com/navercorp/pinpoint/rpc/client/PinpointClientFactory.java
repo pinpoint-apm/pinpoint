@@ -17,6 +17,28 @@
 package com.navercorp.pinpoint.rpc.client;
 
 
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.rpc.MessageListener;
+import com.navercorp.pinpoint.rpc.PinpointSocketException;
+import com.navercorp.pinpoint.rpc.StateChangeEventListener;
+import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
+import com.navercorp.pinpoint.rpc.cluster.Role;
+import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.util.AssertUtils;
+import com.navercorp.pinpoint.rpc.util.LoggerFactorySetup;
+import com.navercorp.pinpoint.rpc.util.TimerFactory;
+import org.jboss.netty.bootstrap.ClientBootstrap;
+import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.socket.nio.NioClientBossPool;
+import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+import org.jboss.netty.channel.socket.nio.NioWorkerPool;
+import org.jboss.netty.util.*;
+import org.jboss.netty.util.Timer;
+import org.jboss.netty.util.TimerTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.*;
@@ -24,33 +46,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import com.navercorp.pinpoint.rpc.MessageListener;
-import com.navercorp.pinpoint.rpc.StateChangeEventListener;
-import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineException;
-import org.jboss.netty.channel.socket.nio.NioClientBossPool;
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
-import org.jboss.netty.channel.socket.nio.NioWorkerPool;
-import org.jboss.netty.util.HashedWheelTimer;
-import org.jboss.netty.util.ThreadNameDeterminer;
-import org.jboss.netty.util.Timeout;
-import org.jboss.netty.util.Timer;
-import org.jboss.netty.util.TimerTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.rpc.PinpointSocketException;
-import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.util.AssertUtils;
-import com.navercorp.pinpoint.rpc.util.LoggerFactorySetup;
-import com.navercorp.pinpoint.rpc.util.TimerFactory;
 
 /**
  * @author emeroad
@@ -81,8 +76,10 @@ public class PinpointClientFactory {
     private long pingDelay = DEFAULT_PING_DELAY;
     private long enableWorkerPacketDelay = DEFAULT_ENABLE_WORKER_PACKET_DELAY;
     private long timeoutMillis = DEFAULT_TIMEOUTMILLIS;
-    
-    private MessageListener messageListener = SimpleLoggingMessageListener.LISTENER;
+
+    private ClusterOption clusterOption = ClusterOption.DISABLE_CLUSTER_OPTION;
+
+    private MessageListener messageListener = SimpleMessageListener.INSTANCE;
     private List<StateChangeEventListener> stateChangeEventListeners = new ArrayList<StateChangeEventListener>();
     private ServerStreamChannelMessageListener serverStreamChannelMessageListener = DisabledServerStreamChannelMessageListener.INSTANCE;
 
@@ -405,6 +402,18 @@ public class PinpointClientFactory {
         AssertUtils.assertNotNull(properties, "agentProperties must not be null");
 
         this.properties = Collections.unmodifiableMap(agentProperties);
+    }
+
+    public ClusterOption getClusterOption() {
+        return clusterOption;
+    }
+
+    public void setClusterOption(String id, List<Role> roles) {
+        this.clusterOption = new ClusterOption(true, id, roles);
+    }
+
+    public void setClusterOption(ClusterOption clusterOption) {
+        this.clusterOption = clusterOption;
     }
 
     public MessageListener getMessageListener() {

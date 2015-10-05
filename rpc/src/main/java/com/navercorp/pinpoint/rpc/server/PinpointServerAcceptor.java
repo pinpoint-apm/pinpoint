@@ -24,6 +24,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -81,12 +83,14 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
     private final PinpointServerChannelHandler nettyChannelHandler = new PinpointServerChannelHandler();
 
-    private ServerMessageListener messageListener = SimpleLoggingServerMessageListener.LISTENER;
+    private ServerMessageListener messageListener = SimpleServerMessageListener.SIMPLEX_INSTANCE;
     private ServerStreamChannelMessageListener serverStreamChannelMessageListener = DisabledServerStreamChannelMessageListener.INSTANCE;
     private List<ServerStateChangeEventHandler> stateChangeEventHandler = new ArrayList<ServerStateChangeEventHandler>();
 
     private final Timer healthCheckTimer;
     private final Timer requestManagerTimer;
+
+    private final ClusterOption clusterOption;
 
     private long defaultRequestTimeout = DEFAULT_TIMEOUTMILLIS;
 
@@ -95,6 +99,10 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     public PinpointServerAcceptor() {
+        this(ClusterOption.DISABLE_CLUSTER_OPTION);
+    }
+
+    public PinpointServerAcceptor(ClusterOption clusterOption) {
         ServerBootstrap bootstrap = createBootStrap(1, WORKER_COUNT);
         setOptions(bootstrap);
         addPipeline(bootstrap);
@@ -102,6 +110,8 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
         this.healthCheckTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-HealthCheckTimer", 50, TimeUnit.MILLISECONDS, 512);
         this.requestManagerTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-RequestManager", 50, TimeUnit.MILLISECONDS, 512);
+
+        this.clusterOption = clusterOption;
     }
 
     private ServerBootstrap createBootStrap(int bossCount, int workerCount) {
@@ -153,6 +163,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
             return;
         }
 
+        logger.info("bind() {}", bindAddress);
         this.serverChannel = bootstrap.bind(bindAddress);
         sendPing();
     }
@@ -237,6 +248,11 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
         return requestManagerTimer;
     }
 
+    @Override
+    public ClusterOption getClusterOption() {
+        return clusterOption;
+    }
+
     private void sendPing() {
         logger.debug("sendPing");
         final TimerTask pintTask = new TimerTask() {
@@ -314,8 +330,8 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
         }
     }
     
-    public List<PinpointServer> getWritableServerList() {
-        List<PinpointServer> pinpointServerList = new ArrayList<PinpointServer>();
+    public List<PinpointSocket> getWritableSocketList() {
+        List<PinpointSocket> pinpointServerList = new ArrayList<PinpointSocket>();
 
         for (Channel channel : channelGroup) {
             DefaultPinpointServer pinpointServer = (DefaultPinpointServer) channel.getAttachment();

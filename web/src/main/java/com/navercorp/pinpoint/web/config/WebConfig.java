@@ -45,10 +45,13 @@ public class WebConfig {
     @Value("#{pinpointWebProps['cluster.zookeeper.retry.interval'] ?: 60000}")
     private int clusterZookeeperRetryInterval;
 
+    @Value("#{pinpointWebProps['cluster.connect.address'] ?: ''}")
+    private String clusterConnectAddress;
+
     @PostConstruct
     public void validation() {
         if (isClusterEnable()) {
-            assertPort(clusterTcpPort);
+//            assertPort(clusterTcpPort);
             if(StringUtils.isEmpty(clusterZookeeperAddress)) {
                 throw new IllegalArgumentException("clusterZookeeperAddress may not be empty =" + clusterZookeeperAddress);
             }
@@ -91,13 +94,17 @@ public class WebConfig {
         return clusterZookeeperSessionTimeout;
     }
 
+    public String getClusterConnectAddress() {
+        return clusterConnectAddress;
+    }
+
     @Override
     public String toString() {
         return "WebConfig [clusterEnable=" + clusterEnable
                 + ", clusterTcpPort=" + clusterTcpPort
                 + ", clusterZookeeperAddress=" + clusterZookeeperAddress
-                + ", clusterZookeeperSessionTimeout="
-                + clusterZookeeperSessionTimeout + "]";
+                + ", clusterZookeeperSessionTimeout=" + clusterZookeeperSessionTimeout
+                + ", clusterConnectAddress=" + clusterConnectAddress + "]";
     }
 
     public int getClusterZookeeperRetryInterval() {

@@ -51,6 +51,13 @@ public class AgentActiveThreadCountList {
         return agentActiveThreadRepository;
     }
 
+
+    @Override
+    public String toString() {
+        return "AgentActiveThreadCountList{" +
+                "agentActiveThreadRepository=" + agentActiveThreadRepository +
+                '}';
+    }
 }
 
 class AgentActiveThreadCountListSerializer extends JsonSerializer<AgentActiveThreadCountList>
@@ -62,7 +69,7 @@ class AgentActiveThreadCountListSerializer extends JsonSerializer<AgentActiveThr
         jgen.writeStartObject();
 
         for (AgentActiveThreadCount agentActiveThread : agentActiveThreadRepository) {
-            jgen.writeFieldName(agentActiveThread.getHostname());
+            jgen.writeFieldName(agentActiveThread.getAgentId());
             jgen.writeStartObject();
 
             TRouteResult routeResult = agentActiveThread.getRouteResult(TRouteResult.UNKNOWN);

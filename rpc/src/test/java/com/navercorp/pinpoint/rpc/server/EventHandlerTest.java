@@ -60,7 +60,7 @@ public class EventHandlerTest {
 
         PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
         serverAcceptor.addStateChangeEventHandler(eventHandler);
-        serverAcceptor.setMessageListener(new SimpleListener());
+        serverAcceptor.setMessageListener(SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE);
         serverAcceptor.bind("127.0.0.1", bindPort);
 
         Socket socket = null;
@@ -88,7 +88,7 @@ public class EventHandlerTest {
 
         PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
         serverAcceptor.addStateChangeEventHandler(eventHandler);
-        serverAcceptor.setMessageListener(new SimpleListener());
+        serverAcceptor.setMessageListener(SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE);
         serverAcceptor.bind("127.0.0.1", bindPort);
 
         Socket socket = null;
@@ -185,31 +185,6 @@ public class EventHandlerTest {
 
         return payload;
     }
-
-    class SimpleListener implements ServerMessageListener {
-
-        @Override
-        public void handleSend(SendPacket sendPacket, PinpointSocket pinpointSocket) {
-        }
-
-        @Override
-        public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-            logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
-            pinpointSocket.response(requestPacket, requestPacket.getPayload());
-        }
-
-        @Override
-        public HandshakeResponseCode handleHandshake(Map properties) {
-            logger.info("handle Handshake {}", properties);
-            return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
-        }
-
-        @Override
-        public void handlePing(PingPacket pingPacket, PinpointServer pinpointServer) {
-            
-        }
-    }
-
 
     class EventHandler implements ServerStateChangeEventHandler {
 

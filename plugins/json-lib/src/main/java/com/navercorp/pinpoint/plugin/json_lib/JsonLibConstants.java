@@ -14,8 +14,6 @@
  */
 package com.navercorp.pinpoint.plugin.json_lib;
 
-import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
-
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
@@ -27,6 +25,6 @@ public final class JsonLibConstants {
     private JsonLibConstants() {
     }
 
-    public static final ServiceType SERVICE_TYPE = ServiceType.of(5012, "JSON-LIB", NORMAL_SCHEMA);
+    public static final ServiceType SERVICE_TYPE = ServiceType.of(5012, "JSON-LIB");
     public static final AnnotationKey JSON_LIB_ANNOTATION_KEY_JSON_LENGTH = new AnnotationKey(9002, "json-lib.json.length");
 }

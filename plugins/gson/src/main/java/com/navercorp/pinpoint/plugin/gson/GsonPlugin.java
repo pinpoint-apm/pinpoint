@@ -15,8 +15,6 @@
  */
 package com.navercorp.pinpoint.plugin.gson;
 
-import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
-
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
@@ -35,7 +33,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author ChaYoung You
  */
 public class GsonPlugin implements ProfilerPlugin {
-    public static final ServiceType GSON_SERVICE_TYPE = ServiceType.of(5010, "GSON", NORMAL_SCHEMA);
+    public static final ServiceType GSON_SERVICE_TYPE = ServiceType.of(5010, "GSON");
     public static final AnnotationKey GSON_ANNOTATION_KEY_JSON_LENGTH = new AnnotationKey(9000, "gson.json.length");
 
     private static final String GSON_GROUP = "GSON_GROUP";

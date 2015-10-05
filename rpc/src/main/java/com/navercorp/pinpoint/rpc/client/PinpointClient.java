@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.rpc.*;
+import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
@@ -137,6 +138,16 @@ public class PinpointClient implements PinpointSocket {
     @Override
     public SocketAddress getRemoteAddress() {
         return pinpointClientHandler.getRemoteAddress();
+    }
+
+    @Override
+    public ClusterOption getLocalClusterOption() {
+        return pinpointClientHandler.getLocalClusterOption();
+    }
+
+    @Override
+    public ClusterOption getRemoteClusterOption() {
+        return pinpointClientHandler.getRemoteClusterOption();
     }
 
     public ClientStreamChannelContext createStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {

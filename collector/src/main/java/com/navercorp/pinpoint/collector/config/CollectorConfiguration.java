@@ -83,6 +83,9 @@ public class CollectorConfiguration implements InitializingBean {
     private String clusterAddress;
     private int clusterSessionTimeout;
 
+    private String clusterListenIp;
+    private int clusterListenPort;
+
     public String getTcpListenIp() {
         return tcpListenIp;
     }
@@ -242,6 +245,22 @@ public class CollectorConfiguration implements InitializingBean {
         this.clusterSessionTimeout = clusterSessionTimeout;
     }
 
+    public String getClusterListenIp() {
+        return clusterListenIp;
+    }
+
+    public void setClusterListenIp(String clusterListenIp) {
+        this.clusterListenIp = clusterListenIp;
+    }
+
+    public int getClusterListenPort() {
+        return clusterListenPort;
+    }
+
+    public void setClusterListenPort(int clusterListenPort) {
+        this.clusterListenPort = clusterListenPort;
+    }
+
     public void readConfigFile() {
 
         // may be useful for some kind of standalone like testcase. It should be modified to read a classpath for testcase.
@@ -303,6 +322,9 @@ public class CollectorConfiguration implements InitializingBean {
         this.clusterEnable = readBoolean(properties, "cluster.enable");
         this.clusterAddress = readString(properties, "cluster.zookeeper.address", "");
         this.clusterSessionTimeout = readInt(properties, "cluster.zookeeper.sessiontimeout", -1);
+
+        this.clusterListenIp = readString(properties, "cluster.listen.ip", "");
+        this.clusterListenPort = readInt(properties, "cluster.listen.port", -1);
     }
 
     private String readString(Properties properties, String propertyName, String defaultValue) {
@@ -338,6 +360,7 @@ public class CollectorConfiguration implements InitializingBean {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("CollectorConfiguration{");
+
         sb.append("tcpListenIp='").append(tcpListenIp).append('\'');
         sb.append(", tcpListenPort=").append(tcpListenPort);
         sb.append(", tcpWorkerThread=").append(tcpWorkerThread);
@@ -358,7 +381,9 @@ public class CollectorConfiguration implements InitializingBean {
         sb.append(", clusterEnable=").append(clusterEnable);
         sb.append(", clusterAddress=").append(clusterAddress);
         sb.append(", clusterSessionTimeout=").append(clusterSessionTimeout);
-        
+        sb.append(", clusterListenIp=").append(clusterListenIp);
+        sb.append(", clusterListenPort=").append(clusterListenPort);
+
         sb.append('}');
         return sb.toString();
     }

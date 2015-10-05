@@ -20,8 +20,8 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
@@ -35,12 +35,14 @@ import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import com.navercorp.pinpoint.web.cluster.DefaultPinpointRouteResponse;
 import com.navercorp.pinpoint.web.cluster.FailedPinpointRouteResponse;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
-import com.navercorp.pinpoint.web.server.PinpointSocketManager;
+import com.navercorp.pinpoint.web.cluster.connection.WebClusterConnectionManager;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCount;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -55,11 +57,13 @@ public class AgentServiceImpl implements AgentService {
 
     private static final long DEFAULT_FUTURE_TIMEOUT = 3000;
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     private AgentInfoService agentInfoService;
 
     @Autowired
-    private PinpointSocketManager pinpointSocketManager;
+    private WebClusterConnectionManager clusterConnectionManager;
 
     @Autowired
     private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
@@ -137,9 +141,13 @@ public class AgentServiceImpl implements AgentService {
     @Override
     public PinpointRouteResponse invoke(AgentInfo agentInfo, byte[] payload, long timeout) throws TException {
         TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
-        PinpointServer collector = pinpointSocketManager.getCollector(agentInfo);
+        PinpointSocket socket = clusterConnectionManager.getSocket(agentInfo);
 
-        Future<ResponseMessage> future = collector.request(serialize(transferObject));
+        Future<ResponseMessage> future = null;
+        if (socket != null) {
+            future = socket.request(serialize(transferObject));
+        }
+
         PinpointRouteResponse response = getResponse(future, timeout);
         return response;
     }
@@ -170,9 +178,13 @@ public class AgentServiceImpl implements AgentService {
         Map<AgentInfo, Future<ResponseMessage>> futureMap = new HashMap<AgentInfo, Future<ResponseMessage>>();
         for (AgentInfo agentInfo : agentInfoList) {
             TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
-            PinpointServer collector = pinpointSocketManager.getCollector(agentInfo);
-            Future<ResponseMessage> future = collector.request(serialize(transferObject));
-            futureMap.put(agentInfo, future);
+            PinpointSocket socket = clusterConnectionManager.getSocket(agentInfo);
+            if (socket != null) {
+                Future<ResponseMessage> future = socket.request(serialize(transferObject));
+                futureMap.put(agentInfo, future);
+            } else {
+                futureMap.put(agentInfo, null);
+            }
         }
 
         long startTime = System.currentTimeMillis();
@@ -204,10 +216,11 @@ public class AgentServiceImpl implements AgentService {
             AgentInfo agentInfo = entry.getKey();
             PinpointRouteResponse response = entry.getValue();
 
-            AgentActiveThreadCount agentActiveThreadStatus = new AgentActiveThreadCount(agentInfo.getHostName(),
+            AgentActiveThreadCount agentActiveThreadStatus = new AgentActiveThreadCount(agentInfo.getAgentId(),
                     response.getRouteResult(), response.getResponse(TCmdActiveThreadCountRes.class, null));
             agentActiveThreadStatusList.add(agentActiveThreadStatus);
         }
+
         return agentActiveThreadStatusList;
     }
 
@@ -234,6 +247,10 @@ public class AgentServiceImpl implements AgentService {
     }
 
     private PinpointRouteResponse getResponse(Future<ResponseMessage> future, long timeout) {
+        if (future == null) {
+            return new FailedPinpointRouteResponse(TRouteResult.NOT_FOUND, null);
+        }
+
         boolean completed = future.await(DEFAULT_FUTURE_TIMEOUT);
         if (completed) {
             DefaultPinpointRouteResponse response = new DefaultPinpointRouteResponse(future.getResult().getMessage());

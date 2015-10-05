@@ -41,8 +41,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  */
 public class IBatisPlugin implements ProfilerPlugin {
 
-    public static final ServiceType IBATIS = ServiceType.of(5500, "IBATIS", NORMAL_SCHEMA);
-    public static final ServiceType IBATIS_SPRING = ServiceType.of(5501, "IBATIS_SPRING", "IBATIS", NORMAL_SCHEMA);
+    public static final ServiceType IBATIS = ServiceType.of(5500, "IBATIS");
+    public static final ServiceType IBATIS_SPRING = ServiceType.of(5501, "IBATIS_SPRING", "IBATIS");
 
     private static final String IBATIS_SCOPE = "IBATIS_SCOPE";
 

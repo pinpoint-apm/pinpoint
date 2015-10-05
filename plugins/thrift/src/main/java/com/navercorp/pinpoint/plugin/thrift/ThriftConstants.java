@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.thrift;
 
-import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 import java.util.regex.Pattern;
@@ -32,10 +31,10 @@ public final class ThriftConstants {
     private ThriftConstants() {
     }
 
-    public static final ServiceType THRIFT_SERVER = ServiceType.of(1100, "THRIFT_SERVER", NORMAL_SCHEMA, RECORD_STATISTICS);
-    public static final ServiceType THRIFT_CLIENT = ServiceType.of(9100, "THRIFT_CLIENT", NORMAL_SCHEMA, RECORD_STATISTICS);
-    public static final ServiceType THRIFT_SERVER_INTERNAL = ServiceType.of(1101, "THRIFT_SERVER_INTERNAL", "THRIFT_SERVER", NORMAL_SCHEMA);
-    public static final ServiceType THRIFT_CLIENT_INTERNAL = ServiceType.of(9101, "THRIFT_CLIENT_INTERNAL", "THRIFT_CLIENT", NORMAL_SCHEMA);
+    public static final ServiceType THRIFT_SERVER = ServiceType.of(1100, "THRIFT_SERVER", RECORD_STATISTICS);
+    public static final ServiceType THRIFT_CLIENT = ServiceType.of(9100, "THRIFT_CLIENT", RECORD_STATISTICS);
+    public static final ServiceType THRIFT_SERVER_INTERNAL = ServiceType.of(1101, "THRIFT_SERVER_INTERNAL", "THRIFT_SERVER");
+    public static final ServiceType THRIFT_CLIENT_INTERNAL = ServiceType.of(9101, "THRIFT_CLIENT_INTERNAL", "THRIFT_CLIENT");
     
     public static final AnnotationKey THRIFT_URL = new AnnotationKey(80, "thrift.url");
     public static final AnnotationKey THRIFT_ARGS = new AnnotationKey(81, "thrift.args", AnnotationKeyProperty.VIEW_IN_RECORD_SET);

@@ -16,8 +16,6 @@
  */
 package com.navercorp.pinpoint.plugin.jackson;
 
-import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
-
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
@@ -29,7 +27,7 @@ public final class JacksonConstants {
     private JacksonConstants() {
     }
 
-    public static final ServiceType SERVICE_TYPE = ServiceType.of(5011, "JACKSON", NORMAL_SCHEMA);
+    public static final ServiceType SERVICE_TYPE = ServiceType.of(5011, "JACKSON");
 
     public static final AnnotationKey ANNOTATION_KEY_LENGTH_VALUE = new AnnotationKey(9001, "jackson.json.length");
 }

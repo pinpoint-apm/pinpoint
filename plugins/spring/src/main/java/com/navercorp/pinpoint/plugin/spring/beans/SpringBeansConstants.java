@@ -14,8 +14,6 @@
  */
 package com.navercorp.pinpoint.plugin.spring.beans;
 
-import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
-
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
@@ -26,5 +24,5 @@ public final class SpringBeansConstants {
     private SpringBeansConstants() {
     }
 
-    public static final ServiceType SERVICE_TYPE = ServiceType.of(5071, "SPRING_BEAN", "SPRING_BEAN", NORMAL_SCHEMA);
+    public static final ServiceType SERVICE_TYPE = ServiceType.of(5071, "SPRING_BEAN", "SPRING_BEAN");
 }

@@ -16,23 +16,19 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
+import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
+import com.navercorp.pinpoint.rpc.server.SimpleServerMessageListener;
+import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
+import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils.EchoClientListener;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.rpc.server.SimpleLoggingServerMessageListener;
-import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
-import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils.EchoClientListener;
+import java.io.IOException;
+import java.util.List;
 
 public class ClientMessageListenerTest {
 
@@ -47,7 +43,7 @@ public class ClientMessageListenerTest {
 
     @Test
     public void clientMessageListenerTest1() throws InterruptedException {
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new AlwaysHandshakeSuccessListener());
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_INSTANCE);
 
         EchoClientListener echoMessageListener = new EchoClientListener();
         PinpointClientFactory clientSocketFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), echoMessageListener);
@@ -56,12 +52,12 @@ public class ClientMessageListenerTest {
             PinpointClient client = clientSocketFactory.connect("127.0.0.1", bindPort);
             Thread.sleep(500);
 
-            List<PinpointServer> writableServerList = serverAcceptor.getWritableServerList();
+            List<PinpointSocket> writableServerList = serverAcceptor.getWritableSocketList();
             if (writableServerList.size() != 1) {
                 Assert.fail();
             }
 
-            PinpointServer writableServer = writableServerList.get(0);
+            PinpointSocket writableServer = writableServerList.get(0);
             assertSendMessage(writableServer, "simple", echoMessageListener);
             assertRequestMessage(writableServer, "request", echoMessageListener);
 
@@ -74,7 +70,7 @@ public class ClientMessageListenerTest {
 
     @Test
     public void clientMessageListenerTest2() throws InterruptedException {
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new AlwaysHandshakeSuccessListener());
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_INSTANCE);
 
         EchoClientListener echoMessageListener1 = PinpointRPCTestUtils.createEchoClientListener();
         PinpointClientFactory clientSocketFactory1 = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), echoMessageListener1);
@@ -88,15 +84,15 @@ public class ClientMessageListenerTest {
 
             Thread.sleep(500);
 
-            List<PinpointServer> writableServerList = serverAcceptor.getWritableServerList();
+            List<PinpointSocket> writableServerList = serverAcceptor.getWritableSocketList();
             if (writableServerList.size() != 2) {
                 Assert.fail();
             }
 
-            PinpointServer writableServer = writableServerList.get(0);
+            PinpointSocket writableServer = writableServerList.get(0);
             assertRequestMessage(writableServer, "socket1", null);
 
-            PinpointServer writableServer2 = writableServerList.get(1);
+            PinpointSocket writableServer2 = writableServerList.get(1);
             assertRequestMessage(writableServer2, "socket2", null);
 
             Assert.assertEquals(1, echoMessageListener1.getRequestPacketRepository().size());
@@ -111,27 +107,19 @@ public class ClientMessageListenerTest {
         }
     }
 
-    private void assertSendMessage(PinpointServer writableServer, String message, EchoClientListener echoMessageListener) throws InterruptedException {
+    private void assertSendMessage(PinpointSocket writableServer, String message, EchoClientListener echoMessageListener) throws InterruptedException {
         writableServer.send(message.getBytes());
         Thread.sleep(100);
 
         Assert.assertEquals(message, new String(echoMessageListener.getSendPacketRepository().get(0).getPayload()));
     }
 
-    private void assertRequestMessage(PinpointServer writableServer, String message, EchoClientListener echoMessageListener) throws InterruptedException {
+    private void assertRequestMessage(PinpointSocket writableServer, String message, EchoClientListener echoMessageListener) throws InterruptedException {
         byte[] response = PinpointRPCTestUtils.request(writableServer, message.getBytes());
         Assert.assertEquals(message, new String(response));
 
         if (echoMessageListener != null) {
             Assert.assertEquals(message, new String(echoMessageListener.getRequestPacketRepository().get(0).getPayload()));
-        }
-    }
-
-    private class AlwaysHandshakeSuccessListener extends SimpleLoggingServerMessageListener {
-        @Override
-        public HandshakeResponseCode handleHandshake(Map properties) {
-            logger.info("handleEnableWorker {}", properties);
-            return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
         }
     }
 
