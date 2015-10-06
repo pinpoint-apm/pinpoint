@@ -17,14 +17,22 @@
 package com.navercorp.pinpoint.web.view;
 
 import java.util.HashSet;
+import java.util.Set;
 
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
+import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ServerInstanceListTest;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.web.applicationmap.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
@@ -39,13 +47,11 @@ public class ServerInstanceListSerializerTest {
     @Test
     public void testSerialize() throws Exception {
 
-        PinpointObjectMapper mapper = new PinpointObjectMapper();
-        mapper.afterPropertiesSet();
-
+        PinpointObjectMapper mapper = createMapper();
 
         AgentInfo agentInfo = ServerInstanceListTest.createAgentInfo("agentId1", "testHost");
 
-        HashSet<AgentInfo> agentInfoSet = new HashSet<AgentInfo>();
+        Set<AgentInfo> agentInfoSet = new HashSet<>();
         agentInfoSet.add(agentInfo);
 
         ServerBuilder builder = new ServerBuilder();
@@ -56,5 +62,51 @@ public class ServerInstanceListSerializerTest {
         String json = objectWriter.writeValueAsString(serverInstanceList);
         logger.debug(json);
     }
+
+
+    private PinpointObjectMapper createMapper() throws Exception {
+        PinpointObjectMapper mapper = new PinpointObjectMapper();
+        // TODO FIX spring managed object
+        mapper.setHandlerInstantiator(new TestHandlerInstantiator());
+        mapper.afterPropertiesSet();
+        return mapper;
+    }
+
+    public class TestHandlerInstantiator extends HandlerInstantiator {
+
+        public TestHandlerInstantiator() {
+        }
+
+        public JsonSerializer<?> serializerInstance(SerializationConfig config, Annotated annotated, Class<?> keyDeserClass) {
+            if (annotated.getName().equals("com.navercorp.pinpoint.web.applicationmap.ServerInstance")) {
+                final ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService();
+                final ServerInstanceSerializer serverInstanceSerializer = new ServerInstanceSerializer();
+                serverInstanceSerializer.setServiceTypeRegistryService(serviceTypeRegistryService);
+                return serverInstanceSerializer;
+            }
+            return null;
+        }
+
+        @Override
+        public JsonDeserializer<?> deserializerInstance(DeserializationConfig config, Annotated annotated, Class<?> deserClass) {
+            return null;
+        }
+
+        @Override
+        public KeyDeserializer keyDeserializerInstance(DeserializationConfig config, Annotated annotated, Class<?> keyDeserClass) {
+            return null;
+        }
+
+        @Override
+        public TypeResolverBuilder<?> typeResolverBuilderInstance(MapperConfig<?> config, Annotated annotated, Class<?> builderClass) {
+            return null;
+        }
+
+        @Override
+        public TypeIdResolver typeIdResolverInstance(MapperConfig<?> config, Annotated annotated, Class<?> resolverClass) {
+            return null;
+        }
+    }
+
 
 }

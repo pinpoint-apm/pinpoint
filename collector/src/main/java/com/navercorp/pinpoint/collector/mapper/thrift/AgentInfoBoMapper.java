@@ -17,10 +17,8 @@
 package com.navercorp.pinpoint.collector.mapper.thrift;
 
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,8 +26,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AgentInfoBoMapper implements ThriftBoMapper<AgentInfoBo, TAgentInfo> {
-    @Autowired
-    private ServiceTypeRegistryService registry;
 
     @Override
     public AgentInfoBo map(TAgentInfo thriftObject) {
@@ -53,7 +49,6 @@ public class AgentInfoBoMapper implements ThriftBoMapper<AgentInfoBo, TAgentInfo
         builder.setAgentId(agentId);
         builder.setApplicationName(applicationName);
         builder.setServiceTypeCode(serviceType);
-        builder.setServiceType(registry.findServiceType(serviceType));
         builder.setPid(pid);
         builder.setVmVersion(vmVersion);
         builder.setAgentVersion(agentVersion);
