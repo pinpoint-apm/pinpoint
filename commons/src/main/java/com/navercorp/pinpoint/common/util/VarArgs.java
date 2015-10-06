@@ -20,7 +20,7 @@ public final class VarArgs {
     private VarArgs() {
     }
 
-    public static <T> T[] va(T... args) {
+    public static Object[] va(Object... args) {
         return args;
     }
 }
