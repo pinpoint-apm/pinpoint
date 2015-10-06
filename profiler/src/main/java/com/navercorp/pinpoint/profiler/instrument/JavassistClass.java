@@ -525,7 +525,7 @@ public class JavassistClass implements InstrumentClass {
 
     @Override
     public int addGroupedInterceptor(MethodFilter filter, String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy) throws InstrumentException {
-        return addGroupedInterceptor(filter, interceptorClassName, group, executionPolicy);
+        return addGroupedInterceptor(filter, interceptorClassName, null, group, executionPolicy);
     }
 
     @Override
