@@ -43,9 +43,8 @@ import java.util.Arrays;
 
 /**
  * rowkey = caller col = callee
- * 
+ *
  * @author netspider
- * 
  */
 @Component
 public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
@@ -90,61 +89,30 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
 
         // key is destApplicationName.
         final LinkDataMap linkDataMap = new LinkDataMap();
-        for (Cell cell :  result.rawCells()) {
-            if (CellUtil.matchingFamily(cell, HBaseTables.MAP_STATISTICS_CALLEE_CF_COUNTER)) {
-                final byte[] qualifier = CellUtil.cloneQualifier(cell);
-                final Application callee = readCalleeApplication(qualifier);
-                if (filter.filter(callee)) {
-                    continue;
-                }
-
-                long requestCount = getValueToLong(cell);
-
-                short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
-                boolean isError = histogramSlot == (short) -1;
-
-                String calleeHost = ApplicationMapStatisticsUtils.getHost(qualifier);
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("    Fetched Caller.  {} -> {} (slot:{}/{}) calleeHost:{}", caller, callee, histogramSlot, requestCount, calleeHost);
-                }
-
-                final short slotTime = (isError) ? (short) -1 : histogramSlot;
-                if (StringUtils.isEmpty(calleeHost)) {
-                    calleeHost = callee.getName();
-                }
-                linkDataMap.addLinkData(caller, caller.getName(), callee, calleeHost, timestamp, slotTime, requestCount);
-
-
-            } else if (CellUtil.matchingFamily(cell, HBaseTables.MAP_STATISTICS_CALLEE_CF_VER2_COUNTER)) {
-
-                final Buffer buffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset());
-                final Application callee = readCalleeApplication(buffer);
-                if (filter.filter(callee)) {
-                    continue;
-                }
-
-                String calleeHost = buffer.readPrefixedString();
-                short histogramSlot = buffer.readShort();
-
-                boolean isError = histogramSlot == (short) -1;
-
-                String callerAgentId = buffer.readPrefixedString();
-
-                long requestCount = getValueToLong(cell);
-                if (logger.isDebugEnabled()) {
-                    logger.debug("    Fetched Caller.(New) {} {} -> {} (slot:{}/{}) calleeHost:{}", caller, callerAgentId, callee, histogramSlot, requestCount, calleeHost);
-                }
-
-                final short slotTime = (isError) ? (short) -1 : histogramSlot;
-                if (StringUtils.isEmpty(calleeHost)) {
-                    calleeHost = callee.getName();
-                }
-                linkDataMap.addLinkData(caller, callerAgentId, callee, calleeHost, timestamp, slotTime, requestCount);
-            } else {
-                throw new IllegalArgumentException("unknown ColumnFamily :" + Arrays.toString(CellUtil.cloneFamily(cell)));
+        for (Cell cell : result.rawCells()) {
+            final Buffer buffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset());
+            final Application callee = readCalleeApplication(buffer);
+            if (filter.filter(callee)) {
+                continue;
             }
 
+            String calleeHost = buffer.readPrefixedString();
+            short histogramSlot = buffer.readShort();
+
+            boolean isError = histogramSlot == (short) -1;
+
+            String callerAgentId = buffer.readPrefixedString();
+
+            long requestCount = getValueToLong(cell);
+            if (logger.isDebugEnabled()) {
+                logger.debug("    Fetched Caller.(New) {} {} -> {} (slot:{}/{}) calleeHost:{}", caller, callerAgentId, callee, histogramSlot, requestCount, calleeHost);
+            }
+
+            final short slotTime = (isError) ? (short) -1 : histogramSlot;
+            if (StringUtils.isEmpty(calleeHost)) {
+                calleeHost = callee.getName();
+            }
+            linkDataMap.addLinkData(caller, callerAgentId, callee, calleeHost, timestamp, slotTime, requestCount);
         }
 
         return linkDataMap;
@@ -153,14 +121,6 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
     private long getValueToLong(Cell cell) {
         return Bytes.toLong(cell.getValueArray(), cell.getValueOffset());
     }
-
-
-    private Application readCalleeApplication(byte[] qualifier) {
-        String calleeApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
-        short calleeServiceType = ApplicationMapStatisticsUtils.getDestServiceTypeFromColumnName(qualifier);
-        return applicationFactory.createApplication(calleeApplicationName, calleeServiceType);
-    }
-
 
     private Application readCalleeApplication(Buffer buffer) {
         short calleeServiceType = buffer.readShort();

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import java.util.*;
 
+import com.navercorp.pinpoint.common.hbase.HBaseAdminTemplate;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
@@ -40,20 +41,25 @@ import org.springframework.data.hadoop.hbase.ResultsExtractor;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.PostConstruct;
+
 /**
- * 
  * @author netspider
  * @author emeroad
- * 
  */
 @Repository
 public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private int scanCacheSize = 40;
+    private boolean backwardCompatibility = false;
+    private boolean tableExists = false;
 
     @Autowired
     private HbaseOperations2 hbaseOperations2;
+
+    @Autowired
+    HBaseAdminTemplate hBaseAdminTemplate;
 
     @Autowired
     @Qualifier("mapStatisticsCallerMapperBackwardCompatibility")
@@ -70,6 +76,23 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
     @Qualifier("statisticsCallerRowKeyDistributor")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
+    @PostConstruct
+    public void init() {
+        tableExists = hBaseAdminTemplate.tableExists(HBaseTables.MAP_STATISTICS_CALLEE_VER2);
+        if (!tableExists) {
+            logger.warn("Please create '{}' table.", HBaseTables.MAP_STATISTICS_CALLEE_VER2);
+        }
+
+        backwardCompatibility = hBaseAdminTemplate.tableExists(HBaseTables.MAP_STATISTICS_CALLEE);
+        if (backwardCompatibility) {
+            logger.warn("'{}' table exists. Recommend that only use '{}' table.", HBaseTables.MAP_STATISTICS_CALLEE, HBaseTables.MAP_STATISTICS_CALLEE_VER2);
+        }
+
+        if (!tableExists && !backwardCompatibility) {
+            throw new RuntimeException("Please check for '" + HBaseTables.MAP_STATISTICS_CALLEE_VER2 + "' table in HBase. Need to create '" + HBaseTables.MAP_STATISTICS_CALLEE_VER2 + "' table.");
+        }
+    }
+
     @Override
     public LinkDataMap selectCaller(Application callerApplication, Range range) {
         if (callerApplication == null) {
@@ -79,26 +102,28 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
             throw new NullPointerException("range must not be null");
         }
 
-        final Scan scan = createScan(callerApplication, range);
         final TimeWindow timeWindow = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
-        // find distributed key.
-        ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<LinkDataMap>(mapStatisticsCallerMapper, new MapStatisticsTimeWindowReducer(timeWindow));
-        LinkDataMap linkDataMap = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, rowKeyDistributorByHashPrefix, resultExtractor);
-        logger.debug("Caller data. {}, {}", linkDataMap, range);
-        
-        if (linkDataMap == null || linkDataMap.size() == 0) {
-            logger.debug("There's no caller data. {}, {}", callerApplication, range);
-
-            // backward compatibility - non distributed.
-            resultExtractor = new RowMapReduceResultExtractor<LinkDataMap>(mapStatisticsCallerMapperBackwardCompatibility, new MapStatisticsTimeWindowReducer(timeWindow));
-            linkDataMap = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, resultExtractor);
+        if(tableExists) {
+            // find distributed key.
+            final Scan scan = createScan(callerApplication, range, HBaseTables.MAP_STATISTICS_CALLEE_VER2_CF_COUNTER);
+            ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<LinkDataMap>(mapStatisticsCallerMapper, new MapStatisticsTimeWindowReducer(timeWindow));
+            LinkDataMap linkDataMap = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE_VER2, scan, rowKeyDistributorByHashPrefix, resultExtractor);
             logger.debug("Caller data. {}, {}", linkDataMap, range);
-            if(linkDataMap == null) {
-                return new LinkDataMap();
+            if(linkDataMap != null && linkDataMap.size() > 0) {
+                return linkDataMap;
             }
         }
 
-        return linkDataMap;
+        if (backwardCompatibility) {
+            // backward compatibility - non distributed.
+            final Scan scan = createScan(callerApplication, range, HBaseTables.MAP_STATISTICS_CALLEE_CF_COUNTER, HBaseTables.MAP_STATISTICS_CALLEE_CF_VER2_COUNTER);
+            ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<LinkDataMap>(mapStatisticsCallerMapperBackwardCompatibility, new MapStatisticsTimeWindowReducer(timeWindow));
+            LinkDataMap linkDataMap = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, resultExtractor);
+            logger.debug("Caller data. {}, {}", linkDataMap, range);
+            return linkDataMap != null ? linkDataMap : new LinkDataMap();
+        } else {
+            return new LinkDataMap();
+        }
     }
 
     /**
@@ -129,7 +154,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         return hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, mapper);
     }
 
-    private Scan createScan(Application application, Range range) {
+    private Scan createScan(Application application, Range range, byte[]... familyArgs) {
         range = rangeFactory.createStatisticsRange(range);
 
         if (logger.isDebugEnabled()) {
@@ -144,8 +169,9 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         scan.setCaching(this.scanCacheSize);
         scan.setStartRow(startKey);
         scan.setStopRow(endKey);
-        scan.addFamily(HBaseTables.MAP_STATISTICS_CALLEE_CF_COUNTER);
-        scan.addFamily(HBaseTables.MAP_STATISTICS_CALLEE_CF_VER2_COUNTER);
+        for(byte[] family : familyArgs) {
+            scan.addFamily(family);
+        }
         scan.setId("ApplicationStatisticsScan");
 
         return scan;
