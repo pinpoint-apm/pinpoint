@@ -93,7 +93,6 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
                 logger.debug("    Fetched Callee. {} callerHost:{} -> {} (slot:{}/{}),  ", callerApplication, callerHost, calleeApplication, histogramSlot, requestCount);
             }
 
-
             final short slotTime = (isError) ? (short) -1 : histogramSlot;
             linkDataMap.addLinkData(callerApplication, callerApplication.getName(), calleeApplication, callerHost, timestamp, slotTime, requestCount);
 

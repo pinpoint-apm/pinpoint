@@ -114,15 +114,15 @@
     </bean>
 
     <bean id="callerMerge" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
-        <constructor-arg value="#{hTable.MAP_STATISTICS_CALLEE_CF_VER2_COUNTER}"/>
+        <constructor-arg value="#{hTable.MAP_STATISTICS_CALLEE_VER2_CF_COUNTER}"/>
     </bean>
 
     <bean id="calleeMerge" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
-        <constructor-arg value="#{hTable.MAP_STATISTICS_CALLER_CF_COUNTER}"/>
+        <constructor-arg value="#{hTable.MAP_STATISTICS_CALLER_VER2_CF_COUNTER}"/>
     </bean>
 
     <bean id="selfMerge" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
-        <constructor-arg value="#{hTable.MAP_STATISTICS_SELF_CF_COUNTER}"/>
+        <constructor-arg value="#{hTable.MAP_STATISTICS_SELF_VER2_CF_COUNTER}"/>
     </bean>
 
     <bean id="timeSlot" class="com.navercorp.pinpoint.common.util.DefaultTimeSlot">

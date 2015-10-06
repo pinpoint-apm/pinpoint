@@ -83,33 +83,6 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
         // key is destApplicationName.
         final LinkDataMap linkDataMap = new LinkDataMap();
         for (Cell cell :  result.rawCells()) {
-            if (CellUtil.matchingFamily(cell, HBaseTables.MAP_STATISTICS_CALLEE_CF_COUNTER)) {
-                final byte[] qualifier = CellUtil.cloneQualifier(cell);
-                final Application callee = readCalleeApplication(qualifier);
-                if (filter.filter(callee)) {
-                    continue;
-                }
-
-                long requestCount = getValueToLong(cell);
-
-                short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
-                boolean isError = histogramSlot == (short) -1;
-
-                String calleeHost = ApplicationMapStatisticsUtils.getHost(qualifier);
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("    Fetched Caller.  {} -> {} (slot:{}/{}) calleeHost:{}", caller, callee, histogramSlot, requestCount, calleeHost);
-                }
-
-                final short slotTime = (isError) ? (short) -1 : histogramSlot;
-                if (StringUtils.isEmpty(calleeHost)) {
-                    calleeHost = callee.getName();
-                }
-                linkDataMap.addLinkData(caller, caller.getName(), callee, calleeHost, timestamp, slotTime, requestCount);
-
-
-            } else if (CellUtil.matchingFamily(cell, HBaseTables.MAP_STATISTICS_CALLEE_CF_VER2_COUNTER)) {
-
                 final Buffer buffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset());
                 final Application callee = readCalleeApplication(buffer);
                 if (filter.filter(callee)) {
@@ -133,10 +106,6 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
                     calleeHost = callee.getName();
                 }
                 linkDataMap.addLinkData(caller, callerAgentId, callee, calleeHost, timestamp, slotTime, requestCount);
-            } else {
-                throw new IllegalArgumentException("unknown ColumnFamily :" + Arrays.toString(CellUtil.cloneFamily(cell)));
-            }
-
         }
 
         return linkDataMap;

@@ -77,13 +77,22 @@ public final class HBaseTables {
     public static final String MAP_STATISTICS_CALLER = "ApplicationMapStatisticsCaller";
     public static final byte[] MAP_STATISTICS_CALLER_CF_COUNTER = Bytes.toBytes("C");
 
+    public static final String MAP_STATISTICS_CALLER_VER2 = "ApplicationMapStatisticsCaller_Ver2";
+    public static final byte[] MAP_STATISTICS_CALLER_VER2_CF_COUNTER = Bytes.toBytes("C");
+
     public static final String MAP_STATISTICS_CALLEE = "ApplicationMapStatisticsCallee";
     // to be removed - use ver2 instead. remove relevant code as well.
     public static final byte[] MAP_STATISTICS_CALLEE_CF_COUNTER = Bytes.toBytes("C");
     public static final byte[] MAP_STATISTICS_CALLEE_CF_VER2_COUNTER = Bytes.toBytes("D");
 
+    public static final String MAP_STATISTICS_CALLEE_VER2 = "ApplicationMapStatisticsCallee_Ver2";
+    public static final byte[] MAP_STATISTICS_CALLEE_VER2_CF_COUNTER = Bytes.toBytes("C");
+
     public static final String MAP_STATISTICS_SELF = "ApplicationMapStatisticsSelf";
     public static final byte[] MAP_STATISTICS_SELF_CF_COUNTER = Bytes.toBytes("C");
+
+    public static final String MAP_STATISTICS_SELF_VER2 = "ApplicationMapStatisticsSelf_Ver2";
+    public static final byte[] MAP_STATISTICS_SELF_VER2_CF_COUNTER = Bytes.toBytes("C");
 
     public static final String HOST_APPLICATION_MAP = "HostApplicationMap";
     public static final byte[] HOST_APPLICATION_MAP_CF_MAP = Bytes.toBytes("M");

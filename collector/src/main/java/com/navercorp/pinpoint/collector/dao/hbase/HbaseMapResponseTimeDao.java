@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.util.TimeSlot;
 
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.client.Increment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +61,10 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
     @Autowired
     @Qualifier("selfMerge")
     private RowKeyMerge rowKeyMerge;
+
+    @Autowired
+    @Qualifier("statisticsSelfRowKeyDistributor")
+    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     private final boolean useBulk;
 
@@ -99,7 +104,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
             RowInfo rowInfo = new DefaultRowInfo(selfRowKey, selfColumnName);
             this.counter.increment(rowInfo, 1L);
         } else {
-            final byte[] rowKey = selfRowKey.getRowKey();
+            final byte[] rowKey = getDistributedKey(selfRowKey.getRowKey());
             // column name is the name of caller app.
             byte[] columnName = selfColumnName.getColumnName();
             increment(rowKey, columnName, 1L);
@@ -113,7 +118,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         if (columnName == null) {
             throw new NullPointerException("columnName must not be null");
         }
-        hbaseTemplate.incrementColumnValue(MAP_STATISTICS_SELF, rowKey, MAP_STATISTICS_SELF_CF_COUNTER, columnName, increment);
+        hbaseTemplate.incrementColumnValue(MAP_STATISTICS_SELF_VER2, rowKey, MAP_STATISTICS_SELF_VER2_CF_COUNTER, columnName, increment);
     }
 
 
@@ -125,13 +130,17 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
         // update statistics by rowkey and column for now. need to update it by rowkey later.
         Map<RowInfo,ConcurrentCounterMap.LongAdder> remove = this.counter.remove();
-        List<Increment> merge = rowKeyMerge.createBulkIncrement(remove, null);
+        List<Increment> merge = rowKeyMerge.createBulkIncrement(remove, rowKeyDistributorByHashPrefix);
         if (!merge.isEmpty()) {
             if (logger.isDebugEnabled()) {
                 logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
             }
-            hbaseTemplate.increment(MAP_STATISTICS_SELF, merge);
+            hbaseTemplate.increment(MAP_STATISTICS_SELF_VER2, merge);
         }
 
+    }
+
+    private byte[] getDistributedKey(byte[] rowKey) {
+        return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
     }
 }

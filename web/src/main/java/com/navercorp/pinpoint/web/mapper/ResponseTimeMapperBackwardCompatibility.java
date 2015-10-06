@@ -22,16 +22,12 @@ import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
-
-import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -41,13 +37,9 @@ import java.util.Arrays;
  * @author emeroad
  */
 @Component
-public class ResponseTimeMapper implements RowMapper<ResponseTime> {
+public class ResponseTimeMapperBackwardCompatibility implements RowMapper<ResponseTime> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Autowired
-    @Qualifier("statisticsSelfRowKeyDistributor")
-    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     @Override
     public ResponseTime mapRow(Result result, int rowNum) throws Exception {
@@ -55,11 +47,11 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
             return null;
         }
 
-        final byte[] rowKey = getOriginalKey(result.getRow());
+        final byte[] rowKey = result.getRow();
         ResponseTime responseTime = createResponseTime(rowKey);
 
         for (Cell cell : result.rawCells()) {
-            if (CellUtil.matchingFamily(cell, HBaseTables.MAP_STATISTICS_SELF_VER2_CF_COUNTER)) {
+            if (CellUtil.matchingFamily(cell, HBaseTables.MAP_STATISTICS_SELF_CF_COUNTER)) {
                 recordColumn(responseTime, cell);
             }
 
@@ -69,6 +61,8 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
         }
         return responseTime;
     }
+
+
 
     void recordColumn(ResponseTime responseTime, Cell cell) {
         final byte[] qArray = cell.getQualifierArray();
@@ -89,7 +83,4 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
         return new ResponseTime(applicationName, serviceType, timestamp);
     }
 
-    private byte[] getOriginalKey(byte[] rowKey) {
-        return rowKeyDistributorByHashPrefix.getOriginalKey(rowKey);
-    }
 }
