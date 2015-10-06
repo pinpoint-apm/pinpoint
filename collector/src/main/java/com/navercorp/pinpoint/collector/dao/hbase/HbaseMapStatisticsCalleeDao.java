@@ -118,8 +118,6 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         }
     }
 
-
-
     private void increment(byte[] rowKey, byte[] columnName, long increment) {
         if (rowKey == null) {
             throw new NullPointerException("rowKey must not be null");
@@ -127,7 +125,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         if (columnName == null) {
             throw new NullPointerException("columnName must not be null");
         }
-        hbaseTemplate.incrementColumnValue(MAP_STATISTICS_CALLER, rowKey, MAP_STATISTICS_CALLER_CF_COUNTER, columnName, increment);
+        hbaseTemplate.incrementColumnValue(MAP_STATISTICS_CALLER_VER2, rowKey, MAP_STATISTICS_CALLER_VER2_CF_COUNTER, columnName, increment);
     }
 
     @Override
@@ -142,7 +140,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
             if (logger.isDebugEnabled()) {
                 logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
             }
-            hbaseTemplate.increment(MAP_STATISTICS_CALLER, merge);
+            hbaseTemplate.increment(MAP_STATISTICS_CALLER_VER2, merge);
         }
 
     }
