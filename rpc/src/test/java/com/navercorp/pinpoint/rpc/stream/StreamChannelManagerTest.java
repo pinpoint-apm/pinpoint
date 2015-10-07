@@ -58,7 +58,7 @@ public class StreamChannelManagerTest {
 
             RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
 
-            ClientStreamChannelContext clientContext = client.createStreamChannel(new byte[0], clientListener);
+            ClientStreamChannelContext clientContext = client.openStream(new byte[0], clientListener);
 
             int sendCount = 4;
 
@@ -92,10 +92,10 @@ public class StreamChannelManagerTest {
             PinpointClient client = clientFactory.connect("127.0.0.1", bindPort);
 
             RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
-            ClientStreamChannelContext clientContext = client.createStreamChannel(new byte[0], clientListener);
+            ClientStreamChannelContext clientContext = client.openStream(new byte[0], clientListener);
 
             RecordedStreamChannelMessageListener clientListener2 = new RecordedStreamChannelMessageListener(4);
-            ClientStreamChannelContext clientContext2 = client.createStreamChannel(new byte[0], clientListener2);
+            ClientStreamChannelContext clientContext2 = client.openStream(new byte[0], clientListener2);
 
 
             int sendCount = 4;
@@ -154,7 +154,7 @@ public class StreamChannelManagerTest {
             RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
 
             if (writableServer instanceof  PinpointServer) {
-                ClientStreamChannelContext clientContext = ((PinpointServer)writableServer).createStream(new byte[0], clientListener);
+                ClientStreamChannelContext clientContext = ((PinpointServer)writableServer).openStream(new byte[0], clientListener);
 
                 int sendCount = 4;
 
@@ -189,7 +189,7 @@ public class StreamChannelManagerTest {
 
             RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
 
-            ClientStreamChannelContext clientContext = client.createStreamChannel(new byte[0], clientListener);
+            ClientStreamChannelContext clientContext = client.openStream(new byte[0], clientListener);
 
             Thread.sleep(100);
 
@@ -217,7 +217,7 @@ public class StreamChannelManagerTest {
 
             RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
 
-            ClientStreamChannelContext clientContext = client.createStreamChannel(new byte[0], clientListener);
+            ClientStreamChannelContext clientContext = client.openStream(new byte[0], clientListener);
             Thread.sleep(100);
 
             Assert.assertEquals(1, bo.getStreamChannelContextSize());
@@ -260,7 +260,7 @@ public class StreamChannelManagerTest {
             if (writableServer instanceof  PinpointServer) {
                 RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
 
-                ClientStreamChannelContext clientContext = ((PinpointServer)writableServer).createStream(new byte[0], clientListener);
+                ClientStreamChannelContext clientContext = ((PinpointServer)writableServer).openStream(new byte[0], clientListener);
 
 
                 StreamChannelContext aaa = client.findStreamChannel(2);

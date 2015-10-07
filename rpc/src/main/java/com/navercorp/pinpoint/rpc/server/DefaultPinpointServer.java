@@ -135,27 +135,29 @@ public class DefaultPinpointServer implements PinpointServer {
     }
     
     public void stop(boolean serverStop) {
-        SocketStateCode currentStateCode = getCurrentStateCode();
-        if (SocketStateCode.BEING_CLOSE_BY_SERVER == currentStateCode) {
-            state.toClosed();
-        } else if (SocketStateCode.BEING_CLOSE_BY_CLIENT == currentStateCode) {
-            state.toClosedByPeer();
-        } else if (SocketStateCode.isRun(currentStateCode) && serverStop) {
-            state.toUnexpectedClosed();
-        } else if (SocketStateCode.isRun(currentStateCode)) {
-            state.toUnexpectedClosedByPeer();
-        } else if (SocketStateCode.isClosed(currentStateCode)) {
-            logger.warn("{} stop(). Socket has closed state({}).", objectUniqName, currentStateCode);
-        } else {
-            state.toErrorUnknown();
-            logger.warn("{} stop(). Socket has unexpected state.", objectUniqName, currentStateCode);
+        try {
+            SocketStateCode currentStateCode = getCurrentStateCode();
+            if (SocketStateCode.BEING_CLOSE_BY_SERVER == currentStateCode) {
+                state.toClosed();
+            } else if (SocketStateCode.BEING_CLOSE_BY_CLIENT == currentStateCode) {
+                state.toClosedByPeer();
+            } else if (SocketStateCode.isRun(currentStateCode) && serverStop) {
+                state.toUnexpectedClosed();
+            } else if (SocketStateCode.isRun(currentStateCode)) {
+                state.toUnexpectedClosedByPeer();
+            } else if (SocketStateCode.isClosed(currentStateCode)) {
+                logger.warn("{} stop(). Socket has closed state({}).", objectUniqName, currentStateCode);
+            } else {
+                state.toErrorUnknown();
+                logger.warn("{} stop(). Socket has unexpected state.", objectUniqName, currentStateCode);
+            }
+
+            if (this.channel.isConnected()) {
+                channel.close();
+            }
+        } finally {
+            streamChannelManager.close();
         }
-        
-        if (this.channel.isConnected()) {
-            channel.close();
-        }
-        
-        streamChannelManager.close();
     }
 
     @Override
@@ -215,10 +217,10 @@ public class DefaultPinpointServer implements PinpointServer {
     }
 
     @Override
-    public ClientStreamChannelContext createStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
         logger.info("{} createStream() started.", objectUniqName);
 
-        ClientStreamChannelContext streamChannel = streamChannelManager.openStreamChannel(payload, clientStreamChannelMessageListener);
+        ClientStreamChannelContext streamChannel = streamChannelManager.openStream(payload, clientStreamChannelMessageListener);
         
         logger.info("{} createStream() completed.", objectUniqName);
         return streamChannel;

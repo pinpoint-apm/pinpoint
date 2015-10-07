@@ -27,16 +27,16 @@ public class StreamChannelStateTest {
         StreamChannelState state = new StreamChannelState();
         Assert.assertEquals(StreamChannelStateCode.NEW, state.getCurrentState());
 
-        state.changeStateTo(StreamChannelStateCode.OPEN);
+        state.to(StreamChannelStateCode.OPEN);
         Assert.assertEquals(StreamChannelStateCode.OPEN, state.getCurrentState());
 
-        state.changeStateTo(StreamChannelStateCode.CONNECT_AWAIT);
+        state.to(StreamChannelStateCode.CONNECT_AWAIT);
         Assert.assertEquals(StreamChannelStateCode.CONNECT_AWAIT, state.getCurrentState());
 
-        state.changeStateTo(StreamChannelStateCode.CONNECTED);
+        state.to(StreamChannelStateCode.CONNECTED);
         Assert.assertEquals(StreamChannelStateCode.CONNECTED, state.getCurrentState());
 
-        state.changeStateTo(StreamChannelStateCode.CLOSED);
+        state.to(StreamChannelStateCode.CLOSED);
         Assert.assertEquals(StreamChannelStateCode.CLOSED, state.getCurrentState());
     }
 
@@ -45,16 +45,16 @@ public class StreamChannelStateTest {
         StreamChannelState state = new StreamChannelState();
         Assert.assertEquals(StreamChannelStateCode.NEW, state.getCurrentState());
 
-        state.changeStateTo(StreamChannelStateCode.OPEN);
+        state.to(StreamChannelStateCode.OPEN);
         Assert.assertEquals(StreamChannelStateCode.OPEN, state.getCurrentState());
 
-        state.changeStateTo(StreamChannelStateCode.CONNECT_ARRIVED);
+        state.to(StreamChannelStateCode.CONNECT_ARRIVED);
         Assert.assertEquals(StreamChannelStateCode.CONNECT_ARRIVED, state.getCurrentState());
 
-        state.changeStateTo(StreamChannelStateCode.CONNECTED);
+        state.to(StreamChannelStateCode.CONNECTED);
         Assert.assertEquals(StreamChannelStateCode.CONNECTED, state.getCurrentState());
 
-        state.changeStateTo(StreamChannelStateCode.CLOSED);
+        state.to(StreamChannelStateCode.CLOSED);
         Assert.assertEquals(StreamChannelStateCode.CLOSED, state.getCurrentState());
     }
 
@@ -63,7 +63,7 @@ public class StreamChannelStateTest {
         StreamChannelState state = new StreamChannelState();
         Assert.assertEquals(StreamChannelStateCode.NEW, state.getCurrentState());
 
-        boolean result = state.changeStateTo(StreamChannelStateCode.CONNECTED);
+        boolean result = state.to(StreamChannelStateCode.CONNECTED);
         Assert.assertFalse(result);
     }
 
@@ -72,10 +72,10 @@ public class StreamChannelStateTest {
         StreamChannelState state = new StreamChannelState();
         Assert.assertEquals(StreamChannelStateCode.NEW, state.getCurrentState());
 
-        state.changeStateTo(StreamChannelStateCode.OPEN);
+        state.to(StreamChannelStateCode.OPEN);
         Assert.assertEquals(StreamChannelStateCode.OPEN, state.getCurrentState());
 
-        boolean result = state.changeStateTo(StreamChannelStateCode.CONNECTED);
+        boolean result = state.to(StreamChannelStateCode.CONNECTED);
         Assert.assertFalse(result);
     }
 

@@ -32,8 +32,6 @@ import java.util.Map;
  */
 public interface PinpointServer extends PinpointSocket {
 
-    ClientStreamChannelContext createStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener);
-
     void messageReceived(Object message);
 
     SocketStateCode getCurrentStateCode();

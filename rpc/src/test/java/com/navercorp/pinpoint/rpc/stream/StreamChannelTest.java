@@ -67,13 +67,13 @@ public class StreamChannelTest {
 
 
         @Override
-        public void eventPerformed(StreamChannel streamChannel, StreamChannelStateCode oldStateCode, StreamChannelStateCode updatedStateCode) throws Exception {
+        public void eventPerformed(StreamChannel streamChannel, StreamChannelStateCode updatedStateCode) throws Exception {
             this.latestEventPerformedStateCode = updatedStateCode;
             this.totalEventPerformedCount++;
         }
 
         @Override
-        public void exceptionCaught(StreamChannel streamChannel, StreamChannelStateCode oldStateCode, StreamChannelStateCode updatedStateCode, Throwable e) {
+        public void exceptionCaught(StreamChannel streamChannel, StreamChannelStateCode updatedStateCode, Throwable e) {
         }
 
         public StreamChannelStateCode getLatestEventPerformedStateCode() {

@@ -22,6 +22,8 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
@@ -198,6 +200,24 @@ public class AgentServiceImpl implements AgentService {
         }
 
         return result;
+    }
+
+    @Override
+    public ClientStreamChannelContext openStream(AgentInfo agentInfo, TBase<?, ?> tBase, ClientStreamChannelMessageListener clientStreamChannelMessageListener) throws TException {
+        byte[] payload = serialize(tBase);
+        return openStream(agentInfo, payload, clientStreamChannelMessageListener);
+    }
+
+    @Override
+    public ClientStreamChannelContext openStream(AgentInfo agentInfo, byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) throws TException {
+        TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
+        PinpointSocket socket = clusterConnectionManager.getSocket(agentInfo);
+
+        if (socket == null) {
+            return socket.openStream(serialize(transferObject), clientStreamChannelMessageListener);
+        }
+
+        return null;
     }
 
     @Override

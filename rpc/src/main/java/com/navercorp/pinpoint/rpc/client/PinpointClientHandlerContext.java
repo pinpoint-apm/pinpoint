@@ -46,8 +46,8 @@ public class PinpointClientHandlerContext {
         return channel;
     }
 
-    public ClientStreamChannelContext createStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
-        return streamChannelManager.openStreamChannel(payload, clientStreamChannelMessageListener);
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
+        return streamChannelManager.openStream(payload, clientStreamChannelMessageListener);
     }
 
     public void handleStreamEvent(StreamPacket message) {

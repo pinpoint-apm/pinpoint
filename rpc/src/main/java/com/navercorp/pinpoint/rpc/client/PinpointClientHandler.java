@@ -52,7 +52,7 @@ public interface PinpointClientHandler {
 
     void response(int requestId, byte[] payload);
 
-    ClientStreamChannelContext createStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener);
+    ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener);
 
     StreamChannelContext findStreamChannel(int streamChannelId);
     

@@ -100,7 +100,7 @@ public class ReconnectStateClientHandler implements PinpointClientHandler {
     }
 
     @Override
-    public ClientStreamChannelContext createStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
         throw new UnsupportedOperationException();
     }
     
