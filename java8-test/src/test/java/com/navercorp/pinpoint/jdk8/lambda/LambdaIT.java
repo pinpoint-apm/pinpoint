@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.jdk8.lambda;
 
+import java.lang.reflect.Method;
 import java.util.function.Predicate;
 
 import org.junit.Test;
@@ -48,9 +49,9 @@ public class LambdaIT {
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
         
-        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Maru.class.getMethod("test", Morae.class)));
-        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Morae.class.getMethod("test", Predicate.class)));
-        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Mozzi.class.getMethod("getAge")));
+        verifier.verifyTrace(Expectations.event("SPRING_BEAN", "com.navercorp.pinpoint.jdk8.lambda.Maru.test(com.navercorp.pinpoint.jdk8.lambda.Morae)"));
+        verifier.verifyTrace(Expectations.event("SPRING_BEAN", "com.navercorp.pinpoint.jdk8.lambda.Morae.test(java.util.function.Predicate)"));
+        verifier.verifyTrace(Expectations.event("SPRING_BEAN", "com.navercorp.pinpoint.jdk8.lambda.Mozzi.getAge()"));
         
         verifier.verifyTraceCount(0);
     }
