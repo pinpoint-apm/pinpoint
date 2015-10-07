@@ -1,8 +1,10 @@
 'use strict';
 
-pinpointApp.controller('ScatterFullScreenModeCtrl', [ '$scope', '$rootScope', '$routeParams', '$timeout', 'NavbarVo',
-    function ($scope, $rootScope, $routeParams, $timeout, NavbarVo) {
+pinpointApp.controller('ScatterFullScreenModeCtrl', [ '$scope', '$rootScope', '$window', '$routeParams', '$timeout', 'NavbarVo',
+    function ($scope, $rootScope, $window, $routeParams, $timeout, NavbarVo) {
 		$at($at.SCATTER_FULL_SCREEN_PAGE);
+	$window.htoScatter = $window.htoScatter || {};
+        $window.$routeParams = $window.$routeParams || $routeParams; 	
         // define private variables
         var oNavbarVo;
 
