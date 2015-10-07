@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.StateChangeEventListener;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,7 +117,7 @@ public class PinpointClientHandlerState {
 
         logger.debug("{} stateTo() started. to:{}", objectName, nextState);
 
-        SocketStateChangeResult stateChangeResult = state.changeState(nextState);
+        SocketStateChangeResult stateChangeResult = state.to(nextState);
         if (stateChangeResult.isChange()) {
             executeChangeEventHandler(pinpointSocket, nextState);
         }

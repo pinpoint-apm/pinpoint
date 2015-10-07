@@ -19,6 +19,8 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
@@ -38,15 +40,18 @@ public interface AgentService {
     AgentInfo getAgentInfo(String applicationName, String agentId, long startTimeStamp, boolean checkDB);
     List<AgentInfo> getAgentInfoList(String applicationName);
 
-    PinpointRouteResponse invoke(AgentInfo agentInfoList, TBase<?, ?> tBase) throws TException;
-    PinpointRouteResponse invoke(AgentInfo agentInfoList, TBase<?, ?> tBase, long timeout) throws TException;
-    PinpointRouteResponse invoke(AgentInfo agentInfoList, byte[] payload) throws TException;
-    PinpointRouteResponse invoke(AgentInfo agentInfoList, byte[] payload, long timeout) throws TException;
+    PinpointRouteResponse invoke(AgentInfo agentInfo, TBase<?, ?> tBase) throws TException;
+    PinpointRouteResponse invoke(AgentInfo agentInfo, TBase<?, ?> tBase, long timeout) throws TException;
+    PinpointRouteResponse invoke(AgentInfo agentInfo, byte[] payload) throws TException;
+    PinpointRouteResponse invoke(AgentInfo agentInfo, byte[] payload, long timeout) throws TException;
 
     Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, TBase<?, ?> tBase) throws TException;
     Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, TBase<?, ?> tBase, long timeout) throws TException;
     Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, byte[] payload) throws TException;
     Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, byte[] payload, long timeout) throws TException;
+
+    ClientStreamChannelContext openStream(AgentInfo agentInfo, TBase<?, ?> tBase, ClientStreamChannelMessageListener clientStreamChannelMessageListener) throws TException;
+    ClientStreamChannelContext openStream(AgentInfo agentInfo, byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) throws TException;
 
     AgentActiveThreadCountList getActiveThreadCount(List<AgentInfo> agentInfoList) throws TException;
     AgentActiveThreadCountList getActiveThreadCount(List<AgentInfo> agentInfoList, byte[] payload) throws TException;

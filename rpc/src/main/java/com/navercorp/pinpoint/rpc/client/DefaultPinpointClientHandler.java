@@ -356,11 +356,11 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     }
     
     @Override
-    public ClientStreamChannelContext createStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
         ensureOpen();
 
         PinpointClientHandlerContext context = getChannelContext(channel);
-        return context.createStream(payload, clientStreamChannelMessageListener);
+        return context.openStream(payload, clientStreamChannelMessageListener);
     }
     
     @Override
@@ -502,27 +502,28 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     private void closeChannel() {
         Channel channel = this.channel;
         if (channel != null) {
-            closeStreamChannelManager(channel);
             sendClosedPacket(channel);
-            
+
             ChannelFuture closeFuture = channel.close();
             closeFuture.addListener(new WriteFailFutureListener(logger, "close() event failed.", "close() event success."));
             closeFuture.awaitUninterruptibly();
         }
     }
-    
+
     // Calling this method on a closed PinpointClientHandler has no effect.
     private void closeResources() {
         logger.debug("{} closeResources() started.", objectUniqName);
 
+        Channel channel = this.channel;
+        closeStreamChannelManager(channel);
         this.handshaker.handshakeAbort();
         this.requestManager.close();
         this.channelTimer.stop();
     }
 
     private void closeStreamChannelManager(Channel channel) {
-        if (!channel.isConnected()) {
-            logger.debug("channel already closed. skip closeStreamChannelManager() {}", channel);
+        if (channel == null) {
+            logger.debug("channel already set null. skip closeStreamChannelManager() {}", channel);
             return;
         }
 

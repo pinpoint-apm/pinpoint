@@ -76,7 +76,7 @@ public class StreamChannelManager {
 
     }
 
-    public ClientStreamChannelContext openStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
         logger.info("Open streamChannel initialization started. Channel:{} ", channel);
 
         final int streamChannelId = idGenerator.generate();
@@ -304,8 +304,12 @@ public class StreamChannelManager {
     }
 
     private ChannelFuture sendClose(int streamChannelId, short code) {
-        StreamClosePacket packet = new StreamClosePacket(streamChannelId, code);
-        return this.channel.write(packet);
+        if (channel.isConnected()) {
+            StreamClosePacket packet = new StreamClosePacket(streamChannelId, code);
+            return this.channel.write(packet);
+        } else {
+            return null;
+        }
     }
 
     private boolean isServerStreamChannelContext(StreamChannelContext context) {

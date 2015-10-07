@@ -136,6 +136,14 @@ public class PinpointClient implements PinpointSocket {
     }
 
     @Override
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
+        // StreamChannel must be changed into interface in order to throw the StreamChannel that returns failure.
+        // fow now throw just exception
+        ensureOpen();
+        return pinpointClientHandler.openStream(payload, clientStreamChannelMessageListener);
+    }
+
+    @Override
     public SocketAddress getRemoteAddress() {
         return pinpointClientHandler.getRemoteAddress();
     }
@@ -150,13 +158,6 @@ public class PinpointClient implements PinpointSocket {
         return pinpointClientHandler.getRemoteClusterOption();
     }
 
-    public ClientStreamChannelContext createStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
-        // StreamChannel must be changed into interface in order to throw the StreamChannel that returns failure.
-        // fow now throw just exception
-        ensureOpen();
-        return pinpointClientHandler.createStreamChannel(payload, clientStreamChannelMessageListener);
-    }
-    
     public StreamChannelContext findStreamChannel(int streamChannelId) {
 
         ensureOpen();

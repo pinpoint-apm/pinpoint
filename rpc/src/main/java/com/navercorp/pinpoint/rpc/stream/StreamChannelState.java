@@ -33,11 +33,11 @@ public class StreamChannelState {
         return currentStateReference.get();
     }
 
-    boolean changeStateTo(StreamChannelStateCode nextState) {
-        return changeStateTo(currentStateReference.get(), nextState);
+    boolean to(StreamChannelStateCode nextState) {
+        return to(currentStateReference.get(), nextState);
     }
 
-    boolean changeStateTo(StreamChannelStateCode currentState, StreamChannelStateCode nextState) {
+    boolean to(StreamChannelStateCode currentState, StreamChannelStateCode nextState) {
         if (!nextState.canChangeState(currentState)) {
             return false;
         }

@@ -126,7 +126,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
     
     private ClientStreamChannelContext createStreamChannel(PinpointServerClusterPoint clusterPoint, byte[] payload, ClientStreamChannelMessageListener messageListener) {
         PinpointServer pinpointServer = clusterPoint.getPinpointServer();
-        return pinpointServer.createStream(payload, messageListener);
+        return pinpointServer.openStream(payload, messageListener);
     }
     
     public void close(ServerStreamChannelContext consumerContext) {
