@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.SimpleMessageListener;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
@@ -178,7 +180,7 @@ public class StreamChannelManagerTest {
         }
     }
 
-    @Test(expected = PinpointSocketException.class)
+    @Test
     public void streamClosedTest1() throws IOException, InterruptedException {
         PinpointServerAcceptor serverAcceptor = createServerFactory(SimpleServerMessageListener.DUPLEX_ECHO_INSTANCE, null);
         serverAcceptor.bind("localhost", bindPort);
@@ -192,6 +194,11 @@ public class StreamChannelManagerTest {
             ClientStreamChannelContext clientContext = client.openStream(new byte[0], clientListener);
 
             Thread.sleep(100);
+
+            StreamCreateFailPacket createFailPacket = clientContext.getCreateFailPacket();
+            if (createFailPacket == null) {
+                Assert.fail();
+            }
 
             clientContext.getStreamChannel().close();
             
@@ -326,9 +333,9 @@ public class StreamChannelManagerTest {
         }
 
         @Override
-        public short handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
+        public StreamCode handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
             bo.addServerStreamChannelContext(streamChannelContext);
-            return 0;
+            return StreamCode.SUCCESS;
         }
 
         @Override

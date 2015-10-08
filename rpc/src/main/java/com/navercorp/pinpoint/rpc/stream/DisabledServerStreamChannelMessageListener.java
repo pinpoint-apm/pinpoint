@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
+import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.rpc.packet.stream.BasicStreamPacket;
-import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
-import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 
 public class DisabledServerStreamChannelMessageListener implements ServerStreamChannelMessageListener {
 
@@ -30,9 +29,9 @@ public class DisabledServerStreamChannelMessageListener implements ServerStreamC
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public short handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
+    public StreamCode handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
         logger.info("{} handleStreamCreate unsupported operation. StreamChannel:{}, Packet:{}", this.getClass().getSimpleName(), streamChannelContext, packet);
-        return BasicStreamPacket.TYPE_SERVER_UNSUPPORT;
+        return StreamCode.CONNECTION_UNSUPPORT;
     }
 
     @Override

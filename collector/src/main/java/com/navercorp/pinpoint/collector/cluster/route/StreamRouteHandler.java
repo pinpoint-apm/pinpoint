@@ -109,9 +109,10 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
                 consumerContext.setAttributeIfAbsent(ATTACHMENT_KEY, routeManager);
 
                 ClientStreamChannelContext producerContext = createStreamChannel((PinpointServerClusterPoint) clusterPoint, event.getDeliveryCommand().getPayload(), routeManager);
-                routeManager.setProducer(producerContext.getStreamChannel());
-
-                return createResponse(TRouteResult.OK);
+                if (producerContext.getCreateFailPacket() == null) {
+                    routeManager.setProducer(producerContext.getStreamChannel());
+                    return createResponse(TRouteResult.OK);
+                }
             } else {
                 return createResponse(TRouteResult.NOT_SUPPORTED_SERVICE);
             }

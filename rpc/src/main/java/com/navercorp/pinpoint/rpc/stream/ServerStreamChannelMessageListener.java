@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.rpc.stream;
 
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 
 /**
@@ -24,7 +25,7 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
  */
 public interface ServerStreamChannelMessageListener {
 
-    short handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet);
+    StreamCode handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet);
 
     void handleStreamClose(ServerStreamChannelContext streamChannelContext, StreamClosePacket packet);
 

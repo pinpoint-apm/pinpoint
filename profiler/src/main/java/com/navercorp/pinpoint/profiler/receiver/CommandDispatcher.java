@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
-import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
@@ -106,19 +106,22 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
     }
 
     @Override
-    public short handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
+    public StreamCode handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
         logger.info("MessageReceived handleStreamCreate {} {}", packet, streamChannelContext);
 
         final TBase<?, ?> request = SerializationUtils.deserialize(packet.getPayload(), deserializerFactory, null);
+        if (request == null) {
+            return StreamCode.TYPE_UNKNOWN;
+        }
         
         final ProfilerStreamCommandService service = commandServiceRegistry.getStreamService(request);
         if (service == null) {
-            return StreamCreateFailPacket.PACKET_UNSUPPORT;
+            return StreamCode.TYPE_UNSUPPORT;
         }
         
         service.streamCommandService(request, streamChannelContext);
         
-        return StreamCreatePacket.SUCCESS;
+        return StreamCode.SUCCESS;
     }
 
     @Override
