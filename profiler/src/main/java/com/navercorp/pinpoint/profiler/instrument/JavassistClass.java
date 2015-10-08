@@ -492,8 +492,8 @@ public class JavassistClass implements InstrumentClass {
         if (constructor == null) {
             throw new NotFoundInstrumentException("Cannot find constructor with parameter types: " + Arrays.toString(c.value()));
         }
-        
-        return constructor.addGroupedInterceptor(interceptorClassName, constructorArgs, group, executionPolicy);
+        // TODO casting fix
+        return ((JavassistMethod)constructor).addInterceptorInternal(interceptorClassName, constructorArgs, group, executionPolicy);
     }
 
     private int addInterceptor0(TargetMethod m, String interceptorClassName, Object[] constructorArgs, InterceptorGroup group, ExecutionPolicy executionPolicy) throws InstrumentException {
@@ -502,8 +502,8 @@ public class JavassistClass implements InstrumentClass {
         if (method == null) {
             throw new NotFoundInstrumentException("Cannot find method " + m.name() + " with parameter types: " + Arrays.toString(m.paramTypes()));
         }
-
-        return method.addGroupedInterceptor(interceptorClassName, constructorArgs, group, executionPolicy);
+        // TODO casting fix
+        return ((JavassistMethod)method).addInterceptorInternal(interceptorClassName, constructorArgs, group, executionPolicy);
     }
 
     private int addInterceptor0(TargetFilter annotation, String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object[] constructorArgs) throws InstrumentException {
