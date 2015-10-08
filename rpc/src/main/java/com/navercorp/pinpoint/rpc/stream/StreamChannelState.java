@@ -46,5 +46,9 @@ public class StreamChannelState {
         return isChanged;
     }
 
+    @Override
+    public String toString() {
+        return currentStateReference.get().name();
+    }
 
 }

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.rpc.stream;
 
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.packet.stream.BasicStreamPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPingPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPongPacket;
 import org.jboss.netty.channel.Channel;
@@ -122,7 +123,7 @@ public abstract class StreamChannel {
     }
 
     public void close() {
-        this.streamChannelManager.clearResourceAndSendClose(getStreamId(), BasicStreamPacket.CHANNEL_CLOSE);
+        this.streamChannelManager.clearResourceAndSendClose(getStreamId(), StreamCode.STATE_CLOSED);
     }
 
     public Channel getChannel() {
