@@ -66,15 +66,15 @@ public class AbstractAutowireCapableBeanFactoryModifierIT {
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
         
-        verifier.verifyTrace(Expectations.event("SPRING_BEAN", "com.navercorp.pinpoint.plugin.spring.beans.Outer.setInner(com.navercorp.pinpoint.plugin.spring.beans.Inner)"));
-        verifier.verifyTrace(Expectations.event("SPRING_BEAN", "com.navercorp.pinpoint.plugin.spring.beans.Maru.publicMethod()"));
-        verifier.verifyTrace(Expectations.event("SPRING_BEAN", "com.navercorp.pinpoint.plugin.spring.beans.Morae.doSomething()"));
-        verifier.verifyTrace(Expectations.event("SPRING_BEAN", "com.navercorp.pinpoint.plugin.spring.beans.Morae.doSomething()"));
-        verifier.verifyTrace(Expectations.event("SPRING_BEAN", "com.navercorp.pinpoint.plugin.spring.beans.Mozzi.doSomething()"));
-        verifier.verifyTrace(Expectations.event("SPRING_BEAN", "com.navercorp.pinpoint.plugin.spring.beans.Outer.doSomething()"));
-        verifier.verifyTrace(Expectations.event("SPRING_BEAN", "com.navercorp.pinpoint.plugin.spring.beans.Outer.getInner()"));
-        verifier.verifyTrace(Expectations.event("SPRING_BEAN", "com.navercorp.pinpoint.plugin.spring.beans.Inner.doSomething()"));
-        verifier.verifyTrace(Expectations.event("SPRING_BEAN", "com.navercorp.pinpoint.plugin.spring.beans.ProxyTarget.doSomething()"));
+        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Outer.class.getMethod("setInner", Inner.class)));
+        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Maru.class.getMethod("publicMethod")));
+        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Morae.class.getMethod("doSomething")));
+        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Morae.class.getMethod("doSomething")));
+        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Mozzi.class.getMethod("doSomething")));
+        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Outer.class.getMethod("doSomething")));
+        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Outer.class.getMethod("getInner")));
+        verifier.verifyTrace(Expectations.event("SPRING_BEAN", Inner.class.getMethod("doSomething")));
+        verifier.verifyTrace(Expectations.event("SPRING_BEAN", ProxyTarget.class.getMethod("doSomething")));
         
         verifier.verifyTraceCount(0);
     }

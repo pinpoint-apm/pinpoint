@@ -14,6 +14,8 @@
  */
 package com.navercorp.pinpoint.plugin.spring.beans.interceptor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -21,6 +23,9 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -36,9 +41,11 @@ public class BeanMethodInterceptor implements StaticAroundInterceptor {
 
     private final ConcurrentMap<String, MethodDescriptor> descriptorMap = new ConcurrentHashMap<String, MethodDescriptor>();
     private final TraceContext traceContext;
+    private final Instrumentor instrumentor;
     
-    public BeanMethodInterceptor(TraceContext traceContext) {
+    public BeanMethodInterceptor(TraceContext traceContext, Instrumentor instrumentor) {
         this.traceContext = traceContext;
+        this.instrumentor = instrumentor;
     }
 
     @Override
@@ -72,7 +79,10 @@ public class BeanMethodInterceptor implements StaticAroundInterceptor {
             MethodDescriptor descriptor = descriptorMap.get(fullName);
             
             if (descriptor == null) {
-                descriptor = new BeanMethodDescriptor(fullName);
+                InstrumentClass targetClass = instrumentor.getInstrumentClass(target.getClass().getClassLoader(), className, null);
+                InstrumentMethod targetMethod = targetClass.getDeclaredMethod(methodName, divideParamTypes(parameterDescription));
+                
+                descriptor = targetMethod.getDescriptor();
                 traceContext.cacheApi(descriptor);
                 descriptorMap.putIfAbsent(fullName, descriptor);
             }
@@ -83,5 +93,23 @@ public class BeanMethodInterceptor implements StaticAroundInterceptor {
         } finally {
             trace.traceBlockEnd();
         }
+    }
+    
+    private String[] divideParamTypes(String parameterDescription) {
+        if (parameterDescription == null || parameterDescription.charAt(0) != '(' || parameterDescription.charAt(parameterDescription.length() - 1) != ')') {
+            throw new IllegalArgumentException(parameterDescription);
+        }
+        
+        List<String> types = new ArrayList<String>();
+        String removeParenthesis = parameterDescription.substring(1, parameterDescription.length() - 1);
+        
+        for (String token : removeParenthesis.split(",")) {
+            String trimmed = token.trim();
+            if (!trimmed.isEmpty()) {
+                types.add(trimmed);
+            }
+        }
+        
+        return types.toArray(new String[types.size()]);
     }
 }
