@@ -20,6 +20,6 @@ package com.navercorp.pinpoint.profiler.instrument;
  */
 public interface ClassInjector {
 
-    public <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className);
+    <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className);
 
 }
