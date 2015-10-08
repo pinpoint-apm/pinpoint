@@ -186,7 +186,17 @@ public class JacksonPlugin implements ProfilerPlugin {
     }
 
     private boolean addInterceptor(InstrumentMethod method, String interceptorClassName, InterceptorGroup group) {
-        return addInterceptor(method, interceptorClassName, null, group);
+        if (method != null) {
+            try {
+                method.addGroupedInterceptor(interceptorClassName, group);
+                return true;
+            } catch (InstrumentException e) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Unsupported method " + method, e);
+                }
+            }
+        }
+        return false;
     }
 
     private boolean addInterceptor(InstrumentMethod method, String interceptorClassName, Object[] constructorArgs, InterceptorGroup group) {
