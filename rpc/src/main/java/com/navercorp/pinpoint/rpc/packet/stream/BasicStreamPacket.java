@@ -21,46 +21,6 @@ package com.navercorp.pinpoint.rpc.packet.stream;
  */
 public abstract class BasicStreamPacket implements StreamPacket {
 
-    // Status Code
-    public static final short SUCCESS = 0;
-
-    public static final short CHANNEL_CLOSE = 100;
-
-    public static final short ID_ERROR = 110;
-    public static final short ID_ILLEGAL = 111;
-    public static final short ID_DUPLICATED = 112;
-    public static final short ID_NOT_FOUND = 113;
-
-    public static final short STATE_ERROR = 120;
-    public static final short STATE_NOT_CONNECTED = 121;
-    public static final short STATE_ILLEGAL = 129;
-
-    public static final short TYPE_ERROR = 130;
-    public static final short TYPE_SERVER_UNSUPPORT = 131;
-    public static final short TYPE_CLIENT = 136;
-    public static final short TYPE_UNKOWN = 139;
-
-    public static final short PACKET_ERROR = 140;
-    public static final short PACKET_UNKNOWN = 141;
-    public static final short PACKET_UNSUPPORT = 142;
-
-    public static final short UNKNWON_ERROR = 200;
-
-
-    public static final short ROUTE_TYPE_ERROR = 330;
-    public static final short ROUTE_TYPE_SERVER_UNSUPPORT = 331;
-    public static final short ROUTE_TYPE_CLIENT = 336;
-    public static final short ROUTE_TYPE_UNKOWN = 339;
-    
-    public static final short ROUTE_PACKET_ERROR = 340;
-    public static final short ROUTE_PACKET_UNKNOWN = 341;
-    public static final short ROUTE_PACKET_UNSUPPORT = 342;
-
-    public static final short ROUTE_NOT_FOUND = 350;
-
-    public static final short ROUTE_CONNECTION_ERROR = 360;
-
-
     private static final byte[] EMPTY_PAYLOAD = new byte[0];
 
     private final int streamChannelId;

@@ -213,7 +213,7 @@ public class AgentServiceImpl implements AgentService {
         TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
         PinpointSocket socket = clusterConnectionManager.getSocket(agentInfo);
 
-        if (socket == null) {
+        if (socket != null) {
             return socket.openStream(serialize(transferObject), clientStreamChannelMessageListener);
         }
 

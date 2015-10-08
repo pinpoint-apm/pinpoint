@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author koo.taejin
@@ -36,9 +36,9 @@ public class LoggingStreamChannelMessageListener {
     static class Server implements ServerStreamChannelMessageListener {
 
         @Override
-        public short handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
+        public StreamCode handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
             LOGGER.info("handleStreamCreate StreamChannel:{}, Packet:{}", streamChannelContext, packet);
-            return 0;
+            return StreamCode.SUCCESS;
         }
 
         @Override
