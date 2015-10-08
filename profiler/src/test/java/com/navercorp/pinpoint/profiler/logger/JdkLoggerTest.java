@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.logger;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.logging.Level;
@@ -25,6 +26,7 @@ import java.util.logging.Logger;
  * @author emeroad
  */
 public class JdkLoggerTest {
+    @Ignore
     @Test
     public void test() {
         Logger logger = Logger.getLogger(this.getClass().getName());
