@@ -130,7 +130,7 @@ public class HttpURLConnectionInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void after(Object target, Object result, Throwable throwable, Object[] args) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             // do not log result
             logger.afterInterceptor(target, args);

@@ -53,7 +53,7 @@ public class TestBeforeInterceptor implements StaticAroundInterceptor {
     }
 
     @Override
-    public void after(Object target, String className, String methodName, String parameterDescription, Object result, Throwable throwable, Object[] args) {
+    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
 
     }
 }

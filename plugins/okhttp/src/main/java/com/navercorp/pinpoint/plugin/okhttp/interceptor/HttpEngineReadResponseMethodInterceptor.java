@@ -20,14 +20,11 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.okhttp.ConnectionGetter;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
 import com.navercorp.pinpoint.plugin.okhttp.UserRequestGetter;
 import com.navercorp.pinpoint.plugin.okhttp.UserResponseGetter;
-import com.squareup.okhttp.HttpUrl;
-import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 /**
@@ -87,7 +84,7 @@ public class HttpEngineReadResponseMethodInterceptor implements AroundIntercepto
     }
 
     @Override
-    public void after(Object target, Object result, Throwable throwable, Object[] args) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args);
         }

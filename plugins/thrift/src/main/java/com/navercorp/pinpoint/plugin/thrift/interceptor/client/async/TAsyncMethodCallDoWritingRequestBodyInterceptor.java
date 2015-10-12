@@ -54,8 +54,8 @@ public class TAsyncMethodCallDoWritingRequestBodyInterceptor extends TAsyncMetho
     }
 
     @Override
-    public void after(Object target, Object result, Throwable throwable, Object[] args) {
-        super.after(target, result, throwable, args);
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        super.after(target, args, result, throwable);
 
         // End async trace block if TAsyncMethodCall.cleanUpAndFireCallback(...) call completed successfully
         // if there was an exception, TAsyncMethodCall.onError(...) will be called and the async trace block will be ended there
