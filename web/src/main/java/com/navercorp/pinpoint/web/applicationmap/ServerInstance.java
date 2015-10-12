@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.web.vo.AgentStatus;
 public class ServerInstance {
 
     private final String hostName;
+    private final String ip;
 
     private final String name;
     private final short serviceTypeCode;
@@ -47,6 +48,7 @@ public class ServerInstance {
             throw new NullPointerException("agentInfo must not be null");
         }
         this.hostName = agentInfo.getHostName();
+        this.ip = agentInfo.getIp();
         this.name = agentInfo.getAgentId();
         this.serviceTypeCode = agentInfo.getServiceTypeCode();
         AgentStatus agentStatus = agentInfo.getStatus();
@@ -66,6 +68,7 @@ public class ServerInstance {
             throw new NullPointerException("logicalName must not be null");
         }
         this.hostName = hostName;
+        this.ip = null;
         this.name = physicalName;
         this.serviceTypeCode = serviceTypeCode;
         this.status = AgentLifeCycleState.UNKNOWN;
@@ -92,6 +95,10 @@ public class ServerInstance {
 
     public ServerType getServerType() {
         return serverType;
+    }
+    
+    public String getIp() {
+        return ip;
     }
 
     @Override

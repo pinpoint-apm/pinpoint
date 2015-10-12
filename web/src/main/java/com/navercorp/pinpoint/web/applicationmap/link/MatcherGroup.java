@@ -23,10 +23,10 @@ import java.util.List;
  * @author emeroad
  * @author minwoo.jung
  */
-public class MatcherGroup {
+public abstract class MatcherGroup {
 
-    private final List<ServerMatcher> serverMatcherList = new ArrayList<ServerMatcher>();
-    private ServerMatcher defaultMatcher = new EmptyLinkMatcher();
+    final List<ServerMatcher> serverMatcherList = new ArrayList<ServerMatcher>();
+    ServerMatcher defaultMatcher = new EmptyLinkMatcher();
 
     public MatcherGroup() {
     }
@@ -58,18 +58,24 @@ public class MatcherGroup {
         return serverMatcherList;
     }
     
-    public ServerMatcher match(String value) {
+    public LinkInfo makeLinkInfo(Object data) {
+        ServerMatcher serverMatcher = defaultMatcher;
+        String value = getMatchingSource(data);
+        
         if (value == null) {
-            throw new NullPointerException("serverName must not be null");
+            throw new NullPointerException("link source to make link information must not be null.");
         }
 
-        for (ServerMatcher serverMatcher : serverMatcherList) {
-            if(serverMatcher.isMatched(value)) {
-                return serverMatcher;
+        for (ServerMatcher matcher : serverMatcherList) {
+            if(matcher.isMatched(value)) {
+                serverMatcher = matcher;
             }
         }
-        
-        return defaultMatcher;
+
+        return serverMatcher.getLinkInfo(value);
     }
 
+    abstract protected String getMatchingSource(Object data);
+
+    abstract public boolean ismatchingType(Object data);
 }
