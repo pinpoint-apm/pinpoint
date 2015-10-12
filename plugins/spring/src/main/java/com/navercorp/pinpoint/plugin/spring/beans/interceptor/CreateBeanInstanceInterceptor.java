@@ -35,7 +35,7 @@ public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInt
         super(instrumentContext, transformer, filter);
     }
 
-    public void after(Object target, Object result, Throwable throwable, String beanName) {
+    public void after(Object target, String beanName, Object result, Throwable throwable) {
         try {
             if (result == null) {
                 return;
