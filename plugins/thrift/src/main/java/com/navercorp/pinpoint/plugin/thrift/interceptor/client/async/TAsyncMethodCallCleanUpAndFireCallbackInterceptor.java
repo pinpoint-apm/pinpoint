@@ -32,8 +32,8 @@ public class TAsyncMethodCallCleanUpAndFireCallbackInterceptor extends TAsyncMet
     }
 
     @Override
-    public void after(Object target, Object result, Throwable throwable, Object[] args) {
-        super.after(target, result, throwable, args);
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        super.after(target, args, result, throwable);
 
         // Set a flag to end async trace block if this method completed successfully
         if (throwable != null) {

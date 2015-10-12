@@ -57,12 +57,12 @@ public class GroupedInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void after(Object target, Object result, Throwable throwable, Object[] args) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         InterceptorGroupInvocation transaction = group.getCurrentInvocation();
         
         if (transaction.canLeave(policy)) {
             if (after != null) {
-                after.after(target, result, throwable, args);
+                after.after(target, args, result, throwable);
             }
             transaction.leave(policy);
         } else {

@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvoca
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContext;
-import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 import com.navercorp.pinpoint.plugin.thrift.ThriftRequestProperty;
 import com.navercorp.pinpoint.plugin.thrift.ThriftHeader;
 import com.navercorp.pinpoint.plugin.thrift.field.accessor.ServerMarkerFlagFieldAccessor;
@@ -75,7 +74,7 @@ public class TProtocolReadTTypeInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void after(Object target, Object result, Throwable throwable, Object[] args) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }

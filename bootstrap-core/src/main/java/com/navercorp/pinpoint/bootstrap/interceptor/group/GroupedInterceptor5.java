@@ -57,12 +57,12 @@ public class GroupedInterceptor5 implements AroundInterceptor5 {
     }
 
     @Override
-    public void after(Object target, Object result, Throwable throwable, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) {
+    public void after(Object target, Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object result, Throwable throwable) {
         InterceptorGroupInvocation transaction = group.getCurrentInvocation();
         
         if (transaction.canLeave(policy)) {
             if (after != null) {
-                after.after(target, result, throwable, arg0, arg1, arg2, arg3, arg4);
+                after.after(target, arg0, arg1, arg2, arg3, arg4, result, throwable);
             }
             transaction.leave(policy);
         } else {

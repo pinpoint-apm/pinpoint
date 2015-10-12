@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 import com.navercorp.pinpoint.plugin.thrift.ThriftRequestProperty;
 import com.navercorp.pinpoint.plugin.thrift.ThriftHeader;
 
@@ -73,7 +72,7 @@ public class TProtocolWriteFieldStopInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void after(Object target, Object result, Throwable throwable, Object[] args) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         // Do nothing
     }
 

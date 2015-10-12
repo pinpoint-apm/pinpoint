@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvoca
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.okhttp.*;
 import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.Request;
@@ -112,7 +111,7 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void after(Object target, Object result, Throwable throwable, Object[] args) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args);
         }
