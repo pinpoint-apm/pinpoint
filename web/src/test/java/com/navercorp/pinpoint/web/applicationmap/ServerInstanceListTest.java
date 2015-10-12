@@ -58,9 +58,6 @@ public class ServerInstanceListTest {
 
         ServiceType serviceType = ServiceType.TEST_STAND_ALONE;
         agentInfoBuilder.setServiceTypeCode(serviceType.getCode());
-        // TODO FIX api
-        agentInfoBuilder.setServiceType(serviceType);
-
         agentInfoBuilder.setHostName(hostName);
 
         return new AgentInfo(agentInfoBuilder.build());

@@ -44,7 +44,7 @@ public class AgentInfo {
     private String hostName;
     private String ip;
     private String ports;
-    private ServiceType serviceType;
+    private short serviceTypeCode;
     private int pid;
     private String vmVersion;
     private String agentVersion;
@@ -66,7 +66,7 @@ public class AgentInfo {
         this.hostName = agentInfoBo.getHostName();
         this.ip = agentInfoBo.getIp();
         this.ports = agentInfoBo.getPorts();
-        this.serviceType = agentInfoBo.getServiceType();
+        this.serviceTypeCode = agentInfoBo.getServiceTypeCode();
         this.pid = agentInfoBo.getPid();
         this.vmVersion = agentInfoBo.getVmVersion();
         this.agentVersion = agentInfoBo.getAgentVersion();
@@ -121,12 +121,12 @@ public class AgentInfo {
         this.ports = ports;
     }
 
-    public ServiceType getServiceType() {
-        return serviceType;
+    public short getServiceTypeCode() {
+        return serviceTypeCode;
     }
 
-    public void setServiceType(ServiceType serviceType) {
-        this.serviceType = serviceType;
+    public void setServiceTypeCode(short serviceTypeCode) {
+        this.serviceTypeCode = serviceTypeCode;
     }
 
     public int getPid() {
@@ -179,40 +179,29 @@ public class AgentInfo {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((agentId == null) ? 0 : agentId.hashCode());
-        result = prime * result + ((serviceType == null) ? 0 : serviceType.hashCode());
+        int result = agentId != null ? agentId.hashCode() : 0;
+        result = 31 * result + (int) serviceTypeCode;
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        AgentInfo other = (AgentInfo)obj;
-        if (agentId == null) {
-            if (other.agentId != null)
-                return false;
-        } else if (!agentId.equals(other.agentId))
-            return false;
-        if (serviceType == null) {
-            if (other.serviceType != null)
-                return false;
-        } else if (!serviceType.equals(other.serviceType))
-            return false;
-        return true;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AgentInfo agentInfo = (AgentInfo) o;
+
+        if (serviceTypeCode != agentInfo.serviceTypeCode) return false;
+        return !(agentId != null ? !agentId.equals(agentInfo.agentId) : agentInfo.agentId != null);
+
     }
+
 
     @Override
     public String toString() {
         return "AgentInfo [applicationName=" + applicationName + ", agentId=" + agentId + ", startTimestamp="
-                + startTimestamp + ", hostName=" + hostName + ", ip=" + ip + ", ports=" + ports + ", serviceType="
-                + serviceType + ", pid=" + pid + ", vmVersion=" + vmVersion + ", agentVersion=" + agentVersion
+                + startTimestamp + ", hostName=" + hostName + ", ip=" + ip + ", ports=" + ports + ", serviceTypeCode="
+                + serviceTypeCode + ", pid=" + pid + ", vmVersion=" + vmVersion + ", agentVersion=" + agentVersion
                 + ", serverMetaData=" + serverMetaData + ", initialStartTimestamp=" + initialStartTimestamp
                 + ", status=" + status + "]";
     }

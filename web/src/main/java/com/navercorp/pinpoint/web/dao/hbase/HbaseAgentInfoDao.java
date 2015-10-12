@@ -137,8 +137,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
                 final AgentInfoBo.Builder agentInfoBoBuilder = createBuilderFromValue(serializedAgentInfo);
                 agentInfoBoBuilder.setAgentId(this.agentId);
                 agentInfoBoBuilder.setStartTime(startTime);
-                // TODO fix
-                agentInfoBoBuilder.setServiceType(registry.findServiceType(agentInfoBoBuilder.getServiceTypeCode()));
+
                 if (serializedServerMetaData != null) {
                     agentInfoBoBuilder.setServerMetaData(new ServerMetaDataBo.Builder(serializedServerMetaData).build());
                 }

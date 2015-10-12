@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.bo;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.Comparator;
 
@@ -47,7 +46,6 @@ public class AgentInfoBo {
     private final String agentId;
     private final String applicationName;
     private final short serviceTypeCode;
-    private final ServiceType serviceType;
     private final int pid;
     private final String vmVersion;
     private final String agentVersion;
@@ -74,7 +72,6 @@ public class AgentInfoBo {
         this.endTimeStamp = builder.endTimeStamp;
         this.endStatus = builder.endStatus;
         this.serverMetaData = builder.serverMetaData;
-        this.serviceType = builder.serviceType;
     }
 
     public String getIp() {
@@ -117,10 +114,7 @@ public class AgentInfoBo {
         return serviceTypeCode;
     }
 
-    public ServiceType getServiceType() {
-        return serviceType;
-    }
-    
+
     public String getVmVersion() {
         return vmVersion;
     }
@@ -203,7 +197,6 @@ public class AgentInfoBo {
         private String agentId;
         private String applicationName;
         private short serviceTypeCode;
-        private ServiceType serviceType;
         private int pid;
         private String vmVersion;
         private String agentVersion;
@@ -246,12 +239,6 @@ public class AgentInfoBo {
             return serviceTypeCode;
         }
 
-        public void setServiceType(ServiceType serviceType) {
-            if (serviceType == null) {
-                throw new NullPointerException("serviceType must not be null");
-            }
-            this.serviceType = serviceType;
-        }
 
         public void setPid(int pid) {
             this.pid = pid;
@@ -296,12 +283,6 @@ public class AgentInfoBo {
                 this.vmVersion = "";
             if (this.agentVersion == null) {
                 this.agentVersion = "";
-            }
-            if (this.serviceType == null) {
-                throw new IllegalStateException("serviceType not set");
-            }
-            if (this.serviceType.getCode() !=this.serviceTypeCode) {
-                throw new IllegalStateException("serviceType not equals");
             }
             return new AgentInfoBo(this);
         }
