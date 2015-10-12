@@ -33,7 +33,7 @@ public class PostProcessorInterceptor extends AbstractSpringBeanCreationIntercep
         super(instrumentContext, transformer, filter);
     }
 
-    public void after(Object target, Object result, Throwable throwable, Object arg0, String beanName) {
+    public void after(Object target, Object arg0, String beanName, Object result, Throwable throwable) {
         try {
             processBean(beanName, result);
         } catch (Throwable t) {
