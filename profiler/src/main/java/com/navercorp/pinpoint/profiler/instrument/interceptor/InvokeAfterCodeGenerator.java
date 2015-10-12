@@ -114,41 +114,46 @@ public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
     }
 
     private void appendSimpleAfterArguments(CodeBuilder builder) {
-        builder.format("%1$s, %2$s, %3$s, %4$s", getTarget(), getReturnValue(), getException(), getArguments());
+        builder.format("%1$s, %2$s, %3$s, %4$s", getTarget(), getArguments(), getReturnValue(), getException());
     }
 
     private void appendStaticAfterArguments(CodeBuilder builder) {
-        builder.format("%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, %6$s, %7$s", getTarget(), targetClass.getName(), targetMethod.getName(), getParameterTypes(), getReturnValue(), getException(), getArguments());
+        builder.format("%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, %6$s, %7$s", getTarget(), targetClass.getName(), targetMethod.getName(), getParameterTypes(), getArguments(), getReturnValue(), getException());
     }
     
     private void appendCustomAfterArguments(CodeBuilder builder) {
-        Class<?>[] paramTypes = interceptorMethod.getParameterTypes();
+        Class<?>[] interceptorParamTypes = interceptorMethod.getParameterTypes();
         
-        if (paramTypes.length == 0) {
+        if (interceptorParamTypes.length == 0) {
             return;
         }
         
         builder.append(getTarget());
-        
-        if (paramTypes.length >= 2) {
+
+        parameterBind(builder, interceptorParamTypes);
+
+
+//        if (interceptorParamTypes.length >= 2) {
             builder.append(", ");
             builder.append(getReturnValue());
-        }
-        
-        if (paramTypes.length >= 3) {
+//        }
+
+//        if (interceptorParamTypes.length >= 3) {
             builder.append(", ");
             builder.append(getException());
-        }
-        
+//        }
+    }
+
+    private void parameterBind(CodeBuilder builder, Class<?>[] interceptorParamTypes) {
         int i = 0;
         int argNum = targetMethod.getParameterTypes().length;
-        int interceptorArgNum = paramTypes.length - 3;
+        int interceptorArgNum = interceptorParamTypes.length - 1;
         int matchNum = Math.min(argNum, interceptorArgNum);
-        
+
         for (; i < matchNum; i++) {
             builder.append(", ($w)$" + (i + 1));
         }
-        
+
         for (; i < interceptorArgNum; i++) {
             builder.append(", null");
         }
