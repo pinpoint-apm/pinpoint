@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkInfo;
 import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -36,7 +37,7 @@ import java.util.Map;
 public class ServerInstanceListSerializer extends JsonSerializer<ServerInstanceList> {
 
     @Autowired(required=false)
-    private MatcherGroup matcherGroup;
+    private List<MatcherGroup> matcherGroupList;
 
     @Override
     public void serialize(ServerInstanceList serverInstanceList, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
@@ -51,10 +52,23 @@ public class ServerInstanceListSerializer extends JsonSerializer<ServerInstanceL
             jgen.writeStringField("name", entry.getKey());
             jgen.writeStringField("status", null);
 
-            
-            Map<String, String> linkInfo = serverInstanceList.getLink(entry.getKey(), getMatcherGroup());
-            jgen.writeStringField("linkName", linkInfo.get("linkName"));
-            jgen.writeStringField("linkURL", linkInfo.get("linkURL"));
+            if (matcherGroupList != null) {
+                jgen.writeFieldName("linkList");
+                jgen.writeStartArray();
+                
+                for (MatcherGroup matcherGroup : matcherGroupList) {
+                    if (matcherGroup.ismatchingType(entry.getValue().get(0))) {
+                        LinkInfo linkInfo = matcherGroup.makeLinkInfo(entry.getValue().get(0));
+                        jgen.writeStartObject();
+                        jgen.writeStringField("linkName", linkInfo.getLinkName());
+                        jgen.writeStringField("linkURL", linkInfo.getLinkUrl());
+                        jgen.writeStringField("linkType", linkInfo.getLinktype());
+                        jgen.writeEndObject();
+                    }
+                }
+                
+                jgen.writeEndArray();
+            }
             
             jgen.writeFieldName("instanceList");
             writeInstanceList(jgen, entry.getValue());
@@ -76,14 +90,5 @@ public class ServerInstanceListSerializer extends JsonSerializer<ServerInstanceL
 
         jgen.writeEndObject();
     }
-
-    private MatcherGroup getMatcherGroup() {
-        if (matcherGroup != null) {
-            return matcherGroup;
-        }
-
-        return new MatcherGroup();
-    }
-
 
 }

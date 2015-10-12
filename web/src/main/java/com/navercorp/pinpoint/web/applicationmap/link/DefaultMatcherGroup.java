@@ -16,28 +16,21 @@
 
 package com.navercorp.pinpoint.web.applicationmap.link;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
-import com.navercorp.pinpoint.web.applicationmap.link.LinkInfo.LinkType;
-
 /**
  * @author minwoo.jung
  */
-public class PostfixServerMatcherTest {
+public class DefaultMatcherGroup extends MatcherGroup {
 
-    @Test
-    public void test() {
-        String url = "http://naver.com/";
-        String postfix = ".seoul.idc";
-        PostfixServerMatcher matcher = new PostfixServerMatcher(postfix, url, "NAVER", LinkType.ATAG);
+    public boolean ismatchingType(Object value) {
+        if (value instanceof String) {
+            return true;
+        }
         
-        String serverName = "naverServer01";
-        assertTrue(matcher.isMatched(serverName + postfix));
-        assertFalse(matcher.isMatched("naverserver" + "busan.idc"));
-        
-        assertEquals(url + serverName, matcher.getLinkInfo(serverName + postfix).getLinkUrl());
+        return false;
     }
 
+    @Override
+    protected String getMatchingSource(Object data) {
+        return (String)data;
+    }
 }

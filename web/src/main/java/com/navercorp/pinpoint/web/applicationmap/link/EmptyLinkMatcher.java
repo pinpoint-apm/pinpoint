@@ -16,11 +16,13 @@
 
 package com.navercorp.pinpoint.web.applicationmap.link;
 
+import com.navercorp.pinpoint.web.applicationmap.link.LinkInfo.LinkType;
+
 /**
  * @author minwoo.jung<minwoo.jung@navercorp.com>
  *
  */
-public class EmptyLinkMatcher implements ServerMatcher{
+public class EmptyLinkMatcher implements ServerMatcher {
 
     @Override
     public boolean isMatched(String value) {
@@ -28,13 +30,8 @@ public class EmptyLinkMatcher implements ServerMatcher{
     }
 
     @Override
-    public String getLinkName() {
-        return null;
-    }
-
-    @Override
-    public String getLink(String value) {
-        return null;
+    public LinkInfo getLinkInfo(String value) {
+        return new LinkInfo("", "", LinkType.ATAG);
     }
 
 }

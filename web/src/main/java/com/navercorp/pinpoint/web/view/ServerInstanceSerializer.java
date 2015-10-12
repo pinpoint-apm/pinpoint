@@ -36,8 +36,6 @@ import java.io.IOException;
  */
 public class ServerInstanceSerializer extends JsonSerializer<ServerInstance> {
 
-    @Autowired(required=false)
-    private MatcherGroup matcherGroup = new MatcherGroup();
     @Autowired
     private ServiceTypeRegistryService serviceTypeRegistryService;
 
@@ -57,9 +55,6 @@ public class ServerInstanceSerializer extends JsonSerializer<ServerInstance> {
         final ServiceType serviceType = serviceTypeRegistryService.findServiceType(serviceTypeCode);
 
         jgen.writeBooleanField("hasInspector", hasInspector(serviceType));
-        final ServerMatcher serverMatcher = this.matcherGroup.match(serverInstance.getHostName());
-        jgen.writeStringField("linkName", serverMatcher.getLinkName());
-        jgen.writeStringField("linkURL", serverMatcher.getLink(serverInstance.getHostName()));
         jgen.writeStringField("name", serverInstance.getName());
         jgen.writeStringField("serviceType", serviceType.getName());
 
