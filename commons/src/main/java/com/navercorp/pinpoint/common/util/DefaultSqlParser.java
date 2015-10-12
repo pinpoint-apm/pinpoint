@@ -16,7 +16,12 @@
 
 package com.navercorp.pinpoint.common.util;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * @author emeroad
@@ -463,5 +468,97 @@ public class DefaultSqlParser implements SqlParser {
         return normalized.toString();
     }
 
+    public String combineBindValues(String sql, String bindValueText) {
+        Queue<String> bindValues = extractComma(bindValueText);
+        if(bindValues.size() == 0) {
+            return sql;
+        }
 
+        final int length = sql.length();
+        boolean inQuotes = false;
+        char quoteChar = 0;
+        final StringBuilder result = new StringBuilder(length + 16);
+        for (int i = 0; i < length; i++) {
+            final char ch = sql.charAt(i);
+            if (inQuotes) {
+                if (((ch == '\'') || (ch == '"')) && ch == quoteChar) {
+                    if (lookAhead1(sql, i) == quoteChar) {
+                        // inline quote.
+                        result.append(ch);
+                        i++;
+                        continue;
+                    }
+                    inQuotes = !inQuotes;
+                    quoteChar = 0;
+                }
+                result.append(ch);
+            } else {
+                // COMMENT start check
+                if (ch == '/') {
+                    // comment state
+                    int lookAhead1Char = lookAhead1(sql, i);
+                    // multi line comment and oracle hint /*+ */
+                    if (lookAhead1Char == '*') {
+                        result.append("/*");
+                        i += 2;
+                        for (; i < length; i++) {
+                            char stateCh = sql.charAt(i);
+                            if (stateCh == '*') {
+                                if (lookAhead1(sql, i) == '/') {
+                                    result.append("*/");
+                                    i++;
+                                    break;
+                                }
+                            }
+                            result.append(stateCh);
+                        }
+                        // single line comment
+                    } else if (lookAhead1Char == '/') {
+                        result.append("//");
+                        i += 2;
+                        i = readLine(sql, result, i);
+                    } else {
+                        // unary operator
+                        result.append(ch);
+                    }
+                } else if (ch == '-') {
+                    // single line comment state
+                    if (lookAhead1(sql, i) == '-') {
+                        result.append("--");
+                        i += 2;
+                        i = readLine(sql, result, i);
+                    } else {
+                        // unary operator
+                        result.append(ch);
+                    }
+                } else if (ch == '\'' || ch == '"') {
+                    inQuotes = true;
+                    quoteChar = ch;
+                    result.append(ch);
+                } else if(ch == '?') {
+                    if(!bindValues.isEmpty()) {
+                        result.append('\'').append(bindValues.poll()).append('\'');
+                    }
+                } else {
+                    result.append(ch);
+                }
+            }
+        }
+
+        return result.toString();
+    }
+
+    private Queue<String> extractComma(String line) {
+        Queue<String> queue = new LinkedList<String>();
+        if(line == null) {
+            return queue;
+        }
+
+        final String[] tokens = line.split(",");
+        for(String token : tokens) {
+            queue.add(token.trim());
+        }
+
+        return queue;
+    }
 }

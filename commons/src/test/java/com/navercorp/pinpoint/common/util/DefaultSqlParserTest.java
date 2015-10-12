@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -251,6 +252,37 @@ public class DefaultSqlParserTest {
 
     }
 
+    @Test
+    public void combineBindValue() {
+        String sql = "select * from table a = 1 and b=50 and c=? and d='11'";
+        String result = sqlParser.combineBindValues(sql, "foo");
+        System.out.println(result);
+
+        sql = "select * from table a = ? and b=? and c=? and d=?";
+        result = sqlParser.combineBindValues(sql, "1, 50, foo, 11");
+        System.out.println(result);
+
+        sql = "select * from table id = \"foo ? bar\" and number=?";
+        result = sqlParser.combineBindValues(sql, "99");
+        System.out.println(result);
+
+        sql = "select * from table id = 'hi ? name''s foo' and number=?";
+        result = sqlParser.combineBindValues(sql, "99");
+        System.out.println(result);
+
+        sql = "/** comment ? */ select * from table id = ?";
+        result = sqlParser.combineBindValues(sql, "foo");
+        System.out.println(result);
+
+        sql = "select /*! STRAIGHT_JOIN ? */ * from table id = ?";
+        result = sqlParser.combineBindValues(sql, "foo");
+        System.out.println(result);
+
+        sql = "select * from table id = ?; -- This ? comment";
+        result = sqlParser.combineBindValues(sql, "foo");
+        System.out.println(result);
+    }
+
     private void assertCombine(String result, String sql, String outputParams) {
         List<String> output = this.outputParameterParser.parseOutputParameter(outputParams);
 
@@ -319,6 +351,4 @@ public class DefaultSqlParserTest {
         }
 
     }
-
-
 }
