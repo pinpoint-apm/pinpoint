@@ -147,7 +147,7 @@ public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
     private void parameterBind(CodeBuilder builder, Class<?>[] interceptorParamTypes) {
         int i = 0;
         int argNum = targetMethod.getParameterTypes().length;
-        int interceptorArgNum = interceptorParamTypes.length - 1;
+        int interceptorArgNum = interceptorParamTypes.length - 3;
         int matchNum = Math.min(argNum, interceptorArgNum);
 
         for (; i < matchNum; i++) {
