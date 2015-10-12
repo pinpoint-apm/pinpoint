@@ -20,6 +20,7 @@ import java.net.SocketAddress;
 
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
@@ -51,7 +52,7 @@ public interface PinpointClientHandler {
 
     void response(int requestId, byte[] payload);
 
-    ClientStreamChannelContext createStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener);
+    ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener);
 
     StreamChannelContext findStreamChannel(int streamChannelId);
     
@@ -64,5 +65,8 @@ public interface PinpointClientHandler {
     SocketStateCode getCurrentStateCode();
 
     SocketAddress getRemoteAddress();
+
+    ClusterOption getLocalClusterOption();
+    ClusterOption getRemoteClusterOption();
 
 }

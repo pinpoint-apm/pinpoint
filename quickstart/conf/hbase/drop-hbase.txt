@@ -15,8 +15,11 @@ disable 'ApplicationTraceIndex'
 disable 'Traces'
 
 disable 'ApplicationMapStatisticsCaller'
+disable 'ApplicationMapStatisticsCaller_Ver2'
 disable 'ApplicationMapStatisticsCallee'
+disable 'ApplicationMapStatisticsCallee_Ver2'
 disable 'ApplicationMapStatisticsSelf'
+disable 'ApplicationMapStatisticsSelf_Ver2'
 
 disable 'ApplicationStatistics'
 disable 'HostApplicationMap'
@@ -39,8 +42,11 @@ drop 'ApplicationTraceIndex'
 drop 'Traces'
 
 drop 'ApplicationMapStatisticsCaller'
+drop 'ApplicationMapStatisticsCaller_Ver2'
 drop 'ApplicationMapStatisticsCallee'
+drop 'ApplicationMapStatisticsCallee_Ver2'
 drop 'ApplicationMapStatisticsSelf'
+drop 'ApplicationMapStatisticsSelf_Ver2'
 
 drop 'ApplicationStatistics'
 drop 'HostApplicationMap'

@@ -125,13 +125,9 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
             httpRequest.setHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
             final NameIntValuePair<String> host = getHost(target);
             if (host != null) {
-                final StringBuilder hostStringBuilder = new StringBuilder(host.getName());
-                if (host.getValue() > 0) {
-                    hostStringBuilder.append(":").append(host.getValue()); 
-                }
-                final String hostString = hostStringBuilder.toString();
-                logger.debug("Get host {}", hostString);
-                httpRequest.setHeader(Header.HTTP_HOST.toString(), hostString);
+                final String endpoint = getEndpoint(host.getName(), host.getValue());
+                logger.debug("Get host {}", endpoint);
+                httpRequest.setHeader(Header.HTTP_HOST.toString(), endpoint);
             }
         }
 
@@ -185,7 +181,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
     }
 
     @Override
-    public void after(Object target, Object result, Throwable throwable, Object[] args) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args);
         }
@@ -203,8 +199,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
                 recorder.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getRequestLine().getUri());
                 final NameIntValuePair<String> host = getHost(target);
                 if (host != null) {
-                    int port = host.getValue();
-                    String endpoint = getEndpoint(host.getName(), port);
+                    final String endpoint = getEndpoint(host.getName(), host.getValue());
                     recorder.recordDestinationId(endpoint);
                 }
                 recordHttpRequest(recorder, httpRequest, throwable);

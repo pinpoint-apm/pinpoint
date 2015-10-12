@@ -16,14 +16,10 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
-import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
-import com.navercorp.pinpoint.web.applicationmap.link.ServerMatcher;
 import com.navercorp.pinpoint.web.view.AgentLifeCycleStateSerializer;
+import com.navercorp.pinpoint.web.view.ServerInstanceSerializer;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 
@@ -33,30 +29,28 @@ import com.navercorp.pinpoint.web.vo.AgentStatus;
  * @author emeroad
  * @author HyunGil Jeong
  */
+@JsonSerialize(using = ServerInstanceSerializer.class)
 public class ServerInstance {
 
     private final String hostName;
+    private final String ip;
 
     private final String name;
-    private final ServiceType serviceType;
+    private final short serviceTypeCode;
 
     private final ServerType serverType;
 
+    @JsonSerialize(using = AgentLifeCycleStateSerializer.class)
     private final AgentLifeCycleState status;
-
-    // it is better for something else to inject this.
-    // it's difficult to do that since it is new'ed within logic
-    private static final MatcherGroup MATCHER_GROUP = new MatcherGroup();
-
-    private ServerMatcher match;
 
     public ServerInstance(AgentInfo agentInfo) {
         if (agentInfo == null) {
             throw new NullPointerException("agentInfo must not be null");
         }
         this.hostName = agentInfo.getHostName();
+        this.ip = agentInfo.getIp();
         this.name = agentInfo.getAgentId();
-        this.serviceType = agentInfo.getServiceType();
+        this.serviceTypeCode = agentInfo.getServiceTypeCode();
         AgentStatus agentStatus = agentInfo.getStatus();
         if (agentStatus != null) {
             this.status = agentStatus.getState();
@@ -64,96 +58,67 @@ public class ServerInstance {
             this.status = AgentLifeCycleState.UNKNOWN;
         }
         this.serverType = ServerType.Physical;
-        this.match = MATCHER_GROUP.match(hostName);
     }
 
-    public ServerInstance(String hostName, String physicalName, ServiceType serviceType) {
+    public ServerInstance(String hostName, String physicalName, short serviceTypeCode) {
         if (hostName == null) {
             throw new NullPointerException("hostName must not be null");
         }
         if (physicalName == null) {
             throw new NullPointerException("logicalName must not be null");
         }
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null");
-        }
         this.hostName = hostName;
+        this.ip = null;
         this.name = physicalName;
-        this.serviceType = serviceType;
+        this.serviceTypeCode = serviceTypeCode;
         this.status = AgentLifeCycleState.UNKNOWN;
         this.serverType = ServerType.Logical;
-        this.match = MATCHER_GROUP.match(hostName);
     }
 
-    @JsonIgnore
     public String getHostName() {
         return hostName;
     }
 
-    @JsonProperty("name")
     public String getName() {
         return name;
     }
 
-    @JsonProperty("serviceType")
-    public ServiceType getServiceType() {
-        return serviceType;
+
+    public short getServiceTypeCode() {
+        return serviceTypeCode;
     }
 
-    @JsonProperty("status")
-    @JsonSerialize(using = AgentLifeCycleStateSerializer.class)
+
     public AgentLifeCycleState getStatus() {
         return status;
     }
 
-    @JsonIgnore
     public ServerType getServerType() {
         return serverType;
     }
-
-    @JsonProperty("linkName")
-    public String getLinkName() {
-        return match.getLinkName();
-    }
-
-    @JsonProperty("linkURL")
-    public String getLinkURL() {
-        return match.getLink(hostName);
-    }
-
-    @JsonProperty("hasInspector")
-    public boolean hasInspector() {
-        if (serviceType.isWas()) {
-            return true;
-        } else {
-            return false;
-        }
+    
+    public String getIp() {
+        return ip;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        ServerInstance that = (ServerInstance)o;
+        ServerInstance that = (ServerInstance) o;
 
-        if (!name.equals(that.name))
-            return false;
-        if (serverType != that.serverType)
-            return false;
-        if (serviceType != that.serviceType)
-            return false;
+        if (serviceTypeCode != that.serviceTypeCode) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        return serverType == that.serverType;
 
-        return true;
     }
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + serverType.hashCode();
-        result = 31 * result + serviceType.hashCode();
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (int) serviceTypeCode;
+        result = 31 * result + (serverType != null ? serverType.hashCode() : 0);
         return result;
     }
 

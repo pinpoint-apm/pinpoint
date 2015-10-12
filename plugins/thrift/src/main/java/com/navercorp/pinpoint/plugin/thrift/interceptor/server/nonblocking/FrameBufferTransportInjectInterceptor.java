@@ -24,7 +24,6 @@ import org.apache.thrift.transport.TTransport;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
 import com.navercorp.pinpoint.plugin.thrift.field.getter.TNonblockingTransportFieldGetter;
 
@@ -44,7 +43,7 @@ public abstract class FrameBufferTransportInjectInterceptor implements AroundInt
     }
 
     @Override
-    public void after(Object target, Object result, Throwable throwable, Object[] args) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (validate0(target, args, result)) {
             if (isDebug) {
                 logger.afterInterceptor(target, args, result, throwable);

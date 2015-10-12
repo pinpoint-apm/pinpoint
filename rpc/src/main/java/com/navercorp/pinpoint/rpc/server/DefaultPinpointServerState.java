@@ -109,7 +109,7 @@ public class DefaultPinpointServerState {
         
         logger.debug("{} stateTo() started. to:{}", objectUniqName, nextState);
 
-        SocketStateChangeResult stateChangeResult = state.changeState(nextState);
+        SocketStateChangeResult stateChangeResult = state.to(nextState);
         if (stateChangeResult.isChange()) {
             executeChangeEventHandler(pinpointServer, nextState);
         }

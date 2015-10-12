@@ -16,19 +16,23 @@
 
 package com.navercorp.pinpoint.web.applicationmap.link;
 
+import com.navercorp.pinpoint.web.applicationmap.link.LinkInfo.LinkType;
+
 /**
  * @author minwoo.jung
  */
 public class PostfixServerMatcher implements ServerMatcher {
 
-    public final String postfix;
-    public final String url;
-    public final String linkName;
+    private final String postfix;
+    private final String url;
+    private final String linkName;
+    private final LinkType linkType;
     
-    public PostfixServerMatcher(String postfix, String url, String linkName) {
+    public PostfixServerMatcher(String postfix, String url, String linkName, LinkType linkType) {
         this.postfix = postfix;
         this.url = url;
         this.linkName = linkName;
+        this.linkType = linkType;
     }
     
     @Override
@@ -39,13 +43,7 @@ public class PostfixServerMatcher implements ServerMatcher {
         return value.endsWith(postfix);
     }
 
-    @Override
-    public String getLinkName() {
-        return linkName;
-    }
-
-    @Override
-    public String getLink(String value) {
+    private String getLink(String value) {
         final int index = value.lastIndexOf(postfix);
         
         if (index == -1) {
@@ -54,5 +52,11 @@ public class PostfixServerMatcher implements ServerMatcher {
         
         String hostName = value.substring(0, index);
         return url + hostName;
+    }
+
+
+    @Override
+    public LinkInfo getLinkInfo(String value) {
+        return new LinkInfo(linkName, getLink(value), linkType);
     }
 }

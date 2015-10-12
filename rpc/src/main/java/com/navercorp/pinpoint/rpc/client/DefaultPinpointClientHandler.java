@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.rpc.*;
 import com.navercorp.pinpoint.rpc.client.ConnectFuture.Result;
+import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.common.SocketStateChangeResult;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.packet.*;
@@ -88,6 +89,9 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     private final ConnectFuture connectFuture = new ConnectFuture();
     
     private final String objectUniqName;
+
+    private final ClusterOption localClusterOption;
+    private ClusterOption remoteClusterOption = ClusterOption.DISABLE_CLUSTER_OPTION;
     
     public DefaultPinpointClientHandler(PinpointClientFactory clientFactory) {
         this(clientFactory, DEFAULT_PING_DELAY, DEFAULT_ENABLE_WORKER_PACKET_DELAY, DEFAULT_TIMEOUTMILLIS);
@@ -107,7 +111,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         this.pingDelay = pingDelay;
         this.timeoutMillis = timeoutMillis;
         
-        this.messageListener = clientFactory.getMessageListener(SimpleLoggingMessageListener.LISTENER);
+        this.messageListener = clientFactory.getMessageListener(SimpleMessageListener.INSTANCE);
         this.serverStreamChannelMessageListener = clientFactory.getServerStreamChannelMessageListener(DisabledServerStreamChannelMessageListener.INSTANCE);
         
         this.objectUniqName = ClassUtils.simpleClassNameAndHashCodeString(this);
@@ -116,6 +120,8 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         this.socketId = clientFactory.issueNewSocketId();
         this.pingIdGenerator = new AtomicInteger(0);
         this.state = new PinpointClientHandlerState(this, clientFactory.getStateChangeEventListeners());
+
+        this.localClusterOption = clientFactory.getClusterOption();
     }
 
     public void setPinpointClient(PinpointClient pinpointClient) {
@@ -167,7 +173,11 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         Map<String, Object> handshakeData = new HashMap<String, Object>();
         handshakeData.putAll(clientFactory.getProperties());
         handshakeData.put("socketId", socketId);
-        
+
+        if (localClusterOption.isEnable()) {
+            handshakeData.put("cluster", localClusterOption.getProperties());
+        }
+
         handshaker.handshakeStart(channel, handshakeData);
         
         connectFuture.setResult(Result.SUCCESS);
@@ -346,11 +356,11 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     }
     
     @Override
-    public ClientStreamChannelContext createStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
         ensureOpen();
 
         PinpointClientHandlerContext context = getChannelContext(channel);
-        return context.createStream(payload, clientStreamChannelMessageListener);
+        return context.openStream(payload, clientStreamChannelMessageListener);
     }
     
     @Override
@@ -419,6 +429,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
             if (code == HandshakeResponseCode.SUCCESS || code == HandshakeResponseCode.ALREADY_KNOWN) {
                 state.toRunSimplex();
             } else if (code == HandshakeResponseCode.DUPLEX_COMMUNICATION || code == HandshakeResponseCode.ALREADY_DUPLEX_COMMUNICATION) {
+                remoteClusterOption = handshaker.getClusterOption();
                 state.toRunDuplex();
             } else if (code == HandshakeResponseCode.SIMPLEX_COMMUNICATION || code == HandshakeResponseCode.ALREADY_SIMPLEX_COMMUNICATION) {
                 state.toRunSimplex();
@@ -491,27 +502,28 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     private void closeChannel() {
         Channel channel = this.channel;
         if (channel != null) {
-            closeStreamChannelManager(channel);
             sendClosedPacket(channel);
-            
+
             ChannelFuture closeFuture = channel.close();
             closeFuture.addListener(new WriteFailFutureListener(logger, "close() event failed.", "close() event success."));
             closeFuture.awaitUninterruptibly();
         }
     }
-    
+
     // Calling this method on a closed PinpointClientHandler has no effect.
     private void closeResources() {
         logger.debug("{} closeResources() started.", objectUniqName);
 
+        Channel channel = this.channel;
+        closeStreamChannelManager(channel);
         this.handshaker.handshakeAbort();
         this.requestManager.close();
         this.channelTimer.stop();
     }
 
     private void closeStreamChannelManager(Channel channel) {
-        if (!channel.isConnected()) {
-            logger.debug("channel already closed. skip closeStreamChannelManager() {}", channel);
+        if (channel == null) {
+            logger.debug("channel already set null. skip closeStreamChannelManager() {}", channel);
             return;
         }
 
@@ -608,7 +620,17 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
     @Override
     public boolean isSupportServerMode() {
-        return messageListener != SimpleLoggingMessageListener.LISTENER;
+        return messageListener != SimpleMessageListener.INSTANCE;
+    }
+
+    @Override
+    public ClusterOption getLocalClusterOption() {
+        return localClusterOption;
+    }
+
+    @Override
+    public ClusterOption getRemoteClusterOption() {
+        return remoteClusterOption;
     }
 
     protected PinpointClient getPinpointClient() {

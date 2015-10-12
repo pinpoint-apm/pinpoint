@@ -24,8 +24,8 @@ package com.navercorp.pinpoint.rpc.stream;
  */
 public interface StreamChannelStateChangeEventHandler {
 
-    void eventPerformed(StreamChannel streamChannel, StreamChannelStateCode oldStateCode, StreamChannelStateCode updatedStateCode) throws Exception;
+    void eventPerformed(StreamChannel streamChannel, StreamChannelStateCode updatedStateCode) throws Exception;
 
-    void exceptionCaught(StreamChannel streamChannel, StreamChannelStateCode oldStateCode, StreamChannelStateCode updatedStateCode, Throwable e);
+    void exceptionCaught(StreamChannel streamChannel, StreamChannelStateCode updatedStateCode, Throwable e);
 
 }

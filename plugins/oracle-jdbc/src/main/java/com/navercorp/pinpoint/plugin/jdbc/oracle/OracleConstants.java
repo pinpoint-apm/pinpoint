@@ -14,7 +14,6 @@
  */
 package com.navercorp.pinpoint.plugin.jdbc.oracle;
 
-import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -29,6 +28,6 @@ public final class OracleConstants {
 
     public static final String GROUP_ORACLE = "GROUP_ORACLE";
     
-    public static final ServiceType ORACLE = ServiceType.of(2300, "ORACLE", NORMAL_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
-    public static final ServiceType ORACLE_EXECUTE_QUERY = ServiceType.of(2301, "ORACLE_EXECUTE_QUERY", "ORACLE", NORMAL_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
+    public static final ServiceType ORACLE = ServiceType.of(2300, "ORACLE", TERMINAL, INCLUDE_DESTINATION_ID);
+    public static final ServiceType ORACLE_EXECUTE_QUERY = ServiceType.of(2301, "ORACLE_EXECUTE_QUERY", "ORACLE", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
 }

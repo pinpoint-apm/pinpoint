@@ -68,7 +68,7 @@ public class User {
     }
     
     public void removeHyphenForPhoneNumber() {
-        if(phoneNumber.contains("-")) {
+        if (phoneNumber != null && phoneNumber.contains("-")) {
             phoneNumber = phoneNumber.replace("-", "");
         }
     }

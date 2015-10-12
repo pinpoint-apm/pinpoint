@@ -22,7 +22,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 /**
  * 
  * 
- * <h3>Pinpoint Internal (~ 999)</h3>
+ * <h3>Pinpoint Internal (0 ~ 999)</h3>
  * 
  * <table>
  * <tr><td>-1</td><td>UNDEFINED</td></tr>
@@ -33,7 +33,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>7</td><td>COLLECTOR</td></tr>
  * <tr><td>100</td><td>ASYNC</td></tr>
  * </table>
- * 
+ *
  * 
  * <h3>Server (1000 ~ 1899)</h3>
  * 
@@ -53,7 +53,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <h3>Server Sandbox (1900 ~ 1999)</h3>
  * 
  * 
- * <h3>Library (2000 ~ 8999)</h3>
+ * <h3>Database (2000 ~ 2899)</h3>
  * <table>
  * <tr><td>2050</td><td>UNKNOWN_DB</td></tr>
  * <tr><td>2051</td><td>UNKNOWN_DB_EXECUTE_QUERY</td></tr>
@@ -65,6 +65,16 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>2301</td><td>ORACLE_EXECUTE_QUERY</td></tr>
  * <tr><td>2400</td><td>CUBRID</td></tr>
  * <tr><td>2401</td><td>CUBRID_EXECUTE_QUERY</td></tr>
+ * </table>
+ *
+ * <h3>Database Sandbox (2900 ~ 2999)</h3>
+ *
+ *
+ * <h3>RESERVED (3000 ~ 4999)</h3>
+ *
+ *
+ * <h3>Library (5000 ~ 7499)</h3>
+ * <table>
  * <tr><td>5000</td><td>INTERNAL_METHOD</td></tr>
  * <tr><td>5010</td><td>GSON</td></tr>
  * <tr><td>5011</td><td>JACKSON</td></tr>
@@ -78,6 +88,12 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>5510</td><td>MYBATIS</td></tr>
  * <tr><td>6050</td><td>DBCP</td></tr>
  * <tr><td>7010</td><td>USER_INCLUDE</td></tr>
+ * </table>
+ *
+ * <h3>Library Sandbox (7500 ~ 7999)</h3>
+ *
+ * <h3>Cache Library (8000 ~ 8899) Fast Histogram</h3>
+ * <table>
  * <tr><td>8050</td><td>MEMCACHED</td></tr>
  * <tr><td>8051</td><td>MEMCACHED_FUTURE_GET</td></tr>
  * <tr><td>8100</td><td>ARCUS</td></tr>
@@ -88,6 +104,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>8250</td><td><i>RESERVED</i></td></tr>
  * <tr><td>8251</td><td><i>RESERVED</i></td></tr>
  * </table>
+ * <h3>Cache Library Sandbox (8900 ~ 8999) Histogram type: Fast </h3>
  * 
  * 
  * <h3>RPC (9000 ~ 9899)</h3>
@@ -109,8 +126,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * </table>
  * 
  * <h3>RPC Sandbox (9900 ~ 9999)</h3>
- * 
- * <h3>Library Sandbox (10000 ~ 10999)</h3>
+ *
  * 
  * <tr><td></td><td></td></tr>
  * 
@@ -129,28 +145,27 @@ public class ServiceType {
 
     // whether or not print out api including destinationId
     private final boolean includeDestinationId;
-    private final HistogramSchema histogramSchema;
-    
-    public static ServiceType of(int code, String name, HistogramSchema histogramSchema, ServiceTypeProperty... properties) {
-        return of(code, name, name, histogramSchema, properties);
+    private final ServiceTypeCategory category;
+
+    public static ServiceType of(int code, String name, ServiceTypeProperty... properties) {
+        return of(code, name, name, properties);
     }
 
-    public static ServiceType of(int code, String name, String desc, HistogramSchema histogramSchema, ServiceTypeProperty... properties) {
-        return new ServiceType(code, name, desc, histogramSchema, properties);
+    public static ServiceType of(int code, String name, String desc, ServiceTypeProperty... properties) {
+        return new ServiceType(code, name, desc, properties);
     }
 
-
-    public ServiceType(int code, String name, String desc, HistogramSchema histogramSchema, ServiceTypeProperty... properties) {
+    ServiceType(int code, String name, String desc, ServiceTypeProperty... properties) {
         // code must be a short value but constructors accept int to make declaring ServiceType values more cleaner by removing casting to short.
         if (code > Short.MAX_VALUE || code < Short.MIN_VALUE) {
             throw new IllegalArgumentException("code must be a short value");
         }
-        checkSupportHistogramSchema(code, histogramSchema);
+
         this.code = (short)code;
         this.name = name;
         this.desc = desc;
 
-        this.histogramSchema = histogramSchema;
+        this.category = ServiceTypeCategory.findCategory((short)code);
 
         boolean terminal = false;
         boolean recordStatistics = false;
@@ -179,14 +194,6 @@ public class ServiceType {
         this.includeDestinationId = includeDestinationId;
     }
 
-    private void checkSupportHistogramSchema(int code, HistogramSchema histogramSchema) {
-        if (!isWas((short)code)) {
-            return;
-        }
-        if (histogramSchema != HistogramSchema.NORMAL_SCHEMA) {
-            throw new IllegalArgumentException("Server ServiceType only support HistogramSchema.NORMAL_SCHEMA. code:" + code);
-        }
-    }
 
     public boolean isInternalMethod() {
         return this == INTERNAL_METHOD;
@@ -230,12 +237,16 @@ public class ServiceType {
         return includeDestinationId;
     }
 
+    public ServiceTypeCategory getCategory() {
+        return category;
+    }
+
     public HistogramSchema getHistogramSchema() {
-        return histogramSchema;
+        return category.getHistogramSchema();
     }
 
     public boolean isWas() {
-        return isWas(this.code);
+        return this.category == ServiceTypeCategory.SERVER;
     }
     
     @Override
@@ -280,11 +291,11 @@ public class ServiceType {
             
         }
         
-        if (histogramSchema == null) {
-            if (other.histogramSchema != null) {
+        if (category == null) {
+            if (other.category != null) {
                 return false;
             }
-        } else if (!histogramSchema.equals(other.histogramSchema)) {
+        } else if (!category.equals(other.category)) {
             return false;
         }
         
@@ -317,46 +328,46 @@ public class ServiceType {
 
 
     // Undefined Service Code
-    public static final ServiceType UNDEFINED = of(-1, "UNDEFINED", NORMAL_SCHEMA, TERMINAL);
+    public static final ServiceType UNDEFINED = of(-1, "UNDEFINED", TERMINAL);
 
     // Callee node that agent hasn't been installed
-    public static final ServiceType UNKNOWN = of(1, "UNKNOWN", NORMAL_SCHEMA, RECORD_STATISTICS);
+    public static final ServiceType UNKNOWN = of(1, "UNKNOWN", RECORD_STATISTICS);
 
     // UserUNDEFINED
-    public static final ServiceType USER = of(2, "USER", NORMAL_SCHEMA, RECORD_STATISTICS);
+    public static final ServiceType USER = of(2, "USER", RECORD_STATISTICS);
 
     // Group of UNKNOWN, used only for UI
-    public static final ServiceType UNKNOWN_GROUP = of(3, "UNKNOWN_GROUP", NORMAL_SCHEMA, RECORD_STATISTICS);
+    public static final ServiceType UNKNOWN_GROUP = of(3, "UNKNOWN_GROUP", RECORD_STATISTICS);
 
     // Group of TEST, used for running tests
-    public static final ServiceType TEST = of(5, "TEST", NORMAL_SCHEMA);
+    public static final ServiceType TEST = of(5, "TEST");
 
-    public static final ServiceType COLLECTOR = of(7, "COLLECTOR", NORMAL_SCHEMA);
+    public static final ServiceType COLLECTOR = of(7, "COLLECTOR");
     
-    public static final ServiceType ASYNC = of(100, "ASYNC", NORMAL_SCHEMA);
+    public static final ServiceType ASYNC = of(100, "ASYNC");
     
     // Java applications, WAS
-    public static final ServiceType STAND_ALONE = of(1000, "STAND_ALONE", NORMAL_SCHEMA, RECORD_STATISTICS);
-    public static final ServiceType TEST_STAND_ALONE = of(1005, "TEST_STAND_ALONE", NORMAL_SCHEMA, RECORD_STATISTICS);
+    public static final ServiceType STAND_ALONE = of(1000, "STAND_ALONE", RECORD_STATISTICS);
+    public static final ServiceType TEST_STAND_ALONE = of(1005, "TEST_STAND_ALONE", RECORD_STATISTICS);
 
 
     /**
      * Database shown only as xxx_EXECUTE_QUERY at the statistics info section in the server map
      */
     // DB 2000
-    public static final ServiceType UNKNOWN_DB = of(2050, "UNKNOWN_DB", NORMAL_SCHEMA, TERMINAL, INCLUDE_DESTINATION_ID);
-    public static final ServiceType UNKNOWN_DB_EXECUTE_QUERY = of(2051, "UNKNOWN_DB_EXECUTE_QUERY", "UNKNOWN_DB", NORMAL_SCHEMA, TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
+    public static final ServiceType UNKNOWN_DB = of(2050, "UNKNOWN_DB", TERMINAL, INCLUDE_DESTINATION_ID);
+    public static final ServiceType UNKNOWN_DB_EXECUTE_QUERY = of(2051, "UNKNOWN_DB_EXECUTE_QUERY", "UNKNOWN_DB", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
 
     // Internal method
     // FIXME it's not clear to put internal method here. but do that for now.
-    public static final ServiceType INTERNAL_METHOD = of(5000, "INTERNAL_METHOD", NORMAL_SCHEMA);
+    public static final ServiceType INTERNAL_METHOD = of(5000, "INTERNAL_METHOD");
     
 
     // Spring framework
-    public static final ServiceType SPRING = of(5050, "SPRING", NORMAL_SCHEMA);
+    public static final ServiceType SPRING = of(5050, "SPRING");
 //    public static final ServiceType SPRING_MVC = of(5051, "SPRING_MVC", "SPRING", NORMAL_SCHEMA);
     // FIXME replaced with IBATIS_SPRING (5501) under IBatis Plugin - kept for backwards compatibility
-    public static final ServiceType SPRING_ORM_IBATIS = of(5061, "SPRING_ORM_IBATIS", "SPRING", NORMAL_SCHEMA);
+    public static final ServiceType SPRING_ORM_IBATIS = of(5061, "SPRING_ORM_IBATIS", "SPRING");
     // FIXME need to define how to handle spring related codes
 //    public static final ServiceType SPRING_BEAN = of(5071, "SPRING_BEAN", "SPRING_BEAN", NORMAL_SCHEMA);
 }

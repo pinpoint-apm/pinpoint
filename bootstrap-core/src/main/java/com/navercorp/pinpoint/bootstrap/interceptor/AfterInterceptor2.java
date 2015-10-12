@@ -19,5 +19,5 @@ package com.navercorp.pinpoint.bootstrap.interceptor;
  *
  */
 public interface AfterInterceptor2 extends Interceptor {
-    void after(Object target, Object result, Throwable throwable, Object arg0, Object arg1);
+    void after(Object target, Object arg0, Object arg1, Object result, Throwable throwable);
 }

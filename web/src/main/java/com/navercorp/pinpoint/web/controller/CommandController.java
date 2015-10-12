@@ -23,10 +23,9 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
-import com.navercorp.pinpoint.web.server.PinpointSocketManager;
+import com.navercorp.pinpoint.web.cluster.connection.WebClusterConnectionManager;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -59,7 +58,7 @@ public class CommandController {
     private DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
 
     @Autowired
-    private PinpointSocketManager socketManager;
+    private WebClusterConnectionManager clusterConnectionManager;
 
     @Autowired
     private AgentService agentService;

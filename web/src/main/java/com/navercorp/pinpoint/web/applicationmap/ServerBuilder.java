@@ -87,7 +87,7 @@ public class ServerBuilder {
             final String hostName = getHostName(agentHistogram.getId());
             final ServiceType serviceType = agentHistogram.getServiceType();
 
-            final ServerInstance serverInstance = new ServerInstance(hostName, instanceName, serviceType);
+            final ServerInstance serverInstance = new ServerInstance(hostName, instanceName, serviceType.getCode());
             serverInstanceList.addServerInstance(serverInstance);
         }
         return serverInstanceList;

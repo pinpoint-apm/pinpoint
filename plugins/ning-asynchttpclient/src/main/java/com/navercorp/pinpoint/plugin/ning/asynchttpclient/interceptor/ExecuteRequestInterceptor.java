@@ -136,7 +136,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void after(Object target, Object result, Throwable throwable, Object[] args) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             // Do not log result
             logger.afterInterceptor(target, args);

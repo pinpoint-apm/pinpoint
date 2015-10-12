@@ -103,7 +103,7 @@ public final class PinpointRPCTestUtils {
     public static PinpointClientFactory createClientFactory(Map param, MessageListener messageListener) {
         PinpointClientFactory clientFactory = new PinpointClientFactory();
         clientFactory.setProperties(param);
-        clientFactory.addStateChangeEventListener(LoggingStateChangeEventListener.getInstance());
+        clientFactory.addStateChangeEventListener(LoggingStateChangeEventListener.INSTANCE);
 
         if (messageListener != null) {
             clientFactory.setMessageListener(messageListener);
@@ -112,7 +112,7 @@ public final class PinpointRPCTestUtils {
         return clientFactory;
     }
 
-    public static byte[] request(PinpointServer writableServer, byte[] message) {
+    public static byte[] request(PinpointSocket writableServer, byte[] message) {
         Future<ResponseMessage> future = writableServer.request(message);
         future.await();
         return future.getResult().getMessage();

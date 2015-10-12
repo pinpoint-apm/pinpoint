@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.RequestManager;
 import com.navercorp.pinpoint.rpc.client.WriteFailFutureListener;
+import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
+import com.navercorp.pinpoint.rpc.cluster.Role;
 import com.navercorp.pinpoint.rpc.common.CyclicStateChecker;
 import com.navercorp.pinpoint.rpc.common.SocketStateChangeResult;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
@@ -66,7 +68,10 @@ public class DefaultPinpointServer implements PinpointServer {
     private final AtomicReference<Map<Object, Object>> properties = new AtomicReference<Map<Object, Object>>();
 
     private final String objectUniqName;
-    
+
+    private final ClusterOption localClusterOption;
+    private ClusterOption remoteClusterOption;
+
     private final ChannelFutureListener serverCloseWriteListener;
     private final ChannelFutureListener responseWriteFailListener;
     
@@ -108,6 +113,8 @@ public class DefaultPinpointServer implements PinpointServer {
 
         this.state = new DefaultPinpointServerState(this, this.stateChangeEventListeners);
         this.stateChecker = new CyclicStateChecker(5);
+
+        this.localClusterOption = serverConfig.getClusterOption();
     }
     
     public void start() {
@@ -128,27 +135,29 @@ public class DefaultPinpointServer implements PinpointServer {
     }
     
     public void stop(boolean serverStop) {
-        SocketStateCode currentStateCode = getCurrentStateCode();
-        if (SocketStateCode.BEING_CLOSE_BY_SERVER == currentStateCode) {
-            state.toClosed();
-        } else if (SocketStateCode.BEING_CLOSE_BY_CLIENT == currentStateCode) {
-            state.toClosedByPeer();
-        } else if (SocketStateCode.isRun(currentStateCode) && serverStop) {
-            state.toUnexpectedClosed();
-        } else if (SocketStateCode.isRun(currentStateCode)) {
-            state.toUnexpectedClosedByPeer();
-        } else if (SocketStateCode.isClosed(currentStateCode)) {
-            logger.warn("{} stop(). Socket has closed state({}).", objectUniqName, currentStateCode);
-        } else {
-            state.toErrorUnknown();
-            logger.warn("{} stop(). Socket has unexpected state.", objectUniqName, currentStateCode);
+        try {
+            SocketStateCode currentStateCode = getCurrentStateCode();
+            if (SocketStateCode.BEING_CLOSE_BY_SERVER == currentStateCode) {
+                state.toClosed();
+            } else if (SocketStateCode.BEING_CLOSE_BY_CLIENT == currentStateCode) {
+                state.toClosedByPeer();
+            } else if (SocketStateCode.isRun(currentStateCode) && serverStop) {
+                state.toUnexpectedClosed();
+            } else if (SocketStateCode.isRun(currentStateCode)) {
+                state.toUnexpectedClosedByPeer();
+            } else if (SocketStateCode.isClosed(currentStateCode)) {
+                logger.warn("{} stop(). Socket has closed state({}).", objectUniqName, currentStateCode);
+            } else {
+                state.toErrorUnknown();
+                logger.warn("{} stop(). Socket has unexpected state.", objectUniqName, currentStateCode);
+            }
+
+            if (this.channel.isConnected()) {
+                channel.close();
+            }
+        } finally {
+            streamChannelManager.close();
         }
-        
-        if (this.channel.isConnected()) {
-            channel.close();
-        }
-        
-        streamChannelManager.close();
     }
 
     @Override
@@ -208,10 +217,10 @@ public class DefaultPinpointServer implements PinpointServer {
     }
 
     @Override
-    public ClientStreamChannelContext createStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
         logger.info("{} createStream() started.", objectUniqName);
 
-        ClientStreamChannelContext streamChannel = streamChannelManager.openStreamChannel(payload, clientStreamChannelMessageListener);
+        ClientStreamChannelContext streamChannel = streamChannelManager.openStream(payload, clientStreamChannelMessageListener);
         
         logger.info("{} createStream() completed.", objectUniqName);
         return streamChannel;
@@ -347,10 +356,11 @@ public class DefaultPinpointServer implements PinpointServer {
         boolean isFirst = setChannelProperties(handshakeData);
         if (isFirst) {
             if (HandshakeResponseCode.DUPLEX_COMMUNICATION == responseCode) {
+                this.remoteClusterOption = getClusterOption(handshakeData);
                 state.toRunDuplex();
             } else if (HandshakeResponseCode.SIMPLEX_COMMUNICATION == responseCode || HandshakeResponseCode.SUCCESS == responseCode) {
                 state.toRunSimplex();
-            } 
+            }
         }
 
         logger.info("{} handleHandshake(). ResponseCode:{}", objectUniqName, responseCode);
@@ -359,6 +369,36 @@ public class DefaultPinpointServer implements PinpointServer {
         sendHandshakeResponse0(requestId, responseData);
         
         logger.info("{} handleHandshake() completed.", objectUniqName);
+    }
+
+    private ClusterOption getClusterOption(Map handshakeResponse) {
+        if (handshakeResponse == Collections.EMPTY_MAP) {
+            return ClusterOption.DISABLE_CLUSTER_OPTION;
+        }
+
+        Map cluster = (Map) handshakeResponse.get(ControlHandshakeResponsePacket.CLUSTER);
+        if (cluster == null) {
+            return ClusterOption.DISABLE_CLUSTER_OPTION;
+        }
+
+        String id = MapUtils.getString(cluster, "id", "");
+        List<Role> roles = getRoles((List) cluster.get("roles"));
+
+        if (StringUtils.isEmpty(id)) {
+            return ClusterOption.DISABLE_CLUSTER_OPTION;
+        } else {
+            return new ClusterOption(true, id, roles);
+        }
+    }
+
+    private List<Role> getRoles(List roleNames) {
+        List<Role> roles = new ArrayList<Role>();
+        for (Object roleName : roleNames) {
+            if (roleName instanceof String && !StringUtils.isEmpty((String) roleName)) {
+                roles.add(Role.getValue((String) roleName));
+            }
+        }
+        return roles;
     }
 
     private void handleClosePacket(Channel channel) {
@@ -412,6 +452,9 @@ public class DefaultPinpointServer implements PinpointServer {
         Map<String, Object> result = new HashMap<String, Object>();
         result.put(ControlHandshakeResponsePacket.CODE, createdCode.getCode());
         result.put(ControlHandshakeResponsePacket.SUB_CODE, createdCode.getSubCode());
+        if (localClusterOption.isEnable()) {
+            result.put(ControlHandshakeResponsePacket.CLUSTER, localClusterOption.getProperties());
+        }
 
         return result;
     }
@@ -436,7 +479,7 @@ public class DefaultPinpointServer implements PinpointServer {
             logger.warn(e.getMessage(), e);
         }
 
-        return null;
+        return Collections.EMPTY_MAP;
     }
 
     public boolean isEnableCommunication() {
@@ -450,12 +493,27 @@ public class DefaultPinpointServer implements PinpointServer {
     String getObjectUniqName() {
         return objectUniqName;
     }
-    
+
+    @Override
+    public ClusterOption getLocalClusterOption() {
+        return localClusterOption;
+    }
+
+    @Override
+    public ClusterOption getRemoteClusterOption() {
+        return remoteClusterOption;
+    }
+
     @Override
     public SocketStateCode getCurrentStateCode() {
         return state.getCurrentStateCode();
     }
-    
+
+    @Override
+    public void close() {
+        stop();
+    }
+
     @Override
     public String toString() {
         StringBuilder log = new StringBuilder(32);

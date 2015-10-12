@@ -121,7 +121,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         if (columnName == null) {
             throw new NullPointerException("columnName must not be null");
         }
-        hbaseTemplate.incrementColumnValue(MAP_STATISTICS_CALLEE, rowKey, MAP_STATISTICS_CALLEE_CF_VER2_COUNTER, columnName, increment);
+        hbaseTemplate.incrementColumnValue(MAP_STATISTICS_CALLEE_VER2, rowKey, MAP_STATISTICS_CALLEE_VER2_CF_COUNTER, columnName, increment);
     }
 
     @Override
@@ -136,7 +136,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
             if (logger.isDebugEnabled()) {
                 logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
             }
-            hbaseTemplate.increment(MAP_STATISTICS_CALLEE, merge);
+            hbaseTemplate.increment(MAP_STATISTICS_CALLEE_VER2, merge);
         }
     }
 

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.rpc.*;
+import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
@@ -135,17 +136,28 @@ public class PinpointClient implements PinpointSocket {
     }
 
     @Override
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
+        // StreamChannel must be changed into interface in order to throw the StreamChannel that returns failure.
+        // fow now throw just exception
+        ensureOpen();
+        return pinpointClientHandler.openStream(payload, clientStreamChannelMessageListener);
+    }
+
+    @Override
     public SocketAddress getRemoteAddress() {
         return pinpointClientHandler.getRemoteAddress();
     }
 
-    public ClientStreamChannelContext createStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
-        // StreamChannel must be changed into interface in order to throw the StreamChannel that returns failure.
-        // fow now throw just exception
-        ensureOpen();
-        return pinpointClientHandler.createStreamChannel(payload, clientStreamChannelMessageListener);
+    @Override
+    public ClusterOption getLocalClusterOption() {
+        return pinpointClientHandler.getLocalClusterOption();
     }
-    
+
+    @Override
+    public ClusterOption getRemoteClusterOption() {
+        return pinpointClientHandler.getRemoteClusterOption();
+    }
+
     public StreamChannelContext findStreamChannel(int streamChannelId) {
 
         ensureOpen();
@@ -177,6 +189,7 @@ public class PinpointClient implements PinpointSocket {
         pinpointClientHandler.sendPing();
     }
 
+    @Override
     public void close() {
         synchronized (this) {
             if (closed) {

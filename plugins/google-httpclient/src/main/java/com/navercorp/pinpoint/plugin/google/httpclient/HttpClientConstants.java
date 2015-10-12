@@ -15,8 +15,6 @@
  */
 package com.navercorp.pinpoint.plugin.google.httpclient;
 
-import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
-
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 
@@ -29,7 +27,7 @@ public final class HttpClientConstants {
     private HttpClientConstants() {
     }
 
-    public static final ServiceType HTTP_CLIENT_INTERNAL = ServiceType.of(9054, "GOOGLE_HTTP_CLIENT_INTERNAL", "GOOGLE_HTTP_CLIENT", NORMAL_SCHEMA);
+    public static final ServiceType HTTP_CLIENT_INTERNAL = ServiceType.of(9054, "GOOGLE_HTTP_CLIENT_INTERNAL", "GOOGLE_HTTP_CLIENT");
     
     public static final String METADATA_ASYNC_TRACE_ID = "com.navercorp.pinpoint.bootstrap.interceptor.AsyncTraceIdAccessor";
     public static final String EXECUTE_ASYNC_SCOPE = "ExecuteAsyncScope"; 

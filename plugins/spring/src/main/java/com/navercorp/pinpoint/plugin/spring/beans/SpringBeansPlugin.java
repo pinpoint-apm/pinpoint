@@ -25,6 +25,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.ObjectRecipe;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
+
 /**
  * @author Jongho Moon
  *
@@ -47,10 +49,10 @@ public class SpringBeansPlugin implements ProfilerPlugin {
                 ObjectRecipe beanFilterRecipe = ObjectRecipe.byStaticFactory("com.navercorp.pinpoint.plugin.spring.beans.interceptor.TargetBeanFilter", "of", context.getConfig());
                 
                 InstrumentMethod createBeanInstance = target.getDeclaredMethod("createBeanInstance", "java.lang.String", "org.springframework.beans.factory.support.RootBeanDefinition", "java.lang.Object[]");
-                createBeanInstance.addInterceptor("com.navercorp.pinpoint.plugin.spring.beans.interceptor.CreateBeanInstanceInterceptor", beanTransformer, beanFilterRecipe);
+                createBeanInstance.addInterceptor("com.navercorp.pinpoint.plugin.spring.beans.interceptor.CreateBeanInstanceInterceptor", va(beanTransformer, beanFilterRecipe));
 
                 InstrumentMethod postProcessor = target.getDeclaredMethod("applyBeanPostProcessorsBeforeInstantiation", "java.lang.Class", "java.lang.String");
-                postProcessor.addInterceptor("com.navercorp.pinpoint.plugin.spring.beans.interceptor.PostProcessorInterceptor", beanTransformer, beanFilterRecipe);
+                postProcessor.addInterceptor("com.navercorp.pinpoint.plugin.spring.beans.interceptor.PostProcessorInterceptor", va(beanTransformer, beanFilterRecipe));
 
                 return target.toBytecode();
             }

@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
-import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 import java.util.List;
@@ -32,8 +31,8 @@ import com.navercorp.pinpoint.web.vo.Range;
  * @author emeroad
  */
 public class LinkListTest {
-    private static final ServiceType TOMCAT = ServiceType.of(1010, "TOMCAT", NORMAL_SCHEMA, RECORD_STATISTICS);
-    private static final ServiceType BLOC = ServiceType.of(1011, "BLOC", NORMAL_SCHEMA, RECORD_STATISTICS);
+    private static final ServiceType TOMCAT = ServiceType.of(1010, "TOMCAT", RECORD_STATISTICS);
+    private static final ServiceType BLOC = ServiceType.of(1011, "BLOC", RECORD_STATISTICS);
       
     
     @Test

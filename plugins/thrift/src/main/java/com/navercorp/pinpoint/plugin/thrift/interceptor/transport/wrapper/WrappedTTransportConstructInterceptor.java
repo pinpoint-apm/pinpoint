@@ -23,7 +23,6 @@ import org.apache.thrift.transport.TTransport;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
 
 /**
@@ -40,7 +39,7 @@ public abstract class WrappedTTransportConstructInterceptor implements AroundInt
     }
 
     @Override
-    public final void after(Object target, Object result, Throwable throwable, Object[] args) {
+    public final void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (validateTransport(target)) {
             TTransport wrappedTransport = getWrappedTransport(args);
             if (validateTransport(wrappedTransport)) {

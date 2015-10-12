@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.instrument;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import com.navercorp.pinpoint.common.util.Asserts;
 import javassist.CannotCompileException;
 import javassist.CtBehavior;
 import javassist.CtClass;
@@ -121,24 +121,48 @@ public class JavassistMethod implements InstrumentMethod {
     }
 
     @Override
-    public int addInterceptor(String interceptorClassName, Object... constructorArgs) throws InstrumentException {
-        return addGroupedInterceptor(interceptorClassName, null, null, constructorArgs);
+    public int addInterceptor(String interceptorClassName) throws InstrumentException {
+        Asserts.notNull(interceptorClassName, "interceptorClassName");
+        return addInterceptor0(interceptorClassName, null, null, null);
     }
 
     @Override
-    public int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group, Object... constructorArgs) throws InstrumentException {
-        return addGroupedInterceptor(interceptorClassName, group, null, constructorArgs);
+    public int addInterceptor(String interceptorClassName, Object[] constructorArgs) throws InstrumentException {
+        Asserts.notNull(interceptorClassName, "interceptorClassName");
+        Asserts.notNull(constructorArgs, "constructorArgs");
+        return addInterceptor0(interceptorClassName, constructorArgs, null, null);
     }
 
     @Override
-    public int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group, ExecutionPolicy policy, Object... constructorArgs) throws InstrumentException {
-        try {
-            return addInterceptor0(interceptorClassName, group, policy, constructorArgs);
-        } catch (InstrumentException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InstrumentException("Failed to add interceptor " + interceptorClassName + " to " + behavior.getLongName(), e);
-        }
+    public int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group) throws InstrumentException {
+        Asserts.notNull(interceptorClassName, "interceptorClassName");
+        Asserts.notNull(group, "group");
+        return addInterceptor0(interceptorClassName, null, group, null);
+    }
+
+    @Override
+    public int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy) throws InstrumentException {
+        Asserts.notNull(interceptorClassName, "interceptorClassName");
+        Asserts.notNull(group, "group");
+        Asserts.notNull(executionPolicy, "executionPolicy");
+        return addInterceptor0(interceptorClassName, null, group, executionPolicy);
+    }
+
+    @Override
+    public int addGroupedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorGroup group) throws InstrumentException {
+        Asserts.notNull(interceptorClassName, "interceptorClassName");
+        Asserts.notNull(constructorArgs, "constructorArgs");
+        Asserts.notNull(group, "group");
+        return addInterceptor0(interceptorClassName, constructorArgs, group , null);
+    }
+
+    @Override
+    public int addGroupedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorGroup group, ExecutionPolicy executionPolicy) throws InstrumentException {
+        Asserts.notNull(interceptorClassName, "interceptorClassName");
+        Asserts.notNull(constructorArgs, "constructorArgs");
+        Asserts.notNull(group, "group");
+        Asserts.notNull(executionPolicy, "executionPolicy");
+        return addInterceptor0(interceptorClassName, constructorArgs, group, executionPolicy);
     }
 
     @Override
@@ -192,14 +216,27 @@ public class JavassistMethod implements InstrumentMethod {
         }
     }
 
-    private int addInterceptor0(String interceptorClassName, InterceptorGroup group, ExecutionPolicy policy, Object[] constructorArgs) throws CannotCompileException, NotFoundException, InstrumentException, IllegalArgumentException, SecurityException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        GroupInfo groupInfo = resolveGroupInfo(interceptorClassName, group, policy);
-        Interceptor interceptor = createInterceptor(interceptorClassName, groupInfo, constructorArgs);
-        int interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(interceptor);
+    // for internal api
+    int addInterceptorInternal(String interceptorClassName, Object[] constructorArgs, InterceptorGroup group, ExecutionPolicy executionPolicy) throws InstrumentException {
+        if (interceptorClassName == null) {
+            throw new NullPointerException("interceptorClassName must not be null");
+        }
+        return addInterceptor0(interceptorClassName, constructorArgs, group, executionPolicy);
+    }
 
-        addInterceptor0(interceptor, interceptorId);
+    private int addInterceptor0(String interceptorClassName, Object[] constructorArgs, InterceptorGroup group, ExecutionPolicy executionPolicy) throws InstrumentException {
+        try {
+            GroupInfo groupInfo = resolveGroupInfo(interceptorClassName, group, executionPolicy);
+            Interceptor interceptor = createInterceptor(interceptorClassName, groupInfo, constructorArgs);
+            int interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(interceptor);
 
-        return interceptorId;
+            addInterceptor0(interceptor, interceptorId);
+            return interceptorId;
+        } catch (CannotCompileException ccex) {
+            throw new InstrumentException("Failed to add interceptor " + interceptorClassName + " to " + behavior.getLongName(), ccex);
+        } catch (NotFoundException nex) {
+            throw new InstrumentException("Failed to add interceptor " + interceptorClassName + " to " + behavior.getLongName(), nex);
+        }
     }
 
     private Interceptor createInterceptor(String interceptorClassName, GroupInfo groupInfo, Object[] constructorArgs) {
@@ -233,7 +270,7 @@ public class JavassistMethod implements InstrumentMethod {
         addAfterInterceptor(interceptor, interceptorId, localVarsInitialized, originalCodeOffset);
     }
     
-    private static final Method findMethod(Class<?> interceptorClass, String name) {
+    private static Method findMethod(Class<?> interceptorClass, String name) {
         for (Method m : interceptorClass.getMethods()) {
             if (m.getName().equals(name)) {
                 return m;

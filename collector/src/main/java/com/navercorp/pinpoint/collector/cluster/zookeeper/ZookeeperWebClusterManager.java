@@ -16,23 +16,23 @@
 
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
+import com.navercorp.pinpoint.collector.cluster.WorkerState;
+import com.navercorp.pinpoint.collector.cluster.WorkerStateContext;
+import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnectionManager;
+import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.ConnectionException;
+import com.navercorp.pinpoint.common.util.NetUtils;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.collector.cluster.WebCluster;
-import com.navercorp.pinpoint.collector.cluster.WorkerState;
-import com.navercorp.pinpoint.collector.cluster.WorkerStateContext;
-import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.ConnectionException;
-import com.navercorp.pinpoint.common.util.NetUtils;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 
 /**
  * @author koo.taejin
@@ -48,7 +48,7 @@ public class ZookeeperWebClusterManager implements Runnable {
     private final StopTask stopTask = new StopTask();
 
     private final ZookeeperClient client;
-    private final WebCluster webCluster;
+    private final CollectorClusterConnectionManager clusterConnectionManager;
     private final String zNodePath;
 
     private final AtomicBoolean retryMode = new AtomicBoolean(false);
@@ -63,10 +63,10 @@ public class ZookeeperWebClusterManager implements Runnable {
     // Register Worker + Job
     // synchronize current status with Zookeeper when an event(job) is triggered.
     // (the number of events does not matter as long as a single event is triggered - subsequent events may be ignored)
-    public ZookeeperWebClusterManager(ZookeeperClient client, String zookeeperClusterPath, String serverIdentifier, WebCluster webCluster) {
+    public ZookeeperWebClusterManager(ZookeeperClient client, String zookeeperClusterPath, String serverIdentifier, CollectorClusterConnectionManager clusterConnectionManager) {
         this.client = client;
 
-        this.webCluster = webCluster;
+        this.clusterConnectionManager = clusterConnectionManager;
         this.zNodePath = zookeeperClusterPath;
 
         this.workerState = new WorkerStateContext();
@@ -84,6 +84,11 @@ public class ZookeeperWebClusterManager implements Runnable {
 
                     workerState.changeStateStarted();
                     logger.info("{} initialization completed.", this.getClass().getSimpleName());
+
+                    if (clusterConnectionManager != null) {
+                        clusterConnectionManager.start();
+                    }
+
                     break;
                 }
             case INITIALIZING:
@@ -110,6 +115,10 @@ public class ZookeeperWebClusterManager implements Runnable {
         }
 
         logger.info("{} destroying started.", this.getClass().getSimpleName());
+
+        if (clusterConnectionManager != null) {
+            clusterConnectionManager.stop();
+        }
 
         final boolean stopOffer = queue.offer(stopTask);
         if (!stopOffer) {
@@ -200,19 +209,19 @@ public class ZookeeperWebClusterManager implements Runnable {
                 List<String> childNodeList = client.getChildrenNode(zNodePath, true);
                 List<InetSocketAddress> clusterAddressList = NetUtils.toInetSocketAddressLIst(childNodeList);
 
-                List<InetSocketAddress> addressList = webCluster.getWebClusterList();
+                List<SocketAddress> addressList = clusterConnectionManager.getConnectedAddressList();
 
                 logger.info("Handle register and remove Task. Current Address List = {}, Cluster Address List = {}", addressList, clusterAddressList);
 
                 for (InetSocketAddress clusterAddress : clusterAddressList) {
                     if (!addressList.contains(clusterAddress)) {
-                        webCluster.connectPointIfAbsent(clusterAddress);
+                        clusterConnectionManager.connectPointIfAbsent(clusterAddress);
                     }
                 }
 
-                for (InetSocketAddress address : addressList) {
+                for (SocketAddress address : addressList) {
                     if (!clusterAddressList.contains(address)) {
-                        webCluster.disconnectPoint(address);
+                        clusterConnectionManager.disconnectPoint(address);
                     }
                 }
 

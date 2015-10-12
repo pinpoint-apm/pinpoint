@@ -54,7 +54,7 @@ public class FromJsonInterceptor implements AroundInterceptor2 {
     }
 
     @Override
-    public void after(Object target, Object result, Throwable throwable, Object arg0, Object arg1) {
+    public void after(Object target, Object arg0, Object arg1, Object result, Throwable throwable) {
         if (logger.isDebugEnabled()) {
             logger.afterInterceptor(target, new Object[] {arg0, arg1}, result, throwable);
         }

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.rpc.stream;
 
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.packet.stream.BasicStreamPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPingPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPongPacket;
 import org.jboss.netty.channel.Channel;
@@ -122,7 +123,7 @@ public abstract class StreamChannel {
     }
 
     public void close() {
-        this.streamChannelManager.clearResourceAndSendClose(getStreamId(), BasicStreamPacket.CHANNEL_CLOSE);
+        this.streamChannelManager.clearResourceAndSendClose(getStreamId(), StreamCode.STATE_CLOSED);
     }
 
     public Channel getChannel() {
@@ -167,7 +168,7 @@ public abstract class StreamChannel {
     protected boolean changeStateTo(StreamChannelStateCode nextState) {
         StreamChannelStateCode currentState = getCurrentState();
 
-        boolean isChanged = state.changeStateTo(currentState, nextState);
+        boolean isChanged = state.to(currentState, nextState);
         if (!isChanged && (getCurrentState() != StreamChannelStateCode.ILLEGAL_STATE)) {
             changeStateTo(StreamChannelStateCode.ILLEGAL_STATE);
         }
@@ -175,9 +176,9 @@ public abstract class StreamChannel {
         if (isChanged) {
             for (StreamChannelStateChangeEventHandler h : stateChangeEventHandlers) {
                 try {
-                    h.eventPerformed(this, currentState, nextState);
+                    h.eventPerformed(this, nextState);
                 } catch (Exception e) {
-                    h.exceptionCaught(this, currentState, nextState, e);
+                    h.exceptionCaught(this, nextState, e);
                 }
             }
         }
@@ -203,6 +204,5 @@ public abstract class StreamChannel {
 
         return sb.toString();
     }
-
 
 }

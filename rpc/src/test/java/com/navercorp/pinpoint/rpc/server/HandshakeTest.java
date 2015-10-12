@@ -16,14 +16,12 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
+import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+import com.navercorp.pinpoint.rpc.client.PinpointClientHandshaker;
+import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
+import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import org.jboss.netty.util.Timer;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -32,11 +30,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.rpc.client.PinpointClientHandshaker;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
-import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
-import com.navercorp.pinpoint.rpc.util.TimerFactory;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class HandshakeTest {
 
@@ -62,7 +60,7 @@ public class HandshakeTest {
     // simple test
     @Test
     public void handshakeTest1() throws InterruptedException {
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new AlwaysHandshakeSuccessListener());
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_INSTANCE);
 
         PinpointClientFactory clientFactory1 = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), PinpointRPCTestUtils.createEchoClientListener());
         PinpointClientFactory clientFactory2 = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), null);
@@ -72,7 +70,7 @@ public class HandshakeTest {
 
             Thread.sleep(500);
 
-            List<PinpointServer> writableServerList = serverAcceptor.getWritableServerList();
+            List<PinpointSocket> writableServerList = serverAcceptor.getWritableSocketList();
             if (writableServerList.size() != 2) {
                 Assert.fail();
             }
@@ -88,7 +86,7 @@ public class HandshakeTest {
 
     @Test
     public void handshakeTest2() throws InterruptedException {
-        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, new AlwaysHandshakeSuccessListener());
+        PinpointServerAcceptor serverAcceptor = PinpointRPCTestUtils.createPinpointServerFactory(bindPort, SimpleServerMessageListener.DUPLEX_INSTANCE);
 
         Map params = PinpointRPCTestUtils.getParams();
         
@@ -98,10 +96,10 @@ public class HandshakeTest {
             PinpointClient client = clientFactory1.connect("127.0.0.1", bindPort);
             Thread.sleep(500);
 
-            PinpointServer writableServer = getWritableServer("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()), serverAcceptor.getWritableServerList());
+            PinpointSocket writableServer = getWritableServer("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()), serverAcceptor.getWritableSocketList());
             Assert.assertNotNull(writableServer);
 
-            writableServer = getWritableServer("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()) + 1, serverAcceptor.getWritableServerList());
+            writableServer = getWritableServer("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()) + 1, serverAcceptor.getWritableSocketList());
             Assert.assertNull(writableServer);
 
             PinpointRPCTestUtils.close(client);
@@ -135,7 +133,7 @@ public class HandshakeTest {
         Assert.assertTrue(handshaker.isFinished());
     }
 
-    private PinpointServer getWritableServer(String applicationName, String agentId, long startTimeMillis, List<PinpointServer> writableServerList) {
+    private PinpointSocket getWritableServer(String applicationName, String agentId, long startTimeMillis, List<PinpointSocket> writableServerList) {
         if (applicationName == null) {
             return null;
         }
@@ -148,24 +146,27 @@ public class HandshakeTest {
             return null;
         }
 
-        List<PinpointServer> result = new ArrayList<PinpointServer>();
+        List<PinpointSocket> result = new ArrayList<PinpointSocket>();
 
-        for (PinpointServer writableServer : writableServerList) {
-            Map agentProperties = writableServer.getChannelProperties();
+        for (PinpointSocket writableServer : writableServerList) {
 
-            if (!applicationName.equals(agentProperties.get(AgentHandshakePropertyType.APPLICATION_NAME.getName()))) {
-                continue;
+            if (writableServer instanceof  PinpointServer) {
+                Map agentProperties = ((PinpointServer)writableServer).getChannelProperties();
+
+                if (!applicationName.equals(agentProperties.get(AgentHandshakePropertyType.APPLICATION_NAME.getName()))) {
+                    continue;
+                }
+
+                if (!agentId.equals(agentProperties.get(AgentHandshakePropertyType.AGENT_ID.getName()))) {
+                    continue;
+                }
+
+                if (startTimeMillis != (Long) agentProperties.get(AgentHandshakePropertyType.START_TIMESTAMP.getName())) {
+                    continue;
+                }
+
+                result.add(writableServer);
             }
-
-            if (!agentId.equals(agentProperties.get(AgentHandshakePropertyType.AGENT_ID.getName()))) {
-                continue;
-            }
-
-            if (startTimeMillis != (Long) agentProperties.get(AgentHandshakePropertyType.START_TIMESTAMP.getName())) {
-                continue;
-            }
-
-            result.add(writableServer);
         }
 
         if (result.size() == 0) {
@@ -177,15 +178,6 @@ public class HandshakeTest {
         } else {
             logger.warn("Ambiguous Channel Context {}, {}, {} (Valid Agent list={}).", applicationName, agentId, startTimeMillis, result);
             return null;
-        }
-    }
-
-    private class AlwaysHandshakeSuccessListener extends SimpleLoggingServerMessageListener {
-        @Override
-        public HandshakeResponseCode handleHandshake(Map properties) {
-            logger.info("handleEnableWorker {}", properties);
-            return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
-
         }
     }
 

@@ -35,12 +35,18 @@ public interface InstrumentMethod {
     boolean isConstructor();
     
     MethodDescriptor getDescriptor();
-    
-    int addInterceptor(String interceptorClassName, Object... constructorArgs) throws InstrumentException;
-    
-    int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group, Object... constructorArgs) throws InstrumentException;
 
-    int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy, Object... constructorArgs) throws InstrumentException;
+    int addInterceptor(String interceptorClassName) throws InstrumentException;
+
+    int addInterceptor(String interceptorClassName, Object[] constructorArgs) throws InstrumentException;
+
+    int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group) throws InstrumentException;
+
+    int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy) throws InstrumentException;
+
+    int addGroupedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorGroup group) throws InstrumentException;
+
+    int addGroupedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorGroup group, ExecutionPolicy executionPolicy) throws InstrumentException;
     
     void addInterceptor(int interceptorId) throws InstrumentException;
 }

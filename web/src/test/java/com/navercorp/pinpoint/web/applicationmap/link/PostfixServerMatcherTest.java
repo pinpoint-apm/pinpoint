@@ -20,6 +20,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import com.navercorp.pinpoint.web.applicationmap.link.LinkInfo.LinkType;
+
 /**
  * @author minwoo.jung
  */
@@ -29,13 +31,13 @@ public class PostfixServerMatcherTest {
     public void test() {
         String url = "http://naver.com/";
         String postfix = ".seoul.idc";
-        PostfixServerMatcher matcher = new PostfixServerMatcher(postfix, url, "NAVER");
+        PostfixServerMatcher matcher = new PostfixServerMatcher(postfix, url, "NAVER", LinkType.ATAG);
         
         String serverName = "naverServer01";
         assertTrue(matcher.isMatched(serverName + postfix));
         assertFalse(matcher.isMatched("naverserver" + "busan.idc"));
         
-        assertEquals(url + serverName, matcher.getLink(serverName + postfix));
+        assertEquals(url + serverName, matcher.getLinkInfo(serverName + postfix).getLinkUrl());
     }
 
 }

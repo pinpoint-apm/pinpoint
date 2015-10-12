@@ -85,15 +85,4 @@ public class ServerInstanceList {
         List<ServerInstance> find = getServerInstanceList(serverInstance.getHostName());
         addServerInstance(find, serverInstance);
     }
-
-    public Map<String, String> getLink(String serverName, MatcherGroup matcherGroup) {
-        ServerMatcher serverMatcher = matcherGroup.match(serverName);
-
-        Map<String, String> linkInfo = new HashMap<String, String>();
-        linkInfo.put("linkName", serverMatcher.getLinkName());
-        linkInfo.put("linkURL", serverMatcher.getLink(serverName));
-
-        return linkInfo;
-    }
-
 }

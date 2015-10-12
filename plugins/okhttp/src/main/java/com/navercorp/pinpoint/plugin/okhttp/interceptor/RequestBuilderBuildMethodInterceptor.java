@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvoca
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.okhttp.*;
 import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.Request;
@@ -87,7 +86,9 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
             if (target instanceof HttpUrlGetter) {
                 final HttpUrl url = ((HttpUrlGetter) target)._$PINPOINT$_getHttpUrl();
                 if (url != null) {
-                    builder.header(Header.HTTP_HOST.toString(), url.host());
+                    final String endpoint = getDestinationId(url);
+                    logger.debug("Set HTTP_HOST {}", endpoint);
+                    builder.header(Header.HTTP_HOST.toString(), endpoint);
                 }
             }
         } catch (Throwable t) {
@@ -95,8 +96,22 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
         }
     }
 
+    private String getDestinationId(HttpUrl httpUrl) {
+        if (httpUrl == null || httpUrl.host() == null) {
+            return "UnknownHttpClient";
+        }
+        if (httpUrl.port() == HttpUrl.defaultPort(httpUrl.scheme())) {
+            return httpUrl.host();
+        }
+        final StringBuilder sb = new StringBuilder();
+        sb.append(httpUrl.host());
+        sb.append(':');
+        sb.append(httpUrl.port());
+        return sb.toString();
+    }
+
     @Override
-    public void after(Object target, Object result, Throwable throwable, Object[] args) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args);
         }

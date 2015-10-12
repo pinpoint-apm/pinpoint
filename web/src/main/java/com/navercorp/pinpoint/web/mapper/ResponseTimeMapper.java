@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
@@ -32,6 +33,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -48,17 +50,21 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
     @Autowired
     private ServiceTypeRegistryService registry;
 
+    @Autowired
+    @Qualifier("statisticsSelfRowKeyDistributor")
+    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+
     @Override
     public ResponseTime mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return null;
         }
 
-        final byte[] rowKey = result.getRow();
+        final byte[] rowKey = getOriginalKey(result.getRow());
 
         ResponseTime responseTime = createResponseTime(rowKey);
         for (Cell cell : result.rawCells()) {
-            if (CellUtil.matchingFamily(cell, HBaseTables.MAP_STATISTICS_SELF_CF_COUNTER)) {
+            if (CellUtil.matchingFamily(cell, HBaseTables.MAP_STATISTICS_SELF_VER2_CF_COUNTER)) {
                 recordColumn(responseTime, cell);
             }
 
@@ -68,8 +74,6 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
         }
         return responseTime;
     }
-
-
 
     void recordColumn(ResponseTime responseTime, Cell cell) {
 
@@ -92,4 +96,7 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
         return new ResponseTime(applicationName, serviceType, timestamp);
     }
 
+    private byte[] getOriginalKey(byte[] rowKey) {
+        return rowKeyDistributorByHashPrefix.getOriginalKey(rowKey);
+    }
 }

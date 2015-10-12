@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.ibatis;
 
-import static com.navercorp.pinpoint.common.trace.HistogramSchema.NORMAL_SCHEMA;
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 import java.security.ProtectionDomain;
 import java.util.List;
@@ -40,8 +40,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  */
 public class IBatisPlugin implements ProfilerPlugin {
 
-    public static final ServiceType IBATIS = ServiceType.of(5500, "IBATIS", NORMAL_SCHEMA);
-    public static final ServiceType IBATIS_SPRING = ServiceType.of(5501, "IBATIS_SPRING", "IBATIS", NORMAL_SCHEMA);
+    public static final ServiceType IBATIS = ServiceType.of(5500, "IBATIS");
+    public static final ServiceType IBATIS_SPRING = ServiceType.of(5501, "IBATIS_SPRING", "IBATIS");
 
     private static final String IBATIS_SCOPE = "IBATIS_SCOPE";
 
@@ -94,8 +94,8 @@ public class IBatisPlugin implements ProfilerPlugin {
                 final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(methodFilter);
                 for (InstrumentMethod methodToTrace : methodsToTrace) {
                     String sqlMapOperationInterceptor = "com.navercorp.pinpoint.plugin.ibatis.interceptor.SqlMapOperationInterceptor";
-                    methodToTrace.addGroupedInterceptor(sqlMapOperationInterceptor, group, ExecutionPolicy.BOUNDARY,
-                            serviceType);
+                    methodToTrace.addGroupedInterceptor(sqlMapOperationInterceptor, va(serviceType), group, ExecutionPolicy.BOUNDARY
+                    );
                 }
 
                 return target.toBytecode();

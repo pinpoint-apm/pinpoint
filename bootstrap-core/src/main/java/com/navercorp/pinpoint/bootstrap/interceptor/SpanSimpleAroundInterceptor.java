@@ -71,7 +71,7 @@ public abstract class SpanSimpleAroundInterceptor implements AroundInterceptor {
     protected abstract Trace createTrace(final Object target, final Object[] args);
 
     @Override
-    public void after(Object target, Object result, Throwable throwable, Object[] args) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }

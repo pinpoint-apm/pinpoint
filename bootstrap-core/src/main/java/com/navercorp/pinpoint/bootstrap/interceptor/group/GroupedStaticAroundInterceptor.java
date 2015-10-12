@@ -51,11 +51,11 @@ public class GroupedStaticAroundInterceptor implements StaticAroundInterceptor {
     }
 
     @Override
-    public void after(Object target, String className, String methodName, String parameterDescription, Object result, Throwable throwable, Object[] args) {
+    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
         InterceptorGroupInvocation transaction = group.getCurrentInvocation();
         
         if (transaction.canLeave(policy)) {
-            this.delegate.after(target, className, methodName, parameterDescription, result, throwable, args);
+            this.delegate.after(target, className, methodName, parameterDescription, args, result, throwable);
             transaction.leave(policy);
         } else {
             if (debugEnabled) {

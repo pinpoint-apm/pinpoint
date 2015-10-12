@@ -15,8 +15,6 @@
  */
 package com.navercorp.pinpoint.plugin.commons.dbcp;
 
-import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
-
 import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
@@ -31,7 +29,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author Jongho Moon
  */
 public class CommonsDbcpPlugin implements ProfilerPlugin {
-    public static final ServiceType DBCP_SERVICE_TYPE = ServiceType.of(6050, "DBCP", NORMAL_SCHEMA);
+    public static final ServiceType DBCP_SERVICE_TYPE = ServiceType.of(6050, "DBCP");
     public static final String DBCP_GROUP = "DBCP_GROUP";
 
     @Override
