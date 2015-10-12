@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
