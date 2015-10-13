@@ -22,6 +22,9 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.navercorp.pinpoint.common.util.DefaultSqlParser;
+import com.navercorp.pinpoint.common.util.OutputParameterParser;
+import com.navercorp.pinpoint.common.util.SqlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,19 +73,21 @@ public class BusinessTransactionController {
 
     @Autowired
     private FilterBuilder filterBuilder;
-    
+
     @Value("#{pinpointWebProps['log.enable'] ?: false}")
     private boolean logLinkEnable;
-    
+
     @Value("#{pinpointWebProps['log.button.name'] ?: ''}")
     private String logButtonName;
-    
+
     @Value("#{pinpointWebProps['log.page.url'] ?: ''}")
     private String logPageUrl;
-    
+
     @Value("#{pinpointWebProps['log.button.disable.message'] ?: ''}")
     private String disableButtonMessage;
-    
+
+    private SqlParser sqlParser = new DefaultSqlParser();
+    private OutputParameterParser parameterParser = new OutputParameterParser();
 
     /**
      * executed URLs in applicationname query within from ~ to timeframe
@@ -97,11 +102,11 @@ public class BusinessTransactionController {
     @RequestMapping(value = "/transactionList", method = RequestMethod.GET)
     @ResponseBody
     public Model getBusinessTransactionsData(Model model,
-                                            @RequestParam("application") String applicationName,
-                                            @RequestParam("from") long from,
-                                            @RequestParam("to") long to,
-                                            @RequestParam(value = "filter", required = false) String filterText,
-                                            @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
+                                             @RequestParam("application") String applicationName,
+                                             @RequestParam("from") long from,
+                                             @RequestParam("to") long to,
+                                             @RequestParam(value = "filter", required = false) String filterText,
+                                             @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
         limit = LimitUtils.checkRange(limit);
         Range range = new Range(from, to);
         // TODO more refactoring needed: partially separated out server map lookup logic.
@@ -129,10 +134,10 @@ public class BusinessTransactionController {
     @RequestMapping(value = "/lastTransactionList", method = RequestMethod.GET)
     @ResponseBody
     public Model getLastBusinessTransactionsData(Model model, HttpServletResponse response,
-                                            @RequestParam("application") String applicationName,
-                                            @RequestParam("period") long period,
-                                            @RequestParam(value = "filter", required = false) String filterText,
-                                            @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
+                                                 @RequestParam("application") String applicationName,
+                                                 @RequestParam("period") long period,
+                                                 @RequestParam(value = "filter", required = false) String filterText,
+                                                 @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
         limit = LimitUtils.checkRange(limit);
         long to = TimeUtils.getDelayLastTime();
         long from = to - period;
@@ -140,7 +145,7 @@ public class BusinessTransactionController {
     }
 
     /**
-         * info lookup for a selected transaction
+     * info lookup for a selected transaction
      *
      * @param traceIdParam
      * @param focusTimestamp
@@ -190,7 +195,7 @@ public class BusinessTransactionController {
         mv.addObject("callstackStart", recordSet.getStartTime());
         mv.addObject("callstackEnd", recordSet.getEndTime());
         mv.addObject("completeState", spanResult.getCompleteTypeString());
-        
+
         mv.addObject("logLinkEnable", logLinkEnable);
         mv.addObject("loggingTransactionInfo", recordSet.isLoggingTransactionInfo());
         mv.addObject("logButtonName", logButtonName);
@@ -204,5 +209,15 @@ public class BusinessTransactionController {
             mv.setViewName("transactionInfoJson");
         }
         return mv;
+    }
+
+    @RequestMapping(value = "/sqlBind", method = RequestMethod.GET)
+    @ResponseBody
+    public String sqlBind(Model model, HttpServletResponse response,
+                          @RequestParam("sql") String sql,
+                          @RequestParam("bind") String bind) {
+        logger.debug("sql={}, bind={}", sql, bind);
+        final List<String> bindValues = parameterParser.parseOutputParameter(bind);
+        return sqlParser.combineBindValues(sql, bindValues);
     }
 }
