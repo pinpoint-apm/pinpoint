@@ -29,7 +29,7 @@ import java.util.Map;
 public enum StreamCode {
 
     // Status Code
-    SUCCESS((short) 0),
+    OK((short) 0),
 
     UNKNWON_ERROR((short) 100),
 

@@ -22,10 +22,10 @@ package com.navercorp.pinpoint.rpc.stream;
 /**
  * @Author Taejin Koo
  */
-public interface StreamChannelStateChangeEventHandler {
+public interface StreamChannelStateChangeEventHandler <S extends StreamChannel> {
 
-    void eventPerformed(StreamChannel streamChannel, StreamChannelStateCode updatedStateCode) throws Exception;
+    void eventPerformed(S streamChannel, StreamChannelStateCode updatedStateCode) throws Exception;
 
-    void exceptionCaught(StreamChannel streamChannel, StreamChannelStateCode updatedStateCode, Throwable e);
+    void exceptionCaught(S streamChannel, StreamChannelStateCode updatedStateCode, Throwable e);
 
 }

@@ -39,6 +39,10 @@ public class AgentActiveThreadCountList {
 
     private final List<AgentActiveThreadCount> agentActiveThreadRepository;
 
+    public AgentActiveThreadCountList() {
+        agentActiveThreadRepository = new ArrayList<AgentActiveThreadCount>();
+    }
+
     public AgentActiveThreadCountList(int initialCapacity) {
         agentActiveThreadRepository = new ArrayList<AgentActiveThreadCount>(initialCapacity);
     }
@@ -72,9 +76,8 @@ class AgentActiveThreadCountListSerializer extends JsonSerializer<AgentActiveThr
             jgen.writeFieldName(agentActiveThread.getAgentId());
             jgen.writeStartObject();
 
-            TRouteResult routeResult = agentActiveThread.getRouteResult(TRouteResult.UNKNOWN);
-            jgen.writeNumberField("code", routeResult.getValue());
-            jgen.writeStringField("message", routeResult.name());
+            jgen.writeNumberField("code", agentActiveThread.getCode());
+            jgen.writeStringField("message", agentActiveThread.getCodeMessage());
 
             TCmdActiveThreadCountRes activeThreadCount = agentActiveThread.getActiveThreadCount();
             long timeStamp = System.currentTimeMillis();
@@ -93,7 +96,6 @@ class AgentActiveThreadCountListSerializer extends JsonSerializer<AgentActiveThr
                     jgen.writeEndArray();
                 }
             }
-            jgen.writeNumberField("timeStamp", timeStamp);
 
             jgen.writeEndObject();
         }

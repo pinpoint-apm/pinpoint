@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.receiver;
 
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import org.apache.thrift.TBase;
 
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
 
 public interface ProfilerStreamCommandService extends ProfilerCommandService {
 
-    short streamCommandService(TBase tBase, ServerStreamChannelContext streamChannelContext);
+    StreamCode streamCommandService(TBase tBase, ServerStreamChannelContext streamChannelContext);
     
 }
