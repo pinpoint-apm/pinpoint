@@ -97,6 +97,9 @@ public final class MetricMonitorValues {
     public static final String CPU_LOAD_JVM = CPU_LOAD + ".jvm";
     // CPU Load (System)
     public static final String CPU_LOAD_SYSTEM = CPU_LOAD + ".system";
+    
+    public static final String TRANSACTION = "transaction";
+    public static final String TRANSACTION_PER_SECOND = TRANSACTION + ".tps";
 
     private MetricMonitorValues() {
     }

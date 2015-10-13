@@ -46,9 +46,9 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     private final StorageFactory storageFactory;
     private final Sampler sampler;
 
-    private final IdGenerator idGenerator = new IdGenerator();
+    private final IdGenerator idGenerator;
 
-    public ThreadLocalTraceFactory(TraceContext traceContext, StorageFactory storageFactory, Sampler sampler) {
+    public ThreadLocalTraceFactory(TraceContext traceContext, StorageFactory storageFactory, Sampler sampler, IdGenerator idGenerator) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
         }
@@ -58,9 +58,13 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         if (sampler == null) {
             throw new NullPointerException("sampler must not be null");
         }
+        if (idGenerator == null) {
+            throw new NullPointerException("idGenerator must not be null");
+        }
         this.traceContext = traceContext;
         this.storageFactory = storageFactory;
         this.sampler = sampler;
+        this.idGenerator = idGenerator;
     }
 
 

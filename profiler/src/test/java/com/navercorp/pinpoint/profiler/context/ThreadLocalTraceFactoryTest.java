@@ -38,13 +38,14 @@ import org.junit.Test;
 public class ThreadLocalTraceFactoryTest {
 
     private ThreadLocalTraceFactory getTraceFactory() {
+        IdGenerator idGenerator = new IdGenerator();
         LogStorageFactory logStorageFactory = new LogStorageFactory();
         TrueSampler trueSampler = new TrueSampler();
         ServerMetaDataHolder serverMetaDataHolder = new DefaultServerMetaDataHolder(Collections.<String>emptyList());
         AgentInformation agentInformation = new AgentInformation("agentId", "applicationName", System.currentTimeMillis(), 10, "test", "127.0.0.1", ServiceType.STAND_ALONE,
                 JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION), Version.VERSION);
         DefaultTraceContext traceContext = new DefaultTraceContext(100, agentInformation, logStorageFactory, trueSampler, serverMetaDataHolder, false);
-        return new ThreadLocalTraceFactory(traceContext, logStorageFactory, trueSampler);
+        return new ThreadLocalTraceFactory(traceContext, logStorageFactory, trueSampler, idGenerator);
     }
 
     @Test

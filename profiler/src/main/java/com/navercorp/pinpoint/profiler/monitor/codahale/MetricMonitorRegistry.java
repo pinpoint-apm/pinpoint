@@ -24,6 +24,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
+import com.navercorp.pinpoint.profiler.context.TransactionCounter;
 import com.navercorp.pinpoint.profiler.monitor.CounterMonitor;
 import com.navercorp.pinpoint.profiler.monitor.EventRateMonitor;
 import com.navercorp.pinpoint.profiler.monitor.HistogramMonitor;
@@ -31,6 +32,7 @@ import com.navercorp.pinpoint.profiler.monitor.MonitorName;
 import com.navercorp.pinpoint.profiler.monitor.MonitorRegistry;
 import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.CpuLoadMetricSetSelector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.CpuLoadMetricSet;
+import com.navercorp.pinpoint.profiler.monitor.codahale.tps.metric.TransactionMetricSet;
 
 /**
  * Use <a href="http://metrics.codahale.com/">Codahale</a> {@link MetricRegistry} for monitoring.
@@ -55,58 +57,50 @@ public class MetricMonitorRegistry implements MonitorRegistry {
     }
 
     public HistogramMonitor newHistogramMonitor(MonitorName monitorName) {
+        validateMonitorName(monitorName);
         final Histogram histogram = this.delegate.histogram(monitorName.getName());
         return new MetricHistogramMonitor(histogram);
     }
 
     public EventRateMonitor newEventRateMonitor(MonitorName monitorName) {
-        if (monitorName == null) {
-            throw new NullPointerException("monitorName must not be null");
-        }
+        validateMonitorName(monitorName);
         final Meter meter = this.delegate.meter(monitorName.getName());
         return new MetricEventRateMonitor(meter);
     }
 
     public CounterMonitor newCounterMonitor(MonitorName monitorName) {
-        if (monitorName == null) {
-            throw new NullPointerException("monitorName must not be null");
-        }
+        validateMonitorName(monitorName);
         final Counter counter = this.delegate.counter(monitorName.getName());
         return new MetricCounterMonitor(counter);
     }
 
     public MemoryUsageGaugeSet registerJvmMemoryMonitor(MonitorName monitorName) {
-        if (monitorName == null) {
-            throw new NullPointerException("monitorName must not be null");
-        }
+        validateMonitorName(monitorName);
         return this.delegate.register(monitorName.getName(), new MemoryUsageGaugeSet());
     }
 
     public JvmAttributeGaugeSet registerJvmAttributeMonitor(MonitorName monitorName) {
-        if (monitorName == null) {
-            throw new NullPointerException("monitorName must not be null");
-        }
+        validateMonitorName(monitorName);
         return this.delegate.register(monitorName.getName(), new JvmAttributeGaugeSet());
     }
 
     public GarbageCollectorMetricSet registerJvmGcMonitor(MonitorName monitorName) {
-        if (monitorName == null) {
-            throw new NullPointerException("monitorName must not be null");
-        }
+        validateMonitorName(monitorName);
         return this.delegate.register(monitorName.getName(), new GarbageCollectorMetricSet());
     }
 
     public CpuLoadMetricSet registerCpuLoadMonitor(MonitorName monitorName) {
-        if (monitorName == null) {
-            throw new NullPointerException("monitorName must not be null");
-        }
+        validateMonitorName(monitorName);
         return this.delegate.register(monitorName.getName(), CpuLoadMetricSetSelector.getCpuLoadMetricSet());
     }
 
+    public TransactionMetricSet registerTpsMonitor(MonitorName monitorName, TransactionCounter transactionCounter) {
+        validateMonitorName(monitorName);
+        return this.delegate.register(monitorName.getName(), new TransactionMetricSet(transactionCounter));
+    }
+
     public ThreadStatesGaugeSet registerJvmThreadStatesMonitor(MonitorName monitorName) {
-        if (monitorName == null) {
-            throw new NullPointerException("monitorName must not be null");
-        }
+        validateMonitorName(monitorName);
         return this.delegate.register(monitorName.getName(), new ThreadStatesGaugeSet());
     }
 
@@ -116,6 +110,12 @@ public class MetricMonitorRegistry implements MonitorRegistry {
 
     public String toString() {
         return "MetricMonitorRegistry(delegate=" + this.delegate + ")";
+    }
+
+    private void validateMonitorName(MonitorName monitorName) {
+        if (monitorName == null) {
+            throw new NullPointerException("monitorName must not be null");
+        }
     }
 
 }
