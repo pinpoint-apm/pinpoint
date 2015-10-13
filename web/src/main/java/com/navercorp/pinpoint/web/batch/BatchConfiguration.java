@@ -49,8 +49,12 @@ public class BatchConfiguration{
             Resource resource = context.getResourceLoader().getResource("classpath:/batch.properties");
             try {
                 properties.load(resource.getInputStream());
-                
-                return Boolean.valueOf(properties.getProperty("batch.enable").trim());
+                final String enable = properties.getProperty("batch.enable");
+                if(enable == null) {
+                    return false;
+                }
+
+                return Boolean.valueOf(enable.trim());
             } catch (Exception e) {
                 logger.error("Exception occurred while batch configuration" , e);
             }
