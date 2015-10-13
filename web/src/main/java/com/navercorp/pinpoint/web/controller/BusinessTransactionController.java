@@ -22,6 +22,9 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.navercorp.pinpoint.common.util.DefaultSqlParser;
+import com.navercorp.pinpoint.common.util.OutputParameterParser;
+import com.navercorp.pinpoint.common.util.SqlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +85,9 @@ public class BusinessTransactionController {
     
     @Value("#{pinpointWebProps['log.button.disable.message'] ?: ''}")
     private String disableButtonMessage;
-    
+
+    private SqlParser sqlParser = new DefaultSqlParser();
+    private OutputParameterParser parameterParser = new OutputParameterParser();
 
     /**
      * executed URLs in applicationname query within from ~ to timeframe
@@ -204,5 +209,15 @@ public class BusinessTransactionController {
             mv.setViewName("transactionInfoJson");
         }
         return mv;
+    }
+
+    @RequestMapping(value = "/sqlBind", method = RequestMethod.GET)
+    @ResponseBody
+    public String sqlBind(Model model, HttpServletResponse response,
+                                                 @RequestParam("sql") String sql,
+                                                 @RequestParam("bind") String bind) {
+        logger.debug("sql={}, bind={}", sql, bind);
+        final List<String> bindValues = parameterParser.parseOutputParameter(bind);
+        return sqlParser.combineBindValues(sql, bindValues);
     }
 }
