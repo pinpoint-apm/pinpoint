@@ -101,7 +101,6 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
         } else {
             handleRouteRequestFail("Unknown error.", requestPacket, pinpointSocket);
         }
-
     }
 
     @Override
@@ -157,7 +156,7 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
             return StreamCode.ROUTE_ERROR;
         }
 
-        return StreamCode.SUCCESS;
+        return StreamCode.OK;
     }
 
     public ClusterPointRepository<TargetClusterPoint> getTargetClusterPointRepository() {

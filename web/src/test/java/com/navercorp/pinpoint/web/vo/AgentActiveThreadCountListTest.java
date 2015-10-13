@@ -40,11 +40,13 @@ public class AgentActiveThreadCountListTest {
         String hostName1 = "hostName1";
         String hostName2 = "hostName2";
 
-        AgentActiveThreadCount status1 = new AgentActiveThreadCount(hostName1, TRouteResult.NOT_ACCEPTABLE, null);
+        AgentActiveThreadCount status1 = new AgentActiveThreadCount(hostName1);
+        status1.setFail(TRouteResult.NOT_ACCEPTABLE.name());
 
         TCmdActiveThreadCountRes response = new TCmdActiveThreadCountRes();
         response.setActiveThreadCount(Arrays.asList(1, 2, 3, 4));
-        AgentActiveThreadCount status2 = new AgentActiveThreadCount(hostName2, TRouteResult.OK, response);
+        AgentActiveThreadCount status2 = new AgentActiveThreadCount(hostName2);
+        status2.setResult(response);
 
         AgentActiveThreadCountList list = new AgentActiveThreadCountList(5);
         list.add(status1);
@@ -64,7 +66,12 @@ public class AgentActiveThreadCountListTest {
     }
 
     void assertDataWithSerializedJsonString(Map data, TRouteResult routeResult, List<Integer> status) {
-        Assert.assertEquals(data.get("code"), routeResult.getValue());
+        if (routeResult == TRouteResult.OK) {
+            Assert.assertEquals(data.get("code"), 0);
+        } else {
+            Assert.assertEquals(data.get("code"), -1);
+        }
+
         Assert.assertEquals(data.get("message"), routeResult.name());
 
         if (status != null) {
