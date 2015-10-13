@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.receiver;
 
-import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
@@ -26,13 +25,10 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.util.AssertUtils;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.io.*;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import org.apache.thrift.TBase;
-import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.protocol.TProtocolFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,29 +40,8 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ProfilerCommandServiceRegistry commandServiceRegistry = new ProfilerCommandServiceRegistry();
-    
-    private final SerializerFactory<HeaderTBaseSerializer> serializerFactory;
-    private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory;
 
     public CommandDispatcher() {
-        this(Version.VERSION);
-    }
-
-    public CommandDispatcher(String pinpointVersion) {
-        this(pinpointVersion, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE);
-    }
-
-    public CommandDispatcher(String pinpointVersion, int serializationMaxSize) {
-        TProtocolFactory protocolFactory = new TCompactProtocol.Factory();
-        TCommandRegistry commandTbaseRegistry = new TCommandRegistry(TCommandTypeVersion.getVersion(pinpointVersion));
-        
-        SerializerFactory<HeaderTBaseSerializer> serializerFactory = new HeaderTBaseSerializerFactory(true, serializationMaxSize, protocolFactory, commandTbaseRegistry);
-        this.serializerFactory = wrappedThreadLocalSerializerFactory(serializerFactory);
-        AssertUtils.assertNotNull(this.serializerFactory);
-
-        DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new HeaderTBaseDeserializerFactory(protocolFactory, commandTbaseRegistry);
-        this.deserializerFactory = wrappedThreadLocalDeserializerFactory(deserializerFactory);
-        AssertUtils.assertNotNull(this.deserializerFactory);
     }
 
     @Override
@@ -78,7 +53,7 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
     public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
         logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
 
-        final TBase<?, ?> request = SerializationUtils.deserialize(requestPacket.getPayload(), deserializerFactory, null);
+        final TBase<?, ?> request = SerializationUtils.deserialize(requestPacket.getPayload(), CommandSerializer.DESERIALIZER_FACTORY, null);
         logger.debug("handleRequest request:{}, remote:{}", request, pinpointSocket.getRemoteAddress());
 
         TBase response;
@@ -99,7 +74,7 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
             }
         }
 
-        final byte[] payload = SerializationUtils.serialize(response, serializerFactory, null);
+        final byte[] payload = SerializationUtils.serialize(response, CommandSerializer.SERIALIZER_FACTORY, null);
         if (payload != null) {
             pinpointSocket.response(requestPacket, payload);
         }
@@ -109,7 +84,7 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
     public StreamCode handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
         logger.info("MessageReceived handleStreamCreate {} {}", packet, streamChannelContext);
 
-        final TBase<?, ?> request = SerializationUtils.deserialize(packet.getPayload(), deserializerFactory, null);
+        final TBase<?, ?> request = SerializationUtils.deserialize(packet.getPayload(), CommandSerializer.DESERIALIZER_FACTORY, null);
         if (request == null) {
             return StreamCode.TYPE_UNKNOWN;
         }
@@ -119,9 +94,7 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
             return StreamCode.TYPE_UNSUPPORT;
         }
         
-        service.streamCommandService(request, streamChannelContext);
-        
-        return StreamCode.SUCCESS;
+        return service.streamCommandService(request, streamChannelContext);
     }
 
     @Override

@@ -13,15 +13,15 @@
 	    periodTypePrefix: '.navbar.periodType'
 	});
 	
-	pinpointApp.directive('navbarDirective', [ 'cfg', '$rootScope', '$http','$document', '$timeout', '$window',  'webStorage', 'helpContentTemplate', 'helpContentService', 'AnalyticsService',
-	    function (cfg, $rootScope, $http, $document, $timeout, $window, webStorage, helpContentTemplate, helpContentService, analyticsService) {
+	pinpointApp.directive('navbarDirective', [ 'cfg', '$rootScope', '$http','$document', '$timeout', '$window',  'webStorage', 'helpContentTemplate', 'helpContentService', 'AnalyticsService', 'PreferenceService',
+	    function (cfg, $rootScope, $http, $document, $timeout, $window, webStorage, helpContentTemplate, helpContentService, analyticsService, preferenceService) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
 	            templateUrl: 'features/navbar/navbar.html',
 	            link: function (scope, element) {
 	
-	            	var DEFAULT_RANGE = 2;
+	            	var DEFAULT_RANGE = preferenceService.getDepth();
 	            	var MAX_RANGE = 8;
 	                // define private variables
 	                var $application, $fromPicker, $toPicker, oNavbarVoService, aReadablePeriodList;

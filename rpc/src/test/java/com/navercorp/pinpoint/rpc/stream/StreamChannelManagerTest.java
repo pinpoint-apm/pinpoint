@@ -335,7 +335,7 @@ public class StreamChannelManagerTest {
         @Override
         public StreamCode handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
             bo.addServerStreamChannelContext(streamChannelContext);
-            return StreamCode.SUCCESS;
+            return StreamCode.OK;
         }
 
         @Override

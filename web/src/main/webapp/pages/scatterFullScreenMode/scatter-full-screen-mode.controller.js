@@ -7,10 +7,12 @@
 	 * @name ScatterFullScreenModeCtrl
 	 * @class
 	 */
-	pinpointApp.controller('ScatterFullScreenModeCtrl', [ '$scope', '$rootScope', '$routeParams', '$timeout', 'NavbarVoService', 'AnalyticsService',
-	    function ($scope, $rootScope, $routeParams, $timeout, NavbarVoService, analyticsService) {
+	pinpointApp.controller('ScatterFullScreenModeCtrl', [ '$scope', '$rootScope', '$window', '$routeParams', '$timeout', 'NavbarVoService', 'AnalyticsService',
+	    function ($scope, $rootScope, $window, $routeParams, $timeout, NavbarVoService, analyticsService) {
 			analyticsService.send(analyticsService.CONST.SCATTER_FULL_SCREEN_PAGE);
-	        // define private variables
+			$window.htoScatter = $window.htoScatter || {};
+        	$window.$routeParams = $window.$routeParams || $routeParams;
+        	// define private variables
 	        var oNavbarVoService;
 	
 	        // initialize

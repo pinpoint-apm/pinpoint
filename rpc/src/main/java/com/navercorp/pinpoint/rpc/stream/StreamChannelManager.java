@@ -16,20 +16,19 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
+import com.navercorp.pinpoint.rpc.PinpointSocketException;
+import com.navercorp.pinpoint.rpc.packet.PacketType;
 import com.navercorp.pinpoint.rpc.packet.stream.*;
+import com.navercorp.pinpoint.rpc.util.AssertUtils;
+import com.navercorp.pinpoint.rpc.util.IDGenerator;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.rpc.PinpointSocketException;
-import com.navercorp.pinpoint.rpc.packet.PacketType;
-import com.navercorp.pinpoint.rpc.util.AssertUtils;
-import com.navercorp.pinpoint.rpc.util.IDGenerator;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author koo.taejin
@@ -178,22 +177,22 @@ public class StreamChannelManager {
     private void handleCreate(StreamCreatePacket packet) {
         final int streamChannelId = packet.getStreamChannelId();
 
-        StreamCode code = StreamCode.SUCCESS;
+        StreamCode code = StreamCode.OK;
         ServerStreamChannel streamChannel = new ServerStreamChannel(this.channel, streamChannelId, this);
         ServerStreamChannelContext streamChannelContext = new ServerStreamChannelContext(streamChannel);
 
         code = registerStreamChannel(streamChannelContext);
 
-        if (code == StreamCode.SUCCESS) {
+        if (code == StreamCode.OK) {
             code = streamChannelMessageListener.handleStreamCreate(streamChannelContext, (StreamCreatePacket) packet);
 
-            if (code == StreamCode.SUCCESS) {
+            if (code == StreamCode.OK) {
                 streamChannel.changeStateConnected();
                 streamChannel.sendCreateSuccess();
             }
         }
 
-        if (code != StreamCode.SUCCESS) {
+        if (code != StreamCode.OK) {
             clearResourceAndSendCreateFail(streamChannelId, code);
         }
     }
@@ -215,7 +214,7 @@ public class StreamChannelManager {
             return StreamCode.STATE_ERROR;
         }
 
-        return StreamCode.SUCCESS;
+        return StreamCode.OK;
     }
 
     private void handleCreateSuccess(ClientStreamChannelContext streamChannelContext, StreamCreateSuccessPacket packet) {

@@ -24,17 +24,47 @@ import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.SlotType;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceInfo;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
+import com.navercorp.pinpoint.profiler.receiver.CommandSerializer;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
+import com.navercorp.pinpoint.profiler.receiver.ProfilerStreamCommandService;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
+import com.navercorp.pinpoint.rpc.stream.*;
+import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
+import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import org.apache.thrift.TBase;
+import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.Timeout;
+import org.jboss.netty.util.TimerTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Taejin Koo
  */
-public class ActiveThreadCountService implements ProfilerRequestCommandService {
+public class ActiveThreadCountService implements ProfilerRequestCommandService, ProfilerStreamCommandService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private final Object lock = new Object();
+
+    // it will be changed.
+    private final StreamChannelStateChangeEventHandler stateChangeEventHandler = new ActiveThreadCountStreamChannelStateChangeEventHandler();
+    private final HashedWheelTimer timer = TimerFactory.createHashedWheelTimer("ActiveThreadCountService-Timer", 100, TimeUnit.MILLISECONDS, 512);
+    private final long time = 1000;
+    private final AtomicBoolean onTimerTask = new AtomicBoolean(false);
+
+    private final List<ServerStreamChannel> streamChannelRepository = new CopyOnWriteArrayList<ServerStreamChannel>();
+
 
     private static final List<SlotType> ACTIVE_THREAD_SLOTS_ORDER = new ArrayList<SlotType>();
     static {
@@ -57,8 +87,29 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService {
         this.activeThreadSlotsCount = ACTIVE_THREAD_SLOTS_ORDER.size();
     }
 
+
     @Override
-    public TBase<?, ?> requestCommandService(TBase tBase) {
+    public Class<? extends TBase> getCommandClazz() {
+        return TCmdActiveThreadCount.class;
+    }
+
+    @Override
+    public TBase<?, ?> requestCommandService(TBase activeThreadCountObject) {
+        if (activeThreadCountObject == null) {
+            throw new NullPointerException("activeThreadCountObject may not be null.");
+        }
+
+        return getActiveThreadCountResponse();
+    }
+
+    @Override
+    public StreamCode streamCommandService(TBase tBase, ServerStreamChannelContext streamChannelContext) {
+        logger.info("streamCommandService object:{}, streamChannelContext:{}", tBase, streamChannelContext);
+        streamChannelContext.getStreamChannel().addStateChangeEventHandler(stateChangeEventHandler);
+        return StreamCode.OK;
+    }
+
+    private TCmdActiveThreadCountRes getActiveThreadCountResponse() {
         Map<SlotType, IntAdder> mappedSlot = new LinkedHashMap<SlotType, IntAdder>(activeThreadSlotsCount);
         for (SlotType slotType : ACTIVE_THREAD_SLOTS_ORDER) {
             mappedSlot.put(slotType, new IntAdder(0));
@@ -85,10 +136,6 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService {
         return response;
     }
 
-    @Override
-    public Class<? extends TBase> getCommandClazz() {
-        return TCmdActiveThreadCount.class;
-    }
 
     private static class IntAdder {
         private int value = 0;
@@ -104,6 +151,63 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService {
         public int get() {
             return this.value;
         }
+    }
+
+    private class ActiveThreadCountStreamChannelStateChangeEventHandler implements StreamChannelStateChangeEventHandler<ServerStreamChannel> {
+
+        private final LoggingStreamChannelStateChangeEventHandler loggingStateChangeEventListener = new LoggingStreamChannelStateChangeEventHandler();
+
+        @Override
+        public void eventPerformed(ServerStreamChannel streamChannel, StreamChannelStateCode updatedStateCode) throws Exception {
+            synchronized (lock) {
+                switch (updatedStateCode) {
+                    case CONNECTED:
+                        streamChannelRepository.add(streamChannel);
+                        boolean turnOn = onTimerTask.compareAndSet(false, true);
+                        if (turnOn) {
+                            timer.newTimeout(new ActiveThreadCountTimerTask(), time, TimeUnit.MILLISECONDS);
+                        }
+                        break;
+                    case CLOSED:
+                    case ILLEGAL_STATE:
+                        boolean removed = streamChannelRepository.remove(streamChannel);
+                        if (removed) {
+                            if (streamChannelRepository.size() == 0) {
+                                boolean turnOff = onTimerTask.compareAndSet(true, false);
+                            }
+                        }
+                        break;
+                }
+            }
+        }
+
+        @Override
+        public void exceptionCaught(ServerStreamChannel streamChannel, StreamChannelStateCode updatedStateCode, Throwable e) {
+        }
+
+    }
+
+    private class ActiveThreadCountTimerTask implements TimerTask {
+
+        @Override
+        public void run(Timeout timeout) throws Exception {
+            logger.info("ActiveThreadCountService timer started.");
+
+            try {
+                TCmdActiveThreadCountRes activeThreadCountResponse = getActiveThreadCountResponse();
+                for (ServerStreamChannel serverStreamChannel : streamChannelRepository) {
+                    byte[] payload = SerializationUtils.serialize(activeThreadCountResponse, CommandSerializer.SERIALIZER_FACTORY, null);
+                    if (payload != null) {
+                        serverStreamChannel.sendData(payload);
+                    }
+                }
+            } finally {
+                if (timer != null && onTimerTask.get()) {
+                    timer.newTimeout(this, time, TimeUnit.MILLISECONDS);
+                }
+            }
+        }
+
     }
 
 }

@@ -56,4 +56,10 @@ public interface AgentService {
     AgentActiveThreadCountList getActiveThreadCount(List<AgentInfo> agentInfoList) throws TException;
     AgentActiveThreadCountList getActiveThreadCount(List<AgentInfo> agentInfoList, byte[] payload) throws TException;
 
+    byte[] serializeRequest(TBase<?, ?> tBase) throws TException;
+    byte[] serializeRequest(TBase<?, ?> tBase, byte[] defaultValue);
+
+    TBase<?, ?> deserializeResponse(byte[] objectData) throws TException;
+    TBase<?, ?> deserializeResponse(byte[] objectData, TBase<?, ?> defaultValue);
+
 }

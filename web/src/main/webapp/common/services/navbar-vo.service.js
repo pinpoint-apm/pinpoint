@@ -7,7 +7,7 @@
 	 * @name NavbarVoService
 	 * @class
 	 */
-	pinpointApp.factory('NavbarVoService', function () {
+	pinpointApp.factory('NavbarVoService', [ 'PreferenceService', function (preferenceService) {
 	    return function () {
 	        // define and initialize private variables;
 	        var self = this;
@@ -22,9 +22,9 @@
 	
 	        this._sReadablePeriod = false;
 	        this._sQueryEndDateTime = false;
-	        
-	        this._nCallerRange = 2;
-	        this._nCalleeRange = 2;
+
+	        this._nCallerRange = preferenceService.getDepth();
+	        this._nCalleeRange = preferenceService.getDepth();
 	        
 	        this._sHint = false;
 	
@@ -206,5 +206,5 @@
 	            return self;
 	        };
 	    };
-	});
+	}]);
 })();
