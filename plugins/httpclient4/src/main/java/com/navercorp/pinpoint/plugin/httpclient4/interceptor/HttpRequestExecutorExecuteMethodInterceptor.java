@@ -21,6 +21,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContextFactory;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -42,7 +44,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
@@ -156,13 +157,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
 
         InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
         if (invocation != null) {
-            HttpCallContext callContext = (HttpCallContext) invocation.getOrCreateAttachment(new AttachmentFactory() {
-                @Override
-                public Object createAttachment() {
-                    return new HttpCallContext();
-                }
-            });
-            invocation.setAttachment(callContext);
+            invocation.getOrCreateAttachment(HttpCallContextFactory.HTTPCALL_CONTEXT_FACTORY);
         }
     }
 

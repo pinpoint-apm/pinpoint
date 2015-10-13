@@ -20,6 +20,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContextFactory;
 import org.apache.commons.httpclient.HttpConstants;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.URI;
@@ -39,7 +40,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.AttachmentFactory;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroupInvocation;
@@ -152,13 +152,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
 
         InterceptorGroupInvocation invocation = interceptorGroup.getCurrentInvocation();
         if (invocation != null) {
-            HttpClient3CallContext callContext = (HttpClient3CallContext) invocation.getOrCreateAttachment(new AttachmentFactory() {
-                @Override
-                public Object createAttachment() {
-                    return new HttpClient3CallContext();
-                }
-            });
-            invocation.setAttachment(callContext);
+            invocation.getOrCreateAttachment(HttpClient3CallContextFactory.HTTPCLIENT3_CONTEXT_FACTORY);
         }
     }
 
