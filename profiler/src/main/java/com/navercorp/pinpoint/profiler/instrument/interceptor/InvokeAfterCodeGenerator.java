@@ -24,20 +24,23 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
  *
  */
 public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
+
+    private static final int THIS_RETURN_EXCEPTION_SIZE = 3;
+
     private final int interceptorId;
     private final Method interceptorMethod;
     private final InstrumentClass targetClass;
     private final boolean localVarsInitialized;
     private final boolean catchClause;
-    
-    public InvokeAfterCodeGenerator(int interceptorId, Class<?> interceptorClass, Method interceptorMethod, InstrumentClass targetClass, InstrumentMethod targetMethod, boolean localVarsInitialized, boolean catchCluase) {
+
+    public InvokeAfterCodeGenerator(int interceptorId, Class<?> interceptorClass, Method interceptorMethod, InstrumentClass targetClass, InstrumentMethod targetMethod, boolean localVarsInitialized, boolean catchClause) {
         super(interceptorId, interceptorClass, targetMethod);
         
         this.interceptorId = interceptorId;
         this.interceptorMethod = interceptorMethod;
         this.targetClass = targetClass;
         this.localVarsInitialized = localVarsInitialized;
-        this.catchClause = catchCluase;
+        this.catchClause = catchClause;
     }
 
     public String generate() {
@@ -122,40 +125,46 @@ public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
     }
     
     private void appendCustomAfterArguments(CodeBuilder builder) {
-        Class<?>[] interceptorParamTypes = interceptorMethod.getParameterTypes();
+        final Class<?>[] interceptorParamTypes = interceptorMethod.getParameterTypes();
         
         if (interceptorParamTypes.length == 0) {
             return;
         }
-        
+
         builder.append(getTarget());
 
-        parameterBind(builder, interceptorParamTypes);
-
-
+        final int parameterSize = parameterBind(builder, interceptorParamTypes);
+        final int bindSize = parameterSize + THIS_RETURN_EXCEPTION_SIZE;
+        if (bindSize != interceptorParamTypes.length) {
+            throw new IllegalStateException("interceptor arguments not matched. interceptorSize:" + interceptorParamTypes.length + " bindSize:" + bindSize);
+        }
 //        if (interceptorParamTypes.length >= 2) {
-            builder.append(", ");
-            builder.append(getReturnValue());
+        builder.append(", ");
+        builder.append(getReturnValue());
 //        }
 
 //        if (interceptorParamTypes.length >= 3) {
-            builder.append(", ");
-            builder.append(getException());
+        builder.append(", ");
+        builder.append(getException());
 //        }
     }
 
-    private void parameterBind(CodeBuilder builder, Class<?>[] interceptorParamTypes) {
-        int i = 0;
-        int argNum = targetMethod.getParameterTypes().length;
-        int interceptorArgNum = interceptorParamTypes.length - 3;
-        int matchNum = Math.min(argNum, interceptorArgNum);
+    private int parameterBind(CodeBuilder builder, Class<?>[] interceptorParamTypes) {
 
-        for (; i < matchNum; i++) {
-            builder.append(", ($w)$" + (i + 1));
+        final int methodArgNum = targetMethod.getParameterTypes().length;
+
+        final int interceptorArgNum = interceptorParamTypes.length - THIS_RETURN_EXCEPTION_SIZE;
+
+        final int matchNum = Math.min(methodArgNum, interceptorArgNum);
+
+        int parameterIndex = 0;
+        for (; parameterIndex < matchNum; parameterIndex++) {
+            builder.append(", ($w)$" + (parameterIndex + 1));
         }
 
-        for (; i < interceptorArgNum; i++) {
+        for (; parameterIndex < interceptorArgNum; parameterIndex++) {
             builder.append(", null");
         }
+        return parameterIndex;
     }
 }
