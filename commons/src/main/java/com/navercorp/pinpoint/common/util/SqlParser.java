@@ -27,5 +27,5 @@ public interface SqlParser {
 
     String combineOutputParams(String sql, List<String> outputParams);
 
-    String combineBindValues(String sql, String bindValueText);
+    String combineBindValues(String sql, List<String> bindValues);
 }

@@ -468,16 +468,17 @@ public class DefaultSqlParser implements SqlParser {
         return normalized.toString();
     }
 
-    public String combineBindValues(String sql, String bindValueText) {
-        Queue<String> bindValues = extractComma(bindValueText);
-        if(bindValues.size() == 0) {
+    public String combineBindValues(String sql, List<String> bindValues) {
+        if(sql == null || sql.length() ==0 || bindValues == null || bindValues.size() == 0) {
             return sql;
         }
 
+        final Queue<String> bindValueQueue = new LinkedList<String>(bindValues);
         final int length = sql.length();
+        final StringBuilder result = new StringBuilder(length + 16);
+
         boolean inQuotes = false;
         char quoteChar = 0;
-        final StringBuilder result = new StringBuilder(length + 16);
         for (int i = 0; i < length; i++) {
             final char ch = sql.charAt(i);
             if (inQuotes) {
@@ -536,8 +537,8 @@ public class DefaultSqlParser implements SqlParser {
                     quoteChar = ch;
                     result.append(ch);
                 } else if(ch == '?') {
-                    if(!bindValues.isEmpty()) {
-                        result.append('\'').append(bindValues.poll()).append('\'');
+                    if(!bindValueQueue.isEmpty()) {
+                        result.append('\'').append(bindValueQueue.poll()).append('\'');
                     }
                 } else {
                     result.append(ch);
@@ -546,19 +547,5 @@ public class DefaultSqlParser implements SqlParser {
         }
 
         return result.toString();
-    }
-
-    private Queue<String> extractComma(String line) {
-        Queue<String> queue = new LinkedList<String>();
-        if(line == null) {
-            return queue;
-        }
-
-        final String[] tokens = line.split(",");
-        for(String token : tokens) {
-            queue.add(token.trim());
-        }
-
-        return queue;
     }
 }
