@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
  * 
  * @author Jongho Moon <jongho.moon@navercorp.com>
  */
-public abstract class AbstractSpringBeanCreationInterceptor implements Interceptor {
+public abstract class AbstractSpringBeanCreationInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
 
     private final Instrumentor instrumentContext;

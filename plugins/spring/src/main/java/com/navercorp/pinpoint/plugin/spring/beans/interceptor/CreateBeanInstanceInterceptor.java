@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor1;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
@@ -28,21 +29,26 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
  * @author Jongho Moon <jongho.moon@navercorp.com>
  *
  */
-public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInterceptor {
+public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInterceptor implements AfterInterceptor1 {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     
     public CreateBeanInstanceInterceptor(Instrumentor instrumentContext, PinpointClassFileTransformer transformer, TargetBeanFilter filter) {
         super(instrumentContext, transformer, filter);
     }
 
-    public void after(Object target, String beanName, Object result, Throwable throwable) {
+    @Override
+    public void after(Object target, Object beanNameObject, Object result, Throwable throwable) {
         try {
             if (result == null) {
                 return;
             }
-            
+            if (!(beanNameObject instanceof String)) {
+                logger.warn("invalid type:{}", beanNameObject);
+                return;
+            }
+            final String beanName = (String) beanNameObject;
+
             Object bean;
-            
             try {
                 Method getter = result.getClass().getMethod("getWrappedInstance"); 
                 bean = getter.invoke(result);

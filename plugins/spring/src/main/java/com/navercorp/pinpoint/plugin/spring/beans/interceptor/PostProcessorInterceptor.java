@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.spring.beans.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor2;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
@@ -26,15 +27,21 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
  * @author Jongho Moon <jongho.moon@navercorp.com>
  *
  */
-public class PostProcessorInterceptor extends AbstractSpringBeanCreationInterceptor {
+public class PostProcessorInterceptor extends AbstractSpringBeanCreationInterceptor implements AfterInterceptor2 {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     
     public PostProcessorInterceptor(Instrumentor instrumentContext, PinpointClassFileTransformer transformer, TargetBeanFilter filter) {
         super(instrumentContext, transformer, filter);
     }
 
-    public void after(Object target, Object arg0, String beanName, Object result, Throwable throwable) {
+    @Override
+    public void after(Object target, Object arg0, Object beanNameObject, Object result, Throwable throwable) {
         try {
+            if (!(beanNameObject instanceof String)) {
+                logger.warn("invalid type:{}", beanNameObject);
+                return;
+            }
+            final String beanName = (String) beanNameObject;
             processBean(beanName, result);
         } catch (Throwable t) {
             logger.warn("Unexpected exception", t);
