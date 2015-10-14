@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
 import java.lang.reflect.Method;
 
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 
@@ -28,8 +29,8 @@ public class InvokeBeforeCodeGenerator extends InvokeCodeGenerator {
     private final Method interceptorMethod;
     private final InstrumentClass targetClass;
     
-    public InvokeBeforeCodeGenerator(int interceptorId, Class<?> interceptorClass, Method interceptorMethod, InstrumentClass targetClass, InstrumentMethod targetMethod) {
-        super(interceptorId, interceptorClass, targetMethod);
+    public InvokeBeforeCodeGenerator(int interceptorId, Class<?> interceptorClass, Method interceptorMethod, InstrumentClass targetClass, InstrumentMethod targetMethod, TraceContext traceContext) {
+        super(interceptorId, interceptorClass, targetMethod, traceContext);
         
         this.interceptorId = interceptorId;
         this.interceptorMethod = interceptorMethod;
@@ -72,7 +73,10 @@ public class InvokeBeforeCodeGenerator extends InvokeCodeGenerator {
         case STATIC:
             appendStaticBeforeArguments(builder);
             break;
-        case CUSTOM:
+        case API_ID_AWARE:
+            appendApiIdAwareBeforeArguments(builder);
+            break;
+        case BASIC:
             appendCustomBeforeArguments(builder);
             break;
         }
@@ -84,6 +88,10 @@ public class InvokeBeforeCodeGenerator extends InvokeCodeGenerator {
     
     private void appendStaticBeforeArguments(CodeBuilder builder) {
         builder.format("%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s", getTarget(), targetClass.getName(), targetMethod.getName(), getParameterTypes(), getArguments());
+    }
+
+    private void appendApiIdAwareBeforeArguments(CodeBuilder builder) {
+        builder.format("%1$s, %2$d, %3$s", getTarget(), getApiId(), getArguments());
     }
 
     private void appendCustomBeforeArguments(CodeBuilder builder) {
