@@ -140,8 +140,24 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
         }
     }
 
+    private TCommandTransferResponse createResponse(TRouteResult result) {
+        return createResponse(result, new byte[0]);
+    }
+
+    private TCommandTransferResponse createResponse(TRouteResult result, byte[] payload) {
+        TCommandTransferResponse response = new TCommandTransferResponse();
+        response.setRouteResult(result);
+        response.setPayload(payload);
+        return response;
+    }
+
+    private byte[] serialize(TBase<?,?> result) {
+        return SerializationUtils.serialize(result, commandSerializerFactory, null);
+    }
+
+
     // fix me : StreamRouteManager will change worker thread pattern. 
-    private class StreamRouteManager implements ClientStreamChannelMessageListener,StreamChannelStateChangeEventHandler<ClientStreamChannel> {
+    private class StreamRouteManager implements ClientStreamChannelMessageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> {
 
         private final StreamEvent streamEvent;
         private final ServerStreamChannel consumer;
@@ -179,16 +195,6 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
             consumer.close();
         }
 
-        public void close() {
-            if (this.consumer != null) {
-                consumer.close();
-            }
-
-            if (this.producer != null) {
-                producer.close();
-            }
-        }
-
         @Override
         public void eventPerformed(ClientStreamChannel streamChannel, StreamChannelStateCode updatedStateCode) throws Exception {
             logger.info("eventPerformed streamChannel:{}, stateCode:{}", streamChannel, updatedStateCode);
@@ -201,12 +207,21 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
                     }
                     break;
             }
-
         }
 
         @Override
         public void exceptionCaught(ClientStreamChannel streamChannel, StreamChannelStateCode updatedStateCode, Throwable e) {
             logger.warn("exceptionCaught message:{}, streamChannel:{}, stateCode:{}", e.getMessage(), streamChannel, updatedStateCode, e);
+        }
+
+        public void close() {
+            if (consumer != null) {
+                consumer.close();
+            }
+
+            if (producer != null) {
+                producer.close();
+            }
         }
 
         public ClientStreamChannel getProducer() {
@@ -218,21 +233,5 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
         }
 
     }
-
-    private TCommandTransferResponse createResponse(TRouteResult result) {
-        return createResponse(result, new byte[0]);
-    }
-
-    private TCommandTransferResponse createResponse(TRouteResult result, byte[] payload) {
-        TCommandTransferResponse response = new TCommandTransferResponse();
-        response.setRouteResult(result);
-        response.setPayload(payload);
-        return response;
-    }
-
-    private byte[] serialize(TBase<?,?> result) {
-        return SerializationUtils.serialize(result, commandSerializerFactory, null);
-    }
-
 
 }

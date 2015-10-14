@@ -125,13 +125,13 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     public PinpointRouteResponse invoke(AgentInfo agentInfo, TBase<?, ?> tBase) throws TException {
-        byte[] payload = serialize(tBase);
+        byte[] payload = serializeRequest(tBase);
         return invoke(agentInfo, payload);
     }
 
     @Override
     public PinpointRouteResponse invoke(AgentInfo agentInfo, TBase<?, ?> tBase, long timeout) throws TException {
-        byte[] payload = serialize(tBase);
+        byte[] payload = serializeRequest(tBase);
         return invoke(agentInfo, payload, timeout);
     }
 
@@ -147,7 +147,7 @@ public class AgentServiceImpl implements AgentService {
 
         Future<ResponseMessage> future = null;
         if (socket != null) {
-            future = socket.request(serialize(transferObject));
+            future = socket.request(serializeRequest(transferObject));
         }
 
         PinpointRouteResponse response = getResponse(future, timeout);
@@ -157,14 +157,14 @@ public class AgentServiceImpl implements AgentService {
     @Override
     public Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, TBase<?, ?> tBase)
             throws TException {
-        byte[] payload = serialize(tBase);
+        byte[] payload = serializeRequest(tBase);
         return invoke(agentInfoList, payload);
     }
 
     @Override
     public Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, TBase<?, ?> tBase, long timeout)
             throws TException {
-        byte[] payload = serialize(tBase);
+        byte[] payload = serializeRequest(tBase);
         return invoke(agentInfoList, payload, timeout);
     }
 
@@ -182,7 +182,7 @@ public class AgentServiceImpl implements AgentService {
             TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
             PinpointSocket socket = clusterConnectionManager.getSocket(agentInfo);
             if (socket != null) {
-                Future<ResponseMessage> future = socket.request(serialize(transferObject));
+                Future<ResponseMessage> future = socket.request(serializeRequest(transferObject));
                 futureMap.put(agentInfo, future);
             } else {
                 futureMap.put(agentInfo, null);
@@ -204,7 +204,7 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     public ClientStreamChannelContext openStream(AgentInfo agentInfo, TBase<?, ?> tBase, ClientStreamChannelMessageListener clientStreamChannelMessageListener) throws TException {
-        byte[] payload = serialize(tBase);
+        byte[] payload = serializeRequest(tBase);
         return openStream(agentInfo, payload, clientStreamChannelMessageListener);
     }
 
@@ -214,7 +214,7 @@ public class AgentServiceImpl implements AgentService {
         PinpointSocket socket = clusterConnectionManager.getSocket(agentInfo);
 
         if (socket != null) {
-            return socket.openStream(serialize(transferObject), clientStreamChannelMessageListener);
+            return socket.openStream(serializeRequest(transferObject), clientStreamChannelMessageListener);
         }
 
         return null;
@@ -222,7 +222,7 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     public AgentActiveThreadCountList getActiveThreadCount(List<AgentInfo> agentInfoList) throws TException {
-        byte[] activeThread = serialize(new TCmdActiveThreadCount());
+        byte[] activeThread = serializeRequest(new TCmdActiveThreadCount());
         return getActiveThreadCount(agentInfoList, activeThread);
     }
 
@@ -247,18 +247,6 @@ public class AgentServiceImpl implements AgentService {
         }
 
         return agentActiveThreadStatusList;
-    }
-
-    private byte[] serialize(TBase<?, ?> tBase) throws TException {
-        return SerializationUtils.serialize(tBase, commandSerializerFactory);
-    }
-
-    private TBase<?, ?> deserialize(byte[] objectData) throws TException {
-        return SerializationUtils.deserialize(objectData, commandDeserializerFactory);
-    }
-
-    private TBase<?, ?> deserialize(byte[] objectData, TBase<?, ?> defaultValue) throws TException {
-        return SerializationUtils.deserialize(objectData, commandDeserializerFactory, defaultValue);
     }
 
     private TCommandTransfer createCommandTransferObject(AgentInfo agentInfo, byte[] payload) {

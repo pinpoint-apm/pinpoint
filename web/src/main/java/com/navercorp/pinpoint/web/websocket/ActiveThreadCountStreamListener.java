@@ -49,6 +49,7 @@ public class ActiveThreadCountStreamListener implements ClientStreamChannelMessa
     private final AgentInfo agentInfo;
     private final WebSocketResponseAggregator responseAggregator;
     private final AgentActiveThreadCount defaultFailedResponse;
+
     private StreamChannel streamchannel;
 
     public ActiveThreadCountStreamListener(AgentService agentService, AgentInfo agentInfo, WebSocketResponseAggregator webSocketResponseAggregator) {
@@ -64,8 +65,8 @@ public class ActiveThreadCountStreamListener implements ClientStreamChannelMessa
             ClientStreamChannelContext clientStreamChannelContext = agentService.openStream(agentInfo, new TCmdActiveThreadCount(), this);
 
             if (clientStreamChannelContext.getCreateFailPacket() == null) {
-                this.streamchannel = clientStreamChannelContext.getStreamChannel();
-                this.streamchannel.addStateChangeEventHandler(this);
+                streamchannel = clientStreamChannelContext.getStreamChannel();
+                streamchannel.addStateChangeEventHandler(this);
                 defaultFailedResponse.setFail(TRouteResult.TIMEOUT.name());
             } else {
                 StreamCreateFailPacket createFailPacket = clientStreamChannelContext.getCreateFailPacket();
@@ -74,11 +75,10 @@ public class ActiveThreadCountStreamListener implements ClientStreamChannelMessa
         } catch (TException exception) {
             defaultFailedResponse.setFail(TRouteResult.NOT_SUPPORTED_REQUEST.name());
         } finally {
-            this.responseAggregator.getStreamMessageListenerRepository().put(agentInfo.getAgentId(), this);
+            this.responseAggregator.registerStreamMessageListener(agentInfo.getAgentId(), this);
         }
     }
 
-    // fixed 결과값을 지정할수 있게 해야함
     public void stop() {
         try {
             if (streamchannel != null) {
@@ -86,7 +86,7 @@ public class ActiveThreadCountStreamListener implements ClientStreamChannelMessa
             }
             defaultFailedResponse.setFail(StreamCode.STATE_CLOSED.name());
         } finally {
-            this.responseAggregator.getStreamMessageListenerRepository().remove(agentInfo.getAgentId());
+            this.responseAggregator.unregisterStreamMessageListener(agentInfo.getAgentId());
         }
     }
 

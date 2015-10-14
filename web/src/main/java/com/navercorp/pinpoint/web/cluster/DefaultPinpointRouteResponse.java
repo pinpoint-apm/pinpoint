@@ -111,11 +111,6 @@ public class DefaultPinpointRouteResponse implements PinpointRouteResponse {
         }
     }
 
-    private TBase deserialize(DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory, byte[] objectData) throws TException {
-        return SerializationUtils.deserialize(objectData, commandDeserializerFactory);
-    }
-
-
     private TBase deserialize(DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory, byte[] objectData, TBase defaultValue) {
         return SerializationUtils.deserialize(objectData, commandDeserializerFactory, defaultValue);
     }

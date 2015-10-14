@@ -19,53 +19,16 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import org.jboss.netty.util.Timer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.PreDestroy;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import org.springframework.web.socket.WebSocketHandler;
 
 /**
  * @Author Taejin Koo
  */
-public class WebSocketHandlerManager implements  WebSocketHandlerRegister {
+public interface WebSocketHandlerManager {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    void register(PinpointWebSocketHandler handler);
 
-    private final List<PinpointWebSocketHandler> webSocketHandlerRepository = new ArrayList<PinpointWebSocketHandler>();
-
-    private final PinpointThreadFactory threadFactory = new PinpointThreadFactory("WebSocket-Handler-Manager", true);
-
-    private final Timer timer;
-
-    public WebSocketHandlerManager() {
-        timer = TimerFactory.createHashedWheelTimer(threadFactory, 100, TimeUnit.MILLISECONDS, 512);
-    }
-
-    @PreDestroy
-    public void destory() {
-        if (timer != null) {
-            timer.stop();
-        }
-    }
-
-    @Override
-    public void register(PinpointWebSocketHandler handler) {
-        webSocketHandlerRepository.add(handler);
-    }
-
-    public List<PinpointWebSocketHandler> getWebSocketHandlerRepository() {
-        return new ArrayList<PinpointWebSocketHandler>(webSocketHandlerRepository);
-    }
-
-    @Override
-    public Timer getTimer() {
-        return timer;
-    }
+    Timer getTimer();
 
 }

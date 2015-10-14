@@ -23,7 +23,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 	   ">
 
-    <bean id="handlerRegister" class="com.navercorp.pinpoint.web.websocket.WebSocketHandlerManager">
+    <bean id="handlerRegister" class="com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandlerManager">
     </bean>
 
     <bean id="agentService" class="com.navercorp.pinpoint.web.service.AgentServiceImpl">
