@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
 import java.lang.reflect.Method;
 
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 
@@ -33,8 +34,8 @@ public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
     private final boolean localVarsInitialized;
     private final boolean catchClause;
 
-    public InvokeAfterCodeGenerator(int interceptorId, Class<?> interceptorClass, Method interceptorMethod, InstrumentClass targetClass, InstrumentMethod targetMethod, boolean localVarsInitialized, boolean catchClause) {
-        super(interceptorId, interceptorClass, targetMethod);
+    public InvokeAfterCodeGenerator(int interceptorId, Class<?> interceptorClass, Method interceptorMethod, InstrumentClass targetClass, InstrumentMethod targetMethod, TraceContext traceContext, boolean localVarsInitialized, boolean catchClause) {
+        super(interceptorId, interceptorClass, targetMethod, traceContext);
         
         this.interceptorId = interceptorId;
         this.interceptorMethod = interceptorMethod;
@@ -110,7 +111,10 @@ public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
         case STATIC:
             appendStaticAfterArguments(builder);
             break;
-        case CUSTOM:
+        case API_ID_AWARE:
+            appendApiIdAwareAfterArguments(builder);
+            break;
+        case BASIC:
             appendCustomAfterArguments(builder);
             break;
         }
@@ -123,7 +127,11 @@ public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
     private void appendStaticAfterArguments(CodeBuilder builder) {
         builder.format("%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, %6$s, %7$s", getTarget(), targetClass.getName(), targetMethod.getName(), getParameterTypes(), getArguments(), getReturnValue(), getException());
     }
-    
+
+    private void appendApiIdAwareAfterArguments(CodeBuilder builder) {
+        builder.format("%1$s, %2$d, %3$s, %4$s, %5$s", getTarget(), getApiId(), getArguments(), getReturnValue(), getException());
+    }
+
     private void appendCustomAfterArguments(CodeBuilder builder) {
         final Class<?>[] interceptorParamTypes = interceptorMethod.getParameterTypes();
         

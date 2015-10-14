@@ -16,19 +16,21 @@
 
 package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor0;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor3;
+import static org.mockito.Mockito.*;
+
+import java.lang.reflect.Method;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Method;
-
-import static org.mockito.Mockito.mock;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor0;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor3;
 
 /**
  * @author emeroad
@@ -50,9 +52,11 @@ public class InvokeAfterCodeGeneratorTest {
         Mockito.when(mockMethod.getName()).thenReturn("TestMethod");
         Mockito.when(mockMethod.getParameterTypes()).thenReturn(new String[]{"java.lang.Object", "java.lang.Object", "java.lang.Object"});
         Mockito.when(mockMethod.getReturnType()).thenReturn("java.lang.Object");
+        
+        TraceContext context = mock(TraceContext.class);
 
 
-        final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, aroundInterceptor3Class, interceptorAfter, mockClass, mockMethod, false, true);
+        final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, aroundInterceptor3Class, interceptorAfter, mockClass, mockMethod, context, false, true);
         final String generate = invokeAfterCodeGenerator.generate();
 
         logger.debug("testGenerate_AroundInterceptor3_catchClause:{}", generate);
@@ -78,8 +82,9 @@ public class InvokeAfterCodeGeneratorTest {
         Mockito.when(mockMethod.getParameterTypes()).thenReturn(new String[]{"java.lang.Object", "java.lang.Object", "java.lang.Object"});
         Mockito.when(mockMethod.getReturnType()).thenReturn("java.lang.Object");
 
+        TraceContext context = mock(TraceContext.class);
 
-        final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, aroundInterceptor3Class, interceptorAfter, mockClass, mockMethod, false, false);
+        final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, aroundInterceptor3Class, interceptorAfter, mockClass, mockMethod, context, false, false);
         final String generate = invokeAfterCodeGenerator.generate();
 
         logger.debug("testGenerate_AroundInterceptor3_NoCatchClause:{}", generate);
@@ -104,9 +109,11 @@ public class InvokeAfterCodeGeneratorTest {
         Mockito.when(mockMethod.getName()).thenReturn("TestMethod");
         Mockito.when(mockMethod.getParameterTypes()).thenReturn(new String[]{"java.lang.Object", "java.lang.Object"});
         Mockito.when(mockMethod.getReturnType()).thenReturn("java.lang.Object");
+        
+        TraceContext context = mock(TraceContext.class);
 
 
-        final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, aroundInterceptor3Class, interceptorAfter, mockClass, mockMethod, false, true);
+        final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, aroundInterceptor3Class, interceptorAfter, mockClass, mockMethod, context, false, true);
         final String generate = invokeAfterCodeGenerator.generate();
 
         logger.debug("testGenerate_AroundInterceptor3_methodParam2:{}", generate);
@@ -132,8 +139,9 @@ public class InvokeAfterCodeGeneratorTest {
         Mockito.when(mockMethod.getParameterTypes()).thenReturn(new String[]{"java.lang.Object", "java.lang.Object", "java.lang.Object", "java.lang.Object"});
         Mockito.when(mockMethod.getReturnType()).thenReturn("java.lang.Object");
 
+        TraceContext context = mock(TraceContext.class);
 
-        final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, aroundInterceptor3Class, interceptorAfter, mockClass, mockMethod, false, true);
+        final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, aroundInterceptor3Class, interceptorAfter, mockClass, mockMethod, context, false, true);
         final String generate = invokeAfterCodeGenerator.generate();
 
         logger.debug("testGenerate_AroundInterceptor3_methodParam4:{}", generate);
@@ -161,8 +169,9 @@ public class InvokeAfterCodeGeneratorTest {
         Mockito.when(mockMethod.getParameterTypes()).thenReturn(new String[]{});
         Mockito.when(mockMethod.getReturnType()).thenReturn("java.lang.Object");
 
+        TraceContext context = mock(TraceContext.class);
 
-        final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, aroundInterceptor3Class, interceptorAfter, mockClass, mockMethod, false, true);
+        final InvokeAfterCodeGenerator invokeAfterCodeGenerator = new InvokeAfterCodeGenerator(100, aroundInterceptor3Class, interceptorAfter, mockClass, mockMethod, context, false, true);
         final String generate = invokeAfterCodeGenerator.generate();
 
         logger.debug("testGenerate_AroundInterceptor0:{}", generate);
