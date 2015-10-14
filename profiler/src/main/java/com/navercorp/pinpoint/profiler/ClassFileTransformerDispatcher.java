@@ -45,7 +45,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer, Dyn
     private final ClassLoader agentClassLoader = this.getClass().getClassLoader();
 
     private final TransformerRegistry transformerRegistry;
-    private final DynamicTrnasformerRegistry dynamicTransformerRegistry;
+    private final DynamicTransformerRegistry dynamicTransformerRegistry;
     
     private final DefaultProfilerPluginContext globalContext;    
     private final Filter<String> debugTargetFilter;
