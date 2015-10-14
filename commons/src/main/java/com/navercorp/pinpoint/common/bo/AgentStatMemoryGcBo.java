@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 /**
  * @author hyungil.jeong
  */
+//FIXME (2015.10) Legacy column for storing serialzied Bos separately.
+@Deprecated
 public class AgentStatMemoryGcBo {
 
     private final String agentId;
