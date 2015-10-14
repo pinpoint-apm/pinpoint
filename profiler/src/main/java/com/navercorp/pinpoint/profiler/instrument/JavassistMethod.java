@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.instrument;
 
 import java.lang.reflect.Method;
 
-import com.navercorp.pinpoint.common.util.Asserts;
 import javassist.CannotCompileException;
 import javassist.CtBehavior;
 import javassist.CtClass;
@@ -48,6 +47,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry;
+import com.navercorp.pinpoint.common.util.Asserts;
 import com.navercorp.pinpoint.profiler.context.DefaultMethodDescriptor;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InvokeAfterCodeGenerator;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InvokeBeforeCodeGenerator;
@@ -72,7 +72,7 @@ public class JavassistMethod implements InstrumentMethod {
         this.interceptorRegistryBinder = interceptorRegistryBinder;
         this.behavior = behavior;
         this.declaringClass = declaringClass;
-
+        
         String[] parameterVariableNames = JavaAssistUtils.getParameterVariableName(behavior);
         int lineNumber = JavaAssistUtils.getLineNumber(behavior);
 
@@ -292,7 +292,7 @@ public class JavassistMethod implements InstrumentMethod {
         }
         
         
-        InvokeAfterCodeGenerator catchGenerator = new InvokeAfterCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this, localVarsInitialized, true);
+        InvokeAfterCodeGenerator catchGenerator = new InvokeAfterCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this, pluginContext.getTraceContext(), localVarsInitialized, true);
         String catchCode = catchGenerator.generate();
         
         if (isDebug) {
@@ -303,7 +303,7 @@ public class JavassistMethod implements InstrumentMethod {
         insertCatch(originalCodeOffset, catchCode, throwable, "$e");
 
         
-        InvokeAfterCodeGenerator afterGenerator = new InvokeAfterCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this, localVarsInitialized, false);
+        InvokeAfterCodeGenerator afterGenerator = new InvokeAfterCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this, pluginContext.getTraceContext(), localVarsInitialized, false);
         final String afterCode = afterGenerator.generate();
 
         if (isDebug) {
@@ -324,7 +324,7 @@ public class JavassistMethod implements InstrumentMethod {
             return -1;
         }
 
-        InvokeBeforeCodeGenerator generator = new InvokeBeforeCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this);
+        InvokeBeforeCodeGenerator generator = new InvokeBeforeCodeGenerator(interceptorId, interceptorClass, interceptorMethod, declaringClass, this, pluginContext.getTraceContext());
         String beforeCode = generator.generate();
 
         if (isDebug) {

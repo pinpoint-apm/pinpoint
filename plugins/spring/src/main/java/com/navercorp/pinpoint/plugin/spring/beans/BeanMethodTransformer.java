@@ -18,19 +18,17 @@ import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
-import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
-import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-
-import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 /**
  * @author Jongho Moon
@@ -43,10 +41,9 @@ public class BeanMethodTransformer implements PinpointClassFileTransformer {
 
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     
+    private AtomicInteger interceptorId = new AtomicInteger(-1);
     
-    /* (non-Javadoc)
-     * @see com.navercorp.pinpoint.bootstrap.plugin.transformer.PinpointClassFileTransformer#transform(com.navercorp.pinpoint.bootstrap.plugin.PinpointInstrument, java.lang.ClassLoader, java.lang.String, java.lang.Class, java.security.ProtectionDomain, byte[])
-     */
+    
     @Override
     public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
         if (logger.isInfoEnabled()) {
@@ -66,13 +63,34 @@ public class BeanMethodTransformer implements PinpointClassFileTransformer {
                     logger.trace("### c={}, m={}, params={}", new Object[] {className, method.getName(), Arrays.toString(method.getParameterTypes())});
                 }
 
-                method.addInterceptor(BasicMethodInterceptor.class.getName(), va(SpringBeansConstants.SERVICE_TYPE));
+                addInterceptor(method);
             }
 
             return target.toBytecode();
         } catch (Exception e) {
             logger.warn("modify fail. Cause:{}", e.getMessage(), e);
             return null;
+        }
+    }
+    
+    private void addInterceptor(InstrumentMethod targetMethod) throws InstrumentException {
+        int id = interceptorId.get();
+        
+        if (id != -1) {
+            targetMethod.addInterceptor(id);
+            return;
+        }
+        
+        synchronized (interceptorId) {
+            id = interceptorId.get();
+            
+            if (id != -1) {
+                targetMethod.addInterceptor(id);
+                return;
+            }
+            
+            id = targetMethod.addInterceptor("com.navercorp.pinpoint.plugin.spring.beans.interceptor.BeanMethodInterceptor");
+            interceptorId.set(id);
         }
     }
 }
