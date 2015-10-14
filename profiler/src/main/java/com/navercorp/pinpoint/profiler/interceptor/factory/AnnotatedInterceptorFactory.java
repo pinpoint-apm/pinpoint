@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor2;
 import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor3;
 import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor4;
 import com.navercorp.pinpoint.bootstrap.interceptor.AfterInterceptor5;
+import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor0;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor1;
@@ -44,6 +45,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Group;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedInterceptor0;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.GroupedInterceptor1;
@@ -136,6 +138,8 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
             return new GroupedInterceptor((BeforeInterceptor)interceptor, null, group, policy);
         } else if (interceptor instanceof AfterInterceptor) {
             return new GroupedInterceptor(null, (AfterInterceptor)interceptor, group, policy);
+        } else if (interceptor instanceof ApiIdAwareAroundInterceptor) {
+            return new GroupedApiIdAwareAroundInterceptor((ApiIdAwareAroundInterceptor)interceptor, group, policy);
         }
         
         throw new IllegalArgumentException("Unexpected interceptor type: " + interceptor.getClass());

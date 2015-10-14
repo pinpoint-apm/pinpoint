@@ -27,39 +27,50 @@ import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
  */
 public class AgentActiveThreadCount {
 
-    private final String agentId;
-    private final TRouteResult routeResult;
-    private final TCmdActiveThreadCountRes activeThreadCount;
+    private final short OK_CODE = 0;
+    private final String OK_CODE_MESSAGE = "OK";
 
-    public AgentActiveThreadCount(String agentId, TRouteResult routeResult, TCmdActiveThreadCountRes activeThreadCount) {
+    private final String agentId;
+
+    private short code = -1;
+    private String codeMessage = "UNKNOWN";
+
+    private TCmdActiveThreadCountRes activeThreadCount;
+
+    public AgentActiveThreadCount(String agentId) {
         this.agentId = agentId;
-        this.routeResult = routeResult;
-        this.activeThreadCount = activeThreadCount;
+    }
+
+    public void setResult(TCmdActiveThreadCountRes activeThreadCount) {
+        if (activeThreadCount != null) {
+            this.activeThreadCount = activeThreadCount;
+            this.code = OK_CODE;
+            this.codeMessage = OK_CODE_MESSAGE;
+        }
+    }
+
+    public void setFail(String codeMessage) {
+        setFail((short) -1, codeMessage);
+    }
+
+    public void setFail(short code, String codeMessage) {
+        this.code = code;
+        this.codeMessage = codeMessage;
     }
 
     public String getAgentId() {
         return agentId;
     }
 
-    public TRouteResult getRouteResult() {
-        return routeResult;
+    public short getCode() {
+        return code;
     }
 
-    public TRouteResult getRouteResult(TRouteResult defaultValue) {
-        if (routeResult == null) {
-            return defaultValue;
-        }
-        return routeResult;
+    public String getCodeMessage() {
+        return codeMessage;
     }
 
     public TCmdActiveThreadCountRes getActiveThreadCount() {
-        return activeThreadCount;
-    }
-
-    public TCmdActiveThreadCountRes getActiveThreadStatus(TCmdActiveThreadCountRes defaultValue) {
-        if (activeThreadCount == null) {
-            return defaultValue;
-        }
         return activeThreadCount;
     }
 
@@ -67,7 +78,8 @@ public class AgentActiveThreadCount {
     public String toString() {
         return "AgentActiveThreadCount{" +
                 "agentId='" + agentId + '\'' +
-                ", routeResult=" + routeResult +
+                ", code=" + getCode() +
+                ", codeMessage=" + getCodeMessage() +
                 ", activeThreadCount=" + activeThreadCount +
                 '}';
     }

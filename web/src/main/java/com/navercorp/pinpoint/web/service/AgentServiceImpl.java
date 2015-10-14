@@ -236,8 +236,13 @@ public class AgentServiceImpl implements AgentService {
             AgentInfo agentInfo = entry.getKey();
             PinpointRouteResponse response = entry.getValue();
 
-            AgentActiveThreadCount agentActiveThreadStatus = new AgentActiveThreadCount(agentInfo.getAgentId(),
-                    response.getRouteResult(), response.getResponse(TCmdActiveThreadCountRes.class, null));
+            AgentActiveThreadCount agentActiveThreadStatus = new AgentActiveThreadCount(agentInfo.getAgentId());
+            TRouteResult routeResult = response.getRouteResult();
+            if (routeResult == TRouteResult.OK) {
+                agentActiveThreadStatus.setResult(response.getResponse(TCmdActiveThreadCountRes.class, null));
+            } else {
+                agentActiveThreadStatus.setFail(routeResult.name());
+            }
             agentActiveThreadStatusList.add(agentActiveThreadStatus);
         }
 
@@ -283,6 +288,27 @@ public class AgentServiceImpl implements AgentService {
 
     private long getTimeoutMillis(long startTime, long timeout) {
         return Math.max(startTime + timeout - System.currentTimeMillis(), 100L);
+    }
+
+
+    @Override
+    public byte[] serializeRequest(TBase<?, ?> tBase) throws TException {
+        return SerializationUtils.serialize(tBase, commandSerializerFactory);
+    }
+
+    @Override
+    public byte[] serializeRequest(TBase<?, ?> tBase, byte[] defaultValue) {
+        return SerializationUtils.serialize(tBase, commandSerializerFactory, defaultValue);
+    }
+
+    @Override
+    public TBase<?, ?> deserializeResponse(byte[] objectData) throws TException {
+        return SerializationUtils.deserialize(objectData, commandDeserializerFactory);
+    }
+
+    @Override
+    public TBase<?, ?> deserializeResponse(byte[] objectData, TBase<?, ?> defaultValue) {
+        return SerializationUtils.deserialize(objectData, commandDeserializerFactory, defaultValue);
     }
 
 }

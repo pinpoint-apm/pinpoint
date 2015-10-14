@@ -38,7 +38,7 @@ public class LoggingStreamChannelMessageListener {
         @Override
         public StreamCode handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
             LOGGER.info("handleStreamCreate StreamChannel:{}, Packet:{}", streamChannelContext, packet);
-            return StreamCode.SUCCESS;
+            return StreamCode.OK;
         }
 
         @Override

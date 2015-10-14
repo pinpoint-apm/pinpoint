@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.stream.*;
@@ -111,6 +112,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
                 ClientStreamChannelContext producerContext = createStreamChannel((PinpointServerClusterPoint) clusterPoint, event.getDeliveryCommand().getPayload(), routeManager);
                 if (producerContext.getCreateFailPacket() == null) {
                     routeManager.setProducer(producerContext.getStreamChannel());
+                    producerContext.getStreamChannel().addStateChangeEventHandler(routeManager);
                     return createResponse(TRouteResult.OK);
                 }
             } else {
@@ -139,7 +141,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
     }
 
     // fix me : StreamRouteManager will change worker thread pattern. 
-    private class StreamRouteManager implements ClientStreamChannelMessageListener {
+    private class StreamRouteManager implements ClientStreamChannelMessageListener,StreamChannelStateChangeEventHandler<ClientStreamChannel> {
 
         private final StreamEvent streamEvent;
         private final ServerStreamChannel consumer;
@@ -185,6 +187,26 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
             if (this.producer != null) {
                 producer.close();
             }
+        }
+
+        @Override
+        public void eventPerformed(ClientStreamChannel streamChannel, StreamChannelStateCode updatedStateCode) throws Exception {
+            logger.info("eventPerformed streamChannel:{}, stateCode:{}", streamChannel, updatedStateCode);
+
+            switch (updatedStateCode) {
+                case CLOSED:
+                case ILLEGAL_STATE:
+                    if (consumer != null) {
+                        consumer.close();
+                    }
+                    break;
+            }
+
+        }
+
+        @Override
+        public void exceptionCaught(ClientStreamChannel streamChannel, StreamChannelStateCode updatedStateCode, Throwable e) {
+            logger.warn("exceptionCaught message:{}, streamChannel:{}, stateCode:{}", e.getMessage(), streamChannel, updatedStateCode, e);
         }
 
         public ClientStreamChannel getProducer() {
