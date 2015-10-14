@@ -40,11 +40,23 @@ public interface InstrumentMethod {
 
     int addInterceptor(String interceptorClassName, Object[] constructorArgs) throws InstrumentException;
 
+
+    int addGroupedInterceptor(String interceptorClassName, String groupName) throws InstrumentException;
+
     int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group) throws InstrumentException;
+
+
+    int addGroupedInterceptor(String interceptorClassName, String groupName, ExecutionPolicy executionPolicy) throws InstrumentException;
 
     int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy) throws InstrumentException;
 
+
+    int addGroupedInterceptor(String interceptorClassName, Object[] constructorArgs, String groupName) throws InstrumentException;
+
     int addGroupedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorGroup group) throws InstrumentException;
+
+
+    int addGroupedInterceptor(String interceptorClassName, Object[] constructorArgs, String groupName, ExecutionPolicy executionPolicy) throws InstrumentException;
 
     int addGroupedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorGroup group, ExecutionPolicy executionPolicy) throws InstrumentException;
     

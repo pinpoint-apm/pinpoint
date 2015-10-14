@@ -89,12 +89,11 @@ public class IBatisPlugin implements ProfilerPlugin {
                     byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
-                final InterceptorGroup group = instrumentContext.getInterceptorGroup(IBATIS_SCOPE);
 
                 final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(methodFilter);
                 for (InstrumentMethod methodToTrace : methodsToTrace) {
                     String sqlMapOperationInterceptor = "com.navercorp.pinpoint.plugin.ibatis.interceptor.SqlMapOperationInterceptor";
-                    methodToTrace.addGroupedInterceptor(sqlMapOperationInterceptor, va(serviceType), group, ExecutionPolicy.BOUNDARY
+                    methodToTrace.addGroupedInterceptor(sqlMapOperationInterceptor, va(serviceType), IBATIS_SCOPE, ExecutionPolicy.BOUNDARY
                     );
                 }
 

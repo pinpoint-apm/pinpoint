@@ -56,14 +56,13 @@ public class JsonLibPlugin implements ProfilerPlugin {
             @Override
             public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toJSON"))) {
-                    addInterceptor(method, PARSING_INTERCEPTOR, group);
+                    addInterceptor(method, PARSING_INTERCEPTOR);
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toJava"))) {
-                    addInterceptor(method, BASIC_INTERCEPTOR, group, JsonLibConstants.SERVICE_TYPE);
+                    addInterceptor(method, BASIC_INTERCEPTOR, JsonLibConstants.SERVICE_TYPE);
                 }
 
                 return target.toBytecode();
@@ -79,18 +78,17 @@ public class JsonLibPlugin implements ProfilerPlugin {
             @Override
             public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("fromObject"))) {
-                    addInterceptor(method, PARSING_INTERCEPTOR, group);
+                    addInterceptor(method, PARSING_INTERCEPTOR);
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toBean"))) {
-                    addInterceptor(method, BASIC_INTERCEPTOR, group, JsonLibConstants.SERVICE_TYPE);
+                    addInterceptor(method, BASIC_INTERCEPTOR, JsonLibConstants.SERVICE_TYPE);
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toString"))) {
-                    addInterceptor(method, TO_STRING_INTERCEPTOR, group);
+                    addInterceptor(method, TO_STRING_INTERCEPTOR);
                 }
 
                 return target.toBytecode();
@@ -105,26 +103,25 @@ public class JsonLibPlugin implements ProfilerPlugin {
             @Override
             public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("fromObject"))) {
-                    addInterceptor(method, PARSING_INTERCEPTOR, group);
+                    addInterceptor(method, PARSING_INTERCEPTOR);
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toArray"))) {
-                    addInterceptor(method, BASIC_INTERCEPTOR, group, JsonLibConstants.SERVICE_TYPE);
+                    addInterceptor(method, BASIC_INTERCEPTOR, JsonLibConstants.SERVICE_TYPE);
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toList"))) {
-                    addInterceptor(method, BASIC_INTERCEPTOR, group, JsonLibConstants.SERVICE_TYPE);
+                    addInterceptor(method, BASIC_INTERCEPTOR, JsonLibConstants.SERVICE_TYPE);
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toCollection"))) {
-                    addInterceptor(method, BASIC_INTERCEPTOR, group, JsonLibConstants.SERVICE_TYPE);
+                    addInterceptor(method, BASIC_INTERCEPTOR, JsonLibConstants.SERVICE_TYPE);
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toString"))) {
-                    addInterceptor(method, TO_STRING_INTERCEPTOR, group);
+                    addInterceptor(method, TO_STRING_INTERCEPTOR);
                 }
 
                 return target.toBytecode();
@@ -134,10 +131,10 @@ public class JsonLibPlugin implements ProfilerPlugin {
 
     }
 
-    private boolean addInterceptor(InstrumentMethod method, String interceptorClassName, InterceptorGroup group, Object... constructorArgs) {
+    private boolean addInterceptor(InstrumentMethod method, String interceptorClassName, Object... constructorArgs) {
         if (method != null && isPublicMethod(method)) {
             try {
-                method.addGroupedInterceptor(interceptorClassName, constructorArgs, group);
+                method.addGroupedInterceptor(interceptorClassName, constructorArgs, GROUP);
                 return true;
             } catch (InstrumentException e) {
                 if (logger.isWarnEnabled()) {

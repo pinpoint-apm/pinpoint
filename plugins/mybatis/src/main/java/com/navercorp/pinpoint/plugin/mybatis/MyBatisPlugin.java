@@ -66,12 +66,11 @@ public class MyBatisPlugin implements ProfilerPlugin {
                         byte[] classfileBuffer) throws InstrumentException {
                     
                     final InstrumentClass target = instrumentContext.getInstrumentClass(loader, sqlSession, classfileBuffer);
-                    final InterceptorGroup group = instrumentContext.getInterceptorGroup(MYBATIS_SCOPE);
-                    
+
                     final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(methodFilter);
                     for (InstrumentMethod methodToTrace : methodsToTrace) {
                         String sqlSessionOperationInterceptor = "com.navercorp.pinpoint.plugin.mybatis.interceptor.SqlSessionOperationInterceptor";
-                        methodToTrace.addGroupedInterceptor(sqlSessionOperationInterceptor, group, ExecutionPolicy.BOUNDARY);
+                        methodToTrace.addGroupedInterceptor(sqlSessionOperationInterceptor, MYBATIS_SCOPE, ExecutionPolicy.BOUNDARY);
                     }
                     
                     return target.toBytecode();

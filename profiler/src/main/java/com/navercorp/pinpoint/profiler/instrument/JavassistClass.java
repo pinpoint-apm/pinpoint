@@ -412,10 +412,27 @@ public class JavassistClass implements InstrumentClass {
     }
 
     @Override
+    public int addGroupedInterceptor(String interceptorClassName, String groupName) throws InstrumentException {
+        Asserts.notNull(interceptorClassName, "interceptorClassName");
+        Asserts.notNull(groupName, "groupName");
+        final InterceptorGroup interceptorGroup = pluginContext.getInterceptorGroup(groupName);
+        return addInterceptor0(interceptorClassName, null, interceptorGroup, ExecutionPolicy.BOUNDARY);
+    }
+
+    @Override
     public int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group) throws InstrumentException {
         Asserts.notNull(interceptorClassName, "interceptorClassName");
         Asserts.notNull(group, "group");
         return addInterceptor0(interceptorClassName, null, group, ExecutionPolicy.BOUNDARY);
+    }
+
+    @Override
+    public int addGroupedInterceptor(String interceptorClassName, Object[] constructorArgs, String groupName) throws InstrumentException {
+        Asserts.notNull(interceptorClassName, "interceptorClassName");
+        Asserts.notNull(constructorArgs, "constructorArgs");
+        Asserts.notNull(groupName, "groupName");
+        final InterceptorGroup interceptorGroup = pluginContext.getInterceptorGroup(groupName);
+        return addInterceptor0(interceptorClassName, constructorArgs, interceptorGroup, ExecutionPolicy.BOUNDARY);
     }
 
     @Override
@@ -427,11 +444,30 @@ public class JavassistClass implements InstrumentClass {
     }
 
     @Override
+    public int addGroupedInterceptor(String interceptorClassName, String groupName, ExecutionPolicy executionPolicy) throws InstrumentException {
+        Asserts.notNull(interceptorClassName, "interceptorClassName");
+        Asserts.notNull(groupName, "groupName");
+        Asserts.notNull(executionPolicy, "executionPolicy");
+        final InterceptorGroup interceptorGroup = pluginContext.getInterceptorGroup(groupName);
+        return addInterceptor0(interceptorClassName, null, interceptorGroup, executionPolicy);
+    }
+
+    @Override
     public int addGroupedInterceptor(String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy) throws InstrumentException {
         Asserts.notNull(interceptorClassName, "interceptorClassName");
         Asserts.notNull(group, "group");
         Asserts.notNull(executionPolicy, "executionPolicy");
         return addInterceptor0(interceptorClassName, null, group, executionPolicy);
+    }
+
+    @Override
+    public int addGroupedInterceptor(String interceptorClassName, Object[] constructorArgs, String groupName, ExecutionPolicy executionPolicy) throws InstrumentException {
+        Asserts.notNull(interceptorClassName, "interceptorClassName");
+        Asserts.notNull(constructorArgs, "constructorArgs");
+        Asserts.notNull(groupName, "groupName");
+        Asserts.notNull(executionPolicy, "executionPolicy");
+        final InterceptorGroup interceptorGroup = pluginContext.getInterceptorGroup(groupName);
+        return addInterceptor0(interceptorClassName, constructorArgs, interceptorGroup, executionPolicy);
     }
 
 
@@ -548,12 +584,32 @@ public class JavassistClass implements InstrumentClass {
     }
 
     @Override
+    public int addGroupedInterceptor(MethodFilter filter, String interceptorClassName, String groupName, ExecutionPolicy executionPolicy) throws InstrumentException {
+        Asserts.notNull(filter, "filter");
+        Asserts.notNull(interceptorClassName, "interceptorClassName");
+        Asserts.notNull(groupName, "groupName");
+        Asserts.notNull(executionPolicy, "executionPolicy");
+        final InterceptorGroup interceptorGroup = pluginContext.getInterceptorGroup(groupName);
+        return addGroupedInterceptor0(filter, interceptorClassName, null, interceptorGroup, executionPolicy);
+    }
+
+    @Override
     public int addGroupedInterceptor(MethodFilter filter, String interceptorClassName, InterceptorGroup group, ExecutionPolicy executionPolicy) throws InstrumentException {
         Asserts.notNull(filter, "filter");
         Asserts.notNull(interceptorClassName, "interceptorClassName");
         Asserts.notNull(group, "group");
         Asserts.notNull(executionPolicy, "executionPolicy");
         return addGroupedInterceptor0(filter, interceptorClassName, null, group, executionPolicy);
+    }
+
+    @Override
+    public int addGroupedInterceptor(MethodFilter filter, String interceptorClassName, Object[] constructorArgs, String groupName, ExecutionPolicy executionPolicy) throws InstrumentException {
+        Asserts.notNull(filter, "filter");
+        Asserts.notNull(interceptorClassName, "interceptorClassName");
+        Asserts.notNull(groupName, "groupName");
+        Asserts.notNull(executionPolicy, "executionPolicy");
+        final InterceptorGroup interceptorGroup = pluginContext.getInterceptorGroup(groupName);
+        return addGroupedInterceptor0(filter, interceptorClassName, null, interceptorGroup, executionPolicy);
     }
 
     @Override
