@@ -61,31 +61,30 @@ public class JacksonPlugin implements ProfilerPlugin {
             @Override
             public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP);
 
                 final InstrumentMethod constructor1 = target.getConstructor();
-                addInterceptor(constructor1, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE), group);
+                addInterceptor(constructor1, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
 
                 final InstrumentMethod constructor2 = target.getConstructor("com.fasterxml.jackson.core.JsonFactory");
-                addInterceptor(constructor2, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE), group);
+                addInterceptor(constructor2, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
 
                 final InstrumentMethod constructor3 = target.getConstructor("com.fasterxml.jackson.core.JsonFactory", "com.fasterxml.jackson.databind.ser.DefaultSerializerProvider", "com.fasterxml.jackson.databind.deser.DefaultDeserializationContext");
-                addInterceptor(constructor3, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE), group);
+                addInterceptor(constructor3, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValue"))) {
-                    addInterceptor(method, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE), group);
+                    addInterceptor(method, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsString"))) {
-                    addInterceptor(method, WRITE_VALUE_AS_STRING_INTERCEPTOR, group);
+                    addInterceptor(method, WRITE_VALUE_AS_STRING_INTERCEPTOR);
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsBytes"))) {
-                    addInterceptor(method, WRITE_VALUE_AS_BYTES_INTERCEPTOR, group);
+                    addInterceptor(method, WRITE_VALUE_AS_BYTES_INTERCEPTOR);
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("readValue"))) {
-                    addInterceptor(method, READ_VALUE_INTERCEPTOR, group);
+                    addInterceptor(method, READ_VALUE_INTERCEPTOR);
                 }
 
                 return target.toBytecode();
@@ -100,38 +99,37 @@ public class JacksonPlugin implements ProfilerPlugin {
             @Override
             public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP);
 
                 final InstrumentMethod constructor1 = target.getConstructor();
-                addInterceptor(constructor1, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE), group);
+                addInterceptor(constructor1, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
 
                 final InstrumentMethod constructor2 = target.getConstructor("org.codehaus.jackson.JsonFactory");
-                addInterceptor(constructor2, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE), group);
+                addInterceptor(constructor2, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
 
                 final InstrumentMethod constructor3 = target.getConstructor("org.codehaus.jackson.JsonFactory", "org.codehaus.jackson.map.SerializerProvider", "org.codehaus.jackson.map.DeserializerProvider");
-                addInterceptor(constructor3, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE), group);
+                addInterceptor(constructor3, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
 
                 final InstrumentMethod constructor4 = target.getConstructor("org.codehaus.jackson.map.SerializerFactory");
-                addInterceptor(constructor4, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE), group);
+                addInterceptor(constructor4, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
 
                 final InstrumentMethod constructor5 = target.getConstructor("org.codehaus.jackson.JsonFactory", "org.codehaus.jackson.map.SerializerProvider", "org.codehaus.jackson.map.DeserializerProvider", "org.codehaus.jackson.map.SerializationConfig", "org.codehaus.jackson.map.DeserializationConfig");
-                addInterceptor(constructor5, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE), group);
+                addInterceptor(constructor5, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
 
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValue"))) {
-                    addInterceptor(method, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE), group);
+                    addInterceptor(method, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsString"))) {
-                    addInterceptor(method, WRITE_VALUE_AS_STRING_INTERCEPTOR, group);
+                    addInterceptor(method, WRITE_VALUE_AS_STRING_INTERCEPTOR);
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsBytes"))) {
-                    addInterceptor(method, WRITE_VALUE_AS_BYTES_INTERCEPTOR, group);
+                    addInterceptor(method, WRITE_VALUE_AS_BYTES_INTERCEPTOR);
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("readValue"))) {
-                    addInterceptor(method, READ_VALUE_INTERCEPTOR, group);
+                    addInterceptor(method, READ_VALUE_INTERCEPTOR);
                 }
 
                 return target.toBytecode();
@@ -147,10 +145,9 @@ public class JacksonPlugin implements ProfilerPlugin {
             @Override
             public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("readValue", "readValues"))) {
-                    addInterceptor(method, READ_VALUE_INTERCEPTOR, group);
+                    addInterceptor(method, READ_VALUE_INTERCEPTOR);
                 }
 
                 return target.toBytecode();
@@ -165,18 +162,18 @@ public class JacksonPlugin implements ProfilerPlugin {
             @Override
             public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP);
+//                InterceptorGroup group = instrumentContext.getInterceptorGroup(GROUP);
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValue"))) {
-                    addInterceptor(method, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE), group);
+                    addInterceptor(method, BASIC_METHOD_INTERCEPTOR, va(JacksonConstants.SERVICE_TYPE));
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsString"))) {
-                    addInterceptor(method, WRITE_VALUE_AS_STRING_INTERCEPTOR, group);
+                    addInterceptor(method, WRITE_VALUE_AS_STRING_INTERCEPTOR);
                 }
 
                 for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("writeValueAsBytes"))) {
-                    addInterceptor(method, WRITE_VALUE_AS_BYTES_INTERCEPTOR, group);
+                    addInterceptor(method, WRITE_VALUE_AS_BYTES_INTERCEPTOR);
                 }
 
                 return target.toBytecode();
@@ -185,10 +182,10 @@ public class JacksonPlugin implements ProfilerPlugin {
         });
     }
 
-    private boolean addInterceptor(InstrumentMethod method, String interceptorClassName, InterceptorGroup group) {
+    private boolean addInterceptor(InstrumentMethod method, String interceptorClassName) {
         if (method != null) {
             try {
-                method.addGroupedInterceptor(interceptorClassName, group);
+                method.addGroupedInterceptor(interceptorClassName, GROUP);
                 return true;
             } catch (InstrumentException e) {
                 if (logger.isWarnEnabled()) {
@@ -199,10 +196,10 @@ public class JacksonPlugin implements ProfilerPlugin {
         return false;
     }
 
-    private boolean addInterceptor(InstrumentMethod method, String interceptorClassName, Object[] constructorArgs, InterceptorGroup group) {
+    private boolean addInterceptor(InstrumentMethod method, String interceptorClassName, Object[] constructorArgs) {
         if (method != null) {
             try {
-                method.addGroupedInterceptor(interceptorClassName, constructorArgs, group);
+                method.addGroupedInterceptor(interceptorClassName, constructorArgs, GROUP);
                 return true;
             } catch (InstrumentException e) {
                 if (logger.isWarnEnabled()) {
