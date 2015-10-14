@@ -45,14 +45,13 @@ public class GsonPlugin implements ProfilerPlugin {
             @Override
             public byte[] transform(Instrumentor pluginContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = pluginContext.getInstrumentClass(loader, className, classfileBuffer);
-                InterceptorGroup group = pluginContext.getInterceptorGroup(GSON_GROUP); 
-                
+
                 for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("fromJson"))) {
-                    m.addGroupedInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.FromJsonInterceptor", group);
+                    m.addGroupedInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.FromJsonInterceptor", GSON_GROUP);
                 }
                 
                 for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("toJson"))) {
-                    m.addGroupedInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.ToJsonInterceptor", group);
+                    m.addGroupedInterceptor("com.navercorp.pinpoint.plugin.gson.interceptor.ToJsonInterceptor", GSON_GROUP);
                 }
                 
                 return target.toBytecode();

@@ -52,22 +52,20 @@ public class CubridPlugin implements ProfilerPlugin {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(CubridConstants.GROUP_CUBRID);
-                        
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", group);
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor", group);
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementCreateInterceptor", group);
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", CubridConstants.GROUP_CUBRID);
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor", CubridConstants.GROUP_CUBRID);
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementCreateInterceptor", CubridConstants.GROUP_CUBRID);
                 
                 if (config.isProfileSetAutoCommit()) {
-                    target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor", group);
+                    target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor", CubridConstants.GROUP_CUBRID);
                 }
                 
                 if (config.isProfileCommit()) {
-                    target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionCommitInterceptor", group);
+                    target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionCommitInterceptor", CubridConstants.GROUP_CUBRID);
                 }
                 
                 if (config.isProfileRollback()) {
-                    target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollbackInterceptor", group);
+                    target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollbackInterceptor", CubridConstants.GROUP_CUBRID);
                 }
                 
                 return target.toBytecode();
@@ -81,9 +79,8 @@ public class CubridPlugin implements ProfilerPlugin {
             @Override
             public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(CubridConstants.GROUP_CUBRID);
-                
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", va(new CubridJdbcUrlParser()), group, ExecutionPolicy.ALWAYS);
+
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", va(new CubridJdbcUrlParser()), CubridConstants.GROUP_CUBRID, ExecutionPolicy.ALWAYS);
                 
                 return target.toBytecode();
             }
@@ -102,10 +99,9 @@ public class CubridPlugin implements ProfilerPlugin {
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor", "new java.util.HashMap()");
                 
                 int maxBindValueSize = config.getMaxSqlBindValueSize();
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(CubridConstants.GROUP_CUBRID);
-                
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor", va(maxBindValueSize), group);
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", group);
+
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor", va(maxBindValueSize), CubridConstants.GROUP_CUBRID);
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", CubridConstants.GROUP_CUBRID);
                 
                 return target.toBytecode();
             }
@@ -121,10 +117,8 @@ public class CubridPlugin implements ProfilerPlugin {
                 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
                 
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(CubridConstants.GROUP_CUBRID);
-
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor", group);
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor", group);
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor", CubridConstants.GROUP_CUBRID);
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor", CubridConstants.GROUP_CUBRID);
                 
                 return target.toBytecode();
             }

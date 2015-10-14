@@ -57,22 +57,21 @@ public class OraclePlugin implements ProfilerPlugin {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(OracleConstants.GROUP_ORACLE);
-                        
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", group);
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor", group);
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementCreateInterceptor", group);
+
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", OracleConstants.GROUP_ORACLE);
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor", OracleConstants.GROUP_ORACLE);
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementCreateInterceptor", OracleConstants.GROUP_ORACLE);
                 
                 if (config.isProfileSetAutoCommit()) {
-                    target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor", group);
+                    target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor", OracleConstants.GROUP_ORACLE);
                 }
                 
                 if (config.isProfileCommit()) {
-                    target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionCommitInterceptor", group);
+                    target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionCommitInterceptor", OracleConstants.GROUP_ORACLE);
                 }
                 
                 if (config.isProfileRollback()) {
-                    target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollbackInterceptor", group);
+                    target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollbackInterceptor", OracleConstants.GROUP_ORACLE);
                 }
                 
                 return target.toBytecode();
@@ -86,9 +85,8 @@ public class OraclePlugin implements ProfilerPlugin {
             @Override
             public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(OracleConstants.GROUP_ORACLE);
-                
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", va(new OracleJdbcUrlParser()), group, ExecutionPolicy.ALWAYS);
+
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", va(new OracleJdbcUrlParser()), OracleConstants.GROUP_ORACLE, ExecutionPolicy.ALWAYS);
                 
                 return target.toBytecode();
             }
@@ -113,10 +111,9 @@ public class OraclePlugin implements ProfilerPlugin {
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor", "new java.util.HashMap()");
                 
                 int maxBindValueSize = config.getMaxSqlBindValueSize();
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(OracleConstants.GROUP_ORACLE);
-                
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor", va(maxBindValueSize), group);
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", group);
+
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor", va(maxBindValueSize), OracleConstants.GROUP_ORACLE);
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", OracleConstants.GROUP_ORACLE);
                 
                 return target.toBytecode();
             }
@@ -141,10 +138,8 @@ public class OraclePlugin implements ProfilerPlugin {
                 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
                 
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(OracleConstants.GROUP_ORACLE);
-
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor", group);
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor", group);
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor", OracleConstants.GROUP_ORACLE);
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor", OracleConstants.GROUP_ORACLE);
                 
                 return target.toBytecode();
             }

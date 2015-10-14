@@ -61,23 +61,21 @@ public class MySqlPlugin implements ProfilerPlugin {
                 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(MySqlConstants.GROUP_NAME);
-
                 target.addInterceptor("com.navercorp.pinpoint.plugin.jdbc.mysql.interceptor.MySQLConnectionCreateInterceptor");
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", group);
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor", group);
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementCreateInterceptor", group);
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", MySqlConstants.GROUP_NAME);
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor", MySqlConstants.GROUP_NAME);
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementCreateInterceptor", MySqlConstants.GROUP_NAME);
                 
                 if (config.isProfileSetAutoCommit()) {
-                    target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor", group);
+                    target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor", MySqlConstants.GROUP_NAME);
                 }
                 
                 if (config.isProfileCommit()) {
-                    target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionCommitInterceptor", group);
+                    target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionCommitInterceptor", MySqlConstants.GROUP_NAME);
                 }
                 
                 if (config.isProfileRollback()) {
-                    target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollbackInterceptor", group);
+                    target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollbackInterceptor", MySqlConstants.GROUP_NAME);
                 }
                 
                 return target.toBytecode();
@@ -94,9 +92,8 @@ public class MySqlPlugin implements ProfilerPlugin {
             @Override
             public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(MySqlConstants.GROUP_NAME);
-                
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", va(new MySqlJdbcUrlParser(), false), group, ExecutionPolicy.ALWAYS);
+
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", va(new MySqlJdbcUrlParser(), false), MySqlConstants.GROUP_NAME, ExecutionPolicy.ALWAYS);
                 
                 return target.toBytecode();
             }
@@ -115,10 +112,10 @@ public class MySqlPlugin implements ProfilerPlugin {
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor", "new java.util.HashMap()");
                 
                 int maxBindValueSize = config.getMaxSqlBindValueSize();
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(MySqlConstants.GROUP_NAME);
-                
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor", va(maxBindValueSize), group);
-                target.addGroupedInterceptor(PreparedStatementBindingMethodFilter.excludes("setRowId", "setNClob", "setSQLXML"), "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", group, ExecutionPolicy.BOUNDARY);
+
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor", va(maxBindValueSize), MySqlConstants.GROUP_NAME);
+                final PreparedStatementBindingMethodFilter excludes = PreparedStatementBindingMethodFilter.excludes("setRowId", "setNClob", "setSQLXML");
+                target.addGroupedInterceptor(excludes, "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", MySqlConstants.GROUP_NAME, ExecutionPolicy.BOUNDARY);
                 
                 return target.toBytecode();
             }
@@ -131,9 +128,9 @@ public class MySqlPlugin implements ProfilerPlugin {
             @Override
             public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(MySqlConstants.GROUP_NAME);
-                
-                target.addGroupedInterceptor(PreparedStatementBindingMethodFilter.includes("setRowId", "setNClob", "setSQLXML"), "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", group, ExecutionPolicy.BOUNDARY);
+
+                final PreparedStatementBindingMethodFilter includes = PreparedStatementBindingMethodFilter.includes("setRowId", "setNClob", "setSQLXML");
+                target.addGroupedInterceptor(includes, "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", MySqlConstants.GROUP_NAME, ExecutionPolicy.BOUNDARY);
                 
                 return target.toBytecode();
             }
@@ -153,11 +150,9 @@ public class MySqlPlugin implements ProfilerPlugin {
                 }
                 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
-                
-                InterceptorGroup group = instrumentContext.getInterceptorGroup(MySqlConstants.GROUP_NAME);
 
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor", group);
-                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor", group);
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor", MySqlConstants.GROUP_NAME);
+                target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor", MySqlConstants.GROUP_NAME);
                 
                 return target.toBytecode();
             }
