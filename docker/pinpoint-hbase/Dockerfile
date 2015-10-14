@@ -6,12 +6,12 @@ FROM java:7-jdk
 MAINTAINER John Crygier <john.crygier@ventivtech.com>
 
 ENV JAVA_HOME /usr/lib/jvm/java-7-openjdk-amd64/
-ENV HBASE_VERSION 0.94.27
+ENV HBASE_VERSION 1.0.2 
 ENV HBASE_HOME /opt/hbase/hbase-$HBASE_VERSION
 
 RUN mkdir -p /opt/hbase && \
     cd /opt/hbase && \
-    curl -SL "http://apache.mirrors.pair.com/hbase/hbase-$HBASE_VERSION/hbase-$HBASE_VERSION.tar.gz" -o hbase.tar.gz && \
+    curl -SL "http://apache.mirrors.pair.com/hbase/hbase-$HBASE_VERSION/hbase-$HBASE_VERSION-bin.tar.gz" -o hbase.tar.gz && \
     tar xfvz hbase.tar.gz && \
     rm -rf hbase.tar.gz
 
@@ -37,4 +37,4 @@ EXPOSE 60020
 # HBase Regionserver web UI
 EXPOSE 60030
 
-CMD /opt/hbase/hbase-0.94.27/bin/hbase master start
+CMD /opt/hbase/hbase-1.0.2/bin/hbase master start
