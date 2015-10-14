@@ -34,7 +34,7 @@ public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
     private final boolean localVarsInitialized;
     private final boolean catchClause;
 
-    public InvokeAfterCodeGenerator(int interceptorId, Class<?> interceptorClass, Method interceptorMethod, InstrumentClass targetClass, InstrumentMethod targetMethod, TraceContext traceContext, boolean localVarsInitialized, boolean catchCluase) {
+    public InvokeAfterCodeGenerator(int interceptorId, Class<?> interceptorClass, Method interceptorMethod, InstrumentClass targetClass, InstrumentMethod targetMethod, TraceContext traceContext, boolean localVarsInitialized, boolean catchClause) {
         super(interceptorId, interceptorClass, targetMethod, traceContext);
         
         this.interceptorId = interceptorId;
