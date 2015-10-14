@@ -85,6 +85,11 @@ public class HbaseAgentStatDao implements AgentStatDao {
             put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_COL_JVM_CPU, Bytes.toBytes(cpuLoad.getJvmCpuLoad()));
             put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_COL_SYS_CPU, Bytes.toBytes(cpuLoad.getSystemCpuLoad()));
         }
+        // Transaction
+        if (agentStat.isSetTransaction()) {
+            TTransaction transaction = agentStat.getTransaction();
+            put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_COL_TPS, Bytes.toBytes(transaction.getTps()));
+        }
         return put;
     }
 

@@ -16,24 +16,11 @@
 
 package com.navercorp.pinpoint.web.alarm.checker;
 
-import static org.junit.Assert.*;
-
 import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.BeforeClass;
-import org.junit.Test;
 
-import com.navercorp.pinpoint.common.bo.AgentStatCpuLoadBo;
-import com.navercorp.pinpoint.common.bo.AgentStatMemoryGcBo;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.alarm.CheckerCategory;
-import com.navercorp.pinpoint.web.alarm.DataCollectorFactory;
-import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
-import com.navercorp.pinpoint.web.alarm.checker.AgentChecker;
-import com.navercorp.pinpoint.web.alarm.checker.GcCountChecker;
-import com.navercorp.pinpoint.web.alarm.collector.AgentStatDataCollector;
-import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AgentStatDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.AgentStat;
@@ -56,23 +43,15 @@ public class GcCountCheckerTest {
 
             @Override
             public List<AgentStat> scanAgentStatList(String agentId, Range range) {
-                List<AgentStat> AgentStatList = new LinkedList<AgentStat>();
+                List<AgentStat> agentStatList = new LinkedList<AgentStat>();
                 
                 for (int i = 36; i > 0; i--) {
-                    AgentStatMemoryGcBo.Builder memoryBuilder = new AgentStatMemoryGcBo.Builder("AGETNT_NAME", 0L, 1L);
-                    memoryBuilder.jvmGcOldCount(i);
-                    AgentStatMemoryGcBo memoryBo = memoryBuilder.build();
-                    AgentStatCpuLoadBo.Builder cpuBuilder = new AgentStatCpuLoadBo.Builder("AGETNT_NAME", 0L, 1L);
-                    AgentStatCpuLoadBo cpuLoadBo = cpuBuilder.build();
-                    
-                    AgentStat stat = new AgentStat();
-                    stat.setMemoryGc(memoryBo);
-                    stat.setCpuLoad(cpuLoadBo);
-                    
-                    AgentStatList.add(stat);
+                    AgentStat stat = new AgentStat("AGENT_NAME", 1L);
+                    stat.setGcOldCount(i);
+                    agentStatList.add(stat);
                 }
                 
-                return AgentStatList;
+                return agentStatList;
             }
         };
         

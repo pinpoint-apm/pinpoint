@@ -49,6 +49,7 @@ public final class HBaseTables {
     public static final byte[] AGENT_STAT_CF_STATISTICS_COL_NON_HEAP_MAX = Bytes.toBytes("nHpM"); // qualifier for non-heap max
     public static final byte[] AGENT_STAT_CF_STATISTICS_COL_JVM_CPU = Bytes.toBytes("jvmCpu"); // qualifier for JVM CPU usage
     public static final byte[] AGENT_STAT_CF_STATISTICS_COL_SYS_CPU = Bytes.toBytes("sysCpu"); // qualifier for system CPU usage
+    public static final byte[] AGENT_STAT_CF_STATISTICS_COL_TPS = Bytes.toBytes("tps"); // qualifier for tps
     public static final int AGENT_STAT_ROW_DISTRIBUTE_SIZE = 1; // agent statistics hash size
 
     public static final String TRACES = "Traces";

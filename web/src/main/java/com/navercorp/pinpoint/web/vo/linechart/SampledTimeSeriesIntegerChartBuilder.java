@@ -1,0 +1,52 @@
+/*
+ * Copyright 2015 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.navercorp.pinpoint.web.vo.linechart;
+
+import java.util.List;
+
+import com.navercorp.pinpoint.web.util.TimeWindow;
+
+/**
+ * @author HyunGil Jeong
+ */
+public class SampledTimeSeriesIntegerChartBuilder extends SampledTimeSeriesChartBuilder<Integer> {
+
+    private static final int DEFAULT_VALUE = 0;
+
+    public SampledTimeSeriesIntegerChartBuilder(TimeWindow timeWindow) {
+        super(timeWindow, DEFAULT_VALUE);
+    }
+
+    public SampledTimeSeriesIntegerChartBuilder(TimeWindow timeWindow, int defaultValue) {
+        super(timeWindow, defaultValue);
+    }
+
+    @Override
+    protected Integer sampleMin(List<Integer> sampleBuffer) {
+        return DownSamplers.MIN.sampleInt(sampleBuffer);
+    }
+
+    @Override
+    protected Integer sampleMax(List<Integer> sampleBuffer) {
+        return DownSamplers.MAX.sampleInt(sampleBuffer);
+    }
+
+    @Override
+    protected Integer sampleAvg(List<Integer> sampleBuffer) {
+        return DownSamplers.AVG.sampleInt(sampleBuffer);
+    }
+}

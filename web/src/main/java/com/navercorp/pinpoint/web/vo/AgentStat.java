@@ -16,30 +16,129 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.navercorp.pinpoint.common.bo.AgentStatCpuLoadBo;
-import com.navercorp.pinpoint.common.bo.AgentStatMemoryGcBo;
-
 /**
- * @author hyungil.jeong
+ * @author HyunGil Jeong
  */
 public class AgentStat {
+    
+    public static final int NOT_COLLECTED = -1;
+    
+    private final String agentId;
+    private final long timestamp;
 
-    private AgentStatMemoryGcBo memoryGc;
-    private AgentStatCpuLoadBo cpuLoad;
-
-    public AgentStatMemoryGcBo getMemoryGc() {
-        return memoryGc;
+    private String gcType;
+    private long gcOldCount = NOT_COLLECTED;
+    private long gcOldTime = NOT_COLLECTED;
+    private long heapUsed = NOT_COLLECTED;
+    private long heapMax = NOT_COLLECTED;
+    private long nonHeapUsed = NOT_COLLECTED;
+    private long nonHeapMax = NOT_COLLECTED;
+    private double jvmCpuUsage = NOT_COLLECTED;
+    private double systemCpuUsage = NOT_COLLECTED;
+    private int tps = NOT_COLLECTED;
+    
+    public AgentStat(String agentId, long timestamp) {
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+        if (timestamp < 0) {
+            throw new NullPointerException("timestamp must not be negative");
+        }
+        this.agentId = agentId;
+        this.timestamp = timestamp;
+    }
+    
+    public String getAgentId() {
+        return this.agentId;
+    }
+    
+    public long getTimestamp() {
+        return this.timestamp;
     }
 
-    public void setMemoryGc(AgentStatMemoryGcBo memoryGc) {
-        this.memoryGc = memoryGc;
+    public String getGcType() {
+        return gcType;
     }
 
-    public AgentStatCpuLoadBo getCpuLoad() {
-        return cpuLoad;
+    public void setGcType(String gcType) {
+        this.gcType = gcType;
     }
 
-    public void setCpuLoad(AgentStatCpuLoadBo cpuLoad) {
-        this.cpuLoad = cpuLoad;
+    public long getGcOldCount() {
+        return gcOldCount;
     }
+
+    public void setGcOldCount(long gcOldCount) {
+        this.gcOldCount = gcOldCount;
+    }
+
+    public long getGcOldTime() {
+        return gcOldTime;
+    }
+
+    public void setGcOldTime(long gcOldTime) {
+        this.gcOldTime = gcOldTime;
+    }
+
+    public long getHeapUsed() {
+        return heapUsed;
+    }
+
+    public void setHeapUsed(long heapUsed) {
+        this.heapUsed = heapUsed;
+    }
+
+    public long getHeapMax() {
+        return heapMax;
+    }
+
+    public void setHeapMax(long heapMax) {
+        this.heapMax = heapMax;
+    }
+
+    public long getNonHeapUsed() {
+        return nonHeapUsed;
+    }
+
+    public void setNonHeapUsed(long nonHeapUsed) {
+        this.nonHeapUsed = nonHeapUsed;
+    }
+
+    public long getNonHeapMax() {
+        return nonHeapMax;
+    }
+
+    public void setNonHeapMax(long nonHeapMax) {
+        this.nonHeapMax = nonHeapMax;
+    }
+
+    public double getJvmCpuUsage() {
+        return jvmCpuUsage;
+    }
+
+    public void setJvmCpuUsage(double jvmCpuUsage) {
+        this.jvmCpuUsage = jvmCpuUsage;
+    }
+
+    public double getSystemCpuUsage() {
+        return systemCpuUsage;
+    }
+
+    public void setSystemCpuUsage(double systemCpuUsage) {
+        this.systemCpuUsage = systemCpuUsage;
+    }
+
+    public int getTps() {
+        return tps;
+    }
+
+    public void setTps(int tps) {
+        this.tps = tps;
+    }
+
+    @Override
+    public String toString() {
+        return "AgentStat [agentId=" + agentId + ", timestamp=" + timestamp + ", tps=" + tps + "]";
+    }
+
 }

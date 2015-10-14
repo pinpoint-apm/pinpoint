@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.linechart;
 
+import static org.apache.commons.lang3.math.NumberUtils.INTEGER_ZERO;
 import static org.apache.commons.lang3.math.NumberUtils.LONG_ZERO;
 import static org.apache.commons.lang3.math.NumberUtils.DOUBLE_ZERO;
 
@@ -24,12 +25,11 @@ import java.util.Collections;
 
 import org.apache.commons.collections.CollectionUtils;
 
-
 /**
  * Down samples consecutive data points, such as a time-series dataset.
  * 
  * @author harebox
- * @author hyungil.jeong
+ * @author HyunGil Jeong
  */
 public class DownSamplers {
 
@@ -41,6 +41,14 @@ public class DownSamplers {
     }
 
     static class Min implements DownSampler {
+
+        @Override
+        public int sampleInt(Collection<Integer> values) {
+            if (CollectionUtils.isEmpty(values)) {
+                return INTEGER_ZERO;
+            }
+            return Collections.min(values);
+        }
 
         @Override
         public long sampleLong(Collection<Long> values) {
@@ -63,6 +71,14 @@ public class DownSamplers {
     static class Max implements DownSampler {
 
         @Override
+        public int sampleInt(Collection<Integer> values) {
+            if (CollectionUtils.isEmpty(values)) {
+                return INTEGER_ZERO;
+            }
+            return Collections.max(values);
+        }
+
+        @Override
         public long sampleLong(Collection<Long> values) {
             if (CollectionUtils.isEmpty(values)) {
                 return LONG_ZERO;
@@ -77,20 +93,37 @@ public class DownSamplers {
             }
             return Collections.max(values);
         }
+
     }
 
     static class Avg implements DownSampler {
 
         @Override
+        public int sampleInt(Collection<Integer> values) {
+            if (CollectionUtils.isEmpty(values)) {
+                return INTEGER_ZERO;
+            }
+            double avg = 0;
+            int cnt = 1;
+            for (int value : values) {
+                avg += (value - avg) / cnt;
+                ++cnt;
+            }
+            return (int)Math.round(avg);
+        }
+
+        @Override
         public long sampleLong(Collection<Long> values) {
             if (CollectionUtils.isEmpty(values)) {
                 return LONG_ZERO;
             }
-            long total = 0L;
+            double avg = 0;
+            int cnt = 1;
             for (long value : values) {
-                total += value;
+                avg += (value - avg) / cnt;
+                ++cnt;
             }
-            return total / values.size();
+            return (long)Math.round(avg);
         }
 
         @Override
@@ -98,12 +131,15 @@ public class DownSamplers {
             if (CollectionUtils.isEmpty(values)) {
                 return DOUBLE_ZERO;
             }
-            double total = 0D;
+            double avg = 0;
+            int cnt = 1;
             for (double value : values) {
-                total += value;
+                avg += (value - avg) / cnt;
+                ++cnt;
             }
-            return total / values.size();
+            return avg;
         }
+
     }
 
 }

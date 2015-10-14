@@ -22,57 +22,130 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 
 import com.navercorp.pinpoint.common.bo.AgentStatCpuLoadBo;
 import com.navercorp.pinpoint.common.bo.AgentStatMemoryGcBo;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
 import com.navercorp.pinpoint.web.vo.AgentStat;
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.thrift.TDeserializer;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
 /**
  * @author harebox
- * @author hyungil.jeong
+ * @author HyunGil Jeong
  */
 @Component
 public class AgentStatMapper implements RowMapper<List<AgentStat>> {
 
     private TProtocolFactory factory = new TCompactProtocol.Factory();
 
+    @Autowired
+    @Qualifier("agentStatRowKeyDistributor")
+    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+
     public List<AgentStat> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
+        final byte[] rowKey = getOriginalKey(result.getRow());
+        final String agentId = BytesUtils.toString(rowKey, 0, AGENT_NAME_MAX_LEN).trim();
+        final long reverseTimestamp = BytesUtils.bytesToLong(rowKey, AGENT_NAME_MAX_LEN);
+        final long timestamp = TimeUtils.recoveryTimeMillis(reverseTimestamp);
+        
 
-        Map<byte[], byte[]> qualifierMap = result.getFamilyMap(AGENT_STAT_CF_STATISTICS);
-        // FIXME (2014.08) Legacy support for TAgentStat Thrift DTO stored directly into hbase.
+        NavigableMap<byte[], byte[]> qualifierMap = result.getFamilyMap(AGENT_STAT_CF_STATISTICS);
         if (qualifierMap.containsKey(AGENT_STAT_CF_STATISTICS_V1)) {
-            return readAgentStatThriftDto(qualifierMap.get(AGENT_STAT_CF_STATISTICS_V1));
+            // FIXME (2014.08) Legacy support for TAgentStat Thrift DTO stored directly into hbase.
+            return readAgentStatThriftDto(agentId, timestamp, qualifierMap.get(AGENT_STAT_CF_STATISTICS_V1));
+        } else if (qualifierMap.containsKey(AGENT_STAT_CF_STATISTICS_MEMORY_GC) || qualifierMap.containsKey(AGENT_STAT_CF_STATISTICS_CPU_LOAD)) {
+            // FIXME (2015.10) Legacy column for storing serialzied Bos separately.
+            return readSerializedBos(agentId, timestamp, qualifierMap);
         }
-
-        AgentStat agentStat = new AgentStat();
-        if (qualifierMap.containsKey(AGENT_STAT_CF_STATISTICS_MEMORY_GC)) {
-            AgentStatMemoryGcBo.Builder builder = new AgentStatMemoryGcBo.Builder(qualifierMap.get(AGENT_STAT_CF_STATISTICS_MEMORY_GC));
-            agentStat.setMemoryGc(builder.build());
+        
+        AgentStat agentStat = new AgentStat(agentId, timestamp);
+        if (qualifierMap.containsKey(AGENT_STAT_CF_STATISTICS_COL_GC_TYPE)) {
+            agentStat.setGcType(Bytes.toString(qualifierMap.get(AGENT_STAT_CF_STATISTICS_COL_GC_TYPE)));
         }
-        if (qualifierMap.containsKey(AGENT_STAT_CF_STATISTICS_CPU_LOAD)) {
-            AgentStatCpuLoadBo.Builder builder = new AgentStatCpuLoadBo.Builder(qualifierMap.get(AGENT_STAT_CF_STATISTICS_CPU_LOAD));
-            agentStat.setCpuLoad(builder.build());
+        if (qualifierMap.containsKey(AGENT_STAT_CF_STATISTICS_COL_GC_OLD_COUNT)) {
+            agentStat.setGcOldCount(Bytes.toLong(qualifierMap.get(AGENT_STAT_CF_STATISTICS_COL_GC_OLD_COUNT)));
         }
+        if (qualifierMap.containsKey(AGENT_STAT_CF_STATISTICS_COL_GC_OLD_TIME)) {
+            agentStat.setGcOldTime(Bytes.toLong(qualifierMap.get(AGENT_STAT_CF_STATISTICS_COL_GC_OLD_TIME)));
+        }
+        if (qualifierMap.containsKey(AGENT_STAT_CF_STATISTICS_COL_HEAP_USED)) {
+            agentStat.setHeapUsed(Bytes.toLong(qualifierMap.get(AGENT_STAT_CF_STATISTICS_COL_HEAP_USED)));
+        }
+        if (qualifierMap.containsKey(AGENT_STAT_CF_STATISTICS_COL_HEAP_MAX)) {
+            agentStat.setHeapMax(Bytes.toLong(qualifierMap.get(AGENT_STAT_CF_STATISTICS_COL_HEAP_MAX)));
+        }
+        if (qualifierMap.containsKey(AGENT_STAT_CF_STATISTICS_COL_NON_HEAP_USED)) {
+            agentStat.setNonHeapUsed(Bytes.toLong(qualifierMap.get(AGENT_STAT_CF_STATISTICS_COL_NON_HEAP_USED)));
+        }
+        if (qualifierMap.containsKey(AGENT_STAT_CF_STATISTICS_COL_NON_HEAP_MAX)) {
+            agentStat.setNonHeapMax(Bytes.toLong(qualifierMap.get(AGENT_STAT_CF_STATISTICS_COL_NON_HEAP_MAX)));
+        }
+        if (qualifierMap.containsKey(AGENT_STAT_CF_STATISTICS_COL_JVM_CPU)) {
+            agentStat.setJvmCpuUsage(Bytes.toDouble(qualifierMap.get(AGENT_STAT_CF_STATISTICS_COL_JVM_CPU)));
+        }
+        if (qualifierMap.containsKey(AGENT_STAT_CF_STATISTICS_COL_SYS_CPU)) {
+            agentStat.setSystemCpuUsage(Bytes.toDouble(qualifierMap.get(AGENT_STAT_CF_STATISTICS_COL_SYS_CPU)));
+        }
+        if (qualifierMap.containsKey(AGENT_STAT_CF_STATISTICS_COL_TPS)) {
+            agentStat.setTps(Bytes.toInt(qualifierMap.get(AGENT_STAT_CF_STATISTICS_COL_TPS)));
+        }
+        
         List<AgentStat> agentStats = new ArrayList<AgentStat>();
         agentStats.add(agentStat);
         return agentStats;
     }
 
+    private byte[] getOriginalKey(byte[] rowKey) {
+        return rowKeyDistributorByHashPrefix.getOriginalKey(rowKey);
+    }
+
+    // FIXME (2015.10) Legacy column for storing serialzied Bos separately.
+    @Deprecated
+    private List<AgentStat> readSerializedBos(String agentId, long timestamp, Map<byte[], byte[]> qualifierMap) {
+        AgentStat agentStat = new AgentStat(agentId, timestamp);
+        if (qualifierMap.containsKey(AGENT_STAT_CF_STATISTICS_MEMORY_GC)) {
+            AgentStatMemoryGcBo.Builder builder = new AgentStatMemoryGcBo.Builder(qualifierMap.get(AGENT_STAT_CF_STATISTICS_MEMORY_GC));
+            AgentStatMemoryGcBo agentStatMemoryGcBo = builder.build();
+            agentStat.setGcType(agentStatMemoryGcBo.getGcType());
+            agentStat.setGcOldCount(agentStatMemoryGcBo.getJvmGcOldCount());
+            agentStat.setGcOldTime(agentStatMemoryGcBo.getJvmGcOldTime());
+            agentStat.setHeapUsed(agentStatMemoryGcBo.getJvmMemoryHeapUsed());
+            agentStat.setHeapMax(agentStatMemoryGcBo.getJvmMemoryHeapMax());
+            agentStat.setNonHeapUsed(agentStatMemoryGcBo.getJvmMemoryNonHeapUsed());
+            agentStat.setNonHeapMax(agentStatMemoryGcBo.getJvmMemoryNonHeapMax());
+        }
+        if (qualifierMap.containsKey(AGENT_STAT_CF_STATISTICS_CPU_LOAD)) {
+            AgentStatCpuLoadBo.Builder builder = new AgentStatCpuLoadBo.Builder(qualifierMap.get(AGENT_STAT_CF_STATISTICS_CPU_LOAD));
+            AgentStatCpuLoadBo agentStatCpuLoadBo = builder.build();
+            agentStat.setJvmCpuUsage(agentStatCpuLoadBo.getJvmCpuLoad());
+            agentStat.setSystemCpuUsage(agentStatCpuLoadBo.getSystemCpuLoad());
+        }
+        List<AgentStat> result = new ArrayList<AgentStat>(1);
+        result.add(agentStat);
+        return result;
+    }
+
     // FIXME (2014.08) Legacy support for TAgentStat Thrift DTO stored directly into hbase.
-    private List<AgentStat> readAgentStatThriftDto(byte[] tAgentStatByteArray) throws TException {
+    @Deprecated
+    private List<AgentStat> readAgentStatThriftDto(String agentId, long timestamp, byte[] tAgentStatByteArray) throws TException {
         // CompactProtocol used
         TDeserializer deserializer = new TDeserializer(factory);
         TAgentStat tAgentStat = new TAgentStat();
@@ -90,8 +163,15 @@ public class AgentStatMapper implements RowMapper<List<AgentStat>> {
         memoryGcBoBuilder.jvmGcOldCount(gc.getJvmGcOldCount());
         memoryGcBoBuilder.jvmGcOldTime(gc.getJvmGcOldTime());
 
-        AgentStat agentStat = new AgentStat();
-        agentStat.setMemoryGc(memoryGcBoBuilder.build());
+        AgentStat agentStat = new AgentStat(agentId, timestamp);
+        AgentStatMemoryGcBo agentStatMemoryGcBo = memoryGcBoBuilder.build();
+        agentStat.setGcType(agentStatMemoryGcBo.getGcType());
+        agentStat.setGcOldCount(agentStatMemoryGcBo.getJvmGcOldCount());
+        agentStat.setGcOldTime(agentStatMemoryGcBo.getJvmGcOldTime());
+        agentStat.setHeapUsed(agentStatMemoryGcBo.getJvmMemoryHeapUsed());
+        agentStat.setHeapMax(agentStatMemoryGcBo.getJvmMemoryHeapMax());
+        agentStat.setNonHeapUsed(agentStatMemoryGcBo.getJvmMemoryNonHeapUsed());
+        agentStat.setNonHeapMax(agentStatMemoryGcBo.getJvmMemoryNonHeapMax());
 
         List<AgentStat> result = new ArrayList<AgentStat>(1);
         result.add(agentStat);

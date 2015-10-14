@@ -80,6 +80,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
 
 
         Scan scan = createScan(agentId, range);
+        scan.addFamily(HBaseTables.AGENT_STAT_CF_STATISTICS);
 
         List<List<AgentStat>> intermediate = hbaseOperations2.find(HBaseTables.AGENT_STAT, scan, rowKeyDistributor, agentStatMapper);
 
