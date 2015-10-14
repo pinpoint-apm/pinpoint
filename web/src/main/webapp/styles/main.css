@@ -234,7 +234,7 @@ canvas {outline:none}
 }
 
 .realtime {
-	left: 1%;
+	left: 6px;
 	width: 98%;
 	height: 180px;
 	border: 2px solid #64a71a;
@@ -288,7 +288,7 @@ canvas {outline:none}
 	float: left;
 	width: 120px;
 	height: 70px;
-	margin: 1px 2px 1px 4px;
+	margin: 1px 2px 4px 4px;
 	box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.75);
 	border-radius: 4px 4px 0px 0px;
 	background-color: #FFF;
@@ -333,5 +333,19 @@ canvas {outline:none}
 }
 .realtime .agent-chart-list text {
 	font-size: 8px;
+}
+.realtime .critical-error {
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	text-align: center;
+	background-color: rgba(200, 200, 200, 0.9);
+}
+.realtime .critical-error h4 {
+	color: red;
+	padding-top: 40px;
+	font-weight: bold;
 }
 
