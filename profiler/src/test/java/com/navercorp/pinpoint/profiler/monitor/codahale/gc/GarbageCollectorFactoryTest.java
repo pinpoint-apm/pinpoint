@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.codahale.gc;
 
+import com.navercorp.pinpoint.profiler.context.TestableTransactionCounter;
 import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
 import com.navercorp.pinpoint.profiler.monitor.codahale.gc.GarbageCollector;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
@@ -30,7 +31,7 @@ public class GarbageCollectorFactoryTest {
 
     @Test
     public void test() {
-        GarbageCollector collector = new AgentStatCollectorFactory().getGarbageCollector();
+        GarbageCollector collector = new AgentStatCollectorFactory(new TestableTransactionCounter()).getGarbageCollector();
 
         logger.debug("collector.getType():{}", collector);
         TJvmGc collect1 = collector.collect();

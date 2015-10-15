@@ -16,16 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.monitor.codahale.gc;
 
+import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollector;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
 
 /**
  * @author harebox
  * @author emeroad
+ * @author HyunGil Jeong
  */
-public interface GarbageCollector {
+public interface GarbageCollector extends AgentStatCollector<TJvmGc> {
 
     int getTypeCode();
-
-    TJvmGc collect();
 
 }

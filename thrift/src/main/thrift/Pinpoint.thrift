@@ -53,12 +53,17 @@ struct TCpuLoad {
     2: optional double       systemCpuLoad
 }
 
+struct TTransaction {
+    1: optional i32         tps
+}
+
 struct TAgentStat {
     1: optional string      agentId
     2: optional i64         startTimestamp
     3: optional i64         timestamp
     10: optional TJvmGc     gc
     20: optional TCpuLoad   cpuLoad
+    30: optional TTransaction   transaction
     200: optional string    metadata    
 }
 

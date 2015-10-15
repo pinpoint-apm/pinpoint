@@ -35,9 +35,21 @@ public final class HBaseTables {
 
     public static final String AGENT_STAT = "AgentStat";
     public static final byte[] AGENT_STAT_CF_STATISTICS = Bytes.toBytes("S"); // agent statistics column family
-    public static final byte[] AGENT_STAT_CF_STATISTICS_V1 = Bytes.toBytes("V1"); // qualifier
-    public static final byte[] AGENT_STAT_CF_STATISTICS_MEMORY_GC = Bytes.toBytes("Gc"); // qualifier for Heap Memory/Gc statistics
-    public static final byte[] AGENT_STAT_CF_STATISTICS_CPU_LOAD = Bytes.toBytes("Cpu"); // qualifier for CPU load statistics
+    // FIXME (2014.08) Legacy column for storing serialzied TAgentStat Thrift DTO.
+    @Deprecated public static final byte[] AGENT_STAT_CF_STATISTICS_V1 = Bytes.toBytes("V1"); // qualifier
+    // FIXME (2015.10) Legacy column for storing serialzied Bos separately.
+    @Deprecated public static final byte[] AGENT_STAT_CF_STATISTICS_MEMORY_GC = Bytes.toBytes("Gc"); // qualifier for Heap Memory/Gc statistics
+    @Deprecated public static final byte[] AGENT_STAT_CF_STATISTICS_CPU_LOAD = Bytes.toBytes("Cpu"); // qualifier for CPU load statistics
+    public static final byte[] AGENT_STAT_CF_STATISTICS_COL_GC_TYPE = Bytes.toBytes("gcT"); // qualifier for GC type
+    public static final byte[] AGENT_STAT_CF_STATISTICS_COL_GC_OLD_COUNT = Bytes.toBytes("gcOldC"); // qualifier for GC old count
+    public static final byte[] AGENT_STAT_CF_STATISTICS_COL_GC_OLD_TIME = Bytes.toBytes("gcOldT"); // qualifier for GC old time
+    public static final byte[] AGENT_STAT_CF_STATISTICS_COL_HEAP_USED = Bytes.toBytes("hpU"); // gualifier for heap used
+    public static final byte[] AGENT_STAT_CF_STATISTICS_COL_HEAP_MAX = Bytes.toBytes("hpM"); // qualifier for heap max
+    public static final byte[] AGENT_STAT_CF_STATISTICS_COL_NON_HEAP_USED = Bytes.toBytes("nHpU"); // qualifier for non-heap used
+    public static final byte[] AGENT_STAT_CF_STATISTICS_COL_NON_HEAP_MAX = Bytes.toBytes("nHpM"); // qualifier for non-heap max
+    public static final byte[] AGENT_STAT_CF_STATISTICS_COL_JVM_CPU = Bytes.toBytes("jvmCpu"); // qualifier for JVM CPU usage
+    public static final byte[] AGENT_STAT_CF_STATISTICS_COL_SYS_CPU = Bytes.toBytes("sysCpu"); // qualifier for system CPU usage
+    public static final byte[] AGENT_STAT_CF_STATISTICS_COL_TPS = Bytes.toBytes("tps"); // qualifier for tps
     public static final int AGENT_STAT_ROW_DISTRIBUTE_SIZE = 1; // agent statistics hash size
 
     public static final String TRACES = "Traces";

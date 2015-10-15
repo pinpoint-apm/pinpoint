@@ -18,12 +18,13 @@ package com.navercorp.pinpoint.web.vo.linechart;
 
 import java.util.Collection;
 
-
 /**
  * @author harebox
- * @author hyungil.jeong
+ * @author HyunGil Jeong
  */
 public interface DownSampler {
+
+    int sampleInt(Collection<Integer> values);
 
     long sampleLong(Collection<Long> values);
 
