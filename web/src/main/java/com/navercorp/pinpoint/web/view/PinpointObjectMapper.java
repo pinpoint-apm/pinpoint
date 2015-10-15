@@ -14,19 +14,40 @@
  */
 package com.navercorp.pinpoint.web.view;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.http.converter.json.SpringHandlerInstantiator;
 
 /**
  * @author Jongho Moon
  *
  */
-public class PinpointObjectMapper extends ObjectMapper implements InitializingBean {
+public class PinpointObjectMapper extends ObjectMapper implements InitializingBean, BeanFactoryAware {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private BeanFactory beanFactory;
     @Override
     public void afterPropertiesSet() throws Exception {
         registerModule(new JacksonPinpointModule());
+        if (beanFactory != null) {
+            if (beanFactory instanceof AutowireCapableBeanFactory) {
+                logger.debug("PinpointObjectMapper.setSpringHandlerInstantiator");
+                final SpringHandlerInstantiator hi = new SpringHandlerInstantiator((AutowireCapableBeanFactory) beanFactory);
+                this.setHandlerInstantiator(hi);
+            }
+        }
     }
 
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = beanFactory;
+    }
 }

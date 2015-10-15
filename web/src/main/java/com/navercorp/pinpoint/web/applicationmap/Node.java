@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * class for application in node map
@@ -49,8 +50,13 @@ public class Node {
     private NodeHistogram nodeHistogram;
 
     // temporary
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    @Deprecated
+    private static ObjectMapper MAPPER;
 
+    @Deprecated
+    static void setObjectMapper(ObjectMapper objectMapper) {
+        MAPPER = objectMapper;
+    }
 
     public Node(Application application) {
         if (application == null) {
@@ -86,6 +92,7 @@ public class Node {
         return serverInstanceList;
     }
 
+    @Deprecated
     @JsonIgnore
     public String getNodeJson() {
         try {
