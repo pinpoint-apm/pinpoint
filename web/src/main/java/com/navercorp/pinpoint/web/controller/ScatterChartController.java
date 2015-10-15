@@ -182,6 +182,49 @@ public class ScatterChartController {
                 list.add(dot);
             }
 
+            if(version == 4) {
+                TreeMap<Long, List<Dot>> sortedMap = new TreeMap<Long, List<Dot>>();
+                for(Dot dot : scatterData) {
+                    List<Dot> list = sortedMap.get(dot.getAcceptedTime());
+                    if(list == null) {
+                        list = new ArrayList<Dot>();
+                        sortedMap.put(dot.getAcceptedTime(), list);
+                    }
+                    list.add(dot);
+                }
+
+                // average
+                // max
+                // min
+
+                List<Dot> averageList = new ArrayList<Dot>();
+                List<Dot> maxList = new ArrayList<Dot>();
+                List<Dot> minList = new ArrayList<Dot>();
+                for(Map.Entry<Long, List<Dot>> entry : sortedMap.entrySet()) {
+                    Dot max = null;
+                    Dot min = null;
+                    int totalTime = 0;
+                    for(Dot dot : entry.getValue()) {
+                        if(max == null || dot.getElapsedTime() > max.getElapsedTime()) {
+                            max = dot;
+                        }
+
+                        if(min == null || dot.getElapsedTime() < min.getElapsedTime()) {
+                            min = dot;
+                        }
+
+                        totalTime += dot.getElapsedTime();
+                    }
+                    int averageTime = totalTime / entry.getValue().size();
+                    averageList.add(new Dot(new TransactionId("", 0, 0), entry.getKey(), averageTime, 0, ""));
+                    maxList.add(max);
+                    minList.add(min);
+                }
+                scatterAgentData.put("_#AverageAgent", averageList);
+                scatterAgentData.put("_#MaxAgent", maxList);
+                scatterAgentData.put("_#MinAgent", minList);
+            }
+
             mv.addObject("scatter", scatterAgentData);
         }
 
