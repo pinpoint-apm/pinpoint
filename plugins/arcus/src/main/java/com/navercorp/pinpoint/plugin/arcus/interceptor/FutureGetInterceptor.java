@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,36 +47,41 @@ public class FutureGetInterceptor extends SpanAsyncEventSimpleAroundInterceptor 
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordApi(methodDescriptor);
+        recorder.recordDestinationId("MEMCACHED");
+        recorder.recordServiceType(ArcusConstants.MEMCACHED_FUTURE_GET);
+
+        if (!(target instanceof OperationAccessor)) {
+            logger.info("operation not found");
+            return;
+        }
+
         // find the target node
-        final Operation op = ((OperationAccessor)target)._$PINPOINT$_getOperation();
-        if (op != null) {
-            MemcachedNode handlingNode = op.getHandlingNode();
-            if (handlingNode != null) {
-                SocketAddress socketAddress = handlingNode.getSocketAddress();
-                if (socketAddress instanceof InetSocketAddress) {
-                    InetSocketAddress address = (InetSocketAddress) socketAddress;
-                    recorder.recordEndPoint(address.getHostName() + ":" + address.getPort());
-                }
-            } else {
-                logger.info("no handling node");
+        final Operation op = ((OperationAccessor) target)._$PINPOINT$_getOperation();
+        if (op == null) {
+            logger.info("operation is null");
+            return;
+        }
+
+        recorder.recordException(op.getException());
+        MemcachedNode handlingNode = op.getHandlingNode();
+        if (handlingNode != null) {
+            SocketAddress socketAddress = handlingNode.getSocketAddress();
+            if (socketAddress instanceof InetSocketAddress) {
+                InetSocketAddress address = (InetSocketAddress) socketAddress;
+                recorder.recordEndPoint(address.getHostName() + ":" + address.getPort());
             }
         } else {
-            logger.info("operation not found");
+            logger.info("no handling node");
         }
 
-        // determine the service type
-        String serviceCode = ((ServiceCodeAccessor)op)._$PINPOINT$_getServiceCode();
-        if (serviceCode != null) {
-            recorder.recordDestinationId(serviceCode);
-            recorder.recordServiceType(ArcusConstants.ARCUS_FUTURE_GET);
-        } else {
-            recorder.recordDestinationId("MEMCACHED");
-            recorder.recordServiceType(ArcusConstants.MEMCACHED_FUTURE_GET);
+        if (op instanceof ServiceCodeAccessor) {
+            // determine the service type
+            String serviceCode = ((ServiceCodeAccessor) op)._$PINPOINT$_getServiceCode();
+            if (serviceCode != null) {
+                recorder.recordDestinationId(serviceCode);
+                recorder.recordServiceType(ArcusConstants.ARCUS_FUTURE_GET);
+            }
         }
-
-        if (op != null) {
-            recorder.recordException(op.getException());
-        }
-        recorder.recordApi(methodDescriptor);
     }
 }

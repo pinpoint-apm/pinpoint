@@ -92,9 +92,10 @@ public class TomcatPlugin implements ProfilerPlugin {
                 InstrumentClass target = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
                 if (target != null) {
                     target.weave("com.navercorp.pinpoint.plugin.tomcat.aspect.RequestFacadeAspect");
+                    return target.toBytecode();
                 }
 
-                return target.toBytecode();
+                return null;
             }
         });
     }
