@@ -313,6 +313,7 @@
 	            	scope.$on('realtimeChartDirective.onError.' + namespace, function (event, errorMessage, timeStamp, maxY) {
 	            		sumOfMaxY = maxY;
 	            		errorLabel.text( errorMessage );
+	            		aRealTimeData.push( aInnerStack[aInnerStack.length - 1] );
 	            	});
 	            	scope.$on('realtimeChartDirective.clear.' + namespace, function (event, aNewRequestCount, timeStamp) {
 	            		aRealTimeData.length = 0;

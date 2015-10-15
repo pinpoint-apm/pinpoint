@@ -8,33 +8,42 @@
 	 * @class
 	 */
 	pinpointApp.constant('RealtimeChartCtrlConfig', {
-		wsUrl: "/agent/activeThread.pinpointws",
+//		wsUrl: "/agent/activeThread.pinpointws",
+//		wsTimeout: 10000, //ms
+		keys: {
+			CODE: "code",
+			STATUS: "status",
+			MESSAGE: "message",
+			TIME_STAMP: "timeStamp",
+			APPLICATION_NAME: "applicationName",
+			ACTIVE_THREAD_COUNTS: "activeThreadCounts"
+		},
 		agentChartTemplate: '<div class="agent-chart"><div></div></div>',
 		chartDirectiveTemplate: Handlebars.compile( '<realtime-chart-directive chart-color="{{chartColor}}" xcount="{{xAxisCount}}" show-extra-info="{{showExtraInfo}}" request-label="requestLabelNames" namespace="{{namespace}}" width="{{width}}" height="{{height}}"></realtime-chart-directive>' )
 	});
 	
-	pinpointApp.controller('RealtimeChartCtrl', ['RealtimeChartCtrlConfig', '$scope', '$element', '$rootScope', '$compile', '$window', 'globalConfig',
-	    function (cfg, $scope, $element, $rootScope, $compile, $window, globalConfig) {
+	pinpointApp.controller('RealtimeChartCtrl', ['RealtimeChartCtrlConfig', '$scope', '$element', '$rootScope', '$compile', '$window', 'globalConfig', 'RealtimeWebsocketService',
+	    function (cfg, $scope, $element, $rootScope, $compile, $window, globalConfig, websocketService) {
 	    	
+			//@TODO will move to preference-service 
 			var X_AXIS_COUNT = 10;
 	    	var RECEIVE_SUCCESS = 0;
 	    	
 			var $elSumChartWrapper = $element.find("div.agent-sum-chart");
 	    	var $elAgentChartListWrapper = $element.find("div.agent-chart-list");
-	    	var bWebsocketOpened = false;
-	    	var websocket = null;
-	    	var aSumChartData = [0];
 	    	var aAgentChartElementList = [];
 	    	var oNamespaceToIndexMap = {};
+	    	var aSumChartData = [0];
 	    	var screenState = "small";
 	    	
+	    	$scope.hasCriticalError = false;
 	    	$scope.showRealtimeChart = false;
 	    	$scope.sumChartColor 	= ["rgba(44, 160, 44, 1)", 	"rgba(60, 129, 250, 1)", 	"rgba(248, 199, 49, 1)", 	"rgba(246, 145, 36, 1)" ];
 	    	$scope.agentChartColor 	= ["rgba(44, 160, 44, .8)", "rgba(60, 129, 250, .8)", 	"rgba(248, 199, 49, .8)", 	"rgba(246, 145, 36, .8)"];
 	    	$scope.requestLabelNames= [ "Fast", "Normal", "Slow", "Very Slow"];
 	    	$scope.currentAgentCount = 0;
 	    	$scope.currentApplicationName = "";
-	        
+	    	
 	    	function getInitChartData( len ) {
     	    	var a = [];
     	        for( var i = 0 ; i < $scope.sumChartColor.length ; i++ ) {
@@ -43,14 +52,17 @@
     	        return a;
     	    }
 	    	function initChartDirective() {
-	    		$elSumChartWrapper.append( $compile( cfg.chartDirectiveTemplate({
-	    			"chartColor": "sumChartColor",
-	    			"xAxisCount": X_AXIS_COUNT,
-	    			"namespace": "sum",
-	    			"showExtraInfo": "true",
-	    			"height": 120,
-	    			"width": 260
-	    		}))($scope) );
+	    		if ( hasAgentChart( "sum" ) === false ) {
+		    		$elSumChartWrapper.append( $compile( cfg.chartDirectiveTemplate({
+		    			"chartColor": "sumChartColor",
+		    			"xAxisCount": X_AXIS_COUNT,
+		    			"namespace": "sum",
+		    			"showExtraInfo": "true",
+		    			"height": 120,
+		    			"width": 260
+		    		}))($scope) );
+		    		oNamespaceToIndexMap["sum"] = -1;
+	    		}
 	    	}
 	    	function hasAgentChart( agentName ) {
 	    		return angular.isDefined( oNamespaceToIndexMap[agentName] );
@@ -69,53 +81,47 @@
 	    		linkNamespaceToIndex( agentName, aAgentChartElementList.length );
 	    		aAgentChartElementList.push( $newAgentChart );
 	    	}
-	        function initWS() {
-	        	websocket = null;
-	        	if ( angular.isDefined( WebSocket ) ) {
-		    		websocket = new WebSocket("ws://" + location.host + cfg.wsUrl);
-		    		websocket.onopen = function(event) {
-		    			console.log( "onOpen websocket", event);
-		            	bWebsocketOpened = true;
-		            	send();
-		            };
-		            websocket.onmessage = function(event) {
-		            	receive( JSON.parse( event.data ) );
-		            };
-		            websocket.onclose = function(event) {
-		            	console.log( "onClose websocket", event);
-		            	bWebsocketOpened = false;
-		            	websocket = null;
-//		            	@TODO
-//		            	if ( $scope.showRealtimeChart === true ) {
-//		            		//reinit
-//		            	}
-		            };                    	
-		            initChartDirective();
+	        function initSend() {
+	        	var bConnected = websocketService.open({
+	        		onopen: function(event) {
+	        			startReceive();
+	        		},
+	        		onmessage: function(data) {
+		            	receive( data );
+	        		},
+	        		onclose: function(event) {
+	        			$scope.$apply(function() {
+		            		$scope.hasCriticalError = true;
+		            	});
+	        		},
+	        		ondelay: function() {
+	        			websocketService.close();
+	        		}
+	        	});
+	        	if ( bConnected ) {
+	        		initChartDirective();
 	        	}
 	        }
 	        function receive( data ) {
-	        	if ( angular.isUndefined( data[$scope.currentApplicationName] ) ) return;
+	        	if ( data[cfg.keys.APPLICATION_NAME] !== $scope.currentApplicationName ) return;
 	        	
-	        	var applicationData = data[$scope.currentApplicationName];
+	        	var applicationData = data[cfg.keys.ACTIVE_THREAD_COUNTS];
 	        	var aRequestSum = getSumOfRequestType( applicationData );
 	        	addSumYValue( aRequestSum );
 	        	
-	        	broadcastData( applicationData, aRequestSum );
-	        	
+	        	broadcastData( applicationData, aRequestSum, data[cfg.keys.TIME_STAMP] );
 	        }
-	        function broadcastData( applicationData, aRequestSum ) {
+	        function broadcastData( applicationData, aRequestSum, timeStamp ) {
 	        	var maxY = getMaxOfYValue();
 	        	var agentIndexAndCount = 0;
-	        	var timeStamp;
 	        	
 	        	for( var agentName in applicationData ) {
 	        		checkAgentChart( agentName, agentIndexAndCount );
 	        		
-	        		timeStamp = applicationData[agentName].timeStamp;	        		
-	        		if ( applicationData[agentName].code === RECEIVE_SUCCESS ) {
-	        			$rootScope.$broadcast('realtimeChartDirective.onData.' + oNamespaceToIndexMap[agentName], applicationData[agentName].status, timeStamp, maxY );
+	        		if ( applicationData[agentName][cfg.keys.CODE] === RECEIVE_SUCCESS ) {
+	        			$rootScope.$broadcast('realtimeChartDirective.onData.' + oNamespaceToIndexMap[agentName], applicationData[agentName][cfg.keys.STATUS], timeStamp, maxY );
 	        		} else {
-	        			$rootScope.$broadcast('realtimeChartDirective.onError.' + oNamespaceToIndexMap[agentName], applicationData[agentName].message, timeStamp, maxY );
+	        			$rootScope.$broadcast('realtimeChartDirective.onError.' + oNamespaceToIndexMap[agentName], applicationData[agentName][cfg.keys.MESSAGE], timeStamp, maxY );
 	        		}
 	        		
 	        		showAgentChart( agentIndexAndCount );
@@ -152,8 +158,8 @@
 	        function getSumOfRequestType( datum ) {
 	        	var aRequestSum = [0, 0, 0, 0];
 	        	for( var p in datum ) {
-	        		if ( datum[p].code === RECEIVE_SUCCESS ) {
-	        			jQuery.each(datum[p].status, function( i, v ) {
+	        		if ( datum[p][cfg.keys.CODE] === RECEIVE_SUCCESS ) {
+	        			jQuery.each(datum[p][cfg.keys.STATUS], function( i, v ) {
 	        				aRequestSum[i] += v;
 	        			});
 	        		}
@@ -173,23 +179,22 @@
 	                return d;
 	            });
     	    }
-	        function send() {
-	        	websocket.send("applicationName=" + $scope.currentApplicationName);
+	        function startReceive() {
+	        	websocketService.send("applicationName=" + $scope.currentApplicationName);
 	        }
-	        function startWS( applicationName ) {
-	        	$scope.currentApplicationName = applicationName;
-	        	if ( bWebsocketOpened === false || websocket == null) {
-	        		initWS();
+	        function initReceive() {
+	        	if ( websocketService.isOpened() == false ) {
+	        		initSend();
 	        	} else {
-	        		send();
+	        		startReceive();
 	        	}
 	        	$scope.$apply(function() {
 	        		$scope.showRealtimeChart = true;
 	        	});
 	        }
-	        function stopWS() {
+	        function stopReceive() {
 	        	$scope.showRealtimeChart = false;
-	        	websocket.send("applicationName=");
+        		websocketService.stopReceive("applicationName=");
 	        }
 	        function stopChart() {
 	        	$rootScope.$broadcast('realtimeChartDirective.clear.sum');
@@ -197,7 +202,6 @@
 	        		$rootScope.$broadcast('realtimeChartDirective.clear.' + index);
 	        		el.hide();
 	        	});
-
 	        }
 	        
 	        $scope.$on('realtimeChartController.initialize', function (event, isWas, applicationName) {
@@ -208,9 +212,10 @@
 	        		if ( $scope.showRealtimeChart === true ) {
 	    	        	$scope.closePopup();	        			
 	        		} 
-	        		startWS( applicationName );
+	        		$scope.currentApplicationName = applicationName;
+	        		initReceive();
 	        	} else {
-	        		stopWS();
+	        		stopReceive();
 	        	}
 	        	
 	        });
@@ -235,10 +240,11 @@
 	        	}
 	        }
 	        $scope.closePopup = function() {
-	        	stopWS();
+	        	stopReceive();
 	        	stopChart();
 	        	$scope.currentApplicationName = "";
 	        	$scope.currentAgentCount = 0;
+	        	$scope.hasCriticalError = false;
 	        }			
 	    }
 	]);

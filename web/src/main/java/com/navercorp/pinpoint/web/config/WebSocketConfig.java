@@ -21,7 +21,7 @@ package com.navercorp.pinpoint.web.config;
 
 
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandler;
-import com.navercorp.pinpoint.web.websocket.WebSocketHandlerManager;
+import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandlerManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
@@ -41,7 +41,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
     private static final String WEBSOCKET_SUFFIX = ".pinpointws";
 
     @Autowired
-    private WebSocketHandlerManager handlerRepository;
+    private PinpointWebSocketHandlerManager handlerRepository;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {

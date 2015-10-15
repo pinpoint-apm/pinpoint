@@ -18,7 +18,7 @@
 
         <property name="testOnBorrow" value="false"/>
         <property name="testOnReturn" value="false"/>
-        <property name="testWhileIdle" value="false"/>
+        <property name="testWhileIdle" value="true"/>
 
         <property name="timeBetweenEvictionRunsMillis" value="30000"/>
         <property name="numTestsPerEvictionRun" value="6"/>

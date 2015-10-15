@@ -86,6 +86,14 @@ public class WebSocketResponseAggregator {
         }
     }
 
+    public void registerStreamMessageListener(String agentId, ActiveThreadCountStreamListener streamMessageListener) {
+        streamMessageListenerRepository.put(agentId, streamMessageListener);
+    }
+
+    public void unregisterStreamMessageListener(String agentId) {
+        streamMessageListenerRepository.remove(agentId);
+    }
+
     public ClientStreamChannelMessageListenerRepository<ActiveThreadCountStreamListener> getStreamMessageListenerRepository() {
         return streamMessageListenerRepository;
     }
@@ -132,7 +140,6 @@ public class WebSocketResponseAggregator {
                 logger.warn(e.getMessage(), e);
             }
         }
-
     }
 
     private String makeResponseMessage(String applicationName, AgentActiveThreadCountList activeThreadCount) {

@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class DefaultDynamicTransformerRegistry implements DynamicTrnasformerRegistry {
+public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegistry {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final ConcurrentMap<TransformerKey, ClassFileTransformer> transformerMap = new ConcurrentHashMap<TransformerKey, ClassFileTransformer>();

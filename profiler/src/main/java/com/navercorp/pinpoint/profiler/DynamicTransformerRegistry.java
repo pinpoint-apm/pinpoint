@@ -23,6 +23,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformRequestListen
 /**
  * @author emeroad
  */
-public interface DynamicTrnasformerRegistry extends DynamicTransformRequestListener {
-    public ClassFileTransformer getTransformer(ClassLoader classLoader, String targetClassName);
+public interface DynamicTransformerRegistry extends DynamicTransformRequestListener {
+    ClassFileTransformer getTransformer(ClassLoader classLoader, String targetClassName);
 }
