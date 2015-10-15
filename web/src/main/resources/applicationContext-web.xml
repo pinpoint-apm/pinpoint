@@ -57,6 +57,8 @@
     
     <bean id="jsonObjectMapper" class="com.navercorp.pinpoint.web.view.PinpointObjectMapper">
     </bean>
+    <bean id="nodeObjectMapperInitializer" class="com.navercorp.pinpoint.web.applicationmap.NodeObjectMapperInitializer">
+    </bean>
     
     <bean id="rangeFactory" class="com.navercorp.pinpoint.web.vo.RangeFactory">
     </bean>
