@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.web.service.FilteredMapService;
 import com.navercorp.pinpoint.web.service.ScatterChartService;
 import com.navercorp.pinpoint.web.util.LimitUtils;
 import com.navercorp.pinpoint.web.util.TimeUtils;
+import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.*;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.navercorp.pinpoint.web.vo.scatter.ScatterIndex;
@@ -183,12 +184,14 @@ public class ScatterChartController {
             }
 
             if(version == 4) {
+                TimeWindow timeWindow = new TimeWindow(range);
                 TreeMap<Long, List<Dot>> sortedMap = new TreeMap<Long, List<Dot>>();
                 for(Dot dot : scatterData) {
-                    List<Dot> list = sortedMap.get(dot.getAcceptedTime());
+                    long key = timeWindow.refineTimestamp(dot.getAcceptedTime());
+                    List<Dot> list = sortedMap.get(key);
                     if(list == null) {
                         list = new ArrayList<Dot>();
-                        sortedMap.put(dot.getAcceptedTime(), list);
+                        sortedMap.put(key, list);
                     }
                     list.add(dot);
                 }
@@ -196,7 +199,6 @@ public class ScatterChartController {
                 // average
                 // max
                 // min
-
                 List<Dot> averageList = new ArrayList<Dot>();
                 List<Dot> maxList = new ArrayList<Dot>();
                 List<Dot> minList = new ArrayList<Dot>();
@@ -217,8 +219,8 @@ public class ScatterChartController {
                     }
                     int averageTime = totalTime / entry.getValue().size();
                     averageList.add(new Dot(new TransactionId("", 0, 0), entry.getKey(), averageTime, 0, ""));
-                    maxList.add(max);
-                    minList.add(min);
+                    maxList.add(new Dot(new TransactionId(max.getTransactionId()), entry.getKey(), max.getElapsedTime(), max.getExceptionCode(), max.getAgentId()));
+                    minList.add(new Dot(new TransactionId(min.getTransactionId()), entry.getKey(), min.getElapsedTime(), min.getExceptionCode(), min.getAgentId()));
                 }
                 scatterAgentData.put("_#AverageAgent", averageList);
                 scatterAgentData.put("_#MaxAgent", maxList);
