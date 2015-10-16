@@ -35,6 +35,8 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class StreamChannelManager {
 
+    private static final LoggingStreamChannelStateChangeEventHandler LOGGING_STATE_CHANGE_HANDLER = new LoggingStreamChannelStateChangeEventHandler();
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Channel channel;
@@ -67,15 +69,25 @@ public class StreamChannelManager {
         }
     }
 
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) {
+        return openStream(payload, messageListener, LOGGING_STATE_CHANGE_HANDLER);
+    };
+
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) {
         logger.info("Open streamChannel initialization started. Channel:{} ", channel);
 
         final int streamChannelId = idGenerator.generate();
 
         ClientStreamChannel newStreamChannel = new ClientStreamChannel(channel, streamChannelId, this);
+
+        if (stateChangeListener != null) {
+            newStreamChannel.addStateChangeEventHandler(stateChangeListener);
+        } else {
+            newStreamChannel.addStateChangeEventHandler(LOGGING_STATE_CHANGE_HANDLER);
+        }
         newStreamChannel.changeStateOpen();
 
-        ClientStreamChannelContext newStreamChannelContext = new ClientStreamChannelContext(newStreamChannel, clientStreamChannelMessageListener);
+        ClientStreamChannelContext newStreamChannelContext = new ClientStreamChannelContext(newStreamChannel, messageListener);
 
         StreamChannelContext old = channelMap.put(streamChannelId, newStreamChannelContext);
         if (old != null) {

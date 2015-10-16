@@ -19,8 +19,10 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
@@ -36,8 +38,10 @@ import java.util.Map;
  */
 public interface AgentService {
 
+    AgentInfo getAgentInfo(String applicationName, String agentId);
     AgentInfo getAgentInfo(String applicationName, String agentId, long startTimeStamp);
     AgentInfo getAgentInfo(String applicationName, String agentId, long startTimeStamp, boolean checkDB);
+
     List<AgentInfo> getAgentInfoList(String applicationName);
 
     PinpointRouteResponse invoke(AgentInfo agentInfo, TBase<?, ?> tBase) throws TException;
@@ -50,8 +54,11 @@ public interface AgentService {
     Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, byte[] payload) throws TException;
     Map<AgentInfo, PinpointRouteResponse> invoke(List<AgentInfo> agentInfoList, byte[] payload, long timeout) throws TException;
 
-    ClientStreamChannelContext openStream(AgentInfo agentInfo, TBase<?, ?> tBase, ClientStreamChannelMessageListener clientStreamChannelMessageListener) throws TException;
-    ClientStreamChannelContext openStream(AgentInfo agentInfo, byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) throws TException;
+    ClientStreamChannelContext openStream(AgentInfo agentInfo, TBase<?, ?> tBase, ClientStreamChannelMessageListener messageListener) throws TException;
+    ClientStreamChannelContext openStream(AgentInfo agentInfo, TBase<?, ?> tBase, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) throws TException;
+
+    ClientStreamChannelContext openStream(AgentInfo agentInfo, byte[] payload, ClientStreamChannelMessageListener messageListener) throws TException;
+    ClientStreamChannelContext openStream(AgentInfo agentInfo, byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) throws TException;
 
     AgentActiveThreadCountList getActiveThreadCount(List<AgentInfo> agentInfoList) throws TException;
     AgentActiveThreadCountList getActiveThreadCount(List<AgentInfo> agentInfoList, byte[] payload) throws TException;

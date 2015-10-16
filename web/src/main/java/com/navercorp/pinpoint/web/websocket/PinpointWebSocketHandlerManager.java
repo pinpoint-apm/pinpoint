@@ -25,47 +25,42 @@ import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @Author Taejin Koo
  */
-public class PinpointWebSocketHandlerManager implements WebSocketHandlerManager {
+public class PinpointWebSocketHandlerManager {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final List<PinpointWebSocketHandler> webSocketHandlerRepository = new ArrayList<PinpointWebSocketHandler>();
+    private final List<PinpointWebSocketHandler> webSocketHandlerRepository;
 
-    private final PinpointThreadFactory threadFactory = new PinpointThreadFactory("WebSocket-Handler-Manager", true);
-
-    private final Timer timer;
-
-    public PinpointWebSocketHandlerManager() {
-        timer = TimerFactory.createHashedWheelTimer(threadFactory, 100, TimeUnit.MILLISECONDS, 512);
+    public PinpointWebSocketHandlerManager(List<PinpointWebSocketHandler> pinpointWebSocketHandlers) {
+        webSocketHandlerRepository = Collections.unmodifiableList(new ArrayList<PinpointWebSocketHandler>(pinpointWebSocketHandlers));
     }
 
-    @PreDestroy
-    public void destory() {
-        if (timer != null) {
-            timer.stop();
+    @PostConstruct
+    public void setUp() {
+        for (PinpointWebSocketHandler handler : webSocketHandlerRepository) {
+            handler.start();
         }
     }
 
-    @Override
-    public void register(PinpointWebSocketHandler handler) {
-        webSocketHandlerRepository.add(handler);
+    @PreDestroy
+    public void tearDown() {
+        for (PinpointWebSocketHandler handler : webSocketHandlerRepository) {
+            handler.stop();
+        }
     }
 
     public List<PinpointWebSocketHandler> getWebSocketHandlerRepository() {
         return new ArrayList<PinpointWebSocketHandler>(webSocketHandlerRepository);
-    }
-
-    @Override
-    public Timer getTimer() {
-        return timer;
     }
 
 }

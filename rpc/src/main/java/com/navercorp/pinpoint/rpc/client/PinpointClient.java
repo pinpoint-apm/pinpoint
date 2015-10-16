@@ -19,9 +19,7 @@ package com.navercorp.pinpoint.rpc.client;
 import com.navercorp.pinpoint.rpc.*;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.*;
 import com.navercorp.pinpoint.rpc.util.AssertUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,7 +113,6 @@ public class PinpointClient implements PinpointSocket {
         pinpointClientHandler.send(bytes);
     }
 
-
     @Override
     public Future<ResponseMessage> request(byte[] bytes) {
         if (pinpointClientHandler == null) {
@@ -136,11 +133,16 @@ public class PinpointClient implements PinpointSocket {
     }
 
     @Override
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) {
+        return openStream(payload, messageListener, null);
+    }
+
+    @Override
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) {
         // StreamChannel must be changed into interface in order to throw the StreamChannel that returns failure.
         // fow now throw just exception
         ensureOpen();
-        return pinpointClientHandler.openStream(payload, clientStreamChannelMessageListener);
+        return pinpointClientHandler.openStream(payload, messageListener, stateChangeListener);
     }
 
     @Override

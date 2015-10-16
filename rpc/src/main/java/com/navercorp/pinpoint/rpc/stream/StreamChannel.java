@@ -26,6 +26,7 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -45,20 +46,27 @@ public abstract class StreamChannel {
     private final StreamChannelState state;
     private final CountDownLatch openLatch = new CountDownLatch(1);
 
-    private final List<StreamChannelStateChangeEventHandler> stateChangeEventHandlers = new CopyOnWriteArrayList<StreamChannelStateChangeEventHandler>();
+    private List<StreamChannelStateChangeEventHandler> stateChangeEventHandlers = new CopyOnWriteArrayList<StreamChannelStateChangeEventHandler>();
 
     public StreamChannel(Channel channel, int streamId, StreamChannelManager streamChannelManager) {
         this.channel = channel;
         this.streamChannelId = streamId;
         this.streamChannelManager = streamChannelManager;
 
-        stateChangeEventHandlers.add(new LoggingStreamChannelStateChangeEventHandler());
-
         this.state = new StreamChannelState();
     }
 
     public void addStateChangeEventHandler(StreamChannelStateChangeEventHandler stateChangeEventHandler) {
         stateChangeEventHandlers.add(stateChangeEventHandler);
+    }
+
+    public void setStateChangeEventHandler(List<StreamChannelStateChangeEventHandler> stateChangeEventHandlers) {
+        this.stateChangeEventHandlers = stateChangeEventHandlers;
+    }
+
+
+    public List<StreamChannelStateChangeEventHandler> getStateChangeEventHandlers() {
+        return new ArrayList<StreamChannelStateChangeEventHandler>(stateChangeEventHandlers);
     }
 
     boolean changeStateOpen() {

@@ -16,13 +16,10 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
+import com.navercorp.pinpoint.rpc.stream.*;
 import org.jboss.netty.channel.Channel;
 
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
-import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
 
 /**
  * @author Taejin Koo
@@ -46,8 +43,12 @@ public class PinpointClientHandlerContext {
         return channel;
     }
 
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
-        return streamChannelManager.openStream(payload, clientStreamChannelMessageListener);
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) {
+        return openStream(payload, messageListener, null);
+    }
+
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) {
+        return streamChannelManager.openStream(payload, messageListener, stateChangeListener);
     }
 
     public void handleStreamEvent(StreamPacket message) {
