@@ -120,7 +120,6 @@ public class ThreadDumpService implements ProfilerRequestCommandService {
             return Arrays.asList(getAllThreadInfo());
         }
 
-        ThreadInfo[] threadInfos = getAllThreadInfo();
         for (ThreadInfo threadIno : getAllThreadInfo()) {
             if (threadName.equals(threadIno.getThreadName())) {
                 result.add(threadIno);

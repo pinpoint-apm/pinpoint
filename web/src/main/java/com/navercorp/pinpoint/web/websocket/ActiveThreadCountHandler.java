@@ -34,7 +34,10 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -44,9 +47,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class ActiveThreadCountHandler extends TextWebSocketHandler implements PinpointWebSocketHandler {
 
+    private static final String DEFAULT_REQUEST_MAPPING = "/agent/activeThread";
+
     private static final String APPLICATION_NAME_KEY = "applicationName";
 
-    static final String DEFAULT_REQUEST_MAPPING = "/agent/activeThread";
+    private static final long DEFAULT_FLUSH_DELAY = 1000;
+
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Object lock = new Object();
@@ -54,9 +60,8 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     private final String requestMapping;
     private final AgentService agentSerivce;
     private final Timer timer;
+    private final long flushDelay;
 
-    // it will be changed.
-    private final long time = 1000;
     private final AtomicBoolean onTimerTask = new AtomicBoolean(false);
 
     private final List<WebSocketSession> sessionRepository = new CopyOnWriteArrayList<WebSocketSession>();
@@ -65,16 +70,21 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
     private final ObjectMapper jsonConverter = new ObjectMapper();
 
-    public ActiveThreadCountHandler(WebSocketHandlerRegister register, AgentService agentSerivce) {
-        this(register, DEFAULT_REQUEST_MAPPING, agentSerivce);
+    public ActiveThreadCountHandler(WebSocketHandlerManager webSocketHandlerManager, AgentService agentSerivce) {
+        this(webSocketHandlerManager, DEFAULT_REQUEST_MAPPING, agentSerivce);
     }
 
-    public ActiveThreadCountHandler(WebSocketHandlerRegister register, String requestMapping, AgentService agentSerivce) {
+    public ActiveThreadCountHandler(WebSocketHandlerManager webSocketHandlerManager, String requestMapping, AgentService agentSerivce) {
+        this(webSocketHandlerManager, requestMapping, agentSerivce, DEFAULT_FLUSH_DELAY);
+    }
+
+    public ActiveThreadCountHandler(WebSocketHandlerManager webSocketHandlerManager, String requestMapping, AgentService agentSerivce, long flushDelay) {
         this.requestMapping = requestMapping;
         this.agentSerivce = agentSerivce;
-        this.timer = register.getTimer();
+        this.timer = webSocketHandlerManager.getTimer();
+        this.flushDelay = flushDelay;
 
-        register.register(this);
+        webSocketHandlerManager.register(this);
     }
 
     @Override
@@ -90,7 +100,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
             sessionRepository.add(newSession);
             boolean turnOn = onTimerTask.compareAndSet(false, true);
             if (turnOn) {
-                timer.newTimeout(new ActiveThreadTimerTask(), time, TimeUnit.MILLISECONDS);
+                timer.newTimeout(new ActiveThreadTimerTask(), flushDelay, TimeUnit.MILLISECONDS);
             }
         }
 
@@ -172,8 +182,8 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
         aggregator.unregisterWebSocketSession(webSocketSession);
         if (aggregator.registeredWebSocketSessionCount() == 0) {
-            for (ActiveThreadCountStreamListener r : aggregator.getStreamMessageListenerRepository().values()) {
-                r.stop();
+            for (ActiveThreadCountStreamListener listener : aggregator.getStreamMessageListenerRepository().values()) {
+                listener.stop();
             }
 
             aggregatorRepository.remove(applicationName);
@@ -197,10 +207,11 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
                 }
             } finally {
                 if (timer != null && onTimerTask.get()) {
-                    timer.newTimeout(new ActiveThreadTimerTask(), time, TimeUnit.MILLISECONDS);
+                    timer.newTimeout(this, flushDelay, TimeUnit.MILLISECONDS);
                 }
             }
         }
+
     }
 
 }

@@ -29,18 +29,12 @@ import org.apache.thrift.protocol.TProtocolFactory;
  */
 public class CommandSerializer {
 
-    public static final SerializerFactory<HeaderTBaseSerializer> SERIALIZER_FACTORY;
-    public static final DeserializerFactory<HeaderTBaseDeserializer> DESERIALIZER_FACTORY;
+    public static final CommandHeaderTBaseSerializerFactory SERIALIZER_FACTORY;
+    public static final CommandHeaderTBaseDeserializerFactory DESERIALIZER_FACTORY;
 
     static {
-        TProtocolFactory protocolFactory = new TCompactProtocol.Factory();
-        TCommandRegistry commandTbaseRegistry = new TCommandRegistry(TCommandTypeVersion.getVersion(Version.VERSION));
-
-        SerializerFactory<HeaderTBaseSerializer> serializerFactory = new HeaderTBaseSerializerFactory(true, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE, protocolFactory, commandTbaseRegistry);
-        SERIALIZER_FACTORY = wrappedThreadLocalSerializerFactory(serializerFactory);
-
-        DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new HeaderTBaseDeserializerFactory(protocolFactory, commandTbaseRegistry);
-        DESERIALIZER_FACTORY = wrappedThreadLocalDeserializerFactory(deserializerFactory);
+        SERIALIZER_FACTORY = new CommandHeaderTBaseSerializerFactory(Version.VERSION);
+        DESERIALIZER_FACTORY = new CommandHeaderTBaseDeserializerFactory(Version.VERSION);
     }
 
     private static SerializerFactory<HeaderTBaseSerializer> wrappedThreadLocalSerializerFactory(SerializerFactory<HeaderTBaseSerializer> serializerFactory) {

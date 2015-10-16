@@ -19,40 +19,34 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
 import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import com.navercorp.pinpoint.collector.dao.AgentStatDao;
-import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
-import com.navercorp.pinpoint.common.bo.AgentStatCpuLoadBo;
-import com.navercorp.pinpoint.common.bo.AgentStatMemoryGcBo;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
+import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
+import com.navercorp.pinpoint.thrift.dto.TJvmGc;
+import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
+import com.navercorp.pinpoint.thrift.dto.TTransaction;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 
 /**
  * 
  * @author harebox
  * @author emeroad
- * @author hyungil.jeong
+ * @author HyunGil Jeong
  */
 @Repository
 public class HbaseAgentStatDao implements AgentStatDao {
 
     @Autowired
     private HbaseOperations2 hbaseTemplate;
-
-    @Autowired
-    @Qualifier("agentStatMemoryGcBoMapper")
-    private ThriftBoMapper<AgentStatMemoryGcBo, TAgentStat> agentStatMemoryGcBoMapper;
-
-    @Autowired
-    @Qualifier("agentStatCpuLoadBoMapper")
-    private ThriftBoMapper<AgentStatCpuLoadBo, TAgentStat> agentStatCpuLoadBoMapper;
 
     @Autowired
     @Qualifier("agentStatRowKeyDistributor")
@@ -62,18 +56,41 @@ public class HbaseAgentStatDao implements AgentStatDao {
         if (agentStat == null) {
             throw new NullPointerException("agentStat must not be null");
         }
+        Put put = createPut(agentStat);
+        hbaseTemplate.put(AGENT_STAT, put);
+    }
+    
+    private Put createPut(TAgentStat agentStat) {
         long timestamp = agentStat.getTimestamp();
         byte[] key = getDistributedRowKey(agentStat, timestamp);
 
         Put put = new Put(key);
-
-        final AgentStatMemoryGcBo agentStatMemoryGcBo = this.agentStatMemoryGcBoMapper.map(agentStat);
-        put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_MEMORY_GC, timestamp, agentStatMemoryGcBo.writeValue());
-
-        final AgentStatCpuLoadBo agentStatCpuLoadBo = this.agentStatCpuLoadBoMapper.map(agentStat);
-        put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_CPU_LOAD, timestamp, agentStatCpuLoadBo.writeValue());
-
-        hbaseTemplate.put(AGENT_STAT, put);
+        
+        // GC, Memory
+        if (agentStat.isSetGc()) {
+            TJvmGc gc = agentStat.getGc();
+            put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_COL_GC_TYPE, Bytes.toBytes(gc.getType().name()));
+            put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_COL_GC_OLD_COUNT, Bytes.toBytes(gc.getJvmGcOldCount()));
+            put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_COL_GC_OLD_TIME, Bytes.toBytes(gc.getJvmGcOldTime()));
+            put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_COL_HEAP_USED, Bytes.toBytes(gc.getJvmMemoryHeapUsed()));
+            put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_COL_HEAP_MAX, Bytes.toBytes(gc.getJvmMemoryHeapMax()));
+            put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_COL_NON_HEAP_USED, Bytes.toBytes(gc.getJvmMemoryNonHeapUsed()));
+            put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_COL_NON_HEAP_MAX, Bytes.toBytes(gc.getJvmMemoryNonHeapMax()));
+        } else {
+            put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_COL_GC_TYPE, Bytes.toBytes(TJvmGcType.UNKNOWN.name()));
+        }
+        // CPU
+        if (agentStat.isSetCpuLoad()) {
+            TCpuLoad cpuLoad = agentStat.getCpuLoad();
+            put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_COL_JVM_CPU, Bytes.toBytes(cpuLoad.getJvmCpuLoad()));
+            put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_COL_SYS_CPU, Bytes.toBytes(cpuLoad.getSystemCpuLoad()));
+        }
+        // Transaction
+        if (agentStat.isSetTransaction()) {
+            TTransaction transaction = agentStat.getTransaction();
+            put.addColumn(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_COL_TPS, Bytes.toBytes(transaction.getTps()));
+        }
+        return put;
     }
 
     /**

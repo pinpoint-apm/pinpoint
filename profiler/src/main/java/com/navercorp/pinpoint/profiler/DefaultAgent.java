@@ -25,6 +25,7 @@ import java.util.Set;
 import com.navercorp.pinpoint.profiler.receiver.service.ActiveThreadCountService;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.util.ClientFactoryUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +44,7 @@ import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
+import com.navercorp.pinpoint.profiler.context.TransactionCounter;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
 import com.navercorp.pinpoint.profiler.context.storage.BufferedStorageFactory;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorageFactory;
@@ -52,6 +54,7 @@ import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRe
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
+import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginContext;
 import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginLoader;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
@@ -191,7 +194,8 @@ public class DefaultAgent implements Agent {
         this.agentInfoSender = new AgentInfoSender(tcpDataSender, profilerConfig.getAgentInfoSendRetryInterval(), this.agentInformation);
         this.serverMetaDataHolder.addListener(this.agentInfoSender);
 
-        this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime());
+        AgentStatCollectorFactory agentStatCollectorFactory = new AgentStatCollectorFactory(this.getTransactionCounter(this.traceContext));
+        this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime(), agentStatCollectorFactory);
         
         InterceptorInvokerHelper.setPropagateException(profilerConfig.isPropagateInterceptorException());
     }
@@ -210,6 +214,13 @@ public class DefaultAgent implements Agent {
                 commandDispatcher.registerCommandService(new ActiveThreadService(activeTraceLocator));
             }
         }
+    }
+    
+    private TransactionCounter getTransactionCounter(TraceContext traceContext) {
+        if (traceContext instanceof DefaultTraceContext) {
+            return ((DefaultTraceContext) traceContext).getTransactionCounter();
+        }
+        return null;
     }
     
     public DynamicTransformService getDynamicTransformService() {

@@ -22,11 +22,15 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author emeroad
  */
 public class IdGenerator {
+    
+    public static final long INITIAL_TRANSACTION_ID = 0L;
+    public static final long INITIAL_DISABLE_ID = -1000L;
+    
     // Unique id for tracing a internal stacktrace and calculating a slow time of activethreadcount
     // moved here in order to make codes simpler for now
-    private final AtomicLong transactionId = new AtomicLong(0);
+    private final AtomicLong transactionId = new AtomicLong(INITIAL_TRANSACTION_ID);
     // -1 is DEFAULT_DISABLE_ID
-    private final AtomicLong disableId = new AtomicLong(-1000);
+    private final AtomicLong disableId = new AtomicLong(INITIAL_DISABLE_ID);
 
     public long nextTransactionId() {
         return this.transactionId.getAndIncrement();
@@ -34,5 +38,13 @@ public class IdGenerator {
 
     public long nextDisableId() {
         return this.disableId.getAndDecrement();
+    }
+    
+    public long currentTransactionId() {
+        return this.transactionId.get();
+    }
+    
+    public long currentDisabledId() {
+        return this.disableId.get();
     }
 }

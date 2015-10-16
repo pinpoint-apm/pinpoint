@@ -53,14 +53,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class ActiveThreadCountService implements ProfilerRequestCommandService, ProfilerStreamCommandService {
 
+    private static final long DEFAULT_FLUSH_DELAY = 1000;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Object lock = new Object();
 
-    // it will be changed.
     private final StreamChannelStateChangeEventHandler stateChangeEventHandler = new ActiveThreadCountStreamChannelStateChangeEventHandler();
     private final HashedWheelTimer timer = TimerFactory.createHashedWheelTimer("ActiveThreadCountService-Timer", 100, TimeUnit.MILLISECONDS, 512);
-    private final long time = 1000;
+    private final long flushDelay;
     private final AtomicBoolean onTimerTask = new AtomicBoolean(false);
 
     private final List<ServerStreamChannel> streamChannelRepository = new CopyOnWriteArrayList<ServerStreamChannel>();
@@ -80,13 +81,18 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
     private final HistogramSchema histogramSchema = HistogramSchema.NORMAL_SCHEMA;
 
     public ActiveThreadCountService(ActiveTraceLocator activeTraceLocator) {
+        this(activeTraceLocator, DEFAULT_FLUSH_DELAY);
+    }
+
+    public ActiveThreadCountService(ActiveTraceLocator activeTraceLocator, long flushDelay) {
         if (activeTraceLocator == null) {
             throw new NullPointerException("activeTraceLocator");
         }
         this.activeTraceLocator = activeTraceLocator;
         this.activeThreadSlotsCount = ACTIVE_THREAD_SLOTS_ORDER.size();
-    }
 
+        this.flushDelay = flushDelay;
+    }
 
     @Override
     public Class<? extends TBase> getCommandClazz() {
@@ -165,7 +171,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
                         streamChannelRepository.add(streamChannel);
                         boolean turnOn = onTimerTask.compareAndSet(false, true);
                         if (turnOn) {
-                            timer.newTimeout(new ActiveThreadCountTimerTask(), time, TimeUnit.MILLISECONDS);
+                            timer.newTimeout(new ActiveThreadCountTimerTask(), flushDelay, TimeUnit.MILLISECONDS);
                         }
                         break;
                     case CLOSED:
@@ -203,7 +209,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService, 
                 }
             } finally {
                 if (timer != null && onTimerTask.get()) {
-                    timer.newTimeout(this, time, TimeUnit.MILLISECONDS);
+                    timer.newTimeout(this, flushDelay, TimeUnit.MILLISECONDS);
                 }
             }
         }

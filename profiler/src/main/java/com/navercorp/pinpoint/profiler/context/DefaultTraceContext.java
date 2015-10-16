@@ -71,11 +71,15 @@ public class DefaultTraceContext implements TraceContext {
     private final SimpleCache<String> stringCache = new SimpleCache<String>();
 
     private ProfilerConfig profilerConfig;
-    
+
     private final ServerMetaDataHolder serverMetaDataHolder;
-    
+
     private final AtomicInteger asyncId = new AtomicInteger();
-    
+
+    private final IdGenerator idGenerator = new IdGenerator();
+
+    private final TransactionCounter transactionCounter = new DefaultTransactionCounter(this.idGenerator);
+
     // for test
     public DefaultTraceContext(final AgentInformation agentInformation) {
         this(LRUCache.DEFAULT_CACHE_SIZE, agentInformation, new LogStorageFactory(), new TrueSampler(), new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs()), TRACE_ACTIVE_THREAD);
@@ -102,7 +106,7 @@ public class DefaultTraceContext implements TraceContext {
 
     private TraceFactory createTraceFactory(StorageFactory storageFactory, Sampler sampler, boolean recordActiveThread) {
         // TODO extract chain TraceFactory??
-        final TraceFactory threadLocalTraceFactory = new ThreadLocalTraceFactory(this, storageFactory, sampler);
+        final TraceFactory threadLocalTraceFactory = new ThreadLocalTraceFactory(this, storageFactory, sampler, this.idGenerator);
         if (recordActiveThread) {
             ActiveTraceFactory activeTraceFactory = (ActiveTraceFactory) ActiveTraceFactory.wrap(threadLocalTraceFactory);
             return activeTraceFactory;
@@ -315,6 +319,10 @@ public class DefaultTraceContext implements TraceContext {
         } else {
             return null;
         }
+    }
+
+    public TransactionCounter getTransactionCounter() {
+        return this.transactionCounter;
     }
 
 }

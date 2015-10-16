@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.codahale;
 
+import com.navercorp.pinpoint.profiler.context.TransactionCounter;
 import com.navercorp.pinpoint.profiler.monitor.MonitorName;
 import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.CpuLoadCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.CpuLoadMetricSet;
@@ -25,6 +26,8 @@ import com.navercorp.pinpoint.profiler.monitor.codahale.gc.GarbageCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.gc.ParallelCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.gc.SerialCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.gc.UnknownGarbageCollector;
+import com.navercorp.pinpoint.profiler.monitor.codahale.tps.TransactionMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.codahale.tps.metric.TransactionMetricSet;
 
 import java.util.Collection;
 
@@ -44,11 +47,13 @@ public class AgentStatCollectorFactory {
     private final MetricMonitorRegistry monitorRegistry;
     private final GarbageCollector garbageCollector;
     private final CpuLoadCollector cpuLoadCollector;
+    private final TransactionMetricCollector transactionMetricCollector;
 
-    public AgentStatCollectorFactory() {
+    public AgentStatCollectorFactory(TransactionCounter transactionCounter) {
         this.monitorRegistry = createRegistry();
         this.garbageCollector = createGarbageCollector();
         this.cpuLoadCollector = createCpuLoadCollector();
+        this.transactionMetricCollector = createTransactionMetricCollector(transactionCounter);
     }
 
     private MetricMonitorRegistry createRegistry() {
@@ -91,12 +96,24 @@ public class AgentStatCollectorFactory {
         return new CpuLoadCollector(cpuLoadMetricSet);
     }
 
+    private TransactionMetricCollector createTransactionMetricCollector(TransactionCounter transactionCounter) {
+        TransactionMetricSet transactionMetricSet = this.monitorRegistry.registerTpsMonitor(new MonitorName(MetricMonitorValues.TRANSACTION), transactionCounter);
+        if (logger.isInfoEnabled()) {
+            logger.info("loaded : {}", transactionMetricSet);
+        }
+        return new TransactionMetricCollector(transactionMetricSet);
+    }
+
     public GarbageCollector getGarbageCollector() {
         return this.garbageCollector;
     }
 
     public CpuLoadCollector getCpuLoadCollector() {
         return this.cpuLoadCollector;
+    }
+
+    public TransactionMetricCollector getTransactionMetricCollector() {
+        return this.transactionMetricCollector;
     }
 
 }

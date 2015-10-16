@@ -24,8 +24,6 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.common.bo.AgentStatCpuLoadBo;
-import com.navercorp.pinpoint.common.bo.AgentStatMemoryGcBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorFactory;
@@ -55,24 +53,15 @@ public class JvmCpuUsageRateCheckerTest {
 
             @Override
             public List<AgentStat> scanAgentStatList(String agentId, Range range) {
-                List<AgentStat> AgentStatList = new LinkedList<AgentStat>();
+                List<AgentStat> agentStatList = new LinkedList<AgentStat>();
                 
                 for (int i = 0; i < 36; i++) {
-                    AgentStatCpuLoadBo.Builder cpuLoadBoBuilder = new AgentStatCpuLoadBo.Builder("AGETNT_NAME", 0L, 1L);
-                    cpuLoadBoBuilder.jvmCpuLoad(0.6);
-                    AgentStatCpuLoadBo cpuLoadBo = cpuLoadBoBuilder.build();
-                    
-                    AgentStatMemoryGcBo.Builder memoryGcBobuilder = new AgentStatMemoryGcBo.Builder("AGETNT_NAME", 0L, 1L);
-                    AgentStatMemoryGcBo memoryGcBo = memoryGcBobuilder.build();
-                    
-                    AgentStat stat = new AgentStat();
-                    stat.setCpuLoad(cpuLoadBo);
-                    stat.setMemoryGc(memoryGcBo);
-                    
-                    AgentStatList.add(stat);
+                    AgentStat stat = new AgentStat("AGENT_NAME", 1L);
+                    stat.setJvmCpuUsage(0.6);
+                    agentStatList.add(stat);
                 }
                 
-                return AgentStatList;
+                return agentStatList;
             }
         };
         

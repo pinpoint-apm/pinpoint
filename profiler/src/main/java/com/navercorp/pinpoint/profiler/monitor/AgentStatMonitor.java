@@ -26,11 +26,13 @@ import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
 import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.CpuLoadCollector;
 import com.navercorp.pinpoint.profiler.monitor.codahale.gc.GarbageCollector;
+import com.navercorp.pinpoint.profiler.monitor.codahale.tps.TransactionMetricCollector;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
+import com.navercorp.pinpoint.thrift.dto.TTransaction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,23 +60,26 @@ public class AgentStatMonitor {
     private final AgentStatCollectorFactory agentStatCollectorFactory;
     private final long agentStartTime;
 
-    public AgentStatMonitor(DataSender dataSender, String agentId, long startTime) {
-        this(dataSender, agentId, startTime, DEFAULT_COLLECTION_INTERVAL_MS, DEFAULT_NUM_COLLECTIONS_PER_SEND);
+    public AgentStatMonitor(DataSender dataSender, String agentId, long startTime, AgentStatCollectorFactory agentStatCollectorFactory) {
+        this(dataSender, agentId, startTime, agentStatCollectorFactory, DEFAULT_COLLECTION_INTERVAL_MS, DEFAULT_NUM_COLLECTIONS_PER_SEND);
     }
 
-    public AgentStatMonitor(DataSender dataSender, String agentId, long startTime, long collectionInterval, int numCollectionsPerBatch) {
+    public AgentStatMonitor(DataSender dataSender, String agentId, long startTime, AgentStatCollectorFactory agentStatCollectorFactory, long collectionInterval, int numCollectionsPerBatch) {
         if (dataSender == null) {
             throw new NullPointerException("dataSender must not be null");
         }
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
+        if (agentStatCollectorFactory == null) {
+            throw new NullPointerException("agentStatCollectorFactory must not be null");
+        }
         this.dataSender = dataSender;
         this.agentId = agentId;
         this.agentStartTime = startTime;
+        this.agentStatCollectorFactory = agentStatCollectorFactory;
         this.collectionIntervalMs = collectionInterval;
         this.numCollectionsPerBatch = numCollectionsPerBatch;
-        this.agentStatCollectorFactory = new AgentStatCollectorFactory();
     }
 
     public void start() {
@@ -98,6 +103,7 @@ public class AgentStatMonitor {
 
         private final GarbageCollector garbageCollector;
         private final CpuLoadCollector cpuLoadCollector;
+        private final TransactionMetricCollector transactionMetricCollector;
         // Will be used by single thread.
         // I don't think this object would run with multi threads.
         private final int numStatsPerBatch;
@@ -107,6 +113,7 @@ public class AgentStatMonitor {
         private CollectJob(int numStatsPerBatch) {
             this.garbageCollector = agentStatCollectorFactory.getGarbageCollector();
             this.cpuLoadCollector = agentStatCollectorFactory.getCpuLoadCollector();
+            this.transactionMetricCollector = agentStatCollectorFactory.getTransactionMetricCollector();
             this.numStatsPerBatch = numStatsPerBatch;
             this.agentStats = new ArrayList<TAgentStat>(this.numStatsPerBatch);
         }
@@ -129,8 +136,10 @@ public class AgentStatMonitor {
             agentStat.setTimestamp(System.currentTimeMillis());
             final TJvmGc gc = garbageCollector.collect();
             agentStat.setGc(gc);
-            final TCpuLoad cpuLoad = cpuLoadCollector.collectCpuLoad();
+            final TCpuLoad cpuLoad = cpuLoadCollector.collect();
             agentStat.setCpuLoad(cpuLoad);
+            final TTransaction transaction = transactionMetricCollector.collect();
+            agentStat.setTransaction(transaction);
             if (isTrace) {
                 logger.trace("collect agentStat:{}", agentStat);
             }

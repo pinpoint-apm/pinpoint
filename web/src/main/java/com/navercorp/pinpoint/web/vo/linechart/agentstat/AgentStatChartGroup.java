@@ -20,19 +20,18 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import com.navercorp.pinpoint.common.bo.AgentStatCpuLoadBo;
-import com.navercorp.pinpoint.common.bo.AgentStatMemoryGcBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.AgentStat;
 import com.navercorp.pinpoint.web.vo.linechart.Chart;
 import com.navercorp.pinpoint.web.vo.linechart.DataPoint;
 import com.navercorp.pinpoint.web.vo.linechart.SampledTimeSeriesDoubleChartBuilder;
+import com.navercorp.pinpoint.web.vo.linechart.SampledTimeSeriesIntegerChartBuilder;
 import com.navercorp.pinpoint.web.vo.linechart.SampledTimeSeriesLongChartBuilder;
 import com.navercorp.pinpoint.web.vo.linechart.Chart.ChartBuilder;
 
 /**
  * @author harebox
- * @author hyungil.jeong
+ * @author HyunGil Jeong
  */
 public class AgentStatChartGroup {
 
@@ -44,10 +43,11 @@ public class AgentStatChartGroup {
         JVM_GC_OLD_COUNT, 
         JVM_GC_OLD_TIME, 
         CPU_LOAD_JVM, 
-        CPU_LOAD_SYSTEM
+        CPU_LOAD_SYSTEM,
+        TPS
     }
     
-    private static final int uncollectedData = -1;
+    private static final int UNCOLLECTED_DATA = AgentStat.NOT_COLLECTED;
 
     private String type;
 
@@ -57,21 +57,25 @@ public class AgentStatChartGroup {
     
     public AgentStatChartGroup(TimeWindow timeWindow) {
         this.chartBuilders = new EnumMap<ChartType, ChartBuilder<? extends Number, ? extends Number>>(ChartType.class);
-        this.chartBuilders.put(ChartType.JVM_MEMORY_HEAP_USED, new SampledTimeSeriesLongChartBuilder(timeWindow, uncollectedData));
-        this.chartBuilders.put(ChartType.JVM_MEMORY_HEAP_MAX, new SampledTimeSeriesLongChartBuilder(timeWindow, uncollectedData));
-        this.chartBuilders.put(ChartType.JVM_MEMORY_NON_HEAP_USED, new SampledTimeSeriesLongChartBuilder(timeWindow, uncollectedData));
-        this.chartBuilders.put(ChartType.JVM_MEMORY_NON_HEAP_MAX, new SampledTimeSeriesLongChartBuilder(timeWindow, uncollectedData));
-        this.chartBuilders.put(ChartType.JVM_GC_OLD_COUNT, new SampledTimeSeriesLongChartBuilder(timeWindow, uncollectedData));
-        this.chartBuilders.put(ChartType.JVM_GC_OLD_TIME, new SampledTimeSeriesLongChartBuilder(timeWindow, uncollectedData));
-        this.chartBuilders.put(ChartType.CPU_LOAD_JVM, new SampledTimeSeriesDoubleChartBuilder(timeWindow, uncollectedData));
-        this.chartBuilders.put(ChartType.CPU_LOAD_SYSTEM, new SampledTimeSeriesDoubleChartBuilder(timeWindow, uncollectedData));
+        this.chartBuilders.put(ChartType.JVM_MEMORY_HEAP_USED, new SampledTimeSeriesLongChartBuilder(timeWindow, UNCOLLECTED_DATA));
+        this.chartBuilders.put(ChartType.JVM_MEMORY_HEAP_MAX, new SampledTimeSeriesLongChartBuilder(timeWindow, UNCOLLECTED_DATA));
+        this.chartBuilders.put(ChartType.JVM_MEMORY_NON_HEAP_USED, new SampledTimeSeriesLongChartBuilder(timeWindow, UNCOLLECTED_DATA));
+        this.chartBuilders.put(ChartType.JVM_MEMORY_NON_HEAP_MAX, new SampledTimeSeriesLongChartBuilder(timeWindow, UNCOLLECTED_DATA));
+        this.chartBuilders.put(ChartType.JVM_GC_OLD_COUNT, new SampledTimeSeriesLongChartBuilder(timeWindow, UNCOLLECTED_DATA));
+        this.chartBuilders.put(ChartType.JVM_GC_OLD_TIME, new SampledTimeSeriesLongChartBuilder(timeWindow, UNCOLLECTED_DATA));
+        this.chartBuilders.put(ChartType.CPU_LOAD_JVM, new SampledTimeSeriesDoubleChartBuilder(timeWindow, UNCOLLECTED_DATA));
+        this.chartBuilders.put(ChartType.CPU_LOAD_SYSTEM, new SampledTimeSeriesDoubleChartBuilder(timeWindow, UNCOLLECTED_DATA));
+        this.chartBuilders.put(ChartType.TPS,  new SampledTimeSeriesIntegerChartBuilder(timeWindow, UNCOLLECTED_DATA));
         this.charts = new EnumMap<ChartType, Chart>(ChartType.class);
     }
 
     public void addAgentStats(List<AgentStat> agentStats) {
         for (AgentStat agentStat : agentStats) {
-            addMemoryGcData(agentStat.getMemoryGc());
-            addCpuLoadData(agentStat.getCpuLoad());
+            if (agentStat != null) {
+                addMemoryGcData(agentStat);
+                addCpuLoadData(agentStat);
+                addTransactionData(agentStat);
+            }
         }
     }
 
@@ -81,29 +85,28 @@ public class AgentStatChartGroup {
         }
     }
 
-    private void addMemoryGcData(AgentStatMemoryGcBo data) {
-        if (data == null) {
-            return;
-        }
-        this.type = data.getGcType();
-        long timestamp = data.getTimestamp();
-        ((SampledTimeSeriesLongChartBuilder)this.chartBuilders.get(ChartType.JVM_MEMORY_HEAP_USED)).addDataPoint(new DataPoint<Long, Long>(timestamp, data.getJvmMemoryHeapUsed()));
-        ((SampledTimeSeriesLongChartBuilder)this.chartBuilders.get(ChartType.JVM_MEMORY_HEAP_MAX)).addDataPoint(new DataPoint<Long, Long>(timestamp, data.getJvmMemoryHeapMax()));
-        ((SampledTimeSeriesLongChartBuilder)this.chartBuilders.get(ChartType.JVM_MEMORY_NON_HEAP_USED)).addDataPoint(new DataPoint<Long, Long>(timestamp, data.getJvmMemoryNonHeapUsed()));
-        ((SampledTimeSeriesLongChartBuilder)this.chartBuilders.get(ChartType.JVM_MEMORY_NON_HEAP_MAX)).addDataPoint(new DataPoint<Long, Long>(timestamp, data.getJvmMemoryNonHeapMax()));
-        ((SampledTimeSeriesLongChartBuilder)this.chartBuilders.get(ChartType.JVM_GC_OLD_COUNT)).addDataPoint(new DataPoint<Long, Long>(timestamp, data.getJvmGcOldCount()));
-        ((SampledTimeSeriesLongChartBuilder)this.chartBuilders.get(ChartType.JVM_GC_OLD_TIME)).addDataPoint(new DataPoint<Long, Long>(timestamp, data.getJvmGcOldTime()));
+    private void addMemoryGcData(AgentStat agentStat) {
+        this.type = agentStat.getGcType();
+        long timestamp = agentStat.getTimestamp();
+        ((SampledTimeSeriesLongChartBuilder)this.chartBuilders.get(ChartType.JVM_MEMORY_HEAP_USED)).addDataPoint(new DataPoint<Long, Long>(timestamp, agentStat.getHeapUsed()));
+        ((SampledTimeSeriesLongChartBuilder)this.chartBuilders.get(ChartType.JVM_MEMORY_HEAP_MAX)).addDataPoint(new DataPoint<Long, Long>(timestamp, agentStat.getHeapMax()));
+        ((SampledTimeSeriesLongChartBuilder)this.chartBuilders.get(ChartType.JVM_MEMORY_NON_HEAP_USED)).addDataPoint(new DataPoint<Long, Long>(timestamp, agentStat.getNonHeapUsed()));
+        ((SampledTimeSeriesLongChartBuilder)this.chartBuilders.get(ChartType.JVM_MEMORY_NON_HEAP_MAX)).addDataPoint(new DataPoint<Long, Long>(timestamp, agentStat.getNonHeapMax()));
+        ((SampledTimeSeriesLongChartBuilder)this.chartBuilders.get(ChartType.JVM_GC_OLD_COUNT)).addDataPoint(new DataPoint<Long, Long>(timestamp, agentStat.getGcOldCount()));
+        ((SampledTimeSeriesLongChartBuilder)this.chartBuilders.get(ChartType.JVM_GC_OLD_TIME)).addDataPoint(new DataPoint<Long, Long>(timestamp, agentStat.getGcOldTime()));
     }
 
-    private void addCpuLoadData(AgentStatCpuLoadBo data) {
-        if (data == null) {
-            return;
-        }
-        long timestamp = data.getTimestamp();
-        double jvmCpuLoadPercentage = data.getJvmCpuLoad() * 100;
-        double systemCpuLoadPercentage = data.getSystemCpuLoad() * 100;
-        ((SampledTimeSeriesDoubleChartBuilder)this.chartBuilders.get(ChartType.CPU_LOAD_JVM)).addDataPoint(new DataPoint<Long, Double>(timestamp, jvmCpuLoadPercentage));
-        ((SampledTimeSeriesDoubleChartBuilder)this.chartBuilders.get(ChartType.CPU_LOAD_SYSTEM)).addDataPoint(new DataPoint<Long, Double>(timestamp, systemCpuLoadPercentage));
+    private void addCpuLoadData(AgentStat agentStat) {
+        long timestamp = agentStat.getTimestamp();
+        double jvmCpuUsagePercentage = agentStat.getJvmCpuUsage() * 100;
+        double systemCpuUsagePercentage = agentStat.getSystemCpuUsage() * 100;
+        ((SampledTimeSeriesDoubleChartBuilder)this.chartBuilders.get(ChartType.CPU_LOAD_JVM)).addDataPoint(new DataPoint<Long, Double>(timestamp, jvmCpuUsagePercentage));
+        ((SampledTimeSeriesDoubleChartBuilder)this.chartBuilders.get(ChartType.CPU_LOAD_SYSTEM)).addDataPoint(new DataPoint<Long, Double>(timestamp, systemCpuUsagePercentage));
+    }
+
+    private void addTransactionData(AgentStat agentStat) {
+        long timestamp = agentStat.getTimestamp();
+        ((SampledTimeSeriesIntegerChartBuilder)this.chartBuilders.get(ChartType.TPS)).addDataPoint(new DataPoint<Long, Integer>(timestamp, agentStat.getTps()));
     }
 
     public String getType() {
@@ -113,5 +116,4 @@ public class AgentStatChartGroup {
     public Map<ChartType, Chart> getCharts() {
         return charts;
     }
-
 }

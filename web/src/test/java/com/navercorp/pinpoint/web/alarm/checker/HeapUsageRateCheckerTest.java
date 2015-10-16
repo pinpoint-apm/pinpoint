@@ -25,8 +25,6 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.common.bo.AgentStatCpuLoadBo;
-import com.navercorp.pinpoint.common.bo.AgentStatMemoryGcBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorFactory;
@@ -56,24 +54,17 @@ public class HeapUsageRateCheckerTest {
 
             @Override
             public List<AgentStat> scanAgentStatList(String agentId, Range range) {
-                List<AgentStat> AgentStatList = new LinkedList<AgentStat>();
+                List<AgentStat> agentStatList = new LinkedList<AgentStat>();
                 
                 for (int i = 0; i < 36; i++) {
-                    AgentStatMemoryGcBo.Builder memoryBuilder = new AgentStatMemoryGcBo.Builder("AGETNT_NAME", 0L, 1L);
-                    memoryBuilder.jvmMemoryHeapUsed(70L);
-                    memoryBuilder.jvmMemoryHeapMax(100L);
-                    AgentStatMemoryGcBo memoryBo = memoryBuilder.build();
-                    AgentStatCpuLoadBo.Builder cpuBuilder = new AgentStatCpuLoadBo.Builder("AGETNT_NAME", 0L, 1L);
-                    AgentStatCpuLoadBo cpuLoadBo = cpuBuilder.build();
+                    AgentStat stat = new AgentStat("AGENT_NAME", 1L);
+                    stat.setHeapUsed(70L);
+                    stat.setHeapMax(100L);
                     
-                    AgentStat stat = new AgentStat();
-                    stat.setMemoryGc(memoryBo);
-                    stat.setCpuLoad(cpuLoadBo);
-                    
-                    AgentStatList.add(stat);
+                    agentStatList.add(stat);
                 }
                 
-                return AgentStatList;
+                return agentStatList;
             }
         };
         

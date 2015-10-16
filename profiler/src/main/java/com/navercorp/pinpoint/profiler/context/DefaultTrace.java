@@ -311,12 +311,12 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public int getCallStackFrameId() {
-        if (callStack.empty()) {
-            return ROOT_STACKID;
-        }
-
         final SpanEvent spanEvent = callStack.peek();
-        return spanEvent.getStackId();
+        if(spanEvent == null) {
+            return ROOT_STACKID;
+        } else {
+            return spanEvent.getStackId();
+        }
     }
 
     @Override
