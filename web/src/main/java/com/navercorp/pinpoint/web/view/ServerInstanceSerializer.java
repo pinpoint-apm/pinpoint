@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.web.applicationmap.ServerInstance;
 import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
 import com.navercorp.pinpoint.web.applicationmap.link.ServerMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
@@ -34,18 +35,29 @@ import java.io.IOException;
  * @author emeroad
  * @author minwoo.jung
  */
+@Component
 public class ServerInstanceSerializer extends JsonSerializer<ServerInstance> {
 
     @Autowired
     private ServiceTypeRegistryService serviceTypeRegistryService;
 
-    private AgentLifeCycleStateSerializer agentLifeCycleStateSerializer = new AgentLifeCycleStateSerializer();
+    @Autowired
+    private AgentLifeCycleStateSerializer agentLifeCycleStateSerializer;
 
+    public ServerInstanceSerializer() {
+    }
 
-    public void setServiceTypeRegistryService(ServiceTypeRegistryService serviceTypeRegistryService) {
+    // for Test
+    @Deprecated
+    void setServiceTypeRegistryService(ServiceTypeRegistryService serviceTypeRegistryService) {
         this.serviceTypeRegistryService = serviceTypeRegistryService;
     }
 
+    // for Test
+    @Deprecated
+    void setAgentLifeCycleStateSerializer(AgentLifeCycleStateSerializer agentLifeCycleStateSerializer) {
+        this.agentLifeCycleStateSerializer = agentLifeCycleStateSerializer;
+    }
 
     @Override
     public void serialize(ServerInstance serverInstance, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
@@ -66,7 +78,7 @@ public class ServerInstanceSerializer extends JsonSerializer<ServerInstance> {
     }
 
     public void write(AgentLifeCycleState value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
-        agentLifeCycleStateSerializer.serialize(value, jgen, provider);
+        this.agentLifeCycleStateSerializer.serialize(value, jgen, provider);
     }
 
 

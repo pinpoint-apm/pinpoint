@@ -23,10 +23,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.common.util.AgentLifeCycleState;
+import org.springframework.stereotype.Component;
 
 /**
  * @author HyunGil Jeong
  */
+@Component
 public class AgentLifeCycleStateSerializer extends JsonSerializer<AgentLifeCycleState> {
 
     @Override

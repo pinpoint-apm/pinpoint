@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.web.applicationmap.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+import org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean;
 
 
 /**
@@ -47,7 +48,7 @@ public class ServerInstanceListSerializerTest {
     @Test
     public void testSerialize() throws Exception {
 
-        PinpointObjectMapper mapper = createMapper();
+        ObjectMapper mapper = createMapper();
 
         AgentInfo agentInfo = ServerInstanceListTest.createAgentInfo("agentId1", "testHost");
 
@@ -64,12 +65,19 @@ public class ServerInstanceListSerializerTest {
     }
 
 
-    private PinpointObjectMapper createMapper() throws Exception {
-        PinpointObjectMapper mapper = new PinpointObjectMapper();
+    private ObjectMapper createMapper() throws Exception {
+        final Jackson2ObjectMapperFactoryBean factoryBean = new Jackson2ObjectMapperFactoryBean();
+
+        final ServerInstanceSerializer serverInstanceSerializer = new ServerInstanceSerializer();
+
+        final ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService();
+        serverInstanceSerializer.setServiceTypeRegistryService(serviceTypeRegistryService);
+
+        factoryBean.setHandlerInstantiator(new TestHandlerInstantiator());
         // TODO FIX spring managed object
-        mapper.setHandlerInstantiator(new TestHandlerInstantiator());
-        mapper.afterPropertiesSet();
-        return mapper;
+
+        factoryBean.afterPropertiesSet();
+        return factoryBean.getObject();
     }
 
     public class TestHandlerInstantiator extends HandlerInstantiator {
@@ -80,8 +88,12 @@ public class ServerInstanceListSerializerTest {
         public JsonSerializer<?> serializerInstance(SerializationConfig config, Annotated annotated, Class<?> keyDeserClass) {
             if (annotated.getName().equals("com.navercorp.pinpoint.web.applicationmap.ServerInstance")) {
                 final ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService();
+
                 final ServerInstanceSerializer serverInstanceSerializer = new ServerInstanceSerializer();
                 serverInstanceSerializer.setServiceTypeRegistryService(serviceTypeRegistryService);
+
+                final AgentLifeCycleStateSerializer agentLifeCycleStateSerializer = new AgentLifeCycleStateSerializer();
+                serverInstanceSerializer.setAgentLifeCycleStateSerializer(agentLifeCycleStateSerializer);
                 return serverInstanceSerializer;
             }
             return null;
