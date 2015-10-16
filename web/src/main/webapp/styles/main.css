@@ -334,7 +334,7 @@ canvas {outline:none}
 .realtime .agent-chart-list text {
 	font-size: 8px;
 }
-.realtime .critical-error {
+.realtime .connection-message {
 	top: 0px;
 	left: 0px;
 	width: 100%;

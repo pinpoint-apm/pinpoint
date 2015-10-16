@@ -93,7 +93,7 @@
 	        		},
 	        		onclose: function(event) {
 	        			$scope.$apply(function() {
-	        				disconnectedConneciton();
+	        				disconnectedConnection();
 		            	});
 	        		},
 	        		ondelay: function() {
@@ -117,12 +117,14 @@
 	        function broadcastData( applicationData, aRequestSum, timeStamp ) {
 	        	var maxY = getMaxOfYValue();
 	        	var agentIndexAndCount = 0;
+	        	var bAllError = true;
 	        	
 	        	for( var agentName in applicationData ) {
 	        		checkAgentChart( agentName, agentIndexAndCount );
 	        		
 	        		if ( applicationData[agentName][cfg.keys.CODE] === RECEIVE_SUCCESS ) {
-	        			$rootScope.$broadcast('realtimeChartDirective.onData.' + oNamespaceToIndexMap[agentName], applicationData[agentName][cfg.keys.STATUS], timeStamp, maxY );
+	        			bAllError = false;
+	        			$rootScope.$broadcast('realtimeChartDirective.onData.' + oNamespaceToIndexMap[agentName], applicationData[agentName][cfg.keys.STATUS], timeStamp, maxY, bAllError );
 	        		} else {
 	        			$rootScope.$broadcast('realtimeChartDirective.onError.' + oNamespaceToIndexMap[agentName], applicationData[agentName][cfg.keys.MESSAGE], timeStamp, maxY );
 	        		}
@@ -130,7 +132,7 @@
 	        		showAgentChart( agentIndexAndCount );
 	        		agentIndexAndCount++;
 	        	}
-        		$rootScope.$broadcast('realtimeChartDirective.onData.sum', aRequestSum, timeStamp, maxY );
+        		$rootScope.$broadcast('realtimeChartDirective.onData.sum', aRequestSum, timeStamp, maxY, bAllError );
 	        	
         		$scope.$apply(function() {
 	        		$scope.currentAgentCount = agentIndexAndCount;

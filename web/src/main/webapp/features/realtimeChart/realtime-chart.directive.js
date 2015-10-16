@@ -140,6 +140,8 @@
 	            	   
 	            	    elements
 	            	    	.transition()
+	            	    	.attr("x1", 0)
+            	    		.attr("x2", chartInnerWidth)
 	        	    		.attr("y1", function(d, i) {
 	        	    			return d;
 	        	    		})
@@ -312,15 +314,17 @@
             	    }
             	    tick();
 	            	    
-	            	scope.$on('realtimeChartDirective.onData.' + oOuterOption.namespace, function (event, aNewRequestCount, timeStamp, yValue) {
+	            	scope.$on('realtimeChartDirective.onData.' + oOuterOption.namespace, function (event, aNewRequestCount, timeStamp, yValue, bAllError) {
 	            		maxY = yValue;
 	            		d3errorLabel.text("");
-	            		passingQueue.push( aNewRequestCount.map(function(v, i) {
-	            			return {
-	            				y: parseInt( v ),
-	            				d: timeStamp
-	            			}
-	            		}) );
+	            		if ( bAllError === false ) {
+		            		passingQueue.push( aNewRequestCount.map(function(v, i) {
+		            			return {
+		            				y: parseInt( v ),
+		            				d: timeStamp
+		            			}
+		            		}) );
+	            		}
 	    	        });
 	            	scope.$on('realtimeChartDirective.onError.' + oOuterOption.namespace, function (event, errorMessage, timeStamp, yValue) {
 	            		maxY = yValue;
