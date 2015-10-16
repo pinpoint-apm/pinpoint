@@ -31,10 +31,7 @@ import com.navercorp.pinpoint.rpc.packet.*;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
 import com.navercorp.pinpoint.rpc.server.handler.DoNothingChannelStateEventHandler;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
-import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
+import com.navercorp.pinpoint.rpc.stream.*;
 import com.navercorp.pinpoint.rpc.util.*;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -217,11 +214,16 @@ public class DefaultPinpointServer implements PinpointServer {
     }
 
     @Override
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) {
+        return openStream(payload, messageListener, null);
+    }
+
+    @Override
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) {
         logger.info("{} createStream() started.", objectUniqName);
 
-        ClientStreamChannelContext streamChannel = streamChannelManager.openStream(payload, clientStreamChannelMessageListener);
-        
+        ClientStreamChannelContext streamChannel = streamChannelManager.openStream(payload, messageListener, stateChangeListener);
+
         logger.info("{} createStream() completed.", objectUniqName);
         return streamChannel;
     }

@@ -20,10 +20,10 @@
 package com.navercorp.pinpoint.web.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListenerRepository;
+import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.StringUtils;
+import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.web.service.AgentService;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
@@ -53,38 +53,49 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
     private static final long DEFAULT_FLUSH_DELAY = 1000;
 
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Object lock = new Object();
 
     private final String requestMapping;
     private final AgentService agentSerivce;
-    private final Timer timer;
-    private final long flushDelay;
+
+    private Timer timer;
+    private final long flushDelay = DEFAULT_FLUSH_DELAY;
 
     private final AtomicBoolean onTimerTask = new AtomicBoolean(false);
 
     private final List<WebSocketSession> sessionRepository = new CopyOnWriteArrayList<WebSocketSession>();
 
-    private final Map<String, WebSocketResponseAggregator> aggregatorRepository = new HashMap<String, WebSocketResponseAggregator>();
+    private final Map<String, PinpointWebSocketResponseAggregator> aggregatorRepository = new HashMap<String, PinpointWebSocketResponseAggregator>();
 
     private final ObjectMapper jsonConverter = new ObjectMapper();
 
-    public ActiveThreadCountHandler(WebSocketHandlerManager webSocketHandlerManager, AgentService agentSerivce) {
-        this(webSocketHandlerManager, DEFAULT_REQUEST_MAPPING, agentSerivce);
+    public ActiveThreadCountHandler(AgentService agentSerivce) {
+        this(DEFAULT_REQUEST_MAPPING, agentSerivce);
     }
 
-    public ActiveThreadCountHandler(WebSocketHandlerManager webSocketHandlerManager, String requestMapping, AgentService agentSerivce) {
-        this(webSocketHandlerManager, requestMapping, agentSerivce, DEFAULT_FLUSH_DELAY);
-    }
-
-    public ActiveThreadCountHandler(WebSocketHandlerManager webSocketHandlerManager, String requestMapping, AgentService agentSerivce, long flushDelay) {
+    public ActiveThreadCountHandler(String requestMapping, AgentService agentSerivce) {
         this.requestMapping = requestMapping;
         this.agentSerivce = agentSerivce;
-        this.timer = webSocketHandlerManager.getTimer();
-        this.flushDelay = flushDelay;
+    }
 
-        webSocketHandlerManager.register(this);
+    @Override
+    public void start() {
+        this.timer = TimerFactory.createHashedWheelTimer(ClassUtils.simpleClassName(this) + "-Timer", 100, TimeUnit.MILLISECONDS, 512);
+    }
+
+    @Override
+    public void stop() {
+        for (PinpointWebSocketResponseAggregator aggregator : aggregatorRepository.values()) {
+            if (aggregator != null) {
+                aggregator.stop();
+            }
+        }
+        aggregatorRepository.clear();
+
+        if (timer != null) {
+            timer.stop();
+        }
     }
 
     @Override
@@ -131,6 +142,11 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         if (request != null && request.startsWith(APPLICATION_NAME_KEY + "=")) {
             String applicationName = request.substring(APPLICATION_NAME_KEY.length() + 1);
             synchronized (lock) {
+                String oldApplicationName = (String) webSocketSession.getAttributes().get(APPLICATION_NAME_KEY);
+                if (applicationName!= null && applicationName.equals(oldApplicationName)) {
+                    return;
+                }
+
                 closeAggregator(webSocketSession);
                 if (!StringUtils.isEmpty(applicationName)) {
                     webSocketSession.getAttributes().put(APPLICATION_NAME_KEY, applicationName);
@@ -149,24 +165,14 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
             return;
         }
 
-        WebSocketResponseAggregator aggregator = aggregatorRepository.get(applicationName);
+        PinpointWebSocketResponseAggregator aggregator = aggregatorRepository.get(applicationName);
         if (aggregator == null) {
-            aggregator = new WebSocketResponseAggregator(applicationName);
+            aggregator = new ActiveThreadCountResponseAggregator(applicationName, agentSerivce, timer);
+            aggregator.start();
             aggregatorRepository.put(applicationName, aggregator);
         }
 
-        ClientStreamChannelMessageListenerRepository<ActiveThreadCountStreamListener> streamMessageListenerRepository = aggregator.getStreamMessageListenerRepository();
-        List<AgentInfo> agentInfoList = agentSerivce.getAgentInfoList(applicationName);
-
-        for (AgentInfo agentInfo : agentInfoList) {
-            String agentId = agentInfo.getAgentId();
-            if (!streamMessageListenerRepository.contains(agentId)) {
-                ActiveThreadCountStreamListener streamListener = new ActiveThreadCountStreamListener(agentSerivce, agentInfo, aggregator);
-                streamListener.start();
-            }
-        }
-
-        aggregator.registerWebSocketSession(webSocketSession);
+        aggregator.addWebSocketSession(webSocketSession);
     }
 
     private void closeAggregator(WebSocketSession webSocketSession) {
@@ -175,18 +181,15 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
             return;
         }
 
-        WebSocketResponseAggregator aggregator = aggregatorRepository.get(applicationName);
+        PinpointWebSocketResponseAggregator aggregator = aggregatorRepository.get(applicationName);
         if (aggregator == null) {
             return;
         }
 
-        aggregator.unregisterWebSocketSession(webSocketSession);
-        if (aggregator.registeredWebSocketSessionCount() == 0) {
-            for (ActiveThreadCountStreamListener listener : aggregator.getStreamMessageListenerRepository().values()) {
-                listener.stop();
-            }
-
+        boolean cleared = aggregator.removeWebSocketSessionAndGetIsCleared(webSocketSession);
+        if (cleared) {
             aggregatorRepository.remove(applicationName);
+            aggregator.stop();
         }
     }
 
@@ -197,8 +200,8 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
             try {
                 logger.info("ActiveThreadTimerTask started.");
 
-                Collection<WebSocketResponseAggregator> values = aggregatorRepository.values();
-                for (WebSocketResponseAggregator aggregator : values) {
+                Collection<PinpointWebSocketResponseAggregator> values = aggregatorRepository.values();
+                for (PinpointWebSocketResponseAggregator aggregator : values) {
                     try {
                         aggregator.flush();
                     } catch (Exception e) {

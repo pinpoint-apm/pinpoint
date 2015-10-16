@@ -164,10 +164,10 @@ public class WebClusterConnectionManager {
 
         // having duplicate AgentName registered is an exceptional case
         if (clusterIdList.size() == 0) {
-            logger.warn("{}/{} couldn't find agent.", applicationName, agentId);
+            logger.warn("{}/{}/{} couldn't find agent.", applicationName, agentId, startTimeStamp);
             return null;
         } else if (clusterIdList.size() > 1) {
-            logger.warn("{}/{} found duplicate agent {}.", applicationName, agentId, clusterIdList);
+            logger.warn("{}/{}/{} found duplicate agent {}.", applicationName, agentId, startTimeStamp, clusterIdList);
             return null;
         }
 

@@ -356,13 +356,18 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     }
     
     @Override
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) {
+        return openStream(payload, messageListener, null);
+    }
+
+    @Override
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) {
         ensureOpen();
 
         PinpointClientHandlerContext context = getChannelContext(channel);
-        return context.openStream(payload, clientStreamChannelMessageListener);
+        return context.openStream(payload, messageListener, stateChangeListener);
     }
-    
+
     @Override
     public StreamChannelContext findStreamChannel(int streamChannelId) {
         ensureOpen();

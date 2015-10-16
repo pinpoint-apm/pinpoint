@@ -241,6 +241,7 @@ public class ZookeeperClusterManager implements ClusterManager, Watcher {
     }
 
     private boolean syncPullCollectorCluster() {
+        logger.info("syncPullCollectorCluster started.");
         synchronized (this) {
             Map<String, byte[]> map = zookeeperClusterManagerHelper.syncPullCollectorCluster(client, PINPOINT_COLLECTOR_CLUSTER_PATH);
             if (Collections.EMPTY_MAP == map) {
@@ -255,6 +256,7 @@ public class ZookeeperClusterManager implements ClusterManager, Watcher {
     }
 
     private boolean pushCollectorClusterData(String id) {
+        logger.info("pushCollectorClusterData started.");
         String path = zookeeperClusterManagerHelper.bindingPathAndZnode(PINPOINT_COLLECTOR_CLUSTER_PATH, id);
         synchronized (this) {
             try {

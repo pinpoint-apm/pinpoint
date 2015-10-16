@@ -26,6 +26,10 @@ import org.springframework.web.socket.WebSocketHandler;
  */
 public interface PinpointWebSocketHandler extends WebSocketHandler {
 
+    void start();
+
+    void stop();
+
     String getRequestMapping();
 
 }

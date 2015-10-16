@@ -22,8 +22,10 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
@@ -51,8 +53,8 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 /**
- * @Author Taejin Koo
  * @author HyunGil Jeong
+ * @Author Taejin Koo
  */
 @Service
 public class AgentServiceImpl implements AgentService {
@@ -72,6 +74,28 @@ public class AgentServiceImpl implements AgentService {
 
     @Autowired
     private DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
+
+    @Override
+    public AgentInfo getAgentInfo(String applicationName, String agentId) {
+        long currentTime = System.currentTimeMillis();
+
+        Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationName(applicationName, currentTime);
+        for (AgentInfo agentInfo : agentInfos) {
+            if (agentInfo == null) {
+                continue;
+            }
+            if (!agentInfo.getApplicationName().equals(applicationName)) {
+                continue;
+            }
+            if (!agentInfo.getAgentId().equals(agentId)) {
+                continue;
+            }
+
+            return agentInfo;
+        }
+
+        return null;
+    }
 
     @Override
     public AgentInfo getAgentInfo(String applicationName, String agentId, long startTimeStamp) {
@@ -203,18 +227,29 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
-    public ClientStreamChannelContext openStream(AgentInfo agentInfo, TBase<?, ?> tBase, ClientStreamChannelMessageListener clientStreamChannelMessageListener) throws TException {
+    public ClientStreamChannelContext openStream(AgentInfo agentInfo, TBase<?, ?> tBase, ClientStreamChannelMessageListener messageListener) throws TException {
         byte[] payload = serializeRequest(tBase);
-        return openStream(agentInfo, payload, clientStreamChannelMessageListener);
+        return openStream(agentInfo, payload, messageListener, null);
     }
 
     @Override
-    public ClientStreamChannelContext openStream(AgentInfo agentInfo, byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) throws TException {
+    public ClientStreamChannelContext openStream(AgentInfo agentInfo, byte[] payload, ClientStreamChannelMessageListener messageListener) throws TException {
+        return openStream(agentInfo, payload, messageListener, null);
+    }
+
+    @Override
+    public ClientStreamChannelContext openStream(AgentInfo agentInfo, TBase<?, ?> tBase, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) throws TException {
+        byte[] payload = serializeRequest(tBase);
+        return openStream(agentInfo, payload, messageListener, stateChangeListener);
+    }
+
+    @Override
+    public ClientStreamChannelContext openStream(AgentInfo agentInfo, byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) throws TException {
         TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
         PinpointSocket socket = clusterConnectionManager.getSocket(agentInfo);
 
         if (socket != null) {
-            return socket.openStream(serializeRequest(transferObject), clientStreamChannelMessageListener);
+            return socket.openStream(serializeRequest(transferObject), messageListener, stateChangeListener);
         }
 
         return null;
