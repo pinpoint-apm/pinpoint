@@ -8,8 +8,7 @@
 	 * @class
 	 */
 	pinpointApp.constant('RealtimeChartCtrlConfig', {
-//		wsUrl: "/agent/activeThread.pinpointws",
-//		wsTimeout: 10000, //ms
+		sendPrefix: "applicationName=",
 		keys: {
 			CODE: "code",
 			STATUS: "status",
@@ -18,8 +17,10 @@
 			APPLICATION_NAME: "applicationName",
 			ACTIVE_THREAD_COUNTS: "activeThreadCounts"
 		},
-		agentChartTemplate: '<div class="agent-chart"><div></div></div>',
-		chartDirectiveTemplate: Handlebars.compile( '<realtime-chart-directive chart-color="{{chartColor}}" xcount="{{xAxisCount}}" show-extra-info="{{showExtraInfo}}" request-label="requestLabelNames" namespace="{{namespace}}" width="{{width}}" height="{{height}}"></realtime-chart-directive>' )
+		template: {
+			agentChart: '<div class="agent-chart"><div></div></div>',
+			chartDirective: Handlebars.compile( '<realtime-chart-directive chart-color="{{chartColor}}" xcount="{{xAxisCount}}" show-extra-info="{{showExtraInfo}}" request-label="requestLabelNames" namespace="{{namespace}}" width="{{width}}" height="{{height}}"></realtime-chart-directive>' )
+		}
 	});
 	
 	pinpointApp.controller('RealtimeChartCtrl', ['RealtimeChartCtrlConfig', '$scope', '$element', '$rootScope', '$compile', '$window', 'globalConfig', 'RealtimeWebsocketService',
@@ -31,6 +32,7 @@
 	    	
 			var $elSumChartWrapper = $element.find("div.agent-sum-chart");
 	    	var $elAgentChartListWrapper = $element.find("div.agent-chart-list");
+	    	var $elWarningMessage = $element.find(".connection-message");
 	    	var aAgentChartElementList = [];
 	    	var oNamespaceToIndexMap = {};
 	    	var aSumChartData = [0];
@@ -53,7 +55,7 @@
     	    }
 	    	function initChartDirective() {
 	    		if ( hasAgentChart( "sum" ) === false ) {
-		    		$elSumChartWrapper.append( $compile( cfg.chartDirectiveTemplate({
+		    		$elSumChartWrapper.append( $compile( cfg.template.chartDirective({
 		    			"chartColor": "sumChartColor",
 		    			"xAxisCount": X_AXIS_COUNT,
 		    			"namespace": "sum",
@@ -68,7 +70,7 @@
 	    		return angular.isDefined( oNamespaceToIndexMap[agentName] );
 	    	}
 	    	function addAgentChart( agentName ) {
-	    		var $newAgentChart = $( cfg.agentChartTemplate ).append( $compile( cfg.chartDirectiveTemplate({
+	    		var $newAgentChart = $( cfg.template.agentChart ).append( $compile( cfg.template.chartDirective({
 	    			"chartColor": "agentChartColor",
 	    			"xAxisCount": X_AXIS_COUNT,
 	    			"namespace": aAgentChartElementList.length,
@@ -91,7 +93,7 @@
 	        		},
 	        		onclose: function(event) {
 	        			$scope.$apply(function() {
-		            		$scope.hasCriticalError = true;
+	        				disconnectedConneciton();
 		            	});
 	        		},
 	        		ondelay: function() {
@@ -103,6 +105,7 @@
 	        	}
 	        }
 	        function receive( data ) {
+	        	$scope.hasCriticalError = false;
 	        	if ( data[cfg.keys.APPLICATION_NAME] !== $scope.currentApplicationName ) return;
 	        	
 	        	var applicationData = data[cfg.keys.ACTIVE_THREAD_COUNTS];
@@ -180,7 +183,7 @@
 	            });
     	    }
 	        function startReceive() {
-	        	websocketService.send("applicationName=" + $scope.currentApplicationName);
+	        	websocketService.send(cfg.sendPrefix + $scope.currentApplicationName);
 	        }
 	        function initReceive() {
 	        	if ( websocketService.isOpened() == false ) {
@@ -194,7 +197,7 @@
 	        }
 	        function stopReceive() {
 	        	$scope.showRealtimeChart = false;
-        		websocketService.stopReceive("applicationName=");
+        		websocketService.stopReceive(cfg.sendPrefix);
 	        }
 	        function stopChart() {
 	        	$rootScope.$broadcast('realtimeChartDirective.clear.sum');
@@ -202,6 +205,16 @@
 	        		$rootScope.$broadcast('realtimeChartDirective.clear.' + index);
 	        		el.hide();
 	        	});
+	        }
+	        function disconnectedConnection() {
+	        	$elWarningMessage.css("background-color", "rgba(200, 200, 200, 0.9)");
+	        	$elWarningMessage.find("h4").css("color", "red").html("Closed connection.<br/><br/>Select node again.");
+	        	$scope.hasCriticalError = true;
+	        }
+	        function waitingConnection() {
+	        	$elWarningMessage.css("background-color", "rgba(138, 171, 136, 0.5)");
+	        	$elWarningMessage.find("h4").css("color", "blue").html("Waiting Connection...");
+	        	$scope.hasCriticalError = true;
 	        }
 	        
 	        $scope.$on('realtimeChartController.initialize', function (event, isWas, applicationName) {
@@ -211,7 +224,9 @@
 	        	if ( isWas === true ) {
 	        		if ( $scope.showRealtimeChart === true ) {
 	    	        	$scope.closePopup();	        			
-	        		} 
+	        		}
+	        		waitingConnection();
+	        		
 	        		$scope.currentApplicationName = applicationName;
 	        		initReceive();
 	        	} else {

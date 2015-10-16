@@ -15,9 +15,9 @@
 				<div>{{currentApplicationName}} ({{currentAgentCount == 0 ? "..." : currentAgentCount}})</div>
 			</div>
 			<div class="agent-chart-list"></div>
-			<div class="critical-error" ng-show="hasCriticalError">
+			<div class="connection-message" ng-show="hasCriticalError">
 				<span class="chart-close glyphicon glyphicon-remove" aria-hidden="true" ng-click="closePopup()"></span>
-				<h4>Closed connection.<br/><br/>Select node again.</h4>
+				<h4></h4>
 			</div>
 		</div>
     </div>

@@ -23,7 +23,6 @@
 	    			var isRemoving = false;
 	    			var isLoadedUserGroupList = false;
 	    			var userGroupList = scope.userGroupList = [];
-	    			var hasAuthority = angular.isDefined( globalConfig.userId );
 	    			
 	            	function addSelectClass( newSelectedGroupNumber ) {
 	    				if ( selectedGroupNumber != "" ) {
@@ -109,7 +108,7 @@
 	    						id: name
 	    					});
 
-	    					if ( hasAuthority ) {	    						
+	    					if ( globalConfig.userId ) {	    						
 		    					alarmBroadcastService.sendInit( name, {
 	    							userId: globalConfig.userId,
 	    							name: globalConfig.userName,
@@ -162,7 +161,7 @@
 	    				}, function( errorData ) {}, $elAlert );
 	    			}
 	    			function loadGroupList( isFirst ) {
-	    				alarmUtilService.sendCRUD( "getUserGroupList", hasAuthority ? { "userId" : globalConfig.userId } : {}, function( resultData ) {
+	    				alarmUtilService.sendCRUD( "getUserGroupList", { "userId" : (globalConfig.userId || "") }, function( resultData ) {
 	    					// @TODO
 	    					// 많이 쓰는 놈 기준 3개를 뽑아 내야 함.
 	    					isLoadedUserGroupList = true;
@@ -178,7 +177,7 @@
 		    						addSelectClass( selectedGroupNumber );
 	    						});
 	    					}
-	    					if ( hasAuthority ) {
+	    					if ( globalConfig.userId ) {
 	    						alarmBroadcastService.sendLoadPinpointUser( globalConfig.userDepartment );
 	    					}
 	    				}, function( errorData ) {}, $elAlert );			

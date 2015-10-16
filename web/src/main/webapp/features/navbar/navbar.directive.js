@@ -119,7 +119,7 @@
 	                    ];
 	                    scope.application = oNavbarVoService.getApplication() || '';
 	                    scope.disableApplication = true;
-	                    scope.readablePeriod = oNavbarVoService.getReadablePeriod() || '20m';
+	                    scope.readablePeriod = oNavbarVoService.getReadablePeriod() || preferenceService.getPeriod();
 	                    scope.queryEndTime = oNavbarVoService.getQueryEndTime() || '';
 	
 	                    initializeApplication();
@@ -140,7 +140,7 @@
 	                    $application = element.find('.application');
 	                    scope.application = oNavbarVoService.getApplication() || '';
 	                    scope.applicationName = oNavbarVoService.getApplicationName() || '';
-	                    scope.readablePeriod = oNavbarVoService.getReadablePeriod() || '20m';
+	                    scope.readablePeriod = oNavbarVoService.getReadablePeriod() || preferenceService.getPeriod();
 	                    scope.queryEndTime = oNavbarVoService.getQueryEndTime() || '';
 	
 	                    initializeDateTimePicker();
