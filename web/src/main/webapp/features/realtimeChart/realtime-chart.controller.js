@@ -193,9 +193,7 @@
 	        	} else {
 	        		startReceive();
 	        	}
-	        	$scope.$apply(function() {
-	        		$scope.showRealtimeChart = true;
-	        	});
+        		$scope.showRealtimeChart = true;
 	        }
 	        function stopReceive() {
 	        	$scope.showRealtimeChart = false;
@@ -211,11 +209,13 @@
 	        function disconnectedConnection() {
 	        	$elWarningMessage.css("background-color", "rgba(200, 200, 200, 0.9)");
 	        	$elWarningMessage.find("h4").css("color", "red").html("Closed connection.<br/><br/>Select node again.");
+	        	$elWarningMessage.find("button").show();
 	        	$scope.hasCriticalError = true;
 	        }
 	        function waitingConnection() {
 	        	$elWarningMessage.css("background-color", "rgba(138, 171, 136, 0.5)");
 	        	$elWarningMessage.find("h4").css("color", "blue").html("Waiting Connection...");
+	        	$elWarningMessage.find("button").hide();
 	        	$scope.hasCriticalError = true;
 	        }
 	        
@@ -236,6 +236,10 @@
 	        	}
 	        	
 	        });
+	        $scope.retryConnection = function() {
+	        	waitingConnection();
+        		initReceive();
+	        };
 	        $scope.resizePopup = function() {
 	        	switch( screenState ) {
 		        	case "full":
