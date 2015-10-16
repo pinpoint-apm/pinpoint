@@ -27,7 +27,8 @@
                                          com.navercorp.pinpoint.web.service,
                                          com.navercorp.pinpoint.web.mapper,
                                          com.navercorp.pinpoint.web.filter,
-                                         com.navercorp.pinpoint.web.config" />
+                                         com.navercorp.pinpoint.web.config
+                                         com.navercorp.pinpoint.web.view" />
 
     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
@@ -54,8 +55,9 @@
     <bean id="spanAnnotationMapper" class="com.navercorp.pinpoint.web.mapper.SpanMapper">
         <property name="annotationMapper" ref="annotationMapper"/>
     </bean>
-    
-    <bean id="jsonObjectMapper" class="com.navercorp.pinpoint.web.view.PinpointObjectMapper">
+
+
+    <bean id="jsonObjectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean">
     </bean>
     <bean id="nodeObjectMapperInitializer" class="com.navercorp.pinpoint.web.applicationmap.NodeObjectMapperInitializer">
     </bean>

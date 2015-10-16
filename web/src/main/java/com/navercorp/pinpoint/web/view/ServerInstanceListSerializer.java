@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkInfo;
 import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.Map;
  * @author emeroad
  * @author minwoo.jung
  */
+@Component
 public class ServerInstanceListSerializer extends JsonSerializer<ServerInstanceList> {
 
     @Autowired(required=false)
