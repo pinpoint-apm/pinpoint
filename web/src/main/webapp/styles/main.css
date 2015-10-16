@@ -343,9 +343,31 @@ canvas {outline:none}
 	text-align: center;
 	background-color: rgba(200, 200, 200, 0.9);
 }
-.realtime .critical-error h4 {
+.realtime .connection-message h4 {
 	color: red;
 	padding-top: 40px;
 	font-weight: bold;
+}
+.realtime .request-count text {
+	font-size: 12px;
+	font-weight: bold;
+}
+.realtime .chart-tooltip text { 
+	font-size: 12px;
+}
+.realtime .error {
+	fill: #F00;
+	font-weight: bold;
+	text-anchor: middle;
+}
+.realtime text.date {
+	fill: #000;
+	font-size: 14px;
+	text-anchor: middle;
+}
+.realtime .grid {
+	stroke: rgba(200, 200, 200, 0.4);
+	stroke-dasharray: 4, 2;
+	shape-rendering: crispEdges;
 }
 

@@ -45,14 +45,15 @@
                             } else {
                             	oAlertService.showError(result.exception);
                             }
+                        } else {
+    	                    oProgressBarService.setLoading(70);
+    	                    parseTransactionDetail(result);
+    	                    showCallStacks();
+    	                    $timeout(function () {
+    	                        oProgressBarService.setLoading(100);
+    	                        oProgressBarService.stopLoading();
+    	                    }, 100);
                         }
-	                    oProgressBarService.setLoading(70);
-	                    parseTransactionDetail(result);
-	                    showCallStacks();
-	                    $timeout(function () {
-	                        oProgressBarService.setLoading(100);
-	                        oProgressBarService.stopLoading();
-	                    }, 100);
 	                });
 	            }
 	        });
