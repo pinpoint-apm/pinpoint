@@ -17,26 +17,17 @@
  *
  */
 
-package com.navercorp.pinpoint.rpc.util;
+package com.navercorp.pinpoint.web.websocket;
 
 /**
  * @Author Taejin Koo
  */
-public final class StringUtils {
+public interface PinpointWebSocketHandlerWorker {
 
-    private StringUtils() {
-    }
+    void active();
 
-    public static boolean isEmpty(String string) {
-        return string == null || string.isEmpty();
-    }
+    boolean reactive();
 
-    public static boolean isEquals(String string1, String string2) {
-        if (string1 == null) {
-            return string2 == null;
-        }
-
-        return string1.equals(string2);
-    }
+    void inactive();
 
 }

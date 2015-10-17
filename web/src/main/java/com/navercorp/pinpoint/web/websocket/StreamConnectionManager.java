@@ -85,7 +85,7 @@ public class StreamConnectionManager {
     }
 
     public void addReconnectJob(AgentInfo agentInfo, TBase commandObject, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) {
-        logger.info("addReconnectJob. agent:{}", agentInfo);
+        logger.info("addReconnectJob. applicationName:{}, agent:{}", agentInfo.getApplicationName(), agentInfo.getAgentId());
 
         ReconnectProperties reconnectProperties = new ReconnectProperties(commandObject, messageListener, stateChangeListener);
         synchronized (lock) {
@@ -102,7 +102,7 @@ public class StreamConnectionManager {
     }
 
     public void removeReconnectJob(AgentInfo agentInfo) {
-        logger.info("removeReconnectJob. agent:{}", agentInfo);
+        logger.info("removeReconnectJob. applicationName:{}, agent:{}", agentInfo.getApplicationName(), agentInfo.getAgentId());
 
         synchronized (lock) {
             reconnectJobRepository.remove(agentInfo);
@@ -110,7 +110,7 @@ public class StreamConnectionManager {
     }
 
     public void startAgentCheckJob() {
-        logger.info("startAgentCheckJob.");
+        logger.info("startAgentCheckJob. applicationName:{}", responseAggregator.getApplicationName());
 
         boolean turnOn = onAgentCheckTimerTask.compareAndSet(false, true);
         if (turnOn) {
@@ -137,22 +137,23 @@ public class StreamConnectionManager {
             logger.info("ReconnectTimerTask started.");
 
             try {
-                Iterator<Map.Entry<AgentInfo, ReconnectProperties>> iterator = reconnectJobRepository.entrySet().iterator();
-                while (iterator.hasNext()) {
-                    Map.Entry<AgentInfo, ReconnectProperties> entry = iterator.next();
-                    AgentInfo agentInfo = entry.getKey();
-                    ReconnectProperties reconnectProperties = entry.getValue();
+                // need to divide lock.
+                synchronized (lock) {
+                    Iterator<Map.Entry<AgentInfo, ReconnectProperties>> iterator = reconnectJobRepository.entrySet().iterator();
+                    while (iterator.hasNext()) {
+                        Map.Entry<AgentInfo, ReconnectProperties> entry = iterator.next();
+                        AgentInfo agentInfo = entry.getKey();
+                        ReconnectProperties reconnectProperties = entry.getValue();
 
-                    AgentInfo newAgentInfo = agentService.getAgentInfo(agentInfo.getApplicationName(), agentInfo.getAgentId());
-                    if (newAgentInfo != null) {
-                        ClientStreamChannelContext clientStreamChannelContext = agentService.openStream(newAgentInfo, reconnectProperties.commandObject, reconnectProperties.messageListener, reconnectProperties.stateChangeListener);
-                        if (clientStreamChannelContext != null && clientStreamChannelContext.getCreateFailPacket() == null) {
-                            iterator.remove();
+                        AgentInfo newAgentInfo = agentService.getAgentInfo(agentInfo.getApplicationName(), agentInfo.getAgentId());
+                        if (newAgentInfo != null) {
+                            ClientStreamChannelContext clientStreamChannelContext = agentService.openStream(newAgentInfo, reconnectProperties.commandObject, reconnectProperties.messageListener, reconnectProperties.stateChangeListener);
+                            if (clientStreamChannelContext != null && clientStreamChannelContext.getCreateFailPacket() == null) {
+                                iterator.remove();
+                            }
                         }
                     }
-                }
 
-                synchronized (lock) {
                     if (reconnectJobRepository.size() == 0) {
                         boolean turnOff = onReconnectTimerTask.compareAndSet(true, false);
                     }

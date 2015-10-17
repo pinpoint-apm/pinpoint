@@ -54,13 +54,14 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     private static final long DEFAULT_FLUSH_DELAY = 1000;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final Object lock = new Object();
 
     private final String requestMapping;
     private final AgentService agentSerivce;
 
     private Timer timer;
-    private final long flushDelay = DEFAULT_FLUSH_DELAY;
+    private final long flushDelay;
 
     private final AtomicBoolean onTimerTask = new AtomicBoolean(false);
 
@@ -75,8 +76,13 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     }
 
     public ActiveThreadCountHandler(String requestMapping, AgentService agentSerivce) {
+        this(requestMapping, agentSerivce, DEFAULT_FLUSH_DELAY);
+    }
+
+    public ActiveThreadCountHandler(String requestMapping, AgentService agentSerivce, long flushDelay) {
         this.requestMapping = requestMapping;
         this.agentSerivce = agentSerivce;
+        this.flushDelay = flushDelay;
     }
 
     @Override
@@ -123,7 +129,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         logger.info("ConnectionClosed : {}, caused : {}", closeSession, status);
 
         synchronized (lock) {
-            closeAggregator(closeSession);
+            unbindingResponseAggregator(closeSession);
 
             sessionRepository.remove(closeSession);
             if (sessionRepository.size() == 0) {
@@ -142,16 +148,12 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         if (request != null && request.startsWith(APPLICATION_NAME_KEY + "=")) {
             String applicationName = request.substring(APPLICATION_NAME_KEY.length() + 1);
             synchronized (lock) {
-                String oldApplicationName = (String) webSocketSession.getAttributes().get(APPLICATION_NAME_KEY);
-                if (applicationName!= null && applicationName.equals(oldApplicationName)) {
+                if (StringUtils.isEquals(applicationName, (String) webSocketSession.getAttributes().get(APPLICATION_NAME_KEY))) {
                     return;
                 }
 
-                closeAggregator(webSocketSession);
-                if (!StringUtils.isEmpty(applicationName)) {
-                    webSocketSession.getAttributes().put(APPLICATION_NAME_KEY, applicationName);
-                    openAggregator(webSocketSession);
-                }
+                unbindingResponseAggregator(webSocketSession);
+                bindingResponseAggregator(webSocketSession, applicationName);
             }
         }
 
@@ -159,37 +161,37 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         super.handleTextMessage(webSocketSession, message);
     }
 
-    private void openAggregator(WebSocketSession webSocketSession) {
-        String applicationName = (String) webSocketSession.getAttributes().get(APPLICATION_NAME_KEY);
+    private void bindingResponseAggregator(WebSocketSession webSocketSession, String applicationName) {
         if (StringUtils.isEmpty(applicationName)) {
             return;
         }
 
-        PinpointWebSocketResponseAggregator aggregator = aggregatorRepository.get(applicationName);
-        if (aggregator == null) {
-            aggregator = new ActiveThreadCountResponseAggregator(applicationName, agentSerivce, timer);
-            aggregator.start();
-            aggregatorRepository.put(applicationName, aggregator);
+        webSocketSession.getAttributes().put(APPLICATION_NAME_KEY, applicationName);
+        PinpointWebSocketResponseAggregator responseAggregator = aggregatorRepository.get(applicationName);
+        if (responseAggregator == null) {
+            responseAggregator = new ActiveThreadCountResponseAggregator(applicationName, agentSerivce, timer);
+            responseAggregator.start();
+            aggregatorRepository.put(applicationName, responseAggregator);
         }
 
-        aggregator.addWebSocketSession(webSocketSession);
+        responseAggregator.addWebSocketSession(webSocketSession);
     }
 
-    private void closeAggregator(WebSocketSession webSocketSession) {
+    private void unbindingResponseAggregator(WebSocketSession webSocketSession) {
         String applicationName = (String) webSocketSession.getAttributes().get(APPLICATION_NAME_KEY);
         if (StringUtils.isEmpty(applicationName)) {
             return;
         }
 
-        PinpointWebSocketResponseAggregator aggregator = aggregatorRepository.get(applicationName);
-        if (aggregator == null) {
+        PinpointWebSocketResponseAggregator responseAggregator = aggregatorRepository.get(applicationName);
+        if (responseAggregator == null) {
             return;
         }
 
-        boolean cleared = aggregator.removeWebSocketSessionAndGetIsCleared(webSocketSession);
+        boolean cleared = responseAggregator.removeWebSocketSessionAndGetIsCleared(webSocketSession);
         if (cleared) {
             aggregatorRepository.remove(applicationName);
-            aggregator.stop();
+            responseAggregator.stop();
         }
     }
 
