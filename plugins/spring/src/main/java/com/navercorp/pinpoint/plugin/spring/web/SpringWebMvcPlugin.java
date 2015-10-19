@@ -26,13 +26,14 @@ import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 /**
  * @author Jongho Moon
  *
  */
 public class SpringWebMvcPlugin implements ProfilerPlugin {
-    public static final ServiceType SPRING_MVC = ServiceType.of(5051, "SPRING_MVC", "SPRING");
+    public static final ServiceType SPRING_MVC = ServiceTypeFactory.of(5051, "SPRING_MVC", "SPRING");
     
     @Override
     public void setup(ProfilerPluginSetupContext context) {

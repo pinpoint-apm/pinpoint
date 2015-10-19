@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.httpclient3;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 /**
  * 
@@ -28,8 +29,8 @@ public final class HttpClient3Constants {
     private HttpClient3Constants() {
     }
 
-    public static final ServiceType HTTP_CLIENT_3 = ServiceType.of(9050, "HTTP_CLIENT_3", RECORD_STATISTICS);
-    public static final ServiceType HTTP_CLIENT_3_INTERNAL = ServiceType.of(9051, "HTTP_CLIENT_3_INTERNAL", "HTTP_CLIENT_3");
+    public static final ServiceType HTTP_CLIENT_3 = ServiceTypeFactory.of(9050, "HTTP_CLIENT_3", RECORD_STATISTICS);
+    public static final ServiceType HTTP_CLIENT_3_INTERNAL = ServiceTypeFactory.of(9051, "HTTP_CLIENT_3_INTERNAL", "HTTP_CLIENT_3");
 
     public static final String HTTP_CLIENT3_SCOPE = "HttpClient3Scope"; 
     public static final String HTTP_CLIENT3_CONNECTION_SCOPE = "HttpClient3HttpConnection";

@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.plugin.tomcat;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 /**
  * @author Jongho Moon
@@ -28,8 +29,8 @@ public final class TomcatConstants {
     }
 
     public static final String TYPE_NAME = "TOMCAT";
-    public static final ServiceType TOMCAT = ServiceType.of(1010, "TOMCAT", RECORD_STATISTICS);
-    public static final ServiceType TOMCAT_METHOD = ServiceType.of(1011, "TOMCAT_METHOD");
+    public static final ServiceType TOMCAT = ServiceTypeFactory.of(1010, "TOMCAT", RECORD_STATISTICS);
+    public static final ServiceType TOMCAT_METHOD = ServiceTypeFactory.of(1011, "TOMCAT_METHOD");
 
     public static final String METADATA_TRACE = "com.navercorp.pinpoint.plugin.tomcat.TraceAccessor";
     public static final String METADATA_ASYNC = "com.navercorp.pinpoint.plugin.tomcat.AsyncAccessor";

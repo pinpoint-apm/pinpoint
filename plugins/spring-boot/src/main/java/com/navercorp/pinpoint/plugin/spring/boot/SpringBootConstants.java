@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.spring.boot;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 /**
  * @author HyunGil Jeong
@@ -28,7 +29,7 @@ public final class SpringBootConstants {
     }
 
     public static final String NAME = "SPRING_BOOT";
-    public static final ServiceType SERVICE_TYPE = ServiceType.of(1210, NAME, RECORD_STATISTICS);
+    public static final ServiceType SERVICE_TYPE = ServiceTypeFactory.of(1210, NAME, RECORD_STATISTICS);
 
     public static final String BOOTSTRAP_MAIN_PREFIX = "org.springframework.boot.loader.";
 }

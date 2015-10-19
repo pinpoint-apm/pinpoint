@@ -20,6 +20,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 import java.util.List;
 
+import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,8 +32,8 @@ import com.navercorp.pinpoint.web.vo.Range;
  * @author emeroad
  */
 public class LinkListTest {
-    private static final ServiceType TOMCAT = ServiceType.of(1010, "TOMCAT", RECORD_STATISTICS);
-    private static final ServiceType BLOC = ServiceType.of(1011, "BLOC", RECORD_STATISTICS);
+    private static final ServiceType TOMCAT = ServiceTypeFactory.of(1010, "TOMCAT", RECORD_STATISTICS);
+    private static final ServiceType BLOC = ServiceTypeFactory.of(1011, "BLOC", RECORD_STATISTICS);
       
     
     @Test

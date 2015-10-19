@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.httpclient4;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 
 /**
@@ -29,8 +30,8 @@ public final class HttpClient4Constants {
     private HttpClient4Constants() {
     }
 
-    public static final ServiceType HTTP_CLIENT_4 = ServiceType.of(9052, "HTTP_CLIENT_4", RECORD_STATISTICS);
-    public static final ServiceType HTTP_CLIENT_4_INTERNAL = ServiceType.of(9053, "HTTP_CLIENT_4_INTERNAL", "HTTP_CLIENT_4");
+    public static final ServiceType HTTP_CLIENT_4 = ServiceTypeFactory.of(9052, "HTTP_CLIENT_4", RECORD_STATISTICS);
+    public static final ServiceType HTTP_CLIENT_4_INTERNAL = ServiceTypeFactory.of(9053, "HTTP_CLIENT_4_INTERNAL", "HTTP_CLIENT_4");
 
     public static final String METADATA_END_POINT = "endPoint";
     public static final String METADATA_DESTINATION_ID = "destinationId";

@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.common.util;
 
 import java.util.List;
 
+import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatchers;
-import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public class StaticFieldLookUpTest {
@@ -42,7 +42,7 @@ public class StaticFieldLookUpTest {
         List<ServiceType> lookup = staticFieldLookUp.lookup();
 
         final int SERVER_CATEGORY_MAX = 1999;
-        ServiceType notExist = ServiceType.of(SERVER_CATEGORY_MAX, "test", "test");
+        ServiceType notExist = ServiceTypeFactory.of(SERVER_CATEGORY_MAX, "test", "test");
         Assert.assertFalse(findType(lookup, notExist));
     }
 

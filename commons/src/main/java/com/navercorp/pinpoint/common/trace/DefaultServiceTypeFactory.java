@@ -13,19 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.user;
 
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+package com.navercorp.pinpoint.common.trace;
 
 /**
- * 
- * @author jaehong.kim
- *
+ * @author emeroad
  */
-public final class UserConstants {
-    private UserConstants() {
+public class DefaultServiceTypeFactory extends ServiceTypeFactory {
+
+
+    DefaultServiceTypeFactory() {
     }
 
-    public static final ServiceType USER_INCLUDE = ServiceTypeFactory.of(7010, "USER_INCLUDE");
+
+    @Override
+    public ServiceType createServiceType(int code, String name, String desc, ServiceTypeProperty... properties) {
+        return new DefaultServiceType(code, name, desc, properties);
+    }
 }

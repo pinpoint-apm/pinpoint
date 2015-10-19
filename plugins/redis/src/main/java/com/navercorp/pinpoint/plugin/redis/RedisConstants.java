@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.plugin.redis;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 /**
  * 
@@ -28,7 +29,7 @@ public final class RedisConstants {
     private RedisConstants() {
     }
 
-    public static final ServiceType REDIS = ServiceType.of(8200, "REDIS", TERMINAL, RECORD_STATISTICS);
+    public static final ServiceType REDIS = ServiceTypeFactory.of(8200, "REDIS", TERMINAL, RECORD_STATISTICS);
     public static final String METADATA_END_POINT = "com.navercorp.pinpoint.plugin.redis.EndPointAccessor";
     
     public static final String REDIS_SCOPE = "redisScope";

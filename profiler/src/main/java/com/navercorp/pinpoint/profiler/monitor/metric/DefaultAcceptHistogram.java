@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.monitor.metric;
 
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -39,7 +39,7 @@ public class DefaultAcceptHistogram implements AcceptHistogram {
             throw new NullPointerException("parentApplicationName must not be null");
         }
         // Cannot compare by ServiceType value because it could be incompatible if new service type is added.  
-        if (!ServiceType.isWas(serviceTypeCode)) {
+        if (!ServiceTypeCategory.SERVER.contains(serviceTypeCode)) {
             return false;
         }
         
