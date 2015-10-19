@@ -21,6 +21,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
+import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,7 +29,7 @@ import java.util.List;
 
 
 public class DefaultRpcMetricTest {
-    private static final ServiceType ASYNC_HTTP_CLIENT = ServiceType.of(9056, "ASYNC_HTTP_CLIENT", RECORD_STATISTICS);
+    private static final ServiceType ASYNC_HTTP_CLIENT = ServiceTypeFactory.of(9056, "ASYNC_HTTP_CLIENT", RECORD_STATISTICS);
     
     @Test
     public void testAddResponseTime() throws Exception {

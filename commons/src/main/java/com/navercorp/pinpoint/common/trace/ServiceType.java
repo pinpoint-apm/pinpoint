@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.common.trace;
 
-import static com.navercorp.pinpoint.common.trace.HistogramSchema.*;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeFactory.of;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 /**
@@ -134,240 +134,85 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * @author netspider
  * @author Jongho Moon
  */
-public class ServiceType {
-    private final short code;
-    private final String name;
-    private final String desc;
-    private final boolean terminal;
+public interface ServiceType {
+
+
+    String getName();
+
+    short getCode();
+
+    String getDesc();
+
+
+    boolean isInternalMethod();
+
+
+    boolean isRpcClient();
 
     // FIXME record statistics of only rpc call currently. so is it all right to chane into isRecordRpc()
-    private final boolean recordStatistics;
+    boolean isRecordStatistics();
 
-    // whether or not print out api including destinationId
-    private final boolean includeDestinationId;
-    private final ServiceTypeCategory category;
-
-    public static ServiceType of(int code, String name, ServiceTypeProperty... properties) {
-        return of(code, name, name, properties);
-    }
-
-    public static ServiceType of(int code, String name, String desc, ServiceTypeProperty... properties) {
-        return new ServiceType(code, name, desc, properties);
-    }
-
-    ServiceType(int code, String name, String desc, ServiceTypeProperty... properties) {
-        // code must be a short value but constructors accept int to make declaring ServiceType values more cleaner by removing casting to short.
-        if (code > Short.MAX_VALUE || code < Short.MIN_VALUE) {
-            throw new IllegalArgumentException("code must be a short value");
-        }
-
-        this.code = (short)code;
-        this.name = name;
-        this.desc = desc;
-
-        this.category = ServiceTypeCategory.findCategory((short)code);
-
-        boolean terminal = false;
-        boolean recordStatistics = false;
-        boolean includeDestinationId = false;
-        
-        for (ServiceTypeProperty property : properties) {
-            switch (property) {
-            case TERMINAL:
-                terminal = true;
-                break;
-                
-            case RECORD_STATISTICS:
-                recordStatistics = true;
-                break;
-                
-            case INCLUDE_DESTINATION_ID:
-                includeDestinationId = true;
-                break;
-            default:
-                throw new IllegalStateException("Unknown ServiceTypeProperty:" + property);
-            }
-        }
-        
-        this.terminal = terminal;
-        this.recordStatistics = recordStatistics;
-        this.includeDestinationId = includeDestinationId;
-    }
-
-
-    public boolean isInternalMethod() {
-        return this == INTERNAL_METHOD;
-    }
-
-    public boolean isRpcClient() {
-        return ServiceTypeCategory.RPC.contains(code);
-    }
-
-    // FIXME record statistics of only rpc call currently. so is it all right to chane into isRecordRpc()
-    public boolean isRecordStatistics() {
-        return recordStatistics;
-    }
-
-    public boolean isUnknown() {
-        return this == ServiceType.UNKNOWN; // || this == ServiceType.UNKNOWN_CLOUD;
-    }
+    boolean isUnknown();
 
     // return true when the service type is USER or can not be identified
-    public boolean isUser() {
-        return this == ServiceType.USER;
-    }
+    boolean isUser();
 
-    public String getName() {
-        return name;
-    }
 
-    public short getCode() {
-        return code;
-    }
 
-    public String getDesc() {
-        return desc;
-    }
+    boolean isTerminal();
 
-    public boolean isTerminal() {
-        return terminal;
-    }
+    boolean isIncludeDestinationId();
 
-    public boolean isIncludeDestinationId() {
-        return includeDestinationId;
-    }
+    ServiceTypeCategory getCategory();
 
-    public ServiceTypeCategory getCategory() {
-        return category;
-    }
 
-    public HistogramSchema getHistogramSchema() {
-        return category.getHistogramSchema();
-    }
+    HistogramSchema getHistogramSchema();
 
-    public boolean isWas() {
-        return this.category == ServiceTypeCategory.SERVER;
-    }
-    
-    @Override
-    public String toString() {
-        return desc;
-    }
+    boolean isWas();
 
-    @Override
-    public int hashCode() {
-        // ServiceType's hashCode method is not used as they are put into IntHashMap (see ServiceTypeRegistry)
-        // which uses ServiceType code as key. It shouldn't really matter what this method returns.
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + code;
-        return result;
-    }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        
-        if (obj == null) {
-            return false;
-        }
-        
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        
-        ServiceType other = (ServiceType) obj;
-        if (code != other.code) {
-            return false;
-        }
-        if (desc == null) {
-            if (other.desc != null) {
-                return false;
-            }
-        } else if (!desc.equals(other.desc)) {
-            return false;
-            
-        }
-        
-        if (category == null) {
-            if (other.category != null) {
-                return false;
-            }
-        } else if (!category.equals(other.category)) {
-            return false;
-        }
-        
-        if (includeDestinationId != other.includeDestinationId) {
-            return false;
-        }
-        
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else if (!name.equals(other.name)) {
-            return false;
-        }
-        
-        if (recordStatistics != other.recordStatistics) {
-            return false;
-        }
-        
-        if (terminal != other.terminal) {
-            return false;
-        }
-        
-        return true;
-    }
-
-    public static boolean isWas(final short code) {
-        return ServiceTypeCategory.SERVER.contains(code);
-    }
 
 
     // Undefined Service Code
-    public static final ServiceType UNDEFINED = of(-1, "UNDEFINED", TERMINAL);
+    ServiceType UNDEFINED = of(-1, "UNDEFINED", TERMINAL);
 
     // Callee node that agent hasn't been installed
-    public static final ServiceType UNKNOWN = of(1, "UNKNOWN", RECORD_STATISTICS);
+    ServiceType UNKNOWN = of(1, "UNKNOWN", RECORD_STATISTICS);
 
     // UserUNDEFINED
-    public static final ServiceType USER = of(2, "USER", RECORD_STATISTICS);
+    ServiceType USER = of(2, "USER", RECORD_STATISTICS);
 
     // Group of UNKNOWN, used only for UI
-    public static final ServiceType UNKNOWN_GROUP = of(3, "UNKNOWN_GROUP", RECORD_STATISTICS);
+    ServiceType UNKNOWN_GROUP = of(3, "UNKNOWN_GROUP", RECORD_STATISTICS);
 
     // Group of TEST, used for running tests
-    public static final ServiceType TEST = of(5, "TEST");
+    ServiceType TEST = of(5, "TEST");
 
-    public static final ServiceType COLLECTOR = of(7, "COLLECTOR");
+    ServiceType COLLECTOR = of(7, "COLLECTOR");
     
-    public static final ServiceType ASYNC = of(100, "ASYNC");
+    ServiceType ASYNC = of(100, "ASYNC");
     
     // Java applications, WAS
-    public static final ServiceType STAND_ALONE = of(1000, "STAND_ALONE", RECORD_STATISTICS);
-    public static final ServiceType TEST_STAND_ALONE = of(1005, "TEST_STAND_ALONE", RECORD_STATISTICS);
+    ServiceType STAND_ALONE = of(1000, "STAND_ALONE", RECORD_STATISTICS);
+    ServiceType TEST_STAND_ALONE = of(1005, "TEST_STAND_ALONE", RECORD_STATISTICS);
 
 
     /**
      * Database shown only as xxx_EXECUTE_QUERY at the statistics info section in the server map
      */
     // DB 2000
-    public static final ServiceType UNKNOWN_DB = of(2050, "UNKNOWN_DB", TERMINAL, INCLUDE_DESTINATION_ID);
-    public static final ServiceType UNKNOWN_DB_EXECUTE_QUERY = of(2051, "UNKNOWN_DB_EXECUTE_QUERY", "UNKNOWN_DB", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
+    ServiceType UNKNOWN_DB = of(2050, "UNKNOWN_DB", TERMINAL, INCLUDE_DESTINATION_ID);
+    ServiceType UNKNOWN_DB_EXECUTE_QUERY = of(2051, "UNKNOWN_DB_EXECUTE_QUERY", "UNKNOWN_DB", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
 
     // Internal method
     // FIXME it's not clear to put internal method here. but do that for now.
-    public static final ServiceType INTERNAL_METHOD = of(5000, "INTERNAL_METHOD");
+    ServiceType INTERNAL_METHOD = of(5000, "INTERNAL_METHOD");
     
 
     // Spring framework
-    public static final ServiceType SPRING = of(5050, "SPRING");
-//    public static final ServiceType SPRING_MVC = of(5051, "SPRING_MVC", "SPRING", NORMAL_SCHEMA);
+    ServiceType SPRING = of(5050, "SPRING");
+//    ServiceType SPRING_MVC = of(5051, "SPRING_MVC", "SPRING", NORMAL_SCHEMA);
     // FIXME replaced with IBATIS_SPRING (5501) under IBatis Plugin - kept for backwards compatibility
-    public static final ServiceType SPRING_ORM_IBATIS = of(5061, "SPRING_ORM_IBATIS", "SPRING");
+    ServiceType SPRING_ORM_IBATIS = of(5061, "SPRING_ORM_IBATIS", "SPRING");
     // FIXME need to define how to handle spring related codes
-//    public static final ServiceType SPRING_BEAN = of(5071, "SPRING_BEAN", "SPRING_BEAN", NORMAL_SCHEMA);
+//    ServiceType SPRING_BEAN = of(5071, "SPRING_BEAN", "SPRING_BEAN", NORMAL_SCHEMA);
 }

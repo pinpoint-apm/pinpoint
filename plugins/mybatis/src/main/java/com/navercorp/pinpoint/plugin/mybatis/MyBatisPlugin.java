@@ -28,17 +28,17 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 /**
  * @author HyunGil Jeong
  */
 public class MyBatisPlugin implements ProfilerPlugin {
 
-    public static final ServiceType MYBATIS = ServiceType.of(5510, "MYBATIS");
+    public static final ServiceType MYBATIS = ServiceTypeFactory.of(5510, "MYBATIS");
 
     private static final String MYBATIS_SCOPE = "MYBATIS_SCOPE";
 

@@ -23,6 +23,7 @@ import java.util.List;
 import com.navercorp.pinpoint.common.service.*;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.TraceMetadataLoader;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
@@ -36,7 +37,7 @@ import org.junit.Test;
  */
 public class ServiceTypeInitializerTest {
     private static final ServiceType[] TEST_TYPES = {
-        ServiceType.of(1209, "FOR_UNIT_TEST", "UNDEFINED", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID)
+        ServiceTypeFactory.of(1209, "FOR_UNIT_TEST", "UNDEFINED", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID)
     };
     
     private static final AnnotationKey[] TEST_KEYS = {
@@ -44,11 +45,11 @@ public class ServiceTypeInitializerTest {
     };
 
     private static final ServiceType[] DUPLICATED_CODE_WITH_DEFAULT_TYPE = {
-        ServiceType.of(ServiceType.USER.getCode(), "FOR_UNIT_TEST", "UNDEFINED", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID)
+        ServiceTypeFactory.of(ServiceType.USER.getCode(), "FOR_UNIT_TEST", "UNDEFINED", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID)
     };
     
     private static final ServiceType[] DUPLICATED_NAME_WITH_DEFAULT_TYPE = {
-        ServiceType.of(1209, ServiceType.USER.getName(), "UNDEFINED", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID)
+        ServiceTypeFactory.of(1209, ServiceType.USER.getName(), "UNDEFINED", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID)
     };
     
     private static final AnnotationKey[] DUPLICATED_CODE_WITH_DEFAULT_KEY = {

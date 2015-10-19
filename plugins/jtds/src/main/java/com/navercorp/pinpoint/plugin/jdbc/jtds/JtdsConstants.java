@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.plugin.jdbc.jtds;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 /**
  * @author Jongho Moon
@@ -28,6 +29,6 @@ public final class JtdsConstants {
 
     public static final String GROUP_JTDS = "JTDS";
     
-    public static final ServiceType MSSQL = ServiceType.of(2200, "MSSQL", "MSSQLSERVER", TERMINAL, INCLUDE_DESTINATION_ID);
-    public static final ServiceType MSSQL_EXECUTE_QUERY = ServiceType.of(2201, "MSSQL_EXECUTE_QUERY", "MSSQLSERVER", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
+    public static final ServiceType MSSQL = ServiceTypeFactory.of(2200, "MSSQL", "MSSQLSERVER", TERMINAL, INCLUDE_DESTINATION_ID);
+    public static final ServiceType MSSQL_EXECUTE_QUERY = ServiceTypeFactory.of(2201, "MSSQL_EXECUTE_QUERY", "MSSQLSERVER", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
 }

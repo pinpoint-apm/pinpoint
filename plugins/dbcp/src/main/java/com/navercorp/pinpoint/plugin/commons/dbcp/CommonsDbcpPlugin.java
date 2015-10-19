@@ -24,12 +24,13 @@ import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFile
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 /**
  * @author Jongho Moon
  */
 public class CommonsDbcpPlugin implements ProfilerPlugin {
-    public static final ServiceType DBCP_SERVICE_TYPE = ServiceType.of(6050, "DBCP");
+    public static final ServiceType DBCP_SERVICE_TYPE = ServiceTypeFactory.of(6050, "DBCP");
     public static final String DBCP_GROUP = "DBCP_GROUP";
 
     @Override

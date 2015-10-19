@@ -30,18 +30,18 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
-import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
 /**
  * @author HyunGil Jeong
  */
 public class IBatisPlugin implements ProfilerPlugin {
 
-    public static final ServiceType IBATIS = ServiceType.of(5500, "IBATIS");
-    public static final ServiceType IBATIS_SPRING = ServiceType.of(5501, "IBATIS_SPRING", "IBATIS");
+    public static final ServiceType IBATIS = ServiceTypeFactory.of(5500, "IBATIS");
+    public static final ServiceType IBATIS_SPRING = ServiceTypeFactory.of(5501, "IBATIS_SPRING", "IBATIS");
 
     private static final String IBATIS_SCOPE = "IBATIS_SCOPE";
 
