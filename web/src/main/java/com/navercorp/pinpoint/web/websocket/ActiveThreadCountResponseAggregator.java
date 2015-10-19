@@ -19,8 +19,6 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCount;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;
@@ -32,7 +30,9 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -43,35 +43,36 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final Object aggregatorLock = new Object();
-    private final Object workerManagingLock = new Object();
     private volatile boolean isStopped = false;
-
-    private final ObjectMapper jsonConverter = new ObjectMapper();
 
     private final String applicationName;
     private final AgentService agentService;
-
-    private final List<WebSocketSession> webSocketSessions = new CopyOnWriteArrayList<>();
-    private final ConcurrentHashMap<String, ActiveThreadCountWorker> activeThreadCountWorkerRepository = new ConcurrentHashMap<String, ActiveThreadCountWorker>();
-
     private final Timer timer;
 
+    private final Object workerManagingLock = new Object();
+    private final List<WebSocketSession> webSocketSessions = new CopyOnWriteArrayList<>();
+    private final ConcurrentHashMap<String, ActiveThreadCountWorker> activeThreadCountWorkerRepository = new ConcurrentHashMap<String, ActiveThreadCountWorker>();
     private StreamConnectionManager streamConnectionManager;
 
-    private Map<String, AgentActiveThreadCount> activeThreadCountMap;
+    private final Object aggregatorLock = new Object();
+    private Map<String, AgentActiveThreadCount> activeThreadCountMap = new HashMap<String, AgentActiveThreadCount>();;
+
+    private final ActiveThreadCountResponseMessageConverter messageConverter;
 
     public ActiveThreadCountResponseAggregator(String applicationName, AgentService agentService, Timer timer) {
         this.applicationName = applicationName;
         this.agentService = agentService;
 
-        this.activeThreadCountMap = new HashMap<String, AgentActiveThreadCount>();
         this.timer = timer;
+
+        this.messageConverter = new ActiveThreadCountResponseMessageConverter(applicationName);
     }
 
     @Override
     public void start() {
-        streamConnectionManager = new StreamConnectionManager(this, agentService, timer);
+        synchronized (workerManagingLock) {
+            streamConnectionManager = new StreamConnectionManager(this, agentService, timer);
+        }
     }
 
     @Override
@@ -85,7 +86,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
 
             for (ActiveThreadCountWorker worker : activeThreadCountWorkerRepository.values()) {
                 if (worker != null) {
-                    worker.stop();
+                    worker.inactive();
                 }
             }
 
@@ -108,14 +109,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
             }
 
             for (AgentInfo agentInfo : agentInfoList) {
-                String agentId = agentInfo.getAgentId();
-
-                if (!activeThreadCountWorkerRepository.contains(agentId)) {
-                    ActiveThreadCountWorker activeThreadCountWorker = new ActiveThreadCountWorker(agentService, agentInfo, this, streamConnectionManager);
-                    activeThreadCountWorker.start();
-
-                    activeThreadCountWorkerRepository.put(agentId, activeThreadCountWorker);
-                }
+                addAgentWorker0(agentInfo);
             }
 
             boolean added = webSocketSessions.add(webSocketSession);
@@ -143,7 +137,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
             if (removed) {
                 if (webSocketSessions.size() == 0) {
                     for (ActiveThreadCountWorker activeThreadCountWorker : activeThreadCountWorkerRepository.values()) {
-                        activeThreadCountWorker.stop();
+                        activeThreadCountWorker.inactive();
                     }
                     activeThreadCountWorkerRepository.clear();
                     return true;
@@ -156,18 +150,24 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
 
     @Override
     public void addAgent(AgentInfo agentInfo) {
-
         String agentId = agentInfo.getAgentId();
-        logger.info("addAgent agentId:{}", agentId);
+        logger.info("addAgent applicationName:{}, agentId:{}", applicationName, agentId);
 
         synchronized (workerManagingLock) {
             if (isStopped) {
                 return;
             }
+            addAgentWorker0(agentInfo);
+        }
+    }
+
+    private void addAgentWorker0(AgentInfo agentInfo) {
+        synchronized (workerManagingLock) {
+            String agentId = agentInfo.getAgentId();
 
             if (!activeThreadCountWorkerRepository.containsKey(agentId)) {
                 ActiveThreadCountWorker activeThreadCountWorker = new ActiveThreadCountWorker(agentService, agentInfo, this, streamConnectionManager);
-                activeThreadCountWorker.start();
+                activeThreadCountWorker.active();
 
                 activeThreadCountWorkerRepository.put(agentId, activeThreadCountWorker);
             }
@@ -187,18 +187,22 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
 
     @Override
     public void flush() throws Exception {
-        logger.info("flush");
+        logger.info("flush started.");
+
+        if (isStopped) {
+            return;
+        }
 
         AgentActiveThreadCountList response = new AgentActiveThreadCountList();
         synchronized (aggregatorLock) {
-            for (ActiveThreadCountWorker threadCountStreamListener : activeThreadCountWorkerRepository.values()) {
-                String agentId = threadCountStreamListener.getAgentInfo().getAgentId();
+            for (ActiveThreadCountWorker activeThreadCountWorker : activeThreadCountWorkerRepository.values()) {
+                String agentId = activeThreadCountWorker.getAgentInfo().getAgentId();
 
                 AgentActiveThreadCount agentActiveThreadCount = activeThreadCountMap.get(agentId);
                 if (agentActiveThreadCount != null) {
                     response.add(agentActiveThreadCount);
                 } else {
-                    response.add(threadCountStreamListener.getDefaultFailedResponse());
+                    response.add(activeThreadCountWorker.getDefaultFailedResponse());
                 }
             }
             activeThreadCountMap = new HashMap<String, AgentActiveThreadCount>(activeThreadCountWorkerRepository.size());
@@ -208,43 +212,16 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
     }
 
     private void flush0(AgentActiveThreadCountList activeThreadCountList) {
-        String response = makeResponseMessage(applicationName, activeThreadCountList);
+        TextMessage responseMessage = messageConverter.createResponseMessage(activeThreadCountList, System.currentTimeMillis());
 
         for (WebSocketSession webSocketSession : webSocketSessions) {
             try {
-                logger.debug("flush webSocket:{}, response:{}", webSocketSession, response);
-                webSocketSession.sendMessage(new TextMessage(response));
+                logger.debug("flush webSocket:{}, response:{}", webSocketSession, responseMessage);
+                webSocketSession.sendMessage(responseMessage);
             } catch (IOException e) {
                 logger.warn(e.getMessage(), e);
             }
         }
-    }
-
-    private String makeResponseMessage(String applicationName, AgentActiveThreadCountList activeThreadCount) {
-        Map<String, Object> response = new HashMap<String, Object>();
-
-        response.put("applicationName", applicationName);
-        response.put("activeThreadCounts", activeThreadCount);
-        response.put("timeStamp", System.currentTimeMillis());
-
-        try {
-            return jsonConverter.writeValueAsString(response);
-        } catch (JsonProcessingException e) {
-            logger.warn(e.getMessage(), e);
-        }
-
-        return createEmptyJsonMessage(applicationName);
-    }
-
-    private String createEmptyJsonMessage(String applicationName) {
-        StringBuilder emptyJsonMessage = new StringBuilder();
-        emptyJsonMessage.append("{");
-        emptyJsonMessage.append("\"").append(applicationName).append("\"");
-        emptyJsonMessage.append(":");
-        emptyJsonMessage.append("{}");
-        emptyJsonMessage.append("}");
-
-        return emptyJsonMessage.toString();
     }
 
     @Override

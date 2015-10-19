@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @Author Taejin Koo
  */
-public class ActiveThreadCountWorker {
+public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
 
     private static final ClientStreamChannelMessageListener LOGGING = LoggingStreamChannelMessageListener.CLIENT_LISTENER;
 
@@ -76,12 +76,13 @@ public class ActiveThreadCountWorker {
         this.stateChangeListener = new StateChangeListener();
     }
 
-    public void start() {
+
+    @Override
+    public void active() {
         synchronized (lock) {
             if (started) {
                 return;
             }
-
             started = true;
 
             logger.info("ActiveThreadCountWorker start. applicationName:{}, agentId:{}", agentInfo.getApplicationName(), agentInfo.getAgentId());
@@ -105,26 +106,34 @@ public class ActiveThreadCountWorker {
         }
     }
 
-    public void stop() {
+    @Override
+    public boolean reactive() {
+        return false;
+    }
+
+    @Override
+    public void inactive() {
         synchronized (lock) {
             if (!started && stopped) {
                 return;
             }
-
             stopped = true;
 
             logger.info("ActiveThreadCountWorker stop. agentId:{}, streamChannel:{}", agentInfo.getAgentId(), streamChannel);
 
             try {
                 streamConnectionManager.removeReconnectJob(agentInfo);
-
-                if (streamChannel != null) {
-                    streamChannel.close();
-                }
-                defaultFailedResponse.setFail(StreamCode.STATE_CLOSED.name());
+                closeStreamChannel();
             } catch (Exception e) {
             }
         }
+    }
+
+    private void closeStreamChannel() {
+        if (streamChannel != null) {
+            streamChannel.close();
+        }
+        defaultFailedResponse.setFail(StreamCode.STATE_CLOSED.name());
     }
 
     public AgentInfo getAgentInfo() {
