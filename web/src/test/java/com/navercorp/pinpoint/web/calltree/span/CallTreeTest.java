@@ -57,6 +57,25 @@ public class CallTreeTest {
     }
 
     @Test
+    public void addAndSort() {
+        expectResult.clear();
+        expectResult.add("#");
+        expectResult.add("##");
+        expectResult.add("###");
+        expectResult.add("####");
+        expectResult.add("#####");
+
+        callTree.add(1, makeSpanAlign(SYNC, (short) 0));
+        callTree.add(2, makeSpanAlign(SYNC, (short) 1));
+        callTree.add(3, makeSpanAlign(SYNC, (short) 2));
+        callTree.add(4, makeSpanAlign(SYNC, (short) 3));
+        assertDepth("addAndSort", callTree, expectResult);
+
+        callTree.sort();
+        assertDepth("addAndSort", callTree, expectResult);
+    }
+
+    @Test
     public void addLevel() {
         expectResult.clear();
         expectResult.add("#");
@@ -236,8 +255,8 @@ public class CallTreeTest {
     public void sort() {
         expectResult.add("#");
         expectResult.add("##");
-        expectResult.add("###");
-        expectResult.add("####");
+        expectResult.add("###"); // remote
+        expectResult.add("####"); // remote
         expectResult.add("###");
         expectResult.add("###");
         expectResult.add("##");
@@ -254,13 +273,8 @@ public class CallTreeTest {
         callTree.add(2, makeSpanAlign(root.getSpanBo(), SYNC, (short) 1, -1, -1, 2, 1));
         callTree.add(-1, makeSpanAlign(root.getSpanBo(), SYNC, (short) 2, -1, -1, 3, 1));
         callTree.add(1, makeSpanAlign(root.getSpanBo(), SYNC, (short) 3, -1, -1, 4, 1));
-        
-        CallTreeIterator iterator = callTree.iterator();
-        while(iterator.hasNext()) {
-            CallTreeNode node = iterator.next();
-            System.out.println(node.getDepth() + ", " + node.getValue().getStartTime());
-        }
-        
+
+
         assertDepth("before sort", callTree, expectResult);
         
         callTree.sort();
@@ -270,16 +284,49 @@ public class CallTreeTest {
         expectResult.add("##");
         expectResult.add("###");
         expectResult.add("###");
-        expectResult.add("###");
-        expectResult.add("####");
+        expectResult.add("###"); // remote
+        expectResult.add("####"); // remote
         expectResult.add("##");
-        
-        iterator = callTree.iterator();
-        while(iterator.hasNext()) {
-            CallTreeNode node = iterator.next();
-            System.out.println(node.getDepth() + ", " + node.getValue().getStartTime());
-        }
-        
+
+        assertDepth("after sort", callTree, expectResult);
+    }
+
+    @Test
+    public void sort2() {
+        expectResult.add("#");
+        expectResult.add("##");
+        expectResult.add("###"); // remote 1
+        expectResult.add("####"); // remote 1
+        expectResult.add("###"); // remote 2
+        expectResult.add("###");
+
+        SpanAlign root = makeSpanAlign(0, 10);
+        SpanCallTree callTree = new SpanCallTree(root);
+        callTree.add(1, makeSpanAlign(root.getSpanBo(), SYNC, (short) 0, -1, -1, 1, 1));
+
+        SpanAlign remoteRoot1 = makeSpanAlign(4, 5);
+        SpanCallTree subTree1 = new SpanCallTree(remoteRoot1);
+        subTree1.add(1, makeSpanAlign(remoteRoot1.getSpanBo(), SYNC, (short) 0, -1, -1, 1, 1));
+        callTree.add(subTree1);
+
+        SpanAlign remoteRoot2 = makeSpanAlign(3, 4);
+        SpanCallTree subTree2 = new SpanCallTree(remoteRoot2);
+        callTree.add(subTree2);
+
+        callTree.add(2, makeSpanAlign(root.getSpanBo(), SYNC, (short) 1, -1, -1, 2, 1));
+
+        assertDepth("before sort", callTree, expectResult);
+
+        callTree.sort();
+
+        expectResult.clear();
+        expectResult.add("#");
+        expectResult.add("##");
+        expectResult.add("###");
+        expectResult.add("###"); // remote 2
+        expectResult.add("###"); // remote 1
+        expectResult.add("####"); // remote 1
+
         assertDepth("after sort", callTree, expectResult);
     }
 

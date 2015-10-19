@@ -15,15 +15,10 @@
  */
 package com.navercorp.pinpoint.web.calltree.span;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
- * 
  * @author jaehong.kim
- *
  */
 public class SpanCallTree implements CallTree {
 
@@ -171,20 +166,35 @@ public class SpanCallTree implements CallTree {
 
     void sortChildSibling(final CallTreeNode parent) {
         if (!parent.hasChild() || !parent.getChild().hasSibling()) {
+            // no child or no child sibling.
             return;
         }
 
-        final List<CallTreeNode> nodes = getChildSiblingNodes(parent);
-        if(nodes == null) {
+        final List<CallTreeNode> events = new ArrayList<CallTreeNode>();
+        final LinkedList<CallTreeNode> spans = new LinkedList<CallTreeNode>();
+        splitChildSiblingNodes(parent, events, spans);
+        if (spans.size() == 0) {
+            // not found span
             return;
         }
 
-        Collections.sort(nodes, new Comparator<CallTreeNode>() {
+        // order by abs.
+        Collections.sort(spans, new Comparator<CallTreeNode>() {
             @Override
             public int compare(CallTreeNode source, CallTreeNode target) {
                 return (int) (source.getValue().getStartTime() - target.getValue().getStartTime());
             }
         });
+
+        // sort
+        final List<CallTreeNode> nodes = new ArrayList<CallTreeNode>();
+        for (CallTreeNode event : events) {
+            while (spans.peek() != null && event.getValue().getStartTime() > spans.peek().getValue().getStartTime()) {
+                nodes.add(spans.poll());
+            }
+            nodes.add(event);
+        }
+        nodes.addAll(spans);
 
         // reform sibling
         CallTreeNode prev = null;
@@ -201,26 +211,21 @@ public class SpanCallTree implements CallTree {
         }
     }
 
-    private List<CallTreeNode> getChildSiblingNodes(final CallTreeNode parent) {
-        final List<CallTreeNode> nodes = new ArrayList<CallTreeNode>();
-        boolean span = false;
+    private void splitChildSiblingNodes(final CallTreeNode parent, List<CallTreeNode> events, List<CallTreeNode> spans) {
         CallTreeNode node = parent.getChild();
-        nodes.add(node);
-        if(node.getValue().isSpan()) {
-            span = true;
+        if (node.getValue().isSpan()) {
+            spans.add(node);
+        } else {
+            events.add(node);
         }
+
         while (node.hasSibling()) {
             node = node.getSibling();
-            nodes.add(node);
-            if(node.getValue().isSpan()) {
-                span = true;
+            if (node.getValue().isSpan()) {
+                spans.add(node);
+            } else {
+                events.add(node);
             }
         }
-        
-        if(nodes.size() < 2 || !span) {
-            return null;
-        }
-        
-        return nodes;
     }
 }
