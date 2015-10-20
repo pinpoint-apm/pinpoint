@@ -19,15 +19,17 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
+import com.navercorp.pinpoint.web.vo.AgentInfo;
+
 /**
  * @Author Taejin Koo
  */
 public interface PinpointWebSocketHandlerWorker {
 
-    void active();
+    void start(AgentInfo agentInfo);
 
-    boolean reactive();
+    boolean reactive(AgentInfo agentInfo);
 
-    void inactive();
+    void stop();
 
 }
