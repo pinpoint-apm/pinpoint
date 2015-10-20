@@ -55,7 +55,7 @@ public interface PinpointWebSocketResponseAggregator {
     // return when aggregator cleared.
     boolean removeWebSocketSessionAndGetIsCleared(WebSocketSession webSocketSession);
 
-    void addAgent(AgentInfo agentInfo);
+    void addActiveWorker(AgentInfo agentInfo);
 
     String getApplicationName();
 

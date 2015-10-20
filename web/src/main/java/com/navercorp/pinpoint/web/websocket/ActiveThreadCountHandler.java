@@ -142,7 +142,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
     @Override
     protected void handleTextMessage(WebSocketSession webSocketSession, TextMessage message) throws Exception {
-        logger.info("handleTextMessage. session : {}, message : {}.", webSocketSession, message.getPayload());
+        logger.info("handleTextMessage. session:{}, message:{}.", webSocketSession, message.getPayload());
 
         String request = message.getPayload();
         if (request != null && request.startsWith(APPLICATION_NAME_KEY + "=")) {
@@ -162,11 +162,13 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     }
 
     private void bindingResponseAggregator(WebSocketSession webSocketSession, String applicationName) {
+        logger.info("bindingResponseAggregator. session : {}, applicationName: {}.", webSocketSession, applicationName);
+
+        webSocketSession.getAttributes().put(APPLICATION_NAME_KEY, applicationName);
         if (StringUtils.isEmpty(applicationName)) {
             return;
         }
 
-        webSocketSession.getAttributes().put(APPLICATION_NAME_KEY, applicationName);
         PinpointWebSocketResponseAggregator responseAggregator = aggregatorRepository.get(applicationName);
         if (responseAggregator == null) {
             responseAggregator = new ActiveThreadCountResponseAggregator(applicationName, agentSerivce, timer);
@@ -179,6 +181,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
 
     private void unbindingResponseAggregator(WebSocketSession webSocketSession) {
         String applicationName = (String) webSocketSession.getAttributes().get(APPLICATION_NAME_KEY);
+        logger.info("unbindingResponseAggregator. session : {}, applicationName: {}.", webSocketSession, applicationName);
         if (StringUtils.isEmpty(applicationName)) {
             return;
         }
