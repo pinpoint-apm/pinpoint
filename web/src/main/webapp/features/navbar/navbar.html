@@ -8,7 +8,12 @@
                     <li style="margin-top:0px;">
                         <div ng-hide="showStaticApplication" style="margin-top:5px;" id="navbar_application">
                             <select class="application" ng-disabled="disableApplication" id="navbar_application">
-                                <option ng-repeat="app in applications" value="{{app.text}}">{{app.text}}</option>
+                            	<optgroup label="Favorite">
+                            		<option ng-repeat="app in applications | limitTo: favoriteCount" value="{{app.text}}">{{app.text}}</option>
+                            	</optgroup>
+                            	<optgroup label="Application List">
+                                	<option ng-repeat="app in applications" value="{{app.text}}" ng-if="$index >= favoriteCount">{{app.text}}</option>
+                                </optgroup>
                             </select>
                             <img ng-hide="hideFakeApplication" src="images/navbar_application_fake.png" style="position:absolute;left:0;top:5px;">
                         </div>
@@ -33,14 +38,7 @@
                         <div ng-show="periodType != 'range'">
                             <div class="btn-group btn-group-sm" style="margin-top:0px;width:360px;float:left;">
                                 <button type="button" class="btn btn-success" ng-click="togglePeriod('range')"><span class="glyphicon glyphicon-th-list"></span></button>
-                                <button type="button" class="btn btn-default" ng-class="getPeriodClass('5m')" ng-click="setPeriod('5m')" ng-disabled="periodDelay">Last 5m</button>
-                                <button type="button" class="btn btn-default" ng-class="getPeriodClass('20m')" ng-click="setPeriod('20m')" ng-disabled="periodDelay">20m</button>
-                                <button type="button" class="btn btn-default" ng-class="getPeriodClass('1h')" ng-click="setPeriod('1h')" ng-disabled="periodDelay">1h</button>
-                                <button type="button" class="btn btn-default" ng-class="getPeriodClass('3h')" ng-click="setPeriod('3h')" ng-disabled="periodDelay">3h</button>
-                                <button type="button" class="btn btn-default" ng-class="getPeriodClass('6h')" ng-click="setPeriod('6h')" ng-disabled="periodDelay">6h</button>
-                                <button type="button" class="btn btn-default" ng-class="getPeriodClass('12h')" ng-click="setPeriod('12h')" ng-disabled="periodDelay">12h</button>
-                                <button type="button" class="btn btn-default" ng-class="getPeriodClass('1d')" ng-click="setPeriod('1d')" ng-disabled="periodDelay">1d</button>
-                                <button type="button" class="btn btn-default" ng-class="getPeriodClass('2d')" ng-click="setPeriod('2d')" ng-disabled="periodDelay">2d</button>
+                                <button type="button" class="btn btn-default" ng-repeat="period in aReadablePeriodList" ng-class="getPeriodClass( period )" ng-click="setPeriod(period)" ng-disabled="periodDelay">{{period == "5m" ? "Last " + period : period}}</button>
                             </div>
                             <div class="btn-group btn-group-sm input-group input-group-sm" style="margin-top:0px;width:146px;" ng-show="showUpdate()">
                                 <span class="input-group-addon">

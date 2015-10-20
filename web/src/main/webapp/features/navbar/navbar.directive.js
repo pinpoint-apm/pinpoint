@@ -21,10 +21,8 @@
 	            templateUrl: 'features/navbar/navbar.html',
 	            link: function (scope, element) {
 	
-	            	var DEFAULT_RANGE = preferenceService.getDepth();
-	            	var MAX_RANGE = 8;
 	                // define private variables
-	                var $application, $fromPicker, $toPicker, oNavbarVoService, aReadablePeriodList;
+	                var $application, $fromPicker, $toPicker, oNavbarVoService;
 	
 	                // define private variables of methods
 	                var initialize, initializeDateTimePicker, initializeApplication, setDateTime, getQueryEndTimeFromServer,
@@ -32,11 +30,12 @@
 	                    initializeWithStaticApplication, getPeriodType, setPeriodTypeAsCurrent, getDate, startUpdate,
 	                    resetTimeLeft, getRangeFromStorage, setRangeToStorage, getMilliSecondByReadablePeriod, movePeriod;
 	
+	                var applicationResource;
 	                /**
 	                 * getRangeFromStorage
 	                 */
 	                getRangeFromStorage = function(app) {
-                		return webStorage.get( app ) || DEFAULT_RANGE;
+                		return webStorage.get( app ) || preferenceService.getDepth();
 	                };
 	                /**
 	                 * setRangeToStorage
@@ -49,7 +48,7 @@
 	                };
 	                scope.showNavbar = false;
 	                scope.periodDelay = false;
-	                aReadablePeriodList = ['5m', '20m', '1h', '3h', '6h', '12h', '1d', '2d'];
+	                scope.aReadablePeriodList = preferenceService.getPeriodTypes();
 	                scope.autoUpdate = false;
 	                scope.timeLeft = 10;
 	                scope.timeCountDown = 10;
@@ -72,13 +71,7 @@
 	                    }
 	                ];
 	                scope.range = getRangeFromStorage(scope.applicatoin);
-	                scope.rangeList = (function() {
-	                	var a = [];
-	                	for( var i = 1 ; i <= MAX_RANGE ; i++ ) {
-	                		a.push( i );
-	                	}
-	                	return a;
-	                })();
+	                scope.rangeList = preferenceService.getDepthList();
 	                scope.applications = [
 	                    {
 	                        text: 'Select an application.',
@@ -215,7 +208,7 @@
 	                    } else {
 	                        periodType = oNavbarVoService.getApplication() ? 'range' : 'last';
 	                    }
-	                    if (oNavbarVoService.getReadablePeriod() && _.indexOf(aReadablePeriodList, oNavbarVoService.getReadablePeriod()) < 0) {
+	                    if (oNavbarVoService.getReadablePeriod() && _.indexOf(scope.aReadablePeriodList, oNavbarVoService.getReadablePeriod()) < 0) {
 	                        periodType = 'range';
 	                    }
 	                    return periodType;
@@ -295,8 +288,10 @@
 	                        if (angular.isArray(data) === false || data.length === 0) {
 	                            scope.applications[0].text = 'Application not found.';
 	                            $rootScope.$broadcast("alarmRule.applications.set", scope.applications);
+	                            $rootScope.$broadcast("configuration.general.applications.set", scope.applications);
 	                        } else {
-	                            parseApplicationList(data, function () {
+	                        	applicationResource = data;
+	                            parseApplicationList(applicationResource, function () {
 	                                scope.disableApplication = false;
 	                                $timeout(function () { // it should be apply after pushing data, so
 	                                    // it should work like nextTick
@@ -307,6 +302,7 @@
 	                                    }
 	                                });
 	                                $rootScope.$broadcast("alarmRule.applications.set", scope.applications);
+	                                $rootScope.$broadcast("configuration.general.applications.set", scope.applications);
 	                            });
 	                        }
 	                        scope.hideFakeApplication = true;
@@ -336,18 +332,29 @@
 	                 * parse Application List
 	                 */
 	                parseApplicationList = function (data, cb) {
-	                    scope.applications = [
-	                        {
-	                            text: '',
-	                            value: ''
-	                        }
-	                    ];
+	                	var aSavedFavoriteList = preferenceService.getFavoriteList();
+	                	scope.favoriteCount = aSavedFavoriteList.length;
+	                    scope.applications = [{
+	                        text: '',
+	                        value: ''
+	                    }];
+	                    var aFavoriteList = [];
+	                    var aGeneralList = [];
 	                    angular.forEach(data, function (value, key) {
-	                        scope.applications.push({
-	                            text: value.applicationName + "@" + value.serviceType,
-	                            value: value.applicationName + "@" + value.code
-	                        });
+	                    	var fullName = value.applicationName + "@" + value.serviceType;
+	                    	if ( aSavedFavoriteList.indexOf( fullName ) === -1 ) {
+	                    		aGeneralList.push({
+		                            text: fullName,
+		                            value: value.applicationName + "@" + value.code
+		                        });
+	                    	} else {
+	                    		aFavoriteList.push({
+		                            text: fullName,
+		                            value: value.applicationName + "@" + value.code
+		                        });
+	                    	}
 	                    });
+	                    scope.applications = aFavoriteList.concat( aGeneralList );
 	                    if (angular.isFunction(cb)) {
 	                        cb.apply(scope);
 	                    }
@@ -521,7 +528,6 @@
 	                };
 	                scope.setNodeRange = function(range) {
 	                	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_CALLEE_RANGE, range);
-	                	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_CALLER_RANGE, range);
 	                	scope.range = range;
 	                	setRangeToStorage(scope.application, range);
 	                	broadcast();
@@ -599,6 +605,19 @@
 	                	} else {
 	                		movePeriod(oNavbarVoService.getQueryEndTime() - oNavbarVoService.getQueryStartTime());
 	                	}
+	                });
+	                scope.$on('navbarDirective.changedFavorite', function (event) {
+	                	parseApplicationList(applicationResource, function () {
+                            scope.disableApplication = false;
+                            $timeout(function () {
+                                if (oNavbarVoService.getApplication()) {
+                                    $application.select2('val', oNavbarVoService.getApplication());
+                                    scope.application = oNavbarVoService.getApplication();
+                                }
+                            });
+//                            $rootScope.$broadcast("alarmRule.applications.set", scope.applications);
+//                            $rootScope.$broadcast("configuration.general.applications.set", scope.applications);
+                        });
 	                });
 	            }
 	        };

@@ -218,7 +218,9 @@
 	        	$elWarningMessage.find("button").hide();
 	        	$scope.hasCriticalError = true;
 	        }
-	        
+	        $scope.$on('realtimeChartController.close', function () {
+	        	$scope.closePopup();
+	        });
 	        $scope.$on('realtimeChartController.initialize', function (event, isWas, applicationName) {
 	        	if ( globalConfig.useRealTime === false ) return;
 	        	if ( isWas === false && $scope.showRealtimeChart == false ) return;

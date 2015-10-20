@@ -465,3 +465,22 @@
 #config-help a:active {
 	color: rgb(83, 53, 74);
 }
+#config-general table td:nth-child(odd) {
+	font-weight: bold;
+	padding-top: 10px;
+	padding-bottom: 0px;
+}
+#config-general .favorite-list {
+	list-style:none;
+	padding-left: 10px;
+}
+#config-general .favorite-list li{
+	display: block;
+	padding: 4px 1px 0px 2px;
+	text-align: left;
+	margin-top: 2px;
+	background-color: #FFF;
+}
+#config-general .favorite-list button{
+	margin-right: 2px;
+}
