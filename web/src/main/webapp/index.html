@@ -196,7 +196,7 @@
 
 <!-- ng-template -->
 <script id="error" type="text/ng-template">
-    <div class="error" style="position:absolute;top:10%;width:90%;margin-left:5%;display:none;z-index:10">
+    <div class="error" style="position:absolute;top:20%;width:90%;margin-left:5%;display:none;z-index:10">
         <div class="alert alert-danger">
             <button type="button" class="close" data-dismiss="alert">&times;</button>
             <h2>Error!</h2>
@@ -327,12 +327,12 @@
     </div>
 </div>
 
-<div class="modal fade" id="testModal" tabindex="-1" role="dialog" aria-labelledby="testModalLabel" ng-controller="ConfigurationCtrl">
+<div class="modal fade" tabindex="-1" role="dialog" ng-controller="ConfigurationCtrl">
   <div class="modal-dialog" role="document" style="width:1000px">
     <div class="modal-content" id="pinpoint-configuration">
       <div class="modal-header" style="text-align:center">
       	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="testModalLabel">Pinpoint Configuration</h4>
+        <h4 class="modal-title">Pinpoint Configuration</h4>
         <ul>
         	<li ng-class="{true: 'active'}[isGeneral()]" ng-click="setCurrentTab('general')">General</li>
         	<li ng-class="{true: 'active'}[isAlarm()]" ng-click="setCurrentTab('alarm')">Alarm</li>
@@ -342,8 +342,40 @@
       </div>
       <div class="modal-body">
       	<div id="config-general" ng-show="isGeneral()" ng-controller="GeneralCtrl">
+      		<h4>General Configuration</h4>
       		<div style="text-align:center;font-family:verdana;">
-      			<h1>Add General Setting</h1>
+      			<table class="table table-bordered table-condensed">
+      				<tbody>
+      					<tr>
+      						<td class="col-md-1">Depth</td>
+      						<td class="col-md-4">
+      							<select class="depth form-control" ng-change="changeDepth()" ng-model="depth">
+      								<option ng-repeat="dep in depthList" ng-selected="dep == depth" value="{{dep}}">{{dep}}</option>
+      							</select>
+      						</td>
+      						<td class="col-md-1">Peroid</td>
+      						<td class="col-md-4">
+      							<select class="period form-control" ng-change="changePeriod()" ng-model="period">
+      								<option ng-repeat="per in periodTypes" ng-selected="per == period" value="{{dep}}">{{per}}</option>
+      							</select>
+      						</td>
+      					</tr>
+      					<tr>
+      						<td class="col-md-1">Favorite</td>
+      						<td  class="col-md-4">
+      							<select class="favorite" style="width:100%">
+					                <option ng-repeat="app in applications" value="{{app.text}}">{{app.text}}</option>
+					            </select>
+      						</td>
+      						<td class="col-md-5" colspan="2">
+      							<ul class="favorite-list">
+      								<li ng-repeat="favorite in favoriteList"><img ng-src='/images/icons/{{favorite.split("@")[1]}}.png' height="25px"/> {{favorite.split('@')[0]}} <button class="btn btn-danger btn-xs" style="float:right" ng-click="removeFavorite(favorite)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></li>
+      							</ul>
+      							<div ng-show="favoriteList.length == 0" style="color:#F00">등록된 목록이 없습니다.</div>
+      						</td>
+      					</tr>
+      				</tbody>
+      			</table>
       		</div>
       	</div>
       	<div id="config-alram" ng-show="isAlarm()" style="margin-top:10px;">
