@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,15 +37,11 @@ import java.util.List;
  *
  */
 public class JobFailListener implements JobExecutionListener {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final String mexServerUrl;
-    private final List<String> cellPhoneNumbers;
-    private final String serviceID;
 
-    public JobFailListener(String mexServerUrl, String serviceID, List<String> cellPhoneNumbers) {
-        this.mexServerUrl = mexServerUrl;
-        this.serviceID = serviceID;
-        this.cellPhoneNumbers = cellPhoneNumbers;
+	@Autowired(required=false)
+	JobFailMessageSender jobFailMessageSender = new EmptyJobFailMessageSender();
+	
+    public JobFailListener() {
     }
 
     @Override
@@ -54,62 +51,9 @@ public class JobFailListener implements JobExecutionListener {
     @Override
     public void afterJob(JobExecution jobExecution) {
         if (!jobExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
-            sendSMS(jobExecution.getJobInstance().getJobName(), jobExecution.getStartTime(), jobExecution.getEndTime());
+            jobFailMessageSender.sendSMS(jobExecution);
+            jobFailMessageSender.sendEmail(jobExecution);
         }
     }
 
-    private void sendSMS(String jobName, Date start, Date end) {
-        String encodeMsg = encodeMessage("[PINPOINT]batch job fail\n jobName : " + jobName + "\n start : " + start + "\n end : NOW");
-
-        for (String number : cellPhoneNumbers) {
-            String url = mexServerUrl + "?serviceId=\"" + serviceID + "\""
-                    + "&sendMdn=\"" + number + "\""
-                    + "&receiveMdnList=[\"" + number + "\"]"
-                    + "&content=\"" + encodeMsg + "\"";
-
-            HttpURLConnection connection = null;
-            try {
-                connection = openHttpURLConnection(url);
-                connection.setRequestMethod("GET");
-                connection.connect();
-                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    logger.error("fail send sms message for batch fail.");
-                }
-            } catch (IOException ex) {
-                logger.error("fail send sms message for batch fail. Caused:" + ex.getMessage(), ex);
-            } finally {
-                close(connection);
-            }
-        }
-    }
-
-    private HttpURLConnection openHttpURLConnection(String url) throws IOException{
-        URL submitURL = new URL(url);
-        HttpURLConnection httpURLConnection = (HttpURLConnection) submitURL.openConnection();
-        httpURLConnection.setConnectTimeout(3000);
-        httpURLConnection.setReadTimeout(3000);
-        httpURLConnection.setRequestProperty("Content-Language", "utf-8");
-        return httpURLConnection;
-    }
-
-    private void close(HttpURLConnection connection) {
-        if (connection != null) {
-            try {
-                final InputStream is = connection.getInputStream();
-                is.close();
-            } catch (IOException ignore) {
-                // skip
-            }
-        }
-    }
-
-    private String encodeMessage(String message) {
-        message = message.replace("\\", "\\\\").replace("\"", "\\\"").replace("\r\n", "\\n").replace("\r", "\\n").replace("\n", "\\n");
-        try {
-            return URLEncoder.encode(message, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            logger.error("Can't encoding sms message.");
-            return "batch job fail";
-        }
-    }
 }
