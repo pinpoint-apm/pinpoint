@@ -61,24 +61,26 @@ public class ApplicationServerTypeResolver {
     }
 
     public boolean resolve() {
-        String applicationHome = null;
+        
+    	
+    	String applicationHome = null;
         
         applicationHome = applicationHomePath();
                 
-        if (blocResolve(applicationHome)) {
-            return initializeApplicationInfo(applicationHome, ServiceType.BLOC);
-        }
-        
-        if (tomcatResolve(applicationHome)) {
-            return initializeApplicationInfo(applicationHome, ServiceType.TOMCAT);
-        }
-
         if (defaultType != null) {
             if (logger.isInfoEnabled()) {
                 logger.info("Configured applicationServerType:{}", defaultType);
             }
             
             return initializeApplicationInfo(applicationHome, defaultType);
+        }
+        
+        if (blocResolve(applicationHome)) {
+            return initializeApplicationInfo(applicationHome, ServiceType.BLOC);
+        }
+        
+        if (tomcatResolve(applicationHome)) {
+            return initializeApplicationInfo(applicationHome, ServiceType.TOMCAT);
         }
         
         return initializeApplicationInfo(applicationHome, ServiceType.STAND_ALONE);
