@@ -36,7 +36,14 @@
 				$scope.favoriteList = preferenceService.getFavoriteList();
 				$rootScope.$broadcast("navbarDirective.changedFavorite");
 			};
-			
+			var $applicationList = $element.find(".applicationList");
+			function addToFavoriteList( applicationName ) {
+				preferenceService.addFavorite( applicationName );
+				$scope.$apply(function() {
+					$scope.favoriteList = preferenceService.getFavoriteList();
+					$rootScope.$broadcast("navbarDirective.changedFavorite");
+				});
+			}
 			function formatOptionText(state) {
                 if (!state.id) {
                     return state.text;
@@ -52,18 +59,8 @@
                     return state.text;
                 }
 			}
-			$scope.getImgSrc = function( value ) {
-				return "/images/icons/" + value.split("@")[1] + ".png";
-			}
-			function addToFavoriteList( applicationName ) {
-				preferenceService.addFavorite( applicationName );
-				$scope.$apply(function() {
-					$scope.favoriteList = preferenceService.getFavoriteList();
-					$rootScope.$broadcast("navbarDirective.changedFavorite");
-				});
-			}
 			function initApplicationSelect() {
-				$element.find(".favorite").select2({
+				$applicationList.select2({
 	                placeholder: "Select an application.",
 	                searchInputPlaceholder: "Input your application name.",
 	                allowClear: false,
@@ -73,7 +70,7 @@
 	                    return m;
 	                }
 	            }).on("change", function (e) {
-	            	addToFavoriteList( $element.find(".favorite").select2('val') );
+	            	addToFavoriteList( $applicationList.select2('val') );
 	            });
 			}
 			

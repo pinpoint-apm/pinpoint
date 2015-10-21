@@ -266,6 +266,7 @@
 	                emitAsChanged = function () {
 	                    setPeriodTypeAsCurrent();
 	                    scope.$emit('navbarDirective.changed', oNavbarVoService);
+	                    $rootScope.$broadcast("realtimeChartController.close");
 	                };
 	
 	                /**
