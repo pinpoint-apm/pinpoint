@@ -16,25 +16,22 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.PinpointSocketException;
+import com.navercorp.pinpoint.rpc.client.WriteFailFutureListener;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
+import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.packet.ServerClosePacket;
+import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
+import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.util.AssertUtils;
+import com.navercorp.pinpoint.rpc.util.CpuUtils;
+import com.navercorp.pinpoint.rpc.util.LoggerFactorySetup;
+import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import org.jboss.netty.bootstrap.ServerBootstrap;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelHandler;
+import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.ChannelGroupFuture;
 import org.jboss.netty.channel.group.ChannelGroupFutureListener;
@@ -49,18 +46,13 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.rpc.PinpointSocketException;
-import com.navercorp.pinpoint.rpc.client.WriteFailFutureListener;
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
-import com.navercorp.pinpoint.rpc.packet.ServerClosePacket;
-import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
-import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.util.AssertUtils;
-import com.navercorp.pinpoint.rpc.util.CpuUtils;
-import com.navercorp.pinpoint.rpc.util.LoggerFactorySetup;
-import com.navercorp.pinpoint.rpc.util.TimerFactory;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Taejin Koo
@@ -335,10 +327,8 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
         for (Channel channel : channelGroup) {
             DefaultPinpointServer pinpointServer = (DefaultPinpointServer) channel.getAttachment();
-            if (pinpointServer != null) {
-                if (pinpointServer.isEnableDuplexCommunication()) {
-                    pinpointServerList.add(pinpointServer);
-                }
+            if (pinpointServer != null && pinpointServer.isEnableDuplexCommunication()) {
+                pinpointServerList.add(pinpointServer);
             }
         }
 

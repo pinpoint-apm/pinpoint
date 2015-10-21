@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
-import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.stream.*;
@@ -120,7 +119,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
             }
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
-                logger.warn("Create StreamChannel(" + clusterPoint  + ") failed. Error:" + e.getMessage(), e);
+                logger.warn("Create StreamChannel({}) failed. Error:{}", clusterPoint, e.getMessage(), e);
             }
         }
 
