@@ -16,7 +16,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.test;
 
 import java.lang.reflect.Member;
 
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 
 /**
  * @author Jongho Moon
@@ -73,7 +73,7 @@ public final class Expectations {
         ExpectedAnnotation[] annotations = new ExpectedAnnotation[args.length];
         
         for (int i = 0; i < args.length; i++) {
-            annotations[i] = annotation(AnnotationKey.getArgs(i).getName(), args[i]);
+            annotations[i] = annotation(AnnotationKeyUtils.getArgs(i).getName(), args[i]);
         }
         
         return annotations;
@@ -83,7 +83,7 @@ public final class Expectations {
         ExpectedAnnotation[] annotations = new ExpectedAnnotation[args.length];
         
         for (int i = 0; i < args.length; i++) {
-            annotations[i] = annotation(AnnotationKey.getCachedArgs(i).getName(), args[i]);
+            annotations[i] = annotation(AnnotationKeyUtils.getCachedArgs(i).getName(), args[i]);
         }
         
         return annotations;

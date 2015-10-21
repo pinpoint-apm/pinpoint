@@ -21,6 +21,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 import java.util.regex.Pattern;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyProperty;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
@@ -37,9 +38,9 @@ public final class ThriftConstants {
     public static final ServiceType THRIFT_SERVER_INTERNAL = ServiceTypeFactory.of(1101, "THRIFT_SERVER_INTERNAL", "THRIFT_SERVER");
     public static final ServiceType THRIFT_CLIENT_INTERNAL = ServiceTypeFactory.of(9101, "THRIFT_CLIENT_INTERNAL", "THRIFT_CLIENT");
     
-    public static final AnnotationKey THRIFT_URL = new AnnotationKey(80, "thrift.url");
-    public static final AnnotationKey THRIFT_ARGS = new AnnotationKey(81, "thrift.args", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
-    public static final AnnotationKey THRIFT_RESULT = new AnnotationKey(82, "thrift.result", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+    public static final AnnotationKey THRIFT_URL = AnnotationKeyFactory.of(80, "thrift.url");
+    public static final AnnotationKey THRIFT_ARGS = AnnotationKeyFactory.of(81, "thrift.args", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+    public static final AnnotationKey THRIFT_RESULT = AnnotationKeyFactory.of(82, "thrift.result", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
     
     public static final String UNKNOWN_METHOD_NAME = "unknown";
     public static final String UNKNOWN_METHOD_URI = "/" + UNKNOWN_METHOD_NAME;

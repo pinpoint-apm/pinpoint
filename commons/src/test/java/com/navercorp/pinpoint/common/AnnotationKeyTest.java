@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.service.TraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 
+import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -53,20 +54,20 @@ public class AnnotationKeyTest {
 
     @Test
     public void isArgsKey() {
-        Assert.assertTrue(AnnotationKey.isArgsKey(AnnotationKey.ARGS0.getCode()));
-        Assert.assertTrue(AnnotationKey.isArgsKey(AnnotationKey.ARGSN.getCode()));
-        Assert.assertTrue(AnnotationKey.isArgsKey(AnnotationKey.ARGS5.getCode()));
+        Assert.assertTrue(AnnotationKeyUtils.isArgsKey(AnnotationKey.ARGS0.getCode()));
+        Assert.assertTrue(AnnotationKeyUtils.isArgsKey(AnnotationKey.ARGSN.getCode()));
+        Assert.assertTrue(AnnotationKeyUtils.isArgsKey(AnnotationKey.ARGS5.getCode()));
 
-        Assert.assertFalse(AnnotationKey.isArgsKey(AnnotationKey.ARGS0.getCode() +1));
-        Assert.assertFalse(AnnotationKey.isArgsKey(AnnotationKey.ARGSN.getCode() -1));
-        Assert.assertFalse(AnnotationKey.isArgsKey(Integer.MAX_VALUE));
-        Assert.assertFalse(AnnotationKey.isArgsKey(Integer.MIN_VALUE));
+        Assert.assertFalse(AnnotationKeyUtils.isArgsKey(AnnotationKey.ARGS0.getCode() +1));
+        Assert.assertFalse(AnnotationKeyUtils.isArgsKey(AnnotationKey.ARGSN.getCode() -1));
+        Assert.assertFalse(AnnotationKeyUtils.isArgsKey(Integer.MAX_VALUE));
+        Assert.assertFalse(AnnotationKeyUtils.isArgsKey(Integer.MIN_VALUE));
 
     }
 
     @Test
     public void isCachedArgsToArgs() {
-        int i = AnnotationKey.cachedArgsToArgs(AnnotationKey.CACHE_ARGS0.getCode());
+        int i = AnnotationKeyUtils.cachedArgsToArgs(AnnotationKey.CACHE_ARGS0.getCode());
         Assert.assertEquals(i, AnnotationKey.ARGS0.getCode());
     }
     
