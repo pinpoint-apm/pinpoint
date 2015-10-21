@@ -16,10 +16,8 @@
 
 package com.navercorp.pinpoint.collector.cluster.route;
 
-import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
-import org.jboss.netty.channel.Channel;
-
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 
 import java.net.SocketAddress;
 

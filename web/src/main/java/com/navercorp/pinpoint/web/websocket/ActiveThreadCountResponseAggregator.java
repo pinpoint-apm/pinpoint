@@ -42,22 +42,18 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ActiveThreadCountResponseAggregator implements PinpointWebSocketResponseAggregator {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    private volatile boolean isStopped = false;
-
     private final String applicationName;
     private final AgentService agentService;
     private final Timer timer;
-
     private final Object workerManagingLock = new Object();
     private final List<WebSocketSession> webSocketSessions = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<String, ActiveThreadCountWorker> activeThreadCountWorkerRepository = new ConcurrentHashMap<String, ActiveThreadCountWorker>();
-    private WorkerActiveManager workerActiveManager;
-
     private final Object aggregatorLock = new Object();
-    private Map<String, AgentActiveThreadCount> activeThreadCountMap = new HashMap<String, AgentActiveThreadCount>();;
-
     private final ActiveThreadCountResponseMessageConverter messageConverter;
+    private volatile boolean isStopped = false;
+    private WorkerActiveManager workerActiveManager;
+    ;
+    private Map<String, AgentActiveThreadCount> activeThreadCountMap = new HashMap<String, AgentActiveThreadCount>();
 
     public ActiveThreadCountResponseAggregator(String applicationName, AgentService agentService, Timer timer) {
         this.applicationName = applicationName;
@@ -134,14 +130,12 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
             }
 
             boolean removed = webSocketSessions.remove(webSocketSession);
-            if (removed) {
-                if (webSocketSessions.size() == 0) {
-                    for (ActiveThreadCountWorker activeThreadCountWorker : activeThreadCountWorkerRepository.values()) {
-                        activeThreadCountWorker.stop();
-                    }
-                    activeThreadCountWorkerRepository.clear();
-                    return true;
+            if (removed && webSocketSessions.size() == 0) {
+                for (ActiveThreadCountWorker activeThreadCountWorker : activeThreadCountWorkerRepository.values()) {
+                    activeThreadCountWorker.stop();
                 }
+                activeThreadCountWorkerRepository.clear();
+                return true;
             }
         }
 
@@ -165,9 +159,9 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
     }
 
     private void activeWorker(AgentInfo agentInfo) {
-        synchronized (workerManagingLock) {
-            String agentId = agentInfo.getAgentId();
+        String agentId = agentInfo.getAgentId();
 
+        synchronized (workerManagingLock) {
             ActiveThreadCountWorker worker = activeThreadCountWorkerRepository.get(agentId);
             if (worker == null) {
                 worker = new ActiveThreadCountWorker(agentService, agentInfo, this, workerActiveManager);

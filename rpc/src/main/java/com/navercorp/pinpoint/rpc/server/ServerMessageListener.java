@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.rpc.server;
 
 import com.navercorp.pinpoint.rpc.MessageListener;
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
-import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.server.handler.HandshakerHandler;
 import com.navercorp.pinpoint.rpc.server.handler.PingHandler;
 

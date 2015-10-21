@@ -25,16 +25,12 @@ import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author koo.taejin
  * @author HyunGil Jeong
  */
 public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final RouteFilterChain<RequestEvent> requestFilterChain;
     private final RouteFilterChain<ResponseEvent> responseFilterChain;

@@ -19,7 +19,6 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.StringUtils;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
@@ -68,8 +67,6 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
     private final List<WebSocketSession> sessionRepository = new CopyOnWriteArrayList<WebSocketSession>();
 
     private final Map<String, PinpointWebSocketResponseAggregator> aggregatorRepository = new HashMap<String, PinpointWebSocketResponseAggregator>();
-
-    private final ObjectMapper jsonConverter = new ObjectMapper();
 
     public ActiveThreadCountHandler(AgentService agentSerivce) {
         this(DEFAULT_REQUEST_MAPPING, agentSerivce);

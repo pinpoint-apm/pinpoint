@@ -19,25 +19,16 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.rpc.util.TimerFactory;
-import org.jboss.netty.util.Timer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @Author Taejin Koo
  */
 public class PinpointWebSocketHandlerManager {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final List<PinpointWebSocketHandler> webSocketHandlerRepository;
 
