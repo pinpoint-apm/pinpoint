@@ -150,10 +150,9 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
 
         TCommandTransferResponse response = streamRouteHandler.onRoute(new StreamEvent((TCommandTransfer) request, streamChannelContext, command));
         TRouteResult routeResult = response.getRouteResult();
-
-        if (routeResult != TRouteResult.OK ) {
+        if (routeResult != TRouteResult.OK) {
             logger.warn("handleStreamRouteCreate failed. command:{}, routeResult:{}", command, routeResult);
-            return StreamCode.ROUTE_ERROR;
+            return convertToStreamCode(routeResult);
         }
 
         return StreamCode.OK;
@@ -169,6 +168,18 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
 
     private TBase<?,?> deserialize(byte[] objectData) {
         return SerializationUtils.deserialize(objectData, commandDeserializerFactory, null);
+    }
+
+    private StreamCode convertToStreamCode(TRouteResult routeResult) {
+        switch (routeResult) {
+            case NOT_SUPPORTED_REQUEST:
+                return StreamCode.TYPE_UNSUPPORT;
+            case NOT_ACCEPTABLE:
+            case NOT_SUPPORTED_SERVICE:
+                return StreamCode.CONNECTION_UNSUPPORT;
+            default:
+                return StreamCode.ROUTE_ERROR;
+        }
     }
 
 }

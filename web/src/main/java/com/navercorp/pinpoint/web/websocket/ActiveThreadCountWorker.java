@@ -42,59 +42,112 @@ import org.slf4j.LoggerFactory;
 public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
 
     private static final ClientStreamChannelMessageListener LOGGING = LoggingStreamChannelMessageListener.CLIENT_LISTENER;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private static final TCmdActiveThreadCount COMMAND_INSTANCE = new TCmdActiveThreadCount();
-
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Object lock = new Object();
-    private boolean started = false;
-    private boolean stopped = false;
-
     private final AgentService agentService;
-    private final AgentInfo agentInfo;
+
+    private final String applicationName;
+    private final String agentId;
+
     private final PinpointWebSocketResponseAggregator responseAggregator;
-    private final StreamConnectionManager streamConnectionManager;
-
+    private final WorkerActiveManager workerActiveManager;
     private final AgentActiveThreadCount defaultFailedResponse;
-
     private final MessageListener messageListener;
     private final StateChangeListener stateChangeListener;
 
+    private volatile boolean started = false;
+    private volatile boolean active = false;
+    private volatile boolean stopped = false;
+
     private StreamChannel streamChannel;
 
-    public ActiveThreadCountWorker(AgentService agentService, AgentInfo agentInfo, PinpointWebSocketResponseAggregator webSocketResponseAggregator, StreamConnectionManager streamConnectionManager) {
+    public ActiveThreadCountWorker(AgentService agentService, AgentInfo agentInfo, PinpointWebSocketResponseAggregator webSocketResponseAggregator, WorkerActiveManager workerActiveManager) {
+        this(agentService, agentInfo.getApplicationName(), agentInfo.getAgentId(), webSocketResponseAggregator, workerActiveManager);
+    }
+
+    public ActiveThreadCountWorker(AgentService agentService, String applicationName, String agentId, PinpointWebSocketResponseAggregator webSocketResponseAggregator, WorkerActiveManager workerActiveManager) {
         this.agentService = agentService;
-        this.agentInfo = agentInfo;
+
+        this.applicationName = applicationName;
+        this.agentId = agentId;
 
         this.responseAggregator = webSocketResponseAggregator;
-        this.streamConnectionManager = streamConnectionManager;
+        this.workerActiveManager = workerActiveManager;
 
-        this.defaultFailedResponse = new AgentActiveThreadCount(agentInfo.getAgentId());
+        this.defaultFailedResponse = new AgentActiveThreadCount(agentId);
 
         this.messageListener = new MessageListener();
         this.stateChangeListener = new StateChangeListener();
     }
 
+    @Override
+    public void start(AgentInfo agentInfo) {
+        if (!applicationName.equals(agentInfo.getApplicationName())) {
+            return;
+        }
+
+        if (!agentId.equals(agentInfo.getAgentId())) {
+            return;
+        }
+
+        synchronized (lock) {
+            if (!started) {
+                started = true;
+
+                logger.info("ActiveThreadCountWorker start. applicationName:{}, agentId:{}", applicationName, agentId);
+                this.active = active0(agentInfo);
+            }
+        }
+    }
 
     @Override
-    public void active() {
+    public boolean reactive(AgentInfo agentInfo) {
         synchronized (lock) {
-            if (started) {
+            if (isTurnOn()) {
+                if (active) {
+                    return true;
+                }
+
+                logger.info("ActiveThreadCountWorker reactive. applicationName:{}, agentId:{}", applicationName, agentId);
+                active = active0(agentInfo);
+                return active;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public void stop() {
+        synchronized (lock) {
+            if (isTurnOn()) {
+                stopped = true;
+
+                logger.info("ActiveThreadCountWorker stop. applicationName:{}, agentId:{}, streamChannel:{}", applicationName, agentId, streamChannel);
+
+                try {
+                    closeStreamChannel();
+                } catch (Exception e) {
+                }
                 return;
             }
-            started = true;
+        }
+    }
 
-            logger.info("ActiveThreadCountWorker start. applicationName:{}, agentId:{}", agentInfo.getApplicationName(), agentInfo.getAgentId());
-
+    private boolean active0(AgentInfo agentInfo) {
+        synchronized (lock) {
+            boolean active = false;
             try {
                 ClientStreamChannelContext clientStreamChannelContext = agentService.openStream(agentInfo, COMMAND_INSTANCE, messageListener, stateChangeListener);
                 if (clientStreamChannelContext == null) {
                     defaultFailedResponse.setFail(StreamCode.CONNECTION_NOT_FOUND.name());
-                    streamConnectionManager.addReconnectJob(agentInfo, COMMAND_INSTANCE, messageListener, stateChangeListener);
+                    workerActiveManager.addReactiveWorker(agentInfo);
                 } else {
                     if (clientStreamChannelContext.getCreateFailPacket() == null) {
                         streamChannel = clientStreamChannelContext.getStreamChannel();
+                        defaultFailedResponse.setFail(TRouteResult.TIMEOUT.name());
+                        active = true;
                     } else {
                         StreamCreateFailPacket createFailPacket = clientStreamChannelContext.getCreateFailPacket();
                         defaultFailedResponse.setFail(createFailPacket.getCode().name());
@@ -103,29 +156,16 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
             } catch (TException exception) {
                 defaultFailedResponse.setFail(TRouteResult.NOT_SUPPORTED_REQUEST.name());
             }
+
+            return active;
         }
     }
 
-    @Override
-    public boolean reactive() {
-        return false;
-    }
-
-    @Override
-    public void inactive() {
-        synchronized (lock) {
-            if (!started && stopped) {
-                return;
-            }
-            stopped = true;
-
-            logger.info("ActiveThreadCountWorker stop. agentId:{}, streamChannel:{}", agentInfo.getAgentId(), streamChannel);
-
-            try {
-                streamConnectionManager.removeReconnectJob(agentInfo);
-                closeStreamChannel();
-            } catch (Exception e) {
-            }
+    private boolean isTurnOn() {
+        if (started && !stopped) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -136,16 +176,12 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
         defaultFailedResponse.setFail(StreamCode.STATE_CLOSED.name());
     }
 
-    public AgentInfo getAgentInfo() {
-        return agentInfo;
+    public String getAgentId() {
+        return agentId;
     }
 
     public AgentActiveThreadCount getDefaultFailedResponse() {
         return defaultFailedResponse;
-    }
-
-    private void setStreamChannel(ClientStreamChannel streamChannel) {
-        this.streamChannel = streamChannel;
     }
 
     private class MessageListener implements ClientStreamChannelMessageListener {
@@ -167,7 +203,7 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
         }
 
         private AgentActiveThreadCount getAgentActiveThreadCount(TBase routeResponse) {
-            AgentActiveThreadCount agentActiveThreadCount = new AgentActiveThreadCount(agentInfo.getAgentId());
+            AgentActiveThreadCount agentActiveThreadCount = new AgentActiveThreadCount(agentId);
 
             if (routeResponse != null && (routeResponse instanceof TCommandTransferResponse)) {
                 byte[] payload = ((TCommandTransferResponse) routeResponse).getPayload();
@@ -194,16 +230,13 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
             logger.info("eventPerformed streamChannel:{}, stateCode:{}", streamChannel, updatedStateCode);
 
             switch (updatedStateCode) {
-                case CONNECTED:
-                    setStreamChannel(streamChannel);
-                    defaultFailedResponse.setFail(TRouteResult.TIMEOUT.name());
-                    break;
                 case CLOSED:
                 case ILLEGAL_STATE:
-                    if (!stopped) {
-                        streamConnectionManager.addReconnectJob(agentInfo, COMMAND_INSTANCE, messageListener, stateChangeListener);
+                    if (isTurnOn()) {
+                        active = false;
+                        workerActiveManager.addReactiveWorker(agentId);
+                        defaultFailedResponse.setFail(StreamCode.STATE_CLOSED.name());
                     }
-                    defaultFailedResponse.setFail(StreamCode.STATE_CLOSED.name());
                     break;
             }
         }
