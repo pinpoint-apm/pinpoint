@@ -8,6 +8,7 @@
                     <li style="margin-top:0px;">
                         <div ng-hide="showStaticApplication" style="margin-top:5px;" id="navbar_application">
                             <select class="application" ng-disabled="disableApplication" id="navbar_application">
+                            	<option></option>
                             	<optgroup label="Favorite">
                             		<option ng-repeat="app in applications | limitTo: favoriteCount" value="{{app.text}}">{{app.text}}</option>
                             	</optgroup>
