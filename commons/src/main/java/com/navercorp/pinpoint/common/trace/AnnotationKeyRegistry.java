@@ -26,8 +26,6 @@ import java.util.*;
  */
 public class AnnotationKeyRegistry {
 
-    private static IntHashMap<AnnotationKey> CODE_LOOKUP_TABLE;
-
     private final IntHashMap<AnnotationKey> codeLookupTable;
 
     private final HashMap<String, AnnotationKey> nameLookupTable;
@@ -62,7 +60,7 @@ public class AnnotationKeyRegistry {
     }
 
 
-    static IntHashMap<AnnotationKey> buildApiMetaDataError(Collection<AnnotationKey> buildMap) {
+    private IntHashMap<AnnotationKey> buildApiMetaDataError(Collection<AnnotationKey> buildMap) {
         final IntHashMap<AnnotationKey> table = new IntHashMap<AnnotationKey>();
 
         for (AnnotationKey annotationKey : buildMap) {

@@ -15,6 +15,8 @@
 package com.navercorp.pinpoint.common.trace;
 
 
+import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
+
 /**
  * @author Jongho Moon
  *
@@ -53,7 +55,7 @@ public final class AnnotationKeyMatchers {
     public static final AnnotationKeyMatcher ARGS_MATCHER = new AnnotationKeyMatcher() {
         @Override
         public boolean matches(int code) {
-            return AnnotationKey.isArgsKey(code);
+            return AnnotationKeyUtils.isArgsKey(code);
         }
     
         @Override

@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.common.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.MethodType;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 
 /**
  * 
@@ -61,7 +62,7 @@ public class CorruptedSpanAlignFactory {
         annotations.add(apiMetaDataAnnotation);
 
         final AnnotationBo argumentAnnotation = new AnnotationBo();
-        argumentAnnotation.setKey(AnnotationKey.getArgs(0).getCode());
+        argumentAnnotation.setKey(AnnotationKeyUtils.getArgs(0).getCode());
         if (System.currentTimeMillis() - span.getStartTime() < timeoutMillisec) {
             argumentAnnotation.setValue("Corrupted(waiting for packet) ");
         } else {

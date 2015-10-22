@@ -22,6 +22,7 @@ import java.util.List;
 
 import com.navercorp.pinpoint.common.bo.*;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
 import com.navercorp.pinpoint.common.util.DefaultSqlParser;
 import com.navercorp.pinpoint.common.util.OutputParameterParser;
 import com.navercorp.pinpoint.common.util.SqlParser;
@@ -291,7 +292,7 @@ public class SpanServiceImpl implements SpanService {
                         StringMetaDataBo stringMetaDataBo = stringMetaList.get(0);
 
                         AnnotationBo stringMetaData = new AnnotationBo();
-                        stringMetaData.setKey(AnnotationKey.cachedArgsToArgs(cachedArgsKey));
+                        stringMetaData.setKey(AnnotationKeyUtils.cachedArgsToArgs(cachedArgsKey));
                         stringMetaData.setValue(stringMetaDataBo.getStringValue());
                         annotationBoList.add(stringMetaData);
                         if (size > 1) {
@@ -307,7 +308,7 @@ public class SpanServiceImpl implements SpanService {
     private List<AnnotationBo> findCachedStringAnnotation(List<AnnotationBo> annotationBoList) {
         List<AnnotationBo> findAnnotationBoList = new ArrayList<AnnotationBo>(annotationBoList.size());
         for (AnnotationBo annotationBo : annotationBoList) {
-            if (AnnotationKey.isCachedArgsKey(annotationBo.getKey())) {
+            if (AnnotationKeyUtils.isCachedArgsKey(annotationBo.getKey())) {
                 findAnnotationBoList.add(annotationBo);
             }
         }

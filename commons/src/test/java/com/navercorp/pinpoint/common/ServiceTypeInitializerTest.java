@@ -22,6 +22,7 @@ import java.util.List;
 
 import com.navercorp.pinpoint.common.service.*;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.TraceMetadataLoader;
@@ -41,7 +42,7 @@ public class ServiceTypeInitializerTest {
     };
     
     private static final AnnotationKey[] TEST_KEYS = {
-        new AnnotationKey(1209, "Duplicate-API")
+        AnnotationKeyFactory.of(1209, "Duplicate-API")
     };
 
     private static final ServiceType[] DUPLICATED_CODE_WITH_DEFAULT_TYPE = {
@@ -53,7 +54,7 @@ public class ServiceTypeInitializerTest {
     };
     
     private static final AnnotationKey[] DUPLICATED_CODE_WITH_DEFAULT_KEY = {
-        new AnnotationKey(AnnotationKey.ARGS0.getCode(), "API")
+        AnnotationKeyFactory.of(AnnotationKey.ARGS0.getCode(), "API")
     };
 
     private void verifyAnnotationKeys(List<AnnotationKey> annotationKeys, AnnotationKeyRegistryService annotationKeyRegistryService) {

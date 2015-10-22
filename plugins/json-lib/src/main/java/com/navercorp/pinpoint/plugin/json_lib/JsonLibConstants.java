@@ -15,6 +15,7 @@
 package com.navercorp.pinpoint.plugin.json_lib;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
@@ -27,5 +28,5 @@ public final class JsonLibConstants {
     }
 
     public static final ServiceType SERVICE_TYPE = ServiceTypeFactory.of(5012, "JSON-LIB");
-    public static final AnnotationKey JSON_LIB_ANNOTATION_KEY_JSON_LENGTH = new AnnotationKey(9002, "json-lib.json.length");
+    public static final AnnotationKey JSON_LIB_ANNOTATION_KEY_JSON_LENGTH = AnnotationKeyFactory.of(9002, "json-lib.json.length");
 }
