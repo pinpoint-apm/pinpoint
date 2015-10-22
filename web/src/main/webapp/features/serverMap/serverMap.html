@@ -209,4 +209,21 @@
             <a href ng-click="refresh()"><span class="glyphicon glyphicon-refresh"></span> Refresh</a>
         </li>
     </ul>
+    <div ng-controller="RealtimeChartCtrl" class="realtime" style="bottom:-180px;" ng-show="bInitialized">
+       	<div class="handle">
+       		<button type="button" class="btn btn-xs btn-default btn-success" ng-click="toggleRealtime()" style="height:20px;width:100px"><span class="glyphicon glyphicon-chevron-down"></span></button>
+       	</div>
+		<div class="chart-title">
+			<span>Realtime Active Thread Chart</span>
+			<span class="chart-expand glyphicon glyphicon-fullscreen" aria-hidden="true" ng-click="resizePopup()"></span>
+		</div>
+		<div class="agent-sum-chart">
+			<div>{{currentApplicationName}} ({{currentAgentCount == 0 ? "..." : currentAgentCount}})</div>
+		</div>
+		<div class="agent-chart-list"></div>
+		<div class="connection-message" ng-show="hasCriticalError">
+			<h4></h4>
+			<button type="button" class="btn btn-warning" style="display:none" ng-click="retryConnection()"><span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> Retry</button>
+		</div>
+	</div>
 </div>

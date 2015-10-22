@@ -465,7 +465,7 @@
 #config-help a:active {
 	color: rgb(83, 53, 74);
 }
-#config-general table td:nth-child(odd) {
+#config-general table td.title {
 	font-weight: bold;
 	padding-top: 10px;
 	padding-bottom: 0px;

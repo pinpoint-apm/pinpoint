@@ -5,22 +5,6 @@
 <div class="main-container" ng-class="getMainContainerClass()">
     <div class="main">
         <server-map-directive></server-map-directive>
-        <div ng-controller="RealtimeChartCtrl" class="realtime" style="" ng-show="showRealtimeChart">
-			<div class="chart-title">
-				<span>Realtime Active Thread Chart</span>
-				<span class="chart-close glyphicon glyphicon-remove" aria-hidden="true" ng-click="closePopup()"></span>
-				<span class="chart-expand glyphicon glyphicon-fullscreen" aria-hidden="true" ng-click="resizePopup()"></span>
-			</div>
-			<div class="agent-sum-chart">
-				<div>{{currentApplicationName}} ({{currentAgentCount == 0 ? "..." : currentAgentCount}})</div>
-			</div>
-			<div class="agent-chart-list"></div>
-			<div class="connection-message" ng-show="hasCriticalError">
-				<span class="chart-close glyphicon glyphicon-remove" aria-hidden="true" ng-click="closePopup()"></span>
-				<h4></h4>
-				<button type="button" class="btn btn-warning" style="display:none" ng-click="retryConnection()"><span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> Retry</button>
-			</div>
-		</div>
     </div>
     <div class="sidebar" ng-class="sidebar" loading-directive="sidebarLoading" loading-message="Loading...">
         <sidebar-title-directive namespace="forMain"></sidebar-title-directive>
