@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
@@ -81,12 +81,12 @@ public class IBatisPlugin implements ProfilerPlugin {
     private void addInterceptorsForClass(ProfilerPluginSetupContext context, final String targetClassName,
             final ServiceType serviceType, final MethodFilter methodFilter) {
 
-        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+        context.addClassFileTransformer(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader,
-                    String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-                    byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader,
+                                        String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+                                        byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
 

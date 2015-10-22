@@ -126,9 +126,12 @@ public class MockAgent extends DefaultAgent {
         List<ProfilerPlugin> plugins = PluginLoader.load(ProfilerPlugin.class, ClassLoader.getSystemClassLoader());
         
         for (ProfilerPlugin plugin : plugins) {
-            DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(this, classInjector);
-            plugin.setup(context);
-            context.markInitialized();
+            final DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(this, classInjector);
+            try {
+                plugin.setup(context);
+            } finally {
+                context.markInitialized();
+            }
             pluginContexts.add(context);
         }
         

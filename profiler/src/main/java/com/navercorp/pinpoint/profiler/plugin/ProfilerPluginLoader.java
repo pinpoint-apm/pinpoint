@@ -53,11 +53,8 @@ public class ProfilerPluginLoader {
                 }
                 
                 logger.info("Loading plugin: {}", plugin.getClass().getName());
-                
-                ClassInjector classInjector = JarProfilerPluginClassInjector.of(agent.getInstrumentation(), agent.getClassPool(), jar);
-                DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(agent, classInjector);
-                plugin.setup(context);
-                context.markInitialized();
+
+                final DefaultProfilerPluginContext context = setupPlugin(jar, plugin);
                 pluginContexts.add(context);
             }
         }
@@ -65,5 +62,16 @@ public class ProfilerPluginLoader {
         
         return pluginContexts;
     }
-    
+
+    private DefaultProfilerPluginContext setupPlugin(URL jar, ProfilerPlugin plugin) {
+        final ClassInjector classInjector = JarProfilerPluginClassInjector.of(agent.getInstrumentation(), agent.getClassPool(), jar);
+        final DefaultProfilerPluginContext context = new DefaultProfilerPluginContext(agent, classInjector);
+        try {
+            plugin.setup(context);
+        } finally {
+            context.markInitialized();
+        }
+        return context;
+    }
+
 }

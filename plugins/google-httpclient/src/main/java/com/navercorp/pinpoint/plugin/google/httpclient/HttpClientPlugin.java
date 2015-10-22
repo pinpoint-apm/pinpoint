@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -46,10 +46,10 @@ public class HttpClientPlugin implements ProfilerPlugin {
     }
 
     private void addHttpRequestClass(ProfilerPluginSetupContext context, final HttpClientPluginConfig config) {
-        context.addClassFileTransformer("com.google.api.client.http.HttpRequest", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("com.google.api.client.http.HttpRequest", new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 
                 InstrumentMethod execute = target.getDeclaredMethod("execute", new String[] {});
@@ -65,9 +65,9 @@ public class HttpClientPlugin implements ProfilerPlugin {
 
                     for(InstrumentClass nestedClass : target.getNestedClasses(ClassFilters.chain(ClassFilters.enclosingMethod("executeAsync", "java.util.concurrent.Executor"), ClassFilters.interfaze("java.util.concurrent.Callable")))) {
                         logger.debug("Find nested class {}", target.getName());
-                        instrumentContext.addClassFileTransformer(loader, nestedClass.getName(), new PinpointClassFileTransformer() {
+                        instrumentContext.addClassFileTransformer(loader, nestedClass.getName(), new TransformCallback() {
                             @Override
-                            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+                            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                                 target.addField(AsyncTraceIdAccessor.class.getName());
 
