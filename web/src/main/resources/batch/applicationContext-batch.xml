@@ -31,4 +31,6 @@
     
     <util:properties id="batchProps" location="classpath:batch.properties"/>
 	
+	<bean id="jobFailListener" class="com.navercorp.pinpoint.web.batch.JobFailListener"/>
+	
 </beans>
