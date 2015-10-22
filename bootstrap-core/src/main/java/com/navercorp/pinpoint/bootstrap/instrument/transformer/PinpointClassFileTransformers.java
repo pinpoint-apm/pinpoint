@@ -26,11 +26,11 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
  */
 public class PinpointClassFileTransformers {
 
-    public static PinpointClassFileTransformer addInterceptor(final String interceptorClassName, final Object[] constructorArgs) {
-        return new PinpointClassFileTransformer() {
+    public static TransformCallback addInterceptor(final String interceptorClassName, final Object[] constructorArgs) {
+        return new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addInterceptor(interceptorClassName, constructorArgs);
                 return target.toBytecode();
@@ -38,11 +38,11 @@ public class PinpointClassFileTransformers {
         };
     }
     
-    public static PinpointClassFileTransformer addField(final String fieldAccessorClassName) {
-        return new PinpointClassFileTransformer() {
+    public static TransformCallback addField(final String fieldAccessorClassName) {
+        return new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(fieldAccessorClassName);
                 return target.toBytecode();

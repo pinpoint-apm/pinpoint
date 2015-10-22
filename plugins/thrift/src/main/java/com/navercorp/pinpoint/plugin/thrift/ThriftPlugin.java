@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncCallEndFlagFieldAccessor;
@@ -80,11 +80,11 @@ public class ThriftPlugin implements ProfilerPlugin {
         final boolean traceServiceResult = config.traceThriftServiceResult();
 
         final String targetClassName = "org.apache.thrift.TServiceClient";
-        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+        context.addClassFileTransformer(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
-                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                        ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
 
@@ -116,11 +116,11 @@ public class ThriftPlugin implements ProfilerPlugin {
 
     private void addTAsyncClientManagerEditor(ProfilerPluginSetupContext context) {
         final String targetClassName = "org.apache.thrift.async.TAsyncClientManager";
-        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+        context.addClassFileTransformer(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
-                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                        ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
 
@@ -139,11 +139,11 @@ public class ThriftPlugin implements ProfilerPlugin {
 
     private void addTAsyncMethodCallEditor(ProfilerPluginSetupContext context) {
         final String targetClassName = "org.apache.thrift.async.TAsyncMethodCall";
-        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+        context.addClassFileTransformer(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
-                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                        ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(SocketAddressFieldAccessor.class.getName());
@@ -234,11 +234,11 @@ public class ThriftPlugin implements ProfilerPlugin {
 
     private void addTBaseProcessorEditor(ProfilerPluginSetupContext context) {
         final String targetClassName = "org.apache.thrift.TBaseProcessor";
-        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+        context.addClassFileTransformer(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
-                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                        ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
 
@@ -258,11 +258,11 @@ public class ThriftPlugin implements ProfilerPlugin {
 
     private void addProcessFunctionEditor(ProfilerPluginSetupContext context) {
         final String targetClassName = "org.apache.thrift.ProcessFunction";
-        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+        context.addClassFileTransformer(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
-                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                        ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(ServerMarkerFlagFieldAccessor.class.getName());
@@ -289,11 +289,11 @@ public class ThriftPlugin implements ProfilerPlugin {
 
     private void addTBaseAsyncProcessorEditor(ProfilerPluginSetupContext context) {
         final String targetClassName = "org.apache.thrift.TBaseAsyncProcessor";
-        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+        context.addClassFileTransformer(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
-                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                        ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(ServerMarkerFlagFieldAccessor.class.getName());
@@ -351,11 +351,11 @@ public class ThriftPlugin implements ProfilerPlugin {
 
     private void addTTransportEditor(ProfilerPluginSetupContext context, String tTransportFqcn) {
         final String targetClassName = tTransportFqcn;
-        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+        context.addClassFileTransformer(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
-                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                        ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(SocketFieldAccessor.class.getName());
@@ -368,11 +368,11 @@ public class ThriftPlugin implements ProfilerPlugin {
     private void addTTransportEditor(ProfilerPluginSetupContext context, String tTransportClassName, final String tTransportInterceptorFqcn,
             final String[]... parameterTypeGroups) {
         final String targetClassName = tTransportClassName;
-        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+        context.addClassFileTransformer(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
-                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                        ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(SocketFieldAccessor.class.getName());
@@ -392,11 +392,11 @@ public class ThriftPlugin implements ProfilerPlugin {
 
     private void addTNonblockingSocketEditor(ProfilerPluginSetupContext context) {
         final String targetClassName = "org.apache.thrift.transport.TNonblockingSocket";
-        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+        context.addClassFileTransformer(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
-                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                        ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(SocketFieldAccessor.class.getName());
@@ -417,11 +417,11 @@ public class ThriftPlugin implements ProfilerPlugin {
 
     private void addFrameBufferEditor(ProfilerPluginSetupContext context) {
         final String targetClassName = "org.apache.thrift.server.AbstractNonblockingServer$FrameBuffer";
-        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+        context.addClassFileTransformer(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
-                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                        ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField(SocketFieldAccessor.class.getName());
@@ -470,11 +470,11 @@ public class ThriftPlugin implements ProfilerPlugin {
         final boolean traceThriftProcessor = config.traceThriftProcessor();
 
         final String targetClassName = tProtocolClassName;
-        context.addClassFileTransformer(targetClassName, new PinpointClassFileTransformer() {
+        context.addClassFileTransformer(targetClassName, new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
-                    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                        ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 final InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
 

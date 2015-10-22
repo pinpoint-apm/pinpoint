@@ -38,7 +38,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
@@ -133,10 +133,10 @@ public class JavassistClassTest {
         final TestClassLoader loader = getTestClassLoader();
         final String javassistClassName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject";
 
-        loader.addTransformer(javassistClassName, new PinpointClassFileTransformer() {
+        loader.addTransformer(javassistClassName, new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 try {
                     logger.info("modify cl:{}", loader);
 
@@ -192,10 +192,10 @@ public class JavassistClassTest {
         final TestClassLoader loader = getTestClassLoader();
         final String javassistClassName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject";
 
-        loader.addTransformer(javassistClassName, new PinpointClassFileTransformer() {
+        loader.addTransformer(javassistClassName, new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 try {
                     logger.info("modify className:{} cl:{}", className, classLoader);
 
@@ -263,10 +263,10 @@ public class JavassistClassTest {
         final TestClassLoader loader = getTestClassLoader();
         final String testClassObject = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject2";
         
-        loader.addTransformer(testClassObject, new PinpointClassFileTransformer() {
+        loader.addTransformer(testClassObject, new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 try {
                     logger.info("modify cl:{}", classLoader);
                     InstrumentClass aClass = instrumentContext.getInstrumentClass(classLoader, testClassObject, classfileBuffer);
@@ -328,10 +328,10 @@ public class JavassistClassTest {
         final TestClassLoader loader = getTestClassLoader();
         final String targetClassName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject3";
         
-        loader.addTransformer(targetClassName, new PinpointClassFileTransformer() {
+        loader.addTransformer(targetClassName, new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 try {
                     logger.info("modify cl:{}", classLoader);
                     InstrumentClass aClass = instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);

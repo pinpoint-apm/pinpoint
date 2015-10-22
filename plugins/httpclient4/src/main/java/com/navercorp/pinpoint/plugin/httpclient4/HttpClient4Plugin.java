@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -69,10 +69,10 @@ public class HttpClient4Plugin implements ProfilerPlugin {
     }
 
     private void addHttpRequestExecutorClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        context.addClassFileTransformer("org.apache.http.protocol.HttpRequestExecutor", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("org.apache.http.protocol.HttpRequestExecutor", new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 
                 InstrumentMethod execute = target.getDeclaredMethod("execute", "org.apache.http.HttpRequest", "org.apache.http.HttpClientConnection", "org.apache.http.protocol.HttpContext");
@@ -96,10 +96,10 @@ public class HttpClient4Plugin implements ProfilerPlugin {
     }
     
     private void addAbstractHttpClient4Class(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        context.addClassFileTransformer("org.apache.http.impl.client.AbstractHttpClient", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("org.apache.http.impl.client.AbstractHttpClient", new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 
                 injectHttpClientExecuteMethodWithHttpRequestInterceptor(target, false, "org.apache.http.HttpHost", "org.apache.http.HttpRequest");
@@ -119,10 +119,10 @@ public class HttpClient4Plugin implements ProfilerPlugin {
 
 
     private void addCloseableHttpClientClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        context.addClassFileTransformer("org.apache.http.impl.client.CloseableHttpClient", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("org.apache.http.impl.client.CloseableHttpClient", new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 
                 injectHttpClientExecuteMethodWithHttpRequestInterceptor(target, false, "org.apache.http.HttpHost", "org.apache.http.HttpRequest");
@@ -159,10 +159,10 @@ public class HttpClient4Plugin implements ProfilerPlugin {
     }
 
     private void addDefaultHttpRequestRetryHandlerClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        context.addClassFileTransformer("org.apache.http.impl.client.DefaultHttpRequestRetryHandler", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("org.apache.http.impl.client.DefaultHttpRequestRetryHandler", new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 InstrumentMethod retryRequest = target.getDeclaredMethod("retryRequest", "java.io.IOException", "int", "org.apache.http.protocol.HttpContext");
                 
@@ -176,10 +176,10 @@ public class HttpClient4Plugin implements ProfilerPlugin {
     }
 
     private void addAbstractPooledConnAdapterClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        context.addClassFileTransformer("org.apache.http.impl.conn.AbstractPooledConnAdapter", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("org.apache.http.impl.conn.AbstractPooledConnAdapter", new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 InstrumentMethod open = target.getDeclaredMethod("open", "org.apache.http.conn.routing.HttpRoute", "org.apache.http.protocol.HttpContext", "org.apache.http.params.HttpParams");
                 
@@ -194,10 +194,10 @@ public class HttpClient4Plugin implements ProfilerPlugin {
     }
 
     private void addManagedClientConnectionImplClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        context.addClassFileTransformer("org.apache.http.impl.conn.ManagedClientConnectionImpl", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("org.apache.http.impl.conn.ManagedClientConnectionImpl", new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 InstrumentMethod open = target.getDeclaredMethod("open", "org.apache.http.conn.routing.HttpRoute", "org.apache.http.protocol.HttpContext", "org.apache.http.params.HttpParams");
                 
@@ -212,10 +212,10 @@ public class HttpClient4Plugin implements ProfilerPlugin {
     }
 
     private void addBasicHttpClientConnectionManagerClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        context.addClassFileTransformer("org.apache.http.impl.conn.BasicHttpClientConnectionManager", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("org.apache.http.impl.conn.BasicHttpClientConnectionManager", new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 InstrumentMethod connect = target.getDeclaredMethod("connect", "org.apache.http.HttpClientConnection", "org.apache.http.conn.routing.HttpRoute", "int", "org.apache.http.protocol.HttpContext");
                 
@@ -230,10 +230,10 @@ public class HttpClient4Plugin implements ProfilerPlugin {
     }
 
     private void addPoolingHttpClientConnectionManagerClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        context.addClassFileTransformer("org.apache.http.impl.conn.PoolingHttpClientConnectionManager", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("org.apache.http.impl.conn.PoolingHttpClientConnectionManager", new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 InstrumentMethod connect = target.getDeclaredMethod("connect", "org.apache.http.HttpClientConnection", "org.apache.http.conn.routing.HttpRoute", "int", "org.apache.http.protocol.HttpContext");
                 
@@ -248,10 +248,10 @@ public class HttpClient4Plugin implements ProfilerPlugin {
     }
 
     private void addClosableHttpAsyncClientClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        context.addClassFileTransformer("org.apache.http.impl.nio.client.CloseableHttpAsyncClient", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("org.apache.http.impl.nio.client.CloseableHttpAsyncClient", new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
 
                 injectHttpAsyncClientExecuteMethodInterceptor(target, "org.apache.http.HttpHost", "org.apache.http.HttpRequest", "org.apache.http.protocol.HttpContext", "org.apache.http.concurrent.FutureCallback");
@@ -275,10 +275,10 @@ public class HttpClient4Plugin implements ProfilerPlugin {
 
 
     private void addDefaultClientExchangeHandlerImplClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        context.addClassFileTransformer("org.apache.http.impl.nio.client.DefaultClientExchangeHandlerImpl", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("org.apache.http.impl.nio.client.DefaultClientExchangeHandlerImpl", new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 
                 target.addGetter(RequestProducerGetter.class.getName(), HttpClient4Constants.FIELD_REQUEST_PRODUCER);
@@ -297,10 +297,10 @@ public class HttpClient4Plugin implements ProfilerPlugin {
     }
 
     private void addBasicFutureClass(ProfilerPluginSetupContext context, HttpClient4PluginConfig config) {
-        context.addClassFileTransformer("org.apache.http.concurrent.BasicFuture", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("org.apache.http.concurrent.BasicFuture", new TransformCallback() {
 
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
 
                 target.addField(AsyncTraceIdAccessor.class.getName());

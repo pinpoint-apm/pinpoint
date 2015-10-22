@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -41,10 +41,10 @@ public class GsonPlugin implements ProfilerPlugin {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("com.google.gson.Gson", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("com.google.gson.Gson", new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor pluginContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor pluginContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = pluginContext.getInstrumentClass(loader, className, classfileBuffer);
 
                 for (InstrumentMethod m : target.getDeclaredMethods(MethodFilters.name("fromJson"))) {

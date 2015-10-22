@@ -19,7 +19,7 @@ import java.security.ProtectionDomain;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
@@ -48,10 +48,10 @@ public class MySqlPlugin implements ProfilerPlugin {
     }
     
     private void addConnectionTransformer(ProfilerPluginSetupContext setupContext, final MySqlConfig config) {
-        PinpointClassFileTransformer transformer = new PinpointClassFileTransformer() {
+        TransformCallback transformer = new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 
                 if (!target.isInterceptable()) {
@@ -86,10 +86,10 @@ public class MySqlPlugin implements ProfilerPlugin {
     }
     
     private void addDriverTransformer(ProfilerPluginSetupContext setupContext) {
-        setupContext.addClassFileTransformer("com.mysql.jdbc.NonRegisteringDriver", new PinpointClassFileTransformer() {
+        setupContext.addClassFileTransformer("com.mysql.jdbc.NonRegisteringDriver", new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
 
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", va(new MySqlJdbcUrlParser(), false), MySqlConstants.GROUP_NAME, ExecutionPolicy.ALWAYS);
@@ -100,10 +100,10 @@ public class MySqlPlugin implements ProfilerPlugin {
     }
     
     private void addPreparedStatementTransformer(ProfilerPluginSetupContext setupContext, final MySqlConfig config) {
-        setupContext.addClassFileTransformer("com.mysql.jdbc.PreparedStatement", new PinpointClassFileTransformer() {
+        setupContext.addClassFileTransformer("com.mysql.jdbc.PreparedStatement", new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
@@ -122,10 +122,10 @@ public class MySqlPlugin implements ProfilerPlugin {
     }
 
     private void addJDBC4PreparedStatementTransformer(ProfilerPluginSetupContext setupContext) {
-        setupContext.addClassFileTransformer("com.mysql.jdbc.JDBC4PreparedStatement", new PinpointClassFileTransformer() {
+        setupContext.addClassFileTransformer("com.mysql.jdbc.JDBC4PreparedStatement", new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
 
                 final PreparedStatementBindingMethodFilter includes = PreparedStatementBindingMethodFilter.includes("setRowId", "setNClob", "setSQLXML");
@@ -138,10 +138,10 @@ public class MySqlPlugin implements ProfilerPlugin {
 
     
     private void addStatementTransformer(ProfilerPluginSetupContext setupContext) {
-        PinpointClassFileTransformer transformer = new PinpointClassFileTransformer() {
+        TransformCallback transformer = new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 
                 if (!target.isInterceptable()) {

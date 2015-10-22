@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
@@ -34,7 +34,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
  * @author Jongho Moon
  *
  */
-public class BeanMethodTransformer implements PinpointClassFileTransformer {
+public class BeanMethodTransformer implements TransformCallback {
     private static final int REQUIRED_ACCESS_FLAG = Modifier.PUBLIC;
     private static final int REJECTED_ACCESS_FLAG = Modifier.ABSTRACT |  Modifier.NATIVE | Modifier.STATIC;
     private static final MethodFilter METHOD_FILTER = MethodFilters.modifier(REQUIRED_ACCESS_FLAG, REJECTED_ACCESS_FLAG);
@@ -45,7 +45,7 @@ public class BeanMethodTransformer implements PinpointClassFileTransformer {
     
     
     @Override
-    public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+    public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
         if (logger.isInfoEnabled()) {
             logger.info("Modify {}", className);
         }

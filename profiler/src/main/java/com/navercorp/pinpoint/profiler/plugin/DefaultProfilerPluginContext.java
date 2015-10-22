@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.InterceptorGroup;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
@@ -114,7 +114,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     }
 
     @Override
-    public void addClassFileTransformer(final String targetClassName, final PinpointClassFileTransformer transformer) {
+    public void addClassFileTransformer(final String targetClassName, final TransformCallback transformer) {
         if (initialized) {
             throw new IllegalStateException("Context already initialized");
         }
@@ -130,7 +130,7 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
             @Override
             public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
                 try {
-                    return transformer.transform(DefaultProfilerPluginContext.this, loader, targetClassName, classBeingRedefined, protectionDomain, classfileBuffer);
+                    return transformer.doInTransform(DefaultProfilerPluginContext.this, loader, targetClassName, classBeingRedefined, protectionDomain, classfileBuffer);
                 } catch (InstrumentException e) {
                     throw new PinpointException(e);
                 }
@@ -139,13 +139,13 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     }
     
     @Override
-    public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, final PinpointClassFileTransformer transformer) {
+    public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, final TransformCallback transformer) {
         agent.getDynamicTransformService().addClassFileTransformer(classLoader, targetClassName, new ClassFileTransformer() {
 
             @Override
             public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
                 try {
-                    return transformer.transform(DefaultProfilerPluginContext.this, loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+                    return transformer.doInTransform(DefaultProfilerPluginContext.this, loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
                 } catch (InstrumentException e) {
                     throw new PinpointException(e);
                 }
@@ -155,13 +155,13 @@ public class DefaultProfilerPluginContext implements ProfilerPluginSetupContext,
     }
 
     @Override
-    public void retransform(Class<?> target, final PinpointClassFileTransformer transformer) {
+    public void retransform(Class<?> target, final TransformCallback transformer) {
         agent.getDynamicTransformService().retransform(target, new ClassFileTransformer() {
 
             @Override
             public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
                 try {
-                    return transformer.transform(DefaultProfilerPluginContext.this, loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+                    return transformer.doInTransform(DefaultProfilerPluginContext.this, loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
                 } catch (InstrumentException e) {
                     throw new PinpointException(e);
                 }

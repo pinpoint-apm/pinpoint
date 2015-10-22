@@ -20,7 +20,7 @@ import java.security.ProtectionDomain;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
@@ -31,10 +31,10 @@ public class LogbackPlugin implements ProfilerPlugin {
     
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        context.addClassFileTransformer("ch.qos.logback.classic.spi.LoggingEvent", new PinpointClassFileTransformer() {
+        context.addClassFileTransformer("ch.qos.logback.classic.spi.LoggingEvent", new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor pluginContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor pluginContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass mdcClass = pluginContext.getInstrumentClass(loader, "org.slf4j.MDC", null);
                 
                 if (mdcClass == null) {

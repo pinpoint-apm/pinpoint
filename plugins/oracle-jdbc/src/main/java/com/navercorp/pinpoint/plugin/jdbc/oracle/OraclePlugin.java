@@ -19,7 +19,7 @@ import java.security.ProtectionDomain;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
@@ -49,10 +49,10 @@ public class OraclePlugin implements ProfilerPlugin {
 
     
     private void addConnectionTransformer(ProfilerPluginSetupContext setupContext, final OracleConfig config) {
-        setupContext.addClassFileTransformer("oracle.jdbc.driver.PhysicalConnection", new PinpointClassFileTransformer() {
+        setupContext.addClassFileTransformer("oracle.jdbc.driver.PhysicalConnection", new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
                 target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
 
@@ -79,10 +79,10 @@ public class OraclePlugin implements ProfilerPlugin {
     }
     
     private void addDriverTransformer(ProfilerPluginSetupContext setupContext) {
-        setupContext.addClassFileTransformer("oracle.jdbc.driver.OracleDriver", new PinpointClassFileTransformer() {
+        setupContext.addClassFileTransformer("oracle.jdbc.driver.OracleDriver", new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 InstrumentClass target = instrumentContext.getInstrumentClass(loader, className, classfileBuffer);
 
                 target.addGroupedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptor", va(new OracleJdbcUrlParser()), OracleConstants.GROUP_ORACLE, ExecutionPolicy.ALWAYS);
@@ -93,10 +93,10 @@ public class OraclePlugin implements ProfilerPlugin {
     }
     
     private void addPreparedStatementTransformer(ProfilerPluginSetupContext setupContext, final OracleConfig config) {
-        PinpointClassFileTransformer transformer = new PinpointClassFileTransformer() {
+        TransformCallback transformer = new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 if (className.equals(CLASS_PREPARED_STATEMENT)) {
                     if (instrumentContext.exist(loader, CLASS_PREPARED_STATEMENT_WRAPPER)) {
                         return null;
@@ -123,10 +123,10 @@ public class OraclePlugin implements ProfilerPlugin {
     }
     
     private void addStatementTransformer(ProfilerPluginSetupContext setupContext) {
-        PinpointClassFileTransformer transformer = new PinpointClassFileTransformer() {
+        TransformCallback transformer = new TransformCallback() {
             
             @Override
-            public byte[] transform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 if (className.equals(CLASS_STATEMENT)) {
                     if (instrumentContext.exist(loader, CLASS_STATEMENT_WRAPPER)) {
                         return null;

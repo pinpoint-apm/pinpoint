@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.PinpointClassFileTransformer;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.group.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
@@ -58,12 +58,12 @@ public class MyBatisPlugin implements ProfilerPlugin {
                 "org.mybatis.spring.SqlSessionTemplate" };
 
         for (final String sqlSession : sqlSessionImpls) {
-            context.addClassFileTransformer(sqlSession, new PinpointClassFileTransformer() {
+            context.addClassFileTransformer(sqlSession, new TransformCallback() {
 
                 @Override
-                public byte[] transform(Instrumentor instrumentContext, ClassLoader loader,
-                        String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-                        byte[] classfileBuffer) throws InstrumentException {
+                public byte[] doInTransform(Instrumentor instrumentContext, ClassLoader loader,
+                                            String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+                                            byte[] classfileBuffer) throws InstrumentException {
                     
                     final InstrumentClass target = instrumentContext.getInstrumentClass(loader, sqlSession, classfileBuffer);
 
