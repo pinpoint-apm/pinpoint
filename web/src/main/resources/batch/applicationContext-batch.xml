@@ -31,14 +31,6 @@
     
     <util:properties id="batchProps" location="classpath:batch.properties"/>
 	
-	<bean id="jobFailListener" class="com.navercorp.pinpoint.web.batch.JobFailListener">
-    	<constructor-arg index="0" value="#{batchProps['alarm.sms.url']}"/>
-    	<constructor-arg index="1" value="#{batchProps['alarm.sms.serviceId']}"/>
-    	<constructor-arg index="2">
-    		<list>
-    			<value>0107371</value>
-    		</list>
-    	</constructor-arg>
-    </bean>
+	<bean id="jobFailListener" class="com.navercorp.pinpoint.web.batch.JobFailListener"/>
 	
 </beans>
