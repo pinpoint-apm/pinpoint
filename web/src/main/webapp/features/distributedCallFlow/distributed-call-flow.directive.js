@@ -85,7 +85,12 @@
 	                    if (item.hasException) {
 	                        html.push('<span class="glyphicon glyphicon-fire"></span>&nbsp;');
 	                    } else if (!item.isMethod) {
-	                        html.push('<span class="glyphicon glyphicon-info-sign"></span>&nbsp;');
+	                    	if( item.method === "SQL" ) {
+	                    		html.push('<button type="button" class="btn btn-default btn-xs btn-success sql"><span class="glyphicon glyphicon-search"></span></button>&nbsp;');
+	                    	} else {
+	                    		html.push('<span class="glyphicon glyphicon-info-sign"></span>&nbsp;');
+	                    	}
+	                        
 	                    } else {
 	                    	var itemMethodType = parseInt( item.methodType );
 	                    	switch( itemMethodType ) {
