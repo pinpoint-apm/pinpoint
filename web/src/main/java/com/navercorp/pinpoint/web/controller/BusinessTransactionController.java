@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.navercorp.pinpoint.common.util.DefaultSqlParser;
 import com.navercorp.pinpoint.common.util.OutputParameterParser;
 import com.navercorp.pinpoint.common.util.SqlParser;
+import com.navercorp.pinpoint.web.view.TransactionInfoViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -152,7 +153,8 @@ public class BusinessTransactionController {
      * @return
      */
     @RequestMapping(value = "/transactionInfo", method = RequestMethod.GET)
-    public ModelAndView transactionInfo(@RequestParam("traceId") String traceIdParam,
+    @ResponseBody
+    public TransactionInfoViewModel transactionInfo(@RequestParam("traceId") String traceIdParam,
                                         @RequestParam(value = "focusTimestamp", required = false, defaultValue = "0") long focusTimestamp,
                                         @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
                                         HttpServletResponse response) {
@@ -164,51 +166,58 @@ public class BusinessTransactionController {
         final SpanResult spanResult = this.spanService.selectSpan(traceId, focusTimestamp);
         final CallTreeIterator callTreeIterator = spanResult.getCallTree();
 
-        if (callTreeIterator.isEmpty()) {
-            // TODO fix error page.
-            final ModelAndView error = new ModelAndView();
-            // redefine errorCode.???
-            error.addObject("errorCode", 9);
-            error.addObject("message", "Trace not found. traceId:" + traceId);
-            error.setViewName("error");
-            return error;
-        }
-
-        final ModelAndView mv = new ModelAndView();
-        // debug
-        mv.addObject("spanList", callTreeIterator.values());
-
-        mv.addObject("traceId", traceId);
+//        if (callTreeIterator.isEmpty()) {
+//            // TODO fix error page.
+//            final ModelAndView error = new ModelAndView();
+//            // redefine errorCode.???
+//            error.addObject("errorCode", 9);
+//            error.addObject("message", "Trace not found. traceId:" + traceId);
+//            error.setViewName("error");
+//            return error;
+//        }
 
         // application map
         ApplicationMap map = filteredMapService.selectApplicationMap(traceId);
-        mv.addObject("nodes", map.getNodes());
-        mv.addObject("links", map.getLinks());
-
-        // call stacks
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp);
-        mv.addObject("recordSet", recordSet);
 
-        mv.addObject("applicationName", recordSet.getApplicationName());
-        mv.addObject("callstack", recordSet.getRecordList());
-        mv.addObject("timeline", recordSet.getRecordList());
-        mv.addObject("callstackStart", recordSet.getStartTime());
-        mv.addObject("callstackEnd", recordSet.getEndTime());
-        mv.addObject("completeState", spanResult.getCompleteTypeString());
+        TransactionInfoViewModel result = new TransactionInfoViewModel(traceId, map.getNodes(), map.getLinks(), recordSet, spanResult.getCompleteTypeString(), logLinkEnable, logButtonName, logPageUrl, disableButtonMessage);
+        return result;
 
-        mv.addObject("logLinkEnable", logLinkEnable);
-        mv.addObject("loggingTransactionInfo", recordSet.isLoggingTransactionInfo());
-        mv.addObject("logButtonName", logButtonName);
-        mv.addObject("logPageUrl", logPageUrl);
-        mv.addObject("disableButtonMessage", disableButtonMessage);
-
-        if (viewVersion == 2) {
-            // TODO remove hashformat
-            mv.setViewName("transactionInfoJsonHash");
-        } else {
-            mv.setViewName("transactionInfoJson");
-        }
-        return mv;
+//
+//
+//
+//        final ModelAndView mv = new ModelAndView();
+//        // debug
+//        mv.addObject("spanList", callTreeIterator.values());
+//
+//        mv.addObject("traceId", traceId);
+//
+//        mv.addObject("nodes", map.getNodes());
+//        mv.addObject("links", map.getLinks());
+//
+//        // call stacks
+//        mv.addObject("recordSet", recordSet);
+//
+//        mv.addObject("applicationName", recordSet.getApplicationName());
+//        mv.addObject("callstack", recordSet.getRecordList());
+//        mv.addObject("timeline", recordSet.getRecordList());
+//        mv.addObject("callstackStart", recordSet.getStartTime());
+//        mv.addObject("callstackEnd", recordSet.getEndTime());
+//        mv.addObject("completeState", spanResult.getCompleteTypeString());
+//
+//        mv.addObject("logLinkEnable", logLinkEnable);
+//        mv.addObject("loggingTransactionInfo", recordSet.isLoggingTransactionInfo());
+//        mv.addObject("logButtonName", logButtonName);
+//        mv.addObject("logPageUrl", logPageUrl);
+//        mv.addObject("disableButtonMessage", disableButtonMessage);
+//
+//        if (viewVersion == 2) {
+//            // TODO remove hashformat
+//            mv.setViewName("transactionInfoJsonHash");
+//        } else {
+//            mv.setViewName("transactionInfoJson");
+//        }
+//        return mv;
     }
 
     @RequestMapping(value = "/sqlBind", method = RequestMethod.GET)
